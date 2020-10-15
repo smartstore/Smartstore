@@ -1,0 +1,79 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyVersion>4.5.0.0</AssemblyVersion>
+    <FileVersion>4.5.0.0</FileVersion>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Catalog\Attributes\Exchange\" />
+    <Folder Include="Catalog\Attributes\Domain\" />
+    <Folder Include="Catalog\Attributes\Migrations\" />
+    <Folder Include="Catalog\Attributes\Hooks\" />
+    <Folder Include="Catalog\Attributes\Events\" />
+    <Folder Include="Catalog\Attributes\Extensions\" />
+    <Folder Include="Catalog\Attributes\Api\" />
+    <Folder Include="Catalog\Attributes\Exceptions\" />
+    <Folder Include="Catalog\Attributes\Commands\" />
+    <Folder Include="Catalog\Attributes\Rules\" />
+    <Folder Include="Catalog\Attributes\Search\" />
+    <Folder Include="Catalog\Attributes\Providers\" />
+    <Folder Include="Catalog\Attributes\Utils\" />
+    <Folder Include="Catalog\Attributes\Services\" />
+    <Folder Include="Catalog\Categories\" />
+    <Folder Include="Catalog\Brands\" />
+    <Folder Include="Catalog\Inventory\" />
+    <Folder Include="Catalog\" />
+    <Folder Include="Catalog\Pricing\" />
+    <Folder Include="Catalog\Products\" />
+    <Folder Include="Checkout\Affiliates\" />
+    <Folder Include="Checkout\Orders\" />
+    <Folder Include="Common\Extensions\" />
+    <Folder Include="Content\Blogs\" />
+    <Folder Include="Checkout\Cart\" />
+    <Folder Include="Checkout\Customers\" />
+    <Folder Include="Catalog\Discounts\" />
+    <Folder Include="Content\Media\" />
+    <Folder Include="Content\Forums\" />
+    <Folder Include="Content\Themes\" />
+    <Folder Include="Platform\Api\" />
+    <Folder Include="Platform\Logging\" />
+    <Folder Include="Platform\Messaging\" />
+    <Folder Include="Platform\Rules\" />
+    <Folder Include="Platform\Search\" />
+    <Folder Include="Content\Widgets\" />
+    <Folder Include="Common\Hooks\" />
+    <Folder Include="Common\Events\" />
+    <Folder Include="Content\Topics\" />
+    <Folder Include="Checkout\Shipping\" />
+    <Folder Include="Content\Polls\" />
+    <Folder Include="Checkout\Payment\" />
+    <Folder Include="Content\News\" />
+    <Folder Include="Content\Sitemap\" />
+    <Folder Include="Platform\Tasks\" />
+    <Folder Include="Platform\Templating\" />
+    <Folder Include="Platform\Theming\" />
+    <Folder Include="Platform\UserAgent\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.0-rc.1.20451.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.0-rc.1.20451.17" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-rc.1.20451.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0-rc.1.20451.13" />
+    <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.1" />
+    <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.2.1" />
+    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="5.0.0-preview.8.20407.4-02" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Smartstore\Smartstore.csproj" />
+  </ItemGroup>
+
+</Project>

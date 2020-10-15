@@ -1,0 +1,31 @@
+﻿@model IList<Smartstore.Core.Configuration.Setting>
+
+@using Smartstore.Core.Common;
+
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<h1 class="display-4">Einstellungen</h1>
+
+<table class="table table-responsive">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th nowrap>Store Id</th>
+            <th nowrap>Wert</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var setting in Model)
+        {
+            <tr>
+                <td>@setting.Id</td>
+                <td nowrap>@setting.Name</td>
+                <td>@setting.StoreId</td>
+                <td>@setting.Value</td>
+            </tr>
+        }
+    </tbody>
+</table>

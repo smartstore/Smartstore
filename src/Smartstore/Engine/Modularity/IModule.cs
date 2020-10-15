@@ -1,0 +1,25 @@
+﻿using System.Threading.Tasks;
+
+namespace Smartstore.Engine
+{
+    /// <summary>
+    /// Responsible for installing or uninstalling modules.
+    /// </summary>
+    public interface IModule
+    {
+        /// <summary>
+        /// Gets or sets the module descriptor
+        /// </summary>
+        ModuleDescriptor ModuleDescriptor { get; set; }
+
+        /// <summary>
+        /// Installs module
+        /// </summary>
+        Task InstallAsync();
+
+        /// <summary>
+        /// Uninstalls module
+        /// </summary>
+        Task UninstallAsync();
+    }
+}

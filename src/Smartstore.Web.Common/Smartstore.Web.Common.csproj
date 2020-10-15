@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Bundling\" />
+    <Folder Include="Controllers\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Filters\" />
+    <Folder Include="Localization\" />
+    <Folder Include="Modelling\" />
+    <Folder Include="Routing\" />
+    <Folder Include="UI\" />
+    <Folder Include="Security\" />
+    <Folder Include="Pdf\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
+    <ProjectReference Include="..\Smartstore\Smartstore.csproj" />
+  </ItemGroup>
+
+</Project>

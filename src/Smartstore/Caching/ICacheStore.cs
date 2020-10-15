@@ -1,0 +1,188 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Smartstore.Caching
+{
+    public class CacheEntryExpiredEventArgs : EventArgs
+    {
+        public string Key { get; set; }
+    }
+
+    /// <summary>
+    /// Marker interface for an in-memory cache store.
+    /// </summary>
+    public interface IMemoryCacheStore : ICacheStore
+    {
+    }
+
+    /// <summary>
+    /// Represents a distributed cache store, e.g. "Redis".
+    /// </summary>
+    public interface IDistributedCacheStore : ICacheStore
+    {
+        event EventHandler<CacheEntryExpiredEventArgs> Expired;
+    }
+
+    /// <summary>
+    /// Represents an in-memory or a distributed cache store.
+    /// </summary>
+    public interface ICacheStore : IDisposable
+    {
+        /// <summary>
+        /// Gets a value indicating whether the cache is distributed (e.g. Redis)
+        /// </summary>
+        bool IsDistributed { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the entry associated with the specified key is cached already.
+        /// </summary>
+        /// <param name="key">key</param>
+        bool Contains(string key);
+
+        /// <summary>
+        /// Gets a value indicating whether the entry associated with the specified key is cached already.
+        /// </summary>
+        /// <param name="key">key</param>
+        Task<bool> ContainsAsync(string key);
+
+        /// <summary>
+        /// Gets a cache entry associated with the specified key
+        /// </summary>
+        /// <param name="key">The cache item key</param>
+        /// <returns>Cached entry or <c>null</c> if item with specified key does not exist in the cache</returns>
+        CacheEntry Get(string key);
+
+        /// <summary>
+        /// Gets a cache entry associated with the specified key
+        /// </summary>
+        /// <param name="key">The cache item key</param>
+        /// <returns>Cached entry or <c>null</c> if item with specified key does not exist in the cache</returns>
+        Task<CacheEntry> GetAsync(string key);
+
+        /// <summary>
+        /// Gets or creates a provider specific hashset implementation.
+        /// If key does not exist, a new set is created and put to cache automatically
+        /// </summary>
+        /// <param name="key">The set cache item key</param>
+        /// <param name="acquirer">Optional acquirer callback that is invoked when requested set does not exist yet.</param>
+        /// <returns>The hashset</returns>
+        ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null);
+
+        /// <summary>
+        /// Gets or creates a provider specific hashset implementation.
+        /// If key does not exist, a new set is created and put to cache automatically
+        /// </summary>
+        /// <param name="key">The set cache item key</param>
+        /// <param name="acquirer">Optional acquirer callback that is invoked when requested set does not exist yet.</param>
+        /// <returns>The hashset</returns>
+        Task<ISet> GetHashSetAsync(string key, Func<Task<IEnumerable<string>>> acquirer = null);
+
+        /// <summary>
+        /// Adds a cache entry with the specified key to the store.
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="entry">Entry</param>
+        void Put(string key, CacheEntry entry);
+
+        /// <summary>
+        /// Adds a cache entry with the specified key to the store.
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="entry">Entry</param>
+        Task PutAsync(string key, CacheEntry entry);
+
+        /// <summary>
+        /// Removes the entry with the specified key from the cache store.
+        /// </summary>
+        /// <param name="key">Key</param>
+        void Remove(string key);
+
+        /// <summary>
+        /// Removes the entry with the specified key from the cache store.
+        /// </summary>
+        /// <param name="key">Key</param>
+        Task RemoveAsync(string key);
+
+        /// <summary>
+        /// Removes all entries with keys matching the input pattern.
+        /// </summary>
+        /// <param name="pattern">Glob pattern</param>
+        /// <returns>Count of removed cache items</returns>
+        /// <remarks>
+        /// Supported glob-style patterns:
+        /// - h?llo matches hello, hallo and hxllo
+        /// - h*llo matches hllo and heeeello
+        /// - h[ae]llo matches hello and hallo, but not hillo
+        /// - h[^e]llo matches hallo, hbllo, ... but not hello
+        /// - h[a-b]llo matches hallo and hbllo
+        /// </remarks>
+        long RemoveByPattern(string pattern);
+
+        /// <summary>
+        /// Removes all entries with keys matching the input pattern.
+        /// </summary>
+        /// <param name="pattern">Glob pattern</param>
+        /// <returns>Count of removed cache items</returns>
+        /// <remarks>
+        /// Supported glob-style patterns:
+        /// - h?llo matches hello, hallo and hxllo
+        /// - h*llo matches hllo and heeeello
+        /// - h[ae]llo matches hello and hallo, but not hillo
+        /// - h[^e]llo matches hallo, hbllo, ... but not hello
+        /// - h[a-b]llo matches hallo and hbllo
+        /// </remarks>
+        Task<long> RemoveByPatternAsync(string pattern);
+
+        /// <summary>
+        /// Scans for all keys matching the input pattern. 
+        /// </summary>
+        /// <param name="pattern">A key pattern. Can be <c>null</c>.</param>
+        /// <returns>A list of matching key names</returns>
+        /// <remarks>
+        /// Supported glob-style patterns:
+        /// - h?llo matches hello, hallo and hxllo
+        /// - h*llo matches hllo and heeeello
+        /// - h[ae]llo matches hello and hallo, but not hillo
+        /// - h[^e]llo matches hallo, hbllo, ... but not hello
+        /// - h[a-b]llo matches hallo and hbllo
+        /// </remarks>
+        IEnumerable<string> Keys(string pattern = "*");
+
+        /// <summary>
+        /// Scans for all keys matching the input pattern. 
+        /// </summary>
+        /// <param name="pattern">A key pattern. Can be <c>null</c>.</param>
+        /// <returns>A list of matching key names</returns>
+        /// <remarks>
+        /// Supported glob-style patterns:
+        /// - h?llo matches hello, hallo and hxllo
+        /// - h*llo matches hllo and heeeello
+        /// - h[ae]llo matches hello and hallo, but not hillo
+        /// - h[^e]llo matches hallo, hbllo, ... but not hello
+        /// - h[a-b]llo matches hallo and hbllo
+        /// </remarks>
+        IAsyncEnumerable<string> KeysAsync(string pattern = "*");
+
+        /// <summary>
+        /// Acquires a keyed lock.
+        /// </summary>
+        IDisposable AcquireKeyLock(string key);
+
+        /// <summary>
+        /// Acquires a keyed lock for an async operation.
+        /// </summary>
+        Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default);
+
+        /// <summary>
+        /// Clear all cache data
+        /// </summary>
+        void Clear();
+
+        /// <summary>
+        /// Clear all cache data
+        /// </summary>
+        Task ClearAsync();
+    }
+}
