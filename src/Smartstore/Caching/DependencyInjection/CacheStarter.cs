@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using Autofac;
-using Autofac.Core;
 using Smartstore.Engine;
 using Smartstore.Threading;
 
@@ -11,6 +9,10 @@ namespace Smartstore.Caching.DependencyInjection
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
+            builder.RegisterType<RequestCache>()
+                .As<IRequestCache>()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<CacheScopeAccessor>()
                 .As<ICacheScopeAccessor>()
                 .InstancePerLifetimeScope();
