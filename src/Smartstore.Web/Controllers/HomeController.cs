@@ -25,6 +25,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Core.Tax.Settings;
 using Smartstore.Threading;
 using System.Threading;
+using Smartstore.Web.Common.Theming;
 
 namespace Smartstore.Web.Controllers
 {
@@ -45,6 +46,7 @@ namespace Smartstore.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ICacheManager _cache;
         private readonly IAsyncState _asyncState;
+        private readonly IThemeRegistry _themeRegistry;
 
         public HomeController(
             SmartDbContext db, 
@@ -56,6 +58,7 @@ namespace Smartstore.Web.Controllers
             IEnumerable<IDbSaveHook> hooks,
             ICacheManager cache,
             IAsyncState asyncState,
+            IThemeRegistry themeRegistry,
             TaxSettings taxSettings)
         {
             _db = db;
@@ -65,6 +68,7 @@ namespace Smartstore.Web.Controllers
             _logger = logger;
             _cache = cache;
             _asyncState = asyncState;
+            _themeRegistry = themeRegistry;
 
             var currentStore = storeContext.CurrentStore;
         }
@@ -108,7 +112,7 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Settings()
         {
-            _asyncState.Remove<MyProgress>();
+            await _asyncState.RemoveAsync<MyProgress>();
             
             var settings = await _db.Settings
                 .AsNoTracking()
@@ -176,17 +180,17 @@ namespace Smartstore.Web.Controllers
 
 
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             _cancelTokenSource = new CancellationTokenSource();
-            _asyncState.Create(new MyProgress(), cancelTokenSource: _cancelTokenSource);
+            await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
             
             return View();
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Privacy()
         {
-            _asyncState.Update<MyProgress>(x => 
+            await _asyncState.UpdateAsync<MyProgress>(x => 
             {
                 x.Percent++;
                 x.Message = $"Fortschritt {x.Percent}";

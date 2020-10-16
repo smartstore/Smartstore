@@ -1,0 +1,51 @@
+{
+  "Title": "Flex",
+  "Description": "'Flex' default theme",
+  "Author": "SmartStore AG",
+  "Selects": {
+    "brand-colors": [ "primary", "secondary", "info", "success", "warning", "danger", "light", "dark" ]
+  },
+  "Variables": { 
+    // Common colors
+    "gray-100": {
+      "Type": "Color",
+      "Value": "#f7f7f9"
+    },
+    "gray-200": {
+      "Type": "Color",
+      "Value": "#e9ecef"
+    },
+    "gray-300": {
+      "Type": "Color",
+      "Value": "#dee2e6"
+    },
+    "gray-400": {
+      "Type": "Color",
+      "Value": "#ced4da"
+    },
+    "gray-500": {
+      "Type": "Color",
+      "Value": "#b0bac3"
+    },
+    "gray-600": {
+      "Type": "Color",
+      "Value": "#8d9ba9"
+    },
+    "gray-700": {
+      "Type": "Color",
+      "Value": "#596167"
+    },
+    "gray-800": {
+      "Type": "Color",
+      "Value": "#393f46"
+    },
+    "gray-900": {
+      "Type": "Color",
+      "Value": "#22262a"
+    },
+    "search-button-style": {
+      "Type": "Select#brand-colors",
+      "Value": "primary"
+    }
+  }
+}

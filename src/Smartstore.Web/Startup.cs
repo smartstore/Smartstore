@@ -39,7 +39,7 @@ namespace Smartstore.Web
                 typeof(Smartstore.Engine.IEngine).Assembly,
                 typeof(Smartstore.Core.CoreStarter).Assembly,
                 typeof(Smartstore.Web.Startup).Assembly,
-                typeof(Smartstore.Web.Common.WebStarter).Assembly
+                typeof(Smartstore.Web.Common.Theming.IThemeRegistry).Assembly
             };
 
             _appContext = new SmartApplicationContext(Environment, Configuration, coreAssemblies);

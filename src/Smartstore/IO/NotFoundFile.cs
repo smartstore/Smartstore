@@ -24,6 +24,12 @@ namespace Smartstore.IO
         public string Extension => SubPath.IsEmpty() ? string.Empty : Path.GetExtension(SubPath);
         public string PhysicalPath => null;
 
+        public bool IsSymbolicLink(out string finalPhysicalPath)
+        {
+            finalPhysicalPath = null;
+            return false;
+        }
+
         public Stream CreateReadStream() => throw new NotSupportedException();
         public Stream OpenRead() => throw new NotSupportedException();
         public Stream OpenWrite() => throw new NotSupportedException();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Smartstore.IO;
@@ -54,45 +55,66 @@ namespace Smartstore
 
         #region Read
 
-        public static string ReadAllText(this IFileSystem fs, string subpath)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ReadAllText(this IFileSystem fs, string subpath, Encoding encoding = null)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
+            return fs.GetFile(subpath).ReadAllText(encoding);
+        }
 
-            var file = fs.GetFile(subpath);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static async Task<string> ReadAllTextAsync(this IFileSystem fs, string subpath, Encoding encoding = null)
+        {
+            return await (await fs.GetFileAsync(subpath)).ReadAllTextAsync(encoding);
+        }
+
+        public static string ReadAllText(this IFile file, Encoding encoding = null)
+        {
+            Guard.NotNull(file, nameof(file));
+
             if (!file.Exists)
             {
                 return null;
             }
 
             using (var stream = file.OpenRead())
-            using (var streamReader = new StreamReader(stream, Encoding.UTF8))
+            using (var streamReader = new StreamReader(stream, encoding ?? Encoding.UTF8))
             {
                 return streamReader.ReadToEnd();
             }
         }
 
-        public static async Task<string> ReadAllTextAsync(this IFileSystem fs, string subpath)
+        public static async Task<string> ReadAllTextAsync(this IFile file, Encoding encoding = null)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
+            Guard.NotNull(file, nameof(file));
 
-            var file = await fs.GetFileAsync(subpath);
             if (!file.Exists)
             {
                 return null;
             }
 
             using (var stream = file.OpenRead())
-            using (var streamReader = new StreamReader(stream, Encoding.UTF8))
+            using (var streamReader = new StreamReader(stream, encoding ?? Encoding.UTF8))
             {
-                return await streamReader.ReadToEndAsync();
+                return await streamReader.ReadToEndAsync().ConfigureAwait(false);
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte[] ReadAllBytes(this IFileSystem fs, string subpath)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
+            return fs.GetFile(subpath).ReadAllBytes();
+        }
 
-            var file = fs.GetFile(subpath);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static async Task<byte[]> ReadAllBytesAsync(this IFileSystem fs, string subpath)
+        {
+            return await (await fs.GetFileAsync(subpath)).ReadAllBytesAsync();
+        }
+
+        public static byte[] ReadAllBytes(this IFile file)
+        {
+            Guard.NotNull(file, nameof(file));
+
             if (!file.Exists)
             {
                 return null;
@@ -104,11 +126,10 @@ namespace Smartstore
             }
         }
 
-        public static async Task<byte[]> ReadAllBytesAsync(this IFileSystem fs, string subpath)
+        public static async Task<byte[]> ReadAllBytesAsync(this IFile file)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
+            Guard.NotNull(file, nameof(file));
 
-            var file = await fs.GetFileAsync(subpath);
             if (!file.Exists)
             {
                 return null;

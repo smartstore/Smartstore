@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using Microsoft.Extensions.FileProviders;
+using Smartstore.IO.SymLinks;
 
 namespace Smartstore.IO
 {
@@ -110,6 +111,9 @@ namespace Smartstore.IO
             }
             internal set => _size = value;
         }
+
+        public bool IsSymbolicLink(out string finalPhysicalPath)
+            => _fi.IsSymbolicLink(out finalPhysicalPath);
 
         Stream IFileInfo.CreateReadStream()
         {

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Smartstore.Web.Common.Theming
+namespace Smartstore.Web.Common.Theming.Razor
 {
     public interface IRazorViewRenderer
     {

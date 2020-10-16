@@ -7,7 +7,8 @@ namespace Smartstore.Redis
     {
         // Prevents key collisions in multi-tenant/client environments
         //public static string ScopePrefix = string.Format("{0:x}", DataSettings.Instance.ConnectionString.Trim().ToLowerInvariant().Hash(Encoding.ASCII));
-        public static string ScopePrefix = DataSettings.Instance.ConnectionString.Trim().ToLowerInvariant().Hash(Encoding.ASCII);
+        //public static string ScopePrefix = DataSettings.Instance.ConnectionString.Trim().ToLowerInvariant().Hash(Encoding.ASCII);
+        public static string ScopePrefix = DataSettings.Instance.TenantName.ToLowerInvariant();
 
         public static string BuildScopedKey(string key)
         {

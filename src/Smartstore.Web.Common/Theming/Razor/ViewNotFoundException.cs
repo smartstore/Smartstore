@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Smartstore.Utilities;
 
-namespace Smartstore.Web.Common.Theming
+namespace Smartstore.Web.Common.Theming.Razor
 {
     public class ViewNotFoundException : Exception
     {

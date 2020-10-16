@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 
-namespace Smartstore.Web.Common.Theming
+namespace Smartstore.Web.Common.Theming.Razor
 {
     public class RazorViewRenderer : IRazorViewRenderer
     {

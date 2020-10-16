@@ -1,0 +1,12 @@
+{
+  "BaseTheme": "Flex",
+  "Title": "Flex Blue",
+  "Description": "'Flex Blue' default theme",
+  "Author": "SmartStore AG",
+  "Variables": {
+    "blue": {
+      "Type": "Color",
+      "Value": "#1565c0"
+    }
+  }
+}

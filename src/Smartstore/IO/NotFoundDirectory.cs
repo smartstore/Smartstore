@@ -21,6 +21,12 @@ namespace Smartstore.IO
         public string Name => SubPath.IsEmpty() ? string.Empty : Path.GetFileName(SubPath);
         public string PhysicalPath => null;
 
+        public bool IsSymbolicLink(out string finalPhysicalPath)
+        {
+            finalPhysicalPath = null;
+            return false;
+        }
+
         public Stream CreateReadStream() => throw new NotSupportedException();
     }
 }

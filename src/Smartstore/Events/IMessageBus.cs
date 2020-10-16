@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 namespace Smartstore.Events
-{
+{   
     /// <summary>
     /// Represents a pub/sub message bus provider for inter-server communication between nodes in a web farm.
     /// </summary>
