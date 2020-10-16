@@ -53,11 +53,6 @@ namespace Smartstore.Redis
                 builder.RegisterType<RedisAsyncState>()
                     .As<IAsyncState>()
                     .AsSelf()
-                    .OnPreparing(e =>
-                    {
-                        // Inject mem based DefaultAsyncState as inner state
-                        e.Parameters = new[] { TypedParameter.From<IAsyncState>(new DefaultAsyncState(e.Context.Resolve<IMemoryCacheStore>())) };
-                    })
                     .SingleInstance();
             }
 

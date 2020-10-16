@@ -11,16 +11,13 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
+using Smartstore.Redis.Configuration;
 using StackExchange.Redis;
 
 namespace Smartstore.Redis
 {
     public class RedisJsonSerializer : IRedisSerializer
     {
-        // Contains types that cannot be (de)serialized
-        private readonly HashSet<Type> _unSerializableTypes = new HashSet<Type> { typeof(Task), typeof(Task<>) };
-        private readonly HashSet<Type> _unDeserializableTypes = new HashSet<Type> { typeof(Task), typeof(Task<>) };
-
         protected static readonly IDictionary<Type, string> TypeShortcutMap;
 
         protected static readonly IDictionary<string, Type> ShortcutTypeMap;
@@ -39,7 +36,7 @@ namespace Smartstore.Redis
 
         static RedisJsonSerializer()
         {
-            // Internal dictionary for type info for commonly used types, which allows for slightly shorter
+            // Internal type info dictionary for commonly used types, which allows for slightly shorter
             // type names in the serialized output
             var map = new Dictionary<Type, string>()
             {
@@ -66,6 +63,17 @@ namespace Smartstore.Redis
 
             // the other way round
             ShortcutTypeMap = new ReadOnlyDictionary<string, Type>(map.ToDictionary(x => x.Value, x => x.Key));
+        }
+
+        // Contains types that cannot be (de)serialized
+        private readonly HashSet<Type> _unSerializableTypes = new HashSet<Type> { typeof(Task), typeof(Task<>) };
+        private readonly HashSet<Type> _unDeserializableTypes = new HashSet<Type> { typeof(Task), typeof(Task<>) };
+
+        private readonly RedisConfiguration _configuration;
+
+        public RedisJsonSerializer(RedisConfiguration configuration)
+        {
+            _configuration = configuration;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -136,12 +144,12 @@ namespace Smartstore.Redis
 
         #region Private
 
-        private static T Deserialize<T>(byte[] value, bool unZip)
+        private T Deserialize<T>(byte[] value, bool unzip)
         {
-            return (T)Deserialize(typeof(T), value, unZip);
+            return (T)Deserialize(typeof(T), value, unzip);
         }
 
-        private static object Deserialize(Type objectType, byte[] value, bool unzip)
+        private object Deserialize(Type objectType, byte[] value, bool unzip)
         {
             Guard.NotNull(objectType, nameof(objectType));
             Guard.NotNull(value, nameof(value));
@@ -173,7 +181,7 @@ namespace Smartstore.Redis
                 NullValueHandling = NullValueHandling.Ignore
             };
 
-            if (unzip)
+            if (!_configuration.DisableCompression && unzip)
             {
                 value = value.UnZip();
             }
@@ -182,7 +190,7 @@ namespace Smartstore.Redis
             return JsonConvert.DeserializeObject(json, objectType, settings);
         }
 
-        private static byte[] Serialize(object item, bool zip)
+        private byte[] Serialize(object item, bool zip)
         {
             if (item == null)
             {
@@ -208,7 +216,7 @@ namespace Smartstore.Redis
 
             var buffer = Encoding.UTF8.GetBytes(json);
 
-            if (zip)
+            if (!_configuration.DisableCompression && zip)
             {
                 return buffer.Zip();
             }

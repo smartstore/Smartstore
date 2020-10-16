@@ -38,7 +38,6 @@
     <Folder Include="Checkout\Cart\" />
     <Folder Include="Checkout\Customers\" />
     <Folder Include="Catalog\Discounts\" />
-    <Folder Include="Content\Media\" />
     <Folder Include="Content\Forums\" />
     <Folder Include="Content\Themes\" />
     <Folder Include="Platform\Api\" />

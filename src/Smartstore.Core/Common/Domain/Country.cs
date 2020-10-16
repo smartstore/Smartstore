@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
-using Smartstore.Core.Content.Localization;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 

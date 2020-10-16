@@ -13,6 +13,8 @@ namespace Smartstore.Redis.Configuration
             public string SessionStore { get; set; }
         }
 
+        public bool DisableCompression { get; set; }
+
         public RedisConnectionStrings ConnectionStrings { get; set; } = new RedisConnectionStrings();
     }
 }

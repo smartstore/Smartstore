@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Smartstore.Core.Content.Localization;
+using Smartstore.Core.Localization;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Common

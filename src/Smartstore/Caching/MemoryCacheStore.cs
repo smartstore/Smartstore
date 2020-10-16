@@ -45,6 +45,8 @@ namespace Smartstore.Caching
             _bus.Subscribe("cache", OnCacheEvent);
         }
 
+        public event EventHandler<CacheEntryRemovedEventArgs> Removed;
+
         private void OnCacheEvent(string channel, string message)
         {
             var parameter = string.Empty;
@@ -187,9 +189,10 @@ namespace Smartstore.Caching
             // Ensure that when this item is expired, any objects depending on the token are also expired
             entry.RegisterPostEvictionCallback((object key, object value, EvictionReason reason, object state) =>
             {
+                var entry = (value as CacheEntry);
+
                 if (reason != EvictionReason.Replaced)
                 {
-                    var entry = (value as CacheEntry);
                     var source = entry.CancellationTokenSource;
 
                     _keys.Remove((string)key);
@@ -203,6 +206,13 @@ namespace Smartstore.Caching
                         source.Dispose();
                     }
                 }
+
+                Removed?.Invoke(this, new CacheEntryRemovedEventArgs 
+                { 
+                    Key = (string)key,
+                    Reason = (CacheEntryRemovedReason)reason,
+                    Entry = entry
+                });
             });
 
             entry.Dispose();

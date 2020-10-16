@@ -18,11 +18,6 @@ namespace Smartstore.IO
     public interface IFileSystem : IFileProvider
     {
         /// <summary>
-        /// Checks whether the underlying storage is remote, like 'Azure' for example. 
-        /// </summary>
-        bool IsCloudStorage { get; }
-
-        /// <summary>
         /// Gets the storage root path
         /// </summary>
         string Root { get; }

@@ -20,9 +20,6 @@ namespace Smartstore.IO
         public abstract IChangeToken Watch(string filter);
 
         /// <inheritdoc/>
-        public virtual bool IsCloudStorage { get; }
-
-        /// <inheritdoc/>
         public abstract string Root { get; }
 
         /// <inheritdoc/>

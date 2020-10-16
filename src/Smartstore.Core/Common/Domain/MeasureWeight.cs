@@ -1,4 +1,4 @@
-﻿using Smartstore.Core.Content.Localization;
+﻿using Smartstore.Core.Localization;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Common

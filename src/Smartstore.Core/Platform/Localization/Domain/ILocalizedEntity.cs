@@ -1,5 +1,5 @@
 ﻿
-namespace Smartstore.Core.Content.Localization
+namespace Smartstore.Core.Localization
 {
     /// <summary>
     /// Represents a localized entity

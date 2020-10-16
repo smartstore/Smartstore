@@ -28,6 +28,11 @@ namespace Smartstore.Caching
         public string Key { get; set; }
 
         /// <summary>
+        /// Gets or sets a custom tag. May be evaluated in event handlers.
+        /// </summary>
+        public string Tag { get; set; }
+
+        /// <summary>
         /// Gets or sets the cache entry value.
         /// </summary>
         public object Value { get; set; }

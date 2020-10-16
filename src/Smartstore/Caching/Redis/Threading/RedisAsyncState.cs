@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Data.Common;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Caching;
 using Smartstore.Redis.Caching;
 using Smartstore.Threading;
 
@@ -11,23 +9,18 @@ namespace Smartstore.Redis.Threading
 {
     public class RedisAsyncState : DefaultAsyncState
     {
-        private readonly IAsyncState _localState;
         private readonly RedisMessageBus _bus;
 
-        public RedisAsyncState(RedisCacheStore redisCache, IAsyncState localState, RedisMessageBus bus)
+        public RedisAsyncState(RedisCacheStore redisCache, RedisMessageBus bus)
             : base(redisCache)
         {
-            _localState = localState;
             _bus = bus;
 
-            // Subscribe to key events triggered by Redis on item expiration.
-            // (The "Expired" event is only triggered by distributed caches like Redis).
-            // Try to remove the entry from local state store.
-            redisCache.Expired += (o, e) => _localState.Store.Remove(e.Key);
-
             // Subscribe to async state events (e.g. "Cancel") sent by other nodes in the web farm
-            _bus.Subscribe("asyncstate", OnAsyncStateEvent);
+            _bus.Subscribe(Channel, OnAsyncStateEvent);
         }
+
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         private void OnAsyncStateEvent(string channel, string message)
         {
@@ -37,87 +30,57 @@ namespace Smartstore.Redis.Threading
                 switch (action)
                 {
                     case "cancel":
-                        // TODO: (core) I don't like this code. It's redundant.
-                        var entry = _localState.Store.Get(parameter);
-                        if (entry != null && !entry.CancellationTokenSource.IsCancellationRequested)
+                        if (TryCancel(parameter, true))
                         {
-                            entry.CancellationTokenSource.Cancel();
                             Logger.Debug($"AsyncState '{parameter}' canceled by request from another node.");
                         }
                         break;
-                    case "remove":
-                        _localState.Store.Remove(parameter);
-                        Logger.Debug($"AsyncState '{parameter}' removed by request from another node.");
+                    case "removects":
+                        if (TryRemoveCancelTokenSource(parameter, true, out _))
+                        {
+                            Logger.Debug($"AsyncState '{parameter}' removed by request from another node.");
+                        }
                         break;
                 }
             }
         }
 
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
-        public override void Create<T>(T state, string name = null, bool neverExpires = false, CancellationTokenSource cancelTokenSource = null)
+        protected override bool TryRemoveCancelTokenSource(string key, bool successive, out CancellationTokenSource source)
         {
-            base.Create(state, name, neverExpires, cancelTokenSource);
+            var removed = base.TryRemoveCancelTokenSource(key, successive, out source);
 
-            // Put also to local store
-            _localState.Create<T>(state, name, neverExpires, cancelTokenSource);
-        }
+            // "removed = false" means: the token either did not exist OR was not created by this node.
+            // "successive" means: a messagebus subscriber has called this method
 
-        public override bool Update<T>(Action<T> update, string name = null)
-        {
-            var updated = base.Update(update, name);
-
-            // Update also in local store (if created on this node)
-            _localState.Update<T>(update, name);
-
-            return updated;
-        }
-
-        public override void Remove<T>(string name = null)
-        {
-            base.Remove<T>(name);
-
-            // Remove also from local store (if created on this node)
-            var removed = _localState.Contains<T>(name);
-            _localState.Remove<T>(name);
-
-            if (!removed)
+            if (!removed && !successive)
             {
-                // This node possibly did not create the entry.
+                // This server possibly did not create the cancellation token.
                 // Call other nodes and let THEM try to remove.
-                var key = BuildKey<T>(name);
+
                 Logger.Debug($"AsyncState posts '{key}' message to other nodes for state removal.");
-                _bus.Publish("asyncstate", "remove^" + key);
+                _bus.Publish(Channel, "removects^" + key);
+                return true; // TBD: really true?
             }
+
+            return removed;
         }
 
-        public override bool Cancel<T>(string name = null)
+        protected override bool TryCancel(string key, bool successive = false)
         {
-            var canceled = base.Cancel<T>(name);
+            var canceled = base.TryCancel(key, successive);
 
-            if (canceled)
+            // successive means: a messagebus listener has called this method
+            if (!canceled && !successive)
             {
-                // CancellationTokenSources in Redis are volatile. Here "canceled = true" only
-                // indicates that the state entry existed in Redis.
-                // We have to (try to) cancel the source on current node.
-                canceled = _localState.Cancel<T>(name);
-                if (!canceled)
-                {
-                    // But this node possibly did not create the entry.
-                    // Call other nodes and let THEM try to cancel.
-                    var key = BuildKey<T>(name);
-                    Logger.Debug($"AsyncState posts '{key}' message to other nodes for task cancellation.");
-                    _bus.Publish("asyncstate", "cancel^" + key);
-                    return true; // TBD: really true?
-                }
+                // This server possibly did not create the cancellation token.
+                // Call other nodes and let THEM try to cancel.
+
+                Logger.Debug($"AsyncState posts '{key}' message to other nodes for task cancellation.");
+                _bus.Publish(Channel, "cancel^" + key);
+                return true; // TBD: really true?
             }
 
             return canceled;
         }
-
-        //private static string NormalizeKey(string redisKey)
-        //{
-        //    return redisKey[KeyPrefix.Length..];
-        //}
     }
 }

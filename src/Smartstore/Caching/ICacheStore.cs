@@ -5,9 +5,46 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Caching
 {
+    public enum CacheEntryRemovedReason
+    {
+        None,
+
+        /// <summary>
+        /// Manually
+        /// </summary>
+        Removed,
+
+        /// <summary>
+        /// Overwritten
+        /// </summary>
+        Replaced,
+
+        /// <summary>
+        /// Timed out
+        /// </summary>
+        Expired,
+
+        /// <summary>
+        /// Event
+        /// </summary>
+        TokenExpired,
+
+        /// <summary>
+        /// Overflow
+        /// </summary>
+        Capacity
+    }
+
     public class CacheEntryExpiredEventArgs : EventArgs
     {
         public string Key { get; set; }
+    }
+
+    public class CacheEntryRemovedEventArgs : EventArgs
+    {
+        public string Key { get; set; }
+        public CacheEntryRemovedReason Reason { get; set; }
+        public CacheEntry Entry { get; set; }
     }
 
     /// <summary>
@@ -15,6 +52,7 @@ namespace Smartstore.Caching
     /// </summary>
     public interface IMemoryCacheStore : ICacheStore
     {
+        event EventHandler<CacheEntryRemovedEventArgs> Removed;
     }
 
     /// <summary>
