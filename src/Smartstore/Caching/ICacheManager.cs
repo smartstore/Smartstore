@@ -180,5 +180,31 @@ namespace Smartstore.Caching
         /// Clear all cache data
         /// </summary>
         Task ClearAsync();
+
+        /// <summary>
+        /// Returns the remaining time to live of an entry that has a timeout (from last store).
+        /// </summary>
+        /// <returns>
+        /// TTL, or <c>null</c> when key does not exist or does not have a timeout.
+        /// </returns>
+        TimeSpan? GetTimeToLive(string key);
+
+        /// <summary>
+        /// Returns the remaining time to live of an entry that has a timeout (from last store).
+        /// </summary>
+        /// <returns>
+        /// TTL, or <c>null</c> when key does not exist or does not have a timeout.
+        /// </returns>
+        Task<TimeSpan?> GetTimeToLiveAsync(string key);
+
+        /// <summary>
+        /// Sets/updates a timeout on an entry. After the timeout has expired, the entry will automatically be deleted.
+        /// </summary>
+        void SetTimeToLive(string key, TimeSpan? duration);
+
+        /// <summary>
+        /// Sets/updates a timeout on an entry. After the timeout has expired, the entry will automatically be deleted.
+        /// </summary>
+        Task SetTimeToLiveAsync(string key, TimeSpan? duration);
     }
 }

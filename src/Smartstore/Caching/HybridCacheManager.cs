@@ -51,9 +51,17 @@ namespace Smartstore.Caching
             return _stores.Any(x => x.Contains(key));
         }
 
-        public Task<bool> ContainsAsync(string key)
+        public async Task<bool> ContainsAsync(string key)
         {
-            return _stores.AnyAsync(x => x.ContainsAsync(key));
+            foreach (var store in _stores)
+            {
+                if (await store.ContainsAsync(key))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public IEnumerable<string> Keys(string pattern = "*")
@@ -222,6 +230,38 @@ namespace Smartstore.Caching
             return value;
         }
 
+        public virtual TimeSpan? GetTimeToLive(string key)
+        {
+            Guard.NotEmpty(key, nameof(key));
+
+            // INFO: Get from last store.
+            return _stores.Last().GetTimeToLive(key);
+        }
+
+        public virtual Task<TimeSpan?> GetTimeToLiveAsync(string key)
+        {
+            Guard.NotEmpty(key, nameof(key));
+
+            // INFO: Get from last store.
+            return _stores.Last().GetTimeToLiveAsync(key);
+        }
+
+        public virtual void SetTimeToLive(string key, TimeSpan? duration)
+        {
+            Guard.NotEmpty(key, nameof(key));
+
+            // INFO: Update in all stores in reverse order.
+            _stores.Reverse().Each(x => x.SetTimeToLive(key, duration));
+        }
+
+        public virtual Task SetTimeToLiveAsync(string key, TimeSpan? duration)
+        {
+            Guard.NotEmpty(key, nameof(key));
+
+            // INFO: Update in all stores in reverse order.
+            return _stores.Reverse().EachAsync(x => x.SetTimeToLiveAsync(key, duration));
+        }
+
         #endregion
 
 
@@ -303,21 +343,6 @@ namespace Smartstore.Caching
             return entry;
         }
 
-        private static CacheEntry CloneEntry(CacheEntry source)
-        {
-            // INFO: never copy CancelTokenSource
-            return new CacheEntry
-            {
-                Key = source.Key,
-                Value = source.Value,
-                ValueType = source.ValueType,
-                Dependencies = source.Dependencies,
-                LastAccessedOn = source.LastAccessedOn,
-                CachedOn = DateTime.UtcNow,
-                Duration = source.TimeToLive
-            };
-        }
-
         private (CacheEntry Entry, ICacheStore Store, int Index) GetInternal(string key, bool independent)
         {
             int index = 0;
@@ -337,7 +362,7 @@ namespace Smartstore.Caching
                     int i = index - 1;
                     while (i >= 0)
                     {
-                        _stores[i].Put(key, CloneEntry(entry));
+                        _stores[i].Put(key, entry.Clone());
                         i--;
                     }
 
@@ -372,7 +397,7 @@ namespace Smartstore.Caching
                     int i = index - 1;
                     while (i >= 0)
                     {
-                        await _stores[i].PutAsync(key, CloneEntry(entry));
+                        await _stores[i].PutAsync(key, entry.Clone());
                         i--;
                     }
 

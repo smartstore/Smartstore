@@ -254,7 +254,9 @@ namespace Smartstore
 			return !string.IsNullOrWhiteSpace(value);
 		}
 
-		/// <remarks>to get equivalent result to PHPs md5 function call Hash("my value", Encoding.ASCII, false).</remarks>
+		/// <remarks>
+		/// To get equivalent result to PHPs md5 function call Hash("my value", Encoding.ASCII, false).
+		/// </remarks>
 		[DebuggerStepThrough]
 		public static string Hash(this string value, Encoding encoding, bool toBase64 = false)
 		{

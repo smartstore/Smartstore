@@ -23,17 +23,28 @@ using Smartstore.Caching;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Core.Tax.Settings;
+using Smartstore.Threading;
+using System.Threading;
 
 namespace Smartstore.Web.Controllers
 {
+    public class MyProgress
+    {
+        public int Percent { get; set; }
+        public string Message { get; set; }
+    }
+    
     public class HomeController : Controller
-    {   
+    {
+        private static CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
+        
         private readonly SmartDbContext _db;
         private readonly IEventPublisher _eventPublisher;
         private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
         private readonly ILogger<HomeController> _logger;
         private readonly ICacheManager _cache;
+        private readonly IAsyncState _asyncState;
 
         public HomeController(
             SmartDbContext db, 
@@ -44,6 +55,7 @@ namespace Smartstore.Web.Controllers
             IStoreContext storeContext,
             IEnumerable<IDbSaveHook> hooks,
             ICacheManager cache,
+            IAsyncState asyncState,
             TaxSettings taxSettings)
         {
             _db = db;
@@ -52,6 +64,7 @@ namespace Smartstore.Web.Controllers
             _storeContext = storeContext;
             _logger = logger;
             _cache = cache;
+            _asyncState = asyncState;
 
             var currentStore = storeContext.CurrentStore;
         }
@@ -75,6 +88,10 @@ namespace Smartstore.Web.Controllers
 
             #endregion
 
+            _asyncState.Cancel<MyProgress>();
+            //_cancelTokenSource.Cancel();
+            _cancelTokenSource = new CancellationTokenSource();
+
             var query = _db.Countries
                 .AsNoTracking()
                 .ApplyLimitToStore(1)
@@ -91,6 +108,8 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Settings()
         {
+            _asyncState.Remove<MyProgress>();
+            
             var settings = await _db.Settings
                 .AsNoTracking()
                 .ApplySorting()
@@ -159,11 +178,20 @@ namespace Smartstore.Web.Controllers
 
         public IActionResult Index()
         {
+            _cancelTokenSource = new CancellationTokenSource();
+            _asyncState.Create(new MyProgress(), cancelTokenSource: _cancelTokenSource);
+            
             return View();
         }
 
         public IActionResult Privacy()
         {
+            _asyncState.Update<MyProgress>(x => 
+            {
+                x.Percent++;
+                x.Message = $"Fortschritt {x.Percent}";
+            });
+            
             return View();
         }
 

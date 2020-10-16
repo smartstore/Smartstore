@@ -10,6 +10,9 @@ using Smartstore.Data;
 using Smartstore.Engine;
 using Smartstore.Events;
 using Smartstore.Redis.Caching;
+using Smartstore.Redis.Configuration;
+using Smartstore.Redis.Threading;
+using Smartstore.Threading;
 
 namespace Smartstore.Redis
 {
@@ -19,11 +22,15 @@ namespace Smartstore.Redis
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
+            // Create and register configuration
             var config = appContext.Configuration;
+            var redisConfiguration = new RedisConfiguration();
+            config.Bind("Smartstore:Redis", redisConfiguration);
+            builder.RegisterInstance(redisConfiguration);
 
-            var hasDefaultConString = config.GetConnectionString("Smartstore.Redis").HasValue();
-            var hasCacheConString = config.GetConnectionString("Smartstore.Redis.Cache").HasValue() || hasDefaultConString;
-            var hasMessageBusConString = config.GetConnectionString("Smartstore.Redis.MessageBus").HasValue() || hasDefaultConString;
+            var hasDefaultConString = redisConfiguration.ConnectionStrings.Default.HasValue();
+            var hasCacheConString = redisConfiguration.ConnectionStrings.Cache.HasValue() || hasDefaultConString;
+            var hasMessageBusConString = redisConfiguration.ConnectionStrings.Bus.HasValue() || hasDefaultConString;
 
             builder.RegisterType<RedisConnectionFactory>()
                 .As<IRedisConnectionFactory>()
@@ -41,16 +48,25 @@ namespace Smartstore.Redis
                     .SingleInstance();
             }
 
-            //if (isActiveModule && hasCacheConString)
-            //{
-            //    builder.RegisterType<RedisAsyncState>().As<IAsyncState>().SingleInstance();
-            //}
+            if (isActiveModule && hasCacheConString)
+            {
+                builder.RegisterType<RedisAsyncState>()
+                    .As<IAsyncState>()
+                    .AsSelf()
+                    .OnPreparing(e =>
+                    {
+                        // Inject mem based DefaultAsyncState as inner state
+                        e.Parameters = new[] { TypedParameter.From<IAsyncState>(new DefaultAsyncState(e.Context.Resolve<IMemoryCacheStore>())) };
+                    })
+                    .SingleInstance();
+            }
 
             if (isActiveModule && DataSettings.DatabaseIsInstalled() && hasCacheConString)
             {
                 builder.RegisterType<RedisCacheStore>()
                     .As<ICacheStore>()
                     .As<IDistributedCacheStore>()
+                    .AsSelf()
                     .SingleInstance();
             }
         }
@@ -58,7 +74,8 @@ namespace Smartstore.Redis
         private static RedisMessageBus ResolveDefaultMessageBus(IComponentContext ctx)
         {
             var connectionFactory = ctx.Resolve<IRedisConnectionFactory>();
-            var connectionString = connectionFactory.GetConnectionString("Smartstore.Redis.MessageBus");
+            var connectionStrings = ctx.Resolve<RedisConfiguration>().ConnectionStrings;
+            var connectionString = connectionStrings.Bus ?? connectionStrings.Default;
 
             return connectionFactory.GetMessageBus(connectionString);
         }

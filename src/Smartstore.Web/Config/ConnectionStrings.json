@@ -1,9 +1,0 @@
-{
-  "ConnectionStrings": {
-    "Smartstore.Redis": "localhost",
-    "Smartstore.Redis.MessageBus": "localhost",
-    "Smartstore.Redis.Cache": "localhost",
-    "Smartstore.Redis.OutputCache": "localhost",
-    "Smartstore.Redis.Session": "localhost"
-  }
-}

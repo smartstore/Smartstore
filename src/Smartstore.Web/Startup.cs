@@ -21,8 +21,8 @@ namespace Smartstore.Web
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddJsonFile("Config/ConnectionStrings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"Config/ConnectionStrings.{env.EnvironmentName}.json", optional: true)
+                .AddJsonFile("Config/Connections.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"Config/Connections.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
 
             this.Configuration = builder.Build();

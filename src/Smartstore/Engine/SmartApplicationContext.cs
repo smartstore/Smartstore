@@ -35,7 +35,7 @@ namespace Smartstore.Engine
 
             // Create app configuration
             var config = new SmartConfiguration();
-            configuration.Bind("Smart", config);
+            configuration.Bind("Smartstore", config);
             // TODO: (core) Bind ConnectionStrings somehow.
             AppConfiguration = config;
         }

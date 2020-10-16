@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Engine;
@@ -22,17 +21,6 @@ namespace Smartstore.Redis
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
-
-        public string GetConnectionString(string component)
-        {
-            Guard.NotEmpty(component, nameof(component));
-
-            // TODO: (core) Read connection string somehow
-
-            return _appContext.Configuration.GetConnectionString(component) 
-                ?? _appContext.Configuration.GetConnectionString("Smartstore.Redis") 
-                ?? "localhost";
-        }
 
         public ConnectionMultiplexer GetConnection(string connectionString)
         {

@@ -145,6 +145,7 @@ namespace Smartstore.Caching
 
         public void Put(string key, CacheEntry entry)
         {
+            entry.Key = key;
             PopulateCacheEntry(entry, _cache.CreateEntry(key));
         }
 
@@ -159,6 +160,7 @@ namespace Smartstore.Caching
             _keys.Add((string)entry.Key);
 
             entry.SetValue(item);
+            entry.SetPriority((CacheItemPriority)item.Priority);
 
             if (item.Duration != null)
             {
@@ -185,8 +187,22 @@ namespace Smartstore.Caching
             // Ensure that when this item is expired, any objects depending on the token are also expired
             entry.RegisterPostEvictionCallback((object key, object value, EvictionReason reason, object state) =>
             {
-                _keys.Remove((string)key);
-                (value as CacheEntry).CancellationTokenSource.Cancel();
+                if (reason != EvictionReason.Replaced)
+                {
+                    var entry = (value as CacheEntry);
+                    var source = entry.CancellationTokenSource;
+
+                    _keys.Remove((string)key);
+
+                    if (entry.CancelTokenSourceOnRemove && !source.IsCancellationRequested)
+                    {
+                        source.Cancel();
+                    }
+                    else
+                    {
+                        source.Dispose();
+                    }
+                }
             });
 
             entry.Dispose();
@@ -271,6 +287,30 @@ namespace Smartstore.Caching
             Clear();
             return Task.CompletedTask;
         }
+
+        public virtual TimeSpan? GetTimeToLive(string key)
+            => Get(key)?.TimeToLive;
+
+        public virtual Task<TimeSpan?> GetTimeToLiveAsync(string key)
+            => Task.FromResult(GetTimeToLive(key));
+
+        public virtual bool SetTimeToLive(string key, TimeSpan? duration)
+        {
+            var entry = Get(key);
+            if (entry != null && entry.TimeToLive != duration)
+            {
+                var clone = entry.Clone();
+                clone.Duration = duration;
+                clone.CancellationTokenSource = entry.CancellationTokenSource;
+
+                Put(key, clone);
+            }
+
+            return false;
+        }
+
+        public virtual Task<bool> SetTimeToLiveAsync(string key, TimeSpan? duration)
+            => Task.FromResult(SetTimeToLive(key, duration));
 
         protected override void OnDispose(bool disposing)
         {

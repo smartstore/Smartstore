@@ -107,62 +107,62 @@ namespace Smartstore.Caching
 
         /// <summary>
         /// Removes all entries with keys matching the input pattern.
+        /// <para>
+        ///     Supported glob-style patterns:
+        ///     - h?llo matches hello, hallo and hxllo
+        ///     - h*llo matches hllo and heeeello
+        ///     - h[ae]llo matches hello and hallo, but not hillo
+        ///     - h[^e]llo matches hallo, hbllo, ... but not hello
+        ///     - h[a-b]llo matches hallo and hbllo
+        /// </para>
         /// </summary>
         /// <param name="pattern">Glob pattern</param>
         /// <returns>Count of removed cache items</returns>
-        /// <remarks>
-        /// Supported glob-style patterns:
-        /// - h?llo matches hello, hallo and hxllo
-        /// - h*llo matches hllo and heeeello
-        /// - h[ae]llo matches hello and hallo, but not hillo
-        /// - h[^e]llo matches hallo, hbllo, ... but not hello
-        /// - h[a-b]llo matches hallo and hbllo
-        /// </remarks>
         long RemoveByPattern(string pattern);
 
         /// <summary>
         /// Removes all entries with keys matching the input pattern.
+        /// <para>
+        ///     Supported glob-style patterns:
+        ///     - h?llo matches hello, hallo and hxllo
+        ///     - h*llo matches hllo and heeeello
+        ///     - h[ae]llo matches hello and hallo, but not hillo
+        ///     - h[^e]llo matches hallo, hbllo, ... but not hello
+        ///     - h[a-b]llo matches hallo and hbllo
+        /// </para>
         /// </summary>
         /// <param name="pattern">Glob pattern</param>
         /// <returns>Count of removed cache items</returns>
-        /// <remarks>
-        /// Supported glob-style patterns:
-        /// - h?llo matches hello, hallo and hxllo
-        /// - h*llo matches hllo and heeeello
-        /// - h[ae]llo matches hello and hallo, but not hillo
-        /// - h[^e]llo matches hallo, hbllo, ... but not hello
-        /// - h[a-b]llo matches hallo and hbllo
-        /// </remarks>
         Task<long> RemoveByPatternAsync(string pattern);
 
         /// <summary>
-        /// Scans for all keys matching the input pattern. 
+        /// Scans for all keys matching the input pattern.
+        /// <para>
+        ///     Supported glob-style patterns:
+        ///     - h?llo matches hello, hallo and hxllo
+        ///     - h*llo matches hllo and heeeello
+        ///     - h[ae]llo matches hello and hallo, but not hillo
+        ///     - h[^e]llo matches hallo, hbllo, ... but not hello
+        ///     - h[a-b]llo matches hallo and hbllo
+        /// </para>
         /// </summary>
         /// <param name="pattern">A key pattern. Can be <c>null</c>.</param>
         /// <returns>A list of matching key names</returns>
-        /// <remarks>
-        /// Supported glob-style patterns:
-        /// - h?llo matches hello, hallo and hxllo
-        /// - h*llo matches hllo and heeeello
-        /// - h[ae]llo matches hello and hallo, but not hillo
-        /// - h[^e]llo matches hallo, hbllo, ... but not hello
-        /// - h[a-b]llo matches hallo and hbllo
-        /// </remarks>
         IEnumerable<string> Keys(string pattern = "*");
 
         /// <summary>
         /// Scans for all keys matching the input pattern. 
+        /// <para>
+        ///     Supported glob-style patterns:
+        ///     - h?llo matches hello, hallo and hxllo
+        ///     - h*llo matches hllo and heeeello
+        ///     - h[ae]llo matches hello and hallo, but not hillo
+        ///     - h[^e]llo matches hallo, hbllo, ... but not hello
+        ///     - h[a-b]llo matches hallo and hbllo
+        /// </para>
         /// </summary>
         /// <param name="pattern">A key pattern. Can be <c>null</c>.</param>
         /// <returns>A list of matching key names</returns>
-        /// <remarks>
-        /// Supported glob-style patterns:
-        /// - h?llo matches hello, hallo and hxllo
-        /// - h*llo matches hllo and heeeello
-        /// - h[ae]llo matches hello and hallo, but not hillo
-        /// - h[^e]llo matches hallo, hbllo, ... but not hello
-        /// - h[a-b]llo matches hallo and hbllo
-        /// </remarks>
         IAsyncEnumerable<string> KeysAsync(string pattern = "*");
 
         /// <summary>
@@ -184,5 +184,37 @@ namespace Smartstore.Caching
         /// Clear all cache data
         /// </summary>
         Task ClearAsync();
+
+        /// <summary>
+        /// Returns the remaining time to live of an entry that has a timeout.
+        /// </summary>
+        /// <returns>
+        /// TTL, or <c>null</c> when key does not exist or does not have a timeout.
+        /// </returns>
+        TimeSpan? GetTimeToLive(string key);
+
+        /// <summary>
+        /// Returns the remaining time to live of an entry that has a timeout.
+        /// </summary>
+        /// <returns>
+        /// TTL, or <c>null</c> when key does not exist or does not have a timeout.
+        /// </returns>
+        Task<TimeSpan?> GetTimeToLiveAsync(string key);
+
+        /// <summary>
+        /// Sets/updates a timeout on an entry. After the timeout has expired, the entry will automatically be deleted.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the timeout was set. <c>false</c> if key does not exist or the timeout could not be set.
+        /// </returns>
+        bool SetTimeToLive(string key, TimeSpan? duration);
+
+        /// <summary>
+        /// Sets/updates a timeout on an entry. After the timeout has expired, the entry will automatically be deleted.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the timeout was set. <c>false</c> if key does not exist or the timeout could not be set.
+        /// </returns>
+        Task<bool> SetTimeToLiveAsync(string key, TimeSpan? duration);
     }
 }

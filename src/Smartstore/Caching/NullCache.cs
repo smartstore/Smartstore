@@ -62,5 +62,17 @@ namespace Smartstore.Caching
 
         public Task ClearAsync()
             => Task.CompletedTask;
+
+        public TimeSpan? GetTimeToLive(string key)
+            => null;
+
+        public Task<TimeSpan?> GetTimeToLiveAsync(string key)
+            => Task.FromResult((TimeSpan?)null);
+
+        public void SetTimeToLive(string key, TimeSpan? duration)
+            { }
+
+        public Task SetTimeToLiveAsync(string key, TimeSpan? duration)
+            => Task.CompletedTask;
     }
 }

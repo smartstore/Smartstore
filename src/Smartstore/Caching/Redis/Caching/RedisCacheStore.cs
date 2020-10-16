@@ -5,12 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Smartstore.Caching;
+using Smartstore.Redis.Configuration;
 using StackExchange.Redis;
 
 namespace Smartstore.Redis.Caching
 {
     public class RedisCacheStore : Disposable, IDistributedCacheStore
     {
+        private readonly RedisConfiguration _configuration;
         private readonly IRedisConnectionFactory _connectionFactory;
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly RedisMessageBus _messageBus;
@@ -19,7 +21,7 @@ namespace Smartstore.Redis.Caching
         private readonly string _cachePrefix;
         private readonly string _keyPrefix;
 
-        public RedisCacheStore(IRedisConnectionFactory connectionFactory, IRedisSerializer serializer)
+        public RedisCacheStore(RedisConfiguration configuration, IRedisConnectionFactory connectionFactory, IRedisSerializer serializer)
         {
             // TODO: (core) Build versionStr from SmartstoreVersion class
             var versionStr = "5.0.0";
@@ -28,9 +30,10 @@ namespace Smartstore.Redis.Caching
             _cachePrefix = "cache." + versionStr + ":";
             _keyPrefix = BuildCacheKey("");
 
+            _configuration = configuration;
             _connectionFactory = connectionFactory;
-            _multiplexer = _connectionFactory.GetConnection(_connectionFactory.GetConnectionString("Smartstore.Redis.Cache"));
-            _messageBus = _connectionFactory.GetMessageBus(_connectionFactory.GetConnectionString("Smartstore.Redis.MessageBus"));
+            _multiplexer = _connectionFactory.GetConnection(configuration.ConnectionStrings.Cache ?? configuration.ConnectionStrings.Default);
+            _messageBus = _connectionFactory.GetMessageBus(configuration.ConnectionStrings.Bus ?? configuration.ConnectionStrings.Default);
             _serializer = serializer;
 
             // Subscribe to key events triggered by Redis on item expiration
@@ -185,6 +188,7 @@ namespace Smartstore.Redis.Caching
             var condition = _serializer.CanSerialize(entry) && (_serializer.CanDeserialize(entry.Value?.GetType()));
             RedisAction(condition, () =>
             {
+                entry.Key = key;
                 Database.ObjectSet(_serializer, BuildCacheKey(key), entry, entry.Duration);
                 if (entry.Dependencies != null && entry.Dependencies.Any())
                 {
@@ -273,6 +277,18 @@ namespace Smartstore.Redis.Caching
 
             return numRemoved;
         }
+
+        public virtual TimeSpan? GetTimeToLive(string key)
+            => Database.KeyTimeToLive(BuildCacheKey(key));
+
+        public virtual Task<TimeSpan?> GetTimeToLiveAsync(string key)
+            => Database.KeyTimeToLiveAsync(BuildCacheKey(key));
+
+        public virtual bool SetTimeToLive(string key, TimeSpan? duration)
+            => Database.KeyExpire(BuildCacheKey(key), duration);
+
+        public virtual Task<bool> SetTimeToLiveAsync(string key, TimeSpan? duration)
+            => Database.KeyExpireAsync(BuildCacheKey(key), duration);
 
         #region Dependent Entries
 

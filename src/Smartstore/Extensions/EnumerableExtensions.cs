@@ -208,24 +208,25 @@ namespace Smartstore
 			}
 		}
 
-		/// <summary>
-		/// Determines whether any element of a sequence satisfies a condition. 
-		/// </summary>
-		/// <typeparam name="T">The type of the elements of source.</typeparam>
-		/// <param name="source">The source sequence whose elements to apply the predicate to.</param>
-		/// <param name="predicate">A function to test each element for a condition.</param>
-		public static async Task<bool> AnyAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
-		{
-			foreach (T t in source)
-			{
-				if (await predicate(t).ConfigureAwait(false))
-                {
-					return true;
-                }
-			}
+		//// TODO: (core) Probably conflicting with efcore AnyAsync extension method.
+		///// <summary>
+		///// Determines whether any element of a sequence satisfies a condition. 
+		///// </summary>
+		///// <typeparam name="T">The type of the elements of source.</typeparam>
+		///// <param name="source">The source sequence whose elements to apply the predicate to.</param>
+		///// <param name="predicate">A function to test each element for a condition.</param>
+		//public static async Task<bool> AnyAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
+		//{
+		//	foreach (T t in source)
+		//	{
+		//		if (await predicate(t).ConfigureAwait(false))
+  //              {
+		//			return true;
+  //              }
+		//	}
 
-			return false;
-		}
+		//	return false;
+		//}
 
 		public static ReadOnlyCollection<T> AsReadOnly<T>(this IEnumerable<T> source)
         {

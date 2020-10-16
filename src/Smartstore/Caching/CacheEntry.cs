@@ -1,11 +1,27 @@
 ﻿using System;
 using System.Threading;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 
 namespace Smartstore.Caching
 {
-    public class CacheEntry : IObjectWrapper
+    /// <summary>
+    /// Specifies how items are prioritized for preservation during a memory pressure triggered cleanup.
+    /// </summary>
+    public enum CacheEntryPriority
     {
+        Low,
+        Normal,
+        High,
+        NeverRemove,
+    }
+
+    public class CacheEntry : IObjectWrapper, ICloneable<CacheEntry>
+    {
+        // Used for serialization compatibility
+        [JsonIgnore]
+        public static readonly string Version = "1";
+
         /// <summary>
         /// Gets or sets the cache entry key.
         /// </summary>
@@ -39,10 +55,20 @@ namespace Smartstore.Caching
         public TimeSpan? Duration { get; set; }
 
         /// <summary>
+        /// Gets or sets the priority for keeping the cache entry in the cache during a
+        /// memory pressure triggered cleanup. Only applies to memory cache.
+        /// The default is <see cref="CacheItemPriority.Normal"/>.
+        /// </summary>
+        public CacheEntryPriority Priority { get; set; } = CacheEntryPriority.Normal;
+
+        /// <summary>
         /// Gets or sets the keys of dependant (child) cache entries.
         /// If any of these entries are removed from cáche, this item will also be removed.
         /// </summary>
         public string[] Dependencies { get; set; } = Array.Empty<string>();
+
+        [JsonIgnore]
+        public bool CancelTokenSourceOnRemove { get; set; } = true;
 
         [JsonIgnore]
         public CancellationTokenSource CancellationTokenSource { get; set; } = new CancellationTokenSource();
@@ -76,6 +102,23 @@ namespace Smartstore.Caching
         public TimeSpan? TimeToLive
         {
             get => Duration.HasValue ? CachedOn.Add(Duration.Value) - DateTimeOffset.UtcNow : null;
+        }
+
+        object ICloneable.Clone() => Clone();
+        public CacheEntry Clone()
+        {
+            // INFO: Never copy CancelTokenSource
+            return new CacheEntry
+            {
+                Key = this.Key,
+                Value = this.Value,
+                ValueType = this.ValueType,
+                Dependencies = this.Dependencies,
+                LastAccessedOn = this.LastAccessedOn,
+                CachedOn = DateTime.UtcNow,
+                Duration = this.TimeToLive,
+                CancelTokenSourceOnRemove = this.CancelTokenSourceOnRemove
+            };
         }
     }
 }

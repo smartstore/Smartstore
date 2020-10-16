@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using Autofac;
+using Autofac.Core;
 using Smartstore.Engine;
+using Smartstore.Threading;
 
 namespace Smartstore.Caching.DependencyInjection
 {
@@ -23,6 +26,15 @@ namespace Smartstore.Caching.DependencyInjection
 
             builder.RegisterType<HybridCacheManager>()
                 .As<ICacheManager>()
+                .SingleInstance();
+
+            builder.RegisterType<DefaultAsyncState>()
+                .As<IAsyncState>()
+                .OnPreparing(e => 
+                {
+                    // Inject mem cache by default
+                    e.Parameters = new[] { TypedParameter.From(e.Context.Resolve<IMemoryCacheStore>()) };
+                })
                 .SingleInstance();
         }
     }
