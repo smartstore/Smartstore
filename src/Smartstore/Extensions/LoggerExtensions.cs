@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Microsoft.Extensions.Logging
 {
     public static class LoggerExtensions
     {
-        #region IsXEnabled
+        #region Is[X]Enabled
 
         public static bool IsTraceEnabled(this ILogger l)
         {

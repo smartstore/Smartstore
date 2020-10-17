@@ -15,8 +15,10 @@ namespace Smartstore.Web
         private IEngineStarter _engineStarter;
         private SmartApplicationContext _appContext;
 
-        public Startup(IWebHostEnvironment env)
+        public Startup(WebHostBuilderContext hostBuilderContext)
         {
+            var env = hostBuilderContext.HostingEnvironment;
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -42,7 +44,10 @@ namespace Smartstore.Web
                 typeof(Smartstore.Web.Common.Theming.IThemeRegistry).Assembly
             };
 
-            _appContext = new SmartApplicationContext(Environment, Configuration, coreAssemblies);
+            _appContext = new SmartApplicationContext(
+                Environment, 
+                Configuration, 
+                coreAssemblies);
 
             _engineStarter = EngineFactory.Create(_appContext.AppConfiguration).Start(_appContext);
 

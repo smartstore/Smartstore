@@ -57,7 +57,7 @@ namespace Smartstore.Engine
             else
             {
                 WebRoot = (IFileSystem)hostEnvironment.ContentRootFileProvider;
-            }  
+            }
 
             // TODO: (core) Read stuff from config and resolve tenant. Check folders and create them also.
             ThemesRoot = new LocalFileSystem(ContentRoot.MapPath("Themes"));

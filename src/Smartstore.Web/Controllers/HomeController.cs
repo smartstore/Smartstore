@@ -26,6 +26,7 @@ using Smartstore.Core.Tax.Settings;
 using Smartstore.Threading;
 using System.Threading;
 using Smartstore.Web.Common.Theming;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Smartstore.Web.Controllers
 {
@@ -43,14 +44,14 @@ namespace Smartstore.Web.Controllers
         private readonly IEventPublisher _eventPublisher;
         private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
-        private readonly ILogger<HomeController> _logger;
+        //private readonly ILogger<HomeController> _logger;
         private readonly ICacheManager _cache;
         private readonly IAsyncState _asyncState;
         private readonly IThemeRegistry _themeRegistry;
 
         public HomeController(
             SmartDbContext db, 
-            ILogger<HomeController> logger,
+            //ILogger<HomeController> logger,
             ISettingService settingService,
             IEventPublisher eventPublisher,
             IDbContextFactory<SmartDbContext> dbContextFactory,
@@ -65,13 +66,19 @@ namespace Smartstore.Web.Controllers
             _eventPublisher = eventPublisher;
             _settingService = settingService;
             _storeContext = storeContext;
-            _logger = logger;
+            //_logger = logger;
             _cache = cache;
             _asyncState = asyncState;
             _themeRegistry = themeRegistry;
 
+            //_logger.Error(new Exception("WTF Exception"), "WTF maaaan");
+            //_logger.Warn("WTF maaaan");
+            //_logger.Info("INFO maaaan");
+
             var currentStore = storeContext.CurrentStore;
         }
+
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
 
         public async Task<IActionResult> Countries()
@@ -91,6 +98,10 @@ namespace Smartstore.Web.Controllers
             ////_cache.Remove("a");
 
             #endregion
+
+            Logger.Error(new Exception("WTF Exception"), "WTF maaaan");
+            Logger.Warn("WTF maaaan");
+            Logger.Info("INFO maaaan");
 
             _asyncState.Cancel<MyProgress>();
             //_cancelTokenSource.Cancel();

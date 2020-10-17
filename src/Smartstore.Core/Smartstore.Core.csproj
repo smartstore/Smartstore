@@ -41,7 +41,6 @@
     <Folder Include="Content\Forums\" />
     <Folder Include="Content\Themes\" />
     <Folder Include="Platform\Api\" />
-    <Folder Include="Platform\Logging\" />
     <Folder Include="Platform\Messaging\" />
     <Folder Include="Platform\Rules\" />
     <Folder Include="Platform\Search\" />
@@ -68,6 +67,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0-rc.1.20451.13" />
     <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.1" />
     <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.2.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="5.0.0-preview.8.20407.4-02" />
   </ItemGroup>
 

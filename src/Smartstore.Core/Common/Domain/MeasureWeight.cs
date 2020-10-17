@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Localization;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Smartstore.Core.Localization;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
@@ -21,6 +22,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the ratio
         /// </summary>
+        [Column(TypeName = "decimal(18,8)")]
         public decimal Ratio { get; set; }
 
         /// <summary>
