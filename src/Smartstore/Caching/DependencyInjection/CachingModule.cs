@@ -1,13 +1,11 @@
-﻿using System;
-using Autofac;
-using Smartstore.Engine;
+﻿using Autofac;
 using Smartstore.Threading;
 
 namespace Smartstore.Caching.DependencyInjection
 {
-    public class CacheStarter : StarterBase
+    public class CachingModule : Autofac.Module
     {
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<RequestCache>()
                 .As<IRequestCache>()
@@ -32,7 +30,7 @@ namespace Smartstore.Caching.DependencyInjection
 
             builder.RegisterType<DefaultAsyncState>()
                 .As<IAsyncState>()
-                .OnPreparing(e => 
+                .OnPreparing(e =>
                 {
                     // Inject mem cache by default
                     e.Parameters = new[] { TypedParameter.From(e.Context.Resolve<IMemoryCacheStore>()) };

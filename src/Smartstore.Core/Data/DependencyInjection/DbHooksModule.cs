@@ -6,32 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using Smartstore.Engine;
+using Smartstore.Events.DependencyInjection;
 
-namespace Smartstore.Core.Data
+namespace Smartstore.Core.Data.DependecyInjection
 {
-    public class HookStarter : StarterBase
-    {
-        internal readonly static Type[] IgnoredInterfaces = new Type[]
-        {
-            // TODO: (core) add more ignored interfaces (?)
-            typeof(IDisposable),
-            typeof(IAsyncDisposable),
-            typeof(IScopedService)
-        };
-
-        public override int Order => int.MaxValue;
-
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
-        {
-            services.AddDbHookHandler();
-        }
-
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
-        {
-            builder.RegisterModule(new DbHooksModule(appContext));
-        }
-    }
-
     internal class DbHooksModule : Autofac.Module
     {
         private readonly IApplicationContext _appContext;
@@ -39,6 +17,66 @@ namespace Smartstore.Core.Data
         public DbHooksModule(IApplicationContext appContext)
         {
             _appContext = appContext;
+        }
+
+        protected override void Load(ContainerBuilder builder)
+        {
+            //if (false)
+            //{
+            //    // TODO: (core) "DataSettings.DatabaseIsInstalled()"
+            //    return;
+            //}
+
+            builder.RegisterType<DefaultDbHookHandler>()
+                .As<IDbHookHandler>()
+                .InstancePerLifetimeScope();
+
+            var hookTypes = _appContext.TypeScanner.FindTypes<IDbSaveHook>(ignoreInactiveModules: true);
+
+            foreach (var hookType in hookTypes)
+            {
+                var types = DiscoverHookTypes(hookType);
+
+                var registration = builder.RegisterType(hookType)
+                    .As<IDbSaveHook>()
+                    .WithMetadata<HookMetadata>(m =>
+                    {
+                        m.For(em => em.HookedType, types.EntityType);
+                        m.For(em => em.ImplType, hookType);
+                        m.For(em => em.DbContextType, types.ContextType ?? typeof(SmartDbContext));
+                        m.For(em => em.Important, hookType.HasAttribute<ImportantAttribute>(false));
+                    });
+
+                var lifetime = hookType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
+                if (lifetime == ServiceLifetime.Singleton)
+                {
+                    registration.SingleInstance();
+                }
+                else if (lifetime == ServiceLifetime.Transient)
+                {
+                    registration.InstancePerDependency();
+                }
+                else
+                {
+                    registration.InstancePerLifetimeScope();
+                }
+
+                // Find other interfaces that the impl type implements and override
+                // a possibly existing previous registration. E.g.: SettingService
+                // also implements IDbSaveHook directly. But we don't want two different registrations,
+                // we want Autofac to resolve the same instance of SettingsService, 
+                // either injected as ISettingService or IDbSaveHook.
+                var interfaces = hookType.GetTypeInfo().ImplementedInterfaces
+                    .Where(x => !x.IsGenericType)
+                    .Except(EventsModule.IgnoredInterfaces.Concat(new[] { typeof(IDbSaveHook) }))
+                    .ToArray();
+
+                if (interfaces.Length > 0)
+                {
+                    // This call actually overrides any former registration for the interface.
+                    registration.As(interfaces);
+                }
+            }
         }
 
         private static (Type ContextType, Type EntityType) DiscoverHookTypes(Type type)
@@ -76,49 +114,6 @@ namespace Smartstore.Core.Data
             }
 
             return (typeof(SmartDbContext), typeof(BaseEntity));
-        }
-
-        protected override void Load(ContainerBuilder builder)
-        {
-            //if (false)
-            //{
-            //    // TODO: (core) "DataSettings.DatabaseIsInstalled()"
-            //    return;
-            //}
-
-            var hookTypes = _appContext.TypeScanner.FindTypes<IDbSaveHook>(ignoreInactiveModules: true);
-
-            foreach (var hookType in hookTypes)
-            {
-                var types = DiscoverHookTypes(hookType);
-
-                var registration = builder.RegisterType(hookType)
-                    .InstancePerLifetimeScope()
-                    .As<IDbSaveHook>()
-                    .WithMetadata<HookMetadata>(m =>
-                    {
-                        m.For(em => em.HookedType, types.EntityType);
-                        m.For(em => em.ImplType, hookType);
-                        m.For(em => em.DbContextType, types.ContextType ?? typeof(SmartDbContext));
-                        m.For(em => em.Important, hookType.HasAttribute<ImportantAttribute>(false));
-                    });
-
-                // Find other interfaces that the impl type implements and override
-                // a possibly existing previous registration. E.g.: SettingService
-                // also implements IDbSaveHook directly. But we don't want two different registrations,
-                // we want Autofac to resolve the same instance of SettingsService, 
-                // either injected as ISettingService or IDbSaveHook.
-                var interfaces = hookType.GetTypeInfo().ImplementedInterfaces
-                    .Where(x => !x.IsGenericType)
-                    .Except(HookStarter.IgnoredInterfaces.Concat(new[] { typeof(IDbSaveHook) }))
-                    .ToArray();
-
-                if (interfaces.Length > 0)
-                {
-                    // This call actually overrides any former registration for the interface.
-                    registration.As(interfaces);
-                }
-            }
         }
     }
 }

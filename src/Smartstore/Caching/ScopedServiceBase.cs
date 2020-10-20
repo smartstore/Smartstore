@@ -1,7 +1,7 @@
 ﻿using System;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core
+namespace Smartstore.Caching
 {
     /// <inheritdoc/>
     public abstract class ScopedServiceBase : IScopedService

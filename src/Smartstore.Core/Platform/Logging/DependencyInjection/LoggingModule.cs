@@ -2,45 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Core;
 using Autofac.Core.Activators.Reflection;
 using Autofac.Core.Registration;
-using Autofac.Core.Resolving.Pipeline;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Smartstore.ComponentModel;
 using Smartstore.Data;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Logging.DependencyInjection
 {
-    public sealed class LoggingStarter : StarterBase
-    {
-        public override int ApplicationOrder 
-            => int.MinValue;
-
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
-        {
-            builder.RegisterModule(new LoggingModule());
-        }
-
-        public override void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)
-        {
-            app.UseMiddleware<SerilogLocalContextMiddleware>();
-        }
-    }
-
     internal class LoggingModule : Autofac.Module
     {
         protected override void Load(ContainerBuilder builder)
         {
-            // TODO: (core) Impl and register IChronometer (=> Diagnostics)
-            //builder.RegisterType<NullChronometer>().As<IChronometer>().SingleInstance();
-
             // Call GetLogger in response to the request for an ILogger implementation
             if (DataSettings.DatabaseIsInstalled())
             {
@@ -55,6 +30,10 @@ namespace Smartstore.Core.Logging.DependencyInjection
 
         protected override void AttachToComponentRegistration(IComponentRegistryBuilder componentRegistry, IComponentRegistration registration)
         {
+            //// Ignore components that provide loggers (and thus avoid a circular dependency below)
+            //if (registration.Services.OfType<TypedService>().Any(ts => ts.ServiceType == typeof(ILogger)))
+            //    return;
+
             bool hasCtorLogger = false;
             bool hasPropertyLogger = false;
 
@@ -64,7 +43,7 @@ namespace Smartstore.Core.Logging.DependencyInjection
             if (ra != null)
             {
                 // // Look for ctor parameters of type "ILogger" 
-                var ctors = ra.ConstructorFinder.FindConstructors(ra.LimitType);
+                var ctors = GetConstructorsSafe(ra);
                 var loggerParameters = ctors.SelectMany(ctor => ctor.GetParameters()).Where(pi => pi.ParameterType == typeof(ILogger));
                 hasCtorLogger = loggerParameters.Any();
 
@@ -99,44 +78,26 @@ namespace Smartstore.Core.Logging.DependencyInjection
 
             registration.PipelineBuilding += (sender, pipeline) =>
             {
-                //if (hasCtorLogger)
-                //{
-                //    pipeline.Use(PipelinePhase.ParameterSelection, (context, next) =>
-                //    {
-                //        var logger = GetLoggerFor(context.Registration.Activator.LimitType, context);
-                //        //context.Parameters = new[] { TypedParameter.From(logger) }.Concat(args.Parameters);
-                //        context.ChangeParameters(new[] { TypedParameter.From(logger) }.Concat(context.Parameters));
-
-                //        // Call the next middleware in the pipeline.
-                //        next(context);
-                //    });
-                //}
-
-                if (hasPropertyLogger)
-                {
-                    pipeline.Use(PipelinePhase.Activation, (context, next) =>
-                    {
-                        // Call the next middleware in the pipeline.
-                        next(context);
-
-                        var logger = GetLoggerFor(context.Registration.Activator.LimitType, context);
-                        var loggerProps = context.Registration.Metadata.Get("LoggerProperties") as FastProperty[];
-                        if (loggerProps != null)
-                        {
-                            foreach (var prop in loggerProps)
-                            {
-                                prop.SetValue(context.Instance, logger);
-                            }
-                        }
-                    });
-                }
-
+                // Add our middleware to the pipeline.
+                pipeline.Use(new AutofacSerilogMiddleware(registration.Activator.LimitType, hasCtorLogger, hasPropertyLogger));
             };
         }
 
-        private static ILogger GetLoggerFor(Type componentType, IComponentContext ctx)
+        static ConstructorInfo[] GetConstructorsSafe(ReflectionActivator ra)
         {
-            return ctx.Resolve<ILogger>(new TypedParameter(typeof(Type), componentType));
+            // As of Autofac v4.7.0 "FindConstructors" will throw "NoConstructorsFoundException" instead of returning an empty array
+            // See: https://github.com/autofac/Autofac/pull/895 & https://github.com/autofac/Autofac/issues/733
+            ConstructorInfo[] ctors;
+            try
+            {
+                ctors = ra.ConstructorFinder.FindConstructors(ra.LimitType);
+            }
+            catch (NoConstructorsFoundException)
+            {
+                ctors = Array.Empty<ConstructorInfo>();
+            }
+
+            return ctors;
         }
 
         private static ILogger GetContextualLogger(IComponentContext context, IEnumerable<Parameter> parameters)

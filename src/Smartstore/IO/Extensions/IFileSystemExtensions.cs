@@ -95,7 +95,7 @@ namespace Smartstore
             using (var stream = file.OpenRead())
             using (var streamReader = new StreamReader(stream, encoding ?? Encoding.UTF8))
             {
-                return await streamReader.ReadToEndAsync().ConfigureAwait(false);
+                return await streamReader.ReadToEndAsync();
             }
         }
 

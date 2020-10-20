@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
+using Serilog.Events;
 using Smartstore.Engine;
 
 namespace Smartstore.Web
@@ -17,18 +19,8 @@ namespace Smartstore.Web
 
         public Startup(WebHostBuilderContext hostBuilderContext)
         {
-            var env = hostBuilderContext.HostingEnvironment;
-
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddJsonFile("Config/Connections.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"Config/Connections.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-
-            this.Configuration = builder.Build();
-            this.Environment = env;
+            Configuration = hostBuilderContext.Configuration;
+            Environment = hostBuilderContext.HostingEnvironment;
         }
 
         public IConfiguration Configuration { get; }
@@ -61,8 +53,12 @@ namespace Smartstore.Web
 
         public void Configure(IApplicationBuilder app, IHostApplicationLifetime appLifetime)
         {
+            // Write streamlined request completion events, instead of the more verbose ones from the framework.
+            // To use the default framework request logging instead, remove this line and set the "Microsoft"
+            // level in appsettings.json to "Information".
+            app.UseSerilogRequestLogging();
+            
             appLifetime.ApplicationStarted.Register(OnStarted, app);
-
             _engineStarter.ConfigureApplication(app);
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Smartstore.Caching;
 
 namespace Smartstore.Core.Configuration
 {

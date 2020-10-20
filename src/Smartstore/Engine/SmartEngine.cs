@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Smartstore.Diagnostics;
 
 namespace Smartstore.Engine
 {
@@ -49,6 +50,7 @@ namespace Smartstore.Engine
                 services.AddAsyncRunner();
                 services.AddLockFileManager();
 
+                services.AddSingleton(x => NullChronometer.Instance);
                 services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
 
                 // TODO: (core) Register logging and more system stuff

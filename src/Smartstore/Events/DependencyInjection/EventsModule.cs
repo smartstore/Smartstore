@@ -1,43 +1,56 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Data;
-using Smartstore.Events;
+using Smartstore.Caching;
 using Smartstore.Engine;
 
-namespace Smartstore.Core.Events
+namespace Smartstore.Events.DependencyInjection
 {
-    public class EventStarter : StarterBase
+    public class EventsModule : Autofac.Module
     {
-        public override int Order => int.MaxValue - 1;
-
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public readonly static Type[] IgnoredInterfaces = new Type[]
         {
-            services.AddEventPublisher();
-        }
+            // TODO: (core) add more ignored interfaces (?)
+            typeof(IDisposable),
+            typeof(IAsyncDisposable),
+            typeof(IScopedService)
+        };
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
-        {
-            builder.RegisterModule(new EventModule(appContext));
-        }
-    }
-
-    internal class EventModule : Autofac.Module
-    {
         private readonly IApplicationContext _appContext;
 
-        public EventModule(IApplicationContext appContext)
+        public EventsModule(IApplicationContext appContext)
         {
             _appContext = appContext;
         }
 
         protected override void Load(ContainerBuilder builder)
+        {
+            builder.RegisterType<NullMessageBus>()
+                .As<IMessageBus>()
+                .SingleInstance();
+
+            builder.RegisterType<EventPublisher>()
+                .As<IEventPublisher>()
+                .SingleInstance();
+
+            builder.RegisterType<ConsumerRegistry>()
+                .As<IConsumerRegistry>()
+                .SingleInstance();
+
+            builder.RegisterType<ConsumerResolver>()
+                .As<IConsumerResolver>()
+                .SingleInstance();
+
+            builder.RegisterType<ConsumerInvoker>()
+                .As<IConsumerInvoker>()
+                .SingleInstance();
+
+            DiscoverConsumers(builder);
+        }
+
+        private void DiscoverConsumers(ContainerBuilder builder)
         {
             var moduleCatalog = _appContext.ModuleCatalog;
 
@@ -47,11 +60,23 @@ namespace Smartstore.Core.Events
                 var registration = builder
                     .RegisterType(consumerType)
                     .As<IConsumer>()
-                    .Keyed<IConsumer>(consumerType)
-                    .InstancePerLifetimeScope();
-               
+                    .Keyed<IConsumer>(consumerType);
+
                 var moduleDescriptor = moduleCatalog.GetModuleByAssembly(consumerType.Assembly);
                 var isActive = moduleCatalog.IsActiveModuleAssembly(consumerType.Assembly);
+                var lifetime = consumerType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
+                if (lifetime == ServiceLifetime.Singleton)
+                {
+                    registration.SingleInstance();
+                }
+                else if (lifetime == ServiceLifetime.Transient)
+                {
+                    registration.InstancePerDependency();
+                }
+                else
+                {
+                    registration.InstancePerLifetimeScope();
+                }
 
                 registration.WithMetadata<EventConsumerMetadata>(m =>
                 {
@@ -67,7 +92,7 @@ namespace Smartstore.Core.Events
                 // either injected as ISettingService or IConsumer.
                 var interfaces = consumerType.GetTypeInfo().ImplementedInterfaces
                     .Where(x => !x.IsGenericType)
-                    .Except(HookStarter.IgnoredInterfaces.Concat(new[] { typeof(IConsumer) }))
+                    .Except(IgnoredInterfaces.Concat(new[] { typeof(IConsumer) }))
                     .ToArray();
 
                 if (interfaces.Length > 0)

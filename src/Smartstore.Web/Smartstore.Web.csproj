@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="App_Data\Logs\**" />
+    <Content Remove="App_Data\Logs\**" />
+    <EmbeddedResource Remove="App_Data\Logs\**" />
+    <None Remove="App_Data\Logs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.0.1" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="5.0.0-preview.8.20407.4-02" />
   </ItemGroup>

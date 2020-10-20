@@ -6,43 +6,9 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Configuration;
 using Smartstore.Data.Hooks;
 using Smartstore.Data;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace Smartstore.Core.Data
 {
-    public class Hook1 : AsyncDbSaveHook<GenericAttribute>
-    {
-        protected override Task OnInsertingAsync(GenericAttribute entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            return base.OnInsertingAsync(entity, entry, cancelToken);
-        }
-
-        protected override Task OnInsertedAsync(GenericAttribute entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            return base.OnInsertedAsync(entity, entry, cancelToken);
-        }
-
-        protected override Task OnDeletedAsync(GenericAttribute entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            return base.OnDeletedAsync(entity, entry, cancelToken);
-        }
-    }
-
-    public class Hook2 : DbSaveHook<StoreMapping>
-    {
-        protected override void OnDeleting(StoreMapping entity, IHookedEntity entry)
-        {
-            base.OnDeleting(entity, entry);
-        }
-
-        protected override void OnDeleted(StoreMapping entity, IHookedEntity entry)
-        {
-            base.OnDeleted(entity, entry);
-        }
-    }
-    
-    
     public abstract class AsyncDbSaveHook<TEntity> : AsyncDbSaveHook<SmartDbContext, TEntity>
         where TEntity : class
     {

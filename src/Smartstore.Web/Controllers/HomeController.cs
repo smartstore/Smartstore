@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Data;
-using Smartstore.Core.Events;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
 using Smartstore.Engine;
@@ -44,14 +43,16 @@ namespace Smartstore.Web.Controllers
         private readonly IEventPublisher _eventPublisher;
         private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
-        //private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<HomeController> _logger1;
+        private readonly ILogger _logger2;
         private readonly ICacheManager _cache;
         private readonly IAsyncState _asyncState;
         private readonly IThemeRegistry _themeRegistry;
 
         public HomeController(
             SmartDbContext db, 
-            //ILogger<HomeController> logger,
+            ILogger<HomeController> logger1,
+            ILogger logger2,
             ISettingService settingService,
             IEventPublisher eventPublisher,
             IDbContextFactory<SmartDbContext> dbContextFactory,
@@ -66,14 +67,11 @@ namespace Smartstore.Web.Controllers
             _eventPublisher = eventPublisher;
             _settingService = settingService;
             _storeContext = storeContext;
-            //_logger = logger;
+            _logger1 = logger1;
+            _logger2 = logger2;
             _cache = cache;
             _asyncState = asyncState;
             _themeRegistry = themeRegistry;
-
-            //_logger.Error(new Exception("WTF Exception"), "WTF maaaan");
-            //_logger.Warn("WTF maaaan");
-            //_logger.Info("INFO maaaan");
 
             var currentStore = storeContext.CurrentStore;
         }
@@ -101,7 +99,10 @@ namespace Smartstore.Web.Controllers
 
             Logger.Error(new Exception("WTF Exception"), "WTF maaaan");
             Logger.Warn("WTF maaaan");
+
             Logger.Info("INFO maaaan");
+            _logger1.Info("INFO maaaan");
+            _logger2.Info("INFO maaaan");
 
             _asyncState.Cancel<MyProgress>();
             //_cancelTokenSource.Cancel();

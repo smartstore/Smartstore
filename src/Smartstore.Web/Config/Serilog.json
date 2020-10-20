@@ -1,0 +1,23 @@
+{
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Default": "Information",
+        "Microsoft.Hosting.Lifetime": "Information"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Debug",
+        "Args": {
+          "path": "App_Data/Logs/Smartstore-log-.txt",
+          "rollingInterval": "Day",
+          //"outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.ffff}|{MachineName}|{RequestId}|{SourceContext}|{Level:u3}|{Message:lj}{NewLine}{Exception}",
+          //"outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}",
+          "restrictedToMinimumLevel": "Information"
+        }
+      }
+    ]
+  }
+}

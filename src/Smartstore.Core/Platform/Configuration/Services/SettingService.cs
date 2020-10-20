@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -7,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
@@ -18,19 +20,21 @@ using Z.EntityFramework.Plus;
 
 namespace Smartstore.Core.Configuration
 {
+    [ServiceLifetime(ServiceLifetime.Singleton)]
     public partial class SettingService : ScopedServiceBase, ISettingService, IDbSaveHook
     {
         private const string SETTINGS_ALL_KEY = "setting:all";
 
-        private readonly SmartDbContext _db;
-        private readonly ICacheManager _cache;
-        private readonly DbSet<Setting> _setSettings;
+        // 0 = SettingType, 1 = StoreId
+        const string CacheKeyPattern = "settings:{0}.{1}";
 
-        public SettingService(ICacheManager cache, SmartDbContext db)
+        private readonly ICacheManager _cache;
+        private readonly IDbContextFactory<SmartDbContext> _dbContextFactory;
+
+        public SettingService(ICacheManager cache, IDbContextFactory<SmartDbContext> dbContextFactory)
         {
             _cache = cache;
-            _db = db;
-            _setSettings = _db.Settings;
+            _dbContextFactory = dbContextFactory;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -84,186 +88,206 @@ namespace Smartstore.Core.Configuration
         }
 
         /// <inheritdoc/>
-        public virtual async Task<T> GetSettingByKeyAsync<T>(
+        public virtual Task<T> GetSettingByKeyAsync<T>(
             string key,
             T defaultValue = default,
             int storeId = 0,
             bool loadSharedValueIfNotFound = false)
         {
-            Guard.NotEmpty(key, nameof(key));
+            //Guard.NotEmpty(key, nameof(key));
 
-            var settings = await GetAllCachedSettingsAsync();
+            //var settings = await GetAllCachedSettingsAsync();
 
-            var cacheKey = CreateCacheKey(key, storeId);
+            //var cacheKey = CreateCacheKey(key, storeId);
 
-            if (settings.TryGetValue(cacheKey, out CachedSetting cachedSetting))
-            {
-                return cachedSetting.Value.Convert<T>();
-            }
+            //if (settings.TryGetValue(cacheKey, out CachedSetting cachedSetting))
+            //{
+            //    return cachedSetting.Value.Convert<T>();
+            //}
 
-            // fallback to shared (storeId = 0) if desired
-            if (storeId > 0 && loadSharedValueIfNotFound)
-            {
-                cacheKey = CreateCacheKey(key, 0);
-                if (settings.TryGetValue(cacheKey, out cachedSetting))
-                {
-                    return cachedSetting.Value.Convert<T>();
-                }
-            }
+            //// fallback to shared (storeId = 0) if desired
+            //if (storeId > 0 && loadSharedValueIfNotFound)
+            //{
+            //    cacheKey = CreateCacheKey(key, 0);
+            //    if (settings.TryGetValue(cacheKey, out cachedSetting))
+            //    {
+            //        return cachedSetting.Value.Convert<T>();
+            //    }
+            //}
 
-            return defaultValue;
+            return Task.FromResult(defaultValue);
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T LoadSettings<T>(int storeId = 0) where T : ISettings, new()
         {
-            return (T)LoadSettingsCore(GetAllCachedSettings(), typeof(T), storeId);
+            return (T)LoadSettings(typeof(T), storeId);
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async Task<T> LoadSettingsAsync<T>(int storeId = 0) where T : ISettings, new()
         {
-            return (T)LoadSettingsCore(await GetAllCachedSettingsAsync(), typeof(T), storeId);
+            return (T)(await LoadSettingsAsync(typeof(T), storeId));
         }
 
         /// <inheritdoc/>
-        public ISettings LoadSettings(Type settingType, int storeId = 0)
+        public ISettings LoadSettings(Type settingsType, int storeId = 0)
         {
-            Guard.NotNull(settingType, nameof(settingType));
-            Guard.HasDefaultConstructor(settingType);
+            Guard.NotNull(settingsType, nameof(settingsType));
+            Guard.HasDefaultConstructor(settingsType);
 
-            if (!typeof(ISettings).IsAssignableFrom(settingType))
+            if (!typeof(ISettings).IsAssignableFrom(settingsType))
             {
-                throw new ArgumentException($"The type to load settings for must be a subclass of the '{typeof(ISettings).FullName}' interface", nameof(settingType));
+                throw new ArgumentException($"The type to load settings for must be a subclass of the '{typeof(ISettings).FullName}' interface", nameof(settingsType));
             }
 
-            return LoadSettingsCore(GetAllCachedSettings(), settingType, storeId);
+            var cacheKey = BuildCacheKey(settingsType, storeId.ToString(CultureInfo.InvariantCulture));
+
+            return _cache.Get(cacheKey, o =>
+            {
+                o.ExpiresIn(TimeSpan.FromHours(8));
+
+                var rawSettings = GetRawSettings(settingsType, storeId);
+                return MaterializeSettings(settingsType, rawSettings);
+            }, independent: true, allowRecursion: true);
         }
 
         /// <inheritdoc/>
-        public async Task<ISettings> LoadSettingsAsync(Type settingType, int storeId = 0)
+        public Task<ISettings> LoadSettingsAsync(Type settingsType, int storeId = 0)
         {
-            Guard.NotNull(settingType, nameof(settingType));
-            Guard.HasDefaultConstructor(settingType);
+            Guard.NotNull(settingsType, nameof(settingsType));
+            Guard.HasDefaultConstructor(settingsType);
 
-            if (!typeof(ISettings).IsAssignableFrom(settingType))
+            if (!typeof(ISettings).IsAssignableFrom(settingsType))
             {
-                throw new ArgumentException($"The type to load settings for must be a subclass of the '{typeof(ISettings).FullName}' interface", nameof(settingType));
+                throw new ArgumentException($"The type to load settings for must be a subclass of the '{typeof(ISettings).FullName}' interface", nameof(settingsType));
             }
 
-            return LoadSettingsCore(await GetAllCachedSettingsAsync(), settingType, storeId);
+            var cacheKey = BuildCacheKey(settingsType, storeId.ToString(CultureInfo.InvariantCulture));
+
+            return _cache.GetAsync(cacheKey, async (o) =>
+            {
+                o.ExpiresIn(TimeSpan.FromHours(8));
+
+                var rawSettings = await GetRawSettingsAsync(settingsType, storeId);
+                return MaterializeSettings(settingsType, rawSettings);
+            }, independent: true, allowRecursion: true);
         }
 
         /// <inheritdoc/>
-        public virtual async Task<Setting> GetSettingEntityByKeyAsync(string key, int storeId = 0)
+        public virtual Task<Setting> GetSettingEntityByKeyAsync(string key, int storeId = 0)
         {
-            Guard.NotEmpty(key, nameof(key));
+            //Guard.NotEmpty(key, nameof(key));
 
-            var query = _setSettings.Where(x => x.Name == key);
+            //var query = _setSettings.Where(x => x.Name == key);
 
-            if (storeId > 0)
-            {
-                query = query.Where(x => x.StoreId == storeId || x.StoreId == 0).OrderByDescending(x => x.StoreId);
-            }
-            else
-            {
-                query = query.Where(x => x.StoreId == 0);
-            }
+            //if (storeId > 0)
+            //{
+            //    query = query.Where(x => x.StoreId == storeId || x.StoreId == 0).OrderByDescending(x => x.StoreId);
+            //}
+            //else
+            //{
+            //    query = query.Where(x => x.StoreId == 0);
+            //}
 
-            return await query.FirstOrDefaultAsync();
+            //return await query.FirstOrDefaultAsync();
+
+            return Task.FromResult((Setting)null);
         }
 
         /// <inheritdoc/>
-        public virtual async Task<SaveSettingResult> SetSettingAsync<T>(string key, T value, int storeId = 0)
+        public virtual Task<SaveSettingResult> SetSettingAsync<T>(string key, T value, int storeId = 0)
         {
-            Guard.NotEmpty(key, nameof(key));
+            //Guard.NotEmpty(key, nameof(key));
 
-            var str = value.Convert<string>();
-            var allSettings = await GetAllCachedSettingsAsync();
-            var cacheKey = CreateCacheKey(key, storeId);
-            var insert = false;
+            //var str = value.Convert<string>();
+            //var allSettings = await GetAllCachedSettingsAsync();
+            //var cacheKey = CreateCacheKey(key, storeId);
+            //var insert = false;
 
-            if (allSettings.TryGetValue(cacheKey, out CachedSetting cachedSetting))
-            {
-                var setting = await _setSettings.FindByIdAsync(cachedSetting.Id);
-                if (setting != null)
-                {
-                    // Update
-                    if (setting.Value != str)
-                    {
-                        setting.Value = str;
-                        HasChanges = true;
-                        return SaveSettingResult.Modified;
-                    }
-                }
-                else
-                {
-                    insert = true;
-                }
-            }
-            else
-            {
-                insert = true;
-            }
+            //if (allSettings.TryGetValue(cacheKey, out CachedSetting cachedSetting))
+            //{
+            //    var setting = await _setSettings.FindByIdAsync(cachedSetting.Id);
+            //    if (setting != null)
+            //    {
+            //        // Update
+            //        if (setting.Value != str)
+            //        {
+            //            setting.Value = str;
+            //            HasChanges = true;
+            //            return SaveSettingResult.Modified;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        insert = true;
+            //    }
+            //}
+            //else
+            //{
+            //    insert = true;
+            //}
 
-            if (insert)
-            {
-                // Insert
-                var setting = new Setting
-                {
-                    Name = key.ToLowerInvariant(),
-                    Value = str,
-                    StoreId = storeId
-                };
+            //if (insert)
+            //{
+            //    // Insert
+            //    var setting = new Setting
+            //    {
+            //        Name = key.ToLowerInvariant(),
+            //        Value = str,
+            //        StoreId = storeId
+            //    };
 
-                _setSettings.Add(setting);
-                HasChanges = true;
-                return SaveSettingResult.Inserted;
-            }
+            //    _setSettings.Add(setting);
+            //    HasChanges = true;
+            //    return SaveSettingResult.Inserted;
+            //}
 
-            return SaveSettingResult.Unchanged;
+            return Task.FromResult(SaveSettingResult.Unchanged);
         }
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async Task<bool> SaveSettingsAsync<T>(T settings, int storeId = 0) where T : ISettings, new()
+        public Task<bool> SaveSettingsAsync<T>(T settings, int storeId = 0) where T : ISettings, new()
         {
-            Guard.NotNull(settings, nameof(settings));
+            //       Guard.NotNull(settings, nameof(settings));
 
-            using (BeginScope(clearCache: true))
-            {
-                var hasChanges = false;
-                var modifiedProperties = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-                var settingType = typeof(T);
-                var prefix = settingType.Name;
+            //       using (BeginScope(clearCache: true))
+            //       {
+            //           var hasChanges = false;
+            //           var modifiedProperties = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            //           var settingsType = typeof(T);
+            //           var prefix = settingsType.Name;
 
-                /* We do not clear cache after each setting update.
-				 * This behavior can increase performance because cached settings will not be cleared 
-				 * and loaded from database after each update */
-                foreach (var prop in FastProperty.GetProperties(settingType).Values)
-                {
-                    // get properties we can read and write to
-                    if (!prop.IsPublicSettable)
-                        continue;
+            //           /* We do not clear cache after each setting update.
+            //* This behavior can increase performance because cached settings will not be cleared 
+            //* and loaded from database after each update */
+            //           foreach (var prop in FastProperty.GetProperties(settingsType).Values)
+            //           {
+            //               // get properties we can read and write to
+            //               if (!prop.IsPublicSettable)
+            //                   continue;
 
-                    var converter = TypeConverterFactory.GetConverter(prop.Property.PropertyType);
-                    if (converter == null || !converter.CanConvertFrom(typeof(string)))
-                        continue;
+            //               var converter = TypeConverterFactory.GetConverter(prop.Property.PropertyType);
+            //               if (converter == null || !converter.CanConvertFrom(typeof(string)))
+            //                   continue;
 
-                    string key = prefix + "." + prop.Name;
-                    // Duck typing is not supported in C#. That's why we're using dynamic type
-                    dynamic currentValue = prop.GetValue(settings);
+            //               string key = prefix + "." + prop.Name;
+            //               // Duck typing is not supported in C#. That's why we're using dynamic type
+            //               dynamic currentValue = prop.GetValue(settings);
 
-                    if (await SetSettingAsync(key, currentValue ?? "", storeId) > SaveSettingResult.Unchanged)
-                    {
-                        hasChanges = true;
-                    }
-                }
+            //               if (await SetSettingAsync(key, currentValue ?? "", storeId) > SaveSettingResult.Unchanged)
+            //               {
+            //                   hasChanges = true;
+            //               }
+            //           }
 
-                return hasChanges;
-            }
+            //           return hasChanges;
+            //       }
+
+            return Task.FromResult(false);
         }
 
         /// <inheritdoc/>
@@ -306,23 +330,25 @@ namespace Smartstore.Core.Configuration
         }
 
         /// <inheritdoc/>
-        public virtual async Task<int> DeleteSettingsAsync(string rootKey)
+        public virtual Task<int> DeleteSettingsAsync(string rootKey)
         {
-            using (BeginScope())
-            {
-                if (rootKey.IsEmpty())
-                    return 0;
+            //using (BeginScope())
+            //{
+            //    if (rootKey.IsEmpty())
+            //        return 0;
 
-                var prefix = rootKey.EnsureEndsWith(".");
+            //    var prefix = rootKey.EnsureEndsWith(".");
 
-                // TODO: (core) Test this out!
-                var numDeleted = await _setSettings.Where(x => x.Name.StartsWith(prefix)).DeleteAsync();
+            //    // TODO: (core) Test this out!
+            //    var numDeleted = await _setSettings.Where(x => x.Name.StartsWith(prefix)).DeleteAsync();
 
-                if (numDeleted > 0)
-                    HasChanges = true;
+            //    if (numDeleted > 0)
+            //        HasChanges = true;
 
-                return numDeleted;
-            }
+            //    return numDeleted;
+            //}
+
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc/>
@@ -338,86 +364,128 @@ namespace Smartstore.Core.Configuration
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> DeleteSettingAsync(string key, int storeId = 0)
+        public virtual Task<bool> DeleteSettingAsync(string key, int storeId = 0)
         {
-            if (key.HasValue())
-            {
-                key = key.Trim().ToLowerInvariant();
+            //if (key.HasValue())
+            //{
+            //    key = key.Trim().ToLowerInvariant();
 
-                var setting = await (
-                    from s in _setSettings
-                    where s.StoreId == storeId && s.Name == key
-                    select s).FirstOrDefaultAsync();
+            //    var setting = await (
+            //        from s in _setSettings
+            //        where s.StoreId == storeId && s.Name == key
+            //        select s).FirstOrDefaultAsync();
 
-                if (setting != null)
-                {
-                    _setSettings.Remove(setting);
-                    await _db.SaveChangesAsync();
-                    return true;
-                }
-            }
+            //    if (setting != null)
+            //    {
+            //        _setSettings.Remove(setting);
+            //        await _db.SaveChangesAsync();
+            //        return true;
+            //    }
+            //}
 
-            return false;
+            return Task.FromResult(false);
         }
 
         #endregion
 
         #region Utils
 
-        protected virtual IDictionary<string, CachedSetting> GetAllCachedSettings()
+        private string BuildCacheKey(Type settingsType, string suffix)
         {
-            return _cache.Get(SETTINGS_ALL_KEY, o =>
-            {
-                o.ExpiresIn(TimeSpan.FromHours(8));
-
-                var settings = _setSettings.AsNoTracking().ApplySorting().ToList();
-                var dictionary = new Dictionary<string, CachedSetting>(StringComparer.OrdinalIgnoreCase);
-                foreach (var s in settings)
-                {
-                    var settingKey = CreateCacheKey(s.Name, s.StoreId);
-
-                    var cachedSetting = new CachedSetting
-                    {
-                        Id = s.Id,
-                        Name = s.Name,
-                        Value = s.Value,
-                        StoreId = s.StoreId
-                    };
-
-                    dictionary[settingKey] = cachedSetting;
-                }
-
-                return dictionary;
-            }, independent: true, allowRecursion: true);
+            return CacheKeyPattern.FormatInvariant(settingsType.Name, suffix);
         }
 
-        protected virtual async Task<IDictionary<string, CachedSetting>> GetAllCachedSettingsAsync()
+        private IDictionary<string, Setting> GetRawSettings(Type settingsType, int storeId)
         {
-            return await _cache.GetAsync(SETTINGS_ALL_KEY, async (o) =>
+            var prefix = settingsType.Name + ".";
+
+            using (var db = _dbContextFactory.CreateDbContext())
             {
-                o.ExpiresIn(TimeSpan.FromHours(8));
+                var list = db.Settings
+                    .AsNoTracking()
+                    .Where(x => x.Name.StartsWith(prefix))
+                    .Where(x => x.StoreId == 0 || x.StoreId == storeId)
+                    .ApplySorting()
+                    .ToList();
 
-                var query = _setSettings.AsNoTracking().ApplySorting();
+                // Because the list is sorted by StoreId, store-specific entries overwrite neutral ones.
+                return list.ToDictionarySafe(x => x.Name);
+            }
+        }
 
-                var settings = await query.ToListAsync();
-                var dictionary = new Dictionary<string, CachedSetting>(StringComparer.OrdinalIgnoreCase);
-                foreach (var s in settings)
+        private async Task<IDictionary<string, Setting>> GetRawSettingsAsync(Type settingsType, int storeId)
+        {
+            var prefix = settingsType.Name + ".";
+
+            using (var db = _dbContextFactory.CreateDbContext())
+            {
+                var list = await db.Settings
+                    .AsNoTracking()
+                    .Where(x => x.Name.StartsWith(prefix))
+                    .Where(x => x.StoreId == 0 || x.StoreId == storeId)
+                    .ApplySorting()
+                    .ToListAsync();
+
+                // Because the list is sorted by StoreId, store-specific entries overwrite neutral ones.
+                return list.ToDictionarySafe(x => x.Name);
+            }
+        }
+
+        private ISettings MaterializeSettings(Type settingsType, IDictionary<string, Setting> rawSettings)
+        {
+            var prefix = settingsType.Name + ".";
+            var fastProps = FastProperty.GetProperties(settingsType);
+            var instance = (ISettings)Activator.CreateInstance(settingsType);
+
+            foreach (var rawSetting in rawSettings.Values)
+            {
+                var memberName = rawSetting.Name[prefix.Length..];
+                
+                if (!fastProps.TryGetValue(memberName, out var fastProp) || !fastProp.Property.CanWrite)
                 {
-                    var settingKey = CreateCacheKey(s.Name, s.StoreId);
-
-                    var cachedSetting = new CachedSetting
-                    {
-                        Id = s.Id,
-                        Name = s.Name,
-                        Value = s.Value,
-                        StoreId = s.StoreId
-                    };
-
-                    dictionary[settingKey] = cachedSetting;
+                    // Contrinue if prop is not writable
+                    continue;
                 }
 
-                return dictionary;
-            }, independent: true, allowRecursion: true);
+                string setting = rawSetting?.Value;
+
+                if (setting == null)
+                {
+                    if (fastProp.IsSequenceType)
+                    {
+                        if ((fastProp.GetValue(instance) as System.Collections.IEnumerable) != null)
+                        {
+                            // Instance of IEnumerable<> was already created, most likely in the constructor of the settings concrete class.
+                            // In this case we shouldn't let the EnumerableConverter create a new instance but keep this one.
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
+                var converter = TypeConverterFactory.GetConverter(fastProp.Property.PropertyType);
+
+                if (converter == null || !converter.CanConvertFrom(typeof(string)))
+                    continue;
+
+                try
+                {
+                    object value = converter.ConvertFrom(setting);
+
+                    // Set property
+                    fastProp.SetValue(instance, value);
+                }
+                catch (Exception ex)
+                {
+                    var msg = "Could not convert setting '{0}' to type '{1}'".FormatInvariant(rawSetting.Name, fastProp.Name);
+                    Logger.Error(ex, msg);
+                }
+            }
+
+            return instance;
         }
 
         protected virtual PropertyInfo GetPropertyInfo<T, TPropType>(Expression<Func<T, TPropType>> keySelector)
@@ -437,11 +505,11 @@ namespace Smartstore.Core.Configuration
             return propInfo;
         }
 
-        private async Task<ISettings> LoadSettingsJsonAsync(Type settingType, int storeId = 0)
+        private async Task<ISettings> LoadSettingsJsonAsync(Type settingsType, int storeId = 0)
         {
-            string key = settingType.Namespace + "." + settingType.Name;
+            string key = settingsType.Namespace + "." + settingsType.Name;
 
-            var settings = (ISettings)Activator.CreateInstance(settingType);
+            var settings = (ISettings)Activator.CreateInstance(settingsType);
 
             var rawSetting = await GetSettingByKeyAsync<string>(key, storeId: storeId, loadSharedValueIfNotFound: true);
             if (rawSetting.HasValue())
@@ -462,90 +530,24 @@ namespace Smartstore.Core.Configuration
             await SetSettingAsync(key, rawSettings, storeId);
         }
 
-        private async Task DeleteSettingsJsonAsync<T>()
+        private Task DeleteSettingsJsonAsync<T>()
         {
-            Type t = typeof(T);
-            string key = t.Namespace + "." + t.Name;
+            //Type t = typeof(T);
+            //string key = t.Namespace + "." + t.Name;
 
-            // TODO: (core) no hook will run, 'cause notrack.
-            await _setSettings
-                .Where(x => x.Name == key)
-                .DeleteAsync();
+            //// TODO: (core) no hook will run, 'cause notrack.
+            //await _setSettings
+            //    .Where(x => x.Name == key)
+            //    .DeleteAsync();
+
+            return Task.CompletedTask;
         }
 
-        private async Task<IList<Setting>> GetAllSettingsAsync()
-        {
-            var settings = await _setSettings.ApplySorting().ToListAsync();
-            return settings;
-        }
-
-        protected virtual ISettings LoadSettingsCore(
-            IDictionary<string, CachedSetting> allSettings, 
-            Type settingType, 
-            int storeId = 0)
-        {
-            Guard.NotNull(allSettings, nameof(allSettings));
-            Guard.NotNull(settingType, nameof(settingType));
-
-            var instance = (ISettings)Activator.CreateInstance(settingType);
-            var prefix = settingType.Name;
-
-            foreach (var fastProp in FastProperty.GetProperties(settingType).Values)
-            {
-                var prop = fastProp.Property;
-
-                // Get properties we can read and write to
-                if (!prop.CanWrite)
-                    continue;
-
-                string key = prefix + "." + prop.Name;
-
-                if (!allSettings.TryGetValue(CreateCacheKey(key, storeId), out var cachedSetting) && storeId > 0)
-                {
-                    // Fallback to shared (storeId = 0)
-                    allSettings.TryGetValue(CreateCacheKey(key, 0), out cachedSetting);
-                }
-
-                string setting = cachedSetting?.Value;
-
-                if (setting == null)
-                {
-                    if (fastProp.IsSequenceType)
-                    {
-                        if ((fastProp.GetValue(instance) as System.Collections.IEnumerable) != null)
-                        {
-                            // Instance of IEnumerable<> was already created, most likely in the constructor of the settings concrete class.
-                            // In this case we shouldn't let the EnumerableConverter create a new instance but keep this one.
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-
-                var converter = TypeConverterFactory.GetConverter(prop.PropertyType);
-
-                if (converter == null || !converter.CanConvertFrom(typeof(string)))
-                    continue;
-
-                try
-                {
-                    object value = converter.ConvertFrom(setting);
-
-                    // Set property
-                    fastProp.SetValue(instance, value);
-                }
-                catch (Exception ex)
-                {
-                    var msg = "Could not convert setting '{0}' to type '{1}'".FormatInvariant(key, prop.PropertyType.Name);
-                    Logger.Error(ex, msg);
-                }
-            }
-
-            return instance;
-        }
+        //private Task<IList<Setting>> GetAllSettingsAsync()
+        //{
+        //    var settings = await _setSettings.ApplySorting().ToListAsync();
+        //    return settings;
+        //}
 
         #endregion
 
