@@ -17,7 +17,7 @@ namespace Smartstore.Caching
 
         private readonly HttpContext _context;
 
-        public RequestCache(HttpContextAccessor httpContextAccessor)
+        public RequestCache(IHttpContextAccessor httpContextAccessor)
         {
             // Assigning in Ctor is ok here. This service is scoped.
             _context = httpContextAccessor.HttpContext;

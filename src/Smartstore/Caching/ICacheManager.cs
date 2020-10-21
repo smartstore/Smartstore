@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Smartstore.Threading;
 
 namespace Smartstore.Caching
 {
@@ -26,6 +27,22 @@ namespace Smartstore.Caching
         /// <param name="independent">When <c>true</c>, no attemp will be made to invalidate depending/parent cache entries.</param>
         /// <returns>Cached item value or <c>null</c> if item with specified key does not exist in the cache</returns>
         Task<T> GetAsync<T>(string key, bool independent = false);
+
+        /// <summary>
+        /// Tries to get a cache item associated with the specified key.
+        /// </summary>
+        /// <typeparam name="T">The type of the item to get</typeparam>
+        /// <param name="key">The cache item key</param>
+        /// <returns><c>true</c> when the item exists.</returns>
+        bool TryGet<T>(string key, out T value);
+
+        /// <summary>
+        /// Tries to get a cache item associated with the specified key.
+        /// </summary>
+        /// <typeparam name="T">The type of the item to get</typeparam>
+        /// <param name="key">The cache item key</param>
+        /// <returns><c>true</c> when the item exists.</returns>
+        Task<AsyncOut<T>> TryGetAsync<T>(string key);
 
         /// <summary>
         /// Gets a cache item associated with the specified key or adds the item

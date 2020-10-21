@@ -2,26 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Collections;
+using Smartstore.IO;
 
 namespace Smartstore.Web.Common.Theming
 {
     internal class ThemeManifestMaterializer
     {
         private readonly ThemeManifest _manifest;
+        private readonly ThemeDirectoryData _directoryData;
 
         public ThemeManifestMaterializer(ThemeDirectoryData directoryData)
         {
             Guard.NotNull(directoryData, nameof(directoryData));
 
+            _directoryData = directoryData;
             _manifest = new ThemeManifest
             {
                 ThemeName = directoryData.Directory.Name,
-                Directory = directoryData.Directory,
                 ConfigurationFile = directoryData.ConfigurationFile,
                 Configuration = directoryData.Configuration,
                 IsSymbolicLink = directoryData.IsSymbolicLink,
                 BaseThemeName = directoryData.BaseTheme,
-                PhysicalPath = directoryData.Directory.PhysicalPath
+                FileProvider = new LocalFileSystem(directoryData.Directory.PhysicalPath),
             };
         }
 
@@ -30,7 +32,7 @@ namespace Smartstore.Web.Common.Theming
             var cfg = _manifest.Configuration;
 
             _manifest.ThemeTitle = cfg.Title.NullEmpty() ?? _manifest.ThemeName;
-            _manifest.PreviewImagePath = cfg.PreviewImagePath.NullEmpty() ?? _manifest.Directory.SubPath + "/preview.png";
+            _manifest.PreviewImagePath = cfg.PreviewImagePath.NullEmpty() ?? _directoryData.Directory.SubPath + "/preview.png";
             _manifest.Description = cfg.Description.ToSafe();
             _manifest.Author = cfg.Author.ToSafe();
             _manifest.Url = cfg.Url.ToSafe();
@@ -58,14 +60,14 @@ namespace Smartstore.Web.Common.Theming
                 var options = kvp.Value;
                 if (options == null || !options.Any())
                 {
-                    throw new SmartException("A 'Select' element must contain at least one 'Option' child element. Affected: '{0}' - element: {1}", _manifest.PhysicalPath, kvp.Key);
+                    throw new SmartException("A 'Select' element must contain at least one 'Option' child element. Affected: '{0}' - element: {1}", _manifest.FileProvider.Root, kvp.Key);
                 }
 
                 foreach (var option in options)
                 {
                     if (option.IsEmpty())
                     {
-                        throw new SmartException("A select option cannot be empty. Affected: '{0}' - element: {1}", _manifest.PhysicalPath, kvp.Key);
+                        throw new SmartException("A select option cannot be empty. Affected: '{0}' - element: {1}", _manifest.FileProvider.Root, kvp.Key);
                     }
 
                     selects.Add(kvp.Key, option);
@@ -107,7 +109,7 @@ namespace Smartstore.Web.Common.Theming
 
             if (varType != ThemeVariableType.String && cfg.Value.IsEmpty())
             {
-                throw new SmartException("A value is required for non-string 'Var' elements. Affected: '{0}' - element: {1}", _manifest.PhysicalPath, name);
+                throw new SmartException("A value is required for non-string 'Var' elements. Affected: '{0}' - element: {1}", _manifest.FileProvider.Root, name);
             }
 
             var info = new ThemeVariableInfo
@@ -132,7 +134,7 @@ namespace Smartstore.Web.Common.Theming
                 var arr = type.Split('#');
                 if (arr.Length < 1 || arr[1].IsEmpty())
                 {
-                    throw new SmartException("The 'id' of a select element must be provided (pattern: Select#MySelect). Affected: '{0}' - element: {1}", _manifest.PhysicalPath, name);
+                    throw new SmartException("The 'id' of a select element must be provided (pattern: Select#MySelect). Affected: '{0}' - element: {1}", _manifest.FileProvider.Root, name);
                 }
 
                 selectRef = arr[1];

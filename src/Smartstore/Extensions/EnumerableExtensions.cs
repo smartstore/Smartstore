@@ -190,44 +190,6 @@ namespace Smartstore
 			}
 		}
 
-		/// <summary>
-		/// Performs an action on each item while iterating through a list. 
-		/// This is a handy shortcut for <c>foreach(item in list) { ... }</c>
-		/// </summary>
-		/// <typeparam name="T">The type of the items.</typeparam>
-		/// <param name="source">The list, which holds the objects.</param>
-		/// <param name="action">The action delegate which is called on each item while iterating.</param>
-		[DebuggerStepThrough]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static async Task EachAsync<T>(this IEnumerable<T> source, Func<T, int, Task> action)
-		{
-			int i = 0;
-			foreach (T t in source)
-			{
-				await action(t, i++).ConfigureAwait(false);
-			}
-		}
-
-		//// TODO: (core) Probably conflicting with efcore AnyAsync extension method.
-		///// <summary>
-		///// Determines whether any element of a sequence satisfies a condition. 
-		///// </summary>
-		///// <typeparam name="T">The type of the elements of source.</typeparam>
-		///// <param name="source">The source sequence whose elements to apply the predicate to.</param>
-		///// <param name="predicate">A function to test each element for a condition.</param>
-		//public static async Task<bool> AnyAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
-		//{
-		//	foreach (T t in source)
-		//	{
-		//		if (await predicate(t).ConfigureAwait(false))
-  //              {
-		//			return true;
-  //              }
-		//	}
-
-		//	return false;
-		//}
-
 		public static ReadOnlyCollection<T> AsReadOnly<T>(this IEnumerable<T> source)
         {
 			if (source == null || !source.Any())
@@ -365,6 +327,64 @@ namespace Smartstore
 			return string.Join(separator, source);
 		}
 
-        #endregion
+		#endregion
+
+		#region Async
+
+		/// <summary>
+		/// Performs an action on each item while iterating through a list. 
+		/// This is a handy shortcut for <c>foreach(item in list) { ... }</c>
+		/// </summary>
+		/// <typeparam name="T">The type of the items.</typeparam>
+		/// <param name="source">The list, which holds the objects.</param>
+		/// <param name="action">The action delegate which is called on each item while iterating.</param>
+		public static async Task EachAsync<T>(this IEnumerable<T> source, Func<T, int, Task> action)
+		{
+			int i = 0;
+			foreach (T t in source)
+			{
+				await action(t, i++).ConfigureAwait(false);
+			}
+		}
+
+		// TODO: (core) Probably conflicting with efcore AnyAsync extension method.
+		/// <summary>
+		/// Determines whether any element of a sequence satisfies a condition. 
+		/// </summary>
+		/// <typeparam name="T">The type of the elements of source.</typeparam>
+		/// <param name="source">The source sequence whose elements to apply the predicate to.</param>
+		/// <param name="predicate">A function to test each element for a condition.</param>
+		public static async Task<bool> AnyAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
+		{
+			foreach (T t in source)
+			{
+				if (await predicate(t).ConfigureAwait(false))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Projects each element of a sequence into a new form by incorporating the element's index.
+		/// </summary>
+		/// <param name="source">A sequence of values to invoke a transform function on.</param>
+		/// <param name="selector">A transform function to apply to each source element.</param>
+		public static async Task<IEnumerable<TResult>> SelectAsync<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
+		{
+			return await Task.WhenAll(source.Select(async x => await selector(x)));
+		}
+
+		/// <summary>
+		/// Awaits all tasks in a sequence to complete.
+		/// </summary>
+		public static async Task<IEnumerable<T>> WhenAll<T>(this IEnumerable<Task<T>> source)
+		{
+			return await Task.WhenAll(source);
+		}
+
+		#endregion
 	}
 }

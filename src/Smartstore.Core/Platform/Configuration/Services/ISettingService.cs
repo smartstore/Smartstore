@@ -13,22 +13,15 @@ namespace Smartstore.Core.Configuration
         Deleted
     }
 
-    [Serializable]
-    public class CachedSetting
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Value { get; set; }
-        public int StoreId { get; set; }
-    }
-
     /// <summary>
-    /// Setting service interface
+    /// Reads and writes setting entities.
+    /// None of the write methods should actually commit changes to database. It's the callers'
+    /// reponsibility to call 'DbContext.SaveChanges()'.
     /// </summary>
-    public partial interface ISettingService : IScopedService
+    public partial interface ISettingService
     {
         /// <summary>
-        /// Determines whether a setting exists
+        /// Checks whether a setting for the given store exists.
         /// </summary>
         /// <typeparam name="T">Entity type</typeparam>
         /// <typeparam name="TPropType">Property type</typeparam>
@@ -46,9 +39,9 @@ namespace Smartstore.Core.Configuration
         /// <param name="key">Key</param>
         /// <param name="defaultValue">Default value</param>
         /// <param name="storeId">Store identifier</param>
-        /// <param name="loadSharedValueIfNotFound">A value indicating whether a shared (for all stores) value should be loaded if a value specific for a certain store is not found</param>
+        /// <param name="doFallback">A value indicating whether a shared (for all stores) value should be loaded if a value specific for a certain store is not found</param>
         /// <returns>Setting value</returns>
-        Task<T> GetSettingByKeyAsync<T>(string key, T defaultValue = default, int storeId = 0, bool loadSharedValueIfNotFound = false);
+        Task<T> GetSettingByKeyAsync<T>(string key, T defaultValue = default, int storeId = 0, bool doFallback = false);
 
         /// <summary>
         /// Gets a setting by key
@@ -59,35 +52,7 @@ namespace Smartstore.Core.Configuration
         Task<Setting> GetSettingEntityByKeyAsync(string key, int storeId = 0);
 
         /// <summary>
-        /// Load settings
-        /// </summary>
-        /// <typeparam name="T">Type</typeparam>
-        /// <param name="storeId">Store identifier for which settigns should be loaded</param>
-        T LoadSettings<T>(int storeId = 0) where T : ISettings, new();
-
-        /// <summary>
-        /// Load settings
-        /// </summary>
-        /// <typeparam name="T">Type</typeparam>
-        /// <param name="storeId">Store identifier for which settigns should be loaded</param>
-        Task<T> LoadSettingsAsync<T>(int storeId = 0) where T : ISettings, new();
-
-        /// <summary>
-        /// Load settings
-        /// </summary>
-        /// <param name="settingType">Setting class type</param>
-        /// <param name="storeId">Store identifier for which settigns should be loaded</param>
-        ISettings LoadSettings(Type settingType, int storeId = 0);
-
-        /// <summary>
-        /// Load settings
-        /// </summary>
-        /// <param name="settingType">Setting class type</param>
-        /// <param name="storeId">Store identifier for which settigns should be loaded</param>
-        Task<ISettings> LoadSettingsAsync(Type settingType, int storeId = 0);
-
-        /// <summary>
-        /// Set setting value
+        /// Sets setting value. The caller is responsible for database commit.
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="key">Key</param>
@@ -96,7 +61,7 @@ namespace Smartstore.Core.Configuration
         Task<SaveSettingResult> SetSettingAsync<T>(string key, T value, int storeId = 0);
 
         /// <summary>
-        /// Save settings object
+        /// Save settings object. The caller is responsible for database commit.
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="settings">Setting instance</param>
@@ -105,7 +70,19 @@ namespace Smartstore.Core.Configuration
         Task<bool> SaveSettingsAsync<T>(T settings, int storeId = 0) where T : ISettings, new();
 
         /// <summary>
-        /// Save settings object
+        /// Delete all settings. The caller is responsible for database commit.
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        Task<int> DeleteSettingsAsync<T>() where T : ISettings, new();
+
+        /// <summary>
+        /// Deletes all settings with its key beginning with rootKey. The caller is responsible for database commit.
+        /// </summary>
+        /// <returns>Number of deleted settings</returns>
+        Task<int> DeleteSettingsAsync(string rootKey);
+
+        /// <summary>
+        /// Save settings object. The caller is responsible for database commit.
         /// </summary>
         /// <typeparam name="T">Entity type</typeparam>
         /// <typeparam name="TPropType">Property type</typeparam>
@@ -120,7 +97,7 @@ namespace Smartstore.Core.Configuration
             int storeId = 0) where T : ISettings, new();
 
         /// <summary>
-        /// Updates a setting property
+        /// Updates a setting property. The caller is responsible for database commit.
         /// </summary>
         /// <typeparam name="T">Entity type</typeparam>
         /// <typeparam name="TPropType">Property type</typeparam>
@@ -135,13 +112,7 @@ namespace Smartstore.Core.Configuration
             int storeId = 0) where T : ISettings, new();
 
         /// <summary>
-        /// Delete all settings
-        /// </summary>
-        /// <typeparam name="T">Type</typeparam>
-        Task<int> DeleteSettingsAsync<T>() where T : ISettings, new();
-
-        /// <summary>
-        /// Delete a settings property from storage
+        /// Delete a settings property from storage. The caller is responsible for database commit.
         /// </summary>
         /// <typeparam name="T">Entity type</typeparam>
         /// <typeparam name="TPropType">Property type</typeparam>
@@ -155,15 +126,9 @@ namespace Smartstore.Core.Configuration
             int storeId = 0) where T : ISettings, new();
 
         /// <summary>
-        /// Delete a settings property from storage
+        /// Delete a settings property from storage. The caller is responsible for database commit.
         /// </summary>
-        /// <returns><c>true</c> when the setting existed and has been deleted</returns>
+        /// <returns><c>true</c> when the setting exists in the database.</returns>
         Task<bool> DeleteSettingAsync(string key, int storeId = 0);
-
-        /// <summary>
-        /// Deletes all settings with its key beginning with rootKey.
-        /// </summary>
-        /// <returns>Number of deleted settings</returns>
-        Task<int> DeleteSettingsAsync(string rootKey);
     }
 }

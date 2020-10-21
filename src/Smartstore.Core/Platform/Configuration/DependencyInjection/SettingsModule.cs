@@ -8,9 +8,8 @@ namespace Smartstore.Core.Configuration.DependencyInjection
         {
             builder.RegisterSource(new SettingsSource());
 
-            builder.RegisterType<SettingService>()
-                .As<ISettingService>()
-                .SingleInstance();
+            builder.RegisterType<SettingFactory>().As<ISettingFactory>().SingleInstance();
+            builder.RegisterType<SettingService>().As<ISettingService>().InstancePerLifetimeScope();
         }
     }
 }

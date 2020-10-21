@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Engine;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 
 namespace Smartstore.Caching
@@ -99,7 +100,7 @@ namespace Smartstore.Caching
             var entry = GetInternal(key, independent).Entry;
             if (entry?.Value != null)
             {
-                return (T)entry?.Value;
+                return (T)entry.Value;
             }
             
             return default;
@@ -112,10 +113,37 @@ namespace Smartstore.Caching
             var entry = (await GetInternalAsync(key, independent)).Entry;
             if (entry?.Value != null)
             {
-                return (T)entry?.Value;
+                return (T)entry.Value;
             }
 
             return default;
+        }
+
+        public bool TryGet<T>(string key, out T value)
+        {
+            Guard.NotEmpty(key, nameof(key));
+
+            value = default;
+            var entry = GetInternal(key, false).Entry;
+            if (entry != null)
+            {
+                value = (T)entry.Value;
+            }
+
+            return entry != null;
+        }
+
+        public async Task<AsyncOut<T>> TryGetAsync<T>(string key)
+        {
+            Guard.NotEmpty(key, nameof(key));
+
+            var entry = (await GetInternalAsync(key, false)).Entry;
+            if (entry != null)
+            {
+                return new AsyncOut<T>(true, (T)entry.Value);
+            }
+
+            return AsyncOut<T>.Empty;
         }
 
         public T Get<T>(string key, Func<CacheEntryOptions, T> acquirer, bool independent = false, bool allowRecursion = false)
@@ -314,7 +342,12 @@ namespace Smartstore.Caching
             Guard.NotEmpty(pattern, nameof(pattern));
 
             // INFO: Reverse order
-            return await _stores.Reverse().Max(async (x) => await x.RemoveByPatternAsync(pattern)).ConfigureAwait(false);
+            var counts = await _stores
+                .Reverse()
+                .SelectAsync(async (x) => await x.RemoveByPatternAsync(pattern))
+                .ConfigureAwait(false);
+
+            return counts.Max();
         }
 
         public void Clear()

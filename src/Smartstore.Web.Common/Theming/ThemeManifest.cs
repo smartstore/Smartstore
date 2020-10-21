@@ -85,7 +85,7 @@ namespace Smartstore.Web.Common.Theming
 
         #region Properties
 
-        public IDirectory Directory
+        public IFileSystem FileProvider
         {
             get;
             protected internal set;
@@ -107,16 +107,6 @@ namespace Smartstore.Web.Common.Theming
         /// Determines whether the theme directory is a symbolic link to another target.
         /// </summary>
         public bool IsSymbolicLink
-        {
-            get;
-            protected internal set;
-        }
-
-        /// <summary>
-        /// Gets the physical path of the theme. In case of a symbolic link,
-        /// returns the link's target path.
-        /// </summary>
-        public string PhysicalPath
         {
             get;
             protected internal set;

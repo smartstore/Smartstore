@@ -4,7 +4,7 @@ using Smartstore.Core.Configuration;
 
 namespace Smartstore
 {
-    public static partial class IQueryableExtensions
+    public static class SettingQueryExtensions
     {
         /// <summary>
         /// Applies order by <see cref="Setting.Name"/>, then by <see cref="Setting.StoreId"/>

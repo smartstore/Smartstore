@@ -6,7 +6,7 @@ using Smartstore.Domain;
 
 namespace Smartstore
 {
-    public static partial class IQueryableExtensions
+    public static partial class StoreQueryExtensions
     {
         public static IQueryable<T> ApplyLimitToStore<T>(this IQueryable<T> query, int storeId)
             where T : BaseEntity, IStoreRestricted

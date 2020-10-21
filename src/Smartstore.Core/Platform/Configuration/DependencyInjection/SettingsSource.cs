@@ -32,15 +32,16 @@ namespace Smartstore.Core.Configuration.DependencyInjection
                     TSettings settings = default;
 
                     int currentStoreId = c.ResolveOptional<IStoreContext>()?.CurrentStore?.Id ?? 0;
-                    var settingService = c.ResolveOptional<ISettingService>();
-                    if (settingService != null)
+                    var settingFactory = c.ResolveOptional<ISettingFactory>();
+                    if (settingFactory != null)
                     {
-                        settings = settingService.LoadSettings<TSettings>(currentStoreId);
+                        settings = settingFactory.LoadSettings<TSettings>(currentStoreId);
                     }
 
                     return settings ?? new TSettings();
                 })
-                .InstancePerLifetimeScope()
+                //.InstancePerLifetimeScope()
+                .ExternallyOwned()
                 .CreateRegistration();
         }
 

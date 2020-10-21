@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dasync.Collections;
+using Smartstore.Threading;
 
 namespace Smartstore.Caching
 {
@@ -14,6 +15,15 @@ namespace Smartstore.Caching
 
         public Task<T> GetAsync<T>(string key, bool independent = false) 
             => Task.FromResult<T>(default);
+
+        public bool TryGet<T>(string key, out T value)
+        {
+            value = default;
+            return false;
+        }
+
+        public Task<AsyncOut<T>> TryGetAsync<T>(string key)
+            => Task.FromResult(AsyncOut<T>.Empty);
 
         public T Get<T>(string key, Func<CacheEntryOptions, T> acquirer, bool independent = false, bool allowRecursion = false) 
             => acquirer == null ? default : acquirer(new CacheEntryOptions());

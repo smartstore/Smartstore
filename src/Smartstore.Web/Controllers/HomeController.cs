@@ -26,6 +26,7 @@ using Smartstore.Threading;
 using System.Threading;
 using Smartstore.Web.Common.Theming;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core;
 
 namespace Smartstore.Web.Controllers
 {
@@ -34,6 +35,13 @@ namespace Smartstore.Web.Controllers
         public int Percent { get; set; }
         public string Message { get; set; }
     }
+
+    public class TestSettings : ISettings
+    {
+        public string Prop1 { get; set; } = "Prop1";
+        public string Prop2 { get; set; } = "Prop2";
+        public string Prop3 { get; set; } = "Prop3";
+    }
     
     public class HomeController : Controller
     {
@@ -41,19 +49,20 @@ namespace Smartstore.Web.Controllers
         
         private readonly SmartDbContext _db;
         private readonly IEventPublisher _eventPublisher;
-        private readonly ISettingService _settingService;
+        private readonly ISettingFactory _settingFactory;
         private readonly IStoreContext _storeContext;
         private readonly ILogger<HomeController> _logger1;
         private readonly ILogger _logger2;
         private readonly ICacheManager _cache;
         private readonly IAsyncState _asyncState;
         private readonly IThemeRegistry _themeRegistry;
+        private readonly ICommonServices _services;
 
         public HomeController(
             SmartDbContext db, 
             ILogger<HomeController> logger1,
             ILogger logger2,
-            ISettingService settingService,
+            ISettingFactory settingFactory,
             IEventPublisher eventPublisher,
             IDbContextFactory<SmartDbContext> dbContextFactory,
             IStoreContext storeContext,
@@ -61,19 +70,21 @@ namespace Smartstore.Web.Controllers
             ICacheManager cache,
             IAsyncState asyncState,
             IThemeRegistry themeRegistry,
-            TaxSettings taxSettings)
+            TaxSettings taxSettings,
+            ICommonServices services)
         {
             _db = db;
             _eventPublisher = eventPublisher;
-            _settingService = settingService;
+            _settingFactory = settingFactory;
             _storeContext = storeContext;
             _logger1 = logger1;
             _logger2 = logger2;
             _cache = cache;
             _asyncState = asyncState;
             _themeRegistry = themeRegistry;
+            _services = services;
 
-            var currentStore = storeContext.CurrentStore;
+            var currentStore = _services.StoreContext.CurrentStore;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -83,7 +94,7 @@ namespace Smartstore.Web.Controllers
         {
             #region Test
 
-            var taxSettings = await _settingService.LoadSettingsAsync<TaxSettings>(_storeContext.CurrentStore.Id);
+            var taxSettings = await _settingFactory.LoadSettingsAsync<TaxSettings>(_storeContext.CurrentStore.Id);
 
             //_cache.Put("a", new CacheEntry { Key = "a", Value = "a" });
             //_cache.Put("b", new CacheEntry { Key = "b", Value = "b", Dependencies = new[] { "a" } });
@@ -194,6 +205,27 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
+
+            await _services.Settings.SaveSettingsAsync(new TestSettings(), 1);
+            await _db.SaveChangesAsync();
+            var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
+
+            await _services.Settings.SetSettingAsync("yodele.gut", "yodele");
+            await _services.Settings.SetSettingAsync("yodele.schlecht", "yodele");
+            await _services.Settings.SetSettingAsync("yodele.prop3", "yodele");
+            await _services.Settings.SetSettingAsync("yodele.prop4", "yodele");
+            await _db.SaveChangesAsync();
+
+            var yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+            var yodele2 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
+            var yodele3 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
+            var yodele4 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
+            //await _services.Settings.DeleteSettingsAsync("yodele");
+            yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+
+            await _db.SaveChangesAsync();
+
             _cancelTokenSource = new CancellationTokenSource();
             await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
             

@@ -23,7 +23,7 @@ namespace Smartstore.Core.Web
 {
     public partial class WebHelper : IWebHelper
     {
-        private readonly HttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly Work<IStoreContext> _storeContext;
 
@@ -31,7 +31,7 @@ namespace Smartstore.Core.Web
         private string _ipAddress;
 
         public WebHelper(
-            HttpContextAccessor httpContextaccessor,
+            IHttpContextAccessor httpContextaccessor,
             IHostApplicationLifetime hostApplicationLifetime,
             Work<IStoreContext> storeContext)
         {

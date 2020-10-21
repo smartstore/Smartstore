@@ -23,7 +23,7 @@ namespace Smartstore.Core.Configuration
         /// <summary>
         /// Gets or sets the value
         /// </summary>
-        [Required, MaxLength]
+        [MaxLength]
         public string Value { get; set; }
 
         /// <summary>
