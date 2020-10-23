@@ -8,11 +8,33 @@ using Microsoft.EntityFrameworkCore;
 namespace Smartstore.Data.Hooks
 {
     /// <summary>
+    /// The result of a database save hook operation.
+    /// </summary>
+    public enum HookResult
+    {
+        /// <summary>
+        /// Signals the hook handler that it never should process the hook
+        /// again for the current EntityType/State/Stage combination.
+        /// </summary>
+        Void = -1,
+
+        /// <summary>
+        /// Operation was handled but completed with errors.
+        /// Failed hooks will be absent from <see cref="IDbSaveHook.OnBeforeSaveCompletedAsync(IEnumerable{IHookedEntity}, CancellationToken)"/>
+        /// or <see cref="IDbSaveHook.OnAfterSaveCompletedAsync(IEnumerable{IHookedEntity}, CancellationToken)"/>
+        /// </summary>
+        Failed,
+
+        /// <summary>
+        /// Operation was handled and completed without errors.
+        /// </summary>
+        Ok
+    }
+    
+    /// <summary>
     /// A hook that is executed before and after a database save operation.
-    /// An implementor should raise <see cref="NotSupportedException"/> or
-    /// <see cref="NotImplementedException"/> to signal the hook handler
-    /// that it never should process the hook again for the current
-    /// EntityType/State/Stage combination.
+    /// Raising <see cref="NotSupportedException"/> or
+    /// <see cref="NotImplementedException"/> will be treated just like <see cref="HookResult.Void"/>.
     /// </summary>
     public interface IDbSaveHook
     {
@@ -20,13 +42,13 @@ namespace Smartstore.Data.Hooks
         /// Called when an entity is about to be saved.
         /// </summary>
         /// <param name="entry">The entity entry</param>
-        Task OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken);
+        Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken);
 
         /// <summary>
         /// Called after an entity has been successfully saved.
         /// </summary>
         /// <param name="entry">The entity entry</param>
-        Task OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken);
+        Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken);
 
         /// <summary>
         /// Called after all entities in the current unit of work has been handled right before saving changes to the database

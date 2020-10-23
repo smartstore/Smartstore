@@ -1,77 +1,64 @@
 using System;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using MsHost = Microsoft.Extensions.Hosting.Host;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using Serilog;
 using Microsoft.Extensions.Configuration;
-using System.IO;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
+using Serilog.Extensions.Logging;
+using Serilog.Filters;
+using Smartstore.Core.Logging.Serilog;
+using MsHost = Microsoft.Extensions.Hosting.Host;
 
 namespace Smartstore.Web
 {
     public class Program
     {
+        private static readonly Regex _rgSystemSource = new Regex("^File|^System|^Microsoft|^Serilog|^Autofac|^Castle|^MiniProfiler|^Newtonsoft|^Pipelines|^StackExchange|^Superpower", RegexOptions.Compiled);
+
+        private static IConfiguration BuildConfiguration()
+        {
+            return new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{EnvironmentName}.json", optional: true)
+                .AddJsonFile("Config/Connections.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"Config/Connections.{EnvironmentName}.json", optional: true)
+                //.AddJsonFile("Config/Serilog.json", optional: true, reloadOnChange: true)
+                //.AddJsonFile($"Config/Serilog.{envName}.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
+        }
+
+        private readonly static string EnvironmentName 
+            = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+
+        private readonly static IConfiguration Configuration 
+            = BuildConfiguration();
+
         public static Task Main(string[] args)
             => CreateHostBuilder(args).RunAsync();
 
         public static IHost CreateHostBuilder(string[] args) 
         {
-            var configuration = BuildConfiguration();
-            
-            // TODO: (core) How to pass the static logger thru app initialization pipeline.
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .Enrich.FromLogContext()
-                .WriteTo.Debug()
-                .CreateLogger();
+            Log.Logger = SetupSerilog(Configuration);
 
-            try
-            {
-                Log.Information("Starting up Smartstore...");
-
-                return MsHost.CreateDefaultBuilder(args)
-                    .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                    .ConfigureLogging(SetupLogging)
-                    .UseSerilog((hostingContext, configBuilder) =>
+            return MsHost.CreateDefaultBuilder(args)
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                .ConfigureLogging(SetupLogging)
+                .UseSerilog(dispose: true)
+                .ConfigureWebHostDefaults(wb => wb
+                    .UseStartup<Startup>(hostingContext => 
                     {
-                        hostingContext.Configuration = configuration;
-                        configBuilder
-                            .ReadFrom.Configuration(configuration)
-                            .Enrich.FromLogContext();
-                    }, preserveStaticLogger: true)
-                    //.UseSerilog()
-                    .ConfigureWebHostDefaults(wb => wb
-                        .UseStartup<Startup>(hostingContext => 
-                        {
-                            hostingContext.Configuration = configuration;
-                            return new Startup(hostingContext); 
-                        })
-                     ).Build();
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal(ex, "Application start-up failed!");
-                Log.CloseAndFlush();
-
-                return null;
-            }
-        }
-
-        private static IConfiguration BuildConfiguration()
-        {
-            var envName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
-
-            return new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{envName}.json", optional: true)
-                .AddJsonFile("Config/Connections.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"Config/Connections.{envName}.json", optional: true)
-                .AddJsonFile("Config/Serilog.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"Config/Serilog.{envName}.json", optional: true)
-                .AddEnvironmentVariables()
+                        hostingContext.Configuration = Configuration;
+                        var startupLogger = new SerilogLoggerFactory(Log.Logger).CreateLogger("File");
+                        return new Startup(hostingContext, startupLogger); 
+                    }))
                 .Build();
         }
 
@@ -79,6 +66,71 @@ namespace Smartstore.Web
         {
             loggingBuilder.ClearProviders();
             loggingBuilder.AddSerilog();
+        }
+
+        private static Logger SetupSerilog(IConfiguration configuration)
+        {
+            var builder = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .Enrich.FromLogContext();
+
+            // Build DEBUG logger
+            if (EnvironmentName == "Development")
+            {
+                builder.WriteTo.Debug();
+            }
+
+            builder
+                // Build INSTALL logger
+                .WriteTo.Conditional(Matching.FromSource("Install"), a => a.Async(logger =>
+                {
+                    logger.File("App_Data/Logs/install-.log",
+                        restrictedToMinimumLevel: LogEventLevel.Debug,
+                        outputTemplate: "{Timestamp:G} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+                        fileSizeLimitBytes: 100000000,
+                        rollOnFileSizeLimit: true,
+                        shared: true,
+                        rollingInterval: RollingInterval.Day,
+                        flushToDiskInterval: TimeSpan.FromSeconds(5));
+                }))
+                // Build FILE logger (also replaces the Smartstore classic "TraceLogger")
+                .WriteTo.Logger(logger =>
+                {
+                    logger
+                        .Enrich.FromLogContext()
+                        // Allow only "File[/{path}]" sources
+                        .Filter.ByIncludingOnly(IsFileSource)
+                        // Extracts path from source and adds it as log event property name.
+                        .Enrich.With<LogFilePathEnricher>()
+                        .WriteTo.Map(LogFilePathEnricher.LogFilePathPropertyName, (logFilePath, wt) => 
+                        {
+                            wt.Async(c => c.File($"{logFilePath}",
+                                restrictedToMinimumLevel: LogEventLevel.Debug,
+                                outputTemplate: "{Timestamp:G} [{Level:u3}] {Message:lj} {RequestPath} (UserId: {CustomerId}, Username: {UserName}){NewLine}{Exception}",
+                                fileSizeLimitBytes: 100000000,
+                                rollOnFileSizeLimit: true,
+                                shared: true,
+                                rollingInterval: RollingInterval.Day,
+                                flushToDiskInterval: TimeSpan.FromSeconds(5)));
+                        }, sinkMapCountLimit: 10);
+                }, levelSwitch: null)
+                // Build "SmartDbContext" logger
+                .WriteTo.Logger(logger =>
+                {
+                    logger
+                        .Enrich.FromLogContext()
+                        // Do not allow system/3rdParty noise
+                        .Filter.ByExcluding(e => _rgSystemSource.IsMatch(e.GetSourceContext()))
+                        .WriteTo.DbContext(period: TimeSpan.FromSeconds(5), batchSize: 50, eagerlyEmitFirstEvent: false, queueLimit: 1000);
+                }, restrictedToMinimumLevel: LogEventLevel.Information, levelSwitch: null);
+
+            return builder.CreateLogger();
+        }
+
+        private static bool IsFileSource(LogEvent e)
+        {
+            var source = e.GetSourceContext();
+            return source != null && (source.Equals("File", StringComparison.OrdinalIgnoreCase) || source.StartsWith("File/", StringComparison.OrdinalIgnoreCase));
         }
     }
 }

@@ -190,15 +190,16 @@ namespace Smartstore.Core.Stores
             }, allowRecursion: true);
         }
 
-        public override void OnAfterSave(IHookedEntity entry)
+        public override HookResult OnAfterSave(IHookedEntity entry)
         {
             if (entry.Entity is Store || entry.Entity is Currency)
             {
                 _cache.Remove(CacheKey);
+                return HookResult.Ok;
             }
             else
             {
-                throw new NotSupportedException();
+                return HookResult.Void;
             }
         }
     }

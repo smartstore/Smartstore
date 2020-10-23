@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Smartstore.Domain;
 
@@ -7,9 +8,9 @@ namespace Smartstore.Data.Hooks
     public interface IHookedEntity
     {
         /// <summary>
-        /// Gets the impl type of the data context that triggered the hook.
+        /// Gets the data context that triggered the hook.
         /// </summary>
-        Type ContextType { get; }
+        DbContext DbContext { get; }
 
         /// <summary>
         /// Gets the hooked entity entry

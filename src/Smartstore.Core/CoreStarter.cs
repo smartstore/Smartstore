@@ -12,6 +12,7 @@ using Smartstore.Core.Configuration.DependencyInjection;
 using Smartstore.Core.Data.DependecyInjection;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Logging.DependencyInjection;
+using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Seo.Services;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
@@ -62,7 +63,7 @@ namespace Smartstore.Core
 
         public override void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)
         {
-            app.UseMiddleware<SerilogLocalContextMiddleware>();
+            app.UseMiddleware<SerilogHttpContextMiddleware>();
 
             app.UseMiniProfiler();
             app.UsePolyfillHttpContext();

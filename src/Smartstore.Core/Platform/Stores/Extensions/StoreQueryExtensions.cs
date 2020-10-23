@@ -8,7 +8,7 @@ namespace Smartstore
 {
     public static partial class StoreQueryExtensions
     {
-        public static IQueryable<T> ApplyLimitToStore<T>(this IQueryable<T> query, int storeId)
+        public static IQueryable<T> ApplyStoreFilter<T>(this IQueryable<T> query, int storeId)
             where T : BaseEntity, IStoreRestricted
         {
             Guard.NotNull(query, nameof(query));

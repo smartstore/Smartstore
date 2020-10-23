@@ -14,11 +14,14 @@ namespace Smartstore.Engine
         private readonly IModuleCatalog _moduleCatalog;
         private HashSet<Assembly> _activeAssemblies = new HashSet<Assembly>();
         
-        public DefaultTypeScanner(IModuleCatalog moduleCatalog, params Assembly[] assemblies)
+        public DefaultTypeScanner(IModuleCatalog moduleCatalog, ILogger logger, params Assembly[] assemblies)
         {
             Guard.NotNull(moduleCatalog, nameof(moduleCatalog));
+            Guard.NotNull(logger, nameof(logger));
 
             // TODO: (core) Impl > Logging, PluginManager stuff etc.
+
+            Logger = logger;
 
             _moduleCatalog = moduleCatalog;
             AddAssemblies(assemblies);

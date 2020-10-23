@@ -38,24 +38,27 @@ namespace Smartstore.Data
 
         public override void Dispose()
         {
-            if (_dataProvider != null)
-            {
-                _dataProvider.Dispose();
-                _dataProvider = null;
-            }
-
+            ResetState();
             base.Dispose();
         }
 
         public override ValueTask DisposeAsync()
         {
+            ResetState();
+            return base.DisposeAsync();
+        }
+
+        private void ResetState()
+        {
+            // Instance is returned to pool: reset state.
+            HooksEnabled = true;
+            _currentSaveOperation = null;
+
             if (_dataProvider != null)
             {
                 _dataProvider.Dispose();
                 _dataProvider = null;
             }
-
-            return base.DisposeAsync();
         }
 
         #region Save
@@ -177,7 +180,7 @@ namespace Smartstore.Data
             RegisterConventions(modelBuilder);
         }
 
-        private void RegisterEntities(ModelBuilder modelBuilder, Assembly assembly)
+        private static void RegisterEntities(ModelBuilder modelBuilder, Assembly assembly)
         {
             var entityTypes = assembly.GetExportedTypes()
                 .Where(x => typeof(BaseEntity).IsAssignableFrom(x) && !x.IsAbstract && x.HasDefaultConstructor())
@@ -190,12 +193,12 @@ namespace Smartstore.Data
             }
         }
 
-        private void RegisterEntityMappings(ModelBuilder modelBuilder, Assembly assembly)
+        private static void RegisterEntityMappings(ModelBuilder modelBuilder, Assembly assembly)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(assembly);
         }
 
-        private void RegisterConventions(ModelBuilder modelBuilder)
+        private static void RegisterConventions(ModelBuilder modelBuilder)
         {
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {

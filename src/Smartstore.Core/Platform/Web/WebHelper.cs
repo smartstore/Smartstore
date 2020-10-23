@@ -23,12 +23,26 @@ namespace Smartstore.Core.Web
 {
     public partial class WebHelper : IWebHelper
     {
+        private readonly static string[] _ipHeaderNames = new string[]
+        {
+            "HTTP_X_FORWARDED_FOR",
+            "HTTP_X_FORWARDED",
+            "X-FORWARDED-FOR",
+            "HTTP_CF_CONNECTING_IP",
+            "CF_CONNECTING_IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_X_CLUSTER_CLIENT_IP",
+            "HTTP_FORWARDED_FOR",
+            "HTTP_FORWARDED",
+            "REMOTE_ADDR"
+        };
+
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly Work<IStoreContext> _storeContext;
 
         private bool? _isCurrentConnectionSecured;
-        private string _ipAddress;
+        private IPAddress _ipAddress;
 
         public WebHelper(
             IHttpContextAccessor httpContextaccessor,
@@ -40,7 +54,7 @@ namespace Smartstore.Core.Web
             _storeContext = storeContext;
         }
 
-        public virtual string GetCurrentIpAddress()
+        public virtual IPAddress GetClientIpAddress()
         {
             if (_ipAddress != null)
             {
@@ -51,31 +65,23 @@ namespace Smartstore.Core.Web
             var request = context?.Request;
             if (request == null)
             {
-                return string.Empty;
+                return (_ipAddress = IPAddress.None);
             }
 
-            string result = null;
-            IPAddress ipv6 = null;
+            IPAddress result = null;
 
             var headers = request.Headers;
             if (headers != null)
             {
-                var keysToCheck = new string[]
-                {
-                    "HTTP_X_FORWARDED_FOR",
-                    "HTTP_X_FORWARDED",
-                    "X-FORWARDED-FOR",
-                    "HTTP_CF_CONNECTING_IP",
-                    "CF_CONNECTING_IP",
-                    "HTTP_CLIENT_IP",
-                    "HTTP_X_CLUSTER_CLIENT_IP",
-                    "HTTP_FORWARDED_FOR",
-                    "HTTP_FORWARDED",
-                    "REMOTE_ADDR"
-                };
+                var keysToCheck = _ipHeaderNames;
 
                 foreach (var key in keysToCheck)
                 {
+                    if (result != null)
+                    {
+                        break;
+                    }
+                    
                     if (headers.TryGetValue(key, out var ipString))
                     {
                         // Iterate list from end to start (IPv6 addresses usually have precedence)
@@ -85,14 +91,21 @@ namespace Smartstore.Core.Web
 
                             if (IPAddress.TryParse(ipString, out var address))
                             {
-                                if (address.AddressFamily == AddressFamily.InterNetworkV6)
+                                result = address;
+                                break;
+                            }
+                            else
+                            {
+                                // "TryParse" doesn't support IPv4 with port number
+                                string str = ipString;
+                                if (str.HasValue())
                                 {
-                                    ipv6 = address;
-                                }
-                                else
-                                {
-                                    result = ipString;
-                                    break;
+                                    var firstPart = str.Split(':').FirstOrDefault();
+                                    if (firstPart != str && IPAddress.TryParse(firstPart, out address))
+                                    {
+                                        result = address;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -100,25 +113,19 @@ namespace Smartstore.Core.Web
                 }
             }
 
-            if (string.IsNullOrEmpty(result) && context.Connection.RemoteIpAddress != null)
+            if (result == null && context.Connection.RemoteIpAddress != null)
             {
-                result = context.Connection.RemoteIpAddress.ToString();
+                result = context.Connection.RemoteIpAddress;
             }
 
-            if (string.IsNullOrEmpty(result) && ipv6 != null)
+            if (result != null && result.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                result = ipv6 == IPAddress.IPv6Loopback
-                    ? IPAddress.Loopback.ToString()
-                    : ipv6.MapToIPv4().ToString();
+                result = result == IPAddress.IPv6Loopback
+                    ? IPAddress.Loopback
+                    : result.MapToIPv4();
             }
 
-            if (!string.IsNullOrEmpty(result) && !IPAddress.TryParse(result, out _))
-            {
-                // "TryParse" doesn't support IPv4 with port number
-                result = result.Split(':').FirstOrDefault();
-            }
-
-            return (_ipAddress = result.EmptyNull());
+            return (_ipAddress = (result ?? IPAddress.None));
         }
 
         public virtual string GetUrlReferrer()
@@ -128,12 +135,12 @@ namespace Smartstore.Core.Web
 
         public virtual string GetClientIdent()
         {
-            var ipAddress = GetCurrentIpAddress();
+            var ipAddress = GetClientIpAddress();
             var userAgent = _httpContextAccessor.HttpContext?.Request?.UserAgent().EmptyNull();
 
-            if (ipAddress.HasValue() && userAgent.HasValue())
+            if (ipAddress != IPAddress.None && userAgent.HasValue())
             {
-                return (ipAddress + userAgent).GetHashCode().ToString();
+                return (ipAddress.ToString() + userAgent).GetHashCode().ToString();
             }
 
             return null;

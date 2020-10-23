@@ -6,6 +6,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Configuration;
 using Smartstore.Data.Hooks;
 using Smartstore.Data;
+using Smartstore.Core.Logging;
 
 namespace Smartstore.Core.Data
 {
@@ -40,6 +41,7 @@ namespace Smartstore.Core.Data
         public DbSet<StoreMapping> StoreMappings { get; set; }
         public DbSet<UrlRecord> UrlRecords { get; set; }
         public DbSet<Setting> Settings { get; set; }
+        public DbSet<Log> Logs { get; set; }
 
         //public IDbQueryFilters<SmartDbContext> QueryFilters
         //{

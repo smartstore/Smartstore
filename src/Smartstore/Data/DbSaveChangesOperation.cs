@@ -175,7 +175,7 @@ namespace Smartstore.Data
                 var contextType = _ctx.GetType();
 
                 var entries = _changedEntries
-                    .Select(x => new HookedEntity(contextType, x))
+                    .Select(x => new HookedEntity(x))
                     .Where(x => IsHookableEntityType(x.EntityType))
                     .ToArray();
 

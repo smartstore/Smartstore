@@ -29,6 +29,17 @@ namespace Smartstore
         #endregion
 
         /// <summary>
+        /// Applies "AsTracking()" or "AsNoTracking()" according to <paramref name="tracked"/> parameter.
+        /// </summary>
+        public static IQueryable<T> ApplyTracking<T>(this IQueryable<T> query, bool tracked)
+            where T : BaseEntity, new()
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return tracked ? query.AsTracking() : query.AsNoTracking();
+        }
+
+        /// <summary>
         /// FastPager ensures stable and consistent paging performance over very large datasets.
         /// Other than LINQs Skip(x).Take(y) approach the entity set is sorted 
         /// descending by id and a specified amount of records are returned.

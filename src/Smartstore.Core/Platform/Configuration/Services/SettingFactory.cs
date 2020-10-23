@@ -56,7 +56,8 @@ namespace Smartstore.Core.Configuration
             {
                 o.ExpiresIn(TimeSpan.FromHours(8));
 
-                var rawSettings = GetRawSettings(settingsType, storeId);
+                using var db = _dbContextFactory.CreateDbContext();
+                var rawSettings = GetRawSettings(db, settingsType, storeId, true, false);
                 return MaterializeSettings(settingsType, rawSettings);
             }, independent: true, allowRecursion: true);
         }
@@ -78,45 +79,101 @@ namespace Smartstore.Core.Configuration
             {
                 o.ExpiresIn(TimeSpan.FromHours(8));
 
-                var rawSettings = await GetRawSettingsAsync(settingsType, storeId);
+                using var db = _dbContextFactory.CreateDbContext();
+                var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, true, false);
                 return MaterializeSettings(settingsType, rawSettings);
             }, independent: true, allowRecursion: true);
         }
 
-        private IDictionary<string, Setting> GetRawSettings(Type settingsType, int storeId)
+        /// <inheritdoc/>
+        public async Task<int> SaveSettingsAsync<T>(T settings, int storeId = 0) where T : ISettings, new()
         {
-            var prefix = settingsType.Name + ".";
+            Guard.NotNull(settings, nameof(settings));
 
-            using (var db = _dbContextFactory.CreateDbContext())
+            // INFO: Let SettingService's hook handler handle cache invalidation
+
+            var settingsType = typeof(T);
+            var prefix = settingsType.Name;
+            var hasChanges = false;
+
+            using var db = _dbContextFactory.CreateDbContext();
+            var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, false, true);
+
+            foreach (var prop in FastProperty.GetProperties(settingsType).Values)
             {
-                var list = db.Settings
-                    .AsNoTracking()
-                    .Where(x => x.Name.StartsWith(prefix))
-                    .Where(x => x.StoreId == 0 || x.StoreId == storeId)
-                    .ApplySorting()
-                    .ToList();
+                // Get only properties we can read and write to
+                if (!prop.IsPublicSettable)
+                    continue;
 
-                // Because the list is sorted by StoreId, store-specific entries overwrite neutral ones.
-                return list.ToDictionarySafe(k => k.Name, e => e, StringComparer.OrdinalIgnoreCase);
+                var converter = TypeConverterFactory.GetConverter(prop.Property.PropertyType);
+                if (converter == null || !converter.CanConvertFrom(typeof(string)))
+                    continue;
+
+                string key = prefix + "." + prop.Name;
+                string currentValue = prop.GetValue(settings).Convert<string>();
+
+                if (rawSettings.TryGetValue(key, out var setting))
+                {
+                    if (setting.Value != currentValue)
+                    {
+                        // Update
+                        setting.Value = currentValue;
+                        hasChanges = true;
+                    }
+                }
+                else
+                {
+                    // Insert
+                    setting = new Setting
+                    {
+                        Name = key.ToLowerInvariant(),
+                        Value = currentValue,
+                        StoreId = storeId
+                    };
+
+                    hasChanges = true;
+                    db.Settings.Add(setting);
+                }
             }
+
+            var numSaved = hasChanges ? await db.SaveChangesAsync() : 0;
+
+            if (numSaved > 0)
+            {
+                // Prevent reloading from DB on next hit
+                await _cache.PutAsync(
+                    SettingService.BuildCacheKeyForClassAccess(settingsType, storeId), 
+                    settings, 
+                    new CacheEntryOptions().ExpiresIn(SettingService.DefaultExpiry));
+            }
+
+            return numSaved;
         }
 
-        private async Task<IDictionary<string, Setting>> GetRawSettingsAsync(Type settingsType, int storeId)
+        #region Utils
+
+        private static IDictionary<string, Setting> GetRawSettings(SmartDbContext db, Type settingsType, int storeId, bool doFallback, bool tracked = false)
         {
-            var prefix = settingsType.Name + ".";
+            var list = db.Settings
+                .ApplyTracking(tracked)
+                .ApplyClassFilter(settingsType, storeId, doFallback)
+                .ApplySorting()
+                .ToList();
 
-            using (var db = _dbContextFactory.CreateDbContext())
-            {
-                var list = await db.Settings
-                    .AsNoTracking()
-                    .Where(x => x.Name.StartsWith(prefix))
-                    .Where(x => x.StoreId == 0 || x.StoreId == storeId)
-                    .ApplySorting()
-                    .ToListAsync();
+            // Because the list is sorted by StoreId, store-specific entries overwrite neutral ones.
+            return list.ToDictionarySafe(k => k.Name, e => e, StringComparer.OrdinalIgnoreCase);
+        }
 
-                // Because the list is sorted by StoreId, store-specific entries overwrite neutral ones.
-                return list.ToDictionarySafe(k => k.Name, e => e, StringComparer.OrdinalIgnoreCase);
-            }
+        private static async Task<IDictionary<string, Setting>> GetRawSettingsAsync(SmartDbContext db, Type settingsType, int storeId, bool doFallback, bool tracked = false)
+        {
+            var list = await db.Settings
+                .ApplyTracking(tracked)
+                .ApplyClassFilter(settingsType, storeId, doFallback)
+                .ApplySorting()
+                .ToListAsync();
+
+            // Because the list is sorted by StoreId, store-specific entries overwrite neutral ones.
+            return list.ToDictionarySafe(k => k.Name, e => e, StringComparer.OrdinalIgnoreCase);
         }
 
         private ISettings MaterializeSettings(Type settingsType, IDictionary<string, Setting> rawSettings)
@@ -178,5 +235,7 @@ namespace Smartstore.Core.Configuration
 
             return instance;
         }
+
+        #endregion
     }
 }

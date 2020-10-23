@@ -1,14 +1,13 @@
 using System.Reflection;
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Events;
 using Smartstore.Engine;
+using MsLogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Smartstore.Web
 {
@@ -17,12 +16,14 @@ namespace Smartstore.Web
         private IEngineStarter _engineStarter;
         private SmartApplicationContext _appContext;
 
-        public Startup(WebHostBuilderContext hostBuilderContext)
+        public Startup(WebHostBuilderContext hostBuilderContext, MsLogger startupLogger)
         {
             Configuration = hostBuilderContext.Configuration;
             Environment = hostBuilderContext.HostingEnvironment;
+            StartupLogger = startupLogger;
         }
 
+        public MsLogger StartupLogger { get; }
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment Environment { get; }
 
@@ -39,6 +40,7 @@ namespace Smartstore.Web
             _appContext = new SmartApplicationContext(
                 Environment, 
                 Configuration, 
+                StartupLogger,
                 coreAssemblies);
 
             _engineStarter = EngineFactory.Create(_appContext.AppConfiguration).Start(_appContext);

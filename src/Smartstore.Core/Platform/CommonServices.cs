@@ -8,6 +8,7 @@ using Smartstore.Web;
 using Autofac;
 using System;
 using Smartstore.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace Smartstore.Core
 {
@@ -29,6 +30,7 @@ namespace Smartstore.Core
         //private readonly Lazy<IPermissionService> _permissions;
         private readonly Lazy<ISettingService> _settings;
         private readonly Lazy<ISettingFactory> _settingFactory;
+        private readonly Lazy<ILoggerFactory> _loggerFactory;
         //private readonly Lazy<IStoreService> _storeService;
         //private readonly Lazy<IDateTimeHelper> _dateTimeHelper;
         //private readonly Lazy<IDisplayControl> _displayControl;
@@ -46,6 +48,7 @@ namespace Smartstore.Core
             Lazy<IEventPublisher> eventPublisher,
             Lazy<ISettingService> settings,
             Lazy<ISettingFactory> settingFactory,
+            Lazy<ILoggerFactory> loggerFactory,
             Lazy<IChronometer> chronometer)
         {
             _container = container;
@@ -58,6 +61,7 @@ namespace Smartstore.Core
             _eventPublisher = eventPublisher;
             _settings = settings;
             _settingFactory = settingFactory;
+            _loggerFactory = loggerFactory;
             _chronometer = chronometer;
         }
 
@@ -71,6 +75,7 @@ namespace Smartstore.Core
         public IEventPublisher EventPublisher => _eventPublisher.Value;
         public ISettingService Settings => _settings.Value;
         public ISettingFactory SettingFactory => _settingFactory.Value;
+        public ILoggerFactory LoggerFactory => _loggerFactory.Value;
         public IChronometer Chronometer => _chronometer.Value;
     }
 }

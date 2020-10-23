@@ -27,6 +27,7 @@ using System.Threading;
 using Smartstore.Web.Common.Theming;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.Controllers
 {
@@ -57,6 +58,7 @@ namespace Smartstore.Web.Controllers
         private readonly IAsyncState _asyncState;
         private readonly IThemeRegistry _themeRegistry;
         private readonly ICommonServices _services;
+        private readonly ILoggerFactory _loggerFactory;
 
         public HomeController(
             SmartDbContext db, 
@@ -71,7 +73,8 @@ namespace Smartstore.Web.Controllers
             IAsyncState asyncState,
             IThemeRegistry themeRegistry,
             TaxSettings taxSettings,
-            ICommonServices services)
+            ICommonServices services,
+            ILoggerFactory loggerFactory)
         {
             _db = db;
             _eventPublisher = eventPublisher;
@@ -83,12 +86,47 @@ namespace Smartstore.Web.Controllers
             _asyncState = asyncState;
             _themeRegistry = themeRegistry;
             _services = services;
+            _loggerFactory = loggerFactory;
 
             var currentStore = _services.StoreContext.CurrentStore;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
+        public async Task<IActionResult> Logs()
+        {
+            #region Test
+
+            //var logger = _loggerFactory.CreateLogger("File");
+            //logger.Debug("Yodeleeeee");
+            //logger.Info("Yodeleeeee");
+            //logger.Warn("Yodeleeeee");
+            //logger.Error("Yodeleeeee");
+
+            //logger = _loggerFactory.CreateLogger("File/App_Data/Logs/yodele/");
+            //logger.Debug("Yodeleeeee");
+            //logger.Info("Yodeleeeee");
+            //logger.Warn("Yodeleeeee");
+            //logger.Error("Yodeleeeee");
+
+            //logger = _loggerFactory.CreateLogger("File/App_Data/Logs/hello");
+            //logger.Debug("Yodeleeeee");
+            //logger.Info("Yodeleeeee");
+            //logger.Warn("Yodeleeeee");
+            //logger.Error("Yodeleeeee");
+
+            #endregion
+
+            var query = _db.Logs
+                .AsNoTracking()
+                .Where(x => x.CustomerId != 399003)
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .Take(500);
+
+            var logs = await query.ToListAsync();
+
+            return View(logs);
+        }
 
         public async Task<IActionResult> Countries()
         {
@@ -108,12 +146,12 @@ namespace Smartstore.Web.Controllers
 
             #endregion
 
-            Logger.Error(new Exception("WTF Exception"), "WTF maaaan");
-            Logger.Warn("WTF maaaan");
+            //Logger.Error(new Exception("WTF Exception"), "WTF maaaan");
+            //Logger.Warn("WTF maaaan");
 
-            Logger.Info("INFO maaaan");
-            _logger1.Info("INFO maaaan");
-            _logger2.Info("INFO maaaan");
+            //Logger.Info("INFO maaaan");
+            //_logger1.Info("INFO maaaan");
+            //_logger2.Info("INFO maaaan");
 
             _asyncState.Cancel<MyProgress>();
             //_cancelTokenSource.Cancel();
@@ -121,7 +159,7 @@ namespace Smartstore.Web.Controllers
 
             var query = _db.Countries
                 .AsNoTracking()
-                .ApplyLimitToStore(1)
+                .ApplyStoreFilter(1)
                 .Include(x => x.StateProvinces)
                 .OrderBy(x => x.DisplayOrder)
                 .ThenBy(x => x.Name);
@@ -205,26 +243,33 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
+            #region Settings Test
+            ////var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
 
-            await _services.Settings.SaveSettingsAsync(new TestSettings(), 1);
-            await _db.SaveChangesAsync();
-            var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
+            ////await _services.SettingFactory.SaveSettingsAsync(new TestSettings(), 1);
+            ////await _db.SaveChangesAsync();
 
-            await _services.Settings.SetSettingAsync("yodele.gut", "yodele");
-            await _services.Settings.SetSettingAsync("yodele.schlecht", "yodele");
-            await _services.Settings.SetSettingAsync("yodele.prop3", "yodele");
-            await _services.Settings.SetSettingAsync("yodele.prop4", "yodele");
-            await _db.SaveChangesAsync();
+            ////await _services.Settings.ApplySettingAsync("yodele.gut", "yodele");
+            ////await _services.Settings.ApplySettingAsync("yodele.schlecht", "yodele");
+            ////await _services.Settings.ApplySettingAsync("yodele.prop3", "yodele");
+            ////await _services.Settings.ApplySettingAsync("yodele.prop4", "yodele");
+            ////await _db.SaveChangesAsync();
 
-            var yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
-            var yodele2 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
-            var yodele3 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
-            var yodele4 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
-            //await _services.Settings.DeleteSettingsAsync("yodele");
-            yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+            ////var yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+            ////var yodele2 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
+            ////var yodele3 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
+            ////var yodele4 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
+            //////await _services.Settings.DeleteSettingsAsync("yodele");
+            ////yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
 
-            await _db.SaveChangesAsync();
+            ////await _db.SaveChangesAsync();
+
+            //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
+            //testSettings.Prop1 = CommonHelper.GenerateRandomDigitCode(10);
+            //testSettings.Prop2 = CommonHelper.GenerateRandomDigitCode(10);
+            //testSettings.Prop3 = CommonHelper.GenerateRandomDigitCode(10);
+            //var numSaved = await _services.SettingFactory.SaveSettingsAsync(testSettings, 1);
+            #endregion
 
             _cancelTokenSource = new CancellationTokenSource();
             await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
@@ -234,6 +279,19 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Privacy()
         {
+            #region Settings Test
+            //var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
+
+            //var yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+            //var yodele2 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
+            //var yodele3 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
+            //var yodele4 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
+            ////await _services.Settings.DeleteSettingsAsync("yodele");
+            //yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+
+            //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
+            #endregion
+
             await _asyncState.UpdateAsync<MyProgress>(x => 
             {
                 x.Percent++;

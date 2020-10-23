@@ -186,6 +186,9 @@ namespace Smartstore
         public static TEntity FindById<TEntity>(this DbSet<TEntity> dbSet, int id) 
             where TEntity : BaseEntity
         {
+            if (id == 0)
+                return null;
+
             return FindTracked<TEntity>(dbSet.GetDbContext(), id) ?? dbSet.FirstOrDefault(x => x.Id == id);
         }
 
@@ -207,6 +210,9 @@ namespace Smartstore
         public static ValueTask<TEntity> FindByIdAsync<TEntity>(this DbSet<TEntity> dbSet, int id, CancellationToken cancellationToken = default) 
             where TEntity : BaseEntity
         {
+            if (id == 0)
+                return ValueTask.FromResult((TEntity)null);
+
             var tracked = FindTracked<TEntity>(dbSet.GetDbContext(), id);
             return tracked != null
                 ? new ValueTask<TEntity>(tracked)

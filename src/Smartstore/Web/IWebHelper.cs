@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Net;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.Web
@@ -22,10 +23,10 @@ namespace Smartstore.Web
         string GetClientIdent();
 
         /// <summary>
-        /// Get context IP address
+        /// Gets client IP address
         /// </summary>
-        /// <returns>URL referrer</returns>
-        string GetCurrentIpAddress();
+        /// <returns>Client IP address</returns>
+        IPAddress GetClientIpAddress();
 
         /// <summary>
         /// Gets the full URL of the current page (including scheme and host part)

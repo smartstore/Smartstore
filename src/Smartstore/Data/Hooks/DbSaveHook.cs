@@ -12,10 +12,9 @@ namespace Smartstore.Data.Hooks
     {
         #region IDbSaveHook<TContext> interface (explicit)
 
-        Task IDbSaveHook.OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        Task<HookResult> IDbSaveHook.OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
-            OnBeforeSave(entry);
-            return Task.CompletedTask;
+            return Task.FromResult(OnBeforeSave(entry));
         }
 
         Task IDbSaveHook.OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
@@ -24,10 +23,9 @@ namespace Smartstore.Data.Hooks
             return Task.CompletedTask;
         }
 
-        Task IDbSaveHook.OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        Task<HookResult> IDbSaveHook.OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
-            OnAfterSave(entry);
-            return Task.CompletedTask;
+            return Task.FromResult(OnAfterSave(entry));
         }
 
         Task IDbSaveHook.OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
@@ -40,73 +38,49 @@ namespace Smartstore.Data.Hooks
 
         #region Sync protected methods
 
-        protected virtual void OnBeforeSave(IHookedEntity entry)
+        protected virtual HookResult OnBeforeSave(IHookedEntity entry)
         {
             var entity = entry.Entity as TEntity;
             switch (entry.InitialState)
             {
                 case EntityState.Added:
-                    OnInserting(entity, entry);
-                    break;
+                    return OnInserting(entity, entry);
                 case EntityState.Modified:
-                    OnUpdating(entity, entry);
-                    break;
+                    return OnUpdating(entity, entry);
                 case EntityState.Deleted:
-                    OnDeleting(entity, entry);
-                    break;
+                    return OnDeleting(entity, entry);
+                default:
+                    return HookResult.Void;
             }
         }
 
-        protected virtual void OnInserting(TEntity entity, IHookedEntity entry)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual void OnUpdating(TEntity entity, IHookedEntity entry)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual void OnDeleting(TEntity entity, IHookedEntity entry)
-        {
-            throw new NotImplementedException();
-        }
+        protected virtual HookResult OnInserting(TEntity entity, IHookedEntity entry) => HookResult.Void;
+        protected virtual HookResult OnUpdating(TEntity entity, IHookedEntity entry) => HookResult.Void;
+        protected virtual HookResult OnDeleting(TEntity entity, IHookedEntity entry) => HookResult.Void;
 
         protected virtual void OnBeforeSaveCompleted(IEnumerable<IHookedEntity> entries)
         {
         }
 
-        public virtual void OnAfterSave(IHookedEntity entry)
+        public virtual HookResult OnAfterSave(IHookedEntity entry)
         {
             var entity = entry.Entity as TEntity;
             switch (entry.InitialState)
             {
                 case EntityState.Added:
-                    OnInserted(entity, entry);
-                    break;
+                    return OnInserted(entity, entry);
                 case EntityState.Modified:
-                    OnUpdated(entity, entry);
-                    break;
+                    return OnUpdated(entity, entry);
                 case EntityState.Deleted:
-                    OnDeleted(entity, entry);
-                    break;
+                    return OnDeleted(entity, entry);
+                default:
+                    return HookResult.Void;
             }
         }
 
-        protected virtual void OnInserted(TEntity entity, IHookedEntity entry)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual void OnUpdated(TEntity entity, IHookedEntity entry)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual void OnDeleted(TEntity entity, IHookedEntity entry)
-        {
-            throw new NotImplementedException();
-        }
+        protected virtual HookResult OnInserted(TEntity entity, IHookedEntity entry) => HookResult.Void;
+        protected virtual HookResult OnUpdated(TEntity entity, IHookedEntity entry) => HookResult.Void;
+        protected virtual HookResult OnDeleted(TEntity entity, IHookedEntity entry) => HookResult.Void;
 
         public virtual void OnAfterSaveCompleted(IEnumerable<IHookedEntity> entries)
         {

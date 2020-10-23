@@ -2,6 +2,7 @@
 using Autofac;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Smartstore.IO;
 
 namespace Smartstore.Engine
@@ -22,6 +23,11 @@ namespace Smartstore.Engine
 		/// Root configuration.
 		/// </summary>
 		IConfiguration Configuration { get; }
+
+		/// <summary>
+		/// The root startup logger. Writes to a rolling file in 'App_Data/Logs' and to debug.
+		/// </summary>
+		ILogger Logger { get; }
 
 		/// <summary>
 		/// Main Smartstore application configuration.

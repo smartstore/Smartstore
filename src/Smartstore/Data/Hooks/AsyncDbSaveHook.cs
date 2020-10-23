@@ -12,37 +12,35 @@ namespace Smartstore.Data.Hooks
     {
         #region IDbSaveHook<TContext> interface
 
-        public virtual async Task OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        public virtual async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
             var entity = entry.Entity as TEntity;
             switch (entry.InitialState)
             {
                 case EntityState.Added:
-                    await OnInsertingAsync(entity, entry, cancelToken);
-                    break;
+                    return await OnInsertingAsync(entity, entry, cancelToken);
                 case EntityState.Modified:
-                    await OnUpdatingAsync(entity, entry, cancelToken);
-                    break;
+                    return await OnUpdatingAsync(entity, entry, cancelToken);
                 case EntityState.Deleted:
-                    await OnDeletingAsync(entity, entry, cancelToken);
-                    break;
+                    return await OnDeletingAsync(entity, entry, cancelToken);
+                default:
+                    return HookResult.Void;
             }
         }
 
-        public virtual async Task OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        public virtual async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
             var entity = entry.Entity as TEntity;
             switch (entry.InitialState)
             {
                 case EntityState.Added:
-                    await OnInsertedAsync(entity, entry, cancelToken);
-                    break;
+                    return await OnInsertedAsync(entity, entry, cancelToken);
                 case EntityState.Modified:
-                    await OnUpdatedAsync(entity, entry, cancelToken);
-                    break;
+                    return await OnUpdatedAsync(entity, entry, cancelToken);
                 case EntityState.Deleted:
-                    await OnDeletedAsync(entity, entry, cancelToken);
-                    break;
+                    return await OnDeletedAsync(entity, entry, cancelToken);
+                default:
+                    return HookResult.Void;
             }
         }
 
@@ -58,34 +56,12 @@ namespace Smartstore.Data.Hooks
 
         #endregion
 
-        protected virtual Task OnInsertingAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            throw new NotImplementedException();
-        }
+        protected virtual Task<HookResult> OnInsertingAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Void);
+        protected virtual Task<HookResult> OnUpdatingAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Void);
+        protected virtual Task<HookResult> OnDeletingAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Void);
 
-        protected virtual Task OnUpdatingAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual Task OnDeletingAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual Task OnInsertedAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual Task OnUpdatedAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual Task OnDeletedAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            throw new NotImplementedException();
-        }
+        protected virtual Task<HookResult> OnInsertedAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Void);
+        protected virtual Task<HookResult> OnUpdatedAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Void);
+        protected virtual Task<HookResult> OnDeletedAsync(TEntity entity, IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Void);
     }
 }

@@ -2,19 +2,14 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
-using Z.EntityFramework.Plus;
 
 namespace Smartstore.Core.Configuration
 {
@@ -35,6 +30,8 @@ namespace Smartstore.Core.Configuration
         // 0 = Setting.Name, 1 = StoreId
         const string RawCacheKeyPattern = "rawsettings:{0}.{1}";
 
+        internal readonly static TimeSpan DefaultExpiry = TimeSpan.FromHours(8);
+
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
         private readonly DbSet<Setting> _setSettings;
@@ -50,10 +47,10 @@ namespace Smartstore.Core.Configuration
 
         #region Hook
 
-        public override Task OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
             // Indicate that we gonna handle this
-            return Task.CompletedTask;
+            return Task.FromResult(HookResult.Ok);
         }
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
@@ -83,16 +80,9 @@ namespace Smartstore.Core.Configuration
         #region ISettingService
 
         /// <inheritdoc/>
-        public virtual async Task<bool> SettingExistsAsync<T, TPropType>(
-            T settings,
-            Expression<Func<T, TPropType>> keySelector,
-            int storeId = 0)
-            where T : ISettings, new()
+        public virtual async Task<bool> SettingExistsAsync(string key, int storeId = 0)
         {
-            Guard.NotNull(keySelector, nameof(keySelector));
-            
-            var propInfo = GetPropertyInfo(keySelector);
-            var key = string.Concat(typeof(T).Name, ".", propInfo.Name);
+            Guard.NotEmpty(key, nameof(key));
 
             return await _setSettings.AnyAsync(x => x.Name == key && x.StoreId == storeId);
         }
@@ -120,6 +110,8 @@ namespace Smartstore.Core.Configuration
 
             var cachedSetting = await _cache.GetAsync(cacheKey, async (o) =>
             {
+                o.ExpiresIn(DefaultExpiry);
+                
                 var setting = await _setSettings.AsNoTracking().FirstOrDefaultAsync(x => x.Name == key && x.StoreId == storeId);
                 return new CachedSetting
                 {
@@ -152,150 +144,58 @@ namespace Smartstore.Core.Configuration
         }
 
         /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Task<SaveSettingResult> SetSettingAsync<T>(string key, T value, int storeId = 0)
-        {
-            return SetSettingAsync(key, value, storeId, () => BuildCacheKeyForRawAccess(key, storeId));
-        }
-
-        private async Task<SaveSettingResult> SetSettingAsync<T>(string key, T value, int storeId, Func<string> cacheKeyCreator)
+        public virtual async Task<ApplySettingResult> ApplySettingAsync<T>(string key, T value, int storeId = 0)
         {
             Guard.NotEmpty(key, nameof(key));
 
+            key = key.ToLowerInvariant();
+
             var str = value.Convert<string>();
-            var cacheKey = cacheKeyCreator();
-            var insert = false;
+            var setting = await _setSettings.FirstOrDefaultAsync(x => x.Name == key && x.StoreId == storeId);
 
-            if ((await _cache.TryGetAsync<CachedSetting>(cacheKey)).Out(out var cachedSetting) && cachedSetting.Id > 0)
-            {
-                var setting = await _setSettings.FindByIdAsync(cachedSetting.Id);
-                if (setting != null)
-                {
-                    // Update
-                    if (setting.Value != str)
-                    {
-                        setting.Value = str;
-                        return SaveSettingResult.Modified;
-                    }
-                }
-                else
-                {
-                    insert = true;
-                }
-            }
-            else
-            {
-                insert = true;
-            }
-
-            if (insert)
+            if (setting == null)
             {
                 // Insert
-                var setting = new Setting
+                setting = new Setting
                 {
-                    Name = key.ToLowerInvariant(),
+                    Name = key,
                     Value = str,
                     StoreId = storeId
                 };
 
                 _setSettings.Add(setting);
-                return SaveSettingResult.Inserted;
+                return ApplySettingResult.Inserted;
             }
-
-            return SaveSettingResult.Unchanged;
-        }
-
-        /// <inheritdoc/>
-        public async Task<bool> SaveSettingsAsync<T>(T settings, int storeId = 0) where T : ISettings, new()
-        {
-            Guard.NotNull(settings, nameof(settings));
-
-            var hasChanges = false;
-            var settingType = typeof(T);
-            var prefix = settingType.Name;
-
-            /* We do not clear cache after each setting update.
-				* This behavior can increase performance because cached settings will not be cleared 
-				* and loaded from database after each update */
-            foreach (var prop in FastProperty.GetProperties(settingType).Values)
+            else
             {
-                // get properties we can read and write to
-                if (!prop.IsPublicSettable)
-                    continue;
-
-                var converter = TypeConverterFactory.GetConverter(prop.Property.PropertyType);
-                if (converter == null || !converter.CanConvertFrom(typeof(string)))
-                    continue;
-
-                string key = prefix + "." + prop.Name;
-                // Duck typing is not supported in C#. That's why we're using dynamic type
-                dynamic currentValue = prop.GetValue(settings);
-
-                if (await SetSettingAsync(key, currentValue, storeId) > SaveSettingResult.Unchanged)
+                // Update
+                if (setting.Value != str)
                 {
-                    hasChanges = true;
+                    setting.Value = str;
+                    return ApplySettingResult.Modified;
                 }
             }
 
-            return hasChanges;
+            return ApplySettingResult.Unchanged;
         }
 
         /// <inheritdoc/>
-        public virtual async Task<SaveSettingResult> SaveSettingAsync<T, TPropType>(T settings, Expression<Func<T, TPropType>> keySelector, int storeId = 0)
-            where T : ISettings, new()
-        {
-            var propInfo = GetPropertyInfo(keySelector);
-            var key = string.Concat(typeof(T).Name, ".", propInfo.Name);
-
-            // Duck typing is not supported in C#. That's why we're using dynamic type.
-            var fastProp = FastProperty.GetProperty(propInfo, PropertyCachingStrategy.EagerCached);
-            dynamic currentValue = fastProp.GetValue(settings);
-
-            return await SetSettingAsync(key, currentValue, storeId);
-        }
-
-        /// <inheritdoc/>
-        public virtual async Task<SaveSettingResult> UpdateSettingAsync<T, TPropType>(
-            T settings,
-            Expression<Func<T, TPropType>> keySelector,
-            bool overrideForStore,
-            int storeId = 0) where T : ISettings, new()
-        {
-            if (overrideForStore || storeId == 0)
-            {
-                return await SaveSettingAsync(settings, keySelector, storeId);
-            }
-            else if (storeId > 0 && await DeleteSettingAsync(settings, keySelector, storeId))
-            {
-                return SaveSettingResult.Deleted;
-            }
-
-            return SaveSettingResult.Unchanged;
-        }
-
-        /// <inheritdoc/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual async Task<int> DeleteSettingsAsync<T>() where T : ISettings, new()
-        {
-            return await DeleteSettingsAsync(typeof(T).Name);
-        }
-
-        /// <inheritdoc/>
-        public virtual async Task<int> DeleteSettingsAsync(string rootKey)
+        public virtual async Task<int> RemoveSettingsAsync(string rootKey)
         {
             if (rootKey.IsEmpty())
                 return 0;
 
             var prefix = rootKey.EnsureEndsWith(".");
 
-            //var stubs = await _setSettings.AsNoTracking()
-            //    .Where(x => x.Name.StartsWith(rootKey))
-            //    .Select(x => new Setting { Id = x.Id })
-            //    .ToListAsync();
-
             var stubs = await _setSettings
+                .AsNoTracking()
                 .Where(x => x.Name.StartsWith(rootKey))
+                .Select(x => new Setting { Id = x.Id })
                 .ToListAsync();
+
+            //var stubs = await _setSettings
+            //    .Where(x => x.Name.StartsWith(rootKey))
+            //    .ToListAsync();
 
             _setSettings.RemoveRange(stubs);
 
@@ -303,17 +203,7 @@ namespace Smartstore.Core.Configuration
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> DeleteSettingAsync<T, TPropType>(T settings, Expression<Func<T, TPropType>> keySelector, int storeId = 0) 
-            where T : ISettings, new()
-        {
-            var propInfo = GetPropertyInfo(keySelector);
-            var key = string.Concat(typeof(T).Name, ".", propInfo.Name);
-
-            return await DeleteSettingAsync(key, storeId);
-        }
-
-        /// <inheritdoc/>
-        public virtual async Task<bool> DeleteSettingAsync(string key, int storeId = 0)
+        public virtual async Task<bool> RemoveSettingAsync(string key, int storeId = 0)
         {
             if (key.HasValue())
             {
@@ -332,27 +222,6 @@ namespace Smartstore.Core.Configuration
             }
 
             return false;
-        }
-
-        #endregion
-
-        #region Utils
-
-        protected virtual PropertyInfo GetPropertyInfo<T, TPropType>(Expression<Func<T, TPropType>> keySelector)
-        {
-            var member = keySelector.Body as MemberExpression;
-            if (member == null)
-            {
-                throw new ArgumentException($"Expression '{keySelector}' refers to a method, not a property.");
-            }
-
-            var propInfo = member.Member as PropertyInfo;
-            if (propInfo == null)
-            {
-                throw new ArgumentException($"Expression '{keySelector}' refers to a field, not a property.");
-            }
-
-            return propInfo;
         }
 
         #endregion

@@ -8,6 +8,7 @@ using Autofac;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Smartstore.Data;
 using Smartstore.IO;
 using Smartstore.Utilities;
@@ -18,20 +19,26 @@ namespace Smartstore.Engine
     {
         private bool _freezed;
         
-        public SmartApplicationContext(IHostEnvironment hostEnvironment, IConfiguration configuration, params Assembly[] coreAssemblies)
+        public SmartApplicationContext(
+            IHostEnvironment hostEnvironment, 
+            IConfiguration configuration,
+            ILogger logger,
+            params Assembly[] coreAssemblies)
         {
             Guard.NotNull(hostEnvironment, nameof(hostEnvironment));
             Guard.NotNull(configuration, nameof(configuration));
+            Guard.NotNull(logger, nameof(logger));
 
             HostEnvironment = hostEnvironment;
             Configuration = configuration;
+            Logger = logger;
 
             ConfigureFileSystem(hostEnvironment);
 
             DataSettings.SetApplicationContext(this, OnDataSettingsLoaded);
 
             ModuleCatalog = new ModuleCatalog();
-            TypeScanner = new DefaultTypeScanner(ModuleCatalog, coreAssemblies);
+            TypeScanner = new DefaultTypeScanner(ModuleCatalog, logger, coreAssemblies);
 
             // Create app configuration
             var config = new SmartConfiguration();
@@ -76,6 +83,7 @@ namespace Smartstore.Engine
 
         public IHostEnvironment HostEnvironment { get; }
         public IConfiguration Configuration { get; }
+        public ILogger Logger { get; }
         public SmartConfiguration AppConfiguration { get; }
         public ITypeScanner TypeScanner { get; }
         public IModuleCatalog ModuleCatalog { get; }

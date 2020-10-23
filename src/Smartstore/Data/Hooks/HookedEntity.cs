@@ -10,21 +10,15 @@ namespace Smartstore.Data.Hooks
     {
         private Type _entityType;
 
-        public HookedEntity(DbContext context, EntityEntry entry)
-            : this(context.GetType(), entry)
+        public HookedEntity(EntityEntry entry)
         {
-        }
-
-        internal HookedEntity(Type contextType, EntityEntry entry)
-        {
-            ContextType = contextType;
             Entry = entry;
             InitialState = (EntityState)entry.State;
         }
 
-        public Type ContextType
+        public DbContext DbContext
         {
-            get;
+            get => Entry.Context;
         }
 
         public EntityEntry Entry
@@ -34,7 +28,7 @@ namespace Smartstore.Data.Hooks
 
         public BaseEntity Entity => Entry.Entity as BaseEntity;
 
-        public Type EntityType => _entityType ?? (_entityType = this.Entity?.GetType());
+        public Type EntityType => _entityType ??= this.Entity?.GetType();
 
         public EntityState InitialState
         {

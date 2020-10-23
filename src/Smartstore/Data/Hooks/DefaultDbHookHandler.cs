@@ -89,9 +89,17 @@ namespace Smartstore.Data.Hooks
                     // call hook
                     try
                     {
-                        //Logger.DebugFormat("PRE save hook: {0}, State: {1}, Entity: {2}", hook.GetType().Name, e.InitialState, e.Entity.GetType().Name);
-                        await hook.OnBeforeSaveAsync(e, cancelToken);
-                        processedHooks.Add(hook, e);
+                        Logger.Debug("PRE save hook: {0}, State: {1}, Entity: {2}", hook.GetType().Name, e.InitialState, e.Entity.GetType().Name);
+                        var result = await hook.OnBeforeSaveAsync(e, cancelToken);
+                        
+                        if (result == HookResult.Ok)
+                        {
+                            processedHooks.Add(hook, e);
+                        }
+                        else if (result == HookResult.Void)
+                        {
+                            RegisterVoidHook(hook, e, HookStage.PreSave);
+                        }
                     }
                     catch (Exception ex) when (ex is NotImplementedException || ex is NotSupportedException)
                     {
@@ -150,8 +158,17 @@ namespace Smartstore.Data.Hooks
                     // call hook
                     try
                     {
-                        //Logger.DebugFormat("POST save hook: {0}, State: {1}, Entity: {2}", hook.GetType().Name, e.InitialState, e.Entity.GetType().Name);
-                        await hook.OnAfterSaveAsync(e, cancelToken);
+                        Logger.Debug("POST save hook: {0}, State: {1}, Entity: {2}", hook.GetType().Name, e.InitialState, e.Entity.GetType().Name);
+                        var result = await hook.OnAfterSaveAsync(e, cancelToken);
+
+                        if (result == HookResult.Ok)
+                        {
+                            processedHooks.Add(hook, e);
+                        }
+                        else if (result == HookResult.Void)
+                        {
+                            RegisterVoidHook(hook, e, HookStage.PostSave);
+                        }
 
                         processedHooks.Add(hook, e);
                     }
@@ -194,7 +211,7 @@ namespace Smartstore.Data.Hooks
             {
                 hooks = _saveHooks
                     // Reduce by data context types
-                    .Where(x => x.Metadata.DbContextType.IsAssignableFrom(entry.ContextType))
+                    .Where(x => x.Metadata.DbContextType.IsAssignableFrom(entry.DbContext.GetType()))
                     // Reduce by entity types which can be processed by this hook
                     .Where(x => x.Metadata.HookedType.IsAssignableFrom(entry.EntityType))
                     // When importantOnly, only include hook types with [ImportantAttribute]
@@ -253,7 +270,7 @@ namespace Smartstore.Data.Hooks
         class HookedEntityKey : Tuple<Type, Type, int, EntityState, HookStage>
         {
             public HookedEntityKey(IHookedEntity entry, HookStage stage, int entityId)
-                : base(entry.ContextType, entry.EntityType, entityId, entry.InitialState, stage)
+                : base(entry.DbContext.GetType(), entry.EntityType, entityId, entry.InitialState, stage)
             {
             }
         }
@@ -261,7 +278,7 @@ namespace Smartstore.Data.Hooks
         class RequestHookKey : Tuple<Type, Type, EntityState, HookStage, bool>
         {
             public RequestHookKey(IHookedEntity entry, HookStage stage, bool importantOnly)
-                : base(entry.ContextType, entry.EntityType, entry.InitialState, stage, importantOnly)
+                : base(entry.DbContext.GetType(), entry.EntityType, entry.InitialState, stage, importantOnly)
             {
             }
         }

@@ -35,6 +35,11 @@ namespace Smartstore.Engine
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
+                if (_httpContextAccessor.HttpContext != null)
+                {
+                    return _httpContextAccessor.HttpContext.GetServiceScope();
+                }
+                
                 return _scopeAccessor.LifetimeScope ?? _rootContainer;
             }
         }

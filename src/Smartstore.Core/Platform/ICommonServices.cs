@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
@@ -22,6 +23,7 @@ namespace Smartstore.Core
         IEventPublisher EventPublisher { get; }
         ISettingService Settings { get; }
         ISettingFactory SettingFactory { get; }
+        ILoggerFactory LoggerFactory { get; }
 
         // TODO: (core) Add more props to ICommonServices once they drop in.
     }
