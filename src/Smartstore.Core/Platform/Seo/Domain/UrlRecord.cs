@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Seo
@@ -6,6 +7,7 @@ namespace Smartstore.Core.Seo
     /// <summary>
     /// Represents an URL record
     /// </summary>
+    [Index(nameof(Slug), Name = "IX_UrlRecord_Slug", IsUnique = true)]
     public partial class UrlRecord : BaseEntity
     {
         /// <summary>

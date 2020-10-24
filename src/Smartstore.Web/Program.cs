@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
@@ -29,8 +30,8 @@ namespace Smartstore.Web
                 .AddJsonFile($"appsettings.{EnvironmentName}.json", optional: true)
                 .AddJsonFile("Config/Connections.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"Config/Connections.{EnvironmentName}.json", optional: true)
-                //.AddJsonFile("Config/Serilog.json", optional: true, reloadOnChange: true)
-                //.AddJsonFile($"Config/Serilog.{envName}.json", optional: true)
+                .AddJsonFile("Config/Serilog.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"Config/Serilog.{EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();
         }
@@ -85,7 +86,7 @@ namespace Smartstore.Web
                 .WriteTo.Conditional(Matching.FromSource("Install"), a => a.Async(logger =>
                 {
                     logger.File("App_Data/Logs/install-.log",
-                        restrictedToMinimumLevel: LogEventLevel.Debug,
+                        //restrictedToMinimumLevel: LogEventLevel.Debug,
                         outputTemplate: "{Timestamp:G} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
                         fileSizeLimitBytes: 100000000,
                         rollOnFileSizeLimit: true,
@@ -105,7 +106,7 @@ namespace Smartstore.Web
                         .WriteTo.Map(LogFilePathEnricher.LogFilePathPropertyName, (logFilePath, wt) => 
                         {
                             wt.Async(c => c.File($"{logFilePath}",
-                                restrictedToMinimumLevel: LogEventLevel.Debug,
+                                //restrictedToMinimumLevel: LogEventLevel.Debug,
                                 outputTemplate: "{Timestamp:G} [{Level:u3}] {Message:lj} {RequestPath} (UserId: {CustomerId}, Username: {UserName}){NewLine}{Exception}",
                                 fileSizeLimitBytes: 100000000,
                                 rollOnFileSizeLimit: true,
@@ -113,20 +114,28 @@ namespace Smartstore.Web
                                 rollingInterval: RollingInterval.Day,
                                 flushToDiskInterval: TimeSpan.FromSeconds(5)));
                         }, sinkMapCountLimit: 10);
-                }, levelSwitch: null)
+                })
                 // Build "SmartDbContext" logger
                 .WriteTo.Logger(logger =>
                 {
                     logger
                         .Enrich.FromLogContext()
-                        // Do not allow system/3rdParty noise
-                        .Filter.ByExcluding(e => _rgSystemSource.IsMatch(e.GetSourceContext()))
+                        // Do not allow system/3rdParty noise less than WRN level
+                        .Filter.ByIncludingOnly(IsDbSource)
                         .WriteTo.DbContext(period: TimeSpan.FromSeconds(5), batchSize: 50, eagerlyEmitFirstEvent: false, queueLimit: 1000);
                 }, restrictedToMinimumLevel: LogEventLevel.Information, levelSwitch: null);
 
             return builder.CreateLogger();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsDbSource(LogEvent e)
+        {
+            // Allow only app logs >= INFO or system logs >= WARNING
+            return e.Level >= LogEventLevel.Warning || !_rgSystemSource.IsMatch(e.GetSourceContext());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsFileSource(LogEvent e)
         {
             var source = e.GetSourceContext();

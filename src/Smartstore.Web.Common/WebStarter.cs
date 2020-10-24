@@ -11,6 +11,7 @@ namespace Smartstore.Web.Common
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
+            services.AddWebWorkContext();
             services.AddSmartstoreMvc(appContext);
         }
 

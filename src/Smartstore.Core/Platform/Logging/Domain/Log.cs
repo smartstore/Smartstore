@@ -25,6 +25,7 @@ namespace Smartstore.Core.Logging
     /// </summary>
     [Index(nameof(Logger), Name = "IX_Log_Logger")]
     [Index(nameof(LogLevelId), Name = "IX_Log_Level")]
+    [Index(nameof(CreatedOnUtc), Name = "IX_Log_CreatedOnUtc")]
     [Hookable(false)]
     public partial class Log : BaseEntity
     {

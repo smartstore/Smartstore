@@ -10,6 +10,7 @@ namespace Smartstore.Core.Common
     /// Represents a generic attribute
     /// </summary>
     [Index(nameof(Key))]
+    [Index(nameof(EntityId), nameof(KeyGroup), Name = "IX_GenericAttribute_EntityId_and_KeyGroup")]
     public partial class GenericAttribute : BaseEntity
     {
         /// <summary>

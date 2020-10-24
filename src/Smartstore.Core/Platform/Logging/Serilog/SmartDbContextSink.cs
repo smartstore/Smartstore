@@ -29,7 +29,7 @@ namespace Smartstore.Core.Logging.Serilog
 
             if (db != null)
             {
-                using (db)
+                await using (db)
                 {
                     db.Logs.AddRange(entities);
                     await db.SaveChangesAsync();
@@ -63,7 +63,7 @@ namespace Smartstore.Core.Logging.Serilog
         {
             return new Log
             {
-                LogLevelId = (int)ConvertLogLevel(e.Level),
+                LogLevelId = e.Level == LogEventLevel.Verbose ? 0 : (int)e.Level * 10,
                 ShortMessage = e.RenderMessage(_formatProvider),
                 FullMessage = e.Exception?.ToString(),
                 CreatedOnUtc = e.Timestamp.UtcDateTime,
@@ -75,25 +75,6 @@ namespace Smartstore.Core.Logging.Serilog
                 HttpMethod = e.GetScalarPropertyValue<string>("HttpMethod"),
                 UserName = e.GetScalarPropertyValue<string>("UserName")
             };
-
-            static LogLevel ConvertLogLevel(LogEventLevel level)
-            {
-                switch (level)
-                {
-                    case LogEventLevel.Debug:
-                        return LogLevel.Debug;
-                    case LogEventLevel.Information:
-                        return LogLevel.Information;
-                    case LogEventLevel.Warning:
-                        return LogLevel.Warning;
-                    case LogEventLevel.Error:
-                        return LogLevel.Error;
-                    case LogEventLevel.Fatal:
-                        return LogLevel.Fatal;
-                    default:
-                        return LogLevel.Verbose;
-                }
-            }
         }
     }
 }

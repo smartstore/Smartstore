@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
@@ -12,6 +13,7 @@ namespace Smartstore.Core.Common
     /// <summary>
     /// Represents a country
     /// </summary>
+    [Index(nameof(DisplayOrder), Name = "IX_Country_DisplayOrder")]
     public partial class Country : BaseEntity, ILocalizedEntity, IStoreRestricted, IDisplayOrder
     {
         public Country()

@@ -16,6 +16,10 @@ namespace Smartstore.Core.Logging.DependencyInjection
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<ActivityLogger>()
+                .As<IActivityLogger>()
+                .InstancePerLifetimeScope();
+            
             // Call GetLogger in response to the request for an ILogger implementation
             if (DataSettings.DatabaseIsInstalled())
             {

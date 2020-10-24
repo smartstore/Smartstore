@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Stores
@@ -6,6 +7,7 @@ namespace Smartstore.Core.Stores
     /// <summary>
     /// Represents a store mapping record
     /// </summary>
+    [Index(nameof(EntityId), nameof(EntityName), Name = "IX_StoreMapping_EntityId_EntityName")]
     public partial class StoreMapping : BaseEntity
     {
         /// <summary>

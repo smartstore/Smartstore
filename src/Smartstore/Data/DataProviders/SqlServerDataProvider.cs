@@ -51,14 +51,14 @@ namespace Smartstore.Data.DataProviders
 
         public override DataProviderFeatures Features 
             => DataProviderFeatures.Backup | DataProviderFeatures.ComputeSize | DataProviderFeatures.ReIndex | DataProviderFeatures.ExecuteSqlScript
-            | DataProviderFeatures.Restore | DataProviderFeatures.AccessIdent | DataProviderFeatures.Shrink | DataProviderFeatures.StreamBlob;
+            | DataProviderFeatures.Restore | DataProviderFeatures.AccessIncrement | DataProviderFeatures.Shrink | DataProviderFeatures.StreamBlob;
 
-        public override void ShrinkDatabase()
+        public override int ShrinkDatabase()
         {
-            Database.ExecuteSqlRaw("DBCC SHRINKDATABASE(0)");
+            return Database.ExecuteSqlRaw("DBCC SHRINKDATABASE(0)");
         }
 
-        public override Task ShrinkDatabaseAsync(CancellationToken cancelToken = default)
+        public override Task<int> ShrinkDatabaseAsync(CancellationToken cancelToken = default)
         {
             return Database.ExecuteSqlRawAsync("DBCC SHRINKDATABASE(0)", cancelToken);
         }
@@ -73,53 +73,53 @@ namespace Smartstore.Data.DataProviders
             return Database.ExecuteScalarRawAsync<decimal>("SELECT SUM(size) / 128.0 FROM sysfiles");
         }
 
-        protected override int? GetTableIdentCore(string tableName)
+        protected override int? GetTableIncrementCore(string tableName)
         {
             Guard.NotEmpty(tableName, nameof(tableName));
             return Database.ExecuteScalarRaw<decimal?>(
                 $"SELECT IDENT_CURRENT('[{tableName}]')").Convert<int?>();
         }
 
-        protected override async Task<int?> GetTableIdentCoreAsync(string tableName)
+        protected override async Task<int?> GetTableIncrementCoreAsync(string tableName)
         {
             Guard.NotEmpty(tableName, nameof(tableName));
             return (await Database.ExecuteScalarRawAsync<decimal?>(
                 $"SELECT IDENT_CURRENT('[{tableName}]')")).Convert<int?>();
         }
 
-        protected override void SetTableIdentCore(string tableName, int ident)
+        protected override void SetTableIncrementCore(string tableName, int ident)
         {
             Guard.NotEmpty(tableName, nameof(tableName));
             Database.ExecuteSqlRaw(
                 $"DBCC CHECKIDENT([{tableName}], RESEED, {ident})");
         }
 
-        protected override Task SetTableIdentCoreAsync(string tableName, int ident)
+        protected override Task SetTableIncrementCoreAsync(string tableName, int ident)
         {
             Guard.NotEmpty(tableName, nameof(tableName));
             return Database.ExecuteSqlRawAsync(
                 $"DBCC CHECKIDENT([{tableName}], RESEED, {ident})");
         }
 
-        public override void ReIndexTables()
+        public override int ReIndexTables()
         {
-            Database.ExecuteSqlRaw(ReIndexTablesSql(Database.GetDbConnection().Database));
+            return Database.ExecuteSqlRaw(ReIndexTablesSql(Database.GetDbConnection().Database));
         }
 
-        public override Task ReIndexTablesAsync(CancellationToken cancelToken = default)
+        public override Task<int> ReIndexTablesAsync(CancellationToken cancelToken = default)
         {
             return Database.ExecuteSqlRawAsync(ReIndexTablesSql(Database.GetDbConnection().Database), cancelToken);
         }
 
-        public override void BackupDatabase(string fullPath)
+        public override int BackupDatabase(string fullPath)
         {
             Guard.NotEmpty(fullPath, nameof(fullPath));
 
-            Database.ExecuteSqlRaw(
+            return Database.ExecuteSqlRaw(
                 "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT", fullPath);
         }
 
-        public override Task BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
+        public override Task<int> BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
         {
             Guard.NotEmpty(fullPath, nameof(fullPath));
 
@@ -127,16 +127,16 @@ namespace Smartstore.Data.DataProviders
                 "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT", new object[] { fullPath }, cancelToken);
         }
 
-        public override void RestoreDatabase(string backupFullPath)
+        public override int RestoreDatabase(string backupFullPath)
         {
             Guard.NotEmpty(backupFullPath, nameof(backupFullPath));
 
-            Database.ExecuteSqlRaw(
+            return Database.ExecuteSqlRaw(
                 RestoreDatabaseSql(Database.GetDbConnection().Database), 
                 backupFullPath);
         }
 
-        public override Task RestoreDatabaseAsync(string backupFullPath, CancellationToken cancelToken = default)
+        public override Task<int> RestoreDatabaseAsync(string backupFullPath, CancellationToken cancelToken = default)
         {
             Guard.NotEmpty(backupFullPath, nameof(backupFullPath));
 

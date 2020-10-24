@@ -36,7 +36,6 @@
     <Folder Include="Common\Extensions\" />
     <Folder Include="Content\Blogs\" />
     <Folder Include="Checkout\Cart\" />
-    <Folder Include="Checkout\Customers\" />
     <Folder Include="Catalog\Discounts\" />
     <Folder Include="Content\Forums\" />
     <Folder Include="Content\Themes\" />
@@ -53,7 +52,6 @@
     <Folder Include="Checkout\Payment\" />
     <Folder Include="Content\News\" />
     <Folder Include="Content\Sitemap\" />
-    <Folder Include="Platform\Tasks\" />
     <Folder Include="Platform\Templating\" />
     <Folder Include="Platform\Theming\" />
     <Folder Include="Platform\UserAgent\" />

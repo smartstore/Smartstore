@@ -1,0 +1,115 @@
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using System.Globalization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
+using Smartstore.Core.Stores;
+using Smartstore.Domain;
+
+namespace Smartstore.Core.Localization
+{
+    public class LanguageMap : IEntityTypeConfiguration<Language>
+    {
+        public void Configure(EntityTypeBuilder<Language> builder)
+        {
+            builder
+                .HasMany(x => x.LocaleStringResources)
+                .WithOne(x => x.Language)
+                .HasForeignKey(x => x.LanguageId);
+        }
+    }
+
+    /// <summary>
+    /// Represents a language
+    /// </summary>
+    [DebuggerDisplay("{LanguageCulture}")]
+    [Index(nameof(DisplayOrder), Name = "IX_Language_DisplayOrder")]
+    public partial class Language : BaseEntity, IStoreRestricted
+    {
+        private readonly ILazyLoader _lazyLoader;
+
+        public Language()
+        {
+        }
+
+        public Language(ILazyLoader lazyLoader)
+        {
+            _lazyLoader = lazyLoader;
+        }
+
+        /// <summary>
+        /// Gets or sets the name
+        /// </summary>
+        [Required, StringLength(100)]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the language culture (e.g. "en-US")
+        /// </summary>
+        [Required, StringLength(20)]
+        public string LanguageCulture { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unique SEO code (e.g. "en")
+        /// </summary>
+        [Required, StringLength(2)]
+        public string UniqueSeoCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the flag image file name
+        /// </summary>
+        [Required, StringLength(50)]
+        public string FlagImageFileName { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the language supports "Right-to-left"
+        /// </summary>
+        public bool Rtl { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
+        /// </summary>
+        public bool LimitedToStores { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the language is published
+        /// </summary>
+        public bool Published { get; set; }
+
+        /// <summary>
+        /// Gets or sets the display order
+        /// </summary>
+        public int DisplayOrder { get; set; }
+
+        private ICollection<LocaleStringResource> _localeStringResources;
+        /// <summary>
+        /// Gets or sets locale string resources
+        /// </summary>
+        [JsonIgnore]
+        public ICollection<LocaleStringResource> LocaleStringResources
+        {
+            get => _lazyLoader?.Load(this, ref _localeStringResources) ?? (_localeStringResources ??= new HashSet<LocaleStringResource>());
+            protected set => _localeStringResources = value;
+        }
+
+        public string GetTwoLetterISOLanguageName()
+        {
+            if (UniqueSeoCode.HasValue())
+            {
+                return UniqueSeoCode;
+            }
+
+            try
+            {
+                return new CultureInfo(LanguageCulture).TwoLetterISOLanguageName;
+            }
+            catch 
+            {
+                return null;
+            }
+        }
+    }
+}

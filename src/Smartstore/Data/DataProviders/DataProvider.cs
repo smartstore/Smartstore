@@ -25,7 +25,7 @@ namespace Smartstore.Data
         Shrink = 1 << 2,
         ReIndex = 1 << 3,
         ComputeSize = 1 << 4,
-        AccessIdent = 1 << 5,
+        AccessIncrement = 1 << 5,
         StreamBlob = 1 << 6,
         ExecuteSqlScript = 1 << 7
     }
@@ -74,9 +74,9 @@ namespace Smartstore.Data
             get => Features.HasFlag(DataProviderFeatures.ComputeSize);
         }
 
-        public bool CanAccessIdent
+        public bool CanAccessIncrement
         {
-            get => Features.HasFlag(DataProviderFeatures.AccessIdent);
+            get => Features.HasFlag(DataProviderFeatures.AccessIncrement);
         }
 
         public bool CanStreamBlob
@@ -149,13 +149,13 @@ namespace Smartstore.Data
         /// <summary>
         /// Shrinks / compacts the database
         /// </summary>
-        public virtual void ShrinkDatabase()
+        public virtual int ShrinkDatabase()
             => throw new NotSupportedException();
 
         /// <summary>
         /// Shrinks / compacts the database
         /// </summary>
-        public virtual Task ShrinkDatabaseAsync(CancellationToken cancelToken = default)
+        public virtual Task<int> ShrinkDatabaseAsync(CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -174,40 +174,40 @@ namespace Smartstore.Data
         /// Creates a database backup
         /// </summary>
         /// <param name="fullPath">The full physical path to the backup file.</param>
-        public virtual void BackupDatabase(string fullPath)
+        public virtual int BackupDatabase(string fullPath)
             => throw new NotSupportedException();
 
         /// <summary>
         /// Creates a database backup
         /// </summary>
         /// <param name="fullPath">The full physical path to the backup file.</param>
-        public virtual Task BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
+        public virtual Task<int> BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
         /// Restores a database backup
         /// </summary>
         /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
-        public virtual void RestoreDatabase(string backupFullPath)
+        public virtual int RestoreDatabase(string backupFullPath)
             => throw new NotSupportedException();
 
         /// <summary>
         /// Restores a database backup
         /// </summary>
         /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
-        public virtual Task RestoreDatabaseAsync(string backupFullPath, CancellationToken cancelToken = default)
+        public virtual Task<int> RestoreDatabaseAsync(string backupFullPath, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
         /// Reindexes all tables
         /// </summary>
-        public virtual void ReIndexTables()
+        public virtual int ReIndexTables()
             => throw new NotSupportedException();
 
         /// <summary>
         /// Reindexes all tables
         /// </summary>
-        public virtual Task ReIndexTablesAsync(CancellationToken cancelToken = default)
+        public virtual Task<int> ReIndexTablesAsync(CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -260,13 +260,31 @@ namespace Smartstore.Data
             => throw new NotSupportedException();
 
         /// <summary>
+        /// Truncates/clears a table. ALL rows will be irreversibly deleted!!!!
+        /// </summary>
+        public int TruncateTable<T>() where T : BaseEntity
+        {
+            var tableName = Context.Model.FindEntityType(typeof(T)).GetTableName();
+            return Database.ExecuteSqlRaw($"TRUNCATE TABLE [{tableName}]");
+        }
+
+        /// <summary>
+        /// Truncates/clears a table. ALL rows will be irreversibly deleted!!!!
+        /// </summary>
+        public Task<int> TruncateTableAsync<T>() where T : BaseEntity
+        {
+            var tableName = Context.Model.FindEntityType(typeof(T)).GetTableName();
+            return Database.ExecuteSqlRawAsync($"TRUNCATE TABLE [{tableName}]");
+        }
+
+        /// <summary>
         /// Gets the current ident value
         /// </summary>
         /// <typeparam name="T">Entity</typeparam>
         /// <returns>Ident value or <c>null</c> if value cannot be resolved.</returns>
         public int? GetTableIdent<T>() where T : BaseEntity
         {
-            return GetTableIdentCore(Context.Model.FindEntityType(typeof(T)).GetTableName());
+            return GetTableIncrementCore(Context.Model.FindEntityType(typeof(T)).GetTableName());
         }
 
         /// <summary>
@@ -276,7 +294,7 @@ namespace Smartstore.Data
         /// <returns>Ident value or <c>null</c> if value cannot be resolved.</returns>
         public Task<int?> GetTableIdentAsync<T>() where T : BaseEntity
         {
-            return GetTableIdentCoreAsync(Context.Model.FindEntityType(typeof(T)).GetTableName());
+            return GetTableIncrementCoreAsync(Context.Model.FindEntityType(typeof(T)).GetTableName());
         }
 
         /// <summary>
@@ -286,29 +304,29 @@ namespace Smartstore.Data
         /// <param name="ident">The new ident value</param>
         public void SetTableIdent<T>(int ident) where T : BaseEntity
         {
-            SetTableIdentCore(Context.Model.FindEntityType(typeof(T)).GetTableName(), ident);
+            SetTableIncrementCore(Context.Model.FindEntityType(typeof(T)).GetTableName(), ident);
         }
 
         /// <summary>
-        /// Sets the table ident value
+        /// Sets the table auto increment value
         /// </summary>
         /// <typeparam name="T">Entity</typeparam>
         /// <param name="ident">The new ident value</param>
-        public Task SetTableIdentAsync<T>(int ident) where T : BaseEntity
+        public Task SetTableIncrementAsync<T>(int ident) where T : BaseEntity
         {
-            return SetTableIdentCoreAsync(Context.Model.FindEntityType(typeof(T)).GetTableName(), ident);
+            return SetTableIncrementCoreAsync(Context.Model.FindEntityType(typeof(T)).GetTableName(), ident);
         }
 
-        protected virtual int? GetTableIdentCore(string tableName)
+        protected virtual int? GetTableIncrementCore(string tableName)
             => throw new NotSupportedException();
 
-        protected virtual Task<int?> GetTableIdentCoreAsync(string tableName)
+        protected virtual Task<int?> GetTableIncrementCoreAsync(string tableName)
             => throw new NotSupportedException();
 
-        protected virtual void SetTableIdentCore(string tableName, int ident)
+        protected virtual void SetTableIncrementCore(string tableName, int ident)
             => throw new NotSupportedException();
 
-        protected virtual Task SetTableIdentCoreAsync(string tableName, int ident)
+        protected virtual Task SetTableIncrementCoreAsync(string tableName, int ident)
             => throw new NotSupportedException();
 
         #endregion

@@ -6,13 +6,21 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.WebEncoders;
+using Smartstore.Core;
 using Smartstore.Core.Seo.Services;
 using Smartstore.Engine;
+using Smartstore.Web.Common;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class WebServiceCollectionExtensions
     {
+        public static IServiceCollection AddWebWorkContext(this IServiceCollection services)
+        {
+            services.AddTransient<IWorkContext, WebWorkContext>();
+            return services;
+        }
+
         public static IServiceCollection AddSmartstoreMvc(this IServiceCollection services, IApplicationContext appContext)
         {
             services.AddScoped<SeoSlugRouteValueTransformer>();

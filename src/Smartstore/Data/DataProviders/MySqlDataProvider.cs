@@ -32,59 +32,63 @@ namespace Smartstore.Data.DataProviders
                 GROUP BY table_schema";
 
         public override DataProviderFeatures Features 
-            => DataProviderFeatures.AccessIdent | DataProviderFeatures.ReIndex | DataProviderFeatures.Shrink | DataProviderFeatures.ComputeSize
+            => DataProviderFeatures.AccessIncrement | DataProviderFeatures.ReIndex | DataProviderFeatures.Shrink | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.ExecuteSqlScript | DataProviderFeatures.StreamBlob;
 
-        protected override int? GetTableIdentCore(string tableName)
+        protected override int? GetTableIncrementCore(string tableName)
         {
             return Database.ExecuteScalarInterpolated<decimal?>(
                 $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {Database.GetDbConnection().Database} AND TABLE_NAME = {tableName}").Convert<int?>();
         }
 
-        protected override async Task<int?> GetTableIdentCoreAsync(string tableName)
+        protected override async Task<int?> GetTableIncrementCoreAsync(string tableName)
         {
             return (await Database.ExecuteScalarInterpolatedAsync<decimal?>(
                 $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {Database.GetDbConnection().Database} AND TABLE_NAME = {tableName}")).Convert<int?>();
         }
 
-        protected override void SetTableIdentCore(string tableName, int ident)
+        protected override void SetTableIncrementCore(string tableName, int ident)
         {
             Database.ExecuteSqlInterpolated(
                 $"ALTER TABLE {tableName} AUTO_INCREMENT = {ident}");
         }
 
-        protected override Task SetTableIdentCoreAsync(string tableName, int ident)
+        protected override Task SetTableIncrementCoreAsync(string tableName, int ident)
         {
             return Database.ExecuteSqlInterpolatedAsync(
                 $"ALTER TABLE {tableName} AUTO_INCREMENT = {ident}");
         }
 
-        public override void ShrinkDatabase()
+        public override int ShrinkDatabase()
         {
-            ReIndexTables();
+            return ReIndexTables();
         }
 
-        public override Task ShrinkDatabaseAsync(CancellationToken cancelToken = default)
+        public override Task<int> ShrinkDatabaseAsync(CancellationToken cancelToken = default)
         {
             return ReIndexTablesAsync(cancelToken);
         }
 
-        public override void ReIndexTables()
+        public override int ReIndexTables()
         {
             var tables = Database.ExecuteQueryRaw<string>($"SHOW TABLES FROM `{Database.GetDbConnection().Database}`").ToList();
             if (tables.Count > 0)
             {
-                Database.ExecuteSqlRaw($"OPTIMIZE TABLE `{string.Join("`, `", tables)}`");
+                return Database.ExecuteSqlRaw($"OPTIMIZE TABLE `{string.Join("`, `", tables)}`");
             }
+
+            return 0;
         }
 
-        public override async Task ReIndexTablesAsync(CancellationToken cancelToken = default)
+        public override async Task<int> ReIndexTablesAsync(CancellationToken cancelToken = default)
         {
             var tables = await Database.ExecuteQueryRawAsync<string>($"SHOW TABLES FROM `{Database.GetDbConnection().Database}`", cancelToken).ToListAsync(cancelToken);
             if (tables.Count > 0)
             {
-                await Database.ExecuteSqlRawAsync($"OPTIMIZE TABLE `{string.Join("`, `", tables)}`", cancelToken);
+                return await Database.ExecuteSqlRawAsync($"OPTIMIZE TABLE `{string.Join("`, `", tables)}`", cancelToken);
             }
+
+            return 0;
         }
 
         public override decimal GetDatabaseSize()

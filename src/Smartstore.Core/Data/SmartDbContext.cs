@@ -1,12 +1,13 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Common;
-using Smartstore.Core.Stores;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Configuration;
-using Smartstore.Data.Hooks;
-using Smartstore.Data;
+using Smartstore.Core.Customers;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Seo;
+using Smartstore.Core.Stores;
+using Smartstore.Data;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Data
 {
@@ -27,7 +28,6 @@ namespace Smartstore.Core.Data
         {
         }
 
-        // Common
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Currency> Currencies { get; set; }
@@ -42,6 +42,11 @@ namespace Smartstore.Core.Data
         public DbSet<UrlRecord> UrlRecords { get; set; }
         public DbSet<Setting> Settings { get; set; }
         public DbSet<Log> Logs { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
+        public DbSet<ActivityLogType> ActivityLogTypes { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Language> Languages { get; set; }
+        public DbSet<LocaleStringResource> LocaleStringResources { get; set; }
 
         //public IDbQueryFilters<SmartDbContext> QueryFilters
         //{

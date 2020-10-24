@@ -19,6 +19,7 @@ namespace Smartstore.Core
         IRequestCache RequestCache { get; }
         SmartDbContext DbContext { get; }
         IStoreContext StoreContext { get; }
+        IWorkContext WorkContext { get; }
         IWebHelper WebHelper { get; }
         IEventPublisher EventPublisher { get; }
         ISettingService Settings { get; }

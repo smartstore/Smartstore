@@ -146,12 +146,14 @@ namespace Smartstore.Web.Controllers
 
             #endregion
 
-            //Logger.Error(new Exception("WTF Exception"), "WTF maaaan");
-            //Logger.Warn("WTF maaaan");
+            Logger.Error(new Exception("WTF Exception"), "WTF maaaan");
+            Logger.Warn("WTF WARN maaaan");
 
-            //Logger.Info("INFO maaaan");
-            //_logger1.Info("INFO maaaan");
-            //_logger2.Info("INFO maaaan");
+            Logger.Info("INFO maaaan");
+            _logger1.Info("INFO maaaan");
+            _logger2.Info("INFO maaaan");
+            _logger2.Warn("WARN maaaan");
+            //_logger2.Error("WARN maaaan");
 
             _asyncState.Cancel<MyProgress>();
             //_cancelTokenSource.Cancel();
