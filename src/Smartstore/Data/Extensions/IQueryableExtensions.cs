@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -55,8 +56,13 @@ namespace Smartstore
             return new FastPager<T>(query, pageSize);
         }
 
-        public static TContext GetDbContext<TContext>(this IQueryable query)
-            where TContext : DbContext
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static TContext GetDbContext<TContext>(this IQueryable query) where TContext : HookingDbContext
+        {
+            return (TContext)GetDbContext(query);
+        }
+
+        public static HookingDbContext GetDbContext(this IQueryable query)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -67,7 +73,7 @@ namespace Smartstore
 
             IStateManager stateManager = stateManagerObj as IStateManager ?? ((dynamic)stateManagerObj).Value;
 
-            return (TContext)stateManager.Context;
+            return (HookingDbContext)stateManager.Context;
         }
 
         //public static TContext GetDbContext<TEntity, TContext>(this IQueryable<TEntity> query)

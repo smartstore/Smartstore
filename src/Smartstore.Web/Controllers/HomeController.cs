@@ -13,21 +13,17 @@ using Smartstore.Data.Hooks;
 using Smartstore.Events;
 using Smartstore.Engine;
 using Smartstore.Web.Models;
-using Z.EntityFramework.Plus;
 using Smartstore.Core.Configuration;
-using Smartstore.Core.Common;
 using Smartstore.Core.Stores;
-using Microsoft.EntityFrameworkCore.Internal;
 using Smartstore.Caching;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Core.Tax.Settings;
 using Smartstore.Threading;
 using System.Threading;
 using Smartstore.Web.Common.Theming;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
-using Smartstore.Utilities;
+using Smartstore.Core.Logging;
+using LogLevel = Smartstore.Core.Logging.LogLevel;
 
 namespace Smartstore.Web.Controllers
 {
@@ -275,7 +271,9 @@ namespace Smartstore.Web.Controllers
 
             _cancelTokenSource = new CancellationTokenSource();
             await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
-            
+
+            //var result = await _services.Resolve<IDbLogService>().ClearLogsAsync(new DateTime(2016, 12, 31), LogLevel.Fatal);
+
             return View();
         }
 

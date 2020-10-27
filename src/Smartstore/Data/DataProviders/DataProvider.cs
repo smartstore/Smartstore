@@ -368,7 +368,20 @@ namespace Smartstore.Data
 
         #region Connection
 
-        public virtual DbParameter GetParameter()
+        public abstract DataProviderType ProviderType { get; }
+
+        public DbParameter CreateParameter(string name, object value)
+        {
+            Guard.NotEmpty(name, nameof(name));
+            
+            var p = CreateParameter();
+            p.ParameterName = name;
+            p.Value = value;
+
+            return p;
+        }
+
+        public virtual DbParameter CreateParameter()
         {
             return new SqlParameter();
         }

@@ -28,30 +28,53 @@ namespace Smartstore
             return (HookingDbContext)currentDbContext.Context;
         }
 
-        public static IEnumerable<T> GetMany<T>(this DbSet<T> dbSet, IEnumerable<int> ids) where T : BaseEntity
+        #region GetMany
+
+        /// <summary>
+        /// Loads many entities from database sorted by the given id sequence.
+        /// Sort is applied in-memory.
+        /// </summary>
+        public static IList<T> GetMany<T>(this DbSet<T> dbSet, IEnumerable<int> ids, bool tracked = false) 
+            where T : BaseEntity, new()
         {
-            foreach (var chunk in ids.Slice(128))
-            {
-                var items = dbSet.Where(a => chunk.Contains(a.Id)).ToList();
-                foreach (var item in items)
-                {
-                    yield return item;
-                }
-            }
+            Guard.NotNull(dbSet, nameof(dbSet));
+            Guard.NotNull(ids, nameof(ids));
+
+            if (!ids.Any())
+                return new List<T>();
+
+            var items = dbSet
+                .ApplyTracking(tracked)
+                .Where(a => ids.Contains(a.Id))
+                .ToList();
+
+            return items.OrderBySequence(ids).ToList();
         }
 
-        public static async Task<IEnumerable<T>> GetManyAsync<T>(this DbSet<T> dbSet, IEnumerable<int> ids) where T : BaseEntity
+        /// <summary>
+        /// Loads many entities from database sorted by the given id sequence.
+        /// Sort is applied in-memory.
+        /// </summary>
+        public static async Task<IEnumerable<T>> GetManyAsync<T>(this DbSet<T> dbSet, IEnumerable<int> ids, bool tracked = false) 
+            where T : BaseEntity, new()
         {
-            var result = new List<T>();
+            Guard.NotNull(dbSet, nameof(dbSet));
+            Guard.NotNull(ids, nameof(ids));
 
-            foreach (var chunk in ids.Slice(128))
-            {
-                var items = await dbSet.Where(a => chunk.Contains(a.Id)).ToListAsync();
-                result.AddRange(items);
-            }
+            if (!ids.Any())
+                return new List<T>();
 
-            return result;
+            var items = await dbSet
+                .ApplyTracking(tracked)
+                .Where(a => ids.Contains(a.Id))
+                .ToListAsync();
+
+            return items.OrderBySequence(ids).ToList();
         }
+
+        #endregion
+
+        #region Remove
 
         public static void Remove<T>(this DbSet<T> dbSet, int id) where T : BaseEntity, new()
         {
@@ -169,6 +192,10 @@ namespace Smartstore
             return numDeleted;
         }
 
+        #endregion
+
+        #region Find
+
         /// <summary>
         ///     Finds an entity with the given id. If an entity with the given id
         ///     is being tracked by the context, then it is returned immediately without making a request to the
@@ -229,5 +256,7 @@ namespace Smartstore
 
             return stateManager.TryGetEntry(key, new object[] { id })?.Entity as TEntity;
         }
+
+        #endregion
     }
 }

@@ -1,35 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Data;
 using Smartstore.Core.Scheduling;
 
 namespace Smartstore.Core.Logging.Tasks
 {
     /// <summary>
-    /// A task that deletes log entries.
+    /// A task that periodically deletes log entries.
     /// </summary>
-    public partial class DeleteLogsTask : AsyncTask
+    public partial class DeleteLogsTask : ITask
     {
-        private readonly SmartDbContext _db;
+        private readonly IDbLogService _dbLogService;
         private readonly CommonSettings _commonSettings;
 
-        public DeleteLogsTask(SmartDbContext db, CommonSettings commonSettings)
+        public DeleteLogsTask(IDbLogService dbLogService, CommonSettings commonSettings)
         {
-            _db = db;
+            _dbLogService = dbLogService;
             _commonSettings = commonSettings;
         }
 
-        public override Task ExecuteAsync(TaskExecutionContext ctx)
+        public Task RunAsync(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
-            //var toUtc = DateTime.UtcNow.AddDays(-_commonSettings.MaxLogAgeInDays);
+            var maxAge = DateTime.UtcNow.AddDays(-_commonSettings.MaxLogAgeInDays);
 
-            //_logService.ClearLog(toUtc, LogLevel.Error);
-
-            // TODO: (core) Implement DeleteLogsTask;
-            return Task.CompletedTask;
+            return _dbLogService.ClearLogsAsync(maxAge, LogLevel.Error, cancelToken);
         }
     }
 }

@@ -7,7 +7,6 @@ namespace Smartstore.Core.Logging
     /// <summary>
     /// Represents an activity log type record
     /// </summary>
-    [Hookable(false)]
     public partial class ActivityLogType : BaseEntity
     {
         /// <summary>

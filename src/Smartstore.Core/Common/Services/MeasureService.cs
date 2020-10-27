@@ -2,7 +2,6 @@
 using Smartstore.Core.Data;
 using Smartstore.Core.Common.Settings;
 using System.Threading.Tasks;
-using Z.EntityFramework.Plus;
 
 namespace Smartstore.Core.Common.Services
 {

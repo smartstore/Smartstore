@@ -31,6 +31,8 @@ namespace Smartstore.Data.DataProviders
                 WHERE table_schema = '{database}'
                 GROUP BY table_schema";
 
+        public override DataProviderType ProviderType => DataProviderType.MySql;
+
         public override DataProviderFeatures Features 
             => DataProviderFeatures.AccessIncrement | DataProviderFeatures.ReIndex | DataProviderFeatures.Shrink | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.ExecuteSqlScript | DataProviderFeatures.StreamBlob;

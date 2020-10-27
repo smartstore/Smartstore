@@ -8,15 +8,15 @@ namespace Smartstore
 {
     public static class ActivityLogQueryExtensions
     {
-        public static IQueryable<ActivityLog> ApplyDateFilter(this IQueryable<ActivityLog> query, DateTime? from, DateTime? to)
+        public static IQueryable<ActivityLog> ApplyDateFilter(this IQueryable<ActivityLog> query, DateTime? fromUtc, DateTime? toUtc)
         {
             Guard.NotNull(query, nameof(query));
 
-            if (from.HasValue)
-                query = query.Where(x => from.Value <= x.CreatedOnUtc);
+            if (fromUtc.HasValue)
+                query = query.Where(x => fromUtc.Value <= x.CreatedOnUtc);
 
-            if (to.HasValue)
-                query = query.Where(x => to.Value >= x.CreatedOnUtc);
+            if (toUtc.HasValue)
+                query = query.Where(x => toUtc.Value >= x.CreatedOnUtc);
 
             return query;
         }

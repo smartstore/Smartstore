@@ -14,7 +14,8 @@ namespace Smartstore.Data
     {
         Unknown,
         SqlServer,
-        MySql
+        MySql,
+        Sqlite
     }
 
     public partial class DataSettings

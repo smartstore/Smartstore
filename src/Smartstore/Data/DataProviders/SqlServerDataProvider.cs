@@ -49,6 +49,8 @@ namespace Smartstore.Data.DataProviders
                     RAISERROR (@ErrorMessage, 16, 1)
                  END";
 
+        public override DataProviderType ProviderType => DataProviderType.SqlServer;
+
         public override DataProviderFeatures Features 
             => DataProviderFeatures.Backup | DataProviderFeatures.ComputeSize | DataProviderFeatures.ReIndex | DataProviderFeatures.ExecuteSqlScript
             | DataProviderFeatures.Restore | DataProviderFeatures.AccessIncrement | DataProviderFeatures.Shrink | DataProviderFeatures.StreamBlob;
