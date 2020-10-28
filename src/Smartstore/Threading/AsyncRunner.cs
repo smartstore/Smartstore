@@ -10,6 +10,10 @@ using Smartstore.Engine;
 
 namespace Smartstore.Threading
 {
+    /// <summary>
+    /// Provides methods that run tasks in isolated dependency lifetime scopes,
+    /// OR runs async methods synchronously.
+    /// </summary>
     public partial class AsyncRunner
     {
         private readonly IHostApplicationLifetime _appLifetime;

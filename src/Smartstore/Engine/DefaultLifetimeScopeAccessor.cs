@@ -21,19 +21,14 @@ namespace Smartstore.Engine
             _state = new ContextState<ILifetimeScope>("CustomLifetimeScopeProvider.WorkScope");
         }
 
-        public ILifetimeScope LifetimeScope 
+        public ILifetimeScope LifetimeScope
         { 
             get
             {
-                var scope = _httpContextAccessor.HttpContext?.GetServiceScope();
-
+                var scope = _httpContextAccessor.HttpContext?.GetServiceScope() ?? _state.GetState();
                 if (scope == null)
                 {
-                    scope = _state.GetState();
-                    if (scope == null)
-                    {
-                        _state.SetState((scope = BeginLifetimeScope()));
-                    }
+                    scope = _state.SetState(BeginLifetimeScope());
                 }
 
                 return scope;

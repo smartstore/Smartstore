@@ -43,16 +43,16 @@ namespace Smartstore.Engine
                 return _serviceProvider.Value[key];
             }
 
-            return default(T);
+            return default;
         }
 
-        public void SetState(T state)
+        public T SetState(T state)
         {
             var dict = _serviceProvider.Value;
 
             if (state == null && dict == null)
             {
-                return;
+                return default;
             }
             
             if (dict == null)
@@ -68,6 +68,8 @@ namespace Smartstore.Engine
             {
                 dict.Add(BuildKey(), state);
             }
+
+            return state;
         }
 
         public void RemoveState()
