@@ -24,6 +24,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
 using Smartstore.Core.Logging;
 using LogLevel = Smartstore.Core.Logging.LogLevel;
+using System.Text.Json;
 
 namespace Smartstore.Web.Controllers
 {

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using System.Web;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -687,22 +688,21 @@ namespace Smartstore
 			return true;
 		}
 
-		[DebuggerStepThrough]
 		public static string EncodeJsString(this string value)
 		{
 			return EncodeJsString(value, '"', true);
 		}
 
-		[DebuggerStepThrough]
 		public static string EncodeJsString(this string value, char delimiter, bool appendDelimiters)
-		{
-			using var psb = StringBuilderPool.Instance.Get(out var sb);
-			using (var w = new StringWriter(sb, CultureInfo.InvariantCulture))
-			{
-				EncodeJsString(w, value, delimiter, appendDelimiters);
-				var result = w.ToString();
-				return result;
-			}
+		{	
+			var result = value.HasValue() ? JavaScriptEncoder.Default.Encode(value) : value.EmptyNull();
+
+			if (appendDelimiters)
+            {
+				result = delimiter + result + delimiter;
+            }
+
+			return result;
 		}
 
 		[DebuggerStepThrough]
@@ -1138,73 +1138,6 @@ namespace Smartstore
 			}
 
 			return input;
-		}
-
-		#endregion
-
-		#region Helper
-
-		private static void EncodeJsChar(TextWriter writer, char c, char delimiter)
-		{
-			switch (c)
-			{
-				case '\t':
-					writer.Write(@"\t");
-					break;
-				case '\n':
-					writer.Write(@"\n");
-					break;
-				case '\r':
-					writer.Write(@"\r");
-					break;
-				case '\f':
-					writer.Write(@"\f");
-					break;
-				case '\b':
-					writer.Write(@"\b");
-					break;
-				case '\\':
-					writer.Write(@"\\");
-					break;
-				//case '<':
-				//case '>':
-				//case '\'':
-				//  StringUtils.WriteCharAsUnicode(writer, c);
-				//  break;
-				case '\'':
-					// only escape if this charater is being used as the delimiter
-					writer.Write((delimiter == '\'') ? @"\'" : @"'");
-					break;
-				case '"':
-					// only escape if this charater is being used as the delimiter
-					writer.Write((delimiter == '"') ? "\\\"" : @"""");
-					break;
-				default:
-					if (c > '\u001f')
-						writer.Write(c);
-					else
-						WriteCharAsUnicode(c, writer);
-					break;
-			}
-		}
-
-		private static void EncodeJsString(TextWriter writer, string value, char delimiter, bool appendDelimiters)
-		{
-			// leading delimiter
-			if (appendDelimiters)
-				writer.Write(delimiter);
-
-			if (value != null)
-			{
-				for (int i = 0; i < value.Length; i++)
-				{
-					EncodeJsChar(writer, value[i], delimiter);
-				}
-			}
-
-			// trailing delimiter
-			if (appendDelimiters)
-				writer.Write(delimiter);
 		}
 
 		#endregion

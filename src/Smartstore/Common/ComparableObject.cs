@@ -18,7 +18,6 @@ namespace Smartstore
     /// <summary>
     /// Provides a standard base class for facilitating sophisticated comparison of objects.
     /// </summary>
-    [Serializable]
     public abstract class ComparableObject
     {
         private readonly HashSet<string> _extraSignatureProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -138,9 +137,8 @@ namespace Smartstore
         protected virtual string[] GetSignaturePropertyNamesCore()
         {
             Type type = this.GetType();
-            string[] names;
 
-            if (!_signaturePropertyNames.TryGetValue(type, out names))
+            if (!_signaturePropertyNames.TryGetValue(type, out string[] names))
             {
                 names = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                     .Where(p => Attribute.IsDefined(p, typeof(ObjectSignatureAttribute), true))
@@ -176,7 +174,6 @@ namespace Smartstore
     /// <summary>
     /// Generic version of <see cref="ComparableObject" />.
     /// </summary>
-	[Serializable]
     public abstract class ComparableObject<T> : ComparableObject, IEquatable<T>
     {
         /// <summary>

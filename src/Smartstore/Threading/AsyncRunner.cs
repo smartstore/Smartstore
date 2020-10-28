@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Engine;
 
 namespace Smartstore.Threading
@@ -20,9 +22,9 @@ namespace Smartstore.Threading
 
             _appLifetime.ApplicationStopping.Register(OnAppShutdown);
             AppShutdownCancellationToken = _appLifetime.ApplicationStopping;
-
-            // TODO: (core) Enforce Run() methods to always create a new lifetime scope instead of calling BeginContextAwareScope (?)
         }
+
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         /// <summary>
         /// Gets the global cancellation token which signals the application shutdown
@@ -41,7 +43,7 @@ namespace Smartstore.Threading
 
         private void OnAppShutdown()
         {
-            // TODO: (core) Do what exactly? Ist this necessary?
+            // TODO: (core) Do what exactly? Is this necessary?
         }
 
         #region Run methods
@@ -54,15 +56,15 @@ namespace Smartstore.Threading
         {
             Guard.NotNull(action, nameof(action));
 
-            var ct = CreateCompositeCancellationToken(cancellationToken);
+            var cancelToken = CreateCompositeCancellationToken(cancellationToken);
+            var scope = _scopeAccessor.BeginLifetimeScope();
 
-            var t = Task.Factory.StartNew(() =>
-            {
-                using (_scopeAccessor.BeginContextAwareScope())
-                {
-                    action(_scopeAccessor.LifetimeScope, ct);
-                }
-            }, ct, options, scheduler ?? TaskScheduler.Default);
+            var t = Task.Factory.StartNew(() => action(scope, cancelToken), 
+                cancelToken, 
+                options, 
+                scheduler ?? TaskScheduler.Default);
+
+            t.ContinueWith(t => TaskContinuation(t, scope), cancelToken);
 
             return t;
         }
@@ -77,15 +79,16 @@ namespace Smartstore.Threading
             Guard.NotNull(state, nameof(state));
             Guard.NotNull(action, nameof(action));
 
-            var ct = CreateCompositeCancellationToken(cancellationToken);
+            var cancelToken = CreateCompositeCancellationToken(cancellationToken);
+            var scope = _scopeAccessor.BeginLifetimeScope();
 
-            var t = Task.Factory.StartNew((o) =>
-            {
-                using (_scopeAccessor.BeginContextAwareScope())
-                {
-                    action(_scopeAccessor.LifetimeScope, ct, o);
-                }
-            }, state, ct, options, scheduler ?? TaskScheduler.Default);
+            var t = Task.Factory.StartNew((o) => action(scope, cancelToken, o), 
+                state, 
+                cancelToken,
+                options, 
+                scheduler ?? TaskScheduler.Default);
+
+            t.ContinueWith(t => TaskContinuation(t, scope), cancelToken);
 
             return t;
         }
@@ -98,15 +101,15 @@ namespace Smartstore.Threading
         {
             Guard.NotNull(function, nameof(function));
 
-            var ct = CreateCompositeCancellationToken(cancellationToken);
+            var cancelToken = CreateCompositeCancellationToken(cancellationToken);
+            var scope = _scopeAccessor.BeginLifetimeScope();
 
-            var t = Task.Factory.StartNew(() =>
-            {
-                using (_scopeAccessor.BeginContextAwareScope())
-                {
-                    return function(_scopeAccessor.LifetimeScope, ct);
-                }
-            }, ct, options, scheduler ?? TaskScheduler.Default);
+            var t = Task.Factory.StartNew(() => function(scope, cancelToken), 
+                cancelToken, 
+                options, 
+                scheduler ?? TaskScheduler.Default);
+
+            t.ContinueWith(t => TaskContinuation(t, scope), cancelToken);
 
             return t;
         }
@@ -121,15 +124,16 @@ namespace Smartstore.Threading
             Guard.NotNull(state, nameof(state));
             Guard.NotNull(function, nameof(function));
 
-            var ct = CreateCompositeCancellationToken(cancellationToken);
+            var cancelToken = CreateCompositeCancellationToken(cancellationToken);
+            var scope = _scopeAccessor.BeginLifetimeScope();
 
-            var t = Task.Factory.StartNew((o) =>
-            {
-                using (_scopeAccessor.BeginContextAwareScope())
-                {
-                    return function(_scopeAccessor.LifetimeScope, ct, o);
-                }
-            }, state, ct, options, scheduler ?? TaskScheduler.Default);
+            var t = Task.Factory.StartNew((o) => function(scope, cancelToken, o), 
+                state, 
+                cancelToken, 
+                options, 
+                scheduler ?? TaskScheduler.Default);
+
+            t.ContinueWith(t => TaskContinuation(t, scope), cancelToken);
 
             return t;
         }
@@ -142,24 +146,23 @@ namespace Smartstore.Threading
             Guard.NotNull(state, nameof(state));
             Guard.NotNull(function, nameof(function));
 
-            var ct = CreateCompositeCancellationToken(cancellationToken);
-            var scope = _scopeAccessor.BeginLifetimeScope(null);
+            var cancelToken = CreateCompositeCancellationToken(cancellationToken);
+            var scope = _scopeAccessor.BeginLifetimeScope();
 
-            Task task = null;
+            Task t = function(scope, cancelToken);
+            t.ContinueWith(t => TaskContinuation(t, scope), cancelToken);
 
-            try
+            return t;
+        }
+
+        private void TaskContinuation(Task task, ILifetimeScope scope)
+        {
+            scope.Dispose();
+
+            if (task.Exception != null)
             {
-                task = function(scope, ct).ContinueWith(x =>
-                {
-                    scope.Dispose();
-                }, ct);
+                task.Exception.Flatten().InnerExceptions.Each(x => Logger.Error(x));
             }
-            catch
-            {
-                scope.Dispose();
-            }
-
-            return task;
         }
 
         #endregion

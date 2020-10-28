@@ -1,0 +1,114 @@
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Html;
+
+namespace Smartstore.Core.Localization
+{
+    /// <summary>
+    /// An <see cref="IHtmlContent"/> with localized resource string.
+    /// </summary>
+    [DebuggerDisplay("{Value}")]
+    public class LocalizedString : IHtmlContent
+    {
+        public LocalizedString(string value)
+            : this(value, null, false, Array.Empty<object>())
+        {
+        }
+
+        public LocalizedString(string value, string name, params object[] arguments)
+            : this(value, name, false, arguments)
+        {
+        }
+
+        public LocalizedString(string value, string name, bool isResourceNotFound, params object[] arguments)
+        {
+            Name = name;
+            Value = value;
+            Arguments = arguments;
+            IsResourceNotFound = isResourceNotFound;
+        }
+
+        /// <summary>
+        /// The name of the string resource.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// The original resource string, prior to formatting with any constructor arguments.
+        /// </summary>
+        public string Value { get; }
+
+        /// <summary>
+        /// Arguments to format <see cref="Value"/> with.
+        /// </summary>
+        public object[] Arguments { get; }
+
+        /// <summary>
+        /// Gets a flag that indicates if the resource is not found.
+        /// </summary>
+        public bool IsResourceNotFound { get; }
+
+        /// <summary>
+        /// Returns a js encoded string which already contains delimiters.
+        /// </summary>
+        public IHtmlContent JsValue => new HtmlString(Value.EncodeJsString());
+
+        public static implicit operator string(LocalizedString obj)
+        {
+            return HtmlEncoder.Default.Encode(obj.Value);
+        }
+
+        public static implicit operator LocalizedString(string obj)
+        {
+            return new LocalizedString(obj);
+        }
+
+        /// <inheritdoc />
+        public void WriteTo(TextWriter writer, HtmlEncoder encoder)
+        {
+            if (writer == null)
+            {
+                throw new ArgumentNullException(nameof(writer));
+            }
+
+            if (encoder == null)
+            {
+                throw new ArgumentNullException(nameof(encoder));
+            }
+
+            if (Arguments.Length == 0)
+            {
+                writer.Write(Value);
+            }
+            else
+            {
+                var formattableString = new HtmlFormattableString(Value, Arguments);
+                formattableString.WriteTo(writer, encoder);
+            }
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return Value ?? string.Empty;
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            return Value?.GetHashCode() ?? 0;
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            if (obj == null || obj.GetType() != GetType())
+                return false;
+
+            var that = (LocalizedString)obj;
+            return string.Equals(Value, that.Value);
+        }
+    }
+}

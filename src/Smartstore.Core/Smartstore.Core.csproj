@@ -33,7 +33,6 @@
     <Folder Include="Catalog\Products\" />
     <Folder Include="Checkout\Affiliates\" />
     <Folder Include="Checkout\Orders\" />
-    <Folder Include="Common\Extensions\" />
     <Folder Include="Content\Blogs\" />
     <Folder Include="Checkout\Cart\" />
     <Folder Include="Catalog\Discounts\" />

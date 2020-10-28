@@ -4,7 +4,9 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
+using Smartstore.Diagnostics;
 using Smartstore.Engine;
 using Smartstore.Events;
 using Smartstore.Web;
@@ -25,6 +27,9 @@ namespace Smartstore.Core
         ISettingService Settings { get; }
         ISettingFactory SettingFactory { get; }
         ILoggerFactory LoggerFactory { get; }
+        IActivityLogger ActivityLogger { get; }
+        INotifier Notifier { get; }
+        IChronometer Chronometer { get; }
 
         // TODO: (core) Add more props to ICommonServices once they drop in.
     }

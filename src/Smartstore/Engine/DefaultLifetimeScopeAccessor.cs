@@ -29,7 +29,11 @@ namespace Smartstore.Engine
 
                 if (scope == null)
                 {
-                    _state.SetState((scope = BeginLifetimeScope()));
+                    scope = _state.GetState();
+                    if (scope == null)
+                    {
+                        _state.SetState((scope = BeginLifetimeScope()));
+                    }
                 }
 
                 return scope;

@@ -6,6 +6,22 @@
     public interface IStoreContext
     {
         /// <summary>
+        /// Gets or sets the current store
+        /// </summary>
+        /// <remarks>Setter is for virtualization and testing purposes</remarks>
+        Store CurrentStore { get; set; }
+
+        /// <summary>
+        /// Gets a cache wrapper for all untracked store entities.
+        /// </summary>
+        StoreEntityCache GetCachedStores();
+
+        /// <summary>
+        /// IsSingleStoreMode ? 0 : CurrentStore.Id
+        /// </summary>
+        int CurrentStoreIdIfMultiStoreMode { get; }
+
+        /// <summary>
         /// Sets a store override to be used for the current request
         /// </summary>
         /// <param name="storeId">The store override or <c>null</c> to remove the override</param>
@@ -28,16 +44,5 @@
         /// </summary>
         /// <returns>The store override or <c>null</c></returns>
         int? GetPreviewStore();
-
-        /// <summary>
-        /// Gets or sets the current store
-        /// </summary>
-        /// <remarks>Setter is for virtualization and testing purposes</remarks>
-        Store CurrentStore { get; set; }
-
-        /// <summary>
-        /// IsSingleStoreMode ? 0 : CurrentStore.Id
-        /// </summary>
-        int CurrentStoreIdIfMultiStoreMode { get; }
     }
 }

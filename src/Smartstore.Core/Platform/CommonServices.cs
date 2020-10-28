@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
 using Smartstore.Engine;
@@ -26,16 +27,9 @@ namespace Smartstore.Core
         private readonly Lazy<ISettingService> _settings;
         private readonly ISettingFactory _settingFactory;
         private readonly ILoggerFactory _loggerFactory;
+        private readonly Lazy<IActivityLogger> _activityLogger;
+        private readonly INotifier _notifier;
         private readonly IChronometer _chronometer;
-        //private readonly Lazy<IStoreService> _storeService;
-        //private readonly Lazy<IDateTimeHelper> _dateTimeHelper;
-        //private readonly Lazy<IDisplayControl> _displayControl;
-        //private readonly Lazy<ILocalizationService> _localization;
-        //private readonly Lazy<ICustomerActivityService> _customerActivity;
-        //private readonly Lazy<IMediaService> _mediaService;
-        //private readonly Lazy<INotifier> _notifier;
-        //private readonly Lazy<IPermissionService> _permissions;
-        //private readonly Lazy<IMessageFactory> _messageFactory;
 
         public CommonServices(
             IComponentContext container,
@@ -50,6 +44,8 @@ namespace Smartstore.Core
             Lazy<ISettingService> settings,
             ISettingFactory settingFactory,
             ILoggerFactory loggerFactory,
+            Lazy<IActivityLogger> activityLogger,
+            INotifier notifier,
             IChronometer chronometer)
         {
             _container = container;
@@ -64,6 +60,8 @@ namespace Smartstore.Core
             _settings = settings;
             _settingFactory = settingFactory;
             _loggerFactory = loggerFactory;
+            _activityLogger = activityLogger;
+            _notifier = notifier;
             _chronometer = chronometer;
         }
 
@@ -79,6 +77,8 @@ namespace Smartstore.Core
         public ISettingService Settings => _settings.Value;
         public ISettingFactory SettingFactory => _settingFactory;
         public ILoggerFactory LoggerFactory => _loggerFactory;
+        public IActivityLogger ActivityLogger => _activityLogger.Value;
+        public INotifier Notifier => _notifier;
         public IChronometer Chronometer => _chronometer;
     }
 }
