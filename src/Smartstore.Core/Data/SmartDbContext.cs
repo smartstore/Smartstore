@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Customers;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
+using Smartstore.Engine;
 
 namespace Smartstore.Core.Data
 {
@@ -22,10 +23,11 @@ namespace Smartstore.Core.Data
         {
         }
 
-        //public IDbQueryFilters<SmartDbContext> QueryFilters
-        //{
-        //    get => new DbQueryFilters<SmartDbContext>(this);
-        //}
+        [SuppressMessage("Performance", "CA1822:Member can be static", Justification = "Seriously?")]
+        public DbQuerySettings QuerySettings
+        {
+            get => EngineContext.Current.Scope.ResolveOptional<DbQuerySettings>() ?? DbQuerySettings.Default;
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

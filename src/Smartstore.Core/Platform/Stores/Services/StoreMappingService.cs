@@ -13,7 +13,7 @@ using Smartstore.Domain;
 namespace Smartstore.Core.Stores
 {
     [Important]
-    public partial class StoreMappingService : AsyncDbSaveHook<StoreMapping>
+    public partial class StoreMappingService : AsyncDbSaveHook<StoreMapping>, IStoreMappingService
     {
         /// <summary>
         /// 0 = segment (EntityName.IdRange)
@@ -45,7 +45,7 @@ namespace Smartstore.Core.Stores
 
         #endregion
 
-        public virtual async Task SetStoreMappingsAsync<T>(T entity, int[] selectedStoreIds) 
+        public virtual async Task ApplyStoreMappingsAsync<T>(T entity, int[] selectedStoreIds) 
             where T : BaseEntity, IStoreRestricted
         {
             var existingStoreMappings = await _db.StoreMappings
@@ -81,17 +81,12 @@ namespace Smartstore.Core.Stores
             if (storeId == 0)
                 throw new ArgumentOutOfRangeException(nameof(storeId));
 
-            int entityId = entity.Id;
-            string entityName = entity.GetEntityName();
-
-            var storeMapping = new StoreMapping
+            _db.StoreMappings.Add(new StoreMapping
             {
-                EntityId = entityId,
-                EntityName = entityName,
+                EntityId = entity.Id,
+                EntityName = entity.GetEntityName(),
                 StoreId = storeId
-            };
-
-            _db.StoreMappings.Add(storeMapping);
+            });
         }
 
         public Task<bool> AuthorizeAsync(string entityName, int entityId)
@@ -112,10 +107,10 @@ namespace Smartstore.Core.Stores
 
 
             // Permission granted only when the id list contains the passed storeId
-            return (await GetStoresIdsWithAccessAsync(entityName, entityId)).Any(x => x == storeId);
+            return (await GetAuthorizedStoreIdsAsync(entityName, entityId)).Any(x => x == storeId);
         }
 
-        public virtual async Task<int[]> GetStoresIdsWithAccessAsync(string entityName, int entityId)
+        public virtual async Task<int[]> GetAuthorizedStoreIdsAsync(string entityName, int entityId)
         {
             Guard.NotEmpty(entityName, nameof(entityName));
 

@@ -6,15 +6,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching.DependencyInjection;
+using Smartstore.Core.Common.DependencyInjection;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Configuration;
 using Smartstore.Core.Configuration.DependencyInjection;
 using Smartstore.Core.Data.DependecyInjection;
-using Smartstore.Core.Logging;
+using Smartstore.Core.Localization.DependencyInjection;
 using Smartstore.Core.Logging.DependencyInjection;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Seo.Services;
-using Smartstore.Core.Stores;
+using Smartstore.Core.Stores.DependencyInjection;
 using Smartstore.Core.Web;
 using Smartstore.Engine;
 using Smartstore.Engine.DependencyInjection;
@@ -33,15 +33,10 @@ namespace Smartstore.Core
             var appConfig = appContext.AppConfiguration;
 
             services.AddHttpContextAccessor();
+            services.AddSmartDbContext(appContext);
 
             // TODO: (core) Configuration for MemoryCache?
             services.AddMemoryCache();
-
-            services.AddScoped<IStoreContext, StoreContext>();
-            services.AddScoped<IWebHelper, WebHelper>();
-            services.AddScoped<IMeasureService, MeasureService>();
-
-            services.AddSmartDbContext(appContext);
 
             services.AddMiniProfiler(o =>
             {
@@ -55,10 +50,12 @@ namespace Smartstore.Core
             builder.RegisterModule(new CachingModule());
             builder.RegisterModule(new DbHooksModule(appContext));
             builder.RegisterModule(new EventsModule(appContext));
+
+            builder.RegisterModule(new CommonModule());
             builder.RegisterModule(new LoggingModule());
             builder.RegisterModule(new SettingsModule());
-
-            builder.RegisterAggregateService<ICommonServices>();
+            builder.RegisterModule(new StoresModule());
+            builder.RegisterModule(new LocalizationModule());
         }
 
         public override void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)

@@ -55,7 +55,7 @@ namespace Smartstore.Core.Configuration
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            // Obtain distict prefixes from all changed settings,
+            // Obtain distinct prefixes from all changed settings,
             // e.g.: 'catalogsettings.showgtin' > 'catalogsettings'
             var prefixes = entries
                 .Select(x => x.Entity)
