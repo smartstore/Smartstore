@@ -13,6 +13,6 @@ namespace Smartstore.Core.Scheduling
         /// Runs a task implementation.
         /// </summary>
 		/// <param name="ctx">The execution context</param>
-        Task RunAsync(TaskExecutionContext ctx, CancellationToken cancelToken = default);
+        Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default);
     }
 }

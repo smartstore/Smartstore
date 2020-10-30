@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Dasync.Collections;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 //using Smartstore.ComponentModel;
@@ -368,6 +369,24 @@ namespace Smartstore
 		}
 
 		/// <summary>
+		/// Filters a sequence of values based on an async predicate.
+		/// </summary>
+		/// <typeparam name="T">The type of the elements of source.</typeparam>
+		/// <param name="source">A sequence to filter.</param>
+		/// <param name="predicate">An async task function to test each element for a condition.</param>
+		/// <returns>An <see cref="IAsyncEnumerable{T}"/> that contains elements from the input sequence that satisfy the condition.</returns>
+		public static async IAsyncEnumerable<T> WhereAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
+		{
+			await foreach (var item in source.ToAsyncEnumerable())
+			{
+				if (await predicate(item))
+				{
+					yield return item;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Projects each element of a sequence into a new form by incorporating the element's index.
 		/// </summary>
 		/// <param name="source">A sequence of values to invoke a transform function on.</param>
@@ -383,12 +402,6 @@ namespace Smartstore
 		public static async Task<IEnumerable<T>> WhenAll<T>(this IEnumerable<Task<T>> source)
 		{
 			return await Task.WhenAll(source);
-		}
-
-        public static async Task<IEnumerable<T>> WhereAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
-        {
-			var results = await Task.WhenAll(source.Select(async x => (x, await predicate(x))));
-			return results.Where(x => x.Item2).Select(x => x.Item1);
 		}
 
         #endregion

@@ -6,8 +6,8 @@ namespace Smartstore.Core.Stores.DependencyInjection
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<IStoreContext>().As<StoreContext>().InstancePerLifetimeScope();
-            builder.RegisterType<IStoreMappingService>().As<StoreMappingService>().InstancePerLifetimeScope();
+            builder.RegisterType<StoreContext>().As<IStoreContext>().InstancePerLifetimeScope();
+            builder.RegisterType<StoreMappingService>().As<IStoreMappingService>().InstancePerLifetimeScope();
         }
     }
 }

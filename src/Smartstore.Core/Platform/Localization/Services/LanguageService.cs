@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
@@ -107,9 +106,7 @@ namespace Smartstore.Core.Localization
             // store mapping
             if (storeId > 0)
             {
-                languages = (await languages
-                    .WhereAsync(x => _storeMappingService.AuthorizeAsync(x, storeId)))
-                    .ToList();
+                languages = await _storeMappingService.SelectAuthorizedAsync(languages, storeId).ToListAsync();
             }
 
             return languages;

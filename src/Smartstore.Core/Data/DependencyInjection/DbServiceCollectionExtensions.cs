@@ -3,18 +3,24 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Smartstore.Core.Data;
 using Smartstore.Data;
+using Smartstore.Data.Caching;
 using Smartstore.Engine;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class DbServiceCollectionExtensions
     {
-        public static IServiceCollection AddSmartDbContext(this IServiceCollection services, IApplicationContext appContext)
+        /// <summary>
+        /// Registers <see cref="IDbContextFactory{TContext}"/> as singleton, <typeparamref name="TContext"/> as scoped,
+        /// and configures <see cref="DbContextOptions"/>.
+        /// </summary>
+        public static IServiceCollection AddDbContext<TContext>(this IServiceCollection services, IApplicationContext appContext)
+            where TContext : HookingDbContext
         {
             //services.AddDbContextFactory<SmartDbContext>();
-            services.AddPooledDbContextFactory<SmartDbContext>(ConfigureDbContext, appContext.AppConfiguration.DbContextPoolSize);
             //services.AddDbContextPool<SmartDbContext>(ConfigureDbContext, appConfig.DbContextPoolSize);
-            services.AddScoped<SmartDbContext>(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());
+            services.AddPooledDbContextFactory<TContext>(ConfigureDbContext, appContext.AppConfiguration.DbContextPoolSize);
+            services.AddScoped<TContext>(sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext());
 
             return services;
         }
@@ -24,7 +30,6 @@ namespace Microsoft.Extensions.DependencyInjection
             var appContext = p.GetRequiredService<IApplicationContext>();
             var appConfig = appContext.AppConfiguration;
 
-            //// TODO: (core) Fetch ConnectionString from tenant settings
             //// TODO: (core) Fetch services which SmartDbContext depends on from IInfrastructure<IServiceProvider>
             //o.UseSqlServer(appContext.Configuration.GetConnectionString("DefaultConnection"), sql =>
             //{
@@ -40,6 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     sql.CommandTimeout(appConfig.DbCommandTimeout.Value);
                 }
             })
+            .AddInterceptors(p.GetRequiredService<EfCacheInterceptor>())
             .ConfigureWarnings(w =>
             {
                 // EF throws when query is untracked otherwise

@@ -16,7 +16,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore
 {
-	public static class StringExtensions
+    public static class StringExtensions
 	{
 		public const string CarriageReturnLineFeed = "\r\n";
 		public const string Empty = "";
@@ -253,6 +253,19 @@ namespace Smartstore
 		public static bool HasValue(this string value)
 		{
 			return !string.IsNullOrWhiteSpace(value);
+		}
+
+		/// <summary>
+		/// Computes the xxHash of the input string. xxHash is an extremely fast non-cryptographic Hash algorithm.
+		/// </summary>
+		/// <param name="value">The input string</param>
+		/// <returns>xxHash</returns>
+		public static string XxHash(this string value)
+		{
+			if (value.IsEmpty())
+				return value;
+
+			return $"{XxHashUnsafe.ComputeHash(value):X}";
 		}
 
 		/// <remarks>

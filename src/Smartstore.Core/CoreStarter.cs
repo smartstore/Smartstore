@@ -9,6 +9,7 @@ using Smartstore.Caching.DependencyInjection;
 using Smartstore.Core.Common.DependencyInjection;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration.DependencyInjection;
+using Smartstore.Core.Data;
 using Smartstore.Core.Data.DependecyInjection;
 using Smartstore.Core.Localization.DependencyInjection;
 using Smartstore.Core.Logging.DependencyInjection;
@@ -33,7 +34,7 @@ namespace Smartstore.Core
             var appConfig = appContext.AppConfiguration;
 
             services.AddHttpContextAccessor();
-            services.AddSmartDbContext(appContext);
+            services.AddDbContext<SmartDbContext>(appContext);
 
             // TODO: (core) Configuration for MemoryCache?
             services.AddMemoryCache();

@@ -1,7 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
+using Dasync.Collections;
+using System.Linq;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace Smartstore
 {
@@ -51,6 +56,19 @@ namespace Smartstore
                 return Task.FromResult(true);
 
             return svc.AuthorizeAsync(entity.GetEntityName(), entity.Id, storeId);
+        }
+
+        /// <summary>
+        /// Checks whether an entity can be accessed in a given store.
+        /// </summary>
+        /// <param name="entity">Entity to check</param>
+        /// <returns>true - authorized; otherwise, false</returns>
+        public static IAsyncEnumerable<T> SelectAuthorizedAsync<T>(this IStoreMappingService svc, IEnumerable<T> entities, int storeId) 
+            where T : BaseEntity, IStoreRestricted
+        {
+            Guard.NotNull(entities, nameof(entities));
+
+            return entities.WhereAsync(x => svc.AuthorizeAsync(x.GetEntityName(), x.Id, storeId));
         }
     }
 }

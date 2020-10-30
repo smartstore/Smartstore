@@ -20,7 +20,7 @@ namespace Smartstore.Core.Logging.Tasks
             _commonSettings = commonSettings;
         }
 
-        public Task RunAsync(TaskExecutionContext ctx, CancellationToken cancelToken = default)
+        public Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
             var maxAge = DateTime.UtcNow.AddDays(-_commonSettings.MaxLogAgeInDays);
 
