@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Tax
@@ -7,6 +8,7 @@ namespace Smartstore.Core.Tax
     /// <summary>
     /// Represents a tax category
     /// </summary>
+    [CacheableEntity(RequestCaching = true)]
     public partial class TaxCategory : BaseEntity, IDisplayOrder
     {
         /// <summary>

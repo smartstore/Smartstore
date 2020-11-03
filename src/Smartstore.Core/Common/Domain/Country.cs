@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
@@ -14,6 +15,7 @@ namespace Smartstore.Core.Common
     /// Represents a country
     /// </summary>
     [Index(nameof(DisplayOrder), Name = "IX_Country_DisplayOrder")]
+    [CacheableEntity(RequestCaching = true)]
     public partial class Country : BaseEntity, ILocalizedEntity, IStoreRestricted, IDisplayOrder
     {
         public Country()

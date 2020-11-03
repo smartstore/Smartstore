@@ -166,7 +166,7 @@ namespace Smartstore.Caching
 
             // Get the (semaphore) locker specific to this key from LAST store.
             // Atomic operation must be outer locked
-            using (_stores.Last().AcquireKeyLock(key))
+            using (AcquireKeyLock(key))
             {
                 // Check again
                 entry = GetInternal(key, independent).Entry;
@@ -222,7 +222,7 @@ namespace Smartstore.Caching
 
             // Get the (semaphore) locker specific to this key from LAST store.
             // Atomic operation must be outer locked
-            using (await _stores.Last().AcquireAsyncKeyLock(key))
+            using (await AcquireAsyncKeyLock(key))
             {
                 // Check again
                 entry = (await GetInternalAsync(key, independent)).Entry;
@@ -292,7 +292,6 @@ namespace Smartstore.Caching
 
         #endregion
 
-
         #region Write
 
         public void Put(string key, object value, CacheEntryOptions options = null)
@@ -348,6 +347,16 @@ namespace Smartstore.Caching
                 .ConfigureAwait(false);
 
             return counts.Max();
+        }
+
+        public IDisposable AcquireKeyLock(string key)
+        {
+            return _stores.Last().AcquireKeyLock(key);
+        }
+
+        public Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
+        {
+            return _stores.Last().AcquireAsyncKeyLock(key, cancelToken);
         }
 
         public void Clear()

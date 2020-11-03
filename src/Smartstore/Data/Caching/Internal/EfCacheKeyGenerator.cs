@@ -2,42 +2,31 @@
 using System.Data.Common;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Data.Caching.Internal;
 using Smartstore.Utilities;
 
-namespace Smartstore.Data.Caching
+namespace Smartstore.Data.Caching.Internal
 {
     /// <summary>
-    /// A custom cache key provider for EF queries.
+    /// A custom cache key generator for EF queries.
     /// </summary>
-    public interface IEfCacheKeyProvider
+    public sealed class EfCacheKeyGenerator
     {
-        /// <summary>
-        /// Gets an EF query and returns its hashed key to store in the cache.
-        /// </summary>
-        /// <param name="command">The EF query.</param>
-        /// <param name="context">DbContext is a combination of the Unit Of Work and Repository patterns.</param>
-        /// <param name="cachePolicy">determines the Expiration time of the cache.</param>
-        /// <returns>Information of the computed key of the input LINQ query.</returns>
-        EfCacheKey GetCacheKey(DbCommand command, DbContext context, EfCachePolicy cachePolicy);
-    }
-
-    public class EfCacheKeyProvider : IEfCacheKeyProvider
-    {
-        private readonly IEfCacheDependenciesProcessor _cacheDependenciesProcessor;
+        private readonly EfCacheDependenciesProcessor _cacheDependenciesProcessor;
         private readonly IEfDebugLogger _logger;
-        private readonly IEfCachePolicyParser _cachePolicyParser;
+        private readonly EfCachePolicyResolver _policyResolver;
 
         /// <summary>
         /// A custom cache key provider for EF queries.
         /// </summary>
-        public EfCacheKeyProvider(
-            IEfCacheDependenciesProcessor cacheDependenciesProcessor,
-            IEfCachePolicyParser cachePolicyParser,
+        public EfCacheKeyGenerator(
+            EfCacheDependenciesProcessor cacheDependenciesProcessor,
+            EfCachePolicyResolver policyResolver,
             IEfDebugLogger logger)
         {
             _cacheDependenciesProcessor = cacheDependenciesProcessor;
             _logger = logger;
-            _cachePolicyParser = cachePolicyParser;
+            _policyResolver = policyResolver;
         }
 
         /// <summary>
@@ -47,12 +36,14 @@ namespace Smartstore.Data.Caching
         /// <param name="context">DbContext is a combination of the Unit Of Work and Repository patterns.</param>
         /// <param name="cachePolicy">determines the Expiration time of the cache.</param>
         /// <returns>Information of the computed key of the input LINQ query.</returns>
-        public EfCacheKey GetCacheKey(DbCommand command, DbContext context, EfCachePolicy cachePolicy)
+        public EfCacheKey GenerateCacheKey(DbCommand command, DbContext context, EfCachePolicy cachePolicy)
         {
-            var cacheKey = GetCacheKey(command);
+            var cacheKey = GenerateCacheKey(command);
             var cacheKeyHash = $"{XxHashUnsafe.ComputeHash(cacheKey):X}";
             var cacheDependencies = _cacheDependenciesProcessor.GetCacheDependencies(command, context, cachePolicy);
+
             _logger.LogDebug($"KeyHash: {cacheKeyHash}, CacheDependencies: {string.Join(", ", cacheDependencies)}.");
+
             return new EfCacheKey
             {
                 Key = cacheKey,
@@ -61,10 +52,10 @@ namespace Smartstore.Data.Caching
             };
         }
 
-        private string GetCacheKey(DbCommand command)
+        private string GenerateCacheKey(DbCommand command)
         {
             using var psb = StringBuilderPool.Instance.Get(out var sb);
-            sb.AppendLine(_cachePolicyParser.RemoveEfCachePolicyTag(command.CommandText));
+            sb.AppendLine(_policyResolver.RemoveEfCachePolicyTag(command.CommandText));
 
             foreach (DbParameter parameter in command.Parameters)
             {

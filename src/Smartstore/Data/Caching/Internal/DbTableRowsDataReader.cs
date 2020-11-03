@@ -24,7 +24,7 @@ namespace Smartstore.Data.Caching.Internal
         public DbTableRowsDataReader(DbTableRows tableRows)
         {
             _tableRows = tableRows;
-            _rowsCount = _tableRows.RowsCount;
+            _rowsCount = _tableRows.RowCount;
             FieldCount = _tableRows.FieldCount;
             _valueTypes = new Dictionary<int, Type>(FieldCount);
         }

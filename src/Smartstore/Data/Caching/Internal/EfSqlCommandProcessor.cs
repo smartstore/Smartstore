@@ -6,10 +6,10 @@ using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Utilities;
 
-namespace Smartstore.Data.Caching
+namespace Smartstore.Data.Caching.Internal
 {
     /// <summary>
-    /// A Table's EntityInfo
+    /// A Table's EntityInfo and policy information.
     /// </summary>
     public class TableEntityInfo
     {
@@ -25,6 +25,11 @@ namespace Smartstore.Data.Caching
         public string TableName { set; get; }
 
         /// <summary>
+        /// Policy annotation.
+        /// </summary>
+        public CacheableEntityAttribute Policy { get; set; }
+
+        /// <summary>
         /// Debug info.
         /// </summary>
         public override string ToString() => $"{ClrType}::{TableName}";
@@ -33,36 +38,14 @@ namespace Smartstore.Data.Caching
     /// <summary>
     /// SqlCommands Utils
     /// </summary>
-    public interface IEfSqlCommandsProcessor
+    public class EfSqlCommandProcessor
     {
-        /// <summary>
-        /// Extracts the table names of an SQL command.
-        /// </summary>
-        SortedSet<string> GetSqlCommandTableNames(string commandText);
-
-        /// <summary>
-        /// Extracts the entity types of an SQL command.
-        /// </summary>
-        IList<Type> GetSqlCommandEntityTypes(string commandText, IList<TableEntityInfo> allEntityTypes);
-
-        /// <summary>
-        /// Returns all of the given context's entity infos.
-        /// </summary>
-        IList<TableEntityInfo> GetAllEntityInfos(DbContext context);
-
-        /// <summary>
-        /// Is `insert`, `update` or `delete`?
-        /// </summary>
-        bool IsCrudCommand(string text);
-    }
-
-    public class EfSqlCommandsProcessor : IEfSqlCommandsProcessor
-    {
-        private readonly ConcurrentDictionary<Type, Lazy<List<TableEntityInfo>>> _contextTableNames =
-                    new ConcurrentDictionary<Type, Lazy<List<TableEntityInfo>>>();
+        // Keys are both entity CLR type and table name (therefore object, not Type)
+        private readonly ConcurrentDictionary<Type, Lazy<Dictionary<object, TableEntityInfo>>> _contextTableInfos =
+            new ConcurrentDictionary<Type, Lazy<Dictionary<object, TableEntityInfo>>>();
 
         private readonly ConcurrentDictionary<string, Lazy<SortedSet<string>>> _commandTableNames =
-                    new ConcurrentDictionary<string, Lazy<SortedSet<string>>>();
+            new ConcurrentDictionary<string, Lazy<SortedSet<string>>>();
 
         /// <summary>
         /// Is `insert`, `update` or `delete`?
@@ -91,26 +74,37 @@ namespace Smartstore.Data.Caching
             return false;
         }
 
-        public IList<TableEntityInfo> GetAllEntityInfos(DbContext context)
+        /// <summary>
+        /// Returns all of the given context's entity infos.
+        /// </summary>
+        public Dictionary<object, TableEntityInfo> GetAllEntityInfos(DbContext context)
         {
-            return _contextTableNames.GetOrAdd(context.GetType(),
-                _ => new Lazy<List<TableEntityInfo>>(() =>
+            return _contextTableInfos.GetOrAdd(context.GetType(),
+                _ => new Lazy<Dictionary<object, TableEntityInfo>>(() =>
                 {
-                    var infos = new List<TableEntityInfo>();
+                    var infos = new Dictionary<object, TableEntityInfo>();
                     foreach (var entityType in context.Model.GetEntityTypes())
                     {
-                        infos.Add(
-                            new TableEntityInfo
-                            {
-                                ClrType = entityType.ClrType,
-                                TableName = entityType.GetTableName()
-                            });
+                        var clrType = entityType.ClrType;
+                        var tableName = entityType.GetTableName();
+                        var info = new TableEntityInfo
+                        {
+                            ClrType = clrType,
+                            TableName = tableName,
+                            Policy = clrType.GetAttribute<CacheableEntityAttribute>(false)
+                        };
+
+                        infos[clrType] = info;
+                        infos[tableName] = info;
                     }
                     return infos;
                 },
                 LazyThreadSafetyMode.ExecutionAndPublication)).Value;
         }
 
+        /// <summary>
+        /// Extracts the table names of an SQL command.
+        /// </summary>
         public SortedSet<string> GetSqlCommandTableNames(string commandText)
         {
             var commandTextKey = $"{XxHashUnsafe.ComputeHash(commandText):X}";
@@ -119,12 +113,16 @@ namespace Smartstore.Data.Caching
                             LazyThreadSafetyMode.ExecutionAndPublication)).Value;
         }
 
-        public IList<Type> GetSqlCommandEntityTypes(string commandText, IList<TableEntityInfo> allEntityTypes)
+        /// <summary>
+        /// Extracts the entity types of an SQL command.
+        /// </summary>
+        public IList<TableEntityInfo> GetSqlCommandEntityInfos(string commandText, Dictionary<object, TableEntityInfo> allEntityInfos)
         {
             var commandTableNames = GetSqlCommandTableNames(commandText);
-            return allEntityTypes.Where(entityType => commandTableNames.Contains(entityType.TableName))
-                                .Select(entityType => entityType.ClrType)
-                                .ToList();
+            return commandTableNames
+                .Select(tableName => allEntityInfos.Get(tableName))
+                .Where(x => x != null)
+                .ToList();
         }
 
         private static SortedSet<string> GetRawSqlCommandTableNames(string commandText)

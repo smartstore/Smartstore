@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Smartstore.Threading;
+using Smartstore.Utilities;
 
 namespace Smartstore.Caching
 {
@@ -66,6 +68,12 @@ namespace Smartstore.Caching
 
         public Task<long> RemoveByPatternAsync(string pattern)
             => Task.FromResult((long)0);
+
+        public IDisposable AcquireKeyLock(string key)
+            => ActionDisposable.Empty;
+
+        public Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
+            => Task.FromResult(AcquireKeyLock(key));
 
         public void Clear()
             { }

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Common;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 using Smartstore.Web;
 
@@ -9,6 +10,7 @@ namespace Smartstore.Core.Stores
     /// <summary>
     /// Represents a store
     /// </summary>
+    [CacheableEntity]
     public partial class Store : BaseEntity, IDisplayOrder
     {
         public Store()

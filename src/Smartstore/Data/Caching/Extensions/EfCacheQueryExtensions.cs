@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Smartstore.Caching;
 using Smartstore.Domain;
+using Smartstore.Engine;
+using Smartstore.Utilities;
 
 namespace Smartstore.Data.Caching
 {
@@ -19,6 +23,22 @@ namespace Smartstore.Data.Caching
         /// IsNotCachable Marker
         /// </summary>
         public static readonly string IsNotCachableMarker = $"{nameof(EfCacheInterceptor)}{nameof(NotCacheable)}";
+
+        #region Request cache
+
+        public static List<T> ToListCached<T>(this IQueryable<T> query)
+            where T : BaseEntity
+        {
+            var requestCache = EngineContext.Current.ResolveService<IRequestCache>();
+            var key = $"{XxHashUnsafe.ComputeHash(query.ToQueryString()):X}";
+
+            return requestCache.Get(key, () => 
+            {
+                return query.ToList();
+            });
+        }
+
+        #endregion
 
         /// <summary>
         /// Returns a new query where the entities returned will be cached for 1 hour.
@@ -48,13 +68,13 @@ namespace Smartstore.Data.Caching
         {
             SanityCheck(query);
 
-            return query.MarkAsNoTracking().TagWith(EfCachePolicy.Configure(options =>
+            return query.TagWith(EfCachePolicy.Configure(options =>
             {
-                options.Timeout(duration);
+                options.ExpiresIn(duration);
 
                 if (cacheDependencies.Length > 0)
                 {
-                    options.CacheDependencies(cacheDependencies);
+                    options.WithDependencies(cacheDependencies);
                 }
             }));
         }

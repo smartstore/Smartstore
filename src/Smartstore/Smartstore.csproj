@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <Folder Include="Authentication\" />
+    <Folder Include="Data\Caching2\Extensions\" />
     <Folder Include="Engine\Packaging\" />
     <Folder Include="Mocks\" />
     <Folder Include="Validation\" />

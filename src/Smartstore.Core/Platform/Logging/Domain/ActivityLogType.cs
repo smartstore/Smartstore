@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 
@@ -7,6 +9,7 @@ namespace Smartstore.Core.Logging
     /// <summary>
     /// Represents an activity log type record
     /// </summary>
+    [CacheableEntity]
     public partial class ActivityLogType : BaseEntity
     {
         /// <summary>

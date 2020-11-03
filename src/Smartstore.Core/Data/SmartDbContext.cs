@@ -18,7 +18,7 @@ namespace Smartstore.Core.Data
 
     public partial class SmartDbContext : HookingDbContext
     {
-        public SmartDbContext(DbContextOptions options)
+        public SmartDbContext(DbContextOptions<SmartDbContext> options)
             : base(options)
         {
         }

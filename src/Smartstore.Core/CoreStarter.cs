@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Web;
 using Autofac;
-using Autofac.Extras.AggregateService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Smartstore.Caching.DependencyInjection;
 using Smartstore.Core.Common.DependencyInjection;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration.DependencyInjection;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.DependecyInjection;
@@ -16,11 +15,9 @@ using Smartstore.Core.Logging.DependencyInjection;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Seo.Services;
 using Smartstore.Core.Stores.DependencyInjection;
-using Smartstore.Core.Web;
 using Smartstore.Engine;
 using Smartstore.Engine.DependencyInjection;
 using Smartstore.Events.DependencyInjection;
-using Smartstore.Web;
 
 namespace Smartstore.Core
 {
@@ -28,13 +25,20 @@ namespace Smartstore.Core
     {
         public override int Order => int.MinValue + 100;
 
-        // TODO: (core) Modularize the starters
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
             var appConfig = appContext.AppConfiguration;
 
             services.AddHttpContextAccessor();
-            services.AddDbContext<SmartDbContext>(appContext);
+
+            //// EF 2nd level caching
+            //services.AddEntityFrameworkCache(o => 
+            //{
+            //    o.DisableLogging = !appContext.HostEnvironment.IsDevelopment();
+            //});
+
+            // Application DbContext as pooled factory
+            services.AddPooledApplicationDbContextFactory<SmartDbContext>(appContext);
 
             // TODO: (core) Configuration for MemoryCache?
             services.AddMemoryCache();

@@ -26,6 +26,8 @@ using Smartstore.Core.Logging;
 using LogLevel = Smartstore.Core.Logging.LogLevel;
 using System.Text.Json;
 using System.Text;
+using Smartstore.Core.Common;
+using Smartstore.Data.Caching;
 
 namespace Smartstore.Web.Controllers
 {
@@ -164,11 +166,91 @@ namespace Smartstore.Web.Controllers
                 .OrderBy(x => x.DisplayOrder)
                 .ThenBy(x => x.Name);
 
-            var countries = await query.ToListAsync();
+            //var countries = await GetCountriesCached();
+            //countries = await GetCountriesCached();
+            //countries = await GetCountriesCached();
+            //countries = await GetCountriesCached();
+            //countries = await GetCountriesCached();
+            //countries = await GetCountriesCached();
 
-            _db.SaveChanges();
+            //var countries = await GetCountriesUncached();
+            //countries = await GetCountriesUncached();
+            //countries = await GetCountriesUncached();
+            //countries = await GetCountriesUncached();
+            //countries = await GetCountriesUncached();
+            //countries = await GetCountriesUncached();
+
+            var country = GetCountyCachedSync();
+            country = GetCountyCachedSync();
+            country = GetCountyCachedSync();
+            var countries = GetCountriesUncachedSync();
+
+            //_db.SaveChanges();
 
             return View(countries);
+        }
+
+        private Country GetCountyCachedSync()
+        {
+            var query = _db.Countries
+                .AsNoTracking()
+                .ApplyStoreFilter(1)
+                .Include(x => x.StateProvinces)
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
+
+            return query.FirstOrDefault();
+        }
+
+        private List<Country> GetCountriesUncachedSync()
+        {
+            var query = _db.Countries
+                .AsNoTracking()
+                .ApplyStoreFilter(1)
+                .Include(x => x.StateProvinces)
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
+
+            return query.ToList();
+        }
+
+        private Task<List<Country>> GetCountriesUncached()
+        {
+            var query = _db.Countries
+                .AsNoTracking()
+                .ApplyStoreFilter(1)
+                .Include(x => x.StateProvinces)
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
+
+            return query.ToListAsync();
+        }
+
+        private List<Country> GetCountriesCachedSync()
+        {
+            var query = _db.Countries
+                .AsNoTracking()
+                .ApplyStoreFilter(1)
+                .Include(x => x.StateProvinces)
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
+
+            return query.ToListCached();
+        }
+
+        private Task<List<Country>> GetCountriesCached()
+        {
+            return _services.RequestCache.GetAsync("country-list", () => 
+            {
+                var query = _db.Countries
+                   .AsNoTracking()
+                   .ApplyStoreFilter(1)
+                   .Include(x => x.StateProvinces)
+                   .OrderBy(x => x.DisplayOrder)
+                   .ThenBy(x => x.Name);
+
+                return query.ToListAsync();
+            });
         }
 
         public async Task<IActionResult> Settings()

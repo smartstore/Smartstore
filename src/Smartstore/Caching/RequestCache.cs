@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -15,12 +14,11 @@ namespace Smartstore.Caching
 
         private readonly IDictionary<object, object> _emptyDictionary = new Dictionary<object, object>();
 
-        private readonly HttpContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public RequestCache(IHttpContextAccessor httpContextAccessor)
         {
-            // Assigning in Ctor is ok here. This service is scoped.
-            _context = httpContextAccessor.HttpContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public T Get<T>(string key)
@@ -42,6 +40,27 @@ namespace Smartstore.Caching
             if (acquirer != null)
             {
                 value = acquirer();
+                items.Add(key, value);
+                return (T)value;
+            }
+
+            return default;
+        }
+
+        public async Task<T> GetAsync<T>(string key, Func<Task<T>> acquirer)
+        {
+            var items = GetItems();
+
+            key = BuildKey(key);
+
+            if (items.TryGetValue(key, out var value))
+            {
+                return (T)value;
+            }
+
+            if (acquirer != null)
+            {
+                value = await acquirer();
                 items.Add(key, value);
                 return (T)value;
             }
@@ -89,7 +108,7 @@ namespace Smartstore.Caching
 
         protected IDictionary<object, object> GetItems()
         {
-            return _context?.Items ?? _emptyDictionary;
+            return _httpContextAccessor.HttpContext?.Items ?? _emptyDictionary;
         }
 
         public IEnumerable<string> Keys(string pattern)

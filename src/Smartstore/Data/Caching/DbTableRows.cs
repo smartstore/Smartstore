@@ -7,23 +7,39 @@ namespace Smartstore.Data.Caching
 {
     public class DbTableRows
     {
+        private Dictionary<int, DbTableColumnInfo> _columnInfos;
+        private Dictionary<string, int> _columnNameOrdinalMap;
+
         public DbTableRows()
         {
-            ColumnInfos = new Dictionary<int, DbTableColumnInfo>();
+            _columnInfos = new Dictionary<int, DbTableColumnInfo>();
+            _columnNameOrdinalMap = new Dictionary<string, int>();
         }
 
         public DbTableRows(DbDataReader reader)
         {
-            ColumnInfos = new Dictionary<int, DbTableColumnInfo>(reader.FieldCount);
+            _columnInfos = new Dictionary<int, DbTableColumnInfo>(reader.FieldCount);
+
             for (int i = 0; i < reader.FieldCount; i++)
             {
-                ColumnInfos.Add(i, new DbTableColumnInfo
+                _columnInfos.Add(i, new DbTableColumnInfo
                 {
                     Ordinal = i,
                     Name = reader.GetName(i),
                     DbTypeName = reader.GetDataTypeName(i),
                     TypeName = reader.GetFieldType(i).ToString()
                 });
+            }
+
+            RefreshNameOrdinalMap(_columnInfos);
+        }
+
+        private void RefreshNameOrdinalMap(Dictionary<int, DbTableColumnInfo> columnInfos)
+        {
+            _columnNameOrdinalMap = new Dictionary<string, int>(columnInfos.Count, StringComparer.OrdinalIgnoreCase);
+            foreach (var info in columnInfos.Values)
+            {
+                _columnNameOrdinalMap[info.Name] = info.Ordinal;
             }
         }
 
@@ -35,7 +51,15 @@ namespace Smartstore.Data.Caching
         /// <summary>
         /// TableColumn's Info
         /// </summary>
-        public Dictionary<int, DbTableColumnInfo> ColumnInfos { set; get; }
+        public Dictionary<int, DbTableColumnInfo> ColumnInfos 
+        {
+            get => _columnInfos;
+            set
+            {
+                _columnInfos = value ?? new Dictionary<int, DbTableColumnInfo>();
+                RefreshNameOrdinalMap(_columnInfos);
+            }
+        }
 
         /// <summary>
         /// Gets the number of columns in the current row.
@@ -65,7 +89,7 @@ namespace Smartstore.Data.Caching
         /// <summary>
         /// Number of Db rows.
         /// </summary>
-        public int RowsCount => Rows?.Count ?? 0;
+        public int RowCount => Rows?.Count ?? 0;
 
         /// <summary>
         /// Gets or sets the Get(index)
@@ -97,12 +121,12 @@ namespace Smartstore.Data.Caching
         /// </summary>
         public int GetOrdinal(string name)
         {
-            var keyValuePair = ColumnInfos.FirstOrDefault(pair => pair.Value.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (keyValuePair.Value != null)
+            if (!_columnNameOrdinalMap.TryGetValue(name, out var ordinal))
             {
-                return keyValuePair.Value.Ordinal;
+                throw new IndexOutOfRangeException(name);
             }
-            throw new IndexOutOfRangeException(name);
+
+            return ordinal;
         }
 
         /// <summary>
@@ -132,6 +156,7 @@ namespace Smartstore.Data.Caching
             {
                 return dbColumnInfo;
             }
+
             throw new IndexOutOfRangeException($"Index[{ordinal}] was outside of array's bounds.");
         }
     }

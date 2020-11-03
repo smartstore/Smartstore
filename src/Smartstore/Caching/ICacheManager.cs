@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Threading;
 
@@ -187,6 +188,16 @@ namespace Smartstore.Caching
         /// - h[a-b]llo matches hallo and hbllo
         /// </remarks>
         Task<long> RemoveByPatternAsync(string pattern);
+
+        /// <summary>
+        /// Acquires a keyed lock from the last store.
+        /// </summary>
+        IDisposable AcquireKeyLock(string key);
+
+        /// <summary>
+        /// Acquires a keyed lock for an async operation from the last store.
+        /// </summary>
+        Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Clear all cache data

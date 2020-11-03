@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
@@ -14,6 +15,7 @@ namespace Smartstore.Core.Common
     /// Represents a currency
     /// </summary>
     [Index(nameof(DisplayOrder), Name = "IX_Currency_DisplayOrder")]
+    [CacheableEntity(RequestCaching = true)]
     public partial class Currency : BaseEntity, IAuditable, ILocalizedEntity, IStoreRestricted, IDisplayOrder, ICloneable<Currency>
     {
         /// <summary>

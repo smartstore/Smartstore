@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Smartstore.Caching
 {
@@ -24,6 +25,16 @@ namespace Smartstore.Caching
         /// <param name="acquirer">Func which returns value to be added to the cache</param>
         /// <returns>Cached item value</returns>
         T Get<T>(string key, Func<T> acquirer);
+
+        /// <summary>
+        /// Gets a cache item associated with the specified key or adds the item
+        /// if it doesn't exist in the cache.
+        /// </summary>
+        /// <typeparam name="T">The type of the item to get or add</typeparam>
+        /// <param name="key">The cache item key</param>
+        /// <param name="acquirer">Func which returns value to be added to the cache</param>
+        /// <returns>Cached item value</returns>
+        Task<T> GetAsync<T>(string key, Func<Task<T>> acquirer);
 
         /// <summary>
         /// Adds a cache item with the specified key
@@ -74,6 +85,9 @@ namespace Smartstore.Caching
             => default;
 
         public T Get<T>(string key, Func<T> acquirer)
+            => acquirer == null ? default : acquirer();
+
+        public Task<T> GetAsync<T>(string key, Func<Task<T>> acquirer)
             => acquirer == null ? default : acquirer();
 
         public void Remove(string key)

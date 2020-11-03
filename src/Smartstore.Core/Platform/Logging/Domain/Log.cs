@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 
@@ -27,6 +28,7 @@ namespace Smartstore.Core.Logging
     [Index(nameof(LogLevelId), Name = "IX_Log_Level")]
     [Index(nameof(CreatedOnUtc), Name = "IX_Log_CreatedOnUtc")]
     [Hookable(false)]
+    [CacheableEntity(NeverCache = true)]
     public partial class Log : BaseEntity
     {
         /// <summary>

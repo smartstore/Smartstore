@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Localization;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
@@ -28,6 +29,7 @@ namespace Smartstore.Core.Common
     /// <summary>
     /// Represents a state/province
     /// </summary>
+    [CacheableEntity(RequestCaching = true)]
     public partial class StateProvince : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
         public StateProvince()

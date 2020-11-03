@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Localization
@@ -27,6 +28,7 @@ namespace Smartstore.Core.Localization
     /// </summary>
     [DebuggerDisplay("{LanguageCulture}")]
     [Index(nameof(DisplayOrder), Name = "IX_Language_DisplayOrder")]
+    [CacheableEntity(RequestCaching = true)]
     public partial class Language : BaseEntity, IStoreRestricted
     {
         private readonly ILazyLoader _lazyLoader;

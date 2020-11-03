@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Localization;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
@@ -7,6 +8,7 @@ namespace Smartstore.Core.Common
     /// <summary>
     /// Represents a delivery time
     /// </summary>
+    [CacheableEntity(RequestCaching = true)]
     public partial class DeliveryTime : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
         /// <summary>

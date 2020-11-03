@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using Microsoft.EntityFrameworkCore.Diagnostics;
 using Smartstore.Data.Caching.Internal;
-using System;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,12 +11,7 @@ namespace Smartstore.Data.Caching
     /// </summary>
     public class EfCacheInterceptor : DbCommandInterceptor
     {
-        private readonly DbCache _cache;
-        private readonly IEfCacheDependenciesProcessor _cacheDependenciesProcessor;
-        private readonly IEfCacheKeyProvider _cacheKeyProvider;
-        private readonly IEfCachePolicyParser _cachePolicyParser;
-        private readonly IEfDebugLogger _logger;
-        private readonly IEfSqlCommandsProcessor _sqlCommandsProcessor;
+        private readonly EfCacheInterceptorProcessor _processor;
 
         /// <summary>
         /// Entity Framework Core Second Level Caching Library
@@ -27,23 +20,10 @@ namespace Smartstore.Data.Caching
         ///                   optionsBuilder.UseSqlServer(...).AddInterceptors(serviceProvider.GetRequiredService&lt;EfCacheInterceptor&gt;()));
         /// to register it.
         /// </summary>
-        public EfCacheInterceptor(
-            IEfDebugLogger logger,
-            DbCache cache,
-            IEfCacheDependenciesProcessor cacheDependenciesProcessor,
-            IEfCacheKeyProvider cacheKeyProvider,
-            IEfCachePolicyParser cachePolicyParser,
-            IEfSqlCommandsProcessor sqlCommandsProcessor)
+        public EfCacheInterceptor(EfCacheInterceptorProcessor processor)
         {
-            _logger = logger;
-            _cache = cache;
-            _cacheDependenciesProcessor = cacheDependenciesProcessor;
-            _cacheKeyProvider = cacheKeyProvider;
-            _cachePolicyParser = cachePolicyParser;
-            _sqlCommandsProcessor = sqlCommandsProcessor;
+            _processor = processor;
         }
-
-        #region DbCommandInterceptor
 
         /// <summary>
         /// Called immediately after EF calls System.Data.Common.DbCommand.ExecuteNonQuery
@@ -55,7 +35,7 @@ namespace Smartstore.Data.Caching
                 return base.NonQueryExecuted(command, eventData, result);
             }
 
-            return ProcessExecutedCommands(command, eventData.Context, result);
+            return _processor.ProcessExecutedCommands(command, eventData.Context, result);
         }
 
         /// <summary>
@@ -72,7 +52,7 @@ namespace Smartstore.Data.Caching
                 return base.NonQueryExecutedAsync(command, eventData, result, cancellationToken);
             }
 
-            return new ValueTask<int>(ProcessExecutedCommands(command, eventData.Context, result));
+            return new ValueTask<int>(_processor.ProcessExecutedCommandsAsync(command, eventData.Context, result));
         }
 
         /// <summary>
@@ -88,7 +68,7 @@ namespace Smartstore.Data.Caching
                 return base.NonQueryExecuting(command, eventData, result);
             }
 
-            return ProcessExecutingCommands(command, eventData.Context, result);
+            return _processor.ProcessExecutingCommands(command, eventData.Context, result);
         }
 
         /// <summary>
@@ -105,7 +85,7 @@ namespace Smartstore.Data.Caching
                 return base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
             }
 
-            return new ValueTask<InterceptionResult<int>>(ProcessExecutingCommands(command, eventData.Context, result));
+            return new ValueTask<InterceptionResult<int>>(_processor.ProcessExecutingCommands(command, eventData.Context, result));
         }
 
         /// <summary>
@@ -121,7 +101,7 @@ namespace Smartstore.Data.Caching
                 return base.ReaderExecuted(command, eventData, result);
             }
 
-            return ProcessExecutedCommands(command, eventData.Context, result);
+            return _processor.ProcessExecutedCommands(command, eventData.Context, result);
         }
 
         /// <summary>
@@ -138,7 +118,7 @@ namespace Smartstore.Data.Caching
                 return base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
             }
 
-            return new ValueTask<DbDataReader>(ProcessExecutedCommands(command, eventData.Context, result));
+            return new ValueTask<DbDataReader>(_processor.ProcessExecutedCommandsAsync(command, eventData.Context, result));
         }
 
         /// <summary>
@@ -154,7 +134,7 @@ namespace Smartstore.Data.Caching
                 return base.ReaderExecuting(command, eventData, result);
             }
 
-            return ProcessExecutingCommands(command, eventData.Context, result);
+            return _processor.ProcessExecutingCommands(command, eventData.Context, result);
         }
 
         /// <summary>
@@ -171,7 +151,7 @@ namespace Smartstore.Data.Caching
                 return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
             }
 
-            return new ValueTask<InterceptionResult<DbDataReader>>(ProcessExecutingCommands(command, eventData.Context, result));
+            return new ValueTask<InterceptionResult<DbDataReader>>(_processor.ProcessExecutingCommands(command, eventData.Context, result));
         }
 
         /// <summary>
@@ -187,7 +167,7 @@ namespace Smartstore.Data.Caching
                 return base.ScalarExecuted(command, eventData, result);
             }
 
-            return ProcessExecutedCommands(command, eventData.Context, result);
+            return _processor.ProcessExecutedCommands(command, eventData.Context, result);
         }
 
         /// <summary>
@@ -204,7 +184,7 @@ namespace Smartstore.Data.Caching
                 return base.ScalarExecutedAsync(command, eventData, result, cancellationToken);
             }
 
-            return new ValueTask<object>(ProcessExecutedCommands(command, eventData.Context, result));
+            return new ValueTask<object>(_processor.ProcessExecutedCommandsAsync(command, eventData.Context, result));
         }
 
         /// <summary>
@@ -220,7 +200,7 @@ namespace Smartstore.Data.Caching
                 return base.ScalarExecuting(command, eventData, result);
             }
 
-            return ProcessExecutingCommands(command, eventData.Context, result);
+            return _processor.ProcessExecutingCommands(command, eventData.Context, result);
         }
 
         /// <summary>
@@ -237,118 +217,7 @@ namespace Smartstore.Data.Caching
                 return base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
             }
 
-            return new ValueTask<InterceptionResult<object>>(ProcessExecutingCommands(command, eventData.Context, result));
+            return new ValueTask<InterceptionResult<object>>(_processor.ProcessExecutingCommands(command, eventData.Context, result));
         }
-
-        #endregion
-
-        #region Processor
-
-        /// <summary>
-        /// Adds command's data to the cache.
-        /// </summary>
-        protected virtual T ProcessExecutingCommands<T>(DbCommand command, DbContext context, T result)
-        {
-            var allEntityTypes = _sqlCommandsProcessor.GetAllEntityInfos(context);
-            var cachePolicy = _cachePolicyParser.GetEfCachePolicy(command.CommandText, allEntityTypes);
-            if (cachePolicy == null)
-            {
-                return result;
-            }
-
-            var efCacheKey = _cacheKeyProvider.GetCacheKey(command, context, cachePolicy);
-            if (_cache.Get(efCacheKey, cachePolicy) is not EfCachedData cacheResult)
-            {
-                _logger.LogDebug($"[{efCacheKey}] was not present in the cache.");
-                return result;
-            }
-
-            if (result is InterceptionResult<DbDataReader>)
-            {
-                if (cacheResult.IsNull)
-                {
-                    _logger.LogDebug("Suppressed the result with an empty TableRows.");
-                    return (T)Convert.ChangeType(InterceptionResult<DbDataReader>.SuppressWithResult(new DbTableRowsDataReader(new DbTableRows())), typeof(T));
-                }
-
-                _logger.LogDebug($"Suppressed the result with the TableRows[{cacheResult.TableRows.TableName}] from the cache[{efCacheKey}].");
-                return (T)Convert.ChangeType(InterceptionResult<DbDataReader>.SuppressWithResult(new DbTableRowsDataReader(cacheResult.TableRows)), typeof(T));
-            }
-
-            if (result is InterceptionResult<int>)
-            {
-                int cachedResult = cacheResult.IsNull ? default : cacheResult.NonQuery;
-                _logger.LogDebug($"Suppressed the result with {cachedResult} from the cache[{efCacheKey}].");
-                return (T)Convert.ChangeType(InterceptionResult<int>.SuppressWithResult(cachedResult), typeof(T));
-            }
-
-            if (result is InterceptionResult<object>)
-            {
-                object cachedResult = cacheResult.IsNull ? default : cacheResult.Scalar;
-                _logger.LogDebug($"Suppressed the result with {cachedResult} from the cache[{efCacheKey}].");
-                return (T)Convert.ChangeType(InterceptionResult<object>.SuppressWithResult(cachedResult), typeof(T));
-            }
-
-            _logger.LogDebug($"Skipped the result with {result?.GetType()} type.");
-
-            return result;
-        }
-
-        /// <summary>
-        /// Reads data from cache or caches it and then returns the result.
-        /// </summary>
-        protected virtual T ProcessExecutedCommands<T>(DbCommand command, DbContext context, T result)
-        {
-            if (result is DbTableRowsDataReader rowsReader)
-            {
-                _logger.LogDebug(CacheableEventId.CacheHit, $"Returning the cached TableRows[{rowsReader.TableName}].");
-                return result;
-            }
-
-            if (_cacheDependenciesProcessor.InvalidateCacheDependencies(command, context, new EfCachePolicy()))
-            {
-                return result;
-            }
-
-            var allEntityInfos = _sqlCommandsProcessor.GetAllEntityInfos(context);
-            var cachePolicy = _cachePolicyParser.GetEfCachePolicy(command.CommandText, allEntityInfos);
-            if (cachePolicy == null)
-            {
-                return result;
-            }
-
-            var efCacheKey = _cacheKeyProvider.GetCacheKey(command, context, cachePolicy);
-
-            if (result is int data)
-            {
-                _cache.Put(efCacheKey, new EfCachedData { NonQuery = data }, cachePolicy);
-                _logger.LogDebug(CacheableEventId.QueryResultCached, $"[{data}] added to the cache[{efCacheKey}].");
-                return result;
-            }
-
-            if (result is DbDataReader dataReader)
-            {
-                DbTableRows tableRows;
-                using (var dbReaderLoader = new DbDataReaderLoader(dataReader))
-                {
-                    tableRows = dbReaderLoader.LoadAndClose();
-                }
-
-                _cache.Put(efCacheKey, new EfCachedData { TableRows = tableRows }, cachePolicy);
-                _logger.LogDebug(CacheableEventId.QueryResultCached, $"TableRows[{tableRows.TableName}] added to the cache[{efCacheKey}].");
-                return (T)(object)new DbTableRowsDataReader(tableRows);
-            }
-
-            if (result is object)
-            {
-                _cache.Put(efCacheKey, new EfCachedData { Scalar = result }, cachePolicy);
-                _logger.LogDebug(CacheableEventId.QueryResultCached, $"[{result}] added to the cache[{efCacheKey}].");
-                return result;
-            }
-
-            return result;
-        }
-
-        #endregion
     }
 }

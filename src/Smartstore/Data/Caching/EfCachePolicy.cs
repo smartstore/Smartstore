@@ -4,10 +4,12 @@ using System.Collections.Generic;
 namespace Smartstore.Data.Caching
 {
     /// <summary>
-    /// EFCachePolicy determines the Expiration time of the cache.
+    /// EFCachePolicy specifies the expiration time and dependencies of the cache entry.
     /// </summary>
     public class EfCachePolicy
     {
+        #region Consts
+
         /// <summary>
         /// It's `|`
         /// </summary>
@@ -28,21 +30,34 @@ namespace Smartstore.Data.Caching
         /// </summary>
         public const string EfUnknownCacheDependency = nameof(EfUnknownCacheDependency);
 
-        /// <summary>
-        /// The expiration timeout. Default value is 1 hour.
-        /// </summary>
-        public TimeSpan CacheTimeout { get; private set; } = TimeSpan.FromHours(1);
+        #endregion
 
-        /// <summary>
-        /// Determines which entities are used in this LINQ query.
-        /// This array will be used to invalidate the related cache of all related queries automatically.
-        /// </summary>
-        public ISet<string> CacheItemsDependencies { get; private set; } = new SortedSet<string>();
+        public EfCachePolicy()
+        {
+        }
 
-        /// <summary>
-        /// Determines the default Cacheable method
-        /// </summary>
-        public bool IsDefaultCacheableMethod { set; get; }
+        public EfCachePolicy(CacheableEntityAttribute attribute)
+        {
+            if (attribute?.Expiry > 0)
+            {
+                ExpirationTimeout = TimeSpan.FromMinutes(attribute.Expiry);
+            }
+
+            if (attribute?.MaxRows > 0)
+            {
+                MaxRows = attribute.MaxRows;
+            }
+
+            RequestCacheEnabled = attribute?.RequestCaching == true;
+        }
+
+        public int MaxRows { get; internal set; }
+
+        public TimeSpan ExpirationTimeout { get; internal set; }
+
+        public bool RequestCacheEnabled { get; internal set; }
+
+        public ISet<string> CacheItemDependencies { get; internal set; } = new SortedSet<string>();
 
         /// <summary>
         /// Set this option to the `real` related table names of the current query, if you are using a stored procedure,
@@ -50,28 +65,37 @@ namespace Smartstore.Data.Caching
         /// `cacheDependencies` determines which tables are used in this final query.
         /// This array will be used to invalidate the related cache of all related queries automatically.
         /// </summary>
-        public EfCachePolicy CacheDependencies(params string[] cacheDependencies)
+        public EfCachePolicy WithDependencies(params string[] cacheDependencies)
         {
-            CacheItemsDependencies = new SortedSet<string>(cacheDependencies);
+            CacheItemDependencies = new SortedSet<string>(cacheDependencies);
             return this;
         }
 
         /// <summary>
-        /// The expiration timeout.
-        /// Its default value is 1 hour.
+        /// Sets the expiration timeout. Default value is 1 day.
         /// </summary>
-        public EfCachePolicy Timeout(TimeSpan timeout)
+        public EfCachePolicy ExpiresIn(TimeSpan timeout)
         {
-            CacheTimeout = timeout;
+            ExpirationTimeout = timeout;
             return this;
         }
 
         /// <summary>
-        /// Determines the default Cacheable method
+        /// Specifies whether the query result should be inserted to the request scoped cache also.
+        /// Getting items from request cache does not come with the overhead of materializing the cached data reader.
         /// </summary>
-        public EfCachePolicy DefaultCacheableMethod(bool state)
+        public EfCachePolicy WithRequestCache(bool enable)
         {
-            IsDefaultCacheableMethod = state;
+            RequestCacheEnabled = enable;
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies a max rows limit. Query results with more items than the given number will not be cached.
+        /// </summary>
+        public EfCachePolicy WithMaxRowsLimit(int limit)
+        {
+            MaxRows = limit;
             return this;
         }
 
@@ -87,7 +111,7 @@ namespace Smartstore.Data.Caching
         /// </summary>
         public override string ToString()
         {
-            return $"{nameof(EfCachePolicy)} {PartsSeparator} {CacheTimeout}{ItemsSeparator}{string.Join(CacheDependenciesSeparator, CacheItemsDependencies)}{ItemsSeparator}{IsDefaultCacheableMethod}".TrimEnd(ItemsSeparator);
+            return $"{nameof(EfCachePolicy)} {PartsSeparator} {ExpirationTimeout}{ItemsSeparator}{MaxRows}{ItemsSeparator}{RequestCacheEnabled}{ItemsSeparator}{string.Join(CacheDependenciesSeparator, CacheItemDependencies)}".TrimEnd(ItemsSeparator);
         }
     }
 }

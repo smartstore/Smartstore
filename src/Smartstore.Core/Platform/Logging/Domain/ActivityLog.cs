@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Customers;
+using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 
@@ -30,6 +31,7 @@ namespace Smartstore.Core.Logging
     /// </summary>
     [Hookable(false)]
     [Index(nameof(CreatedOnUtc), Name = "IX_ActivityLog_CreatedOnUtc")]
+    [CacheableEntity(NeverCache = true)]
     public partial class ActivityLog : BaseEntity
     {
         /// <summary>

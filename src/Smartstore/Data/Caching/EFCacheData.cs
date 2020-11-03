@@ -3,7 +3,7 @@
     /// <summary>
     /// Cached Data
     /// </summary>
-    public class EfCachedData
+    public class EFCacheData
     {
         /// <summary>
         /// DbDataReader's result.
@@ -24,5 +24,10 @@
         /// Is result of the query null?
         /// </summary>
         public bool IsNull { get; set; }
+    }
+
+    public class EfRequestCacheData : EFCacheData
+    {
+        public object Result { get; set; }
     }
 }

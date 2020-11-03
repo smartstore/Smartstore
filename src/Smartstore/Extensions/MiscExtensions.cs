@@ -65,10 +65,16 @@ namespace Smartstore
             return default(T).Equals(value.GetValueOrDefault());
         }
 
-		/// <summary>
-		/// Converts bytes into a hex string.
-		/// </summary>
-		public static string ToHexString(this byte[] bytes, int length = 0)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? NullDefault<T>(this T value) where T : struct
+        {
+            return default(T).Equals(value) ? (T?)null : value;
+        }
+
+        /// <summary>
+        /// Converts bytes into a hex string.
+        /// </summary>
+        public static string ToHexString(this byte[] bytes, int length = 0)
 		{
             if (bytes == null || bytes.Length <= 0)
             {
