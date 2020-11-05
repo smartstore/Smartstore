@@ -2,8 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Smartstore.Data;
-using Smartstore.Data.Caching;
-using Smartstore.Data.Caching.Extensions;
+using Smartstore.Data.Caching2;
 using Smartstore.Engine;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -95,11 +94,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 w.Ignore(CoreEventId.DetachedLazyLoadingWarning);
             });
 
-            //if (enableCaching)
-            //{
-            //    //o.AddInterceptors(p.GetRequiredService<EfCacheInterceptor>());
-            //    o.UseSecondLevelCache(p);
-            //}
+            if (enableCaching)
+            {
+                //o.AddInterceptors(p.GetRequiredService<EfCacheInterceptor>());
+                o.UseSecondLevelCache();
+            }
 
             // Custom action from module or alike
             customOptionsAction?.Invoke(p, o);

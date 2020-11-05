@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Smartstore.Data.Caching
 {
     public class EfCacheOptions
     {

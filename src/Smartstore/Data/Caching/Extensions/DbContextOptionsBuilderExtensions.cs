@@ -57,7 +57,7 @@ namespace Smartstore.Data.Caching.Extensions
     }
 
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "<Ausstehend>")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "It's ok")]
     internal class MyQueryCompiler : QueryCompiler
     {
         private readonly ICurrentDbContext _currentContext;

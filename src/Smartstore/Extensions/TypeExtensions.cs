@@ -60,7 +60,7 @@ namespace Smartstore
 			if (type == typeof(string))
 				return false;
 
-			return type.IsArray || typeof(IEnumerable).IsAssignableFrom(type);
+			return type.IsArray || typeof(IEnumerable).IsAssignableFrom(type) || type.IsSubClass(typeof(IAsyncEnumerable<>), out _);
         }
 
         public static bool IsSequenceType(this Type type, out Type elementType)
@@ -74,7 +74,7 @@ namespace Smartstore
             {
                 elementType = type.GetElementType();
             }
-            else if (type.IsSubClass(typeof(IEnumerable<>), out var implType))
+            else if (type.IsSubClass(typeof(IEnumerable<>), out var implType) || type.IsSubClass(typeof(IAsyncEnumerable<>), out implType))
             {
                 var genericArgs = implType.GetGenericArguments();
                 if (genericArgs.Length == 1)
