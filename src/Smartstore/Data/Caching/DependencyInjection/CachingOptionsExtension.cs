@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Smartstore.Data.Caching2
+namespace Smartstore.Data.Caching
 {
     /// <summary>
     ///     <para>
@@ -43,23 +43,13 @@ namespace Smartstore.Data.Caching2
 
         public void ApplyServices(IServiceCollection services)
         {
-            services.TryAddSingleton<DbCache>();
+            services.TryAddSingleton<IDbCache, DbCache>();
             services.TryAddScoped<IQueryKeyGenerator, QueryKeyGenerator>();
-
-            //ConfigureOptions(services, _optionsBuilder);
         }
 
         public void Validate(IDbContextOptions options)
         {
         }
-
-        //private static void ConfigureOptions(IServiceCollection services, Action<CachingDbContextOptionsBuilder> options)
-        //{
-        //    var cacheOptions = new CachingDbContextOptionsBuilder();
-        //    options?.Invoke(cacheOptions);
-
-        //    services.TryAddSingleton(cacheOptions);
-        //}
 
         #endregion
 
@@ -77,11 +67,11 @@ namespace Smartstore.Data.Caching2
 
         /// <summary>
         /// The default (fallback) expiration timeout for cacheable entities.
-        /// Default is 1 day.
+        /// Default is 3 hours.
         /// </summary>
         public CachingOptionsExtension WithDefaultExpirationTimeout(TimeSpan timeout)
         {
-            if (timeout == TimeSpan.MinValue)
+            if (timeout < TimeSpan.Zero)
             {
                 throw new ArgumentException($"Invalid caching timeout {timeout}", nameof(timeout));
             }
@@ -109,7 +99,7 @@ namespace Smartstore.Data.Caching2
 
         public bool EnableLogging { set; get; }
 
-        public TimeSpan DefaultExpirationTimeout { get; set; } = TimeSpan.FromDays(1);
+        public TimeSpan DefaultExpirationTimeout { get; set; } = TimeSpan.FromHours(3);
 
         public int DefaultMaxRows { get; set; } = 1000;
 

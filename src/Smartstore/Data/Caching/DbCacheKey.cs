@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Smartstore.Data.Caching2
+namespace Smartstore.Data.Caching
 {
     /// <summary>
     /// Stores information of the computed key of the input LINQ query.
@@ -22,10 +18,10 @@ namespace Smartstore.Data.Caching2
         public string KeyHash { set; get; }
 
         /// <summary>
-        /// Determines which entities are used in this LINQ query.
-        /// This array will be used to invalidate the related cache of all related queries automatically.
+        /// Determines which entities are involved in the LINQ query (by JOIN, INCLUDE etc.).
+        /// This array will be used to invalidate data of all related queries automatically.
         /// </summary>
-        public ISet<string> CacheDependencies { set; get; } = new HashSet<string>();
+        public string[] EntitySets { set; get; } = Array.Empty<string>();
 
         public override bool Equals(object obj)
         {
@@ -46,7 +42,7 @@ namespace Smartstore.Data.Caching2
 
         public override string ToString()
         {
-            return $"KeyHash: {KeyHash}, CacheDependencies: {string.Join(", ", CacheDependencies)}.";
+            return $"KeyHash: {KeyHash}, CacheDependencies: {string.Join(", ", EntitySets)}.";
         }
     }
 }

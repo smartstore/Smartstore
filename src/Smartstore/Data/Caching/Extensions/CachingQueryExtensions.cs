@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Smartstore.Domain;
 
-namespace Smartstore.Data.Caching2
+namespace Smartstore.Data.Caching
 {
     public static class CachingQueryExtensions
     {
@@ -63,12 +63,12 @@ namespace Smartstore.Data.Caching2
         {
             Guard.NotNull(source, nameof(source));
 
-            if (duration == TimeSpan.MinValue)
+            if (duration < TimeSpan.Zero)
             {
                 throw new ArgumentException($"Invalid caching timeout {duration}", nameof(duration));
             }
 
-            return source.AsCaching<T>(new DbCachingPolicy().ExpiresIn(duration));
+            return source.AsCaching<T>(new DbCachingPolicy { ExpirationTimeout = duration });
         }
 
         /// <summary>

@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Dasync.Collections;
 
-namespace Smartstore.Data.Caching2
+namespace Smartstore.Data.Caching.Internal
 {
-    public class CachingResult<TResult, TEntity> : CachingResult<TResult>
+    internal class CachingResult<TResult, TEntity> : CachingResult<TResult>
     {
         public CachingResult(Expression expression, CachingExpressionVisitor<TResult> visitor)
             : base(expression, visitor)
@@ -23,27 +23,39 @@ namespace Smartstore.Data.Caching2
             return (TResult)wrappedResult;
         }
 
-        public override object ConvertQueryResult(TResult queryResult)
+        public override (object Value, int Count) ConvertQueryResult(TResult queryResult)
         {
-            return Visitor.SequenceType == null
-                ? queryResult
-                : ((IEnumerable<TEntity>)queryResult).ToList();
+            if (Visitor.SequenceType == null)
+            {
+                return (queryResult, 1);
+            }
+            else
+            {
+                var list = ((IEnumerable<TEntity>)queryResult).ToList();
+                return (list, list.Count);
+            }
         }
 
-        public override async Task<object> ConvertQueryAsyncResult(TResult queryResult)
+        public override async Task<(object Value, int Count)> ConvertQueryAsyncResult(TResult queryResult)
         {
             object result = queryResult;
             
-            return Visitor.SequenceType == null
-                ? await ((Task<TEntity>)result)
-                : await ((IAsyncEnumerable<TEntity>)result).ToListAsync();
+            if (Visitor.SequenceType == null)
+            {
+                return (await ((Task<TEntity>)result), 1);
+            }
+            else
+            {
+                var list = await ((IAsyncEnumerable<TEntity>)result).ToListAsync();
+                return (list, list.Count);
+            }
         }
     }
 
     /// <summary>
     /// Cached result data container.
     /// </summary>
-    public class CachingResult<TResult>
+    internal class CachingResult<TResult>
     {
         public CachingResult(Expression expression, CachingExpressionVisitor<TResult> visitor)
         {
@@ -61,13 +73,13 @@ namespace Smartstore.Data.Caching2
         /// <summary>
         /// Converts the EF query result to be cacheable.
         /// </summary>
-        public virtual object ConvertQueryResult(TResult queryResult) 
+        public virtual (object Value, int Count) ConvertQueryResult(TResult queryResult) 
             => throw new NotImplementedException();
 
         /// <summary>
         /// Converts the async EF query result to be cacheable.
         /// </summary>
-        public virtual Task<object> ConvertQueryAsyncResult(TResult queryResult)
+        public virtual Task<(object Value, int Count)> ConvertQueryAsyncResult(TResult queryResult)
             => throw new NotImplementedException();
 
         /// <summary>

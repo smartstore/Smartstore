@@ -28,7 +28,7 @@ namespace Smartstore.Core.Localization
     /// </summary>
     [DebuggerDisplay("{LanguageCulture}")]
     [Index(nameof(DisplayOrder), Name = "IX_Language_DisplayOrder")]
-    [CacheableEntity(RequestCaching = true)]
+    [CacheableEntity]
     public partial class Language : BaseEntity, IStoreRestricted
     {
         private readonly ILazyLoader _lazyLoader;

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Smartstore.Data.Caching2
+namespace Smartstore.Data.Caching
 {
     /// <summary>
     /// Allows 2nd level caching configuration to be performed on <see cref="DbContextOptions" />.

@@ -15,7 +15,7 @@ namespace Smartstore.Core.Common
     /// Represents a country
     /// </summary>
     [Index(nameof(DisplayOrder), Name = "IX_Country_DisplayOrder")]
-    [CacheableEntity(RequestCaching = true)]
+    [CacheableEntity]
     public partial class Country : BaseEntity, ILocalizedEntity, IStoreRestricted, IDisplayOrder
     {
         public Country()

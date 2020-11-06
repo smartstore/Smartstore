@@ -10,6 +10,9 @@ using Smartstore.Threading;
 using Smartstore.Data.Hooks;
 using Smartstore.Utilities;
 using EfState = Microsoft.EntityFrameworkCore.EntityState;
+using Smartstore.Data.Caching;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.Data
 {
@@ -26,11 +29,13 @@ namespace Smartstore.Data
         private IEnumerable<EntityEntry> _changedEntries;
         private HookingDbContext _ctx;
         private IDbHookHandler _hookHandler;
+        private IDbCache _dbCache;
 
         public DbSaveChangesOperation(HookingDbContext ctx, IDbHookHandler hookHandler)
         {
             _ctx = ctx;
             _hookHandler = hookHandler;
+            _dbCache = ((IInfrastructure<IServiceProvider>)ctx).Instance.GetService<IDbCache>();
         }
 
         public DbSaveStage Stage { get; private set; }
@@ -209,6 +214,12 @@ namespace Smartstore.Data
             // The existence of hook entries actually implies that hooking is enabled.
 
             Stage = DbSaveStage.PostSave;
+
+            // EfCache invalidation
+            if (_dbCache != null)
+            {
+                _dbCache.Invalidate(changedHookEntries.Select(x => x.EntityType).ToArray());
+            }
 
             var importantHooksOnly = !_ctx.HooksEnabled && _hookHandler.HasImportantSaveHooks();
 

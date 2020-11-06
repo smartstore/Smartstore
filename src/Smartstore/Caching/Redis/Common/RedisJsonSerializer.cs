@@ -18,52 +18,7 @@ namespace Smartstore.Redis
 {
     public class RedisJsonSerializer : IRedisSerializer
     {
-        protected static readonly IDictionary<Type, string> TypeShortcutMap;
-
-        protected static readonly IDictionary<string, Type> ShortcutTypeMap;
-
-        /// <summary>
-        /// Format string used to write type information into the Redis entry before the JSON data
-        /// </summary>
-        protected static readonly string TypeInfoPattern = "<t:{0}>";
-
-        /// <summary>
-        /// Regular expression used to extract type information from Redis entry
-        /// </summary>
-        protected static readonly Regex TypeInfoRegEx = new Regex(@"\<t\:(.*)\>", RegexOptions.Compiled);
-
         private static readonly byte[] NullResult = Encoding.UTF8.GetBytes("null");
-
-        static RedisJsonSerializer()
-        {
-            // Internal type info dictionary for commonly used types, which allows for slightly shorter
-            // type names in the serialized output
-            var map = new Dictionary<Type, string>()
-            {
-                { typeof(bool), "SysBool" },
-                { typeof(byte), "SysByte" },
-                { typeof(char), "SysChar" },
-                { typeof(DateTime), "SysDateTime" },
-                { typeof(decimal), "SysDecimal" },
-                { typeof(double), "SysDouble" },
-                { typeof(short), "SysShort" },
-                { typeof(int), "SysInt" },
-                { typeof(long), "SysLong" },
-                { typeof(sbyte), "SysSByte" },
-                { typeof(float), "SysFloat" },
-                { typeof(string), "SysString" },
-                { typeof(ushort), "SysUShort" },
-                { typeof(uint), "SysUInt" },
-                { typeof(ulong), "SysULong" },
-                { typeof(TimeSpan), "SysTimeSpan" },
-                { typeof(Guid), "SysGuid" }
-            };
-
-            TypeShortcutMap = new ReadOnlyDictionary<Type, string>(map);
-
-            // the other way round
-            ShortcutTypeMap = new ReadOnlyDictionary<string, Type>(map.ToDictionary(x => x.Value, x => x.Key));
-        }
 
         // Contains types that cannot be (de)serialized
         private readonly HashSet<Type> _unSerializableTypes = new HashSet<Type> { typeof(Task), typeof(Task<>) };
@@ -160,18 +115,6 @@ namespace Smartstore.Redis
                 return null;
             }
 
-            // Check if predefined system/simple type
-            var redisValue = (string)((RedisValue)value);
-            var typeMatch = TypeInfoRegEx.Match(redisValue);
-            if (typeMatch.Success)
-            {
-                var typeShortCut = typeMatch.Groups[1].Value;
-                if (ShortcutTypeMap.TryGetValue(typeShortCut, out var t))
-                {
-                    return JsonConvert.DeserializeObject(redisValue[typeMatch.Length..], t);
-                }
-            }
-
             var settings = new JsonSerializerSettings
             {
                 ContractResolver = SmartContractResolver.Instance,
@@ -183,7 +126,7 @@ namespace Smartstore.Redis
 
             if (!_configuration.DisableCompression && unzip)
             {
-                value = value.UnZip();
+                value = value.Unzip();
             }
 
             var json = Encoding.UTF8.GetString(value);
@@ -195,13 +138,6 @@ namespace Smartstore.Redis
             if (item == null)
             {
                 return NullResult;
-            }
-
-            if (TypeShortcutMap.TryGetValue(item.GetType(), out var typeShortCut))
-            {
-                // !t:SysInt!1234
-                var value = TypeInfoPattern.FormatInvariant(typeShortCut) + JsonConvert.SerializeObject(item);
-                return Encoding.UTF8.GetBytes(value);
             }
 
             var settings = new JsonSerializerSettings

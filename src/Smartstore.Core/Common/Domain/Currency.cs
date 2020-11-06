@@ -15,7 +15,7 @@ namespace Smartstore.Core.Common
     /// Represents a currency
     /// </summary>
     [Index(nameof(DisplayOrder), Name = "IX_Currency_DisplayOrder")]
-    [CacheableEntity(RequestCaching = true)]
+    [CacheableEntity]
     public partial class Currency : BaseEntity, IAuditable, ILocalizedEntity, IStoreRestricted, IDisplayOrder, ICloneable<Currency>
     {
         /// <summary>

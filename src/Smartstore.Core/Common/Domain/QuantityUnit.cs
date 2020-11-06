@@ -8,7 +8,7 @@ namespace Smartstore.Core.Common
     /// <summary>
     /// Represents a quantity unit
     /// </summary>
-    [CacheableEntity(RequestCaching = true)]
+    [CacheableEntity]
     public partial class QuantityUnit : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
         /// <summary>

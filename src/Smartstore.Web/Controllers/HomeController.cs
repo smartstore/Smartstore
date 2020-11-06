@@ -27,8 +27,6 @@ using LogLevel = Smartstore.Core.Logging.LogLevel;
 using System.Text.Json;
 using System.Text;
 using Smartstore.Core.Common;
-using Smartstore.Data.Caching;
-using Smartstore.Data.Caching2;
 
 namespace Smartstore.Web.Controllers
 {
@@ -126,6 +124,10 @@ namespace Smartstore.Web.Controllers
 
             var logs = await query.ToListAsync();
 
+            var country = await _db.Countries.OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+            country.DisplayCookieManager = !country.DisplayCookieManager;
+            await _db.SaveChangesAsync();
+
             return View(logs);
         }
 
@@ -200,7 +202,6 @@ namespace Smartstore.Web.Controllers
         {
             var query = _db.Countries
                 .AsNoTracking()
-                .AsCaching(TimeSpan.FromMinutes(1))
                 .ApplyStoreFilter(1)
                 .Include(x => x.StateProvinces)
                 .OrderBy(x => x.DisplayOrder)
@@ -213,7 +214,6 @@ namespace Smartstore.Web.Controllers
         {
             var query = _db.Countries
                 .AsNoTracking()
-                .AsCaching(TimeSpan.FromHours(1))
                 .ApplyStoreFilter(1)
                 .Include(x => x.StateProvinces)
                 .OrderBy(x => x.DisplayOrder)
@@ -226,7 +226,6 @@ namespace Smartstore.Web.Controllers
         {
             var query = _db.Countries
                 .AsNoTracking()
-                .AsCaching(TimeSpan.FromHours(1))
                 .ApplyStoreFilter(1)
                 .Include(x => x.StateProvinces)
                 .OrderBy(x => x.DisplayOrder)
@@ -251,7 +250,6 @@ namespace Smartstore.Web.Controllers
         {
             var query = _db.Countries
                 .AsNoTracking()
-                .AsCaching(TimeSpan.FromHours(1))
                 .ApplyStoreFilter(1)
                 .Include(x => x.StateProvinces)
                 .OrderBy(x => x.DisplayOrder)

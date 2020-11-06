@@ -29,7 +29,7 @@ namespace Smartstore.Core.Common
     /// <summary>
     /// Represents a state/province
     /// </summary>
-    [CacheableEntity(RequestCaching = true)]
+    [CacheableEntity]
     public partial class StateProvince : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
         public StateProvince()

@@ -8,7 +8,7 @@ namespace Smartstore.Core.Tax
     /// <summary>
     /// Represents a tax category
     /// </summary>
-    [CacheableEntity(RequestCaching = true)]
+    [CacheableEntity]
     public partial class TaxCategory : BaseEntity, IDisplayOrder
     {
         /// <summary>

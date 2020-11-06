@@ -426,7 +426,7 @@ namespace Smartstore
 		/// </summary>
 		/// <param name="buffer">Compressed input</param>
 		/// <returns>The decompressed result</returns>
-		public static byte[] UnZip(this byte[] buffer)
+		public static byte[] Unzip(this byte[] buffer)
 		{
 			if (buffer == null)
 				throw new ArgumentNullException(nameof(buffer));

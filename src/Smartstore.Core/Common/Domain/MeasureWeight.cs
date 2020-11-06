@@ -8,7 +8,7 @@ namespace Smartstore.Core.Common
     /// <summary>
     /// Represents a measure weight
     /// </summary>
-    [CacheableEntity(RequestCaching = true)]
+    [CacheableEntity]
     public partial class MeasureWeight : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
         /// <summary>

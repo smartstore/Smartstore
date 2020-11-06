@@ -10,13 +10,11 @@ namespace Smartstore.Domain
     /// <summary>
     /// Base class for entities
     /// </summary>
-    [DataContract]
     public abstract partial class BaseEntity : IEquatable<BaseEntity>
     {
         /// <summary>
         /// Gets or sets the entity identifier
         /// </summary>
-        [DataMember]
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 

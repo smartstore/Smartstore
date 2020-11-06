@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 
-namespace Smartstore.Data.Caching2
+namespace Smartstore.Data.Caching
 {
     public static class CachingDbContextOptionsExtensions
     {

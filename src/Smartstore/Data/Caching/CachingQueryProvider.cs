@@ -1,31 +1,35 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.Extensions.Options;
+using Smartstore.Data.Caching.Internal;
 using Smartstore.Threading;
 
-namespace Smartstore.Data.Caching2
+namespace Smartstore.Data.Caching
 {
     [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Best place to intercept for caching")]
     internal class CachingQueryProvider : EntityQueryProvider
     {
-        private readonly ICurrentDbContext _currentContext;
-        private readonly DbCache _cache;
+        private readonly IDbCache _cache;
         private readonly IQueryKeyGenerator _queryKeyGenerator;
+        private readonly ICurrentDbContext _currentContext;
+        private readonly CachingOptionsExtension _extension;
 
         public CachingQueryProvider(
+            IDbCache cache,
+            IQueryKeyGenerator queryKeyGenerator,
             IQueryCompiler queryCompiler,
             ICurrentDbContext currentContext,
-            DbCache cache,
-            IQueryKeyGenerator queryKeyGenerator)
+            IDbContextOptions options)
             : base(queryCompiler)
         {
-            _currentContext = currentContext;
             _cache = cache;
             _queryKeyGenerator = queryKeyGenerator;
+            _currentContext = currentContext;
+            _extension = options.FindExtension<CachingOptionsExtension>();
         }
 
         public override object Execute(Expression expression)
@@ -57,15 +61,18 @@ namespace Smartstore.Data.Caching2
             {
                 var cacheValue = AsyncRunner.RunSync(() => cachingResult.ConvertQueryAsyncResult(result));
 
-                var entry = new DbCacheEntry
+                if (cacheValue.Count <= cachingResult.Policy.MaxRows.Value)
                 {
-                    Value = cacheValue,
-                    EntitySets = cachingResult.CacheKey.CacheDependencies.ToArray()
-                };
+                    var entry = new DbCacheEntry
+                    {
+                        Key = cachingResult.CacheKey,
+                        Value = cacheValue.Value
+                    };
 
-                _cache.Put(cachingResult.CacheKey, entry, cachingResult.Policy);
+                    _cache.Put(cachingResult.CacheKey, entry, cachingResult.Policy);
+                }
 
-                return cachingResult.WrapAsyncResult(cacheValue);
+                return cachingResult.WrapAsyncResult(cacheValue.Value);
             }
         }
 
@@ -94,21 +101,24 @@ namespace Smartstore.Data.Caching2
             {
                 var cacheValue = cachingResult.ConvertQueryResult(queryResult);
 
-                var entry = new DbCacheEntry
+                if (cacheValue.Count <= cachingResult.Policy.MaxRows.Value)
                 {
-                    Value = cacheValue,
-                    EntitySets = cachingResult.CacheKey.CacheDependencies.ToArray()
-                };
+                    var entry = new DbCacheEntry
+                    {
+                        Key = cachingResult.CacheKey,
+                        Value = cacheValue.Value
+                    };
 
-                _cache.Put(cachingResult.CacheKey, entry, cachingResult.Policy);
+                    _cache.Put(cachingResult.CacheKey, entry, cachingResult.Policy);
+                }
 
-                return (TResult)cacheValue;
+                return (TResult)cacheValue.Value;
             }
         }
 
         private CachingResult<TResult> ReadFromCache<TResult>(Expression expression, bool forAsync)
         {
-            var visitor = new CachingExpressionVisitor<TResult>(_currentContext.Context, forAsync);
+            var visitor = new CachingExpressionVisitor<TResult>(_currentContext.Context, _extension, forAsync);
             expression = visitor.ExtractPolicy(expression);
 
             var policy = visitor.CachingPolicy;

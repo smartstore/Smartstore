@@ -7,12 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace Smartstore.Data.Caching2
+namespace Smartstore.Data.Caching.Internal
 {
     /// <summary>
     /// A Table's EntityInfo and policy information.
     /// </summary>
-    public class TableEntityInfo
+    internal class TableEntityInfo
     {
         /// <summary>
         /// Gets the CLR class that is used to represent instances of this type.
@@ -36,20 +36,23 @@ namespace Smartstore.Data.Caching2
         public override string ToString() => $"{ClrType}::{TableName}";
     }
 
-    public sealed class CachingExpressionVisitor<TResult> : ExpressionVisitor
+    internal sealed class CachingExpressionVisitor<TResult> : ExpressionVisitor
     {
-        // Keys are both entity CLR type and table name (therefore object, not Type)
-        private readonly ConcurrentDictionary<Type, Lazy<Dictionary<object, TableEntityInfo>>> _contextTableInfos =
-            new ConcurrentDictionary<Type, Lazy<Dictionary<object, TableEntityInfo>>>();
+        // Key = DbContextType
+        // Value = [Key: EntityClrType, ...]
+        private readonly ConcurrentDictionary<Type, Lazy<Dictionary<Type, TableEntityInfo>>> _contextTableInfos =
+            new ConcurrentDictionary<Type, Lazy<Dictionary<Type, TableEntityInfo>>>();
 
         private readonly DbContext _context;
+        private readonly CachingOptionsExtension _extension;
 
         private bool _isNoTracking;
         private bool _typesResolved;
         
-        public CachingExpressionVisitor(DbContext context, bool async)
+        public CachingExpressionVisitor(DbContext context, CachingOptionsExtension extension, bool async)
         {
             _context = context;
+            _extension = extension;
             IsAsyncQuery = async;
         }
 
@@ -160,45 +163,66 @@ namespace Smartstore.Data.Caching2
 
             if (!_isNoTracking)
             {
+                // We never gonna cache trackable entities
                 CachingPolicy = null;
             }
             else
             {
-                if (CachingPolicy?.NoCaching == true)
-                {
-                    CachingPolicy = null;
-                }
-                else if (EntityType != null)
-                {
-                    // TODO: (core) Handle toxic entities.
-                    // TODO: (core) Handle option defaults.
-                    var globalPolicyAttr = GetAllEntityInfos().Get(EntityType)?.Policy;
-                    if (CachingPolicy == null)
-                    {
-                        CachingPolicy = new DbCachingPolicy(globalPolicyAttr);
-                    }
-                    //else
-                    //{
-                    //    CachingPolicy = new DbCachingPolicy 
-                    //    {
-                            
-                    //    };
-                    //}
-                }
+                CachingPolicy = SanitizePolicy(CachingPolicy);
             }
 
             return result;
         }
 
+        private DbCachingPolicy SanitizePolicy(DbCachingPolicy policy)
+        {
+            if (policy?.NoCaching == true)
+            {
+                // Caching disabled on query level
+                return null;
+            }
+
+            // Try resolve global policy
+            // TODO: (core) Handle toxic entities.
+            var policyAttribute = GetAllEntityInfos().Get(EntityType)?.Policy;
+
+            if (policyAttribute != null)
+            {
+                if (policyAttribute.NeverCache)
+                {
+                    return null;
+                }
+                
+                // Either create new policy from attribute or merge attribute with query policy.
+                policy = (policy ?? new DbCachingPolicy()).Merge(policyAttribute);
+            }
+
+            if (policy != null)
+            {
+                // Global fallbacks from extension options
+                if (policy.ExpirationTimeout == null)
+                {
+                    policy.ExpirationTimeout = _extension.DefaultExpirationTimeout;
+                }
+
+                if (policy.MaxRows == null)
+                {
+                    policy.MaxRows = _extension.DefaultMaxRows;
+                }
+            }
+
+            return policy;
+        }
+
         /// <summary>
         /// Returns all of the given context's entity infos.
         /// </summary>
-        public Dictionary<object, TableEntityInfo> GetAllEntityInfos()
+        public Dictionary<Type, TableEntityInfo> GetAllEntityInfos()
         {
             return _contextTableInfos.GetOrAdd(_context.GetType(),
-                _ => new Lazy<Dictionary<object, TableEntityInfo>>(() =>
+                _ => new Lazy<Dictionary<Type, TableEntityInfo>>(() =>
                 {
-                    var infos = new Dictionary<object, TableEntityInfo>();
+                    var infos = new Dictionary<Type, TableEntityInfo>();
                     foreach (var entityType in _context.Model.GetEntityTypes())
                     {
                         var clrType = entityType.ClrType;
@@ -211,7 +235,6 @@ namespace Smartstore.Data.Caching2
                         };
 
                         infos[clrType] = info;
-                        infos[tableName] = info;
                     }
                     return infos;
                 },

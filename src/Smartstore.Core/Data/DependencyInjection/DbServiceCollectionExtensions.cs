@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Smartstore.Data;
-using Smartstore.Data.Caching2;
+using Smartstore.Data.Caching;
 using Smartstore.Engine;
 
 namespace Microsoft.Extensions.DependencyInjection

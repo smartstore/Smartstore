@@ -27,11 +27,5 @@ namespace Smartstore.Data.Caching
         /// Gets or sets the expiration timeout in minutes. Default value is 1440 (1 day).
         /// </summary>
         public int Expiry { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the query result should be inserted to the request scoped cache also.
-        /// Getting items from request cache does not come with the overhead of materializing the cached data reader.
-        /// </summary>
-        public bool RequestCaching { set; get; }
     }
 }

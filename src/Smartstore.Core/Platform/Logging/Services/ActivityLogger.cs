@@ -8,39 +8,26 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
+using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Logging
 {
     [Important]
-    public partial class ActivityLogger : AsyncDbSaveHook<ActivityLogType>, IActivityLogger
+    public partial class ActivityLogger : IActivityLogger
     {
-        const string CacheKey = "activitylogtypes:all";
+        const string CacheKey = "activitylogtypes:dict";
 
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
-        private readonly ICacheManager _cache;
+        private readonly IRequestCache _requestCache;
 
-        public ActivityLogger(SmartDbContext db, IWorkContext workContext, ICacheManager cache)
+        public ActivityLogger(SmartDbContext db, IWorkContext workContext, IRequestCache requestCache)
         {
             _db = db;
             _workContext = workContext;
-            _cache = cache;
+            _requestCache = requestCache;
         }
-
-        #region Hook
-
-        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
-        {
-            return Task.FromResult(HookResult.Ok);
-        }
-
-        public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-        {
-            return _cache.RemoveAsync(CacheKey);
-        }
-
-        #endregion
 
         public IEnumerable<ActivityLogType> GetAllActivityTypes()
         {
@@ -62,9 +49,12 @@ namespace Smartstore.Core.Logging
 
         protected virtual IReadOnlyDictionary<string, ActivityLogType> GetCachedActivityLogTypes()
         {
-            return _cache.Get(CacheKey, () =>
+            return _requestCache.Get(CacheKey, () =>
             {
-                var all = _db.ActivityLogTypes.AsNoTracking().ToList();
+                var all = _db.ActivityLogTypes
+                    .AsNoTracking()
+                    .ToList();
+
                 return all.ToDictionarySafe(x => x.SystemKeyword);
             });
         }
