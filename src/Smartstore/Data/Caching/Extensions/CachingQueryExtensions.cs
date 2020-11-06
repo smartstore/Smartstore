@@ -51,6 +51,21 @@ namespace Smartstore.Data.Caching
         }
 
         /// <summary>
+        /// Returns a new query where the result will be cached.
+        /// Only untracked entities will be cached.
+        /// </summary>
+        /// <typeparam name="T">The type of entity being queried.</typeparam>
+        /// <param name="source">The source query.</param>
+        /// <returns>A new query where the result set will be cached.</returns>
+        public static IQueryable<T> AsCaching<T>(this IQueryable<T> source)
+            where T : BaseEntity
+        {
+            Guard.NotNull(source, nameof(source));
+
+            return source.AsCaching<T>(new DbCachingPolicy());
+        }
+
+        /// <summary>
         /// Returns a new query where the result will be cached base on the <see cref="duration"/> parameter.
         /// Only untracked entities will be cached.
         /// </summary>
@@ -72,6 +87,46 @@ namespace Smartstore.Data.Caching
         }
 
         /// <summary>
+        /// Returns a new query where the result will be cached if its item count does not exceed given <paramref name="maxRows"/>.
+        /// Only untracked entities will be cached.
+        /// </summary>
+        /// <typeparam name="T">The type of entity being queried.</typeparam>
+        /// <param name="source">The source query.</param>
+        /// <param name="maxRows">Query results with more items than the given number will not be cached..</param>
+        /// <returns>A new query where the result set will be cached.</returns>
+        public static IQueryable<T> AsCaching<T>(this IQueryable<T> source, [NotParameterized] int maxRows)
+            where T : BaseEntity
+        {
+            Guard.NotNull(source, nameof(source));
+            Guard.IsPositive(maxRows, nameof(maxRows));
+
+            return source.AsCaching<T>(new DbCachingPolicy { MaxRows = maxRows });
+        }
+
+        /// <summary>
+        /// Returns a new query where the result will be cached base on the <see cref="duration"/> parameter.
+        /// Only untracked entities will be cached.
+        /// </summary>
+        /// <typeparam name="T">The type of entity being queried.</typeparam>
+        /// <param name="source">The source query.</param>
+        /// <param name="duration">Limits the lifetime of cached query results.</param>
+        /// <param name="maxRows">Query results with more items than the given number will not be cached..</param>
+        /// <returns>A new query where the result set will be cached.</returns>
+        public static IQueryable<T> AsCaching<T>(this IQueryable<T> source, [NotParameterized] TimeSpan duration, [NotParameterized] int maxRows)
+            where T : BaseEntity
+        {
+            Guard.NotNull(source, nameof(source));
+            Guard.IsPositive(maxRows, nameof(maxRows));
+
+            if (duration < TimeSpan.Zero)
+            {
+                throw new ArgumentException($"Invalid caching timeout {duration}", nameof(duration));
+            }
+
+            return source.AsCaching<T>(new DbCachingPolicy { ExpirationTimeout = duration, MaxRows = maxRows });
+        }
+
+        /// <summary>
         /// Returns a new query where the result will be cached.
         /// Only untracked entities will be cached.
         /// </summary>
@@ -85,25 +140,20 @@ namespace Smartstore.Data.Caching
             Guard.NotNull(source, nameof(source));
             Guard.NotNull(policy, nameof(policy));
 
-            SanityCheck(source);
-
-            return
-               source.Provider is EntityQueryProvider
-                   ? source.Provider.CreateQuery<T>(
-                       Expression.Call(
-                           instance: null,
-                           method: AsCachingMethodInfo.MakeGenericMethod(typeof(T)),
-                           arg0: source.Expression,
-                           arg1: Expression.Constant(policy)))
-                   : source;
-        }
-
-        private static void SanityCheck(IQueryable query)
-        {
-            if (query.Provider is not EntityQueryProvider)
+            if (source.Provider is not CachingQueryProvider)
             {
-                throw new NotSupportedException("Caching methods are designed only for relational EF Core queries.");
+                // The AsCaching() method expression will result in a LINQ translation error
+                // if ef caching is not active.
+                return source;
             }
+
+            return 
+                source.Provider.CreateQuery<T>(
+                    Expression.Call(
+                        instance: null,
+                        method: AsCachingMethodInfo.MakeGenericMethod(typeof(T)),
+                        arg0: source.Expression,
+                        arg1: Expression.Constant(policy)));
         }
     }
 }

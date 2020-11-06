@@ -19,16 +19,29 @@ namespace Smartstore.Data.Caching
         public DbCache()
         {
             _cache = EngineContext.Current.Application.Services.Resolve<ICacheManager>();
+
+            //var memStore = EngineContext.Current.Application.Services.Resolve<IMemoryCacheStore>();
+            //memStore.Removed += OnEntryRemoved;
         }
+
+        //private void OnEntryRemoved(object sender, CacheEntryRemovedEventArgs e)
+        //{
+        //    if (e.Key.StartsWith(KeyPrefix))
+        //    {
+
+        //    }
+        //}
 
         public void Clear()
         {
-            _cache.RemoveByPattern(KeyPrefix + '*');
+            _cache.RemoveByPattern(BuildKey("*"));
+            _cache.RemoveByPattern(BuildLookupKeyFor("*"));
         }
 
-        public Task ClearAsync()
+        public async Task ClearAsync()
         {
-            return _cache.RemoveByPatternAsync(KeyPrefix + '*');
+            await _cache.RemoveByPatternAsync(BuildKey("*"));
+            await _cache.RemoveByPatternAsync(BuildLookupKeyFor("*"));
         }
 
         public DbCacheEntry Get(DbCacheKey key, DbCachingPolicy policy)
@@ -112,7 +125,7 @@ namespace Smartstore.Data.Caching
 
         private ISet GetLookupSet(string entitySet, bool create = true)
         {
-            var key = GetLookupKeyFor(entitySet);
+            var key = BuildLookupKeyFor(entitySet);
 
             if (create)
             {
@@ -129,7 +142,7 @@ namespace Smartstore.Data.Caching
             return null;
         }
 
-        private static string GetLookupKeyFor(string entitySet)
+        private static string BuildLookupKeyFor(string entitySet)
         {
             return KeyPrefix + "lookup:" + entitySet;
         }

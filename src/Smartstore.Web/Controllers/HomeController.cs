@@ -27,6 +27,7 @@ using LogLevel = Smartstore.Core.Logging.LogLevel;
 using System.Text.Json;
 using System.Text;
 using Smartstore.Core.Common;
+using Smartstore.Data.Caching;
 
 namespace Smartstore.Web.Controllers
 {
@@ -91,6 +92,74 @@ namespace Smartstore.Web.Controllers
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
+
+        public async Task<IActionResult> Index()
+        {
+            #region Settings Test
+            ////var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
+
+            ////await _services.SettingFactory.SaveSettingsAsync(new TestSettings(), 1);
+            ////await _db.SaveChangesAsync();
+
+            ////await _services.Settings.ApplySettingAsync("yodele.gut", "yodele");
+            ////await _services.Settings.ApplySettingAsync("yodele.schlecht", "yodele");
+            ////await _services.Settings.ApplySettingAsync("yodele.prop3", "yodele");
+            ////await _services.Settings.ApplySettingAsync("yodele.prop4", "yodele");
+            ////await _db.SaveChangesAsync();
+
+            ////var yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+            ////var yodele2 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
+            ////var yodele3 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
+            ////var yodele4 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
+            //////await _services.Settings.DeleteSettingsAsync("yodele");
+            ////yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+
+            ////await _db.SaveChangesAsync();
+
+            //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
+            //testSettings.Prop1 = CommonHelper.GenerateRandomDigitCode(10);
+            //testSettings.Prop2 = CommonHelper.GenerateRandomDigitCode(10);
+            //testSettings.Prop3 = CommonHelper.GenerateRandomDigitCode(10);
+            //var numSaved = await _services.SettingFactory.SaveSettingsAsync(testSettings, 1);
+            #endregion
+
+            _cancelTokenSource = new CancellationTokenSource();
+            await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
+
+            //var result = await _services.Resolve<IDbLogService>().ClearLogsAsync(new DateTime(2016, 12, 31), LogLevel.Fatal);
+
+            var count = _db.Countries
+                .AsNoTracking()
+                .Where(x => x.SubjectToVat)
+                .AsCaching()
+                .Count();
+
+            return View();
+        }
+
+        public async Task<IActionResult> Privacy()
+        {
+            #region Settings Test
+            //var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
+
+            //var yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+            //var yodele2 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
+            //var yodele3 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
+            //var yodele4 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
+            ////await _services.Settings.DeleteSettingsAsync("yodele");
+            //yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+
+            //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
+            #endregion
+
+            await _asyncState.UpdateAsync<MyProgress>(x =>
+            {
+                x.Percent++;
+                x.Message = $"Fortschritt {x.Percent}";
+            });
+
+            return View();
+        }
 
         public async Task<IActionResult> Logs()
         {
@@ -325,70 +394,6 @@ namespace Smartstore.Web.Controllers
             #endregion
         }
 
-
-
-
-        public async Task<IActionResult> Index()
-        {
-            #region Settings Test
-            ////var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
-
-            ////await _services.SettingFactory.SaveSettingsAsync(new TestSettings(), 1);
-            ////await _db.SaveChangesAsync();
-
-            ////await _services.Settings.ApplySettingAsync("yodele.gut", "yodele");
-            ////await _services.Settings.ApplySettingAsync("yodele.schlecht", "yodele");
-            ////await _services.Settings.ApplySettingAsync("yodele.prop3", "yodele");
-            ////await _services.Settings.ApplySettingAsync("yodele.prop4", "yodele");
-            ////await _db.SaveChangesAsync();
-
-            ////var yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
-            ////var yodele2 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
-            ////var yodele3 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
-            ////var yodele4 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
-            //////await _services.Settings.DeleteSettingsAsync("yodele");
-            ////yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
-
-            ////await _db.SaveChangesAsync();
-
-            //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
-            //testSettings.Prop1 = CommonHelper.GenerateRandomDigitCode(10);
-            //testSettings.Prop2 = CommonHelper.GenerateRandomDigitCode(10);
-            //testSettings.Prop3 = CommonHelper.GenerateRandomDigitCode(10);
-            //var numSaved = await _services.SettingFactory.SaveSettingsAsync(testSettings, 1);
-            #endregion
-
-            _cancelTokenSource = new CancellationTokenSource();
-            await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
-
-            //var result = await _services.Resolve<IDbLogService>().ClearLogsAsync(new DateTime(2016, 12, 31), LogLevel.Fatal);
-
-            return View();
-        }
-
-        public async Task<IActionResult> Privacy()
-        {
-            #region Settings Test
-            //var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
-
-            //var yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
-            //var yodele2 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
-            //var yodele3 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
-            //var yodele4 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
-            ////await _services.Settings.DeleteSettingsAsync("yodele");
-            //yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
-
-            //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
-            #endregion
-
-            await _asyncState.UpdateAsync<MyProgress>(x => 
-            {
-                x.Percent++;
-                x.Message = $"Fortschritt {x.Percent}";
-            });
-            
-            return View();
-        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

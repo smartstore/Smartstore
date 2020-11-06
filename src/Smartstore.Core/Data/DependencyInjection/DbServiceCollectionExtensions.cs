@@ -96,7 +96,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (enableCaching)
             {
-                //o.AddInterceptors(p.GetRequiredService<EfCacheInterceptor>());
                 o.UseSecondLevelCache();
             }
 
