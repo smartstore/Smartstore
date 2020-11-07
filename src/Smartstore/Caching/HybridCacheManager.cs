@@ -23,15 +23,22 @@ namespace Smartstore.Caching
 
             if (_stores.LastOrDefault() is IDistributedCacheStore distributedStore)
             {
-                // Listen to auto expirations/evictions in distributed store,
+                // Listen to auto expirations/evictions in distributed store
                 // so that we can remove the key from the local memory caches after expiration.
                 distributedStore.Expired += OnDistributedCacheEntryExpired;
+            }
+            else if (_stores.FirstOrDefault() is IMemoryCacheStore memoryStore)
+            {
+                // Invoke Expired event when eviction reason is expiration.
+                memoryStore.Removed += OnMemoryCacheEntryRemoved;
             }
 
             _scopeAccessor = scopeAccessor;
         }
 
         #region Events
+
+        public event EventHandler<CacheEntryExpiredEventArgs> Expired;
 
         private void OnDistributedCacheEntryExpired(object sender, CacheEntryExpiredEventArgs e)
         {
@@ -40,6 +47,17 @@ namespace Smartstore.Caching
                 // When a cache entry expires in a distributed store,
                 // remove the key from all memory stores.
                 _stores.OfType<IMemoryCacheStore>().Each(x => x.Remove(e.Key));
+
+                // Raise expired event
+                Expired?.Invoke(sender, e);
+            }
+        }
+
+        private void OnMemoryCacheEntryRemoved(object sender, CacheEntryRemovedEventArgs e)
+        {
+            if (e.Reason >= CacheEntryRemovedReason.Expired)
+            {
+                Expired?.Invoke(sender, e);
             }
         }
 

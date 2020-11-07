@@ -29,14 +29,15 @@ namespace Smartstore.Events
         /// </summary>
         /// <param name="channel">Channel</param>
         /// <param name="handler">The handler method. First param is channel, second param is message.</param>
-        void Subscribe(string channel, Action<string, string> handler);
+        /// <param name="ignoreLoopback">If <c>true</c>, no message will be published to the server that sent the message.</param>
+        void Subscribe(string channel, Action<string, string> handler, bool ignoreLoopback = true);
 
         /// <summary>
         /// Subscribes to a posted message in the specified channel.
         /// </summary>
         /// <param name="channel">Channel</param>
         /// <param name="handler">The handler method. First param is channel, second param is message.</param>
-        Task SubscribeAsync(string channel, Action<string, string> handler);
+        Task SubscribeAsync(string channel, Action<string, string> handler, bool ignoreLoopback = true);
     }
 
     public sealed class NullMessageBus : IMessageBus
@@ -49,10 +50,10 @@ namespace Smartstore.Events
         public Task<long> PublishAsync(string channel, string message)
             => Task.FromResult((long)0);
 
-        public void Subscribe(string channel, Action<string, string> handler)
+        public void Subscribe(string channel, Action<string, string> handler, bool ignoreLoopback = true)
             { }
 
-        public Task SubscribeAsync(string channel, Action<string, string> handler)
+        public Task SubscribeAsync(string channel, Action<string, string> handler, bool ignoreLoopback = true)
             => Task.CompletedTask;
     }
 }

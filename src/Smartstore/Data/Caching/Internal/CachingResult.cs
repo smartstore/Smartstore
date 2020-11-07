@@ -9,14 +9,14 @@ namespace Smartstore.Data.Caching.Internal
 {
     internal class CachingResult<TResult, TEntity> : CachingResult<TResult>
     {
-        public CachingResult(Expression expression, CachingExpressionVisitor<TResult> visitor)
+        public CachingResult(Expression expression, CachingExpressionVisitor visitor)
             : base(expression, visitor)
         {
         }
 
         public override TResult WrapAsyncResult(object cachedValue)
         {
-            object wrappedResult = Visitor.SequenceType == null
+            object wrappedResult = !Visitor.IsSequenceType
                 ? Task.FromResult((TEntity)cachedValue)
                 : ((IEnumerable<TEntity>)cachedValue ?? Enumerable.Empty<TEntity>()).ToAsyncEnumerable();
 
@@ -25,7 +25,7 @@ namespace Smartstore.Data.Caching.Internal
 
         public override (object Value, int Count) ConvertQueryResult(TResult queryResult)
         {
-            if (Visitor.SequenceType == null)
+            if (!Visitor.IsSequenceType)
             {
                 return (queryResult, 1);
             }
@@ -40,7 +40,7 @@ namespace Smartstore.Data.Caching.Internal
         {
             object result = queryResult;
             
-            if (Visitor.SequenceType == null)
+            if (!Visitor.IsSequenceType)
             {
                 return (await ((Task<TEntity>)result), 1);
             }
@@ -57,7 +57,7 @@ namespace Smartstore.Data.Caching.Internal
     /// </summary>
     internal class CachingResult<TResult>
     {
-        public CachingResult(Expression expression, CachingExpressionVisitor<TResult> visitor)
+        public CachingResult(Expression expression, CachingExpressionVisitor visitor)
         {
             Expression = expression;
             Visitor = visitor;
@@ -90,7 +90,7 @@ namespace Smartstore.Data.Caching.Internal
         /// <summary>
         /// The visitor used to resolve policy and types.
         /// </summary>
-        public CachingExpressionVisitor<TResult> Visitor { get; }
+        public CachingExpressionVisitor Visitor { get; }
 
         /// <summary>
         /// The cache key
@@ -115,12 +115,7 @@ namespace Smartstore.Data.Caching.Internal
         /// <summary>
         /// The handled entity type
         /// </summary>
-        public Type EntityType => Visitor.EntityType;
-
-        /// <summary>
-        /// The handled sequence type or <c>null</c> if single result.
-        /// </summary>
-        public Type SequenceType => Visitor.SequenceType;
+        public Type EntityType => Visitor.ElementType;
 
         /// <summary>
         /// Could read cached entry from cache?

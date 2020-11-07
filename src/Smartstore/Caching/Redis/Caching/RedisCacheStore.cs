@@ -37,8 +37,8 @@ namespace Smartstore.Redis.Caching
             _serializer = serializer;
 
             // Subscribe to key events triggered by Redis on item expiration
-            _messageBus.SubscribeToKeyEvent("expired", OnRedisKeyEvent);
-            _messageBus.SubscribeToKeyEvent("evicted", OnRedisKeyEvent);
+            _messageBus.SubscribeToKeyEvent("expired", OnRedisKeyEvent, false);
+            _messageBus.SubscribeToKeyEvent("evicted", OnRedisKeyEvent, false);
         }
 
         #region Pub/Sub
@@ -55,7 +55,7 @@ namespace Smartstore.Redis.Caching
                 //case "expire":
                 case "expired":
                 case "evicted":
-                    Expired?.Invoke(this, new CacheEntryExpiredEventArgs { Key = message });
+                    Expired?.Invoke(this, new CacheEntryExpiredEventArgs { Key = NormalizeKey(message) });
                     RemoveDependingEntries(new string[] { message });
                     //Debug.WriteLine("Expiration occurred for {0}".FormatInvariant(message));
                     break;

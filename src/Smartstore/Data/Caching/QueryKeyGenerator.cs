@@ -33,8 +33,8 @@ namespace Smartstore.Data.Caching
         private readonly QueryCompiler _queryCompiler;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
-        private readonly static ConcurrentDictionary<uint, DbCacheKey> _keysCache 
-            = new ConcurrentDictionary<uint, DbCacheKey>();
+        private readonly static ConcurrentDictionary<int, DbCacheKey> _keysCache 
+            = new ConcurrentDictionary<int, DbCacheKey>();
 
         public QueryKeyGenerator(IQueryContextFactory queryContextFactory, IQueryCompiler queryCompiler, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
@@ -60,17 +60,16 @@ namespace Smartstore.Data.Caching
 
         public virtual DbCacheKey GenerateQueryKey(Expression expression, DbCachingPolicy policy)
         {
-            var queryKey = GetExpressionKey(expression);
+            var hash = GetExpressionHash(expression);
 
-            var key = _keysCache.GetOrAdd(queryKey.Hash, key => 
+            var key = _keysCache.GetOrAdd(hash.CombinedHash, key => 
             {
                 var visitor = new DependencyVisitor();
                 visitor.ExtractDependencies(expression);
                 
                 return new DbCacheKey
                 {
-                    Key = queryKey.Key,
-                    KeyHash = $"{queryKey.Hash:X}",
+                    Key = hash.CombinedHashString,
                     EntitySets = visitor.Types.Select(x => GenerateDependencyKey(x)).ToArray()
                 };
             });
@@ -78,7 +77,7 @@ namespace Smartstore.Data.Caching
             return key;
         }
 
-        private (string Key, uint Hash) GetExpressionKey(Expression expression)
+        private HashCodeCombiner GetExpressionHash(Expression expression)
         {
             var queryContext = _queryContextFactory.Create();
 
@@ -88,20 +87,21 @@ namespace Smartstore.Data.Caching
                 _logger,
                 parameterize: false);
 
+            var hashCode = ExpressionEqualityComparer.Instance.GetHashCode(expression);
+            var combiner = HashCodeCombiner.Start().Add(hashCode);
             var parameterValues = queryContext.ParameterValues;
 
-            // Creating a Uniform Resource Identifier
-            var expressionKey = $"hash://{ExpressionEqualityComparer.Instance.GetHashCode(expression)}";
-
-
-            // If query has parameter add key values as uri-query string
             if (parameterValues.Count > 0)
             {
-                var parameterStrings = parameterValues.Select(d => $"{d.Key}={d.Value?.GetHashCode()}");
-                expressionKey += $"?{string.Join("&", parameterStrings)}";
+                // If query has parameters add to combiner
+                foreach (var p in parameterValues)
+                {
+                    combiner.Add(p.Key);
+                    combiner.Add(p.Value);
+                }
             }
 
-            return (expressionKey, XxHashUnsafe.ComputeHash(expressionKey));
+            return combiner;
         }
     }
 }

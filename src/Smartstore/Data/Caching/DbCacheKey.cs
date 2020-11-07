@@ -13,11 +13,6 @@ namespace Smartstore.Data.Caching
         public string Key { set; get; }
 
         /// <summary>
-        /// Hash of the input LINQ query's computed key.
-        /// </summary>
-        public string KeyHash { set; get; }
-
-        /// <summary>
         /// Determines which entities are involved in the LINQ query (by JOIN, INCLUDE etc.).
         /// This array will be used to invalidate data of all related queries automatically.
         /// </summary>
@@ -28,7 +23,7 @@ namespace Smartstore.Data.Caching
             if (obj is not DbCacheKey efCacheKey)
                 return false;
 
-            return this.KeyHash == efCacheKey.KeyHash;
+            return this.Key == efCacheKey.Key;
         }
 
         public override int GetHashCode()
@@ -36,13 +31,13 @@ namespace Smartstore.Data.Caching
             unchecked
             {
                 var hash = 17;
-                return (hash * 23) + KeyHash.GetHashCode();
+                return (hash * 23) + Key.GetHashCode();
             }
         }
 
         public override string ToString()
         {
-            return $"KeyHash: {KeyHash}, CacheDependencies: {string.Join(", ", EntitySets)}.";
+            return $"KeyHash: {Key}, CacheDependencies: {string.Join(", ", EntitySets)}.";
         }
     }
 }

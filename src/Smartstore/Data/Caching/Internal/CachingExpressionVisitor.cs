@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Domain;
 
 namespace Smartstore.Data.Caching.Internal
 {
@@ -37,7 +38,7 @@ namespace Smartstore.Data.Caching.Internal
         public override string ToString() => $"{ClrType}::{TableName}";
     }
 
-    internal sealed class CachingExpressionVisitor<TResult> : ExpressionVisitor
+    internal sealed class CachingExpressionVisitor : ExpressionVisitor
     {
         // Key = DbContextType
         // Value = [Key: EntityClrType, ...]
@@ -48,64 +49,18 @@ namespace Smartstore.Data.Caching.Internal
         private readonly CachingOptionsExtension _extension;
 
         private bool _isNoTracking;
-        private bool _typesResolved;
         
-        public CachingExpressionVisitor(DbContext context, CachingOptionsExtension extension, bool async)
+        public CachingExpressionVisitor(DbContext context, CachingOptionsExtension extension)
         {
             _context = context;
             _extension = extension;
-            IsAsyncQuery = async;
         }
 
-        public bool IsAsyncQuery { get; }
+        public bool IsSequenceType { get; private set; }
 
-        public Type SequenceType { get; private set; }
-
-        public Type EntityType { get; private set; }
+        public Type ElementType { get; private set; }
 
         public DbCachingPolicy CachingPolicy { get; private set; }
-
-        private void EnsureTypesResolved()
-        {
-            if (_typesResolved)
-            {
-                return;
-            }
-
-            var resultType = typeof(TResult);
-
-            if (IsAsyncQuery)
-            {
-                var typeDef = resultType.GetGenericTypeDefinition();
-                if (typeDef == typeof(Task<>))
-                {
-                    // Single item query (First[OrDefault]Async, Single[OrDefault]Async)
-                    EntityType = resultType.GetGenericArguments()[0];
-                }
-                else if (resultType.IsSubClass(typeof(IAsyncEnumerable<>), out var implType))
-                {
-                    // List query (ToListAsync, ToDictionaryAsync)
-                    EntityType = resultType.GetGenericArguments()[0];
-                    SequenceType = implType;
-                }
-            }
-            else
-            {
-                if (resultType.IsSequenceType(out var entityType))
-                {
-                    // List query (ToList, ToDictionary)
-                    EntityType = entityType;
-                    SequenceType = typeof(IEnumerable<>).MakeGenericType(entityType);
-                }
-                else
-                {
-                    // Single item query (First[OrDefault], Single[OrDefault])
-                    EntityType = resultType;
-                }
-            }
-
-            _typesResolved = true;
-        }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
@@ -123,11 +78,6 @@ namespace Smartstore.Data.Caching.Internal
                         .Select(a => (DbCachingPolicy)a.Value)
                         .Last();
 
-                    if (CachingPolicy?.NoCaching == true)
-                    {
-                        CachingPolicy = null;
-                    }
-
                     // Cut out extension expression
                     return Visit(node.Arguments[0]);
                 }
@@ -139,10 +89,8 @@ namespace Smartstore.Data.Caching.Internal
                         var nodeType = node.Arguments[0]?.Type;
                         if (nodeType != null)
                         {
-                            EnsureTypesResolved();
-
                             var nodeResultType = nodeType.GetGenericArguments()[0];
-                            _isNoTracking = nodeResultType == EntityType;
+                            _isNoTracking = nodeResultType == ElementType;
                         }
                     }
                 }
@@ -154,17 +102,20 @@ namespace Smartstore.Data.Caching.Internal
         public Expression ExtractPolicy(Expression expression)
         {
             _isNoTracking = false;
-            _typesResolved = false;
 
-            SequenceType = null;
-            EntityType = null;
+            IsSequenceType = false;
+            ElementType = expression.Type;
             CachingPolicy = null;
 
-            Debug.WriteLine("Query Type: " + expression.Type.Name);
+            if (expression.Type.IsSequenceType(out var elementType))
+            {
+                IsSequenceType = true;
+                ElementType = elementType;
+            }
 
-            var result = Visit(expression);
+            expression = Visit(expression);
 
-            if (!_isNoTracking)
+            if (!_isNoTracking && typeof(BaseEntity).IsAssignableFrom(ElementType))
             {
                 // We never gonna cache trackable entities
                 CachingPolicy = null;
@@ -174,7 +125,7 @@ namespace Smartstore.Data.Caching.Internal
                 CachingPolicy = SanitizePolicy(CachingPolicy);
             }
 
-            return result;
+            return expression;
         }
 
         private DbCachingPolicy SanitizePolicy(DbCachingPolicy policy)
@@ -186,8 +137,7 @@ namespace Smartstore.Data.Caching.Internal
             }
 
             // Try resolve global policy
-            // TODO: (core) Handle toxic entities.
-            var policyAttribute = GetAllEntityInfos().Get(EntityType)?.Policy;
+            var policyAttribute = GetAllEntityInfos().Get(ElementType)?.Policy;
 
             if (policyAttribute != null)
             {
@@ -195,7 +145,7 @@ namespace Smartstore.Data.Caching.Internal
                 {
                     return null;
                 }
-                
+
                 // Either create new policy from attribute or merge attribute with query policy.
                 policy = (policy ?? new DbCachingPolicy()).Merge(policyAttribute);
             }

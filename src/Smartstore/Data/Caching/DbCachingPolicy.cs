@@ -41,5 +41,10 @@ namespace Smartstore.Data.Caching
         /// Gets or sets the expiration timeout. Default value 3 hours.
         /// </summary>
         public TimeSpan? ExpirationTimeout { get; internal set; }
+
+        public override string ToString()
+        {
+            return $"Timeout: {ExpirationTimeout}, MaxRows: {MaxRows}";
+        }
     }
 }

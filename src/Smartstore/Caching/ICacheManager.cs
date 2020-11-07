@@ -12,6 +12,15 @@ namespace Smartstore.Caching
     public interface ICacheManager
     {
         /// <summary>
+        /// Invoked when a cache entry has been removed due to lifetime expiration.
+        /// In case a a distributed cache store is registered, the cache manager will only listen
+        /// to the distributed store's expiration event, so that <see cref="CacheEntryExpiredEventArgs.Key"/>
+        /// refers to an entry key in the distributed store, not the memory store.
+        /// If no distributed store is registered, the manager will listen to the memory store's expiration event.
+        /// </summary>
+        event EventHandler<CacheEntryExpiredEventArgs> Expired;
+
+        /// <summary>
         /// Gets a cache item associated with the specified key
         /// </summary>
         /// <typeparam name="T">The type of the item to get</typeparam>

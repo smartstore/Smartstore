@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-/*
-	Copied over from Microsoft.Framework.Internal
-*/
-
 namespace Smartstore.Utilities
 {
+	[DebuggerDisplay("{CombinedHashString}")]
 	public struct HashCodeCombiner
 	{
 		private long _combinedHash64;

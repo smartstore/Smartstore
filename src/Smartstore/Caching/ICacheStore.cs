@@ -40,9 +40,8 @@ namespace Smartstore.Caching
         public string Key { get; set; }
     }
 
-    public class CacheEntryRemovedEventArgs : EventArgs
+    public class CacheEntryRemovedEventArgs : CacheEntryExpiredEventArgs
     {
-        public string Key { get; set; }
         public CacheEntryRemovedReason Reason { get; set; }
         public CacheEntry Entry { get; set; }
     }

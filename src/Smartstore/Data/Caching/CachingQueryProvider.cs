@@ -2,9 +2,12 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using Smartstore.ComponentModel;
 using Smartstore.Data.Caching.Internal;
 using Smartstore.Threading;
 
@@ -17,19 +20,22 @@ namespace Smartstore.Data.Caching
         private readonly IQueryKeyGenerator _queryKeyGenerator;
         private readonly ICurrentDbContext _currentContext;
         private readonly CachingOptionsExtension _extension;
+        private readonly ILogger _logger;
 
         public CachingQueryProvider(
             IDbCache cache,
             IQueryKeyGenerator queryKeyGenerator,
             IQueryCompiler queryCompiler,
             ICurrentDbContext currentContext,
-            IDbContextOptions options)
+            IDbContextOptions options,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
             : base(queryCompiler)
         {
             _cache = cache;
             _queryKeyGenerator = queryKeyGenerator;
             _currentContext = currentContext;
             _extension = options.FindExtension<CachingOptionsExtension>();
+            _logger = logger.Logger;
         }
 
         public override object Execute(Expression expression)
@@ -44,7 +50,7 @@ namespace Smartstore.Data.Caching
 
         public override TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
         {
-            var cachingResult = ReadFromCache<TResult>(expression, true);
+            var cachingResult = ReadFromCache<TResult>(expression);
             if (cachingResult.HasResult)
             {
                 return cachingResult.WrapAsyncResult(cachingResult.CacheEntry.Value);
@@ -52,7 +58,7 @@ namespace Smartstore.Data.Caching
 
             var result = base.ExecuteAsync<TResult>(cachingResult.Expression, cancellationToken);
 
-            if (!cachingResult.CanPut)
+            if (!cachingResult.CanPut || cancellationToken.IsCancellationRequested)
             {
                 return result;
             }
@@ -70,6 +76,21 @@ namespace Smartstore.Data.Caching
                     };
 
                     _cache.Put(cachingResult.CacheKey, entry, cachingResult.Policy);
+
+                    Log(DbCachingEventId.QueryResultCached,
+                        "Has put query result to cache. Key: {0}, Type: {1}, Policy: {2}.",
+                        cachingResult.CacheKey.Key,
+                        typeof(TResult),
+                        cachingResult.Policy);
+                }
+                else
+                {
+                    Log(DbCachingEventId.MaxRowsExceeded,
+                        "Max rows limit exceeded. Will not cache. Actual: {0}, Limit: {1} Key: {2}, Type: {3}.",
+                        cacheValue.Count,
+                        cachingResult.Policy.MaxRows.Value,
+                        cachingResult.CacheKey.Key,
+                        typeof(TResult));
                 }
 
                 return cachingResult.WrapAsyncResult(cacheValue.Value);
@@ -84,7 +105,7 @@ namespace Smartstore.Data.Caching
         /// <returns>The value that results from executing the specified query.</returns>
         private TResult ExecuteInternal<TResult>(Expression expression, Func<Expression, TResult> queryExecutor)
         {
-            var cachingResult = ReadFromCache<TResult>(expression, false);
+            var cachingResult = ReadFromCache<TResult>(expression);
             if (cachingResult.HasResult)
             {
                 return cachingResult.CachedValue;
@@ -96,7 +117,7 @@ namespace Smartstore.Data.Caching
             {
                 return queryResult;
             }
-
+            
             using (var scope = new DbContextScope((HookingDbContext)_currentContext.Context, lazyLoading: false))
             {
                 var cacheValue = cachingResult.ConvertQueryResult(queryResult);
@@ -110,15 +131,30 @@ namespace Smartstore.Data.Caching
                     };
 
                     _cache.Put(cachingResult.CacheKey, entry, cachingResult.Policy);
+
+                    Log(DbCachingEventId.QueryResultCached,
+                        "Has put query result to cache. Key: {0}, Type: {1}, Policy: {2}.",
+                        cachingResult.CacheKey.Key,
+                        typeof(TResult),
+                        cachingResult.Policy);
+                }
+                else
+                {
+                    Log(DbCachingEventId.MaxRowsExceeded,
+                        "Max rows limit exceeded. Will not cache. Actual: {0}, Limit: {1} Key: {2}, Type: {3}.",
+                        cacheValue.Count,
+                        cachingResult.Policy.MaxRows.Value,
+                        cachingResult.CacheKey.Key,
+                        typeof(TResult));
                 }
 
                 return (TResult)cacheValue.Value;
             }
         }
 
-        private CachingResult<TResult> ReadFromCache<TResult>(Expression expression, bool forAsync)
+        private CachingResult<TResult> ReadFromCache<TResult>(Expression expression)
         {
-            var visitor = new CachingExpressionVisitor<TResult>(_currentContext.Context, _extension, forAsync);
+            var visitor = new CachingExpressionVisitor(_currentContext.Context, _extension);
             expression = visitor.ExtractPolicy(expression);
 
             var policy = visitor.CachingPolicy;
@@ -128,13 +164,30 @@ namespace Smartstore.Data.Caching
                 return new CachingResult<TResult>(expression, visitor);
             }
 
-            var cachingResultType = typeof(CachingResult<,>).MakeGenericType(typeof(TResult), visitor.EntityType);
-            var cachingResult = (CachingResult<TResult>)Activator.CreateInstance(cachingResultType, expression, visitor);
+            var cachingResultType = typeof(CachingResult<,>).MakeGenericType(typeof(TResult), visitor.ElementType);
+            var cachingResult = (CachingResult<TResult>)FastActivator.CreateInstance(cachingResultType, expression, visitor);
 
             cachingResult.CacheKey = _queryKeyGenerator.GenerateQueryKey(expression, policy);
             cachingResult.CacheEntry = _cache.Get(cachingResult.CacheKey, policy);
 
+            if (cachingResult.CacheEntry != null)
+            {
+                Log(DbCachingEventId.CacheHit, 
+                    "Has read query result from cache. Key: {0}, Type: {1}, Policy: {2}.", 
+                    cachingResult.CacheKey.Key,
+                    typeof(TResult),
+                    policy);
+            }
+
             return cachingResult;
+        }
+
+        private void Log(EventId eventId, string message, params object[] args)
+        {
+            if (_extension.EnableLogging)
+            {
+                _logger.LogDebug(eventId, message, args);
+            }
         }
     }
 }

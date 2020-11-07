@@ -123,21 +123,42 @@ namespace Smartstore.Web.Controllers
             //var numSaved = await _services.SettingFactory.SaveSettingsAsync(testSettings, 1);
             #endregion
 
-            _cancelTokenSource = new CancellationTokenSource();
-            await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
+            //_cancelTokenSource = new CancellationTokenSource();
+            //await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
 
             //var result = await _services.Resolve<IDbLogService>().ClearLogsAsync(new DateTime(2016, 12, 31), LogLevel.Fatal);
 
-            var count = _db.Countries
+            //var count = await _db.Countries
+            //    .AsNoTracking()
+            //    .Where(x => x.SubjectToVat)
+            //    .AsCaching()
+            //    .CountAsync();
+
+            var anon = await _db.Countries
                 .AsNoTracking()
-                .Where(x => x.SubjectToVat)
+                .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)
                 .AsCaching()
-                .Count();
+                //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+                .ToListAsync();
+
+            var anon2 = _db.Countries
+                .AsNoTracking()
+                .Where(x => x.SubjectToVat == true && x.DisplayOrder > 1)
+                .AsCaching()
+                //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+                .ToList();
+
+            var noResult = _db.Countries
+                .AsNoTracking()
+                .Where(x => x.Name == "fsdfsdfsdfsfsdfd")
+                .AsCaching()
+                //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+                .FirstOrDefault();
 
             return View();
         }
 
-        public async Task<IActionResult> Privacy()
+        public IActionResult Privacy()
         {
             #region Settings Test
             //var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
@@ -152,11 +173,11 @@ namespace Smartstore.Web.Controllers
             //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
             #endregion
 
-            await _asyncState.UpdateAsync<MyProgress>(x =>
-            {
-                x.Percent++;
-                x.Message = $"Fortschritt {x.Percent}";
-            });
+            //await _asyncState.UpdateAsync<MyProgress>(x =>
+            //{
+            //    x.Percent++;
+            //    x.Message = $"Fortschritt {x.Percent}";
+            //});
 
             return View();
         }
@@ -227,9 +248,9 @@ namespace Smartstore.Web.Controllers
             _logger2.Warn("WARN maaaan");
             //_logger2.Error("WARN maaaan");
 
-            _asyncState.Cancel<MyProgress>();
-            //_cancelTokenSource.Cancel();
-            _cancelTokenSource = new CancellationTokenSource();
+            //_asyncState.Cancel<MyProgress>();
+            ////_cancelTokenSource.Cancel();
+            //_cancelTokenSource = new CancellationTokenSource();
 
             var query = _db.Countries
                 .AsNoTracking()

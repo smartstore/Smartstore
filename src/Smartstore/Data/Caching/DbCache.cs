@@ -20,17 +20,23 @@ namespace Smartstore.Data.Caching
         {
             _cache = EngineContext.Current.Application.Services.Resolve<ICacheManager>();
 
-            //var memStore = EngineContext.Current.Application.Services.Resolve<IMemoryCacheStore>();
-            //memStore.Removed += OnEntryRemoved;
+            _cache.Expired += OnEntryExpired;
         }
 
-        //private void OnEntryRemoved(object sender, CacheEntryRemovedEventArgs e)
-        //{
-        //    if (e.Key.StartsWith(KeyPrefix))
-        //    {
-
-        //    }
-        //}
+        private void OnEntryExpired(object sender, CacheEntryExpiredEventArgs e)
+        {
+            // Remove the expired key from all lookup sets
+            if (e.Key.StartsWith(KeyPrefix))
+            {
+                // Get all existing lookup sets
+                var keys = _cache.Keys(BuildLookupKeyFor("*"));
+                foreach (var key in keys)
+                {
+                    // Remove entry key from lookup
+                    _cache.GetHashSet(key).Remove(e.Key);
+                }
+            }
+        }
 
         public void Clear()
         {
@@ -46,12 +52,12 @@ namespace Smartstore.Data.Caching
 
         public DbCacheEntry Get(DbCacheKey key, DbCachingPolicy policy)
         {
-            return _cache.Get<DbCacheEntry>(BuildKey(key.KeyHash));
+            return _cache.Get<DbCacheEntry>(BuildKey(key.Key));
         }
 
         public void Put(DbCacheKey key, DbCacheEntry value, DbCachingPolicy policy)
         {
-            var cacheKey = BuildKey(key.KeyHash);
+            var cacheKey = BuildKey(key.Key);
 
             using (_cache.AcquireKeyLock(cacheKey))
             {

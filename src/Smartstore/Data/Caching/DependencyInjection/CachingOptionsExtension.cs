@@ -56,7 +56,7 @@ namespace Smartstore.Data.Caching
         #region Options
 
         /// <summary>
-        /// Should the debug level logging be enabled?
+        /// Should the debug level logging be enabled? Default is true.
         /// </summary>
         public CachingOptionsExtension WithUseLogging(bool useLogging)
         {
@@ -97,7 +97,7 @@ namespace Smartstore.Data.Caching
             return clone;
         }
 
-        public bool EnableLogging { set; get; }
+        public bool EnableLogging { set; get; } = true;
 
         public TimeSpan DefaultExpirationTimeout { get; set; } = TimeSpan.FromHours(3);
 

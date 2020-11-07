@@ -12,6 +12,8 @@ namespace Smartstore.Caching
     {
         public static ICacheManager Instance => new NullCache();
 
+        public event EventHandler<CacheEntryExpiredEventArgs> Expired;
+
         public T Get<T>(string key, bool independent = false) 
             => default;
 
