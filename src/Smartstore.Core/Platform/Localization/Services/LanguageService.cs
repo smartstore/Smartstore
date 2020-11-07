@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
+using Smartstore.Collections;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
+using Smartstore.Domain;
 
 namespace Smartstore.Core.Localization
 {
@@ -19,21 +21,18 @@ namespace Smartstore.Core.Localization
         public string UniqueSeoCode { get; set; }
     }
 
-    public partial class LanguageService : AsyncDbSaveHook<Language>
+    public partial class LanguageService : AsyncDbSaveHook<BaseEntity>, ILanguageService
     {
-        private const string LANGUAGES_COUNT = "SmartStore.language.count-{0}";
-        private const string LANGUAGES_PATTERN_KEY = "SmartStore.language.*";
+        private const string STORE_LANGUAGE_MAP_KEY = "storelangmap";
 
         private readonly SmartDbContext _db;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IStoreContext _storeContext;
-        private readonly IRequestCache _requestCache;
         private readonly ICacheManager _cache;
         private readonly ISettingFactory _settingFactory;
         private readonly Lazy<LocalizationSettings> _localizationSettings;
 
         public LanguageService(
-            IRequestCache requestCache,
             ICacheManager cache,
             SmartDbContext db,
             ISettingFactory settingFactory,
@@ -41,9 +40,6 @@ namespace Smartstore.Core.Localization
             IStoreMappingService storeMappingService,
             IStoreContext storeContext)
         {
-            // TODO: (core) EF 2nd level request caching: implement policy based with central configuration
-            
-            _requestCache = requestCache;
             _cache = cache;
             _db = db;
             _settingFactory = settingFactory;
@@ -54,16 +50,21 @@ namespace Smartstore.Core.Localization
 
         #region Hook
 
-        protected override async Task<HookResult> OnDeletingAsync(Language entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override async Task<HookResult> OnDeletingAsync(BaseEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {
+            if (entity is not Language language)
+            {
+                return HookResult.Void;
+            }
+            
             // Update default admin area language (if required)
             var localizationSettings = _localizationSettings.Value;
-            if (localizationSettings.DefaultAdminLanguageId == entity.Id)
+            if (localizationSettings.DefaultAdminLanguageId == language.Id)
             {
                 var allLanguages = await GetAllLanguagesAsync();
                 foreach (var activeLanguage in allLanguages)
                 {
-                    if (activeLanguage.Id != entity.Id)
+                    if (activeLanguage.Id != language.Id)
                     {
                         localizationSettings.DefaultAdminLanguageId = activeLanguage.Id;
                         await _settingFactory.SaveSettingsAsync(localizationSettings);
@@ -75,10 +76,14 @@ namespace Smartstore.Core.Localization
             return HookResult.Ok;
         }
 
-        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        public override async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
-            _requestCache.RemoveByPattern(LANGUAGES_PATTERN_KEY);
-            return Task.FromResult(HookResult.Ok);
+            if (entry.EntityType != typeof(Store) && entry.EntityType != typeof(Language))
+                return HookResult.Void;
+
+            await _cache.RemoveAsync(STORE_LANGUAGE_MAP_KEY);
+
+            return HookResult.Ok;
         }
 
         #endregion
@@ -87,29 +92,111 @@ namespace Smartstore.Core.Localization
 
         public virtual async Task<List<Language>> GetAllLanguagesAsync(bool includeHidden = false, int storeId = 0)
         {
-            var cacheKey = "db.lang.all.{0}".FormatInvariant(includeHidden);
+            return await _db.Languages.ApplyStandardFilter(includeHidden, storeId).ToListAsync();
+        }
 
-            var languages = await _requestCache.Get(cacheKey, async () => 
+        public virtual async Task<bool> IsPublishedLanguageAsync(int languageId, int storeId = 0)
+        {
+            if (languageId <= 0)
+                return false;
+
+            if (storeId <= 0)
+                storeId = _storeContext.CurrentStore.Id;
+
+            var map = await this.GetStoreLanguageMapAsync();
+            if (map.ContainsKey(storeId))
             {
-                var query = _db.Languages.AsQueryable();
-
-                if (!includeHidden)
-                {
-                    query = query.Where(x => x.Published);
-                }
-
-                query = query.OrderBy(x => x.DisplayOrder);
-
-                return await query.ToListAsync();
-            });
-
-            // store mapping
-            if (storeId > 0)
-            {
-                languages = await _storeMappingService.SelectAuthorizedAsync(languages, storeId).ToListAsync();
+                return map[storeId].Any(x => x.Id == languageId);
             }
 
-            return languages;
+            return false;
+        }
+
+        public virtual async Task<bool> IsPublishedLanguageAsync(string seoCode, int storeId = 0)
+        {
+            if (seoCode.IsEmpty())
+                return false;
+            
+            if (storeId <= 0)
+                storeId = _storeContext.CurrentStore.Id;
+
+            var map = await this.GetStoreLanguageMapAsync();
+            if (map.ContainsKey(storeId))
+            {
+                return map[storeId].Any(x => x.UniqueSeoCode == seoCode);
+            }
+
+            return false;
+        }
+
+        public virtual async Task<string> GetDefaultLanguageSeoCodeAsync(int storeId = 0)
+        {
+            if (storeId <= 0)
+                storeId = _storeContext.CurrentStore.Id;
+
+            var map = await this.GetStoreLanguageMapAsync();
+            if (map.ContainsKey(storeId))
+            {
+                return map[storeId].FirstOrDefault().UniqueSeoCode;
+            }
+
+            return null;
+        }
+
+        public virtual async Task<int> GetDefaultLanguageIdAsync(int storeId = 0)
+        {
+            if (storeId <= 0)
+                storeId = _storeContext.CurrentStore.Id;
+
+            var map = await this.GetStoreLanguageMapAsync();
+            if (map.ContainsKey(storeId))
+            {
+                return map[storeId].FirstOrDefault().Id;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Gets a map of active/published store languages
+        /// </summary>
+        /// <returns>A map of store languages where key is the store id and values are tuples of language ids and seo codes</returns>
+        protected virtual async Task<Multimap<int, LanguageStub>> GetStoreLanguageMapAsync()
+        {
+            var result = await _cache.GetAsync(STORE_LANGUAGE_MAP_KEY, async (o) =>
+            {
+                o.ExpiresIn(TimeSpan.FromDays(1));
+                
+                var map = new Multimap<int, LanguageStub>();
+
+                var allStores = _storeContext.GetAllStores();
+                foreach (var store in allStores)
+                {
+                    var languages = await GetAllLanguagesAsync(false, store.Id);
+                    if (!languages.Any())
+                    {
+                        // language-less stores aren't allowed but could exist accidentally. Correct this.
+                        var firstStoreLang = (await GetAllLanguagesAsync(true, store.Id)).FirstOrDefault();
+                        if (firstStoreLang == null)
+                        {
+                            // absolute fallback
+                            firstStoreLang = (await GetAllLanguagesAsync(true)).FirstOrDefault();
+                        }
+                        map.Add(store.Id, new LanguageStub { Id = firstStoreLang.Id, UniqueSeoCode = firstStoreLang.UniqueSeoCode });
+                    }
+                    else
+                    {
+                        foreach (var lang in languages)
+                        {
+                            map.Add(store.Id, new LanguageStub { Id = lang.Id, UniqueSeoCode = lang.UniqueSeoCode });
+                        }
+                    }
+                }
+
+                return map;
+            });
+
+            return result;
         }
 
         #endregion
