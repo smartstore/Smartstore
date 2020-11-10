@@ -138,22 +138,22 @@ namespace Smartstore.Web.Controllers
                 .AsNoTracking()
                 .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)
                 .AsCaching()
-                //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+                .Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
                 .ToListAsync();
 
-            var anon2 = _db.Countries
-                .AsNoTracking()
-                .Where(x => x.SubjectToVat == true && x.DisplayOrder > 1)
-                .AsCaching()
-                //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
-                .ToList();
+            //var anon2 = _db.Countries
+            //    .AsNoTracking()
+            //    .Where(x => x.SubjectToVat == true && x.DisplayOrder > 1)
+            //    .AsCaching()
+            //    //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+            //    .ToList();
 
-            var noResult = _db.Countries
-                .AsNoTracking()
-                .Where(x => x.Name == "fsdfsdfsdfsfsdfd")
-                .AsCaching()
-                //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
-                .FirstOrDefault();
+            //var noResult = _db.Countries
+            //    .AsNoTracking()
+            //    .Where(x => x.Name == "fsdfsdfsdfsfsdfd")
+            //    .AsCaching()
+            //    //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+            //    .FirstOrDefault();
 
             return View();
         }

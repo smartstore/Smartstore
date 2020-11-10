@@ -112,8 +112,10 @@ namespace Smartstore.Core.Stores
 
         public StoreEntityCache GetCachedStores()
         {
-            return _cache.Get(CacheKey, () =>
+            return _cache.Get(CacheKey, (o) =>
             {
+                o.ExpiresIn(TimeSpan.FromDays(1));
+                
                 var entry = new StoreEntityCache();
 
                 using (var db = _dbContextFactory.CreateDbContext())

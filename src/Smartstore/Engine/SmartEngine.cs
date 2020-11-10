@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Diagnostics;
+using Smartstore.Engine.Initialization;
 
 namespace Smartstore.Engine
 {
@@ -49,6 +50,8 @@ namespace Smartstore.Engine
                 // Add Async/Threading stuff
                 services.AddAsyncRunner();
                 services.AddLockFileManager();
+
+                services.AddApplicationInitializer();
 
                 services.AddSingleton(x => NullChronometer.Instance);
                 services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();

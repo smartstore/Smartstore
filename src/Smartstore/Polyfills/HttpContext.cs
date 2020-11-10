@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace System.Web
 {
+    // TODO: (core) Remove PolyfillHttpContext later
     public static class HttpContext
     {
         private static IHttpContextAccessor _contextAccessor;

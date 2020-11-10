@@ -14,6 +14,7 @@ using Serilog.Events;
 using Serilog.Extensions.Logging;
 using Serilog.Filters;
 using Smartstore.Core.Logging.Serilog;
+using Smartstore.Engine.Initialization;
 using MsHost = Microsoft.Extensions.Hosting.Host;
 
 namespace Smartstore.Web
@@ -42,8 +43,12 @@ namespace Smartstore.Web
         private readonly static IConfiguration Configuration 
             = BuildConfiguration();
 
-        public static Task Main(string[] args)
-            => CreateHostBuilder(args).RunAsync();
+        public static async Task Main(string[] args)
+        {
+            var host = CreateHostBuilder(args);
+            await host.InitAsync();
+            await host.RunAsync();
+        }
 
         public static IHost CreateHostBuilder(string[] args) 
         {
