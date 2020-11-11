@@ -113,7 +113,7 @@ namespace Smartstore.IO
             var fullPath = MapPathInternal(subpath, false);
             return fullPath.HasValue()
                 ? new LocalFile(subpath, new FileInfo(fullPath), this)
-                : new NotFoundFile(subpath);
+                : new NotFoundFile(subpath, this);
         }
 
         public override IDirectory GetDirectory(string subpath)
@@ -121,7 +121,7 @@ namespace Smartstore.IO
             var fullPath = MapPathInternal(subpath, false);
             return fullPath.HasValue()
                 ? new LocalDirectory(subpath, new DirectoryInfo(fullPath), this)
-                : new NotFoundDirectory(subpath);
+                : new NotFoundDirectory(subpath, this);
         }
 
         /// <inheritdoc/>

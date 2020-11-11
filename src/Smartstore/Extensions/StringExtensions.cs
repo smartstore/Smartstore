@@ -675,7 +675,6 @@ namespace Smartstore
 		/// <summary>Splits a string into two strings</summary>
 		/// <returns>true: success, false: failure</returns>
 		[DebuggerStepThrough]
-		[SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
 		public static bool SplitToPair(this string value, out string leftPart, out string rightPart, string delimiter, bool splitAfterLast = false)
 		{
 			leftPart = value;
@@ -696,7 +695,7 @@ namespace Smartstore
 			}
 
 			leftPart = value.Substring(0, idx);
-			rightPart = value.Substring(idx + delimiter.Length);
+			rightPart = value[(idx + delimiter.Length)..];
 
 			return true;
 		}
@@ -809,7 +808,6 @@ namespace Smartstore
 		/// <param name="value">Name of the attribute.</param>
 		/// <param name="name"></param>
 		/// <param name="htmlEncode"></param>
-		[SuppressMessage("ReSharper", "StringCompareIsCultureSpecific.3")]
 		public static string ToAttribute(this string value, string name, bool htmlEncode = true)
 		{
 			if (name.IsEmpty())
@@ -892,7 +890,7 @@ namespace Smartstore
 		{
 			if (!string.IsNullOrWhiteSpace(value) && x1 > 0 && x2 > x1 && x2 < value.Length)
 			{
-				return value.Substring(0, x1) + (replaceBy.EmptyNull()) + value.Substring(x2 + 1);
+				return value.Substring(0, x1) + (replaceBy.EmptyNull()) + value[(x2 + 1)..];
 			}
 
 			return value;
@@ -910,7 +908,7 @@ namespace Smartstore
 					if (startIndex == -1)
 						break;
 
-					value = value.Substring(0, startIndex) + newValue + value.Substring(startIndex + oldValue.Length);
+					value = value.Substring(0, startIndex) + newValue + value[(startIndex + oldValue.Length)..];
 
 					startIndex += newValue.Length;
 				}
@@ -932,7 +930,7 @@ namespace Smartstore
 			if (value == null)
 				throw new ArgumentNullException(nameof(value));
 
-			provider = provider ?? NumberFormatInfo.CurrentInfo;
+			provider ??= NumberFormatInfo.CurrentInfo;
 			var nfi = NumberFormatInfo.GetInstance(provider);
 
 			if (nfi.DigitSubstitution == DigitShapes.None)
@@ -951,7 +949,7 @@ namespace Smartstore
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static string TrimSafe(this string value)
 		{
-			return (value.HasValue() ? value.Trim() : value);
+			return (!string.IsNullOrEmpty(value) ? value.Trim() : value);
 		}
 
 		[DebuggerStepThrough]
@@ -1021,7 +1019,7 @@ namespace Smartstore
 					{
 						res = sb.ToString().Trim(new char[] { ' ', '-' });
 
-						Regex pat = new Regex(@"(-{2,})"); // remove double SpaceChar
+						Regex pat = new(@"(-{2,})"); // remove double SpaceChar
 						res = pat.Replace(res, "-");
 						res = res.Replace("__", "_");
 					}
@@ -1098,7 +1096,7 @@ namespace Smartstore
 			if (s == null)
 				return defaultValue;
 			var arr = s.ToIntArray();
-			if (arr == null || arr.Count() <= 0)
+			if (arr == null || arr.Length <= 0)
 				return defaultValue;
 
 			return arr.Contains(value);

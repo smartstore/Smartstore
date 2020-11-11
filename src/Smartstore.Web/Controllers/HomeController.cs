@@ -47,7 +47,7 @@ namespace Smartstore.Web.Controllers
     
     public class HomeController : Controller
     {
-        private static CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
+        private static CancellationTokenSource _cancelTokenSource = new();
         
         private readonly SmartDbContext _db;
         private readonly IEventPublisher _eventPublisher;
@@ -60,7 +60,7 @@ namespace Smartstore.Web.Controllers
         private readonly IThemeRegistry _themeRegistry;
         private readonly ICommonServices _services;
         private readonly ILoggerFactory _loggerFactory;
-        private readonly LocalizationService _locService;
+        private readonly ILocalizationService _locService;
 
         public HomeController(
             SmartDbContext db, 
@@ -77,7 +77,7 @@ namespace Smartstore.Web.Controllers
             TaxSettings taxSettings,
             ICommonServices services,
             ILoggerFactory loggerFactory,
-            LocalizationService locService)
+            ILocalizationService locService)
         {
             _db = db;
             _eventPublisher = eventPublisher;

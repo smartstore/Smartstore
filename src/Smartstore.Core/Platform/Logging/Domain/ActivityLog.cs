@@ -22,6 +22,7 @@ namespace Smartstore.Core.Logging
             builder
                 .HasOne(x => x.Customer)
                 .WithOne(navigationName: null)
+                .IsRequired(false)
                 .HasForeignKey<ActivityLog>(x => x.CustomerId);
         }
     }

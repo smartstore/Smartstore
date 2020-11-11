@@ -292,7 +292,7 @@ namespace Smartstore
                 // I don't like this, but it mimics the behavior of classic Smartstore.
                 if (!fs.TryCreateDirectory(subpath))
                 {
-                    throw new FileSystemException(string.Format("The directory could not be created at path: {0}. {1}", subpath));
+                    throw new FileSystemException(string.Format("The directory could not be created at path: {0}.", subpath));
                 }
             }
             

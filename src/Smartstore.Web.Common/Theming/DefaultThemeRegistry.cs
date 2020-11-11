@@ -19,11 +19,11 @@ namespace Smartstore.Web.Common.Theming
         private readonly IEventPublisher _eventPublisher;
         private readonly IApplicationContext _appContext;
         private readonly IFileSystem _root;
-        private readonly ConcurrentDictionary<string, ThemeManifest> _themes = new ConcurrentDictionary<string, ThemeManifest>(StringComparer.InvariantCultureIgnoreCase);
-        private readonly ConcurrentDictionary<EventThrottleKey, Timer> _eventQueue = new ConcurrentDictionary<EventThrottleKey, Timer>();
+        private readonly ConcurrentDictionary<string, ThemeManifest> _themes = new(StringComparer.InvariantCultureIgnoreCase);
+        private readonly ConcurrentDictionary<EventThrottleKey, Timer> _eventQueue = new();
         private readonly bool _enableMonitoring;
 
-        private readonly Regex _fileFilterPattern = new Regex(@"^\.(json|png|gif|jpg|jpeg|css|scss|js|cshtml|svg)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex _fileFilterPattern = new(@"^\.(json|png|gif|jpg|jpeg|css|scss|js|cshtml|svg)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private FileSystemWatcher _monitorFolders;
         private FileSystemWatcher _monitorFiles;

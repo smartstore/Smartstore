@@ -339,8 +339,6 @@ namespace Smartstore.Utilities
                 return 0;
 
             var type = obj.GetType();
-            var genericArguments = type.GetGenericArguments();
-
             long size = 0;
 
             if (obj is string str)

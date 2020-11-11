@@ -6,11 +6,13 @@ namespace Smartstore.IO
 {
     public class NotFoundFile : IFile
     {
-        public NotFoundFile(string subpath)
+        public NotFoundFile(string subpath, IFileSystem fs)
         {
             SubPath = FileSystemBase.NormalizePath(subpath);
+            FileSystem = fs;
         }
 
+        public IFileSystem FileSystem { get; }
         public bool Exists => false;
         public bool IsDirectory => false;
         public DateTimeOffset LastModified => DateTimeOffset.MinValue;

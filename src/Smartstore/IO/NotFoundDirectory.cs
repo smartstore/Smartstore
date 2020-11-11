@@ -5,11 +5,13 @@ namespace Smartstore.IO
 {
     public class NotFoundDirectory : IDirectory
     {
-        public NotFoundDirectory(string subpath)
+        public NotFoundDirectory(string subpath, IFileSystem fs)
         {
             SubPath = FileSystemBase.NormalizePath(subpath);
+            FileSystem = fs;
         }
 
+        public IFileSystem FileSystem { get; }
         public bool Exists => false;
         public bool IsDirectory => true;
         public bool IsRoot => false;
