@@ -376,7 +376,7 @@ namespace Smartstore.Web.Common.Theming
             {
                 // config file changes always result in refreshing the corresponding theme manifest
                 //var dir = new DirectoryInfo(Path.GetDirectoryName(fullPath));
-                var dir = new LocalDirectory(themeName, new DirectoryInfo(Path.GetDirectoryName(fullPath)));
+                var dir = new LocalDirectory(themeName, new DirectoryInfo(Path.GetDirectoryName(fullPath)), _root);
 
                 string oldBaseThemeName = null;
                 var oldManifest = GetThemeManifest(dir.Name);

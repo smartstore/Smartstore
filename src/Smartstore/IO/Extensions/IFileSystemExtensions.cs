@@ -635,6 +635,42 @@ namespace Smartstore
             return newName;
         }
 
+        /// <summary>
+        /// Gets a directory hasher utility instance used to generate a unique hash code for directory content.
+        /// The default target directory for generated hash codes is 'App_Data/Tenants/[CurrentTenant]/Hash'.
+        /// </summary>
+        /// <param name="subpath">The relative path to the directory to generate hash code for.</param>
+        /// <param name="searchPattern">The pattern for file to include in hash code generation.</param>
+        /// <param name="deep">Whether to include files in subfolders also.</param>
+        /// <returns>The hasher utility.</returns>
+        /// <exception cref="FileSystemException">Throws if <paramref name="subpath"/> is a file.</exception>
+        public static DirectoryHasher GetDirectoryHasher(this IFileSystem fs, string subpath, string searchPattern = "*", bool deep = false)
+        {
+            return GetDirectoryHasher(fs, subpath, null, searchPattern, deep);
+        }
+
+        /// <summary>
+        /// Gets a directory hasher utility instance used to generate a unique hash code for directory content.
+        /// </summary>
+        /// <param name="subpath">The relative path to the directory to generate hash code for.</param>
+        /// <param name="storageDir">The directory to save the generated hash code to.</param>
+        /// <param name="searchPattern">The pattern for file to include in hash code generation.</param>
+        /// <param name="deep">Whether to include files in subfolders also.</param>
+        /// <returns>The hasher utility.</returns>
+        /// <exception cref="FileSystemException">Throws if <paramref name="subpath"/> is a file.</exception>
+        public static DirectoryHasher GetDirectoryHasher(this IFileSystem fs, string subpath, IDirectory storageDir, string searchPattern = "*", bool deep = false)
+        {
+            Guard.NotEmpty(subpath, nameof(subpath));
+
+            var entry = fs.GetEntry(subpath);
+            if (entry is not IDirectory dir)
+            {
+                throw new FileSystemException($"Path '{subpath}' must point to a directory, not to a file.");
+            }
+
+            return new DirectoryHasher(dir, storageDir, searchPattern, deep);
+        }
+
         #endregion
     }
 }

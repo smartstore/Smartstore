@@ -9,13 +9,18 @@ namespace Smartstore.IO
     {
         private readonly DirectoryInfo _di;
 
-        public LocalDirectory(string subpath, DirectoryInfo info)
+        public LocalDirectory(string subpath, DirectoryInfo info, IFileSystem fileSystem)
         {
             _di = info;
+
+            FileSystem = fileSystem;
             SubPath = FileSystemBase.NormalizePath(subpath);
         }
 
         public DirectoryInfo AsDirectoryInfo() => _di;
+
+        /// <inheritdoc/>
+        public IFileSystem FileSystem { get; protected internal set; }
 
         /// <inheritdoc/>
         public string SubPath { get; }
@@ -70,7 +75,7 @@ namespace Smartstore.IO
             {
                 if (!IsRoot && _di.Parent != null)
                 {
-                    return new LocalDirectory(Path.GetDirectoryName(SubPath), _di.Parent);
+                    return new LocalDirectory(Path.GetDirectoryName(SubPath), _di.Parent, FileSystem);
                 }
 
                 return null;

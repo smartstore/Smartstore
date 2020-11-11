@@ -7,6 +7,11 @@ namespace Smartstore.IO
     public interface IFileEntry : IFileInfo
     {
         /// <summary>
+        /// Gets the file system provider this entry was resolved from.
+        /// </summary>
+        IFileSystem FileSystem { get; }
+        
+        /// <summary>
         /// The path relative to the storage root
         /// </summary>
         string SubPath { get; }

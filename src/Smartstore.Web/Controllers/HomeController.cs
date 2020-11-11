@@ -28,6 +28,7 @@ using System.Text.Json;
 using System.Text;
 using Smartstore.Core.Common;
 using Smartstore.Data.Caching;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Controllers
 {
@@ -59,6 +60,7 @@ namespace Smartstore.Web.Controllers
         private readonly IThemeRegistry _themeRegistry;
         private readonly ICommonServices _services;
         private readonly ILoggerFactory _loggerFactory;
+        private readonly LocalizationService _locService;
 
         public HomeController(
             SmartDbContext db, 
@@ -74,7 +76,8 @@ namespace Smartstore.Web.Controllers
             IThemeRegistry themeRegistry,
             TaxSettings taxSettings,
             ICommonServices services,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            LocalizationService locService)
         {
             _db = db;
             _eventPublisher = eventPublisher;
@@ -87,6 +90,7 @@ namespace Smartstore.Web.Controllers
             _themeRegistry = themeRegistry;
             _services = services;
             _loggerFactory = loggerFactory;
+            _locService = locService;
 
             var currentStore = _services.StoreContext.CurrentStore;
         }
@@ -158,7 +162,7 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Privacy()
         {
             #region Settings Test
             //var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
@@ -178,6 +182,8 @@ namespace Smartstore.Web.Controllers
             //    x.Percent++;
             //    x.Message = $"Fortschritt {x.Percent}";
             //});
+
+            var numDeleted = await _locService.DeleteLocaleStringResourcesAsync("Yodele.Nixda");
 
             return View();
         }

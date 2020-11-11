@@ -112,7 +112,7 @@ namespace Smartstore.IO
         {
             var fullPath = MapPathInternal(subpath, false);
             return fullPath.HasValue()
-                ? new LocalFile(subpath, new FileInfo(fullPath))
+                ? new LocalFile(subpath, new FileInfo(fullPath), this)
                 : new NotFoundFile(subpath);
         }
 
@@ -120,7 +120,7 @@ namespace Smartstore.IO
         {
             var fullPath = MapPathInternal(subpath, false);
             return fullPath.HasValue()
-                ? new LocalDirectory(subpath, new DirectoryInfo(fullPath))
+                ? new LocalDirectory(subpath, new DirectoryInfo(fullPath), this)
                 : new NotFoundDirectory(subpath);
         }
 
@@ -326,7 +326,7 @@ namespace Smartstore.IO
                 }
             }
 
-            return new LocalFile(subpath, fileInfo);
+            return new LocalFile(subpath, fileInfo, this);
         }
 
         public override async Task<IFile> CreateFileAsync(string subpath, Stream inStream = null, bool overwrite = false)
@@ -341,7 +341,7 @@ namespace Smartstore.IO
                 }
             }
 
-            return new LocalFile(subpath, fileInfo);
+            return new LocalFile(subpath, fileInfo, this);
         }
 
         public override void CopyFile(string subpath, string newPath, bool overwrite = false)
@@ -430,11 +430,11 @@ namespace Smartstore.IO
 
             if (fsi is FileInfo fi)
             {
-                return new LocalFile(subpath, fi);
+                return new LocalFile(subpath, fi, this);
             }
             else if (fsi is DirectoryInfo di)
             {
-                return new LocalDirectory(subpath, di);
+                return new LocalDirectory(subpath, di, this);
             }
             else
             {

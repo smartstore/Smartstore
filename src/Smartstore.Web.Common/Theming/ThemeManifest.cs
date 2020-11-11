@@ -52,7 +52,7 @@ namespace Smartstore.Web.Common.Theming
             var isSymLink = themeDirectory.IsSymbolicLink(out var finalPathName);
             if (isSymLink)
             {
-                themeDirectory = new LocalDirectory(themeDirectory.SubPath, new DirectoryInfo(finalPathName));
+                themeDirectory = new LocalDirectory(themeDirectory.SubPath, new DirectoryInfo(finalPathName), root);
             }
 
             var themeConfigFile = root.GetFile(root.PathCombine(themeDirectory.Name, "theme.json"));

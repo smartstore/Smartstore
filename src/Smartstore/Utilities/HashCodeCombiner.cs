@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Smartstore.IO;
 
 namespace Smartstore.Utilities
 {
@@ -89,6 +90,32 @@ namespace Smartstore.Utilities
 		{
 			var hashCode = value != null ? comparer.GetHashCode(value) : 0;
 			return Add(hashCode);
+		}
+
+		public HashCodeCombiner Add(IFileEntry entry, bool deep = true)
+		{
+			Guard.NotNull(entry, nameof(entry));
+
+			if (!entry.Exists)
+				return this;
+
+			Add(entry.PhysicalPath.ToLower());
+			Add(entry.LastModified);
+
+			if (entry is IFile file)
+			{
+				Add(file.Length.GetHashCode());
+			}
+
+			if (entry is IDirectory dir)
+			{
+				foreach (var e in entry.FileSystem.EnumerateFiles(dir.SubPath, deep: deep))
+                {
+					Add(e);
+                }
+			}
+
+			return this;
 		}
 
 		public HashCodeCombiner Add(FileSystemInfo fi, bool deep = true)

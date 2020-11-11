@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Primitives;
 
 namespace Smartstore.IO

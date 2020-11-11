@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Smartstore.IO;
 
 namespace Smartstore.Engine
 {
@@ -22,5 +23,14 @@ namespace Smartstore.Engine
         /// Gets a value indicating whether the module is incompatible with the current application version
         /// </summary>
         public bool Incompatible { get; set; }
+
+        /// <summary>
+        /// Gets the file provider that references the module's root directory.
+        /// </summary>
+        public IFileSystem FileProvider
+        {
+            get;
+            protected internal set;
+        }
     }
 }

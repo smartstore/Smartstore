@@ -148,7 +148,7 @@ namespace Smartstore.Core.Localization
             if (storeId <= 0)
                 storeId = _storeContext.CurrentStore.Id;
 
-            var map = await this.GetStoreLanguageMapAsync();
+            var map = await GetStoreLanguageMapAsync().ConfigureAwait(false);
             if (map.ContainsKey(storeId))
             {
                 return map[storeId].FirstOrDefault().Id;

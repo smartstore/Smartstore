@@ -16,6 +16,7 @@
     <Folder Include="Localization\" />
     <Folder Include="Modelling\" />
     <Folder Include="Routing\" />
+    <Folder Include="TagHelpers\Nav\" />
     <Folder Include="UI\" />
     <Folder Include="Security\" />
     <Folder Include="Pdf\" />

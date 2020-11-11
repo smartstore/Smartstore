@@ -15,13 +15,18 @@ namespace Smartstore.IO
         private string _dir;
         private Size? _size;
 
-        public LocalFile(string subpath, FileInfo info)
+        public LocalFile(string subpath, FileInfo info, IFileSystem fileSystem)
         {
             _fi = info;
+
+            FileSystem = fileSystem;
             SubPath = FileSystemBase.NormalizePath(subpath);
         }
 
         public FileInfo AsFileInfo() => _fi;
+
+        /// <inheritdoc/>
+        public IFileSystem FileSystem { get; protected internal set; }
 
         /// <inheritdoc/>
         public string SubPath { get; }
