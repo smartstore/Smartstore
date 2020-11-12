@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Smartstore.Core.Data;
-using Smartstore.Core.Stores;
 using Smartstore.Domain;
 
-namespace Smartstore
+namespace Smartstore.Core.Stores
 {
     public static partial class IStoreRestrictedQueryExtensions
     {

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Logging;
 
-namespace Smartstore
+namespace Smartstore.Core.Logging
 {
     public static class INotifierExtension
     {

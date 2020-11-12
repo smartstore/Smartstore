@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Core.Data;
-using Smartstore.Core.Logging;
 
-namespace Smartstore
+namespace Smartstore.Core.Logging
 {
     public static class ActivityLogQueryExtensions
     {

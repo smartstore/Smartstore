@@ -12,7 +12,17 @@ namespace Smartstore.Core.Localization
     public partial interface ILocalizedEntityService
     {
         /// <summary>
-        /// Finds localized value.
+        /// Finds a localized value.
+        /// </summary>
+        /// <param name="languageId">Language identifier</param>
+        /// <param name="entityId">Entity identifier</param>
+        /// <param name="localeKeyGroup">Locale key group</param>
+        /// <param name="localeKey">Locale key</param>
+        /// <returns>Found localized value</returns>
+        string GetLocalizedValue(int languageId, int entityId, string localeKeyGroup, string localeKey);
+
+        /// <summary>
+        /// Finds a localized value.
         /// </summary>
         /// <param name="languageId">Language identifier</param>
         /// <param name="entityId">Entity identifier</param>

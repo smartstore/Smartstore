@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Smartstore.Core.Stores;
 using Smartstore.Domain;
-using Dasync.Collections;
-using System.Linq;
-using System.Threading;
-using System.Runtime.CompilerServices;
 
-namespace Smartstore
+namespace Smartstore.Core.Stores
 {
     public static class IStoreMappingServiceExtensions
     {

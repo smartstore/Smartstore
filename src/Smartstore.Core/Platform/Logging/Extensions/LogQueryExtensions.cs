@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Smartstore.Core.Logging;
 
-namespace Smartstore
+namespace Smartstore.Core.Logging
 {
     public static class LogQueryExtensions
     {

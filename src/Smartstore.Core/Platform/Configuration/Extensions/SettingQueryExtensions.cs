@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Smartstore.Core.Configuration;
 
-namespace Smartstore
+namespace Smartstore.Core.Configuration
 {
     public static class SettingQueryExtensions
     {

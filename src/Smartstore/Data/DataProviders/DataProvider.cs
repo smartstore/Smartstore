@@ -13,6 +13,7 @@ using Dasync.Collections;
 using Smartstore.Domain;
 using System.IO;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Smartstore.Data
 {
@@ -354,9 +355,11 @@ namespace Smartstore.Data
                 throw new ArgumentException($"The property '{propName}' is not mapped to the database.", nameof(propertyAccessor));
             }
 
+            var storeIdent = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table).Value;
+
             return OpenBlobStream(
                 entityType.GetTableName(), 
-                entityProperty.GetColumnName(),
+                entityProperty.GetColumnName(storeIdent),
                 nameof(BaseEntity.Id), 
                 id);
         }

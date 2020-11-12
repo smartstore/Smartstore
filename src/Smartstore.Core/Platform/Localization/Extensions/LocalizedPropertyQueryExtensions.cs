@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Smartstore.Core.Localization;
 
-namespace Smartstore
+namespace Smartstore.Core.Localization
 {
     public static partial class LocalizedPropertyQueryExtensions
     {

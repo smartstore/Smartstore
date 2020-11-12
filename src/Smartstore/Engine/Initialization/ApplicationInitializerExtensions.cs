@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Smartstore.Data;
 
 namespace Smartstore.Engine.Initialization
 {
@@ -30,6 +31,11 @@ namespace Smartstore.Engine.Initialization
         public static async Task InitAsync(this IHost host)
         {
             Guard.NotNull(host, nameof(host));
+
+            if (!DataSettings.DatabaseIsInstalled())
+            {
+                return;
+            }
 
             using (var scope = host.Services.CreateScope())
             {

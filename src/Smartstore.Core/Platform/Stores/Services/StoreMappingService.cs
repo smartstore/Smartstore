@@ -53,10 +53,13 @@ namespace Smartstore.Core.Stores
                 .ToListAsync();
             
             var allStores = _storeContext.GetAllStores();
+            selectedStoreIds ??= Array.Empty<int>();
+
+            entity.LimitedToStores = (selectedStoreIds.Length != 1 || selectedStoreIds[0] != 0) && selectedStoreIds.Any();
 
             foreach (var store in allStores)
             {
-                if (selectedStoreIds != null && selectedStoreIds.Contains(store.Id))
+                if (selectedStoreIds.Contains(store.Id))
                 {
                     if (!existingStoreMappings.Any(x => x.StoreId == store.Id))
                     {

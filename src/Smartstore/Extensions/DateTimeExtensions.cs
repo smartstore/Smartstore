@@ -138,9 +138,7 @@ namespace Smartstore
 
 		public static DateTime ToEndOfTheDay(this DateTime value)
 		{
-			if (value != null)
-				return new DateTime(value.Year, value.Month, value.Day, 23, 59, 59);
-			return value;
+		    return new DateTime(value.Year, value.Month, value.Day, 23, 59, 59);
 		}
 
 		public static DateTime? ToEndOfTheDay(this DateTime? value)

@@ -103,6 +103,7 @@ namespace Smartstore.Data.Batching
                 throw new InvalidOperationException($"DbContext does not contain EntitySet for Type: { type.Name }");
 
             //var relationalData = entityType.Relational(); relationalData.Schema relationalData.TableName // DEPRECATED in Core3.0
+            var storeObjectIdent = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table).Value;
             bool isSqlServer = context.DataProvider.ProviderType == DataProviderType.SqlServer;
             string defaultSchema = isSqlServer ? "dbo" : null;
             Schema = entityType.GetSchema() ?? defaultSchema;
@@ -139,19 +140,19 @@ namespace Smartstore.Data.Batching
             HasOwnedTypes = ownedTypes.Any();
             OwnedTypesDict = ownedTypes.ToDictionary(a => a.Name, a => a);
 
-            IdentityColumnName = allProperties.SingleOrDefault(a => a.IsPrimaryKey() && a.ClrType.Name.StartsWith("Int") && a.ValueGenerated == ValueGenerated.OnAdd)?.GetColumnName(); // ValueGenerated equals OnAdd even for nonIdentity column like Guid so we only type int as second condition
-
+            IdentityColumnName = allProperties.SingleOrDefault(a => a.IsPrimaryKey() && a.ClrType.Name.StartsWith("Int") && a.ValueGenerated == ValueGenerated.OnAdd)?.GetColumnName(storeObjectIdent); // ValueGenerated equals OnAdd even for nonIdentity column like Guid so we only type int as second condition
+            
             // timestamp/row version properties are only set by the Db, the property has a [Timestamp] Attribute or is configured in FluentAPI with .IsRowVersion()
             // They can be identified by the columne type "timestamp" or .IsConcurrencyToken in combination with .ValueGenerated == ValueGenerated.OnAddOrUpdate
             string timestampDbTypeName = nameof(TimestampAttribute).Replace("Attribute", "").ToLower(); // = "timestamp";
             var timeStampProperties = allProperties.Where(a => (a.IsConcurrencyToken && a.ValueGenerated == ValueGenerated.OnAddOrUpdate) || a.GetColumnType() == timestampDbTypeName);
-            TimeStampColumnName = timeStampProperties.FirstOrDefault()?.GetColumnName(); // can be only One
+            TimeStampColumnName = timeStampProperties.FirstOrDefault()?.GetColumnName(storeObjectIdent); // can be only One
             var allPropertiesExceptTimeStamp = allProperties.Except(timeStampProperties);
             var properties = allPropertiesExceptTimeStamp.Where(a => a.GetComputedColumnSql() == null);
 
             // TimeStamp prop. is last column in OutputTable since it is added later with varbinary(8) type in which Output can be inserted
-            OutputPropertyColumnNamesDict = allPropertiesExceptTimeStamp.Concat(timeStampProperties).ToDictionary(a => a.Name, b => b.GetColumnName().Replace("]", "]]")); // square brackets have to be escaped
-            ColumnNameContainsSquareBracket = allPropertiesExceptTimeStamp.Concat(timeStampProperties).Any(a => a.GetColumnName().Contains("]"));
+            OutputPropertyColumnNamesDict = allPropertiesExceptTimeStamp.Concat(timeStampProperties).ToDictionary(a => a.Name, b => b.GetColumnName(storeObjectIdent).Replace("]", "]]")); // square brackets have to be escaped
+            ColumnNameContainsSquareBracket = allPropertiesExceptTimeStamp.Concat(timeStampProperties).Any(a => a.GetColumnName(storeObjectIdent).Contains("]"));
 
             bool AreSpecifiedPropertiesToInclude = BulkConfig.PropertiesToInclude?.Count() > 0;
             bool AreSpecifiedPropertiesToExclude = BulkConfig.PropertiesToExclude?.Count() > 0;
@@ -202,15 +203,15 @@ namespace Smartstore.Data.Batching
 
             if (loadOnlyPKColumn)
             {
-                PropertyColumnNamesDict = properties.Where(a => PrimaryKeys.Contains(a.Name)).ToDictionary(a => a.Name, b => b.GetColumnName().Replace("]", "]]"));
+                PropertyColumnNamesDict = properties.Where(a => PrimaryKeys.Contains(a.Name)).ToDictionary(a => a.Name, b => b.GetColumnName(storeObjectIdent).Replace("]", "]]"));
             }
             else
             {
-                PropertyColumnNamesDict = properties.ToDictionary(a => a.Name, b => b.GetColumnName().Replace("]", "]]"));
-                ShadowProperties = new HashSet<string>(properties.Where(p => p.IsShadowProperty() && !p.IsForeignKey()).Select(p => p.GetColumnName()));
+                PropertyColumnNamesDict = properties.ToDictionary(a => a.Name, b => b.GetColumnName(storeObjectIdent).Replace("]", "]]"));
+                ShadowProperties = new HashSet<string>(properties.Where(p => p.IsShadowProperty() && !p.IsForeignKey()).Select(p => p.GetColumnName(storeObjectIdent)));
                 foreach (var property in properties.Where(p => p.GetValueConverter() != null))
                 {
-                    string columnName = property.GetColumnName();
+                    string columnName = property.GetColumnName(storeObjectIdent);
                     ValueConverter converter = property.GetValueConverter();
                     ConvertibleProperties.Add(columnName, converter);
                 }
@@ -235,12 +236,13 @@ namespace Smartstore.Data.Batching
                         }
                         var ownedEntityProperties = ownedEntityType.GetProperties().ToList();
                         var ownedEntityPropertyNameColumnNameDict = new Dictionary<string, string>();
+                        var ownedStoreObjectIdent = StoreObjectIdentifier.Create(ownedEntityType, StoreObjectType.Table).Value;
 
                         foreach (var ownedEntityProperty in ownedEntityProperties)
                         {
                             if (!ownedEntityProperty.IsPrimaryKey())
                             {
-                                string columnName = ownedEntityProperty.GetColumnName();
+                                string columnName = ownedEntityProperty.GetColumnName(ownedStoreObjectIdent);
                                 ownedEntityPropertyNameColumnNameDict.Add(ownedEntityProperty.Name, columnName);
                                 var ownedEntityPropertyFullName = property.Name + "_" + ownedEntityProperty.Name;
                                 if (!FastPropertyDict.ContainsKey(ownedEntityPropertyFullName))

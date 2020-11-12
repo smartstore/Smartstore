@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Smartstore.Core.Stores;
 
-namespace Smartstore
+namespace Smartstore.Core.Stores
 {
     public static class StoreExtensions
     {

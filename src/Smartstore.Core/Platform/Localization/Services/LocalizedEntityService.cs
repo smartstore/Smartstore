@@ -85,28 +85,59 @@ namespace Smartstore.Core.Localization
 
         #region ILocalizedEntityService
 
-        public virtual async Task<string> GetLocalizedValueAsync(int languageId, int entityId, string localeKeyGroup, string localeKey)
+        public virtual string GetLocalizedValue(int languageId, int entityId, string localeKeyGroup, string localeKey)
         {
-            if (_prefetchedCollections.TryGetValue(localeKeyGroup, out var collection))
+            if (TryGetPrefetched(languageId, entityId, localeKeyGroup, localeKey, out var localeValue))
             {
-                var cachedItem = collection.Find(languageId, entityId, localeKey);
-                if (cachedItem != null)
-                {
-                    return cachedItem.LocaleValue;
-                }
+                return localeValue;
             }
 
             if (languageId <= 0)
                 return string.Empty;
 
-            var props = await GetCacheSegmentAsync(localeKeyGroup, localeKey, entityId, languageId);
-
+            var props = GetCacheSegment(localeKeyGroup, localeKey, entityId, languageId);
             if (!props.TryGetValue(entityId, out var val))
             {
                 return string.Empty;
             }
 
             return val;
+        }
+
+        public virtual async Task<string> GetLocalizedValueAsync(int languageId, int entityId, string localeKeyGroup, string localeKey)
+        {
+            if (TryGetPrefetched(languageId, entityId, localeKeyGroup, localeKey, out var localeValue))
+            {
+                return localeValue;
+            }
+
+            if (languageId <= 0)
+                return string.Empty;
+
+            var props = await GetCacheSegmentAsync(localeKeyGroup, localeKey, entityId, languageId);
+            if (!props.TryGetValue(entityId, out var val))
+            {
+                return string.Empty;
+            }
+
+            return val;
+        }
+
+        private bool TryGetPrefetched(int languageId, int entityId, string localeKeyGroup, string localeKey, out string localeValue)
+        {
+            localeValue = null;
+
+            if (_prefetchedCollections.TryGetValue(localeKeyGroup, out var collection))
+            {
+                var cachedItem = collection.Find(languageId, entityId, localeKey);
+                if (cachedItem != null)
+                {
+                    localeValue = cachedItem.LocaleValue;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public virtual async Task PrefetchLocalizedProperties(string localeKeyGroup, int languageId, int[] entityIds, bool isRange = false, bool isSorted = false)
@@ -283,6 +314,35 @@ namespace Smartstore.Core.Localization
         #endregion
 
         #region Cache segments
+
+        protected virtual Dictionary<int, string> GetCacheSegment(string localeKeyGroup, string localeKey, int entityId, int languageId)
+        {
+            Guard.NotEmpty(localeKeyGroup, nameof(localeKeyGroup));
+            Guard.NotEmpty(localeKey, nameof(localeKey));
+
+            var segmentKey = GetSegmentKeyPart(localeKeyGroup, localeKey, entityId, out var minEntityId, out var maxEntityId);
+            var cacheKey = BuildCacheSegmentKey(segmentKey, languageId);
+
+            // TODO: (MC) skip caching product.fulldescription (?), OR
+            // ...additionally segment by entity id ranges.
+
+            return _cache.Get(cacheKey, () =>
+            {
+                var properties = _db.LocalizedProperties
+                    .AsNoTracking()
+                    .Where(x => x.EntityId >= minEntityId && x.EntityId <= maxEntityId && x.LocaleKey == localeKey && x.LocaleKeyGroup == localeKeyGroup && x.LanguageId == languageId)
+                    .ToList();
+
+                var dict = new Dictionary<int, string>(properties.Count);
+
+                foreach (var prop in properties)
+                {
+                    dict[prop.EntityId] = prop.LocaleValue ?? string.Empty;
+                }
+
+                return dict;
+            });
+        }
 
         protected virtual Task<Dictionary<int, string>> GetCacheSegmentAsync(string localeKeyGroup, string localeKey, int entityId, int languageId)
         {
