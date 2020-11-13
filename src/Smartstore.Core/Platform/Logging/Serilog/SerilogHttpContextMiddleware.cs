@@ -14,12 +14,10 @@ namespace Smartstore.Core.Logging.Serilog
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, IWebHelper webHelper)
+        public async Task Invoke(HttpContext context, IWebHelper webHelper, IWorkContext workContext)
         {
-            // TODO: (core) Put request data to a single object and push it to LogContext
-
-            using (LogContext.PushProperty("CustomerId", 1)) // TODO: (core) Put CustomerId to LogContext
-            using (LogContext.PushProperty("UserName", (string)null)) // TODO: (core) Put UserName to LogContext
+            using (LogContext.PushProperty("CustomerId", workContext.CurrentCustomer?.Id))
+            using (LogContext.PushProperty("UserName", context.User.Identity.Name))
             using (LogContext.PushProperty("Url", webHelper.GetCurrentPageUrl(true)))
             using (LogContext.PushProperty("Referrer", webHelper.GetUrlReferrer()))
             using (LogContext.PushProperty("HttpMethod", context?.Request.Method))

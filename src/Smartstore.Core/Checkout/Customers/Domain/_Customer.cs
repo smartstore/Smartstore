@@ -96,6 +96,7 @@ namespace Smartstore.Core.Customers
         /// <summary>
         /// Gets or sets the password format
         /// </summary>
+        [NotMapped]
         public PasswordFormat PasswordFormat
         {
             get => (PasswordFormat)PasswordFormatId;

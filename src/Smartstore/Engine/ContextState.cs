@@ -12,7 +12,7 @@ namespace Smartstore.Engine
     {
         private readonly string _name;
         private readonly Func<T> _defaultValue;
-        private readonly AsyncLocal<IDictionary<string, T>> _serviceProvider = new AsyncLocal<IDictionary<string, T>>();
+        private readonly AsyncLocal<IDictionary<string, T>> _asyncLocal = new();
 
         public ContextState(string name)
         {
@@ -23,24 +23,24 @@ namespace Smartstore.Engine
         {
             _name = name;
             _defaultValue = defaultValue;
-        }    
+        }
 
         public T GetState()
         {
             var key = BuildKey();
 
-            if (_serviceProvider.Value != null)
+            if (_asyncLocal.Value != null)
             {
-                if (_serviceProvider.Value.ContainsKey(key))
+                if (_asyncLocal.Value.TryGetValue(key, out var state))
                 {
-                    return _serviceProvider.Value[key];
+                    return state;
                 }
             }
 
             if (_defaultValue != null)
             {
                 SetState(_defaultValue());
-                return _serviceProvider.Value[key];
+                return _asyncLocal.Value.Get(key);
             }
 
             return default;
@@ -48,25 +48,28 @@ namespace Smartstore.Engine
 
         public T SetState(T state)
         {
-            var dict = _serviceProvider.Value;
+            var dict = _asyncLocal.Value;
 
             if (state == null && dict == null)
             {
                 return default;
             }
-            
+
             if (dict == null)
             {
-                _serviceProvider.Value = dict = new Dictionary<string, T>();
+                _asyncLocal.Value = dict = new Dictionary<string, T>();
             }
 
-            if (state == null && dict.ContainsKey(BuildKey()))
+            var key = BuildKey();
+
+            if (state == null && dict.ContainsKey(key))
             {
-                dict.Remove(BuildKey());
+                dict.Remove(key);
             }
-            else
+
+            if (state != null)
             {
-                dict.Add(BuildKey(), state);
+                dict[key] = state;
             }
 
             return state;

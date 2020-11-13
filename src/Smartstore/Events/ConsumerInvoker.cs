@@ -53,17 +53,10 @@ namespace Smartstore.Events
             else if (d.FireForget)
             {
                 // Sync or Async without await. Needs new dependency scope.
-                ct = _asyncRunner.CreateCompositeCancellationToken(cancelToken);
-                var scope = _scopeAccessor.BeginLifetimeScope(null);
-                task = d.IsAsync 
-                    ? ((Task)InvokeCore(scope, ct)) 
-                    : Task.Run(() => InvokeCore(scope, ct));
+                task = d.IsAsync
+                    ? _asyncRunner.RunTask((scope, ct) => ((Task)InvokeCore(scope, ct)))
+                    : _asyncRunner.Run((scope, ct) => InvokeCore(scope, ct));
                 task.ConfigureAwait(false);
-                task.ContinueWith(t => 
-                {
-                    scope.Dispose();
-                    if (t.IsFaulted) HandleException(t.Exception, d);
-                }, TaskContinuationOptions.None);
             }
             else
             {
@@ -119,16 +112,6 @@ namespace Smartstore.Events
                 {
                     yield return _resolver.ResolveParameter(p, container);
                 }
-            }
-        }
-
-        protected virtual void EndInvoke(IAsyncResult asyncResult)
-        {
-            var task = (Task)asyncResult;
-
-            if (task.IsFaulted && task.Exception != null)
-            {
-                HandleException(task.Exception, (ConsumerDescriptor)asyncResult.AsyncState);
             }
         }
 

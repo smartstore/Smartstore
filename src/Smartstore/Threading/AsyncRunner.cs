@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
@@ -61,14 +60,14 @@ namespace Smartstore.Threading
             Guard.NotNull(action, nameof(action));
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
-            var scope = _scopeAccessor.BeginLifetimeScope();
 
-            var t = Task.Factory.StartNew(() => action(scope, cancelToken), 
-                cancelToken, 
-                options, 
-                scheduler ?? TaskScheduler.Default);
+            var t = Task.Factory.StartNew(() =>
+            {
+                using var scope = CreateScope();
+                action(scope, cancelToken);
+            }, cancelToken, options, scheduler ?? TaskScheduler.Default);
 
-            t.ContinueWith(t => TaskContinuation(t, scope), cancelToken);
+            t.ContinueWith(t => TaskContinuation(t), cancelToken);
 
             return t;
         }
@@ -84,36 +83,35 @@ namespace Smartstore.Threading
             Guard.NotNull(action, nameof(action));
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
-            var scope = _scopeAccessor.BeginLifetimeScope();
 
-            var t = Task.Factory.StartNew((o) => action(scope, cancelToken, o), 
-                state, 
-                cancelToken,
-                options, 
-                scheduler ?? TaskScheduler.Default);
+            var t = Task.Factory.StartNew((o) =>
+            {
+                using var scope = CreateScope();
+                action(scope, cancelToken, o);
+            }, state, cancelToken, options, scheduler ?? TaskScheduler.Default);
 
-            t.ContinueWith(t => TaskContinuation(t, scope), cancelToken);
+            t.ContinueWith(t => TaskContinuation(t), cancelToken);
 
             return t;
         }
 
         public Task<TResult> Run<TResult>(
             Func<ILifetimeScope, CancellationToken, TResult> function,
-            TaskCreationOptions options = TaskCreationOptions.LongRunning,
+            TaskCreationOptions options = TaskCreationOptions.None,
             TaskScheduler scheduler = null,
             CancellationToken cancellationToken = default)
         {
             Guard.NotNull(function, nameof(function));
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
-            var scope = _scopeAccessor.BeginLifetimeScope();
 
-            var t = Task.Factory.StartNew(() => function(scope, cancelToken), 
-                cancelToken, 
-                options, 
-                scheduler ?? TaskScheduler.Default);
+            var t = Task.Factory.StartNew(() =>
+            {
+                using var scope = CreateScope();
+                return function(scope, cancelToken);
+            }, cancelToken, options, scheduler ?? TaskScheduler.Default);
 
-            t.ContinueWith(t => TaskContinuation(t, scope), cancelToken);
+            t.ContinueWith(t => TaskContinuation(t), cancelToken);
 
             return t;
         }
@@ -129,40 +127,68 @@ namespace Smartstore.Threading
             Guard.NotNull(function, nameof(function));
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
-            var scope = _scopeAccessor.BeginLifetimeScope();
 
-            var t = Task.Factory.StartNew((o) => function(scope, cancelToken, o), 
-                state, 
-                cancelToken, 
-                options, 
-                scheduler ?? TaskScheduler.Default);
+            var t = Task.Factory.StartNew((o) =>
+            {
+                using var scope = CreateScope();
+                return function(scope, cancelToken, o);
+            }, state, cancelToken, options, scheduler ?? TaskScheduler.Default);
 
-            t.ContinueWith(t => TaskContinuation(t, scope), cancelToken);
+            t.ContinueWith(t => TaskContinuation(t), cancelToken);
 
             return t;
         }
 
-        public Task Run(
+        public Task RunTask(
             Func<ILifetimeScope, CancellationToken, Task> function,
-            object state,
             CancellationToken cancellationToken = default)
         {
-            Guard.NotNull(state, nameof(state));
             Guard.NotNull(function, nameof(function));
 
             var cancelToken = CreateCompositeCancellationToken(cancellationToken);
-            var scope = _scopeAccessor.BeginLifetimeScope();
 
-            Task t = function(scope, cancelToken);
-            t.ContinueWith(t => TaskContinuation(t, scope), cancelToken);
+            var t = Task.Factory.StartNew(async () =>
+            {
+                using var scope = CreateScope();
+                await function(scope, cancelToken);
+            }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+
+            t.ContinueWith(t => TaskContinuation(t), cancelToken);
 
             return t;
         }
 
-        private void TaskContinuation(Task task, ILifetimeScope scope)
+        public Task<TResult> RunTask<TResult>(
+            Func<ILifetimeScope, CancellationToken, Task<TResult>> function,
+            CancellationToken cancellationToken = default)
         {
-            scope.Dispose();
+            Guard.NotNull(function, nameof(function));
 
+            var cancelToken = CreateCompositeCancellationToken(cancellationToken);
+
+            var t = Task.Factory.StartNew(async () =>
+            {
+                using var scope = CreateScope();
+                return await function(scope, cancelToken);
+            }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+
+            t.ContinueWith(t => TaskContinuation(t), cancelToken);
+
+            return t;
+        }
+
+        private ILifetimeScope CreateScope()
+        {
+            var scope = _scopeAccessor.CreateLifetimeScope();
+
+            _scopeAccessor.LifetimeScope = scope;
+            scope.CurrentScopeEnding += (s, e) => _scopeAccessor.LifetimeScope = null;
+
+            return scope;
+        }
+
+        private void TaskContinuation(Task task)
+        {
             if (task.Exception != null)
             {
                 task.Exception.Flatten().InnerExceptions.Each(x => Logger.Error(x));

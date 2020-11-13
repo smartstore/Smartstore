@@ -5,14 +5,21 @@ namespace Smartstore.Engine
 {
     public interface ILifetimeScopeAccessor
     {
-        /// <summary>Gets a nested lifetime scope that services can be resolved from.</summary>
-        /// <returns>A new or existing nested lifetime scope.</returns>
-        ILifetimeScope LifetimeScope { get; }
+        /// <summary>
+        /// Gets or sets the current lifetime scope that services can be resolved from.
+        /// A new scope will be created when <c>HttpContext</c> is <c>null</c> or the current
+        /// thread's context state does not contain any scope instance. You should NEVER dispose
+        /// the instance returned by this property as you have no control over the scope instantiation.
+        /// Instead, wrap the call within a <code>using (BeginContextAwareScope()) { ... }</code> block,
+        /// which is smart enough to detect the current state and either dispose or not.
+        /// </summary>
+        /// <returns>A new or existing lifetime scope.</returns>
+        ILifetimeScope LifetimeScope { get; set; }
 
         /// <summary>
         /// Ends the current lifetime scope, but only when <c>HttpContext</c> is <c>null</c>.
         /// </summary>
-        void EndLifetimeScope();
+        void EndCurrentLifetimeScope();
 
         /// <summary>
         ///		Either creates a new lifetime scope when <c>HttpContext</c> is <c>null</c>,
@@ -27,7 +34,7 @@ namespace Smartstore.Engine
         ///		especially when a task was started with <c>TaskScheduler.FromCurrentSynchronizationContext()</c>. In this case it may not be
         ///		desirable to create a new scope, but use the existing, HTTP context bound scope instead.
         /// </remarks>
-        IDisposable BeginContextAwareScope();
+        IDisposable BeginContextAwareScope(out ILifetimeScope scope);
 
         /// <summary>
         ///		Creates a new nested lifetime scope that services can be resolved from.
@@ -38,6 +45,6 @@ namespace Smartstore.Engine
         /// <returns>
         ///		The new nested lifetime scope.
         ///	</returns>
-        ILifetimeScope BeginLifetimeScope(Action<ContainerBuilder> configurationAction = null);
+        ILifetimeScope CreateLifetimeScope(Action<ContainerBuilder> configurationAction = null);
     }
 }
