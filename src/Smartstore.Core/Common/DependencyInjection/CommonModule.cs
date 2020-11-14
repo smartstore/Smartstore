@@ -11,7 +11,6 @@ namespace Smartstore.Core.Common.DependencyInjection
         {
             builder.RegisterType<MeasureService>().As<IMeasureService>().InstancePerLifetimeScope();
             builder.RegisterType<WebHelper>().As<IWebHelper>().InstancePerLifetimeScope();
-
             builder.RegisterType<CommonServices>().As<ICommonServices>().InstancePerLifetimeScope();
         }
     }

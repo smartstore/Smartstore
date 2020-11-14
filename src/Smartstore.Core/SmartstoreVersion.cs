@@ -70,7 +70,7 @@ namespace Smartstore.Core
             Guard.NotEmpty(languageCode, nameof(languageCode));
             Guard.NotNull(topic, nameof(topic));
 
-            var path = languageCode.IsCaseInsensitiveEqual("de") ? topic.DePath : topic.EnPath;
+            var path = languageCode.EqualsNoCase("de") ? topic.DePath : topic.EnPath;
             return GenerateHelpUrl(languageCode, path);
         }
 
@@ -87,7 +87,7 @@ namespace Smartstore.Core
 
         public static string GetUserGuideSpaceKey(string languageCode)
         {
-            return languageCode.IsCaseInsensitiveEqual("de")
+            return languageCode.EqualsNoCase("de")
                 ? "SDDE40"
                 : "SMNET40";
         }

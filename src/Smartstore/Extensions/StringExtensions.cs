@@ -184,33 +184,18 @@ namespace Smartstore
 		}
 
 		/// <summary>
-		/// Determines whether this instance and another specified System.String object have the same value.
+		/// Determines whether this instance and given <paramref name="other"/> have the same value (ignoring case)
 		/// </summary>
 		/// <param name="value">The string to check equality.</param>
-		/// <param name="comparing">The comparing with string.</param>
+		/// <param name="other">The comparing with string.</param>
 		/// <returns>
 		/// <c>true</c> if the value of the comparing parameter is the same as this string; otherwise, <c>false</c>.
 		/// </returns>
 		[DebuggerStepThrough]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool IsCaseSensitiveEqual(this string value, string comparing)
+		public static bool EqualsNoCase(this string value, string other)
 		{
-			return string.CompareOrdinal(value, comparing) == 0;
-		}
-
-		/// <summary>
-		/// Determines whether this instance and another specified System.String object have the same value.
-		/// </summary>
-		/// <param name="value">The string to check equality.</param>
-		/// <param name="comparing">The comparing with string.</param>
-		/// <returns>
-		/// <c>true</c> if the value of the comparing parameter is the same as this string; otherwise, <c>false</c>.
-		/// </returns>
-		[DebuggerStepThrough]
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool IsCaseInsensitiveEqual(this string value, string comparing)
-		{
-			return string.Compare(value, comparing, StringComparison.OrdinalIgnoreCase) == 0;
+			return string.Compare(value, other, StringComparison.OrdinalIgnoreCase) == 0;
 		}
 
 		/// <summary>
@@ -527,32 +512,63 @@ namespace Smartstore
 		}
 
 		/// <summary>
-		/// Ensures the target string ends with the specified string.
+		/// Ensure that a string starts with a given char.
 		/// </summary>
-		/// <param name="endWith">The target.</param>
-		/// <param name="value">The value.</param>
-		/// <returns>The target string with the value string at the end.</returns>
+		/// <param name="value">The target string</param>
+		/// <param name="startsWith">The char the target string should start with</param>
+		/// <returns>The resulting string</returns>
 		[DebuggerStepThrough]
-		public static string EnsureEndsWith(this string value, string endWith)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static string EnsureStartsWith(this string value, char startsWith)
 		{
 			if (value == null)
 				throw new ArgumentNullException(nameof(value));
 
-			if (endWith == null)
-				throw new ArgumentNullException(nameof(endWith));
+			return value.StartsWith(startsWith) ? value : (startsWith + value);
+		}
 
-			if (value.Length >= endWith.Length)
+		/// <summary>
+		/// Ensures the target string ends with the specified string.
+		/// </summary>
+		/// <param name="endsWith">The target.</param>
+		/// <param name="value">The value.</param>
+		/// <returns>The target string with the value string at the end.</returns>
+		[DebuggerStepThrough]
+		public static string EnsureEndsWith(this string value, string endsWith)
+		{
+			if (value == null)
+				throw new ArgumentNullException(nameof(value));
+
+			if (endsWith == null)
+				throw new ArgumentNullException(nameof(endsWith));
+
+			if (value.Length >= endsWith.Length)
 			{
-				if (string.Compare(value, value.Length - endWith.Length, endWith, 0, endWith.Length, StringComparison.OrdinalIgnoreCase) == 0)
+				if (string.Compare(value, value.Length - endsWith.Length, endsWith, 0, endsWith.Length, StringComparison.OrdinalIgnoreCase) == 0)
 					return value;
 
 				string trimmedString = value.TrimEnd(null);
 
-				if (string.Compare(trimmedString, trimmedString.Length - endWith.Length, endWith, 0, endWith.Length, StringComparison.OrdinalIgnoreCase) == 0)
+				if (string.Compare(trimmedString, trimmedString.Length - endsWith.Length, endsWith, 0, endsWith.Length, StringComparison.OrdinalIgnoreCase) == 0)
 					return value;
 			}
 
-			return value + endWith;
+			return value + endsWith;
+		}
+
+		/// <summary>
+		/// Ensures the target string ends with the specified char.
+		/// </summary>
+		/// <param name="endsWith">The char the target string should end with.</param>
+		/// <param name="value">The value.</param>
+		/// <returns>The target string with the value string at the end.</returns>
+		[DebuggerStepThrough]
+		public static string EnsureEndsWith(this string value, char endsWith)
+		{
+			if (value == null)
+				throw new ArgumentNullException(nameof(value));
+
+			return value.StartsWith(endsWith) ? value : (value + endsWith);
 		}
 
 		[DebuggerStepThrough]

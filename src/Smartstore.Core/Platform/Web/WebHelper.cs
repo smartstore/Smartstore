@@ -167,7 +167,7 @@ namespace Smartstore.Core.Web
                 location = currentStore.GetHost(secured.Value);
             }
 
-            return location.EnsureEndsWith("/");
+            return location.EnsureEndsWith('/');
         }
 
         protected virtual bool TryGetHostFromHttpContext(bool secured, out string host)
@@ -258,7 +258,7 @@ namespace Smartstore.Core.Web
 
             var parts = url.Split(new[] { '?' });
             var current = new MutableQueryCollection(parts.Length == 2 ? parts[1] : string.Empty);
-            var modify = new MutableQueryCollection(queryStringModification.EnsureStartsWith("?"));
+            var modify = new MutableQueryCollection(queryStringModification.EnsureStartsWith('?'));
 
             foreach (var nv in modify.Keys)
             {
@@ -363,7 +363,7 @@ namespace Smartstore.Core.Web
             string evaluator(Match match)
             {
                 var url = match.Groups["url"].Value;
-                return baseUrl + url.EnsureStartsWith("/");
+                return baseUrl + url.EnsureStartsWith('/');
             }
 
             html = s_htmlPathPattern.Replace(html, evaluator);
@@ -401,7 +401,7 @@ namespace Smartstore.Core.Web
                     : path;
             }
 
-            path = (request.PathBase + path).EnsureStartsWith("/");
+            path = (request.PathBase + path).EnsureStartsWith('/');
             path = string.Format("{0}://{1}{2}", protocol, request.Host.Value, path);
 
             return path;

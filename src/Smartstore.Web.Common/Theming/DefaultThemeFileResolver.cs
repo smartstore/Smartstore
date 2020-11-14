@@ -48,10 +48,10 @@ namespace Smartstore.Web.Common.Theming
         {
             using (_rwLock.GetWriteLock())
             {
-                var keys = _files.Keys.Where(x => x.ThemeName.IsCaseInsensitiveEqual(themeName)).ToList();
+                var keys = _files.Keys.Where(x => x.ThemeName.EqualsNoCase(themeName)).ToList();
                 foreach (var key in keys)
                 {
-                    if (key.ThemeName.IsCaseInsensitiveEqual(themeName) || _themeRegistry.IsChildThemeOf(key.ThemeName, themeName))
+                    if (key.ThemeName.EqualsNoCase(themeName) || _themeRegistry.IsChildThemeOf(key.ThemeName, themeName))
                     {
                         // remove all cached pathes for this theme (also in all derived themes)
                         _files.Remove(key);

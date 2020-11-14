@@ -185,7 +185,7 @@ namespace Smartstore.Core.Configuration
             if (rootKey.IsEmpty())
                 return 0;
 
-            var prefix = rootKey.EnsureEndsWith(".");
+            var prefix = rootKey.EnsureEndsWith('.');
 
             var stubs = await _setSettings
                 .AsNoTracking()

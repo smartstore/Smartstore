@@ -49,6 +49,7 @@ namespace Smartstore.Engine
 		/// </summary>
 		ITypeScanner TypeScanner { get; }
 
+		bool IsInstalled { get; }
 		bool IsWebHost { get; }
 		string MachineName { get; }
 		string EnvironmentIdentifier { get; }

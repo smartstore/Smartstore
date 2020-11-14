@@ -29,7 +29,7 @@ namespace Smartstore.Core.Localization
         {
             Guard.NotNull(other, nameof(other));
 
-            if (!this._keyGroup.IsCaseInsensitiveEqual(other._keyGroup))
+            if (!this._keyGroup.EqualsNoCase(other._keyGroup))
             {
                 throw new InvalidOperationException("Expected keygroup '{0}', but was '{1}'".FormatInvariant(this._keyGroup, other._keyGroup));
             }

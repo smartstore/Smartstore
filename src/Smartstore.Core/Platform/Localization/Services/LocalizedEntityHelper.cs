@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
+using Smartstore.Engine;
 using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Localization
@@ -12,6 +14,7 @@ namespace Smartstore.Core.Localization
         private readonly SmartDbContext _db;
         private readonly ILanguageService _languageService;
         private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly ILocalizationService _localizationService;
         //private readonly IUrlRecordService _urlRecordService;
         private readonly IWorkContext _workContext;
 
@@ -22,12 +25,14 @@ namespace Smartstore.Core.Localization
             SmartDbContext db,
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
+            ILocalizationService localizationService,
             //IUrlRecordService urlRecordService,
             IWorkContext workContext)
         {
             _db = db;
             _languageService = languageService;
             _localizedEntityService = localizedEntityService;
+            _localizationService = localizationService;
             //_urlRecordService = urlRecordService;
             _workContext = workContext;
 
@@ -35,7 +40,7 @@ namespace Smartstore.Core.Localization
             _defaultLanguage = _db.Languages.FindById(_languageService.GetDefaultLanguageId());
         }
 
-        public virtual LocalizedValue<TProp> GetLocalizedValue<T, TProp>(T obj,
+        public LocalizedValue<TProp> GetLocalizedValue<T, TProp>(T obj,
             int id, // T is BaseEntity = EntityId, T is ISetting = StoreId
             string localeKeyGroup,
             string localeKey,
@@ -108,6 +113,54 @@ namespace Smartstore.Core.Localization
             }
 
             return new LocalizedValue<TProp>(result, requestLanguage, currentLanguage);
+        }
+
+        public string GetLocalizedEnum<T>(T enumValue, int languageId = 0, bool hint = false)
+            where T : struct
+        {
+            Guard.IsEnumType(typeof(T), nameof(enumValue));
+
+            var resourceName = string.Format("Enums.{0}.{1}",
+                typeof(T).ToString(),
+                enumValue.ToString());
+
+            if (hint)
+            {
+                resourceName += ".Hint";
+            }
+
+            var result = _localizationService.GetResource(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
+
+            // Set default value if required.
+            if (string.IsNullOrEmpty(result))
+            {
+                //result = Inflector.Titleize(enumValue.ToString());
+                // TODO: (core) Titleize with Humanizer
+                result = enumValue.ToString();
+            }
+
+            return result;
+        }
+
+        public string GetLocalizedModuleProperty(ModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)
+        {
+            Guard.NotNull(module, nameof(module));
+            Guard.NotEmpty(propertyName, nameof(propertyName));
+
+            var systemName = module.SystemName;
+            var resourceName = string.Format("Plugins.{0}.{1}", propertyName, systemName);
+            var result = _localizationService.GetResource(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
+
+            if (string.IsNullOrEmpty(result) && doFallback)
+            {
+                var fastProp = FastProperty.GetProperty(module.GetType(), propertyName);
+                if (fastProp != null)
+                {
+                    result = fastProp.GetValue(module) as string;
+                }
+            }
+
+            return result;
         }
 
         //public virtual string GetSeName(

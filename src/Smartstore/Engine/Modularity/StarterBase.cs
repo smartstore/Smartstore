@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Engine;
 
 namespace Smartstore.Engine
 {
@@ -22,6 +17,9 @@ namespace Smartstore.Engine
 
         /// <inheritdoc />
         public virtual int RoutesOrder => ApplicationOrder;
+
+        /// <inheritdoc />
+        public virtual bool Matches(IApplicationContext appContext) => true;
 
         /// <inheritdoc />
         public virtual void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)

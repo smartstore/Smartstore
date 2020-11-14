@@ -26,9 +26,14 @@ namespace Smartstore.Engine
         ScopedServiceContainer Scope { get; }
 
         /// <summary>
-        /// Returns a value indicating whether the engine has been started.
+        /// Returns a value indicating whether the engine has been started (after all starters).
         /// </summary>
         bool IsStarted { get; }
+
+        /// <summary>
+        /// Returns a value indicating whether the engine has been initialized (after all starters AND initializers).
+        /// </summary>
+        bool IsInitialized { get; }
 
         /// <summary>
         /// Starts the application engine.

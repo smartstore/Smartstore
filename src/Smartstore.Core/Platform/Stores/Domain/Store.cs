@@ -185,7 +185,7 @@ namespace Smartstore.Core.Stores
                 host = Url;
             }
 
-            return host.EnsureEndsWith("/");
+            return host.EnsureEndsWith('/');
         }
     }
 }

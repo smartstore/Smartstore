@@ -85,6 +85,9 @@ namespace Smartstore.Core.Localization
             ImportModeFlags mode = ImportModeFlags.Insert | ImportModeFlags.Update,
             bool updateTouchedResources = false)
         {
+            Guard.NotNull(language, nameof(language));
+            Guard.NotNull(xmlDocument, nameof(xmlDocument));
+
             var resources = language.LocaleStringResources.ToDictionarySafe(x => x.ResourceName, StringComparer.OrdinalIgnoreCase);
             var nodes = xmlDocument.SelectNodes(@"//Language/LocaleResource");
             var isDirty = false;
@@ -102,7 +105,7 @@ namespace Smartstore.Core.Localization
 
                 if (rootKey.HasValue())
                 {
-                    if (!xel.GetAttributeText("AppendRootKey").IsCaseInsensitiveEqual("false"))
+                    if (!xel.GetAttributeText("AppendRootKey").EqualsNoCase("false"))
                         name = "{0}.{1}".FormatWith(rootKey, name);
                 }
 

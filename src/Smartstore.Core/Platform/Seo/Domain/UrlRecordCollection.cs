@@ -29,7 +29,7 @@ namespace Smartstore.Core.Seo
         {
             Guard.NotNull(other, nameof(other));
 
-            if (!this._entityName.IsCaseInsensitiveEqual(other._entityName))
+            if (!this._entityName.EqualsNoCase(other._entityName))
             {
                 throw new InvalidOperationException("Expected group '{0}', but was '{1}'".FormatInvariant(this._entityName, other._entityName));
             }

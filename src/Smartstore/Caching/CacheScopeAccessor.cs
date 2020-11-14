@@ -24,7 +24,7 @@ namespace Smartstore.Caching
 
         public bool HasScope(string key)
         {
-            return _stack.Any(x => x.Key.IsCaseInsensitiveEqual(key));
+            return _stack.Any(x => x.Key.EqualsNoCase(key));
         }
 
         public void PropagateKey(string key)

@@ -27,6 +27,15 @@ namespace Smartstore.Engine
         int RoutesOrder { get; }
 
         /// <summary>
+        /// Returns a value indicating whether the starter should run or be skipped. Default is <c>true</c>. 
+        /// Override this method if you wish to explicitly allow or suppress starter execution based on some conditions
+        /// like application installation state for instance.
+        /// </summary>
+        /// <param name="appContext">The application context instance.</param>
+        /// <returns><c>true</c> if the starter should run, <c>false</c> otherwise.</returns>
+        bool Matches(IApplicationContext appContext);
+
+        /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
         /// <param name="services">The collection of service descriptors.</param>

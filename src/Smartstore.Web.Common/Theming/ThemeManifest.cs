@@ -62,7 +62,7 @@ namespace Smartstore.Web.Common.Theming
                 var configuration = JsonConvert.DeserializeObject<ThemeConfiguration>(themeConfigFile.ReadAllText());
 
                 var baseTheme = configuration.BaseTheme.TrimSafe().NullEmpty();
-                if (baseTheme != null && baseTheme.IsCaseInsensitiveEqual(themeDirectory.Name))
+                if (baseTheme != null && baseTheme.EqualsNoCase(themeDirectory.Name))
                 {
                     // Don't let theme base on itself!
                     baseTheme = null;

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
-using System.Threading;
 using Autofac;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -43,7 +39,7 @@ namespace Smartstore.Engine
             // Create app configuration
             var config = new SmartConfiguration();
             configuration.Bind("Smartstore", config);
-            // TODO: (core) Bind ConnectionStrings somehow.
+
             AppConfiguration = config;
         }
 
@@ -100,6 +96,11 @@ namespace Smartstore.Engine
         public bool IsWebHost
         {
             get => HostEnvironment is IWebHostEnvironment;
+        }
+
+        public bool IsInstalled
+        {
+            get => DataSettings.DatabaseIsInstalled();
         }
 
         public string MachineName => Environment.MachineName;

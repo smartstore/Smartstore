@@ -5,26 +5,18 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.WebEncoders;
-using Smartstore.Core;
-using Smartstore.Core.Seo.Services;
 using Smartstore.Engine;
-using Smartstore.Web.Common;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Smartstore.Web.Common
 {
-    public static class WebServiceCollectionExtensions
+    public class MvcStarter : StarterBase
     {
-        public static IServiceCollection AddWebWorkContext(this IServiceCollection services)
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
-            services.AddTransient<IWorkContext, WebWorkContext>();
-            return services;
-        }
-
-        public static IServiceCollection AddSmartstoreMvc(this IServiceCollection services, IApplicationContext appContext)
-        {
-            services.AddScoped<SeoSlugRouteValueTransformer>();
-
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
             services.AddAntiforgery(o => o.HeaderName = "X-XSRF-Token");
             services.AddHttpClient();
@@ -96,8 +88,45 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.AddRazorPages();
+        }
 
-            return services;
+        public override int ApplicationOrder => int.MinValue + 100;
+        public override void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)
+        {
+            if (appContext.HostEnvironment.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+
+            //app.UseHttpsRedirection();
+            app.UseStaticFiles(); // TODO: (core) Set StaticFileOptions
+            app.UseRouting();
+            // TODO: (core) Use Swagger
+            app.UseCookiePolicy(); // TODO: (core) Configure cookie policy
+            app.UseAuthorization(); // TODO: (core) Configure custom auth with Identity Server
+            // TODO: (core) Use request localization
+            // TODO: (core) Use SEO url rewriter
+            // TODO: (core) Use media middleware
+            app.UseRequestLocalization(); // TODO: (core) Configure request localization
+            //app.UseSession(); // TODO: (core) Configure session
+        }
+
+        public override int RoutesOrder => -100;
+        public override void ConfigureRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
+        {
+            routes.MapControllerRoute(
+                name: "areas",
+                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+            routes.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
         }
     }
 }

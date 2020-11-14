@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Extensions.Configuration;
 using Smartstore.Caching;
-using Smartstore.Data;
 using Smartstore.Engine;
 using Smartstore.Events;
 using Smartstore.Redis.Caching;
@@ -19,6 +18,11 @@ namespace Smartstore.Redis
     public sealed class RedisStarter : StarterBase
     {
         public override int Order => 100;
+
+        public override bool Matches(IApplicationContext appContext)
+        {
+            return appContext.IsInstalled;
+        }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
@@ -56,7 +60,7 @@ namespace Smartstore.Redis
                     .SingleInstance();
             }
 
-            if (isActiveModule && DataSettings.DatabaseIsInstalled() && hasCacheConString)
+            if (isActiveModule && hasCacheConString)
             {
                 builder.RegisterType<RedisCacheStore>()
                     .As<ICacheStore>()

@@ -10,6 +10,11 @@ namespace Smartstore.Web.Common.Theming.DependencyInjection
 {
     public sealed class ThemingStarter : StarterBase
     {
+        public override bool Matches(IApplicationContext appContext)
+        {
+            return appContext.IsInstalled;
+        }
+
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.Register(x => new DefaultThemeRegistry(x.Resolve<IEventPublisher>(), x.Resolve<IApplicationContext>(), null, true))

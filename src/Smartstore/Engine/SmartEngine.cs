@@ -8,13 +8,52 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Smartstore.Caching.DependencyInjection;
 using Smartstore.Diagnostics;
+using Smartstore.Engine.DependencyInjection;
 using Smartstore.Engine.Initialization;
+using Smartstore.Events.DependencyInjection;
 
 namespace Smartstore.Engine
 {
     public class SmartEngine : IEngine
     {
+        public IApplicationContext Application { get; private set; }
+        public ScopedServiceContainer Scope { get; private set; }
+        public bool IsStarted { get; private set; }
+        public bool IsInitialized { get; private set; }
+
+        public virtual IEngineStarter Start(IApplicationContext application)
+        {
+            Guard.NotNull(application, nameof(application));
+
+            Application = application;
+
+            // Set IsInitialized prop after init completes.
+            RootApplicationInitializer.Initialized += (s, e) => IsInitialized = true;
+
+            // Assembly resolver event. View rendering in modules can throw exceptions otherwise.
+            AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
+
+            return new EngineStarter(this);
+        }
+
+        private Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            // Check for assembly already loaded
+            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
+            if (assembly != null)
+                return assembly;
+
+            // Get assembly from TypeScanner
+            var typeScanner = Application.TypeScanner;
+            if (typeScanner == null)
+                return null;
+
+            assembly = typeScanner.Assemblies.FirstOrDefault(a => a.FullName == args.Name);
+            return assembly;
+        }
+
         class EngineStarter : IEngineStarter
         {
             private SmartEngine _engine;
@@ -27,6 +66,7 @@ namespace Smartstore.Engine
                 _appContext = engine.Application;
                 _starters = _appContext.TypeScanner.FindTypes<IStarter>()
                     .Select(t => (IStarter)Activator.CreateInstance(t))
+                    .Where(x => x.Matches(_appContext))
                     .ToList();
             }
 
@@ -55,8 +95,12 @@ namespace Smartstore.Engine
 
                 services.AddSingleton(x => NullChronometer.Instance);
                 services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
+                services.AddHttpContextAccessor();
 
-                // TODO: (core) Register logging and more system stuff
+                // TODO: (core) Configuration for MemoryCache?
+                services.AddMemoryCache();
+
+                // TODO: (core) Register more system stuff
 
                 // Configure all modular services
                 foreach (var starter in _starters.OrderBy(x => x.Order))
@@ -67,7 +111,9 @@ namespace Smartstore.Engine
 
             public void ConfigureContainer(ContainerBuilder builder)
             {
-                var app = _engine.Application;
+                builder.RegisterModule(new WorkModule());
+                builder.RegisterModule(new CachingModule());
+                builder.RegisterModule(new EventsModule(_appContext));
 
                 // Configure all modular services by Autofac
                 foreach (var starter in _starters.OrderBy(x => x.Order).OfType<IContainerConfigurer>())
@@ -126,38 +172,6 @@ namespace Smartstore.Engine
                 _starters.Clear();
                 _starters = null;
             }
-        }
-
-        public IApplicationContext Application { get; private set; }
-        public ScopedServiceContainer Scope { get; private set; }
-        public bool IsStarted { get; private set; }
-
-        public virtual IEngineStarter Start(IApplicationContext application)
-        {
-            Guard.NotNull(application, nameof(application));
-
-            Application = application;
-
-            // Assembly resolver event. View rendering in modules can throw exceptions otherwise.
-            AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
-
-            return new EngineStarter(this);
-        }
-
-        private Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            // Check for assembly already loaded
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
-            if (assembly != null)
-                return assembly;
-
-            // Get assembly from TypeScanner
-            var typeScanner = Application.TypeScanner;
-            if (typeScanner == null)
-                return null;
-
-            assembly = typeScanner.Assemblies.FirstOrDefault(a => a.FullName == args.Name);
-            return assembly;
         }
     }
 }

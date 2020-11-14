@@ -193,10 +193,10 @@ namespace Smartstore.Web.Common.Theming
             if (!ThemeManifestExists(themeName))
                 return Enumerable.Empty<ThemeManifest>();
 
-            var derivedThemes = _themes.Values.Where(x => x.BaseThemeName != null && !x.ThemeName.IsCaseInsensitiveEqual(themeName));
+            var derivedThemes = _themes.Values.Where(x => x.BaseThemeName != null && !x.ThemeName.EqualsNoCase(themeName));
             if (!deep)
             {
-                derivedThemes = derivedThemes.Where(x => x.BaseThemeName.IsCaseInsensitiveEqual(themeName));
+                derivedThemes = derivedThemes.Where(x => x.BaseThemeName.EqualsNoCase(themeName));
             }
             else
             {
@@ -362,7 +362,7 @@ namespace Smartstore.Web.Common.Theming
 
             var themeName = name.Substring(0, idx);
             var relativePath = name[(themeName.Length + 1)..].Replace('\\', '/');
-            var isConfigFile = relativePath.IsCaseInsensitiveEqual("theme.json");
+            var isConfigFile = relativePath.EqualsNoCase("theme.json");
 
             if (changeType == ThemeFileChangeType.Modified && !isConfigFile)
             {
@@ -397,7 +397,7 @@ namespace Smartstore.Web.Common.Theming
                     {
                         AddThemeManifestInternal(newManifest, false);
 
-                        if (!oldBaseThemeName.IsCaseInsensitiveEqual(newManifest.BaseThemeName))
+                        if (!oldBaseThemeName.EqualsNoCase(newManifest.BaseThemeName))
                         {
                             baseThemeChangedArgs = new BaseThemeChangedEventArgs
                             {

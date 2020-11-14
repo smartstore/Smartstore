@@ -208,11 +208,11 @@ namespace Smartstore.Data
         {
             if (provider.HasValue())
             {
-                if (provider.IsCaseInsensitiveEqual("sqlserver"))
+                if (provider.EqualsNoCase("sqlserver"))
                 {
                     return (DataProviderType.SqlServer, typeof(SqlServerDataProvider));
                 }
-                if (provider.IsCaseInsensitiveEqual("mysql"))
+                if (provider.EqualsNoCase("mysql"))
                 {
                     return (DataProviderType.MySql, typeof(MySqlDataProvider));
                 }
@@ -282,7 +282,7 @@ namespace Smartstore.Data
 
             var tenantPath = fs.PathCombine(tenantsBaseDir, curTenant);
 
-            if (curTenant.IsCaseInsensitiveEqual("Default") && !fs.DirectoryExists(tenantPath))
+            if (curTenant.EqualsNoCase("Default") && !fs.DirectoryExists(tenantPath))
             {
                 // The Default tenant dir should be created if it doesn't exist
                 fs.TryCreateDirectory(tenantPath);

@@ -22,12 +22,20 @@ namespace Smartstore.Engine.Initialization
             _logger = logger;
         }
 
+        public static event EventHandler<EventArgs> Initialized;
+        private static void RaiseInitialized(object sender)
+        {
+            Initialized?.Invoke(sender, new EventArgs());
+        }
+
+
         public async Task InitializeAsync()
         {
             var instances = GetInitializers();
             if (instances.Length == 0)
             {
                 _logger.Debug("Exiting app initialization. No initializer found.");
+                RaiseInitialized(this);
                 return;
             }
 
@@ -66,6 +74,8 @@ namespace Smartstore.Engine.Initialization
             {
                 _logger.Info(message);
             }
+
+            RaiseInitialized(this);
         }
 
         private IApplicationInitializer[] GetInitializers()

@@ -379,7 +379,7 @@ namespace Smartstore
                 throw new FileSystemException("Directory " + destinationPath + " already exists.");
             }
 
-            if (destDirectory.SubPath.EnsureEndsWith("/").StartsWith(sourceDirectory.SubPath.EnsureEndsWith("/"), StringComparison.CurrentCultureIgnoreCase))
+            if (destDirectory.SubPath.EnsureEndsWith('/').StartsWith(sourceDirectory.SubPath.EnsureEndsWith('/'), StringComparison.CurrentCultureIgnoreCase))
             {
                 throw new FileSystemException($"Cannot copy a directory '{subpath}' into itself.");
             }
@@ -412,7 +412,7 @@ namespace Smartstore
                 throw new FileSystemException("Directory " + destinationPath + " already exists.");
             }
 
-            if (destDirectory.SubPath.EnsureEndsWith("/").StartsWith(sourceDirectory.SubPath.EnsureEndsWith("/"), StringComparison.CurrentCultureIgnoreCase))
+            if (destDirectory.SubPath.EnsureEndsWith('/').StartsWith(sourceDirectory.SubPath.EnsureEndsWith('/'), StringComparison.CurrentCultureIgnoreCase))
             {
                 throw new FileSystemException($"Cannot copy a directory '{subpath}' into itself.");
             }
@@ -491,7 +491,7 @@ namespace Smartstore
                             if (file.LastModified >= olderThanDate)
                                 continue;
 
-                            if (exceptFileNames.Any(x => x.IsCaseInsensitiveEqual(file.Name)))
+                            if (exceptFileNames.Any(x => x.EqualsNoCase(file.Name)))
                                 continue;
 
                             if (file is LocalFile fi && fi.AsFileInfo().IsReadOnly)
