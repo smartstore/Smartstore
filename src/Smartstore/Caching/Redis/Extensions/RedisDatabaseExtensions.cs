@@ -31,7 +31,7 @@ namespace Smartstore.Redis
             string key, 
             CommandFlags flags = CommandFlags.None)
         {
-            var value = await database.StringGetAsync(key).ConfigureAwait(false);
+            var value = await database.StringGetAsync(key);
 
             if (value.IsNullOrEmpty)
             {
@@ -40,7 +40,7 @@ namespace Smartstore.Redis
 
             if (!serializer.TryDeserialize<T>(value, true, out var result))
             {
-                await database.KeyDeleteAsync(key, flags).ConfigureAwait(false);
+                await database.KeyDeleteAsync(key, flags);
             }
 
             return result;

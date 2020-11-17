@@ -132,7 +132,7 @@ namespace Smartstore.Caching
                 var memSet = new MemorySet(this);
                 if (acquirer != null)
                 {
-                    var items = await acquirer.Invoke().ConfigureAwait(false);
+                    var items = await acquirer.Invoke();
                     if (items != null)
                     {
                         memSet.AddRange(items);

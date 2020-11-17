@@ -65,7 +65,7 @@ namespace Smartstore.Data.Caching
 
             using (var scope = new DbContextScope((HookingDbContext)_currentContext.Context, lazyLoading: false))
             {
-                var cacheValue = AsyncRunner.RunSync(() => cachingResult.ConvertQueryAsyncResult(result));
+                var cacheValue = cachingResult.ConvertQueryAsyncResult(result).Await();
 
                 if (cacheValue.Count <= cachingResult.Policy.MaxRows.Value)
                 {

@@ -126,7 +126,7 @@ namespace Smartstore.Core.Localization
             if (storeId <= 0)
                 storeId = _storeContext.CurrentStore.Id;
 
-            var map = await GetStoreLanguageMapAsync().ConfigureAwait(false);
+            var map = await GetStoreLanguageMapAsync();
             if (map.ContainsKey(storeId))
             {
                 return map[storeId].Any(x => x.Id == languageId);
@@ -160,7 +160,7 @@ namespace Smartstore.Core.Localization
             if (storeId <= 0)
                 storeId = _storeContext.CurrentStore.Id;
 
-            var map = await GetStoreLanguageMapAsync().ConfigureAwait(false);
+            var map = await GetStoreLanguageMapAsync();
             if (map.ContainsKey(storeId))
             {
                 return map[storeId].Any(x => x.UniqueSeoCode == seoCode);
@@ -216,7 +216,7 @@ namespace Smartstore.Core.Localization
             if (storeId <= 0)
                 storeId = _storeContext.CurrentStore.Id;
 
-            var map = await GetStoreLanguageMapAsync().ConfigureAwait(false);
+            var map = await GetStoreLanguageMapAsync();
             if (map.ContainsKey(storeId))
             {
                 return map[storeId].FirstOrDefault().Id;
@@ -227,8 +227,7 @@ namespace Smartstore.Core.Localization
 
         protected Multimap<int, LanguageStub> GetStoreLanguageMap()
         {
-            // TODO: (core) We should avoid this!?
-            return AsyncRunner.RunSync(GetStoreLanguageMapAsync);
+            return GetStoreLanguageMapAsync().Await();
         }
 
         /// <summary>

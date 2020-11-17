@@ -22,7 +22,7 @@ namespace Smartstore.Redis
         {
             var database = connection.GetDatabase();
             var keys = GetKeysAsync(connection, pattern);
-            return await database.KeyDeleteAsync(await keys.Select(key => (RedisKey)key).ToArrayAsync().ConfigureAwait(false));
+            return await database.KeyDeleteAsync(await keys.Select(key => (RedisKey)key).ToArrayAsync());
         }
 
         public static int KeyCount(this IConnectionMultiplexer connection, string pattern)

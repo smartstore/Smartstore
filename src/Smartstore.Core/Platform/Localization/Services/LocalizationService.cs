@@ -206,7 +206,7 @@ namespace Smartstore.Core.Localization
 
             resourceKey = resourceKey.EmptyNull().Trim().ToLowerInvariant();
 
-            var cachedSegment = await GetCacheSegmentAsync(languageId).ConfigureAwait(false);
+            var cachedSegment = await GetCacheSegmentAsync(languageId);
             if (!cachedSegment.TryGetValue(resourceKey, out string result))
             {
                 if (logIfNotFound)
@@ -223,13 +223,13 @@ namespace Smartstore.Core.Localization
                     // Try fallback to default language
                     if (!_defaultLanguageId.HasValue)
                     {
-                        _defaultLanguageId = await _languageService.GetDefaultLanguageIdAsync().ConfigureAwait(false);
+                        _defaultLanguageId = await _languageService.GetDefaultLanguageIdAsync();
                     }
 
                     var defaultLangId = _defaultLanguageId.Value;
                     if (defaultLangId > 0 && defaultLangId != languageId)
                     {
-                        var fallbackResult = await GetResourceAsync(resourceKey, defaultLangId, false, resourceKey).ConfigureAwait(false);
+                        var fallbackResult = await GetResourceAsync(resourceKey, defaultLangId, false, resourceKey);
                         if (fallbackResult != resourceKey)
                         {
                             result = fallbackResult;

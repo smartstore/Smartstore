@@ -77,7 +77,7 @@ namespace Smartstore.Data
                 _changedEntries = GetChangedEntries();
 
                 // pre
-                var preResult = AsyncRunner.RunSync(() => PreExecuteAsync(CancellationToken.None));
+                var preResult = PreExecuteAsync(CancellationToken.None).Await();
 
                 return new ActionDisposable(EndExecute);
 
@@ -86,7 +86,7 @@ namespace Smartstore.Data
                     try
                     {
                         // Post
-                        AsyncRunner.RunSync(() => PostExecuteAsync(preResult.Entries, CancellationToken.None));
+                        PostExecuteAsync(preResult.Entries, CancellationToken.None).Await();
                     }
                     finally
                     {

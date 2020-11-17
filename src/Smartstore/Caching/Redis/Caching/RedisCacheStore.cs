@@ -149,10 +149,10 @@ namespace Smartstore.Redis.Caching
 
             if (acquirer != null && !(await Database.KeyExistsAsync(redisKey)))
             {
-                var items = await acquirer.Invoke().ConfigureAwait(false);
+                var items = await acquirer.Invoke();
                 if (items != null)
                 {
-                    await set.AddRangeAsync(items).ConfigureAwait(false);
+                    await set.AddRangeAsync(items);
                 }
             }
 
@@ -205,10 +205,10 @@ namespace Smartstore.Redis.Caching
             var condition = _serializer.CanSerialize(entry) && (_serializer.CanDeserialize(entry.Value?.GetType()));
             await RedisActionAsync(condition, async () =>
             {
-                await Database.ObjectSetAsync(_serializer, BuildCacheKey(key), entry, entry.Duration).ConfigureAwait(false);
+                await Database.ObjectSetAsync(_serializer, BuildCacheKey(key), entry, entry.Duration);
                 if (entry.Dependencies != null && entry.Dependencies.Any())
                 {
-                    await EnlistDependencyKeysAsync(key, entry.Dependencies).ConfigureAwait(false);
+                    await EnlistDependencyKeysAsync(key, entry.Dependencies);
                 }
 
                 // Other nodes must remove this entry from their local cache
@@ -317,7 +317,7 @@ namespace Smartstore.Redis.Caching
 
             foreach (var lookupKey in dependencies.Select(x => BuildDependencyLookupKey(x)).ToArray())
             {
-                await Database.SetAddAsync(lookupKey, key).ConfigureAwait(false);
+                await Database.SetAddAsync(lookupKey, key);
             }
         }
 
@@ -339,7 +339,7 @@ namespace Smartstore.Redis.Caching
         {
             var lookupKey = BuildDependencyLookupKey(key);
 
-            var set = await Database.SetMembersAsync(lookupKey).ConfigureAwait(false);
+            var set = await Database.SetMembersAsync(lookupKey);
             if (set != null && set.Length > 0)
             {
                 var keys = set.Select(x => (string)x).Where(x => x.HasValue());
@@ -403,7 +403,7 @@ namespace Smartstore.Redis.Caching
             // Combine all depending entry keys for each passed source key
             foreach (var key in keys.Distinct().ToArray())
             {
-                var keys2 = await GetDependingKeysAsync(key).ConfigureAwait(false);
+                var keys2 = await GetDependingKeysAsync(key);
                 if (keys2.keys.Any())
                 {
                     dependingKeys.AddRange(keys2.keys);
@@ -414,18 +414,18 @@ namespace Smartstore.Redis.Caching
             if (dependingKeys.Any())
             {
                 // Delete all depending entries in one go
-                numDeleted += await Database.KeyDeleteAsync(dependingKeys.Select(x => (RedisKey)BuildCacheKey(x)).ToArray()).ConfigureAwait(false);
+                numDeleted += await Database.KeyDeleteAsync(dependingKeys.Select(x => (RedisKey)BuildCacheKey(x)).ToArray());
                 if (numDeleted > 0)
                 {
                     // Recursive call
-                    numDeleted += await RemoveDependingEntriesAsync(dependingKeys).ConfigureAwait(false);
+                    numDeleted += await RemoveDependingEntriesAsync(dependingKeys);
                 }
             }
 
             // Finally delete all lookup sets
             if (lookupKeys.Any())
             {
-                await Database.KeyDeleteAsync(lookupKeys.ToArray()).ConfigureAwait(false);
+                await Database.KeyDeleteAsync(lookupKeys.ToArray());
             }
 
             return (int)numDeleted;
@@ -455,7 +455,7 @@ namespace Smartstore.Redis.Caching
         {
             if (condition && CheckLicense() && CheckConnection())
             {
-                await action().ConfigureAwait(false);
+                await action();
                 return true;
             }
 

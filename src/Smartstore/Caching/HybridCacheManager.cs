@@ -361,8 +361,7 @@ namespace Smartstore.Caching
             // INFO: Reverse order
             var counts = await _stores
                 .Reverse()
-                .SelectAsync(async (x) => await x.RemoveByPatternAsync(pattern))
-                .ConfigureAwait(false);
+                .SelectAsync(async (x) => await x.RemoveByPatternAsync(pattern));
 
             return counts.Max();
         }

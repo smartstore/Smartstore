@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Smartstore.Core.Configuration;
 
-namespace Smartstore.Core.Seo.Settings
+namespace Smartstore.Core.Seo
 {
     public class SeoSettings : ISettings
     {

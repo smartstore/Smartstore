@@ -35,7 +35,7 @@ namespace Smartstore.Events
         /// <param name="message">The message instance. Can be of any type.</param>
         public static void Publish<T>(this IEventPublisher publisher, T message) where T : class
         {
-            AsyncRunner.RunSync(() => publisher.PublishAsync(message));
+            publisher.PublishAsync(message).Await();
         }
     }
 }

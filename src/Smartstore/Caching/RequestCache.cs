@@ -60,7 +60,7 @@ namespace Smartstore.Caching
 
             if (acquirer != null)
             {
-                value = await acquirer().ConfigureAwait(false);
+                value = await acquirer();
                 items.Add(key, value);
                 return (T)value;
             }

@@ -105,7 +105,7 @@ namespace Smartstore.Redis.Caching
                 channelHandlers.Add(handler);
 
                 var subscriber = _multiplexer.GetSubscriber();
-                await subscriber.SubscribeAsync(channel, (c, m) => RedisSubscriber(c, m, handler, ignoreLoopback)).ConfigureAwait(false);
+                await subscriber.SubscribeAsync(channel, (c, m) => RedisSubscriber(c, m, handler, ignoreLoopback));
             }
             catch (Exception ex)
             {
