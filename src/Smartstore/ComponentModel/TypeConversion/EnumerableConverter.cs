@@ -6,11 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Smartstore.Collections;
-//using Smartstore.Core.Caching;
 
 namespace Smartstore.ComponentModel
 {
-	[SuppressMessage("ReSharper", "CanBeReplacedWithTryCastAndCheckForNull")]
 	public class EnumerableConverter<T> : DefaultTypeConverter
 	{
 		private readonly Func<IEnumerable<T>, object> _activator;
@@ -26,7 +24,6 @@ namespace Smartstore.ComponentModel
 			_activator = CreateSequenceActivator(sequenceType);
         }
 
-		[SuppressMessage("ReSharper", "RedundantLambdaSignatureParentheses")]
 		private static Func<IEnumerable<T>, object> CreateSequenceActivator(Type sequenceType)
 		{
 			// Default is IEnumerable<T>
@@ -52,7 +49,10 @@ namespace Smartstore.ComponentModel
 			}
 			else if (t.IsAssignableFrom(typeof(HashSet<T>)))
 			{
-				activator = (x) => new HashSet<T>(x);
+				if (typeof(T) == typeof(string))
+					activator = (x) => new HashSet<T>(x, (IEqualityComparer<T>)StringComparer.OrdinalIgnoreCase);
+				else
+					activator = (x) => new HashSet<T>(x);
 			}
             else if (t.IsAssignableFrom(typeof(Queue<T>)))
 			{

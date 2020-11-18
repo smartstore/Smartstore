@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
-using Smartstore.Core.Seo.Services;
+using Smartstore.Core.Seo;
 using Smartstore.Engine;
 
 namespace Smartstore.Web.Common

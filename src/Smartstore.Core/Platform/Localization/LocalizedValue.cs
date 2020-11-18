@@ -49,6 +49,10 @@ namespace Smartstore.Core.Localization
             _currentLanguage = currentLanguage;
         }
 
+        internal LocalizedValue(T value) : this(value, null, null)
+        {
+        }
+
         public T Value => _value;
 
         [JsonIgnore]
@@ -59,7 +63,7 @@ namespace Smartstore.Core.Localization
 
         public bool IsFallback => _requestLanguage != _currentLanguage;
 
-        public bool BidiOverride => _requestLanguage != _currentLanguage && _requestLanguage.Rtl != _currentLanguage.Rtl;
+        public bool BidiOverride => _requestLanguage != _currentLanguage && _requestLanguage?.Rtl != _currentLanguage?.Rtl;
 
         public void ChangeValue(T value)
         {
@@ -101,7 +105,7 @@ namespace Smartstore.Core.Localization
                 return _value as string;
             }
 
-            return _value.Convert<string>(CultureInfo.GetCultureInfo(_currentLanguage.LanguageCulture));
+            return _value.Convert<string>(CultureInfo.GetCultureInfo(_currentLanguage?.LanguageCulture ?? "en-US"));
         }
 
         public override int GetHashCode()
@@ -116,12 +120,12 @@ namespace Smartstore.Core.Localization
 
         public bool Equals(LocalizedValue<T> other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
                 return false;
             if (ReferenceEquals(this, other))
                 return true;
 
-            return object.Equals(_value, other._value);
+            return Equals(_value, other._value);
         }
 
         public int CompareTo(object other)

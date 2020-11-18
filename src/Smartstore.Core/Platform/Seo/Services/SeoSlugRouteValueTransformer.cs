@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -9,7 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 
-namespace Smartstore.Core.Seo.Services
+namespace Smartstore.Core.Seo
 {
     public class SeoSlugRouteValueTransformer : DynamicRouteValueTransformer
     {
@@ -22,6 +19,8 @@ namespace Smartstore.Core.Seo.Services
 
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
+            // TODO: (core) Implement SeoSlugRouteValueTransformer.
+
             var slug = (string)values["slug"];
 
             if (slug.IsEmpty())
@@ -29,7 +28,10 @@ namespace Smartstore.Core.Seo.Services
                 return null;
             }
 
-            var urlRecord = await _db.UrlRecords.FirstOrDefaultAsync(x => x.Slug == slug);
+            var urlRecord = await _db.UrlRecords
+                .AsNoTracking()
+                .ApplySlugFilter(slug, true)
+                .FirstOrDefaultAsync();
 
             if (urlRecord == null)
             {
@@ -38,7 +40,7 @@ namespace Smartstore.Core.Seo.Services
 
             if (!urlRecord.IsActive)
             {
-                var activeSlug = string.Empty; // TODO: (core) Impl
+                var activeSlug = string.Empty;
                 if (activeSlug.HasValue())
                 {
                     // TODO: (core) Redirect? Here? How?
@@ -47,7 +49,6 @@ namespace Smartstore.Core.Seo.Services
 
             return null;
 
-            // TODO: (core) Impl this shit.
             //return new RouteValueDictionary
             //{
             //    { "area", "" },

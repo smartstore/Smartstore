@@ -9,6 +9,7 @@ using Smartstore.Core.Data.DependecyInjection;
 using Smartstore.Core.Localization.DependencyInjection;
 using Smartstore.Core.Logging.DependencyInjection;
 using Smartstore.Core.Logging.Serilog;
+using Smartstore.Core.Seo.DependencyInjection;
 using Smartstore.Core.Stores.DependencyInjection;
 using Smartstore.Engine;
 
@@ -43,6 +44,7 @@ namespace Smartstore.Core
 
             if (appContext.IsInstalled)
             {
+                builder.RegisterModule(new SeoModule());
                 builder.RegisterModule(new DbHooksModule(appContext));
                 builder.RegisterModule(new StoresModule());
             }

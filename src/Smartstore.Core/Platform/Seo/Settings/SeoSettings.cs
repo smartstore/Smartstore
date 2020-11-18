@@ -10,7 +10,7 @@ namespace Smartstore.Core.Seo
         {
             ExtraRobotsDisallows = new List<string> { "/blog/tag/", "/blog/month/", "/producttags/" };
 
-            ReservedUrlRecordSlugs = new List<string>
+            ReservedUrlRecordSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
                 "admin",
                 "install",
@@ -76,7 +76,7 @@ namespace Smartstore.Core.Seo
         /// <summary>
         /// Slugs (sename) reserved for some other needs
         /// </summary>
-        public List<string> ReservedUrlRecordSlugs { get; set; }
+        public HashSet<string> ReservedUrlRecordSlugs { get; set; }
 
         public List<string> ExtraRobotsDisallows { get; set; }
 

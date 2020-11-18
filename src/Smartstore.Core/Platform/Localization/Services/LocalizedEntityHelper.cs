@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
+using Smartstore.Core.Seo;
 using Smartstore.Engine;
 using Smartstore.Utilities.Html;
 
@@ -15,7 +16,7 @@ namespace Smartstore.Core.Localization
         private readonly ILanguageService _languageService;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly ILocalizationService _localizationService;
-        //private readonly IUrlRecordService _urlRecordService;
+        private readonly IUrlService _urlService;
         private readonly IWorkContext _workContext;
 
         private readonly int _languageCount;
@@ -26,14 +27,14 @@ namespace Smartstore.Core.Localization
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
             ILocalizationService localizationService,
-            //IUrlRecordService urlRecordService,
+            IUrlService urlService,
             IWorkContext workContext)
         {
             _db = db;
             _languageService = languageService;
             _localizedEntityService = localizedEntityService;
             _localizationService = localizationService;
-            //_urlRecordService = urlRecordService;
+            _urlService = urlService;
             _workContext = workContext;
 
             _languageCount = _languageService.GetAllLanguages().Count();
@@ -163,44 +164,43 @@ namespace Smartstore.Core.Localization
             return result;
         }
 
-        //public virtual string GetSeName(
-        //    string entityName,
-        //    int entityId,
-        //    int? languageId,
-        //    bool returnDefaultValue = true,
-        //    bool ensureTwoPublishedLanguages = true)
-        //{
-        //    string result = string.Empty;
+        public virtual string GetActiveSlug(
+            string entityName,
+            int entityId,
+            int? languageId,
+            bool returnDefaultValue = true,
+            bool ensureTwoPublishedLanguages = true)
+        {
+            string result = string.Empty;
 
-        //    // TODO: (core) Uncomment this once IUrlRecordService is implemented
-        //    //if (languageId == null)
-        //    //{
-        //    //    languageId = _workContext.WorkingLanguage.Id;
-        //    //}
+            if (languageId == null)
+            {
+                languageId = _workContext.WorkingLanguage.Id;
+            }
 
-        //    //if (languageId > 0)
-        //    //{
-        //    //    // Ensure that we have at least two published languages
-        //    //    bool loadLocalizedValue = true;
-        //    //    if (ensureTwoPublishedLanguages)
-        //    //    {
-        //    //        loadLocalizedValue = _languageCount > 1;
-        //    //    }
+            if (languageId > 0)
+            {
+                // Ensure that we have at least two published languages
+                bool loadLocalizedValue = true;
+                if (ensureTwoPublishedLanguages)
+                {
+                    loadLocalizedValue = _languageCount > 1;
+                }
 
-        //    //    // Localized value
-        //    //    if (loadLocalizedValue)
-        //    //    {
-        //    //        result = _urlRecordService.GetActiveSlug(entityId, entityName, languageId.Value);
-        //    //    }
-        //    //}
+                // Localized value
+                if (loadLocalizedValue)
+                {
+                    result = _urlService.GetActiveSlugAsync(entityId, entityName, languageId.Value).Await();
+                }
+            }
 
-        //    //// Set default value if required
-        //    //if (string.IsNullOrEmpty(result) && returnDefaultValue)
-        //    //{
-        //    //    result = _urlRecordService.GetActiveSlug(entityId, entityName, 0);
-        //    //}
+            // Set default value if required
+            if (string.IsNullOrEmpty(result) && returnDefaultValue)
+            {
+                result = _urlService.GetActiveSlugAsync(entityId, entityName, 0).Await();
+            }
 
-        //    return result;
-        //}
+            return result;
+        }
     }
 }

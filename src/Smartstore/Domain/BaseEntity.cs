@@ -1,16 +1,14 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 
 namespace Smartstore.Domain
 {
     /// <summary>
     /// Base class for entities
     /// </summary>
-    public abstract partial class BaseEntity : IEquatable<BaseEntity>
+    public abstract partial class BaseEntity : INamedEntity, IEquatable<BaseEntity>
     {
         /// <summary>
         /// Gets or sets the entity identifier

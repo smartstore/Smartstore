@@ -83,7 +83,7 @@ namespace Smartstore.Core.Seo
             return item;
         }
 
-        private string CreateKey(int entityId, int languageId)
+        private static string CreateKey(int entityId, int languageId)
         {
             return string.Concat(entityId.ToString(CultureInfo.InvariantCulture), "-", languageId);
         }

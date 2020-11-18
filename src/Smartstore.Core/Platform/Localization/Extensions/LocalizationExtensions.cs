@@ -23,17 +23,17 @@ namespace Smartstore.Core.Localization
         /// <param name="detectEmptyHtml">When <c>true</c>, additionally checks whether the localized value contains empty HTML only and falls back to the default value if so.</param>
         /// <returns>Localized property</returns>
         public static LocalizedValue<string> GetLocalized<T>(this T entity, Expression<Func<T, string>> keySelector, bool detectEmptyHtml = false)
-            where T : BaseEntity, ILocalizedEntity
+            where T : class, ILocalizedEntity
         {
             var invoker = keySelector.CompileFast();
-            return EngineContext.Current.ResolveService<LocalizedEntityHelper>().GetLocalizedValue(
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue(
                 entity,
                 entity.Id,
                 entity.GetEntityName(),
                 invoker.Property.Name,
                 (Func<T, string>)invoker,
                 null,
-                detectEmptyHtml: detectEmptyHtml);
+                detectEmptyHtml: detectEmptyHtml) ?? new LocalizedValue<string>(invoker.Invoke(entity));
         }
 
         /// <summary>
@@ -53,10 +53,10 @@ namespace Smartstore.Core.Localization
             bool returnDefaultValue = true,
             bool ensureTwoPublishedLanguages = true,
             bool detectEmptyHtml = false)
-            where T : BaseEntity, ILocalizedEntity
+            where T : class, ILocalizedEntity
         {
             var invoker = keySelector.CompileFast();
-            return EngineContext.Current.ResolveService<LocalizedEntityHelper>().GetLocalizedValue<T, string>(
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue<T, string>(
                 entity,
                 entity.Id,
                 entity.GetEntityName(),
@@ -65,7 +65,7 @@ namespace Smartstore.Core.Localization
                 languageId,
                 returnDefaultValue,
                 ensureTwoPublishedLanguages,
-                detectEmptyHtml);
+                detectEmptyHtml) ?? new LocalizedValue<string>(invoker.Invoke(entity));
         }
 
         /// <summary>
@@ -82,22 +82,22 @@ namespace Smartstore.Core.Localization
         public static LocalizedValue<TProp> GetLocalized<T, TProp>(this T entity,
             string localeKey,
             TProp fallback,
-            Language language,
+            object requestLanguageIdOrObj, // Id or Language
             bool returnDefaultValue = true,
             bool ensureTwoPublishedLanguages = true,
             bool detectEmptyHtml = false)
-            where T : BaseEntity, ILocalizedEntity
+            where T : class, ILocalizedEntity
         {
-            return EngineContext.Current.ResolveService<LocalizedEntityHelper>().GetLocalizedValue<T, TProp>(
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue<T, TProp>(
                 entity,
                 entity.Id,
                 entity.GetEntityName(),
                 localeKey,
                 x => fallback,
-                language,
+                requestLanguageIdOrObj,
                 returnDefaultValue,
                 ensureTwoPublishedLanguages,
-                detectEmptyHtml);
+                detectEmptyHtml) ?? new LocalizedValue<TProp>(fallback);
         }
 
         /// <summary>
@@ -117,10 +117,10 @@ namespace Smartstore.Core.Localization
             bool returnDefaultValue = true,
             bool ensureTwoPublishedLanguages = true,
             bool detectEmptyHtml = false)
-            where T : BaseEntity, ILocalizedEntity
+            where T : class, ILocalizedEntity
         {
             var invoker = keySelector.CompileFast();
-            return EngineContext.Current.ResolveService<LocalizedEntityHelper>().GetLocalizedValue<T, string>(
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue<T, string>(
                 entity,
                 entity.Id,
                 entity.GetEntityName(),
@@ -129,7 +129,7 @@ namespace Smartstore.Core.Localization
                 language,
                 returnDefaultValue,
                 ensureTwoPublishedLanguages,
-                detectEmptyHtml);
+                detectEmptyHtml) ?? new LocalizedValue<string>(invoker.Invoke(entity));
         }
 
         /// <summary>
@@ -150,10 +150,10 @@ namespace Smartstore.Core.Localization
             bool returnDefaultValue = true,
             bool ensureTwoPublishedLanguages = true,
             bool detectEmptyHtml = false)
-            where T : BaseEntity, ILocalizedEntity
+            where T : class, ILocalizedEntity
         {
             var invoker = keySelector.CompileFast();
-            return EngineContext.Current.ResolveService<LocalizedEntityHelper>().GetLocalizedValue(
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue(
                 entity,
                 entity.Id,
                 entity.GetEntityName(),
@@ -162,7 +162,7 @@ namespace Smartstore.Core.Localization
                 languageId,
                 returnDefaultValue,
                 ensureTwoPublishedLanguages,
-                detectEmptyHtml);
+                detectEmptyHtml) ?? new LocalizedValue<TProp>(invoker.Invoke(entity));
         }
 
         /// <summary>
@@ -183,10 +183,10 @@ namespace Smartstore.Core.Localization
             bool returnDefaultValue = true,
             bool ensureTwoPublishedLanguages = true,
             bool detectEmptyHtml = false)
-            where T : BaseEntity, ILocalizedEntity
+            where T : class, ILocalizedEntity
         {
             var invoker = keySelector.CompileFast();
-            return EngineContext.Current.ResolveService<LocalizedEntityHelper>().GetLocalizedValue(
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue(
                 entity,
                 entity.Id,
                 entity.GetEntityName(),
@@ -195,7 +195,7 @@ namespace Smartstore.Core.Localization
                 language,
                 returnDefaultValue,
                 ensureTwoPublishedLanguages,
-                detectEmptyHtml);
+                detectEmptyHtml) ?? new LocalizedValue<TProp>(invoker.Invoke(entity));
         }
 
         #endregion
@@ -236,8 +236,13 @@ namespace Smartstore.Core.Localization
             bool detectEmptyHtml = false)
             where TSetting : class, ISettings
         {
-            var helper = EngineContext.Current.ResolveService<LocalizedEntityHelper>();
+            var helper = EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>();
             var invoker = keySelector.CompileFast();
+
+            if (helper == null)
+            {
+                return new LocalizedValue<string>(invoker.Invoke(settings));
+            }
 
             if (storeId == null)
             {
@@ -284,8 +289,8 @@ namespace Smartstore.Core.Localization
         public static string GetLocalizedEnum<T>(this T enumValue, int languageId = 0, bool hint = false)
             where T : struct
         {
-            return EngineContext.Current.ResolveService<LocalizedEntityHelper>()
-                .GetLocalizedEnum<T>(enumValue, languageId, hint);
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?
+                .GetLocalizedEnum<T>(enumValue, languageId, hint) ?? enumValue.ToString();
         }
 
         #endregion
@@ -302,7 +307,7 @@ namespace Smartstore.Core.Localization
         /// <returns>Localized value</returns>
         public static string GetLocalizedModuleProperty<T>(this ModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)
         {
-            return EngineContext.Current.ResolveService<LocalizedEntityHelper>()
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?
                 .GetLocalizedModuleProperty(module, propertyName, languageId, doFallback);
         }
 
