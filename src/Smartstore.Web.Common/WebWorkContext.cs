@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core;
 using Smartstore.Core.Common;
@@ -70,7 +71,7 @@ namespace Smartstore.Web.Common
                     return _language;
                 }
 
-                _language = _db.Languages.FirstOrDefault();
+                _language = _db.Languages.AsNoTracking().FirstOrDefault();
 
                 return _language;
             }
@@ -86,7 +87,7 @@ namespace Smartstore.Web.Common
                     return _currency;
                 }
 
-                _currency = _db.Currencies.FirstOrDefault();
+                _currency = _db.Currencies.AsNoTracking().FirstOrDefault();
 
                 return _currency;
             }

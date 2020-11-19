@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using Dasync.Collections;
-using Smartstore.Collections;
 using Smartstore.ComponentModel;
-//using Smartstore.ComponentModel;
 using Smartstore.Domain;
-using Smartstore.Utilities;
+using Smartstore.Extensions.Internal;
 
 namespace Smartstore
 {
@@ -37,80 +33,45 @@ namespace Smartstore
 				throw new InvalidOperationException("Can't slice a collection with step length 0.");
 			}
 
-			return new Slicer<T>(source.GetEnumerator(), sizes).Slice();
+			return new EnumerableSlicer<T>(source.GetEnumerator(), sizes).Slice();
 		}
-	}
 
-	internal sealed class Slicer<T>
-	{
-		private readonly IEnumerator<T> _iterator;
-		private readonly int[] _sizes;
-		private volatile bool _hasNext;
-		private volatile int _currentSize;
-		private volatile int _index;
-
-		public Slicer(IEnumerator<T> iterator, int[] sizes)
+		/// <summary>
+		/// Slices the iteration over an async enumerable by the given slice sizes.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source">The async source sequence to slice</param>
+		/// <param name="sizes">
+		/// Slice sizes. At least one size is required. Multiple sizes result in differently sized slices,
+		/// whereat the last size is used for the "rest" (if any)
+		/// </param>
+		/// <returns>The sliced async enumerable</returns>
+		public static IAsyncEnumerable<List<T>> SliceAsync<T>(this IAsyncEnumerable<T> source, params int[] sizes)
 		{
-			_iterator = iterator;
-			_sizes = sizes;
-			_index = 0;
-			_currentSize = 0;
-			_hasNext = true;
+			return SliceAsync(source, CancellationToken.None, sizes);
 		}
 
-		public int Index
+		/// <summary>
+		/// Slices the iteration over an async enumerable by the given slice sizes.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source">The async source sequence to slice</param>
+		/// <param name="sizes">
+		/// Slice sizes. At least one size is required. Multiple sizes result in differently sized slices,
+		/// whereat the last size is used for the "rest" (if any)
+		/// </param>
+		/// <returns>The sliced async enumerable</returns>
+		public static IAsyncEnumerable<List<T>> SliceAsync<T>(this IAsyncEnumerable<T> source, CancellationToken cancelToken, params int[] sizes)
 		{
-			get { return _index; }
-		}
+            if (!sizes.Any(step => step != 0))
+            {
+                throw new InvalidOperationException("Can't slice a collection with step length 0.");
+            }
 
-		public IEnumerable<IEnumerable<T>> Slice()
-		{
-			var length = _sizes.Length;
-			var index = 1;
-			var size = 0;
+            return new AsyncEnumerableSlicer<T>(source.GetAsyncEnumerator(cancelToken), sizes).SliceAsync(cancelToken);
 
-			for (var i = 0; _hasNext; ++i)
-			{
-				if (i < length)
-				{
-					size = _sizes[i];
-					_currentSize = size - 1;
-				}
-
-				while (_index < index && _hasNext)
-				{
-					_hasNext = MoveNext();
-				}
-
-				if (_hasNext)
-				{
-					yield return new List<T>(SliceInternal());
-					index += size;
-				}
-			}
-		}
-
-		private IEnumerable<T> SliceInternal()
-		{
-			if (_currentSize == -1) yield break;
-			yield return _iterator.Current;
-
-			for (var count = 0; count < _currentSize && _hasNext; ++count)
-			{
-				_hasNext = MoveNext();
-
-				if (_hasNext)
-				{
-					yield return _iterator.Current;
-				}
-			}
-		}
-
-		private bool MoveNext()
-		{
-			++_index;
-			return _iterator.MoveNext();
-		}
+            //return source.Batch(100);
+        }
 	}
 
 	public static class EnumerableExtensions

@@ -568,7 +568,7 @@ namespace Smartstore
 			if (value == null)
 				throw new ArgumentNullException(nameof(value));
 
-			return value.StartsWith(endsWith) ? value : (value + endsWith);
+			return value.EndsWith(endsWith) ? value : (value + endsWith);
 		}
 
 		[DebuggerStepThrough]

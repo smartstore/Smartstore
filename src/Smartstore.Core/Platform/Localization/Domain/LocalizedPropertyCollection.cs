@@ -79,7 +79,7 @@ namespace Smartstore.Core.Localization
 
         private static string CreateKey(string localeKey, int entityId, int languageId)
         {
-            return string.Concat(localeKey, "-", entityId.ToString(CultureInfo.InvariantCulture), "-", languageId);
+            return string.Concat(localeKey, "-", entityId.ToStringInvariant(), "-", languageId);
         }
 
         public int Count => _dict.Values.Count;

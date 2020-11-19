@@ -148,9 +148,6 @@ namespace Smartstore.Core.Stores
             return HttpSecurityMode.Unsecured;
         }
 
-        private string _secureHost;
-        private string _unsecureHost;
-
         /// <summary>
         /// Gets the store host name (Scheme + Host + /)
         /// </summary>
@@ -161,17 +158,10 @@ namespace Smartstore.Core.Stores
         /// <returns>The host name</returns>
         public string GetHost(bool secure)
         {
-            return secure
-                ? (_secureHost ??= (_secureHost = GetHostInternal(true)))
-                : (_unsecureHost ??= (_unsecureHost = GetHostInternal(false)));
-        }
-
-        private string GetHostInternal(bool secure)
-        {
             string host;
             if (secure && SslEnabled)
             {
-                if (SecureUrl.HasValue())
+                if (!string.IsNullOrWhiteSpace(SecureUrl))
                 {
                     host = SecureUrl;
                 }

@@ -85,7 +85,7 @@ namespace Smartstore.Core.Seo
 
         private static string CreateKey(int entityId, int languageId)
         {
-            return string.Concat(entityId.ToString(CultureInfo.InvariantCulture), "-", languageId);
+            return string.Concat(entityId.ToStringInvariant(), "-", languageId);
         }
 
         public int Count => _dict.Values.Count;

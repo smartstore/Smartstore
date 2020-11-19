@@ -442,6 +442,22 @@ namespace Smartstore
 
         #endregion
 
+        #region IFormattable
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToStringInvariant(this IFormattable source)
+        {
+            return source.ToString(null, CultureInfo.InvariantCulture);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToStringInvariant(this IFormattable source, string format)
+        {
+            return source.ToString(format, CultureInfo.InvariantCulture);
+        }
+
+        #endregion
+
         #region Enumerable: Collections/List/Dictionary...
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Common.DependencyInjection;
 using Smartstore.Core.Configuration.DependencyInjection;
+using Smartstore.Core.Customers.DependencyInjection;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.DependecyInjection;
 using Smartstore.Core.Localization.DependencyInjection;
@@ -47,6 +48,7 @@ namespace Smartstore.Core
                 builder.RegisterModule(new SeoModule());
                 builder.RegisterModule(new DbHooksModule(appContext));
                 builder.RegisterModule(new StoresModule());
+                builder.RegisterModule(new CustomersModule());
             }
         }
 

@@ -175,7 +175,7 @@ namespace Smartstore.Core.Seo
 
         private static string GenerateKey(int entityId, string entityName, int languageId)
         {
-            return entityId.ToString(CultureInfo.InvariantCulture) + '.' + entityName + '.' + languageId.ToString(CultureInfo.InvariantCulture);
+            return entityId.ToStringInvariant() + '.' + entityName + '.' + languageId.ToStringInvariant();
         }
 
         #endregion
@@ -250,7 +250,7 @@ namespace Smartstore.Core.Seo
             }
         }
 
-        public Task<UrlRecordCollection> GetUrlRecordCollection(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false)
+        public Task<UrlRecordCollection> GetUrlRecordCollectionAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false)
         {
             return GetUrlRecordCollectionInternalAsync(entityName, languageIds, entityIds, isRange, isSorted, tracked);
         }

@@ -52,7 +52,7 @@ namespace Smartstore.Core.Seo
         /// <remarks>
         /// Be careful not to load large amounts of data at once (e.g. for "Product" scope with large range).
         /// </remarks>
-        Task<UrlRecordCollection> GetUrlRecordCollection(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
+        Task<UrlRecordCollection> GetUrlRecordCollectionAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
 
         /// <summary>
         /// Applies a slug. The caller is responsible for database commit.

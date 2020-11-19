@@ -77,7 +77,7 @@ namespace Smartstore.IO
 
             var fs = _storageDir.FileSystem;
             var path = fs.PathCombine(_storageDir.SubPath, LookupKey + ".hash");
-            fs.WriteAllText(path, CurrentHash.ToString(CultureInfo.InvariantCulture), Encoding.UTF8);
+            fs.WriteAllText(path, CurrentHash.ToStringInvariant(), Encoding.UTF8);
             _lastHash = CurrentHash;
         }
 

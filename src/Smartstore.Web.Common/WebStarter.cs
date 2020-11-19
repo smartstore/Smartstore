@@ -10,16 +10,16 @@ namespace Smartstore.Web.Common
 {
     public class WebStarter : StarterBase
     {
-        public override int Order => int.MinValue + 100;
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
             services.AddTransient<IWorkContext, WebWorkContext>();
             services.AddScoped<SeoSlugRouteValueTransformer>();
         }
 
+        public override int ApplicationOrder => int.MinValue + 200;
         public override void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)
         {
-            // ...
+            app.Map("/sitemap.xml", true, b => b.UseMiddleware<XmlSitemapMiddleware>());
         }
 
         public override int RoutesOrder => -1000;

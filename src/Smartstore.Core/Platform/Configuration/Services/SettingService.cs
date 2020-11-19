@@ -230,7 +230,7 @@ namespace Smartstore.Core.Configuration
 
         internal static string BuildCacheKeyForClassAccess(Type settingsType, int storeId)
         {
-            return ClassCacheKeyPattern.FormatInvariant(settingsType.Name.ToLowerInvariant(), storeId.ToString(CultureInfo.InvariantCulture));
+            return ClassCacheKeyPattern.FormatInvariant(settingsType.Name.ToLowerInvariant(), storeId.ToStringInvariant());
         }
 
         internal static string BuildCacheKeyForClassAccess(string prefix, string suffix)
@@ -240,7 +240,7 @@ namespace Smartstore.Core.Configuration
 
         internal static string BuildCacheKeyForRawAccess(string prefix, int storeId)
         {
-            return RawCacheKeyPattern.FormatInvariant(prefix.ToLowerInvariant(), storeId.ToString(CultureInfo.InvariantCulture));
+            return RawCacheKeyPattern.FormatInvariant(prefix.ToLowerInvariant(), storeId.ToStringInvariant());
         }
 
         internal static string BuildCacheKeyForRawAccess(string prefix, string suffix)
