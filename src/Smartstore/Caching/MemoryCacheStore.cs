@@ -148,7 +148,7 @@ namespace Smartstore.Caching
         public void Put(string key, CacheEntry entry)
         {
             entry.Key = key;
-            PopulateCacheEntry(entry, _cache.CreateEntry(key));
+            //PopulateCacheEntry(entry, _cache.CreateEntry(key));
         }
 
         public Task PutAsync(string key, CacheEntry entry)

@@ -5,9 +5,9 @@ using System.Globalization;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Utilities;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.ComponentModel.TypeConverters
 {
-	public class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDictionary<string, object>
+	internal class DictionaryTypeConverter<T> : DefaultTypeConverter where T : IDictionary<string, object>
 	{
 		public DictionaryTypeConverter()
 			: base(typeof(object))

@@ -315,6 +315,8 @@ Kopie von*
 
 # Import/Export
 /src/Smartstore.Web/[Ee]xchange/*
+User settings
+/src/Smartstore.Web/Config/usersettings*
 
 # Tools
 /src/Tools/Smartstore.WebApi.Client/packages

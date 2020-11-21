@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Smartstore.Threading;
 
 namespace Smartstore.Redis
 {
@@ -7,7 +9,7 @@ namespace Smartstore.Redis
         bool CanSerialize(object obj);
         bool CanDeserialize(Type objectType);
 
-        bool TrySerialize(object value, bool zip, out byte[] result);
-        bool TryDeserialize<T>(byte[] value, bool unzip, out T result);
+        bool TrySerialize(object value, bool compress, out byte[] result);
+        bool TryDeserialize<T>(byte[] value, bool uncompress, out T result);
     }
 }

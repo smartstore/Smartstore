@@ -21,8 +21,7 @@ namespace Smartstore
 
 			if (type.AssemblyQualifiedName != null)
 	        {
-		        var strArray = type.AssemblyQualifiedName.Split(new char[] { ',' });
-		        return string.Format("{0}, {1}", strArray[0].Trim(), strArray[1].Trim());
+                return type.FullName + ", " + type.Assembly.GetName().Name;
 	        }
 
 	        return null;
@@ -439,6 +438,13 @@ namespace Smartstore
             return type.Name;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGetAttribute<TAttribute>(this ICustomAttributeProvider target, bool inherits, out TAttribute attribute) where TAttribute : Attribute
+        {
+            attribute = GetAttribute<TAttribute>(target, inherits);
+            return attribute != null;
+        }
+
         /// <summary>
         /// Returns single attribute from the type
         /// </summary>
@@ -503,7 +509,7 @@ namespace Smartstore
         public static TAttribute[] GetAllAttributes<TAttribute>(this MemberInfo member, bool inherits)
             where TAttribute : Attribute
         {
-            List<TAttribute> attributes = new List<TAttribute>();
+            List<TAttribute> attributes = new();
 
             if (member.DeclaringType != null)
             {

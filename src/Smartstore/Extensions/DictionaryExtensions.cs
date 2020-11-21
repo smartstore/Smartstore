@@ -51,18 +51,18 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, object> AppendInValue(this IDictionary<string, object> instance, string key, string separator, string value)
+        public static IDictionary<string, object> AppendInValue(this IDictionary<string, object> instance, string key, char separator, string value)
         {
 			return AddInValue(instance, key, separator, value, false);
 		}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, object> PrependInValue(this IDictionary<string, object> instance, string key, string separator, string value)
+        public static IDictionary<string, object> PrependInValue(this IDictionary<string, object> instance, string key, char separator, string value)
         {
 			return AddInValue(instance, key, separator, value, true);
         }
 
-		private static IDictionary<string, object> AddInValue(IDictionary<string, object> instance, string key, string separator, string value, bool prepend = false)
+		private static IDictionary<string, object> AddInValue(IDictionary<string, object> instance, string key, char separator, string value, bool prepend = false)
 		{
 			if (!instance.TryGetValue(key, out var obj))
 			{
@@ -70,8 +70,8 @@ namespace Smartstore
 			}
 			else
 			{
-				var arr = obj.ToString().Trim().Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries).AsEnumerable();
-				var arrValue = value.Trim().Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries).AsEnumerable();
+				var arr = obj.ToString().Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+				var arrValue = value.Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
 
 				arr = prepend ? arrValue.Union(arr) : arr.Union(arrValue);
 

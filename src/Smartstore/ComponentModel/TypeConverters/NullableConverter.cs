@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.ComponentModel.TypeConverters
 {
-	[SuppressMessage("ReSharper", "TryCastAlwaysSucceeds")]
-	public class NullableConverter : DefaultTypeConverter
+	internal class NullableConverter : DefaultTypeConverter
 	{
 		private readonly bool _elementTypeIsConvertible;
 

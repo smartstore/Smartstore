@@ -208,9 +208,9 @@ namespace Smartstore.Utilities.Html
             text = text.Replace("\r\n", "\n").Replace("\r", "\n");
             text += "\n\n";
 
-            var lines = text.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = text.Tokenize(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-            if (lines.Length == 0)
+            if (!lines.Any())
             {
                 return string.Empty;
             }
@@ -258,11 +258,11 @@ namespace Smartstore.Utilities.Html
             text = text.Replace("\r\n", "\n").Replace("\r", "\n");
             text += "\n\n";
             text = text.Replace("\n\n", "\n");
-            var strArray = text.Split(new char[] { '\n' });
+            var strArray = text.Tokenize('\n', StringSplitOptions.TrimEntries);
             var builder = new StringBuilder();
             foreach (string str in strArray)
             {
-                if ((str != null) && (str.Trim().Length > 0))
+                if (str != null && str.Length > 0)
                 {
                     builder.AppendFormat("<p>{0}</p>\n", str);
                 }

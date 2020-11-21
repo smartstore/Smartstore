@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.ComponentModel.TypeConverters
 {
-	[SuppressMessage("ReSharper", "CanBeReplacedWithTryCastAndCheckForNull")]
-	public class TimeSpanConverter : DefaultTypeConverter
+	internal class TimeSpanConverter : DefaultTypeConverter
 	{
 		public TimeSpanConverter()
 			: base(typeof(TimeSpan))

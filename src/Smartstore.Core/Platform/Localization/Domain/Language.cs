@@ -90,7 +90,7 @@ namespace Smartstore.Core.Localization
         /// <summary>
         /// Gets or sets locale string resources
         /// </summary>
-        [JsonIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public ICollection<LocaleStringResource> LocaleStringResources
         {
             get => _lazyLoader?.Load(this, ref _localeStringResources) ?? (_localeStringResources ??= new HashSet<LocaleStringResource>());

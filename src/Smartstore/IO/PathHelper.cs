@@ -44,14 +44,14 @@ namespace Smartstore.Utilities
         /// <returns>The relative path</returns>
         public static string MakeRelativePath(string fromPath, string toPath, string sep = "\\")
         {
-            var fromParts = fromPath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
-            var toParts = toPath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            var fromParts = fromPath.Tokenize(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            var toParts = toPath.Tokenize(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
 
             var matchedParts = fromParts
                 .Zip(toParts, (x, y) => string.Compare(x, y, true) == 0)
                 .TakeWhile(x => x).Count();
 
-            return string.Join("", Enumerable.Range(0, fromParts.Length - matchedParts)
+            return string.Join("", Enumerable.Range(0, fromParts.Count() - matchedParts)
                 .Select(x => ".." + sep)) +
                     string.Join(sep, toParts.Skip(matchedParts));
         }

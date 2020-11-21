@@ -3,26 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Newtonsoft.Json;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Redis.Configuration;
 
 namespace Smartstore.Redis
 {
-    public class RedisJsonSerializer : IRedisSerializer
+    public class RedisNativeJsonSerializer : IRedisSerializer
     {
         private static readonly byte[] NullResult = Encoding.UTF8.GetBytes("null");
 
         // Contains types that cannot be (de)serialized
-        private readonly HashSet<Type> _unSerializableTypes = new HashSet<Type> { typeof(Task), typeof(Task<>) };
-        private readonly HashSet<Type> _unDeserializableTypes = new HashSet<Type> { typeof(Task), typeof(Task<>) };
+        private readonly HashSet<Type> _unSerializableTypes = new() { typeof(Task), typeof(Task<>) };
+        private readonly HashSet<Type> _unDeserializableTypes = new() { typeof(Task), typeof(Task<>) };
 
         private readonly RedisConfiguration _configuration;
 
-        public RedisJsonSerializer(RedisConfiguration configuration)
+        public RedisNativeJsonSerializer(RedisConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -53,13 +54,13 @@ namespace Smartstore.Redis
                 result = Serialize(value, compress);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
                 if (value != null)
                 {
                     var t = GetInnerType(value);
                     _unSerializableTypes.Add(t);
-                    Logger.Debug("Type '{0}' cannot be serialized", t);
+                    Logger.Debug(ex, "Type '{0}' cannot be serialized", t);
                 }
 
                 return false;
@@ -80,13 +81,13 @@ namespace Smartstore.Redis
                 result = Deserialize<T>(value, uncompress);
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
                 var t = typeof(T);
                 if (!(typeof(IObjectContainer).IsAssignableFrom(t) || t == typeof(object) || t.IsPredefinedType()))
                 {
                     _unDeserializableTypes.Add(t);
-                    Logger.Debug("Type '{0}' cannot be DEserialized", t);
+                    Logger.Debug(ex, "Type '{0}' cannot be DEserialized", t);
                 }
 
                 return false;
@@ -111,13 +112,17 @@ namespace Smartstore.Redis
                 return null;
             }
 
-            var settings = new JsonSerializerSettings
+            var options = new JsonSerializerOptions
             {
-                ContractResolver = SmartContractResolver.Instance,
-                //TypeNameHandling = TypeNameHandling.Objects,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ObjectCreationHandling = ObjectCreationHandling.Replace,
-                NullValueHandling = NullValueHandling.Ignore
+                //ContractResolver = SmartContractResolver.Instance,
+                ////TypeNameHandling = TypeNameHandling.Objects,
+                //ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                //ObjectCreationHandling = ObjectCreationHandling.Replace,
+                //NullValueHandling = NullValueHandling.Ignore
+                AllowTrailingCommas = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                //IgnoreReadOnlyProperties = true,
+                IgnoreReadOnlyFields = true
             };
 
             if (!_configuration.DisableCompression && uncompress)
@@ -126,7 +131,7 @@ namespace Smartstore.Redis
             }
 
             var json = Encoding.UTF8.GetString(value);
-            return JsonConvert.DeserializeObject(json, objectType, settings);
+            return JsonSerializer.Deserialize(json, objectType, options);
         }
 
         private byte[] Serialize(object item, bool compress)
@@ -136,17 +141,19 @@ namespace Smartstore.Redis
                 return NullResult;
             }
 
-            var settings = new JsonSerializerSettings
+            var options = new JsonSerializerOptions
             {
-                ContractResolver = SmartContractResolver.Instance,
-                //TypeNameHandling = TypeNameHandling.Objects,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                NullValueHandling = NullValueHandling.Ignore
+                //ContractResolver = SmartContractResolver.Instance,
+                ////TypeNameHandling = TypeNameHandling.Objects,
+                //ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                //NullValueHandling = NullValueHandling.Ignore
+                AllowTrailingCommas = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                //IgnoreReadOnlyProperties = true,
+                IgnoreReadOnlyFields = true
             };
 
-            var json = JsonConvert.SerializeObject(item, settings);
-
-            var buffer = Encoding.UTF8.GetBytes(json);
+            var buffer = JsonSerializer.SerializeToUtf8Bytes(item, item.GetType(), options);
 
             if (!_configuration.DisableCompression && compress)
             {
@@ -161,24 +168,24 @@ namespace Smartstore.Redis
 
         private static bool IsSerializableType(Type objectType, HashSet<Type> set)
         {
-            if (objectType == null)
-            {
-                return true;
-            }
+            //if (objectType == null)
+            //{
+            //    return true;
+            //}
 
-            if (set.Contains(objectType))
-            {
-                return false;
-            }
+            //if (set.Contains(objectType))
+            //{
+            //    return false;
+            //}
 
-            if (objectType.IsGenericType)
-            {
-                var gtDefinition = objectType.GetGenericTypeDefinition();
-                if (set.Contains(gtDefinition))
-                {
-                    return false;
-                }
-            }
+            //if (objectType.IsGenericType)
+            //{
+            //    var gtDefinition = objectType.GetGenericTypeDefinition();
+            //    if (set.Contains(gtDefinition))
+            //    {
+            //        return false;
+            //    }
+            //}
 
             return true;
         }
@@ -187,7 +194,7 @@ namespace Smartstore.Redis
         {
             if (obj is IObjectContainer wrapper)
             {
-                return wrapper.Value?.GetType();
+                return wrapper.ValueType ?? wrapper.Value?.GetType();
             }
 
             return obj?.GetType();

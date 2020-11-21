@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Smartstore.ComponentModel.TypeConverters;
 using Newtonsoft.Json.Linq;
 
 namespace Smartstore.ComponentModel
 {
 	public static class TypeConverterFactory
 	{
-		private static readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new ConcurrentDictionary<Type, ITypeConverter>();
+		private static readonly ConcurrentDictionary<Type, ITypeConverter> _typeConverters = new();
 
 		static TypeConverterFactory()
 		{

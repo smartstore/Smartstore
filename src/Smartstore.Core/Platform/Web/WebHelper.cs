@@ -100,7 +100,7 @@ namespace Smartstore.Core.Web
                                 string str = ipString;
                                 if (str.HasValue())
                                 {
-                                    var firstPart = str.Split(':').FirstOrDefault();
+                                    var firstPart = str.Tokenize(':').FirstOrDefault().ToString();
                                     if (firstPart != str && IPAddress.TryParse(firstPart, out address))
                                     {
                                         result = address;
@@ -282,7 +282,7 @@ namespace Smartstore.Core.Web
             if (string.IsNullOrEmpty(queryParam))
                 return url;
 
-            var parts = url.SplitSafe("?");
+            var parts = url.SplitSafe("?").ToArray();
 
             var current = new MutableQueryCollection(parts.Length == 2 ? parts[1] : string.Empty);
 

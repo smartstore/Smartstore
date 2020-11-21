@@ -72,7 +72,8 @@ namespace Smartstore.Data.Caching
                     var entry = new DbCacheEntry
                     {
                         Key = cachingResult.CacheKey,
-                        Value = cacheValue.Value
+                        Value = cacheValue.Value,
+                        ValueType = cacheValue.Value?.GetType()
                     };
 
                     _cache.Put(cachingResult.CacheKey, entry, cachingResult.Policy);
@@ -127,7 +128,8 @@ namespace Smartstore.Data.Caching
                     var entry = new DbCacheEntry
                     {
                         Key = cachingResult.CacheKey,
-                        Value = cacheValue.Value
+                        Value = cacheValue.Value,
+                        ValueType = cacheValue.Value?.GetType()
                     };
 
                     _cache.Put(cachingResult.CacheKey, entry, cachingResult.Policy);

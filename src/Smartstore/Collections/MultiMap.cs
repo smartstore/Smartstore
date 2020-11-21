@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Newtonsoft.Json;
+using Smartstore.Collections.JsonConverters;
 
 namespace Smartstore.Collections
 {
@@ -13,7 +14,8 @@ namespace Smartstore.Collections
 	/// <typeparam name="TKey">The type of key.</typeparam>
 	/// <typeparam name="TValue">The type of value.</typeparam>
 	[JsonConverter(typeof(MultiMapConverter))]
-	[Serializable]
+    [System.Text.Json.Serialization.JsonConverter(typeof(MultiMapJsonConverter))]
+    [Serializable]
 	public class Multimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, ICollection<TValue>>>
     {
 		private readonly IDictionary<TKey, ICollection<TValue>> _dict;

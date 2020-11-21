@@ -87,8 +87,8 @@ namespace Smartstore.Utilities
 				{
 					string[] split = match.Value.Split(new char[] { '-' });
 					int leadingZeroesCount = split[0].TakeWhile(x => x == '0').Count();
-					int min = Int32.Parse(split[0]);
-					int max = Int32.Parse(split[1]);
+					int min = int.Parse(split[0]);
+					int max = int.Parse(split[1]);
 
 					pattern = pattern.Replace(match.Value, ConvertNumberRange(min, max, leadingZeroesCount));
 				}

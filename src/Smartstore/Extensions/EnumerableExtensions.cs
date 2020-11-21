@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
+using Microsoft.Extensions.Primitives;
 using Smartstore.ComponentModel;
 using Smartstore.Domain;
 using Smartstore.Extensions.Internal;
@@ -287,6 +288,12 @@ namespace Smartstore
         public static string StrJoin(this IEnumerable<string> source, string separator)
 		{
 			return string.Join(separator, source);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static string[] ToStringArray(this IEnumerable<StringSegment> source)
+		{
+			return source.Select(x => x.ToString()).ToArray();
 		}
 
 		#endregion

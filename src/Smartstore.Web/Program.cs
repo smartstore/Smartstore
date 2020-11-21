@@ -29,10 +29,10 @@ namespace Smartstore.Web
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{EnvironmentName}.json", optional: true)
-                .AddJsonFile("Config/Connections.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"Config/Connections.{EnvironmentName}.json", optional: true)
-                .AddJsonFile("Config/Serilog.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"Config/Serilog.{EnvironmentName}.json", optional: true)
+                .AddJsonFile("Config/connections.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"Config/connections.{EnvironmentName}.json", optional: true)
+                .AddJsonFile("Config/usersettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"Config/usersettings.{EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();
         }

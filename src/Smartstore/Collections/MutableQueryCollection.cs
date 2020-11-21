@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
@@ -43,7 +44,7 @@ namespace Smartstore.Collections
             
             if (_store.TryGetValue(name, out var existingValues))
             {
-                var passedValues = new StringValues(value.SplitSafe(","));
+                var passedValues = new StringValues(value.SplitSafe(",").Select(x => x.ToString()).ToArray());
                 _store[name] = isUnique ? passedValues : StringValues.Concat(existingValues, passedValues);
             }
             else

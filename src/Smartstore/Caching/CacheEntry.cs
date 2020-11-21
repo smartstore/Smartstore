@@ -2,6 +2,9 @@
 using System.Threading;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
+using Smartstore.ComponentModel;
+using Smartstore.Caching.JsonConverters;
+using J = System.Text.Json;
 
 namespace Smartstore.Caching
 {
@@ -16,11 +19,19 @@ namespace Smartstore.Caching
         NeverRemove,
     }
 
-    public class CacheEntry : IObjectWrapper, ICloneable<CacheEntry>
+    [JsonConverter(typeof(ObjectWrapperJsonConverter))]
+    [J.Serialization.JsonConverter(typeof(CacheEntryJsonConverter))]
+    public class CacheEntry : IObjectContainer, ICloneable<CacheEntry>
     {
         // Used for serialization compatibility
-        [JsonIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public static readonly string Version = "1";
+
+        /// <summary>
+        /// Gets the type of the cache entry value.
+        /// <para>Might be useful for (de)serialization.</para>
+        /// </summary>
+        public Type ValueType { get; set; }
 
         /// <summary>
         /// Gets or sets the cache entry key.
@@ -35,13 +46,8 @@ namespace Smartstore.Caching
         /// <summary>
         /// Gets or sets the cache entry value.
         /// </summary>
+        //[JsonConverter(typeof(ObjectWrapperValueJsonConverter))]
         public object Value { get; set; }
-
-        /// <summary>
-        /// Gets the type of the cache entry value.
-        /// <para>Might be useful for (de)serialization.</para>
-        /// </summary>
-        public Type ValueType { get; set; }
 
         /// <summary>
         /// Gets or sets the creation date of the cache entry.
@@ -72,10 +78,10 @@ namespace Smartstore.Caching
         /// </summary>
         public string[] Dependencies { get; set; } = Array.Empty<string>();
 
-        [JsonIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public bool CancelTokenSourceOnRemove { get; set; } = true;
 
-        [JsonIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public CancellationTokenSource CancellationTokenSource { get; set; } = new CancellationTokenSource();
 
         /// <summary>
@@ -83,7 +89,7 @@ namespace Smartstore.Caching
         /// Depending on the cache store provider, the item might still live in the cache although
         /// according to the expiration timeout, the item is already expired.
         /// </summary>
-        [JsonIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public bool HasExpired
         {
             get
@@ -103,7 +109,7 @@ namespace Smartstore.Caching
         /// <remarks>
         /// TTL, or <c>null</c> when entry does not have a timeout.
         /// </remarks>
-        [JsonIgnore]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public TimeSpan? TimeToLive
         {
             get => Duration.HasValue ? CachedOn.Add(Duration.Value) - DateTimeOffset.UtcNow : null;

@@ -91,9 +91,7 @@ namespace Smartstore.Core.Stores
             }
 
             return store.Hosts
-                .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(host => host.Trim())
-                .Where(host => !string.IsNullOrWhiteSpace(host))
+                .Tokenize(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .ToArray();
         }
     }

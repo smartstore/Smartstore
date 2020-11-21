@@ -105,7 +105,7 @@ namespace Smartstore.Core.Seo
 
             var exists = TryGetSitemapFile(store.Id, language.Id, index, out var file);
 
-            if (exists)
+            if (exists && isRetry)
             {
                 return new XmlSitemapPartition
                 {

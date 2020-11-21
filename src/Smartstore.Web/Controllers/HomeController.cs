@@ -29,6 +29,8 @@ using System.Text;
 using Smartstore.Core.Common;
 using Smartstore.Data.Caching;
 using Smartstore.Core.Localization;
+using Microsoft.Extensions.Primitives;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.Controllers
 {
@@ -137,6 +139,13 @@ namespace Smartstore.Web.Controllers
             //    .Where(x => x.SubjectToVat)
             //    .AsCaching()
             //    .CountAsync();
+
+            var langService = _services.Resolve<ILanguageService>();
+            for (var i = 0; i < 50; i++)
+            {
+                var lid = await langService.GetDefaultLanguageIdAsync();
+                var storeCache = _storeContext.GetCachedStores();
+            }
 
             var anon = await _db.Countries
                 .AsNoTracking()

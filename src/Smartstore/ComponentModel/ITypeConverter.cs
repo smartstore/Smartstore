@@ -4,7 +4,7 @@ using System.Globalization;
 namespace Smartstore.ComponentModel
 {
 	/// <summary>
-	/// Converts objects.
+	/// Type converter interface.
 	/// </summary>
 	public interface ITypeConverter
 	{

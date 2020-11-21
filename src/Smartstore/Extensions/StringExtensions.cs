@@ -12,6 +12,7 @@ using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using System.Web;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Primitives;
 using Smartstore.Utilities;
 
 namespace Smartstore
@@ -472,25 +473,25 @@ namespace Smartstore
 				yield break;
 			}
 
-			using (var sr = new StringReader(input))
-			{
-				string line;
-				while ((line = sr.ReadLine()) != null)
-				{
-					if (trimLines)
-					{
-						line = line.Trim();
-					}
+            using var sr = new StringReader(input);
+            string line;
+            while ((line = sr.ReadLine()) != null)
+            {
+                var segment = new StringSegment(line);
 
-					if (removeEmptyLines && IsEmpty(line))
-					{
-						continue;
-					}
+                if (trimLines)
+                {
+                    segment = segment.Trim();
+                }
 
-					yield return line;
-				}
-			}
-		}
+                if (removeEmptyLines && IsEmpty(line))
+                {
+                    continue;
+                }
+
+                yield return segment.Value;
+            }
+        }
 
 		/// <summary>
 		/// Ensure that a string starts with a string.
@@ -654,37 +655,39 @@ namespace Smartstore
 		/// <summary>
 		/// Splits a string into a string array
 		/// </summary>
-		/// <param name="value">String value to split</param>
+		/// <param name="input">String value to split</param>
 		/// <param name="separator">If <c>null</c> then value is searched for a common delimiter like pipe, semicolon or comma</param>
 		/// <returns>String array</returns>
 		[DebuggerStepThrough]
-		public static string[] SplitSafe(this string value, string separator)
+		public static IEnumerable<string> SplitSafe(this string input, string separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries)
 		{
-			if (string.IsNullOrEmpty(value))
-				return Array.Empty<string>();
+			if (string.IsNullOrEmpty(input))
+				return Enumerable.Empty<string>();
 
 			// Do not use separator.IsEmpty() here because whitespace like " " is a valid separator.
 			// an empty separator "" returns array with value.
 			if (separator == null)
 			{
-				for (var i = 0; i < value.Length; i++)
+				for (var i = 0; i < input.Length; i++)
 				{
-					var c = value[i];
+					var c = input[i];
 					if (c == ';' || c == ',' || c == '|')
 					{
-						return value.Split(new char[] { c }, StringSplitOptions.RemoveEmptyEntries);
+						return Tokenize(input, c, options);
 					}
-					if (c == '\r' && (i + 1) < value.Length & value[i + 1] == '\n')
+					if (c == '\r' && (i + 1) < input.Length & input[i + 1] == '\n')
 					{
-						return value.GetLines(false, true).ToArray();
+						return input.GetLines(false, true);
 					}
 				}
 
-				return new string[] { value };
+				return new[] { input };
 			}
 			else
 			{
-				return value.Split(new string[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+				return separator.Length == 1 
+					? Tokenize(input, separator[0], options) 
+					: input.Split(new string[] { separator }, options);
 			}
 		}
 
@@ -694,7 +697,7 @@ namespace Smartstore
 		public static bool SplitToPair(this string value, out string leftPart, out string rightPart, string delimiter, bool splitAfterLast = false)
 		{
 			leftPart = value;
-			rightPart = "";
+			rightPart = string.Empty;
 
 			if (string.IsNullOrEmpty(value) || string.IsNullOrEmpty(delimiter))
 			{
@@ -715,6 +718,47 @@ namespace Smartstore
 
 			return true;
 		}
+
+		/// <summary>
+		/// Tokenizes/splits a <see cref="string"/> into <see cref="StringSegment"/>s.
+		/// </summary>
+		/// <param name="input">The <see cref="string"/> to split.</param>
+		/// <param name="separator">The separator controlling the split.</param>
+		/// <param name="options">One of the enumeration values that determines whether the split operation should omit empty substrings from the return value.</param>
+		public static IEnumerable<string> Tokenize(this string input, char separator, StringSplitOptions options = StringSplitOptions.None)
+		{
+			return Tokenize(input, new[] { separator }, options);
+		}
+
+		/// <summary>
+		/// Tokenizes/splits a <see cref="string"/> into <see cref="StringSegment"/>s.
+		/// </summary>
+		/// <param name="input">The <see cref="string"/> to split.</param>
+		/// <param name="separators">The collection of separator <see cref="char"/>s controlling the split.</param>
+		public static IEnumerable<string> Tokenize(this string input, params char[] separators)
+		{
+			return Tokenize(input, separators, StringSplitOptions.None);
+		}
+
+		/// <summary>
+		/// Tokenizes/splits a <see cref="string"/> into <see cref="StringSegment"/>s.
+		/// </summary>
+		/// <param name="input">The <see cref="string"/> to split.</param>
+		/// <param name="separators">The collection of separator <see cref="char"/>s controlling the split.</param>
+		/// <param name="options">One of the enumeration values that determines whether the split operation should omit empty substrings from the return value.</param>
+		public static IEnumerable<string> Tokenize(this string input, char[] separators, StringSplitOptions options)
+        {
+			IEnumerable<StringSegment> tokenizer = options.HasFlag(StringSplitOptions.TrimEntries) 
+				? new TrimmingTokenizer(input, separators)
+				: new StringTokenizer(input, separators);
+
+			if (options.HasFlag(StringSplitOptions.RemoveEmptyEntries))
+            {
+				return tokenizer.Where(x => x.Length > 0).Select(x => x.Value);
+            }
+
+			return tokenizer.Select(x => x.Value);
+        }
 
 		public static string EncodeJsString(this string value)
 		{
@@ -1087,7 +1131,7 @@ namespace Smartstore
 		{
 			return string.Join(
 				replacement ?? "-",
-				input.ToSafe().Split(Path.GetInvalidFileNameChars()));
+				input.ToSafe().Tokenize(Path.GetInvalidFileNameChars()));
 		}
 
 		[DebuggerStepThrough]
@@ -1096,14 +1140,14 @@ namespace Smartstore
 		{
 			return string.Join(
 				replacement ?? "-",
-				input.ToSafe().Split(Path.GetInvalidPathChars()));
+				input.ToSafe().Tokenize(Path.GetInvalidPathChars()));
 		}
 
 		[DebuggerStepThrough]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int[] ToIntArray(this string s)
 		{
-			return Array.ConvertAll(s.SplitSafe(","), v => int.Parse(v.Trim()));
+			return s.SplitSafe(",", StringSplitOptions.TrimEntries).Select(v => int.Parse(v)).ToArray();
 		}
 
 		[DebuggerStepThrough]
@@ -1152,9 +1196,7 @@ namespace Smartstore
 				return input;
 			}
 
-			var pattern = String.Join("|", keywords.Trim().Split(' ', '-')
-				.Select(x => x.Trim())
-				.Where(x => !string.IsNullOrWhiteSpace(x))
+			var pattern = string.Join("|", keywords.Trim().Tokenize(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
 				.Select(x => Regex.Escape(x))
 				.Distinct());
 

@@ -320,7 +320,7 @@ namespace Smartstore.Collections
 			FixIdNodeMap(prevParent, newParent);
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public T Parent
 		{
 			get
@@ -345,7 +345,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public IEnumerable<T> LeafNodes
 		{
 			get
@@ -356,7 +356,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public IEnumerable<T> NonLeafNodes
 		{
 			get
@@ -368,7 +368,7 @@ namespace Smartstore.Collections
 		}
 
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public T FirstChild
 		{
 			get
@@ -377,7 +377,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public T LastChild
 		{
 			get
@@ -386,7 +386,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public bool IsLeaf
 		{
 			get
@@ -395,7 +395,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public bool HasChildren
 		{
 			get
@@ -404,7 +404,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public bool IsRoot
 		{
 			get
@@ -413,7 +413,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public int Index
 		{
 			get
@@ -425,7 +425,7 @@ namespace Smartstore.Collections
 		/// <summary>
 		/// Root starts with 0
 		/// </summary>
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public int Depth
 		{
 			get
@@ -446,7 +446,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public T Root
 		{
 			get
@@ -460,7 +460,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public T First
 		{
 			get
@@ -469,7 +469,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public T Last
 		{
 			get
@@ -478,7 +478,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public T Next
 		{
 			get
@@ -487,7 +487,7 @@ namespace Smartstore.Collections
 			}
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public T Previous
 		{
 			get
@@ -532,7 +532,7 @@ namespace Smartstore.Collections
 			return node.IsDescendantOf((T)this);
 		}
 
-		[JsonIgnore]
+		[JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
 		public IEnumerable<T> Trail
 		{
 			get

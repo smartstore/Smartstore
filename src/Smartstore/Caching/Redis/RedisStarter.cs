@@ -40,7 +40,10 @@ namespace Smartstore.Redis
                 .As<IRedisConnectionFactory>()
                 .SingleInstance();
 
-            builder.RegisterType<RedisJsonSerializer>()
+            //builder.RegisterType<RedisJsonSerializer>()
+            //    .As<IRedisSerializer>()
+            //    .SingleInstance();
+            builder.RegisterType<RedisNativeJsonSerializer>()
                 .As<IRedisSerializer>()
                 .SingleInstance();
 

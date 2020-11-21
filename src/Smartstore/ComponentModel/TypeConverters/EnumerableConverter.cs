@@ -2,14 +2,13 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Smartstore.Collections;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.ComponentModel.TypeConverters
 {
-	public class EnumerableConverter<T> : DefaultTypeConverter
+	internal class EnumerableConverter<T> : DefaultTypeConverter
 	{
 		private readonly Func<IEnumerable<T>, object> _activator;
         private readonly ITypeConverter _elementTypeConverter;
@@ -184,9 +183,8 @@ namespace Smartstore.ComponentModel
 
 		protected virtual string[] GetStringArray(string input)
 		{
-			var result = input.SplitSafe(null);
-			Array.ForEach(result, s => s.Trim());
-			return result;
+			var result = input.SplitSafe(null, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+			return result.ToArray();
 		}
 	}
 }

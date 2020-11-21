@@ -21,6 +21,7 @@
     <Compile Include="Caching\Redis\Common\IRedisConnectionFactory.cs" />
     <Compile Include="Caching\Redis\Common\IRedisSerializer.cs" />
     <Compile Include="Caching\Redis\Common\RedisConnectionFactory.cs" />
+    <Compile Include="Caching\Redis\Common\RedisNativeJsonSerializer.cs" />
     <Compile Include="Caching\Redis\Common\RedisJsonSerializer.cs" />
     <Compile Include="Caching\Redis\Common\RedisLock.cs" />
     <Compile Include="Caching\Redis\Common\RedisUtility.cs" />

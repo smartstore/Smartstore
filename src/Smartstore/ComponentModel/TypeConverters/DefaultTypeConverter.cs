@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.Globalization;
 
-namespace Smartstore.ComponentModel
+namespace Smartstore.ComponentModel.TypeConverters
 {
-    public class DefaultTypeConverter : ITypeConverter
+    internal class DefaultTypeConverter : ITypeConverter
 	{
 		private readonly Lazy<TypeConverter> _systemConverter;
 		private readonly Type _type;
