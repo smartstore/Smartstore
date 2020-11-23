@@ -24,7 +24,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
 using Smartstore.Core.Logging;
 using LogLevel = Smartstore.Core.Logging.LogLevel;
-using System.Text.Json;
 using System.Text;
 using Smartstore.Core.Common;
 using Smartstore.Data.Caching;
@@ -140,12 +139,12 @@ namespace Smartstore.Web.Controllers
             //    .AsCaching()
             //    .CountAsync();
 
-            var langService = _services.Resolve<ILanguageService>();
-            for (var i = 0; i < 50; i++)
-            {
-                var lid = await langService.GetDefaultLanguageIdAsync();
-                var storeCache = _storeContext.GetCachedStores();
-            }
+            //var langService = _services.Resolve<ILanguageService>();
+            //for (var i = 0; i < 50; i++)
+            //{
+            //    //var lid = await langService.GetDefaultLanguageIdAsync();
+            //    //var storeCache = _storeContext.GetCachedStores();
+            //}
 
             var anon = await _db.Countries
                 .AsNoTracking()

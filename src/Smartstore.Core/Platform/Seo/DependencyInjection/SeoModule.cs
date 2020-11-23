@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Dasync.Collections;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
+using Smartstore.Core.Products;
+using Smartstore.Core.Stores;
+using Smartstore.Data;
 
 namespace Smartstore.Core.Seo.DependencyInjection
 {
@@ -30,33 +36,51 @@ namespace Smartstore.Core.Seo.DependencyInjection
 
         public XmlSitemapProvider PublishXmlSitemap(XmlSitemapBuildContext context)
         {
-            return new ProductXmlSitemapResult { DbContext = _db, Context = context };
+            var query = _db.Products
+                .AsNoTracking()
+                .ApplyStoreFilter(context.RequestStoreId);
+            
+            return new ProductXmlSitemapResult { DbContext = _db, Query = query, Context = context };
         }
 
         class ProductXmlSitemapResult : XmlSitemapProvider
         {
             public SmartDbContext DbContext { get; init; }
+            public IQueryable<Product> Query { get; init; }
             public XmlSitemapBuildContext Context { get; init; }
 
             public override Task<int> GetTotalCountAsync()
             {
-                return Task.FromResult(50000);
+                return Query.CountAsync();
             }
 
-            public override IAsyncEnumerable<NamedEntity> EnlistAsync(CancellationToken cancelToken = default)
+            public override async IAsyncEnumerable<NamedEntity> EnlistAsync([EnumeratorCancellation] CancellationToken cancelToken = default)
             {
-                return Enlist().ToAsyncEnumerable();
-            }
+                var pager = new FastPager<Product>(Query, Context.MaximumNodeCount);
 
-            private static IEnumerable<NamedEntity> Enlist()
-            {
-                int i = 50000;
-                while (i > 0)
+                while ((await pager.ReadNextPageAsync(x => new { x.Id, x.UpdatedOnUtc }, x => x.Id)).Out(out var products))
                 {
-                    yield return new NamedEntity { EntityName = "Product", Id = i, LastMod = DateTime.UtcNow };
-                    i--;
+                    if (Context.CancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    foreach (var x in products)
+                    {
+                        yield return new NamedEntity { EntityName = "Product", Id = x.Id, LastMod = x.UpdatedOnUtc };
+                    }
                 }
             }
+
+            //private IEnumerable<NamedEntity> Enlist()
+            //{
+            //    int i = 50000;
+            //    while (i > 0)
+            //    {
+            //        yield return new NamedEntity { EntityName = "Product", Id = i, LastMod = DateTime.UtcNow };
+            //        i--;
+            //    }
+            //}
 
             public override int Order => int.MaxValue;
         }

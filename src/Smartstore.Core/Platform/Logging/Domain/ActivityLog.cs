@@ -64,7 +64,7 @@ namespace Smartstore.Core.Logging
         /// <summary>
         /// Gets the customer
         /// </summary>
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public Customer Customer { get; set; }
     }
 }

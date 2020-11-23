@@ -1,116 +1,70 @@
 ﻿using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Smartstore.ComponentModel.JsonConverters
 {
-    public abstract class ObjectContainerJsonConverter<T> : JsonConverter<T>
-        where T : IObjectContainer, new()
+    public class ObjectContainerJsonConverter : JsonConverter 
     {
-        public override bool CanConvert(Type typeToConvert)
+        public override bool CanConvert(Type objectType)
+            => typeof(IObjectContainer).IsAssignableFrom(objectType);
+
+        public override bool CanRead
+            => true;
+
+        public override bool CanWrite
+            => false;
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return typeof(IObjectContainer).IsAssignableFrom(typeof(T));
+            var result = (IObjectContainer)(existingValue ?? Activator.CreateInstance(objectType));
+
+            serializer.Populate(reader, result);
+            SanitizeValue(result, serializer);
+
+            return result;
         }
 
-        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        /// <summary>
+        /// Checks whether <see cref="IObjectContainer.Value"/> is of type <see cref="JToken"/> (Array or Object)
+        /// and converts instance to <see cref="IObjectContainer.ValueType"/>.
+        /// </summary>
+        protected virtual IObjectContainer SanitizeValue(IObjectContainer result, JsonSerializer serializer)
         {
-            var result = new T();
-
-            if (reader.TokenType != JsonTokenType.StartObject)
+            if (result.Value is IObjectContainer container)
             {
-                throw new JsonException();
+                // Recursion
+                SanitizeValue(container, serializer);
+                return result;
             }
 
-            // Read ValueType
-            reader.Read();
-            if (reader.TokenType != JsonTokenType.PropertyName)
+            if (result.Value is not JToken valueToken)
             {
-                throw new JsonException();
+                return result;
             }
 
-            string propertyName = reader.GetString();
-            if (propertyName != nameof(IObjectContainer.ValueType))
+            var valueJson = valueToken.ToString(Formatting.None);
+
+            JsonConverter converter = null;
+
+            if (result.ValueType.TryGetAttribute<JsonConverterAttribute>(true, out var converterAttribute))
             {
-                throw new JsonException();
+                converter = (JsonConverter)Activator.CreateInstance(converterAttribute.ConverterType);
             }
 
-            reader.Read();
-            if (reader.TokenType != JsonTokenType.String)
+            if (converter == null)
             {
-                throw new JsonException();
+                converter = serializer.ContractResolver.ResolveContract(result.ValueType).Converter;
             }
 
-            var valueTypeStr = reader.GetString();
-            Type valueType = Type.GetType(valueTypeStr);
-            result.ValueType = valueType;
+            result.Value = converter != null
+                ? JsonConvert.DeserializeObject(valueJson, result.ValueType, converter)
+                : JsonConvert.DeserializeObject(valueJson, result.ValueType);
 
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                {
-                    return result;
-                }
-
-                if (reader.TokenType == JsonTokenType.PropertyName)
-                {
-                    propertyName = reader.GetString();
-                    reader.Read();
-
-                    switch (propertyName)
-                    {
-                        case "Value":
-                            result.Value = JsonSerializer.Deserialize(ref reader, valueType, options);
-                            break;
-                        default:
-                            // Let inheritor read and assign property
-                            ReadProperty(ref reader, propertyName, result, options);
-                            break;
-                    }
-                }
-            }
-
-            throw new JsonException();
+            return result;
         }
 
-        protected virtual void ReadProperty(ref Utf8JsonReader reader, string propertyName, T result, JsonSerializerOptions options)
-        {
-            //
-        }
-
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            writer.WriteStartObject();
-
-            // Write ValueType
-            var valueType = value.ValueType ?? value.Value?.GetType() ?? typeof(object);
-            writer.WriteString(nameof(value.ValueType), valueType.AssemblyQualifiedNameWithoutVersion());
-
-            // Write Value
-            writer.WritePropertyName(nameof(value.Value));
-            if (value.Value != null)
-            {
-                JsonSerializer.Serialize(writer, value.Value, valueType, options);
-            }
-            else
-            {
-                writer.WriteNullValue();
-            }
-
-            // Let inheritor write remaining members
-            WriteCore(writer, value, options);
-
-            writer.WriteEndObject();
-        }
-
-        protected virtual void WriteCore(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-        {
-            //
-        }
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            => throw new NotImplementedException();
     }
-
 }

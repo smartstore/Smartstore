@@ -67,7 +67,7 @@ namespace Smartstore.Core.Localization
         /// <summary>
         /// Gets or sets the language
         /// </summary>
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public Language Language
         {
             get => _lazyLoader?.Load(this, ref _language) ?? _language;

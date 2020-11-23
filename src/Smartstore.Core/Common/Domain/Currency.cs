@@ -123,7 +123,7 @@ namespace Smartstore.Core.Common
 
         private NumberFormatInfo _numberFormat;
 
-        [NotMapped, JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [NotMapped, JsonIgnore]
         public NumberFormatInfo NumberFormat
         {
             get

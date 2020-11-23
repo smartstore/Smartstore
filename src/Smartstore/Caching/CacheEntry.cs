@@ -3,8 +3,7 @@ using System.Threading;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
-using Smartstore.Caching.JsonConverters;
-using J = System.Text.Json;
+using Smartstore.ComponentModel.JsonConverters;
 
 namespace Smartstore.Caching
 {
@@ -19,12 +18,11 @@ namespace Smartstore.Caching
         NeverRemove,
     }
 
-    [JsonConverter(typeof(ObjectWrapperJsonConverter))]
-    [J.Serialization.JsonConverter(typeof(CacheEntryJsonConverter))]
+    [JsonConverter(typeof(ObjectContainerJsonConverter))]
     public class CacheEntry : IObjectContainer, ICloneable<CacheEntry>
     {
         // Used for serialization compatibility
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public static readonly string Version = "1";
 
         /// <summary>
@@ -78,10 +76,10 @@ namespace Smartstore.Caching
         /// </summary>
         public string[] Dependencies { get; set; } = Array.Empty<string>();
 
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool CancelTokenSourceOnRemove { get; set; } = true;
 
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public CancellationTokenSource CancellationTokenSource { get; set; } = new CancellationTokenSource();
 
         /// <summary>
@@ -89,7 +87,7 @@ namespace Smartstore.Caching
         /// Depending on the cache store provider, the item might still live in the cache although
         /// according to the expiration timeout, the item is already expired.
         /// </summary>
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public bool HasExpired
         {
             get
@@ -109,7 +107,7 @@ namespace Smartstore.Caching
         /// <remarks>
         /// TTL, or <c>null</c> when entry does not have a timeout.
         /// </remarks>
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public TimeSpan? TimeToLive
         {
             get => Duration.HasValue ? CachedOn.Add(Duration.Value) - DateTimeOffset.UtcNow : null;

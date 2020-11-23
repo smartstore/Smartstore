@@ -20,19 +20,21 @@ namespace Smartstore.Core.Seo
         public virtual IAsyncEnumerable<NamedEntity> EnlistAsync(CancellationToken cancelToken = default)
             => AsyncEnumerable.Empty<NamedEntity>();
 
-        public virtual IAsyncEnumerable<XmlSitemapNode> EnlistNodesAsync(Language language, CancellationToken cancelToken = default)
-            => AsyncEnumerable.Empty<XmlSitemapNode>();
-
         public virtual XmlSitemapNode CreateNode(LinkGenerator linkGenerator, string baseUrl, NamedEntity entity, UrlRecordCollection slugs, Language language)
         {
             var slug = slugs.GetSlug(language.Id, entity.Id, true);
-            var path = linkGenerator.GetPathByRouteValues(entity.EntityName, new { SeName = slug }).EmptyNull().TrimStart('/');
-            var loc = baseUrl + path;
+            //var path = linkGenerator.GetPathByRouteValues(entity.EntityName, new { SeName = slug }).EmptyNull().TrimStart('/');
+            //var loc = baseUrl + path;
+
+            if (slug == null)
+            {
+                return null;
+            }
 
             return new XmlSitemapNode
             {
                 LastMod = entity.LastMod,
-                Loc = loc
+                Loc = baseUrl + slug.EmptyNull().TrimStart('/')
             };
         }
 

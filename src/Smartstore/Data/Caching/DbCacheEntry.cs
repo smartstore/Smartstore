@@ -1,17 +1,14 @@
 ﻿using System;
-using Smartstore.Caching;
 using Newtonsoft.Json;
-using J = System.Text.Json;
 using Smartstore.ComponentModel;
-using Smartstore.Data.Caching.JsonConverters;
+using Smartstore.ComponentModel.JsonConverters;
 
 namespace Smartstore.Data.Caching
 {
     /// <summary>
     /// Represents a database query result cache entry.
     /// </summary>
-    [JsonConverter(typeof(ObjectWrapperJsonConverter))]
-    [J.Serialization.JsonConverter(typeof(DbCacheEntryJsonConverter))]
+    [JsonConverter(typeof(ObjectContainerJsonConverter))]
     public class DbCacheEntry : IObjectContainer
     {
         public DbCacheKey Key { get; set; }

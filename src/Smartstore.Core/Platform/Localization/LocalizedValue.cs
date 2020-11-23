@@ -55,10 +55,10 @@ namespace Smartstore.Core.Localization
 
         public T Value => _value;
 
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public Language RequestLanguage => _requestLanguage;
 
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public Language CurrentLanguage => _currentLanguage;
 
         public bool IsFallback => _requestLanguage != _currentLanguage;

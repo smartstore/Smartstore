@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
 using Newtonsoft.Json;
-using Smartstore.Utilities;
-using System.Threading;
+using Smartstore.Collections.JsonConverters;
 
 namespace Smartstore.Collections
 {
@@ -299,14 +298,5 @@ namespace Smartstore.Collections
 		}
 
 		#endregion
-	}
-
-	public class ConcurrentMultiMapConverter : MultiMapConverter
-	{
-		public override bool CanConvert(Type objectType)
-		{
-			var canConvert = objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(ConcurrentMultimap<,>);
-			return canConvert;
-		}
 	}
 }

@@ -114,7 +114,7 @@ namespace Smartstore.Redis
             var settings = new JsonSerializerSettings
             {
                 ContractResolver = SmartContractResolver.Instance,
-                //TypeNameHandling = TypeNameHandling.Objects,
+                TypeNameHandling = TypeNameHandling.Objects,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 ObjectCreationHandling = ObjectCreationHandling.Replace,
                 NullValueHandling = NullValueHandling.Ignore
@@ -139,7 +139,7 @@ namespace Smartstore.Redis
             var settings = new JsonSerializerSettings
             {
                 ContractResolver = SmartContractResolver.Instance,
-                //TypeNameHandling = TypeNameHandling.Objects,
+                TypeNameHandling = TypeNameHandling.Objects,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 NullValueHandling = NullValueHandling.Ignore
             };

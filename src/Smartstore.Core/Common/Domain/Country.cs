@@ -100,7 +100,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the default currency.
         /// </summary>
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public Currency DefaultCurrency
         {
             get => _lazyLoader?.Load(this, ref _defaultCurrency) ?? _defaultCurrency;
@@ -111,7 +111,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the state/provinces
         /// </summary>
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        [JsonIgnore]
         public ICollection<StateProvince> StateProvinces
         {
             get => _lazyLoader?.Load(this, ref _stateProvinces) ?? (_stateProvinces ??= new HashSet<StateProvince>());
