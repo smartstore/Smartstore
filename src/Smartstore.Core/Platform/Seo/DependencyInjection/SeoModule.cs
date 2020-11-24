@@ -27,6 +27,7 @@ namespace Smartstore.Core.Seo.DependencyInjection
 
     internal class TestProductXmlSitemapPublisher : IXmlSitemapPublisher
     {
+        // TODO: (core) Remove this class later
         private readonly SmartDbContext _db;
 
         public TestProductXmlSitemapPublisher(SmartDbContext db)

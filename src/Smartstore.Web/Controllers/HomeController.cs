@@ -30,6 +30,8 @@ using Smartstore.Data.Caching;
 using Smartstore.Core.Localization;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Utilities;
+using Smartstore.Core.Seo;
+using Smartstore.Data;
 
 namespace Smartstore.Web.Controllers
 {
@@ -142,8 +144,14 @@ namespace Smartstore.Web.Controllers
             //var langService = _services.Resolve<ILanguageService>();
             //for (var i = 0; i < 50; i++)
             //{
-            //    //var lid = await langService.GetDefaultLanguageIdAsync();
-            //    //var storeCache = _storeContext.GetCachedStores();
+            //    var lid = await langService.GetDefaultLanguageIdAsync();
+            //    var storeCache = _storeContext.GetCachedStores();
+            //    var anon = await _db.Countries
+            //        .AsNoTracking()
+            //        .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)
+            //        .AsCaching()
+            //        .Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+            //        .ToListAsync();
             //}
 
             var anon = await _db.Countries
@@ -191,7 +199,18 @@ namespace Smartstore.Web.Controllers
             //    x.Message = $"Fortschritt {x.Percent}";
             //});
 
-            var numDeleted = await _locService.DeleteLocaleStringResourcesAsync("Yodele.Nixda");
+            //var numDeleted = await _locService.DeleteLocaleStringResourcesAsync("Yodele.Nixda");
+
+            await using var scope = await _db.OpenConnectionAsync();
+
+            var products = await _db.Products.OrderByDescending(x => x.Id).Take(100).ToListAsync();
+
+            var urlService = _services.Resolve<IUrlService>();
+            foreach (var product in products)
+            {
+                var slug = await urlService.ValidateSlugAsync(product, product.Name, true);
+                await urlService.ApplySlugAsync(product, slug, 0, false);
+            }
 
             return View();
         }

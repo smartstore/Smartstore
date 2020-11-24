@@ -28,6 +28,7 @@ namespace Smartstore.Core.Seo
         private readonly SeoSettings _seoSettings;
         private readonly PerformanceSettings _performanceSettings;
 
+        private readonly IDictionary<string, UrlRecord> _extraSlugLookup;
         private readonly IDictionary<string, UrlRecordCollection> _prefetchedCollections;
         private static int _lastCacheSegmentSize = -1;
 
@@ -43,6 +44,7 @@ namespace Smartstore.Core.Seo
             _performanceSettings = performanceSettings;
 
             _prefetchedCollections = new Dictionary<string, UrlRecordCollection>(StringComparer.OrdinalIgnoreCase);
+            _extraSlugLookup = new Dictionary<string, UrlRecord>();
 
             ValidateCacheState();
         }
@@ -67,6 +69,8 @@ namespace Smartstore.Core.Seo
             {
                 await ClearCacheSegmentAsync(entry.EntityName, entry.EntityId, entry.LanguageId);
             }
+
+            _extraSlugLookup.Clear();
         }
 
         #endregion
@@ -351,6 +355,7 @@ namespace Smartstore.Core.Seo
                         IsActive = true,
                     };
                     _db.UrlRecords.Add(urlRecord);
+                    _extraSlugLookup[urlRecord.Slug] = urlRecord;
                     dirty = true;
                     result = urlRecord;
                 }
@@ -414,6 +419,7 @@ namespace Smartstore.Core.Seo
                                 IsActive = true,
                             };
                             _db.UrlRecords.Add(urlRecord);
+                            _extraSlugLookup[urlRecord.Slug] = urlRecord;
                             result = urlRecord;
 
                             // disable the previous active URL record
@@ -436,8 +442,7 @@ namespace Smartstore.Core.Seo
         public virtual async Task<string> ValidateSlugAsync<T>(T entity,
             string slug,
             bool ensureNotEmpty,
-            int? languageId = null,
-            Func<string, UrlRecord> extraSlugLookup = null)
+            int? languageId = null)
             where T : BaseEntity, ISlugSupported
         {
             Guard.NotNull(entity, nameof(entity));
@@ -458,7 +463,7 @@ namespace Smartstore.Core.Seo
                 if (ensureNotEmpty)
                 {
                     // Use entity identifier as slug if empty
-                    slug = entity.Id.ToString();
+                    slug = entity.GetEntityName() + entity.Id.ToStringInvariant();
                 }
                 else
                 {
@@ -484,7 +489,7 @@ namespace Smartstore.Core.Seo
             while (true)
             {
                 // Check whether such slug already exists (and that it's not the current entity)
-                var urlRecord = (await _db.UrlRecords.FirstOrDefaultAsync(x => x.Slug == tempSlug)) ?? extraSlugLookup?.Invoke(tempSlug);
+                var urlRecord = _extraSlugLookup.Get(tempSlug) ?? (await _db.UrlRecords.FirstOrDefaultAsync(x => x.Slug == tempSlug));
                 var reserved1 = urlRecord != null && !(urlRecord.EntityId == entity.Id && urlRecord.EntityName.EqualsNoCase(entityName));
 
                 if (!reserved1 && urlRecord != null && languageId.HasValue)

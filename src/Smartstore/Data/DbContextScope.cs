@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace Smartstore.Data
         private readonly CascadeTiming _cascadeDeleteTiming;
         private readonly CascadeTiming _deleteOrphansTiming;
         private readonly bool _autoTransactionEnabled;
+        private readonly bool _retainConnection;
 
         public DbContextScope(HookingDbContext ctx,
             bool? autoDetectChanges = null,
@@ -27,7 +29,8 @@ namespace Smartstore.Data
             bool? forceNoTracking = null,
             CascadeTiming? cascadeDeleteTiming = null,
             CascadeTiming? deleteOrphansTiming = null,
-            bool? autoTransactions = null)
+            bool? autoTransactions = null,
+            bool retainConnection = false)
         {
             Guard.NotNull(ctx, nameof(ctx));
 
@@ -41,6 +44,7 @@ namespace Smartstore.Data
             _cascadeDeleteTiming = changeTracker.CascadeDeleteTiming;
             _deleteOrphansTiming = changeTracker.DeleteOrphansTiming;
             _autoTransactionEnabled = ctx.Database.AutoTransactionsEnabled;
+            _retainConnection = retainConnection;
 
             if (autoDetectChanges.HasValue)
                 changeTracker.AutoDetectChangesEnabled = autoDetectChanges.Value;
@@ -62,6 +66,9 @@ namespace Smartstore.Data
 
             if (autoTransactions.HasValue)
                 ctx.Database.AutoTransactionsEnabled = autoTransactions.Value;
+
+            if (retainConnection)
+                ctx.Database.OpenConnection();
         }
 
         public HookingDbContext DbContext => _ctx;
@@ -110,6 +117,8 @@ namespace Smartstore.Data
             changeTracker.CascadeDeleteTiming = _cascadeDeleteTiming;
             changeTracker.DeleteOrphansTiming = _deleteOrphansTiming;
 
+            if (_retainConnection && _ctx.Database.GetDbConnection().State == ConnectionState.Open)
+                _ctx.Database.CloseConnection();
         }
     }
 }

@@ -1,20 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Internal;
 using Smartstore.ComponentModel;
 using Smartstore.Data;
 using Smartstore.Domain;
+using Smartstore.Utilities;
 using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
 namespace Smartstore
 {
     public static class DbContextExtensions
     {
+        #region Connection
+
+        /// <summary>
+        /// Opens and retains connection until end of scope. Call this method in long running 
+        /// processes to gain slightly faster database interaction.
+        /// </summary>
+        /// <param name="ctx">The database context</param>
+        public static IDisposable OpenConnection(this DbContext ctx)
+        {
+            bool wasOpened = false;
+            var db = ctx.Database;
+
+            if (db.GetDbConnection().State != ConnectionState.Open)
+            {
+                db.OpenConnection();
+                wasOpened = true;
+            }
+
+            return new ActionDisposable(() => 
+            {
+                if (wasOpened)
+                    db.CloseConnection();
+            });
+        }
+
+        /// <summary>
+        /// Opens and retains connection until end of scope. Call this method in long running 
+        /// processes to gain slightly faster database interaction.
+        /// </summary>
+        /// <param name="ctx">The database context</param>
+        public static async Task<IAsyncDisposable> OpenConnectionAsync(this DbContext ctx)
+        {
+            bool wasOpened = false;
+            var db = ctx.Database;
+
+            if (db.GetDbConnection().State != ConnectionState.Open)
+            {
+                await db.OpenConnectionAsync();
+                wasOpened = true;
+            }
+
+            return new AsyncActionDisposable(async () =>
+            {
+                if (wasOpened)
+                    await db.CloseConnectionAsync();
+            });
+        }
+
+        #endregion
+
         #region Entity states, detaching
 
         /// <summary>

@@ -44,9 +44,19 @@ namespace Smartstore.Data
 
         public int Execute(bool acceptAllChangesOnSuccess)
         {
+            Exception exception = null;
+            
             using (DoExecute())
             {
-                return _ctx.SaveChangesCore(acceptAllChangesOnSuccess);
+                try
+                {
+                    return _ctx.SaveChangesCore(acceptAllChangesOnSuccess);
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                    throw;
+                }
             }
 
             IDisposable DoExecute()
@@ -86,7 +96,11 @@ namespace Smartstore.Data
                     try
                     {
                         // Post
-                        PostExecuteAsync(preResult.Entries, CancellationToken.None).Await();
+                        if (exception != null)
+                        {
+                            // Post execute only on successful commit
+                            PostExecuteAsync(preResult.Entries, CancellationToken.None).Await();
+                        }
                     }
                     finally
                     {
@@ -101,9 +115,19 @@ namespace Smartstore.Data
 
         public async Task<int> ExecuteAsync(bool acceptAllChangesOnSuccess, CancellationToken cancelToken)
         {
+            Exception exception = null;
+            
             await using (await DoExecuteAsync())
             {
-                return await _ctx.SaveChangesCoreAsync(acceptAllChangesOnSuccess, cancelToken);
+                try
+                {
+                    return await _ctx.SaveChangesCoreAsync(acceptAllChangesOnSuccess, cancelToken);
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                    throw;
+                }
             }
 
             async Task<IAsyncDisposable> DoExecuteAsync()
@@ -143,7 +167,11 @@ namespace Smartstore.Data
                     try
                     {
                         // Post
-                        await PostExecuteAsync(preResult.Entries, cancelToken);
+                        if (exception != null)
+                        {
+                            // Post execute only on successful commit
+                            await PostExecuteAsync(preResult.Entries, cancelToken);
+                        }
                     }
                     finally
                     {

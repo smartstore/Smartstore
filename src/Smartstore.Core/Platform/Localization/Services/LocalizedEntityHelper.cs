@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Core.Seo;
@@ -171,6 +172,16 @@ namespace Smartstore.Core.Localization
             bool returnDefaultValue = true,
             bool ensureTwoPublishedLanguages = true)
         {
+            return GetActiveSlugAsync(entityName, entityId, languageId, returnDefaultValue, ensureTwoPublishedLanguages).Await();
+        }
+
+        public virtual async Task<string> GetActiveSlugAsync(
+            string entityName,
+            int entityId,
+            int? languageId,
+            bool returnDefaultValue = true,
+            bool ensureTwoPublishedLanguages = true)
+        {
             string result = string.Empty;
 
             if (languageId == null)
@@ -190,14 +201,14 @@ namespace Smartstore.Core.Localization
                 // Localized value
                 if (loadLocalizedValue)
                 {
-                    result = _urlService.GetActiveSlugAsync(entityId, entityName, languageId.Value).Await();
+                    result = await _urlService.GetActiveSlugAsync(entityId, entityName, languageId.Value);
                 }
             }
 
             // Set default value if required
             if (string.IsNullOrEmpty(result) && returnDefaultValue)
             {
-                result = _urlService.GetActiveSlugAsync(entityId, entityName, 0).Await();
+                result = await _urlService.GetActiveSlugAsync(entityId, entityName, 0);
             }
 
             return result;

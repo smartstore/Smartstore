@@ -71,14 +71,10 @@ namespace Smartstore.Core.Seo
         /// </summary>
         /// <typeparam name="T">Type of slug supporting entity</typeparam>
         /// <param name="entity">Entity instance</param>
-        /// <param name="slug">Slug to validate</param>
+        /// <param name="slug">Slug to validate. If null or empty, slug will be resolved from <see cref="IDisplayedEntity.GetDisplayName()"/>.</param>
         /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
         /// <returns>Valid slug</returns>
-        Task<string> ValidateSlugAsync<T>(T entity,
-            string slug,
-            bool ensureNotEmpty,
-            int? languageId = null,
-            Func<string, UrlRecord> extraSlugLookup = null)
+        Task<string> ValidateSlugAsync<T>(T entity, string slug, bool ensureNotEmpty, int? languageId = null)
             where T : BaseEntity, ISlugSupported;
 
         /// <summary>
