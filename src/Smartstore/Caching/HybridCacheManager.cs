@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Smartstore.Engine;
 using Smartstore.Threading;
 using Smartstore.Utilities;
@@ -361,7 +362,8 @@ namespace Smartstore.Caching
             // INFO: Reverse order
             var counts = await _stores
                 .Reverse()
-                .SelectAsync(async (x) => await x.RemoveByPatternAsync(pattern));
+                .SelectAsync(x => x.RemoveByPatternAsync(pattern))
+                .ToListAsync();
 
             return counts.Max();
         }

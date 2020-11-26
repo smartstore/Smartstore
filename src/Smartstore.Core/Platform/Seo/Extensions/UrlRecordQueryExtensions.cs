@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Seo
 {
@@ -18,28 +17,27 @@ namespace Smartstore.Core.Seo
                 : query.Where(x => x.Slug.Contains(slug));
         }
 
-        public static IQueryable<UrlRecord> ApplyEntityFilter<T>(this IQueryable<UrlRecord> query, T entity, bool? active = null)
-            where T : BaseEntity, ISlugSupported
+        public static IOrderedQueryable<UrlRecord> ApplyEntityFilter<T>(this IQueryable<UrlRecord> query, T entity, int languageId, bool? active = null)
+            where T : ISlugSupported
         {
-            Guard.NotNull(query, nameof(query));
             Guard.NotNull(entity, nameof(entity));
 
-            return ApplyEntityFilter(query, entity.GetEntityName(), entity.Id, active);
+            return ApplyEntityFilter(query, entity.GetEntityName(), entity.Id, languageId, active);
         }
 
-        public static IQueryable<UrlRecord> ApplyEntityFilter(this IQueryable<UrlRecord> query, string entityName, int entityId, bool? active = null)
+        public static IOrderedQueryable<UrlRecord> ApplyEntityFilter(this IQueryable<UrlRecord> query, string entityName, int entityId, int languageId, bool? active = null)
         {
             Guard.NotNull(query, nameof(query));
             Guard.NotEmpty(entityName, nameof(entityName));
 
-            query = query.Where(x => x.EntityId == entityId && x.EntityName == entityName);
+            query = query.Where(x => x.EntityId == entityId && x.EntityName == entityName && x.LanguageId == languageId);
 
             if (active.HasValue)
             {
                 query = query.Where(x => x.IsActive == active.Value);
             }
 
-            return query;
+            return query.OrderByDescending(x => x.Id);
         }
     }
 }

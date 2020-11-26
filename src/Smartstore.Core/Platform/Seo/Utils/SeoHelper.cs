@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using Smartstore.Domain;
 using Smartstore.Engine;
 using Smartstore.Utilities;
 
@@ -16,28 +17,12 @@ namespace Smartstore.Core.Seo
         /// Gets SEO friendly name
         /// </summary>
         /// <param name="name">Name</param>
-        /// <returns>Result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string BuildSlug(string name)
-        {
-            var seoSettings = EngineContext.Current.Scope.ResolveOptional<SeoSettings>();
-            return BuildSlug(
-                name,
-                seoSettings?.ConvertNonWesternChars ?? false,
-                seoSettings?.AllowUnicodeCharsInUrls ?? false,
-                true,
-                seoSettings?.SeoNameCharConversion);
-        }
-
-        /// <summary>
-        /// Gets SEO friendly name
-        /// </summary>
-        /// <param name="name">Name</param>
         /// <param name="seoSettings">SEO settings</param>
         /// <returns>Result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string BuildSlug(string name, SeoSettings seoSettings)
+        public static string BuildSlug(string name, SeoSettings seoSettings = null)
         {
+            seoSettings ??= EngineContext.Current.Scope.ResolveOptional<SeoSettings>();
             return BuildSlug(
                 name,
                 seoSettings?.ConvertNonWesternChars ?? false,

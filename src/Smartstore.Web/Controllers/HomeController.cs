@@ -203,14 +203,23 @@ namespace Smartstore.Web.Controllers
 
             await using var scope = await _db.OpenConnectionAsync();
 
-            var products = await _db.Products.OrderByDescending(x => x.Id).Take(100).ToListAsync();
-
+            var products = await _db.Products.OrderByDescending(x => x.Id).Skip(200).Take(100).ToListAsync();
             var urlService = _services.Resolve<IUrlService>();
+
+            //foreach (var product in products)
+            //{
+            //    var result = await urlService.ValidateSlugAsync(product, product.Name, true);
+            //    //await urlService.ApplySlugAsync(result, false);
+            //}
+
+            using var batchScope = urlService.CreateBatchScope();
             foreach (var product in products)
             {
-                var slug = await urlService.ValidateSlugAsync(product, product.Name, true);
-                await urlService.ApplySlugAsync(product, slug, 0, false);
+                batchScope.ApplySlugs(new ValidateSlugResult { Source = product, Slug = product.BuildSlug() });
             }
+            await batchScope.CommitAsync();
+
+            //int numSaved = await _db.SaveChangesAsync();
 
             return View();
         }

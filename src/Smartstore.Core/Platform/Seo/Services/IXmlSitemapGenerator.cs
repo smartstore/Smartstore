@@ -43,6 +43,11 @@ namespace Smartstore.Core.Seo
         /// <summary>
         /// Removes the sitemap from the cache for a rebuild.
         /// </summary>
-        void Invalidate(int storeId, int languageId);
+        void Invalidate(int storeId, int? languageId);
+
+        /// <summary>
+        /// Removes all cached sitemap files (any store, any language)
+        /// </summary>
+        void InvalidateAll();
     }
 }

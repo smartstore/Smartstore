@@ -185,9 +185,21 @@ namespace Smartstore.Core.Seo
             return _tenantRoot.PathCombine(BuildSitemapDirPath(storeId, languageId), fileName);
         }
 
-        private string BuildSitemapDirPath(int storeId, int languageId)
+        private string BuildSitemapDirPath(int? storeId, int? languageId)
         {
-            return _tenantRoot.PathCombine(_baseDir, storeId + "/" + languageId);
+            if (storeId == null)
+            {
+                return _baseDir;
+            }
+
+            if (languageId == null)
+            {
+                return _tenantRoot.PathCombine(_baseDir, storeId.ToStringInvariant());
+            }
+            else
+            {
+                return _tenantRoot.PathCombine(_baseDir, storeId.ToStringInvariant(), languageId.ToStringInvariant());
+            }
         }
 
         private string GetLockFilePath(int storeId, int languageId)
@@ -279,7 +291,7 @@ namespace Smartstore.Core.Seo
                     var nodes = new List<XmlSitemapNode>();
 
                     var providers = CreateProviders(ctx);
-                    var total = (await providers.SelectAsync(x => x.GetTotalCountAsync())).Sum();
+                    var total = (await providers.SelectAsync(x => x.GetTotalCountAsync()).ToListAsync(ctx.CancellationToken)).Sum();
                     var totalSegments = (int)Math.Ceiling(total / (double)MaximumSiteMapNodeCount);
                     var hasIndex = totalSegments > 1;
                     var indexNodes = new Multimap<int, XmlSitemapNode>();
@@ -667,10 +679,22 @@ namespace Smartstore.Core.Seo
             return TryGetSitemapFile(storeId, languageId, 0, out _);
         }
 
-        public virtual void Invalidate(int storeId, int languageId)
+        public virtual void Invalidate(int storeId, int? languageId)
         {
+            // TODO: (core) Auto-invalidate when dependant settings change:
+            // Store, Language, LanguageSettings.DefaultLanguageRedirectBehaviour
             var dir = BuildSitemapDirPath(storeId, languageId);
             _tenantRoot.TryDeleteDirectory(dir);
+        }
+
+        public virtual void InvalidateAll()
+        {
+            var dir = BuildSitemapDirPath(null, null);
+            foreach (var subDir in _tenantRoot.EnumerateDirectories(dir))
+            {
+                // Delete only directories, no lock files.
+                _tenantRoot.TryDeleteDirectory(subDir.SubPath);
+            }
         }
 
         #region Nested classes

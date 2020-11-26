@@ -354,14 +354,27 @@ namespace Smartstore
 			}
 		}
 
+		///// <summary>
+		///// Projects each element of a sequence into a new form by incorporating the element's index.
+		///// </summary>
+		///// <param name="source">A sequence of values to invoke a transform function on.</param>
+		///// <param name="selector">A transform function to apply to each source element.</param>
+		//public static async Task<IEnumerable<TResult>> SelectAsync<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
+		//{
+		//	return await Task.WhenAll(source.Select(async x => await selector(x)));
+		//}
+
 		/// <summary>
 		/// Projects each element of a sequence into a new form by incorporating the element's index.
 		/// </summary>
 		/// <param name="source">A sequence of values to invoke a transform function on.</param>
 		/// <param name="selector">A transform function to apply to each source element.</param>
-		public static async Task<IEnumerable<TResult>> SelectAsync<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
+		public static async IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
 		{
-			return await Task.WhenAll(source.Select(async x => await selector(x)));
+			await foreach (var item in source.ToAsyncEnumerable())
+			{
+				yield return await selector(item);
+			}
 		}
 
 		/// <summary>

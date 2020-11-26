@@ -5,6 +5,27 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Seo
 {
+    public readonly struct ValidateSlugResult
+    {
+        private readonly ISlugSupported _source;
+        public ISlugSupported Source 
+        {
+            get => _source;
+            init
+            {
+                _source = value;
+                EntityName = value?.GetEntityName();
+            }
+        }
+
+        public string EntityName { get; private init; }
+        public string Slug { get; init; }
+        public UrlRecord Found { get; init; }
+        public bool FoundIsSelf { get; init; }
+        public int? LanguageId { get; init; }
+        public bool WasValidated { get; init; }
+    }
+    
     /// <summary>
     /// Seo slugs service interface
     /// </summary>
@@ -55,27 +76,25 @@ namespace Smartstore.Core.Seo
         Task<UrlRecordCollection> GetUrlRecordCollectionAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
 
         /// <summary>
-        /// Applies a slug. The caller is responsible for database commit.
+        /// Applies a slug.
         /// </summary>
-        /// <typeparam name="T">Type of slug supporting entity</typeparam>
-        /// <param name="entity">Entity instance</param>
-        /// <param name="slug">Slug to apply</param>
-        /// <param name="languageId">Language ID</param>
-		/// <returns>
-		/// A <see cref="UrlRecord"/> instance when a new record had to be inserted, <c>null</c> otherwise.
-		/// </returns>
-        Task<UrlRecord> ApplySlugAsync<T>(T entity, string slug, int languageId, bool save = false) where T : BaseEntity, ISlugSupported;
+        /// <param name="result">Result data from <see cref="ValidateSlugAsync{T}(T, string, bool, int?)"/> method call.</param>
+        /// <param name="save"><c>true</c> will commit result to database.</param>
+        /// <returns>
+        /// The affected <see cref="UrlRecord"/> instance, either new or existing as tracked entity.
+        /// </returns>
+        Task<UrlRecord> ApplySlugAsync(ValidateSlugResult result, bool save = false);
 
         /// <summary>
-        /// Validates (sanitizes) the slug. Also appends a unique number if it already exists in the database.
+        /// Slugifies and checks uniqueness of a given search engine name. If not unique, a number will be appended to the result slug.
         /// </summary>
         /// <typeparam name="T">Type of slug supporting entity</typeparam>
         /// <param name="entity">Entity instance</param>
-        /// <param name="slug">Slug to validate. If null or empty, slug will be resolved from <see cref="IDisplayedEntity.GetDisplayName()"/>.</param>
+        /// <param name="seName">Search engine display name to validate. If null or empty, name will be resolved from <see cref="IDisplayedEntity.GetDisplayName()"/>.</param>
         /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
-        /// <returns>Valid slug</returns>
-        Task<string> ValidateSlugAsync<T>(T entity, string slug, bool ensureNotEmpty, int? languageId = null)
-            where T : BaseEntity, ISlugSupported;
+        /// <returns>A system unique slug</returns>
+        ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity, string seName, bool ensureNotEmpty, int? languageId = null)
+            where T : ISlugSupported;
 
         /// <summary>
         /// Gets the number of existing slugs per entity.
@@ -83,5 +102,14 @@ namespace Smartstore.Core.Seo
         /// <param name="urlRecordIds">URL record identifiers</param>
         /// <returns>Dictionary of slugs per entity count</returns>
         Task<Dictionary<int, int>> CountSlugsPerEntityAsync(params int[] urlRecordIds);
+
+        /// <summary>
+        /// Creates a variation of this service that is optimized
+        /// for batching scenarios like long running imports or exports.
+        /// Cache segmenting is turned off to avoid high memory pressure
+        /// and applied slugs are queued until <see cref="IUrlServiceBatchScope.CommitAsync()"/> is called.
+        /// </summary>
+        /// <returns>The batch scope instance.</returns>
+        IUrlServiceBatchScope CreateBatchScope();
     }
 }

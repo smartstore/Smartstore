@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,6 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Seo
 {
@@ -23,9 +23,9 @@ namespace Smartstore.Core.Seo
         const string URLRECORD_SEGMENT_PATTERN = "urlrecord:segment:{0}*";
         const string URLRECORD_ALL_ACTIVESLUGS_KEY = "urlrecord:all-active-slugs";
 
-        private readonly SmartDbContext _db;
+        internal readonly SmartDbContext _db;
         private readonly ICacheManager _cacheManager;
-        private readonly SeoSettings _seoSettings;
+        internal readonly SeoSettings _seoSettings;
         private readonly PerformanceSettings _performanceSettings;
 
         private readonly IDictionary<string, UrlRecord> _extraSlugLookup;
@@ -186,20 +186,19 @@ namespace Smartstore.Core.Seo
 
         #region IUrlService
 
+        public virtual IUrlServiceBatchScope CreateBatchScope()
+        {
+            return new UrlServiceBatchScope(this);
+        }
+
         public virtual async Task<string> GetActiveSlugAsync(int entityId, string entityName, int languageId)
         {
             Guard.NotEmpty(entityName, nameof(entityName));
             
-            if (_prefetchedCollections.TryGetValue(entityName, out var collection))
+            if (TryGetPrefetchedActiveSlug(entityId, entityName, languageId, out var slug))
             {
-                var cachedItem = collection.Find(languageId, entityId);
-                if (cachedItem != null)
-                {
-                    return cachedItem.Slug.EmptyNull();
-                }
+                return slug;
             }
-
-            string slug = null;
 
             if (_seoSettings.LoadAllUrlAliasesOnStartup)
             {
@@ -242,7 +241,7 @@ namespace Smartstore.Core.Seo
 
         public virtual async Task PrefetchUrlRecordsAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false)
         {
-            var collection = await GetUrlRecordCollectionInternalAsync(entityName, languageIds, entityIds, isRange, isSorted, tracked);
+            var collection = await GetUrlRecordCollectionAsync(entityName, languageIds, entityIds, isRange, isSorted, tracked);
 
             if (_prefetchedCollections.TryGetValue(entityName, out var existing))
             {
@@ -254,12 +253,7 @@ namespace Smartstore.Core.Seo
             }
         }
 
-        public Task<UrlRecordCollection> GetUrlRecordCollectionAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false)
-        {
-            return GetUrlRecordCollectionInternalAsync(entityName, languageIds, entityIds, isRange, isSorted, tracked);
-        }
-
-        protected virtual async Task<UrlRecordCollection> GetUrlRecordCollectionInternalAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange, bool isSorted, bool tracked)
+        public virtual async Task<UrlRecordCollection> GetUrlRecordCollectionAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false)
         {
             Guard.NotEmpty(entityName, nameof(entityName));
 
@@ -315,147 +309,139 @@ namespace Smartstore.Core.Seo
             return new UrlRecordCollection(entityName, requestedSet, items);
         }
 
-        public virtual async Task<UrlRecord> ApplySlugAsync<T>(T entity, string slug, int languageId, bool save = false) 
-            where T : BaseEntity, ISlugSupported
+        protected internal bool TryGetPrefetchedActiveSlug(int entityId, string entityName, int languageId, out string slug)
         {
-            Guard.NotNull(entity, nameof(entity));
+            slug = null;
 
-            int entityId = entity.Id;
-            string entityName = entity.GetEntityName();
-            UrlRecord result = null;
+            if (_prefetchedCollections.TryGetValue(entityName, out var collection))
+            {
+                var record = collection.Find(languageId, entityId);
+                if (record != null)
+                {
+                    slug = record.Slug.NullEmpty();
+                }
+            }
+
+            return slug != null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<UrlRecord> ApplySlugAsync(ValidateSlugResult result, bool save = false)
+        {
+            return ApplySlugAsync(result, _prefetchedCollections.Get(result.EntityName), save);
+        }
+
+        protected internal virtual async Task<UrlRecord> ApplySlugAsync(ValidateSlugResult result, UrlRecordCollection prefetchedCollection, bool save = false)
+        {
+            if (string.IsNullOrWhiteSpace(result.Slug))
+            {
+                return null;
+            }
+
             var dirty = false;
+            var entry = result.Found;
+            var languageId = result.LanguageId ?? 0;
 
-            var allUrlRecords = await _db.UrlRecords
-                .ApplyEntityFilter(entity)
-                .Where(x => x.LanguageId == languageId)
-                .OrderByDescending(x => x.Id)
-                .ToListAsync();
-
-            var activeEntry = allUrlRecords.FirstOrDefault(x => x.IsActive);
-            if (activeEntry == null && slug.HasValue())
+            if (entry != null && result.FoundIsSelf)
             {
-                // Find in non-active records with the specified slug
-                var inactiveEntryWithSpecifiedSlug = allUrlRecords.FirstOrDefault(x => x.Slug.EqualsNoCase(slug) && !x.IsActive);
-                if (inactiveEntryWithSpecifiedSlug != null)
+                // Found record refers to requested entity
+                if (entry.IsActive)
                 {
-                    // Mark non-active record as active
-                    inactiveEntryWithSpecifiedSlug.IsActive = true;
-                    result = inactiveEntryWithSpecifiedSlug;
-                    dirty = true;
+                    // ...and is active. Do nothing, 'cause nothing changed.
                 }
                 else
                 {
-                    // New record
-                    var urlRecord = new UrlRecord
-                    {
-                        EntityId = entity.Id,
-                        EntityName = entityName,
-                        Slug = slug,
-                        LanguageId = languageId,
-                        IsActive = true,
-                    };
-                    _db.UrlRecords.Add(urlRecord);
-                    _extraSlugLookup[urlRecord.Slug] = urlRecord;
+                    // ...and is inactive. Make it active
+                    entry.IsActive = true;
                     dirty = true;
-                    result = urlRecord;
+
+                    // ...and make the current active one(s) inactive.
+                    var currentActive = await GetActiveEntryFromStoreAsync();
+                    if (currentActive != null)
+                    {
+                        currentActive.IsActive = false;
+                    }
                 }
             }
 
-            if (activeEntry != null && string.IsNullOrWhiteSpace(slug))
+            if (entry == null || !result.FoundIsSelf)
             {
-                // Disable the previous active URL record
-                activeEntry.IsActive = false;
+                //// ...and make the current active one(s) inactive.
+                //var currentEntries = await GetEntriesFromStoreAsync(null);
+                //currentEntries.Each(x => x.IsActive = false);
+
+                //entry = currentEntries.FirstOrDefault(x => x.Slug.EqualsNoCase(result.Slug));
+
+                // Create new entry because no entry was found or found one refers to another entity.
+                entry = new UrlRecord
+                {
+                    EntityId = result.Source.Id,
+                    EntityName = result.EntityName,
+                    Slug = result.Slug,
+                    LanguageId = languageId,
+                    IsActive = true,
+                };
+                _db.UrlRecords.Add(entry);
+
+                // When we gonna save deferred, adding the new entry to our extra lookup
+                // will ensure that subsequent validation does not miss new records.
+                _extraSlugLookup[entry.Slug] = entry;
+
                 dirty = true;
-            }
-
-            if (activeEntry != null && !string.IsNullOrWhiteSpace(slug))
-            {
-                // Is it the same slug as in active URL record?
-                if (activeEntry.Slug.EqualsNoCase(slug))
-                {
-                    // yes. do nothing
-                    // P.S. wrote this way for more source code readability
-                }
-                else
-                {
-                    // find in non-active records with the specified slug
-                    var inactiveEntryWithSpecifiedSlug = allUrlRecords
-                        .FirstOrDefault(x => x.Slug.EqualsNoCase(slug) && !x.IsActive);
-                    if (inactiveEntryWithSpecifiedSlug != null)
-                    {
-                        // mark non-active record as active
-                        inactiveEntryWithSpecifiedSlug.IsActive = true;
-
-                        //disable the previous active URL record
-                        activeEntry.IsActive = false;
-
-                        dirty = true;
-                    }
-                    else
-                    {
-                        // MC: Absolutely ensure that we have no duplicate active record for this entity.
-                        // In such case a record other than "activeUrlRecord" could have same seName
-                        // and the DB would report an Index error.
-                        var alreadyActiveDuplicate = allUrlRecords.FirstOrDefault(x => x.Slug.EqualsNoCase(slug) && x.IsActive);
-                        if (alreadyActiveDuplicate != null)
-                        {
-                            // deactivate all
-                            allUrlRecords.Each(x => x.IsActive = false);
-                            // set the existing one to active again
-                            alreadyActiveDuplicate.IsActive = true;
-                            dirty = true;
-                        }
-                        else
-                        {
-                            // Insert new record
-                            // we do not update the existing record because we should track all previously entered slugs
-                            // to ensure that URLs will work fine
-                            var urlRecord = new UrlRecord
-                            {
-                                EntityId = entity.Id,
-                                EntityName = entityName,
-                                Slug = slug,
-                                LanguageId = languageId,
-                                IsActive = true,
-                            };
-                            _db.UrlRecords.Add(urlRecord);
-                            _extraSlugLookup[urlRecord.Slug] = urlRecord;
-                            result = urlRecord;
-
-                            // disable the previous active URL record
-                            activeEntry.IsActive = false;
-
-                            dirty = true;
-                        }
-                    }
-                }
             }
 
             if (dirty && save)
             {
-                await _db.SaveChangesAsync();
+                int numSaved = await _db.SaveChangesAsync();
             }
 
-            return result;
+            return entry;
+
+            async Task<UrlRecord> GetActiveEntryFromStoreAsync()
+            {
+                if (result.Source.Id > 0)
+                {
+                    if (prefetchedCollection != null)
+                    {
+                        var record = prefetchedCollection.Find(languageId, result.Source.Id);
+                        if (record != null)
+                        {
+                            // Transient: was requested from store, but does not exist.
+                            return record.IsTransientRecord() ? null : record;
+                        }
+                    }
+                    
+                    return await _db.UrlRecords
+                        .ApplyEntityFilter(result.Source, languageId, true)
+                        .FirstOrDefaultAsync();
+                }
+
+                return null;
+            }
         }
 
-        public virtual async Task<string> ValidateSlugAsync<T>(T entity,
-            string slug,
+        public virtual async ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity,
+            string seName,
             bool ensureNotEmpty,
             int? languageId = null)
-            where T : BaseEntity, ISlugSupported
+            where T : ISlugSupported
         {
             Guard.NotNull(entity, nameof(entity));
 
-            // Use name if slug is not specified
-            if (string.IsNullOrWhiteSpace(slug) && !string.IsNullOrWhiteSpace(entity.GetDisplayName()))
-                slug = entity.GetDisplayName();
+            var displayName = entity.GetDisplayName();
+            var entityName = entity.GetEntityName();
+
+            // Use entity DisplayName if seName is not specified
+            if (string.IsNullOrWhiteSpace(seName) && !string.IsNullOrWhiteSpace(displayName))
+            {
+                seName = displayName;
+            }
 
             // Validation
-            slug = SeoHelper.BuildSlug(slug,
+            var slug = SeoHelper.BuildSlug(seName,
                 _seoSettings.ConvertNonWesternChars,
-                _seoSettings.AllowUnicodeCharsInUrls, 
-                true, 
+                _seoSettings.AllowUnicodeCharsInUrls,
+                true,
                 _seoSettings.SeoNameCharConversion);
 
             if (string.IsNullOrWhiteSpace(slug))
@@ -463,50 +449,70 @@ namespace Smartstore.Core.Seo
                 if (ensureNotEmpty)
                 {
                     // Use entity identifier as slug if empty
-                    slug = entity.GetEntityName() + entity.Id.ToStringInvariant();
+                    slug = entityName.ToLower() + entity.Id.ToStringInvariant();
                 }
                 else
                 {
                     // Return. no need for further processing
-                    return slug;
+                    return new ValidateSlugResult 
+                    { 
+                        Source = entity, 
+                        Slug = slug, 
+                        LanguageId = languageId, 
+                        WasValidated = true 
+                    };
                 }
             }
 
             // Validate and alter slug if it could be interpreted as SEO code
             if (CultureHelper.IsValidCultureCode(slug))
             {
-                if (slug.Length == 2)
+                if (seName.Length == 2)
                 {
                     slug += "-0";
                 }
             }
 
             // Ensure this slug is not reserved
-            string entityName = entity.GetEntityName();
             int i = 2;
-            var tempSlug = slug;
+            string tempSlug = slug;
+            UrlRecord found = null;
+            bool foundIsSelf = false;
 
             while (true)
             {
-                // Check whether such slug already exists (and that it's not the current entity)
+                // Check whether such slug already exists in the database
                 var urlRecord = _extraSlugLookup.Get(tempSlug) ?? (await _db.UrlRecords.FirstOrDefaultAsync(x => x.Slug == tempSlug));
-                var reserved1 = urlRecord != null && !(urlRecord.EntityId == entity.Id && urlRecord.EntityName.EqualsNoCase(entityName));
-
-                if (!reserved1 && urlRecord != null && languageId.HasValue)
-                    reserved1 = (urlRecord.LanguageId != languageId.Value);
+                
+                // Check whether found record refers to requested entity
+                foundIsSelf = FoundRecordIsSelf(entity, urlRecord, languageId);
 
                 // ...and it's not in the list of reserved slugs
-                var reserved2 = _seoSettings.ReservedUrlRecordSlugs.Contains(tempSlug);
-                if (!reserved1 && !reserved2)
-                    break;
+                var reserved = _seoSettings.ReservedUrlRecordSlugs.Contains(tempSlug);
 
+                if ((urlRecord == null || foundIsSelf) && !reserved)
+                {
+                    found = urlRecord;
+                    break;
+                }
+
+                // Try again with unique index appended
                 var suffixLen = Math.Floor(Math.Log10(i) + 1).Convert<int>() + 1;
                 tempSlug = string.Format("{0}-{1}", slug.Truncate(400 - suffixLen), i);
+                found = urlRecord;
                 i++;
             }
             slug = tempSlug;
 
-            return slug;
+            return new ValidateSlugResult
+            {
+                Source = entity,
+                Slug = slug,
+                Found = found,
+                FoundIsSelf = foundIsSelf,
+                LanguageId = languageId,
+                WasValidated = true
+            };
         }
 
         public virtual Task<Dictionary<int, int>> CountSlugsPerEntityAsync(params int[] urlRecordIds)
@@ -527,6 +533,15 @@ namespace Smartstore.Core.Seo
                 .ToDictionaryAsync(x => x.Id, x => x.Count);
 
             return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected internal bool FoundRecordIsSelf(ISlugSupported source, UrlRecord urlRecord, int? languageId)
+        {
+            return urlRecord != null
+                && urlRecord.EntityId == source.Id
+                && urlRecord.EntityName.EqualsNoCase(source.GetEntityName())
+                && (languageId == null || urlRecord.LanguageId == languageId.Value);
         }
 
         #endregion
