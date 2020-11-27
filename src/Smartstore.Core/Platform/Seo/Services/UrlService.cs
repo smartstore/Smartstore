@@ -333,6 +333,11 @@ namespace Smartstore.Core.Seo
 
         protected internal virtual async Task<UrlRecord> ApplySlugAsync(ValidateSlugResult result, UrlRecordCollection prefetchedCollection, bool save = false)
         {
+            if (!result.WasValidated)
+            {
+                throw new ArgumentException("Unvalidated slugs cannot be applied. Consider obtaining 'ValidateSlugResult' from 'ValidateSlugAsync()' method.", nameof(result));
+            }
+            
             if (string.IsNullOrWhiteSpace(result.Slug))
             {
                 return null;
@@ -366,13 +371,8 @@ namespace Smartstore.Core.Seo
 
             if (entry == null || !result.FoundIsSelf)
             {
-                //// ...and make the current active one(s) inactive.
-                //var currentEntries = await GetEntriesFromStoreAsync(null);
-                //currentEntries.Each(x => x.IsActive = false);
-
-                //entry = currentEntries.FirstOrDefault(x => x.Slug.EqualsNoCase(result.Slug));
-
                 // Create new entry because no entry was found or found one refers to another entity.
+                // Because unvalidated slugs cannot be passed to this method we assume slug uniqueness.
                 entry = new UrlRecord
                 {
                     EntityId = result.Source.Id,
@@ -392,7 +392,7 @@ namespace Smartstore.Core.Seo
 
             if (dirty && save)
             {
-                int numSaved = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
             }
 
             return entry;

@@ -96,30 +96,28 @@ namespace Smartstore.Core.Seo
                     {
                         return slug;
                     }
+
+                    var isReserved = _urlService._seoSettings.ReservedUrlRecordSlugs.Contains(slug.Slug);
+                    var found = unvalidatedSlugsMap.Get(slug.Slug);
+                    var foundIsSelf = _urlService.FoundRecordIsSelf(slug.Source, found, slug.LanguageId);
                     
-                    var mustValidate = _urlService._seoSettings.ReservedUrlRecordSlugs.Contains(slug.Slug);
-                    if (!mustValidate)
+                    if (foundIsSelf)
                     {
-                        mustValidate = unvalidatedSlugsMap.TryGetValue(slug.Slug, out var urlRecord)
-                            && urlRecord != null
-                            && !_urlService.FoundRecordIsSelf(slug.Source, urlRecord, slug.LanguageId);
+                        return new ValidateSlugResult(slug) { WasValidated = true, Found = found, FoundIsSelf = true };
                     }
-                    
-                    if (mustValidate)
+
+                    if (found != null || isReserved)
                     {
                         // The existence of a UrlRecord instance for a given slug implies that the slug
                         // needs to run through the default validation process
                         // to ensure uniqueness.
                         return await _urlService.ValidateSlugAsync(slug.Source, slug.Slug, true, slug.LanguageId).AsTask();
                     }
-                    else
-                    {
-                        return slug;
-                    }
+
+                    return new ValidateSlugResult(slug) { WasValidated = true };
                 });
 
-            // Namespace conflict with EF otherwise
-            return await Dasync.Collections.IAsyncEnumerableExtensions.ToListAsync(validatedBatch, cancelToken);
+            return await validatedBatch.AsyncToList(cancelToken);
         }
 
         protected override void OnDispose(bool disposing)

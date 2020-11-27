@@ -8,6 +8,18 @@ namespace Smartstore.Core.Seo
     public readonly struct ValidateSlugResult
     {
         private readonly ISlugSupported _source;
+
+        public ValidateSlugResult(ValidateSlugResult copyFrom)
+        {
+            _source = copyFrom.Source;
+            EntityName = _source?.GetEntityName();
+            Slug = copyFrom.Slug;
+            Found = copyFrom.Found;
+            FoundIsSelf = copyFrom.FoundIsSelf;
+            LanguageId = copyFrom.LanguageId;
+            WasValidated = copyFrom.WasValidated;
+        }
+
         public ISlugSupported Source 
         {
             get => _source;
@@ -76,16 +88,6 @@ namespace Smartstore.Core.Seo
         Task<UrlRecordCollection> GetUrlRecordCollectionAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
 
         /// <summary>
-        /// Applies a slug.
-        /// </summary>
-        /// <param name="result">Result data from <see cref="ValidateSlugAsync{T}(T, string, bool, int?)"/> method call.</param>
-        /// <param name="save"><c>true</c> will commit result to database.</param>
-        /// <returns>
-        /// The affected <see cref="UrlRecord"/> instance, either new or existing as tracked entity.
-        /// </returns>
-        Task<UrlRecord> ApplySlugAsync(ValidateSlugResult result, bool save = false);
-
-        /// <summary>
         /// Slugifies and checks uniqueness of a given search engine name. If not unique, a number will be appended to the result slug.
         /// </summary>
         /// <typeparam name="T">Type of slug supporting entity</typeparam>
@@ -95,6 +97,16 @@ namespace Smartstore.Core.Seo
         /// <returns>A system unique slug</returns>
         ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity, string seName, bool ensureNotEmpty, int? languageId = null)
             where T : ISlugSupported;
+
+        /// <summary>
+        /// Applies a slug.
+        /// </summary>
+        /// <param name="result">Result data from <see cref="ValidateSlugAsync{T}(T, string, bool, int?)"/> method call.</param>
+        /// <param name="save"><c>true</c> will commit result to database.</param>
+        /// <returns>
+        /// The affected <see cref="UrlRecord"/> instance, either new or existing as tracked entity.
+        /// </returns>
+        Task<UrlRecord> ApplySlugAsync(ValidateSlugResult result, bool save = false);
 
         /// <summary>
         /// Gets the number of existing slugs per entity.

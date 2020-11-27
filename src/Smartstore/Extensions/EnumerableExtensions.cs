@@ -316,26 +316,6 @@ namespace Smartstore
 			}
 		}
 
-		// TODO: (core) Probably conflicting with efcore AnyAsync extension method.
-		/// <summary>
-		/// Determines whether any element of a sequence satisfies a condition. 
-		/// </summary>
-		/// <typeparam name="T">The type of the elements of source.</typeparam>
-		/// <param name="source">The source sequence whose elements to apply the predicate to.</param>
-		/// <param name="predicate">A function to test each element for a condition.</param>
-		public static async Task<bool> AnyAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
-		{
-			foreach (T t in source)
-			{
-				if (await predicate(t).ConfigureAwait(false))
-				{
-					return true;
-				}
-			}
-
-			return false;
-		}
-
 		/// <summary>
 		/// Filters a sequence of values based on an async predicate.
 		/// </summary>
@@ -354,22 +334,22 @@ namespace Smartstore
 			}
 		}
 
-		///// <summary>
-		///// Projects each element of a sequence into a new form by incorporating the element's index.
-		///// </summary>
-		///// <param name="source">A sequence of values to invoke a transform function on.</param>
-		///// <param name="selector">A transform function to apply to each source element.</param>
-		//public static async Task<IEnumerable<TResult>> SelectAsync<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
-		//{
-		//	return await Task.WhenAll(source.Select(async x => await selector(x)));
-		//}
+        /// <summary>
+        /// Projects each element of a sequence into a new form in parallel.
+        /// </summary>
+        /// <param name="source">A sequence of values to invoke a transform function on.</param>
+        /// <param name="selector">A transform function to apply to each source element.</param>
+        public static async Task<IEnumerable<TResult>> SelectAsyncParallel<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
+        {
+            return await Task.WhenAll(source.Select(async x => await selector(x)));
+        }
 
-		/// <summary>
-		/// Projects each element of a sequence into a new form by incorporating the element's index.
-		/// </summary>
-		/// <param name="source">A sequence of values to invoke a transform function on.</param>
-		/// <param name="selector">A transform function to apply to each source element.</param>
-		public static async IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
+        /// <summary>
+        /// Projects each element of a sequence into a new form.
+        /// </summary>
+        /// <param name="source">A sequence of values to invoke a transform function on.</param>
+        /// <param name="selector">A transform function to apply to each source element.</param>
+        public static async IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
 		{
 			await foreach (var item in source.ToAsyncEnumerable())
 			{
@@ -385,6 +365,52 @@ namespace Smartstore
 			return await Task.WhenAll(source);
 		}
 
-        #endregion
-    }
+		// TODO: (core) Probably conflicting with efcore AnyAsync extension method.
+		/// <summary>
+		/// Determines whether any element of a sequence satisfies a condition. 
+		/// </summary>
+		/// <typeparam name="T">The type of the elements of source.</typeparam>
+		/// <param name="source">The source sequence whose elements to apply the predicate to.</param>
+		/// <param name="predicate">A function to test each element for a condition.</param>
+		public static async Task<bool> AnyAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
+		{
+			foreach (T t in source)
+			{
+				if (await predicate(t))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Creates a list of elements asynchronously from the enumerable source.
+		/// The strange naming is due to the fact that we want to avoid naming conflicts with EF extensions methods.
+		/// </summary>
+		/// <typeparam name="T">The type of the elements of source</typeparam>
+		/// <param name="source">The collection of elements</param>
+		/// <param name="cancellationToken">A cancellation token to cancel the async operation</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<List<T>> AsyncToList<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
+        {
+			return source.ToListAsync(cancellationToken);
+		}
+
+		/// <summary>
+		/// Creates an array of elements asynchronously from the enumerable source.
+		/// The strange naming is due to the fact that we want to avoid naming conflicts with EF extensions methods.
+		/// </summary>
+		/// <typeparam name="T">The type of the elements of source</typeparam>
+		/// <param name="source">The collection of elements</param>
+		/// <param name="cancellationToken">A cancellation token to cancel the async operation</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Task<T[]> AsyncToArray<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
+		{
+			return source.ToArrayAsync(cancellationToken);
+		}
+
+		#endregion
+	}
 }

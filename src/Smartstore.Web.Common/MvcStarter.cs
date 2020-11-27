@@ -111,7 +111,6 @@ namespace Smartstore.Web.Common
             app.UseCookiePolicy(); // TODO: (core) Configure cookie policy
             app.UseAuthorization(); // TODO: (core) Configure custom auth with Identity Server
             // TODO: (core) Use request localization
-            // TODO: (core) Use SEO url rewriter
             // TODO: (core) Use media middleware
             app.UseRequestLocalization(); // TODO: (core) Configure request localization
             //app.UseSession(); // TODO: (core) Configure session

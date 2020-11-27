@@ -13,7 +13,7 @@ namespace Smartstore.Web.Common
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
             services.AddTransient<IWorkContext, WebWorkContext>();
-            services.AddScoped<SeoSlugRouteValueTransformer>();
+            services.AddScoped<SlugRouteTransformer>();
         }
 
         public override int ApplicationOrder => int.MinValue + 200;
@@ -30,10 +30,21 @@ namespace Smartstore.Web.Common
                 return;
             }
 
-            routes.MapDynamicControllerRoute<SeoSlugRouteValueTransformer>("{**slug:minlength(2)}");
+            routes.MapDynamicControllerRoute<SlugRouteTransformer>("{**SeName:minlength(2)}");
+        }
+    }
 
-            routes.MapControllerRoute("Homepage", "",
-                new { controller = "Home", action = "Index" });
+    public class LastRoutes : StarterBase
+    {
+        public override bool Matches(IApplicationContext appContext) => appContext.IsInstalled;
+        public override int RoutesOrder => int.MaxValue;
+        public override void ConfigureRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
+        {
+            // Register routes from SlugRouteTransformer solely needed for URL creation, NOT for route matching.
+            SlugRouteTransformer.Routers.Each(x => x.MapRoutes(routes));
+
+            // TODO: (core) Very last route: PageNotFound?
+            routes.MapControllerRoute("PageNotFound", "{*path}", new { controller = "Error", action = "NotFound" });
         }
     }
 }

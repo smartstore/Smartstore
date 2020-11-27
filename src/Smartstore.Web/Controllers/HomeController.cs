@@ -32,6 +32,7 @@ using Microsoft.Extensions.Primitives;
 using Smartstore.Utilities;
 using Smartstore.Core.Seo;
 using Smartstore.Data;
+using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore.Web.Controllers
 {
@@ -203,7 +204,7 @@ namespace Smartstore.Web.Controllers
 
             await using var scope = await _db.OpenConnectionAsync();
 
-            var products = await _db.Products.OrderByDescending(x => x.Id).Skip(200).Take(100).ToListAsync();
+            var products = await _db.Products.OrderByDescending(x => x.Id).Skip(600).Take(100).ToListAsync();
             var urlService = _services.Resolve<IUrlService>();
 
             //foreach (var product in products)
@@ -212,12 +213,12 @@ namespace Smartstore.Web.Controllers
             //    //await urlService.ApplySlugAsync(result, false);
             //}
 
-            using var batchScope = urlService.CreateBatchScope();
-            foreach (var product in products)
-            {
-                batchScope.ApplySlugs(new ValidateSlugResult { Source = product, Slug = product.BuildSlug() });
-            }
-            await batchScope.CommitAsync();
+            //using var batchScope = urlService.CreateBatchScope();
+            //foreach (var product in products)
+            //{
+            //    batchScope.ApplySlugs(new ValidateSlugResult { Source = product, Slug = product.BuildSlug() });
+            //}
+            //await batchScope.CommitAsync();
 
             //int numSaved = await _db.SaveChangesAsync();
 
@@ -457,6 +458,11 @@ namespace Smartstore.Web.Controllers
             #endregion
         }
 
+        public IActionResult Slug()
+        {
+            var e = (UrlRecord)HttpContext.GetRouteData().Values["entity"];
+            return Content($"Slug matched >>> Entity: {e.EntityName} {e.EntityId}, Id: {e.Id}, Language: {e.LanguageId}, Slug: {e.Slug}, IsActive: {e.IsActive}");
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
