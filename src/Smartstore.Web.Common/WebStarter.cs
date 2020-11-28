@@ -16,13 +16,13 @@ namespace Smartstore.Web.Common
             services.AddScoped<SlugRouteTransformer>();
         }
 
-        public override int ApplicationOrder => int.MinValue + 200;
+        public override int ApplicationOrder => (int)StarterOrdering.Early;
         public override void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)
         {
             app.Map("/sitemap.xml", true, b => b.UseMiddleware<XmlSitemapMiddleware>());
         }
 
-        public override int RoutesOrder => -1000;
+        public override int RoutesOrder => (int)StarterOrdering.Early;
         public override void ConfigureRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
         {
             if (!appContext.IsInstalled)
@@ -37,7 +37,7 @@ namespace Smartstore.Web.Common
     public class LastRoutes : StarterBase
     {
         public override bool Matches(IApplicationContext appContext) => appContext.IsInstalled;
-        public override int RoutesOrder => int.MaxValue;
+        public override int RoutesOrder => (int)StarterOrdering.Last;
         public override void ConfigureRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
         {
             // Register routes from SlugRouteTransformer solely needed for URL creation, NOT for route matching.

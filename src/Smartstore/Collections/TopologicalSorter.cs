@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace Smartstore.Collections
 {
-
 	public interface ITopologicSortable<TKey>
 	{
 		TKey Key { get; }
@@ -14,7 +13,6 @@ namespace Smartstore.Collections
 
 	public static class TopologicalSortExtensions
 	{
-
 		public static ITopologicSortable<T>[] SortTopological<T>(this ITopologicSortable<T>[] items)
 		{
 			return SortTopological(items, null);
@@ -36,18 +34,18 @@ namespace Smartstore.Collections
 			return sortedList.ToArray();
 		}
 
-		public static int[] SortIndexesTopological<T>(this ITopologicSortable<T>[] items)
+		private static int[] SortIndexesTopological<T>(ITopologicSortable<T>[] items)
 		{
 			return SortIndexesTopological(items, null);
 		}
 
-		public static int[] SortIndexesTopological<T>(this ITopologicSortable<T>[] items, IEqualityComparer<T> comparer)
+		private static int[] SortIndexesTopological<T>(ITopologicSortable<T>[] items, IEqualityComparer<T> comparer)
 		{
 			Guard.NotNull(items, nameof(items));
 
 			if (items.Length == 0)
 			{
-				return new int[] { };
+				return Array.Empty<int>();
 			}
 
 			if (comparer == null)

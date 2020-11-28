@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Smartstore.Collections;
 using Smartstore.Caching.DependencyInjection;
 using Smartstore.Diagnostics;
 using Smartstore.Engine.DependencyInjection;
@@ -103,7 +104,7 @@ namespace Smartstore.Engine
                 // TODO: (core) Register more system stuff
 
                 // Configure all modular services
-                foreach (var starter in _starters.OrderBy(x => x.Order))
+                foreach (var starter in SortStarters(_starters, x => x.Order))
                 {
                     starter.ConfigureServices(services, _appContext, IsActiveModule(starter));
                 }
@@ -116,7 +117,7 @@ namespace Smartstore.Engine
                 builder.RegisterModule(new EventsModule(_appContext));
 
                 // Configure all modular services by Autofac
-                foreach (var starter in _starters.OrderBy(x => x.Order).OfType<IContainerConfigurer>())
+                foreach (var starter in SortStarters(_starters, x => x.Order).OfType<IContainerConfigurer>())
                 {
                     starter.ConfigureContainer(builder, _appContext, IsActiveModule(starter));
                 }
@@ -138,7 +139,7 @@ namespace Smartstore.Engine
                 var activeModuleStarters = _starters.Where(IsActiveModule).ToArray();
 
                 // Configure all modular pipelines
-                foreach (var starter in activeModuleStarters.OrderBy(x => x.ApplicationOrder))
+                foreach (var starter in SortStarters(activeModuleStarters, x => x.ApplicationOrder))
                 {
                     starter.ConfigureApplication(app, _appContext);
                 }
@@ -146,11 +147,20 @@ namespace Smartstore.Engine
                 app.UseEndpoints(endpoints =>
                 {
                     // Configure all modular endpoints
-                    foreach (var starter in activeModuleStarters.OrderBy(x => x.RoutesOrder))
+                    foreach (var starter in SortStarters(activeModuleStarters, x => x.RoutesOrder))
                     {
                         starter.ConfigureRoutes(app, endpoints, _appContext);
                     }
                 });
+            }
+
+            private static IEnumerable<IStarter> SortStarters(IEnumerable<IStarter> starters, Func<IStarter, int> selector)
+            {
+                return starters
+                    .GroupBy(selector)
+                    .OrderBy(x => x.Key)
+                    .SelectMany(x => x.ToArray().SortTopological(StringComparer.OrdinalIgnoreCase))
+                    .Cast<IStarter>();
             }
 
             private bool IsActiveModule(IStarter starter)

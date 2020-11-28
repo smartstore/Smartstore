@@ -17,7 +17,7 @@ namespace Smartstore.Redis
 {
     public sealed class RedisStarter : StarterBase
     {
-        public override int Order => 100;
+        public override int Order => (int)StarterOrdering.Default;
 
         public override bool Matches(IApplicationContext appContext)
         {

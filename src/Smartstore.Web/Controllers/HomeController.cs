@@ -179,6 +179,7 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
+        [Route("/privacy")]
         public async Task<IActionResult> Privacy()
         {
             #region Settings Test
@@ -225,6 +226,7 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
+        [Route("/logs")]
         public async Task<IActionResult> Logs()
         {
             #region Test
@@ -264,6 +266,7 @@ namespace Smartstore.Web.Controllers
             return View(logs);
         }
 
+        [Route("/countries")]
         public async Task<IActionResult> Countries()
         {
             #region Test

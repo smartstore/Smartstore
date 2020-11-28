@@ -18,7 +18,7 @@ namespace Smartstore.Core
 {
     public class CoreStarter : StarterBase
     {
-        public override int Order => int.MinValue + 100;
+        public override int Order => (int)StarterOrdering.Early;
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {

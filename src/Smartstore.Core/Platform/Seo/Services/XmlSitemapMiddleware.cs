@@ -35,7 +35,7 @@ namespace Smartstore.Core.Seo
                 using (partition.Stream)
                 {
                     response.StatusCode = 200;
-                    response.ContentType = "text/xml";
+                    response.ContentType = "application/xml";
                     response.ContentLength = partition.Stream.Length;
                     await partition.Stream.CopyToAsync(response.Body);
                 }

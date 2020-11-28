@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Collections;
 
 namespace Smartstore.Engine
 {
@@ -9,7 +10,7 @@ namespace Smartstore.Engine
     /// An implementation of this interface is used to initialize the services and HTTP request
     /// pipeline of a plugin.
     /// </summary>
-    public interface IStarter
+    public interface IStarter : ITopologicSortable<string>
     {
         /// <summary>
         /// Get the value to use to order startups to configure services. The default is 0.

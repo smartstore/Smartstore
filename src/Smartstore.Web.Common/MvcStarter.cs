@@ -1,20 +1,31 @@
 ﻿using System;
+using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Localization.DependencyInjection;
+using Smartstore.Core.Localization.Routing;
 using Smartstore.Engine;
 
 namespace Smartstore.Web.Common
 {
     public class MvcStarter : StarterBase
     {
+        public MvcStarter()
+        {
+            RunAfter<WebStarter>();
+        }
+        
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
@@ -26,7 +37,6 @@ namespace Smartstore.Web.Common
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
 
             services.Configure<RazorViewEngineOptions>(o =>
             {
@@ -42,6 +52,13 @@ namespace Smartstore.Web.Common
             //services.TryAddSingleton<IStringLocalizerFactory, SmartStringLocalizerFactory>();
             //services.TryAddScoped(typeof(IStringLocalizer<>), typeof(SmartStringLocalizer<>));
 
+            services.AddRouting(o => 
+            {
+                // TODO: (core) Make this behave like in SMNET
+                o.AppendTrailingSlash = true;
+                o.LowercaseUrls = true;
+            });
+
             var mvcBuilder = services
                 .AddControllersWithViews(o =>
                 {
@@ -55,16 +72,13 @@ namespace Smartstore.Web.Common
                 {
                     // TODO: (core) FileProvider
                 })
-                .AddDataAnnotationsLocalization(o =>
-                {
-                    // TODO: (core) Set DataAnnotationLocalizerProvider
-                })
                 // TODO: (core) Add FluentValidation
                 .AddNewtonsoftJson(o =>
                 {
                     // TODO: (core) Do some ContractResolver stuff
                 })
                 .AddControllersAsServices()
+                .AddAppLocalization()
                 .AddMvcOptions(o =>
                 {
                     // TODO: (core) More MVC config?
@@ -90,7 +104,7 @@ namespace Smartstore.Web.Common
             services.AddRazorPages();
         }
 
-        public override int ApplicationOrder => int.MinValue + 100;
+        public override int ApplicationOrder => (int)StarterOrdering.Early;
         public override void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)
         {
             if (appContext.HostEnvironment.IsDevelopment())
@@ -106,7 +120,23 @@ namespace Smartstore.Web.Common
 
             //app.UseHttpsRedirection();
             app.UseStaticFiles(); // TODO: (core) Set StaticFileOptions
+
+            //app.Use(async (context, next) =>
+            //{
+            //    var path = context.Request.Path.Value;
+            //    var helper = new LocalizedUrlHelper(context.Request);
+            //    if (helper.IsLocalizedUrl(out var seoCode))
+            //    {
+            //        helper.StripSeoCode();
+            //        context.GetRouteData().DataTokens["culture"] = seoCode;
+            //        context.Request.Path = helper.GetAbsolutePath();
+            //    }
+
+            //    await next();
+            //});
+
             app.UseRouting();
+
             // TODO: (core) Use Swagger
             app.UseCookiePolicy(); // TODO: (core) Configure cookie policy
             app.UseAuthorization(); // TODO: (core) Configure custom auth with Identity Server
@@ -116,7 +146,7 @@ namespace Smartstore.Web.Common
             //app.UseSession(); // TODO: (core) Configure session
         }
 
-        public override int RoutesOrder => -100;
+        public override int RoutesOrder => (int)StarterOrdering.Early;
         public override void ConfigureRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
         {
             routes.MapControllerRoute(
@@ -126,6 +156,8 @@ namespace Smartstore.Web.Common
             routes.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            var dataSource = routes.DataSources.FirstOrDefault();
         }
     }
 }
