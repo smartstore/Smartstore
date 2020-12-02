@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
-namespace Smartstore.Core.Seo
+namespace Smartstore.Core.Seo.Routing
 {
     public class DefaultSlugRouter : SlugRouter
     {

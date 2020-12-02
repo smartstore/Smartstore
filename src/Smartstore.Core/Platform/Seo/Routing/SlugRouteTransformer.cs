@@ -10,7 +10,7 @@ using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Core.Seo
+namespace Smartstore.Core.Seo.Routing
 {
     public class SlugRouteTransformer : DynamicRouteValueTransformer
     {

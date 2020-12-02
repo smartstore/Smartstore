@@ -18,10 +18,10 @@ namespace Smartstore.Engine
         public virtual int Order { get; } = (int)StarterOrdering.Default;
 
         /// <inheritdoc />
-        public virtual int ApplicationOrder => Order;
+        public virtual int PipelineOrder => Order;
 
         /// <inheritdoc />
-        public virtual int RoutesOrder => ApplicationOrder;
+        public virtual int RoutesOrder => PipelineOrder;
 
         /// <inheritdoc />
         public virtual bool Matches(IApplicationContext appContext) => true;
@@ -37,12 +37,12 @@ namespace Smartstore.Engine
         }
 
         /// <inheritdoc />
-        public virtual void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)
+        public virtual void BuildPipeline(IApplicationBuilder app, IApplicationContext appContext)
         {
         }
 
         /// <inheritdoc />
-        public virtual void ConfigureRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
+        public virtual void MapRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
         {
         }
 

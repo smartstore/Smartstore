@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -19,6 +21,8 @@ namespace Smartstore.Web.Common
         private readonly SmartDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IStoreContext _storeContext;
+        private readonly ILanguageService _languageService;
+        private readonly IGenericAttributeService _attrService;
         private readonly TaxSettings _taxSettings;
         private readonly ICacheManager _cache;
 
@@ -33,6 +37,8 @@ namespace Smartstore.Web.Common
             SmartDbContext db,
             IHttpContextAccessor httpContextAccessor,
             IStoreContext storeContext,
+            ILanguageService languageService,
+            IGenericAttributeService attrService,
             TaxSettings taxSettings,
             ICacheManager cache)
         {
@@ -40,6 +46,8 @@ namespace Smartstore.Web.Common
             _db = db;
             _httpContextAccessor = httpContextAccessor;
             _storeContext = storeContext;
+            _languageService = languageService;
+            _attrService = attrService;
             _taxSettings = taxSettings;
             _cache = cache;
         }
@@ -71,11 +79,44 @@ namespace Smartstore.Web.Common
                     return _language;
                 }
 
-                _language = _db.Languages.AsNoTracking().FirstOrDefault();
+                SmartProviderCultureResult cultureResult = null;
+
+                var requestCultureFeature = _httpContextAccessor.HttpContext?.Features?.Get<IRequestCultureFeature>();
+
+                if (requestCultureFeature != null)
+                {
+                    var requestCulture = requestCultureFeature.RequestCulture.Culture;
+                    cultureResult = (requestCultureFeature.Provider as SmartRequestCultureProvider)?.GetResult(_httpContextAccessor.HttpContext);
+
+                    _language = cultureResult?.Language 
+                        ?? _db.Languages.FirstOrDefault(x => x.UniqueSeoCode == requestCulture.TwoLetterISOLanguageName);
+
+                    if (cultureResult != null && !cultureResult.IsFallback && cultureResult.CustomerLanguageId != _language.Id)
+                    {
+                        SetCustomerLanguage(_language.Id, _storeContext.CurrentStore.Id);
+                    }
+                }
+                else
+                {
+                    _language = _db.Languages.FindById(_languageService.GetDefaultLanguageId());
+                }
 
                 return _language;
             }
-            set => _language = value;
+            set
+            {
+                SetCustomerLanguage(value?.Id, _storeContext.CurrentStore.Id);
+                _language = null;
+            }
+        }
+
+        private void SetCustomerLanguage(int? languageId, int storeId)
+        {
+            if (CurrentCustomer != null || CurrentCustomer.IsSystemAccount)
+                return;
+
+            _attrService.ApplyAttribute(CurrentCustomer.Id, SystemCustomerAttributeNames.LanguageId, CurrentCustomer.GetEntityName(), languageId, storeId);
+            _db.SaveChanges();
         }
 
         public Currency WorkingCurrency

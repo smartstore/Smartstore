@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Routing;
 
-namespace Smartstore.Core.Seo
+namespace Smartstore.Core.Seo.Routing
 {
     /// <summary>
     /// Builds a <see cref="RouteValueDictionary"/> instance for a given <see cref="UrlRecord"/> entity.

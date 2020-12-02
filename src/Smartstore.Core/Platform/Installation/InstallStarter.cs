@@ -12,7 +12,7 @@ namespace Smartstore.Core.Installation
         public override bool Matches(IApplicationContext appContext)
             => !appContext.IsInstalled;
 
-        public override void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)
+        public override void BuildPipeline(IApplicationBuilder app, IApplicationContext appContext)
         {
             //app.UseMiddleware<InstallMiddleware>();
             app.Use(async (context, next) => 

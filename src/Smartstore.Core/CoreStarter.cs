@@ -52,7 +52,7 @@ namespace Smartstore.Core
             }
         }
 
-        public override void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)
+        public override void BuildPipeline(IApplicationBuilder app, IApplicationContext appContext)
         {
             if (appContext.IsInstalled)
             {

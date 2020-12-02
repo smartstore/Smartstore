@@ -33,6 +33,7 @@ using Smartstore.Utilities;
 using Smartstore.Core.Seo;
 using Smartstore.Data;
 using Microsoft.AspNetCore.Routing;
+using Smartstore.Core.Localization.Routing;
 
 namespace Smartstore.Web.Controllers
 {
@@ -101,6 +102,7 @@ namespace Smartstore.Web.Controllers
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
+        [LocalizedRoute("/")]
         public async Task<IActionResult> Index()
         {
             #region Settings Test
@@ -155,6 +157,8 @@ namespace Smartstore.Web.Controllers
             //        .ToListAsync();
             //}
 
+            var workingLanguage = _services.WorkContext.WorkingLanguage;
+
             var anon = await _db.Countries
                 .AsNoTracking()
                 .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)
@@ -179,7 +183,7 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
-        [Route("/privacy")]
+        [LocalizedRoute("/privacy")]
         public async Task<IActionResult> Privacy()
         {
             #region Settings Test
@@ -226,7 +230,7 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
-        [Route("/logs")]
+        [LocalizedRoute("/logs")]
         public async Task<IActionResult> Logs()
         {
             #region Test
@@ -266,7 +270,7 @@ namespace Smartstore.Web.Controllers
             return View(logs);
         }
 
-        [Route("/countries")]
+        [LocalizedRoute("/countries")]
         public async Task<IActionResult> Countries()
         {
             #region Test
@@ -394,6 +398,7 @@ namespace Smartstore.Web.Controllers
             return query.ToList();
         }
 
+        [Route("/settings")]
         public async Task<IActionResult> Settings()
         {
             await _asyncState.RemoveAsync<MyProgress>();

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -66,7 +67,6 @@ namespace Smartstore.Web.Common
                     // TODO: (core) AddModelBindingMessagesLocalizer
                     // TODO: (core) Add custom display metadata provider
                     // TODO: (core) Add model binders
-
                 })
                 .AddRazorRuntimeCompilation(o =>
                 {
@@ -104,8 +104,8 @@ namespace Smartstore.Web.Common
             services.AddRazorPages();
         }
 
-        public override int ApplicationOrder => (int)StarterOrdering.Early;
-        public override void ConfigureApplication(IApplicationBuilder app, IApplicationContext appContext)
+        public override int PipelineOrder => (int)StarterOrdering.Early;
+        public override void BuildPipeline(IApplicationBuilder app, IApplicationContext appContext)
         {
             if (appContext.HostEnvironment.IsDevelopment())
             {
@@ -138,26 +138,42 @@ namespace Smartstore.Web.Common
             app.UseRouting();
 
             // TODO: (core) Use Swagger
-            app.UseCookiePolicy(); // TODO: (core) Configure cookie policy
-            app.UseAuthorization(); // TODO: (core) Configure custom auth with Identity Server
-            // TODO: (core) Use request localization
+            // TODO: (core) Use Response compression
+
             // TODO: (core) Use media middleware
-            app.UseRequestLocalization(); // TODO: (core) Configure request localization
             //app.UseSession(); // TODO: (core) Configure session
+
+            if (appContext.IsInstalled)
+            {
+                app.UseAppRequestLocalization();
+                app.UseCultureMiddleware();
+            }
+
+            app.UseCookiePolicy(); // TODO: (core) Configure cookie policy
+
+            app.UseAuthorization(); // TODO: (core) Configure custom auth with Identity Server
+        }
+
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
+        {
+            builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
         }
 
         public override int RoutesOrder => (int)StarterOrdering.Early;
-        public override void ConfigureRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
+        public override void MapRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
         {
-            routes.MapControllerRoute(
-                name: "areas",
-                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+            //routes.MapControllerRoute(
+            //    name: "areas",
+            //    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
+            routes.MapControllers();
+
+            //routes.MapControllerRoute(
+            //    name: "default-localized",
+            //    pattern: "{culture:culture=de}/{controller=Home}/{action=Index}/{id?}");
             routes.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-
-            var dataSource = routes.DataSources.FirstOrDefault();
         }
     }
 }

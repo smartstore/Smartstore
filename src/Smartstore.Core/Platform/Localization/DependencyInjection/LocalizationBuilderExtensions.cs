@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -14,6 +17,11 @@ namespace Microsoft.Extensions.DependencyInjection
     {
 		public static IMvcBuilder AddAppLocalization(this IMvcBuilder builder)
 		{
+			builder.Services.AddRouting(o => 
+			{
+				o.ConstraintMap["culture"] = typeof(CultureRouteConstraint);
+			});
+			
 			//builder.AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
 			builder.AddDataAnnotationsLocalization(options =>
 			{
@@ -36,6 +44,38 @@ namespace Microsoft.Extensions.DependencyInjection
 
 			return builder;
 		}
+
+		public static IApplicationBuilder UseAppRequestLocalization(this IApplicationBuilder app)
+        {
+			// TODO: (core) Notify user about necessity to restart app after adding, deleting or reordering languages.
+
+			using var scope = app.ApplicationServices.CreateScope();
+			var languageService = scope.ServiceProvider.GetRequiredService<ILanguageService>();
+
+			var supportedCultures = languageService.GetAllLanguages()
+				.Select(x => new CultureInfo(x.GetTwoLetterISOLanguageName()))
+				.ToList();
+
+			var options = new RequestLocalizationOptions
+			{
+				DefaultRequestCulture = new RequestCulture(supportedCultures.FirstOrDefault()),
+				SupportedCultures = supportedCultures,
+				SupportedUICultures = supportedCultures
+			};
+
+			options.ApplyCurrentCultureToResponseHeaders = true;
+			options.RequestCultureProviders.Clear();
+
+			// Register app specific composite culture provider.
+			options.RequestCultureProviders.Add(new SmartRequestCultureProvider());
+
+			return app.UseRequestLocalization(options);
+        }
+
+		public static IApplicationBuilder UseCultureMiddleware(this IApplicationBuilder app)
+		{
+			return app.UseMiddleware<CultureMiddleware>();
+		}
 	}
 
 	internal class AppLocalizationMvcOptionsSetup : ConfigureOptions<MvcOptions>
@@ -56,8 +96,10 @@ namespace Microsoft.Extensions.DependencyInjection
 		{
 			base.Configure(options);
 			//options.ModelMetadataDetailsProviders.Add(new LocalizedMetadataProvider(_localizerFactory));
+			//options.Conventions.Add(new RouteTokenTransformerConvention(new CultureParameterTransformer()));
 			options.Conventions.Add(new LocalizedRoutingConvention(_serviceProvider));
 			////options.ModelValidatorProviders.Add(new LocalizedDataAnnotationsModelValidatorProvider());
+			///
 		}
 
 		public static void ConfigureMvc(MvcOptions options)

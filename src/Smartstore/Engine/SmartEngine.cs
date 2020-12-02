@@ -139,9 +139,9 @@ namespace Smartstore.Engine
                 var activeModuleStarters = _starters.Where(IsActiveModule).ToArray();
 
                 // Configure all modular pipelines
-                foreach (var starter in SortStarters(activeModuleStarters, x => x.ApplicationOrder))
+                foreach (var starter in SortStarters(activeModuleStarters, x => x.PipelineOrder))
                 {
-                    starter.ConfigureApplication(app, _appContext);
+                    starter.BuildPipeline(app, _appContext);
                 }
 
                 app.UseEndpoints(endpoints =>
@@ -149,7 +149,7 @@ namespace Smartstore.Engine
                     // Configure all modular endpoints
                     foreach (var starter in SortStarters(activeModuleStarters, x => x.RoutesOrder))
                     {
-                        starter.ConfigureRoutes(app, endpoints, _appContext);
+                        starter.MapRoutes(app, endpoints, _appContext);
                     }
                 });
             }

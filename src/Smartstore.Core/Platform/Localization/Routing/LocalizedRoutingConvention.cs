@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore.Core.Localization.Routing
 {
@@ -26,26 +27,41 @@ namespace Smartstore.Core.Localization.Routing
                 foreach (var action in controller.Actions)
                 {
                     var newSelectors = new List<SelectorModel>(2);
-                    
+                    var deleteSelectors = new List<SelectorModel>();
+
                     foreach (var selector in action.Selectors)
                     {
+                        //selector.ActionConstraints.Insert(0, new CultureActionConstraint());
+                        
                         var routeModel = selector.AttributeRouteModel;
-
-                        if (routeModel == null)
+                        if (routeModel?.Attribute is not ILocalizedRoute)
                         {
                             continue;
                         }
-                        
-                        var cultureAwareSelector = new SelectorModel(selector) 
+
+                        routeModel.Order = -1;
+
+                        deleteSelectors.Add(selector);
+
+                        var cultureAwareSelector = new SelectorModel(selector)
                         {
                             AttributeRouteModel = new AttributeRouteModel(routeModel)
                         };
+                        //cultureAwareSelector.ActionConstraints.Insert(0, new CultureActionConstraint());
+                        cultureAwareSelector.AttributeRouteModel.Order = -2;
+                        cultureAwareSelector.AttributeRouteModel.Template = "/{culture:culture}" + routeModel.Template;
 
-                        cultureAwareSelector.AttributeRouteModel.Template = "/{culture}" + routeModel.Template;
+                        cultureAwareSelector.EndpointMetadata.Add(new LocalizedRouteMetadata(cultureAwareSelector.AttributeRouteModel));
+                        selector.EndpointMetadata.Add(new LocalizedRouteMetadata(selector.AttributeRouteModel));
+
                         newSelectors.Add(cultureAwareSelector);
+                        newSelectors.Add(new SelectorModel(selector));
                     }
 
-                    newSelectors.Each(x => action.Selectors.Insert(0, x));
+
+                    deleteSelectors.Each(x => action.Selectors.Remove(x));
+                    action.Selectors.AddRange(newSelectors);
+                    //newSelectors.Each(x => action.Selectors.Insert(0, x));
                 }
             }
         }

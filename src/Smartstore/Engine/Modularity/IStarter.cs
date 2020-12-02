@@ -20,10 +20,10 @@ namespace Smartstore.Engine
         /// <summary>
         /// Get the value to use to order startups to build the pipeline. The default is the <see cref="Order"/> property.
         /// </summary>
-        int ApplicationOrder { get; }
+        int PipelineOrder { get; }
 
         /// <summary>
-        /// Get the value to use to order startups to register the routing endpoints. The default is the <see cref="ApplicationOrder"/> property.
+        /// Get the value to use to order startups to register the routing endpoints. The default is the <see cref="PipelineOrder"/> property.
         /// </summary>
         int RoutesOrder { get; }
 
@@ -51,12 +51,12 @@ namespace Smartstore.Engine
         /// This method gets called by the runtime. Use this method to configure the application's request pipeline.
         /// </summary>
         /// <param name="appContext">The application context instance.</param>
-        void ConfigureApplication(IApplicationBuilder builder, IApplicationContext appContext);
+        void BuildPipeline(IApplicationBuilder builder, IApplicationContext appContext);
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to register endpoint routes.
         /// </summary>
         /// <param name="appContext">The application context instance.</param>
-        void ConfigureRoutes(IApplicationBuilder builder, IEndpointRouteBuilder routes, IApplicationContext appContext);
+        void MapRoutes(IApplicationBuilder builder, IEndpointRouteBuilder routes, IApplicationContext appContext);
     }
 }

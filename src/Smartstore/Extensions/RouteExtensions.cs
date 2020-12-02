@@ -35,6 +35,16 @@ namespace Smartstore
             return null;
         }
 
+        public static string GetCultureCode(this RouteValueDictionary values)
+        {
+            if (values.TryGetValue("culture", out object value))
+            {
+                return (value as string);
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Generates an identifier for the given route in the form "[{area}.]{controller}.{action}"
         /// </summary>

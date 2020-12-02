@@ -10,6 +10,7 @@ namespace Smartstore.Core.Common.DependencyInjection
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<MeasureService>().As<IMeasureService>().InstancePerLifetimeScope();
+            builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
             builder.RegisterType<WebHelper>().As<IWebHelper>().InstancePerLifetimeScope();
             builder.RegisterType<CommonServices>().As<ICommonServices>().InstancePerLifetimeScope();
         }

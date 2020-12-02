@@ -14,6 +14,12 @@ namespace Smartstore.Core.Localization
                 .Select(x => x.IetfLanguageTag)
                 .Where(x => !string.IsNullOrWhiteSpace(x)), StringComparer.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// Checks whether the given <paramref name="locale"/> is a
+        /// culture code which is supported by the .NET framework.
+        /// </summary>
+        /// <param name="locale"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsValidCultureCode(string locale)
         {
