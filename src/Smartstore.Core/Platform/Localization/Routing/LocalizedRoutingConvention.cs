@@ -51,8 +51,8 @@ namespace Smartstore.Core.Localization.Routing
                         cultureAwareSelector.AttributeRouteModel.Order = -2;
                         cultureAwareSelector.AttributeRouteModel.Template = "/{culture:culture}" + routeModel.Template;
 
-                        cultureAwareSelector.EndpointMetadata.Add(new LocalizedRouteMetadata(cultureAwareSelector.AttributeRouteModel));
-                        selector.EndpointMetadata.Add(new LocalizedRouteMetadata(selector.AttributeRouteModel));
+                        cultureAwareSelector.EndpointMetadata.Add(new LocalizedRouteMetadata(cultureAwareSelector.AttributeRouteModel, false));
+                        selector.EndpointMetadata.Add(new LocalizedRouteMetadata(selector.AttributeRouteModel, true));
 
                         newSelectors.Add(cultureAwareSelector);
                         newSelectors.Add(new SelectorModel(selector));

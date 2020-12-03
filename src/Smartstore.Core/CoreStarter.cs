@@ -51,14 +51,5 @@ namespace Smartstore.Core
                 builder.RegisterModule(new CustomersModule());
             }
         }
-
-        public override void BuildPipeline(IApplicationBuilder app, IApplicationContext appContext)
-        {
-            if (appContext.IsInstalled)
-            {
-                app.UseMiddleware<SerilogHttpContextMiddleware>();
-                app.UseMiniProfiler();
-            }
-        }
     }
 }

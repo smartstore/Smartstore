@@ -20,8 +20,8 @@ namespace Smartstore.Web.Common
     {
         private readonly SmartDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILanguageResolver _languageResolver;
         private readonly IStoreContext _storeContext;
-        private readonly ILanguageService _languageService;
         private readonly IGenericAttributeService _attrService;
         private readonly TaxSettings _taxSettings;
         private readonly ICacheManager _cache;
@@ -36,8 +36,8 @@ namespace Smartstore.Web.Common
         public WebWorkContext(
             SmartDbContext db,
             IHttpContextAccessor httpContextAccessor,
+            ILanguageResolver languageResolver,
             IStoreContext storeContext,
-            ILanguageService languageService,
             IGenericAttributeService attrService,
             TaxSettings taxSettings,
             ICacheManager cache)
@@ -45,8 +45,8 @@ namespace Smartstore.Web.Common
             // TODO: (core) Implement WebWorkContext
             _db = db;
             _httpContextAccessor = httpContextAccessor;
+            _languageResolver = languageResolver;
             _storeContext = storeContext;
-            _languageService = languageService;
             _attrService = attrService;
             _taxSettings = taxSettings;
             _cache = cache;
@@ -74,31 +74,10 @@ namespace Smartstore.Web.Common
         {
             get
             {
-                if (_language != null)
+                if (_language == null)
                 {
-                    return _language;
-                }
-
-                SmartProviderCultureResult cultureResult = null;
-
-                var requestCultureFeature = _httpContextAccessor.HttpContext?.Features?.Get<IRequestCultureFeature>();
-
-                if (requestCultureFeature != null)
-                {
-                    var requestCulture = requestCultureFeature.RequestCulture.Culture;
-                    cultureResult = (requestCultureFeature.Provider as SmartRequestCultureProvider)?.GetResult(_httpContextAccessor.HttpContext);
-
-                    _language = cultureResult?.Language 
-                        ?? _db.Languages.FirstOrDefault(x => x.UniqueSeoCode == requestCulture.TwoLetterISOLanguageName);
-
-                    if (cultureResult != null && !cultureResult.IsFallback && cultureResult.CustomerLanguageId != _language.Id)
-                    {
-                        SetCustomerLanguage(_language.Id, _storeContext.CurrentStore.Id);
-                    }
-                }
-                else
-                {
-                    _language = _db.Languages.FindById(_languageService.GetDefaultLanguageId());
+                    _language = _languageResolver.ResolveLanguageAsync(CurrentCustomer, _httpContextAccessor.HttpContext).Await();
+                    // TODO: (core) Set language if current customer langid does not match resolved language id
                 }
 
                 return _language;

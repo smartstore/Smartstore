@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -22,7 +23,7 @@ namespace Smartstore.Web.Common.TagHelpers
         {
             if (string.Equals(context.TagName, "body", StringComparison.Ordinal) && !output.Attributes.ContainsName(DirAttribute))
             {
-                var isRtl = _httpContext.Features.Get<IRequestCultureFeature>().RequestCulture.UICulture.TextInfo.IsRightToLeft;
+                var isRtl = CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
                 var val = isRtl ? "rtl" : "ltr";
                 output.Attributes.Add(DirAttribute, val);
             }

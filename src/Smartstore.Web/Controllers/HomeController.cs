@@ -157,8 +157,6 @@ namespace Smartstore.Web.Controllers
             //        .ToListAsync();
             //}
 
-            var workingLanguage = _services.WorkContext.WorkingLanguage;
-
             var anon = await _db.Countries
                 .AsNoTracking()
                 .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)

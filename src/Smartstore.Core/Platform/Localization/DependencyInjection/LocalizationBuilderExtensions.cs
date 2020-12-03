@@ -45,33 +45,6 @@ namespace Microsoft.Extensions.DependencyInjection
 			return builder;
 		}
 
-		public static IApplicationBuilder UseAppRequestLocalization(this IApplicationBuilder app)
-        {
-			// TODO: (core) Notify user about necessity to restart app after adding, deleting or reordering languages.
-
-			using var scope = app.ApplicationServices.CreateScope();
-			var languageService = scope.ServiceProvider.GetRequiredService<ILanguageService>();
-
-			var supportedCultures = languageService.GetAllLanguages()
-				.Select(x => new CultureInfo(x.GetTwoLetterISOLanguageName()))
-				.ToList();
-
-			var options = new RequestLocalizationOptions
-			{
-				DefaultRequestCulture = new RequestCulture(supportedCultures.FirstOrDefault()),
-				SupportedCultures = supportedCultures,
-				SupportedUICultures = supportedCultures
-			};
-
-			options.ApplyCurrentCultureToResponseHeaders = true;
-			options.RequestCultureProviders.Clear();
-
-			// Register app specific composite culture provider.
-			options.RequestCultureProviders.Add(new SmartRequestCultureProvider());
-
-			return app.UseRequestLocalization(options);
-        }
-
 		public static IApplicationBuilder UseCultureMiddleware(this IApplicationBuilder app)
 		{
 			return app.UseMiddleware<CultureMiddleware>();

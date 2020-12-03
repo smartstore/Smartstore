@@ -20,6 +20,8 @@ namespace Smartstore.Core.Localization.DependencyInjection
             builder.RegisterType<XmlResourceManager>().As<IXmlResourceManager>().InstancePerLifetimeScope();
             builder.RegisterType<LocalizedEntityHelper>().InstancePerLifetimeScope();
 
+            builder.RegisterType<LanguageResolver>().As<ILanguageResolver>().InstancePerLifetimeScope();
+
             builder.RegisterType<Text>().As<IText>().InstancePerLifetimeScope();
             builder.Register<Localizer>(c => c.Resolve<IText>().Get).InstancePerLifetimeScope();
             builder.Register<LocalizerEx>(c => c.Resolve<IText>().GetEx).InstancePerLifetimeScope();

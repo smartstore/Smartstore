@@ -16,6 +16,8 @@ using Microsoft.Extensions.WebEncoders;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.DependencyInjection;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Logging.Serilog;
+using Smartstore.Core.Seo;
 using Smartstore.Engine;
 
 namespace Smartstore.Web.Common
@@ -107,6 +109,8 @@ namespace Smartstore.Web.Common
         public override int PipelineOrder => (int)StarterOrdering.Early;
         public override void BuildPipeline(IApplicationBuilder app, IApplicationContext appContext)
         {
+            // TODO: Find a way to modularize pipeline building decently
+            
             if (appContext.HostEnvironment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -118,22 +122,10 @@ namespace Smartstore.Web.Common
                 app.UseHsts();
             }
 
+            app.UseMiniProfiler();
+
             //app.UseHttpsRedirection();
             app.UseStaticFiles(); // TODO: (core) Set StaticFileOptions
-
-            //app.Use(async (context, next) =>
-            //{
-            //    var path = context.Request.Path.Value;
-            //    var helper = new LocalizedUrlHelper(context.Request);
-            //    if (helper.IsLocalizedUrl(out var seoCode))
-            //    {
-            //        helper.StripSeoCode();
-            //        context.GetRouteData().DataTokens["culture"] = seoCode;
-            //        context.Request.Path = helper.GetAbsolutePath();
-            //    }
-
-            //    await next();
-            //});
 
             app.UseRouting();
 
@@ -145,8 +137,9 @@ namespace Smartstore.Web.Common
 
             if (appContext.IsInstalled)
             {
-                app.UseAppRequestLocalization();
                 app.UseCultureMiddleware();
+                app.UseMiddleware<SerilogHttpContextMiddleware>();
+                app.Map("/sitemap.xml", true, b => b.UseMiddleware<XmlSitemapMiddleware>());
             }
 
             app.UseCookiePolicy(); // TODO: (core) Configure cookie policy

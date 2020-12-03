@@ -13,14 +13,8 @@ namespace Smartstore.Web.Common
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
-            services.AddTransient<IWorkContext, WebWorkContext>();
+            services.AddScoped<IWorkContext, WebWorkContext>();
             services.AddScoped<SlugRouteTransformer>();
-        }
-
-        public override int PipelineOrder => (int)StarterOrdering.Early;
-        public override void BuildPipeline(IApplicationBuilder app, IApplicationContext appContext)
-        {
-            app.Map("/sitemap.xml", true, b => b.UseMiddleware<XmlSitemapMiddleware>());
         }
 
         public override int RoutesOrder => (int)StarterOrdering.Early;
