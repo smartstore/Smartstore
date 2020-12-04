@@ -74,6 +74,17 @@ namespace Smartstore.Core.Localization.Routing
                     {
                         // Set explicit culture value only when candidate endpoints routes are localizable,
                         // otherwise culture will be appended as querystring (?culture=en).
+
+                        if (httpContext.GetRouteData().DataTokens.Get("CultureCodeReplacement") is string cultureCodeReplacement)
+                        {
+                            // The CultureRedirectionMiddleware detected a localized URL, but the locale does not exist or is inactive.
+                            // The routing system is therefore about to render the "NotFound" view. Here we ensure that generated links
+                            // in NotFound page do not contain the invalid seo code anymore: Either we strip it off or we replace it
+                            // with the default language's seo code (according to "LocalizationSettings.DefaultLanguageRedirectBehaviour" setting).
+                            // TODO: (core) Handle 404 redirection decently
+                            currentCultureCode = cultureCodeReplacement;
+                        }
+
                         routeValueAddress.ExplicitValues["culture"] = currentCultureCode;
                     }
                 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
+using System.Net;
 using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +12,8 @@ namespace Smartstore
 {
     public static class HttpExtensions
     {
+        const string NullIPv6 = "::1";
+
         private static readonly List<(string, string)> _sslHeaders = new List<(string, string)>
         {
             ("HTTP_CLUSTER_HTTPS", "on"),
@@ -80,6 +81,31 @@ namespace Smartstore
             return false;
         }
 
+        /// <summary>
+        /// Checks whether the current request originates from a local computer.
+        /// </summary>
+        public static bool IsLocal(this ConnectionInfo connection)
+        {
+            Guard.NotNull(connection, nameof(connection));
+
+            var remoteAddress = connection.RemoteIpAddress;
+            if (remoteAddress == null || remoteAddress.ToString() == NullIPv6)
+            {
+                return true;
+            }
+
+            // We have a remote address set up.
+            // Is local the same as remote, then we are local.
+            var localAddress = connection.LocalIpAddress;
+            if (localAddress != null && localAddress.ToString() != NullIPv6)
+            {
+                return remoteAddress.Equals(localAddress);
+            }
+
+            // Else we are remote if the remote IP address is not a loopback address
+            return IPAddress.IsLoopback(remoteAddress);
+        }
+
         public static T GetItem<T>(this HttpContext httpContext, string key, Func<T> factory = null, bool forceCreation = true)
         {
             Guard.NotEmpty(key, nameof(key));
@@ -98,7 +124,7 @@ namespace Smartstore
             {
                 if (forceCreation)
                 {
-                    var item = items[key] = (factory ?? (() => Activator.CreateInstance<T>())).Invoke();
+                    var item = items[key] = (factory ?? (() => default)).Invoke();
                     return (T)item;
                 }
                 else

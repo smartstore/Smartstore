@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
-using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore.Core.Localization.Routing
 {
-    public class CultureActionConstraint : IActionConstraint
+	// TODO: (core Remove CultureActionConstraint (?)
+	public class CultureActionConstraint : IActionConstraint
     {
         public int Order => 300;
 

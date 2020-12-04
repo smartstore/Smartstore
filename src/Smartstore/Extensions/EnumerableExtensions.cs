@@ -291,6 +291,12 @@ namespace Smartstore
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static string StrJoin(this IEnumerable<string> source, char separator)
+		{
+			return string.Join(separator, source);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static string[] ToStringArray(this IEnumerable<StringSegment> source)
 		{
 			return source.Select(x => x.ToString()).ToArray();

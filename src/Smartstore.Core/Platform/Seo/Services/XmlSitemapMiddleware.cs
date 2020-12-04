@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore.Core.Seo
 {
@@ -20,7 +21,7 @@ namespace Smartstore.Core.Seo
         public async Task Invoke(HttpContext context, SeoSettings seoSettings, IXmlSitemapGenerator sitemapGenerator)
         {
             var response = context.Response;
-            
+
             if (!seoSettings.XmlSitemapEnabled)
             {
                 response.StatusCode = 404;
@@ -29,7 +30,8 @@ namespace Smartstore.Core.Seo
 
             try
             {
-                var index = context.Request.Query["index"].ToString().Convert<int>();
+                //var index = context.Request.Query["index"].ToString().Convert<int>();
+                var index = context.GetRouteValue("index")?.ToString().Convert<int>() ?? 0;
                 var partition = await sitemapGenerator.GetSitemapPartAsync(index);
 
                 using (partition.Stream)

@@ -28,7 +28,7 @@ namespace Smartstore.Core.Seo
         private const string SitemapsNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
         private const string XhtmlNamespace = "http://www.w3.org/1999/xhtml";
         private const string SitemapFileNamePattern = "sitemap-{0}.xml";
-        private const string SitemapIndexPathPattern = "sitemap.xml?index={0}";
+        private const string SitemapIndexPathPattern = "sitemap.xml/{0}";
         private const string LockFileNamePattern = "sitemap-{0}-{1}.lock";
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace Smartstore.Core.Seo
             if (dataTokens != null)
             {
                 // Double seo code otherwise
-                dataTokens["SeoCodeReplacement"] = string.Empty;
+                dataTokens["CultureCodeReplacement"] = string.Empty;
             }
 
             var languageData = new Dictionary<int, LanguageData>();

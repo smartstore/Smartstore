@@ -7,7 +7,7 @@ namespace Smartstore.Core.Localization
     {
         private string _pathBase;
         private string _path;
-        private string _seoCode;
+        private string _cultureCode;
 
         public LocalizedUrlHelper(HttpRequest httpRequest)
             : this(httpRequest.PathBase.Value, httpRequest.Path.Value)
@@ -39,7 +39,26 @@ namespace Smartstore.Core.Localization
             private set
             {
                 _path = value;
-                _seoCode = null;
+                _cultureCode = null;
+            }
+        }
+
+        /// <summary>
+        /// Full path: PathBase + Path
+        /// </summary>
+        /// <returns></returns>
+        public string FullPath
+        {
+            get
+            {
+                string absPath = PathBase.EnsureEndsWith('/') + Path;
+
+                if (absPath.Length > 1 && absPath[0] != '/')
+                {
+                    absPath = "/" + absPath;
+                }
+
+                return absPath;
             }
         }
 
@@ -49,11 +68,11 @@ namespace Smartstore.Core.Localization
             return IsLocalizedUrl(out _);
         }
 
-        public bool IsLocalizedUrl(out string seoCode)
+        public bool IsLocalizedUrl(out string cultureCode)
         {
-            seoCode = _seoCode;
+            cultureCode = _cultureCode;
 
-            if (seoCode != null)
+            if (cultureCode != null)
             {
                 return true;
             }
@@ -74,56 +93,50 @@ namespace Smartstore.Core.Localization
 
             if (CultureHelper.IsValidCultureCode(firstPart))
             {
-                seoCode = _seoCode = firstPart;
+                cultureCode = _cultureCode = firstPart;
                 return true;
             }
 
             return false;
         }
 
-        public string StripSeoCode()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string StripCultureCode()
         {
-            if (IsLocalizedUrl(out var seoCode))
+            return StripCultureCode(out _);
+        }
+
+        public string StripCultureCode(out string cultureCode)
+        {
+            if (IsLocalizedUrl(out cultureCode))
             {
-                Path = Path[seoCode.Length..].TrimStart('/');
+                Path = Path[cultureCode.Length..].TrimStart('/');
             }
 
             return Path;
         }
 
-        public string PrependSeoCode(string seoCode, bool safe = false)
+        public string PrependCultureCode(string cultureCode, bool safe = false)
         {
-            Guard.NotEmpty(seoCode, nameof(seoCode));
+            Guard.NotEmpty(cultureCode, nameof(cultureCode));
 
             if (safe)
             {
-                if (IsLocalizedUrl(out string currentSeoCode))
+                if (IsLocalizedUrl(out string currentCultureCode))
                 {
-                    if (seoCode == currentSeoCode)
+                    if (cultureCode == currentCultureCode)
                     {
                         return Path;
                     }
                     else
                     {
-                        StripSeoCode();
+                        StripCultureCode(out _);
                     }
                 }
             }
 
-            Path = (seoCode + '/' + Path).TrimEnd('/');
+            Path = (cultureCode + '/' + Path).TrimEnd('/');
             return Path;
-        }
-
-        public string GetAbsolutePath()
-        {
-            string absPath = PathBase.EnsureEndsWith('/') + Path;
-
-            if (absPath.Length > 1 && absPath[0] != '/')
-            {
-                absPath = "/" + absPath;
-            }
-
-            return absPath;
         }
     }
 }

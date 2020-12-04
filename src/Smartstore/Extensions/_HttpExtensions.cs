@@ -263,40 +263,6 @@
 //			return GetItem<string>(httpContext, RememberPathKey, forceCreation: false) ?? httpContext.Request.AppRelativeCurrentExecutionFilePath;
 //		}
 
-//		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-//        public static T GetItem<T>(this HttpContext httpContext, string key, Func<T> factory = null, bool forceCreation = true)
-//		{
-//			return GetItem<T>(new HttpContextWrapper(httpContext), key, factory, forceCreation);
-//		}
-
-//		public static T GetItem<T>(this HttpContextBase httpContext, string key, Func<T> factory = null, bool forceCreation = true)
-//		{
-//			Guard.NotEmpty(key, nameof(key));
-
-//			var items = httpContext?.Items;
-//			if (items == null)
-//			{
-//				return default(T);
-//			}
-
-//			if (items.Contains(key))
-//			{
-//				return (T)items[key];
-//			}
-//			else
-//			{
-//				if (forceCreation)
-//				{
-//					var item = items[key] = (factory ?? (() => Activator.CreateInstance<T>())).Invoke();
-//					return (T)item;
-//				}
-//				else
-//				{
-//					return default(T);
-//				}
-//			}
-//		}
-
 //		public static void RemoveByPattern(this Cache cache, string pattern)
 //		{
 //			var keys = cache.AllKeys(pattern);

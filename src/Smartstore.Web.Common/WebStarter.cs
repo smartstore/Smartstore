@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
+using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine;
@@ -25,7 +26,7 @@ namespace Smartstore.Web.Common
                 return;
             }
 
-            routes.MapDynamicControllerRoute<SlugRouteTransformer>("{**SeName:minlength(2)}");
+            routes.MapDynamicControllerRoute<SlugRouteTransformer>("{**slug:minlength(2)}");
         }
     }
 

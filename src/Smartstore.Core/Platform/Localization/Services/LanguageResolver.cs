@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Customers;
@@ -69,22 +68,7 @@ namespace Smartstore.Core.Localization
                 return null;
             }
             
-            string cultureCode = null;
-            
-            var endpoint = httpContext.GetEndpoint();
-            if (endpoint == null)
-            {
-                // No endpoint, 'cause call to this method was probably made before "UseRouting" middleware.
-                // We need to analyze the request path.
-                var helper = new LocalizedUrlHelper(httpContext.Request);
-                helper.IsLocalizedUrl(out cultureCode);
-            }
-            else
-            {
-                // We're running after "UseRouting" middleware. It's safe to resolve from route values.
-                cultureCode = httpContext.GetRouteData().Values.GetCultureCode();
-            }
-
+            var cultureCode = httpContext.GetCultureCode();
             if (cultureCode.IsEmpty() || !_languageService.IsPublishedLanguage(cultureCode, storeId))
             {
                 return null;

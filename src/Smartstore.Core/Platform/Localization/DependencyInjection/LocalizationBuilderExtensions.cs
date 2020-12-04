@@ -45,9 +45,11 @@ namespace Microsoft.Extensions.DependencyInjection
 			return builder;
 		}
 
-		public static IApplicationBuilder UseCultureMiddleware(this IApplicationBuilder app)
+		public static IApplicationBuilder UseAppLocalization(this IApplicationBuilder app)
 		{
-			return app.UseMiddleware<CultureMiddleware>();
+			return app
+				.UseMiddleware<CultureRedirectionMiddleware>()
+				.UseMiddleware<CultureMiddleware>();
 		}
 	}
 

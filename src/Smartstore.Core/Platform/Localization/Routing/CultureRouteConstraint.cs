@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,7 +25,7 @@ namespace Smartstore.Core.Localization.Routing
 
             if (routeDirection == RouteDirection.UrlGeneration)
             {
-                // Don't validate
+                // Don't validate. SmartLinkGenerator will handle url generation.
                 return true;
             }
             
@@ -38,26 +33,13 @@ namespace Smartstore.Core.Localization.Routing
             {
                 return false;
             }
-            
-            if (CultureHelper.IsValidCultureCode(cultureCode))
-            {
-                // INFO: only incoming
-                var languageService = httpContext.RequestServices.GetRequiredService<ILanguageService>();
-                return languageService.IsPublishedLanguage(cultureCode);
 
-                //var requestCulture = httpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture?.UICulture;
-                //if (requestCulture == null)
-                //{
-                //    return false;
-                //}
-                    
-                //return (requestCulture.Name == cultureName || requestCulture.Parent.Name == cultureName);
-            }
-
-            return false;
+            // INFO: Only check for plausibility here. Real validity check will
+            // be performed later in the pipeline.
+            return CultureHelper.IsValidCultureCode(cultureCode);
         }
 
-        private bool GlobalMatch(HttpContext httpContext)
+        private static bool GlobalMatch(HttpContext httpContext)
         {
             return httpContext.GetItem(GlobalMatchKey, () => 
             {

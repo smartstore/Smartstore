@@ -17,17 +17,19 @@ namespace Smartstore.Core.Seo.Routing
         private readonly SmartDbContext _db;
         private readonly IUrlService _urlService;
         private readonly LocalizationSettings _localizationSettings;
+        private readonly ILanguageService _languageService;
 
-        public SlugRouteTransformer(SmartDbContext db, IUrlService urlService, LocalizationSettings localizationSettings)
+        public SlugRouteTransformer(SmartDbContext db, IUrlService urlService, LocalizationSettings localizationSettings, ILanguageService languageService)
         {
             _db = db;
             _urlService = urlService;
             _localizationSettings = localizationSettings;
+            _languageService = languageService;
         }
 
         #region Static
 
-        public const string SlugRouteKey = "SeName";
+        public const string SlugRouteKey = "slug";
 
         // Key = Prefix, Value = EntityType
         private static readonly Multimap<string, string> _urlPrefixes = new Multimap<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -101,26 +103,13 @@ namespace Smartstore.Core.Seo.Routing
             return false;
         }
 
-        //private static string NormalizeSlug(RouteValueDictionary routeValues)
-        //{
-        //    var slug = routeValues[SlugKey] as string;
-
-        //    var lastChar = slug[slug.Length - 1];
-        //    if (lastChar == '/' || lastChar == '\\')
-        //    {
-        //        slug = slug.TrimEnd('/', '\\');
-        //        routeValues[SlugKey] = slug;
-        //    }
-
-        //    return slug;
-        //}
-
         #endregion
 
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
             // TODO: (core) strip off culture code? Decide once request localization is implemented.
-            var slug = httpContext.Request.Path.Value.Trim('/', '\\');
+            var helper = new LocalizedUrlHelper(httpContext.Request);
+            var slug = helper.StripCultureCode(out var requestCulture).Trim('/', '\\');
 
             if (slug.IsEmpty())
             {
@@ -142,27 +131,60 @@ namespace Smartstore.Core.Seo.Routing
                 return null;
             }
 
+            // INFO: The inline GetSlugCulture() method needs this
+            string _slugCulture = null;
+
             if (!urlRecord.IsActive)
             {
                 // Found slug is outdated. Find the latest active one.
                 var activeSlug = await _urlService.GetActiveSlugAsync(urlRecord.EntityId, urlRecord.EntityName, urlRecord.LanguageId);
                 if (activeSlug.HasValue())
                 {
-                    // TODO: (core) Find a way to apply a permanent response redirect at this point
-                    return null;
+                    // Apply a permanent response redirect to active slug
+                    RequestRedirection(helper.PathBase, (await GetSlugCulture()) ?? requestCulture, urlPrefix, activeSlug);
                 }
-                else
-                {
-                    // No active slug found
-                    return null;
-                }
+
+                return null;
             }
 
             if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
-                // TODO: (core) Determine request language and - if it differs from urlRecord.LanguageId - 
-                // find active slug for requested language, rewrite path and redirect to new location. 
-                // ...
+                var defaultCulture = _languageService.GetDefaultLanguageSeoCode();
+                var ambientCulture = requestCulture ?? defaultCulture;
+                var slugCulture = await GetSlugCulture();
+
+                if (requestCulture == null && _localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect)
+                {
+                    // table > en/table
+                    RequestRedirection(helper.PathBase, defaultCulture, urlPrefix, slug);
+                    return null;
+                }
+                else if (ambientCulture != slugCulture && _languageService.IsPublishedLanguage(ambientCulture))
+                {
+                    // Current slug language differs from requested languages. This can happen if a language switch was performed.
+                    // We have to determine the request language...
+                    var ambientLanguage = await _db.Languages.FirstOrDefaultAsync(x => x.UniqueSeoCode == ambientCulture);
+                    // ...then determine the active slug for the request language.
+                    var ambientSlug = await _urlService.GetActiveSlugAsync(urlRecord.EntityId, urlRecord.EntityName, ambientLanguage.Id);
+                    
+                    if (ambientSlug.HasValue() && ambientSlug != slug)
+                    {
+                        // ...now check if request language is default
+                        if (ambientCulture.EqualsNoCase(defaultCulture) && _localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode)
+                        {
+                            // ...and culture code should be stripped off URLs when default language
+                            ambientCulture = null;
+                        }
+
+                        // Now request the direction to the new location:
+                        // tisch > en/table
+                        // en/table > tisch
+                        // en/table > tr/masa
+                        // etc.
+                        RequestRedirection(helper.PathBase, ambientCulture, urlPrefix, ambientSlug);
+                        return null;
+                    }
+                }
             }
 
             // Verify prefix matches any assigned entity name
@@ -182,6 +204,22 @@ namespace Smartstore.Core.Seo.Routing
             httpContext.GetRouteData().DataTokens["UrlRecord"] = urlRecord;
 
             return transformedValues;
+
+            async Task<string> GetSlugCulture()
+            {
+                return (_slugCulture ??= (await _db.Languages.FindByIdAsync(urlRecord.LanguageId))?.GetTwoLetterISOLanguageName().EmptyNull()).NullEmpty();
+            }
+
+            void RequestRedirection(params string[] segments)
+            {
+                // Apply a permanent response redirect to a new location (CultureRedirectionMiddleware will take care of it)
+                var location = segments
+                    .Where(x => x.HasValue())
+                    .StrJoin('/')
+                    .EnsureStartsWith('/');
+
+                httpContext.Items["__RedirectLocation"] = location + httpContext.Request.QueryString;
+            }
         }
     }
 }

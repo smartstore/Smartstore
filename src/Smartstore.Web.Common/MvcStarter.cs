@@ -122,10 +122,10 @@ namespace Smartstore.Web.Common
                 app.UseHsts();
             }
 
-            app.UseMiniProfiler();
-
             //app.UseHttpsRedirection();
             app.UseStaticFiles(); // TODO: (core) Set StaticFileOptions
+
+            app.UseMiniProfiler();
 
             app.UseRouting();
 
@@ -137,9 +137,9 @@ namespace Smartstore.Web.Common
 
             if (appContext.IsInstalled)
             {
-                app.UseCultureMiddleware();
+                app.UseAppLocalization();
                 app.UseMiddleware<SerilogHttpContextMiddleware>();
-                app.Map("/sitemap.xml", true, b => b.UseMiddleware<XmlSitemapMiddleware>());
+                //app.Map("/sitemap.xml", true, b => b.UseMiddleware<XmlSitemapMiddleware>());
             }
 
             app.UseCookiePolicy(); // TODO: (core) Configure cookie policy
@@ -159,12 +159,11 @@ namespace Smartstore.Web.Common
             //    name: "areas",
             //    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
+            routes.MapXmlSitemap();
+
             routes.MapControllers();
 
-            //routes.MapControllerRoute(
-            //    name: "default-localized",
-            //    pattern: "{culture:culture=de}/{controller=Home}/{action=Index}/{id?}");
-            routes.MapControllerRoute(
+            routes.MapLocalizedControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
         }
