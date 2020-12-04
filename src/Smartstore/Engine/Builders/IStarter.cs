@@ -4,28 +4,18 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Collections;
 
-namespace Smartstore.Engine
+namespace Smartstore.Engine.Builders
 {
     /// <summary>
-    /// An implementation of this interface is used to initialize the services and HTTP request
-    /// pipeline of a plugin.
+    /// An implementation of this interface is used to initialize the services, the HTTP request
+    /// pipeline and endpoint routes of a module.
     /// </summary>
     public interface IStarter : ITopologicSortable<string>
     {
         /// <summary>
-        /// Get the value to use to order startups to configure services. The default is 0.
+        /// Get the value to use to order startup implementations. The default is 0.
         /// </summary>
         int Order { get; }
-
-        /// <summary>
-        /// Get the value to use to order startups to build the pipeline. The default is the <see cref="Order"/> property.
-        /// </summary>
-        int PipelineOrder { get; }
-
-        /// <summary>
-        /// Get the value to use to order startups to register the routing endpoints. The default is the <see cref="PipelineOrder"/> property.
-        /// </summary>
-        int RoutesOrder { get; }
 
         /// <summary>
         /// Returns a value indicating whether the starter should run or be skipped. Default is <c>true</c>. 
@@ -49,14 +39,17 @@ namespace Smartstore.Engine
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the application's request pipeline.
+        /// Call <see cref="RequestPipelineBuilder.Configure(int, Action{IApplicationBuilder})"/> for each set of
+        /// handlers and specify its order by passing any predefined number from <see cref="StarterOrdering"/> (although you could pass any integer).
         /// </summary>
-        /// <param name="appContext">The application context instance.</param>
-        void BuildPipeline(IApplicationBuilder builder, IApplicationContext appContext);
+        /// <param name="builder">The pipeline builder instance.</param>
+        void BuildPipeline(RequestPipelineBuilder builder);
 
-        /// <summary>
         /// This method gets called by the runtime. Use this method to register endpoint routes.
+        /// Call <see cref="RequestPipelineBuilder.Configure(int, Action{IApplicationBuilder})"/> for each set of
+        /// routes and specify its order by passing any predefined number from <see cref="StarterOrdering"/> (although you could pass any integer).
         /// </summary>
-        /// <param name="appContext">The application context instance.</param>
-        void MapRoutes(IApplicationBuilder builder, IEndpointRouteBuilder routes, IApplicationContext appContext);
+        /// <param name="builder">The routing builder instance.</param>
+        void MapRoutes(EndpointRoutingBuilder builder);
     }
 }

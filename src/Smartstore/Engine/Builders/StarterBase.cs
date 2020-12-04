@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Collections;
 
-namespace Smartstore.Engine
+namespace Smartstore.Engine.Builders
 {
     /// <inheritdoc />
     public abstract class StarterBase : IStarter, IContainerConfigurer
@@ -16,12 +16,6 @@ namespace Smartstore.Engine
         
         /// <inheritdoc />
         public virtual int Order { get; } = (int)StarterOrdering.Default;
-
-        /// <inheritdoc />
-        public virtual int PipelineOrder => Order;
-
-        /// <inheritdoc />
-        public virtual int RoutesOrder => PipelineOrder;
 
         /// <inheritdoc />
         public virtual bool Matches(IApplicationContext appContext) => true;
@@ -37,12 +31,12 @@ namespace Smartstore.Engine
         }
 
         /// <inheritdoc />
-        public virtual void BuildPipeline(IApplicationBuilder app, IApplicationContext appContext)
+        public virtual void BuildPipeline(RequestPipelineBuilder builder)
         {
         }
 
         /// <inheritdoc />
-        public virtual void MapRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
+        public virtual void MapRoutes(EndpointRoutingBuilder builder)
         {
         }
 

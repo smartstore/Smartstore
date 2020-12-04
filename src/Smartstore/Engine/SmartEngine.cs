@@ -14,6 +14,7 @@ using Smartstore.Diagnostics;
 using Smartstore.Engine.DependencyInjection;
 using Smartstore.Engine.Initialization;
 using Smartstore.Events.DependencyInjection;
+using Smartstore.Engine.Builders;
 
 namespace Smartstore.Engine
 {
@@ -65,10 +66,12 @@ namespace Smartstore.Engine
             {
                 _engine = engine;
                 _appContext = engine.Application;
+
                 _starters = _appContext.TypeScanner.FindTypes<IStarter>()
                     .Select(t => (IStarter)Activator.CreateInstance(t))
                     .Where(x => x.Matches(_appContext))
                     .ToList();
+                _starters = SortStarters(_starters).ToList();
             }
 
             public SmartConfiguration AppConfiguration { get; private set; }
@@ -104,7 +107,7 @@ namespace Smartstore.Engine
                 // TODO: (core) Register more system stuff
 
                 // Configure all modular services
-                foreach (var starter in SortStarters(_starters, x => x.Order))
+                foreach (var starter in _starters)
                 {
                     starter.ConfigureServices(services, _appContext, IsActiveModule(starter));
                 }
@@ -117,7 +120,7 @@ namespace Smartstore.Engine
                 builder.RegisterModule(new EventsModule(_appContext));
 
                 // Configure all modular services by Autofac
-                foreach (var starter in SortStarters(_starters, x => x.Order).OfType<IContainerConfigurer>())
+                foreach (var starter in _starters.OfType<IContainerConfigurer>())
                 {
                     starter.ConfigureContainer(builder, _appContext, IsActiveModule(starter));
                 }
@@ -139,25 +142,29 @@ namespace Smartstore.Engine
                 var activeModuleStarters = _starters.Where(IsActiveModule).ToArray();
 
                 // Configure all modular pipelines
-                foreach (var starter in SortStarters(activeModuleStarters, x => x.PipelineOrder))
+                var pipelineBuilder = new RequestPipelineBuilder { ApplicationBuilder = app, ApplicationContext = _appContext };
+                foreach (var starter in activeModuleStarters)
                 {
-                    starter.BuildPipeline(app, _appContext);
+                    starter.BuildPipeline(pipelineBuilder);
                 }
+                pipelineBuilder.Build(app);
 
+                // Map all modular endpoints
                 app.UseEndpoints(endpoints =>
                 {
-                    // Configure all modular endpoints
-                    foreach (var starter in SortStarters(activeModuleStarters, x => x.RoutesOrder))
+                    var routeBuilder = new EndpointRoutingBuilder { ApplicationBuilder = app, ApplicationContext = _appContext, RouteBuilder = endpoints };
+                    foreach (var starter in activeModuleStarters)
                     {
-                        starter.MapRoutes(app, endpoints, _appContext);
+                        starter.MapRoutes(routeBuilder);
                     }
+                    routeBuilder.Build(endpoints);
                 });
             }
 
-            private static IEnumerable<IStarter> SortStarters(IEnumerable<IStarter> starters, Func<IStarter, int> selector)
+            private static IEnumerable<IStarter> SortStarters(IEnumerable<IStarter> starters)
             {
                 return starters
-                    .GroupBy(selector)
+                    .GroupBy(x => x.Order)
                     .OrderBy(x => x.Key)
                     .SelectMany(x => x.ToArray().SortTopological(StringComparer.OrdinalIgnoreCase))
                     .Cast<IStarter>();

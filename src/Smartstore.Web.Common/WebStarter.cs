@@ -1,12 +1,10 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
-using Smartstore.Core.Localization.Routing;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine;
+using Smartstore.Engine.Builders;
 
 namespace Smartstore.Web.Common
 {
@@ -18,29 +16,35 @@ namespace Smartstore.Web.Common
             services.AddScoped<SlugRouteTransformer>();
         }
 
-        public override int RoutesOrder => (int)StarterOrdering.Early;
-        public override void MapRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
+        public override void MapRoutes(EndpointRoutingBuilder builder)
         {
-            if (!appContext.IsInstalled)
+            if (!builder.ApplicationContext.IsInstalled)
             {
                 return;
             }
 
-            routes.MapDynamicControllerRoute<SlugRouteTransformer>("{**slug:minlength(2)}");
+            builder.MapRoutes(StarterOrdering.EarlyRoute, routes => 
+            {
+                routes.MapDynamicControllerRoute<SlugRouteTransformer>("{**slug:minlength(2)}");
+            });
         }
     }
 
     public class LastRoutes : StarterBase
     {
-        public override bool Matches(IApplicationContext appContext) => appContext.IsInstalled;
-        public override int RoutesOrder => (int)StarterOrdering.Last;
-        public override void MapRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
-        {
-            // Register routes from SlugRouteTransformer solely needed for URL creation, NOT for route matching.
-            SlugRouteTransformer.Routers.Each(x => x.MapRoutes(routes));
+        public override bool Matches(IApplicationContext appContext) 
+            => appContext.IsInstalled;
 
-            // TODO: (core) Very last route: PageNotFound?
-            routes.MapControllerRoute("PageNotFound", "{*path}", new { controller = "Error", action = "NotFound" });
+        public override void MapRoutes(EndpointRoutingBuilder builder)
+        {
+            builder.MapRoutes(StarterOrdering.LastRoute, routes =>
+            {
+                // Register routes from SlugRouteTransformer solely needed for URL creation, NOT for route matching.
+                SlugRouteTransformer.Routers.Each(x => x.MapRoutes(routes));
+
+                // TODO: (core) Very last route: PageNotFound?
+                routes.MapControllerRoute("PageNotFound", "{*path}", new { controller = "Error", action = "NotFound" });
+            });
         }
     }
 }

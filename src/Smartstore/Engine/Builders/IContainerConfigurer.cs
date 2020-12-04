@@ -1,7 +1,7 @@
 ﻿using System;
 using Autofac;
 
-namespace Smartstore.Engine
+namespace Smartstore.Engine.Builders
 {
     public interface IContainerConfigurer
     {

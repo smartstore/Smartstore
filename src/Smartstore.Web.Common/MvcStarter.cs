@@ -19,6 +19,7 @@ using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Seo;
 using Smartstore.Engine;
+using Smartstore.Engine.Builders;
 
 namespace Smartstore.Web.Common
 {
@@ -106,66 +107,88 @@ namespace Smartstore.Web.Common
             services.AddRazorPages();
         }
 
-        public override int PipelineOrder => (int)StarterOrdering.Early;
-        public override void BuildPipeline(IApplicationBuilder app, IApplicationContext appContext)
-        {
-            // TODO: Find a way to modularize pipeline building decently
-            
-            if (appContext.HostEnvironment.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-
-            //app.UseHttpsRedirection();
-            app.UseStaticFiles(); // TODO: (core) Set StaticFileOptions
-
-            app.UseMiniProfiler();
-
-            app.UseRouting();
-
-            // TODO: (core) Use Swagger
-            // TODO: (core) Use Response compression
-
-            // TODO: (core) Use media middleware
-            //app.UseSession(); // TODO: (core) Configure session
-
-            if (appContext.IsInstalled)
-            {
-                app.UseAppLocalization();
-                app.UseMiddleware<SerilogHttpContextMiddleware>();
-                //app.Map("/sitemap.xml", true, b => b.UseMiddleware<XmlSitemapMiddleware>());
-            }
-
-            app.UseCookiePolicy(); // TODO: (core) Configure cookie policy
-
-            app.UseAuthorization(); // TODO: (core) Configure custom auth with Identity Server
-        }
-
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
         }
 
-        public override int RoutesOrder => (int)StarterOrdering.Early;
-        public override void MapRoutes(IApplicationBuilder app, IEndpointRouteBuilder routes, IApplicationContext appContext)
+        public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            //routes.MapControllerRoute(
-            //    name: "areas",
-            //    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+            var appContext = builder.ApplicationContext;
 
-            routes.MapXmlSitemap();
+            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app => 
+            {
+                if (appContext.HostEnvironment.IsDevelopment())
+                {
+                    app.UseDeveloperExceptionPage();
+                }
+                else
+                {
+                    app.UseExceptionHandler("/Home/Error");
+                    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                    app.UseHsts();
+                }
+            });
 
-            routes.MapControllers();
+            builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
+            {
+                //app.UseHttpsRedirection();
+                app.UseStaticFiles(); // TODO: (core) Set StaticFileOptions
+            });
 
-            routes.MapLocalizedControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+            builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app =>
+            {
+                app.UseMiniProfiler();
+            });
+
+            builder.Configure(StarterOrdering.RoutingMiddleware, app =>
+            {
+                app.UseRouting();
+            });
+
+            builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
+            {
+                // TODO: (core) Use Swagger
+                // TODO: (core) Use Response compression
+
+                // TODO: (core) Use media middleware
+                //app.UseSession(); // TODO: (core) Configure session
+            });
+
+            if (appContext.IsInstalled)
+            {
+                builder.Configure(StarterOrdering.EarlyMiddleware, app =>
+                {
+                    app.UseAppLocalization();
+                    app.UseMiddleware<SerilogHttpContextMiddleware>();
+                    //app.Map("/sitemap.xml", true, b => b.UseMiddleware<XmlSitemapMiddleware>());
+                });
+            }
+
+            builder.Configure(StarterOrdering.DefaultMiddleware, app =>
+            {
+                app.UseCookiePolicy(); // TODO: (core) Configure cookie policy
+
+                app.UseAuthorization(); // TODO: (core) Configure custom auth with Identity Server
+            });
+        }
+
+        public override void MapRoutes(EndpointRoutingBuilder builder)
+        {
+            builder.MapRoutes(StarterOrdering.EarlyMiddleware, routes =>
+            {
+                //routes.MapControllerRoute(
+                //    name: "areas",
+                //    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapXmlSitemap();
+
+                routes.MapControllers();
+
+                routes.MapLocalizedControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }

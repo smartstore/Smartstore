@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Engine;
+using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Installation
 {
@@ -12,20 +13,23 @@ namespace Smartstore.Core.Installation
         public override bool Matches(IApplicationContext appContext)
             => !appContext.IsInstalled;
 
-        public override void BuildPipeline(IApplicationBuilder app, IApplicationContext appContext)
+        public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            //app.UseMiddleware<InstallMiddleware>();
-            app.Use(async (context, next) => 
+            builder.Configure(StarterOrdering.EarlyMiddleware, app => 
             {
-                var routeValues = context.GetRouteData().Values;
-
-                if (!routeValues.GetControllerName().EqualsNoCase(InstallControllerName))
+                //app.UseMiddleware<InstallMiddleware>();
+                app.Use(async (context, next) =>
                 {
-                    context.Response.Redirect(context.Request.PathBase.Value + "/" + InstallControllerName);
-                    return;
-                }
+                    var routeValues = context.GetRouteData().Values;
 
-                await next();
+                    if (!routeValues.GetControllerName().EqualsNoCase(InstallControllerName))
+                    {
+                        context.Response.Redirect(context.Request.PathBase.Value + "/" + InstallControllerName);
+                        return;
+                    }
+
+                    await next();
+                });
             });
         }
     }
