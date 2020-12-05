@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -50,7 +51,7 @@ namespace Smartstore.Core.Customers
     [Index(nameof(CustomerNumber), Name = "IX_Customer_CustomerNumber")]
     [Index(nameof(BirthDate), Name = "IX_Customer_BirthDate")]
     [Index(nameof(Deleted), nameof(IsSystemAccount), Name = "IX_Customer_Deleted_IsSystemAccount")]
-    public partial class Customer : BaseEntity, ISoftDeletable
+    public partial class Customer : EntityWithAttributes, ISoftDeletable
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -211,6 +212,11 @@ namespace Smartstore.Core.Customers
         [Column("ShippingAddress_Id")]
         public int? ShippingAddressId { get; set; }
 
+        public override CustomerAttributeCollection GetAttributes(int storeId = 0)
+        {
+            return new CustomerAttributeCollection(base.GetAttributes(storeId));
+        }
+
         #region Navigation properties
 
         // TODO: (core) Add all navigation properties for Customer entity
@@ -248,7 +254,6 @@ namespace Smartstore.Core.Customers
         #endregion
 
         #region Utils
-
 
         /// <summary>
         /// Gets a string identifier for the customer's roles by joining all role ids

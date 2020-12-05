@@ -45,11 +45,12 @@ namespace Microsoft.Extensions.DependencyInjection
 			return builder;
 		}
 
-		public static IApplicationBuilder UseAppLocalization(this IApplicationBuilder app)
+		/// <summary>
+		/// Uses culture from current working language and sets globalization clients scripts accordingly.
+		/// </summary>
+		public static IApplicationBuilder UseRequestCulture(this IApplicationBuilder app)
 		{
-			return app
-				.UseMiddleware<CultureRedirectionMiddleware>()
-				.UseMiddleware<CultureMiddleware>();
+			return app.UseMiddleware<RequestCultureMiddleware>();
 		}
 	}
 

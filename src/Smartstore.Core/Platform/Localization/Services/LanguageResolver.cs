@@ -40,10 +40,10 @@ namespace Smartstore.Core.Localization
             Guard.NotNull(currentCustomer, nameof(currentCustomer));
 
             int storeId = _storeContext.CurrentStore.Id;
-
+            
             int customerLangId = currentCustomer.IsSystemAccount
                 ? (httpContext != null ? httpContext.Request.Query["lid"].FirstOrDefault().ToInt() : 0)
-                : await currentCustomer.GetAttributeAsync<int>(SystemCustomerAttributeNames.LanguageId, _attrService, storeId);
+                : currentCustomer.GetAttributes(storeId).LanguageId ?? 0;
 
             if (httpContext == null)
             {
@@ -58,7 +58,9 @@ namespace Smartstore.Core.Localization
                 // 3: Try resolve from accept header
                 await ResolveFromAcceptHeaderAsync(httpContext, storeId, customerLangId, currentCustomer) ??
                 // 3: Get default fallback language
-                await GetDefaultLanguage(customerLangId, storeId);
+                await GetDefaultLanguage(customerLangId, storeId) ??
+                // Should never happen
+                throw new SmartException("At least one language must be active!");
         }
 
         private async Task<Language> ResolveFromRouteAsync(HttpContext httpContext, int storeId)

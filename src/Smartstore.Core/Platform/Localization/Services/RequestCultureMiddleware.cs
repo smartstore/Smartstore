@@ -11,21 +11,21 @@ using Smartstore.Utilities;
 namespace Smartstore.Core.Localization
 {
     /// <summary>
-    /// Determines and sets working culture and globalization scripts
+    /// Uses culture from current working language and sets globalization clients scripts accordingly.
     /// </summary>
-    public class CultureMiddleware
+    public class RequestCultureMiddleware
     {
         // DIN 5008.
         private static string[] _deMonthAbbreviations = new[] { "Jan.", "Feb.", "März", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sept.", "Okt.", "Nov.", "Dez.", "" };
 
         private readonly RequestDelegate _next;
 
-        public CultureMiddleware(RequestDelegate next)
+        public RequestCultureMiddleware(RequestDelegate next)
         {
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, IWorkContext workContext, LocalizationSettings localizationSettings)
+        public async Task Invoke(HttpContext context, IWorkContext workContext)
         {
             var request = context.Request;
             var language = workContext.WorkingLanguage;

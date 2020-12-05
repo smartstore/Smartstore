@@ -212,12 +212,13 @@ namespace Smartstore.Core.Seo
         {
             Guard.NotNull(ctx, nameof(ctx));
 
-            var dataTokens = _httpContextAccessor.HttpContext?.GetRouteData()?.DataTokens;
-            if (dataTokens != null)
-            {
-                // Double seo code otherwise
-                dataTokens["CultureCodeReplacement"] = string.Empty;
-            }
+            // TODO: (core) Check later if this is still necessary
+            //var dataTokens = _httpContextAccessor.HttpContext?.GetRouteData()?.DataTokens;
+            //if (dataTokens != null)
+            //{
+            //    // Double seo code otherwise
+            //    dataTokens["CultureCodeReplacement"] = string.Empty;
+            //}
 
             var languageData = new Dictionary<int, LanguageData>();
 

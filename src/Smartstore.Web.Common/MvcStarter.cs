@@ -159,9 +159,9 @@ namespace Smartstore.Web.Common
             {
                 builder.Configure(StarterOrdering.EarlyMiddleware, app =>
                 {
-                    app.UseAppLocalization();
+                    app.UseUrlPolicy();
+                    app.UseRequestCulture();
                     app.UseMiddleware<SerilogHttpContextMiddleware>();
-                    //app.Map("/sitemap.xml", true, b => b.UseMiddleware<XmlSitemapMiddleware>());
                 });
             }
 
@@ -185,7 +185,7 @@ namespace Smartstore.Web.Common
 
                 routes.MapControllers();
 
-                routes.MapLocalizedControllerRoute(
+                routes.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });

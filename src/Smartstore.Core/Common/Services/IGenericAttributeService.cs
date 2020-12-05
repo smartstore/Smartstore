@@ -11,6 +11,19 @@ namespace Smartstore.Core.Common.Services
     public partial interface IGenericAttributeService
     {
         /// <summary>
+        /// Gets a specialized generic attributes collection for the given entity.
+        /// Loaded data will be cached for the duration of the request.
+        /// </summary>
+        /// <param name="entityId">Entity identifier</param>
+        /// <param name="entityName">Key group</param>
+        /// <param name="storeId">
+        /// If 0, current store id will be resolved automatically. Store-neutral
+        /// attributes are always loaded.
+        /// </param>
+        /// <returns>Generic attributes collection</returns>
+        Task<GenericAttributeCollection> GetAttributesForEntityAsync(int entityId, string entityName, int storeId = 0);
+
+        /// <summary>
         /// Get attribute value
         /// </summary>
         /// <param name="entityName">Key group</param>

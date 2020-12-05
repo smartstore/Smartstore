@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Seo
@@ -43,6 +45,24 @@ namespace Smartstore.Core.Seo
     /// </summary>
     public partial interface IUrlService
     {
+        /// <summary>
+        /// Gets the <see cref="UrlPolicy"/> instance for the current request. The url policy
+        /// can be used to modify specific segments of the current request URL (scheme, host, culture code,
+        /// path and querystring). A middleware then analyzes the changes and performs a HTTP
+        /// redirection to the new location if necessary.
+        /// </summary>
+        UrlPolicy GetUrlPolicy();
+
+        /// <summary>
+        /// Applies all configured rules for canonical URLs.
+        /// </summary>
+        UrlPolicy ApplyCanonicalUrlRulesPolicy();
+
+        /// <summary>
+        /// Applies all configured rules for seo friendly URLs.
+        /// </summary>
+        UrlPolicy ApplyCultureUrlPolicy(Endpoint endpoint);
+
         /// <summary>
         /// Gets the active slug for an entity.
         /// </summary>

@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Seo
@@ -24,9 +27,15 @@ namespace Smartstore.Core.Seo
         const string URLRECORD_ALL_ACTIVESLUGS_KEY = "urlrecord:all-active-slugs";
 
         internal readonly SmartDbContext _db;
-        private readonly ICacheManager _cacheManager;
+        private readonly ICacheManager _cache;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWorkContext _workContext;
+        private readonly ILanguageService _languageService;
+        private readonly LocalizationSettings _localizationSettings;
         internal readonly SeoSettings _seoSettings;
         private readonly PerformanceSettings _performanceSettings;
+
+        private UrlPolicy _urlPolicy;
 
         private readonly IDictionary<string, UrlRecord> _extraSlugLookup;
         private readonly IDictionary<string, UrlRecordCollection> _prefetchedCollections;
@@ -34,12 +43,20 @@ namespace Smartstore.Core.Seo
 
         public UrlService(
             SmartDbContext db,
-            ICacheManager cacheManager,
+            ICacheManager cache,
+            IHttpContextAccessor httpContextAccessor,
+            IWorkContext workContext,
+            ILanguageService languageService,
+            LocalizationSettings localizationSettings,
             SeoSettings seoSettings,
             PerformanceSettings performanceSettings)
         {
             _db = db;
-            _cacheManager = cacheManager;
+            _cache = cache;
+            _httpContextAccessor = httpContextAccessor;
+            _workContext = workContext;
+            _languageService = languageService;
+            _localizationSettings = localizationSettings;
             _seoSettings = seoSettings;
             _performanceSettings = performanceSettings;
 
@@ -91,7 +108,7 @@ namespace Smartstore.Core.Seo
             var segmentKey = GetSegmentKeyPart(entityName, entityId, out var minEntityId, out var maxEntityId);
             var cacheKey = BuildCacheSegmentKey(segmentKey, languageId);
 
-            return await _cacheManager.GetAsync(cacheKey, async (o) =>
+            return await _cache.GetAsync(cacheKey, async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromHours(8));
 
@@ -127,15 +144,15 @@ namespace Smartstore.Core.Seo
 
             if (languageId > 0)
             {
-                await _cacheManager.RemoveAsync(BuildCacheSegmentKey(segmentKey, languageId.Value));
+                await _cache.RemoveAsync(BuildCacheSegmentKey(segmentKey, languageId.Value));
             }
             else
             {
-                await _cacheManager.RemoveByPatternAsync(URLRECORD_SEGMENT_PATTERN.FormatInvariant(segmentKey));
+                await _cache.RemoveByPatternAsync(URLRECORD_SEGMENT_PATTERN.FormatInvariant(segmentKey));
             }
 
             // Always delete this (in case when LoadAllOnStartup is true)
-            await _cacheManager.RemoveAsync(URLRECORD_ALL_ACTIVESLUGS_KEY);
+            await _cache.RemoveAsync(URLRECORD_ALL_ACTIVESLUGS_KEY);
         }
 
         private void ValidateCacheState()
@@ -151,7 +168,7 @@ namespace Smartstore.Core.Seo
 
             if (_lastCacheSegmentSize > 0 && _lastCacheSegmentSize != size)
             {
-                _cacheManager.RemoveByPattern(URLRECORD_SEGMENT_PATTERN);
+                _cache.RemoveByPattern(URLRECORD_SEGMENT_PATTERN);
                 changed = true;
             }
 
@@ -184,6 +201,116 @@ namespace Smartstore.Core.Seo
 
         #endregion
 
+        #region UrlPolicy
+
+        public virtual UrlPolicy GetUrlPolicy()
+        {
+            if (_urlPolicy == null)
+            {
+                var request = _httpContextAccessor?.HttpContext?.Request;
+                if (request == null)
+                {
+                    throw new InvalidOperationException("A valid HttpContext instance is required for successful URL policy creation.");
+                }
+
+                _urlPolicy = new UrlPolicy(request)
+                {
+                    DefaultCultureCode = _languageService.GetDefaultLanguageSeoCode(),
+                    LocalizationSettings = _localizationSettings,
+                    SeoSettings = _seoSettings
+                };
+            }
+
+            return _urlPolicy;
+        }
+
+        public virtual UrlPolicy ApplyCanonicalUrlRulesPolicy()
+        {
+            var policy = GetUrlPolicy();
+
+            if (policy.IsInvalidUrl)
+            {
+                return policy;
+            }
+
+            // TODO: (core) Implement ApplyCanonicalUrlRulesPolicy
+
+            return policy;
+        }
+
+        public virtual UrlPolicy ApplyCultureUrlPolicy(Endpoint endpoint)
+        {
+            Guard.NotNull(endpoint, nameof(endpoint));
+            
+            var policy = GetUrlPolicy();
+            
+            if (policy.IsInvalidUrl)
+            {
+                return policy;
+            }
+
+            if (!_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled || policy.Method != HttpMethod.Get.Method)
+            {
+                // Handle only GET requests and when config says so.
+                return policy;
+            }
+
+            var localizedRouteMetadata = endpoint.Metadata.OfType<LocalizedRouteMetadata>().FirstOrDefault();
+            if (localizedRouteMetadata == null)
+            {
+                // Handle only localizable routes
+                return policy;
+            }
+
+            var workingLanguage = _workContext.WorkingLanguage;
+            var invalidBehavior = _localizationSettings.InvalidLanguageRedirectBehaviour;
+            var defaultBehavior = _localizationSettings.DefaultLanguageRedirectBehaviour;
+
+            if (policy.Culture.HasValue)
+            {
+                if (!_languageService.IsPublishedLanguage(policy.Culture))
+                {
+                    // Language is not defined in system or not assigned to store
+                    if (invalidBehavior == InvalidLanguageRedirectBehaviour.ReturnHttp404)
+                    {
+                        var cultureCodeReplacement = defaultBehavior == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect
+                            ? workingLanguage.GetTwoLetterISOLanguageName()
+                            : string.Empty;
+
+                        policy.Culture.Modify(cultureCodeReplacement);
+                        policy.IsInvalidUrl = true;
+                    }
+                    else if (invalidBehavior == InvalidLanguageRedirectBehaviour.FallbackToWorkingLanguage)
+                    {
+                        policy.Culture.Modify(defaultBehavior == DefaultLanguageRedirectBehaviour.StripSeoCode 
+                            ? string.Empty
+                            : workingLanguage.GetTwoLetterISOLanguageName());
+                    }
+                }
+                else // Not a published language
+                {
+                    // Redirect default language (if desired)
+                    if (policy.Culture == policy.DefaultCultureCode && defaultBehavior == DefaultLanguageRedirectBehaviour.StripSeoCode)
+                    {
+                        policy.Culture.Strip();
+                    }
+                }
+            }
+            else // No culture present
+            {
+                // Keep default language prefixless (if desired)
+                if (!(workingLanguage.UniqueSeoCode == policy.DefaultCultureCode && (int)(defaultBehavior) > 0))
+                {
+                    // Add language code to URL
+                    policy.Culture.Modify(workingLanguage.UniqueSeoCode);
+                }
+            }
+
+            return policy;
+        }
+
+        #endregion
+
         #region IUrlService
 
         public virtual IUrlServiceBatchScope CreateBatchScope()
@@ -202,7 +329,7 @@ namespace Smartstore.Core.Seo
 
             if (_seoSettings.LoadAllUrlAliasesOnStartup)
             {
-                var allActiveSlugs = await _cacheManager.GetAsync(URLRECORD_ALL_ACTIVESLUGS_KEY, async (o) =>
+                var allActiveSlugs = await _cache.GetAsync(URLRECORD_ALL_ACTIVESLUGS_KEY, async (o) =>
                 {
                     o.ExpiresIn(TimeSpan.FromHours(8));
                     

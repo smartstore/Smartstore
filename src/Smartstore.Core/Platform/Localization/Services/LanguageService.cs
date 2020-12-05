@@ -27,7 +27,6 @@ namespace Smartstore.Core.Localization
         private const string STORE_LANGUAGE_MAP_KEY = "storelangmap";
 
         private readonly SmartDbContext _db;
-        private readonly IStoreMappingService _storeMappingService;
         private readonly IStoreContext _storeContext;
         private readonly ICacheManager _cache;
         private readonly ISettingFactory _settingFactory;
@@ -38,14 +37,12 @@ namespace Smartstore.Core.Localization
             SmartDbContext db,
             ISettingFactory settingFactory,
             Lazy<LocalizationSettings> localizationSettings,
-            IStoreMappingService storeMappingService,
             IStoreContext storeContext)
         {
             _cache = cache;
             _db = db;
             _settingFactory = settingFactory;
             _localizationSettings = localizationSettings;
-            _storeMappingService = storeMappingService;
             _storeContext = storeContext;
         }
 

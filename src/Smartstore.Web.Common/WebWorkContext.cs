@@ -76,8 +76,17 @@ namespace Smartstore.Web.Common
             {
                 if (_language == null)
                 {
-                    _language = _languageResolver.ResolveLanguageAsync(CurrentCustomer, _httpContextAccessor.HttpContext).Await();
-                    // TODO: (core) Set language if current customer langid does not match resolved language id
+                    var customer = CurrentCustomer;
+
+                    // Resolve the current working language
+                    _language = _languageResolver.ResolveLanguageAsync(customer, _httpContextAccessor.HttpContext).Await();
+
+                    // Set language if current customer langid does not match resolved language id
+                    var customerAttributes = customer.GetAttributes();
+                    if (customerAttributes.LanguageId != _language.Id)
+                    {
+                        SetCustomerLanguage(_language.Id, customerAttributes.StoreId);
+                    }
                 }
 
                 return _language;

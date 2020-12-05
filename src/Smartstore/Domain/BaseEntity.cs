@@ -22,20 +22,6 @@ namespace Smartstore.Domain
             return GetType().Name;
         }
 
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public Type GetUnproxiedType()
-        //{
-        //    // TODO: (core) Is this correct?
-        //    var t = GetType();
-        //    if (t.AssemblyQualifiedName.StartsWith("Microsoft.EntityFrameworkCore."))
-        //    {
-        //        // it's a proxied type
-        //        t = t.BaseType;
-        //    }
-
-        //    return t;
-        //}
-
         /// <summary>
         /// Transient objects are not associated with an item already in storage. For instance,
         /// a Product entity is transient if its Id is 0.

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Domain;
 

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Smartstore.Core.Seo.Routing
 {
@@ -32,7 +33,7 @@ namespace Smartstore.Core.Seo.Routing
         public const string SlugRouteKey = "slug";
 
         // Key = Prefix, Value = EntityType
-        private static readonly Multimap<string, string> _urlPrefixes = new Multimap<string, string>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Multimap<string, string> _urlPrefixes = new(StringComparer.OrdinalIgnoreCase);
         private static readonly List<SlugRouter> _routers = new();
 
         static SlugRouteTransformer()
@@ -107,9 +108,8 @@ namespace Smartstore.Core.Seo.Routing
 
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
-            // TODO: (core) strip off culture code? Decide once request localization is implemented.
-            var helper = new LocalizedUrlHelper(httpContext.Request);
-            var slug = helper.StripCultureCode(out var requestCulture).Trim('/', '\\');
+            var policy = _urlService.GetUrlPolicy();
+            var slug = policy.Path.ToString();
 
             if (slug.IsEmpty())
             {
@@ -141,7 +141,8 @@ namespace Smartstore.Core.Seo.Routing
                 if (activeSlug.HasValue())
                 {
                     // Apply a permanent response redirect to active slug
-                    RequestRedirection(helper.PathBase, (await GetSlugCulture()) ?? requestCulture, urlPrefix, activeSlug);
+                    policy.Culture.Modify(await GetSlugCulture());
+                    policy.Path.Modify(UrlPolicy.CombineSegments(urlPrefix, activeSlug));
                 }
 
                 return null;
@@ -149,14 +150,16 @@ namespace Smartstore.Core.Seo.Routing
 
             if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
-                var defaultCulture = _languageService.GetDefaultLanguageSeoCode();
+                var defaultCulture = policy.DefaultCultureCode;
+                var requestCulture = (string)policy.Culture;
                 var ambientCulture = requestCulture ?? defaultCulture;
                 var slugCulture = await GetSlugCulture();
 
                 if (requestCulture == null && _localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect)
                 {
                     // table > en/table
-                    RequestRedirection(helper.PathBase, defaultCulture, urlPrefix, slug);
+                    policy.Culture.Modify(defaultCulture);
+                    policy.Path.Modify(UrlPolicy.CombineSegments(urlPrefix, slug));
                     return null;
                 }
                 else if (ambientCulture != slugCulture && _languageService.IsPublishedLanguage(ambientCulture))
@@ -173,15 +176,19 @@ namespace Smartstore.Core.Seo.Routing
                         if (ambientCulture.EqualsNoCase(defaultCulture) && _localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode)
                         {
                             // ...and culture code should be stripped off URLs when default language
-                            ambientCulture = null;
+                            policy.Culture.Strip();
+                        }
+                        else
+                        {
+                            // Now request the direction to the new location:
+                            // tisch > en/table
+                            // en/table > tisch
+                            // en/table > tr/masa
+                            // etc.
+                            policy.Culture.Modify(ambientCulture);
                         }
 
-                        // Now request the direction to the new location:
-                        // tisch > en/table
-                        // en/table > tisch
-                        // en/table > tr/masa
-                        // etc.
-                        RequestRedirection(helper.PathBase, ambientCulture, urlPrefix, ambientSlug);
+                        policy.Path.Modify(UrlPolicy.CombineSegments(urlPrefix, ambientSlug));
                         return null;
                     }
                 }
@@ -208,17 +215,6 @@ namespace Smartstore.Core.Seo.Routing
             async Task<string> GetSlugCulture()
             {
                 return (_slugCulture ??= (await _db.Languages.FindByIdAsync(urlRecord.LanguageId))?.GetTwoLetterISOLanguageName().EmptyNull()).NullEmpty();
-            }
-
-            void RequestRedirection(params string[] segments)
-            {
-                // Apply a permanent response redirect to a new location (CultureRedirectionMiddleware will take care of it)
-                var location = segments
-                    .Where(x => x.HasValue())
-                    .StrJoin('/')
-                    .EnsureStartsWith('/');
-
-                httpContext.Items["__RedirectLocation"] = location + httpContext.Request.QueryString;
             }
         }
     }

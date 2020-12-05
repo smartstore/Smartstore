@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Core.Seo;
 
 namespace Smartstore.Core.Localization.Routing
 {
@@ -37,22 +37,24 @@ namespace Smartstore.Core.Localization.Routing
                     return;
                 }
 
+                var urlPolicy = services.GetRequiredService<IUrlService>().GetUrlPolicy();
+
                 if (!routeValueAddress.AmbientValues.TryGetValue("culture", out var currentCultureCode))
                 {
                     // The current request's endpoint route is not localizable (culture token would be present otherwise).
                     // But link generation must respect LocalizationSettings configuration.
 
-                    var localizationSettings = services.GetService<LocalizationSettings>();
+                    var localizationSettings = urlPolicy.LocalizationSettings;
                     if (!localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
                     {
                         // No need to go further if seo url generation is turned off.
                         return;
                     }
 
-                    var workingLanguage = services.GetService<IWorkContext>()?.WorkingLanguage;
+                    var workingLanguage = urlPolicy.WorkingLanguage;
                     if (workingLanguage != null)
                     {
-                        var defaultCultureCode = services.GetService<ILanguageService>()?.GetDefaultLanguageSeoCode();
+                        var defaultCultureCode = urlPolicy.DefaultCultureCode;
                         currentCultureCode = workingLanguage.GetTwoLetterISOLanguageName();
 
                         if (defaultCultureCode == (string)currentCultureCode && localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode)
@@ -72,19 +74,18 @@ namespace Smartstore.Core.Localization.Routing
 
                     if (isLocalizedRouteEndpoint)
                     {
-                        // Set explicit culture value only when candidate endpoints routes are localizable,
-                        // otherwise culture will be appended as querystring (?culture=en).
-
-                        if (httpContext.GetRouteData().DataTokens.Get("CultureCodeReplacement") is string cultureCodeReplacement)
+                        if (urlPolicy.IsInvalidUrl && urlPolicy.Culture.HasValue)
                         {
                             // The CultureRedirectionMiddleware detected a localized URL, but the locale does not exist or is inactive.
                             // The routing system is therefore about to render the "NotFound" view. Here we ensure that generated links
                             // in NotFound page do not contain the invalid seo code anymore: Either we strip it off or we replace it
                             // with the default language's seo code (according to "LocalizationSettings.DefaultLanguageRedirectBehaviour" setting).
                             // TODO: (core) Handle 404 redirection decently
-                            currentCultureCode = cultureCodeReplacement;
+                            currentCultureCode = urlPolicy.Culture.Value;
                         }
 
+                        // Set explicit culture value only when candidate endpoints routes are localizable,
+                        // otherwise culture will be appended as querystring (?culture=en).
                         routeValueAddress.ExplicitValues["culture"] = currentCultureCode;
                     }
                 }
