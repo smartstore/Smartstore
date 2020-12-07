@@ -4,19 +4,22 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Seo
 {
     internal class UrlServiceBatchScope : Disposable, IUrlServiceBatchScope
     {
         private UrlService _urlService;
+        private SmartDbContext _db;
         private DbSet<UrlRecord> _dbSet;
         private readonly List<ValidateSlugResult> _batch = new();
 
-        public UrlServiceBatchScope(UrlService urlService)
+        public UrlServiceBatchScope(UrlService urlService, SmartDbContext db = null)
         {
-            _urlService = urlService;
-            _dbSet = urlService._db.UrlRecords;
+            _urlService = urlService.GetInstanceForForBatching(db);
+            _db = urlService._db;
+            _dbSet = _db.UrlRecords;
         }
 
         public virtual async Task<string> GetActiveSlugAsync(int entityId, string entityName, int languageId)

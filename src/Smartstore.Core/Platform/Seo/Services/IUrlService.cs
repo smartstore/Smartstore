@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Data;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Domain;
 
@@ -141,7 +142,10 @@ namespace Smartstore.Core.Seo
         /// Cache segmenting is turned off to avoid high memory pressure
         /// and applied slugs are queued until <see cref="IUrlServiceBatchScope.CommitAsync()"/> is called.
         /// </summary>
+        /// <param name="db">
+        /// The scope will internally use the passed instance or - if null - the request scoped instance from <see cref="IUrlService"/>.
+        /// </param>
         /// <returns>The batch scope instance.</returns>
-        IUrlServiceBatchScope CreateBatchScope();
+        IUrlServiceBatchScope CreateBatchScope(SmartDbContext db = null);
     }
 }

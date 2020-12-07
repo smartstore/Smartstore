@@ -37,8 +37,8 @@ namespace Smartstore.Core.Seo
 
         private UrlPolicy _urlPolicy;
 
-        private readonly IDictionary<string, UrlRecord> _extraSlugLookup;
-        private readonly IDictionary<string, UrlRecordCollection> _prefetchedCollections;
+        private IDictionary<string, UrlRecord> _extraSlugLookup;
+        private IDictionary<string, UrlRecordCollection> _prefetchedCollections;
         private static int _lastCacheSegmentSize = -1;
 
         public UrlService(
@@ -64,6 +64,28 @@ namespace Smartstore.Core.Seo
             _extraSlugLookup = new Dictionary<string, UrlRecord>();
 
             ValidateCacheState();
+        }
+
+        internal UrlService GetInstanceForForBatching(SmartDbContext db = null)
+        {
+            if (db == null || db == _db)
+            {
+                return this;
+            }
+            
+            return new UrlService(db,
+                _cache,
+                _httpContextAccessor,
+                _workContext,
+                _languageService,
+                _localizationSettings,
+                _seoSettings,
+                _performanceSettings)
+            {
+                _urlPolicy = _urlPolicy,
+                _extraSlugLookup = _extraSlugLookup,
+                _prefetchedCollections = _prefetchedCollections
+            };
         }
 
         #region Hook
@@ -313,9 +335,9 @@ namespace Smartstore.Core.Seo
 
         #region IUrlService
 
-        public virtual IUrlServiceBatchScope CreateBatchScope()
+        public virtual IUrlServiceBatchScope CreateBatchScope(SmartDbContext db = null)
         {
-            return new UrlServiceBatchScope(this);
+            return new UrlServiceBatchScope(this, db);
         }
 
         public virtual async Task<string> GetActiveSlugAsync(int entityId, string entityName, int languageId)
