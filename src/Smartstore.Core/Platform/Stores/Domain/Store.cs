@@ -1,5 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Common;
 using Smartstore.Data.Caching;
 using Smartstore.Domain;
@@ -7,6 +10,22 @@ using Smartstore.Web;
 
 namespace Smartstore.Core.Stores
 {
+    public class StoreMap : IEntityTypeConfiguration<Store>
+    {
+        public void Configure(EntityTypeBuilder<Store> builder)
+        {
+            builder
+                .HasOne(x => x.PrimaryStoreCurrency)
+                .WithMany()
+                .HasForeignKey(x => x.PrimaryStoreCurrencyId);
+
+            builder
+                .HasOne(x => x.PrimaryExchangeRateCurrency)
+                .WithMany()
+                .HasForeignKey(x => x.PrimaryExchangeRateCurrencyId);
+        }
+    }
+
     /// <summary>
     /// Represents a store
     /// </summary>
@@ -28,11 +47,13 @@ namespace Smartstore.Core.Stores
         /// <summary>
         /// Gets or sets the store name
         /// </summary>
+        [Required, StringLength(400)]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the store URL
         /// </summary>
+        [Required, StringLength(400)]
         public string Url { get; set; }
 
         /// <summary>
@@ -43,6 +64,7 @@ namespace Smartstore.Core.Stores
         /// <summary>
         /// Gets or sets the store secure URL (HTTPS)
         /// </summary>
+        [StringLength(400)]
         public string SecureUrl { get; set; }
 
         /// <summary>
@@ -53,6 +75,7 @@ namespace Smartstore.Core.Stores
         /// <summary>
         /// Gets or sets the comma separated list of possible HTTP_HOST values
         /// </summary>
+        [StringLength(1000)]
         public string Hosts { get; set; }
 
         /// <summary>
@@ -63,22 +86,22 @@ namespace Smartstore.Core.Stores
         /// <summary>
         /// Gets or sets the png icon media file id 
         /// </summary>
-        public int FavIconMediaFileId { get; set; }
+        public int? FavIconMediaFileId { get; set; }
 
         /// <summary>
         /// Gets or sets the png icon media file id 
         /// </summary>
-        public int PngIconMediaFileId { get; set; }
+        public int? PngIconMediaFileId { get; set; }
 
         /// <summary>
         /// Gets or sets the apple touch icon media file id
         /// </summary>
-        public int AppleTouchIconMediaFileId { get; set; }
+        public int? AppleTouchIconMediaFileId { get; set; }
 
         /// <summary>
         /// Gets or sets the ms tile image media file id
         /// </summary>
-        public int MsTileImageMediaFileId { get; set; }
+        public int? MsTileImageMediaFileId { get; set; }
 
         /// <summary>
         /// Gets or sets the ms tile color
@@ -100,6 +123,7 @@ namespace Smartstore.Core.Stores
         /// <summary>
         /// Gets or sets the CDN host name, if static media content should be served through a CDN.
         /// </summary>
+        [StringLength(400)]
         public string ContentDeliveryNetwork { get; set; }
 
         /// <summary>

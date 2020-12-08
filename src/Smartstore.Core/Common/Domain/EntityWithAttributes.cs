@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Smartstore.Core;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
@@ -21,6 +23,7 @@ namespace Smartstore.Domain
         /// Generic attributes collection or <c>null</c> if <see cref="IGenericAttributeService"/> 
         /// is not registered in service container or entity is transient.
         /// </returns>
+        [NotMapped, JsonIgnore]
         public virtual GenericAttributeCollection GenericAttributes
         {
             get

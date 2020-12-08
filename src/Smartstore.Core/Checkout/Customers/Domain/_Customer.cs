@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -212,6 +213,7 @@ namespace Smartstore.Core.Customers
         [Column("ShippingAddress_Id")]
         public int? ShippingAddressId { get; set; }
 
+        [NotMapped, JsonIgnore]
         public override CustomerAttributeCollection GenericAttributes 
             => new CustomerAttributeCollection(base.GenericAttributes);
 
