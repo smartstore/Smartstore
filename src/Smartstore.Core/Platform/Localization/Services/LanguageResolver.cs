@@ -43,7 +43,7 @@ namespace Smartstore.Core.Localization
             
             int customerLangId = currentCustomer.IsSystemAccount
                 ? (httpContext != null ? httpContext.Request.Query["lid"].FirstOrDefault().ToInt() : 0)
-                : currentCustomer.GetAttributes(storeId).LanguageId ?? 0;
+                : currentCustomer.GenericAttributes.LanguageId ?? 0;
 
             if (httpContext == null)
             {

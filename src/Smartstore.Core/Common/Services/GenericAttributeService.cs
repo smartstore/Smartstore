@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
@@ -16,39 +15,37 @@ namespace Smartstore.Core.Common.Services
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
 
+        // Key = (EntityName, EntityId)
+        private readonly Dictionary<(string, int), GenericAttributeCollection> _collectionCache = new();
+
         public GenericAttributeService(SmartDbContext db, IStoreContext storeContext)
         {
             _db = db;
             _storeContext = storeContext;
         }
 
-        public virtual async Task<GenericAttributeCollection> GetAttributesForEntityAsync(int entityId, string entityName, int storeId = 0)
+        public virtual GenericAttributeCollection GetAttributesForEntity(string entityName, int entityId)
         {
             Guard.NotEmpty(entityName, nameof(entityName));
 
-            // TODO: (core) Implement "GetAttributesForEntity" request caching
-            // TODO: (core) Implement "Reload()" for GenericAttributeCollection
-
-            if (storeId <= 0)
-            {
-                storeId = _storeContext.CurrentStore.Id;
-            }
-
             if (entityId <= 0)
             {
-                return new GenericAttributeCollection(Enumerable.Empty<GenericAttribute>(), entityName, entityId, storeId);
+                return null;
             }
 
-            // TODO: (core) Check if indexing the StoreId field makes things faster
-            var query = from attr in _db.GenericAttributes
-                        where
-                            attr.EntityId == entityId && attr.KeyGroup == entityName &&
-                            (attr.StoreId == storeId || attr.StoreId == 0)
-                        select attr;
+            var key = (entityName.ToLowerInvariant(), entityId);
 
-            var attrs = await query.ToListAsync();
+            if (!_collectionCache.TryGetValue(key, out var collection))
+            {
+                var query = from attr in _db.GenericAttributes
+                            where attr.EntityId == entityId && attr.KeyGroup == entityName
+                            select attr;
 
-            return new GenericAttributeCollection(attrs, entityName, entityId, storeId);
+                collection = new GenericAttributeCollection(query, entityName, entityId, _storeContext.CurrentStore.Id);
+                _collectionCache[key] = collection;
+            }
+
+            return collection;
         }
 
         public virtual TProp GetAttribute<TProp>(string entityName, int entityId, string key, int storeId = 0)

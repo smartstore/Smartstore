@@ -7,7 +7,7 @@ using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Customers
 {
-    public class CustomerAttributeCollection : GenericAttributeCollection
+    public class CustomerAttributeCollection : GenericAttributeCollection<Customer>
     {
         public CustomerAttributeCollection(GenericAttributeCollection collection)
             : base(collection)

@@ -17,22 +17,24 @@ namespace Smartstore.Domain
         /// Gets a specialized generic attributes collection for the current entity.
         /// Loaded data will be cached for the duration of the request.
         /// </summary>
-        /// <param name="storeId">
-        /// If 0, current store id will be resolved automatically. Store-neutral
-        /// attributes are always loaded.
-        /// </param>
-        /// <returns>Generic attributes collection</returns>
-        public virtual GenericAttributeCollection GetAttributes(int storeId = 0)
+        /// <returns>
+        /// Generic attributes collection or <c>null</c> if <see cref="IGenericAttributeService"/> 
+        /// is not registered in service container or entity is transient.
+        /// </returns>
+        public virtual GenericAttributeCollection GenericAttributes
         {
-            // INFO: Unfortuately covariant return type does not work when type is wrapped as Task<T>.
-            // Therefore this method has to be sync.
-            var service = EngineContext.Current.Scope.ResolveOptional<IGenericAttributeService>();
-            if (service == null)
+            get
             {
-                return new GenericAttributeCollection(Enumerable.Empty<GenericAttribute>(), GetEntityName(), Id, storeId);
-            }
+                // INFO: Unfortuately covariant return type does not work when type is wrapped as Task<T>.
+                // Therefore this method has to be sync.
+                var service = EngineContext.Current.Scope.ResolveOptional<IGenericAttributeService>();
+                if (service == null)
+                {
+                    return null;
+                }
 
-            return service.GetAttributesForEntityAsync(Id, GetEntityName(), storeId).Await();
+                return new GenericAttributeCollection<BaseEntity>(service.GetAttributesForEntity(GetEntityName(), Id));
+            }
         }
     }
 }

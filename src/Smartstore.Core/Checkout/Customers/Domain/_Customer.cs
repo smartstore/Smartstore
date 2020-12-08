@@ -212,10 +212,8 @@ namespace Smartstore.Core.Customers
         [Column("ShippingAddress_Id")]
         public int? ShippingAddressId { get; set; }
 
-        public override CustomerAttributeCollection GetAttributes(int storeId = 0)
-        {
-            return new CustomerAttributeCollection(base.GetAttributes(storeId));
-        }
+        public override CustomerAttributeCollection GenericAttributes 
+            => new CustomerAttributeCollection(base.GenericAttributes);
 
         #region Navigation properties
 
