@@ -30,7 +30,6 @@
     <Folder Include="Catalog\Inventory\" />
     <Folder Include="Catalog\Pricing\" />
     <Folder Include="Checkout\Affiliates\" />
-    <Folder Include="Checkout\Orders\" />
     <Folder Include="Content\Blogs\" />
     <Folder Include="Checkout\Cart\" />
     <Folder Include="Catalog\Discounts\" />

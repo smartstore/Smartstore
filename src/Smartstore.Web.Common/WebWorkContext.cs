@@ -85,7 +85,7 @@ namespace Smartstore.Web.Common
                     var customerAttributes = customer.GenericAttributes;
                     if (customerAttributes.LanguageId != _language.Id)
                     {
-                        SetCustomerLanguage(_language.Id, customerAttributes.CurrentStoreId);
+                        SetCustomerLanguage(_language.Id);
                     }
                 }
 
@@ -93,18 +93,20 @@ namespace Smartstore.Web.Common
             }
             set
             {
-                SetCustomerLanguage(value?.Id, _storeContext.CurrentStore.Id);
+                SetCustomerLanguage(value?.Id);
                 _language = null;
             }
         }
 
-        private void SetCustomerLanguage(int? languageId, int storeId)
+        private void SetCustomerLanguage(int? languageId)
         {
-            if (CurrentCustomer != null || CurrentCustomer.IsSystemAccount)
+            var customer = CurrentCustomer;
+
+            if (customer != null || customer.IsSystemAccount)
                 return;
 
-            _attrService.ApplyAttribute(CurrentCustomer.Id, SystemCustomerAttributeNames.LanguageId, CurrentCustomer.GetEntityName(), languageId, storeId);
-            _db.SaveChanges();
+            customer.GenericAttributes.LanguageId = languageId;
+            customer.GenericAttributes.SaveChanges();
         }
 
         public Currency WorkingCurrency

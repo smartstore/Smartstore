@@ -24,7 +24,7 @@ namespace Smartstore
         {
             if (!CommonHelper.TryConvert(value, typeof(T), CultureInfo.InvariantCulture, out object result))
             {
-                return default(T);
+                return default;
             }
 
             return (T)result;
@@ -46,7 +46,7 @@ namespace Smartstore
         {
             if (!CommonHelper.TryConvert(value, typeof(T), culture, out object result))
             {
-                return default(T);
+                return default;
             }
 
             return (T)result;

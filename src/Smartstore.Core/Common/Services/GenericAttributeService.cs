@@ -1,28 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
+using Smartstore.Core.Orders;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Hooks;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Common.Services
 {
-    public partial class GenericAttributeService : IGenericAttributeService
+    public partial class GenericAttributeService : AsyncDbSaveHook<GenericAttribute>, IGenericAttributeService
     {
-        // TODO: (core) Implement GenericAttributeService.
-
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
+        private readonly IEventPublisher _eventPublisher;
 
         // Key = (EntityName, EntityId)
         private readonly Dictionary<(string, int), GenericAttributeCollection> _collectionCache = new();
 
-        public GenericAttributeService(SmartDbContext db, IStoreContext storeContext)
+        public GenericAttributeService(SmartDbContext db, IStoreContext storeContext, IEventPublisher eventPublisher)
         {
             _db = db;
             _storeContext = storeContext;
+            _eventPublisher = eventPublisher;
         }
+
+        #region Hook
+
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            // Publish OrderUpdated event for attributes referring to order entities
+            var orderIds = entries
+                .Select(x => x.Entity)
+                .OfType<GenericAttribute>()
+                .Where(x => x.KeyGroup.EqualsNoCase(nameof(Order)) && x.EntityId > 0)
+                .Select(x => x.EntityId)
+                .Distinct()
+                .ToArray();
+            
+            if (orderIds.Any())
+            {
+                var orders = await _db.Orders.GetManyAsync(orderIds, true);
+                foreach (var order in orders)
+                {
+                    await _eventPublisher.PublishOrderUpdated(order);
+                }
+            }
+        }
+
+        #endregion
 
         public virtual GenericAttributeCollection GetAttributesForEntity(string entityName, int entityId)
         {
@@ -48,24 +77,45 @@ namespace Smartstore.Core.Common.Services
             return collection;
         }
 
-        public virtual TProp GetAttribute<TProp>(string entityName, int entityId, string key, int storeId = 0)
+        public virtual async Task PrefetchAttributesAsync(string entityName, int[] entityIds)
         {
-            return default;
-        }
+            Guard.NotEmpty(entityName, nameof(entityName));
+            Guard.NotNull(entityIds, nameof(entityIds));
 
-        public virtual Task<TProp> GetAttributeAsync<TProp>(string entityName, int entityId, string key, int storeId = 0)
-        {
-            return Task.FromResult(default(TProp));
-        }
+            if (entityIds.Length == 0)
+            {
+                return;
+            }
 
-        public virtual void ApplyAttribute<TProp>(int entityId, string key, string keyGroup, TProp value, int storeId = 0)
-        {
-            // ...
-        }
+            // Reduce entityIds by already loaded collections
+            var ids = new List<int>(entityIds.Length);
+            foreach (var id in entityIds.Distinct().OrderBy(x => x))
+            {
+                if (!_collectionCache.ContainsKey((entityName.ToLowerInvariant(), id)))
+                {
+                    ids.Add(id);
+                }
+            }
 
-        public virtual Task ApplyAttributeAsync<TProp>(int entityId, string key, string keyGroup, TProp value, int storeId = 0)
-        {
-            return Task.CompletedTask;
+            var storeId = _storeContext.CurrentStore.Id;
+
+            var groupedAttributes = await _db.GenericAttributes
+                .Where(x => ids.Contains(x.EntityId) && x.KeyGroup == entityName)
+                .GroupBy(x => x.EntityId)
+                .ToListAsync();
+
+            foreach (var group in groupedAttributes)
+            {
+                var entityId = group.Key;
+                var collection = new GenericAttributeCollection(
+                    _db.GenericAttributes.Where(x => x.EntityId == entityId && x.KeyGroup == entityName), 
+                    entityName,
+                    entityId, 
+                    storeId,
+                    group.ToList());
+
+                _collectionCache[(entityName.ToLowerInvariant(), entityId)] = collection;
+            }
         }
     }
 }

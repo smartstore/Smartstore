@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
@@ -11,6 +12,22 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
+    public class CountryMap : IEntityTypeConfiguration<Country>
+    {
+        public void Configure(EntityTypeBuilder<Country> builder)
+        {
+            builder
+                .HasOne(x => x.DefaultCurrency)
+                .WithMany()
+                .HasForeignKey(x => x.DefaultCurrencyId);
+
+            builder
+                .HasMany(x => x.StateProvinces)
+                .WithOne(x => x.Country)
+                .HasForeignKey(x => x.CountryId);
+        }
+    }
+
     /// <summary>
     /// Represents a country
     /// </summary>

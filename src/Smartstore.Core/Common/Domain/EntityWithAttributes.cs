@@ -36,7 +36,7 @@ namespace Smartstore.Domain
                     return null;
                 }
 
-                return new GenericAttributeCollection<BaseEntity>(service.GetAttributesForEntity(GetEntityName(), Id));
+                return service.GetAttributesForEntity(GetEntityName(), Id);
             }
         }
     }

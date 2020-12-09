@@ -42,7 +42,6 @@ namespace Smartstore.Core.Localization
         /// </param>
         /// <param name="isRange">Whether <paramref name="entityIds"/> represents a range of ids (perf).</param>
         /// <param name="isSorted">Whether <paramref name="entityIds"/> is already sorted (perf).</param>
-        /// <returns>Localized property collection</returns>
         /// <remarks>
         /// Be careful not to load large amounts of data at once (e.g. for "Product" scope with large range).
         /// </remarks>
