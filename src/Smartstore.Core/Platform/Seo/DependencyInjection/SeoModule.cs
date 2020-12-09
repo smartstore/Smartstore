@@ -5,10 +5,9 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
-using Smartstore.Core.Products;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 
@@ -25,9 +24,9 @@ namespace Smartstore.Core.Seo.DependencyInjection
         }
     }
 
+    // TODO: (core) Remove this class later (is test only)
     internal class TestProductXmlSitemapPublisher : IXmlSitemapPublisher
     {
-        // TODO: (core) Remove this class later
         private readonly SmartDbContext _db;
 
         public TestProductXmlSitemapPublisher(SmartDbContext db)

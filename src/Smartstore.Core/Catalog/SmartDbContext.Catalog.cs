@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Products;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Data
 {

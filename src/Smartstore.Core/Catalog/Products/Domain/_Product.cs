@@ -8,7 +8,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Products
+namespace Smartstore.Core.Catalog.Products
 {
     public class ProductMap : IEntityTypeConfiguration<Product>
     {
