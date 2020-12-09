@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Orders
+namespace Smartstore.Core.Checkout.Orders
 {
     public class OrderMap : IEntityTypeConfiguration<Order>
     {

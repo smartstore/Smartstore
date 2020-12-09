@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Orders.Events
+﻿namespace Smartstore.Core.Checkout.Orders.Events
 {
     public class OrderPaidEvent
     {

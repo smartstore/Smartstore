@@ -16,7 +16,6 @@ using Smartstore.Web.Models;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
 using Smartstore.Caching;
-using Smartstore.Core.Tax.Settings;
 using Smartstore.Threading;
 using System.Threading;
 using Smartstore.Web.Common.Theming;
@@ -28,12 +27,10 @@ using System.Text;
 using Smartstore.Core.Common;
 using Smartstore.Data.Caching;
 using Smartstore.Core.Localization;
-using Microsoft.Extensions.Primitives;
-using Smartstore.Utilities;
 using Smartstore.Core.Seo;
-using Smartstore.Data;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Checkout.Tax;
 
 namespace Smartstore.Web.Controllers
 {

@@ -7,7 +7,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Stores;
-using Smartstore.Core.Tax;
+using Smartstore.Core.Checkout.Tax;
 
 namespace Smartstore.Core.Catalog.Pricing
 {

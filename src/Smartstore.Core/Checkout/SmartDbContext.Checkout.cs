@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Orders;
-using Smartstore.Core.Tax;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Tax;
 
 namespace Smartstore.Core.Data
 {

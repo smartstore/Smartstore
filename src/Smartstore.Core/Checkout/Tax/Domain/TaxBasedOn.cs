@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Core.Tax
+namespace Smartstore.Core.Checkout.Tax
 {
     /// <summary>
     /// Represents the tax based on

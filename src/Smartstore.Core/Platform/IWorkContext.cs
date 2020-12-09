@@ -1,8 +1,8 @@
 ﻿using System;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Tax;
 
 namespace Smartstore.Core
 {

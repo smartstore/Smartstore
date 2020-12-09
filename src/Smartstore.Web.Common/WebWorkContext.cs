@@ -5,14 +5,13 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
-using Smartstore.Core.Tax;
-using Smartstore.Core.Tax.Settings;
 
 namespace Smartstore.Web.Common
 {

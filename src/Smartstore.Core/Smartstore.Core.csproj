@@ -28,7 +28,6 @@
     <Folder Include="Catalog\Categories\" />
     <Folder Include="Catalog\Brands\" />
     <Folder Include="Catalog\Inventory\" />
-    <Folder Include="Catalog\Pricing\" />
     <Folder Include="Checkout\Affiliates\" />
     <Folder Include="Content\Blogs\" />
     <Folder Include="Checkout\Cart\" />

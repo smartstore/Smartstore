@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Smartstore.Core.Configuration;
 
-namespace Smartstore.Core.Tax.Settings
+namespace Smartstore.Core.Checkout.Tax
 {
     public class TaxSettings : ISettings
     {

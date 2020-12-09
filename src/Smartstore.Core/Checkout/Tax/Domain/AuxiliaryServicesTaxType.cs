@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Core.Tax
+namespace Smartstore.Core.Checkout.Tax
 {
     /// <summary>
     /// Specifies how to calculate the tax of auxiliary services like shipping and payment fees
