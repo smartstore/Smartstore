@@ -2,9 +2,19 @@
 
 namespace Smartstore.Data
 {
+    /// <summary>
+    /// Represents the possibility of data merging of two objects.
+    /// </summary>
     public interface IMergedData
     {
+        /// <summary>
+        /// Gets or sets a value indicating whether to data should be merged with those of the related entity.
+        /// </summary>
         bool MergedDataIgnore { get; set; }
+
+        /// <summary>
+        /// Gets the dictionary with the data to be merged.
+        /// </summary>
         Dictionary<string, object> MergedDataValues { get; }
     }
 
