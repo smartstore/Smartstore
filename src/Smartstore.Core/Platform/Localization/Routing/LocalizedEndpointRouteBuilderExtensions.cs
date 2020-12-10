@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Smartstore;
 using Smartstore.Core.Localization.Routing;
@@ -60,13 +59,15 @@ namespace Microsoft.AspNetCore.Builder
         {
             Guard.NotNull(endpoints, nameof(endpoints));
 
+            string name2 = name.IsEmpty() ? null : name + "__noculture";
+
             return new CompositeEndpointConventionBuilder(new[]
             {
                 endpoints
                     .MapControllerRoute(name, "{culture:culture}/" + pattern, defaults, constraints, dataTokens)
                     .WithMetadata(new LocalizedRouteMetadata(null, false)),
                 endpoints
-                    .MapControllerRoute(name, pattern, defaults, constraints, dataTokens)
+                    .MapControllerRoute(name2, pattern, defaults, constraints, dataTokens)
                     .WithMetadata(new LocalizedRouteMetadata(null, true))
             });
         }

@@ -27,11 +27,11 @@ namespace Smartstore.Core.Common
             _innerCollection = innerCollection;
         }
 
-        public override IQueryable<GenericAttribute> Query => _innerCollection.Query;
         public override string EntityName => _innerCollection.EntityName;
         public override int EntityId => _innerCollection.EntityId;
         public override int CurrentStoreId => _innerCollection.CurrentStoreId;
 
+        protected internal override IQueryable<GenericAttribute> Query => _innerCollection.Query;
         protected internal override Multimap<string, GenericAttribute> Map => _innerCollection.Map;
         protected internal override SmartDbContext DbContext => _innerCollection.DbContext;
         protected internal override List<GenericAttribute> Entities 
@@ -71,17 +71,20 @@ namespace Smartstore.Core.Common
             }
         }
 
-        protected internal virtual List<GenericAttribute> Entities { get; set; }
-        protected internal virtual SmartDbContext DbContext { get; }
-
-        public virtual IQueryable<GenericAttribute> Query { get; }
         public virtual string EntityName { get; }
         public virtual int EntityId { get; }
         public virtual int CurrentStoreId { get; }
 
+        protected internal virtual List<GenericAttribute> Entities { get; set; }
+        protected internal virtual SmartDbContext DbContext { get; }
+        protected internal virtual IQueryable<GenericAttribute> Query { get; }
+
         // Key: GenericAttribute.Key
         protected internal virtual Multimap<string, GenericAttribute> Map { get; }
 
+        /// <summary>
+        /// Gets all entities that were loaded from the database
+        /// </summary>
         public IEnumerable<GenericAttribute> UnderlyingEntities
         {
             get
@@ -97,18 +100,27 @@ namespace Smartstore.Core.Common
 
         #region Load/Save/Delete data
 
+        /// <summary>
+        /// Reloads all entities from database
+        /// </summary>
         public void Reload()
         {
             Entities = Query.ToList();
             CreateMap();
         }
 
+        /// <summary>
+        /// Reloads all entities from database
+        /// </summary>
         public async Task ReloadAsync()
         {
             Entities = await Query.ToListAsync();
             CreateMap();
         }
 
+        /// <summary>
+        /// Marks all underlying entities as deleted. This method is non-saving.
+        /// </summary>
         public void DeleteAll()
         {
             EnsureLoaded();
@@ -117,11 +129,19 @@ namespace Smartstore.Core.Common
             Map.Clear();
         }
 
+        /// <summary>
+        /// Saves all entity changes to the database.
+        /// </summary>
+        /// <returns>Number of affected records.</returns>
         public int SaveChanges()
         {
             return DbContext.SaveChanges();
         }
 
+        /// <summary>
+        /// Saves all entity changes to the database.
+        /// </summary>
+        /// <returns>Number of affected records.</returns>
         public Task<int> SaveChangesAsync(CancellationToken cancelToken = default)
         {
             return DbContext.SaveChangesAsync(cancelToken);
@@ -199,7 +219,7 @@ namespace Smartstore.Core.Common
 
             if (entity != null)
             {
-                if (valueStr.HasValue())
+                if (valueStr.IsEmpty())
                 {
                     // Delete from Db
                     DbContext.GenericAttributes.Remove(entity);

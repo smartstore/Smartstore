@@ -239,7 +239,8 @@ namespace Smartstore.Core.Seo
                 {
                     DefaultCultureCode = _languageService.GetDefaultLanguageSeoCode(),
                     LocalizationSettings = _localizationSettings,
-                    SeoSettings = _seoSettings
+                    SeoSettings = _seoSettings,
+                    WorkingLanguage = _workContext.WorkingLanguage
                 };
             }
 

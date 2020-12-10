@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 
 namespace Smartstore.Core.Localization.Routing
 {
@@ -37,7 +37,7 @@ namespace Smartstore.Core.Localization.Routing
                     return;
                 }
 
-                var urlPolicy = services.GetRequiredService<IUrlService>().GetUrlPolicy();
+                var urlPolicy = services.GetRequiredService<UrlPolicy>();
 
                 if (!routeValueAddress.AmbientValues.TryGetValue("culture", out var currentCultureCode))
                 {
@@ -54,13 +54,12 @@ namespace Smartstore.Core.Localization.Routing
                     var workingLanguage = urlPolicy.WorkingLanguage;
                     if (workingLanguage != null)
                     {
-                        var defaultCultureCode = urlPolicy.DefaultCultureCode;
                         currentCultureCode = workingLanguage.GetTwoLetterISOLanguageName();
 
-                        if (defaultCultureCode == (string)currentCultureCode && localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode)
+                        if (urlPolicy.IsDefaultCulture && localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode)
                         {
                             // Very special case where store's default culture matches current (resolved) culture,
-                            // but no seo code should be prepended to urls by configuration. We can stop here.
+                            // but no seo code should be prepended to URLs by configuration. We can stop here.
                             return;
                         }
                     }

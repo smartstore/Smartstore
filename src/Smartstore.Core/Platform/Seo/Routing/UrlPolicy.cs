@@ -81,6 +81,15 @@ namespace Smartstore.Core.Seo.Routing
         public SeoSettings SeoSettings { get; init; }
         public Language WorkingLanguage { get; set; }
 
+
+        /// <summary>
+        /// Checks whether the current request's (ambient) culture is the system's default culture
+        /// </summary>
+        public bool IsDefaultCulture
+        {
+            get => WorkingLanguage.GetTwoLetterISOLanguageName().EqualsNoCase(DefaultCultureCode);
+        }
+
         /// <summary>
         /// Set this to <c>true</c> to mark the current request URL as invalid
         /// and to return a HTTP 404 response.

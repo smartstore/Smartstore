@@ -46,7 +46,7 @@ namespace Smartstore.Web.Controllers
         public string Prop2 { get; set; } = "Prop2";
         public string Prop3 { get; set; } = "Prop3";
     }
-    
+
     public class HomeController : Controller
     {
         private static CancellationTokenSource _cancelTokenSource = new();
@@ -99,7 +99,7 @@ namespace Smartstore.Web.Controllers
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        [LocalizedRoute("/")]
+        [LocalizedRoute("/", Name = "Homepage")]
         public async Task<IActionResult> Index()
         {
             #region Settings Test
@@ -178,7 +178,7 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
-        [LocalizedRoute("/privacy")]
+        [LocalizedRoute("/privacy", Name = "Privacy")]
         public async Task<IActionResult> Privacy()
         {
             #region Settings Test
@@ -333,71 +333,11 @@ namespace Smartstore.Web.Controllers
             return View(countries);
         }
 
-        private Task<List<Country>> GetCountries()
-        {
-            var query = _db.Countries
-                .AsNoTracking()
-                .ApplyStoreFilter(1)
-                .Include(x => x.StateProvinces)
-                .OrderBy(x => x.DisplayOrder)
-                .ThenBy(x => x.Name);
-
-            return query.ToListAsync();
-        }
-
-        private Task<Country> GetCountry()
-        {
-            var query = _db.Countries
-                .AsNoTracking()
-                .ApplyStoreFilter(1)
-                .Include(x => x.StateProvinces)
-                .OrderBy(x => x.DisplayOrder)
-                .ThenBy(x => x.Name);
-
-            return query.FirstOrDefaultAsync();
-        }
-
-        private Country GetCountryCachedSync()
-        {
-            var query = _db.Countries
-                .AsNoTracking()
-                .ApplyStoreFilter(1)
-                .Include(x => x.StateProvinces)
-                .OrderBy(x => x.DisplayOrder)
-                .ThenBy(x => x.Name);
-
-            return query.FirstOrDefault();
-        }
-
-        private List<Country> GetCountriesUncachedSync()
-        {
-            var query = _db.Countries
-                .AsNoTracking()
-                .ApplyStoreFilter(1)
-                .Include(x => x.StateProvinces)
-                .OrderBy(x => x.DisplayOrder)
-                .ThenBy(x => x.Name);
-
-            return query.ToList();
-        }
-
-        private List<Country> GetCountriesCachedSync()
-        {
-            var query = _db.Countries
-                .AsNoTracking()
-                .ApplyStoreFilter(1)
-                .Include(x => x.StateProvinces)
-                .OrderBy(x => x.DisplayOrder)
-                .ThenBy(x => x.Name);
-
-            return query.ToList();
-        }
-
-        [Route("/settings")]
+        [Route("settings")]
         public async Task<IActionResult> Settings()
         {
             await _asyncState.RemoveAsync<MyProgress>();
-            
+
             var settings = await _db.Settings
                 .AsNoTracking()
                 .ApplySorting()
@@ -459,6 +399,66 @@ namespace Smartstore.Web.Controllers
             //_db.SaveChanges();
 
             #endregion
+        }
+
+        private Task<List<Country>> GetCountries()
+        {
+            var query = _db.Countries
+                .AsNoTracking()
+                .ApplyStoreFilter(1)
+                .Include(x => x.StateProvinces)
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
+
+            return query.ToListAsync();
+        }
+
+        private Task<Country> GetCountry()
+        {
+            var query = _db.Countries
+                .AsNoTracking()
+                .ApplyStoreFilter(1)
+                .Include(x => x.StateProvinces)
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
+
+            return query.FirstOrDefaultAsync();
+        }
+
+        private Country GetCountryCachedSync()
+        {
+            var query = _db.Countries
+                .AsNoTracking()
+                .ApplyStoreFilter(1)
+                .Include(x => x.StateProvinces)
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
+
+            return query.FirstOrDefault();
+        }
+
+        private List<Country> GetCountriesUncachedSync()
+        {
+            var query = _db.Countries
+                .AsNoTracking()
+                .ApplyStoreFilter(1)
+                .Include(x => x.StateProvinces)
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
+
+            return query.ToList();
+        }
+
+        private List<Country> GetCountriesCachedSync()
+        {
+            var query = _db.Countries
+                .AsNoTracking()
+                .ApplyStoreFilter(1)
+                .Include(x => x.StateProvinces)
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
+
+            return query.ToList();
         }
 
         public IActionResult Slug()

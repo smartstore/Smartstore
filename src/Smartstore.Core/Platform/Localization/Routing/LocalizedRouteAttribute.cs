@@ -8,9 +8,9 @@ namespace Smartstore.Core.Localization.Routing
     }
     
     /// <summary>
-    /// Specifies a localized attribute route on a controller.
+    /// Specifies a localized attribute route on a controller action method.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public sealed class LocalizedRouteAttribute : RouteAttribute, ILocalizedRoute
     {
         /// <summary>

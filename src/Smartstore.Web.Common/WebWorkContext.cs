@@ -101,7 +101,7 @@ namespace Smartstore.Web.Common
         {
             var customer = CurrentCustomer;
 
-            if (customer != null || customer.IsSystemAccount)
+            if (customer == null || customer.IsSystemAccount)
                 return;
 
             customer.GenericAttributes.LanguageId = languageId;

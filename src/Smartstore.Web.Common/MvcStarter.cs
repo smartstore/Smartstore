@@ -110,6 +110,7 @@ namespace Smartstore.Web.Common
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
+            builder.RegisterDecorator<SmartRouteValuesAddressScheme, IEndpointAddressScheme<RouteValuesAddress>>();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

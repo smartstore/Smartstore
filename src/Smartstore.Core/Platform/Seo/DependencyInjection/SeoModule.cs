@@ -10,6 +10,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Core.Seo.Routing;
 
 namespace Smartstore.Core.Seo.DependencyInjection
 {
@@ -18,6 +19,7 @@ namespace Smartstore.Core.Seo.DependencyInjection
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<UrlService>().As<IUrlService>().InstancePerLifetimeScope();
+            builder.Register<UrlPolicy>(x => x.Resolve<IUrlService>().GetUrlPolicy()).InstancePerLifetimeScope();
             builder.RegisterType<XmlSitemapGenerator>().As<IXmlSitemapGenerator>().InstancePerLifetimeScope();
 
             builder.RegisterType<TestProductXmlSitemapPublisher>().As<IXmlSitemapPublisher>().InstancePerLifetimeScope();
