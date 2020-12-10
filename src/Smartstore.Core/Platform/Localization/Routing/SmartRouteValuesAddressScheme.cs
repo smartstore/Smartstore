@@ -29,12 +29,8 @@ namespace Smartstore.Core.Localization.Routing
                 // 1 = {RouteName}, 2 = {RouteName}__noculture (the latter for code-less default language according to settings).
                 // In case the current request is in default culture and "DefaultLanguageRedirectBehaviour.StripSeoCode"
                 // is set, we have to refer to {RouteName}__noculture, not {RouteName}, otherwise culture code gets appended as querystring.
-                endpoints = _inner.FindEndpoints(new RouteValuesAddress
-                {
-                    RouteName = address.RouteName + "__noculture",
-                    AmbientValues = address.AmbientValues,
-                    ExplicitValues = address.ExplicitValues
-                });
+                address.RouteName += "__noculture";
+                endpoints = _inner.FindEndpoints(address);
             }
 
             return endpoints;
