@@ -1,6 +1,27 @@
 ﻿namespace Smartstore.Core.Catalog.Products
 {
     /// <summary>
+    /// Represents the product type.
+    /// </summary>
+    public enum ProductType
+    {
+        /// <summary>
+        /// Simple product.
+        /// </summary>
+        SimpleProduct = 5,
+
+        /// <summary>
+        /// Grouped product.
+        /// </summary>
+        GroupedProduct = 10,
+
+        /// <summary>
+        /// Bundled product.
+        /// </summary>
+        BundledProduct = 15
+    }
+
+    /// <summary>
     /// Gradually restricts the visibility of products.
     /// </summary>
     public enum ProductVisibility
@@ -61,5 +82,126 @@
         /// No particular behaviour.
         /// </summary>
         None = 30
+    }
+
+    /// <summary>
+    /// Represents the backorder mode.
+    /// </summary>
+    public enum BackorderMode
+    {
+        /// <summary>
+        /// No backorders.
+        /// </summary>
+        NoBackorders = 0,
+
+        /// <summary>
+        /// Allow quantity below 0.
+        /// </summary>
+        AllowQtyBelow0 = 1,
+
+        /// <summary>
+        /// Allow quantity below 0 and notify customer.
+        /// </summary>
+        AllowQtyBelow0AndNotifyCustomer = 2
+    }
+
+    /// <summary>
+    /// Represents the download activation type.
+    /// </summary>
+    public enum DownloadActivationType
+    {
+        /// <summary>
+        /// Activate when order is paid.
+        /// </summary>
+        WhenOrderIsPaid = 1,
+
+        /// <summary>
+        /// Activate manually.
+        /// </summary>
+        Manually = 10
+    }
+
+    /// <summary>
+    /// Represents the gift card type.
+    /// </summary>
+    public enum GiftCardType
+    {
+        /// <summary>
+        /// Virtual gift card.
+        /// </summary>
+        Virtual = 0,
+
+        /// <summary>
+        /// Physical gift card.
+        /// </summary>
+        Physical = 1
+    }
+
+    /// <summary>
+    /// Represents the low stock activity.
+    /// </summary>
+    public enum LowStockActivity
+    {
+        /// <summary>
+        /// Do nothing.
+        /// </summary>
+        Nothing = 0,
+
+        /// <summary>
+        /// Disable buy button.
+        /// </summary>
+        DisableBuyButton = 1,
+
+        /// <summary>
+        /// Do not publish.
+        /// </summary>
+        Unpublish = 2
+    }
+
+    /// <summary>
+    /// Represents the method of inventory management.
+    /// </summary>
+    public enum ManageInventoryMethod
+    {
+        /// <summary>
+        /// Don't track inventory.
+        /// </summary>
+        DontManageStock = 0,
+
+        /// <summary>
+        /// Track inventory.
+        /// </summary>
+        ManageStock = 1,
+
+        /// <summary>
+        /// Track inventory by product attributes.
+        /// </summary>
+        ManageStockByAttributes = 2
+    }
+
+    /// <summary>
+    /// Represents the recurring product cycle period.
+    /// </summary>
+    public enum RecurringProductCyclePeriod
+    {
+        /// <summary>
+        /// Days.
+        /// </summary>
+        Days = 0,
+
+        /// <summary>
+        /// Weeks.
+        /// </summary>
+        Weeks = 10,
+
+        /// <summary>
+        /// Months.
+        /// </summary>
+        Months = 20,
+
+        /// <summary>
+        /// Years.
+        /// </summary>
+        Years = 30
     }
 }

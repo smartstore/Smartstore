@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -49,10 +51,45 @@ namespace Smartstore.Core.Catalog.Products
             _lazyLoader = lazyLoader;
         }
 
+        /// <inheritdoc/>
+        [NotMapped]
+        public bool MergedDataIgnore { get; set; }
+
+        /// <inheritdoc/>
+        [NotMapped]
+        public Dictionary<string, object> MergedDataValues { get; set; }
+
         /// <summary>
         /// Gets or sets the product type identifier.
         /// </summary>
         public int ProductTypeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the product type.
+        /// </summary>
+        public ProductType ProductType
+        {
+            get => (ProductType)ProductTypeId;
+            set => ProductTypeId = (int)value;
+        }
+
+        /// <summary>
+        /// Gets the label hint for the product type.
+        /// </summary>
+        [NotMapped]
+        public string ProductTypeLabelHint
+        {
+            get
+            {
+                return ProductType switch
+                {
+                    ProductType.SimpleProduct => "secondary d-none",
+                    ProductType.GroupedProduct => "success",
+                    ProductType.BundledProduct => "info",
+                    _ => "",
+                };
+            }
+        }
 
         /// <summary>
         /// Gets or sets the parent product identifier. It is used if this product is associated with a grouped product.
@@ -195,6 +232,15 @@ namespace Smartstore.Core.Catalog.Products
         public int GiftCardTypeId { get; set; }
 
         /// <summary>
+        /// Gets or sets the gift card type.
+        /// </summary>
+        public GiftCardType GiftCardType
+        {
+            get => (GiftCardType)GiftCardTypeId;
+            set => GiftCardTypeId = (int)value;
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the product requires other products to be added to the cart (product X requires product Y).
         /// </summary>
         public bool RequireOtherProducts { get; set; }
@@ -239,6 +285,15 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets the download activation type.
         /// </summary>
         public int DownloadActivationTypeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the download activation type.
+        /// </summary>
+        public DownloadActivationType DownloadActivationType
+        {
+            get => (DownloadActivationType)DownloadActivationTypeId;
+            set => DownloadActivationTypeId = (int)value;
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the product has a sample download file.
@@ -287,6 +342,15 @@ namespace Smartstore.Core.Catalog.Products
         public int RecurringCyclePeriodId { get; set; }
 
         /// <summary>
+        /// Gets or sets the cycle period for recurring products.
+        /// </summary>
+        public RecurringProductCyclePeriod RecurringCyclePeriod
+        {
+            get => (RecurringProductCyclePeriod)RecurringCyclePeriodId;
+            set => RecurringCyclePeriodId = (int)value;
+        }
+
+        /// <summary>
         /// Gets or sets the recurring total cycles.
         /// </summary>
         public int RecurringTotalCycles { get; set; }
@@ -327,6 +391,15 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public int ManageInventoryMethodId { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating how to manage the inventory.
+        /// </summary>
+        public ManageInventoryMethod ManageInventoryMethod
+        {
+            get => (ManageInventoryMethod)ManageInventoryMethodId;
+            set => ManageInventoryMethodId = (int)value;
+        }
+
         private int _stockQuantity;
         /// <summary>
         /// Gets or sets the stock quantity.
@@ -358,6 +431,15 @@ namespace Smartstore.Core.Catalog.Products
         public int LowStockActivityId { get; set; }
 
         /// <summary>
+        /// Gets or sets the low stock activity.
+        /// </summary>
+        public LowStockActivity LowStockActivity
+        {
+            get => (LowStockActivity)LowStockActivityId;
+            set => LowStockActivityId = (int)value;
+        }
+
+        /// <summary>
         /// Gets or sets the stock quantity when to notify the admin.
         /// </summary>
         public int NotifyAdminForQuantityBelow { get; set; }
@@ -371,6 +453,15 @@ namespace Smartstore.Core.Catalog.Products
             [DebuggerStepThrough]
             get => this.GetMergedDataValue(nameof(BackorderModeId), _backorderModeId);
             set => _backorderModeId = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the backorder mode.
+        /// </summary>
+        public BackorderMode BackorderMode
+        {
+            get => (BackorderMode)BackorderModeId;
+            set => BackorderModeId = (int)value;
         }
 
         /// <summary>
@@ -597,13 +688,238 @@ namespace Smartstore.Core.Catalog.Products
             set => _deliveryTimeId = value;
         }
 
+        private int? _quantityUnitId;
+        /// <summary>
+        /// Gets or sets the quantity unit identifier.
+        /// </summary>
+        public int? QuantityUnitId
+        {
+            [DebuggerStepThrough]
+            get => this.GetMergedDataValue(nameof(QuantityUnitId), _quantityUnitId);
+            set => _quantityUnitId = value;
+        }
 
+        private DeliveryTime _deliveryTime;
+        /// <summary>
+        /// Gets or sets the delivery time.
+        /// </summary>
+        public DeliveryTime DeliveryTime
+        {
+            get => _lazyLoader?.Load(this, ref _deliveryTime) ?? _deliveryTime;
+            set => _deliveryTime = value;
+        }
 
-        /// <inheritdoc/>
-        public bool MergedDataIgnore { get; set; }
+        private QuantityUnit _quantityUnit;
+        /// <summary>
+        /// Gets or sets the quantity unit.
+        /// </summary>
+        public QuantityUnit QuantityUnit
+        {
+            get => _lazyLoader?.Load(this, ref _quantityUnit) ?? _quantityUnit;
+            set => _quantityUnit = value;
+        }
 
-        /// <inheritdoc/>
-        public Dictionary<string, object> MergedDataValues { get; set; }
+        /// <summary>
+        /// Gets or sets the customs tariff number.
+        /// </summary>
+        public string CustomsTariffNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the country of origin identifier.
+        /// </summary>
+        public int? CountryOfOriginId { get; set; }
+
+        private Country _countryOfOrigin;
+        /// <summary>
+        /// Gets or sets the country of origin.
+        /// </summary>
+        public Country CountryOfOrigin
+        {
+            get => _lazyLoader?.Load(this, ref _countryOfOrigin) ?? _countryOfOrigin;
+            set => _countryOfOrigin = value;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether base price quotation (PAnGV) is enabled.
+        /// </summary>
+        public bool BasePriceEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the measure unit for the base price (e.g. "kg", "g", "qm²" etc.).
+        /// </summary>
+        public string BasePriceMeasureUnit { get; set; }
+
+        private decimal? _basePriceAmount;
+        /// <summary>
+        /// Gets or sets the amount of product per packing unit in the given measure unit 
+        /// (e.g. 250 ml shower gel: "0.25" if MeasureUnit = "liter" and BaseAmount = 1).
+        /// </summary>
+        public decimal? BasePriceAmount
+        {
+            [DebuggerStepThrough]
+            get => this.GetMergedDataValue(nameof(BasePriceAmount), _basePriceAmount);
+            set => _basePriceAmount = value;
+        }
+
+        private int? _basePriceBaseAmount;
+        /// <summary>
+        /// Gets or sets the reference value for the given measure unit 
+        /// (e.g. "1" liter. Formula: [BaseAmount] [MeasureUnit] = [SellingPrice] / [Amount]).
+        /// </summary>
+        public int? BasePriceBaseAmount
+        {
+            [DebuggerStepThrough]
+            get => this.GetMergedDataValue(nameof(BasePriceBaseAmount), _basePriceBaseAmount);
+            set => _basePriceBaseAmount = value;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the product has a base price.
+        /// </summary>
+        [NotMapped]
+        public bool BasePriceHasValue => BasePriceEnabled && BasePriceAmount.GetValueOrDefault() > 0 && BasePriceBaseAmount.GetValueOrDefault() > 0 && BasePriceMeasureUnit.HasValue();
+
+        /// <summary>
+        /// Gets or sets an optional title text of a product bundle.
+        /// </summary>
+        public string BundleTitleText { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether per item shipping of bundle items is enabled.
+        /// </summary>
+        public bool BundlePerItemShipping { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether per item pricing of bundle items is enabled.
+        /// </summary>
+        public bool BundlePerItemPricing { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether per item shopping cart handling of bundle items is enabled.
+        /// </summary>
+        public bool BundlePerItemShoppingCart { get; set; }
+
+        /// <summary>
+        /// Gets or sets the main picture identifier.
+        /// </summary>
+        public int? MainPictureId { get; set; }
+
+        /// <summary>
+		/// Gets or sets a value indicating whether the product has a preview picture.
+		/// </summary>
+        public bool HasPreviewPicture { get; set; }
+
+        /// TODO: (mg) (core): Implement all product related entities.
+
+        private ICollection<object> _productCategories;
+        /// <summary>
+        /// Gets or sets the product categories.
+        /// </summary>
+        public ICollection<object> ProductCategories
+        {
+            get => _lazyLoader?.Load(this, ref _productCategories) ?? (_productCategories ??= new HashSet<object>());
+            protected set => _productCategories = value;
+        }
+
+        private ICollection<object> _productManufacturers;
+        /// <summary>
+        /// Gets or sets the product manufacturers.
+        /// </summary>
+        public ICollection<object> ProductManufacturers
+        {
+            get => _lazyLoader?.Load(this, ref _productManufacturers) ?? (_productManufacturers ??= new HashSet<object>());
+            protected set => _productManufacturers = value;
+        }
+
+        private ICollection<object> _productPictures;
+        /// <summary>
+        /// Gets or sets the product pictures.
+        /// </summary>
+        public ICollection<object> ProductPictures
+        {
+            get => _lazyLoader?.Load(this, ref _productPictures) ?? (_productPictures ??= new HashSet<object>());
+            protected set => _productPictures = value;
+        }
+
+        private ICollection<object> _productReviews;
+        /// <summary>
+        /// Gets or sets the product reviews.
+        /// </summary>
+        public ICollection<object> ProductReviews
+        {
+            get => _lazyLoader?.Load(this, ref _productReviews) ?? (_productReviews ??= new HashSet<object>());
+            protected set => _productReviews = value;
+        }
+
+        private ICollection<object> _productSpecificationAttributes;
+        /// <summary>
+        /// Gets or sets the product specification attributes.
+        /// </summary>
+        public ICollection<object> ProductSpecificationAttributes
+        {
+            get => _lazyLoader?.Load(this, ref _productSpecificationAttributes) ?? (_productSpecificationAttributes ??= new HashSet<object>());
+            protected set => _productSpecificationAttributes = value;
+        }
+
+        private ICollection<object> _productTags;
+        /// <summary>
+        /// Gets or sets the product tags.
+        /// </summary>
+        public ICollection<object> ProductTags
+        {
+            get => _lazyLoader?.Load(this, ref _productTags) ?? (_productTags ??= new HashSet<object>());
+            protected set => _productTags = value;
+        }
+
+        private ICollection<object> _productVariantAttributes;
+        /// <summary>
+        /// Gets or sets the product variant attributes.
+        /// </summary>
+        public ICollection<object> ProductVariantAttributes
+        {
+            get => _lazyLoader?.Load(this, ref _productVariantAttributes) ?? (_productVariantAttributes ??= new HashSet<object>());
+            protected set => _productVariantAttributes = value;
+        }
+
+        private ICollection<object> _productVariantAttributeCombinations;
+        /// <summary>
+        /// Gets or sets the product variant attribute combinations.
+        /// </summary>
+        public ICollection<object> ProductVariantAttributeCombinations
+        {
+            get => _lazyLoader?.Load(this, ref _productVariantAttributeCombinations) ?? (_productVariantAttributeCombinations ??= new HashSet<object>());
+            protected set => _productVariantAttributeCombinations = value;
+        }
+
+        private ICollection<object> _tierPrices;
+        /// <summary>
+        /// Gets or sets the tier prices.
+        /// </summary>
+        public ICollection<object> TierPrices
+        {
+            get => _lazyLoader?.Load(this, ref _tierPrices) ?? (_tierPrices ??= new HashSet<object>());
+            protected set => _tierPrices = value;
+        }
+
+        private ICollection<object> _appliedDiscounts;
+        /// <summary>
+        /// Gets or sets the applied discounts.
+        /// </summary>
+        public ICollection<object> AppliedDiscounts
+        {
+            get => _lazyLoader?.Load(this, ref _appliedDiscounts) ?? (_appliedDiscounts ??= new HashSet<object>());
+            protected set => _appliedDiscounts = value;
+        }
+
+        private ICollection<object> _productBundleItems;
+        /// <summary>
+        /// Gets or sets the product bundle items.
+        /// </summary>
+        public ICollection<object> ProductBundleItems
+        {
+            get => _lazyLoader?.Load(this, ref _productBundleItems) ?? (_productBundleItems ??= new HashSet<object>());
+            protected set => _productBundleItems = value;
+        }
 
         /// <inheritdoc/>
         public string GetDisplayName()
