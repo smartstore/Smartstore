@@ -63,6 +63,19 @@ namespace Smartstore.Core.Catalog.Products
             //builder.HasMany(c => c.ProductTags)
             //    .WithMany(c => c.Products)
             //    .Map(x => x.ToTable("Product_ProductTag_Mapping"));
+
+            // Lets ignore unmapped related entities, so there are no model binding errors.
+            builder.Ignore(c => c.AppliedDiscounts);
+            builder.Ignore(c => c.ProductBundleItems);
+            builder.Ignore(c => c.ProductCategories);
+            builder.Ignore(c => c.ProductManufacturers);
+            builder.Ignore(c => c.ProductPictures);
+            builder.Ignore(c => c.ProductReviews);
+            builder.Ignore(c => c.ProductSpecificationAttributes);
+            builder.Ignore(c => c.ProductTags);
+            builder.Ignore(c => c.ProductVariantAttributeCombinations);
+            builder.Ignore(c => c.ProductVariantAttributes);
+            builder.Ignore(c => c.TierPrices);
         }
     }
 
