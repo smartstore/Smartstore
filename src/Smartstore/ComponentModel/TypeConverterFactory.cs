@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Smartstore.ComponentModel.TypeConverters;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Routing;
+using System.Dynamic;
 
 namespace Smartstore.ComponentModel
 {
@@ -23,24 +25,24 @@ namespace Smartstore.ComponentModel
 				new [] { "yes", "y", "on", "wahr" },
 				new [] { "no", "n", "off", "falsch" }));
 
-			//ITypeConverter converter = new ShippingOptionConverter(true);
-			//_typeConverters.TryAdd(typeof(IList<ShippingOption>), converter);
-			//_typeConverters.TryAdd(typeof(List<ShippingOption>), converter);
-			//_typeConverters.TryAdd(typeof(ShippingOption), new ShippingOptionConverter(false));
+            //ITypeConverter converter = new ShippingOptionConverter(true);
+            //_typeConverters.TryAdd(typeof(IList<ShippingOption>), converter);
+            //_typeConverters.TryAdd(typeof(List<ShippingOption>), converter);
+            //_typeConverters.TryAdd(typeof(ShippingOption), new ShippingOptionConverter(false));
 
-			//converter = new ProductBundleDataConverter(true);
-			//_typeConverters.TryAdd(typeof(IList<ProductBundleItemOrderData>), converter);
-			//_typeConverters.TryAdd(typeof(List<ProductBundleItemOrderData>), converter);
-			//_typeConverters.TryAdd(typeof(ProductBundleItemOrderData), new ProductBundleDataConverter(false));
+            //converter = new ProductBundleDataConverter(true);
+            //_typeConverters.TryAdd(typeof(IList<ProductBundleItemOrderData>), converter);
+            //_typeConverters.TryAdd(typeof(List<ProductBundleItemOrderData>), converter);
+            //_typeConverters.TryAdd(typeof(ProductBundleItemOrderData), new ProductBundleDataConverter(false));
 
-			//converter = new DictionaryTypeConverter<IDictionary<string, object>>();
-			//_typeConverters.TryAdd(typeof(IDictionary<string, object>), converter);
-			//_typeConverters.TryAdd(typeof(Dictionary<string, object>), converter);
-			//_typeConverters.TryAdd(typeof(RouteValueDictionary), new DictionaryTypeConverter<RouteValueDictionary>());
-			//_typeConverters.TryAdd(typeof(ExpandoObject), new DictionaryTypeConverter<ExpandoObject>());
-   //         _typeConverters.TryAdd(typeof(HybridExpando), new DictionaryTypeConverter<HybridExpando>());
+            var converter = new DictionaryTypeConverter<IDictionary<string, object>>();
+            _typeConverters.TryAdd(typeof(IDictionary<string, object>), converter);
+            _typeConverters.TryAdd(typeof(Dictionary<string, object>), converter);
+            _typeConverters.TryAdd(typeof(RouteValueDictionary), new DictionaryTypeConverter<RouteValueDictionary>());
+            _typeConverters.TryAdd(typeof(ExpandoObject), new DictionaryTypeConverter<ExpandoObject>());
+            _typeConverters.TryAdd(typeof(HybridExpando), new DictionaryTypeConverter<HybridExpando>());
 
-   //         _typeConverters.TryAdd(typeof(EmailAddress), new EmailAddressConverter());
+            //         _typeConverters.TryAdd(typeof(EmailAddress), new EmailAddressConverter());
             _typeConverters.TryAdd(typeof(JObject), new JObjectConverter());
         }
 

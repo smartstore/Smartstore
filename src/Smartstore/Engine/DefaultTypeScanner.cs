@@ -12,14 +12,14 @@ namespace Smartstore.Engine
     {
         private readonly bool _ignoreReflectionErrors = true;
         private readonly IModuleCatalog _moduleCatalog;
-        private HashSet<Assembly> _activeAssemblies = new HashSet<Assembly>();
+        private HashSet<Assembly> _activeAssemblies = new();
         
         public DefaultTypeScanner(IModuleCatalog moduleCatalog, ILogger logger, params Assembly[] assemblies)
         {
             Guard.NotNull(moduleCatalog, nameof(moduleCatalog));
             Guard.NotNull(logger, nameof(logger));
 
-            // TODO: (core) Impl > Logging, PluginManager stuff etc.
+            // TODO: (core) Impl > PluginManager stuff etc.
 
             Logger = logger;
 

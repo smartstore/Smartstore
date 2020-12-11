@@ -4,8 +4,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Smartstore.Collections;
 
+[assembly: InternalsVisibleTo("Smartstore.Tests")]
 namespace Smartstore.ComponentModel.TypeConverters
 {
 	internal class EnumerableConverter<T> : DefaultTypeConverter

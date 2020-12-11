@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -10,7 +9,7 @@ namespace Smartstore.Engine
         // TODO: (core) Implement Tenant stuff
         private readonly IDictionary<string, ModuleDescriptor> _nameMap = new Dictionary<string, ModuleDescriptor>(StringComparer.OrdinalIgnoreCase);
         private readonly IDictionary<Assembly, ModuleDescriptor> _assemblyMap = new Dictionary<Assembly, ModuleDescriptor>();
-        private readonly HashSet<Assembly> _inactiveAssemblies = new HashSet<Assembly>();
+        private readonly HashSet<Assembly> _inactiveAssemblies = new();
 
         public IEnumerable<ModuleDescriptor> Modules
         {

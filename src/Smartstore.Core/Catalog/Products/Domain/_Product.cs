@@ -49,10 +49,11 @@ namespace Smartstore.Core.Catalog.Products
                 .HasForeignKey(c => c.QuantityUnitId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasOne(c => c.SampleDownload)
-                .WithMany()
-                .HasForeignKey(c => c.SampleDownloadId)
-                .OnDelete(DeleteBehavior.SetNull);
+            // TODO: (mg) DONT'T MAP MOCK STUFF!
+            //builder.HasOne(c => c.SampleDownload)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.SampleDownloadId)
+            //    .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasOne(c => c.CountryOfOrigin)
                 .WithMany()
@@ -64,18 +65,18 @@ namespace Smartstore.Core.Catalog.Products
             //    .WithMany(c => c.Products)
             //    .Map(x => x.ToTable("Product_ProductTag_Mapping"));
 
-            // Lets ignore unmapped related entities, so there are no model binding errors.
-            builder.Ignore(c => c.AppliedDiscounts);
-            builder.Ignore(c => c.ProductBundleItems);
-            builder.Ignore(c => c.ProductCategories);
-            builder.Ignore(c => c.ProductManufacturers);
-            builder.Ignore(c => c.ProductPictures);
-            builder.Ignore(c => c.ProductReviews);
-            builder.Ignore(c => c.ProductSpecificationAttributes);
-            builder.Ignore(c => c.ProductTags);
-            builder.Ignore(c => c.ProductVariantAttributeCombinations);
-            builder.Ignore(c => c.ProductVariantAttributes);
-            builder.Ignore(c => c.TierPrices);
+            //// Lets ignore unmapped related entities, so there are no model binding errors.
+            //builder.Ignore(c => c.AppliedDiscounts);
+            //builder.Ignore(c => c.ProductBundleItems);
+            //builder.Ignore(c => c.ProductCategories);
+            //builder.Ignore(c => c.ProductManufacturers);
+            //builder.Ignore(c => c.ProductPictures);
+            //builder.Ignore(c => c.ProductReviews);
+            //builder.Ignore(c => c.ProductSpecificationAttributes);
+            //builder.Ignore(c => c.ProductTags);
+            //builder.Ignore(c => c.ProductVariantAttributeCombinations);
+            //builder.Ignore(c => c.ProductVariantAttributes);
+            //builder.Ignore(c => c.TierPrices);
         }
     }
 
@@ -902,6 +903,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product categories.
         /// </summary>
+        [NotMapped]
         public ICollection<object> ProductCategories
         {
             get => _lazyLoader?.Load(this, ref _productCategories) ?? (_productCategories ??= new HashSet<object>());
@@ -912,6 +914,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product manufacturers.
         /// </summary>
+        [NotMapped]
         public ICollection<object> ProductManufacturers
         {
             get => _lazyLoader?.Load(this, ref _productManufacturers) ?? (_productManufacturers ??= new HashSet<object>());
@@ -922,6 +925,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product pictures.
         /// </summary>
+        [NotMapped]
         public ICollection<object> ProductPictures
         {
             get => _lazyLoader?.Load(this, ref _productPictures) ?? (_productPictures ??= new HashSet<object>());
@@ -932,7 +936,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product reviews.
         /// </summary>
-        [JsonIgnore]
+        [JsonIgnore, NotMapped]
         public ICollection<object> ProductReviews
         {
             get => _lazyLoader?.Load(this, ref _productReviews) ?? (_productReviews ??= new HashSet<object>());
@@ -943,6 +947,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product specification attributes.
         /// </summary>
+        [NotMapped]
         public ICollection<object> ProductSpecificationAttributes
         {
             get => _lazyLoader?.Load(this, ref _productSpecificationAttributes) ?? (_productSpecificationAttributes ??= new HashSet<object>());
@@ -953,6 +958,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product tags.
         /// </summary>
+        [NotMapped]
         public ICollection<object> ProductTags
         {
             get => _lazyLoader?.Load(this, ref _productTags) ?? (_productTags ??= new HashSet<object>());
@@ -963,6 +969,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product variant attributes.
         /// </summary>
+        [NotMapped]
         public ICollection<object> ProductVariantAttributes
         {
             get => _lazyLoader?.Load(this, ref _productVariantAttributes) ?? (_productVariantAttributes ??= new HashSet<object>());
@@ -973,6 +980,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product variant attribute combinations.
         /// </summary>
+        [NotMapped]
         public ICollection<object> ProductVariantAttributeCombinations
         {
             get => _lazyLoader?.Load(this, ref _productVariantAttributeCombinations) ?? (_productVariantAttributeCombinations ??= new HashSet<object>());
@@ -983,6 +991,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the tier prices.
         /// </summary>
+        [NotMapped]
         public ICollection<object> TierPrices
         {
             get => _lazyLoader?.Load(this, ref _tierPrices) ?? (_tierPrices ??= new HashSet<object>());
@@ -993,6 +1002,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the applied discounts.
         /// </summary>
+        [NotMapped]
         public ICollection<object> AppliedDiscounts
         {
             get => _lazyLoader?.Load(this, ref _appliedDiscounts) ?? (_appliedDiscounts ??= new HashSet<object>());
@@ -1003,6 +1013,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product bundle items.
         /// </summary>
+        [NotMapped]
         public ICollection<object> ProductBundleItems
         {
             get => _lazyLoader?.Load(this, ref _productBundleItems) ?? (_productBundleItems ??= new HashSet<object>());

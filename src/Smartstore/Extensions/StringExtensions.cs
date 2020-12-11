@@ -14,6 +14,7 @@ using System.Web;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Utilities;
+using Smartstore.Utilities.Html;
 
 namespace Smartstore
 {
@@ -616,8 +617,7 @@ namespace Smartstore
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static string RemoveHtml(this string source)
 		{
-			return source;
-			//return HtmlUtils.StripTags(source).Trim().HtmlDecode();
+			return HtmlUtils.StripTags(source).Trim().HtmlDecode();
 		}
 
 		/// <summary>
