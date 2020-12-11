@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
@@ -11,6 +12,15 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
+    public class CurrencyMap : IEntityTypeConfiguration<Currency>
+    {
+        public void Configure(EntityTypeBuilder<Currency> builder)
+        {
+            builder.Property(c => c.Rate).HasPrecision(18, 8);
+            builder.Property(c => c.RoundOrderTotalDenominator).HasPrecision(18, 4);
+        }
+    }
+
     /// <summary>
     /// Represents a currency
     /// </summary>
@@ -33,7 +43,6 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the rate
         /// </summary>
-        [Column(TypeName = "decimal(18,8)")] // TODO: (core) EFCore 5 > replace all these attributes with ModelBuilder.HasPrecision(precision, scale)
         public decimal Rate { get; set; }
 
         /// <summary>
@@ -99,7 +108,6 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the smallest denomination. The order total is rounded to the nearest multiple of it.
         /// </summary>
-        [Column(TypeName = "decimal(18,4)")]
         public decimal RoundOrderTotalDenominator { get; set; }
 
         /// <summary>

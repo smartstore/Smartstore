@@ -1,11 +1,21 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Localization;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
+    public class MeasureDimensionMap : IEntityTypeConfiguration<MeasureDimension>
+    {
+        public void Configure(EntityTypeBuilder<MeasureDimension> builder)
+        {
+            builder.Property(c => c.Ratio).HasPrecision(18, 8);
+        }
+    }
+
     /// <summary>
     /// Represents a measure dimension
     /// </summary>
@@ -26,7 +36,6 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the ratio
         /// </summary>
-        [Column(TypeName = "decimal(18,8)")]
         public decimal Ratio { get; set; }
 
         /// <summary>
