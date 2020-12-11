@@ -45,7 +45,7 @@ namespace Smartstore.Core.Common.Hooks
         /// </summary>
         protected override async Task<HookResult> OnDeletingAsync(DeliveryTime entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            // TODO: MH (core) Implement when attributes are available
+            // TODO: (MH) (core) Implement when attributes are available
             // Remove associations to deleted products.
             //using (var scope = new DbContextScope(_productRepository.Context, autoDetectChanges: false, validateOnSave: false, hooksEnabled: false, autoCommit: false))
             //{
@@ -82,7 +82,7 @@ namespace Smartstore.Core.Common.Hooks
             // IsAssociated
             var query =
                 from x in _db.Products
-                // TODO: MH (core) Implement ProductVariantAttributeCombinations
+                // TODO: (MH) (core) Implement ProductVariantAttributeCombinations
                 //where x.DeliveryTimeId == entity.Id || x.ProductVariantAttributeCombinations.Any(c => c.DeliveryTimeId == entity.Id)
                 where x.DeliveryTimeId == entity.Id
                 select x.Id;

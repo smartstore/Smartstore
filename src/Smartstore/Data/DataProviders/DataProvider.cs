@@ -35,7 +35,7 @@ namespace Smartstore.Data
     {
         protected DataProvider(DatabaseFacade database)
         {
-            // TODO: (core: Add more methods: EnsureColumn(), ... 
+            // TODO: (core) Add more methods: EnsureColumn(), ... 
             Database = database;
         }
 

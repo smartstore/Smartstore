@@ -35,7 +35,7 @@ namespace Smartstore
 
         public static int GetDeliveryTimeIdAccordingToStock(this Product product, bool displayAccordingToStock)
         {
-            // TODO: MH (core) Use product extension when it's ready.
+            // TODO: (MH) (core) Use product extension when it's ready.
             return 0;
         }
     }
