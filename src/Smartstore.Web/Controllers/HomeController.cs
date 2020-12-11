@@ -229,8 +229,6 @@ namespace Smartstore.Web.Controllers
             //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
             #endregion
 
-            throw new SmartException("We're throwing to test exception handler.");
-
             //await _asyncState.UpdateAsync<MyProgress>(x =>
             //{
             //    x.Percent++;
