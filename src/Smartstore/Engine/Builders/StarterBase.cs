@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Collections;
 
