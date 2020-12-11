@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -27,30 +29,66 @@ namespace Smartstore.Core.Catalog.Products
             // Globally exclude soft-deleted entities from all queries.
             builder.HasQueryFilter(c => !c.Deleted);
 
-            builder.HasOne(a => a.QuantityUnit)
-                .WithMany()
-                .HasForeignKey(a => a.QuantityUnitId)
-                .OnDelete(DeleteBehavior.SetNull); // TODO: (core) Is DeleteBehavior.SetNull the correct equivalent to WillCascadeOnDelete(false)
+            builder.Property(c => c.AdditionalShippingCharge).HasPrecision(18, 4);
+            builder.Property(c => c.Price).HasPrecision(18, 4);
+            builder.Property(c => c.OldPrice).HasPrecision(18, 4);
+            builder.Property(c => c.ProductCost).HasPrecision(18, 4);
+            builder.Property(c => c.SpecialPrice).HasPrecision(18, 4);
+            builder.Property(c => c.MinimumCustomerEnteredPrice).HasPrecision(18, 4);
+            builder.Property(c => c.MaximumCustomerEnteredPrice).HasPrecision(18, 4);
+            builder.Property(c => c.Weight).HasPrecision(18, 4);
+            builder.Property(c => c.Length).HasPrecision(18, 4);
+            builder.Property(c => c.Width).HasPrecision(18, 4);
+            builder.Property(c => c.Height).HasPrecision(18, 4);
+            builder.Property(c => c.LowestAttributeCombinationPrice).HasPrecision(18, 4);
+            builder.Property(c => c.BasePriceAmount).HasPrecision(18, 4);
 
-            builder.HasOne(a => a.DeliveryTime)
+            builder.HasOne(c => c.DeliveryTime)
                 .WithMany()
-                .HasForeignKey(a => a.DeliveryTimeId)
-                .OnDelete(DeleteBehavior.SetNull); // TODO: (core) Is DeleteBehavior.SetNull the correct equivalent to WillCascadeOnDelete(false)
+                .HasForeignKey(c => c.DeliveryTimeId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(c => c.QuantityUnit)
+                .WithMany()
+                .HasForeignKey(c => c.QuantityUnitId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(c => c.SampleDownload)
+                .WithMany()
+                .HasForeignKey(c => c.SampleDownloadId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasOne(c => c.CountryOfOrigin)
+                .WithMany()
+                .HasForeignKey(c => c.CountryOfOriginId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            /// TODO: (mg) (core): Implement all product related entities.
+            //builder.HasMany(c => c.ProductTags)
+            //    .WithMany(c => c.Products)
+            //    .Map(x => x.ToTable("Product_ProductTag_Mapping"));
         }
     }
 
     /// <summary>
     /// Represents a product.
     /// </summary>
-    /// TODO: (mg) (core): Add all indexes (even old SQL based indexes).
-    /// TODO: (mg) (core): Add data annotation attributes.
-    /// TODO: (mg) (core): Opt-out (JsonIgnore) data members for API.
-    [Index(nameof(Visibility), Name = "IX_Visibility")]
-    [Index(nameof(ManufacturerPartNumber), Name = "IX_ManufacturerPartNumber")]
-    [Index(nameof(Gtin), Name = "IX_Gtin")]
     [Index(nameof(Deleted), Name = "IX_Deleted")]
+    [Index(nameof(Gtin), Name = "IX_Gtin")]
+    [Index(nameof(IsSystemProduct), Name = "IX_IsSystemProduct")]
+    [Index(nameof(ManufacturerPartNumber), Name = "IX_ManufacturerPartNumber")]
+    [Index(nameof(LimitedToStores), Name = "IX_Product_LimitedToStores")]
+    [Index(nameof(Name), Name = "IX_Product_Name")]
+    [Index(nameof(ParentGroupedProductId), Name = "IX_Product_ParentGroupedProductId")]
+    [Index(nameof(Price), nameof(AvailableStartDateTimeUtc), nameof(AvailableEndDateTimeUtc), nameof(Published), nameof(Deleted), Name = "IX_Product_PriceDatesEtc")]
+    [Index(nameof(Published), Name = "IX_Product_Published")]
     [Index(nameof(Published), nameof(Deleted), nameof(IsSystemProduct), Name = "IX_Product_Published_Deleted_IsSystemProduct")]
+    [Index(nameof(ShowOnHomePage), Name = "IX_Product_ShowOnHomepage")]
+    [Index(nameof(Sku), Name = "IX_Product_Sku")]
+    [Index(nameof(SubjectToAcl), Name = "IX_Product_SubjectToAcl")]
     [Index(nameof(SystemName), nameof(IsSystemProduct), Name = "IX_Product_SystemName_IsSystemProduct")]
+    [Index(nameof(Published), nameof(Id), nameof(Visibility), nameof(Deleted), nameof(IsSystemProduct), nameof(AvailableStartDateTimeUtc), nameof(AvailableEndDateTimeUtc), Name = "IX_SeekExport1")]
+    [Index(nameof(Visibility), Name = "IX_Visibility")]
     public partial class Product : BaseEntity, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
     {
         private readonly ILazyLoader _lazyLoader;
@@ -66,11 +104,11 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <inheritdoc/>
-        [NotMapped]
+        [NotMapped, JsonIgnore]
         public bool MergedDataIgnore { get; set; }
 
         /// <inheritdoc/>
-        [NotMapped]
+        [NotMapped, JsonIgnore]
         public Dictionary<string, object> MergedDataValues { get; set; }
 
         /// <summary>
@@ -81,6 +119,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product type.
         /// </summary>
+        [NotMapped]
         public ProductType ProductType
         {
             get => (ProductType)ProductTypeId;
@@ -123,21 +162,25 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product name.
         /// </summary>
+        [Required, StringLength(400)]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the short description.
         /// </summary>
+        [StringLength(4000)]
         public string ShortDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the full description.
         /// </summary>
+        [MaxLength]
         public string FullDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the admin comment.
         /// </summary>
+        [StringLength(4000)]
         public string AdminComment { get; set; }
 
         /// <summary>
@@ -158,16 +201,19 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the meta keywords.
         /// </summary>
+        [StringLength(400)]
         public string MetaKeywords { get; set; }
 
         /// <summary>
         /// Gets or sets the meta description.
         /// </summary>
+        [StringLength(4000)]
         public string MetaDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the meta title.
         /// </summary>
+        [StringLength(400)]
         public string MetaTitle { get; set; }
 
         /// <summary>
@@ -205,6 +251,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the stock keeping unit (SKU).
         /// </summary>
+        [StringLength(400)]
         public string Sku
         {
             [DebuggerStepThrough]
@@ -216,6 +263,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the manufacturer part number (MPN).
         /// </summary>
+        [StringLength(400)]
         public string ManufacturerPartNumber
         {
             [DebuggerStepThrough]
@@ -228,6 +276,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets the global trade item number (GTIN).
         /// These identifiers include UPC (in North America), EAN (in Europe), JAN (in Japan) and ISBN (for books).
         /// </summary>
+        [StringLength(400)]
         public string Gtin
         {
             [DebuggerStepThrough]
@@ -248,6 +297,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the gift card type.
         /// </summary>
+        [NotMapped]
         public GiftCardType GiftCardType
         {
             get => (GiftCardType)GiftCardTypeId;
@@ -262,6 +312,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the required product identifiers (comma separated).
         /// </summary>
+        [StringLength(1000)]
         public string RequiredProductIds { get; set; }
 
         /// <summary>
@@ -277,7 +328,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the download identifier.
         /// </summary>
-        [Obsolete("Since version 3.2 more than one download can be assigned to a product. See property Download.EntityId and Download.EntityName.")]
+        [JsonIgnore, Obsolete("Since version 3.2 more than one download can be assigned to a product. See property Download.EntityId and Download.EntityName.")]
         public int DownloadId { get; set; }
 
         /// <summary>
@@ -303,6 +354,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the download activation type.
         /// </summary>
+        [NotMapped]
         public DownloadActivationType DownloadActivationType
         {
             get => (DownloadActivationType)DownloadActivationTypeId;
@@ -339,6 +391,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the license agreement text.
         /// </summary>
+        [StringLength(4000)]
         public string UserAgreementText { get; set; }
 
         /// <summary>
@@ -359,6 +412,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the cycle period for recurring products.
         /// </summary>
+        [NotMapped]
         public RecurringProductCyclePeriod RecurringCyclePeriod
         {
             get => (RecurringProductCyclePeriod)RecurringCyclePeriodId;
@@ -409,6 +463,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets a value indicating how to manage the inventory.
         /// </summary>
+        [NotMapped]
         public ManageInventoryMethod ManageInventoryMethod
         {
             get => (ManageInventoryMethod)ManageInventoryMethodId;
@@ -448,6 +503,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the low stock activity.
         /// </summary>
+        [NotMapped]
         public LowStockActivity LowStockActivity
         {
             get => (LowStockActivity)LowStockActivityId;
@@ -473,6 +529,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the backorder mode.
         /// </summary>
+        [NotMapped]
         public BackorderMode BackorderMode
         {
             get => (BackorderMode)BackorderModeId;
@@ -512,6 +569,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the comma seperated list of allowed quantities. If <c>null</c> or empty then any quantity is allowed.
         /// </summary>
+        [StringLength(1000)]
         public string AllowedQuantities { get; set; }
 
         /// <summary>
@@ -674,6 +732,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets a value indicating whether the product has been deleted.
         /// </summary>
+        [JsonIgnore]
         public bool Deleted { get; set; }
 
         /// <summary>
@@ -684,6 +743,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product system name.
         /// </summary>
+        [StringLength(400)]
         public string SystemName { get; set; }
 
         /// <inheritdoc/>
@@ -737,6 +797,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the customs tariff number.
         /// </summary>
+        [StringLength(30)]
         public string CustomsTariffNumber { get; set; }
 
         /// <summary>
@@ -762,6 +823,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the measure unit for the base price (e.g. "kg", "g", "qm²" etc.).
         /// </summary>
+        [StringLength(50)]
         public string BasePriceMeasureUnit { get; set; }
 
         private decimal? _basePriceAmount;
@@ -797,6 +859,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets an optional title text of a product bundle.
         /// </summary>
+        [StringLength(400)]
         public string BundleTitleText { get; set; }
 
         /// <summary>
@@ -860,6 +923,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product reviews.
         /// </summary>
+        [JsonIgnore]
         public ICollection<object> ProductReviews
         {
             get => _lazyLoader?.Load(this, ref _productReviews) ?? (_productReviews ??= new HashSet<object>());
