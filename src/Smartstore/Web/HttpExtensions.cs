@@ -82,6 +82,17 @@ namespace Smartstore
         }
 
         /// <summary>
+        /// Checks whether the current request is an AJAX request.
+        /// </summary>
+        /// <param name="httpRequest"></param>
+        public static bool IsAjaxRequest(this HttpRequest httpRequest)
+        {
+            return 
+                string.Equals(httpRequest.Headers[HeaderNames.XRequestedWith], "XMLHttpRequest", StringComparison.Ordinal) ||
+                string.Equals(httpRequest.Query[HeaderNames.XRequestedWith], "XMLHttpRequest", StringComparison.Ordinal);
+        }
+
+        /// <summary>
         /// Checks whether the current request originates from a local computer.
         /// </summary>
         public static bool IsLocal(this ConnectionInfo connection)

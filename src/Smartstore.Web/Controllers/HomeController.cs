@@ -194,6 +194,8 @@ namespace Smartstore.Web.Controllers
             //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
             #endregion
 
+            throw new SmartException("We're throwing to test exception handler.");
+
             //await _asyncState.UpdateAsync<MyProgress>(x =>
             //{
             //    x.Percent++;
@@ -465,12 +467,6 @@ namespace Smartstore.Web.Controllers
         {
             var e = (UrlRecord)HttpContext.GetRouteData().Values["entity"];
             return Content($"Slug matched >>> Entity: {e.EntityName} {e.EntityId}, Id: {e.Id}, Language: {e.LanguageId}, Slug: {e.Slug}, IsActive: {e.IsActive}");
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

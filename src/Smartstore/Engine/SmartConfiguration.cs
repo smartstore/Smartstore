@@ -89,5 +89,12 @@ namespace Smartstore.Engine
         /// Use with care!
         /// </summary>
         public string EngineType { get; set; } = typeof(SmartEngine).FullName;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to display exception
+        /// always with full stack trace and other infos, even in production mode.
+        /// Default is False.
+        /// </summary>
+        public bool UseDeveloperExceptionPage { get; set; }
     }
 }

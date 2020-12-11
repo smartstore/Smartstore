@@ -5,7 +5,7 @@ using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Events;
 using Smartstore.Web.Common.TagHelpers;
-using Smartstore.Web.Common.Theming.Razor;
+using Smartstore.Web.Common.Mvc.Razor;
 
 namespace Smartstore.Web.Common.Theming.DependencyInjection
 {

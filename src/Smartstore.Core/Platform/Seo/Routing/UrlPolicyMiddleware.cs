@@ -21,34 +21,49 @@ namespace Smartstore.Core.Seo.Routing
 
         public Task Invoke(HttpContext context, IUrlService urlService, IWorkContext workContext)
         {
-            var policy = urlService.GetUrlPolicy();
-
-            if (policy.IsInvalidUrl)
+            if (context.Response.StatusCode is (>= 200 and < 300))
             {
-                // TODO: (core) Handle 404 result decently. See LanguageSeoCodeAttribute.OnAuthorization > HandleExceptionFilter.Create404Result()
-                context.Response.StatusCode = 404;
-                return Task.CompletedTask;
+                var policy = urlService.GetUrlPolicy();
+
+                if (policy.IsInvalidUrl)
+                {
+                    context.Response.StatusCode = 404;
+                    return Task.CompletedTask;
+                }
+                else if (policy.IsModified)
+                {
+                    return HandleRedirect(policy.GetModifiedUrl());
+                }
+
+                policy = urlService.ApplyCanonicalUrlRulesPolicy();
+
+                var endpoint = context.GetEndpoint();
+                if (endpoint != null)
+                {
+                    policy = urlService.ApplyCultureUrlPolicy(endpoint);
+                }
+
+                // Check again after policies has been applied
+                if (policy.IsInvalidUrl)
+                {
+                    context.Response.StatusCode = 404;
+                    return Task.CompletedTask;
+                }
+                else if (policy.IsModified)
+                {
+                    return HandleRedirect(policy.GetModifiedUrl());
+                }
+
+                policy.WorkingLanguage = workContext.WorkingLanguage;
+
+                if (policy.Endpoint == null)
+                {
+                    // We may need the original endpoint for logging and error handling purposes later,
+                    // but the ExeptionHandler middleware sets endpoint to null in order to re-execute correctly.
+                    // Therefore we gonna save it here, but only if we're not in re-execution.
+                    policy.Endpoint = context.GetEndpoint();
+                }
             }
-
-            if (policy.IsModified)
-            {
-                return HandleRedirect(policy.GetModifiedUrl());
-            }
-
-            policy = urlService.ApplyCanonicalUrlRulesPolicy();
-
-            var endpoint = context.GetEndpoint();
-            if (endpoint != null)
-            {
-                policy = urlService.ApplyCultureUrlPolicy(endpoint);
-            }
-
-            if (policy.IsModified)
-            {
-                return HandleRedirect(policy.GetModifiedUrl());
-            }
-
-            policy.WorkingLanguage = workContext.WorkingLanguage;
 
             // No redirection was requested. Continue.
             return _next(context);

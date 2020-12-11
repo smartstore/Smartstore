@@ -26,6 +26,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Modules\" />
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
   
   <PropertyGroup>

@@ -1,0 +1,114 @@
+﻿@model ErrorModel
+
+@{
+    Layout = null;
+
+    var showCustomErrors = ApplicationContext.AppConfiguration.ShowCustomErrors;
+    string title = "";
+    string text = "";
+    try
+    {
+        title = T("ErrorPage.Title");
+        text = T("ErrorPage.Body");
+    }
+    catch
+    {
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Internal Server Error</title>
+    <style type="text/css">
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            line-height: 20px;
+            color: #444;
+        }
+
+        .page {
+            width: 740px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Arial', 'Segoe UI', Arial, helvetica, sans-serif;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 100px;
+            line-height: 140px;
+            color: #999;
+            margin-bottom: 50px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 22px;
+        }
+
+        .error {
+            margin-top: 30px;
+            padding: 15px;
+            color: #a94442;
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <img src="/images/sad.png" width="128" height="128" />
+
+        @if (title.HasValue())
+        {
+            <h1>@Html.Raw(title)</h1>
+        }
+        else
+        {
+            <h1>Oops!</h1>
+        }
+
+        @if (text.HasValue())
+        {
+            <p>@Html.Raw(text)</p>
+        }
+        else
+        {
+            <p>
+                We apologize, an error ocurred while handling your request, this is not a problem with your computer or internet connection.
+                The details have been sent to our support team and we will investigate the issue very soon.
+                <br />
+                <br />
+                In the meantime, please retry your request as it may have been temporary.
+            </p>
+        }
+
+        @if (showCustomErrors && Model != null)
+        {
+            <p class="error">
+                <strong>Controller:</strong> @Model.ControllerName.NaIfEmpty(), <strong>Action:</strong> @Model.ActionName.NaIfEmpty()
+                @{
+                    var ex = Model.Exception;
+                    if (ex != null)
+                    {
+                        do
+                        {
+                            <br />
+                            <br />
+                            <span>@ex.Message</span>
+                            ex = ex.InnerException;
+                        } while (ex != null);
+                    }
+                }
+            </p>
+        }
+    </div>
+</body>
+</html>

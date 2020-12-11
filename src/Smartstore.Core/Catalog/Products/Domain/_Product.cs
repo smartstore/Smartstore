@@ -310,6 +310,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets the sample download.
         /// </summary>
         /// TODO: (mg) (core): Implement download entity.
+        [NotMapped]
         public object SampleDownload
         {
             get => _lazyLoader?.Load(this, ref _sampleDownload) ?? _sampleDownload;

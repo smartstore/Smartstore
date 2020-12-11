@@ -1,0 +1,28 @@
+﻿@model ErrorModel
+
+@{
+// TODO: (core) Implement Html.AddTitleParts and uncomment this
+//Html.AddTitleParts(T("NotFoundPage.Title").Text);
+}
+
+<div class="page not-found-page text-center">
+    <div class="page-title">
+        <h1 class="text-muted" style="font-size: 220px; line-height: 280px">@T("NotFoundPage.Title")</h1>
+    </div>
+    <p class="page-body lead fs-h4">
+        @T("NotFoundPage.Body")
+    </p>
+
+    <div class="row buttons my-5 xs-gutters">
+        <div class="col-sm-3 offset-sm-3">
+            <a class="btn btn-secondary btn-block btn-lg" asp-route="Homepage">
+                @T("Homepage")
+            </a>
+        </div>
+        <div class="col-sm-3 mt-3 mt-sm-0">
+            <a class="btn btn-warning btn-block btn-lg" asp-route="ContactUs">
+                @T("ContactUs")
+            </a>
+        </div>
+    </div>
+</div>

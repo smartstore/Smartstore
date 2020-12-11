@@ -80,6 +80,7 @@ namespace Smartstore.Core.Seo.Routing
         public LocalizationSettings LocalizationSettings { get; init; }
         public SeoSettings SeoSettings { get; init; }
         public Language WorkingLanguage { get; set; }
+        public Endpoint Endpoint { get; set; }
 
 
         /// <summary>

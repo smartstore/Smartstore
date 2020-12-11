@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -35,6 +36,8 @@ namespace Smartstore.Web.Common
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
             services.AddAntiforgery(o => o.HeaderName = "X-XSRF-Token");
             services.AddHttpClient();
+
+            services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -119,16 +122,18 @@ namespace Smartstore.Web.Common
 
             builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app => 
             {
-                if (appContext.HostEnvironment.IsDevelopment())
-                {
-                    app.UseDeveloperExceptionPage();
-                }
-                else
-                {
-                    app.UseExceptionHandler("/Home/Error");
+                //if (appContext.HostEnvironment.IsDevelopment() || appContext.AppConfiguration.UseDeveloperExceptionPage)
+                //{
+                //    app.UseDeveloperExceptionPage();
+                //}
+                //else
+                //{
+                    app.UseExceptionHandler("/Error");
                     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                     app.UseHsts();
-                }
+                //}
+
+                app.UseStatusCodePagesWithReExecute("/Error/{0}");
             });
 
             builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
