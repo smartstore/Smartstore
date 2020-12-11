@@ -29,6 +29,7 @@
     <Folder Include="Catalog\Brands\" />
     <Folder Include="Catalog\Inventory\" />
     <Folder Include="Checkout\Affiliates\" />
+    <Folder Include="Checkout\Shipping\Domain\" />
     <Folder Include="Content\Blogs\" />
     <Folder Include="Checkout\Cart\" />
     <Folder Include="Catalog\Discounts\" />
@@ -39,10 +40,8 @@
     <Folder Include="Platform\Rules\" />
     <Folder Include="Platform\Search\" />
     <Folder Include="Content\Widgets\" />
-    <Folder Include="Common\Hooks\" />
     <Folder Include="Common\Events\" />
     <Folder Include="Content\Topics\" />
-    <Folder Include="Checkout\Shipping\" />
     <Folder Include="Content\Polls\" />
     <Folder Include="Checkout\Payment\" />
     <Folder Include="Content\News\" />

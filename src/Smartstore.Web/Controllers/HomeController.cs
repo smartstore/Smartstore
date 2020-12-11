@@ -175,6 +175,41 @@ namespace Smartstore.Web.Controllers
             //    //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
             //    .FirstOrDefault();
 
+            #region MH test area
+
+            // QuantityUnit
+            // Get QuantityUnit by Id
+            var qu = _db.QuantityUnits.ApplyQuantityUnitFilter(1).FirstOrDefault();
+
+            // Save hook > TODO: BROKEN > Why?
+            qu.IsDefault = true;
+            _db.SaveChanges();
+            // TODO Test: Assert.OnlyOne has Default = true, 
+
+            // Delete hook
+            var qu2 = _db.QuantityUnits.ApplyQuantityUnitFilter(22).FirstOrDefault();
+
+            if (qu2 != null)
+            {
+                _db.QuantityUnits.Remove(qu2);
+                await _db.SaveChangesAsync();
+            }
+
+            // StateProvince
+            var sp = _db.StateProvinces
+                .ApplyCountryFilter(1)
+                .ApplyAbbreviationFilter("BE")
+                .FirstOrDefault();
+            // TODO Test: Assert name of entity is Berlin
+
+            // DeliveryTime
+            //var dt = _db.DeliveryTimes.GetDeliveryTimeFilter(1);
+
+            var test = "";
+
+            #endregion
+
+
             return View();
         }
 

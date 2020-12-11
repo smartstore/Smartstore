@@ -13,6 +13,10 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Domain;
+using Smartstore.Data;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -22,12 +26,23 @@ namespace Smartstore.Core.Catalog.Products
         {
             // Globally exclude soft-deleted entities from all queries.
             builder.HasQueryFilter(c => !c.Deleted);
+
+            builder.HasOne(a => a.QuantityUnit)
+                .WithMany()
+                .HasForeignKey(a => a.QuantityUnitId)
+                .OnDelete(DeleteBehavior.SetNull); // TODO: (core) Is DeleteBehavior.SetNull the correct equivalent to WillCascadeOnDelete(false)
+
+            builder.HasOne(a => a.DeliveryTime)
+                .WithMany()
+                .HasForeignKey(a => a.DeliveryTimeId)
+                .OnDelete(DeleteBehavior.SetNull); // TODO: (core) Is DeleteBehavior.SetNull the correct equivalent to WillCascadeOnDelete(false)
         }
     }
 
     /// <summary>
     /// Represents a product.
     /// </summary>
+    public partial class Product : BaseEntity, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IStoreRestricted, IMergedData
     /// TODO: (mg) (core): Add all indexes (even old SQL based indexes).
     /// TODO: (mg) (core): Add data annotation attributes.
     /// TODO: (mg) (core): Opt-out (JsonIgnore) data members for API.
