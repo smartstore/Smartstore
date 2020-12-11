@@ -42,7 +42,6 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Represents a product.
     /// </summary>
-    public partial class Product : BaseEntity, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IStoreRestricted, IMergedData
     /// TODO: (mg) (core): Add all indexes (even old SQL based indexes).
     /// TODO: (mg) (core): Add data annotation attributes.
     /// TODO: (mg) (core): Opt-out (JsonIgnore) data members for API.

@@ -2,7 +2,7 @@
 using Smartstore.Core;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Products;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Engine;
 using SmartStore.Services.Helpers;
 using System;
