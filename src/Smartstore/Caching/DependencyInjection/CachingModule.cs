@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Smartstore.Caching.OutputCache;
 using Smartstore.Threading;
 
 namespace Smartstore.Caching.DependencyInjection
@@ -7,6 +8,10 @@ namespace Smartstore.Caching.DependencyInjection
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<NullDisplayControl>()
+                .As<IDisplayControl>()
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<RequestCache>()
                 .As<IRequestCache>()
                 .InstancePerLifetimeScope();
