@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <Folder Include="Catalog\Attributes\Exchange\" />
-    <Folder Include="Catalog\Attributes\Domain\" />
     <Folder Include="Catalog\Attributes\Migrations\" />
     <Folder Include="Catalog\Attributes\Hooks\" />
     <Folder Include="Catalog\Attributes\Events\" />
@@ -32,7 +31,6 @@
     <Folder Include="Checkout\Shipping\Domain\" />
     <Folder Include="Content\Blogs\" />
     <Folder Include="Checkout\Cart\" />
-    <Folder Include="Catalog\Discounts\" />
     <Folder Include="Content\Forums\" />
     <Folder Include="Content\Themes\" />
     <Folder Include="Platform\Api\" />

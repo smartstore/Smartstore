@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Common;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Pricing;
 
 namespace SmartStore.Core.Domain.Catalog
 {

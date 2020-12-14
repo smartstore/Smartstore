@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
+using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -60,23 +63,9 @@ namespace Smartstore.Core.Catalog.Products
                 .HasForeignKey(c => c.CountryOfOriginId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            /// TODO: (mg) (core): Implement all product related entities.
-            //builder.HasMany(c => c.ProductTags)
-            //    .WithMany(c => c.Products)
-            //    .Map(x => x.ToTable("Product_ProductTag_Mapping"));
-
-            //// Lets ignore unmapped related entities, so there are no model binding errors.
-            //builder.Ignore(c => c.AppliedDiscounts);
-            //builder.Ignore(c => c.ProductBundleItems);
-            //builder.Ignore(c => c.ProductCategories);
-            //builder.Ignore(c => c.ProductManufacturers);
-            //builder.Ignore(c => c.ProductPictures);
-            //builder.Ignore(c => c.ProductReviews);
-            //builder.Ignore(c => c.ProductSpecificationAttributes);
-            //builder.Ignore(c => c.ProductTags);
-            //builder.Ignore(c => c.ProductVariantAttributeCombinations);
-            //builder.Ignore(c => c.ProductVariantAttributes);
-            //builder.Ignore(c => c.TierPrices);
+            builder.HasMany(c => c.ProductTags)
+                .WithMany(c => c.Products)
+                .UsingEntity(x => x.ToTable("Product_ProductTag_Mapping"));
         }
     }
 
@@ -954,14 +943,13 @@ namespace Smartstore.Core.Catalog.Products
             protected set => _productSpecificationAttributes = value;
         }
 
-        private ICollection<object> _productTags;
+        private ICollection<ProductTag> _productTags;
         /// <summary>
         /// Gets or sets the product tags.
         /// </summary>
-        [NotMapped]
-        public ICollection<object> ProductTags
+        public ICollection<ProductTag> ProductTags
         {
-            get => _lazyLoader?.Load(this, ref _productTags) ?? (_productTags ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _productTags) ?? (_productTags ??= new HashSet<ProductTag>());
             protected set => _productTags = value;
         }
 
@@ -976,36 +964,33 @@ namespace Smartstore.Core.Catalog.Products
             protected set => _productVariantAttributes = value;
         }
 
-        private ICollection<object> _productVariantAttributeCombinations;
+        private ICollection<ProductVariantAttributeCombination> _productVariantAttributeCombinations;
         /// <summary>
         /// Gets or sets the product variant attribute combinations.
         /// </summary>
-        [NotMapped]
-        public ICollection<object> ProductVariantAttributeCombinations
+        public ICollection<ProductVariantAttributeCombination> ProductVariantAttributeCombinations
         {
-            get => _lazyLoader?.Load(this, ref _productVariantAttributeCombinations) ?? (_productVariantAttributeCombinations ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _productVariantAttributeCombinations) ?? (_productVariantAttributeCombinations ??= new HashSet<ProductVariantAttributeCombination>());
             protected set => _productVariantAttributeCombinations = value;
         }
 
-        private ICollection<object> _tierPrices;
+        private ICollection<TierPrice> _tierPrices;
         /// <summary>
         /// Gets or sets the tier prices.
         /// </summary>
-        [NotMapped]
-        public ICollection<object> TierPrices
+        public ICollection<TierPrice> TierPrices
         {
-            get => _lazyLoader?.Load(this, ref _tierPrices) ?? (_tierPrices ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _tierPrices) ?? (_tierPrices ??= new HashSet<TierPrice>());
             protected set => _tierPrices = value;
         }
 
-        private ICollection<object> _appliedDiscounts;
+        private ICollection<Discount> _appliedDiscounts;
         /// <summary>
         /// Gets or sets the applied discounts.
         /// </summary>
-        [NotMapped]
-        public ICollection<object> AppliedDiscounts
+        public ICollection<Discount> AppliedDiscounts
         {
-            get => _lazyLoader?.Load(this, ref _appliedDiscounts) ?? (_appliedDiscounts ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _appliedDiscounts) ?? (_appliedDiscounts ??= new HashSet<Discount>());
             protected set => _appliedDiscounts = value;
         }
 
