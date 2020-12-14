@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Localization;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
@@ -19,6 +20,7 @@ namespace Smartstore.Core.Common
     /// <summary>
     /// Represents a measure dimension
     /// </summary>
+    [CacheableEntity]
     public partial class MeasureDimension : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
         /// <summary>

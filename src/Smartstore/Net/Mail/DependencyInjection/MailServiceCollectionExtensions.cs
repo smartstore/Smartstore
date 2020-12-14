@@ -5,10 +5,10 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class MailServiceCollectionExtensions
     {
-        public static IServiceCollection AddMailKitMailSender(this IServiceCollection services)
+        public static IServiceCollection AddMailKitMailService(this IServiceCollection services)
         {
             Guard.NotNull(services, nameof(services));
-            services.AddScoped<IMailSender, MailKitSender>();
+            services.AddScoped<IMailService, DefaultMailService>();
             return services;
         }
     }

@@ -105,7 +105,7 @@ namespace Smartstore.Engine
                 services.AddMemoryCache();
 
                 // TODO: (core) Register more system stuff
-                services.AddMailKitMailSender();
+                services.AddMailKitMailService();
 
                 // Configure all modular services
                 foreach (var starter in _starters)

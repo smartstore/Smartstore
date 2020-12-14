@@ -4,7 +4,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using MimeKit;
 
 namespace Smartstore.Net.Mail
 {
@@ -14,30 +13,36 @@ namespace Smartstore.Net.Mail
         Html
     }
 
+    public enum MailPriority
+    {
+        Normal,
+        Low,
+        High,
+    }
+
     /// <summary>
     /// Represent an email message.
-    /// Named this way to prevent naming conflict with <see cref="System.Net.Mail.MailMessage"/>
     /// </summary>
-    public class EmailMessage : ICloneable<EmailMessage>
+    public class MailMessage : ICloneable<MailMessage>
     {
-        public EmailMessage()
+        public MailMessage()
         {
         }
 
-        public EmailMessage(string to, string subject, string body, string from)
+        public MailMessage(string to, string subject, string body, string from)
         {
             Guard.NotEmpty(to, nameof(to));
             Guard.NotEmpty(from, nameof(from));
             Guard.NotEmpty(subject, nameof(subject));
             Guard.NotEmpty(body, nameof(body));
 
-            To.Add(new EmailAddress(to));
+            To.Add(new MailAddress(to));
             Subject = subject;
             Body = body;
-            From = new EmailAddress(from);
+            From = new MailAddress(from);
         }
 
-        public EmailMessage(EmailAddress to, string subject, string body, EmailAddress from)
+        public MailMessage(MailAddress to, string subject, string body, MailAddress from)
             : this()
         {
             Guard.NotNull(to, nameof(to));
@@ -51,19 +56,19 @@ namespace Smartstore.Net.Mail
             From = from;
         }
 
-        public EmailAddress From { get; set; }
+        public MailAddress From { get; set; }
         public string Subject { get; set; }
         public string Body { get; set; }
         public string AltText { get; set; }
 
         public MailBodyFormat BodyFormat { get; set; } = MailBodyFormat.Html;
-        public MessagePriority Priority { get; set; } = MessagePriority.Normal;
+        public MailPriority Priority { get; set; } = MailPriority.Normal;
 
-        public ICollection<EmailAddress> To { get; } = new List<EmailAddress>();
-        public ICollection<EmailAddress> Cc { get; } = new List<EmailAddress>();
-        public ICollection<EmailAddress> Bcc { get; } = new List<EmailAddress>();
-        public ICollection<EmailAddress> ReplyTo { get; } = new List<EmailAddress>();
-        public ICollection<MimePart> Attachments { get; } = new List<MimePart>();
+        public ICollection<MailAddress> To { get; } = new List<MailAddress>();
+        public ICollection<MailAddress> Cc { get; } = new List<MailAddress>();
+        public ICollection<MailAddress> Bcc { get; } = new List<MailAddress>();
+        public ICollection<MailAddress> ReplyTo { get; } = new List<MailAddress>();
+        public ICollection<MailAttachment> Attachments { get; } = new List<MailAttachment>();
         public IDictionary<string, string> Headers { get; } = new Dictionary<string, string>();
 
         public async Task BodyFromFile(string filePathOrUrl)
@@ -82,16 +87,16 @@ namespace Smartstore.Net.Mail
                 sr = new StreamReader(filePathOrUrl, Encoding.Default);
             }
 
-            this.Body = await sr.ReadToEndAsync();
+            Body = await sr.ReadToEndAsync();
 
             sr.Close();
         }
 
         #region ICloneable Members
 
-        public EmailMessage Clone()
+        public MailMessage Clone()
         {
-            var clone = new EmailMessage();
+            var clone = new MailMessage();
 
             clone.Attachments.AddRange(this.Attachments);
             clone.To.AddRange(this.To);
