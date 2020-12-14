@@ -14,7 +14,6 @@ namespace SmartStore.Services.Helpers
     {
         private readonly ICommonServices _services;
         private readonly IWorkContext _workContext;
-        private readonly ISettingService _settingService;
         private readonly DateTimeSettings _dateTimeSettings;
 
         private TimeZoneInfo _cachedUserTimeZone;
@@ -22,12 +21,10 @@ namespace SmartStore.Services.Helpers
         public DateTimeHelper(
             ICommonServices services,
             IWorkContext workContext,
-            ISettingService settingService,
             DateTimeSettings dateTimeSettings)
         {
             _services = services;
             _workContext = workContext;
-            _settingService = settingService;
             _dateTimeSettings = dateTimeSettings;
         }
 
@@ -124,7 +121,7 @@ namespace SmartStore.Services.Helpers
 
                 _dateTimeSettings.DefaultStoreTimeZoneId = defaultTimeZoneId;
 
-                _settingService.ApplySettingAsync(_dateTimeSettings, x => x.DefaultStoreTimeZoneId).Await();
+                _services.Settings.ApplySettingAsync(_dateTimeSettings, x => x.DefaultStoreTimeZoneId).Await();
                 _services.DbContext.SaveChanges();
 
                 _cachedUserTimeZone = null;
