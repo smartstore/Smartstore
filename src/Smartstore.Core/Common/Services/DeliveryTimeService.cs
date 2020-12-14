@@ -14,7 +14,6 @@ using SmartStore.Core.Domain.Catalog;
 
 namespace Smartstore.Core.Common.Services
 {
-    /// <inheritdoc/>
     public partial class DeliveryTimeService : IDeliveryTimeService
     {
         private readonly static ConcurrentDictionary<string, string> _monthDayFormats = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -38,7 +37,6 @@ namespace Smartstore.Core.Common.Services
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        /// <inheritdoc/>
         public virtual (DateTime? minDate, DateTime? maxDate) GetDeliveryDate(DeliveryTime deliveryTime, DateTime fromDate)
         {
             var minDate = deliveryTime?.MinDays != null
@@ -52,7 +50,6 @@ namespace Smartstore.Core.Common.Services
             return (minDate, maxDate);
         }
 
-        /// <inheritdoc/>
         public virtual string GetFormattedDeliveryDate(DeliveryTime deliveryTime, DateTime? fromDate = null, CultureInfo culture = null)
         {
             if (deliveryTime == null || (!deliveryTime.MinDays.HasValue && !deliveryTime.MaxDays.HasValue))
@@ -138,7 +135,6 @@ namespace Smartstore.Core.Common.Services
             }
         }
 
-        /// <inheritdoc/>
         public virtual async Task<DeliveryTime> GetDeliveryTimeAsync(int? deliveryTimeId, bool tracked = false)
         {
             if (deliveryTimeId == 0 || deliveryTimeId == null)

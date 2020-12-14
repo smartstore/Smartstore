@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Core.Common.Services
 {
-    /// <inheritdoc/>
     public partial class MeasureService : IMeasureService
     {
         private readonly SmartDbContext _db;
@@ -17,7 +16,6 @@ namespace Smartstore.Core.Common.Services
             _measureSettings = measureSettings;
         }
 
-        /// <inheritdoc/>
         public virtual async Task<decimal> ConvertDimensionAsync(decimal quantity, MeasureDimension source, MeasureDimension target, bool round = true)
         {
             decimal result = quantity;
@@ -34,7 +32,6 @@ namespace Smartstore.Core.Common.Services
             return result;
         }
 
-        /// <inheritdoc/>
         public virtual async Task<decimal> ConvertToPrimaryDimensionAsync(decimal quantity, MeasureDimension source)
         {
             decimal result = quantity;
@@ -51,7 +48,6 @@ namespace Smartstore.Core.Common.Services
             return result;
         }
 
-        /// <inheritdoc/>
         public virtual async Task<decimal> ConvertFromPrimaryDimensionAsync(decimal quantity, MeasureDimension target)
         {
             decimal result = quantity;
@@ -68,7 +64,6 @@ namespace Smartstore.Core.Common.Services
             return result;
         }
 
-        /// <inheritdoc/>
         public virtual async Task<decimal> ConvertWeightAsync(decimal quantity, MeasureWeight source, MeasureWeight target, bool round = true)
         {
             decimal result = quantity;
@@ -84,7 +79,6 @@ namespace Smartstore.Core.Common.Services
             return result;
         }
 
-        /// <inheritdoc/>
         public virtual async Task<decimal> ConvertToPrimaryWeightAsync(decimal quantity, MeasureWeight source)
         {
             decimal result = quantity;
@@ -99,7 +93,6 @@ namespace Smartstore.Core.Common.Services
             return result;
         }
 
-        /// <inheritdoc/>
         public virtual async Task<decimal> ConvertFromPrimaryWeightAsync(decimal quantity, MeasureWeight target)
         {
             decimal result = quantity;

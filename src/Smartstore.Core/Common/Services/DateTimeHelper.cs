@@ -10,7 +10,6 @@ using Smartstore.Core.Customers;
 
 namespace SmartStore.Services.Helpers
 {
-    /// <inheritdoc/>
     public partial class DateTimeHelper : IDateTimeHelper
     {
         private readonly ICommonServices _services;
@@ -32,27 +31,23 @@ namespace SmartStore.Services.Helpers
             _dateTimeSettings = dateTimeSettings;
         }
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual TimeZoneInfo FindTimeZoneById(string id)
         {
             return TimeZoneInfo.FindSystemTimeZoneById(id);
         }
 
-        /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual ReadOnlyCollection<TimeZoneInfo> GetSystemTimeZones()
         {
             return TimeZoneInfo.GetSystemTimeZones();
         }
 
-        /// <inheritdoc/>
         public virtual DateTime ConvertToUserTime(DateTime dt, TimeZoneInfo sourceTimeZone, TimeZoneInfo destinationTimeZone)
         {
             return TimeZoneInfo.ConvertTime(dt, sourceTimeZone, destinationTimeZone);
         }
 
-        /// <inheritdoc/>
         public virtual DateTime ConvertToUtcTime(DateTime dt, TimeZoneInfo sourceTimeZone)
         {
             if (sourceTimeZone.IsInvalidTime(dt))
@@ -66,7 +61,6 @@ namespace SmartStore.Services.Helpers
             }
         }
 
-        /// <inheritdoc/>
         public virtual TimeZoneInfo GetCustomerTimeZone(Customer customer)
         {
             if (_cachedUserTimeZone != null)
@@ -100,7 +94,6 @@ namespace SmartStore.Services.Helpers
             return timeZone;
         }
 
-        /// <inheritdoc/>
         public virtual TimeZoneInfo DefaultStoreTimeZone
         {
             get
@@ -138,7 +131,6 @@ namespace SmartStore.Services.Helpers
             }
         }
 
-        /// <inheritdoc/>
         public virtual TimeZoneInfo CurrentTimeZone
         {
             get => GetCustomerTimeZone(_workContext.CurrentCustomer);
