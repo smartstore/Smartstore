@@ -2,7 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using Smartstore.Core.Customers;
 
-namespace SmartStore.Services.Helpers
+namespace Smartstore.Core.Common.Services
 {
     /// <summary>
     /// Represents a datetime helper

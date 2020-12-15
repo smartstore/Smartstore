@@ -4,7 +4,6 @@ using Smartstore.Core.Common.Settings;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using SmartStore.Services.Helpers;
 using System.Globalization;
 using System.Threading;
 using SmartStore.Core.Shipping.Settings;

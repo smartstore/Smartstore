@@ -8,7 +8,7 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Customers;
 
-namespace SmartStore.Services.Helpers
+namespace Smartstore.Core.Common.Services
 {
     public partial class DateTimeHelper : IDateTimeHelper
     {

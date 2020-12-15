@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using SmartStore.Services.Helpers;
+using Smartstore.Core.Common.Services;
 
 namespace Smartstore
 {
