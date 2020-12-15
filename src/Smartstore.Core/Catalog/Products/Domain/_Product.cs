@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Common;
@@ -152,6 +154,9 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets the visibility level of the product.
         /// </summary>
         public ProductVisibility Visibility { get; set; }
+
+        [JsonIgnore, Obsolete("Use property Visibility instead.")]
+        public bool VisibleIndividually { get; set; }
 
         /// <summary>
         /// Gets or sets the condition of the product.
@@ -888,25 +893,25 @@ namespace Smartstore.Core.Catalog.Products
 
         /// TODO: (mg) (core): Implement all product related entities.
 
-        private ICollection<object> _productCategories;
+        private ICollection<ProductCategory> _productCategories;
         /// <summary>
         /// Gets or sets the product categories.
         /// </summary>
         [NotMapped]
-        public ICollection<object> ProductCategories
+        public ICollection<ProductCategory> ProductCategories
         {
-            get => _lazyLoader?.Load(this, ref _productCategories) ?? (_productCategories ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _productCategories) ?? (_productCategories ??= new HashSet<ProductCategory>());
             protected set => _productCategories = value;
         }
 
-        private ICollection<object> _productManufacturers;
+        private ICollection<ProductManufacturer> _productManufacturers;
         /// <summary>
         /// Gets or sets the product manufacturers.
         /// </summary>
         [NotMapped]
-        public ICollection<object> ProductManufacturers
+        public ICollection<ProductManufacturer> ProductManufacturers
         {
-            get => _lazyLoader?.Load(this, ref _productManufacturers) ?? (_productManufacturers ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _productManufacturers) ?? (_productManufacturers ??= new HashSet<ProductManufacturer>());
             protected set => _productManufacturers = value;
         }
 

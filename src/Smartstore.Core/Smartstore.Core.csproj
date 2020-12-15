@@ -24,8 +24,6 @@
     <Folder Include="Catalog\Attributes\Providers\" />
     <Folder Include="Catalog\Attributes\Utils\" />
     <Folder Include="Catalog\Attributes\Services\" />
-    <Folder Include="Catalog\Categories\" />
-    <Folder Include="Catalog\Brands\" />
     <Folder Include="Catalog\Inventory\" />
     <Folder Include="Checkout\Affiliates\" />
     <Folder Include="Checkout\Shipping\Domain\" />

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
+using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Domain;
 
@@ -19,6 +21,14 @@ namespace Smartstore.Core.Catalog.Discounts
         {
             builder.Property(c => c.DiscountPercentage).HasPrecision(18, 4);
             builder.Property(c => c.DiscountAmount).HasPrecision(18, 4);
+
+            builder.HasMany(c => c.AppliedToManufacturers)
+                .WithMany(c => c.AppliedDiscounts)
+                .UsingEntity(x => x.ToTable("Discount_AppliedToManufacturers"));
+
+            builder.HasMany(c => c.AppliedToCategories)
+                .WithMany(c => c.AppliedDiscounts)
+                .UsingEntity(x => x.ToTable("Discount_AppliedToCategories"));
 
             builder.HasMany(c => c.AppliedToProducts)
                 .WithMany(c => c.AppliedDiscounts)
@@ -123,7 +133,25 @@ namespace Smartstore.Core.Catalog.Discounts
         /// </summary>
         public int LimitationTimes { get; set; }
 
-        /// TODO: (mg) (core): Implement discount navigation properties.
+        private ICollection<Manufacturer> _manufacturers;
+        /// <summary>
+        /// Gets or sets the manufacturers to which the discount is applied.
+        /// </summary>
+        public ICollection<Manufacturer> AppliedToManufacturers
+        {
+            get => _lazyLoader?.Load(this, ref _manufacturers) ?? (_manufacturers ??= new HashSet<Manufacturer>());
+            protected set => _manufacturers = value;
+        }
+
+        private ICollection<Category> _categories;
+        /// <summary>
+        /// Gets or sets the categories to which the discount is applied.
+        /// </summary>
+        public ICollection<Category> AppliedToCategories
+        {
+            get => _lazyLoader?.Load(this, ref _categories) ?? (_categories ??= new HashSet<Category>());
+            protected set => _categories = value;
+        }
 
         private ICollection<Product> _products;
         /// <summary>
