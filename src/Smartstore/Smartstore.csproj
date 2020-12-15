@@ -36,6 +36,7 @@
     <Folder Include="Linq\" />
     <Folder Include="Mocks\" />
     <Folder Include="Pdf\" />
+    <Folder Include="Web\" />
   </ItemGroup>
 
   <ItemGroup>

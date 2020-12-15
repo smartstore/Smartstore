@@ -2,7 +2,7 @@
 using System.Web;
 using Microsoft.AspNetCore.Http;
 
-namespace Smartstore.Web
+namespace Smartstore.Core.Web
 {
     public partial interface IWebHelper
     {

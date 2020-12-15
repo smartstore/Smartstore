@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Common;
 using Smartstore.Data.Caching;
 using Smartstore.Domain;
-using Smartstore.Web;
+using Smartstore.Net;
 
 namespace Smartstore.Core.Stores
 {

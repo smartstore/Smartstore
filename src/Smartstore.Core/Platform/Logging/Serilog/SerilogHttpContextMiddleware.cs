@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Serilog.Context;
-using Smartstore.Web;
+using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Logging.Serilog
 {

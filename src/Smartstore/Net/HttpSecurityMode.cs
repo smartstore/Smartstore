@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Web
+namespace Smartstore.Net
 {
     public enum HttpSecurityMode
     {
