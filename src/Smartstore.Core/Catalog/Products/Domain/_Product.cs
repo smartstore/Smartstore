@@ -897,7 +897,6 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product categories.
         /// </summary>
-        [NotMapped]
         public ICollection<ProductCategory> ProductCategories
         {
             get => _lazyLoader?.Load(this, ref _productCategories) ?? (_productCategories ??= new HashSet<ProductCategory>());
@@ -908,21 +907,19 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product manufacturers.
         /// </summary>
-        [NotMapped]
         public ICollection<ProductManufacturer> ProductManufacturers
         {
             get => _lazyLoader?.Load(this, ref _productManufacturers) ?? (_productManufacturers ??= new HashSet<ProductManufacturer>());
             protected set => _productManufacturers = value;
         }
 
-        private ICollection<object> _productPictures;
+        private ICollection<ProductMediaFile> _productPictures;
         /// <summary>
-        /// Gets or sets the product pictures.
+        /// Gets or sets the product media files.
         /// </summary>
-        [NotMapped]
-        public ICollection<object> ProductPictures
+        public ICollection<ProductMediaFile> ProductPictures
         {
-            get => _lazyLoader?.Load(this, ref _productPictures) ?? (_productPictures ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _productPictures) ?? (_productPictures ??= new HashSet<ProductMediaFile>());
             protected set => _productPictures = value;
         }
 
