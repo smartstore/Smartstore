@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Catalog
+﻿namespace Smartstore.Domain
 {
     /// <summary>
     /// Represents an entity which supports paging options.
