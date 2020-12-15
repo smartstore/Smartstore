@@ -35,7 +35,6 @@
     <Folder Include="Engine\Packaging\" />
     <Folder Include="Linq\" />
     <Folder Include="Mocks\" />
-    <Folder Include="Validation\" />
     <Folder Include="Pdf\" />
   </ItemGroup>
 

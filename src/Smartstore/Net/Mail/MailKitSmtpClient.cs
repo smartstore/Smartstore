@@ -6,8 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Smartstore.Net.Mail
 {
@@ -24,8 +22,6 @@ namespace Smartstore.Net.Mail
             _client = client;
             Account = account;
         }
-
-        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public IMailAccount Account { get; init; }
 
@@ -49,7 +45,6 @@ namespace Smartstore.Net.Mail
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
                 _client.Dispose();
                 throw new MailException(ex.Message, ex);
             }
@@ -75,7 +70,6 @@ namespace Smartstore.Net.Mail
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
                 _client.Dispose();
                 throw new MailException(ex.Message, ex);
             }

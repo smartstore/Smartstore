@@ -96,5 +96,11 @@ namespace Smartstore.Engine
         /// Default is False.
         /// </summary>
         public bool UseDeveloperExceptionPage { get; set; }
+
+        /// <summary>
+        /// When set to an existing local directory mails will
+        /// be saved here instead of actually being sent.
+        /// </summary>
+        public string MailPickupDirectory { get; set; }
     }
 }

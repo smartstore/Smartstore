@@ -27,7 +27,7 @@ namespace Smartstore.ComponentModel
             try
             {
                 XmlSerializer serializer =
-                    new XmlSerializer(instance.GetType());
+                    new(instance.GetType());
 
                 // Create an XmlTextWriter using a FileStream.
                 writer.Formatting = Formatting.Indented;
@@ -74,7 +74,7 @@ namespace Smartstore.ComponentModel
             xmlResultString = string.Empty;
             MemoryStream ms = new MemoryStream();
 
-            XmlTextWriter writer = new XmlTextWriter(ms, new UTF8Encoding());
+            XmlTextWriter writer = new(ms, new UTF8Encoding());
 
             if (!SerializeObject(instance, writer, throwExceptions))
             {

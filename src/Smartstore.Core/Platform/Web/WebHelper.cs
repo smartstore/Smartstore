@@ -316,10 +316,10 @@ namespace Smartstore.Core.Web
 
         #region Static Utils
 
-        private static readonly AsyncLock s_asyncLock = new AsyncLock();
-        private static readonly Regex s_htmlPathPattern = new Regex(@"(?<=(?:href|src)=(?:""|'))(?!https?://)(?<url>[^(?:""|')]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex s_cssPathPattern = new Regex(@"url\('(?<url>.+)'\)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly ConcurrentDictionary<int, string> s_safeLocalHostNames = new ConcurrentDictionary<int, string>();
+        private static readonly AsyncLock s_asyncLock = new();
+        private static readonly Regex s_htmlPathPattern = new(@"(?<=(?:href|src)=(?:""|'))(?!https?://)(?<url>[^(?:""|')]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex s_cssPathPattern = new(@"url\('(?<url>.+)'\)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly ConcurrentDictionary<int, string> s_safeLocalHostNames = new();
 
         /// <summary>
         /// Prepends protocol and host to all (relative) urls in a html string

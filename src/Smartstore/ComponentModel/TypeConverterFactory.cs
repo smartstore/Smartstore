@@ -5,6 +5,7 @@ using Smartstore.ComponentModel.TypeConverters;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Routing;
 using System.Dynamic;
+using Smartstore.Net.Mail;
 
 namespace Smartstore.ComponentModel
 {
@@ -42,7 +43,7 @@ namespace Smartstore.ComponentModel
             _typeConverters.TryAdd(typeof(ExpandoObject), new DictionaryTypeConverter<ExpandoObject>());
             _typeConverters.TryAdd(typeof(HybridExpando), new DictionaryTypeConverter<HybridExpando>());
 
-            //         _typeConverters.TryAdd(typeof(EmailAddress), new EmailAddressConverter());
+            _typeConverters.TryAdd(typeof(MailAddress), new MailAddressConverter());
             _typeConverters.TryAdd(typeof(JObject), new JObjectConverter());
         }
 

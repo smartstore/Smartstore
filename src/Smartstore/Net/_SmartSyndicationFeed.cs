@@ -5,7 +5,7 @@
 //using Smartstore.Core.Domain.Localization;
 //using Smartstore.Core.Domain.Media;
 
-//namespace Smartstore.Utilities
+//namespace Smartstore.Net
 //{
 //    public class SmartSyndicationFeed : SyndicationFeed
 //	{
