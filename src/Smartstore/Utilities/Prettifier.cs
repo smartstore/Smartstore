@@ -1,45 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
+using Humanizer;
 
 namespace Smartstore.Utilities
 {
     public static class Prettifier
     {
-	    [SuppressMessage("ReSharper", "RedundantAssignment")]
 	    public static string BytesToString(long bytes)
         {
-            double result = bytes;
             double dsize = bytes;
-            string unit;
 
             if (bytes < 1024)
             {
-                unit = "B";
-                result = dsize;
+                return bytes.Bytes().ToString();
 
             }
             else if (bytes < Math.Pow(1024, 2))
             {
-                unit = "KB";
-                result = dsize / 1024;
+                return (dsize / 1024).Kilobytes().ToString();
             }
             else if (bytes < Math.Pow(1024, 3))
             {
-                unit = "MB";
-                result = dsize / Math.Pow(1024, 2);
+                return (dsize / Math.Pow(1024, 2)).Megabytes().ToString();
             }
             else
             {
-                unit = "GB";
-                result = dsize / Math.Pow(1024, 3);
+                return (dsize / Math.Pow(1024, 3)).Gigabytes().ToString();
             }
-
-            return "{0:F} {1}".FormatCurrent(result, unit);
         }
 
         public static string PrettifyXML(string xml)
