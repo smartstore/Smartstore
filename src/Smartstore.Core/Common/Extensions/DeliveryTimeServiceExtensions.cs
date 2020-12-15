@@ -12,8 +12,10 @@ namespace Smartstore
     public static class DeliveryTimeServiceExtensions
     {
         /// <summary>
-        /// Calls corresponding service method <see cref="DeliveryTimeService.GetDeliveryDate(DeliveryTime, DateTime)"/>
+        /// Calculates the delivery date.
         /// </summary>
+        /// <param name="deliveryTime">Delivery time.</param>
+        /// <returns>Calculated minimum and maximum date.</returns>
         public static (DateTime? minDate, DateTime? maxDate) GetDeliveryDate(this IDeliveryTimeService service, DeliveryTime deliveryTime)
         {
             var dateTimeHelper = EngineContext.Current.Scope.Resolve<IDateTimeHelper>();
