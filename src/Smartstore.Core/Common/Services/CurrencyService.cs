@@ -43,13 +43,13 @@ namespace Smartstore.Core.Common.Services
             return new List<ExchangeRate>();
         }
 
-        public virtual async Task<IList<Currency>> GetCurrenciesAsync(bool showHidden = false, int storeId = 0)
+        public virtual async Task<IList<Currency>> GetCurrenciesAsync(bool includeHidden = false, int storeId = 0)
         {
             var query = _db.Currencies
                 .AsNoTracking()
                 .AsCaching();
 
-            if (!showHidden)
+            if (!includeHidden)
                 query = query.Where(c => c.Published);
 
             query = query.OrderBy(c => c.DisplayOrder);
