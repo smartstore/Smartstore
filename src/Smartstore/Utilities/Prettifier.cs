@@ -8,27 +8,20 @@ namespace Smartstore.Utilities
 {
     public static class Prettifier
     {
-	    public static string BytesToString(long bytes)
+	    public static string HumanizeBytes(long bytes)
         {
-            double dsize = bytes;
+            string format = "0";
 
-            if (bytes < 1024)
+            if (bytes >= Math.Pow(1024, 3)) // > GB
             {
-                return bytes.Bytes().ToString();
+                format = "0.00";
+            }
+            else if (bytes >= Math.Pow(1024, 2)) // MB
+            {
+                format = "0.0";
+            }
 
-            }
-            else if (bytes < Math.Pow(1024, 2))
-            {
-                return (dsize / 1024).Kilobytes().ToString();
-            }
-            else if (bytes < Math.Pow(1024, 3))
-            {
-                return (dsize / Math.Pow(1024, 2)).Megabytes().ToString();
-            }
-            else
-            {
-                return (dsize / Math.Pow(1024, 3)).Gigabytes().ToString();
-            }
+            return bytes.Bytes().Humanize(format);
         }
 
         public static string PrettifyXML(string xml)
