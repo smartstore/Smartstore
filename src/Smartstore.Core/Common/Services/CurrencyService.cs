@@ -39,7 +39,8 @@ namespace Smartstore.Core.Common.Services
             {
                 return await exchangeRateProvider.Value.GetCurrencyLiveRatesAsync(exchangeRateCurrencyCode);
             }
-            return await Task.FromResult(new List<ExchangeRate>());
+
+            return new List<ExchangeRate>();
         }
 
         public virtual async Task<IList<Currency>> GetCurrenciesAsync(bool showHidden = false, int storeId = 0)
@@ -95,6 +96,7 @@ namespace Smartstore.Core.Common.Services
                 decimal exchangeRate = sourceCurrency.Rate;
                 if (exchangeRate == decimal.Zero)
                     throw new SmartException(string.Format("Exchange rate not found for currency [{0}]", sourceCurrency.Name));
+
                 result /= exchangeRate;
             }
             return result;
@@ -110,6 +112,7 @@ namespace Smartstore.Core.Common.Services
                 decimal exchangeRate = targetCurrency.Rate;
                 if (exchangeRate == decimal.Zero)
                     throw new SmartException(string.Format("Exchange rate not found for currency [{0}]", targetCurrency.Name));
+
                 result *= exchangeRate;
             }
             return result;
@@ -125,6 +128,7 @@ namespace Smartstore.Core.Common.Services
                 decimal exchangeRate = sourceCurrency.Rate;
                 if (exchangeRate == decimal.Zero)
                     throw new SmartException(string.Format("Exchange rate not found for currency [{0}]", sourceCurrency.Name));
+
                 result /= exchangeRate;
             }
             return result;
@@ -133,8 +137,7 @@ namespace Smartstore.Core.Common.Services
         public virtual decimal ConvertFromPrimaryStoreCurrency(decimal amount, Currency targetCurrency, Store store = null)
         {
             var primaryStoreCurrency = store == null ? _storeContext.CurrentStore.PrimaryStoreCurrency : store.PrimaryStoreCurrency;
-            decimal result = ConvertCurrency(amount, primaryStoreCurrency, targetCurrency, store);
-            return result;
+            return ConvertCurrency(amount, primaryStoreCurrency, targetCurrency, store);
         }
 
         public virtual Provider<IExchangeRateProvider> LoadActiveExchangeRateProvider()
