@@ -23,7 +23,7 @@ namespace Smartstore.Core.Common.Services
         /// <param name="showHidden">A value indicating whether to show hidden records</param>
 		/// <param name="storeId">Loads records only allowed in specified store. Pass 0 to load all records.</param>
 		/// <returns>Currencies</returns>
-		Task<IList<Currency>> GetCurrenciesAsync(bool showHidden = false, int storeId = 0);
+		Task<List<Currency>> GetAllCurrenciesAsync(bool showHidden = false, int storeId = 0);
 
 
         /// <summary>

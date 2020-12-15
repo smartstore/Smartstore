@@ -43,23 +43,9 @@ namespace Smartstore.Core.Common.Services
             return new List<ExchangeRate>();
         }
 
-        public virtual async Task<IList<Currency>> GetCurrenciesAsync(bool includeHidden = false, int storeId = 0)
+        public virtual async Task<List<Currency>> GetAllCurrenciesAsync(bool includeHidden = false, int storeId = 0)
         {
-            var query = _db.Currencies
-                .AsCaching();
-
-            if (!includeHidden)
-                query = query.Where(c => c.Published);
-
-            query = query.OrderBy(c => c.DisplayOrder);
-
-            if (storeId > 0)
-            {
-                query = query
-                    .Where(c => _storeMappingService.AuthorizeAsync(c, storeId).Await());
-            }
-
-            return await query.ToListAsync();
+            return await _db.Currencies.ApplyStandardFilter(includeHidden, storeId).ToListAsync();
         }
 
         public virtual decimal ConvertCurrency(decimal amount, decimal exchangeRate)
