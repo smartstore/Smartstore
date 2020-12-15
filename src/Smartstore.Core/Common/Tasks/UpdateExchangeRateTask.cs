@@ -7,7 +7,9 @@ using Smartstore.Core;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Data;
 using Smartstore.Core.Scheduling;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Common.Services
 {
@@ -18,16 +20,22 @@ namespace Smartstore.Core.Common.Services
     {
         private readonly ICurrencyService _currencyService;
         private readonly CurrencySettings _currencySettings;
-        private readonly ICommonServices _services;
-        
+        private readonly SmartDbContext _db;
+        private readonly IStoreContext _storeContext;
+        private readonly ISettingService _settingService;
+
         public UpdateExchangeRateTask(
             ICurrencyService currencyService,
             CurrencySettings currencySettings,
-            ICommonServices services)
+            SmartDbContext db,
+            IStoreContext storeContext,
+            ISettingService settingService)
         {
             _currencyService = currencyService;
             _currencySettings = currencySettings;
-            _services = services;
+            _db = db;
+            _storeContext = storeContext;
+            _settingService = settingService;
         }
 
 		public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
@@ -43,11 +51,11 @@ namespace Smartstore.Core.Common.Services
             if (lastUpdateTime.AddHours(1) < DateTime.UtcNow)
             {
                 var exchangeRates = await _currencyService
-                    .GetCurrencyLiveRatesAsync(_services.StoreContext.CurrentStore.PrimaryExchangeRateCurrency.CurrencyCode);
+                    .GetCurrencyLiveRatesAsync(_storeContext.CurrentStore.PrimaryExchangeRateCurrency.CurrencyCode);
 
                 foreach (var exchageRate in exchangeRates)
                 {
-                    var currency = await _services.DbContext.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == exchageRate.CurrencyCode);
+                    var currency = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == exchageRate.CurrencyCode);
 
                     if (currency != null && currency.Rate != exchageRate.Rate)
                     {
@@ -57,9 +65,9 @@ namespace Smartstore.Core.Common.Services
 
                 // Save new current date as last execution time.
                 _currencySettings.LastUpdateTime = DateTime.UtcNow.ToBinary();
-                await _services.Settings.ApplySettingAsync(_currencySettings, x => x.LastUpdateTime);
+                await _settingService.ApplySettingAsync(_currencySettings, x => x.LastUpdateTime);
 
-                await _services.DbContext.SaveChangesAsync(cancelToken);
+                await _db.SaveChangesAsync(cancelToken);
             }
         }
     }
