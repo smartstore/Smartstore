@@ -36,6 +36,12 @@ namespace Smartstore.Core.Common.Services
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        public (DateTime? minDate, DateTime? maxDate) GetDeliveryDate(DeliveryTime deliveryTime)
+        {
+            var currentDate = TimeZoneInfo.ConvertTime(DateTime.UtcNow, _dateTimeHelper.DefaultStoreTimeZone);
+            return GetDeliveryDate(deliveryTime, currentDate);
+        }
+
         public virtual (DateTime? minDate, DateTime? maxDate) GetDeliveryDate(DeliveryTime deliveryTime, DateTime fromDate)
         {
             var minDate = deliveryTime?.MinDays != null

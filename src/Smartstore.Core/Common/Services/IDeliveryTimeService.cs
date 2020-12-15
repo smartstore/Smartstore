@@ -13,6 +13,13 @@ namespace Smartstore.Core.Common.Services
         /// Calculates the delivery date.
         /// </summary>
         /// <param name="deliveryTime">Delivery time.</param>
+        /// <returns>Calculated minimum and maximum date.</returns>
+        (DateTime? minDate, DateTime? maxDate) GetDeliveryDate(DeliveryTime deliveryTime);
+
+        /// <summary>
+        /// Calculates the delivery date.
+        /// </summary>
+        /// <param name="deliveryTime">Delivery time.</param>
         /// <param name="fromDate">The date from which the delivery date should be calculated.</param>
         /// <returns>Calculated minimum and maximum date.</returns>
         (DateTime? minDate, DateTime? maxDate) GetDeliveryDate(DeliveryTime deliveryTime, DateTime fromDate);

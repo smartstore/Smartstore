@@ -12,19 +12,6 @@ namespace Smartstore
     public static class DeliveryTimeServiceExtensions
     {
         /// <summary>
-        /// Calculates the delivery date.
-        /// </summary>
-        /// <param name="deliveryTime">Delivery time.</param>
-        /// <returns>Calculated minimum and maximum date.</returns>
-        public static (DateTime? minDate, DateTime? maxDate) GetDeliveryDate(this IDeliveryTimeService service, DeliveryTime deliveryTime)
-        {
-            var dateTimeHelper = EngineContext.Current.Scope.Resolve<IDateTimeHelper>();
-            var currentDate = TimeZoneInfo.ConvertTime(DateTime.UtcNow, dateTimeHelper.DefaultStoreTimeZone);
-
-            return service.GetDeliveryDate(deliveryTime, currentDate);
-        }
-
-        /// <summary>
         /// Gets the product delivery time according to stock
         /// </summary>
         public static Task<DeliveryTime> GetDeliveryTimeAsync(this IDeliveryTimeService service, Product product, bool displayAccordingToStock)
