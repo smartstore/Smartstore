@@ -5,6 +5,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Engine;
 using System;
+using System.Threading.Tasks;
 
 namespace Smartstore
 {
@@ -24,12 +25,10 @@ namespace Smartstore
         /// <summary>
         /// Gets the product delivery time according to stock
         /// </summary>
-        public static DeliveryTime GetDeliveryTime(this IDeliveryTimeService service, Product product, bool displayAccordingToStock)
+        public static Task<DeliveryTime> GetDeliveryTimeAsync(this IDeliveryTimeService service, Product product, bool displayAccordingToStock)
         {
             var deliveryTimeId = product.GetDeliveryTimeIdAccordingToStock(displayAccordingToStock);
-            var deliveryTime = service.GetDeliveryTimeAsync(deliveryTimeId, true).Await();
-
-            return deliveryTime;
+            return service.GetDeliveryTimeAsync(deliveryTimeId, true);
         }
 
         public static int GetDeliveryTimeIdAccordingToStock(this Product product, bool displayAccordingToStock)
