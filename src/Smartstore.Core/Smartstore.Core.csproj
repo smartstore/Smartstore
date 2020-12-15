@@ -34,7 +34,6 @@
     <Folder Include="Platform\Api\" />
     <Folder Include="Platform\Messaging\" />
     <Folder Include="Platform\Rules\" />
-    <Folder Include="Platform\Search\" />
     <Folder Include="Content\Widgets\" />
     <Folder Include="Common\Events\" />
     <Folder Include="Content\Topics\" />
