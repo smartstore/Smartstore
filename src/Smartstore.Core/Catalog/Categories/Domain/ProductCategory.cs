@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Categories
 {
-    public class ProductManufacturerMap : IEntityTypeConfiguration<ProductCategory>
+    public class ProductCategoryMap : IEntityTypeConfiguration<ProductCategory>
     {
         public void Configure(EntityTypeBuilder<ProductCategory> builder)
         {
