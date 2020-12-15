@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Smartstore.Engine.Modularity;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -8,10 +9,9 @@ using System.Xml;
 
 namespace Smartstore.Core.Common.Services
 {
-    // TODO: (MH) (core) Add attributes once finished
-    //[SystemName("CurrencyExchange.ECB")]
-    //[FriendlyName("ECB currency exchange rate provider")]
-    //[DisplayOrder(0)]
+    [SystemName("CurrencyExchange.ECB")]
+    [FriendlyName("ECB currency exchange rate provider")]
+    [DisplayOrder(0)]
     public class EcbExchangeRateProvider : IExchangeRateProvider
     {
         /// <summary>

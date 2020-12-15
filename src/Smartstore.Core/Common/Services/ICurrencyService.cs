@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Smartstore.Core.Common;
 using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Common.Services
 {
@@ -80,28 +80,23 @@ namespace Smartstore.Core.Common.Services
         /// <returns>Converted value</returns>
 		decimal ConvertFromPrimaryStoreCurrency(decimal amount, Currency targetCurrency, Store store = null);
 
-
-
         /// <summary>
         /// Load active exchange rate provider
         /// </summary>
         /// <returns>Active exchange rate provider</returns>
-        // TODO: (MH) (core) Implement when provider is available
-        //Provider<IExchangeRateProvider> LoadActiveExchangeRateProvider();
+        Provider<IExchangeRateProvider> LoadActiveExchangeRateProvider();
 
         /// <summary>
         /// Load exchange rate provider by system name
         /// </summary>
         /// <param name="systemName">System name</param>
         /// <returns>Found exchange rate provider</returns>
-        // TODO: (MH) (core) Implement when provider is available
-        //Provider<IExchangeRateProvider> LoadExchangeRateProviderBySystemName(string systemName);
+        Provider<IExchangeRateProvider> LoadExchangeRateProviderBySystemName(string systemName);
 
         /// <summary>
         /// Load all exchange rate providers
         /// </summary>
         /// <returns>Exchange rate providers</returns>
-        // TODO: (MH) (core) Implement when provider is available
-        //IEnumerable<Provider<IExchangeRateProvider>> LoadAllExchangeRateProviders();
+        IEnumerable<Provider<IExchangeRateProvider>> LoadAllExchangeRateProviders();
     }
 }

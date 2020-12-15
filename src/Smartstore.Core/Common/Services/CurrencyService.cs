@@ -1,15 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Smartstore;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
-using SmartStore.Core;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Common.Services
 {
@@ -18,31 +15,30 @@ namespace Smartstore.Core.Common.Services
         private readonly SmartDbContext _db;
         private readonly IStoreMappingService _storeMappingService;
         private readonly CurrencySettings _currencySettings;
-        //private readonly IProviderManager _providerManager;   // TODO: (MH) (core) Implement when provider is available
+        private readonly IProviderManager _providerManager;  
         private readonly IStoreContext _storeContext;
 
         public CurrencyService(
             SmartDbContext db,
             IStoreMappingService storeMappingService,
             CurrencySettings currencySettings,
-            //IProviderManager providerManager,                 // TODO: (MH) (core) Implement when provider is available
+            IProviderManager providerManager,
             IStoreContext storeContext)
         {
             _db = db;
             _storeMappingService = storeMappingService;
             _currencySettings = currencySettings;
-            //_providerManager = providerManager;               // TODO: (MH) (core) Implement when provider is available
+            _providerManager = providerManager;
             _storeContext = storeContext;
         }
 
         public virtual async Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode)
         {
-            // TODO: (MH) (core) Implement when provider is available
-            //var exchangeRateProvider = LoadActiveExchangeRateProvider();
-            //if (exchangeRateProvider != null)
-            //{
-            //    return exchangeRateProvider.Value.GetCurrencyLiveRates(exchangeRateCurrencyCode);
-            //}
+            var exchangeRateProvider = LoadActiveExchangeRateProvider();
+            if (exchangeRateProvider != null)
+            {
+                return await exchangeRateProvider.Value.GetCurrencyLiveRatesAsync(exchangeRateCurrencyCode);
+            }
             return await Task.FromResult(new List<ExchangeRate>());
         }
 
@@ -141,21 +137,19 @@ namespace Smartstore.Core.Common.Services
             return result;
         }
 
-        // TODO: (MH) (core) Implement when provider is available
+        public virtual Provider<IExchangeRateProvider> LoadActiveExchangeRateProvider()
+        {
+            return LoadExchangeRateProviderBySystemName(_currencySettings.ActiveExchangeRateProviderSystemName) ?? LoadAllExchangeRateProviders().FirstOrDefault();
+        }
 
-        //public virtual Provider<IExchangeRateProvider> LoadActiveExchangeRateProvider()
-        //{
-        //    return LoadExchangeRateProviderBySystemName(_currencySettings.ActiveExchangeRateProviderSystemName) ?? LoadAllExchangeRateProviders().FirstOrDefault();
-        //}
+        public virtual Provider<IExchangeRateProvider> LoadExchangeRateProviderBySystemName(string systemName)
+        {
+            return _providerManager.GetProvider<IExchangeRateProvider>(systemName);
+        }
 
-        //public virtual Provider<IExchangeRateProvider> LoadExchangeRateProviderBySystemName(string systemName)
-        //{
-        //    return _providerManager.GetProvider<IExchangeRateProvider>(systemName);
-        //}
-
-        //public virtual IEnumerable<Provider<IExchangeRateProvider>> LoadAllExchangeRateProviders()
-        //{
-        //    return _providerManager.GetAllProviders<IExchangeRateProvider>();
-        //}
+        public virtual IEnumerable<Provider<IExchangeRateProvider>> LoadAllExchangeRateProviders()
+        {
+            return _providerManager.GetAllProviders<IExchangeRateProvider>();
+        }
     }
 }
