@@ -53,6 +53,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.6" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
   </ItemGroup>
 
 </Project>
