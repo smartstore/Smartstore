@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Smartstore.Collections;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Caching.OutputCache
 {
-    // TODO: (core) Apply IProvider to IOutputCacheProvider once finished
-    public interface IOutputCacheProvider //: IProvider
+    public interface IOutputCacheProvider : IProvider
     {
         Task<OutputCacheItem> GetAsync(string key);
         Task SetAsync(string key, OutputCacheItem item);
