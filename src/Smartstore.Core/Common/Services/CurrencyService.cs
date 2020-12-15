@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
-using Smartstore.Data.Caching;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Common.Services
@@ -58,6 +57,9 @@ namespace Smartstore.Core.Common.Services
 
         public virtual decimal ConvertCurrency(decimal amount, Currency sourceCurrency, Currency targetCurrency, Store store = null)
         {
+            Guard.NotNull(sourceCurrency, nameof(sourceCurrency));
+            Guard.NotNull(targetCurrency, nameof(targetCurrency));
+
             decimal result = amount;
             if (sourceCurrency.Id == targetCurrency.Id)
                 return result;
@@ -73,6 +75,8 @@ namespace Smartstore.Core.Common.Services
 
         public virtual decimal ConvertToPrimaryExchangeRateCurrency(decimal amount, Currency sourceCurrency, Store store = null)
         {
+            Guard.NotNull(sourceCurrency, nameof(sourceCurrency));
+
             decimal result = amount;
             var primaryExchangeRateCurrency = store == null ? _storeContext.CurrentStore.PrimaryExchangeRateCurrency : store.PrimaryExchangeRateCurrency;
 
@@ -89,6 +93,8 @@ namespace Smartstore.Core.Common.Services
 
         public virtual decimal ConvertFromPrimaryExchangeRateCurrency(decimal amount, Currency targetCurrency, Store store = null)
         {
+            Guard.NotNull(targetCurrency, nameof(targetCurrency));
+
             decimal result = amount;
             var primaryExchangeRateCurrency = store == null ? _storeContext.CurrentStore.PrimaryExchangeRateCurrency : store.PrimaryExchangeRateCurrency;
 
@@ -105,6 +111,8 @@ namespace Smartstore.Core.Common.Services
 
         public virtual decimal ConvertToPrimaryStoreCurrency(decimal amount, Currency sourceCurrency, Store store = null)
         {
+            Guard.NotNull(sourceCurrency, nameof(sourceCurrency));
+
             decimal result = amount;
             var primaryStoreCurrency = store == null ? _storeContext.CurrentStore.PrimaryStoreCurrency : store.PrimaryStoreCurrency;
 
@@ -121,6 +129,8 @@ namespace Smartstore.Core.Common.Services
 
         public virtual decimal ConvertFromPrimaryStoreCurrency(decimal amount, Currency targetCurrency, Store store = null)
         {
+            Guard.NotNull(targetCurrency, nameof(targetCurrency));
+
             var primaryStoreCurrency = store == null ? _storeContext.CurrentStore.PrimaryStoreCurrency : store.PrimaryStoreCurrency;
             return ConvertCurrency(amount, primaryStoreCurrency, targetCurrency, store);
         }
