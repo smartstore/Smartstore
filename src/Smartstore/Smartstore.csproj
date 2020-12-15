@@ -11,10 +11,13 @@
   <ItemGroup>
     <Compile Remove="Caching\Redis\Common\**" />
     <Compile Remove="Utilities\ObjectPools\**" />
+    <Compile Remove="Web\**" />
     <EmbeddedResource Remove="Caching\Redis\Common\**" />
     <EmbeddedResource Remove="Utilities\ObjectPools\**" />
+    <EmbeddedResource Remove="Web\**" />
     <None Remove="Caching\Redis\Common\**" />
     <None Remove="Utilities\ObjectPools\**" />
+    <None Remove="Web\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,7 +39,6 @@
     <Folder Include="Linq\" />
     <Folder Include="Mocks\" />
     <Folder Include="Pdf\" />
-    <Folder Include="Web\" />
   </ItemGroup>
 
   <ItemGroup>

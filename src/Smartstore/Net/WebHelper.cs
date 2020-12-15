@@ -14,12 +14,12 @@ using Smartstore.Threading;
 
 namespace Smartstore.Net
 {
-    public static class WebHelper
+    public static partial class WebHelper
     {
-        private static readonly AsyncLock s_asyncLock = new();
-        private static readonly Regex s_htmlPathPattern = new(@"(?<=(?:href|src)=(?:""|'))(?!https?://)(?<url>[^(?:""|')]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly Regex s_cssPathPattern = new(@"url\('(?<url>.+)'\)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
-        private static readonly ConcurrentDictionary<int, string> s_safeLocalHostNames = new();
+        private static readonly AsyncLock _asyncLock = new();
+        private static readonly Regex _htmlPathPattern = new(@"(?<=(?:href|src)=(?:""|'))(?!https?://)(?<url>[^(?:""|')]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly Regex _cssPathPattern = new(@"url\('(?<url>.+)'\)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
+        private static readonly ConcurrentDictionary<int, string> _safeLocalHostNames = new();
 
         /// <summary>
         /// Prepends protocol and host to all (relative) urls in a html string
@@ -66,8 +66,8 @@ namespace Smartstore.Net
                 return baseUrl + url.EnsureStartsWith('/');
             }
 
-            html = s_htmlPathPattern.Replace(html, evaluator);
-            html = s_cssPathPattern.Replace(html, evaluator);
+            html = _htmlPathPattern.Replace(html, evaluator);
+            html = _cssPathPattern.Replace(html, evaluator);
 
             return html;
         }
@@ -202,20 +202,20 @@ namespace Smartstore.Net
 
         private static async Task<string> GetSafeLocalHostNameAsync(Uri requestUri)
         {
-            if (s_safeLocalHostNames.TryGetValue(requestUri.Port, out var host))
+            if (_safeLocalHostNames.TryGetValue(requestUri.Port, out var host))
             {
                 return host;
             }
 
-            using (await s_asyncLock.LockAsync())
+            using (await _asyncLock.LockAsync())
             {
-                if (s_safeLocalHostNames.TryGetValue(requestUri.Port, out host))
+                if (_safeLocalHostNames.TryGetValue(requestUri.Port, out host))
                 {
                     return host;
                 }
 
                 var safeHost = await TestHostsAsync(requestUri.Port);
-                s_safeLocalHostNames.TryAdd(requestUri.Port, safeHost);
+                _safeLocalHostNames.TryAdd(requestUri.Port, safeHost);
 
                 return safeHost;
             }
