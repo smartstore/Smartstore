@@ -47,9 +47,7 @@ namespace Smartstore.Core.Common.Services
 
                 foreach (var exchageRate in exchangeRates)
                 {
-                    var currency = await _services.DbContext.Currencies.
-                        ApplyCurrencyCodeFilter(exchageRate.CurrencyCode)
-                        .FirstOrDefaultAsync(cancellationToken: cancelToken);
+                    var currency = await _services.DbContext.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == exchageRate.CurrencyCode);
 
                     if (currency != null && currency.Rate != exchageRate.Rate)
                     {
