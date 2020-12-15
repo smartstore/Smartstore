@@ -46,7 +46,6 @@ namespace Smartstore.Core.Common.Services
         public virtual async Task<IList<Currency>> GetCurrenciesAsync(bool includeHidden = false, int storeId = 0)
         {
             var query = _db.Currencies
-                .AsNoTracking()
                 .AsCaching();
 
             if (!includeHidden)
