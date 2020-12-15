@@ -1,10 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Smartstore;
-using Smartstore.Core;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
@@ -53,11 +51,14 @@ namespace Smartstore.Core.Common.Services
                 var exchangeRates = await _currencyService
                     .GetCurrencyLiveRatesAsync(_storeContext.CurrentStore.PrimaryExchangeRateCurrency.CurrencyCode);
 
+                var currencyCodes = exchangeRates.Select(x => x.CurrencyCode).Distinct().ToArray();
+                var currencies = await _db.Currencies
+                    .Where(x => currencyCodes.Contains(x.CurrencyCode))
+                    .ToDictionaryAsync(x => x.CurrencyCode, StringComparer.OrdinalIgnoreCase);
+
                 foreach (var exchageRate in exchangeRates)
                 {
-                    var currency = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == exchageRate.CurrencyCode);
-
-                    if (currency != null && currency.Rate != exchageRate.Rate)
+                    if (currencies.TryGetValue(exchageRate.CurrencyCode, out var currency) && currency.Rate != exchageRate.Rate)
                     {
                         currency.Rate = exchageRate.Rate;
                     }
