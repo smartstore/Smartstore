@@ -8,6 +8,7 @@ namespace Smartstore.Core.Catalog.Categories
 {
     public interface ICategoryNode : ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted
     {
+        int Id { get; }
         int ParentCategoryId { get; }
         string Name { get; }
         string ExternalLink { get; }

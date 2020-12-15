@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
@@ -8,8 +9,6 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Localization
 {
-    // TODO: (core) Make localization extensions/helpers for: ICategoryNode
-
     public static partial class LocalizationExtensions
     {
         #region Entity
@@ -196,6 +195,66 @@ namespace Smartstore.Core.Localization
                 returnDefaultValue,
                 ensureTwoPublishedLanguages,
                 detectEmptyHtml) ?? new LocalizedValue<TProp>(invoker.Invoke(entity));
+        }
+
+        #endregion
+
+        #region ICategoryNode
+
+        /// <summary>
+        /// Get localized property of an <see cref="ICategoryNode"/> instance
+        /// </summary>
+        /// <param name="node">Node</param>
+        /// <param name="keySelector">Key selector</param>
+        /// <returns>Localized property</returns>
+        public static LocalizedValue<string> GetLocalized(this ICategoryNode node, Expression<Func<ICategoryNode, string>> keySelector)
+        {
+            var invoker = keySelector.CompileFast();
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue(
+                node,
+                node.Id,
+                nameof(Category),
+                invoker.Property.Name,
+                (Func<ICategoryNode, string>)invoker,
+                null) ?? new LocalizedValue<string>(invoker.Invoke(node));
+        }
+
+        /// <summary>
+        /// Get localized property of an <see cref="ICategoryNode"/> instance
+        /// </summary>
+        /// <param name="node">Node</param>
+        /// <param name="keySelector">Key selector</param>
+        /// /// <param name="languageId">Language identifier</param>
+        /// <returns>Localized property</returns>
+        public static LocalizedValue<string> GetLocalized(this ICategoryNode node, Expression<Func<ICategoryNode, string>> keySelector, int languageId)
+        {
+            var invoker = keySelector.CompileFast();
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetLocalizedValue(
+                node,
+                node.Id,
+                nameof(Category),
+                invoker.Property.Name,
+                (Func<ICategoryNode, string>)invoker,
+                languageId) ?? new LocalizedValue<string>(invoker.Invoke(node));
+        }
+
+        /// <summary>
+        /// Get localized property of an <see cref="ICategoryNode"/> instance
+        /// </summary>
+        /// <param name="node">Node</param>
+        /// <param name="keySelector">Key selector</param>
+        /// /// <param name="language">Language</param>
+        /// <returns>Localized property</returns>
+        public static LocalizedValue<string> GetLocalized(this ICategoryNode node, Expression<Func<ICategoryNode, string>> keySelector, Language language)
+        {
+            var invoker = keySelector.CompileFast();
+            return EngineContext.Current.Scope.Resolve<LocalizedEntityHelper>()?.GetLocalizedValue(
+                node,
+                node.Id,
+                nameof(Category),
+                invoker.Property.Name,
+                (Func<ICategoryNode, string>)invoker,
+                language) ?? new LocalizedValue<string>(invoker.Invoke(node));
         }
 
         #endregion

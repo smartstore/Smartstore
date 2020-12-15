@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Localization;
 using Smartstore.Domain;
 using Smartstore.Engine;
@@ -9,7 +10,6 @@ namespace Smartstore.Core.Seo
 {
     public static partial class SeoExtensions
     {
-        // TODO: (core) Implement SeoExtensions.GetActiveSlug() for ICategoryNode
         // TODO: (core) Apply IDisplayedEntity to BlogPostTag
 
         public static string BuildSlug<T>(this T entity, int? languageId = null)
@@ -53,6 +53,19 @@ namespace Smartstore.Core.Seo
         }
 
         /// <summary>
+        /// Gets the seo friendly active url slug for a category node
+        /// </summary>
+        /// <param name="node">Node instance</param>
+        /// <returns>SEO slug</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetActiveSlug(this ICategoryNode node)
+        {
+            Guard.NotNull(node, nameof(node));
+
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetActiveSlug(nameof(Category), node.Id, null);
+        }
+
+        /// <summary>
         ///  Gets the seo friendly active url slug for a slug supporting entity.
         /// </summary>
         /// <typeparam name="T">Type of slug supporting entity</typeparam>
@@ -76,6 +89,19 @@ namespace Smartstore.Core.Seo
                 languageId,
                 returnDefaultValue,
                 ensureTwoPublishedLanguages);
+        }
+
+        /// <summary>
+        /// Gets the seo friendly active url slug for a category node
+        /// </summary>
+        /// <param name="node">Node instance</param>
+        /// <returns>SEO slug</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<string> GetActiveSlugAsync(this ICategoryNode node)
+        {
+            Guard.NotNull(node, nameof(node));
+
+            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetActiveSlugAsync(nameof(Category), node.Id, null);
         }
 
         /// <summary>
