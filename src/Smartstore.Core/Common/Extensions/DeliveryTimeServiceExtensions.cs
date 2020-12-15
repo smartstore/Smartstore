@@ -16,7 +16,7 @@ namespace Smartstore
         /// </summary>
         public static (DateTime? minDate, DateTime? maxDate) GetDeliveryDate(this IDeliveryTimeService service, DeliveryTime deliveryTime)
         {
-            var dateTimeHelper = EngineContext.Current.Application.Services.Resolve<IDateTimeHelper>();
+            var dateTimeHelper = EngineContext.Current.Scope.Resolve<IDateTimeHelper>();
             var currentDate = TimeZoneInfo.ConvertTime(DateTime.UtcNow, dateTimeHelper.DefaultStoreTimeZone);
 
             return service.GetDeliveryDate(deliveryTime, currentDate);
