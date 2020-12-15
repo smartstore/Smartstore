@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Smartstore.IO;
 
-namespace Smartstore.Engine
+namespace Smartstore.Engine.Modularity
 {
     public class ModuleDescriptor
     {

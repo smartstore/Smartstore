@@ -3,6 +3,7 @@ using Autofac;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
 namespace Smartstore.Engine

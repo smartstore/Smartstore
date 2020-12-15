@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Smartstore.Engine
+namespace Smartstore.Engine.Modularity
 {
     /// <summary>
     /// Responsible for installing or uninstalling modules.

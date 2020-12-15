@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Tests.Engine

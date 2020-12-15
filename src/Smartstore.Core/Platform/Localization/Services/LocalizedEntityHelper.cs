@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Core.Seo;
-using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Localization

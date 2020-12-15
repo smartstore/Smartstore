@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Smartstore.Engine
+namespace Smartstore.Engine.Modularity
 {
     public class ModuleCatalog : IModuleCatalog
     {

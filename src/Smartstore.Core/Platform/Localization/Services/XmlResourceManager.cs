@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
-using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Utilities;
 

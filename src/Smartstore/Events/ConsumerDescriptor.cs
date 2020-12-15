@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Events
 {

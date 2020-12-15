@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml;
 using Smartstore.Core.DataExchange;
-using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
 namespace Smartstore.Core.Localization

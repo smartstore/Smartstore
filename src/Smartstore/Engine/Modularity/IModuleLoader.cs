@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Smartstore.Engine
+namespace Smartstore.Engine.Modularity
 {
     public interface IModuleLoader
     {

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Autofac;
 using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Events
 {

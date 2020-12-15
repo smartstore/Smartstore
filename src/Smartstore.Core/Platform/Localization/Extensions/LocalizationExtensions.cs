@@ -3,8 +3,8 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Localization
 {

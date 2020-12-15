@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Smartstore.Data;
+using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Utilities;
 

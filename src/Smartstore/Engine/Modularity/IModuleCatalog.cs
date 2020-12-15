@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 
-namespace Smartstore.Engine
+namespace Smartstore.Engine.Modularity
 {
     /// <summary>
 	/// Module catalog service interface.
