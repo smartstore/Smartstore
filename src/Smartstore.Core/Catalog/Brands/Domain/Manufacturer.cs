@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Media;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -20,6 +21,11 @@ namespace Smartstore.Core.Catalog.Brands
         public void Configure(EntityTypeBuilder<Manufacturer> builder)
         {
             builder.HasQueryFilter(c => !c.Deleted);
+
+            builder.HasOne(c => c.MediaFile)
+                .WithMany()
+                .HasForeignKey(c => c.MediaFileId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
@@ -90,7 +96,15 @@ namespace Smartstore.Core.Catalog.Brands
         /// </summary>
         public int? MediaFileId { get; set; }
 
-        /// TODO: (mg) (core): Implement media file navigation property for manufacturer.
+        private MediaFile _mediaFile;
+        /// <summary>
+        /// Gets or sets the media file.
+        /// </summary>
+        public MediaFile MediaFile
+        {
+            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+            set => _mediaFile = value;
+        }
 
         /// <inheritdoc/>
         public int? PageSize { get; set; }

@@ -14,9 +14,15 @@ namespace Smartstore.Core.Catalog.Products
         {
             builder.HasQueryFilter(c => !c.Product.Deleted);
 
+            builder.HasOne(c => c.MediaFile)
+                .WithMany(c => c.ProductMediaFiles)
+                .HasForeignKey(c => c.MediaFileId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductPictures)
-                .HasForeignKey(c => c.ProductId);
+                .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
@@ -56,7 +62,13 @@ namespace Smartstore.Core.Catalog.Products
         /// <inheritdoc/>
         public int MediaFileId { get; set; }
 
-        /// TODO: (mg) (core): Implement media file navigation property for ProductMediaFile.
+        private MediaFile _mediaFile;
+        /// <inheritdoc/>
+        public MediaFile MediaFile
+        {
+            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+            set => _mediaFile = value;
+        }
 
         /// <inheritdoc/>
         public int DisplayOrder { get; set; }

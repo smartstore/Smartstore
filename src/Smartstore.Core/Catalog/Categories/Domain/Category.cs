@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Media;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Categories
@@ -17,6 +18,11 @@ namespace Smartstore.Core.Catalog.Categories
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.HasQueryFilter(c => !c.Deleted);
+
+            builder.HasOne(c => c.MediaFile)
+                .WithMany()
+                .HasForeignKey(c => c.MediaFileId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
@@ -125,7 +131,15 @@ namespace Smartstore.Core.Catalog.Categories
         /// </summary>
         public int? MediaFileId { get; set; }
 
-        /// TODO: (mg) (core): Implement media file navigation property for category.
+        private MediaFile _mediaFile;
+        /// <summary>
+        /// Gets or sets the media file.
+        /// </summary>
+        public MediaFile MediaFile
+        {
+            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+            set => _mediaFile = value;
+        }
 
         /// <inheritdoc/>
         public int? PageSize { get; set; }

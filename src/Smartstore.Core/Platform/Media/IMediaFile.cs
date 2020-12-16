@@ -1,5 +1,10 @@
-﻿namespace Smartstore.Core.Media
+﻿using Newtonsoft.Json;
+
+namespace Smartstore.Core.Media
 {
+    /// <summary>
+    /// Represents an entity with a media file.
+    /// </summary>
     public interface IMediaFile
     {
         /// <summary>
@@ -7,15 +12,14 @@
         int MediaFileId { get; set; }
 
         /// <summary>
+        /// Gets or sets the media file.
+        /// </summary>
+        [JsonIgnore]
+        MediaFile MediaFile { get; set; }
+
+        /// <summary>
         /// Gets or sets the display order.
         /// </summary>
         int DisplayOrder { get; set; }
-
-        /// TODO: (mg) (core): Implement media file navigation property for IMediaFile.
-        /// <summary>
-        /// Gets the media file.
-        /// </summary>
-        //[JsonIgnore]
-        //MediaFile MediaFile { get; set; }
     }
 }
