@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Media;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Security;
 using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Stores;

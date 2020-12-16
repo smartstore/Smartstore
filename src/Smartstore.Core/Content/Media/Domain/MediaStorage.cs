@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Media
+namespace Smartstore.Core.Content.Media
 {
     /// <summary>
     /// Represents the raw media data.

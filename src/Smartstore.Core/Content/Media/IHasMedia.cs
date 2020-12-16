@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Media
+﻿namespace Smartstore.Core.Content.Media
 {
     /// <summary>
     /// Represents an entity with media storage.

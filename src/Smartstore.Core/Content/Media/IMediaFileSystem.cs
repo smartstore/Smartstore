@@ -1,6 +1,6 @@
 ﻿using Smartstore.IO;
 
-namespace Smartstore.Core.Media
+namespace Smartstore.Core.Content.Media
 {
     /// <summary>
     /// Storage abstraction for media files.

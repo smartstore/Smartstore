@@ -10,7 +10,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Media
+namespace Smartstore.Core.Content.Media
 {
     public class MediaFileMap : IEntityTypeConfiguration<MediaFile>
     {

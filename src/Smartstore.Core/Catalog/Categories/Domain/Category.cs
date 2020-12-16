@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Discounts;
-using Smartstore.Core.Media;
+using Smartstore.Core.Content.Media;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Categories
