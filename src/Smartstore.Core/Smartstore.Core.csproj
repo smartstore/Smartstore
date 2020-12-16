@@ -24,26 +24,7 @@
     <Folder Include="Catalog\Attributes\Providers\" />
     <Folder Include="Catalog\Attributes\Utils\" />
     <Folder Include="Catalog\Attributes\Services\" />
-    <Folder Include="Catalog\Inventory\" />
-    <Folder Include="Checkout\Affiliates\" />
-    <Folder Include="Checkout\GiftCards\" />
     <Folder Include="Checkout\Shipping\Domain\" />
-    <Folder Include="Content\Blogs\" />
-    <Folder Include="Checkout\Cart\" />
-    <Folder Include="Content\Forums\" />
-    <Folder Include="Content\Themes\" />
-    <Folder Include="Platform\Api\" />
-    <Folder Include="Platform\Messaging\" />
-    <Folder Include="Content\Widgets\" />
-    <Folder Include="Common\Events\" />
-    <Folder Include="Content\Topics\" />
-    <Folder Include="Content\Polls\" />
-    <Folder Include="Checkout\Payment\" />
-    <Folder Include="Content\News\" />
-    <Folder Include="Content\Sitemap\" />
-    <Folder Include="Platform\Templating\" />
-    <Folder Include="Platform\Theming\" />
-    <Folder Include="Platform\UserAgent\" />
   </ItemGroup>
 
   <ItemGroup>
