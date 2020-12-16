@@ -1,6 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
+using Smartstore.ComponentModel.TypeConverters;
 
 namespace Smartstore.Net.Mail
 {
@@ -8,6 +10,7 @@ namespace Smartstore.Net.Mail
     /// Represent an email address.
     /// </summary>
     [DebuggerDisplay("{Address}")]
+    [TypeConverter(typeof(MailAddressConverter))]
     public class MailAddress
     {
         public MailAddress(string address)

@@ -31,6 +31,7 @@ using Smartstore.Core.Seo;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Net.Mail;
 
 namespace Smartstore.Web.Controllers
 {

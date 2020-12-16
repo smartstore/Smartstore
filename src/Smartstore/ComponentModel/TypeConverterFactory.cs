@@ -26,24 +26,24 @@ namespace Smartstore.ComponentModel
 				new [] { "yes", "y", "on", "wahr" },
 				new [] { "no", "n", "off", "falsch" }));
 
-            //ITypeConverter converter = new ShippingOptionConverter(true);
-            //_typeConverters.TryAdd(typeof(IList<ShippingOption>), converter);
-            //_typeConverters.TryAdd(typeof(List<ShippingOption>), converter);
-            //_typeConverters.TryAdd(typeof(ShippingOption), new ShippingOptionConverter(false));
+			// TODO: (core) Implement missing converters and reference them via TypeConverterAttribute
+			// TODO: (core) Check if IList<ShippingOption> etc. is really necessary (?)
+			//ITypeConverter converter = new ShippingOptionConverter(true);
+			//_typeConverters.TryAdd(typeof(IList<ShippingOption>), converter);
+			//_typeConverters.TryAdd(typeof(List<ShippingOption>), converter);
+			//_typeConverters.TryAdd(typeof(ShippingOption), new ShippingOptionConverter(false));
 
-            //converter = new ProductBundleDataConverter(true);
-            //_typeConverters.TryAdd(typeof(IList<ProductBundleItemOrderData>), converter);
-            //_typeConverters.TryAdd(typeof(List<ProductBundleItemOrderData>), converter);
-            //_typeConverters.TryAdd(typeof(ProductBundleItemOrderData), new ProductBundleDataConverter(false));
+			//converter = new ProductBundleDataConverter(true);
+			//_typeConverters.TryAdd(typeof(IList<ProductBundleItemOrderData>), converter);
+			//_typeConverters.TryAdd(typeof(List<ProductBundleItemOrderData>), converter);
+			//_typeConverters.TryAdd(typeof(ProductBundleItemOrderData), new ProductBundleDataConverter(false));
 
-            var converter = new DictionaryTypeConverter<IDictionary<string, object>>();
+			var converter = new DictionaryTypeConverter<IDictionary<string, object>>();
             _typeConverters.TryAdd(typeof(IDictionary<string, object>), converter);
             _typeConverters.TryAdd(typeof(Dictionary<string, object>), converter);
             _typeConverters.TryAdd(typeof(RouteValueDictionary), new DictionaryTypeConverter<RouteValueDictionary>());
             _typeConverters.TryAdd(typeof(ExpandoObject), new DictionaryTypeConverter<ExpandoObject>());
             _typeConverters.TryAdd(typeof(HybridExpando), new DictionaryTypeConverter<HybridExpando>());
-
-            _typeConverters.TryAdd(typeof(MailAddress), new MailAddressConverter());
             _typeConverters.TryAdd(typeof(JObject), new JObjectConverter());
         }
 
@@ -98,7 +98,27 @@ namespace Smartstore.ComponentModel
 
             ITypeConverter Get(Type t)
             {
-                // Nullable types
+				// TypeConverterAttribute
+				var attr = type.GetAttribute<System.ComponentModel.TypeConverterAttribute>(false);
+				if (attr != null && attr.ConverterTypeName.HasValue())
+                {
+					try
+                    {
+						var converterType = Type.GetType(attr.ConverterTypeName);
+						if (typeof(ITypeConverter).IsAssignableFrom(converterType))
+                        {
+							if (!converterType.HasDefaultConstructor())
+                            {
+								throw new SmartException("A type converter specified by attribute must have a default parameterless constructor.");
+                            }
+
+							return (ITypeConverter)Activator.CreateInstance(converterType);
+                        }
+					}
+					catch { }
+                }
+				
+				// Nullable types
                 if (type.IsNullable(out Type elementType))
                 {
                     return new NullableConverter(type, elementType);
