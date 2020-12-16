@@ -130,14 +130,10 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public int DisplayOrder { get; set; }
 
-        /// <summary>
-        /// Gets or sets the date of product bundle item creation.
-        /// </summary>
+        /// <inheritdoc/>
         public DateTime CreatedOnUtc { get; set; }
 
-        /// <summary>
-        /// Gets or sets the date of product bundle item update.
-        /// </summary>
+        /// <inheritdoc/>
         public DateTime UpdatedOnUtc { get; set; }
 
         private ICollection<ProductBundleItemAttributeFilter> _attributeFilters;

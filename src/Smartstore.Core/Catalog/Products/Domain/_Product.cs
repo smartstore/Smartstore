@@ -891,8 +891,6 @@ namespace Smartstore.Core.Catalog.Products
 		/// </summary>
         public bool HasPreviewPicture { get; set; }
 
-        /// TODO: (mg) (core): Implement all product related entities.
-
         private ICollection<ProductCategory> _productCategories;
         /// <summary>
         /// Gets or sets the product categories.
@@ -923,14 +921,14 @@ namespace Smartstore.Core.Catalog.Products
             protected set => _productPictures = value;
         }
 
-        private ICollection<object> _productReviews;
+        private ICollection<ProductReview> _productReviews;
         /// <summary>
         /// Gets or sets the product reviews.
         /// </summary>
-        [JsonIgnore, NotMapped]
-        public ICollection<object> ProductReviews
+        [JsonIgnore]
+        public ICollection<ProductReview> ProductReviews
         {
-            get => _lazyLoader?.Load(this, ref _productReviews) ?? (_productReviews ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _productReviews) ?? (_productReviews ??= new HashSet<ProductReview>());
             protected set => _productReviews = value;
         }
 

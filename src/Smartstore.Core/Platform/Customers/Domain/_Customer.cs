@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
@@ -249,6 +250,16 @@ namespace Smartstore.Core.Customers
         //    get => _lazyLoader?.Load(this, ref _addresses) ?? (_addresses ??= new HashSet<Address>());
         //    protected set => _addresses = value;
         //}
+
+        private ICollection<CustomerContent> _customerContent;
+        /// <summary>
+        /// Gets or sets customer generated content.
+        /// </summary>
+        public ICollection<CustomerContent> CustomerContent
+        {
+            get => _lazyLoader?.Load(this, ref _customerContent) ?? (_customerContent ??= new HashSet<CustomerContent>());
+            protected set => _customerContent = value;
+        }
 
         #endregion
 
