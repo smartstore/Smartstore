@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using Smartstore.IO;
 
 namespace Smartstore
 {
@@ -116,6 +117,17 @@ namespace Smartstore
 
             // Else we are remote if the remote IP address is not a loopback address
             return IPAddress.IsLoopback(remoteAddress);
+        }
+
+        /// <summary>
+        /// Gets a value which indicates whether the current request requests a static resource, like .txt, .pdf, .js, .css etc.
+        /// </summary>
+        public static bool IsStaticResourceRequested(this HttpRequest request)
+        {
+            if (request is null)
+                return false;
+
+            return MimeTypes.TryMapNameToMimeType(request.Path, out _);
         }
 
         public static T GetItem<T>(this HttpContext httpContext, string key, Func<T> factory = null, bool forceCreation = true)

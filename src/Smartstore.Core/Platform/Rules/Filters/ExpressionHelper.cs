@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Smartstore.Core.Tests")]
 namespace Smartstore.Core.Rules.Filters
 {
     internal static class ExpressionHelper
