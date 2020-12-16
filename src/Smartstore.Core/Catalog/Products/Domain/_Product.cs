@@ -955,14 +955,13 @@ namespace Smartstore.Core.Catalog.Products
             protected set => _productTags = value;
         }
 
-        private ICollection<object> _productVariantAttributes;
+        private ICollection<ProductVariantAttribute> _productVariantAttributes;
         /// <summary>
         /// Gets or sets the product variant attributes.
         /// </summary>
-        [NotMapped]
-        public ICollection<object> ProductVariantAttributes
+        public ICollection<ProductVariantAttribute> ProductVariantAttributes
         {
-            get => _lazyLoader?.Load(this, ref _productVariantAttributes) ?? (_productVariantAttributes ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _productVariantAttributes) ?? (_productVariantAttributes ??= new HashSet<ProductVariantAttribute>());
             protected set => _productVariantAttributes = value;
         }
 

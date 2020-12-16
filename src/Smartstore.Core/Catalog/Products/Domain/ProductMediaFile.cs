@@ -24,7 +24,7 @@ namespace Smartstore.Core.Catalog.Products
     /// Represents a product media file mapping.
     /// </summary>
     [Table("Product_MediaFile_Mapping")]
-    public partial class ProductMediaFile : BaseEntity, IMediaFile
+    public partial class ProductMediaFile : BaseEntity, IMediaFile, IDisplayOrder
     {
         private readonly ILazyLoader _lazyLoader;
 

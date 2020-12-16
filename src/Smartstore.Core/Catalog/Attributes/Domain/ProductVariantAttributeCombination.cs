@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Domain;
@@ -70,6 +71,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Gets or sets the product.
         /// </summary>
+        [JsonIgnore]
         public Product Product
         {
             get => _lazyLoader?.Load(this, ref _product) ?? _product;

@@ -140,7 +140,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// <summary>
         /// Gets or sets the available price ranges.
         /// </summary>
-        [Obsolete("Price ranges are calculated automatically since version 3.")]
+        [JsonIgnore, Obsolete("Price ranges are calculated automatically since version 3.")]
         [StringLength(400)]
         public string PriceRanges { get; set; }
 
