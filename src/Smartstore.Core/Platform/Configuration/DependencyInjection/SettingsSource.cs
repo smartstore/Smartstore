@@ -4,9 +4,10 @@ using System.Reflection;
 using Autofac;
 using Autofac.Builder;
 using Autofac.Core;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
 
-namespace Smartstore.Core.Configuration.DependencyInjection
+namespace Smartstore.Core.DependencyInjection
 {
     internal class SettingsSource : IRegistrationSource
     {

@@ -5,7 +5,7 @@ using Autofac.Core.Resolving.Pipeline;
 using Microsoft.Extensions.Logging;
 using Smartstore.ComponentModel;
 
-namespace Smartstore.Core.Logging.DependencyInjection
+namespace Smartstore.Core.DependencyInjection
 {
     public class AutofacSerilogMiddleware : IResolveMiddleware
     {

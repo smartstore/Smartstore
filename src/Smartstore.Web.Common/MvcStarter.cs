@@ -2,23 +2,16 @@
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
-using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
-using Smartstore.Core.Localization;
-using Smartstore.Core.Localization.DependencyInjection;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging.Serilog;
-using Smartstore.Core.Seo;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 

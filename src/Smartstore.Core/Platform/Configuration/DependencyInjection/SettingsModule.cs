@@ -1,6 +1,7 @@
 ﻿using Autofac;
+using Smartstore.Core.Configuration;
 
-namespace Smartstore.Core.Configuration.DependencyInjection
+namespace Smartstore.Core.DependencyInjection
 {
     public sealed class SettingsModule : Autofac.Module
     {

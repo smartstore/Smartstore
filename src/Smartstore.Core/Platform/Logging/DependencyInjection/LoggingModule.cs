@@ -8,9 +8,10 @@ using Autofac.Core.Activators.Reflection;
 using Autofac.Core.Registration;
 using Microsoft.Extensions.Logging;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Logging;
 using Smartstore.Data;
 
-namespace Smartstore.Core.Logging.DependencyInjection
+namespace Smartstore.Core.DependencyInjection
 {
     internal class LoggingModule : Autofac.Module
     {

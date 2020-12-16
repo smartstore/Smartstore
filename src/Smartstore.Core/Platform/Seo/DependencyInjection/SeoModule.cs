@@ -11,8 +11,9 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Core.Seo;
 
-namespace Smartstore.Core.Seo.DependencyInjection
+namespace Smartstore.Core.DependencyInjection
 {
     public sealed class SeoModule : Autofac.Module
     {

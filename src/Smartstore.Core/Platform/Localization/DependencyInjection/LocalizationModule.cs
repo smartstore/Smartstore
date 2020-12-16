@@ -5,10 +5,11 @@ using Autofac.Core;
 using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Localization;
 using Smartstore.Data;
 using Smartstore.Engine;
 
-namespace Smartstore.Core.Localization.DependencyInjection
+namespace Smartstore.Core.DependencyInjection
 {
     public sealed class LocalizationModule : Autofac.Module
     {

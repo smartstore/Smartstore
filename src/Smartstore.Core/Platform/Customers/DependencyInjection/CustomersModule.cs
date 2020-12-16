@@ -1,7 +1,8 @@
 ﻿using System;
 using Autofac;
+using Smartstore.Core.Customers;
 
-namespace Smartstore.Core.Customers.DependencyInjection
+namespace Smartstore.Core.DependencyInjection
 {
     public sealed class CustomersModule : Autofac.Module
     {

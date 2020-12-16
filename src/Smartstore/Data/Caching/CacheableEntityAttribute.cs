@@ -24,7 +24,7 @@ namespace Smartstore.Data.Caching
         public int MaxRows { get; set; }
 
         /// <summary>
-        /// Gets or sets the expiration timeout in minutes. Default value is 1440 (1 day).
+        /// Gets or sets the expiration timeout in minutes. Default value is 180 (3 hours).
         /// </summary>
         public int Expiry { get; set; }
     }

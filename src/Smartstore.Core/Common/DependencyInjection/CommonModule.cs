@@ -2,7 +2,7 @@
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Web;
 
-namespace Smartstore.Core.Common.DependencyInjection
+namespace Smartstore.Core.DependencyInjection
 {
     public sealed class CommonModule : Autofac.Module
     {
