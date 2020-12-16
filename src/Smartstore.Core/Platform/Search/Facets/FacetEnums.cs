@@ -1,5 +1,8 @@
 ﻿namespace Smartstore.Core.Search.Facets
 {
+    /// <summary>
+    /// Represents a hint for the facet template to be used.
+    /// </summary>
     public enum FacetTemplateHint
     {
         /// <summary>

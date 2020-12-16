@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
+using Smartstore.Core.Search.Facets;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
