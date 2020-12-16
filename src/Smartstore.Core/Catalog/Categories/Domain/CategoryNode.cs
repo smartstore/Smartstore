@@ -1,14 +1,14 @@
 ﻿using System;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Core.Seo;
+using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Categories
 {
     public interface ICategoryNode : ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted
     {
-        int Id { get; }
+        new int Id { get; }
         int ParentCategoryId { get; }
         string Name { get; }
         string ExternalLink { get; }

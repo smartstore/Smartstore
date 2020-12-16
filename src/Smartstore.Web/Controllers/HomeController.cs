@@ -27,7 +27,7 @@ using System.Text;
 using Smartstore.Core.Common;
 using Smartstore.Data.Caching;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Seo;
+using Smartstore.Core.Content.Seo;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Checkout.Tax;

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using Smartstore.Core.Seo.Routing;
+using Smartstore.Core.Content.Seo.Routing;
 using Smartstore.Web.Models.Diagnostics;
 
 namespace Smartstore.Web.Controllers

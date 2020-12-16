@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
-using Smartstore.Core.Seo;
+using Smartstore.Core.Content.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 

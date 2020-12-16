@@ -16,7 +16,7 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Core.Seo;
+using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Domain;

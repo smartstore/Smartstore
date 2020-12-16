@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Seo.Routing;
+using Smartstore.Core.Content.Seo.Routing;
 
 namespace Smartstore.Core.Localization.Routing
 {
