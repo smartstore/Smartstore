@@ -32,6 +32,7 @@ using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Net.Mail;
+using MimeKit;
 
 namespace Smartstore.Web.Controllers
 {

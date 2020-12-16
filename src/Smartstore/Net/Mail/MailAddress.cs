@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
+using MimeKit;
 using Smartstore.ComponentModel.TypeConverters;
 
 namespace Smartstore.Net.Mail
@@ -13,11 +15,13 @@ namespace Smartstore.Net.Mail
     [TypeConverter(typeof(MailAddressConverter))]
     public class MailAddress
     {
+        private readonly MailboxAddress _inner;
+        
         public MailAddress(string address)
         {
             Guard.NotEmpty(address, nameof(address));
 
-            Address = address;
+            _inner = MailboxAddress.Parse(address);
         }
 
         public MailAddress(string address, string displayName)
@@ -31,14 +35,23 @@ namespace Smartstore.Net.Mail
             Guard.NotEmpty(displayName, nameof(displayName));
             Guard.NotNull(displayNameEncoding, nameof(displayNameEncoding));
 
-            Address = address;
-            DisplayName = displayName;
-            DisplayNameEncoding = displayNameEncoding;
+            _inner = new MailboxAddress(displayNameEncoding, displayName, address);
         }
 
-        public string Address { get; init; }
-        public string DisplayName { get; init; }
-        public Encoding DisplayNameEncoding { get; init; }
+        public string Address 
+        {
+            get => _inner.Address;
+        }
+
+        public string DisplayName
+        {
+            get => _inner.Name;
+        }
+
+        public Encoding DisplayNameEncoding
+        {
+            get => _inner.Encoding;
+        }
 
         /// <summary>
         /// Returns the full address with quoted display name.
@@ -46,30 +59,58 @@ namespace Smartstore.Net.Mail
         /// if displayname is not provided then this returns only user@host (no angle brackets)
         /// </summary>
         public override string ToString()
-        {
-            if (string.IsNullOrEmpty(DisplayName))
-            {
-                return Address;
-            }
-            else
-            {
-                return "\"" + DisplayName + "\" <" + Address + ">";
-            }
-        }
+            => _inner.ToString();
 
         public override bool Equals(object obj)
-        {
-            if (obj == null)
-            {
-                return false;
-            }
-
-            return ToString().Equals(obj.ToString(), StringComparison.InvariantCultureIgnoreCase);
-        }
+            => _inner.Equals(obj);
 
         public override int GetHashCode()
+            => _inner.GetHashCode();
+
+        internal MailboxAddress AsMailBoxAddress()
+            => _inner;
+
+        public static implicit operator string(MailAddress obj)
+            => obj.ToString();
+
+        public static implicit operator MailboxAddress(MailAddress obj)
+            => obj.AsMailBoxAddress();
+    }
+
+    internal class MailAddressConverter : DefaultTypeConverter
+    {
+        public MailAddressConverter() : base(typeof(object))
         {
-            return ToString().GetHashCode();
+        }
+
+        public override bool CanConvertFrom(Type type)
+        {
+            return type == typeof(string);
+        }
+
+        public override bool CanConvertTo(Type type)
+        {
+            return type == typeof(string);
+        }
+
+        public override object ConvertFrom(CultureInfo culture, object value)
+        {
+            if (value is string str && str.HasValue())
+            {
+                return new MailAddress(str);
+            }
+
+            return base.ConvertFrom(culture, value);
+        }
+
+        public override object ConvertTo(CultureInfo culture, string format, object value, Type to)
+        {
+            if (to == typeof(string) && value is MailAddress address)
+            {
+                return address.ToString();
+            }
+
+            return base.ConvertTo(culture, format, value, to);
         }
     }
 }

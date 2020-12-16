@@ -147,11 +147,11 @@ namespace Smartstore.Net.Mail
             msg.Priority = (MessagePriority)original.Priority;
 
             // Addresses
-            msg.From.Add(BuildMailboxAddress(original.From));
-            msg.To.AddRange(original.To.Where(x => x.Address.HasValue()).Select(x => BuildMailboxAddress(x)));
-            msg.Cc.AddRange(original.Cc.Where(x => x.Address.HasValue()).Select(x => BuildMailboxAddress(x)));
-            msg.Bcc.AddRange(original.Bcc.Where(x => x.Address.HasValue()).Select(x => BuildMailboxAddress(x)));
-            msg.ReplyTo.AddRange(original.ReplyTo.Where(x => x.Address.HasValue()).Select(x => BuildMailboxAddress(x)));
+            msg.From.Add(original.From.AsMailBoxAddress());
+            msg.To.AddRange(original.To.Where(x => x.Address.HasValue()).Select(x => x.AsMailBoxAddress()));
+            msg.Cc.AddRange(original.Cc.Where(x => x.Address.HasValue()).Select(x => x.AsMailBoxAddress()));
+            msg.Bcc.AddRange(original.Bcc.Where(x => x.Address.HasValue()).Select(x => x.AsMailBoxAddress()));
+            msg.ReplyTo.AddRange(original.ReplyTo.Where(x => x.Address.HasValue()).Select(x => x.AsMailBoxAddress()));
 
             // Body
             var multipart = new Multipart();
@@ -180,23 +180,6 @@ namespace Smartstore.Net.Mail
             }
 
             return msg;
-        }
-
-        /// <summary>
-        /// Builds <see cref="MailboxAddress"/> from <see cref="MailAddress"/>
-        /// </summary>
-        /// <param name="original">The generic mail address</param>
-        /// <returns><see cref="MailboxAddress"/> instance</returns>  
-        private static MailboxAddress BuildMailboxAddress(MailAddress original)
-        {
-            Guard.NotNull(original, nameof(original));
-
-            if (original.DisplayName.IsEmpty())
-            {
-                return MailboxAddress.Parse(original.Address);
-            }
-
-            return new MailboxAddress(original.DisplayNameEncoding ?? Encoding.UTF8, original.DisplayName, original.Address);
         }
 
         /// <summary>
