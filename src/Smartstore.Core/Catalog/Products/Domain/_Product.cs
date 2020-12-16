@@ -934,14 +934,13 @@ namespace Smartstore.Core.Catalog.Products
             protected set => _productReviews = value;
         }
 
-        private ICollection<object> _productSpecificationAttributes;
+        private ICollection<ProductSpecificationAttribute> _productSpecificationAttributes;
         /// <summary>
         /// Gets or sets the product specification attributes.
         /// </summary>
-        [NotMapped]
-        public ICollection<object> ProductSpecificationAttributes
+        public ICollection<ProductSpecificationAttribute> ProductSpecificationAttributes
         {
-            get => _lazyLoader?.Load(this, ref _productSpecificationAttributes) ?? (_productSpecificationAttributes ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _productSpecificationAttributes) ?? (_productSpecificationAttributes ??= new HashSet<ProductSpecificationAttribute>());
             protected set => _productSpecificationAttributes = value;
         }
 
@@ -995,14 +994,13 @@ namespace Smartstore.Core.Catalog.Products
             protected set => _appliedDiscounts = value;
         }
 
-        private ICollection<object> _productBundleItems;
+        private ICollection<ProductBundleItem> _productBundleItems;
         /// <summary>
         /// Gets or sets the product bundle items.
         /// </summary>
-        [NotMapped]
-        public ICollection<object> ProductBundleItems
+        public ICollection<ProductBundleItem> ProductBundleItems
         {
-            get => _lazyLoader?.Load(this, ref _productBundleItems) ?? (_productBundleItems ??= new HashSet<object>());
+            get => _lazyLoader?.Load(this, ref _productBundleItems) ?? (_productBundleItems ??= new HashSet<ProductBundleItem>());
             protected set => _productBundleItems = value;
         }
 

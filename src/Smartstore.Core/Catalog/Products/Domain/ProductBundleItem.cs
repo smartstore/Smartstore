@@ -1,0 +1,183 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
+using Smartstore.Core.Localization;
+using Smartstore.Domain;
+
+namespace Smartstore.Core.Catalog.Products
+{
+    public class ProductBundleItemMap : IEntityTypeConfiguration<ProductBundleItem>
+    {
+        public void Configure(EntityTypeBuilder<ProductBundleItem> builder)
+        {
+            builder.HasQueryFilter(c => !c.Product.Deleted);
+
+            builder.Property(c => c.Discount).HasPrecision(18, 4);
+
+            builder.HasOne(c => c.Product)
+                .WithMany()
+                .HasForeignKey(c => c.ProductId)
+                .OnDelete(DeleteBehavior.SetNull);        // SQL Server does not support multiple cascade deletes.
+
+            builder.HasOne(c => c.BundleProduct)
+                .WithMany(c => c.ProductBundleItems)
+                .HasForeignKey(c => c.BundleProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+
+    /// <summary>
+    /// Represents a product bundle item.
+    /// </summary>
+    public partial class ProductBundleItem : BaseEntity, IAuditable, ILocalizedEntity, IDisplayOrder, ICloneable<ProductBundleItem>
+    {
+        private readonly ILazyLoader _lazyLoader;
+
+        public ProductBundleItem()
+        {
+        }
+
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private ProductBundleItem(ILazyLoader lazyLoader)
+        {
+            _lazyLoader = lazyLoader;
+        }
+
+        /// <summary>
+        /// Gets or sets the product identifier.
+        /// </summary>
+        public int ProductId { get; set; }
+
+        private Product _product;
+        /// <summary>
+        /// Gets or sets the product.
+        /// </summary>
+        public Product Product
+        {
+            get => _lazyLoader?.Load(this, ref _product) ?? _product;
+            set => _product = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the product identifier of the bundle product.
+        /// </summary>
+        public int BundleProductId { get; set; }
+
+        private Product _bundleProduct;
+        /// <summary>
+        /// Gets or sets the bundle product.
+        /// </summary>
+        public Product BundleProduct
+        {
+            get => _lazyLoader?.Load(this, ref _bundleProduct) ?? _bundleProduct;
+            set => _bundleProduct = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the quantity.
+        /// </summary>
+        public int Quantity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the discount value.
+        /// </summary>
+        public decimal? Discount { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the discount amount is calculated by percentage.
+        /// </summary>
+        public bool DiscountPercentage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        [StringLength(400)]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets the short description.
+        /// </summary>
+        [MaxLength]
+        public string ShortDescription { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to filter attributes.
+        /// </summary>
+        public bool FilterAttributes { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to hide the thumbnail.
+        /// </summary>
+        public bool HideThumbnail { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the item is visible.
+        /// </summary>
+        public bool Visible { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the entity is published.
+        /// </summary>
+        public bool Published { get; set; }
+
+        /// <summary>
+        /// Gets or sets a display order.
+        /// </summary>
+        public int DisplayOrder { get; set; }
+
+        /// <summary>
+        /// Gets or sets the date of product bundle item creation.
+        /// </summary>
+        public DateTime CreatedOnUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the date of product bundle item update.
+        /// </summary>
+        public DateTime UpdatedOnUtc { get; set; }
+
+        private ICollection<ProductBundleItemAttributeFilter> _attributeFilters;
+        /// <summary>
+        /// Gets or sets the attribute filters.
+        /// </summary>
+        [JsonIgnore]
+        public ICollection<ProductBundleItemAttributeFilter> AttributeFilters
+        {
+            get => _lazyLoader?.Load(this, ref _attributeFilters) ?? (_attributeFilters ??= new HashSet<ProductBundleItemAttributeFilter>());
+            protected set => _attributeFilters = value;
+        }
+
+        /// <inheritdoc/>
+        public ProductBundleItem Clone()
+        {
+            var bundleItem = new ProductBundleItem
+            {
+                ProductId = ProductId,
+                BundleProductId = BundleProductId,
+                Quantity = Quantity,
+                Discount = Discount,
+                DiscountPercentage = DiscountPercentage,
+                Name = Name,
+                ShortDescription = ShortDescription,
+                FilterAttributes = FilterAttributes,
+                HideThumbnail = HideThumbnail,
+                Visible = Visible,
+                Published = Published,
+                DisplayOrder = DisplayOrder,
+                CreatedOnUtc = CreatedOnUtc,
+                UpdatedOnUtc = UpdatedOnUtc
+            };
+
+            return bundleItem;
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
+    }
+}

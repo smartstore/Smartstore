@@ -77,7 +77,7 @@ namespace Smartstore.Core.Catalog.Discounts
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether whether the discount amount is calculated by percentage.
+        /// Gets or sets a value indicating whether the discount amount is calculated by percentage.
         /// </summary>
         public bool UsePercentage { get; set; }
 
@@ -102,7 +102,7 @@ namespace Smartstore.Core.Catalog.Discounts
         public DateTime? EndDateUtc { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether discount requires a coupon code.
+        /// Gets or sets a value indicating whether the discount requires a coupon code.
         /// </summary>
         public bool RequiresCouponCode { get; set; }
 
