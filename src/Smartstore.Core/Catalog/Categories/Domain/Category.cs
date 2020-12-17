@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Rules;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Categories
@@ -23,20 +24,23 @@ namespace Smartstore.Core.Catalog.Categories
                 .WithMany()
                 .HasForeignKey(c => c.MediaFileId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasMany(c => c.RuleSets)
+                .WithMany(c => c.Categories)
+                .UsingEntity(x => x.ToTable("RuleSet_Category_Mapping"));
         }
     }
 
     /// <summary>
     /// Represents a category of products.
     /// </summary>
-    /// TODO: (mg) (core): Implement IRulesContainer for category entity.
     [DebuggerDisplay("{Id}: {Name} (Parent: {ParentCategoryId})")]
     [Index(nameof(Deleted), Name = "IX_Deleted")]
     [Index(nameof(DisplayOrder), Name = "IX_Category_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_Category_LimitedToStores")]
     [Index(nameof(ParentCategoryId), Name = "IX_Category_ParentCategoryId")]
     [Index(nameof(SubjectToAcl), Name = "IX_Category_SubjectToAcl")]
-    public partial class Category : BaseEntity, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder
+    public partial class Category : BaseEntity, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -205,6 +209,16 @@ namespace Smartstore.Core.Catalog.Categories
         /// if this property is set to false, then we do not need to load AppliedDiscounts navigation property.
         /// </remarks>
         public bool HasDiscountsApplied { get; set; }
+
+        private ICollection<RuleSetEntity> _ruleSets;
+        /// <summary>
+        /// Gets or sets assigned rule sets.
+        /// </summary>
+        public ICollection<RuleSetEntity> RuleSets
+        {
+            get => _lazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
+            protected set => _ruleSets = value;
+        }
 
         private ICollection<Discount> _appliedDiscounts;
         /// <summary>

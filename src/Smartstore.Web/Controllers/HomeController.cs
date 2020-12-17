@@ -501,5 +501,24 @@ namespace Smartstore.Web.Controllers
             var e = (UrlRecord)HttpContext.GetRouteData().Values["entity"];
             return Content($"Slug matched >>> Entity: {e.EntityName} {e.EntityId}, Id: {e.Id}, Language: {e.LanguageId}, Slug: {e.Slug}, IsActive: {e.IsActive}");
         }
+
+        public async Task<IActionResult> MgTest()
+        {
+            var content = new StringBuilder();
+            var categories = await _db.Categories.OrderByDescending(x => x.Id).Take(10).ToListAsync();
+            var manufacturers = await _db.Manufacturers.OrderByDescending(x => x.Id).Take(10).ToListAsync();
+            var discounts = await _db.Discounts.OrderByDescending(x => x.Id).Take(10).ToListAsync();
+
+            content.AppendLine("Some categories:");
+            content.AppendLine(string.Join(", ", categories.Select(x => x.Name)));
+            content.AppendLine();
+            content.AppendLine("Some manufacturers:");
+            content.AppendLine(string.Join(", ", manufacturers.Select(x => x.Name)));
+            content.AppendLine();
+            content.AppendLine("Some discounts:");
+            content.AppendLine(string.Join(", ", discounts.Select(x => x.Name)));
+
+            return Content(content.ToString());
+        }
     }
 }

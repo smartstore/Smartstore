@@ -14,9 +14,10 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Common;
+using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Domain;
@@ -54,11 +55,10 @@ namespace Smartstore.Core.Catalog.Products
                 .HasForeignKey(c => c.QuantityUnitId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // TODO: (mg) DONT'T MAP MOCK STUFF!
-            //builder.HasOne(c => c.SampleDownload)
-            //    .WithMany()
-            //    .HasForeignKey(c => c.SampleDownloadId)
-            //    .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(c => c.SampleDownload)
+                .WithMany()
+                .HasForeignKey(c => c.SampleDownloadId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasOne(c => c.CountryOfOrigin)
                 .WithMany()
@@ -375,13 +375,11 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public int? SampleDownloadId { get; set; }
 
-        private object _sampleDownload;
+        private Download _sampleDownload;
         /// <summary>
         /// Gets or sets the sample download.
         /// </summary>
-        /// TODO: (mg) (core): Implement download entity.
-        [NotMapped]
-        public object SampleDownload
+        public Download SampleDownload
         {
             get => _lazyLoader?.Load(this, ref _sampleDownload) ?? _sampleDownload;
             set => _sampleDownload = value;

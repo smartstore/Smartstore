@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Customers;
 using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
@@ -82,7 +83,7 @@ namespace Smartstore.Core.Rules
             protected set => _categories = value;
         }
 
-        //// TODO: (mg) (core) RuleSetEntity > implement missing nav props: ShippingMethods, PaymentMethods, CustomerRoles
+        //// TODO: (mg) (core) RuleSetEntity > implement missing nav props: ShippingMethods, PaymentMethods
 
         //private ICollection<ShippingMethod> _shippingMethods;
         ///// <summary>
@@ -104,14 +105,14 @@ namespace Smartstore.Core.Rules
         //    protected set => _paymentMethods = value;
         //}
 
-        //private ICollection<CustomerRole> _customerRoles;
-        ///// <summary>
-        ///// Gets or sets assigned customer roles.
-        ///// </summary>
-        //public ICollection<CustomerRole> CustomerRoles
-        //{
-        //    get => _customerRoles ?? (_customerRoles = new HashSet<CustomerRole>());
-        //    protected set => _customerRoles = value;
-        //}
+        private ICollection<CustomerRole> _customerRoles;
+        /// <summary>
+        /// Gets or sets assigned customer roles.
+        /// </summary>
+        public ICollection<CustomerRole> CustomerRoles
+        {
+            get => _customerRoles ?? (_customerRoles = new HashSet<CustomerRole>());
+            protected set => _customerRoles = value;
+        }
     }
 }

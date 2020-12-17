@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Customers;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Pricing
@@ -21,6 +22,11 @@ namespace Smartstore.Core.Catalog.Pricing
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.TierPrices)
                 .HasForeignKey(c => c.ProductId);
+
+            builder.HasOne(c => c.CustomerRole)
+                .WithMany()
+                .HasForeignKey(c => c.CustomerRoleId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
@@ -63,11 +69,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public int StoreId { get; set; }
 
         /// <summary>
-        /// Gets or sets the customer role identifier.
-        /// </summary>
-        public int? CustomerRoleId { get; set; }
-
-        /// <summary>
         /// Gets or sets the quantity.
         /// </summary>
         public int Quantity { get; set; }
@@ -82,6 +83,20 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public TierPriceCalculationMethod CalculationMethod { get; set; }
 
-        /// TODO: (mg) (core): Implement customer role navigation property for tier price.
+        /// <summary>
+        /// Gets or sets the customer role identifier.
+        /// </summary>
+        public int? CustomerRoleId { get; set; }
+
+        private CustomerRole _customerRole;
+        /// <summary>
+        /// Gets or sets the customer role.
+        /// </summary>
+        [JsonIgnore]
+        public CustomerRole CustomerRole
+        {
+            get => _lazyLoader?.Load(this, ref _customerRole) ?? _customerRole;
+            set => _customerRole = value;
+        }
     }
 }

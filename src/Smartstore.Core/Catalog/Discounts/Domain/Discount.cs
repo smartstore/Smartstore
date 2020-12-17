@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Rules;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
@@ -21,6 +22,10 @@ namespace Smartstore.Core.Catalog.Discounts
         {
             builder.Property(c => c.DiscountPercentage).HasPrecision(18, 4);
             builder.Property(c => c.DiscountAmount).HasPrecision(18, 4);
+
+            builder.HasMany(c => c.RuleSets)
+                .WithMany(c => c.Discounts)
+                .UsingEntity(x => x.ToTable("RuleSet_Discount_Mapping"));
 
             builder.HasMany(c => c.AppliedToManufacturers)
                 .WithMany(c => c.AppliedDiscounts)
@@ -39,9 +44,8 @@ namespace Smartstore.Core.Catalog.Discounts
     /// <summary>
     /// Represents a discount.
     /// </summary>
-    /// TODO: (mg) (core): Implement IRulesContainer for discount entity.
     [DebuggerDisplay("{Name} - {DiscountType}")]
-    public partial class Discount : BaseEntity
+    public partial class Discount : BaseEntity, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -132,6 +136,16 @@ namespace Smartstore.Core.Catalog.Discounts
         /// It is used when the limitation type is set to "N times only" or "N times per customer".
         /// </summary>
         public int LimitationTimes { get; set; }
+
+        private ICollection<RuleSetEntity> _ruleSets;
+        /// <summary>
+        /// Gets or sets assigned rule sets.
+        /// </summary>
+        public ICollection<RuleSetEntity> RuleSets
+        {
+            get => _lazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
+            protected set => _ruleSets = value;
+        }
 
         private ICollection<Manufacturer> _manufacturers;
         /// <summary>
