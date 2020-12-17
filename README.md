@@ -1,3 +1,8 @@
+> **Work in progress: Porting Smartstore to cross-platform ASP.NET Core**.
+> In this repository we are currently working hard on porting Smartstore from classic ASP.NET MVC to ASP.NET Core 5. This project is currently under development and is **not yet suitable for use in production environment**. For production, use the latest stable release from [Smartstore.NET repository](https://github.com/smartstore/SmartStoreNET). Detailed information about our porting strategy can be found below in the section **ASP.NET Core 5**.
+
+<br/>
+
 <p align="center">
 	<a href="https://www.smartstore.com" target="_blank" rel="noopener noreferrer">
 		<img src="assets/smartstore-icon.png" alt="Smartstore.NET" width="200">
@@ -18,20 +23,6 @@
 	<a href="http://community.smartstore.com/marketplace">Marketplace</a> ∙ 
 	<a href="http://translate.smartstore.com/">Translations</a>
 </p>
-<br/>
-
-<div style="background: #e8f4fc; border:1px solid #a8d6f4; padding: 30px 20px 20px; border-radius: 4px;color:#1d5378">
-<div style="margin-bottom:10px">
-<strong style="font-size:20px">Work in Progress: The Porting of Smartstore to ASP.NET Core</strong>
-</div>
-<p>
-In this repository we are working on the porting of Smartstore to ASP.NET Core 5. This project is currently in development state and is <b>not intended for use in a production environment</b>. For this purpose, use the last stable release from <a href="https://github.com/smartstore/SmartStoreNET" target="_blank"  rel="noopener noreferrer">this repository</a>. 
-</p>
-<p>
-Detailed information about our porting procedure can be found below in the section <strong>ASP.NET Core 5</strong>
-</p>
-</div>
-
 <br/>
 
 Smartstore is a free, open source, full-featured e-commerce solution for companies of any size. It is web standards compliant and incorporates the newest Microsoft web technology stack.
@@ -57,11 +48,11 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 5`, `Entity
 <p>&nbsp;</p>
 
 ## ASP.NET Core 5
-In this repository we are currently working on the porting of [Smartstore](https://github.com/smartstore/SmartStoreNET) to `ASP.NET Core 5`. For optimal quality we decided to port class by class and adapt the existing code to the new environment. The porting is scheduled to be **completed by the beginning of the second quarter of 2021**. Once the first release based on `ASP.NET Core 5` is published, Smartstore instances based on `ASP.NET MVC` can be upgraded. To perform the upgrade, only the file system will be exchanged on the server except for the App_Data folder and **all data will be seamlessly transferred to the new system**. After the publication of the first release in this repository upcoming developments will only take place here. 
+In this repository we are currently working hard on a cross-platform port of [Smartstore](https://github.com/smartstore/SmartStoreNET) to `ASP.NET Core 5`. For best code quality we decided to port **class by class** and adapt the existing code to the new environment. The porting is scheduled to be **completed by the beginning of the second quarter of 2021**. Once the first `ASP.NET Core` based release is published, Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To perform the upgrade, only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. After the first public release in this repository upcoming development will only take place here. 
 
-**Give our new repository a star** to stay up to date, get involved or follow us in our work with `ASP.NET Core 5` and to learn all about the latest developments, participate actively and last but not least not to miss the date of the new release.    
+**Give our new repository a star** to stay up-to-date, get involved or just watch how we're doing. Learn all about the latest development, participate actively and last but not least, don't miss the day of release.    
 
-**Important:** This project is currently in development state and is not intended for use in a production environment. For this purpose the latest stable release of Smartstore is available [here](https://github.com/smartstore/SmartStoreNET).
+**Important:** And once again... this project is currently under development and is **not yet suitable for use in production environment**. For production, use the latest stable release from [Smartstore.NET repository](https://github.com/smartstore/SmartStoreNET)..
 
 
 ## Highlights
@@ -76,18 +67,18 @@ In this repository we are currently working on the porting of [Smartstore](https
 * Highly professional search framework based on Lucene.NET, delivering ultra fast faceted search results
 * Powerful and lightning-fast media manager
 * Powerful rule system for visual business rule creation
-* Consistent and sophisticated use of modern components such as `Bootstrap 4`, `Vue.js`, `jQuery` `Sass` & more in the front and back end.
+* Consistent and sophisticated use of modern components such as `Bootstrap 4`, `Vue.js`, `Sass` & more in the front and back end.
 * Easy shop management thanks to modern and clean UI
 
 ### Features
 
-* Media Manager
-* Rule Builder
 * Unlimited number of products and categories
 * Multi-Store support
+* Multi-language and RTL support
+* Media Manager
+* Rule Builder
 * Product Bundles
 * RESTful WebApi
-* Multi-language and RTL support
 * CMS Page Builder
 * CMS Menu Builder
 * Modern, clean, SEO-optimized and fully responsive Theme based on Bootstrap 4
@@ -108,20 +99,20 @@ In this repository we are currently working on the porting of [Smartstore](https
 
 
 
-## Project Status
-
-TBD
-
-
 ### System requirements
 
-* IIS 7+
-* ASP.NET Core 5
-* MS SQL Server 2008 Express (or higher) or MySQL
-* Visual C++ Redistributable für Visual Studio 2015 ([Download](https://www.microsoft.com/en-US/download/details.aspx?id=52685))
-* Full Trust
+* Windows 7 SP1 (or higher) / Windows Server 2008 R2 SP1 (or higher)
+* Mac OS X 10.11, 10.12
+* Red Hat Enterprise Linux 7
+* Ubuntu 14.04, 16.04, 17
+* MS SQL Server 2008 Express (or higher), MySQL or SQLite
 
+## Try it online
 
+(Smartstore classic based on ASP.NET MVC) We have set up a live online demo for you so you are able to test Smartstore without local installation. Get a first impression and test all available features in the front- and in the backend. Please keep in mind that the backend demo is shared and other testers can modify data at the same time.
+
+* [**Frontend**](https://demo.smartstore.com/frontend/en) (User: demo, PWD: 1234)
+* [**Backend**](https://demo.smartstore.com/backend/en/login) (User: demo, PWD: 1234)
 
 ## License
 
