@@ -32,48 +32,6 @@
 //			new Tuple<string, string>("X-Url-Scheme", "https")
 //		};
 
-//        /// <summary>
-//        /// Tries to get the <see cref="HttpRequestBase"/> instance without throwing exceptions
-//        /// </summary>
-//        /// <returns>The <see cref="HttpRequestBase"/> instance or <c>null</c>.</returns>
-//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-//        public static HttpRequestBase SafeGetHttpRequest(this HttpContext httpContext)
-//		{
-//			if (httpContext == null)
-//			{
-//				return null;
-//			}
-
-//			return SafeGetHttpRequest(new HttpContextWrapper(httpContext));
-//		}
-
-//		/// <summary>
-//		/// Tries to get the <see cref="HttpRequestBase"/> instance without throwing exceptions
-//		/// </summary>
-//		/// <returns>The <see cref="HttpRequestBase"/> instance or <c>null</c>.</returns>
-//		public static HttpRequestBase SafeGetHttpRequest(this HttpContextBase httpContext)
-//		{
-//			if (httpContext == null)
-//			{
-//				return null;
-//			}
-
-//			if (httpContext.Handler != null || httpContext is FakeHttpContext)
-//			{
-//				// Having a handler means we're most likely in the MVC routing pipeline.
-//				return httpContext.Request;
-//			}
-
-//			try
-//			{
-//				return httpContext.Request;
-//			}
-//			catch
-//			{
-//				return null;
-//			}
-//		}
-
 //		/// <summary>
 //		/// Returns wether the specified url is local to the host or not
 //		/// </summary>
@@ -143,114 +101,6 @@
 //			}
 //		}
 
-//        /// <summary>
-//        /// Gets a value which indicates whether the HTTP connection uses secure sockets (HTTPS protocol). 
-//        /// Works with Cloud's load balancers.
-//        /// </summary>
-//        /// <param name="request"></param>
-//        /// <returns></returns>
-//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-//        public static bool IsHttps(this HttpRequest request)
-//        {
-//            return IsHttps(new HttpRequestWrapper(request));
-//        }
-
-//		/// <summary>
-//		/// Gets a value which indicates whether the HTTP connection uses secure sockets (HTTPS protocol). 
-//		/// Works with Cloud's load balancers.
-//		/// </summary>
-//		/// <param name="request"></param>
-//		/// <returns></returns>
-//		public static bool IsHttps(this HttpRequestBase request)
-//		{
-//			if (request.IsSecureConnection)
-//			{
-//				return true;
-//			}
-
-//			foreach (var tuple in _sslHeaders)
-//			{
-//				var serverVar = request.ServerVariables[tuple.Item1];
-//				if (serverVar != null)
-//				{
-//					return tuple.Item2 == null || tuple.Item2.Equals(serverVar, StringComparison.OrdinalIgnoreCase);
-//				}
-//			}
-
-//			return false;
-//		}
-
-//		[SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-//        public static void SetFormsAuthenticationCookie(this HttpWebRequest webRequest, HttpRequestBase httpRequest)
-//		{
-//			CopyCookie(webRequest, httpRequest, FormsAuthentication.FormsCookieName);
-//		}
-
-//		[SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-//        public static void SetAnonymousIdentCookie(this HttpWebRequest webRequest, HttpRequestBase httpRequest)
-//		{
-//			CopyCookie(webRequest, httpRequest, "SMARTSTORE.ANONYMOUS"); 
-//		}
-
-//        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-//        public static void SetVisitorCookie(this HttpWebRequest webRequest, HttpRequestBase httpRequest)
-//        {
-//            CopyCookie(webRequest, httpRequest, "SMARTSTORE.VISITOR");
-//        }
-
-//        private static void CopyCookie(HttpWebRequest webRequest, HttpRequestBase sourceHttpRequest, string cookieName)
-//		{
-//			Guard.NotNull(webRequest, nameof(webRequest));
-//			Guard.NotNull(sourceHttpRequest, nameof(sourceHttpRequest));
-//			Guard.NotEmpty(cookieName, nameof(cookieName));
-
-//			var sourceCookie = sourceHttpRequest.Cookies[cookieName];
-//			if (sourceCookie == null)
-//				return;
-
-//			var sendCookie = new Cookie(sourceCookie.Name, sourceCookie.Value, sourceCookie.Path, sourceHttpRequest.Url.Host);
-
-//			if (webRequest.CookieContainer == null)
-//			{
-//				webRequest.CookieContainer = new CookieContainer();
-//			}
-
-//			webRequest.CookieContainer.Add(sendCookie);
-//		}
-
-//		public static string BuildScopedKey(this Cache cache, string key)
-//		{
-//			return key.HasValue() ? CacheRegionName + key : null;
-//		}
-
-//		public static T GetOrAdd<T>(this Cache cache, string key, Func<T> acquirer, TimeSpan? duration = null)
-//		{
-//			Guard.NotEmpty(key, nameof(key));
-//			Guard.NotNull(acquirer, nameof(acquirer));
-
-//			object obj = cache.Get(key);
-
-//			if (obj != null)
-//			{
-//				return (T)obj;
-//			}
-
-//			var value = acquirer();
-
-//			var absoluteExpiration = Cache.NoAbsoluteExpiration;
-//			if (duration.HasValue)
-//			{
-//				absoluteExpiration = DateTime.UtcNow + duration.Value;
-//			}
-
-//			cache.Insert(key, value, null, Cache.NoAbsoluteExpiration, Cache.NoSlidingExpiration);
-
-//			return value;
-//		}
-
 //		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 //		public static void RememberAppRelativePath(this HttpContextBase httpContext)
 //		{
@@ -261,28 +111,6 @@
 //		public static string GetOriginalAppRelativePath(this HttpContextBase httpContext)
 //		{
 //			return GetItem<string>(httpContext, RememberPathKey, forceCreation: false) ?? httpContext.Request.AppRelativeCurrentExecutionFilePath;
-//		}
-
-//		public static void RemoveByPattern(this Cache cache, string pattern)
-//		{
-//			var keys = cache.AllKeys(pattern);
-
-//			foreach (var key in keys.ToArray())
-//			{
-//				cache.Remove(key);
-//			}
-//		}
-
-//		public static string[] AllKeys(this Cache cache, string pattern)
-//		{
-//			pattern = pattern == "*" ? CacheRegionName : pattern;
-
-//			var keys = from entry in HttpRuntime.Cache.AsParallel().Cast<DictionaryEntry>()
-//					   let key = entry.Key.ToString()
-//					   where key.StartsWith(pattern, StringComparison.OrdinalIgnoreCase)
-//					   select key;
-
-//			return keys.ToArray();
 //		}
 
 //		public static ControllerContext GetRootControllerContext(this ControllerContext controllerContext)
