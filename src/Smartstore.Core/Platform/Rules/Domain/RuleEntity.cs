@@ -28,6 +28,7 @@ namespace Smartstore.Core.Rules
 
         private RuleSetEntity _ruleSet;
         [ForeignKey("RuleSetId")]
+        [JsonIgnore]
         public RuleSetEntity RuleSet
         {
             get => _lazyLoader?.Load(this, ref _ruleSet) ?? _ruleSet;
