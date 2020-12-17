@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Security
@@ -13,6 +14,7 @@ namespace Smartstore.Core.Security
     /// Represents a permission record.
     /// </summary>
     [Index(nameof(SystemName), Name = "IX_SystemName")]
+    [CacheableEntity]
     public partial class PermissionRecord : BaseEntity
     {
         private readonly ILazyLoader _lazyLoader;

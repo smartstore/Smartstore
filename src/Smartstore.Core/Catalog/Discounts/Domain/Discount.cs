@@ -12,6 +12,7 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Rules;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
@@ -45,6 +46,7 @@ namespace Smartstore.Core.Catalog.Discounts
     /// Represents a discount.
     /// </summary>
     [DebuggerDisplay("{Name} - {DiscountType}")]
+    [CacheableEntity]
     public partial class Discount : BaseEntity, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;

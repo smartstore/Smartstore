@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Payment
@@ -24,6 +25,7 @@ namespace Smartstore.Core.Checkout.Payment
     /// <summary>
     /// Represents a payment method.
     /// </summary>
+    [CacheableEntity]
     public partial class PaymentMethod : BaseEntity, ILocalizedEntity, IStoreRestricted, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;

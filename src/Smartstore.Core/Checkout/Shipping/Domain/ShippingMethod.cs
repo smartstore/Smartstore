@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Shipping
@@ -24,6 +25,7 @@ namespace Smartstore.Core.Checkout.Shipping
     /// <summary>
     /// Represents a shipping method.
     /// </summary>
+    [CacheableEntity]
     public partial class ShippingMethod : BaseEntity, ILocalizedEntity, IStoreRestricted, IDisplayOrder, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;
