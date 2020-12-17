@@ -16,11 +16,24 @@ namespace Smartstore.Core.Content.Media
     {
         public void Configure(EntityTypeBuilder<MediaFile> builder)
         {
+            builder.HasOne(c => c.Folder)
+                .WithMany(c => c.Files)
+                .HasForeignKey(c => c.FolderId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             builder.HasOne(c => c.MediaStorage)
                 .WithMany()
                 .HasForeignKey(c => c.MediaStorageId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            builder.HasMany(c => c.Tags)
+                .WithMany(c => c.MediaFiles)
+                .UsingEntity(x => x.ToTable("MediaFile_Tag_Mapping"));
+
+            builder.HasMany(c => c.Tracks)
+                .WithOne(c => c.MediaFile)
+                .HasForeignKey(c => c.MediaFileId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
@@ -53,6 +66,16 @@ namespace Smartstore.Core.Content.Media
         /// Gets or sets the associated folder identifier.
         /// </summary>
         public int? FolderId { get; set; }
+
+        private MediaFolder _folder;
+        /// <summary>
+        /// Gets or sets the associated folder.
+        /// </summary>
+        public MediaFolder Folder
+        {
+            get => _lazyLoader?.Load(this, ref _folder) ?? _folder;
+            set => _folder = value;
+        }
 
         /// <summary>
         /// Gets or sets the SEO friendly name of the media file including file extension.
@@ -158,6 +181,26 @@ namespace Smartstore.Core.Content.Media
             set => _mediaStorage = value;
         }
 
+        private ICollection<MediaTag> _tags;
+        /// <summary>
+        /// Gets or sets the associated tags.
+        /// </summary>
+        public ICollection<MediaTag> Tags
+        {
+            get => _lazyLoader?.Load(this, ref _tags) ?? (_tags ??= new HashSet<MediaTag>());
+            protected set => _tags = value;
+        }
+
+        private ICollection<MediaTrack> _tracks;
+        /// <summary>
+        /// Gets or sets the related entity tracks.
+        /// </summary>
+        public ICollection<MediaTrack> Tracks
+        {
+            get => _lazyLoader?.Load(this, ref _tracks) ?? (_tracks ??= new HashSet<MediaTrack>());
+            protected set => _tracks = value;
+        }
+
         private ICollection<ProductMediaFile> _productMediaFiles;
         /// <summary>
         /// Gets or sets the product media files.
@@ -167,7 +210,5 @@ namespace Smartstore.Core.Content.Media
             get => _lazyLoader?.Load(this, ref _productMediaFiles) ?? (_productMediaFiles ??= new HashSet<ProductMediaFile>());
             protected set => _productMediaFiles = value;
         }
-
-        // TODO: (mg) (core): Complete implementation of media file entity.
     }
 }
