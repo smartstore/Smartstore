@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
@@ -7,6 +8,7 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Represents a product template.
     /// </summary>
+    [CacheableEntity]
     public partial class ProductTemplate : BaseEntity, IDisplayOrder
     {
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Categories
@@ -7,6 +8,7 @@ namespace Smartstore.Core.Catalog.Categories
     /// <summary>
     /// Represents a category template.
     /// </summary>
+    [CacheableEntity]
     public partial class CategoryTemplate : BaseEntity, IDisplayOrder
     {
         /// <summary>
