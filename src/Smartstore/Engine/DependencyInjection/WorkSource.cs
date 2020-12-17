@@ -6,8 +6,9 @@ using System.Reflection;
 using Autofac;
 using Autofac.Builder;
 using Autofac.Core;
+using Smartstore.Engine;
 
-namespace Smartstore.Engine.DependencyInjection
+namespace Smartstore.DependencyInjection
 {
     public class WorkSource : IRegistrationSource
     {

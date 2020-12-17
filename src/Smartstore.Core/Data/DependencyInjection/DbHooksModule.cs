@@ -7,7 +7,7 @@ using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using Smartstore.Engine;
-using Smartstore.Events.DependencyInjection;
+using Smartstore.DependencyInjection;
 
 namespace Smartstore.Core.DependencyInjection
 {

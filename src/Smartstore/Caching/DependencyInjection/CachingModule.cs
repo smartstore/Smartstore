@@ -1,8 +1,9 @@
 ﻿using Autofac;
+using Smartstore.Caching;
 using Smartstore.Caching.OutputCache;
 using Smartstore.Threading;
 
-namespace Smartstore.Caching.DependencyInjection
+namespace Smartstore.DependencyInjection
 {
     public class CachingModule : Autofac.Module
     {

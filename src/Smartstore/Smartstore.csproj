@@ -38,7 +38,6 @@
     <Folder Include="Engine\Packaging\" />
     <Folder Include="Linq\" />
     <Folder Include="Mocks\" />
-    <Folder Include="Pdf\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,12 +45,13 @@
     <PackageReference Include="AngleSharp.Css" Version="0.14.2" />
     <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+    <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="HtmlSanitizer" Version="5.0.355" />
     <PackageReference Include="Humanizer" Version="2.8.26" />
     <PackageReference Include="MailKit" Version="2.10.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.1.58" />
+    <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.6" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
   </ItemGroup>

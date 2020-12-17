@@ -5,8 +5,9 @@ using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Engine;
+using Smartstore.Events;
 
-namespace Smartstore.Events.DependencyInjection
+namespace Smartstore.DependencyInjection
 {
     public class EventsModule : Autofac.Module
     {

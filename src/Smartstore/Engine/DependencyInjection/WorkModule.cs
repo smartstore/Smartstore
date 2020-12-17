@@ -1,6 +1,6 @@
 ﻿using Autofac;
 
-namespace Smartstore.Engine.DependencyInjection
+namespace Smartstore.DependencyInjection
 {
     public class WorkModule : Autofac.Module
     {

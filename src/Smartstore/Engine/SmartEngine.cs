@@ -9,12 +9,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Collections;
-using Smartstore.Caching.DependencyInjection;
 using Smartstore.Diagnostics;
-using Smartstore.Engine.DependencyInjection;
 using Smartstore.Engine.Initialization;
-using Smartstore.Events.DependencyInjection;
+using Smartstore.DependencyInjection;
 using Smartstore.Engine.Builders;
+using Smartstore.Pdf;
 
 namespace Smartstore.Engine
 {
@@ -99,6 +98,7 @@ namespace Smartstore.Engine
 
                 services.AddSingleton(x => NullChronometer.Instance);
                 services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
+                services.AddSingleton<IPdfConverter, NullPdfConverter>();
                 services.AddHttpContextAccessor();
 
                 // TODO: (core) Configuration for MemoryCache?
