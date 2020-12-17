@@ -24,7 +24,6 @@
     <Folder Include="Catalog\Attributes\Providers\" />
     <Folder Include="Catalog\Attributes\Utils\" />
     <Folder Include="Catalog\Attributes\Services\" />
-    <Folder Include="Checkout\Shipping\Domain\" />
   </ItemGroup>
 
   <ItemGroup>
