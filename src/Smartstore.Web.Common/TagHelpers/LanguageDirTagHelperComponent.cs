@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Smartstore.Web.Common.TagHelpers
+namespace Smartstore.Web.TagHelpers
 {
     public class LanguageDirTagHelperComponent : TagHelperComponent
     {

@@ -15,7 +15,7 @@ using Smartstore.Core.Logging.Serilog;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
-namespace Smartstore.Web.Common
+namespace Smartstore.Web
 {
     public class MvcStarter : StarterBase
     {

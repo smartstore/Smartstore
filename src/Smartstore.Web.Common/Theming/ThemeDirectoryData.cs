@@ -2,7 +2,7 @@
 using Smartstore.Collections;
 using Smartstore.IO;
 
-namespace Smartstore.Web.Common.Theming
+namespace Smartstore.Web.Theming
 {
     internal class ThemeDirectoryData : ITopologicSortable<string>
     {

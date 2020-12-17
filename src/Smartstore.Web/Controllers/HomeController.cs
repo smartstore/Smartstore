@@ -18,7 +18,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Caching;
 using Smartstore.Threading;
 using System.Threading;
-using Smartstore.Web.Common.Theming;
+using Smartstore.Web.Theming;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
 using Smartstore.Core.Logging;

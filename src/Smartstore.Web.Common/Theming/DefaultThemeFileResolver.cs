@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Smartstore.Threading;
 
-namespace Smartstore.Web.Common.Theming
+namespace Smartstore.Web.Theming
 {
     // TODO: (core): Refactor DefaultThemeFileResolver
     public class DefaultThemeFileResolver : Disposable, IThemeFileResolver

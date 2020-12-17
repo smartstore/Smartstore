@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Common.Theming
+﻿namespace Smartstore.Web.Theming
 {
     /// <summary>
     /// Responsible for resolving info about inherited theme file assets.

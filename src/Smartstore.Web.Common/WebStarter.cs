@@ -6,7 +6,7 @@ using Smartstore.Core.Content.Seo.Routing;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
-namespace Smartstore.Web.Common
+namespace Smartstore.Web
 {
     public class WebStarter : StarterBase
     {

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.IO;
 
-namespace Smartstore.Web.Common.Theming
+namespace Smartstore.Web.Theming
 {
     public enum ThemeManifestState
     {

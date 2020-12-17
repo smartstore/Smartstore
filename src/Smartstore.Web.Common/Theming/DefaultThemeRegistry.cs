@@ -12,7 +12,7 @@ using Smartstore.Engine;
 using Smartstore.Events;
 using Smartstore.IO;
 
-namespace Smartstore.Web.Common.Theming
+namespace Smartstore.Web.Theming
 {
     public partial class DefaultThemeRegistry : Disposable, IThemeRegistry
     {

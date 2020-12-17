@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Smartstore.Web.Common.Theming
+namespace Smartstore.Web.Theming
 {
     public enum ThemeVariableType
     {

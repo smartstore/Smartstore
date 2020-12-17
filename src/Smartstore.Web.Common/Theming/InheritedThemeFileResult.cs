@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Common.Theming
+﻿namespace Smartstore.Web.Theming
 {
     public class InheritedThemeFileResult
     {

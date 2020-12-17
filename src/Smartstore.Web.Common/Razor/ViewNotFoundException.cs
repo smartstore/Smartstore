@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Smartstore.Utilities;
 
-namespace Smartstore.Web.Common.Mvc.Razor
+namespace Smartstore.Web.Razor
 {
     public class ViewNotFoundException : Exception
     {

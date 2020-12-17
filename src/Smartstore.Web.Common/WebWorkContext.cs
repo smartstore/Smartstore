@@ -13,7 +13,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 
-namespace Smartstore.Web.Common
+namespace Smartstore.Web
 {
     public partial class WebWorkContext : IWorkContext
     {
