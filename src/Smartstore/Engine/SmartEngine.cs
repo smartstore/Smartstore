@@ -106,6 +106,7 @@ namespace Smartstore.Engine
 
                 // TODO: (core) Register more system stuff
                 services.AddMailKitMailService();
+                services.AddTemplateEngine();
 
                 // Configure all modular services
                 foreach (var starter in _starters)
