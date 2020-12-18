@@ -3,17 +3,13 @@ using System.Linq;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
-    /// <summary>
-    /// Gift card query extensions
-    /// </summary>
     public static class GiftCardQueryExtension
     {
         /// <summary>
-        /// Get gift cards within time period
+        /// Applies time filter to gift cards.
         /// </summary>        
         /// <param name="startTime">Start date time inclusive</param>
         /// <param name="endTime">End date time inclusive</param>
-        /// <returns>Gift cards query filtered by date time</returns>
         public static IQueryable<GiftCard> ApplyDateTimeFilter(this IQueryable<GiftCard> query, DateTime? startTime = null, DateTime? endTime = null)
         {
             Guard.NotNull(query, nameof(query));
@@ -28,10 +24,9 @@ namespace Smartstore.Core.Checkout.GiftCards
         }
 
         /// <summary>
-        /// Gets gift cards by coupon codes
+        /// Applies coupon codes filter
         /// </summary>        
         /// <param name="couponCodes">Coupon codes array to match</param>
-        /// <returns>Gift cards query filtered by coupon codes</returns>
         public static IQueryable<GiftCard> ApplyCouponCodeFilter(this IQueryable<GiftCard> query, string[] couponCodes)
         {
             Guard.NotNull(query, nameof(query));
