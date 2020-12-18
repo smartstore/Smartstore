@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Domain;
 using System;
@@ -26,6 +27,17 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// </summary>
     public class GiftCard : BaseEntity
     {
+        private readonly ILazyLoader _lazyLoader;
+
+        public GiftCard()
+        {
+        }
+
+        public GiftCard(ILazyLoader lazyLoader)
+        {
+            _lazyLoader = lazyLoader;
+        }
+
         /// <summary>
         /// Gets or sets the gift card type identifier
         /// </summary>
@@ -97,13 +109,12 @@ namespace Smartstore.Core.Checkout.GiftCards
         public DateTime CreatedOnUtc { get; set; }
 
         private ICollection<GiftCardUsageHistory> _giftCardUsageHistory;
-
         /// <summary>
         /// Gets or sets the gift card usage history
-        /// </summary>        
-        public virtual ICollection<GiftCardUsageHistory> GiftCardUsageHistory
+        /// </summary> 
+        public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
         {
-            get => _giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>();
+            get => _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
             protected set => _giftCardUsageHistory = value;
         }
 
