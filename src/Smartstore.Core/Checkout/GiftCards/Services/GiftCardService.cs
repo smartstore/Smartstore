@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
-    /// <summary>
-    /// Gift card service interface
-    /// </summary>
     public partial class GiftCardService
     {
         private readonly SmartDbContext _db;
@@ -49,18 +46,14 @@ namespace Smartstore.Core.Checkout.GiftCards
         //    return result;
         //}
 
-        /// <summary>
-        /// Generates new gift card code
-        /// </summary>
-        /// <returns>Gift card code</returns>
-        public virtual string GenerateGiftCardCode()
+        public virtual Task<string> GenerateGiftCardCodeAsync()
         {
             var length = 13;
             var result = Guid.NewGuid().ToString();
             if (result.Length > length)
                 result = result.Substring(0, length);
 
-            return result;
+            return Task.FromResult(result);
         }
     }
 }

@@ -19,9 +19,9 @@ namespace Smartstore.Core.Checkout.GiftCards
         Task<IList<GiftCard>> GetActiveGiftCardsAppliedByCustomerAsync(Customer customer, int storeId);
 
         /// <summary>
-        /// Generates new gift card code
+        /// Generates new gift card code.
         /// </summary>
         /// <returns>Gift card code</returns>
-        string GenerateGiftCardCode();
+        Task<string> GenerateGiftCardCodeAsync();
     }
 }
