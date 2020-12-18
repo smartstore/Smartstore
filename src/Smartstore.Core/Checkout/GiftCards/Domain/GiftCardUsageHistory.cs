@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Domain;
@@ -23,11 +24,23 @@ namespace Smartstore.Core.Checkout.GiftCards
             //    .HasForeignKey(history => history.UsedWithOrderId);
         }
     }
+
     /// <summary>
     /// Represents a gift card usage history entry
     /// </summary>
     public partial class GiftCardUsageHistory : BaseEntity
     {
+        private readonly ILazyLoader _lazyLoader;
+
+        public GiftCardUsageHistory()
+        {
+        }
+
+        public GiftCardUsageHistory(ILazyLoader lazyLoader)
+        {
+            _lazyLoader = lazyLoader;
+        }
+
         /// <summary>
         /// Gets or sets the gift card identifier
         /// </summary>
@@ -48,14 +61,24 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }
 
+        private GiftCard _giftCard;
         /// <summary>
         /// Gets or sets the gift card
         /// </summary>
-        public virtual GiftCard GiftCard { get; set; }
+        public GiftCard GiftCard
+        {
+            get => _lazyLoader?.Load(this, ref _giftCard) ?? _giftCard;
+            set => _giftCard = value;
+        }
 
+        private Order _order;
         /// <summary>
-        /// Gets the gift card
+        /// Gets the order associated with the gift card
         /// </summary>
-        public virtual Order Order { get; set; }
+        public Order Order
+        {
+            get => _lazyLoader?.Load(this, ref _order) ?? _order;
+            set => _order = value;
+        }
     }
 }

@@ -119,10 +119,15 @@ namespace Smartstore.Core.Checkout.GiftCards
         }
 
         // TODO: (core) (ms) OrderItem is needed
+        //private OrderItem _orderItem;
         ///// <summary>
         ///// Gets or sets the associated order item
         ///// </summary>
-        //public virtual OrderItem OrderItem { get; set; }
+        //public OrderItem OrderItem
+        //{
+        //    get => _lazyLoader?.Load(this, ref _orderItem) ?? _orderItem;
+        //    set => _orderItem = value;
+        //}
 
         #region Methods
 
@@ -130,7 +135,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// Gets gift cards remaining value
         /// </summary>
         /// <returns>Gift card remaining value</returns>
-        public decimal GetGiftCardRemainingValue()
+        public decimal GetRemainingValue()
         {
             var result = Value - GiftCardUsageHistory.Sum(x => x.UsedValue);
             return result < decimal.Zero
@@ -144,7 +149,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         ///// </summary>
         ///// <param name="storeId">Storeidentifier. 0 validates the gift card for all stores</param>
         ///// <returns>True - valid; False - invalid</returns>
-        //public bool IsValidGiftCard(int storeId = 0)
+        //public bool IsValid(int storeId = 0)
         //{
         //    if (!IsActivated)
         //        return false;
