@@ -19,6 +19,9 @@ namespace Smartstore.Web.UI.TagHelpers
 		[HtmlAttributeName("name")]
 		public string Name { get; set; }
 
+		/// <summary>
+		/// Specifies how content should be injected if zone contains default content. Default is <see cref="ZoneInjectMode.Replace"/>.
+		/// </summary>
 		[HtmlAttributeName("inject-mode")]
 		public ZoneInjectMode? InjectMode { get; set; }
 
@@ -35,7 +38,7 @@ namespace Smartstore.Web.UI.TagHelpers
 
 			if (widgets.Any())
             {	
-				var injectMode = InjectMode ?? ZoneInjectMode.Append;
+				var injectMode = InjectMode ?? ZoneInjectMode.Replace;
 
 				if (injectMode == ZoneInjectMode.Prepend)
 				{
