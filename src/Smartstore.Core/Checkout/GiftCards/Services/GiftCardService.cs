@@ -13,16 +13,16 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// </summary>
     public partial class GiftCardService
     {
-        private readonly SmartDbContext _dbContext;
+        private readonly SmartDbContext _db;
 
-        public GiftCardService(SmartDbContext dbContext)
+        public GiftCardService(SmartDbContext db)
         {
-            _dbContext = dbContext;
+            _db = db;
         }
 
         public virtual IQueryable<GiftCard> GetAllGiftCardsQuery()
         {
-            return _dbContext.GiftCards.AsQueryable();
+            return _db.GiftCards.AsQueryable();
         }
 
         // TODO: (core) (ms) Customer.ParseAppliedGiftCardCouponCodes extension is needed
