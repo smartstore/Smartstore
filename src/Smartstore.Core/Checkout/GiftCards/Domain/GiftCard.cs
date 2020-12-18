@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Domain;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace Smartstore.Core.Checkout.GiftCards
@@ -12,7 +13,6 @@ namespace Smartstore.Core.Checkout.GiftCards
         public void Configure(EntityTypeBuilder<GiftCard> builder)
         {
             builder.Property(gc => gc.Value).HasPrecision(18, 4);
-            builder.Ignore(gc => gc.GiftCardType);
 
             // TODO: (core) (ms) OrderItem is needed
             //builder.HasOne(gc => gc.OrderItem)
@@ -34,6 +34,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets or sets the gift card type
         /// </summary>
+        [NotMapped]
         public GiftCardType GiftCardType
         {
             get => (GiftCardType)GiftCardTypeId;
