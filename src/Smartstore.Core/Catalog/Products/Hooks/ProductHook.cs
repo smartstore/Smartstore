@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
+using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
@@ -16,26 +18,34 @@ namespace Smartstore.Core.Catalog.Products
             _db = db;
         }
 
-        protected override async Task<HookResult> OnDeletingAsync(Product entity, IHookedEntity entry, CancellationToken cancelToken)
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            // Do not physically delete products.
-            entry.State = Smartstore.Data.EntityState.Modified;
+            var softDeletedProducts = entries
+                .Where(x => x.IsSoftDeleted == true)
+                .Select(x => x.Entity)
+                .OfType<Product>()
+                .ToList();
 
-            entity.Deleted = true;
-            entity.DeliveryTimeId = null;
-            entity.QuantityUnitId = null;
-            entity.CountryOfOriginId = null;
-
-            if (entity.ProductType == ProductType.GroupedProduct)
+            foreach (var product in softDeletedProducts)
             {
-                var associatedProducts = await _db.Products
-                    .Where(x => x.ParentGroupedProductId == entity.Id)
-                    .ToListAsync(cancelToken);
-
-                associatedProducts.Each(x => x.ParentGroupedProductId = 0);
+                product.Deleted = true;
+                product.DeliveryTimeId = null;
+                product.QuantityUnitId = null;
+                product.CountryOfOriginId = null;
             }
 
-            return HookResult.Ok;
+            await _db.SaveChangesAsync();
+
+            // Unassign grouped products
+            var groupedProductIds = softDeletedProducts
+                .Where(x => x.ProductType == ProductType.GroupedProduct)
+                .Select(x => x.Id)
+                .Distinct()
+                .ToArray();
+
+            var allAssociatedProducts = await _db.Products
+                .Where(x => groupedProductIds.Contains(x.ParentGroupedProductId))
+                .BatchUpdateAsync(x => new Product { ParentGroupedProductId = 0 });
         }
     }
 }

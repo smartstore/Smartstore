@@ -9,6 +9,7 @@ namespace Smartstore.Data.Hooks
     public class HookedEntity : IHookedEntity
     {
         private Type _entityType;
+        private bool? _isSoftDeleted;
 
         public HookedEntity(EntityEntry entry)
         {
@@ -62,19 +63,27 @@ namespace Smartstore.Data.Hooks
             return false;
         }
 
-        public bool IsSoftDeleted
+        public bool? IsSoftDeleted
         {
             get
             {
-                var entity = Entry.Entity as ISoftDeletable;
-                if (entity != null)
+                if (_isSoftDeleted.HasValue)
+                {
+                    return _isSoftDeleted;
+                }
+                
+                if (Entry.Entity is ISoftDeletable entity)
                 {
                     return Entry.State == EfState.Modified
-                        ? entity.Deleted && IsPropertyModified("Deleted")
+                        ? entity.Deleted && IsPropertyModified(nameof(ISoftDeletable.Deleted))
                         : entity.Deleted;
                 }
 
-                return false;
+                return null;
+            }
+            set
+            {
+                _isSoftDeleted = value;
             }
         }
     }

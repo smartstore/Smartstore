@@ -27,6 +27,11 @@ namespace Smartstore.Data.Hooks
         /// </summary>
         public bool Important { get; set; }
 
+        /// <summary>
+        /// The execution order.
+        /// </summary>
+        public int Order { get; set; } // TODO: (core) Apply Order to HookMetadata in Hooking bootstrapper.
+
         public static HookMetadata Create<THook, TContext>(Type hookedType, bool important = false)
             where THook : IDbSaveHook
             where TContext : DbContext

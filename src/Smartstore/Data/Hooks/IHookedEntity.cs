@@ -31,11 +31,17 @@ namespace Smartstore.Data.Hooks
         /// Gets or sets the initial (presave) state of the hooked entity.
         /// The setter is for internal use only, don't invoke!
         /// </summary>
+        /// <remarks>
+        /// The setter is intended for internal usage.
+        /// </remarks>
         EntityState InitialState { get; set; }
 
         /// <summary>
         /// Gets or sets the current state of the hooked entity
         /// </summary>
+        /// <remarks>
+        /// The setter is intended for internal usage.
+        /// </remarks>
         EntityState State { get; set; }
 
         /// <summary>
@@ -55,6 +61,9 @@ namespace Smartstore.Data.Hooks
         /// and the value of its <c>Deleted</c> property is true AND has changed since tracking.
         /// But when the entity is not in modified state the snapshot comparison is omitted.
         /// </summary>
-        bool IsSoftDeleted { get; }
+        /// <remarks>
+        /// The setter is intended for internal usage.
+        /// </remarks>
+        bool? IsSoftDeleted { get; set; }
     }
 }

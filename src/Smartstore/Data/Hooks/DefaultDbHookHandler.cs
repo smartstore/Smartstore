@@ -218,7 +218,11 @@ namespace Smartstore.Data.Hooks
                     .Where(x => !importantOnly || _importantSaveHookTypes.Contains(x.Metadata.ImplType))
                     // Exclude void hooks (hooks known to be useless for the current EntityType/State/Stage combination)
                     .Where(x => !_voidHooks.Contains(new HookKey(x.Metadata.ImplType, entry, stage)))
+                    // Apply sort
+                    .OrderBy(x => x.Metadata.Order)
+                    // Get the hook instance
                     .Select(x => x.Value)
+                    // Make array
                     .ToArray();
 
                 _hooksRequestCache.AddRange(requestKey, hooks);
