@@ -5,6 +5,7 @@ using Smartstore.Core;
 using Smartstore.Core.Content.Seo.Routing;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Web.UI;
 
 namespace Smartstore.Web
 {
@@ -13,6 +14,8 @@ namespace Smartstore.Web
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
             services.AddScoped<IWorkContext, WebWorkContext>();
+            services.AddScoped<IWidgetProvider, DefaultWidgetProvider>();
+            services.AddScoped<IWidgetSelector, DefaultWidgetSelector>();
             services.AddScoped<SlugRouteTransformer>();
         }
 

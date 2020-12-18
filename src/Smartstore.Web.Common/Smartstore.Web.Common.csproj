@@ -11,8 +11,7 @@
 
   <ItemGroup>
     <Folder Include="Routing\" />
-    <Folder Include="TagHelpers\Nav\" />
-    <Folder Include="UI\" />
+    <Folder Include="UI\TagHelpers\Nav\" />
     <Folder Include="Security\" />
     <Folder Include="Pdf\" />
   </ItemGroup>

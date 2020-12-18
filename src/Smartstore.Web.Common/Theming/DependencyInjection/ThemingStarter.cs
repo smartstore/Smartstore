@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Events;
-using Smartstore.Web.TagHelpers;
+using Smartstore.Web.UI.TagHelpers;
 using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Theming.DependencyInjection

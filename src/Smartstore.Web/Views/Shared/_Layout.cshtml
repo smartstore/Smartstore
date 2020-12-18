@@ -6,11 +6,12 @@
     <title>@ViewData["Title"] - SmartstoreCorePlayground</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
-
+    
     <mini-profiler />
 </head>
 <body>
     <h3 class="ml-5 pl-5">@Url.Action("Countries", "Home", new { culture = "tr" })</h3>
+
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
@@ -41,6 +42,9 @@
             </div>
         </nav>
     </header>
+
+    <zone name="content-before" inject-mode="ZoneInjectMode.Prepend"></zone>
+
     <div class="container">
         <main role="main" class="pb-3">
             <h5 class="text-muted">@Context.Request.PathBase.Value - @Context.Request.Path.Value</h5>
@@ -48,11 +52,9 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2020 - SmartstoreCorePlayground - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    <zone name="content-after" inject-mode="ZoneInjectMode.Append"></zone>
+
+    <partial name="_Footer" />
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
