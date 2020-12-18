@@ -22,7 +22,7 @@ namespace Smartstore.Core
             {
                 services.AddMiniProfiler(o =>
                 {
-                    // TODO: (more) Move to module and configure
+                    // TODO: (more) Move MiniProfiler start to module and configure
                 }).AddEntityFramework();
             }
         }
