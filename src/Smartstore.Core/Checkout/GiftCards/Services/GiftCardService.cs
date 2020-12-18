@@ -20,11 +20,6 @@ namespace Smartstore.Core.Checkout.GiftCards
             _db = db;
         }
 
-        public virtual IQueryable<GiftCard> GetAllGiftCardsQuery()
-        {
-            return _db.GiftCards.AsQueryable();
-        }
-
         // TODO: (core) (ms) Customer.ParseAppliedGiftCardCouponCodes extension is needed
         /// <summary>
         /// Gets active gift cards that are applied by customer

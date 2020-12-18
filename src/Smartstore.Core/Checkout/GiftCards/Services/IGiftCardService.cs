@@ -11,12 +11,6 @@ namespace Smartstore.Core.Checkout.GiftCards
     public partial interface IGiftCardService
     {
         /// <summary>
-        /// Gets query with all gift card entries
-        /// </summary>
-        /// <returns>Query with all gift cards</returns>
-        IQueryable<GiftCard> GetAllGiftCardsQuery();
-
-        /// <summary>
         /// Gets active gift cards that are applied by customer async
         /// </summary>
         /// <param name="customer">Customer</param>
