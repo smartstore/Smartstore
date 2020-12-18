@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.UI.TagHelpers
 {
-    [HtmlTargetElement("widget")]
+    [HtmlTargetElement("widget", Attributes = "target")]
     public class WidgetTagHelper : SmartTagHelper
     {
         private const string UniqueKeysKey = "WidgetTagHelper.UniqueKeys";
@@ -21,7 +21,6 @@ namespace Smartstore.Web.UI.TagHelpers
         /// <summary>
         /// The target zone name to inject this widget to.
         /// </summary>
-        [HtmlAttributeName("target")]
         public string Target { get; set; }
 
         /// <summary>
@@ -33,7 +32,6 @@ namespace Smartstore.Web.UI.TagHelpers
         /// <summary>
         /// When set, ensures uniqueness within a request
         /// </summary>
-        [HtmlAttributeName("key")]
         public string Key { get; set; }
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)

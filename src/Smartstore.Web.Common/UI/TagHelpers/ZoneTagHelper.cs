@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.UI.TagHelpers
 {
-	[HtmlTargetElement("zone")]
+	[HtmlTargetElement("zone", Attributes = "name")]
 	public class ZoneTagHelper : SmartTagHelper
     {
 		private readonly IWidgetSelector _widgetSelector;
@@ -16,13 +16,11 @@ namespace Smartstore.Web.UI.TagHelpers
 			_widgetSelector = widgetSelector;
         }
 
-		[HtmlAttributeName("name")]
 		public string Name { get; set; }
 
 		/// <summary>
 		/// Specifies how content should be injected if zone contains default content. Default is <see cref="ZoneInjectMode.Replace"/>.
 		/// </summary>
-		[HtmlAttributeName("inject-mode")]
 		public ZoneInjectMode? InjectMode { get; set; }
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)

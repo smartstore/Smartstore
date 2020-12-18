@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
@@ -11,23 +8,23 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.Web.UI
 {
-    public class ViewComponentWidgetInvoker : WidgetInvoker
+    public class ComponentWidgetInvoker : WidgetInvoker
     {
-        private readonly string _name;
+        private readonly Type _componentType;
         private readonly object _arguments;
 
-        public ViewComponentWidgetInvoker(string name, object arguments)
+        public ComponentWidgetInvoker(Type componentType, object arguments)
         {
-            Guard.NotEmpty(name, nameof(name));
+            Guard.NotNull(componentType, nameof(componentType));
 
-            _name = name;
+            _componentType = componentType;
             _arguments = arguments;
         }
 
         public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
         {
             var helper = CreateViewComponentHelper(viewContext);
-            return helper.InvokeAsync(_name, _arguments);
+            return helper.InvokeAsync(_componentType, _arguments);
         }
 
         private static IViewComponentHelper CreateViewComponentHelper(ViewContext viewContext)
