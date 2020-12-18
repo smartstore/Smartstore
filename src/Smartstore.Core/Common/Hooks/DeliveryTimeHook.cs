@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
+using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using System;
 using System.Collections.Generic;
@@ -49,7 +52,7 @@ namespace Smartstore.Core.Common.Hooks
             // Remove associations to deleted products.
             //using (var scope = new DbContextScope(_productRepository.Context, autoDetectChanges: false, validateOnSave: false, hooksEnabled: false, autoCommit: false))
             //{
-            //    var productsQuery = _productRepository.Table.Where(x => x.Deleted && x.DeliveryTimeId == deliveryTime.Id);
+            //    var productsQuery = _productRepository.Table.Where(x => x.Deleted && x.DeliveryTimeId == entity.Id);
             //    var productsPager = new FastPager<Product>(productsQuery, 500);
 
             //    while (productsPager.ReadNextPage(out var products))
@@ -64,7 +67,7 @@ namespace Smartstore.Core.Common.Hooks
             //    var attributeCombinationQuery =
             //        from ac in _attributeCombinationRepository.Table
             //        join p in _productRepository.Table on ac.ProductId equals p.Id
-            //        where p.Deleted && ac.DeliveryTimeId == deliveryTime.Id
+            //        where p.Deleted && ac.DeliveryTimeId == entity.Id
             //        select ac;
 
             //    var attributeCombinationPager = new FastPager<ProductVariantAttributeCombination>(attributeCombinationQuery, 1000);
@@ -82,9 +85,7 @@ namespace Smartstore.Core.Common.Hooks
             // IsAssociated
             var query =
                 from x in _db.Products
-                // TODO: (MH) (core) Implement ProductVariantAttributeCombinations
-                //where x.DeliveryTimeId == entity.Id || x.ProductVariantAttributeCombinations.Any(c => c.DeliveryTimeId == entity.Id)
-                where x.DeliveryTimeId == entity.Id
+                where x.DeliveryTimeId == entity.Id || x.ProductVariantAttributeCombinations.Any(c => c.DeliveryTimeId == entity.Id)
                 select x.Id;
 
             if (await query.AnyAsync(cancellationToken: cancelToken))

@@ -47,9 +47,7 @@ namespace Smartstore.Core.Common.Hooks
         {
             var query =
                 from x in _db.Products
-                // TODO: (MH) (core) Implement ProductVariantAttributeCombinations
-                //where x.QuantityUnitId == quantityUnitId || x.ProductVariantAttributeCombinations.Any(c => c.QuantityUnitId == quantityUnitId)
-                where x.QuantityUnitId == entity.Id
+                where x.QuantityUnitId == entity.Id || x.ProductVariantAttributeCombinations.Any(c => c.QuantityUnitId == entity.Id)
                 select x.Id;
 
             if (await query.AnyAsync(cancellationToken: cancelToken))
