@@ -35,8 +35,6 @@ namespace Smartstore.Core.Catalog.Products
                 associatedProducts.Each(x => x.ParentGroupedProductId = 0);
             }
 
-            await _db.SaveChangesAsync(cancelToken);
-
             return HookResult.Ok;
         }
     }
