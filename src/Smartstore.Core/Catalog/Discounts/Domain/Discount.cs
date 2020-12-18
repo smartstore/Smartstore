@@ -149,35 +149,35 @@ namespace Smartstore.Core.Catalog.Discounts
             protected set => _ruleSets = value;
         }
 
-        private ICollection<Manufacturer> _manufacturers;
+        private ICollection<Manufacturer> _appliedToManufacturers;
         /// <summary>
         /// Gets or sets the manufacturers to which the discount is applied.
         /// </summary>
         public ICollection<Manufacturer> AppliedToManufacturers
         {
-            get => _lazyLoader?.Load(this, ref _manufacturers) ?? (_manufacturers ??= new HashSet<Manufacturer>());
-            protected set => _manufacturers = value;
+            get => _lazyLoader?.Load(this, ref _appliedToManufacturers) ?? (_appliedToManufacturers ??= new HashSet<Manufacturer>());
+            protected set => _appliedToManufacturers = value;
         }
 
-        private ICollection<Category> _categories;
+        private ICollection<Category> _appliedToCategories;
         /// <summary>
         /// Gets or sets the categories to which the discount is applied.
         /// </summary>
         public ICollection<Category> AppliedToCategories
         {
-            get => _lazyLoader?.Load(this, ref _categories) ?? (_categories ??= new HashSet<Category>());
-            protected set => _categories = value;
+            get => _lazyLoader?.Load(this, ref _appliedToCategories) ?? (_appliedToCategories ??= new HashSet<Category>());
+            protected set => _appliedToCategories = value;
         }
 
-        private ICollection<Product> _products;
+        private ICollection<Product> _appliedToProducts;
         /// <summary>
         /// Gets or sets the products to which the discount is applied.
         /// </summary>
         [JsonIgnore]
         public ICollection<Product> AppliedToProducts
         {
-            get => _lazyLoader?.Load(this, ref _products) ?? (_products ??= new HashSet<Product>());
-            protected set => _products = value;
+            get => _lazyLoader?.Load(this, ref _appliedToProducts) ?? (_appliedToProducts ??= new HashSet<Product>());
+            protected set => _appliedToProducts = value;
         }
     }
 }

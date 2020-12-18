@@ -1,5 +1,4 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Data;
 using Smartstore.Core.DependencyInjection;
@@ -42,6 +41,7 @@ namespace Smartstore.Core
                 builder.RegisterModule(new StoresModule());
                 builder.RegisterModule(new CustomersModule());
                 builder.RegisterModule(new RuleModule());
+                builder.RegisterModule(new CatalogModule());
             }
         }
     }
