@@ -34,7 +34,9 @@ namespace Smartstore.Web.UI.TagHelpers
         /// </summary>
         public string Key { get; set; }
 
-        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+        protected override string GenerateTagId(TagHelperContext context) => null;
+
+        protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             output.SuppressOutput();
 

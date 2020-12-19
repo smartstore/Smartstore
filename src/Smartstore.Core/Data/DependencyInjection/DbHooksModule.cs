@@ -8,6 +8,7 @@ using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using Smartstore.Engine;
 using Smartstore.DependencyInjection;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.DependencyInjection
 {
@@ -22,12 +23,6 @@ namespace Smartstore.Core.DependencyInjection
 
         protected override void Load(ContainerBuilder builder)
         {
-            //if (false)
-            //{
-            //    // TODO: (core) "DataSettings.DatabaseIsInstalled()"
-            //    return;
-            //}
-
             builder.RegisterType<DefaultDbHookHandler>()
                 .As<IDbHookHandler>()
                 .InstancePerLifetimeScope();
@@ -46,6 +41,7 @@ namespace Smartstore.Core.DependencyInjection
                         m.For(em => em.ImplType, hookType);
                         m.For(em => em.DbContextType, types.ContextType ?? typeof(SmartDbContext));
                         m.For(em => em.Important, hookType.HasAttribute<ImportantAttribute>(false));
+                        m.For(em => em.Order, hookType.GetAttribute<OrderAttribute>(false)?.Order ?? 0);
                     });
 
                 var lifetime = hookType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;

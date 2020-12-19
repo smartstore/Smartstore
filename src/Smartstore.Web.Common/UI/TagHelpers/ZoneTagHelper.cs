@@ -6,9 +6,39 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.UI.TagHelpers
 {
-	[HtmlTargetElement("zone", Attributes = "name")]
+	/// <summary>
+	/// Content injection modes.
+	/// </summary>
+	public enum ZoneInjectMode
+	{
+		/// <summary>
+		/// Inserts injected content after existing content.
+		/// </summary>
+		Append,
+
+		/// <summary>
+		/// Inserts injected content before existing content.
+		/// </summary>
+		Prepend,
+
+		/// <summary>
+		/// Replaces existing with injected content.
+		/// </summary>
+		Replace
+	}
+
+	[HtmlTargetElement("zone", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("div", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("span", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("p", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("section", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("aside", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("header", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("footer", Attributes = ZoneNameAttributeName)]
 	public class ZoneTagHelper : SmartTagHelper
     {
+		const string ZoneNameAttributeName = "zone-name";
+
 		private readonly IWidgetSelector _widgetSelector;
 
 		public ZoneTagHelper(IWidgetSelector widgetSelector)
@@ -16,28 +46,38 @@ namespace Smartstore.Web.UI.TagHelpers
 			_widgetSelector = widgetSelector;
         }
 
-		public string Name { get; set; }
+		[HtmlAttributeName(ZoneNameAttributeName)]
+		public string ZoneName { get; set; }
+
+		/// <summary>
+		/// Whether to remove the root zone tag when it has no content. 
+		/// Only applies to HTML tags like div, span, section etc..
+		/// <c>zone</c> tags are always removed.
+		/// </summary>
+		public bool RemoveWhenEmpty { get; set; }
 
 		/// <summary>
 		/// Specifies how content should be injected if zone contains default content. Default is <see cref="ZoneInjectMode.Replace"/>.
 		/// </summary>
 		public ZoneInjectMode? InjectMode { get; set; }
 
-        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
-        {
-			output.TagName = null;
+		protected override string GenerateTagId(TagHelperContext context) => null;
 
-			if (Name.IsEmpty())
-            {
-				return;
+		protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
+        {
+			var isHtmlTag = output.TagName != "zone";
+
+			var widgets = _widgetSelector.GetWidgets(ZoneName, ViewContext.ViewData.Model);
+
+			if (!isHtmlTag)
+			{
+				// Never render <zone> tag
+				output.TagName = null;
 			}
 
-			var widgets = _widgetSelector.GetWidgets(Name, ViewContext.ViewData.Model);
-
 			if (widgets.Any())
-            {	
+            {
 				var injectMode = InjectMode ?? ZoneInjectMode.Replace;
-
 				if (injectMode == ZoneInjectMode.Prepend)
 				{
 					foreach (var widget in widgets.Reverse())
@@ -58,6 +98,18 @@ namespace Smartstore.Web.UI.TagHelpers
 					}
 				}
 			}
+			else
+            {
+				// No widgets
+				if (RemoveWhenEmpty && output.TagName.HasValue())
+                {
+					var childContent = await output.GetChildContentAsync();
+					if (childContent.IsEmptyOrWhiteSpace)
+                    {
+						output.TagName = null;
+                    }
+				}
+            }
 		}
     }
 }
