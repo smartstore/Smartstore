@@ -96,7 +96,7 @@ namespace Smartstore.Data
                     try
                     {
                         // Post
-                        if (exception != null)
+                        if (exception == null)
                         {
                             // Post execute only on successful commit
                             PostExecuteAsync(preResult.Entries, CancellationToken.None).Await();
@@ -167,7 +167,7 @@ namespace Smartstore.Data
                     try
                     {
                         // Post
-                        if (exception != null)
+                        if (exception == null)
                         {
                             // Post execute only on successful commit
                             await PostExecuteAsync(preResult.Entries, cancelToken);

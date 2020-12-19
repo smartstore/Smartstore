@@ -236,7 +236,6 @@ namespace Smartstore.Data.Batching
             {
                 var parmName = $"param_{sqlParameters.Count}";
                 sqlParameters.Add(dataProvider.CreateParameter(parmName, constantExpression.Value ?? DBNull.Value));
-                sqlParameters.Add(dataProvider.CreateParameter(parmName, constantExpression.Value ?? DBNull.Value));
                 sqlColumns.Append($" @{parmName}");
             }
             else if (expression is UnaryExpression unaryExpression)
