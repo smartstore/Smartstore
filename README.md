@@ -1,5 +1,6 @@
-> **Work in progress: Porting Smartstore to cross-platform ASP.NET Core**.
-> In this repository we are currently working hard on porting Smartstore from classic ASP.NET MVC to ASP.NET Core 5. This project is currently under development and is **not yet suitable for use in production environment**. For production, use the latest stable release from [Smartstore.NET repository](https://github.com/smartstore/SmartStoreNET). Detailed information about our porting strategy can be found below in the section **ASP.NET Core 5**.
+| <div align="left">:information_source: **Work in progress: Porting Smartstore to cross-platform ASP.NET Core**</div> |
+| --- |
+| In this repository we are currently working hard on porting Smartstore from classic ASP.NET MVC to ASP.NET Core 5. This project is currently under development and is **not yet suitable for use in production environment**. For production, use the latest stable release from [Smartstore.NET repository](https://github.com/smartstore/SmartStoreNET). Detailed information about our porting strategy can be found below in the section **ASP.NET Core 5**. |
 
 <br/>
 
