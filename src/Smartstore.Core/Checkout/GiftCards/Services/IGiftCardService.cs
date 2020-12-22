@@ -1,6 +1,4 @@
-﻿using Smartstore.Core.Customers;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
@@ -9,10 +7,11 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// </summary>
     public partial interface IGiftCardService
     {
+        //TODO: (core) (ms) customer extension ParseAppliedGiftCardCouponCodes is needed + nav props > load eager(include)
         /// <summary>
         /// Gets active gift cards that are applied by customer async
         /// </summary>
-        Task<IList<GiftCard>> GetActiveGiftCardsAppliedByCustomerAsync(Customer customer, int storeId);
+        //Task<IEnumerable<GiftCard>> GetActiveGiftCardsAppliedByCustomerAsync(Customer customer, int storeId);
 
         /// <summary>
         /// Generates new gift card code async

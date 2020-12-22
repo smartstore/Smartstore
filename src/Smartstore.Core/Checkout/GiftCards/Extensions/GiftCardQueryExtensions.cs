@@ -13,10 +13,14 @@ namespace Smartstore.Core.Checkout.GiftCards
             Guard.NotNull(query, nameof(query));
 
             if (startTime.HasValue)
+            {
                 query = query.Where(x => x.CreatedOnUtc >= startTime);
+            }
 
             if (endTime.HasValue)
+            {
                 query = query.Where(x => x.CreatedOnUtc <= endTime);
+            }
 
             return query;
         }

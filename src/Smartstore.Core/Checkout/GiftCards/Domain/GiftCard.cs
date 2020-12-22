@@ -115,7 +115,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
         {
             get => _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
-            protected set => _giftCardUsageHistory = value;
+            init => _giftCardUsageHistory = value;
         }
 
         // TODO: (core) (ms) OrderItem is needed
@@ -155,7 +155,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         //        return false;
 
         //    var orderStoreId = OrderItem?.Order?.StoreId ?? null;
-        //    if (storeId == 0 || orderStoreId == null || orderStoreId == storeId)
+        //    if (storeId == 0 || orderStoreId is null || orderStoreId == storeId)
         //        return GetGiftCardRemainingValue() > decimal.Zero;
 
         //    return false;

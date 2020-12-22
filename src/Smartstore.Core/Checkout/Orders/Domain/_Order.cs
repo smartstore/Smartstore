@@ -1,9 +1,11 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Domain;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -44,5 +46,15 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets or sets the date and time when order was updated
         /// </summary>
         public DateTime UpdatedOnUtc { get; set; }
+
+        private ICollection<GiftCardUsageHistory> _giftCardUsageHistory;
+        /// <summary>
+        /// Gets or sets gift card usage history (gift cards applied within this order)
+        /// </summary>
+        public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
+        {
+            get => _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
+            init => _giftCardUsageHistory = value;
+        }
     }
 }

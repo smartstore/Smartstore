@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Domain;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
@@ -12,16 +14,14 @@ namespace Smartstore.Core.Checkout.GiftCards
         public void Configure(EntityTypeBuilder<GiftCardUsageHistory> builder)
         {
             builder.Property(x => x.UsedValue).HasPrecision(18, 4);
-            //this.Property(history => history.UsedValueInCustomerCurrency).HasPrecision(18, 4);
 
             builder.HasOne(x => x.GiftCard)
                 .WithMany(x => x.GiftCardUsageHistory)
                 .HasForeignKey(x => x.GiftCardId);
 
-            // TODO: (core) (ms) Order.GiftCardUsageHistory is needed
-            //builder.HasOne(history => history.Order)
-            //    .WithMany(history => history.GiftCardUsageHistory)
-            //    .HasForeignKey(history => history.UsedWithOrderId);
+            builder.HasOne(x => x.Order)
+                .WithMany(x => x.GiftCardUsageHistory)
+                .HasForeignKey(x => x.OrderId);
         }
     }
 
@@ -65,6 +65,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets or sets the gift card
         /// </summary>
+        [Required, JsonIgnore]
         public GiftCard GiftCard
         {
             get => _lazyLoader?.Load(this, ref _giftCard) ?? _giftCard;
@@ -75,6 +76,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets the order associated with the gift card
         /// </summary>
+        [Required, JsonIgnore]
         public Order Order
         {
             get => _lazyLoader?.Load(this, ref _order) ?? _order;
