@@ -57,7 +57,7 @@ namespace Smartstore.Web.UI.TagHelpers
 		public bool RemoveWhenEmpty { get; set; }
 
 		/// <summary>
-		/// Specifies how content should be injected if zone contains default content. Default is <see cref="ZoneInjectMode.Replace"/>.
+		/// Specifies how content should be injected if zone contains default content. Default is <see cref="ZoneInjectMode.Append"/>.
 		/// </summary>
 		public ZoneInjectMode? InjectMode { get; set; }
 
@@ -77,7 +77,7 @@ namespace Smartstore.Web.UI.TagHelpers
 
 			if (widgets.Any())
             {
-				var injectMode = InjectMode ?? ZoneInjectMode.Replace;
+				var injectMode = InjectMode ?? ZoneInjectMode.Append;
 				if (injectMode == ZoneInjectMode.Prepend)
 				{
 					foreach (var widget in widgets.Reverse())

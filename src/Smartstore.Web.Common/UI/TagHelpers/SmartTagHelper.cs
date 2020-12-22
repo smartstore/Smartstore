@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Utilities;
@@ -68,7 +69,7 @@ namespace Smartstore.Web.UI.TagHelpers
             
             if (Id.HasValue())
             {
-                output.Attributes.Add("id", Id);
+                output.Attributes.SetAttribute("id", Id);
             }
         }
 

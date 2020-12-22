@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Razor.Internal;
 using Smartstore.Core;
 using Smartstore.Core.Localization;
 using Smartstore.Engine;
+using Smartstore.Events;
 
 namespace Smartstore.Web.Razor
 {
@@ -18,6 +19,9 @@ namespace Smartstore.Web.Razor
 
         [RazorInject]
         public IWorkContext WorkContext { get; set; }
+
+        [RazorInject]
+        public IEventPublisher EventPublisher { get; set; }
 
         [RazorInject]
         public IApplicationContext ApplicationContext { get; set; }
