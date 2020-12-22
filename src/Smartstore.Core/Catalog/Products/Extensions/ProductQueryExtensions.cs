@@ -31,7 +31,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="query">Product query.</param>
         /// <param name="systemName">Product system name.</param>
         /// <returns>Product query.</returns>
-        public static IQueryable<Product> ApplySystemName(this IQueryable<Product> query, string systemName)
+        public static IQueryable<Product> ApplySystemNameFilter(this IQueryable<Product> query, string systemName)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -44,7 +44,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="query">Product query.</param>
         /// <param name="sku">Stock keeping unit (SKU).</param>
         /// <returns>Ordered product query.</returns>
-        public static IOrderedQueryable<Product> ApplySku(this IQueryable<Product> query, string sku)
+        public static IOrderedQueryable<Product> ApplySkuFilter(this IQueryable<Product> query, string sku)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -63,7 +63,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="query">Product query.</param>
         /// <param name="gtin">Global Trade Item Number (GTIN).</param>
         /// <returns>Ordered product query.</returns>
-        public static IOrderedQueryable<Product> ApplyGtin(this IQueryable<Product> query, string gtin)
+        public static IOrderedQueryable<Product> ApplyGtinFilter(this IQueryable<Product> query, string gtin)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -80,7 +80,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="query">Product query.</param>
         /// <param name="manufacturerPartNumber">Manufacturer Part Number (MPN).</param>
         /// <returns>Ordered product query.</returns>
-        public static IOrderedQueryable<Product> ApplyMpn(this IQueryable<Product> query, string manufacturerPartNumber)
+        public static IOrderedQueryable<Product> ApplyMpnFilter(this IQueryable<Product> query, string manufacturerPartNumber)
         {
             Guard.NotNull(query, nameof(query));
 
