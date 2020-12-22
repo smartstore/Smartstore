@@ -232,8 +232,6 @@ namespace Smartstore.Core.Catalog.Products
                         product.DisableWishlistButton = newDisableWishlistButton;
                         product.Published = newPublished;
 
-                        _db.Products.Update(product);
-
                         // Send email notification.
                         if (decrease && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
                         {
@@ -254,8 +252,6 @@ namespace Smartstore.Core.Catalog.Products
                                 : combination.StockQuantity + quantity;
 
                             combination.StockQuantity = result.StockQuantityNew;
-
-                            _db.ProductVariantCombinations.Update(combination);
                         }
                     }
                     break;
