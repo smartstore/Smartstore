@@ -13,17 +13,17 @@ namespace Smartstore.Core.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
 
-        public DbSet<ProductAttribute> Variants { get; set; }
-        public DbSet<ProductVariantAttribute> ProductVariants { get; set; }
-        public DbSet<ProductVariantAttributeValue> ProductVariantValues { get; set; }
-        public DbSet<ProductVariantAttributeCombination> ProductVariantCombinations { get; set; }
+        public DbSet<ProductAttribute> ProductAttributes { get; set; }
+        public DbSet<ProductVariantAttribute> ProductVariantAttributes { get; set; }
+        public DbSet<ProductVariantAttributeValue> ProductVariantAttributeValues { get; set; }
+        public DbSet<ProductVariantAttributeCombination> ProductVariantAttributeCombinations { get; set; }
 
-        public DbSet<ProductAttributeOptionsSet> VariantSets { get; set; }
-        public DbSet<ProductAttributeOption> VariantSetOptions { get; set; }
+        public DbSet<ProductAttributeOptionsSet> ProductAttributeOptionsSets { get; set; }
+        public DbSet<ProductAttributeOption> ProductAttributeOptions { get; set; }
 
-        public DbSet<SpecificationAttribute> Attributes { get; set; }
-        public DbSet<SpecificationAttributeOption> AttributeOptions { get; set; }
-        public DbSet<ProductSpecificationAttribute> ProductAttributes { get; set; }
+        public DbSet<SpecificationAttribute> SpecificationAttributes { get; set; }
+        public DbSet<SpecificationAttributeOption> SpecificationAttributeOptions { get; set; }
+        public DbSet<ProductSpecificationAttribute> ProductSpecificationAttributes { get; set; }
 
         public DbSet<Discount> Discounts { get; set; }
     }

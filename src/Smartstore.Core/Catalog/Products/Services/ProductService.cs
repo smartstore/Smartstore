@@ -48,7 +48,7 @@ namespace Smartstore.Core.Catalog.Products
                 return (product, null);
             }
 
-            var pvcq = _db.ProductVariantCombinations
+            var pvcq = _db.ProductVariantAttributeCombinations
                 .Include(x => x.Product)
                 .ApplyTracking(tracked)
                 .ApplyStandardFilter(includeHidden)
