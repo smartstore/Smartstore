@@ -59,7 +59,7 @@ namespace Smartstore.Core.Catalog.Products
                 pvcq = pvcq.Where(x => x.Product.Visibility <= ProductVisibility.SearchResults);
             }
 
-            var variantCombination = pvcq.FirstOrDefault();
+            var variantCombination = await pvcq.FirstOrDefaultAsync();
 
             return (variantCombination?.Product, variantCombination);
         }
