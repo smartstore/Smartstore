@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Common;
@@ -26,6 +27,17 @@ namespace Smartstore.Core.Checkout.Affiliates
     /// </summary>
     public class Affiliate : BaseEntity, ISoftDeletable
     {
+        private readonly ILazyLoader _lazyLoader;
+
+        public Affiliate()
+        {
+        }
+
+        public Affiliate(ILazyLoader lazyLoader)
+        {
+            _lazyLoader = lazyLoader;
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether the entity is active
         /// </summary>
@@ -41,10 +53,15 @@ namespace Smartstore.Core.Checkout.Affiliates
         /// </summary>
         public int AddressId { get; set; }
 
+        private Address _address;
         /// <summary>
         /// Gets or sets the address relating to the affiliate
         /// </summary>
         [JsonIgnore, Required]
-        public virtual Address Address { get; set; }
+        public Address Address
+        {
+            get => _lazyLoader?.Load(this, ref _address) ?? _address;
+            set => _address = value;
+        }
     }
 }

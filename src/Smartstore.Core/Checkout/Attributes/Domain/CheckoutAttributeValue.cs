@@ -92,7 +92,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// <summary>
         /// Gets or sets the media file.
         /// </summary>
-        public virtual MediaFile MediaFile
+        public MediaFile MediaFile
         {
             get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
             set => _mediaFile = value;
@@ -103,7 +103,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// Gets or sets the checkout attribute
         /// </summary>
         [Required, JsonIgnore]
-        public virtual CheckoutAttribute CheckoutAttribute
+        public CheckoutAttribute CheckoutAttribute
         {
             get => _lazyLoader?.Load(this, ref _checkoutAttribute) ?? _checkoutAttribute;
             set => _checkoutAttribute = value;
