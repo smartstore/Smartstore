@@ -15,7 +15,6 @@
     <Folder Include="Catalog\Attributes\Migrations\" />
     <Folder Include="Catalog\Attributes\Hooks\" />
     <Folder Include="Catalog\Attributes\Events\" />
-    <Folder Include="Catalog\Attributes\Extensions\" />
     <Folder Include="Catalog\Attributes\Api\" />
     <Folder Include="Catalog\Attributes\Exceptions\" />
     <Folder Include="Catalog\Attributes\Commands\" />
