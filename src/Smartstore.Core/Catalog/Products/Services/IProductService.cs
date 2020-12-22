@@ -47,13 +47,13 @@ namespace Smartstore.Core.Catalog.Products
         Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(int[] productIds, bool includeHidden = false);
 
         /// <summary>
-        /// Applies the product review totals to a product entity.
+        /// Applies the product review totals to a product entity. The caller is responsible for database commit.
         /// </summary>
         /// <param name="product">Product entity.</param>
         void ApplyProductReviewTotals(Product product);
 
         /// <summary>
-        /// Adjusts product inventory.
+        /// Adjusts product inventory. The caller is responsible for database commit.
         /// </summary>
         /// <param name="product">Product entity.</param>
         /// <param name="decrease">A value indicating whether to increase or descrease product stock quantity.</param>
