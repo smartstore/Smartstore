@@ -7,7 +7,7 @@ namespace Smartstore.Core.Checkout.Affiliates
         /// <summary>
         /// Applies standard filter to affliate query. Orders query by <see cref="Affiliate.AddressId"/>
         /// </summary>
-        public static IQueryable<Affiliate> ApplyStandardFilter(this IQueryable<Affiliate> query, bool includeHidden = false)
+        public static IOrderedQueryable<Affiliate> ApplyStandardFilter(this IQueryable<Affiliate> query, bool includeHidden = false)
         {
             Guard.NotNull(query, nameof(query));
 
