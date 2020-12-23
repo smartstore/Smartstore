@@ -115,7 +115,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
         {
             get => _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
-            init => _giftCardUsageHistory = value;
+            set => _giftCardUsageHistory = value;
         }
 
         // TODO: (core) (ms) OrderItem is needed
