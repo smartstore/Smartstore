@@ -28,6 +28,34 @@
     <Folder Include="Modules\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\fontastic\fonts\fontastic.svg" />
+    <None Include="wwwroot\lib\fa5\scss\brands.scss" />
+    <None Include="wwwroot\lib\fa5\scss\fontawesome.scss" />
+    <None Include="wwwroot\lib\fa5\scss\regular.scss" />
+    <None Include="wwwroot\lib\fa5\scss\solid.scss" />
+    <None Include="wwwroot\lib\fa5\scss\v4-shims.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_animated.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_bordered-pulled.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_core.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_fixed-width.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_icons.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_larger.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_list.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_mixins.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_rotated-flipped.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_screen-reader.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_shims.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_stacked.scss" />
+    <None Include="wwwroot\lib\fa5\scss\_variables.scss" />
+    <None Include="wwwroot\lib\fa5\webfonts\fa-brands-400.svg" />
+    <None Include="wwwroot\lib\fa5\webfonts\fa-brands-400.woff2" />
+    <None Include="wwwroot\lib\fa5\webfonts\fa-regular-400.svg" />
+    <None Include="wwwroot\lib\fa5\webfonts\fa-regular-400.woff2" />
+    <None Include="wwwroot\lib\fa5\webfonts\fa-solid-900.svg" />
+    <None Include="wwwroot\lib\fa5\webfonts\fa-solid-900.woff2" />
+  </ItemGroup>
   
   <PropertyGroup>
   	<!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project-->

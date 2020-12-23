@@ -1,64 +1,137 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="de" dir="ltr" data-pnotify-firstpos1="0">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no" />
+    <meta name="HandheldFriendly" content="true">
+    <meta name="accept-language" content="de-DE">
+
     <title>@ViewData["Title"] - SmartstoreCorePlayground</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
-    
+
+    <partial name="_HeadScripts" />
+
+    <link rel="stylesheet" href="~/bundles/css/common.css" />
+    <link rel="stylesheet" href="~/bundles/css/theme.css" />
+
+    <script src="~/bundles/js/common.js"></script>
+
+    <partial name="_GlobalizationScripts" />
+
+    <script src="~/js/smartstore.globalization.adapter.js"></script>
+
     <mini-profiler />
 </head>
-<body>
-    <h3 class="ml-5 pl-5">@Url.Action("Countries", "Home", new { culture = "tr" })</h3>
 
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SmartstoreCorePlayground</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-route="Homepage">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-route="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Countries">Länder</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Settings">Settings</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logs">Logs</a>
-                        </li>
-                    </ul>
+<body class="lyt-cols-1">
+    <div id="page">
+        <div class="canvas-blocker canvas-slidable"></div>
+
+        <div class="page-main canvas-slidable">
+            <header id="header">
+
+                <!-- Shopbar -->
+                <div class="shopbar-section shopbar-light">
+                    <div class="container shopbar-container">
+                        <div class="shopbar">
+                            <div class="shopbar-col-group shopbar-col-group-brand">
+                                <div class="shopbar-col shop-logo">
+                                    <a class="brand" asp-route="Homepage">
+                                        <img src="~/images/logo.png" alt="Smartstore" title="Smartstore" class="img-fluid" width="560" height="100">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
-    
-    <zone zone-name="content-before" inject-mode="ZoneInjectMode.Prepend"></zone>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            <h5 class="text-muted">@Context.Request.PathBase.Value - @Context.Request.Path.Value</h5>
-            @RenderBody()
-        </main>
+                <!-- Megamenu -->
+                <div class="megamenu-section d-none d-lg-block">
+                    <nav class="navbar navbar-light">
+                        <div class="container megamenu-container">
+                            <div class="mainmenu megamenu">
+                                <div class="cms-menu cms-menu-navbar" data-menu-name="main">
+                                    <div class="megamenu-nav megamenu-nav--prev alpha">
+                                        <a href="#" class="megamenu-nav-btn btn btn-icon"><i class="far fa-chevron-left"></i></a>
+                                    </div>
+
+                                    <ul class="navbar-nav flex-row flex-nowrap" id="menu-main">
+                                        <li class="nav-item">
+                                            <a class="nav-link menu-link" asp-route="Homepage">
+                                                <span>Home</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link menu-link" asp-route="Privacy">
+                                                <span>Privacy</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link menu-link" asp-area="" asp-controller="Home" asp-action="Countries">
+                                                <span>Länder</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+
+                                            <a class="nav-link menu-link" asp-area="" asp-controller="Home" asp-action="Settings">
+                                                <span>Settings</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link menu-link" asp-area="" asp-controller="Home" asp-action="Logs">
+                                                <span>Logs</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="megamenu-nav megamenu-nav--next omega">
+                                        <a href="#" class="megamenu-nav-btn btn btn-icon"><i class="far fa-chevron-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </header>
+
+            <zone zone-name="content-before" inject-mode="ZoneInjectMode.Prepend"></zone>
+
+            <div id="content-wrapper">
+                <section id="content" class="container">
+                    <div class="d-none d-md-flex flex-wrap">
+                        <h5 class="text-muted">@Context.Request.PathBase.Value - @Context.Request.Path.Value</h5>
+                    </div>
+
+                    <zone zone-name="teaser"></zone>
+
+                    <div id="content-body" class="row">
+                        <div id="content-center" class="col-lg-12">
+                            <zone zone-name="main_column_before"></zone>
+                            <div class="page">
+                                <div class="page-body">
+                                    @RenderBody()
+                                </div>
+                            </div>
+                            <zone zone-name="main_column_after"></zone>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <zone zone-name="content-after"></zone>
+
+            <partial name="_Footer" />
+        </div>
+
+        <a href="#" id="scroll-top" class="scrollto d-flex align-items-center justify-content-center shadow-sm">
+            <i class="fa fa-lg fa-angle-up"></i>
+        </a>
     </div>
 
-    <zone zone-name="content-after" inject-mode="ZoneInjectMode.Append"></zone>
+    <script src="~/bundles/js/site.js"></script>
+    <script src="~/lib/select2/js/i18n/de.js"></script>
+    <script src="~/lib/moment/locale/de.js"></script>
 
-    <partial name="_Footer" />
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @RenderSection("Scripts", required: false)
+    <zone zone-name="scripts"></zone>
 </body>
 </html>
