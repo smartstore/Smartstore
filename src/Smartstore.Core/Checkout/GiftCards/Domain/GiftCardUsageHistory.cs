@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Domain;
 using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {

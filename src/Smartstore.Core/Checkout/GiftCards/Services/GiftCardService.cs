@@ -13,7 +13,7 @@ namespace Smartstore.Core.Checkout.GiftCards
             _db = db;
         }
 
-        //TODO: (core) (ms) customer extension ParseAppliedGiftCardCouponCodes is needed + nav props > load eager(include)
+        //TODO: (core) (ms) customer extension ParseAppliedGiftCardCouponCodes is needed + nav props (order item) > load eager(include)
         //public virtual async Task<IEnumerable<GiftCard>> GetActiveGiftCardsAppliedByCustomerAsync(Customer customer, int storeId)
         //{
         //    var result = new List<GiftCard>();
@@ -27,7 +27,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         //        .Include(x => x.OrderItem)
         //        .ThenInclude(x => x.Order)
         //        .Where(x => x.IsActivated)
-        //        .Where(x => couponCodes.Contains(x.CouponCode))                
+        //        .Where(x => couponCodes.Contains(x.CouponCode))
         //        .ToListAsync();
 
         //    foreach (var giftCard in giftCards)

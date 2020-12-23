@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Common;
 using Smartstore.Domain;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Core.Checkout.Affiliates
 {
@@ -25,7 +24,7 @@ namespace Smartstore.Core.Checkout.Affiliates
     /// <summary>
     /// Represents an affiliate
     /// </summary>
-    public class Affiliate : BaseEntity, ISoftDeletable
+    public partial class Affiliate : BaseEntity, ISoftDeletable
     {
         private readonly ILazyLoader _lazyLoader;
 
