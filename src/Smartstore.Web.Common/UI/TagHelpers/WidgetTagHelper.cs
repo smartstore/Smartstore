@@ -56,7 +56,7 @@ namespace Smartstore.Web.UI.TagHelpers
             }
             
             var childContent = await output.GetChildContentAsync();
-            var widget = new HtmlWidgetInvoker(new HtmlString(childContent.GetContent())) { Order = Ordinal };
+            var widget = new HtmlWidgetInvoker(childContent) { Order = Ordinal };
 
             _widgetProvider.RegisterWidget(Target, widget);
         }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,30 +12,64 @@ namespace Smartstore.Web.UI.TagHelpers
 {
     public static class TagHelperOutputExtensions
     {
-        /// <summary>
-        /// Adds a style entry
-        /// </summary>
-        public static void AddCssStyle(this TagHelperOutput output, string name, string value)
+        #region CSS
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AppendCssClass(this TagHelperOutput output, string cssClass)
         {
-            if (output.Attributes.ContainsName("style"))
+            AddInAttributeValue(output.Attributes, "class", ' ', cssClass, false);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void PrependCssClass(this TagHelperOutput output, string cssClass)
+        {
+            AddInAttributeValue(output.Attributes, "class", ' ', cssClass, true);
+        }
+
+        private static void AddInAttributeValue(TagHelperAttributeList attrList, string name, char separator, string value, bool prepend = false)
+        {
+            if (!attrList.TryGetAttribute(name, out var attribute))
             {
-                var styleValue = output.Attributes["style"].Value.ToString();
-                if (styleValue.IsEmpty())
-                {
-                    output.Attributes.SetAttribute("style", name + ": " + value + ";");
-                }
-                else
-                {
-                    output.Attributes.SetAttribute("style", (styleValue.EndsWith(";")
-                                                             ? " "
-                                                             : "; ") + name + ": " + value + ";");
-                }
+                attrList.Add(new TagHelperAttribute(name, value));
             }
             else
             {
-                output.Attributes.Add("style", name + ": " + value + ";");
+                var arr = attribute.Value.ToString().Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+                var arrValue = value.Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+
+                arr = prepend ? arrValue.Union(arr) : arr.Union(arrValue);
+
+                attrList.SetAttribute(name, string.Join(separator, arr));
             }
         }
+
+        public static void AddCssStyle(this TagHelperOutput output, string expression, object value)
+        {
+            Guard.NotEmpty(expression, nameof(expression));
+            Guard.NotNull(value, nameof(value));
+
+            var style = expression + ": " + Convert.ToString(value, CultureInfo.InvariantCulture);
+            AddCssStyles(output, style);
+        }
+
+        public static void AddCssStyles(this TagHelperOutput output, string styles)
+        {
+            Guard.NotEmpty(styles, nameof(styles));
+
+            if (output.Attributes.TryGetAttribute("style", out var attribute))
+            {
+                var currentStyle = attribute.Value.ToString().TrimEnd().EnsureEndsWith("; ");
+                output.Attributes.SetAttribute("style", currentStyle + styles);
+            }
+            else
+            {
+                output.Attributes.SetAttribute("style", styles);
+            }
+        }
+
+        #endregion
+
+        #region Content
 
         /// <summary>
         /// Loads the child content asynchronously.
@@ -265,5 +301,7 @@ namespace Smartstore.Web.UI.TagHelpers
             output.PreElement.AppendHtml(startTag);
             output.PostElement.PrependHtml(endTag);
         }
+
+        #endregion
     }
 }

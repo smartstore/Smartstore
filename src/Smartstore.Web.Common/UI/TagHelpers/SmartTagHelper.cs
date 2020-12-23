@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Utilities;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace Smartstore.Web.UI.TagHelpers
 {
@@ -21,6 +23,7 @@ namespace Smartstore.Web.UI.TagHelpers
 
             ActionContextAccessor = requestServices.GetRequiredService<IActionContextAccessor>();
             HtmlHelper = requestServices.GetRequiredService<IHtmlHelper>();
+            UrlHelper = requestServices.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(ActionContextAccessor.ActionContext);
 
             if (HtmlHelper is IViewContextAware contextAware)
             {
@@ -39,13 +42,19 @@ namespace Smartstore.Web.UI.TagHelpers
         protected IActionContextAccessor ActionContextAccessor { get; set; }
 
         [HtmlAttributeNotBound]
-        protected TagHelperOutput Output { get; set; }
+        protected IUrlHelper UrlHelper { get; set; }
+
+        [HtmlAttributeNotBound]
+        public TagHelperOutput Output { get; set; }
 
         /// <summary>
-        /// Gets or sets the identifier for the control.
+        /// Gets or sets the identifier for the tag.
         /// </summary>
         public string Id { get; set; }
 
+        /// <summary>
+        /// HTML tag id auto generator. Only called when <see cref="Id"/> is null or empty.
+        /// </summary>
         protected virtual string GenerateTagId(TagHelperContext context)
             => context.TagName + '-' + CommonHelper.GenerateRandomDigitCode(10);
 
@@ -65,7 +74,7 @@ namespace Smartstore.Web.UI.TagHelpers
 
         private void ProcessCommon(TagHelperContext context, TagHelperOutput output)
         {
-            Id = Id.NullEmpty()?.SanitizeHtmlId() ?? GenerateTagId(context);
+            Id = Id.NullEmpty() ?? GenerateTagId(context);
             
             if (Id.HasValue())
             {

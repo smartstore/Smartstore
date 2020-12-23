@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.Web.UI.TagHelpers
 {
@@ -27,14 +30,14 @@ namespace Smartstore.Web.UI.TagHelpers
 
     [OutputElementHint("div")]
     [RestrictChildren("tab")]
-    [HtmlTargetElement("tabstrip")]
+    [HtmlTargetElement("tabstrip", Attributes = "id")]
     public class TabStripTagHelper : SmartTagHelper
     {
         [HtmlAttributeNotBound]
         public List<TabTagHelper> Tabs { get; set; } = new();
 
         /// <summary>
-        /// Whether to hide tabstrip if there's only one tab item. Default = false.
+        /// Whether to hide tabstrip nav if there's only one tab item. Default = false.
         /// </summary>
         public bool HideSingleItem { get; set; }
 
@@ -92,9 +95,142 @@ namespace Smartstore.Web.UI.TagHelpers
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
-            var tabs = Tabs;
             await output.GetChildContentAsync();
-            tabs = Tabs;
+
+            if (Tabs.Count == 0)
+            {
+                output.SuppressOutput();
+            }
+
+            MoveSpecialTabToEnd(Tabs);
+
+            var hasContent = Tabs.Any(x => !x.TabInnerContent.IsEmptyOrWhiteSpace || x.Ajax);
+            var isTabbable = Position != TabsPosition.Top;
+            var isStacked = Position == TabsPosition.Left || Position == TabsPosition.Right;
+
+            output.TagName = "div";
+            output.AppendCssClass("tabbable");
+
+            if (isTabbable)
+            {
+                output.AppendCssClass("tabs-{0}".FormatInvariant(Position.ToString().ToLower()));
+            }
+
+            if (SmartTabSelection)
+            {
+                output.AppendCssClass("tabs-autoselect");
+                // TODO: (core) Move SetSelectedTab action to a public shared frontend controller
+                output.Attributes.Add("data-tabselector-href", UrlHelper.Action("SetSelectedTab", "Common", new { area = "admin" }));
+            }
+
+            if (isStacked)
+            {
+                output.AppendCssClass("row");
+            }
+
+            if (OnAjaxBegin.HasValue())
+            {
+                output.Attributes.Add("data-ajax-onbegin", OnAjaxBegin);
+            }
+
+            if (OnAjaxSuccess.HasValue())
+            {
+                output.Attributes.Add("data-ajax-onsuccess", OnAjaxSuccess);
+            }
+
+            if (OnAjaxFailure.HasValue())
+            {
+                output.Attributes.Add("data-ajax-onfailure", OnAjaxFailure);
+            }
+
+            if (OnAjaxComplete.HasValue())
+            {
+                output.Attributes.Add("data-ajax-oncomplete", OnAjaxComplete);
+            }
+
+            if (Responsive)
+            {
+                output.AppendCssClass("nav-responsive");
+                output.Attributes.Add("data-breakpoint", Breakpoint);
+            }
+
+            //// Fix selected tab
+            //if (!Tabs.Any(x => x.Selected))
+            //{
+            //    var selectedTab = Tabs.FirstOrDefault(x => !x.Disabled);
+            //    if (selectedTab != null)
+            //    {
+            //        selectedTab.Selected = true;
+            //    }
+            //}
+
+            // nav/items
+            RenderNav(output.PreContent, isStacked);
+
+            // tab-content
+            RenderTabContent(output.Content);
+        }
+
+        private void RenderNav(TagHelperContent content, bool isStacked)
+        {
+            TagBuilder ul = new("ul");
+            ul.AppendCssClass("nav");
+
+            if (Style == TabsStyle.Tabs)
+            {
+                ul.AppendCssClass("nav-tabs");
+            }
+            else if (Style == TabsStyle.Pills)
+            {
+                ul.AppendCssClass("nav-pills");
+            }
+            else if (Style == TabsStyle.Material)
+            {
+                ul.AppendCssClass("nav-tabs nav-tabs-line");
+            }
+
+            if (HideSingleItem && Tabs.Count == 1)
+            {
+                ul.AppendCssClass("d-none");
+            }
+
+            if (isStacked)
+            {
+                ul.AppendCssClass("flex-row flex-lg-column");
+            }
+
+            content.AppendHtml(ul.RenderStartTag());
+
+            foreach (var tab in Tabs)
+            {
+                content.AppendHtml(tab.TabItemTag);
+            }
+
+            content.AppendHtml(ul.RenderEndTag());
+        }
+
+        private void RenderTabContent(TagHelperContent content)
+        {
+            content.AppendHtml("<div class=\"tab-content\">");
+
+            // TODO: tab-content-header
+            foreach (var tab in Tabs)
+            {
+                content.AppendHtml(tab.TabOuterTag);
+            }
+
+            content.AppendHtml("</div>");
+        }
+
+        private static void MoveSpecialTabToEnd(List<TabTagHelper> tabs)
+        {
+            var idx = tabs.FindIndex(x => x.Name == "tab-special-plugin-widgets");
+            if (idx > -1 && idx < (tabs.Count - 1))
+            {
+                var tab = tabs[idx];
+                tabs.RemoveAt(idx);
+                tabs.Add(tab);
+            }
         }
     }
 }
