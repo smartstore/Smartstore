@@ -42,6 +42,8 @@ namespace Smartstore.Core.Checkout.Attributes
             Guard.NotNull(attribute, nameof(attribute));
             Guard.NotNull(value, nameof(value));
 
+            // TODO: (core) Build a convenient helper type for attributesXml (e.g. "ProductAttributeSelection")
+
             var result = string.Empty;
             try
             {

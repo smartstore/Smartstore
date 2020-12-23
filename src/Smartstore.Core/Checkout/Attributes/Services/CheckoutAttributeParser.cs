@@ -18,7 +18,7 @@ namespace Smartstore.Core.Checkout.Attributes
             _db = db;
         }
 
-        public Task<IEnumerable<int>> ParseCheckoutAttributeIdsAsync(string attributes)
+        public IEnumerable<int> ParseCheckoutAttributeIds(string attributes)
         {
             Guard.NotNull(attributes, nameof(attributes));
 
@@ -45,14 +45,14 @@ namespace Smartstore.Core.Checkout.Attributes
                 Debug.Write(ex.ToString());
             }
 
-            return Task.FromResult<IEnumerable<int>>(ids);
+            return ids;
         }
 
         public async Task<IEnumerable<CheckoutAttribute>> ParseCheckoutAttributesAsync(string attributes)
         {
             Guard.NotNull(attributes, nameof(attributes));
 
-            var ids = await ParseCheckoutAttributeIdsAsync(attributes);
+            var ids = ParseCheckoutAttributeIds(attributes);
             return await _db.CheckoutAttributes.GetManyAsync(ids);
         }
 
