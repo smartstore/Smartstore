@@ -6,10 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
+using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public class ProductHook : AsyncDbSaveHook<Product>
+    public class ProductHook : AsyncDbSaveHook<BaseEntity>
     {
         private readonly SmartDbContext _db;
 
@@ -20,32 +21,75 @@ namespace Smartstore.Core.Catalog.Products
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
+            // Products.
             var softDeletedProducts = entries
                 .Where(x => x.IsSoftDeleted == true)
                 .Select(x => x.Entity)
                 .OfType<Product>()
                 .ToList();
 
-            foreach (var product in softDeletedProducts)
+            if (softDeletedProducts.Any())
             {
-                product.Deleted = true;
-                product.DeliveryTimeId = null;
-                product.QuantityUnitId = null;
-                product.CountryOfOriginId = null;
+                foreach (var softDeletedProduct in softDeletedProducts)
+                {
+                    softDeletedProduct.Deleted = true;
+                    softDeletedProduct.DeliveryTimeId = null;
+                    softDeletedProduct.QuantityUnitId = null;
+                    softDeletedProduct.CountryOfOriginId = null;
+                }
+
+                await _db.SaveChangesAsync();
+
+                // Unassign grouped products.
+                var groupedProductIds = softDeletedProducts
+                    .Where(x => x.ProductType == ProductType.GroupedProduct)
+                    .Select(x => x.Id)
+                    .Distinct()
+                    .ToArray();
+
+                if (groupedProductIds.Any())
+                {
+                    var allAssociatedProducts = await _db.Products
+                        .Where(x => groupedProductIds.Contains(x.ParentGroupedProductId))
+                        .BatchUpdateAsync(x => new Product { ParentGroupedProductId = 0 });
+                }
             }
 
-            await _db.SaveChangesAsync();
+            // ProductMediaFile.
+            var deletedProductFiles = entries
+                .Where(x => x.State == Smartstore.Data.EntityState.Deleted)
+                .Select(x => x.Entity)
+                .OfType<ProductMediaFile>()
+                .ToList();
 
-            // Unassign grouped products
-            var groupedProductIds = softDeletedProducts
-                .Where(x => x.ProductType == ProductType.GroupedProduct)
-                .Select(x => x.Id)
-                .Distinct()
-                .ToArray();
+            // Unassign deleted pictures from variant combinations.
+            if (deletedProductFiles.Any())
+            {
+                var deletedMediaIds = deletedProductFiles.ToMultimap(x => x.ProductId, x => x.MediaFileId);
+                var productIds = deletedProductFiles.Select(x => x.ProductId).Distinct().ToArray();
 
-            var allAssociatedProducts = await _db.Products
-                .Where(x => groupedProductIds.Contains(x.ParentGroupedProductId))
-                .BatchUpdateAsync(x => new Product { ParentGroupedProductId = 0 });
+                foreach (var productIdsChunk in productIds.Slice(100))
+                {
+                    var combinations = await _db.ProductVariantAttributeCombinations
+                        .Where(x => productIdsChunk.Contains(x.ProductId) && !string.IsNullOrEmpty(x.AssignedMediaFileIds))
+                        .ToListAsync();
+
+                    foreach (var combination in combinations)
+                    {
+                        if (deletedMediaIds.ContainsKey(combination.ProductId))
+                        {
+                            var newMediaIds = combination
+                                .GetAssignedMediaIds()
+                                .Except(deletedMediaIds[combination.ProductId])
+                                .ToArray();
+
+                            combination.SetAssignedMediaIds(newMediaIds);
+                        }
+                    }
+
+                    await _db.SaveChangesAsync();
+                }
+            }
         }
     }
 }

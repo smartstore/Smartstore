@@ -13,6 +13,9 @@ namespace Smartstore.Core.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
 
+        public DbSet<RelatedProduct> RelatedProducts { get; set; }
+        public DbSet<CrossSellProduct> CrossSellProducts { get; set; }
+
         public DbSet<ProductAttribute> ProductAttributes { get; set; }
         public DbSet<ProductVariantAttribute> ProductVariantAttributes { get; set; }
         public DbSet<ProductVariantAttributeValue> ProductVariantAttributeValues { get; set; }

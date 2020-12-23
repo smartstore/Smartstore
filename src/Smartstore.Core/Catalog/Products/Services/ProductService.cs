@@ -108,8 +108,8 @@ namespace Smartstore.Core.Catalog.Products
             var query = _db.Products
                 .AsNoTracking()
                 .Include(x => x.ProductTags)
-                .ApplyStandardFilter(includeHidden)
-                .Where(x => productIds.Contains(x.Id));
+                .Where(x => productIds.Contains(x.Id))
+                .ApplyStandardFilter(includeHidden);
 
             if (!includeHidden)
             {
@@ -146,8 +146,8 @@ namespace Smartstore.Core.Catalog.Products
             // NoTracking does not seem to eager load here.
             var query = _db.Products
                 .Include(x => x.AppliedDiscounts.Select(y => y.RuleSets))
-                .ApplyStandardFilter(includeHidden)
                 .Where(x => productIds.Contains(x.Id))
+                .ApplyStandardFilter(includeHidden)
                 .Select(x => new
                 {
                     ProductId = x.Id,
@@ -285,5 +285,136 @@ namespace Smartstore.Core.Catalog.Products
 
             return result;
         }
+
+        public virtual async Task<int> EnsureMutuallyRelatedProductsAsync(int productId1)
+        {
+            var productQuery = _db.Products.ApplyStandardFilter(true);
+            var relatedProductsQuery =
+                from rp in _db.RelatedProducts
+                join p in productQuery on rp.ProductId2 equals p.Id
+                where rp.ProductId1 == productId1
+                orderby rp.DisplayOrder
+                select rp.ProductId2;
+
+            var productIds = await relatedProductsQuery.ToListAsync();
+
+            if (productIds.Count > 0 && !productIds.Any(x => x == productId1))
+            {
+                productIds.Add(productId1);
+            }
+            if (!productIds.Any())
+            {
+                return 0;
+            }
+
+            var query =
+                from rp in _db.RelatedProducts
+                join p in _db.Products on rp.ProductId2 equals p.Id
+                where productIds.Contains(rp.ProductId2)
+                select new { rp.ProductId1, rp.ProductId2 };
+
+            var allAssociatedIds = await query.ToListAsync();
+            var associatedIdsMap = allAssociatedIds.ToMultimap(x => x.ProductId2, x => x.ProductId1);
+            var added = 0;
+
+            foreach (var id1 in productIds)
+            {
+                var associatedIds = associatedIdsMap.ContainsKey(id1)
+                    ? associatedIdsMap[id1]
+                    : new List<int>();
+
+                foreach (var id2 in productIds)
+                {
+                    if (id1 == id2)
+                    {
+                        continue;
+                    }
+
+                    if (!associatedIds.Any(x => x == id2))
+                    {
+                        var maxDisplayOrder = await _db.RelatedProducts
+                            .Where(x => x.ProductId1 == id2)
+                            .OrderByDescending(x => x.DisplayOrder)
+                            .Select(x => x.DisplayOrder)
+                            .FirstOrDefaultAsync();
+
+                        await _db.RelatedProducts.AddAsync(new RelatedProduct
+                        {
+                            ProductId1 = id2,
+                            ProductId2 = id1,
+                            DisplayOrder = maxDisplayOrder + 1
+                        });
+
+                        ++added;
+                    }
+                }
+            }
+
+            return added;
+        }
+
+        public virtual async Task<int> EnsureMutuallyCrossSellProductsAsync(int productId1)
+        {
+            var productQuery = _db.Products.ApplyStandardFilter(true);
+            var crossSellProductsQuery = 
+                from csp in _db.CrossSellProducts
+                join p in productQuery on csp.ProductId2 equals p.Id
+                where csp.ProductId1 == productId1
+                orderby csp.Id
+                select csp.ProductId2;
+
+            var productIds = await crossSellProductsQuery.ToListAsync();
+
+            if (productIds.Count > 0 && !productIds.Any(x => x == productId1))
+            {
+                productIds.Add(productId1);
+            }
+            if (!productIds.Any())
+            {
+                return 0;
+            }
+
+            var query =
+                from csp in _db.CrossSellProducts
+                join p in _db.Products on csp.ProductId2 equals p.Id
+                where productIds.Contains(csp.ProductId2)
+                select new { csp.ProductId1, csp.ProductId2 };
+
+            var allAssociatedIds = await query.ToListAsync();
+            var associatedIdsMap = allAssociatedIds.ToMultimap(x => x.ProductId2, x => x.ProductId1);
+            var added = 0;
+
+            foreach (var id1 in productIds)
+            {
+                var associatedIds = associatedIdsMap.ContainsKey(id1)
+                    ? associatedIdsMap[id1]
+                    : new List<int>();
+
+                foreach (var id2 in productIds)
+                {
+                    if (id1 == id2)
+                    {
+                        continue;
+                    }
+
+                    if (!associatedIds.Any(x => x == id2))
+                    {
+                        await _db.CrossSellProducts.AddAsync(new CrossSellProduct
+                        {
+                            ProductId1 = id2,
+                            ProductId2 = id1
+                        });
+
+                        ++added;
+                    }
+                }
+            }
+
+            return added;
+        }
+
+        // TODO: (mg) (core) Port ProductService.GetCrossSellProductsByShoppingCart method.
+
+
     }
 }

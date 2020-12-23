@@ -34,7 +34,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets product tags by product identifiers.
         /// </summary>
         /// <param name="productIds">Product identifiers.</param>
-        /// <param name="includeHidden">A value indicating whether to include hidden product tags.</param>
+        /// <param name="includeHidden">A value indicating whether to include hidden products and product tags.</param>
         /// <returns>Map of product tags.</returns>
         Task<Multimap<int, ProductTag>> GetProductTagsByProductIdsAsync(int[] productIds, bool includeHidden = false);
 
@@ -42,7 +42,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Get applied discounts by product identifiers.
         /// </summary>
         /// <param name="productIds">Product identifiers.</param>
-        /// <param name="includeHidden">A value indicating whether to include hidden product tags.</param>
+        /// <param name="includeHidden">A value indicating whether to include hidden products.</param>
         /// <returns>Map of discounts.</returns>
         Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(int[] productIds, bool includeHidden = false);
 
@@ -61,5 +61,19 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="attributesXml">Attributes XML data.</param>
         /// <returns>Adjust inventory result.</returns>
         Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, bool decrease, int quantity, string attributesXml);
+
+        /// <summary>
+        /// Ensures the existence of all mutually related products.
+        /// </summary>
+        /// <param name="productId1">First product identifier.</param>
+        /// <returns>Number of related products added.</returns>
+        Task<int> EnsureMutuallyRelatedProductsAsync(int productId1);
+
+        /// <summary>
+        /// Ensures the existence of all mutually cross selling products.
+        /// </summary>
+        /// <param name="productId1">First product identifier.</param>
+        /// <returns>Number of cross sell products added.</returns>
+        Task<int> EnsureMutuallyCrossSellProductsAsync(int productId1);
     }
 }
