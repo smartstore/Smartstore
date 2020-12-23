@@ -65,7 +65,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets or sets the gift card
         /// </summary>
-        [Required, JsonIgnore]
+        [JsonIgnore]
         public GiftCard GiftCard
         {
             get => _lazyLoader?.Load(this, ref _giftCard) ?? _giftCard;
@@ -76,7 +76,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets the order associated with the gift card
         /// </summary>
-        [Required, JsonIgnore]
+        [JsonIgnore]
         public Order Order
         {
             get => _lazyLoader?.Load(this, ref _order) ?? _order;

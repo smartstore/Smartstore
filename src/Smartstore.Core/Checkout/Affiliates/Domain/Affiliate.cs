@@ -57,7 +57,7 @@ namespace Smartstore.Core.Checkout.Affiliates
         /// <summary>
         /// Gets or sets the address relating to the affiliate
         /// </summary>
-        [JsonIgnore, Required]
+        [JsonIgnore]
         public Address Address
         {
             get => _lazyLoader?.Load(this, ref _address) ?? _address;

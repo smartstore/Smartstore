@@ -102,7 +102,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// <summary>
         /// Gets or sets the checkout attribute
         /// </summary>
-        [Required, JsonIgnore]
+        [JsonIgnore]
         public CheckoutAttribute CheckoutAttribute
         {
             get => _lazyLoader?.Load(this, ref _checkoutAttribute) ?? _checkoutAttribute;
