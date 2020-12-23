@@ -169,8 +169,6 @@ namespace Smartstore.Data.Hooks
                         {
                             RegisterVoidHook(hook, e, HookStage.PostSave);
                         }
-
-                        processedHooks.Add(hook, e);
                     }
                     catch (Exception ex) when (ex is NotImplementedException || ex is NotSupportedException)
                     {

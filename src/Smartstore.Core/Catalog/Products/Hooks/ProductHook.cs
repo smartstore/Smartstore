@@ -19,6 +19,16 @@ namespace Smartstore.Core.Catalog.Products
             _db = db;
         }
 
+        protected override Task<HookResult> OnUpdatedAsync(BaseEntity entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            return Task.FromResult(entry.EntityType == typeof(Product) ? HookResult.Ok : HookResult.Void);
+        }
+
+        protected override Task<HookResult> OnDeletedAsync(BaseEntity entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            return Task.FromResult(entry.EntityType == typeof(ProductMediaFile) ? HookResult.Ok : HookResult.Void);
+        }
+
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
             // Products.
@@ -55,6 +65,7 @@ namespace Smartstore.Core.Catalog.Products
                 }
             }
 
+            // TODO: (core) (mg) (perf) Put the rest in another dedicated hook.
             // ProductMediaFile.
             var deletedProductFiles = entries
                 .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted)
