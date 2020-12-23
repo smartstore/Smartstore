@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Core.Checkout.Attributes
 {
-    public partial class CheckoutAttributeValueMap : IEntityTypeConfiguration<CheckoutAttributeValue>
+    public class CheckoutAttributeValueMap : IEntityTypeConfiguration<CheckoutAttributeValue>
     {
         public void Configure(EntityTypeBuilder<CheckoutAttributeValue> builder)
         {

@@ -4,7 +4,7 @@ using System.Linq;
 namespace Smartstore.Core.Checkout.Attributes
 {
     /// <summary>
-    /// Checkout attributes query extensions
+    /// Checkout attribute query extensions
     /// </summary>
     public static class CheckoutAttributeQueryExtensions
     {

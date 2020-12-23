@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Smartstore.Core.Checkout.Cart;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Smartstore.Core.Checkout.Attributes
@@ -29,9 +30,8 @@ namespace Smartstore.Core.Checkout.Attributes
         IList<string> ParseValues(string attributes, int attributeId);
 
         /// <summary>
-        /// Removes checkout attributes which cannot be applied to the current cart and returns an update attributes in XML format
+        /// Removes checkout attributes which cannot be applied to the current cart and returns an updated attributes XML string
         /// </summary>
-        // TODO: (core) (ms) needs OrganizedShoppingCartItem here
-        //Task<string> EnsureOnlyActiveAttributesAsync(string attributes, IList<OrganizedShoppingCartItem> cart);
+        Task<string> RemoveNotApplicableAttributesAsync(string attributes, IList<OrganizedShoppingCartItem> cart);
     }
 }
