@@ -68,7 +68,7 @@ namespace Smartstore.Core.Checkout.Attributes
                 if (!attribute.ShouldHaveValues())
                     continue;
 
-                var values = await ParseValuesAsync(attributes, attribute.Id);
+                var values = ParseValues(attributes, attribute.Id);
                 var ids = values
                     .Select(x => int.TryParse(x, out var id) ? id : -1)
                     .Where(x => x is not -1);
@@ -81,7 +81,7 @@ namespace Smartstore.Core.Checkout.Attributes
             return valuesList;
         }
 
-        public Task<IEnumerable<string>> ParseValuesAsync(string attributes, int attributeId)
+        public IList<string> ParseValues(string attributes, int attributeId)
         {
             Guard.NotNull(attributes, nameof(attributes));
 
@@ -116,7 +116,7 @@ namespace Smartstore.Core.Checkout.Attributes
                 Debug.Write(ex.ToString()); // ? logger?
             }
 
-            return Task.FromResult<IEnumerable<string>>(attributesList);
+            return attributesList;
         }
 
         // TODO: (core) (ms) needs OrganizedShoppingCartItem here
