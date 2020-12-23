@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
 using Smartstore.Domain;
 
@@ -259,6 +260,17 @@ namespace Smartstore.Core.Customers
         {
             get => _lazyLoader?.Load(this, ref _customerContent) ?? (_customerContent ??= new HashSet<CustomerContent>());
             protected set => _customerContent = value;
+        }
+
+        private ICollection<ShoppingCartItem> _shoppingCartItems;
+        /// <summary>
+        /// Gets or sets shopping cart items
+        /// </summary>
+        [JsonIgnore]
+        public virtual ICollection<ShoppingCartItem> ShoppingCartItems
+        {
+            get => _lazyLoader?.Load(this, ref _shoppingCartItems) ?? (_shoppingCartItems ??= new HashSet<ShoppingCartItem>());
+            protected set => _shoppingCartItems = value;
         }
 
         #endregion
