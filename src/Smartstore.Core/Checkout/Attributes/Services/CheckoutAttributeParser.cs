@@ -48,20 +48,21 @@ namespace Smartstore.Core.Checkout.Attributes
             return ids;
         }
 
-        public async Task<IEnumerable<CheckoutAttribute>> ParseCheckoutAttributesAsync(string attributes)
+        public Task<List<CheckoutAttribute>> ParseCheckoutAttributesAsync(string attributes)
         {
             Guard.NotNull(attributes, nameof(attributes));
 
             var ids = ParseCheckoutAttributeIds(attributes);
-            return await _db.CheckoutAttributes.GetManyAsync(ids);
+            return _db.CheckoutAttributes.GetManyAsync(ids);
         }
 
-        public async Task<IEnumerable<CheckoutAttributeValue>> ParseCheckoutAttributeValuesAsync(string attributes)
+        public async Task<List<CheckoutAttributeValue>> ParseCheckoutAttributeValuesAsync(string attributes)
         {
             Guard.NotNull(attributes, nameof(attributes));
 
             var valuesList = new List<CheckoutAttributeValue>();
             var attributesList = await ParseCheckoutAttributesAsync(attributes);
+
             foreach (var attribute in attributesList)
             {
                 if (!attribute.ShouldHaveValues())
@@ -72,6 +73,7 @@ namespace Smartstore.Core.Checkout.Attributes
                     .Select(x => int.TryParse(x, out var id) ? id : -1)
                     .Where(x => x is not -1);
 
+                // TODO: (core) (ms) Fetch this in ONE rountrip!
                 var attributeValues = await _db.CheckoutAttributeValues.GetManyAsync(ids);
                 valuesList.AddRange(attributeValues);
             }

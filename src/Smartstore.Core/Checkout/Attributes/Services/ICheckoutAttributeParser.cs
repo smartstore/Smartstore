@@ -11,17 +11,17 @@ namespace Smartstore.Core.Checkout.Attributes
         /// <summary>
         /// Gets selected checkout attribute identifiers
         /// </summary>
-        Task<IEnumerable<int>> ParseCheckoutAttributeIdsAsync(string attributes);
+        IEnumerable<int> ParseCheckoutAttributeIds(string attributes);
 
         /// <summary>
         /// Gets selected checkout attributes
         /// </summary>
-        Task<IEnumerable<CheckoutAttribute>> ParseCheckoutAttributesAsync(string attributes);
+        Task<List<CheckoutAttribute>> ParseCheckoutAttributesAsync(string attributes);
 
         /// <summary>
         /// Gets checkout attribute values
         /// </summary>
-        Task<IEnumerable<CheckoutAttributeValue>> ParseCheckoutAttributeValuesAsync(string attributes);
+        Task<List<CheckoutAttributeValue>> ParseCheckoutAttributeValuesAsync(string attributes);
 
         /// <summary>
         /// Gets selected checkout attribute value

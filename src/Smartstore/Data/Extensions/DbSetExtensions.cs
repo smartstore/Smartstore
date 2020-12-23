@@ -55,7 +55,7 @@ namespace Smartstore
         /// Loads many entities from database sorted by the given id sequence.
         /// Sort is applied in-memory.
         /// </summary>
-        public static async Task<IEnumerable<T>> GetManyAsync<T>(this DbSet<T> dbSet, IEnumerable<int> ids, bool tracked = false) 
+        public static async Task<List<T>> GetManyAsync<T>(this DbSet<T> dbSet, IEnumerable<int> ids, bool tracked = false) 
             where T : BaseEntity, new()
         {
             Guard.NotNull(dbSet, nameof(dbSet));
