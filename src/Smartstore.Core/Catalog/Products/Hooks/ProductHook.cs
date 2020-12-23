@@ -57,7 +57,7 @@ namespace Smartstore.Core.Catalog.Products
 
             // ProductMediaFile.
             var deletedProductFiles = entries
-                .Where(x => x.State == Smartstore.Data.EntityState.Deleted)
+                .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted)
                 .Select(x => x.Entity)
                 .OfType<ProductMediaFile>()
                 .ToList();
