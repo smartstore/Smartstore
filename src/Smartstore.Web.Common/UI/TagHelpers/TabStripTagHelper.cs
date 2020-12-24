@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -107,25 +108,26 @@ namespace Smartstore.Web.UI.TagHelpers
             var hasContent = Tabs.Any(x => !x.TabInnerContent.IsEmptyOrWhiteSpace || x.Ajax);
             var isTabbable = Position != TabsPosition.Top;
             var isStacked = Position == TabsPosition.Left || Position == TabsPosition.Right;
+            var classList = output.GetClassList();
 
             output.TagName = "div";
-            output.AppendCssClass("tabbable");
+            classList.Add("tabbable");
 
             if (isTabbable)
             {
-                output.AppendCssClass("tabs-{0}".FormatInvariant(Position.ToString().ToLower()));
+                classList.Add("tabs-{0}".FormatInvariant(Position.ToString().ToLower()));
             }
 
             if (SmartTabSelection)
             {
-                output.AppendCssClass("tabs-autoselect");
+                classList.Add("tabs-autoselect");
                 // TODO: (core) Move SetSelectedTab action to a public shared frontend controller
                 output.Attributes.Add("data-tabselector-href", UrlHelper.Action("SetSelectedTab", "Common", new { area = "admin" }));
             }
 
             if (isStacked)
             {
-                output.AppendCssClass("row");
+                classList.Add("row");
             }
 
             if (OnAjaxBegin.HasValue())
@@ -150,53 +152,97 @@ namespace Smartstore.Web.UI.TagHelpers
 
             if (Responsive)
             {
-                output.AppendCssClass("nav-responsive");
+                classList.Add("nav-responsive");
                 output.Attributes.Add("data-breakpoint", Breakpoint);
             }
 
-            //// Fix selected tab
-            //if (!Tabs.Any(x => x.Selected))
-            //{
-            //    var selectedTab = Tabs.FirstOrDefault(x => !x.Disabled);
-            //    if (selectedTab != null)
-            //    {
-            //        selectedTab.Selected = true;
-            //    }
-            //}
+            // Flush classes
+            classList.Dispose();
+
+            // tab-content above nav
+            if (Position == TabsPosition.Below && hasContent)
+            {
+                RenderTabContent(output.Content, isStacked);
+            }
+
+            // Enable smart tab selection
+            string selector = null;
+            if (SmartTabSelection)
+            {
+                selector = TrySelectRememberedTab();
+            }
 
             // nav/items
-            RenderNav(output.PreContent, isStacked);
+            RenderNav(output.Content, isStacked);
 
-            // tab-content
-            RenderTabContent(output.Content);
+            // tab-content below nav
+            if (Position != TabsPosition.Below && hasContent)
+            {
+                RenderTabContent(output.Content, isStacked);
+            }
+
+            if (selector != null)
+            {
+                output.Content.AppendHtmlLine(
+@"<script>
+	$(function() {{
+		_.delay(function() {{
+			$(""{0}"").trigger(""show"");
+		}}, 100);
+	}})
+</script>".FormatInvariant(selector));
+            }
+
+            var loadedTabs = Tabs.Where(x => x.LoadedTabName.HasValue()).ToList();
+            if (loadedTabs.Count > 0)
+            {
+                foreach (var tabName in loadedTabs)
+                {
+                    output.Content.AppendHtmlLine($"<input type='hidden' class='loaded-tab-name' name='LoadedTabs' value='{tabName}' />");
+                }
+            }
+
+            if (Responsive /* && tab.TabContentHeaderContent != null*/)
+            {
+                output.Content.AppendHtmlLine(@"<script>$(function() {{ $('#{0}').responsiveNav(); }})</script>".FormatInvariant(Id));
+            }
         }
 
         private void RenderNav(TagHelperContent content, bool isStacked)
         {
             TagBuilder ul = new("ul");
-            ul.AppendCssClass("nav");
+            var classList = ul.GetClassList();
+            classList.Add("nav");
 
             if (Style == TabsStyle.Tabs)
             {
-                ul.AppendCssClass("nav-tabs");
+                classList.Add("nav-tabs");
             }
             else if (Style == TabsStyle.Pills)
             {
-                ul.AppendCssClass("nav-pills");
+                classList.Add("nav-pills");
             }
             else if (Style == TabsStyle.Material)
             {
-                ul.AppendCssClass("nav-tabs nav-tabs-line");
+                classList.Add("nav-tabs", "nav-tabs-line");
             }
 
             if (HideSingleItem && Tabs.Count == 1)
             {
-                ul.AppendCssClass("d-none");
+                classList.Add("d-none");
             }
 
             if (isStacked)
             {
-                ul.AppendCssClass("flex-row flex-lg-column");
+                classList.Add("flex-row",  "flex-lg-column");
+            }
+
+            classList.Dispose();
+
+            if (isStacked)
+            {
+                // opening left/right tabs col
+                content.AppendHtml("<aside class=\"col-lg-auto nav-aside\">");
             }
 
             content.AppendHtml(ul.RenderStartTag());
@@ -207,10 +253,22 @@ namespace Smartstore.Web.UI.TagHelpers
             }
 
             content.AppendHtml(ul.RenderEndTag());
+
+            if (isStacked)
+            {
+                // closing left/right tabs col
+                content.AppendHtml("</aside>");
+            }
         }
 
-        private void RenderTabContent(TagHelperContent content)
+        private void RenderTabContent(TagHelperContent content, bool isStacked)
         {
+            if (isStacked)
+            {
+                // opening left/right content col
+                content.AppendHtml("<div class=\"col-lg nav-content\">");
+            }
+
             content.AppendHtml("<div class=\"tab-content\">");
 
             // TODO: tab-content-header
@@ -220,6 +278,12 @@ namespace Smartstore.Web.UI.TagHelpers
             }
 
             content.AppendHtml("</div>");
+
+            if (isStacked)
+            {
+                // closing left/right content col
+                content.AppendHtml("</div>");
+            }
         }
 
         private static void MoveSpecialTabToEnd(List<TabTagHelper> tabs)
@@ -231,6 +295,52 @@ namespace Smartstore.Web.UI.TagHelpers
                 tabs.RemoveAt(idx);
                 tabs.Add(tab);
             }
+        }
+
+        // 
+        /// <summary>
+        /// Returns a query selector
+        /// </summary>
+        private string TrySelectRememberedTab()
+        {
+            //// TODO: (core) Implement TabStripTagHelper.TrySelectRememberedTab()
+            ///
+            //var tab = this.Component;
+
+            //if (tab.Id.IsEmpty())
+            //    return null;
+
+            //if (ViewContext.ViewData.Model is EntityModelBase model && model.Id == 0)
+            //{
+            //    // it's a "create" operation: don't select
+            //    return null;
+            //}
+
+            //var rememberedTab = (SelectedTabInfo)ViewContext.TempData["SelectedTab." + tab.Id];
+            //if (rememberedTab != null && rememberedTab.Path.Equals(ViewContext.HttpContext.Request.RawUrl, StringComparison.OrdinalIgnoreCase))
+            //{
+            //    // get tab to select
+            //    var tabToSelect = GetTabById(rememberedTab.TabId);
+
+            //    if (tabToSelect != null)
+            //    {
+            //        // unselect former selected tab(s)
+            //        tab.Items.Each(x => x.Selected = false);
+
+            //        // select the new tab
+            //        tabToSelect.Selected = true;
+
+            //        // persist again for the next request
+            //        ViewContext.TempData["SelectedTab." + tab.Id] = rememberedTab;
+
+            //        if (tabToSelect.Ajax && tabToSelect.Content == null)
+            //        {
+            //            return ".nav a[data-ajax-url][href='#{0}']".FormatInvariant(rememberedTab.TabId);
+            //        }
+            //    }
+            //}
+
+            return null;
         }
     }
 }

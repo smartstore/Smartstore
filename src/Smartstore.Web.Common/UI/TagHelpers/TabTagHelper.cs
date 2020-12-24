@@ -46,11 +46,39 @@ namespace Smartstore.Web.UI.TagHelpers
         /// </summary>
         public bool Ajax { get; set; }
 
+        /// <summary>
+        /// Icon class name (e.g. "fa fa-user")
+        /// </summary>
+        public string Icon { get; set; }
+
+        /// <summary>
+        /// Badge text.
+        /// </summary>
+        public string BadgeText { get; set; }
+
+        /// <summary>
+        /// Badge style.
+        /// </summary>
+        public BadgeStyle BadgeStyle { get; set; }
+
+        /// <summary>
+        /// Summary to display when tab collapses on smaller devices.
+        /// </summary>
+        public string Summary { get; set; }
+
+        /// <summary>
+        /// Image URL.
+        /// </summary>
+        public string ImageUrl { get; set; }
+
         [HtmlAttributeNotBound]
         internal TabStripTagHelper Parent { get; set; }
 
         [HtmlAttributeNotBound]
         internal int Index { get; set; }
+
+        [HtmlAttributeNotBound]
+        internal string LoadedTabName { get; set; }
 
         [HtmlAttributeNotBound]
         internal TagHelperContent TabInnerContent { get; set; }
@@ -85,23 +113,68 @@ namespace Smartstore.Web.UI.TagHelpers
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
-            output.TagName = null;
-
             TabInnerContent = await output.GetChildContentAsync();
             TabOuterTag = BuildTabPane(TabInnerContent);
-            TabItemTag = BuildTabItem();
+            TabItemTag = BuildTabItem(context, output);
 
+            output.TagName = null;
             output.SuppressOutput();
         }
 
-        private TagBuilder BuildTabItem()
+        private TagBuilder BuildTabPane(IHtmlContent content)
+        {
+            TagBuilder div = new("div");
+
+            var classList = div.GetClassList();
+            classList.Add("tab-pane");
+
+            div.MergeAttribute("role", "tabpanel");
+
+            if (Parent.Fade)
+            {
+                classList.Add("fade");
+
+                if (Selected)
+                {
+                    classList.Add("show");
+                }
+            }
+
+            if (Selected)
+            {
+                classList.Add("active");
+            }
+
+            div.GenerateId(Id, "-");
+            div.MergeAttribute("aria-labelledby", $"{div.Attributes["id"]}-tab");
+
+            classList.Dispose();
+            div.InnerHtml.SetHtmlContent(content);
+
+            return div;
+        }
+
+        private TagBuilder BuildTabItem(TagHelperContext context, TagHelperOutput output)
         {
             string temp = string.Empty;
-            string loadedTabName = null;
 
+            // <li [class="nav-item [d-none]"]><a href="#{id}" class="nav-link [active]" data-toggle="tab">{text}</a></li>
             TagBuilder li = new("li");
+            
+            // Copy all attributes from output to div tag (except for "id")
+            foreach (var attr in output.Attributes)
+            {
+                li.MergeAttribute(attr.Name, attr.Value?.ToString());
+            }
+            li.Attributes.TryRemove("id", out _);
+            li.Attributes.TryRemove("href", out _);
 
             li.AppendCssClass("nav-item");
+
+            if (!Selected && !Visible)
+            {
+                li.AppendCssClass("d-none");
+            }
 
             {
                 TagBuilder a = new("a");
@@ -115,28 +188,48 @@ namespace Smartstore.Web.UI.TagHelpers
                     a.MergeAttribute("href", itemId);
                     a.MergeAttribute("data-toggle", "tab");
                     a.MergeAttribute("data-loaded", "true");
-                    //loadedTabName = GetTabName(item) ?? itemId; // ...
+                    LoadedTabName = GetTabName(output) ?? itemId;
                 }
                 else
                 {
                     // No content, create real link instead
-                    // ...
+                    var url = output.Attributes["href"]?.Value?.ToString();
+
+                    if (url == null)
+                    {
+                        a.MergeAttribute("href", "#");
+                    }
+                    else
+                    {
+                        if (Ajax)
+                        {
+                            a.MergeAttribute("href", itemId);
+                            a.MergeAttribute("data-ajax-url", url);
+                            a.MergeAttribute("data-toggle", "tab");
+                        }
+                        else
+                        {
+                            a.MergeAttribute("href", UrlHelper.Content(url));
+                        }
+                    }
+                }
+
+                if (BadgeText.HasValue())
+                {
+                    a.AppendCssClass("clearfix");
                 }
 
                 // Icon/Image
-                // // ...
+                BuildTabIcon(a);
 
                 // Caption
-                TagBuilder caption = new("span");
-                caption.AppendCssClass("tab-caption");
-                caption.InnerHtml.Append(Title);
-                a.InnerHtml.AppendHtml(caption);
+                BuildTabCaption(a);
 
                 // Badge
-                // ...
+                BuildTabBadge(a);
 
                 // Nav link short summary for collapsed state
-                // ...
+                BuildTabSummary(a);
 
                 li.InnerHtml.SetHtmlContent(a);
             }
@@ -144,34 +237,68 @@ namespace Smartstore.Web.UI.TagHelpers
             return li;
         }
 
-        private TagBuilder BuildTabPane(IHtmlContent content)
+        private void BuildTabIcon(TagBuilder a)
         {
-            TagBuilder div = new("div");
-            
-            div.AppendCssClass("tab-pane");
-            div.MergeAttribute("role", "tabpanel");
-
-            if (Parent.Fade)
+            if (Icon.HasValue())
             {
-                div.AppendCssClass("fade");
+                TagBuilder i = new("i");
+                i.AddCssClass(Icon);
+                a.InnerHtml.AppendHtml(i);
+            }
+            else if (ImageUrl.HasValue())
+            {
+                TagBuilder img = new("img");
+                img.Attributes["src"] = UrlHelper.Content(ImageUrl);
+                img.Attributes["alt"] = "Icon";
+                a.InnerHtml.AppendHtml(img);
+            }
+        }
 
-                if (Selected)
+        private void BuildTabCaption(TagBuilder a)
+        {
+            TagBuilder caption = new("span");
+            caption.AppendCssClass("tab-caption");
+            caption.InnerHtml.Append(Title);
+            a.InnerHtml.AppendHtml(caption);
+        }
+
+        private void BuildTabBadge(TagBuilder a)
+        {
+            if (BadgeText.HasValue())
+            {
+                var temp = "ml-2 badge";
+                temp += " badge-" + BadgeStyle.ToString().ToLower();
+                if (Parent.Position == TabsPosition.Left)
                 {
-                    div.AppendCssClass("show");
+                    temp += " float-right"; // looks nicer 
                 }
-            }
 
-            if (Selected)
+                TagBuilder span = new("span");
+                span.AddCssClass(temp);
+                span.InnerHtml.Append(BadgeText);
+                a.InnerHtml.AppendHtml(span);
+            }
+        }
+
+        private void BuildTabSummary(TagBuilder a)
+        {
+            if (Parent.Responsive && Summary.HasValue())
             {
-                div.AppendCssClass("active");
+                TagBuilder span = new("span");
+                span.AddCssClass("nav-link-summary");
+                span.InnerHtml.Append(Summary);
+                a.InnerHtml.AppendHtml(span);
+            }
+        }
+
+        private static string GetTabName(TagHelperOutput output)
+        {
+            if (output.Attributes.TryGetAttribute("data-tab-name", out var attr))
+            {
+                return attr.Value?.ToString();
             }
 
-            div.GenerateId(Id, "-");
-            div.MergeAttribute("aria-labelledby", $"{div.Attributes["id"]}-tab");
-
-            div.InnerHtml.SetHtmlContent(content);
-
-            return div;
+            return null;
         }
 
         // Suppress Id auto-generation
