@@ -429,6 +429,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets a value indicating whether the product is ship enabled.
         /// </summary>
+        [Column("IsShipEnabled")]
         public bool IsShippingEnabled { get; set; }
 
         /// <summary>
