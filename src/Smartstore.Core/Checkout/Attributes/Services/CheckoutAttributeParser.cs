@@ -75,7 +75,8 @@ namespace Smartstore.Core.Checkout.Attributes
                 var values = ParseValues(attributes, attribute.Id);
                 var ids = values
                     .Select(x => int.TryParse(x, out var id) ? id : -1)
-                    .Where(x => x != -1);
+                    .Where(x => x != -1)
+                    .Distinct();
 
                 attributeIds.AddRange(ids);
             }
