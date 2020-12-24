@@ -9,7 +9,7 @@
         {
             Guard.NotEmpty(name, nameof(name));
                         
-            Name = name.StartsWith(".") ? name[1..].ToLower() : name.ToLower();
+            Name = name.StartsWith('.') ? name[1..].ToLower() : name.ToLower();
             Value = value ?? string.Empty;
         }
         
@@ -50,6 +50,7 @@
         /// <summary>
         /// Overrides default <see cref="object.ToString()"/>. Calls <see cref="CreateKey(int, int, string)"/> to generate key string
         /// </summary>
-        public override string ToString() => CreateKey(ProductId, BundleItemId, Name);
+        public override string ToString() 
+            => CreateKey(ProductId, BundleItemId, Name);
     }
 }
