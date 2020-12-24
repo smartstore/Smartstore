@@ -14,6 +14,15 @@ namespace Smartstore.Web.UI.TagHelpers
     {
         #region CSS
 
+        /// <summary>
+        /// Creates a DOM-like CSS class list object. Call 'Dispose()' to flush
+        /// the result back to <paramref name="output"/>.
+        /// </summary>
+        public static CssClassList GetClassList(this TagHelperOutput output)
+        {
+            return new CssClassList(output.Attributes);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AppendCssClass(this TagHelperOutput output, string cssClass)
         {

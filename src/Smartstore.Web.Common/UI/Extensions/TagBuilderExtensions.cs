@@ -1,15 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Web.UI
 {
     public static class TagBuilderExtensions
     {
+        /// <summary>
+        /// Creates a DOM-like CSS class list object. Call 'Dispose()' to flush
+        /// the result back to <paramref name="builder"/>.
+        /// </summary>
+        public static CssClassList GetClassList(this TagBuilder builder)
+        {
+            return new CssClassList(builder.Attributes);
+        }
+
         public static void AddCssStyle(this TagBuilder builder, string expression, object value)
         {
             Guard.NotEmpty(expression, nameof(expression));
