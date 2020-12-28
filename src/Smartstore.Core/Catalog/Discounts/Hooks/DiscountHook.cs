@@ -14,7 +14,7 @@ namespace Smartstore.Core.Catalog.Discounts
     public class DiscountHook : AsyncDbSaveHook<Discount>
     {
         private readonly SmartDbContext _db;
-        private Multimap<string, int> _relatedEntityIds = new();
+        private Multimap<string, int> _relatedEntityIds = new(items => new HashSet<int>(items));
 
         public DiscountHook(SmartDbContext db)
         {
@@ -72,7 +72,7 @@ namespace Smartstore.Core.Catalog.Discounts
         private async Task ProcessChunk<TEntity>(DbSet<TEntity> dbSet, IEnumerable<int> ids, Action<TEntity> process)
             where TEntity : BaseEntity
         {
-            var allIds = ids.Distinct().ToArray();
+            var allIds = ids.ToArray();
 
             foreach (var idsChunk in allIds.Slice(100))
             {
