@@ -14,12 +14,11 @@ namespace Smartstore.Core.Checkout.GiftCards
     {
         public void Configure(EntityTypeBuilder<GiftCard> builder)
         {
-            builder.Property(gc => gc.Value).HasPrecision(18, 4);
+            builder.Property(x => x.Value).HasPrecision(18, 4);
 
-            // TODO: (core) (ms) OrderItem is needed
-            //builder.HasOne(gc => gc.OrderItem)
-            //       .WithMany(orderItem => orderItem.AssociatedGiftCards)
-            //       .HasForeignKey(gc => gc.OrderItemId);
+            builder.HasOne(x => x.OrderItem)
+                .WithMany(x => x.AssociatedGiftCards)
+                .HasForeignKey(x => x.OrderItemId);
         }
     }
 
@@ -38,6 +37,8 @@ namespace Smartstore.Core.Checkout.GiftCards
         {
             _lazyLoader = lazyLoader;
         }
+
+        #region Properties
 
         /// <summary>
         /// Gets or sets the gift card type identifier
@@ -116,19 +117,20 @@ namespace Smartstore.Core.Checkout.GiftCards
         public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
         {
             get => _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
-            set => _giftCardUsageHistory = value;
+            protected set => _giftCardUsageHistory = value;
+        }
+                
+        private OrderItem _orderItem;
+        /// <summary>
+        /// Gets or sets the associated order item
+        /// </summary>
+        public OrderItem OrderItem
+        {
+            get => _lazyLoader?.Load(this, ref _orderItem) ?? _orderItem;
+            protected set => _orderItem = value;
         }
 
-        // TODO: (core) (ms) OrderItem is needed
-        //private OrderItem _orderItem;
-        ///// <summary>
-        ///// Gets or sets the associated order item
-        ///// </summary>
-        //public OrderItem OrderItem
-        //{
-        //    get => _lazyLoader?.Load(this, ref _orderItem) ?? _orderItem;
-        //    set => _orderItem = value;
-        //}
+        #endregion Properties
 
         #region Methods
 
@@ -144,24 +146,20 @@ namespace Smartstore.Core.Checkout.GiftCards
                 : result;
         }
 
-        // TODO: (core) (ms) OrderItem is needed
-        ///// <summary>
-        ///// Checks whether the gift card is valid for store and has a positive balance
-        ///// </summary>
-        ///// <param name="storeId">Storeidentifier. 0 validates the gift card for all stores</param>
-        ///// <returns>True - valid; False - invalid</returns>
-        //public bool IsValid(int storeId = 0)
-        //{
-        //    if (!IsActivated)
-        //        return false;
+        /// <summary>
+        /// Checks whether the gift card is valid for store and has a positive balance
+        /// </summary>
+        /// <param name="storeId">Storeidentifier. 0 validates the gift card for all stores</param>
+        /// <returns>True - valid; False - invalid</returns>
+        public bool IsValid(int storeId = 0)
+        {
+            if (!IsActivated)
+                return false;
 
-        //    var orderStoreId = OrderItem?.Order?.StoreId ?? null;
-        //    if (storeId == 0 || orderStoreId is null || orderStoreId == storeId)
-        //        return GetGiftCardRemainingValue() > decimal.Zero;
+            var orderStoreId = OrderItem?.Order?.StoreId ?? null;
+            return (storeId == 0 || orderStoreId is null || orderStoreId == storeId) && GetRemainingValue() > decimal.Zero;
+        }
 
-        //    return false;
-        //}
-
-        #endregion
+        #endregion Methods
     }
 }
