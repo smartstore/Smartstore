@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Products
@@ -413,8 +414,44 @@ namespace Smartstore.Core.Catalog.Products
             return added;
         }
 
-        // TODO: (mg) (core) Port ProductService.GetCrossSellProductsByShoppingCart method.
+        public virtual async Task<IList<Product>> GetCrossSellProductsByShoppingCartAsync(
+            IList<OrganizedShoppingCartItem> cart,
+            int numberOfProducts,
+            bool includeHidden = false)
+        {
+            var result = new List<Product>();
 
+            if (numberOfProducts == 0 || cart?.Count <= 0)
+            {
+                return result;
+            }
 
+            var cartProductIds = new HashSet<int>(cart.Select(x => x.Item.ProductId));
+
+            var query = 
+                from csp in _db.CrossSellProducts
+                join p in _db.Products on csp.ProductId2 equals p.Id
+                where cartProductIds.Contains(csp.ProductId1) && (includeHidden || p.Published)
+                orderby csp.Id
+                select csp;
+
+            var csItems = await query.ToListAsync();
+            var productIds1 = new HashSet<int>(csItems
+                .Select(x => x.ProductId2)
+                .Except(cartProductIds));
+
+            if (productIds1.Any())
+            {
+                var productIds2 = productIds1.Take(numberOfProducts).ToArray();
+
+                var products = await _db.Products
+                    .Where(x => productIds2.Contains(x.Id))
+                    .ToListAsync();
+
+                result.AddRange(products.OrderBySequence(productIds2));
+            }
+
+            return result;
+        }
     }
 }

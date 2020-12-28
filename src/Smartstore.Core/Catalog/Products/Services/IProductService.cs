@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -75,5 +76,17 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="productId1">First product identifier.</param>
         /// <returns>Number of cross sell products added.</returns>
         Task<int> EnsureMutuallyCrossSellProductsAsync(int productId1);
+
+        /// <summary>
+        /// Gets a cross-sell products by shopping cart.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="numberOfProducts">Number of products to return.</param>
+        /// <param name="includeHidden">A value indicating whether to include hidden products.</param>
+        /// <returns>List of products.</returns>
+        Task<IList<Product>> GetCrossSellProductsByShoppingCartAsync(
+            IList<OrganizedShoppingCartItem> cart,
+            int numberOfProducts,
+            bool includeHidden = false);
     }
 }

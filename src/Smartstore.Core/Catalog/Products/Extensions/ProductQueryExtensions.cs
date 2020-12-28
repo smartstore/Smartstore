@@ -90,5 +90,26 @@ namespace Smartstore.Core.Catalog.Products
 
             return query.OrderBy(x => x.Id);
         }
+
+        /// <summary>
+        /// Applies a filter for associated products and sorts by <see cref="Product.ParentGroupedProductId"/>, then by <see cref="Product.DisplayOrder"/>.
+        /// </summary>
+        /// <param name="query">Product query.</param>
+        /// <param name="groupedProductIds">Product identifiers of grouped products.</param>
+        /// <param name="includeHidden">A value indicating whether to include hidden products.</param>
+        /// <returns>Product query.</returns>
+        public static IOrderedQueryable<Product> ApplyAssociatedProductsFilter(this IQueryable<Product> query, int[] groupedProductIds, bool includeHidden = false)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            // Ignore multistore. Expect multistore setting for associated products is the same as for parent grouped product.
+            query = query
+                .Where(x => groupedProductIds.Contains(x.ParentGroupedProductId))
+                .ApplyStandardFilter(includeHidden);
+
+            return query
+                .OrderBy(x => x.ParentGroupedProductId)
+                .ThenBy(x => x.DisplayOrder);
+        }
     }
 }

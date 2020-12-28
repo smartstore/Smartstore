@@ -3,6 +3,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Data
@@ -15,6 +16,8 @@ namespace Smartstore.Core.Data
 
         public DbSet<RelatedProduct> RelatedProducts { get; set; }
         public DbSet<CrossSellProduct> CrossSellProducts { get; set; }
+
+        public DbSet<ProductMediaFile> ProductMediaFiles { get; set; }
 
         public DbSet<ProductAttribute> ProductAttributes { get; set; }
         public DbSet<ProductVariantAttribute> ProductVariantAttributes { get; set; }
@@ -29,5 +32,6 @@ namespace Smartstore.Core.Data
         public DbSet<ProductSpecificationAttribute> ProductSpecificationAttributes { get; set; }
 
         public DbSet<Discount> Discounts { get; set; }
+        public DbSet<TierPrice> TierPrices { get; set; }
     }
 }

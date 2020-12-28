@@ -36,11 +36,77 @@ namespace Smartstore.Core.Catalog.Discounts
                 .WithMany(c => c.AppliedDiscounts)
                 .UsingEntity(x => x.ToTable("Discount_AppliedToCategories"));
 
-            builder.HasMany(c => c.AppliedToProducts)
+            //builder.HasMany(c => c.AppliedToProducts)
+            //    .WithMany(c => c.AppliedDiscounts)
+            //    .UsingEntity(x => x.ToTable("Discount_AppliedToProducts"));
+
+            // TODO: (mg) (core) Figure out how to configure many-to-many relations correctly.
+            // Many possibilities of configuration but none works with our database structure.
+            // "Invalid object name 'Discount_AppliedToProducts (Dictionary<string, object>)'".
+            builder
+                .HasMany(c => c.AppliedToProducts)
                 .WithMany(c => c.AppliedDiscounts)
-                .UsingEntity(x => x.ToTable("Discount_AppliedToProducts"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "Discount_AppliedToProducts",
+                    c => c
+                        .HasOne<Product>()
+                        .WithMany()
+                        .HasForeignKey("Product_Id")
+                        .HasConstraintName("FK_dbo.Discount_AppliedToProducts_dbo.Product_Product_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<Discount>()
+                        .WithMany()
+                        .HasForeignKey("Discount_Id")
+                        .HasConstraintName("FK_dbo.Discount_AppliedToProducts_dbo.Discount_Discount_Id")
+                        .OnDelete(DeleteBehavior.ClientCascade),
+                    c =>
+                    {
+                        c.HasKey("Discount_Id", "Product_Id");
+                    });
+
+            //builder
+            //    .HasMany(c => c.AppliedToProducts)
+            //    .WithMany(c => c.AppliedDiscounts)
+            //    .UsingEntity<DiscountProduct>(
+            //        "Discount_AppliedToProducts",
+            //        c => c
+            //            .HasOne<Product>()
+            //            .WithMany()
+            //            .HasForeignKey("Product_Id")
+            //            .HasConstraintName("FK_dbo.Discount_AppliedToProducts_dbo.Product_Product_Id")
+            //            .OnDelete(DeleteBehavior.Cascade),
+            //        c => c
+            //            .HasOne<Discount>()
+            //            .WithMany()
+            //            .HasForeignKey("Discount_Id")
+            //            .HasConstraintName("FK_dbo.Discount_AppliedToProducts_dbo.Discount_Discount_Id")
+            //            .OnDelete(DeleteBehavior.ClientCascade),
+            //        c =>
+            //        {
+            //            c.HasKey("Discount_Id", "Product_Id");
+            //        });
         }
     }
+
+
+    //public class DiscountProductMap : IEntityTypeConfiguration<DiscountProduct>
+    //{
+    //    public void Configure(EntityTypeBuilder<DiscountProduct> builder)
+    //    {
+    //        builder.HasKey(x => new { x.DiscountId, x.ProductId });
+    //    }
+    //}
+
+    //[Table("Discount_AppliedToProducts")]
+    //public partial class DiscountProduct
+    //{
+    //    [Column("Discount_Id")]
+    //    public int DiscountId { get; set; }
+
+    //    [Column("Product_Id")]
+    //    public int ProductId { get; set; }
+    //}
 
     /// <summary>
     /// Represents a discount.
