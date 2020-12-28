@@ -16,8 +16,8 @@ namespace Smartstore.Core.Checkout.Shipping
     {
         public void Configure(EntityTypeBuilder<ShippingMethod> builder)
         {
-            builder.HasMany(c => c.RuleSets)
-                .WithMany(c => c.ShippingMethods)
+            builder.HasMany(x => x.RuleSets)
+                .WithMany(x => x.ShippingMethods)
                 .UsingEntity(x => x.ToTable("RuleSet_ShippingMethod_Mapping"));
         }
     }

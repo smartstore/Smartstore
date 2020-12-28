@@ -9,7 +9,7 @@ namespace Smartstore.Core.Checkout.Cart
     {
         /// <summary>
         /// Standard filter for shopping cart.
-        /// Applies store filter and type, may include hidden (<see cref="CheckoutAttribute.IsActive"/>) attributes 
+        /// Applies store and type filter, includes hidden (<see cref="CheckoutAttribute.IsActive"/>) attributes 
         /// and orders query by <see cref="CheckoutAttribute.DisplayOrder"/>
         /// </summary>
         public static IQueryable<ShoppingCartItem> ApplyStandardFilter(

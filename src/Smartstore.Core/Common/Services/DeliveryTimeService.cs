@@ -1,15 +1,14 @@
 ﻿using System;
 using Smartstore.Core.Data;
-using Smartstore.Core.Common.Settings;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Threading;
-using SmartStore.Core.Shipping.Settings;
 using System.Collections.Concurrent;
 using Smartstore.Core.Localization;
 using SmartStore.Core.Domain.Catalog;
+using Smartstore.Core.Checkout.Shipping;
 
 namespace Smartstore.Core.Common.Services
 {

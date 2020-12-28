@@ -2,7 +2,6 @@
 
 namespace Smartstore.Core.Checkout.Cart
 {
-    // TODO: (core) (ms) move to appropriate area
     /// <summary>
     /// Represents the reccuring cycle info
     /// </summary>

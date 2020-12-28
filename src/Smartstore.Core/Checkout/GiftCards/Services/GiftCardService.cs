@@ -1,5 +1,9 @@
-﻿using Smartstore.Core.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Customers;
+using Smartstore.Core.Data;
+using Smartstore.Core.Rules.Filters;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Smartstore.Core.Checkout.GiftCards
@@ -14,7 +18,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         }
 
         //TODO: (core) (ms) customer extension ParseAppliedGiftCardCouponCodes is needed + nav props (order item) > load eager(include)
-        //public virtual async Task<IEnumerable<GiftCard>> GetActiveGiftCardsAppliedByCustomerAsync(Customer customer, int storeId)
+        //public virtual async Task<List<GiftCard>> GetActiveGiftCardsAppliedByCustomerAsync(Customer customer, int storeId)
         //{
         //    var result = new List<GiftCard>();
         //    if (customer == null)
@@ -25,14 +29,14 @@ namespace Smartstore.Core.Checkout.GiftCards
 
         //    var giftCards = await _db.GiftCards
         //        .Include(x => x.OrderItem)
-        //        .ThenInclude(x => x.Order)
+        //        .ThenInclude(x => x.Order)                
         //        .Where(x => x.IsActivated)
         //        .Where(x => couponCodes.Contains(x.CouponCode))
         //        .ToListAsync();
 
         //    foreach (var giftCard in giftCards)
         //    {
-        //        if (giftCard.IsValidGiftCard(storeId))
+        //        if (giftCard.IsValid(storeId))
         //        {
         //            result.Add(giftCard);
         //        }

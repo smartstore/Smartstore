@@ -64,11 +64,6 @@ namespace Smartstore.Core.Checkout.Cart
         public int? BundleItemId { get; set; }
 
         /// <summary>
-        /// Gets or sets the shopping cart type identifier
-        /// </summary>
-        public int ShoppingCartTypeId { get; set; }
-
-        /// <summary>
         /// Gets or sets the customer identifier
         /// </summary>
         public int CustomerId { get; set; }
@@ -95,14 +90,9 @@ namespace Smartstore.Core.Checkout.Cart
         public int Quantity { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of instance creation
+        /// Gets or sets the shopping cart type identifier
         /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
-        /// Gets or sets the date and time of instance update
-        /// </summary>
-        public DateTime UpdatedOnUtc { get; set; }
+        public int ShoppingCartTypeId { get; set; }
 
         /// <summary>
         /// Gets or sets the shopping cart type
@@ -113,6 +103,16 @@ namespace Smartstore.Core.Checkout.Cart
             get => (ShoppingCartType)ShoppingCartTypeId;
             set => ShoppingCartTypeId = (int)value;
         }
+
+        /// <summary>
+        /// Gets or sets the date and time of instance creation
+        /// </summary>
+        public DateTime CreatedOnUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the date and time of instance update
+        /// </summary>
+        public DateTime UpdatedOnUtc { get; set; }
 
         private Product _product;
         /// <summary>

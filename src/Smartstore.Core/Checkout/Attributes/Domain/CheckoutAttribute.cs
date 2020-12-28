@@ -36,8 +36,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// <summary>
         /// Gets or sets the name
         /// </summary>
-        [Required]
-        [MaxLength(400)]
+        [Required, MaxLength(400)]
         public string Name { get; set; }
 
         /// <summary>
@@ -106,7 +105,7 @@ namespace Smartstore.Core.Checkout.Attributes
         public ICollection<CheckoutAttributeValue> CheckoutAttributeValues
         {
             get => _lazyLoader?.Load(this, ref _checkoutAttributeValues) ?? (_checkoutAttributeValues ??= new HashSet<CheckoutAttributeValue>());
-            set => _checkoutAttributeValues = value;
+            protected set => _checkoutAttributeValues = value;
         }
     }
 }

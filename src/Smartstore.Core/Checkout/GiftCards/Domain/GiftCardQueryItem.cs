@@ -50,7 +50,6 @@
         /// <summary>
         /// Overrides default <see cref="object.ToString()"/>. Calls <see cref="CreateKey(int, int, string)"/> to generate key string
         /// </summary>
-        public override string ToString() 
-            => CreateKey(ProductId, BundleItemId, Name);
+        public override string ToString() => CreateKey(ProductId, BundleItemId, Name);
     }
 }

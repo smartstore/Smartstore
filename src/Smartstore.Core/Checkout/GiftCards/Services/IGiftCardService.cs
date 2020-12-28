@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using Smartstore.Core.Customers;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {

@@ -14,7 +14,7 @@ namespace Smartstore.Core.Checkout.Affiliates
             // Globally exclude soft-deleted entities from all queries
             builder.HasQueryFilter(x => !x.Deleted);
 
-            builder.HasOne(a => a.Address)
+            builder.HasOne(x => x.Address)
                 .WithMany()
                 .HasForeignKey(x => x.AddressId)
                 .OnDelete(DeleteBehavior.SetNull);

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Smartstore.Core.Configuration;
 
-namespace SmartStore.Core.Shipping.Settings
+namespace Smartstore.Core.Checkout.Shipping
 {
     public class ShippingSettings : ISettings
     {
