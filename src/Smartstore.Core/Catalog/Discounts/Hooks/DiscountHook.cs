@@ -14,7 +14,7 @@ namespace Smartstore.Core.Catalog.Discounts
     public class DiscountHook : AsyncDbSaveHook<Discount>
     {
         private readonly SmartDbContext _db;
-        private Multimap<string, int> _relatedEntityIds = new Multimap<string, int>();
+        private Multimap<string, int> _relatedEntityIds = new();
 
         public DiscountHook(SmartDbContext db)
         {
@@ -43,17 +43,17 @@ namespace Smartstore.Core.Catalog.Discounts
             // Update HasDiscountsApplied property.
             if (_relatedEntityIds.Any())
             {
-                await ChunkAsync(
+                await ProcessChunk(
                     _db.Products,
                     _relatedEntityIds["product"],
                     x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
 
-                await ChunkAsync(
+                await ProcessChunk(
                     _db.Categories,
                     _relatedEntityIds["category"],
                     x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
 
-                await ChunkAsync(
+                await ProcessChunk(
                     _db.Manufacturers,
                     _relatedEntityIds["manufactuter"],
                     x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
@@ -69,7 +69,7 @@ namespace Smartstore.Core.Catalog.Discounts
             _relatedEntityIds.AddRange("manufacturer", entity.AppliedToManufacturers.Select(x => x.Id));
         }
 
-        private async Task ChunkAsync<TEntity>(DbSet<TEntity> dbSet, IEnumerable<int> ids, Action<TEntity> process)
+        private async Task ProcessChunk<TEntity>(DbSet<TEntity> dbSet, IEnumerable<int> ids, Action<TEntity> process)
             where TEntity : BaseEntity
         {
             var allIds = ids.Distinct().ToArray();
