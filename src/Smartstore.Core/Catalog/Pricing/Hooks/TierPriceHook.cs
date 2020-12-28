@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
+using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Pricing
@@ -18,10 +20,10 @@ namespace Smartstore.Core.Catalog.Pricing
             _db = db;
         }
 
-        protected override Task<HookResult> OnInsertedAsync(TierPrice entity, IHookedEntity entry, CancellationToken cancelToken) 
+        protected override Task<HookResult> OnInsertingAsync(TierPrice entity, IHookedEntity entry, CancellationToken cancelToken) 
             => Task.FromResult(HookResult.Ok);
 
-        protected override Task<HookResult> OnDeletedAsync(TierPrice entity, IHookedEntity entry, CancellationToken cancelToken) 
+        protected override Task<HookResult> OnDeletingAsync(TierPrice entity, IHookedEntity entry, CancellationToken cancelToken) 
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
@@ -39,25 +41,29 @@ namespace Smartstore.Core.Catalog.Pricing
                     .Distinct()
                     .ToArray();
 
-                foreach (var productIdsChunk in productIds.Slice(100))
-                {
-                    var tierPricesProductIds = await _db.TierPrices
-                        .Where(x => productIdsChunk.Contains(x.ProductId))
-                        .Select(x => x.ProductId)
-                        .Distinct()
-                        .ToListAsync();
+                await _db.Products
+                    .Where(x => productIds.Contains(x.Id))
+                    .BatchUpdateAsync(x => new Product { HasTierPrices = true });
 
-                    var products = await _db.Products
-                        .Where(x => productIdsChunk.Contains(x.Id))
-                        .ToListAsync();
+                //foreach (var productIdsChunk in productIds.Slice(100))
+                //{
+                //    var tierPricesProductIds = await _db.TierPrices
+                //        .Where(x => productIdsChunk.Contains(x.ProductId))
+                //        .Select(x => x.ProductId)
+                //        .Distinct()
+                //        .ToListAsync();
 
-                    foreach (var product in products)
-                    {
-                        product.HasTierPrices = tierPricesProductIds.Contains(product.Id);
-                    }
+                //    var products = await _db.Products
+                //        .Where(x => productIdsChunk.Contains(x.Id))
+                //        .ToListAsync();
 
-                    await _db.SaveChangesAsync();
-                }
+                //    foreach (var product in products)
+                //    {
+                //        product.HasTierPrices = tierPricesProductIds.Contains(product.Id);
+                //    }
+
+                //    await _db.SaveChangesAsync();
+                //}
             }
         }
     }
