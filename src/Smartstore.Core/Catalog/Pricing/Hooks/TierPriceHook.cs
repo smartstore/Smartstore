@@ -18,9 +18,11 @@ namespace Smartstore.Core.Catalog.Pricing
             _db = db;
         }
 
-        protected override Task<HookResult> OnInsertedAsync(TierPrice entity, IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Ok);
+        protected override Task<HookResult> OnInsertedAsync(TierPrice entity, IHookedEntity entry, CancellationToken cancelToken) 
+            => Task.FromResult(HookResult.Ok);
 
-        protected override Task<HookResult> OnDeletedAsync(TierPrice entity, IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Ok);
+        protected override Task<HookResult> OnDeletedAsync(TierPrice entity, IHookedEntity entry, CancellationToken cancelToken) 
+            => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
