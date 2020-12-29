@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Domain;
 
@@ -10,7 +11,8 @@ namespace Smartstore.Core.Messages
     /// </summary>
     [Index(nameof(Email), nameof(StoreId), Name = "IX_NewsletterSubscription_Email_StoreId")]
     [Index(nameof(Active), Name = "IX_Active")]
-    public partial class NewsLetterSubscription : BaseEntity
+    [Table("NewsLetterSubscription")]
+    public partial class NewsletterSubscription : BaseEntity
     {
         /// <summary>
         /// Gets or sets the newsletter subscription GUID.

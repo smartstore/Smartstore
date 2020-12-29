@@ -70,7 +70,7 @@ namespace Smartstore.Core.Messages
                 if (DisplayName.IsEmpty())
                     return Email;
 
-                return "{0} ({1})".FormatInvariant(DisplayName, Email);
+                return $"{DisplayName} ({Email})";
             }
         }
 
