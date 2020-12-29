@@ -1,6 +1,6 @@
-﻿using Smartstore.Core.Catalog.Discounts;
+﻿using System.Collections.Generic;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.GiftCards;
-using System.Collections.Generic;
 
 namespace Smartstore.Core.Checkout.Cart
 {

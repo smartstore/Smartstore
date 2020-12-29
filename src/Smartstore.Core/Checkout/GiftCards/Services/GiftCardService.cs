@@ -1,10 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Customers;
-using Smartstore.Core.Data;
-using Smartstore.Core.Rules.Filters;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
+using Smartstore.Core.Checkout.GiftCards.Extensions;
+using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {

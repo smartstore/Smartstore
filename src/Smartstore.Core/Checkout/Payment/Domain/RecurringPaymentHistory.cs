@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Domain;
-using System;
 
 namespace Smartstore.Core.Checkout.Payment.Domain
 {
@@ -56,6 +56,5 @@ namespace Smartstore.Core.Checkout.Payment.Domain
             get => _lazyLoader?.Load(this, ref _recurringPayment) ?? _recurringPayment;
             set => _recurringPayment = value;
         }
-
     }
 }

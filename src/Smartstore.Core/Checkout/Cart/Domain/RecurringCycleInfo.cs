@@ -3,7 +3,7 @@
 namespace Smartstore.Core.Checkout.Cart
 {
     /// <summary>
-    /// Represents the reccuring cycle info
+    /// Represents the recurring cycle information
     /// </summary>
     public partial class RecurringCycleInfo
     {

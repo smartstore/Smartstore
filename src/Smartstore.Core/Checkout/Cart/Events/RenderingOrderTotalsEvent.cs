@@ -4,12 +4,8 @@ namespace Smartstore.Core.Checkout.Cart.Events
 {
     public class RenderingOrderTotalsEvent
     {
-        public RenderingOrderTotalsEvent()
-        {
-        }
+        public Customer Customer { get; init; }
 
-        public Customer Customer { get; set; }
-
-        public int? StoreId { get; set; }
+        public int? StoreId { get; init; }
     }
 }

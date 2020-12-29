@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -6,7 +7,6 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Caching;
 using Smartstore.Domain;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Core.Checkout.Attributes
 {

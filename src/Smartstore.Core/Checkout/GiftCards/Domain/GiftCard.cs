@@ -1,12 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Domain;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
@@ -14,11 +13,11 @@ namespace Smartstore.Core.Checkout.GiftCards
     {
         public void Configure(EntityTypeBuilder<GiftCard> builder)
         {
-            builder.Property(x => x.Value).HasPrecision(18, 4);
+            builder.Property(x => x.Amount).HasPrecision(18, 4);
 
-            builder.HasOne(x => x.OrderItem)
+            builder.HasOne(x => x.PurchasedWithOrderItem)
                 .WithMany(x => x.AssociatedGiftCards)
-                .HasForeignKey(x => x.OrderItemId);
+                .HasForeignKey(x => x.PurchasedWithOrderItemId);
         }
     }
 
@@ -38,8 +37,6 @@ namespace Smartstore.Core.Checkout.GiftCards
             _lazyLoader = lazyLoader;
         }
 
-        #region Properties
-
         /// <summary>
         /// Gets or sets the gift card type identifier
         /// </summary>
@@ -58,22 +55,22 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets or sets the associated order item identifier
         /// </summary>
-        public int? OrderItemId { get; set; }
+        public int? PurchasedWithOrderItemId { get; set; }
 
         /// <summary>
         /// Gets or sets the amount
         /// </summary>
-        public decimal Value { get; set; }
+        public decimal Amount { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether gift card is activated
         /// </summary>
-        public bool IsActivated { get; set; }
+        public bool IsGiftCardActivated { get; set; }
 
         /// <summary>
         /// Gets or sets a gift card coupon code
         /// </summary>
-        public string CouponCode { get; set; }
+        public string GiftCardCouponCode { get; set; }
 
         /// <summary>
         /// Gets or sets a recipient name
@@ -120,46 +117,14 @@ namespace Smartstore.Core.Checkout.GiftCards
             protected set => _giftCardUsageHistory = value;
         }
                 
-        private OrderItem _orderItem;
+        private OrderItem _purchasedWithOrderItem;
         /// <summary>
         /// Gets or sets the associated order item
         /// </summary>
-        public OrderItem OrderItem
+        public OrderItem PurchasedWithOrderItem
         {
-            get => _lazyLoader?.Load(this, ref _orderItem) ?? _orderItem;
-            protected set => _orderItem = value;
+            get => _lazyLoader?.Load(this, ref _purchasedWithOrderItem) ?? _purchasedWithOrderItem;
+            protected set => _purchasedWithOrderItem = value;
         }
-
-        #endregion Properties
-
-        #region Methods
-
-        /// <summary>
-        /// Gets gift cards remaining value
-        /// </summary>
-        /// <returns>Gift card remaining value</returns>
-        public decimal GetRemainingValue()
-        {
-            var result = Value - GiftCardUsageHistory.Sum(x => x.UsedValue);
-            return result < decimal.Zero
-                ? decimal.Zero
-                : result;
-        }
-
-        /// <summary>
-        /// Checks whether the gift card is valid for store and has a positive balance
-        /// </summary>
-        /// <param name="storeId">Storeidentifier. 0 validates the gift card for all stores</param>
-        /// <returns>True - valid; False - invalid</returns>
-        public bool IsValid(int storeId = 0)
-        {
-            if (!IsActivated)
-                return false;
-
-            var orderStoreId = OrderItem?.Order?.StoreId ?? null;
-            return (storeId == 0 || orderStoreId is null || orderStoreId == storeId) && GetRemainingValue() > decimal.Zero;
-        }
-
-        #endregion Methods
     }
 }

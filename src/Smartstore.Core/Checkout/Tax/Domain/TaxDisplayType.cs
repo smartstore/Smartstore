@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace Smartstore.Core.Checkout.Tax
+﻿namespace Smartstore.Core.Checkout.Tax
 {
     /// <summary>
-    /// Represents the tax display type enumeration
+    /// Represents the tax display type
     /// </summary>
     public enum TaxDisplayType
     {

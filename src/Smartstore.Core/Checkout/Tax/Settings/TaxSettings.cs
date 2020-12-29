@@ -1,41 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Smartstore.Core.Configuration;
+﻿using Smartstore.Core.Configuration;
 
 namespace Smartstore.Core.Checkout.Tax
 {
     public class TaxSettings : ISettings
     {
-        public TaxSettings()
-        {
-            TaxBasedOn = TaxBasedOn.BillingAddress;
-            TaxDisplayType = TaxDisplayType.ExcludingTax;
-            ActiveTaxProviderSystemName = "Tax.FixedRate";
-            DisplayTaxSuffix = true;
-            PricesIncludeTax = true;
-            EuVatAllowVatExemption = true;
-            ShippingPriceIncludesTax = true;
-            ShowLegalHintsInFooter = true;
-            ShowLegalHintsInProductDetails = true;
-            ShowLegalHintsInProductList = true;
-            AuxiliaryServicesTaxingType = AuxiliaryServicesTaxType.SpecifiedTaxCategory;
-        }
-
         /// <summary>
         /// Tax based on
         /// </summary>
-        public TaxBasedOn TaxBasedOn { get; set; }
+        public TaxBasedOn TaxBasedOn { get; set; } = TaxBasedOn.BillingAddress;
 
         /// <summary>
         /// Tax display type
         /// </summary>
-        public TaxDisplayType TaxDisplayType { get; set; }
+        public TaxDisplayType TaxDisplayType { get; set; } = TaxDisplayType.ExcludingTax;
+
 
         /// <summary>
         /// Gets or sets an system name of active tax provider
         /// </summary>
-        public string ActiveTaxProviderSystemName { get; set; }
+        public string ActiveTaxProviderSystemName { get; set; } = "Tax.FixedRate";
 
         /// <summary>
         /// Gets or sets default address used for tax calculation
@@ -45,7 +28,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Gets or sets a value indicating whether to display tax suffix
         /// </summary>
-        public bool DisplayTaxSuffix { get; set; }
+        public bool DisplayTaxSuffix { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether each tax rate should be displayed on separate line (shopping cart page)
@@ -55,7 +38,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Gets or sets a value indicating whether prices incude tax
         /// </summary>
-        public bool PricesIncludeTax { get; set; }
+        public bool PricesIncludeTax { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether customers are allowed to select tax display type
@@ -75,17 +58,17 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Gets or sets a value indicating whether to show legal info in product list
         /// </summary>
-        public bool ShowLegalHintsInProductList { get; set; }
+        public bool ShowLegalHintsInProductList { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show legal info in product detail
         /// </summary>
-        public bool ShowLegalHintsInProductDetails { get; set; }
+        public bool ShowLegalHintsInProductDetails { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show legal info in footer
         /// </summary>
-        public bool ShowLegalHintsInFooter { get; set; }
+        public bool ShowLegalHintsInFooter { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether shipping price is taxable
@@ -95,7 +78,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Gets or sets a value indicating whether shipping price incudes tax
         /// </summary>
-        public bool ShippingPriceIncludesTax { get; set; }
+        public bool ShippingPriceIncludesTax { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating the shipping tax class identifier
@@ -120,7 +103,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Taxing type for auxiliary services like shipping and payment fees
         /// </summary>
-        public AuxiliaryServicesTaxType AuxiliaryServicesTaxingType { get; set; }
+        public AuxiliaryServicesTaxType AuxiliaryServicesTaxingType { get; set; } = AuxiliaryServicesTaxType.SpecifiedTaxCategory;
 
         /// <summary>
         /// Gets or sets a value indicating whether EU VAT (Eupore Union Value Added Tax) is enabled
@@ -135,7 +118,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Gets or sets a value indicating whether this store will exempt eligible VAT-registered customers from VAT
         /// </summary>
-        public bool EuVatAllowVatExemption { get; set; }
+        public bool EuVatAllowVatExemption { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether we should use the EU web service to validate VAT numbers

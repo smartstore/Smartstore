@@ -1,7 +1,7 @@
-﻿using Smartstore.Core.Customers;
-using Smartstore.Core.Localization;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Smartstore.Core.Customers;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Checkout.Cart
 {

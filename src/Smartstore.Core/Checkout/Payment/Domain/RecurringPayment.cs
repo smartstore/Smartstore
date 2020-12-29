@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Domain;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Smartstore.Core.Checkout.Payment.Domain
 {
@@ -95,23 +95,19 @@ namespace Smartstore.Core.Checkout.Payment.Domain
         {
             get
             {
+
+                if (!IsActive || RecurringPaymentHistory.Count >= TotalCycles)
+                    return null;
+
                 DateTime? result = null;
-
-                if (!IsActive)
-                    return null;
-
-                var history = RecurringPaymentHistory;
-                if (history.Count >= TotalCycles)
-                    return null;
-
-                if (history.Count > 0)
+                if (RecurringPaymentHistory.Count > 0)
                 {
                     result = CyclePeriod switch
                     {
-                        RecurringProductCyclePeriod.Days => StartDateUtc.AddDays((double)CycleLength * history.Count),
-                        RecurringProductCyclePeriod.Weeks => StartDateUtc.AddDays((double)(7 * CycleLength) * history.Count),
-                        RecurringProductCyclePeriod.Months => StartDateUtc.AddMonths(CycleLength * history.Count),
-                        RecurringProductCyclePeriod.Years => StartDateUtc.AddYears(CycleLength * history.Count),
+                        RecurringProductCyclePeriod.Days => StartDateUtc.AddDays((double)CycleLength * RecurringPaymentHistory.Count),
+                        RecurringProductCyclePeriod.Weeks => StartDateUtc.AddDays((double)(7 * CycleLength) * RecurringPaymentHistory.Count),
+                        RecurringProductCyclePeriod.Months => StartDateUtc.AddMonths(CycleLength * RecurringPaymentHistory.Count),
+                        RecurringProductCyclePeriod.Years => StartDateUtc.AddYears(CycleLength * RecurringPaymentHistory.Count),
                         _ => throw new SmartException("Not supported cycle period"),
                     };
                 }

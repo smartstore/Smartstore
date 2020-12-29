@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
-    /// Represents the shipping status enumeration
+    /// Represents the shipping status
     /// </summary>
     public enum ShippingStatus
     {

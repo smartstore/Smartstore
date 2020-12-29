@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Core.Checkout.Payment
 {
     /// <summary>
-    /// Represents a payment status enumeration
+    /// Represents a payment status
     /// </summary>
     public enum PaymentStatus
     {

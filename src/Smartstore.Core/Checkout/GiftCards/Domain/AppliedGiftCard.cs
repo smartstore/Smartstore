@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Core.Checkout.GiftCards
 {
     /// <summary>
-    /// Applied gift card
+    /// Represents an applied gift card
     /// </summary>
     public partial class AppliedGiftCard
     {

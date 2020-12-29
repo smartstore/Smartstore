@@ -23,7 +23,7 @@ namespace Smartstore.Core.Checkout.Payment
     }
 
     /// <summary>
-    /// Represents a payment method.
+    /// Represents a payment method
     /// </summary>
     [CacheableEntity]
     public partial class PaymentMethod : BaseEntity, ILocalizedEntity, IStoreRestricted, IRulesContainer

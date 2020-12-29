@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
-    /// Represents an order status enumeration
+    /// Represents an order status
     /// </summary>
     public enum OrderStatus
     {

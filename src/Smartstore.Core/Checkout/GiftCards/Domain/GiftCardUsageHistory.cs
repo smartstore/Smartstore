@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Domain;
-using System;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
@@ -18,9 +18,9 @@ namespace Smartstore.Core.Checkout.GiftCards
                 .WithMany(x => x.GiftCardUsageHistory)
                 .HasForeignKey(x => x.GiftCardId);
 
-            builder.HasOne(x => x.Order)
+            builder.HasOne(x => x.UsedWithOrder)
                 .WithMany(x => x.GiftCardUsageHistory)
-                .HasForeignKey(x => x.OrderId);
+                .HasForeignKey(x => x.UsedWithOrderId);
         }
     }
 
@@ -48,7 +48,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets or sets the order identifier
         /// </summary>
-        public int OrderId { get; set; }
+        public int UsedWithOrderId { get; set; }
 
         /// <summary>
         /// Gets or sets the used value (amount)
@@ -71,15 +71,15 @@ namespace Smartstore.Core.Checkout.GiftCards
             set => _giftCard = value;
         }
 
-        private Order _order;
+        private Order _usedWithOrder;
         /// <summary>
         /// Gets the order associated with the gift card
         /// </summary>
         [JsonIgnore]
-        public Order Order
+        public Order UsedWithOrder
         {
-            get => _lazyLoader?.Load(this, ref _order) ?? _order;
-            set => _order = value;
+            get => _lazyLoader?.Load(this, ref _usedWithOrder) ?? _usedWithOrder;
+            set => _usedWithOrder = value;
         }
     }
 }

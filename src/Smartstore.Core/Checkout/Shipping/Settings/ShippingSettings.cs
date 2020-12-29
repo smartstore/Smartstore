@@ -6,10 +6,9 @@ namespace Smartstore.Core.Checkout.Shipping
     public class ShippingSettings : ISettings
     {
         /// <summary>
-        /// Gets or sets an system names of active shipping rate computation methods
+        /// Gets or sets system names of active shipping rate computation methods
         /// </summary>
-        public List<string> ActiveShippingRateComputationMethodSystemNames { get; set; } = new List<string> { "Shipping.FixedRate" };
-
+        public List<string> ActiveShippingRateComputationMethodSystemNames { get; set; } = new() { "Shipping.FixedRate" };
         /// <summary>
         /// Gets or sets a value indicating whether 'Free shipping over X' is enabled
         /// </summary>
@@ -56,8 +55,6 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         public bool ChargeOnlyHighestProductShippingSurcharge { get; set; }
 
-        #region Delivery Time
-
         /// <summary>
         /// Specifies a custom formatting pattern for delivery time dates (e.g. "M").
         /// </summary>
@@ -72,7 +69,5 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Specifies whether delivery takes place only on workweek days.
         /// </summary>
         public bool DeliveryOnWorkweekDaysOnly { get; set; } = true;
-
-        #endregion
     }
 }

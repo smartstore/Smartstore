@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Checkout.Tax
+﻿namespace Smartstore.Core.Checkout.Tax
 {
     /// <summary>
     /// Specifies how to calculate the tax of auxiliary services like shipping and payment fees
@@ -20,12 +18,6 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Calculate tax by the highest tax rate in the cart
         /// </summary>
-        HighestTaxRate = 15,
-
-        /// <summary>
-        /// Calculate tax pro rata in accordance with main service (proportion of line subtotal and sum of all line subtotals)
-        /// </summary>
-        /// <remarks>commented out cause requires several plugins to be updated and migration of Order.OrderShippingTaxRate and Order.PaymentMethodAdditionalFeeTaxRate</remarks>
-        ///ProRata = 20
+        HighestTaxRate = 15
     }
 }

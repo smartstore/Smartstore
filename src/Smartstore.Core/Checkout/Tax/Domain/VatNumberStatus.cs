@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace Smartstore.Core.Checkout.Tax
+﻿namespace Smartstore.Core.Checkout.Tax
 {
     /// <summary>
-    /// Represents the VAT number status enumeration
+    /// Represents the VAT number status
     /// </summary>
     public enum VatNumberStatus
     {
