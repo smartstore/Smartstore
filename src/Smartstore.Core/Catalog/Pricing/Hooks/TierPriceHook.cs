@@ -26,44 +26,50 @@ namespace Smartstore.Core.Catalog.Pricing
         protected override Task<HookResult> OnDeletingAsync(TierPrice entity, IHookedEntity entry, CancellationToken cancelToken) 
             => Task.FromResult(HookResult.Ok);
 
-        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        public override async Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            var tierPrices = entries
+            // Process products that have assigned tier prices.
+            var addedTierPrices = entries
+                .Where(x => x.State == Smartstore.Data.EntityState.Added)
                 .Select(x => x.Entity)
                 .OfType<TierPrice>()
                 .ToList();
 
-            // Update HasTierPrices product property.
-            if (tierPrices.Any())
+            var addedTierPricesProductIds = addedTierPrices
+                .Select(x => x.ProductId)
+                .Distinct()
+                .ToArray();
+
+            if (addedTierPricesProductIds.Any())
             {
-                var productIds = tierPrices
-                    .Select(x => x.ProductId)
-                    .Distinct()
+                await _db.Products
+                    .Where(x => addedTierPricesProductIds.Contains(x.Id))
+                    .BatchUpdateAsync(x => new Product { HasTierPrices = true });
+            }
+
+            // Process products that have not assigned tier prices.
+            var deletedTierPrices = entries
+                .Where(x => x.State == Smartstore.Data.EntityState.Deleted)
+                .Select(x => x.Entity)
+                .OfType<TierPrice>()
+                .ToList();
+
+            var deletedTierPricesProductIds = deletedTierPrices
+                .Select(x => x.ProductId)
+                .Distinct()
+                .ToArray();
+
+            if (deletedTierPricesProductIds.Any())
+            {
+                var deletedTierPricesIds = deletedTierPrices
+                    .Select(x => x.Id)
                     .ToArray();
 
                 await _db.Products
-                    .Where(x => productIds.Contains(x.Id))
-                    .BatchUpdateAsync(x => new Product { HasTierPrices = true });
-
-                //foreach (var productIdsChunk in productIds.Slice(100))
-                //{
-                //    var tierPricesProductIds = await _db.TierPrices
-                //        .Where(x => productIdsChunk.Contains(x.ProductId))
-                //        .Select(x => x.ProductId)
-                //        .Distinct()
-                //        .ToListAsync();
-
-                //    var products = await _db.Products
-                //        .Where(x => productIdsChunk.Contains(x.Id))
-                //        .ToListAsync();
-
-                //    foreach (var product in products)
-                //    {
-                //        product.HasTierPrices = tierPricesProductIds.Contains(product.Id);
-                //    }
-
-                //    await _db.SaveChangesAsync();
-                //}
+                    .Where(x =>
+                        deletedTierPricesProductIds.Contains(x.Id) &&
+                        !x.TierPrices.Where(y => !deletedTierPricesIds.Contains(y.Id)).Any())
+                    .BatchUpdateAsync(x => new Product { HasTierPrices = false });
             }
         }
     }

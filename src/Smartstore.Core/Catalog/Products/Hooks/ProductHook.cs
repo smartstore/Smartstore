@@ -18,9 +18,12 @@ namespace Smartstore.Core.Catalog.Products
             _db = db;
         }
 
-        // We must return HookResult.Ok otherwise DefaultDbHookHandler.SavedChangesAsync does not call OnAfterSaveCompletedAsync.
+        protected override Task<HookResult> OnInsertedAsync(Product entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
         // We are overriding OnUpdatedAsync because SoftDeletableHook is pre-processing the entity and updating its entity state.
-        protected override Task<HookResult> OnUpdatedAsync(Product entity, IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Ok);
+        protected override Task<HookResult> OnUpdatedAsync(Product entity, IHookedEntity entry, CancellationToken cancelToken) 
+            => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
@@ -56,6 +59,16 @@ namespace Smartstore.Core.Catalog.Products
                         .BatchUpdateAsync(x => new Product { ParentGroupedProductId = 0 });
                 }
             }
+
+            // Update HasDiscountsApplied property.
+            var products = entries
+                .Select(x => x.Entity)
+                .OfType<Product>()
+                .ToList();
+
+            products.Each(x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
+
+            await _db.SaveChangesAsync();
         }
     }
 }

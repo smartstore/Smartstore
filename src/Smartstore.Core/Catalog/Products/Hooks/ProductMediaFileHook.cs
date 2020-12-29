@@ -18,8 +18,8 @@ namespace Smartstore.Core.Catalog.Products
             _db = db;
         }
 
-        // We must return HookResult.Ok otherwise DefaultDbHookHandler.SavedChangesAsync does not call OnAfterSaveCompletedAsync.
-        protected override Task<HookResult> OnDeletedAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Ok);
+        protected override Task<HookResult> OnDeletedAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken) 
+            => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
@@ -35,6 +35,7 @@ namespace Smartstore.Core.Catalog.Products
                 var deletedMediaIds = deletedMediaFiles.ToMultimap(x => x.ProductId, x => x.MediaFileId);
                 var productIds = deletedMediaFiles.Select(x => x.ProductId).Distinct().ToArray();
 
+                // Process the products in batches as they can have a large number of variant combinations assigned to them.
                 foreach (var productIdsChunk in productIds.Slice(100))
                 {
                     var combinations = await _db.ProductVariantAttributeCombinations

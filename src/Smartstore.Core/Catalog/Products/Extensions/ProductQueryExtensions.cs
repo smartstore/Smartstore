@@ -101,6 +101,7 @@ namespace Smartstore.Core.Catalog.Products
         public static IOrderedQueryable<Product> ApplyAssociatedProductsFilter(this IQueryable<Product> query, int[] groupedProductIds, bool includeHidden = false)
         {
             Guard.NotNull(query, nameof(query));
+            Guard.NotNull(groupedProductIds, nameof(groupedProductIds));
 
             // Ignore multistore. Expect multistore setting for associated products is the same as for parent grouped product.
             query = query

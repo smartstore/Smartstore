@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
+using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Attributes
@@ -18,7 +20,8 @@ namespace Smartstore.Core.Catalog.Attributes
             _db = db;
         }
 
-        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken) => Task.FromResult(HookResult.Ok);
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken) 
+            => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
@@ -28,13 +31,14 @@ namespace Smartstore.Core.Catalog.Attributes
                 .ToList();
 
             // Update product property for the lowest attribute combination price.
-            if (variantCombinations.Any())
-            {
-                var productIds = variantCombinations
-                    .Select(x => x.ProductId)
-                    .Distinct()
-                    .ToArray();
+            var productIds = variantCombinations
+                .Select(x => x.ProductId)
+                .Distinct()
+                .ToArray();
 
+            if (productIds.Any())
+            {
+                // Process the products in batches as they can have a large number of variant combinations assigned to them.
                 foreach (var productIdsChunk in productIds.Slice(100))
                 {
                     var variantCombinationQuery =
@@ -57,16 +61,21 @@ namespace Smartstore.Core.Catalog.Attributes
                     var lowestPrices = await lowestPricesQuery.ToListAsync();
                     var lowestPricesDic = lowestPrices.ToDictionarySafe(x => x.ProductId, x => x.LowestPrice);
 
-                    var products = await _db.Products
-                        .Where(x => productIdsChunk.Contains(x.Id))
-                        .ToListAsync();
+                    foreach (var productId in productIdsChunk)
+                    {
+                        var lowestAttributeCombinationPrice = lowestPricesDic.GetValueOrDefault(productId);
 
-                    foreach (var product in products)
-                    {                   
-                        product.LowestAttributeCombinationPrice = lowestPricesDic.GetValueOrDefault(product.Id);
+                        // BatchUpdate recommended because products contain a lot of data (like full description).
+                        await _db.Products
+                            .Where(x => x.Id == productId)
+                            .BatchUpdateAsync(x => new Product { LowestAttributeCombinationPrice = lowestAttributeCombinationPrice });
                     }
 
-                    await _db.SaveChangesAsync();
+                    // Following statement produces InvalidOperationException:
+                    // "variable 'x' of type 'Smartstore.Core.Catalog.Products.Product' referenced from scope '', but it is not defined".
+                    //await _db.Products
+                    //    .Where(x => productIdsChunk.Contains(x.Id))
+                    //    .BatchUpdateAsync(x => new Product { LowestAttributeCombinationPrice = lowestPricesDic.GetValueOrDefault(x.Id) });
                 }
             }
         }
