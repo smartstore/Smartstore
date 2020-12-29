@@ -15,7 +15,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="bundledProductIds">Identifiers of bundled products to be filtered.</param>
         /// <param name="includeHidden">A value indicating whether to include hidden products and bundle items.</param>
         /// <returns>Product bundle item query.</returns>
-        public static IQueryable<ProductBundleItem> ApplyBundledProductsFilter(IQueryable<ProductBundleItem> query, int[] bundledProductIds, bool includeHidden = false)
+        public static IQueryable<ProductBundleItem> ApplyBundledProductsFilter(this IQueryable<ProductBundleItem> query, int[] bundledProductIds, bool includeHidden = false)
         {
             Guard.NotNull(query, nameof(query));
             Guard.NotNull(bundledProductIds, nameof(bundledProductIds));
