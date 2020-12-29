@@ -14,21 +14,21 @@ namespace Smartstore.Core.Catalog.Products
         /// Adjusts product inventory.
         /// </summary>
         /// <param name="productService">Product service.</param>
-        /// <param name="sci">Shopping cart item.</param>
+        /// <param name="item">Shopping cart item.</param>
         /// <param name="decrease">A value indicating whether to increase or descrease product stock quantity.</param>
         /// <returns>Adjust inventory result.</returns>
-        public static async Task<AdjustInventoryResult> AdjustInventoryAsync(this IProductService productService, OrganizedShoppingCartItem sci, bool decrease)
+        public static async Task<AdjustInventoryResult> AdjustInventoryAsync(this IProductService productService, OrganizedShoppingCartItem item, bool decrease)
         {
             Guard.NotNull(productService, nameof(productService));
-            Guard.NotNull(sci, nameof(sci));
+            Guard.NotNull(item, nameof(item));
 
-            if (sci.Item.Product.ProductType == ProductType.BundledProduct && sci.Item.Product.BundlePerItemShoppingCart)
+            if (item.Item.Product.ProductType == ProductType.BundledProduct && item.Item.Product.BundlePerItemShoppingCart)
             {
-                if (sci.ChildItems != null)
+                if (item.ChildItems != null)
                 {
-                    foreach (var child in sci.ChildItems.Where(x => x.Item.Id != sci.Item.Id))
+                    foreach (var child in item.ChildItems.Where(x => x.Item.Id != item.Item.Id))
                     {
-                        await productService.AdjustInventoryAsync(child.Item.Product, decrease, sci.Item.Quantity * child.Item.Quantity, child.Item.AttributesXml);
+                        await productService.AdjustInventoryAsync(child.Item.Product, decrease, item.Item.Quantity * child.Item.Quantity, child.Item.AttributesXml);
                     }
                 }
 
@@ -36,7 +36,7 @@ namespace Smartstore.Core.Catalog.Products
             }
             else
             {
-                return await productService.AdjustInventoryAsync(sci.Item.Product, decrease, sci.Item.Quantity, sci.Item.AttributesXml);
+                return await productService.AdjustInventoryAsync(item.Item.Product, decrease, item.Item.Quantity, item.Item.AttributesXml);
             }
         }
 
