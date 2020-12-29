@@ -84,7 +84,7 @@ namespace Smartstore.Engine
                 services.AddOptions();
                 services.AddSingleton(app.AppConfiguration);
                 services.AddSingleton(app.TypeScanner);
-                services.AddSingleton(_engine);
+                services.AddSingleton<IEngine>(_engine);
                 services.AddSingleton(app);
 
                 // Bind the config to host options

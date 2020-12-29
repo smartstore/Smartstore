@@ -33,8 +33,7 @@ namespace Smartstore.Services.Messages
             _emailAccountSettings = emailAccountSettings;
         }
 
-        // TODO: (MH) (core) Comment in, once localizer works correctly.
-        //public Localizer T { get; set; } = NullLocalizer.Instance;
+        public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public virtual Task<int> DeleteAllQueuedMailsAsync()
@@ -123,8 +122,7 @@ namespace Smartstore.Services.Messages
                 }
                 catch (Exception ex)
                 {
-                    // TODO: (MH) (core) Comment in, once localizer works correctly.
-                    //Logger.Error(ex, string.Concat(T("Admin.Common.ErrorSendingEmail"), ": ", ex.Message));
+                    Logger.Error(ex, string.Concat(T("Admin.Common.ErrorSendingEmail"), ": ", ex.Message));
                     result = false;
                 }
                 finally

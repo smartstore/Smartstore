@@ -99,6 +99,8 @@ namespace Smartstore.Web.Controllers
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
         [LocalizedRoute("/", Name = "Homepage")]
         public async Task<IActionResult> Index()
         {
