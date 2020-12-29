@@ -36,7 +36,7 @@ namespace Smartstore.Services.Messages.Tasks
                     .ToPagedList(pageIndex, 1000)
                     .LoadAsync();
 
-                await _queuedEmailService.SendMailsAsync(queuedEmails.ToArray(), cancelToken);
+                await _queuedEmailService.SendMailsAsync(queuedEmails, cancelToken);
 
                 if (!queuedEmails.HasNextPage)
                     break;
