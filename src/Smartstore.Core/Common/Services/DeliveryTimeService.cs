@@ -7,7 +7,7 @@ using System.Globalization;
 using System.Threading;
 using System.Collections.Concurrent;
 using Smartstore.Core.Localization;
-using SmartStore.Core.Domain.Catalog;
+using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Checkout.Shipping;
 
 namespace Smartstore.Core.Common.Services

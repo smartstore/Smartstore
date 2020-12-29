@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Smartstore;
 using Smartstore.Test.Common;
 
-namespace SmartStore.Tests.Domain.Common
+namespace Smartstore.Tests.Domain.Common
 {
     [TestFixture]
     public class CurrencyTests

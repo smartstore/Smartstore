@@ -4,7 +4,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Pricing;
 
-namespace SmartStore.Core.Domain.Catalog
+namespace Smartstore.Core.Domain.Catalog
 {
     public enum SubCategoryDisplayType
     {
