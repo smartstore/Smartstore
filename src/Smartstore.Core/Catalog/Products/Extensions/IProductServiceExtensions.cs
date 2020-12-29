@@ -54,6 +54,8 @@ namespace Smartstore.Core.Catalog.Products
             Guard.NotNull(productService, nameof(productService));
             Guard.NotNull(orderItem, nameof(orderItem));
 
+            // TODO: (core) (mg) Don't make extension methods when dependencies are required (SmartDbContext in this case)
+
             if (orderItem.Product.ProductType == ProductType.BundledProduct && orderItem.Product.BundlePerItemShoppingCart)
             {
                 if (orderItem.BundleData.HasValue())
