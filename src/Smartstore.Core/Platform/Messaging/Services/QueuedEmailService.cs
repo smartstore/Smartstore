@@ -139,22 +139,22 @@ namespace Smartstore.Services.Messages
         /// </summary>
         private bool ShouldSaveToDisk()
         {
-            if (_shouldSaveToDisk != null)
-                return (bool)_shouldSaveToDisk;
-
-            if (_emailAccountSettings.PickupDirectoryLocation.HasValue())
+            if (_shouldSaveToDisk == null)
             {
-                if (!Directory.Exists(_emailAccountSettings.PickupDirectoryLocation))
+                if (_emailAccountSettings.PickupDirectoryLocation.HasValue())
                 {
-                    throw new SmartException($"The specified pickup directory does not exist. Please check '{nameof(EmailAccountSettings.PickupDirectoryLocation)}'.");
+                    if (!Directory.Exists(_emailAccountSettings.PickupDirectoryLocation))
+                    {
+                        throw new DirectoryNotFoundException($"The specified pickup directory does not exist. Please check '{nameof(EmailAccountSettings.PickupDirectoryLocation)}'.");
+                    }
+
+                    _shouldSaveToDisk = true;
                 }
 
-                _shouldSaveToDisk = true;
+                _shouldSaveToDisk = false;
             }
 
-            _shouldSaveToDisk = false;
-
-            return (bool)_shouldSaveToDisk;
+            return _shouldSaveToDisk.Value;
         }
 
         /// <summary>
