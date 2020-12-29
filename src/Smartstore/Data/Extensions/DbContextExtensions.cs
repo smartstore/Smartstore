@@ -279,7 +279,7 @@ namespace Smartstore
 
         #region Load collection / reference
 
-        public static void LoadCollection<TEntity, TCollection>(
+        public static async Task LoadCollectionAsync<TEntity, TCollection>(
             this HookingDbContext ctx,
             TEntity entity,
             Expression<Func<TEntity, IEnumerable<TCollection>>> navigationProperty,
@@ -315,18 +315,18 @@ namespace Smartstore
                         ? queryAction(query)
                         : query;
 
-                    collection.CurrentValue = myQuery.ToList();
+                    collection.CurrentValue = await myQuery.ToListAsync();
                 }
                 else
                 {
-                    collection.Load();
+                    await collection.LoadAsync();
                 }
 
                 collection.IsLoaded = true;
             }
         }
 
-        public static void LoadReference<TEntity, TProperty>(
+        public static async Task LoadReferenceAsync<TEntity, TProperty>(
             this HookingDbContext ctx,
             TEntity entity,
             Expression<Func<TEntity, TProperty>> navigationProperty,
@@ -362,11 +362,11 @@ namespace Smartstore
                         ? queryAction(query)
                         : query;
 
-                    reference.CurrentValue = myQuery.FirstOrDefault();
+                    reference.CurrentValue = await myQuery.FirstOrDefaultAsync();
                 }
                 else
                 {
-                    reference.Load();
+                    await reference.LoadAsync();
                 }
 
                 reference.IsLoaded = true;

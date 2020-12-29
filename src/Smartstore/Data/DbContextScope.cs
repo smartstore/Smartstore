@@ -73,7 +73,7 @@ namespace Smartstore.Data
 
         public HookingDbContext DbContext => _ctx;
 
-        public void LoadCollection<TEntity, TCollection>(
+        public Task LoadCollectionAsync<TEntity, TCollection>(
             TEntity entity,
             Expression<Func<TEntity, IEnumerable<TCollection>>> navigationProperty,
             bool force = false,
@@ -81,17 +81,17 @@ namespace Smartstore.Data
             where TEntity : BaseEntity
             where TCollection : BaseEntity
         {
-            _ctx.LoadCollection(entity, navigationProperty, force, queryAction);
+            return _ctx.LoadCollectionAsync(entity, navigationProperty, force, queryAction);
         }
 
-        public void LoadReference<TEntity, TProperty>(
+        public Task LoadReferenceAsync<TEntity, TProperty>(
             TEntity entity,
             Expression<Func<TEntity, TProperty>> navigationProperty,
             bool force = false)
             where TEntity : BaseEntity
             where TProperty : BaseEntity
         {
-            _ctx.LoadReference(entity, navigationProperty, force);
+            return _ctx.LoadReferenceAsync(entity, navigationProperty, force);
         }
 
         public int Commit()

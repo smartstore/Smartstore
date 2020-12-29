@@ -12,7 +12,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="productIds">Product identifiers to be filtered.</param>
         /// <param name="maxFilesPerProduct">Maximum number of files to be loaded per product. <c>null</c> to load all media files.</param>
         /// <returns>Product media file query.</returns>
-        public static IQueryable<ProductMediaFile> ApplyProductsFilter(this IQueryable<ProductMediaFile> query, int[] productIds, int? maxFilesPerProduct = null)
+        public static IQueryable<ProductMediaFile> ApplyProductFilter(this IQueryable<ProductMediaFile> query, int[] productIds, int? maxFilesPerProduct = null)
         {
             Guard.NotNull(query, nameof(query));
             Guard.NotNull(productIds, nameof(productIds));
