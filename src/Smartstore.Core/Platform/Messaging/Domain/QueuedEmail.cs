@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -13,7 +14,8 @@ namespace Smartstore.Core.Messages
         {
             builder.HasOne(x => x.EmailAccount)
                 .WithMany()
-                .HasForeignKey(x => x.EmailAccountId);
+                .HasForeignKey(x => x.EmailAccountId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
@@ -43,36 +45,43 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Gets or sets the From property.
         /// </summary>
+        [Required, StringLength(500)]
         public string From { get; set; }
 
         /// <summary>
         /// Gets or sets the To property.
         /// </summary>
+        [Required, StringLength(500)]
         public string To { get; set; }
 
         /// <summary>
         /// Gets or sets the ReplyTo property.
         /// </summary>
+        [StringLength(500)]
         public string ReplyTo { get; set; }
 
         /// <summary>
         /// Gets or sets the CC.
         /// </summary>
+        [StringLength(500)]
         public string CC { get; set; }
 
         /// <summary>
         /// Gets or sets the Bcc.
         /// </summary>
+        [StringLength(500)]
         public string Bcc { get; set; }
 
         /// <summary>
         /// Gets or sets the subject.
         /// </summary>
+        [StringLength(1000)]
         public string Subject { get; set; }
 
         /// <summary>
         /// Gets or sets the body.
         /// </summary>
+        [MaxLength]
         public string Body { get; set; }
 
         /// <summary>

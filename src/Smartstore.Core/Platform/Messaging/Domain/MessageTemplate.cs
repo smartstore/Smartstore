@@ -34,7 +34,7 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Gets or sets the BCC Email addresses.
         /// </summary>
-        [Required, StringLength(200)]
+        [StringLength(200)]
         public string BccEmailAddresses { get; set; }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Gets or sets the body.
         /// </summary>
-        [Required, MaxLength]
+        [MaxLength]
         public string Body { get; set; }
 
         /// <summary>
