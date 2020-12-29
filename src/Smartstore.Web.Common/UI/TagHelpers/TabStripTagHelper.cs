@@ -34,6 +34,14 @@ namespace Smartstore.Web.UI.TagHelpers
     [HtmlTargetElement("tabstrip", Attributes = "id")]
     public class TabStripTagHelper : SmartTagHelper
     {
+        public override void Init(TagHelperContext context)
+        {
+            base.Init(context);
+            context.Items[nameof(TabStripTagHelper)] = this;
+        }
+
+        #region Properties
+
         [HtmlAttributeNotBound]
         public List<TabTagHelper> Tabs { get; set; } = new();
 
@@ -88,11 +96,7 @@ namespace Smartstore.Web.UI.TagHelpers
         [HtmlAttributeName("onajaxcomplete")]
         public string OnAjaxComplete { get; set; }
 
-        public override void Init(TagHelperContext context)
-        {
-            base.Init(context);
-            context.Items[nameof(TabStripTagHelper)] = this;
-        }
+        #endregion
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
@@ -105,7 +109,7 @@ namespace Smartstore.Web.UI.TagHelpers
 
             MoveSpecialTabToEnd(Tabs);
 
-            var hasContent = Tabs.Any(x => !x.TabInnerContent.IsEmptyOrWhiteSpace || x.Ajax);
+            var hasContent = Tabs.Any(x => x.HasContent || x.Ajax);
             var isTabbable = Position != TabsPosition.Top;
             var isStacked = Position == TabsPosition.Left || Position == TabsPosition.Right;
             var classList = output.GetClassList();
@@ -153,7 +157,11 @@ namespace Smartstore.Web.UI.TagHelpers
             if (Responsive)
             {
                 classList.Add("nav-responsive");
-                output.Attributes.Add("data-breakpoint", Breakpoint);
+                if (Breakpoint.HasValue())
+                {
+                    output.Attributes.Add("data-breakpoint", Breakpoint);
+                }
+                
             }
 
             // Flush classes
@@ -193,10 +201,10 @@ namespace Smartstore.Web.UI.TagHelpers
 </script>".FormatInvariant(selector));
             }
 
-            var loadedTabs = Tabs.Where(x => x.LoadedTabName.HasValue()).ToList();
-            if (loadedTabs.Count > 0)
+            var loadedTabNames = Tabs.Where(x => x.HasContent).Select(x => x.TabName).ToList();
+            if (loadedTabNames.Count > 0)
             {
-                foreach (var tabName in loadedTabs)
+                foreach (var tabName in loadedTabNames)
                 {
                     output.Content.AppendHtmlLine($"<input type='hidden' class='loaded-tab-name' name='LoadedTabs' value='{tabName}' />");
                 }
@@ -207,6 +215,8 @@ namespace Smartstore.Web.UI.TagHelpers
                 output.Content.AppendHtmlLine(@"<script>$(function() {{ $('#{0}').responsiveNav(); }})</script>".FormatInvariant(Id));
             }
         }
+
+        #region TabStrip
 
         private void RenderNav(TagHelperContent content, bool isStacked)
         {
@@ -249,7 +259,7 @@ namespace Smartstore.Web.UI.TagHelpers
 
             foreach (var tab in Tabs)
             {
-                content.AppendHtml(tab.TabItemTag);
+                content.AppendHtml(BuildTabItem(tab));
             }
 
             content.AppendHtml(ul.RenderEndTag());
@@ -274,7 +284,7 @@ namespace Smartstore.Web.UI.TagHelpers
             // TODO: tab-content-header
             foreach (var tab in Tabs)
             {
-                content.AppendHtml(tab.TabOuterTag);
+                content.AppendHtml(BuildTabPane(tab));
             }
 
             content.AppendHtml("</div>");
@@ -284,6 +294,191 @@ namespace Smartstore.Web.UI.TagHelpers
                 // closing left/right content col
                 content.AppendHtml("</div>");
             }
+        }
+
+        #endregion
+
+        #region Tab Items
+
+        private TagBuilder BuildTabPane(TabTagHelper tab)
+        {
+            TagBuilder div = new("div");
+
+            var classList = div.GetClassList();
+            classList.Add("tab-pane");
+
+            div.MergeAttribute("role", "tabpanel");
+
+            if (Fade)
+            {
+                classList.Add("fade");
+
+                if (tab.Selected)
+                {
+                    classList.Add("show");
+                }
+            }
+
+            if (tab.Selected)
+            {
+                classList.Add("active");
+            }
+
+            div.GenerateId(tab.Id, "-");
+            div.MergeAttribute("aria-labelledby", $"{div.Attributes["id"]}-tab");
+
+            classList.Dispose();
+            div.InnerHtml.SetHtmlContent(tab.TabInnerContent);
+
+            return div;
+        }
+
+        private TagBuilder BuildTabItem(TabTagHelper tab)
+        {
+            // <li [class="nav-item [d-none]"]><a href="#{id}" class="nav-link [active]" data-toggle="tab">{text}</a></li>
+            TagBuilder li = new("li");
+
+            // Copy all attributes from output to div tag (except for "id" and "href")
+            foreach (var attr in tab.Attributes)
+            {
+                li.MergeAttribute(attr.Name, attr.Value?.ToString());
+            }
+            li.Attributes.TryRemove("id", out _);
+            li.Attributes.TryRemove("href", out _);
+
+            li.AppendCssClass("nav-item");
+
+            if (!tab.Selected && !tab.Visible)
+            {
+                li.AppendCssClass("d-none");
+            }
+
+            {
+                TagBuilder a = new("a");
+
+                // Link/Target
+                var itemId = "#" + tab.Id;
+                a.AppendCssClass("nav-link" + (tab.Selected ? " active" : ""));
+
+                if (!tab.TabInnerContent.IsEmptyOrWhiteSpace)
+                {
+                    a.MergeAttribute("href", itemId);
+                    a.MergeAttribute("data-toggle", "tab");
+                    a.MergeAttribute("data-loaded", "true");
+                }
+                else
+                {
+                    // No content, create real link instead
+                    var url = tab.Attributes["href"]?.Value?.ToString();
+
+                    if (url == null)
+                    {
+                        a.MergeAttribute("href", "#");
+                    }
+                    else
+                    {
+                        if (tab.Ajax)
+                        {
+                            a.MergeAttribute("href", itemId);
+                            a.MergeAttribute("data-ajax-url", url);
+                            a.MergeAttribute("data-toggle", "tab");
+                        }
+                        else
+                        {
+                            a.MergeAttribute("href", UrlHelper.Content(url));
+                        }
+                    }
+                }
+
+                if (tab.BadgeText.HasValue())
+                {
+                    a.AppendCssClass("clearfix");
+                }
+
+                // Icon/Image
+                BuildTabIcon(tab, a);
+
+                // Caption
+                BuildTabCaption(tab, a);
+
+                // Badge
+                BuildTabBadge(tab, a);
+
+                // Nav link short summary for collapsed state
+                BuildTabSummary(tab, a);
+
+                li.InnerHtml.SetHtmlContent(a);
+            }
+
+            return li;
+        }
+
+        private void BuildTabIcon(TabTagHelper tab, TagBuilder a)
+        {
+            if (tab.Icon.HasValue())
+            {
+                TagBuilder i = new("i");
+                i.AddCssClass(tab.Icon);
+                a.InnerHtml.AppendHtml(i);
+            }
+            else if (tab.ImageUrl.HasValue())
+            {
+                TagBuilder img = new("img");
+                img.Attributes["src"] = UrlHelper.Content(tab.ImageUrl);
+                img.Attributes["alt"] = "Icon";
+                a.InnerHtml.AppendHtml(img);
+            }
+        }
+
+        private void BuildTabCaption(TabTagHelper tab, TagBuilder a)
+        {
+            TagBuilder caption = new("span");
+            caption.AppendCssClass("tab-caption");
+            caption.InnerHtml.Append(tab.Title);
+            a.InnerHtml.AppendHtml(caption);
+        }
+
+        private void BuildTabBadge(TabTagHelper tab, TagBuilder a)
+        {
+            if (tab.BadgeText.HasValue())
+            {
+                var temp = "ml-2 badge";
+                temp += " badge-" + tab.BadgeStyle.ToString().ToLower();
+                if (Position == TabsPosition.Left)
+                {
+                    temp += " float-right"; // looks nicer 
+                }
+
+                TagBuilder span = new("span");
+                span.AddCssClass(temp);
+                span.InnerHtml.Append(tab.BadgeText);
+                a.InnerHtml.AppendHtml(span);
+            }
+        }
+
+        private void BuildTabSummary(TabTagHelper tab, TagBuilder a)
+        {
+            if (Responsive && tab.Summary.HasValue())
+            {
+                TagBuilder span = new("span");
+                span.AddCssClass("nav-link-summary");
+                span.InnerHtml.Append(tab.Summary);
+                a.InnerHtml.AppendHtml(span);
+            }
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private static string GetTabName(TabTagHelper tab)
+        {
+            if (tab.Attributes.TryGetAttribute("data-tab-name", out var attr))
+            {
+                return attr.Value?.ToString();
+            }
+
+            return null;
         }
 
         private static void MoveSpecialTabToEnd(List<TabTagHelper> tabs)
@@ -342,5 +537,7 @@ namespace Smartstore.Web.UI.TagHelpers
 
             return null;
         }
+
+        #endregion
     }
 }

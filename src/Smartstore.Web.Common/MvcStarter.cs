@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.WebEncoders;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging.Serilog;
@@ -115,16 +116,16 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app => 
             {
-                //if (appContext.HostEnvironment.IsDevelopment() || appContext.AppConfiguration.UseDeveloperExceptionPage)
-                //{
-                //    app.UseDeveloperExceptionPage();
-                //}
-                //else
-                //{
+                if (appContext.HostEnvironment.IsDevelopment() || appContext.AppConfiguration.UseDeveloperExceptionPage)
+                {
+                    app.UseDeveloperExceptionPage();
+                }
+                else
+                {
                     app.UseExceptionHandler("/Error");
                     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                     app.UseHsts();
-                //}
+                }
 
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
             });
