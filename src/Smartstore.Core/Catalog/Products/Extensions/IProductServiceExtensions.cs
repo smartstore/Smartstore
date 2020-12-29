@@ -8,7 +8,7 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public static partial class ProductServiceExtensions
+    public static partial class IProductServiceExtensions
     {
         /// <summary>
         /// Adjusts product inventory.
