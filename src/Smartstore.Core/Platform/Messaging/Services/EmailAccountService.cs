@@ -23,12 +23,12 @@ namespace Smartstore.Services.Messages
 
         #region Hook 
 
-        protected override Task<HookResult> OnDeletingAsync(EmailAccount entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override async Task<HookResult> OnDeletingAsync(EmailAccount entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (_db.EmailAccounts.Count() == 1)
+            if ((await _db.EmailAccounts.CountAsync()) == 1)
                 throw new SmartException("You cannot delete this email account. At least one account is required.");
 
-            return Task.FromResult(HookResult.Ok);
+            return HookResult.Ok;
         }
 
         #endregion
