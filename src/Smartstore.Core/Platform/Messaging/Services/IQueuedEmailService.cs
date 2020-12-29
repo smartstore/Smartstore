@@ -26,6 +26,6 @@ namespace Smartstore.Services.Messages
         /// </summary>
         /// <param name="attachment">Queued email attachment</param>
         /// <returns>Binary data if <c>attachment.StorageLocation</c> is <c>EmailAttachmentStorageLocation.Blob</c>, otherwise <c>null</c></returns>
-        byte[] LoadQueuedEmailAttachmentBinary(QueuedEmailAttachment attachment);
+        byte[] LoadQueuedMailAttachmentBinary(QueuedEmailAttachment attachment);
     }
 }

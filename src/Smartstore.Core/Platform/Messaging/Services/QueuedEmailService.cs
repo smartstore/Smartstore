@@ -19,7 +19,6 @@ namespace Smartstore.Services.Messages
     {
         private readonly SmartDbContext _db;
         private readonly IMailService _mailService;
-        private readonly ICommonServices _services;
         internal readonly EmailAccountSettings _emailAccountSettings;
         
         private bool? _shouldSaveToDisk = false;
@@ -27,12 +26,10 @@ namespace Smartstore.Services.Messages
         public QueuedEmailService(
             SmartDbContext db,
             IMailService mailService,
-            ICommonServices services,
             EmailAccountSettings emailAccountSettings)
         {
             _db = db;
             _mailService = mailService;
-            _services = services;
             _emailAccountSettings = emailAccountSettings;
         }
 
@@ -75,7 +72,7 @@ namespace Smartstore.Services.Messages
         }
 
         // TODO: (MH) (core) This is only used in one ocasion. Use code there (QueuedEmailController > DownloadAttachment) directly. 
-        public virtual byte[] LoadQueuedEmailAttachmentBinary(QueuedEmailAttachment attachment)
+        public virtual byte[] LoadQueuedMailAttachmentBinary(QueuedEmailAttachment attachment)
         {
             Guard.NotNull(attachment, nameof(attachment));
 
@@ -105,7 +102,7 @@ namespace Smartstore.Services.Messages
 
                 try
                 {
-                    var msg = ConvertEmail(queuedEmail);
+                    var msg = ConvertMail(queuedEmail);
 
                     if (saveToDisk)
                     {
@@ -165,7 +162,7 @@ namespace Smartstore.Services.Messages
         /// <summary>
         /// Adds a semicolon seperated list of mail addresses to collection of MailAddresses.
         /// </summary>
-        private static void AddEmailAddresses(string addresses, ICollection<MailAddress> target)
+        private static void AddMailAddresses(string addresses, ICollection<MailAddress> target)
         {
             var arr = addresses.IsEmpty() ? null : addresses.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             if (arr != null && arr.Length > 0)
@@ -177,7 +174,7 @@ namespace Smartstore.Services.Messages
         /// <summary>
         /// Converts <see cref="QueuedEmail"/> to <see cref="MailMessage"/>.
         /// </summary>
-        internal static MailMessage ConvertEmail(QueuedEmail qe)
+        internal static MailMessage ConvertMail(QueuedEmail qe)
         {
             var msg = new MailMessage(
                 new MailAddress(qe.To),
@@ -190,8 +187,8 @@ namespace Smartstore.Services.Messages
                 msg.ReplyTo.Add(new MailAddress(qe.ReplyTo));
             }
 
-            AddEmailAddresses(qe.CC, msg.Cc);
-            AddEmailAddresses(qe.Bcc, msg.Bcc);
+            AddMailAddresses(qe.CC, msg.Cc);
+            AddMailAddresses(qe.Bcc, msg.Bcc);
 
             if (qe.Attachments != null && qe.Attachments.Count > 0)
             {
@@ -213,7 +210,7 @@ namespace Smartstore.Services.Messages
                         var path = qea.Path;
                         if (path.HasValue())
                         {
-                            // TODO: (MH) (core) Do this right.
+                            // TODO: (core) (MH) Do this right.
                             //if (path[0] == '~' || path[0] == '/')
                             //{
                             //    path = CommonHelper.MapPath(VirtualPathUtility.ToAppRelative(path), false);
@@ -229,7 +226,7 @@ namespace Smartstore.Services.Messages
                         var file = qea.MediaFile;
                         if (file != null)
                         {
-                            // TODO: (MH) (core) Uncomment when MediaService is available.
+                            // TODO: (core) (MH) Uncomment when MediaService is available.
                             //var mediaFile = _services.MediaService.ConvertMediaFile(file);
                             //var stream = mediaFile.OpenRead();
                             //if (stream != null)
