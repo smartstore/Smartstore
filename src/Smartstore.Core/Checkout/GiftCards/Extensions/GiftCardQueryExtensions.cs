@@ -33,7 +33,7 @@ namespace Smartstore.Core.Checkout.GiftCards
             Guard.NotNull(query, nameof(query));
             Guard.NotNull(couponCodes, nameof(couponCodes));
 
-            return query.Where(x => couponCodes.Contains(x.CouponCode));
+            return query.Where(x => couponCodes.Contains(x.GiftCardCouponCode));
         }
     }
 }

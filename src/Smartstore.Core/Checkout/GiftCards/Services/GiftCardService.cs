@@ -53,5 +53,16 @@ namespace Smartstore.Core.Checkout.GiftCards
 
             return Task.FromResult(result);
         }
+
+        public virtual bool IsValidGiftCard(GiftCard giftCard, int storeId = 0)
+        {
+            if (!giftCard.IsGiftCardActivated)
+                return false;
+                        
+            // Check whether dbContext has OrderItem + Order already loaded => just access store id
+
+            var orderStoreId = giftCard.PurchasedWithOrderItem?.Order?.StoreId ?? null;
+            return (storeId == 0 || orderStoreId is null || orderStoreId == storeId) && giftCard.GetRemainingValue() > decimal.Zero;
+        }
     }
 }

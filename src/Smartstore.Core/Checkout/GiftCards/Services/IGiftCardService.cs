@@ -17,5 +17,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// Generates new gift card code async
         /// </summary>
         Task<string> GenerateGiftCardCodeAsync();
+
+        bool IsValidGiftCard(GiftCard giftCard, int storeId = 0);
     }
 }
