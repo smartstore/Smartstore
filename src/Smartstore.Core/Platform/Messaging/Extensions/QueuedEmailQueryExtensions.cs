@@ -4,7 +4,7 @@ using Smartstore.Core.Messages;
 
 namespace Smartstore
 {
-    public static class QueuedMailQueryExtensions
+    public static class QueuedEmailQueryExtensions
     {
         /// <summary>
         /// Applies filter by <see cref="QueuedEmail.From"/> and <see cref="QueuedEmail.To"/>.
