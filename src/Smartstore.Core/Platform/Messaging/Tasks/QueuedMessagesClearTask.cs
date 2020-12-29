@@ -27,9 +27,14 @@ namespace Smartstore.Services.Messages.Tasks
         {
             var olderThan = DateTime.UtcNow.AddDays(-Math.Abs(_commonSettings.MaxQueuedMessagesAgeInDays));
             
-            await _db.QueuedEmails.Where(x => x.SentOnUtc.HasValue && x.CreatedOnUtc < olderThan).BatchDeleteAsync(cancellationToken: cancelToken);
+            await _db.QueuedEmails
+                .Where(x => x.SentOnUtc.HasValue && x.CreatedOnUtc < olderThan)
+                .BatchDeleteAsync(cancellationToken: cancelToken);
 
-            await _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
+            if (_db.DataProvider.CanShrink)
+            {
+                await _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
+            }
         }
     }
 }

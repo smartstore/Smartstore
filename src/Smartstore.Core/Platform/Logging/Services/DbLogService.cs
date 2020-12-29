@@ -37,7 +37,7 @@ namespace Smartstore.Core.Logging
                 .Where(x => x.CreatedOnUtc <= maxAgeUtc && x.LogLevelId < (int)maxLevel)
                 .BatchDeleteAsync(cancelToken);
 
-            if (numDeleted > 100)
+            if (numDeleted > 100 && _db.DataProvider.CanShrink)
             {
                 await _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
             }

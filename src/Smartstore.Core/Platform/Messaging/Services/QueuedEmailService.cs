@@ -166,6 +166,7 @@ namespace Smartstore.Services.Messages
         private static ICollection<MailAddress> AddMailAddresses(string addresses, ICollection<MailAddress> target)
         {
             target.AddRange(addresses
+                .Trim()
                 .SplitSafe(";")
                 .Where(x => x.Trim().HasValue())
                 .Select(x => new MailAddress(x)));
