@@ -31,7 +31,7 @@ namespace Smartstore.Services.Messages.Tasks
                 var queuedEmails = await _db.QueuedEmails
                     .Where(x => x.SentTries < 3 && x.SendManually == false)
                     .ApplyTimeFilter(null, null, true)
-                    .ApplyOrderFilter(true)
+                    .ApplySorting(true)
                     .Include("Attachments")
                     .ToPagedList(pageIndex, 1000)
                     .LoadAsync();

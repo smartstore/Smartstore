@@ -42,20 +42,20 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Applies order filter by <see cref="QueuedEmail.Priority"/> and <see cref="QueuedEmail.CreatedOnUtc"/>. 
+        /// Applies sorting by <see cref="QueuedEmail.Priority"/> and <see cref="QueuedEmail.CreatedOnUtc"/>. 
         /// </summary>
-        /// <param name="orderByLatest">Specifies sort order.</param>
-        public static IQueryable<QueuedEmail> ApplyOrderFilter(this IQueryable<QueuedEmail> query, bool orderByLatest)
+        /// <param name="sortByLatest">If <c>true</c>, sorts <see cref="QueuedEmail.CreatedOnUtc"/> descending.</param>
+        public static IOrderedQueryable<QueuedEmail> ApplySorting(this IQueryable<QueuedEmail> query, bool sortByLatest)
         {
             Guard.NotNull(query, nameof(query));
 
-            query = query.OrderByDescending(x => x.Priority);
+            var orderedQuery = query.OrderByDescending(x => x.Priority);
 
-            query = orderByLatest ?
-                ((IOrderedQueryable<QueuedEmail>)query).ThenByDescending(x => x.CreatedOnUtc) :
-                ((IOrderedQueryable<QueuedEmail>)query).ThenBy(x => x.CreatedOnUtc);
+            orderedQuery = sortByLatest ?
+                orderedQuery.ThenByDescending(x => x.CreatedOnUtc) :
+                orderedQuery.ThenBy(x => x.CreatedOnUtc);
 
-            return query;
+            return orderedQuery;
         }
     }
 }
