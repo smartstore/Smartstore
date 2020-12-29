@@ -75,46 +75,6 @@ namespace Smartstore.Core.Checkout.Orders
             _lazyLoader = lazyLoader;
         }
 
-        #region Utilities
-        protected virtual SortedDictionary<decimal, decimal> ParseTaxRates(string taxRatesStr)
-        {
-            var taxRates = new SortedDictionary<decimal, decimal>();
-            if (!taxRatesStr.HasValue())
-                return taxRates;
-
-            var lines = taxRatesStr.Split(';', StringSplitOptions.RemoveEmptyEntries);
-            foreach (var line in lines)
-            {
-                if (!line.Trim().HasValue())
-                    continue;
-
-                var taxes = line.Split(':');
-                if (taxes.Length != 2)
-                    continue;
-
-                try
-                {
-                    var taxRate = decimal.Parse(taxes[0].Trim(), CultureInfo.InvariantCulture);
-                    var taxValue = decimal.Parse(taxes[1].Trim(), CultureInfo.InvariantCulture);
-                    taxRates.Add(taxRate, taxValue);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                }
-            }
-
-            // Have at least one tax rate (0%)
-            if (taxRates.Count == 0)
-            {
-                taxRates.Add(decimal.Zero, decimal.Zero);
-            }
-
-            return taxRates;
-        }
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -633,5 +593,42 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         [NotMapped]
         public SortedDictionary<decimal, decimal> TaxRatesDictionary => ParseTaxRates(TaxRates);
+
+        protected static SortedDictionary<decimal, decimal> ParseTaxRates(string taxRatesStr)
+        {
+            var taxRates = new SortedDictionary<decimal, decimal>();
+            if (!taxRatesStr.HasValue())
+                return taxRates;
+
+            var lines = taxRatesStr.Split(';', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
+            {
+                if (!line.Trim().HasValue())
+                    continue;
+
+                var taxes = line.Split(':');
+                if (taxes.Length != 2)
+                    continue;
+
+                try
+                {
+                    var taxRate = decimal.Parse(taxes[0].Trim(), CultureInfo.InvariantCulture);
+                    var taxValue = decimal.Parse(taxes[1].Trim(), CultureInfo.InvariantCulture);
+                    taxRates.Add(taxRate, taxValue);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
+            }
+
+            // Have at least one tax rate (0%)
+            if (taxRates.Count == 0)
+            {
+                taxRates.Add(decimal.Zero, decimal.Zero);
+            }
+
+            return taxRates;
+        }
     }
 }
