@@ -38,7 +38,7 @@ namespace Smartstore.Services.Messages.Tasks
 
                 await _queuedEmailService.SendMailsAsync(queuedEmails, cancelToken);
 
-                if (!queuedEmails.HasNextPage)
+                if (!queuedEmails.HasNextPage || cancelToken.IsCancellationRequested)
                     break;
 
                 pageIndex++;
