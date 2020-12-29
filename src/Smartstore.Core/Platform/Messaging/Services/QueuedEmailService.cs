@@ -61,6 +61,9 @@ namespace Smartstore.Services.Messages
                     // Limit email chunks to 100.
                     foreach (var batch in group.Slice(100))
                     {
+                        if (cancelToken.IsCancellationRequested)
+                            break;
+
                         result = await ProcessMailBatchAsync(batch, client, saveToDisk, cancelToken);
                         await _db.SaveChangesAsync();
                     }
