@@ -33,7 +33,7 @@ namespace Smartstore.Services.Messages
 
         #endregion
 
-        // TODO: (MH) (core) Don't forget model validation on insert
+        // TODO: (core) (mh) Don't forget model validation on insert
         public virtual async Task<EmailAccount> GetDefaultEmailAccountAsync()
         {
             var defaultEmailAccount = await _db.EmailAccounts
