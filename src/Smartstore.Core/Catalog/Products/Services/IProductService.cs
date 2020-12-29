@@ -88,17 +88,5 @@ namespace Smartstore.Core.Catalog.Products
             IList<OrganizedShoppingCartItem> cart,
             int numberOfProducts,
             bool includeHidden = false);
-
-        /// <summary>
-        /// Gets bundle items for a bundle product identifier.
-        /// </summary>
-        /// <param name="bundleProductId">Bundle product identifier.</param>
-        /// <param name="includeHidden">A value indicating whether to include hidden products and bundle items.</param>
-        /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
-        /// <returns>List of bundle items.</returns>
-        Task<IList<ProductBundleItemData>> GetBundleItemsAsync(
-            int bundleProductId,
-            bool includeHidden = false,
-            bool tracked = false);
     }
 }

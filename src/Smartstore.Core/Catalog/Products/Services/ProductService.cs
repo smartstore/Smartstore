@@ -458,33 +458,5 @@ namespace Smartstore.Core.Catalog.Products
         // if (bundleItem.BundleProductId == 0) throw new SmartException("BundleProductId of a bundle item cannot be 0.");
         // if (bundleItem.ProductId == 0) throw new SmartException("ProductId of a bundle item cannot be 0.");
         // if (bundleItem.ProductId == bundleItem.BundleProductId) throw new SmartException("A bundle item cannot be an element of itself.");
-
-        public virtual async Task<IList<ProductBundleItemData>> GetBundleItemsAsync(
-            int bundleProductId,
-            bool includeHidden = false,
-            bool tracked = false)
-        {
-            if (bundleProductId == 0)
-            {
-                return new List<ProductBundleItemData>();
-            }
-
-            var query =
-                from pbi in _db.ProductBundleItem.ApplyTracking(tracked)
-                join p in _db.Products.ApplyTracking(tracked) on pbi.ProductId equals p.Id
-                where pbi.BundleProductId == bundleProductId && (includeHidden || (pbi.Published && p.Published))
-                orderby pbi.DisplayOrder
-                select pbi;
-
-            query = query.Include(x => x.Product);
-
-            var items = await query.ToListAsync();
-
-            var bundleItemData = items
-                .Select(x => new ProductBundleItemData(x))
-                .ToList();
-
-            return bundleItemData;
-        }
     }
 }
