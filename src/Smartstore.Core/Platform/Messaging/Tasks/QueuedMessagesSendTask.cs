@@ -32,7 +32,7 @@ namespace Smartstore.Services.Messages.Tasks
                     .Where(x => x.SentTries < 3 && x.SendManually == false)
                     .ApplyTimeFilter(null, null, true)
                     .ApplySorting(true)
-                    .Include("Attachments")
+                    .Include(x => x.Attachments)
                     .ToPagedList(pageIndex, 1000)
                     .LoadAsync();
 
