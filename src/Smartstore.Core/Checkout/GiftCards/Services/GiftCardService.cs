@@ -58,8 +58,9 @@ namespace Smartstore.Core.Checkout.GiftCards
         {
             if (!giftCard.IsGiftCardActivated)
                 return false;
-                        
-            // Check whether dbContext has OrderItem + Order already loaded => just access store id
+
+            // TODO: (core) (mh) Check whether dbContext has OrderItem + Order already loaded => just access store id
+            // TODO: (core) (mh) Write a query that fetches required info in one roundtrip!
 
             var orderStoreId = giftCard.PurchasedWithOrderItem?.Order?.StoreId ?? null;
             return (storeId == 0 || orderStoreId is null || orderStoreId == storeId) && giftCard.GetRemainingValue() > decimal.Zero;
