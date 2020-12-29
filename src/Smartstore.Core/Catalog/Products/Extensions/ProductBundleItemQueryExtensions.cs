@@ -20,11 +20,11 @@ namespace Smartstore.Core.Catalog.Products
             Guard.NotNull(query, nameof(query));
             Guard.NotNull(bundledProductIds, nameof(bundledProductIds));
 
-            var context = query.GetDbContext<SmartDbContext>();
+            var db = query.GetDbContext<SmartDbContext>();
 
             query =
                 from pbi in query
-                join p in context.Products.AsNoTracking() on pbi.ProductId equals p.Id
+                join p in db.Products.AsNoTracking() on pbi.ProductId equals p.Id
                 where bundledProductIds.Contains(pbi.BundleProductId) && (includeHidden || (pbi.Published && p.Published))
                 orderby pbi.DisplayOrder
                 select pbi;

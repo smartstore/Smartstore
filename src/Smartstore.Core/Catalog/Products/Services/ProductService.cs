@@ -15,8 +15,7 @@ namespace Smartstore.Core.Catalog.Products
     {
         private readonly SmartDbContext _db;
 
-        public ProductService(
-            SmartDbContext db)
+        public ProductService(SmartDbContext db)
         {
             _db = db;
         }
