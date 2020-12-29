@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Smartstore.Net.Mail
@@ -32,11 +33,11 @@ namespace Smartstore.Net.Mail
         public MailMessage(string to, string subject, string body, string from)
         {
             Guard.NotEmpty(to, nameof(to));
-            Guard.NotEmpty(from, nameof(from));
             Guard.NotEmpty(subject, nameof(subject));
             Guard.NotEmpty(body, nameof(body));
+            Guard.NotEmpty(from, nameof(from));
 
-            To.Add(new MailAddress(to));
+            To.AddRange(TokenizeAddressParameter(to));
             Subject = subject;
             Body = body;
             From = new MailAddress(from);
@@ -46,9 +47,9 @@ namespace Smartstore.Net.Mail
             : this()
         {
             Guard.NotNull(to, nameof(to));
-            Guard.NotNull(from, nameof(from));
             Guard.NotEmpty(subject, nameof(subject));
             Guard.NotEmpty(body, nameof(body));
+            Guard.NotNull(from, nameof(from));
 
             To.Add(to);
             Subject = subject;
@@ -70,6 +71,15 @@ namespace Smartstore.Net.Mail
         public ICollection<MailAddress> ReplyTo { get; } = new List<MailAddress>();
         public ICollection<MailAttachment> Attachments { get; } = new List<MailAttachment>();
         public IDictionary<string, string> Headers { get; } = new Dictionary<string, string>();
+
+        private static IEnumerable<MailAddress> TokenizeAddressParameter(string addresses)
+        {
+            return addresses
+                .Trim()
+                .SplitSafe(";")
+                .Where(x => x.Trim().HasValue())
+                .Select(x => new MailAddress(x));
+        }
 
         public async Task BodyFromFile(string filePathOrUrl)
         {

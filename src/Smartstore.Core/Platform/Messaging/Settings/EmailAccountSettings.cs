@@ -16,7 +16,7 @@ namespace Smartstore.Core.Messages
         public string PickupDirectoryLocation { get; set; }
 
         /// <summary>
-        /// Gets or sets a delay for sending queued mails (in milliseconds).
+        /// Gets or sets a delay for sending queued mails (in milliseconds). Set 0 to send without delay.
         /// </summary>
         public int MailSendingDelay { get; set; } = 10;
     }

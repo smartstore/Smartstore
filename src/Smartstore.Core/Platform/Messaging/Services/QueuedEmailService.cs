@@ -163,13 +163,14 @@ namespace Smartstore.Services.Messages
         /// <summary>
         /// Adds a semicolon seperated list of mail addresses to collection of MailAddresses.
         /// </summary>
-        private static void AddMailAddresses(string addresses, ICollection<MailAddress> target)
+        private static ICollection<MailAddress> AddMailAddresses(string addresses, ICollection<MailAddress> target)
         {
-            var arr = addresses.IsEmpty() ? null : addresses.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            if (arr != null && arr.Length > 0)
-            {
-                target.AddRange(arr.Where(x => x.Trim().HasValue()).Select(x => new MailAddress(x)));
-            }
+            target.AddRange(addresses
+                .SplitSafe(";")
+                .Where(x => x.Trim().HasValue())
+                .Select(x => new MailAddress(x)));
+
+            return target;
         }
 
         /// <summary>
@@ -177,11 +178,13 @@ namespace Smartstore.Services.Messages
         /// </summary>
         internal static MailMessage ConvertMail(QueuedEmail qe)
         {
+            // 'internal' for testing purposes
+
             var msg = new MailMessage(
-                new MailAddress(qe.To),
+                qe.To,
                 qe.Subject.Replace("\r\n", string.Empty),
                 qe.Body,
-                new MailAddress(qe.From));
+                qe.From);
 
             if (qe.ReplyTo.HasValue())
             {
