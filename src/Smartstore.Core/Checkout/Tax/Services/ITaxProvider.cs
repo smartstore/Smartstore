@@ -1,4 +1,5 @@
-﻿using Smartstore.Engine.Modularity;
+﻿using System.Threading.Tasks;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Tax
 {
@@ -10,6 +11,6 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Gets tax rate
         /// </summary>
-        CalculateTaxResult GetTaxRate(CalculateTaxRequest calculateTaxRequest);
+        Task<CalculateTaxResult> GetTaxRateAsync(CalculateTaxRequest calculateTaxRequest);
     }
 }
