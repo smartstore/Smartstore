@@ -6,7 +6,7 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public static partial class ProductBundleItemExtensions
+    public static partial class ProductBundleItemQueryExtensions
     {
         /// <summary>
         /// Applies a filter for bundled products and sorts by <see cref="ProductBundleItem.DisplayOrder"/>.
