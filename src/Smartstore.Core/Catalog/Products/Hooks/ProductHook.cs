@@ -66,6 +66,7 @@ namespace Smartstore.Core.Catalog.Products
                 .OfType<Product>()
                 .ToList();
 
+            // TODO: (core) (mg) (PERF) It's not certain that "AppliedDiscounts" has been eager loaded. If not, this will slow down things like shit!
             products.Each(x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
 
             await _db.SaveChangesAsync();
