@@ -279,6 +279,50 @@ namespace Smartstore
 
         #region Load collection / reference
 
+        public static bool IsCollectionLoaded<TEntity, TCollection>(
+            this HookingDbContext ctx,
+            TEntity entity,
+            Expression<Func<TEntity, IEnumerable<TCollection>>> navigationProperty)
+            where TEntity : BaseEntity
+            where TCollection : BaseEntity
+        {
+            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(navigationProperty, nameof(navigationProperty));
+
+            var entry = ctx.Entry(entity);
+            var collection = entry.Collection(navigationProperty);
+
+            // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
+            if (entry.State == EfState.Detached)
+            {
+                return false;
+            }
+
+            return collection.IsLoaded;
+        }
+
+        public static bool IsReferenceLoaded<TEntity, TProperty>(
+            this HookingDbContext ctx,
+            TEntity entity,
+            Expression<Func<TEntity, TProperty>> navigationProperty)
+            where TEntity : BaseEntity
+            where TProperty : BaseEntity
+        {
+            Guard.NotNull(entity, nameof(entity));
+            Guard.NotNull(navigationProperty, nameof(navigationProperty));
+
+            var entry = ctx.Entry(entity);
+            var reference = entry.Reference(navigationProperty);
+
+            // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
+            if (entry.State == EfState.Detached)
+            {
+                return false;
+            }
+
+            return reference.IsLoaded;
+        }
+
         public static async Task LoadCollectionAsync<TEntity, TCollection>(
             this HookingDbContext ctx,
             TEntity entity,
