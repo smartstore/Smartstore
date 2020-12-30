@@ -280,7 +280,7 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        // TODO: (core) (mg) Complete ProductService.AdjustInventoryAsync method.
+        // TODO: (mg) (core) Complete ProductService.AdjustInventoryAsync method.
         // SendQuantityBelowStoreOwnerNotification should be send by caller after (!) database commit.
         public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, bool decrease, int quantity, string attributesXml)
         {
@@ -502,7 +502,7 @@ namespace Smartstore.Core.Catalog.Products
             return added;
         }
 
-        // TODO: (core) (mg) Add fluent validations when inserting ProductBundleItem.
+        // TODO: (mg) (core) Add fluent validations when inserting ProductBundleItem.
         // if (bundleItem.BundleProductId == 0) throw new SmartException("BundleProductId of a bundle item cannot be 0.");
         // if (bundleItem.ProductId == 0) throw new SmartException("ProductId of a bundle item cannot be 0.");
         // if (bundleItem.ProductId == bundleItem.BundleProductId) throw new SmartException("A bundle item cannot be an element of itself.");

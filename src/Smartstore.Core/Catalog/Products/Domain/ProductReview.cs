@@ -12,7 +12,7 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<ProductReview> builder)
         {
-            // TODO: (core) (mg) : Really no way to avoid EF validation warning here?
+            // TODO: (mg) (core) : Really no way to avoid EF validation warning here?
             // Query filter not applicable because of limitation "Filters can only be defined for the root Entity Type of an inheritance hierarchy."
             //builder.HasQueryFilter(c => !c.Product.Deleted);
 

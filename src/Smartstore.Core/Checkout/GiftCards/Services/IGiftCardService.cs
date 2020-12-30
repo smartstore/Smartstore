@@ -7,7 +7,7 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// </summary>
     public partial interface IGiftCardService
     {
-        //TODO: (core) (ms) customer extension ParseAppliedGiftCardCouponCodes is needed + nav props > load eager(include)
+        //TODO: (ms) (core) customer extension ParseAppliedGiftCardCouponCodes is needed + nav props > load eager(include)
         /// <summary>
         /// Gets active gift cards that are applied by customer async
         /// </summary>

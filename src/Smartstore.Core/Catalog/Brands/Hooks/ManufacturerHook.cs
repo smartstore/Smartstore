@@ -30,7 +30,7 @@ namespace Smartstore.Core.Catalog.Brands
                 .OfType<Manufacturer>()
                 .ToList();
 
-            // TODO: (core) (mg) (PERF) It's not certain that "AppliedDiscounts" has been eager loaded
+            // TODO: (mg) (core) (PERF) It's not certain that "AppliedDiscounts" has been eager loaded
             manufacturers.Each(x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
 
             await _db.SaveChangesAsync();

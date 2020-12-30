@@ -27,7 +27,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             builder.Property(x => x.CurrencyRate).HasPrecision(18, 8);
 
-            // TODO: (core) (ms) needs orders nav prop in customer
+            // TODO: (ms) (core) needs orders nav prop in customer
             //builder.HasOne(x => x.Customer)
             //    .WithMany(x => x.Orders)
             //    .HasForeignKey(x => x.CustomerId);
@@ -502,14 +502,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the reward points history record
         /// </summary>
-        // TODO: (core) (ms) needs RewardPointsHistory of customer
+        // TODO: (ms) (core) needs RewardPointsHistory of customer
         //[JsonIgnore]
         //public RewardPointsHistory RedeemedRewardPointsEntry { get; set; }
 
         /// <summary>
         /// Gets or sets the wallet history.
         /// </summary>
-        // TODO: (core) (ms) needs WalletHistory of customer
+        // TODO: (ms) (core) needs WalletHistory of customer
         //[JsonIgnore]
         //public ICollection<WalletHistory> WalletHistory
         //{
@@ -520,7 +520,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets discount usage history
         /// </summary>
-        // TODO: (core) (ms) needs DiscountUsageHistory of catalog
+        // TODO: (ms) (core) needs DiscountUsageHistory of catalog
         //[JsonIgnore]
         //public ICollection<DiscountUsageHistory> DiscountUsageHistory
         //{

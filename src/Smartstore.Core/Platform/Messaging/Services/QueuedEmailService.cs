@@ -215,7 +215,7 @@ namespace Smartstore.Services.Messages
                         var path = qea.Path;
                         if (path.HasValue())
                         {
-                            // TODO: (core) (MH) Do this right.
+                            // TODO: (mh) (core) Do this right.
                             //if (path[0] == '~' || path[0] == '/')
                             //{
                             //    path = CommonHelper.MapPath(VirtualPathUtility.ToAppRelative(path), false);
@@ -231,7 +231,7 @@ namespace Smartstore.Services.Messages
                         var file = qea.MediaFile;
                         if (file != null)
                         {
-                            // TODO: (core) (MH) Uncomment when MediaService is available.
+                            // TODO: (mh) (core) Uncomment when MediaService is available.
                             //var mediaFile = _services.MediaService.ConvertMediaFile(file);
                             //var stream = mediaFile.OpenRead();
                             //if (stream != null)

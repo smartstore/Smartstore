@@ -9,7 +9,7 @@ namespace Smartstore.Core.Checkout.GiftCards.Extensions
         /// </summary>
         public static decimal GetRemainingValue(this GiftCard giftCard)
         {
-            // TODO: (core) (mh) That was NOT the idea. Move this to service!
+            // TODO: (mh) (core) That was NOT the idea. Move this to service!
             var result = giftCard.Amount - giftCard.GiftCardUsageHistory.Sum(x => x.UsedValue);
             return result < decimal.Zero
                 ? decimal.Zero

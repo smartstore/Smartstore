@@ -13,7 +13,7 @@ using System.Web;
 
 namespace Smartstore.Core.Checkout.Attributes
 {
-    // TODO: (Core) (ms) needs download & tax service and price formatter
+    // TODO: (mg) (core) needs download & tax service and price formatter
     public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     {
         private readonly ICheckoutAttributeParser _attributeParser;
@@ -100,7 +100,7 @@ namespace Smartstore.Core.Checkout.Attributes
         //                    var download = _downloadService.GetDownloadByGuid(downloadGuid);
         //                    if (download?.MediaFile is not null)
         //                    {
-        //                        // TODO: (core) (ms) add a method for getting URL (use routing because it handles all SEO friendly URLs) ?
+        //                        // TODO: (ms) (core) add a method for getting URL (use routing because it handles all SEO friendly URLs) ?
         //                        var attributeText = string.Empty;
         //                        var fileName = download.MediaFile.Name;
         //                        if (htmlEncode)

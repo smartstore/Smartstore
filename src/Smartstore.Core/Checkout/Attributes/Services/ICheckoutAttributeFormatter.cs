@@ -8,7 +8,7 @@ namespace Smartstore.Core.Checkout.Attributes
     /// </summary>
     public partial interface ICheckoutAttributeFormatter
     {
-        // TODO: (Core) (ms) needs download & tax service + price formatter
+        // TODO: (ms) (Core) needs download & tax service + price formatter
 
         /// <summary>
         /// Formats attributes

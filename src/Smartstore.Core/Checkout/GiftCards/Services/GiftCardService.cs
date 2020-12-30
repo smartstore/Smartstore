@@ -14,7 +14,7 @@ namespace Smartstore.Core.Checkout.GiftCards
             _db = db;
         }
 
-        //TODO: (core) (ms) customer extension ParseAppliedGiftCardCouponCodes is needed + nav props (order item) > load eager(include)
+        //TODO: (ms) (core) customer extension ParseAppliedGiftCardCouponCodes is needed + nav props (order item) > load eager(include)
         //public virtual async Task<List<GiftCard>> GetActiveGiftCardsAppliedByCustomerAsync(Customer customer, int storeId)
         //{
         //    var result = new List<GiftCard>();
@@ -59,8 +59,8 @@ namespace Smartstore.Core.Checkout.GiftCards
             if (!giftCard.IsGiftCardActivated)
                 return false;
 
-            // TODO: (core) (mh) Check whether dbContext has OrderItem + Order already loaded => just access store id
-            // TODO: (core) (mh) Write a query that fetches required info in one roundtrip!
+            // TODO: (mh) (core) Check whether dbContext has OrderItem + Order already loaded => just access store id
+            // TODO: (mh) (core) Write a query that fetches required info in one roundtrip!
 
             var orderStoreId = giftCard.PurchasedWithOrderItem?.Order?.StoreId ?? null;
             return (storeId == 0 || orderStoreId is null || orderStoreId == storeId) && giftCard.GetRemainingValue() > decimal.Zero;
