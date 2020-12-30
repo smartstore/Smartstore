@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Smartstore.ComponentModel;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
@@ -177,7 +179,7 @@ namespace Smartstore.Data
 
             RegisterEntities(modelBuilder, assembly);
             RegisterEntityMappings(modelBuilder, assembly);
-            RegisterConventions(modelBuilder);
+            ApplyConventions(modelBuilder);
         }
 
         private static void RegisterEntities(ModelBuilder modelBuilder, Assembly assembly)
@@ -198,21 +200,50 @@ namespace Smartstore.Data
             modelBuilder.ApplyConfigurationsFromAssembly(assembly);
         }
 
-        private static void RegisterConventions(ModelBuilder modelBuilder)
+        private static void ApplyConventions(ModelBuilder modelBuilder)
         {
-            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 // TODO: (core) Add more proper conventions
                 // TODO: (core) Make provider for conventions
 
-                // SingularTableNameConvention
-                entity.SetTableName(entity.DisplayName());
+                ApplySingularTableNameConvention(entityType);
 
-                // decimal HasPrecision(18, 4) convention
-                var decimalProperties = entity.GetProperties().Where(x => x.ClrType == typeof(decimal) || x.ClrType == typeof(decimal?));
+                var decimalProperties = entityType.GetProperties();
                 foreach (var property in decimalProperties)
                 {
+                    // decimal HasPrecision(18, 4) convention
+                    ApplyDecimalPrecisionConvention(property);
+                }
+            }
+        }
+
+        private static void ApplySingularTableNameConvention(IMutableEntityType entityType)
+        {
+            var conventionAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.TableName) as IConventionAnnotation;
+            if (conventionAnnotation == null || conventionAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
+            {
+                // Apply table name convention only when no convention exists or exising convention is "Conventional" (NOT Explicit or DataAnnotation)
+                entityType.SetTableName(entityType.DisplayName());
+            }
+        }
+
+        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required")]
+        private static void ApplyDecimalPrecisionConvention(IMutableProperty property)
+        {
+            if (property.ClrType == typeof(decimal) || property.ClrType == typeof(decimal?))
+            {
+                var precisionAnnotation = property.FindAnnotation(CoreAnnotationNames.Precision) as IConventionAnnotation;
+                if (precisionAnnotation == null || precisionAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
+                {
+                    // Apply precision convention only when no convention exists or exising convention is "Conventional" (NOT Explicit or DataAnnotation)
                     property.SetPrecision(18);
+                }
+
+                var scaleAnnotation = property.FindAnnotation(CoreAnnotationNames.Scale) as IConventionAnnotation;
+                if (scaleAnnotation == null || scaleAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
+                {
+                    // Apply scale convention only when no convention exists or exising convention is "Conventional" (NOT Explicit or DataAnnotation)
                     property.SetScale(4);
                 }
             }

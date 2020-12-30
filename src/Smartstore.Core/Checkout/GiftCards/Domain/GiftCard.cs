@@ -12,7 +12,7 @@ namespace Smartstore.Core.Checkout.GiftCards
     public class GiftCardMap : IEntityTypeConfiguration<GiftCard>
     {
         public void Configure(EntityTypeBuilder<GiftCard> builder)
-        {
+        {   
             builder.HasOne(x => x.PurchasedWithOrderItem)
                 .WithMany(x => x.AssociatedGiftCards)
                 .HasForeignKey(x => x.PurchasedWithOrderItemId);
