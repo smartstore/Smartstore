@@ -5,12 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.UI.TagHelpers
 {
@@ -29,8 +26,14 @@ namespace Smartstore.Web.UI.TagHelpers
         Material
     }
 
+    public class SelectedTabInfo
+    {
+        public string TabId { get; set; }
+        public string Path { get; set; }
+    }
+
     [OutputElementHint("div")]
-    [RestrictChildren("tab")]
+    [RestrictChildren("tab", "tab-content-header")]
     [HtmlTargetElement("tabstrip", Attributes = "id")]
     public class TabStripTagHelper : SmartTagHelper
     {
@@ -43,7 +46,10 @@ namespace Smartstore.Web.UI.TagHelpers
         #region Properties
 
         [HtmlAttributeNotBound]
-        public List<TabTagHelper> Tabs { get; set; } = new();
+        internal List<TabTagHelper> Tabs { get; set; } = new();
+
+        [HtmlAttributeNotBound]
+        internal TabContentHeaderTagHelper TabContentHeader { get; set; }
 
         /// <summary>
         /// Whether to hide tabstrip nav if there's only one tab item. Default = false.
@@ -276,24 +282,45 @@ namespace Smartstore.Web.UI.TagHelpers
             if (isStacked)
             {
                 // opening left/right content col
-                content.AppendHtml("<div class=\"col-lg nav-content\">");
+                content.AppendHtmlLine("<div class=\"col-lg nav-content\">");
             }
 
-            content.AppendHtml("<div class=\"tab-content\">");
+            content.AppendHtmlLine("<div class=\"tab-content\">");
 
-            // TODO: tab-content-header
+            // Tab content header
+            if (Responsive && TabContentHeader != null)
+            {
+                content.AppendHtml(BuildTabContentHeader(TabContentHeader));
+            }
+
             foreach (var tab in Tabs)
             {
                 content.AppendHtml(BuildTabPane(tab));
             }
 
-            content.AppendHtml("</div>");
+            content.AppendHtmlLine("</div>");
 
             if (isStacked)
             {
                 // closing left/right content col
-                content.AppendHtml("</div>");
+                content.AppendHtmlLine("</div>");
             }
+        }
+
+        private TagBuilder BuildTabContentHeader(TabContentHeaderTagHelper header)
+        {
+            TagBuilder div = new("div");
+
+            // Copy all attributes from output to div tag
+            foreach (var attr in header.Attributes)
+            {
+                div.MergeAttribute(attr.Name, attr.Value?.ToString());
+            }
+
+            div.AppendCssClass("tab-content-header");
+            div.InnerHtml.SetHtmlContent(header.Content);
+
+            return div;
         }
 
         #endregion
@@ -498,42 +525,58 @@ namespace Smartstore.Web.UI.TagHelpers
         /// </summary>
         private string TrySelectRememberedTab()
         {
-            //// TODO: (core) Implement TabStripTagHelper.TrySelectRememberedTab()
-            ///
-            //var tab = this.Component;
+            if (Id.IsEmpty())
+                return null;
 
-            //if (tab.Id.IsEmpty())
-            //    return null;
+            if (ViewContext.ViewData.Model is EntityModelBase model && model.Id == 0)
+            {
+                // it's a "create" operation: don't select
+                return null;
+            }
 
-            //if (ViewContext.ViewData.Model is EntityModelBase model && model.Id == 0)
-            //{
-            //    // it's a "create" operation: don't select
-            //    return null;
-            //}
+            var rememberedTab = (SelectedTabInfo)ViewContext.TempData["SelectedTab." + Id];
+            if (rememberedTab != null && rememberedTab.Path.Equals(ViewContext.HttpContext.Request.RawUrl(), StringComparison.OrdinalIgnoreCase))
+            {
+                // get tab to select
+                var tabToSelect = GetTabById(rememberedTab.TabId);
 
-            //var rememberedTab = (SelectedTabInfo)ViewContext.TempData["SelectedTab." + tab.Id];
-            //if (rememberedTab != null && rememberedTab.Path.Equals(ViewContext.HttpContext.Request.RawUrl, StringComparison.OrdinalIgnoreCase))
-            //{
-            //    // get tab to select
-            //    var tabToSelect = GetTabById(rememberedTab.TabId);
+                if (tabToSelect != null)
+                {
+                    // unselect former selected tab(s)
+                    Tabs.Each(x => x.Selected = false);
 
-            //    if (tabToSelect != null)
-            //    {
-            //        // unselect former selected tab(s)
-            //        tab.Items.Each(x => x.Selected = false);
+                    // select the new tab
+                    tabToSelect.Selected = true;
 
-            //        // select the new tab
-            //        tabToSelect.Selected = true;
+                    // persist again for the next request
+                    ViewContext.TempData["SelectedTab." + Id] = rememberedTab;
 
-            //        // persist again for the next request
-            //        ViewContext.TempData["SelectedTab." + tab.Id] = rememberedTab;
+                    if (tabToSelect.Ajax && tabToSelect.TabInnerContent.IsEmptyOrWhiteSpace)
+                    {
+                        return ".nav a[data-ajax-url][href='#{0}']".FormatInvariant(rememberedTab.TabId);
+                    }
+                }
+            }
 
-            //        if (tabToSelect.Ajax && tabToSelect.Content == null)
-            //        {
-            //            return ".nav a[data-ajax-url][href='#{0}']".FormatInvariant(rememberedTab.TabId);
-            //        }
-            //    }
-            //}
+            return null;
+        }
+
+        private TabTagHelper GetTabById(string tabId)
+        {
+            int i = 1;
+            foreach (var tab in Tabs)
+            {
+                var id = tab.Id;
+                if (id == tabId)
+                {
+                    if (!tab.Visible || tab.Disabled)
+                        break;
+
+                    return tab;
+                }
+
+                i++;
+            }
 
             return null;
         }
