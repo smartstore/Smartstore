@@ -45,8 +45,24 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         /// <param name="productIds">Product identifiers.</param>
         /// <param name="includeHidden">A value indicating whether to include hidden products.</param>
+        /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
         /// <returns>Map of discounts.</returns>
-        Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(int[] productIds, bool includeHidden = false);
+        Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(
+            int[] productIds,
+            bool includeHidden = false,
+            bool tracked = false);
+
+        /// <summary>
+        /// Gets a cross-sell products by shopping cart.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="numberOfProducts">Number of products to return.</param>
+        /// <param name="includeHidden">A value indicating whether to include hidden products.</param>
+        /// <returns>List of products.</returns>
+        Task<IList<Product>> GetCrossSellProductsByShoppingCartAsync(
+            IList<OrganizedShoppingCartItem> cart,
+            int numberOfProducts,
+            bool includeHidden = false);
 
         /// <summary>
         /// Applies the product review totals to a product entity. The caller is responsible for database commit.
@@ -86,17 +102,5 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="productId1">First product identifier.</param>
         /// <returns>Number of cross sell products added.</returns>
         Task<int> EnsureMutuallyCrossSellProductsAsync(int productId1);
-
-        /// <summary>
-        /// Gets a cross-sell products by shopping cart.
-        /// </summary>
-        /// <param name="cart">Shopping cart.</param>
-        /// <param name="numberOfProducts">Number of products to return.</param>
-        /// <param name="includeHidden">A value indicating whether to include hidden products.</param>
-        /// <returns>List of products.</returns>
-        Task<IList<Product>> GetCrossSellProductsByShoppingCartAsync(
-            IList<OrganizedShoppingCartItem> cart,
-            int numberOfProducts,
-            bool includeHidden = false);
     }
 }

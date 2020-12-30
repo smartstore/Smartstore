@@ -134,7 +134,10 @@ namespace Smartstore.Core.Catalog.Products
             return map;
         }
 
-        public virtual async Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(int[] productIds, bool includeHidden = false)
+        public virtual async Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(
+            int[] productIds,
+            bool includeHidden = false,
+            bool tracked = false)
         {
             Guard.NotNull(productIds, nameof(productIds));
 
@@ -144,9 +147,10 @@ namespace Smartstore.Core.Catalog.Products
                 return map;
             }
 
-            // NoTracking does not seem to eager load here.
             var query = _db.Products
-                .Include(x => x.AppliedDiscounts.Select(y => y.RuleSets))
+                .Include(x => x.AppliedDiscounts)
+                    .ThenInclude(y => y.RuleSets)
+                .ApplyTracking(tracked)
                 .Where(x => productIds.Contains(x.Id))
                 .ApplyStandardFilter(includeHidden)
                 .Select(x => new
@@ -163,6 +167,47 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             return map;
+        }
+
+        public virtual async Task<IList<Product>> GetCrossSellProductsByShoppingCartAsync(
+            IList<OrganizedShoppingCartItem> cart,
+            int numberOfProducts,
+            bool includeHidden = false)
+        {
+            var result = new List<Product>();
+
+            if (numberOfProducts == 0 || cart?.Count <= 0)
+            {
+                return result;
+            }
+
+            var cartProductIds = new HashSet<int>(cart.Select(x => x.Item.ProductId));
+
+            var query =
+                from csp in _db.CrossSellProducts.AsNoTracking()
+                join p in _db.Products on csp.ProductId2 equals p.Id
+                where cartProductIds.Contains(csp.ProductId1) && (includeHidden || p.Published)
+                orderby csp.Id
+                select csp;
+
+            var csItems = await query.ToListAsync();
+            var productIds1 = new HashSet<int>(csItems
+                .Select(x => x.ProductId2)
+                .Except(cartProductIds));
+
+            if (productIds1.Any())
+            {
+                var productIds2 = productIds1.Take(numberOfProducts).ToArray();
+
+                var products = await _db.Products
+                    .AsNoTracking()
+                    .Where(x => productIds2.Contains(x.Id))
+                    .ToListAsync();
+
+                result.AddRange(products.OrderBySequence(productIds2));
+            }
+
+            return result;
         }
 
         public virtual void ApplyProductReviewTotals(Product product)
@@ -331,14 +376,15 @@ namespace Smartstore.Core.Catalog.Products
         public virtual async Task<int> EnsureMutuallyRelatedProductsAsync(int productId1)
         {
             var productQuery = _db.Products.ApplyStandardFilter(true);
-            var relatedProductsQuery =
+
+            var relatedProductIdsQuery =
                 from rp in _db.RelatedProducts
                 join p in productQuery on rp.ProductId2 equals p.Id
                 where rp.ProductId1 == productId1
                 orderby rp.DisplayOrder
                 select rp.ProductId2;
 
-            var productIds = await relatedProductsQuery.ToListAsync();
+            var productIds = await relatedProductIdsQuery.ToListAsync();
 
             if (productIds.Count > 0 && !productIds.Any(x => x == productId1))
             {
@@ -398,14 +444,15 @@ namespace Smartstore.Core.Catalog.Products
         public virtual async Task<int> EnsureMutuallyCrossSellProductsAsync(int productId1)
         {
             var productQuery = _db.Products.ApplyStandardFilter(true);
-            var crossSellProductsQuery = 
+
+            var crossSellProductIdsQuery = 
                 from csp in _db.CrossSellProducts
                 join p in productQuery on csp.ProductId2 equals p.Id
                 where csp.ProductId1 == productId1
                 orderby csp.Id
                 select csp.ProductId2;
 
-            var productIds = await crossSellProductsQuery.ToListAsync();
+            var productIds = await crossSellProductIdsQuery.ToListAsync();
 
             if (productIds.Count > 0 && !productIds.Any(x => x == productId1))
             {
@@ -453,46 +500,6 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             return added;
-        }
-
-        public virtual async Task<IList<Product>> GetCrossSellProductsByShoppingCartAsync(
-            IList<OrganizedShoppingCartItem> cart,
-            int numberOfProducts,
-            bool includeHidden = false)
-        {
-            var result = new List<Product>();
-
-            if (numberOfProducts == 0 || cart?.Count <= 0)
-            {
-                return result;
-            }
-
-            var cartProductIds = new HashSet<int>(cart.Select(x => x.Item.ProductId));
-
-            var query = 
-                from csp in _db.CrossSellProducts
-                join p in _db.Products on csp.ProductId2 equals p.Id
-                where cartProductIds.Contains(csp.ProductId1) && (includeHidden || p.Published)
-                orderby csp.Id
-                select csp;
-
-            var csItems = await query.ToListAsync();
-            var productIds1 = new HashSet<int>(csItems
-                .Select(x => x.ProductId2)
-                .Except(cartProductIds));
-
-            if (productIds1.Any())
-            {
-                var productIds2 = productIds1.Take(numberOfProducts).ToArray();
-
-                var products = await _db.Products
-                    .Where(x => productIds2.Contains(x.Id))
-                    .ToListAsync();
-
-                result.AddRange(products.OrderBySequence(productIds2));
-            }
-
-            return result;
         }
 
         // TODO: (core) (mg) Add fluent validations when inserting ProductBundleItem.
