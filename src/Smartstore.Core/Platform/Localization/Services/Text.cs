@@ -20,25 +20,19 @@ namespace Smartstore.Core.Localization
 
         public virtual LocalizedString GetEx(string key, int languageId, params object[] args)
         {
-            try
+            var value = _localizationService.GetResource(key, languageId);
+
+            if (string.IsNullOrEmpty(value))
             {
-                var value = _localizationService.GetResource(key, languageId);
-
-                if (string.IsNullOrEmpty(value))
-                {
-                    return new LocalizedString(key);
-                }
-
-                if (args == null || args.Length == 0)
-                {
-                    return new LocalizedString(value);
-                }
-
-                return new LocalizedString(string.Format(value, args), key, args);
+                return new LocalizedString(key);
             }
-            catch { }
 
-            return new LocalizedString(key);
+            if (args.Length == 0)
+            {
+                return new LocalizedString(value);
+            }
+
+            return new LocalizedString(value, key, args);
         }
     }
 }

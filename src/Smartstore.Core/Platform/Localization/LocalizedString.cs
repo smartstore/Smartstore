@@ -57,7 +57,7 @@ namespace Smartstore.Core.Localization
 
         public static implicit operator string(LocalizedString obj)
         {
-            return HtmlEncoder.Default.Encode(obj.Value);
+            return obj.Value;
         }
 
         public static implicit operator LocalizedString(string obj)
