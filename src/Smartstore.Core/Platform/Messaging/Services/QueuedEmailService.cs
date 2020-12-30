@@ -65,7 +65,7 @@ namespace Smartstore.Services.Messages
                             break;
 
                         result = await ProcessMailBatchAsync(batch, client, saveToDisk, cancelToken);
-                        await _db.SaveChangesAsync();
+                        await _db.SaveChangesAsync(cancelToken);
                     }
                 }
             }
@@ -80,7 +80,7 @@ namespace Smartstore.Services.Messages
 
             if (attachment.StorageLocation == EmailAttachmentStorageLocation.Blob)
             {
-                return attachment.MediaStorage?.Data ?? new byte[0];
+                return attachment.MediaStorage?.Data ?? Array.Empty<byte>();
             }
 
             return null;

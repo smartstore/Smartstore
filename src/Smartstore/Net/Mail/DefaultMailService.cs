@@ -141,10 +141,11 @@ namespace Smartstore.Net.Mail
                 throw new MailException("Required sender is missing!");
             }
 
-            var msg = new MimeMessage();
-
-            msg.Subject = original.Subject;
-            msg.Priority = (MessagePriority)original.Priority;
+            var msg = new MimeMessage
+            {
+                Subject = original.Subject,
+                Priority = (MessagePriority)original.Priority
+            };
 
             // Addresses
             msg.From.Add(original.From.AsMailBoxAddress());

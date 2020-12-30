@@ -24,12 +24,12 @@ namespace Smartstore.Data
 
     internal class DbSaveChangesOperation : IDisposable
     {
-        private readonly static ConcurrentDictionary<Type, bool> _hookableEntities = new ConcurrentDictionary<Type, bool>();
+        private readonly static ConcurrentDictionary<Type, bool> _hookableEntities = new();
         
         private IEnumerable<EntityEntry> _changedEntries;
         private HookingDbContext _ctx;
         private IDbHookHandler _hookHandler;
-        private IDbCache _dbCache;
+        private readonly IDbCache _dbCache;
 
         public DbSaveChangesOperation(HookingDbContext ctx, IDbHookHandler hookHandler)
         {
