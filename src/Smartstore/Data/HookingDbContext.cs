@@ -203,9 +203,18 @@ namespace Smartstore.Data
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
                 // TODO: (core) Add more proper conventions
+                // TODO: (core) Make provider for conventions
 
                 // SingularTableNameConvention
                 entity.SetTableName(entity.DisplayName());
+
+                // decimal HasPrecision(18, 4) convention
+                var decimalProperties = entity.GetProperties().Where(x => x.ClrType == typeof(decimal) || x.ClrType == typeof(decimal?));
+                foreach (var property in decimalProperties)
+                {
+                    property.SetPrecision(18);
+                    property.SetScale(4);
+                }
             }
         }
 

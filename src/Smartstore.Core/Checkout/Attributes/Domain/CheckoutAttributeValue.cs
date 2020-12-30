@@ -14,9 +14,6 @@ namespace Smartstore.Core.Checkout.Attributes
     {
         public void Configure(EntityTypeBuilder<CheckoutAttributeValue> builder)
         {
-            builder.Property(x => x.PriceAdjustment).HasPrecision(18, 4);
-            builder.Property(x => x.WeightAdjustment).HasPrecision(18, 4);
-
             builder.HasOne(x => x.MediaFile)
                 .WithMany()
                 .HasForeignKey(x => x.MediaFileId)

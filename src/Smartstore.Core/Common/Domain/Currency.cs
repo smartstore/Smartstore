@@ -17,7 +17,6 @@ namespace Smartstore.Core.Common
         public void Configure(EntityTypeBuilder<Currency> builder)
         {
             builder.Property(c => c.Rate).HasPrecision(18, 8);
-            builder.Property(c => c.RoundOrderTotalDenominator).HasPrecision(18, 4);
         }
     }
 

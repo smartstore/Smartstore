@@ -15,9 +15,6 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         public void Configure(EntityTypeBuilder<ProductAttributeOption> builder)
         {
-            builder.Property(c => c.PriceAdjustment).HasPrecision(18, 4);
-            builder.Property(c => c.WeightAdjustment).HasPrecision(18, 4);
-
             builder.HasOne(c => c.ProductAttributeOptionsSet)
                 .WithMany(c => c.ProductAttributeOptions)
                 .HasForeignKey(c => c.ProductAttributeOptionsSetId);

@@ -26,22 +26,6 @@ namespace Smartstore.Core.Checkout.Orders
             builder.HasQueryFilter(c => !c.Deleted);
 
             builder.Property(x => x.CurrencyRate).HasPrecision(18, 8);
-            builder.Property(x => x.OrderSubtotalInclTax).HasPrecision(18, 4);
-            builder.Property(x => x.OrderSubtotalExclTax).HasPrecision(18, 4);
-            builder.Property(x => x.OrderSubTotalDiscountInclTax).HasPrecision(18, 4);
-            builder.Property(x => x.OrderSubTotalDiscountExclTax).HasPrecision(18, 4);
-            builder.Property(x => x.OrderShippingInclTax).HasPrecision(18, 4);
-            builder.Property(x => x.OrderShippingExclTax).HasPrecision(18, 4);
-            builder.Property(x => x.OrderShippingTaxRate).HasPrecision(18, 4);
-            builder.Property(x => x.PaymentMethodAdditionalFeeInclTax).HasPrecision(18, 4);
-            builder.Property(x => x.PaymentMethodAdditionalFeeExclTax).HasPrecision(18, 4);
-            builder.Property(x => x.PaymentMethodAdditionalFeeTaxRate).HasPrecision(18, 4);
-            builder.Property(x => x.OrderTax).HasPrecision(18, 4);
-            builder.Property(x => x.OrderDiscount).HasPrecision(18, 4);
-            builder.Property(x => x.CreditBalance).HasPrecision(18, 4);
-            builder.Property(x => x.OrderTotalRounding).HasPrecision(18, 4);
-            builder.Property(x => x.OrderTotal).HasPrecision(18, 4);
-            builder.Property(x => x.RefundedAmount).HasPrecision(18, 4);
 
             // TODO: (core) (ms) needs orders nav prop in customer
             //builder.HasOne(x => x.Customer)

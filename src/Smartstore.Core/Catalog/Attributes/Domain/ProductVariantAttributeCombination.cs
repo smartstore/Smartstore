@@ -18,12 +18,6 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             builder.HasQueryFilter(c => !c.Product.Deleted);
 
-            builder.Property(c => c.Price).HasPrecision(18, 4);
-            builder.Property(c => c.Length).HasPrecision(18, 4);
-            builder.Property(c => c.Width).HasPrecision(18, 4);
-            builder.Property(c => c.Height).HasPrecision(18, 4);
-            builder.Property(c => c.BasePriceAmount).HasPrecision(18, 4);
-
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductVariantAttributeCombinations)
                 .HasForeignKey(c => c.ProductId);

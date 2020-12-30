@@ -17,8 +17,6 @@ namespace Smartstore.Core.Catalog.Products
         {
             builder.HasQueryFilter(c => !c.Product.Deleted);
 
-            builder.Property(c => c.Discount).HasPrecision(18, 4);
-
             builder.HasOne(c => c.Product)
                 .WithMany()
                 .HasForeignKey(c => c.ProductId)

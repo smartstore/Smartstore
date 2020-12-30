@@ -14,8 +14,6 @@ namespace Smartstore.Core.Checkout.Cart
     {
         public void Configure(EntityTypeBuilder<ShoppingCartItem> builder)
         {
-            builder.Property(x => x.CustomerEnteredPrice).HasPrecision(18, 4);
-
             builder.HasOne(x => x.Customer)
                 .WithMany(x => x.ShoppingCartItems)
                 .HasForeignKey(x => x.CustomerId);

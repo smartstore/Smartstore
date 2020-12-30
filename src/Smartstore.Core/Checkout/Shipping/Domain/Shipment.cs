@@ -13,8 +13,6 @@ namespace Smartstore.Core.Checkout.Shipping
     {
         public void Configure(EntityTypeBuilder<Shipment> builder)
         {
-            builder.Property(x => x.TotalWeight).HasPrecision(18, 4);
-
             builder.HasOne(x => x.Order)
                 .WithMany(x => x.Shipments)
                 .HasForeignKey(x => x.OrderId);

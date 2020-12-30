@@ -15,8 +15,6 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         public void Configure(EntityTypeBuilder<SpecificationAttributeOption> builder)
         {
-            builder.Property(c => c.NumberValue).HasPrecision(18, 4);
-
             builder.HasOne(c => c.SpecificationAttribute)
                 .WithMany(c => c.SpecificationAttributeOptions)
                 .HasForeignKey(c => c.SpecificationAttributeId);

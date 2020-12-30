@@ -13,8 +13,6 @@ namespace Smartstore.Core.Checkout.GiftCards
     {
         public void Configure(EntityTypeBuilder<GiftCard> builder)
         {
-            builder.Property(x => x.Amount).HasPrecision(18, 4);
-
             builder.HasOne(x => x.PurchasedWithOrderItem)
                 .WithMany(x => x.AssociatedGiftCards)
                 .HasForeignKey(x => x.PurchasedWithOrderItemId);

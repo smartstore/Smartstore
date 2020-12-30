@@ -31,20 +31,6 @@ namespace Smartstore.Core.Catalog.Products
             // Globally exclude soft-deleted entities from all queries.
             builder.HasQueryFilter(c => !c.Deleted);
 
-            builder.Property(c => c.AdditionalShippingCharge).HasPrecision(18, 4);
-            builder.Property(c => c.Price).HasPrecision(18, 4);
-            builder.Property(c => c.OldPrice).HasPrecision(18, 4);
-            builder.Property(c => c.ProductCost).HasPrecision(18, 4);
-            builder.Property(c => c.SpecialPrice).HasPrecision(18, 4);
-            builder.Property(c => c.MinimumCustomerEnteredPrice).HasPrecision(18, 4);
-            builder.Property(c => c.MaximumCustomerEnteredPrice).HasPrecision(18, 4);
-            builder.Property(c => c.Weight).HasPrecision(18, 4);
-            builder.Property(c => c.Length).HasPrecision(18, 4);
-            builder.Property(c => c.Width).HasPrecision(18, 4);
-            builder.Property(c => c.Height).HasPrecision(18, 4);
-            builder.Property(c => c.LowestAttributeCombinationPrice).HasPrecision(18, 4);
-            builder.Property(c => c.BasePriceAmount).HasPrecision(18, 4);
-
             builder.HasOne(c => c.DeliveryTime)
                 .WithMany()
                 .HasForeignKey(c => c.DeliveryTimeId)

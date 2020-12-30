@@ -21,9 +21,6 @@ namespace Smartstore.Core.Catalog.Discounts
     {
         public void Configure(EntityTypeBuilder<Discount> builder)
         {
-            builder.Property(c => c.DiscountPercentage).HasPrecision(18, 4);
-            builder.Property(c => c.DiscountAmount).HasPrecision(18, 4);
-
             builder.HasMany(c => c.RuleSets)
                 .WithMany(c => c.Discounts)
                 .UsingEntity(x => x.ToTable("RuleSet_Discount_Mapping"));

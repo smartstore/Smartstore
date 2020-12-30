@@ -12,8 +12,6 @@ namespace Smartstore.Core.Checkout.GiftCards
     {
         public void Configure(EntityTypeBuilder<GiftCardUsageHistory> builder)
         {
-            builder.Property(x => x.UsedValue).HasPrecision(18, 4);
-
             builder.HasOne(x => x.GiftCard)
                 .WithMany(x => x.GiftCardUsageHistory)
                 .HasForeignKey(x => x.GiftCardId);

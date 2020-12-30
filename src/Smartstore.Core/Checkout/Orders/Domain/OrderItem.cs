@@ -15,16 +15,6 @@ namespace Smartstore.Core.Checkout.Orders
     {
         public void Configure(EntityTypeBuilder<OrderItem> builder)
         {
-            builder.Property(x => x.UnitPriceInclTax).HasPrecision(18, 4);
-            builder.Property(x => x.UnitPriceExclTax).HasPrecision(18, 4);
-            builder.Property(x => x.PriceInclTax).HasPrecision(18, 4);
-            builder.Property(x => x.PriceExclTax).HasPrecision(18, 4);
-            builder.Property(x => x.TaxRate).HasPrecision(18, 4);
-            builder.Property(x => x.DiscountAmountInclTax).HasPrecision(18, 4);
-            builder.Property(x => x.DiscountAmountExclTax).HasPrecision(18, 4);
-            builder.Property(x => x.ItemWeight).HasPrecision(18, 4);
-            builder.Property(x => x.ProductCost).HasPrecision(18, 4);
-
             builder.HasOne(x => x.Order)
                 .WithMany(x => x.OrderItems)
                 .HasForeignKey(x => x.OrderId);
