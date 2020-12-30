@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace Smartstore.ComponentModel.TypeConverters
 {
-    internal class DefaultTypeConverter : ITypeConverter
+    public class DefaultTypeConverter : ITypeConverter
 	{
 		private readonly Lazy<TypeConverter> _systemConverter;
 		private readonly Type _type;

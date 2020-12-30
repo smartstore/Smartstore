@@ -1,4 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using System.Xml.Serialization;
+using Smartstore.ComponentModel;
+using Smartstore.ComponentModel.TypeConverters;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -37,5 +44,74 @@ namespace Smartstore.Core.Catalog.Products
         public string AttributesXml { get; set; }
         public string AttributesInfo { get; set; }
         public bool PerItemShoppingCart { get; set; }
+    }
+
+    public class ProductBundleItemOrderDataConverter : DefaultTypeConverter
+    {
+        private readonly bool _forList;
+
+        public ProductBundleItemOrderDataConverter(bool forList)
+            : base(typeof(object))
+        {
+            _forList = forList;
+        }
+
+        public override bool CanConvertFrom(Type type)
+        {
+            return type == typeof(string);
+        }
+
+        public override bool CanConvertTo(Type type)
+        {
+            return type == typeof(string);
+        }
+
+        public override object ConvertFrom(CultureInfo culture, object value)
+        {
+            if (value is not string)
+            {
+                return base.ConvertFrom(culture, value);
+            }
+            
+            object result = null;
+            string str = value as string;
+
+            if (!string.IsNullOrEmpty(str))
+            {
+                try
+                {
+                    using var reader = new StringReader(str);
+                    var serializer = new XmlSerializer(_forList ? typeof(List<ProductBundleItemOrderData>) : typeof(ProductBundleItemOrderData));
+                    result = serializer.Deserialize(reader);
+                }
+                catch
+                {
+                    // xml error
+                }
+            }
+
+            return result;
+        }
+
+        public override object ConvertTo(CultureInfo culture, string format, object value, Type to)
+        {
+            if (to != typeof(string))
+            {
+                return base.ConvertTo(culture, format, value, to);
+            }
+
+            if (value != null && (value is ProductBundleItemOrderData || value is IList<ProductBundleItemOrderData>))
+            {
+                var sb = new StringBuilder();
+                using var writer = new StringWriter(sb);
+                var serializer = new XmlSerializer(_forList ? typeof(List<ProductBundleItemOrderData>) : typeof(ProductBundleItemOrderData));
+                serializer.Serialize(writer, value);
+                return sb.ToString();
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
     }
 }

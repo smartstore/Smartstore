@@ -26,18 +26,6 @@ namespace Smartstore.ComponentModel
 				new [] { "yes", "y", "on", "wahr" },
 				new [] { "no", "n", "off", "falsch" }));
 
-			// TODO: (core) Implement missing converters and reference them via TypeConverterAttribute
-			// TODO: (core) Check if IList<ShippingOption> etc. is really necessary (?)
-			//ITypeConverter converter = new ShippingOptionConverter(true);
-			//_typeConverters.TryAdd(typeof(IList<ShippingOption>), converter);
-			//_typeConverters.TryAdd(typeof(List<ShippingOption>), converter);
-			//_typeConverters.TryAdd(typeof(ShippingOption), new ShippingOptionConverter(false));
-
-			//converter = new ProductBundleDataConverter(true);
-			//_typeConverters.TryAdd(typeof(IList<ProductBundleItemOrderData>), converter);
-			//_typeConverters.TryAdd(typeof(List<ProductBundleItemOrderData>), converter);
-			//_typeConverters.TryAdd(typeof(ProductBundleItemOrderData), new ProductBundleDataConverter(false));
-
 			var converter = new DictionaryTypeConverter<IDictionary<string, object>>();
             _typeConverters.TryAdd(typeof(IDictionary<string, object>), converter);
             _typeConverters.TryAdd(typeof(Dictionary<string, object>), converter);
@@ -65,7 +53,7 @@ namespace Smartstore.ComponentModel
 			_typeConverters.TryAdd(type, typeConverter);
         }
 
-		public static ITypeConverter RemoveConverter<T>(ITypeConverter typeConverter)
+		public static ITypeConverter RemoveConverter<T>()
 		{
 			return RemoveConverter(typeof(T));
 		}
