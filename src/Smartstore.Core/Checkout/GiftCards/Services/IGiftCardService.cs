@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Smartstore.Core.Customers;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
@@ -11,13 +13,21 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets active gift cards that are applied by customer async
         /// </summary>
-        //Task<IEnumerable<GiftCard>> GetActiveGiftCardsAppliedByCustomerAsync(Customer customer, int storeId);
+        Task<List<AppliedGiftCard>> GetAppliedGiftCardsByCustomerAsync(Customer customer, int storeId = 0);
 
         /// <summary>
         /// Generates new gift card code async
         /// </summary>
         Task<string> GenerateGiftCardCodeAsync();
 
-        bool IsValidGiftCard(GiftCard giftCard, int storeId = 0);
+        /// <summary>
+        /// Checks whether the gift card is valid
+        /// </summary>
+        bool ValidateGiftCard(GiftCard giftCard, int storeId = 0);
+
+        /// <summary>
+        /// Gets the gift cards remaining value
+        /// </summary>
+        decimal GetRemainingAmount(GiftCard giftCard);
     }
 }

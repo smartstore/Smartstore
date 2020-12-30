@@ -1,6 +1,6 @@
-﻿using Smartstore.Core.Checkout.Cart;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Smartstore.Core.Checkout.Attributes.Domain;
 
 namespace Smartstore.Core.Checkout.Attributes
 {
@@ -10,28 +10,13 @@ namespace Smartstore.Core.Checkout.Attributes
     public partial interface ICheckoutAttributeParser
     {
         /// <summary>
-        /// Gets selected checkout attribute identifiers
+        /// Gets list of checkout attributes of attributes XML/Json from <see cref="CheckoutAttributeSelection"/>
         /// </summary>
-        IEnumerable<int> ParseCheckoutAttributeIds(string attributes);
+        Task<List<CheckoutAttribute>> ParseCheckoutAttributesAsync(CheckoutAttributeSelection selection);
 
         /// <summary>
-        /// Gets selected checkout attributes
+        /// Gets list of checkout attribute values of attributes XML/Json from <see cref="CheckoutAttributeSelection"/>
         /// </summary>
-        Task<List<CheckoutAttribute>> ParseCheckoutAttributesAsync(string attributes);
-
-        /// <summary>
-        /// Gets checkout attribute values
-        /// </summary>
-        Task<List<CheckoutAttributeValue>> ParseCheckoutAttributeValuesAsync(string attributes);
-
-        /// <summary>
-        /// Gets selected checkout attribute value
-        /// </summary>
-        IList<string> ParseValues(string attributes, int attributeId);
-
-        /// <summary>
-        /// Removes checkout attributes which cannot be applied to the current cart and returns an updated attributes XML string
-        /// </summary>
-        Task<string> RemoveNotApplicableAttributesAsync(string attributes, IList<OrganizedShoppingCartItem> cart);
+        Task<List<CheckoutAttributeValue>> ParseCheckoutAttributeValuesAsync(CheckoutAttributeSelection selection);
     }
 }

@@ -22,6 +22,8 @@
     <Folder Include="Catalog\Attributes\Providers\" />
     <Folder Include="Catalog\Attributes\Utils\" />
     <Folder Include="Catalog\Attributes\Services\" />
+    <Folder Include="Checkout\Cart\Rules\" />
+    <Folder Include="Checkout\Shipping\Tracking\" />
   </ItemGroup>
 
   <ItemGroup>
