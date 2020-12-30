@@ -7,6 +7,7 @@ using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Products
@@ -194,7 +195,48 @@ namespace Smartstore.Core.Catalog.Products
             product.NotApprovedTotalReviews = notApprovedTotalReviews;
         }
 
-        // TODO: (mg) (core) Complete ProductService.AdjustInventoryAsync method.
+        public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(OrderItem orderItem, bool decrease, int quantity)
+        {
+            Guard.NotNull(orderItem, nameof(orderItem));
+
+            if (orderItem.Product.ProductType == ProductType.BundledProduct && orderItem.Product.BundlePerItemShoppingCart)
+            {
+                if (orderItem.BundleData.HasValue())
+                {
+                    var bundleData = orderItem.GetBundleData();
+                    if (bundleData.Any())
+                    {
+                        var productIds = bundleData
+                            .Select(x => x.ProductId)
+                            .Distinct()
+                            .ToArray();
+
+                        var products = await _db.Products
+                            .Where(x => productIds.Contains(x.Id))
+                            .ToListAsync();
+
+                        var productsDic = products.ToDictionary(x => x.Id);
+
+                        foreach (var item in bundleData)
+                        {
+                            if (productsDic.TryGetValue(item.ProductId, out var product))
+                            {
+                                await AdjustInventoryAsync(product, decrease, quantity * item.Quantity, item.AttributesXml);
+                            }
+                        }
+                    }
+                }
+
+                return new AdjustInventoryResult();
+            }
+            else
+            {
+                return await AdjustInventoryAsync(orderItem.Product, decrease, quantity, orderItem.AttributesXml);
+            }
+        }
+
+        // TODO: (core) (mg) Complete ProductService.AdjustInventoryAsync method.
+        // SendQuantityBelowStoreOwnerNotification should be send by caller after (!) database commit.
         public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, bool decrease, int quantity, string attributesXml)
         {
             Guard.NotNull(product, nameof(product));
@@ -453,7 +495,7 @@ namespace Smartstore.Core.Catalog.Products
             return result;
         }
 
-        // TODO: (mg) (core) Add fluent validations when inserting ProductBundleItem.
+        // TODO: (core) (mg) Add fluent validations when inserting ProductBundleItem.
         // if (bundleItem.BundleProductId == 0) throw new SmartException("BundleProductId of a bundle item cannot be 0.");
         // if (bundleItem.ProductId == 0) throw new SmartException("ProductId of a bundle item cannot be 0.");
         // if (bundleItem.ProductId == bundleItem.BundleProductId) throw new SmartException("A bundle item cannot be an element of itself.");

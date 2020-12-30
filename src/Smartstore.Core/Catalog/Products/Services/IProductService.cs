@@ -4,6 +4,7 @@ using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -52,6 +53,15 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         /// <param name="product">Product entity.</param>
         void ApplyProductReviewTotals(Product product);
+
+        /// <summary>
+        /// Adjusts product inventory. The caller is responsible for database commit.
+        /// </summary>
+        /// <param name="orderItem">Order item.</param>
+        /// <param name="decrease">A value indicating whether to increase or descrease product stock quantity.</param>
+        /// <param name="quantity">The quantity to adjust.</param>
+        /// <returns>Adjust inventory result.</returns>
+        Task<AdjustInventoryResult> AdjustInventoryAsync(OrderItem orderItem, bool decrease, int quantity);
 
         /// <summary>
         /// Adjusts product inventory. The caller is responsible for database commit.
