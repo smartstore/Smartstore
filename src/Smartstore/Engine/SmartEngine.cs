@@ -14,6 +14,7 @@ using Smartstore.Engine.Initialization;
 using Smartstore.DependencyInjection;
 using Smartstore.Engine.Builders;
 using Smartstore.Pdf;
+using Smartstore.ComponentModel;
 
 namespace Smartstore.Engine
 {
@@ -97,6 +98,7 @@ namespace Smartstore.Engine
                 services.AddApplicationInitializer();
 
                 services.AddSingleton(x => NullChronometer.Instance);
+                services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
                 services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
                 services.AddSingleton<IPdfConverter, NullPdfConverter>();
                 services.AddHttpContextAccessor();

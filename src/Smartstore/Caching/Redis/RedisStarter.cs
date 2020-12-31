@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Configuration;
 using Smartstore.Caching;
+using Smartstore.ComponentModel;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Events;
@@ -34,10 +35,6 @@ namespace Smartstore.Redis
 
             builder.RegisterType<RedisConnectionFactory>()
                 .As<IRedisConnectionFactory>()
-                .SingleInstance();
-
-            builder.RegisterType<RedisJsonSerializer>()
-                .As<IRedisSerializer>()
                 .SingleInstance();
 
             if (isActiveModule && hasMessageBusConString)

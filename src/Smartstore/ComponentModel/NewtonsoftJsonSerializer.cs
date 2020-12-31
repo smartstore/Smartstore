@@ -1,45 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
-using Smartstore.Caching;
-using Smartstore.ComponentModel;
-using Smartstore.Redis.Configuration;
+using Newtonsoft.Json.Bson;
 
-namespace Smartstore.Redis
+namespace Smartstore.ComponentModel
 {
-    public class RedisJsonSerializer : IRedisSerializer
+    public class NewtonsoftJsonSerializer : IJsonSerializer
     {
+        private readonly JsonSerializer _jsonSerializer = JsonSerializer.Create(CreateSerializerSettings());
+
         private static readonly byte[] NullResult = Encoding.UTF8.GetBytes("null");
 
         // Contains types that cannot be (de)serialized
-        private readonly HashSet<Type> _unSerializableTypes = new HashSet<Type> { typeof(Task), typeof(Task<>) };
-        private readonly HashSet<Type> _unDeserializableTypes = new HashSet<Type> { typeof(Task), typeof(Task<>) };
+        private readonly HashSet<Type> _unSerializableTypes = new() { typeof(Task), typeof(Task<>) };
+        private readonly HashSet<Type> _unDeserializableTypes = new() { typeof(Task), typeof(Task<>) };
 
-        private readonly RedisConfiguration _configuration;
-
-        public RedisJsonSerializer(RedisConfiguration configuration)
+        public NewtonsoftJsonSerializer()
         {
-            _configuration = configuration;
+        }
+
+        private static JsonSerializerSettings CreateSerializerSettings()
+        {
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = SmartContractResolver.Instance,
+                TypeNameHandling = TypeNameHandling.Objects,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                ObjectCreationHandling = ObjectCreationHandling.Replace,
+                NullValueHandling = NullValueHandling.Ignore,
+                MaxDepth = 32
+            };
+
+            return settings;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public bool CanSerialize(object obj)
+        public virtual bool CanSerialize(object obj)
         {
             return IsSerializableType(GetInnerType(obj), _unSerializableTypes);
         }
 
-        public bool CanDeserialize(Type objectType)
+        public virtual bool CanSerialize(Type objectType)
+        {
+            return IsSerializableType(objectType, _unSerializableTypes);
+        }
+
+        public virtual bool CanDeserialize(Type objectType)
         {
             return IsSerializableType(objectType, _unDeserializableTypes);
         }
 
-        public bool TrySerialize(object value, bool compress, out byte[] result)
+        public virtual bool TrySerialize(object value, bool compress, out byte[] result)
         {
             result = null;
 
@@ -66,27 +84,28 @@ namespace Smartstore.Redis
             }
         }
 
-        public bool TryDeserialize<T>(byte[] value, bool uncompress, out T result)
+        public virtual bool TryDeserialize(Type objectType, byte[] value, bool uncompress, out object result)
         {
-            result = default;
+            Guard.NotNull(objectType, nameof(objectType));
+            
+            result = null;
 
-            if (!CanDeserialize(typeof(T)))
+            if (!CanDeserialize(objectType))
             {
                 return false;
             }
 
             try
             {
-                result = Deserialize<T>(value, uncompress);
+                result = Deserialize(objectType, value, uncompress);
                 return true;
             }
             catch
             {
-                var t = typeof(T);
-                if (!(typeof(IObjectContainer).IsAssignableFrom(t) || t == typeof(object) || t.IsPredefinedType()))
+                if (!(typeof(IObjectContainer).IsAssignableFrom(objectType) || objectType == typeof(object) || objectType.IsPredefinedType()))
                 {
-                    _unDeserializableTypes.Add(t);
-                    Logger.Debug("Type '{0}' cannot be DEserialized", t);
+                    _unDeserializableTypes.Add(objectType);
+                    Logger.Debug("Type '{0}' cannot be DEserialized", objectType);
                 }
 
                 return false;
@@ -94,11 +113,6 @@ namespace Smartstore.Redis
         }
 
         #region Private
-
-        private T Deserialize<T>(byte[] value, bool uncompress)
-        {
-            return (T)Deserialize(typeof(T), value, uncompress);
-        }
 
         private object Deserialize(Type objectType, byte[] value, bool uncompress)
         {
@@ -111,22 +125,15 @@ namespace Smartstore.Redis
                 return null;
             }
 
-            var settings = new JsonSerializerSettings
-            {
-                ContractResolver = SmartContractResolver.Instance,
-                TypeNameHandling = TypeNameHandling.Objects,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ObjectCreationHandling = ObjectCreationHandling.Replace,
-                NullValueHandling = NullValueHandling.Ignore
-            };
-
-            if (!_configuration.DisableCompression && uncompress)
+            if (uncompress)
             {
                 value = value.Unzip();
             }
 
-            var json = Encoding.UTF8.GetString(value);
-            return JsonConvert.DeserializeObject(json, objectType, settings);
+            using var stream = new MemoryStream(value);
+            using var reader = new BsonDataReader(stream);
+
+            return _jsonSerializer.Deserialize(reader, objectType);
         }
 
         private byte[] Serialize(object item, bool compress)
@@ -136,26 +143,18 @@ namespace Smartstore.Redis
                 return NullResult;
             }
 
-            var settings = new JsonSerializerSettings
-            {
-                ContractResolver = SmartContractResolver.Instance,
-                TypeNameHandling = TypeNameHandling.Objects,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                NullValueHandling = NullValueHandling.Ignore
-            };
+            using var stream = new MemoryStream();
+            using var writer = new BsonDataWriter(stream);
 
-            var json = JsonConvert.SerializeObject(item, settings);
+            _jsonSerializer.Serialize(writer, item);
+            var buffer = stream.ToArray();
 
-            var buffer = Encoding.UTF8.GetBytes(json);
-
-            if (!_configuration.DisableCompression && compress)
+            if (compress)
             {
                 return buffer.Zip();
             }
-            else
-            {
-                return buffer;
-            }
+
+            return buffer;
         }
 
 

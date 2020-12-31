@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
@@ -131,8 +130,7 @@ namespace Smartstore.Web.UI.TagHelpers
             if (SmartTabSelection)
             {
                 classList.Add("tabs-autoselect");
-                // TODO: (core) Move SetSelectedTab action to a public shared frontend controller
-                output.Attributes.Add("data-tabselector-href", UrlHelper.Action("SetSelectedTab", "Common", new { area = "admin" }));
+                output.Attributes.Add("data-tabselector-href", UrlHelper.Action("SetSelectedTab", "State"));
             }
 
             if (isStacked)

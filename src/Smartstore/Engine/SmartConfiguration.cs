@@ -80,10 +80,10 @@ namespace Smartstore.Engine
         public string PdfEngineBaseUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to store TempData in the session state.
-        /// By default the cookie-based TempData provider is used to store TempData in cookies.
+        /// Gets or sets a value indicating whether to store TempData in a cookie.
+        /// By default the session-based TempData provider is used to store TempData in user session.
         /// </summary>
-        public bool UseSessionStateTempDataProvider { get; set; }
+        public bool UseCookieTempDataProvider { get; set; }
 
         /// <summary>
         /// Use with care!

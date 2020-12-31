@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
@@ -7,14 +8,18 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.WebEncoders;
+using Newtonsoft.Json;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web
 {
@@ -27,17 +32,39 @@ namespace Smartstore.Web
         
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
+            // Add action context accessor
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
-            services.AddAntiforgery(o => o.HeaderName = "X-XSRF-Token");
-            services.AddHttpClient();
 
-            services.AddDatabaseDeveloperPageExceptionFilter();
-
+            // Configure Cookie Policy Options
             services.Configure<CookiePolicyOptions>(options =>
             {
-                options.CheckConsentNeeded = context => true;
+                //// TODO: (core) Configure CookiePolicyOptions including GDPR consent stuff.
+                //options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
+                options.Secure = CookieSecurePolicy.SameAsRequest;
             });
+
+            // Add AntiForgery
+            services.AddAntiforgery(o => o.HeaderName = "X-XSRF-Token");
+
+            // Add HTTP client feature
+            services.AddHttpClient();
+            
+            // Add session feature
+            services.AddSession(o => 
+            {
+                // TODO: (core) Configure session cookie
+                o.Cookie.Name = ".Smart.Session";
+                o.Cookie.HttpOnly = true;
+                o.Cookie.SameSite = SameSiteMode.Lax;
+                o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            });
+
+            // Detailed database related error notifications
+            services.AddDatabaseDeveloperPageExceptionFilter();
+
+            // Add RazorPages
+            services.AddRazorPages();
 
             services.Configure<RazorViewEngineOptions>(o =>
             {
@@ -72,10 +99,16 @@ namespace Smartstore.Web
                 {
                     // TODO: (core) FileProvider
                 })
-                // TODO: (core) Add FluentValidation
+                //// TODO: (core) Add FluentValidation
                 .AddNewtonsoftJson(o =>
                 {
-                    // TODO: (core) Do some ContractResolver stuff
+                    var settings = o.SerializerSettings;
+                    settings.ContractResolver = SmartContractResolver.Instance;
+                    settings.TypeNameHandling = TypeNameHandling.Objects;
+                    settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    settings.ObjectCreationHandling = ObjectCreationHandling.Replace;
+                    settings.NullValueHandling = NullValueHandling.Ignore;
+                    settings.MaxDepth = 32;
                 })
                 .AddControllersAsServices()
                 .AddAppLocalization()
@@ -84,24 +117,29 @@ namespace Smartstore.Web
                     // TODO: (core) More MVC config?
                 });
 
-            if (appContext.AppConfiguration.UseSessionStateTempDataProvider)
-            {
-                mvcBuilder.AddSessionStateTempDataProvider();
-            }
-            else
+            // Add TempData feature
+            if (appContext.AppConfiguration.UseCookieTempDataProvider)
             {
                 mvcBuilder.AddCookieTempDataProvider(o =>
                 {
                     // TODO: (core) Make all cookie names global accessible and read it from there
-                    o.Cookie.Name = "Smart.TempData";
-
+                    o.Cookie.Name = ".Smart.TempData";
+                    
                     // Whether to allow the use of cookies from SSL protected page on the other store pages which are not protected
                     // TODO: (core) true = If current store is SSL protected
                     o.Cookie.SecurePolicy = true ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.None;
+                    o.Cookie.SecurePolicy = CookieSecurePolicy.None;
+                    o.Cookie.IsEssential = true;
                 });
             }
+            else
+            {
+                mvcBuilder.AddSessionStateTempDataProvider();
+            }
 
-            services.AddRazorPages();
+            // Replace BsonTempDataSerializer that was registered by AddNewtonsoftJson()
+            // with our own serializer which is capable of serializing more stuff.
+            services.AddSingleton<TempDataSerializer, SmartTempDataSerializer>();
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
@@ -152,24 +190,29 @@ namespace Smartstore.Web
                 // TODO: (core) Use Response compression
 
                 // TODO: (core) Use media middleware
-                //app.UseSession(); // TODO: (core) Configure session
+                
             });
 
-            if (appContext.IsInstalled)
+            builder.Configure(StarterOrdering.EarlyMiddleware, app =>
             {
-                builder.Configure(StarterOrdering.EarlyMiddleware, app =>
+                // TODO: (core) Configure session
+                app.UseSession();
+
+                if (appContext.IsInstalled)
                 {
                     app.UseUrlPolicy();
                     app.UseRequestCulture();
                     app.UseMiddleware<SerilogHttpContextMiddleware>();
-                });
-            }
+                }
+            });
 
             builder.Configure(StarterOrdering.DefaultMiddleware, app =>
             {
-                app.UseCookiePolicy(); // TODO: (core) Configure cookie policy
+                // TODO: (core) Configure cookie policy
+                app.UseCookiePolicy();
 
-                app.UseAuthorization(); // TODO: (core) Configure custom auth with Identity Server
+                // TODO: (core) Configure custom auth with Identity Server
+                app.UseAuthorization(); 
             });
         }
 

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Smartstore.Caching;
+using Smartstore.ComponentModel;
 using Smartstore.Redis.Configuration;
 using StackExchange.Redis;
 
@@ -16,12 +17,12 @@ namespace Smartstore.Redis.Caching
         private readonly IRedisConnectionFactory _connectionFactory;
         private readonly ConnectionMultiplexer _multiplexer;
         private readonly RedisMessageBus _messageBus;
-        private readonly IRedisSerializer _serializer;
+        private readonly IJsonSerializer _serializer;
 
         private readonly string _cachePrefix;
         private readonly string _keyPrefix;
 
-        public RedisCacheStore(RedisConfiguration configuration, IRedisConnectionFactory connectionFactory, IRedisSerializer serializer)
+        public RedisCacheStore(RedisConfiguration configuration, IRedisConnectionFactory connectionFactory, IJsonSerializer serializer)
         {
             // TODO: (core) Build versionStr from SmartstoreVersion class
             var versionStr = "5.0.0";
@@ -70,7 +71,7 @@ namespace Smartstore.Redis.Caching
         public IDatabase Database 
             => _multiplexer.GetDatabase();
 
-        public IRedisSerializer Serializer
+        public IJsonSerializer Serializer
             => _serializer;
 
         public Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
@@ -116,13 +117,13 @@ namespace Smartstore.Redis.Caching
         public CacheEntry Get(string key)
         {
             // INFO: No RedisAction for perf reasons.
-            return Database.ObjectGet<CacheEntry>(_serializer, BuildCacheKey(key));
+            return Database.ObjectGet<CacheEntry>(_serializer, BuildCacheKey(key), !_configuration.DisableCompression);
         }
 
         public Task<CacheEntry> GetAsync(string key)
         {
             // INFO: No RedisAction for perf reasons.
-            return Database.ObjectGetAsync<CacheEntry>(_serializer, BuildCacheKey(key));
+            return Database.ObjectGetAsync<CacheEntry>(_serializer, BuildCacheKey(key), !_configuration.DisableCompression);
         }
 
         public ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null)
@@ -189,7 +190,7 @@ namespace Smartstore.Redis.Caching
             RedisAction(condition, () =>
             {
                 entry.Key = key;
-                Database.ObjectSet(_serializer, BuildCacheKey(key), entry, entry.Duration);
+                Database.ObjectSet(_serializer, BuildCacheKey(key), entry, !_configuration.DisableCompression, entry.Duration);
                 if (entry.Dependencies != null && entry.Dependencies.Any())
                 {
                     EnlistDependencyKeys(key, entry.Dependencies);
@@ -205,7 +206,7 @@ namespace Smartstore.Redis.Caching
             var condition = _serializer.CanSerialize(entry) && (_serializer.CanDeserialize(entry.Value?.GetType()));
             await RedisActionAsync(condition, async () =>
             {
-                await Database.ObjectSetAsync(_serializer, BuildCacheKey(key), entry, entry.Duration);
+                await Database.ObjectSetAsync(_serializer, BuildCacheKey(key), entry, !_configuration.DisableCompression, entry.Duration);
                 if (entry.Dependencies != null && entry.Dependencies.Any())
                 {
                     await EnlistDependencyKeysAsync(key, entry.Dependencies);
