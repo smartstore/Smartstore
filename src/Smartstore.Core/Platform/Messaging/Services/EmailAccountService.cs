@@ -7,6 +7,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Services.Messages
 {
+    [Important]
     public partial class EmailAccountService : AsyncDbSaveHook<EmailAccount>, IEmailAccountService
     {
         private readonly SmartDbContext _db;

@@ -1,15 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
-using Smartstore.Data.Hooks;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Data;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Common.Hooks
 {
+    [Important]
     public class QuantityUnitHook : AsyncDbSaveHook<QuantityUnit>
     {
         private readonly SmartDbContext _db;

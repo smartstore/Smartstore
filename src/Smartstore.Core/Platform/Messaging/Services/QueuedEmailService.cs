@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
@@ -15,7 +14,7 @@ using Smartstore.Net.Mail;
 
 namespace Smartstore.Services.Messages
 {
-    public partial class QueuedEmailService : AsyncDbSaveHook<QueuedEmail>, IQueuedEmailService
+    public partial class QueuedEmailService : IQueuedEmailService
     {
         private readonly SmartDbContext _db;
         private readonly IMailService _mailService;

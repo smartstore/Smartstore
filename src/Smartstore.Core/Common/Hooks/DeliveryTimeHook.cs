@@ -1,18 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Data;
-using Smartstore.Data;
-using Smartstore.Data.Hooks;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Data;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Common.Hooks
 {
+    [Important]
     public class DeliveryTimeHook : AsyncDbSaveHook<DeliveryTime>
     {
         private readonly SmartDbContext _db;

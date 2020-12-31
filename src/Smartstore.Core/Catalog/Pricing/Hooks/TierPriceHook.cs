@@ -11,6 +11,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
+    [Important]
     public class TierPriceHook : AsyncDbSaveHook<TierPrice>
     {
         private readonly SmartDbContext _db;

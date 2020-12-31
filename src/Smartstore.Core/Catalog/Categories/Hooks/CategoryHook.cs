@@ -7,6 +7,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Categories
 {
+    [Important]
     public class CategoryHook : AsyncDbSaveHook<Category>
     {
         private readonly SmartDbContext _db;

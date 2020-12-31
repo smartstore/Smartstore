@@ -9,6 +9,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
 {
+    [Important]
     public class ProductHook : AsyncDbSaveHook<Product>
     {
         private readonly SmartDbContext _db;
