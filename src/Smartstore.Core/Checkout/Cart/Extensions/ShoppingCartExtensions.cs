@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Localization;
 
@@ -43,7 +44,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets the recurring cycle information
         /// </summary>
-		public static RecurringCycleInfo GetRecurringCycleInfo(this IEnumerable<OrganizedShoppingCartItem> cart, ILocalizationService localizationService)
+		public static async Task<RecurringCycleInfo> GetRecurringCycleInfoAsync(this IEnumerable<OrganizedShoppingCartItem> cart, ILocalizationService localizationService)
         {
             Guard.NotNull(cart, nameof(cart));
             Guard.NotNull(localizationService, nameof(localizationService));
@@ -71,7 +72,7 @@ namespace Smartstore.Core.Checkout.Cart
                     || cycleInfo.CyclePeriod != product.RecurringCyclePeriod
                     || cycleInfo.CyclePeriod != product.RecurringCyclePeriod)
                 {
-                    cycleInfo.ErrorMessage = localizationService.GetResource("ShoppingCart.ConflictingShipmentSchedules");
+                    cycleInfo.ErrorMessage = await localizationService.GetResourceAsync("ShoppingCart.ConflictingShipmentSchedules");
                     break;
                 }
             }

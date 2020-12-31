@@ -512,10 +512,25 @@ namespace Smartstore.Web.Controllers
             //_db.Discounts.Remove(discount);
             //await _db.SaveChangesAsync();
 
-            var product = await _db.Products.FindByIdAsync(4366);
-            var count = product.AppliedDiscounts.Count;
+            //var product = await _db.Products.FindByIdAsync(4366);
+            //var count = product.AppliedDiscounts.Count;
+            //content.AppendLine($"applied discounts {count}. has discounts applied {product.HasDiscountsApplied}.");
 
-            content.AppendLine($"applied discounts {count}. has discounts applied {product.HasDiscountsApplied}.");
+            var product = await _db.Products
+                //.Include(x => x.ProductManufacturers)
+                //    .ThenInclude(y => y.Manufacturer)
+                .FirstOrDefaultAsync(x => x.Id == 1751);
+
+            var entry = _db.Entry(product);
+            var collection = entry.Collection(x => x.ProductManufacturers);
+            var query = collection.Query();
+
+            content.AppendLine("Query string:");
+            content.AppendLine(query.ToQueryString());
+            content.AppendLine();
+
+            var entities = product.ProductManufacturers;
+            content.AppendLine($"assigned entities {entities.Count}: {string.Join(", ", entities.Select(x => x.Manufacturer.Name))}");
 
             return Content(content.ToString());
         }
