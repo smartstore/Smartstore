@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.DependencyInjection
@@ -7,6 +8,7 @@ namespace Smartstore.Core.DependencyInjection
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<PriceFormatter>().As<IPriceFormatter>().InstancePerLifetimeScope();
             builder.RegisterType<ProductService>().As<IProductService>().InstancePerLifetimeScope();
         }
     }
