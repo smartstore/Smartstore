@@ -18,7 +18,7 @@ namespace Smartstore.Core.Checkout.Attributes
 
         public Task<List<CheckoutAttribute>> ParseCheckoutAttributesAsync(CheckoutAttributeSelection selection)
         {
-            var ids = selection.AttributesMap.Select(x=>x.Key);
+            var ids = selection.AttributesMap.Select(x => x.Key);
             return _db.CheckoutAttributes.GetManyAsync(ids);
         }
 
