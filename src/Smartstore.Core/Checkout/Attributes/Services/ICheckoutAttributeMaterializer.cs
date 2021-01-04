@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Attributes.Domain;
 
 namespace Smartstore.Core.Checkout.Attributes
 {
