@@ -41,7 +41,7 @@ namespace Smartstore.Core.Catalog.Products
         public int Quantity { get; set; }
         public decimal PriceWithDiscount { get; set; }
         public int DisplayOrder { get; set; }
-        public string AttributesXml { get; set; }
+        public string AttributesXml { get; set; } // TODO: (mg) (core) No attributesXml anymore. Use "AttributeSelection" instead (TBD with MS)
         public string AttributesInfo { get; set; }
         public bool PerItemShoppingCart { get; set; }
     }

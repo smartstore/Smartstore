@@ -37,6 +37,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <returns>Updated attribute XML.</returns>
         public static string AddProductAttribute(this ProductVariantAttribute productVariantAttribute, string attributes, string value)
         {
+            // TODO: (mg) (core) No attributesXml anymore. Use "AttributeSelection" instead (TBD with MS)
             var result = string.Empty;
 
             try
