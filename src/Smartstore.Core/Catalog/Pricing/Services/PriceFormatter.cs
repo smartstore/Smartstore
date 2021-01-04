@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Dasync.Collections;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
@@ -26,162 +28,58 @@ namespace Smartstore.Core.Catalog.Pricing
             _taxSettings = taxSettings;
         }
 
-        public virtual async Task<string> FormatPriceAsync(decimal price)
+        public virtual string FormatPrice(
+            decimal price, 
+            bool displayCurrency = true, 
+            object currencyCodeOrObj = null, 
+            Language language = null, 
+            bool? priceIncludesTax = null, 
+            bool? displayTax = null,
+            PricingTarget target = PricingTarget.Product)
         {
-            return await FormatPriceAsync(price, true, _workContext.WorkingCurrency);
-        }
+            Currency currency = null;
+            
+            if (currencyCodeOrObj is null)
+            {
+                currency = _workContext.WorkingCurrency;
+            }
+            else if (currencyCodeOrObj is string currencyCode)
+            {
+                Guard.NotEmpty(currencyCode, nameof(currencyCodeOrObj));
+                currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == currencyCode) ?? new Currency { CurrencyCode = currencyCode };
+            }
+            else if (currencyCodeOrObj is Currency)
+            {
+                currency = (Currency)currencyCodeOrObj;
+            }
 
-        public virtual async Task<string> FormatPriceAsync(decimal price, bool showCurrency, Currency targetCurrency)
-        {
-            return await FormatPriceAsync(
-                price, 
-                showCurrency, 
-                targetCurrency,
-                _workContext.WorkingLanguage,
-                _workContext.TaxDisplayType == TaxDisplayType.IncludingTax);
-        }
+            if (currency == null)
+            {
+                throw new ArgumentException("Currency parameter must either be a valid currency code as string or an actual currency entity instance.", nameof(currencyCodeOrObj));
+            }
 
-        public virtual async Task<string> FormatPriceAsync(decimal price, bool showCurrency, bool showTax)
-        {
-            return await FormatPriceAsync(
-                price, 
-                showCurrency,
-                _workContext.WorkingCurrency,
-                _workContext.WorkingLanguage,
-                _workContext.TaxDisplayType == TaxDisplayType.IncludingTax, 
-                showTax);
-        }
+            var formatted = new Money(price, currency).ToString(displayCurrency);
 
-        public virtual async Task<string> FormatPriceAsync(decimal price, bool showCurrency, string currencyCode, bool showTax, Language language)
-        {
-            return await FormatPriceAsync(
-                price,
-                showCurrency,
-                currencyCode,
-                language,
-                _workContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                showTax);
-        }
+            displayTax ??= target == PricingTarget.Product 
+                ? _taxSettings.DisplayTaxSuffix
+                : (target == PricingTarget.ShippingCharge 
+                    ? _taxSettings.DisplayTaxSuffix && _taxSettings.ShippingIsTaxable 
+                    : _taxSettings.DisplayTaxSuffix && _taxSettings.PaymentMethodAdditionalFeeIsTaxable);
 
-        public virtual async Task<string> FormatPriceAsync(decimal price, bool showCurrency, string currencyCode, Language language, bool priceIncludesTax)
-        {
-            return await FormatPriceAsync(
-                price,
-                showCurrency,
-                currencyCode,
-                language, 
-                priceIncludesTax,
-                _taxSettings.DisplayTaxSuffix);
-        }
-
-        public virtual async Task<string> FormatPriceAsync(decimal price, bool showCurrency, string currencyCode, Language language, bool priceIncludesTax, bool showTax)
-        {
-            Guard.NotEmpty(currencyCode, nameof(currencyCode));
-
-            var currency = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == currencyCode);
-
-            return await FormatPriceAsync(
-                price, 
-                showCurrency, 
-                currency ?? new Currency { CurrencyCode = currencyCode }, 
-                language, 
-                priceIncludesTax, 
-                showTax);
-        }
-
-        public virtual async Task<string> FormatPriceAsync(decimal price, bool showCurrency, Currency targetCurrency, Language language, bool priceIncludesTax)
-        {
-            return await FormatPriceAsync(
-                price, 
-                showCurrency, 
-                targetCurrency, 
-                language, 
-                priceIncludesTax, 
-                _taxSettings.DisplayTaxSuffix);
-        }
-
-        public virtual async Task<string> FormatPriceAsync(decimal price, bool showCurrency, Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax)
-        {
-            var formatted = new Money(price, targetCurrency).ToString(showCurrency);
-
-            if (showTax)
+            if (displayTax == true)
             {
                 // Show tax suffix.
-                var resource = await _localizationService.GetResourceAsync(priceIncludesTax ? "Products.InclTaxSuffix" : "Products.ExclTaxSuffix", language.Id, false);
-                var formatStr = resource.NullEmpty() ?? (priceIncludesTax ? "{0} incl. tax" : "{0} excl. tax");
+                priceIncludesTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+                language ??= _workContext.WorkingLanguage;
+
+                var resource = _localizationService.GetResource(priceIncludesTax.Value ? "Products.InclTaxSuffix" : "Products.ExclTaxSuffix", language.Id, false);
+                var formatStr = resource.NullEmpty() ?? (priceIncludesTax.Value ? "{0} incl. tax" : "{0} excl. tax");
 
                 formatted = string.Format(formatStr, formatted);
             }
 
             return formatted;
         }
-
-
-        public virtual async Task<string> FormatShippingPriceAsync(decimal price, bool showCurrency)
-        {
-            return await FormatShippingPriceAsync(
-                price,
-                showCurrency,
-                _workContext.WorkingCurrency,
-                _workContext.WorkingLanguage,
-                _workContext.TaxDisplayType == TaxDisplayType.IncludingTax);
-        }
-
-        public virtual async Task<string> FormatShippingPriceAsync(decimal price, bool showCurrency, Currency targetCurrency, Language language, bool priceIncludesTax)
-        {           
-            return await FormatPriceAsync(
-                price, 
-                showCurrency,
-                targetCurrency, 
-                language,
-                priceIncludesTax,
-                _taxSettings.ShippingIsTaxable && _taxSettings.DisplayTaxSuffix);
-        }
-
-        public virtual async Task<string> FormatShippingPriceAsync(decimal price, bool showCurrency, string currencyCode, Language language, bool priceIncludesTax, bool showTax)
-        {
-            return await FormatPriceAsync(
-                price, 
-                showCurrency, 
-                currencyCode, 
-                language, 
-                priceIncludesTax, 
-                showTax);
-        }
-
-
-        public virtual async Task<string> FormatPaymentMethodAdditionalFeeAsync(decimal price, bool showCurrency)
-        {
-            return await FormatPaymentMethodAdditionalFeeAsync(
-                price, 
-                showCurrency,
-                _workContext.WorkingCurrency,
-                _workContext.WorkingLanguage,
-                _workContext.TaxDisplayType == TaxDisplayType.IncludingTax);
-        }
-
-        public virtual async Task<string> FormatPaymentMethodAdditionalFeeAsync(decimal price, bool showCurrency, Currency targetCurrency, Language language, bool priceIncludesTax)
-        {
-            return await FormatPriceAsync(
-                price,
-                showCurrency,
-                targetCurrency,
-                language,
-                priceIncludesTax,
-                _taxSettings.PaymentMethodAdditionalFeeIsTaxable && _taxSettings.DisplayTaxSuffix);
-        }
-
-        public virtual async Task<string> FormatPaymentMethodAdditionalFeeAsync(decimal price, bool showCurrency, string currencyCode, Language language, bool priceIncludesTax, bool showTax)
-        {
-            return await FormatPriceAsync(
-                price, 
-                showCurrency,
-                currencyCode, 
-                language, 
-                priceIncludesTax, 
-                showTax);
-        }
-
         
         public virtual string FormatTaxRate(decimal taxRate)
         {

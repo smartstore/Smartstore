@@ -3,6 +3,27 @@
 namespace Smartstore.Core.Catalog.Pricing
 {
     /// <summary>
+    /// Represents pricing targets.
+    /// </summary>
+    public enum PricingTarget
+    {
+        /// <summary>
+        /// Pricing target is a product
+        /// </summary>
+        Product,
+
+        /// <summary>
+        /// Pricing target is a shipping method charge
+        /// </summary>
+        ShippingCharge,
+
+        /// <summary>
+        /// Pricing target is a payment method fee.
+        /// </summary>
+        PaymentFee
+    }
+    
+    /// <summary>
     /// Represents types of product prices to display.
     /// </summary>
     public enum PriceDisplayType
