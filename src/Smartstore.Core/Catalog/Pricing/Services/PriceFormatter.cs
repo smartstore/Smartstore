@@ -78,7 +78,7 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotEmpty(currencyCode, nameof(currencyCode));
 
-            var currency = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode.ToLower() == currencyCode.ToLower());
+            var currency = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == currencyCode);
 
             return await FormatPriceAsync(
                 price, 
