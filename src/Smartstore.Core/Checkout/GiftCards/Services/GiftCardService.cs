@@ -22,6 +22,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         {
             _db = db;
         }
+
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         //TODO: (ms) (core) customer extension ParseAppliedGiftCardCouponCodes is needed + nav props (order item) > load eager(include)
@@ -34,10 +35,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         {
             Guard.NotNull(customer, nameof(customer));
 
-            var couponCodeXml = await _attributeService.GetAttributesForEntity(customer).Query
-                .Where(x => x.Key == SystemCustomerAttributeNames.GiftCardCouponCodes)
-                .Select(x => x.Value)
-                .FirstOrDefaultAsync();
+            var couponCodeXml = customer.GenericAttributes.GiftCardCouponCodes;
 
             if (!couponCodeXml.HasValue())
                 return new();
@@ -50,8 +48,8 @@ namespace Smartstore.Core.Checkout.GiftCards
             // Get existing gift card codes by customer            
             try
             {
-                var xElement = XElement.Parse(couponCodeXml);
-                var couponCodes = xElement.Descendants("CouponCode").Select(x => x.Attribute("Code").Value).ToList();
+                var xel = XElement.Parse(couponCodeXml);
+                var couponCodes = xel.Descendants("CouponCode").Select(x => x.Attribute("Code").Value).ToList();
                 query = query.Where(x => couponCodes.Contains(x.GiftCardCouponCode));
             }
             catch (Exception ex)
