@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Data.Batching;
@@ -67,8 +68,22 @@ namespace Smartstore.Core.Catalog.Products
                 .OfType<Product>()
                 .ToList();
 
-            // TODO: (mg) (core) (PERF) It's not certain that "AppliedDiscounts" has been eager loaded. If not, this will slow down things like shit!
-            products.Each(x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
+            // Process in batches to avoid errors due to too long SQL statements.
+            foreach (var productsChunk in products.Slice(100))
+            {
+                var productIdsChunk = productsChunk
+                    .Select(x => x.Id)
+                    .ToArray();
+
+                var appliedProductIds = await _db.Discounts
+                    .SelectMany(x => x.AppliedToProducts)
+                    .Where(x => productIdsChunk.Contains(x.Id))
+                    .Select(x => x.Id)
+                    .Distinct()
+                    .ToListAsync();
+
+                productsChunk.Each(x => x.HasDiscountsApplied = appliedProductIds.Contains(x.Id));
+            }
 
             await _db.SaveChangesAsync();
         }

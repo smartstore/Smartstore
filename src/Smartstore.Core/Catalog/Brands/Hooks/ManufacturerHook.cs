@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
@@ -31,8 +32,21 @@ namespace Smartstore.Core.Catalog.Brands
                 .OfType<Manufacturer>()
                 .ToList();
 
-            // TODO: (mg) (core) (PERF) It's not certain that "AppliedDiscounts" has been eager loaded
-            manufacturers.Each(x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
+            foreach (var manufacturersChunk in manufacturers.Slice(100))
+            {
+                var manufacturerIdsChunk = manufacturersChunk
+                    .Select(x => x.Id)
+                    .ToArray();
+
+                var appliedManufacturerIds = await _db.Discounts
+                    .SelectMany(x => x.AppliedToManufacturers)
+                    .Where(x => manufacturerIdsChunk.Contains(x.Id))
+                    .Select(x => x.Id)
+                    .Distinct()
+                    .ToListAsync();
+
+                manufacturersChunk.Each(x => x.HasDiscountsApplied = appliedManufacturerIds.Contains(x.Id));
+            }
 
             await _db.SaveChangesAsync();
         }
