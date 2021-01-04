@@ -21,7 +21,21 @@ namespace Smartstore.Core.Customers
 
             builder.HasMany(c => c.RuleSets)
                 .WithMany(c => c.CustomerRoles)
-                .UsingEntity(x => x.ToTable("RuleSet_CustomerRole_Mapping"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "RuleSet_CustomerRole_Mapping",
+                    c => c
+                        .HasOne<RuleSetEntity>()
+                        .WithMany()
+                        .HasForeignKey("RuleSetEntity_Id")
+                        .HasConstraintName("FK_dbo.RuleSet_CustomerRole_Mapping_dbo.RuleSet_RuleSetEntity_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<CustomerRole>()
+                        .WithMany()
+                        .HasForeignKey("CustomerRole_Id")
+                        .HasConstraintName("FK_dbo.RuleSet_CustomerRole_Mapping_dbo.CustomerRole_CustomerRole_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("CustomerRole_Id", "RuleSetEntity_Id"));
         }
     }
 

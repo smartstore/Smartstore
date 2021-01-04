@@ -26,14 +26,28 @@ namespace Smartstore.Core.Content.Media
                 .HasForeignKey(c => c.MediaStorageId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasMany(c => c.Tags)
-                .WithMany(c => c.MediaFiles)
-                .UsingEntity(x => x.ToTable("MediaFile_Tag_Mapping"));
-
             builder.HasMany(c => c.Tracks)
                 .WithOne(c => c.MediaFile)
                 .HasForeignKey(c => c.MediaFileId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(c => c.Tags)
+                .WithMany(c => c.MediaFiles)
+                .UsingEntity<Dictionary<string, object>>(
+                    "MediaFile_Tag_Mapping",
+                    c => c
+                        .HasOne<MediaTag>()
+                        .WithMany()
+                        .HasForeignKey("MediaTag_Id")
+                        .HasConstraintName("FK_dbo.MediaFile_Tag_Mapping_dbo.MediaTag_MediaTag_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<MediaFile>()
+                        .WithMany()
+                        .HasForeignKey("MediaFile_Id")
+                        .HasConstraintName("FK_dbo.MediaFile_Tag_Mapping_dbo.MediaFile_MediaFile_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("MediaFile_Id", "MediaTag_Id"));
         }
     }
 

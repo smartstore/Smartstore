@@ -16,9 +16,24 @@ namespace Smartstore.Core.Checkout.Payment
     {
         public void Configure(EntityTypeBuilder<PaymentMethod> builder)
         {
-            builder.HasMany(c => c.RuleSets)
+            builder
+                .HasMany(c => c.RuleSets)
                 .WithMany(c => c.PaymentMethods)
-                .UsingEntity(x => x.ToTable("RuleSet_PaymentMethod_Mapping"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "RuleSet_PaymentMethod_Mapping",
+                    c => c
+                        .HasOne<RuleSetEntity>()
+                        .WithMany()
+                        .HasForeignKey("RuleSetEntity_Id")
+                        .HasConstraintName("FK_dbo.RuleSet_PaymentMethod_Mapping_dbo.RuleSet_RuleSetEntity_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<PaymentMethod>()
+                        .WithMany()
+                        .HasForeignKey("PaymentMethod_Id")
+                        .HasConstraintName("FK_dbo.RuleSet_PaymentMethod_Mapping_dbo.PaymentMethod_PaymentMethod_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("PaymentMethod_Id", "RuleSetEntity_Id"));
         }
     }
 

@@ -16,9 +16,24 @@ namespace Smartstore.Core.Checkout.Shipping
     {
         public void Configure(EntityTypeBuilder<ShippingMethod> builder)
         {
-            builder.HasMany(x => x.RuleSets)
+            builder
+                .HasMany(x => x.RuleSets)
                 .WithMany(x => x.ShippingMethods)
-                .UsingEntity(x => x.ToTable("RuleSet_ShippingMethod_Mapping"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "RuleSet_ShippingMethod_Mapping",
+                    c => c
+                        .HasOne<RuleSetEntity>()
+                        .WithMany()
+                        .HasForeignKey("RuleSetEntity_Id")
+                        .HasConstraintName("FK_dbo.RuleSet_ShippingMethod_Mapping_dbo.RuleSet_RuleSetEntity_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<ShippingMethod>()
+                        .WithMany()
+                        .HasForeignKey("ShippingMethod_Id")
+                        .HasConstraintName("FK_dbo.RuleSet_ShippingMethod_Mapping_dbo.ShippingMethod_ShippingMethod_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("ShippingMethod_Id", "RuleSetEntity_Id"));
         }
     }
 

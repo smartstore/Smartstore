@@ -51,9 +51,24 @@ namespace Smartstore.Core.Catalog.Products
                 .HasForeignKey(c => c.CountryOfOriginId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasMany(c => c.ProductTags)
+            builder
+                .HasMany(c => c.ProductTags)
                 .WithMany(c => c.Products)
-                .UsingEntity(x => x.ToTable("Product_ProductTag_Mapping"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "Product_ProductTag_Mapping",
+                    c => c
+                        .HasOne<ProductTag>()
+                        .WithMany()
+                        .HasForeignKey("ProductTag_Id")
+                        .HasConstraintName("FK_dbo.Product_ProductTag_Mapping_dbo.ProductTag_ProductTag_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<Product>()
+                        .WithMany()
+                        .HasForeignKey("Product_Id")
+                        .HasConstraintName("FK_dbo.Product_ProductTag_Mapping_dbo.Product_Product_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("Product_Id", "ProductTag_Id"));
         }
     }
 

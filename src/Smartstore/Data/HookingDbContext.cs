@@ -220,6 +220,11 @@ namespace Smartstore.Data
 
         private static void ApplySingularTableNameConvention(IMutableEntityType entityType)
         {
+            if (entityType.IsPropertyBag)
+            {
+                return;
+            }
+
             var conventionAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.TableName) as IConventionAnnotation;
             if (conventionAnnotation == null || conventionAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
             {

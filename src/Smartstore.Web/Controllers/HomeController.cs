@@ -512,25 +512,32 @@ namespace Smartstore.Web.Controllers
             //_db.Discounts.Remove(discount);
             //await _db.SaveChangesAsync();
 
-            //var product = await _db.Products.FindByIdAsync(4366);
-            //var count = product.AppliedDiscounts.Count;
-            //content.AppendLine($"applied discounts {count}. has discounts applied {product.HasDiscountsApplied}.");
 
-            var product = await _db.Products
-                //.Include(x => x.ProductManufacturers)
-                //    .ThenInclude(y => y.Manufacturer)
-                .FirstOrDefaultAsync(x => x.Id == 1751);
+            var product = await _db.Products.FindByIdAsync(4366);
+            content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");
 
-            var entry = _db.Entry(product);
-            var collection = entry.Collection(x => x.ProductManufacturers);
-            var query = collection.Query();
+            var discount = await _db.Discounts.FirstOrDefaultAsync(x => x.Id == 25);
+            product.AppliedDiscounts.Add(discount);
+            await _db.SaveChangesAsync();
 
-            content.AppendLine("Query string:");
-            content.AppendLine(query.ToQueryString());
-            content.AppendLine();
+            product = await _db.Products.FindByIdAsync(4366);
+            content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");
 
-            var entities = product.ProductManufacturers;
-            content.AppendLine($"assigned entities {entities.Count}: {string.Join(", ", entities.Select(x => x.Manufacturer.Name))}");
+
+            //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
+
+            //var query = _db.Discounts
+            //    .SelectMany(x => x.AppliedToProducts)
+            //    .Where(x => productIds.Contains(x.Id))
+            //    .Select(x => x.Id)
+            //    .Distinct();
+
+            //content.AppendLine("Query string:");
+            //content.AppendLine(query.ToQueryString());
+            //content.AppendLine();
+
+            //var ids = await query.ToListAsync();
+            //content.AppendLine($"discount applied to products {ids.Count}: {string.Join(", ", ids)}");
 
             return Content(content.ToString());
         }

@@ -21,25 +21,63 @@ namespace Smartstore.Core.Catalog.Discounts
     {
         public void Configure(EntityTypeBuilder<Discount> builder)
         {
-            builder.HasMany(c => c.RuleSets)
+            builder
+                .HasMany(c => c.RuleSets)
                 .WithMany(c => c.Discounts)
-                .UsingEntity(x => x.ToTable("RuleSet_Discount_Mapping"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "RuleSet_Discount_Mapping",
+                    c => c
+                        .HasOne<RuleSetEntity>()
+                        .WithMany()
+                        .HasForeignKey("RuleSetEntity_Id")
+                        .HasConstraintName("FK_dbo.RuleSet_Discount_Mapping_dbo.RuleSet_RuleSetEntity_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<Discount>()
+                        .WithMany()
+                        .HasForeignKey("Discount_Id")
+                        .HasConstraintName("FK_dbo.RuleSet_Discount_Mapping_dbo.Discount_Discount_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("Discount_Id", "RuleSetEntity_Id"));
 
-            builder.HasMany(c => c.AppliedToManufacturers)
+            builder
+                .HasMany(c => c.AppliedToManufacturers)
                 .WithMany(c => c.AppliedDiscounts)
-                .UsingEntity(x => x.ToTable("Discount_AppliedToManufacturers"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "Discount_AppliedToManufacturers",
+                    c => c
+                        .HasOne<Manufacturer>()
+                        .WithMany()
+                        .HasForeignKey("Manufacturer_Id")
+                        .HasConstraintName("FK_dbo.Discount_AppliedToManufacturers_dbo.Manufacturer_Manufacturer_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<Discount>()
+                        .WithMany()
+                        .HasForeignKey("Discount_Id")
+                        .HasConstraintName("FK_dbo.Discount_AppliedToManufacturers_dbo.Discount_Discount_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("Discount_Id", "Manufacturer_Id"));
 
-            builder.HasMany(c => c.AppliedToCategories)
+            builder
+                .HasMany(c => c.AppliedToCategories)
                 .WithMany(c => c.AppliedDiscounts)
-                .UsingEntity(x => x.ToTable("Discount_AppliedToCategories"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "Discount_AppliedToCategories",
+                    c => c
+                        .HasOne<Category>()
+                        .WithMany()
+                        .HasForeignKey("Category_Id")
+                        .HasConstraintName("FK_dbo.Discount_AppliedToCategories_dbo.Category_Category_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<Discount>()
+                        .WithMany()
+                        .HasForeignKey("Discount_Id")
+                        .HasConstraintName("FK_dbo.Discount_AppliedToCategories_dbo.Discount_Discount_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("Discount_Id", "Category_Id"));
 
-            //builder.HasMany(c => c.AppliedToProducts)
-            //    .WithMany(c => c.AppliedDiscounts)
-            //    .UsingEntity(x => x.ToTable("Discount_AppliedToProducts"));
-
-            // TODO: (mg) (core) Figure out how to configure many-to-many relations correctly.
-            // Many possibilities of configuration but none works with our database structure.
-            // "Invalid object name 'Discount_AppliedToProducts (Dictionary<string, object>)'".
             builder
                 .HasMany(c => c.AppliedToProducts)
                 .WithMany(c => c.AppliedDiscounts)
@@ -56,54 +94,10 @@ namespace Smartstore.Core.Catalog.Discounts
                         .WithMany()
                         .HasForeignKey("Discount_Id")
                         .HasConstraintName("FK_dbo.Discount_AppliedToProducts_dbo.Discount_Discount_Id")
-                        .OnDelete(DeleteBehavior.ClientCascade),
-                    c =>
-                    {
-                        c.HasKey("Discount_Id", "Product_Id");
-                    });
-
-            //builder
-            //    .HasMany(c => c.AppliedToProducts)
-            //    .WithMany(c => c.AppliedDiscounts)
-            //    .UsingEntity<DiscountProduct>(
-            //        "Discount_AppliedToProducts",
-            //        c => c
-            //            .HasOne<Product>()
-            //            .WithMany()
-            //            .HasForeignKey("Product_Id")
-            //            .HasConstraintName("FK_dbo.Discount_AppliedToProducts_dbo.Product_Product_Id")
-            //            .OnDelete(DeleteBehavior.Cascade),
-            //        c => c
-            //            .HasOne<Discount>()
-            //            .WithMany()
-            //            .HasForeignKey("Discount_Id")
-            //            .HasConstraintName("FK_dbo.Discount_AppliedToProducts_dbo.Discount_Discount_Id")
-            //            .OnDelete(DeleteBehavior.ClientCascade),
-            //        c =>
-            //        {
-            //            c.HasKey("Discount_Id", "Product_Id");
-            //        });
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("Discount_Id", "Product_Id"));
         }
     }
-
-
-    //public class DiscountProductMap : IEntityTypeConfiguration<DiscountProduct>
-    //{
-    //    public void Configure(EntityTypeBuilder<DiscountProduct> builder)
-    //    {
-    //        builder.HasKey(x => new { x.DiscountId, x.ProductId });
-    //    }
-    //}
-
-    //[Table("Discount_AppliedToProducts")]
-    //public partial class DiscountProduct
-    //{
-    //    [Column("Discount_Id")]
-    //    public int DiscountId { get; set; }
-
-    //    [Column("Product_Id")]
-    //    public int ProductId { get; set; }
-    //}
 
     /// <summary>
     /// Represents a discount.

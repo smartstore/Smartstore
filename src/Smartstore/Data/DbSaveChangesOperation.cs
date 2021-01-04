@@ -269,6 +269,12 @@ namespace Smartstore.Data
 
         private static bool IsHookableEntityType(Type entityType)
         {
+            // Property bags and intermediate entities (do not inherit from BaseEntity) are not hookable.
+            if (entityType == null)
+            {
+                return false;
+            }
+
             var isHookable = _hookableEntities.GetOrAdd(entityType, t =>
             {
                 var attr = t.GetAttribute<HookableAttribute>(true);

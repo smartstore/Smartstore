@@ -25,9 +25,24 @@ namespace Smartstore.Core.Catalog.Categories
                 .HasForeignKey(c => c.MediaFileId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasMany(c => c.RuleSets)
+            builder
+                .HasMany(c => c.RuleSets)
                 .WithMany(c => c.Categories)
-                .UsingEntity(x => x.ToTable("RuleSet_Category_Mapping"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "RuleSet_Category_Mapping",
+                    c => c
+                        .HasOne<RuleSetEntity>()
+                        .WithMany()
+                        .HasForeignKey("RuleSetEntity_Id")
+                        .HasConstraintName("FK_dbo.RuleSet_Category_Mapping_dbo.RuleSet_RuleSetEntity_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<Category>()
+                        .WithMany()
+                        .HasForeignKey("Category_Id")
+                        .HasConstraintName("FK_dbo.RuleSet_Category_Mapping_dbo.Category_Category_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("Category_Id", "RuleSetEntity_Id"));
         }
     }
 
