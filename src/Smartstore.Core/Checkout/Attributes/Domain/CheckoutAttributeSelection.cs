@@ -1,6 +1,6 @@
 ﻿using Smartstore.Domain;
 
-namespace Smartstore.Core.Checkout.Attributes.Domain
+namespace Smartstore.Core.Checkout.Attributes
 {
     public class CheckoutAttributeSelection : AttributeSelection
     {

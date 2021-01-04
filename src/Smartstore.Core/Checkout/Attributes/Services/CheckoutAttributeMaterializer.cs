@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Attributes.Domain;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Attributes
