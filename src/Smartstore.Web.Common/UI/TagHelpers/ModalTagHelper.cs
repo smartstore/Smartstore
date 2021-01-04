@@ -108,11 +108,15 @@ namespace Smartstore.Web.UI.TagHelpers
             // .modal-content
             BuildContent(output);
 
-            //if (RenderAtPageEnd)
-            //{
-            //    _widgetProvider.RegisterHtml("end", output);
-            //    output.SuppressOutput();
-            //}
+            if (RenderAtPageEnd)
+            {
+                // Move output Html to new builder
+                var builder = new HtmlContentBuilder();
+                ((IHtmlContentContainer)output).MoveTo(builder);
+                
+                _widgetProvider.RegisterHtml("end", builder);
+                output.SuppressOutput();
+            }
         }
 
         private TagBuilder BuildDialog(TagHelperOutput output)

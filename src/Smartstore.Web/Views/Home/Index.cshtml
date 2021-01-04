@@ -10,32 +10,32 @@
     Launch demo modal
 </button>
 
-<widget target="end">
-    <modal id="cookie-manager-window" render-at-page-end="true" center-vertically="true">
-        <modal-header title="Modal Title" show-close="true"></modal-header>
-        <modal-body>
-            <div>
-                Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit. Keytar helvetica VHS salvia yr, vero magna velit sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson 8-bit, sustainable jean shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park.
-            </div>
-        </modal-body>
-        <modal-footer>
-            <div class="cm-footer container">
-                <div class="row">
-                    <div class="col-6 pr-1">
-                        <button type="button" id="accept-selected" name="accept-selected" class="btn btn-block btn-secondary submit-consent" data-dismiss="modal">
-                            @T("CookieManager.Dialog.Button.AcceptSelected")
-                        </button>
-                    </div>
-                    <div class="col-6 pl-1">
-                        <button type="button" id="accept-all" name="accept-all" class="btn btn-block btn-primary submit-consent" data-dismiss="modal">
-                            @T("CookieManager.Dialog.Button.AcceptAll")
-                        </button>
-                    </div>
+
+<modal id="cookie-manager-window" render-at-page-end="true" center-vertically="true">
+    <modal-header title="Modal Title" show-close="true"></modal-header>
+    <modal-body>
+        <div>
+            Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit. Keytar helvetica VHS salvia yr, vero magna velit sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson 8-bit, sustainable jean shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park.
+        </div>
+    </modal-body>
+    <modal-footer>
+        <div class="cm-footer container">
+            <div class="row">
+                <div class="col-6 pr-1">
+                    <button type="button" id="accept-selected" name="accept-selected" class="btn btn-block btn-secondary submit-consent" data-dismiss="modal">
+                        @T("CookieManager.Dialog.Button.AcceptSelected")
+                    </button>
+                </div>
+                <div class="col-6 pl-1">
+                    <button type="button" id="accept-all" name="accept-all" class="btn btn-block btn-primary submit-consent" data-dismiss="modal">
+                        @T("CookieManager.Dialog.Button.AcceptAll")
+                    </button>
                 </div>
             </div>
-        </modal-footer>
-    </modal>
-</widget>
+        </div>
+    </modal-footer>
+</modal>
+
 
 
 <tabstrip id="yodele" class="mt-4 mb-6" nav-style="Material" nav-position="Top" hide-single-item="true" fade="true" responsive="true">
