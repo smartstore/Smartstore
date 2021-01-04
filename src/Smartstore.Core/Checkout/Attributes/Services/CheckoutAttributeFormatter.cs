@@ -16,7 +16,7 @@ namespace Smartstore.Core.Checkout.Attributes
     // TODO: (mg) (core) needs download & tax service and price formatter
     public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     {
-        private readonly ICheckoutAttributeParser _attributeParser;
+        private readonly ICheckoutAttributeMaterializer _materializer;
         private readonly ICurrencyService _currencyService;
         //private readonly IDownloadService _downloadService;
         //private readonly IPriceFormatter _priceFormatter;
@@ -26,7 +26,7 @@ namespace Smartstore.Core.Checkout.Attributes
         private readonly SmartDbContext _db;
 
         public CheckoutAttributeFormatter(
-            ICheckoutAttributeParser attributeParser,
+            ICheckoutAttributeMaterializer materializer,
             ICurrencyService currencyService,
             //IDownloadService downloadService,
             //IPriceFormatter priceFormatter,
@@ -35,7 +35,7 @@ namespace Smartstore.Core.Checkout.Attributes
             IWebHelper webHelper,
             SmartDbContext db)
         {
-            _attributeParser = attributeParser;
+            _materializer = materializer;
             _currencyService = currencyService;
             //_downloadService = downloadService;
             //_priceFormatter = priceFormatter;

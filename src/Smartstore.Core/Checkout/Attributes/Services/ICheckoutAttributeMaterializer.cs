@@ -5,18 +5,18 @@ using Smartstore.Core.Checkout.Attributes.Domain;
 namespace Smartstore.Core.Checkout.Attributes
 {
     /// <summary>
-    /// Checkout attribute parser helper
+    /// Checkout attribute materialization helper
     /// </summary>
-    public partial interface ICheckoutAttributeParser
+    public partial interface ICheckoutAttributeMaterializer
     {
         /// <summary>
         /// Gets list of checkout attributes of attributes XML/Json from <see cref="CheckoutAttributeSelection"/>
         /// </summary>
-        Task<List<CheckoutAttribute>> ParseCheckoutAttributesAsync(CheckoutAttributeSelection selection);
+        Task<List<CheckoutAttribute>> MaterializeCheckoutAttributesAsync(CheckoutAttributeSelection selection);
 
         /// <summary>
         /// Gets list of checkout attribute values of attributes XML/Json from <see cref="CheckoutAttributeSelection"/>
         /// </summary>
-        Task<List<CheckoutAttributeValue>> ParseCheckoutAttributeValuesAsync(CheckoutAttributeSelection selection);
+        Task<List<CheckoutAttributeValue>> MaterializeCheckoutAttributeValuesAsync(CheckoutAttributeSelection selection);
     }
 }

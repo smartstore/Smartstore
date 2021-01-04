@@ -9,7 +9,7 @@ namespace Smartstore.Core.DependencyInjection
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<CheckoutAttributeFormatter>().As<ICheckoutAttributeFormatter>().InstancePerLifetimeScope();
-            builder.RegisterType<CheckoutAttributeParser>().As<ICheckoutAttributeParser>().InstancePerLifetimeScope();
+            builder.RegisterType<CheckoutAttributeMaterializer>().As<ICheckoutAttributeMaterializer>().InstancePerLifetimeScope();
             builder.RegisterType<GiftCardService>().As<IGiftCardService>().InstancePerLifetimeScope();
         }
     }
