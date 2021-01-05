@@ -20,7 +20,7 @@ namespace Smartstore.Domain
         private readonly string _xmlAttributeName;
         private readonly string _xmlAttributeValueName;
         private string _rawAttributes;
-        private bool _hasChanged = true;
+        private bool _dirty = true;
         private bool _isJson;
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Smartstore.Domain
             Guard.NotEmpty(xmlAttributeName, nameof(xmlAttributeName));
             Guard.NotEmpty(rawAttributes, nameof(rawAttributes));
 
-            _rawAttributes = rawAttributes;
+            _rawAttributes = rawAttributes.Trim();
             _xmlAttributeName = xmlAttributeName;
             _xmlAttributeValueName = xmlAttributeValueName.HasValue() ? xmlAttributeValueName : xmlAttributeName + "Value";
 
@@ -46,7 +46,7 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Creates and returns an instance of <see cref="Multimap{int, object}"/> from attribute string that is either in XML or Json format.
+        /// Creates and returns an instance of <see cref="Multimap{int, object}"/> from attribute string that is either in XML or JSON format.
         /// </summary>
         /// <remarks>
         /// Calls either <see cref="FromXml(string, string, string)"/> or <see cref="FromJson(string)"/> according to attributes string format.
@@ -57,7 +57,7 @@ namespace Smartstore.Domain
         /// <param name="xmlAttributeValueName">Optional attribute value name for Xml format. If this is null, it becomes XmlAttributeName + "Value"</param>        
         private static Multimap<int, object> FromXmlOrJson(string rawAttributes, string xmlAttributeName, string xmlAttributeValueName)
         {
-            var firstChar = rawAttributes.TrimSafe()[0];
+            var firstChar = rawAttributes[0];
             if (firstChar == '<')
             {
                 return FromXml(rawAttributes, xmlAttributeName, xmlAttributeValueName);
@@ -67,24 +67,11 @@ namespace Smartstore.Domain
                 return FromJson(rawAttributes);
             }
 
-            throw new FormatException("No valid format found for 'rawAttributes': " + rawAttributes);
+            throw new ArgumentException("Raw attributes must either be in XML or JSON format.", nameof(rawAttributes));
         }
 
-        /// <summary>
-        /// Creates and returns an instance of <see cref="Multimap{int, object}"/> from Xml attribute string.
-        /// </summary>
-        /// <remarks>
-        /// Tries to parse and throws an <see cref="XmlException"/> when not possible.
-        /// </remarks>
-        /// <param name="xmlAttributes">Xml attributes string</param>
-        /// <param name="attributeName">Xml attribute name</param>
-        /// <param name="attributeValueName">Xml attribute value name</param>
-        public static Multimap<int, object> FromXml(string xmlAttributes, string attributeName, string attributeValueName)
+        private static Multimap<int, object> FromXml(string xmlAttributes, string attributeName, string attributeValueName)
         {
-            Guard.NotEmpty(xmlAttributes, nameof(xmlAttributes));
-            Guard.NotEmpty(attributeName, nameof(attributeName));
-            Guard.NotEmpty(attributeValueName, nameof(attributeValueName));
-
             var map = new Multimap<int, object>();
             try
             {
@@ -104,25 +91,16 @@ namespace Smartstore.Domain
             return map;
         }
 
-        /// <summary>
-        /// Creates and returns an instance of <see cref="Multimap{int, object}"/> populated with attribute ids and attribute value objects from Json attribute string.
-        /// </summary>
-        /// <remarks>
-        /// Tries to deserialize object and throws a <see cref="JsonSerializationException"/> when not possible.
-        /// </remarks>
-        /// <param name="JsonAttributes">Json attributes string</param>
-        public static Multimap<int, object> FromJson(string JsonAttributes)
+        private static Multimap<int, object> FromJson(string jsonAttributes)
         {
-            Guard.NotEmpty(JsonAttributes, nameof(JsonAttributes));
-
             Multimap<int, object> map;
             try
             {
-                map = JsonConvert.DeserializeObject<Multimap<int, object>>(JsonAttributes);
+                map = JsonConvert.DeserializeObject<Multimap<int, object>>(jsonAttributes);
             }
             catch (Exception ex)
             {
-                throw new JsonSerializationException("Error while trying to deserialize object from Json: " + JsonAttributes, ex);
+                throw new JsonSerializationException("Error while trying to deserialize object from Json: " + jsonAttributes, ex);
             }
 
             return map;
@@ -132,27 +110,26 @@ namespace Smartstore.Domain
         /// Creates and returns a Json string of <see cref="_map"/>.
         /// </summary>
         /// <remarks>
-        /// Tries to serialize object and throws a <see cref="JsonSerializationException"/> when not possible.
+        /// Tries to serialize object and throws a <see cref="JsonSerializationException"/> if not possible.
         /// </remarks>
         public string AsJson()
         {
-            if (_rawAttributes.HasValue() && _isJson && !_hasChanged)
+            if (_rawAttributes.HasValue() && _isJson && !_dirty)
                 return _rawAttributes;
 
-            string json;
             try
             {
-                json = JsonConvert.SerializeObject(_map);
+                var json = JsonConvert.SerializeObject(_map);
+                _isJson = true;
+                _dirty = false;
+                _rawAttributes = json;
+
+                return json;
             }
             catch (Exception ex)
             {
                 throw new JsonSerializationException("Error while trying to serialize Json string from: " + nameof(_map), ex);
             }
-
-            _isJson = true;
-            _hasChanged = false;
-            _rawAttributes = json;
-            return _rawAttributes;
         }
 
         /// <summary>
@@ -163,7 +140,7 @@ namespace Smartstore.Domain
         /// </remarks>
         public string AsXml()
         {
-            if (_rawAttributes.HasValue() && !_isJson && !_hasChanged)
+            if (_rawAttributes.HasValue() && !_isJson && !_dirty)
                 return _rawAttributes;
 
             var root = new XElement("Attributes");
@@ -184,13 +161,13 @@ namespace Smartstore.Domain
             }
 
             _isJson = false;
-            _hasChanged = false;
+            _dirty = false;
             _rawAttributes = root.ToString();
             return _rawAttributes;
         }
 
         /// <summary>
-        /// Gets <see cref="_attributesMap"/>
+        /// 
         /// </summary>
         public IEnumerable<KeyValuePair<int, ICollection<object>>> AttributesMap
             => _map;
@@ -212,7 +189,7 @@ namespace Smartstore.Domain
             Guard.NotEmpty(values, nameof(values));
 
             _map.AddRange(attributeId, values);
-            _hasChanged = true;
+            _dirty = true;
         }
 
         /// <summary>
@@ -225,7 +202,7 @@ namespace Smartstore.Domain
             Guard.NotNull(value, nameof(value));
 
             _map.Add(attributeId, value);
-            _hasChanged = true;
+            _dirty = true;
         }
 
         /// <summary>
@@ -235,7 +212,7 @@ namespace Smartstore.Domain
         public void RemoveAttribute(int attributeId)
         {
             _map.RemoveAll(attributeId);
-            _hasChanged = true;
+            _dirty = true;
         }
 
         /// <summary>
@@ -248,7 +225,7 @@ namespace Smartstore.Domain
             Guard.NotNull(value, nameof(value));
 
             _map.Remove(attributeId, value);
-            _hasChanged = true;
+            _dirty = true;
         }
 
         /// <summary>
@@ -257,7 +234,7 @@ namespace Smartstore.Domain
         public void ClearAttributes()
         {
             _map.Clear();
-            _hasChanged = true;
+            _dirty = true;
         }
     }
 }
