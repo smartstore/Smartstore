@@ -12,11 +12,11 @@ namespace Smartstore.Domain
     /// Represents an attribute selection.
     /// </summary>
     /// <remarks>
-    /// This class can parse from xml and json to <see cref="_map"/> and vice versa.
+    /// This class can parse strings with XML or JSON format to <see cref="Multimap{TKey, TValue}"/> and vice versa.
     /// </remarks>
     public abstract class AttributeSelection
     {
-        private readonly Multimap<int, object> _map = new();
+        private readonly Multimap<int, object> _map;
         private readonly string _xmlAttributeName;
         private readonly string _xmlAttributeValueName;
         private string _rawAttributes;
@@ -24,15 +24,15 @@ namespace Smartstore.Domain
         private bool _isJson;
 
         /// <summary>
-        /// Creates a new instance. Populates <see cref="_map"/> from Xml or Json string.        
+        /// Creates a new attribute selection from string as <see cref="Multimap{int, object}"/>. 
+        /// Use <see cref="AttributesMap"/> to access parsed attributes afterwards.
         /// </summary>
         /// <remarks>
-        /// Calls <see cref="FromXmlOrJson(string, string, string)"/>.
-        /// Use <see cref="AttributesMap"/> to access parsed attributes afterwards.
+        /// Automatically differentiates between XML and JSON.
         /// </remarks>        
-        /// <param name="rawAttributes">Xml or Json attributes string.</param>
-        /// <param name="xmlAttributeName">Attribute name for Xml format.</param>
-        /// <param name="xmlAttributeValueName">Optional attribute value name for Xml format. If it is null, it becomes XmlAttributeName + "Value".</param>
+        /// <param name="rawAttributes">XML or JSON attributes string.</param>
+        /// <param name="xmlAttributeName">Attribute name for XML format.</param>
+        /// <param name="xmlAttributeValueName">Optional attribute value name for XML format. If it is <c>null</c>, it becomes XmlAttributeName + "Value".</param>
         protected AttributeSelection(string rawAttributes, string xmlAttributeName, string xmlAttributeValueName = null)
         {
             Guard.NotEmpty(xmlAttributeName, nameof(xmlAttributeName));
@@ -50,11 +50,11 @@ namespace Smartstore.Domain
         /// </summary>
         /// <remarks>
         /// Calls either <see cref="FromXml(string, string, string)"/> or <see cref="FromJson(string)"/> according to attributes string format.
-        /// Throws a <see cref="FormatException"/> when no valid format was found.
+        /// Throws an <see cref="ArgumentException"/> if no valid format was found.
         /// </remarks>
-        /// <param name="rawAttributes">Xml or Json attributes string.</param>
-        /// <param name="xmlAttributeName">Attribute name for Xml format.</param>
-        /// <param name="xmlAttributeValueName">Optional attribute value name for Xml format. If this is null, it becomes XmlAttributeName + "Value"</param>        
+        /// <param name="rawAttributes">XML or JSON attributes string.</param>
+        /// <param name="xmlAttributeName">Attribute name for XML format.</param>
+        /// <param name="xmlAttributeValueName">Attribute value name for XML format.</param>
         private static Multimap<int, object> FromXmlOrJson(string rawAttributes, string xmlAttributeName, string xmlAttributeValueName)
         {
             var firstChar = rawAttributes[0];
@@ -72,45 +72,43 @@ namespace Smartstore.Domain
 
         private static Multimap<int, object> FromXml(string xmlAttributes, string attributeName, string attributeValueName)
         {
-            var map = new Multimap<int, object>();
             try
             {
+                var map = new Multimap<int, object>();
                 var xElement = XElement.Parse(xmlAttributes);
                 var attributeElements = xElement.Descendants(attributeName).ToList();
+
                 foreach (var element in attributeElements)
                 {
                     var values = element.Descendants(attributeValueName).Select(x => x.Value).ToList();
                     map.Add(element.Value.Convert<int>(), values);
                 }
+
+                return map;
             }
             catch (Exception ex)
             {
                 throw new XmlException("Error while trying to parse from XML: " + xmlAttributes, ex);
             }
-
-            return map;
         }
 
         private static Multimap<int, object> FromJson(string jsonAttributes)
-        {
-            Multimap<int, object> map;
+        {            
             try
             {
-                map = JsonConvert.DeserializeObject<Multimap<int, object>>(jsonAttributes);
+                return JsonConvert.DeserializeObject<Multimap<int, object>>(jsonAttributes);                
             }
             catch (Exception ex)
             {
                 throw new JsonSerializationException("Error while trying to deserialize object from Json: " + jsonAttributes, ex);
             }
-
-            return map;
         }
 
         /// <summary>
-        /// Creates and returns a Json string of <see cref="_map"/>.
+        /// Creates and returns a string in JSON format.
         /// </summary>
         /// <remarks>
-        /// Tries to serialize object and throws a <see cref="JsonSerializationException"/> if not possible.
+        /// Tries to serialize <see cref="Multimap{TKey, TValue}"/> and throws a <see cref="JsonSerializationException"/> if not possible.
         /// </remarks>
         public string AsJson()
         {
@@ -133,10 +131,10 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Creates and returns a Xml string of <see cref="_map"/>.
+        /// Creates and returns a string in XML format.
         /// </summary>
         /// <remarks>
-        /// Tries to serialize and throws a <see cref="JsonSerializationException"/> when not possible.
+        /// Tries to serialize <see cref="Multimap{TKey, TValue}"/> and throws a <see cref="JsonSerializationException"/> if not possible.
         /// </remarks>
         public string AsXml()
         {
@@ -167,22 +165,22 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// 
+        /// Gets deserialized attributes.
         /// </summary>
-        public IEnumerable<KeyValuePair<int, ICollection<object>>> AttributesMap
+        public IEnumerable<KeyValuePair<int, ICollection<object>>> AttributesMap 
             => _map;
 
         /// <summary>
-        /// Gets values of attribute with id from <see cref="_attributesMap"/>
+        /// Gets deserialized attribute values by attribute id.
         /// </summary>
-        /// <param name="attributeId">Identifier of attribute</param>
+        /// <param name="attributeId">Attribute identifier</param>
         public IEnumerable<object> GetAttributeValues(int attributeId)
             => _map.ContainsKey(attributeId) ? _map[attributeId] : null;
-        
+
         /// <summary>
-        /// Adds an attribute with possible multiple values to <see cref="_map"/>
+        /// Adds an attribute with possible multiple values to <see cref="Multimap{TKey, TValue}"/>.
         /// </summary>
-        /// <param name="attributeId">Identifier of attribute</param>
+        /// <param name="attributeId">Attribute identifier</param>
         /// <param name="value">Attribute value</param>
         public void AddAttribute(int attributeId, params object[] values)
         {
@@ -193,7 +191,7 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Adds an attribute value to attribute with id <see cref="_map"/>.
+        /// Adds an attribute value to <see cref="Multimap{TKey, TValue}"/> by attribute id.
         /// </summary>
         /// <param name="attributeId">Identifier of attribute</param>
         /// <param name="value">Attribute value</param>
@@ -206,7 +204,7 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Removes attribute set from <see cref="_map"/>.
+        /// Removes an attribute set from <see cref="Multimap{TKey, TValue}"/> by attribute id.
         /// </summary>
         /// <param name="attributeId">Identifier of attribute</param>
         public void RemoveAttribute(int attributeId)
@@ -216,7 +214,7 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Removes attribute value from <see cref="_map"/>.
+        /// Removes an attribute value from <see cref="Multimap{TKey, TValue}"/> by attribute id.
         /// </summary>
         /// <param name="attributeId">Identifier of attribute</param>
         /// <param name="value">Attribute value</param>
@@ -229,7 +227,7 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Removes all attribute sets from <see cref="_map"/>.
+        /// Removes all attribute sets from <see cref="Multimap{TKey, TValue}"/>.
         /// </summary>
         public void ClearAttributes()
         {
