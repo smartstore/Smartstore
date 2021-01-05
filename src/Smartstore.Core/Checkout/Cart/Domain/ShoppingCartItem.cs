@@ -16,11 +16,13 @@ namespace Smartstore.Core.Checkout.Cart
         {
             builder.HasOne(x => x.Customer)
                 .WithMany(x => x.ShoppingCartItems)
-                .HasForeignKey(x => x.CustomerId);
+                .HasForeignKey(x => x.CustomerId)
+                .IsRequired(false);
 
             builder.HasOne(x => x.Product)
                 .WithMany()
-                .HasForeignKey(x => x.ProductId);
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired(false);
 
             builder.HasOne(x => x.BundleItem)
                 .WithMany()

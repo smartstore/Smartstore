@@ -18,7 +18,8 @@ namespace Smartstore.Core.Checkout.GiftCards
 
             builder.HasOne(x => x.UsedWithOrder)
                 .WithMany(x => x.GiftCardUsageHistory)
-                .HasForeignKey(x => x.UsedWithOrderId);
+                .HasForeignKey(x => x.UsedWithOrderId)
+                .IsRequired(false);
         }
     }
 

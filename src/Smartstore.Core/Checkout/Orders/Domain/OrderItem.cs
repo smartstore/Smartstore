@@ -17,13 +17,16 @@ namespace Smartstore.Core.Checkout.Orders
         {
             builder.HasOne(x => x.Order)
                 .WithMany(x => x.OrderItems)
-                .HasForeignKey(x => x.OrderId);
+                .HasForeignKey(x => x.OrderId)
+                .IsRequired(false);
 
             builder.HasOne(x => x.Product)
                 .WithMany()
-                .HasForeignKey(x => x.ProductId);
+                .HasForeignKey(x => x.ProductId)
+                .IsRequired(false);
         }
     }
+
     /// <summary>
     /// Represents an order item
     /// </summary>

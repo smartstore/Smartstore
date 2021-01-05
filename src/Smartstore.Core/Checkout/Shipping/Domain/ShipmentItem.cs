@@ -11,7 +11,8 @@ namespace Smartstore.Core.Checkout.Shipping
         {
             builder.HasOne(x => x.Shipment)
                 .WithMany(x => x.ShipmentItems)
-                .HasForeignKey(x => x.ShipmentId);
+                .HasForeignKey(x => x.ShipmentId)
+                .IsRequired(false);
         }
     }
 

@@ -12,11 +12,10 @@ namespace Smartstore.Core.Customers
     {
         public void Configure(EntityTypeBuilder<CustomerContent> builder)
         {
-            builder.HasQueryFilter(c => !c.Customer.Deleted);
-
             builder.HasOne(c => c.Customer)
                 .WithMany(c => c.CustomerContent)
-                .HasForeignKey(c => c.CustomerId);
+                .HasForeignKey(c => c.CustomerId)
+                .IsRequired(false);
         }
     }
 

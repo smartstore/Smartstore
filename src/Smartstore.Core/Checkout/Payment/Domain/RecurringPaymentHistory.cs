@@ -12,7 +12,8 @@ namespace Smartstore.Core.Checkout.Payment.Domain
         {
             builder.HasOne(x => x.RecurringPayment)
                 .WithMany(x => x.RecurringPaymentHistory)
-                .HasForeignKey(x => x.RecurringPaymentId);
+                .HasForeignKey(x => x.RecurringPaymentId)
+                .IsRequired(false);
         }
     }
 
