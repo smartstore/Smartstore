@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Core.Configuration;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Scheduling;
 using Smartstore.Core.Stores;
@@ -37,6 +35,11 @@ namespace Smartstore.Core.Content.Seo
         public int MaximumNodeCount { get; init; } = XmlSitemapGenerator.MaximumSiteMapNodeCount;
 
         public string Protocol { get; init; }
+
+        public T LoadSettings<T>() where T : ISettings, new()
+        {
+            return _settingFactory.LoadSettings<T>(RequestStoreId);
+        }
 
         public Task<T> LoadSettingsAsync<T>() where T : ISettings, new()
         {

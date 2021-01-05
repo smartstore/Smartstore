@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Common;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 
@@ -251,7 +253,7 @@ namespace Smartstore.Core.Catalog.Products
                 .ToArray();
         }
 
-        // TODO: (mg) (core) Add GetBasePriceInfoAsync extension methods for products.
+        // TODO: (mg) (core) Add GetBasePriceInfoAsync extension method for products.
         /// <summary>
         /// Gets the base price info.
         /// </summary>
@@ -303,36 +305,36 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="priceFormatter">Price formatter.</param>
         /// <param name="currency">Target currency.</param>
         /// <returns>The base price info</returns>
-        //public static async Task<string> GetBasePriceInfoAsync(this Product product,
-        //    decimal productPrice,
-        //    ILocalizationService localizationService,
-        //    IPriceFormatter priceFormatter,
-        //    Currency currency)
-        //{
-        //    Guard.NotNull(product, nameof(product));
-        //    Guard.NotNull(localizationService, nameof(localizationService));
-        //    Guard.NotNull(priceFormatter, nameof(priceFormatter));
-        //    Guard.NotNull(currency, nameof(currency));
+        public static async Task<string> GetBasePriceInfoAsync(this Product product,
+            decimal productPrice,
+            ILocalizationService localizationService,
+            IPriceFormatter priceFormatter,
+            Currency currency)
+        {
+            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(localizationService, nameof(localizationService));
+            Guard.NotNull(priceFormatter, nameof(priceFormatter));
+            Guard.NotNull(currency, nameof(currency));
 
-        //    if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
-        //    {
-        //        var value = Convert.ToDecimal((productPrice / product.BasePriceAmount) * product.BasePriceBaseAmount);
-        //        var valueFormatted = priceFormatter.FormatPrice(value, true, currency);
-        //        var amountFormatted = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
-        //        var infoTemplate = await localizationService.GetResourceAsync("Products.BasePriceInfo");
+            if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
+            {
+                var value = Convert.ToDecimal((productPrice / product.BasePriceAmount) * product.BasePriceBaseAmount);
+                var valueFormatted = priceFormatter.FormatPrice(value, true, currency);
+                var amountFormatted = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
+                var infoTemplate = await localizationService.GetResourceAsync("Products.BasePriceInfo");
 
-        //        var result = infoTemplate.FormatInvariant(
-        //            amountFormatted,
-        //            product.BasePriceMeasureUnit,
-        //            valueFormatted,
-        //            product.BasePriceBaseAmount
-        //        );
+                var result = infoTemplate.FormatInvariant(
+                    amountFormatted,
+                    product.BasePriceMeasureUnit,
+                    valueFormatted,
+                    product.BasePriceBaseAmount
+                );
 
-        //        return result;
-        //    }
+                return result;
+            }
 
-        //    return string.Empty;
-        //}
+            return string.Empty;
+        }
 
         public static async Task<string> GetProductTypeLabelAsync(this Product product, ILocalizationService localizationService)
         {

@@ -1,6 +1,8 @@
 ﻿using Autofac;
+using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Content.Seo;
 
 namespace Smartstore.Core.DependencyInjection
 {
@@ -8,8 +10,15 @@ namespace Smartstore.Core.DependencyInjection
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<PriceFormatter>().As<IPriceFormatter>().InstancePerLifetimeScope();
             builder.RegisterType<ProductService>().As<IProductService>().InstancePerLifetimeScope();
+
+            builder.RegisterType<ManufacturerService>()
+                .As<IManufacturerService>()
+                .As<IXmlSitemapPublisher>()
+                //.WithNullCache()  // TODO: (core) Do we really need Autofac registration "WithNullCache"?
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<PriceFormatter>().As<IPriceFormatter>().InstancePerLifetimeScope();
             builder.RegisterType<RecentlyViewedProductsService>().As<IRecentlyViewedProductsService>().InstancePerLifetimeScope();
         }
     }
