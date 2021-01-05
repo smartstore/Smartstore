@@ -23,6 +23,7 @@ namespace Smartstore.Core.Checkout.Shipping
     /// <summary>
     /// Represents a shipment
     /// </summary>
+    [Index(nameof(OrderId), Name = "IX_OrderId")]
     public partial class Shipment : EntityWithAttributes
     {
         private readonly ILazyLoader _lazyLoader;
@@ -77,7 +78,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets or sets the order
         /// </summary>
-        public Order Order 
+        public Order Order
         {
             get => _lazyLoader?.Load(this, ref _order) ?? _order;
             set => _order = value;

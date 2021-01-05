@@ -19,6 +19,7 @@ namespace Smartstore.Core.Checkout.Shipping
     /// <summary>
     /// Represents a shipment order product variant
     /// </summary>
+    [Index(nameof(ShipmentId), Name = "IX_ShipmentId")]
     public partial class ShipmentItem : BaseEntity
     {
         private readonly ILazyLoader _lazyloader;

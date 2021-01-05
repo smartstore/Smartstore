@@ -22,6 +22,7 @@ namespace Smartstore.Core.Checkout.Affiliates
     /// <summary>
     /// Represents an affiliate
     /// </summary>
+    [Index(nameof(AddressId), Name = "IX_AddressId")]
     public partial class Affiliate : EntityWithAttributes, ISoftDeletable
     {
         private readonly ILazyLoader _lazyLoader;
