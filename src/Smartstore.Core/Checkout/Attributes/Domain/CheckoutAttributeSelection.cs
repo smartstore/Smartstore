@@ -2,10 +2,12 @@
 
 namespace Smartstore.Core.Checkout.Attributes
 {
+    /// <inheritdoc/>
     public class CheckoutAttributeSelection : AttributeSelection
     {
-        public CheckoutAttributeSelection(string rawAttributes)
-            : base("CheckoutAttribute", rawAttributes)
+        /// <inheritdoc cref="AttributeSelection(string, string, string)"/>
+        public CheckoutAttributeSelection(string attributesRaw)
+            : base(attributesRaw, "CheckoutAttribute")
         {
         }
     }
