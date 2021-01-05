@@ -62,8 +62,27 @@ namespace Smartstore.Core.Content.Media
     // Exact Core port. UpdatedOnUtc was mistakenly missing in the original implementation.
     [Index(nameof(FolderId), nameof(Deleted), Name = "IX_Media_UpdatedOnUtc")]
     [Index(nameof(FolderId), nameof(Deleted), Name = "IX_Media_FolderId")]
-    public partial class MediaFile : BaseEntity, ITransient, IHasMedia, IAuditable, ISoftDeletable, ILocalizedEntity
+    public partial class MediaFile : EntityWithAttributes, ITransient, IHasMedia, IAuditable, ISoftDeletable, ILocalizedEntity
     {
+        #region static
+
+        private static readonly HashSet<string> _outputAffectingProductProps = new HashSet<string>
+        {
+            nameof(MediaFile.FolderId),
+            nameof(MediaFile.Name),
+            nameof(MediaFile.Alt),
+            nameof(MediaFile.Title),
+            nameof(MediaFile.Hidden),
+            nameof(MediaFile.Deleted)
+        };
+
+        public static IReadOnlyCollection<string> GetOutputAffectingPropertyNames()
+        {
+            return _outputAffectingProductProps;
+        }
+
+        #endregion
+
         private readonly ILazyLoader _lazyLoader;
 
         public MediaFile()

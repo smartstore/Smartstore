@@ -65,6 +65,7 @@ namespace Smartstore.Core
                 builder.RegisterModule(new MessagingModule());
                 builder.RegisterModule(new CatalogModule());
                 builder.RegisterModule(new CheckoutModule());
+                builder.RegisterModule(new MediaModule(appContext.TypeScanner));
             }
         }
     }

@@ -27,7 +27,7 @@ namespace Smartstore.Core.Content.Media
     /// </summary>
     [Index(nameof(ParentId), nameof(Name), Name = "IX_NameParentId", IsUnique = true)]
     [CacheableEntity]
-    public partial class MediaFolder : BaseEntity
+    public partial class MediaFolder : EntityWithAttributes
     {
         private readonly ILazyLoader _lazyLoader;
 

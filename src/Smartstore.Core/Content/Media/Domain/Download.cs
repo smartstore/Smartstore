@@ -20,7 +20,7 @@ namespace Smartstore.Core.Content.Media
     }
 
     /// <summary>
-    /// Represents a download.
+    /// Represents a downloadable file.
     /// </summary>
     [Index(nameof(DownloadGuid), Name = "IX_DownloadGuid")]
     [Index(nameof(EntityId), nameof(EntityName), Name = "IX_EntityId_EntityName")]

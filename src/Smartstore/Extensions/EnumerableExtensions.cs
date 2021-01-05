@@ -393,7 +393,7 @@ namespace Smartstore
 
 		/// <summary>
 		/// Creates a list of elements asynchronously from the enumerable source.
-		/// The strange naming is due to the fact that we want to avoid naming conflicts with EF extensions methods.
+		/// The strange naming is due to the fact that we want to avoid naming conflicts with EF extension methods.
 		/// </summary>
 		/// <typeparam name="T">The type of the elements of source</typeparam>
 		/// <param name="source">The collection of elements</param>
@@ -406,7 +406,7 @@ namespace Smartstore
 
 		/// <summary>
 		/// Creates an array of elements asynchronously from the enumerable source.
-		/// The strange naming is due to the fact that we want to avoid naming conflicts with EF extensions methods.
+		/// The strange naming is due to the fact that we want to avoid naming conflicts with EF extension methods.
 		/// </summary>
 		/// <typeparam name="T">The type of the elements of source</typeparam>
 		/// <param name="source">The collection of elements</param>
@@ -415,6 +415,63 @@ namespace Smartstore
 		public static Task<T[]> AsyncToArray<T>(this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
 		{
 			return source.ToArrayAsync(cancellationToken);
+		}
+
+		/// <summary>
+		/// Creates a <see cref="Dictionary{TKey, TValue}" /> from an <see cref="IAsyncEnumerable{T}" /> by enumerating it
+		/// asynchronously according to a specified key selector function.
+		/// The strange naming is due to the fact that we want to avoid naming conflicts with EF extension methods.
+		/// </summary>
+		/// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+		/// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector" />.</typeparam>
+		/// <param name="keySelector">A function to extract a key from each element.</param>
+		/// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Task<Dictionary<TKey, TSource>> AsyncToDictionary<TKey, TSource>(this IAsyncEnumerable<TSource> source,
+			Func<TSource, TKey> keySelector,
+			CancellationToken cancellationToken = default)
+		{
+			return source.ToDictionaryAsync(keySelector, cancellationToken);
+		}
+
+		/// <summary>
+		/// Creates a <see cref="Dictionary{TKey, TValue}" /> from an <see cref="IAsyncEnumerable{T}" /> by enumerating it
+		/// asynchronously according to a specified key selector function.
+		/// The strange naming is due to the fact that we want to avoid naming conflicts with EF extension methods.
+		/// </summary>
+		/// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+		/// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector" />.</typeparam>
+		/// <param name="keySelector">A function to extract a key from each element.</param>
+		/// <param name="elementSelector">A transform function to produce a result element value from each element.</param>
+		/// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Task<Dictionary<TKey, TElement>> AsyncToDictionary<TKey, TSource, TElement>(this IAsyncEnumerable<TSource> source,
+			Func<TSource, TKey> keySelector,
+			Func<TSource, TElement> elementSelector,
+			CancellationToken cancellationToken = default)
+		{
+			return source.ToDictionaryAsync(keySelector, elementSelector, cancellationToken);
+		}
+
+		/// <summary>
+		/// Creates a <see cref="Dictionary{TKey, TValue}" /> from an <see cref="IAsyncEnumerable{T}" /> by enumerating it
+		/// asynchronously according to a specified key selector function.
+		/// The strange naming is due to the fact that we want to avoid naming conflicts with EF extension methods.
+		/// </summary>
+		/// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+		/// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector" />.</typeparam>
+		/// <param name="keySelector">A function to extract a key from each element.</param>
+		/// <param name="elementSelector">A transform function to produce a result element value from each element.</param>
+		/// <param name="comparer">An <see cref="IEqualityComparer{TKey}" /> to compare keys.</param>
+		/// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static Task<Dictionary<TKey, TElement>> AsyncToDictionary<TKey, TSource, TElement>(this IAsyncEnumerable<TSource> source,
+			Func<TSource, TKey> keySelector,
+			Func<TSource, TElement> elementSelector,
+			IEqualityComparer<TKey> comparer,
+			CancellationToken cancellationToken = default)
+		{
+			return source.ToDictionaryAsync(keySelector, elementSelector, comparer, cancellationToken);
 		}
 
 		#endregion

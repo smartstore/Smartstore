@@ -52,7 +52,7 @@ namespace Smartstore.Utilities
 
 			if (includeTypeName)
 			{
-				return typeof(T).Name + "." + name;
+				return typeof(T).Name + '.' + name;
 			}
 
 			return name;
