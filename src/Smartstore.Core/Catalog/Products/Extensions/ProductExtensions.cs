@@ -305,12 +305,14 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="priceFormatter">Price formatter.</param>
         /// <param name="currency">Target currency.</param>
         /// <returns>The base price info</returns>
-        public static async Task<string> GetBasePriceInfoAsync(this Product product,
+        public static string GetBasePriceInfo(this Product product,
             decimal productPrice,
             ILocalizationService localizationService,
             IPriceFormatter priceFormatter,
             Currency currency)
         {
+            // TODO: (mg) Move GetBasePriceInfo() extension methods to IPriceFormatter or any other applicable service.
+
             Guard.NotNull(product, nameof(product));
             Guard.NotNull(localizationService, nameof(localizationService));
             Guard.NotNull(priceFormatter, nameof(priceFormatter));
@@ -321,7 +323,7 @@ namespace Smartstore.Core.Catalog.Products
                 var value = Convert.ToDecimal((productPrice / product.BasePriceAmount) * product.BasePriceBaseAmount);
                 var valueFormatted = priceFormatter.FormatPrice(value, true, currency);
                 var amountFormatted = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
-                var infoTemplate = await localizationService.GetResourceAsync("Products.BasePriceInfo");
+                var infoTemplate = localizationService.GetResource("Products.BasePriceInfo");
 
                 var result = infoTemplate.FormatInvariant(
                     amountFormatted,
@@ -336,12 +338,12 @@ namespace Smartstore.Core.Catalog.Products
             return string.Empty;
         }
 
-        public static async Task<string> GetProductTypeLabelAsync(this Product product, ILocalizationService localizationService)
+        public static string GetProductTypeLabel(this Product product, ILocalizationService localizationService)
         {
             if (product != null && product.ProductType != ProductType.SimpleProduct)
             {
                 var key = "Admin.Catalog.Products.ProductType.{0}.Label".FormatInvariant(product.ProductType.ToString());
-                return await localizationService.GetResourceAsync(key);
+                return localizationService.GetResource(key);
             }
 
             return string.Empty;

@@ -79,6 +79,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 Expires = DateTime.Now.AddDays(10.0),
                 HttpOnly = true,
+                // TODO: (core) Check whether CookieOptions.Secure and .SameSite can be set via global policy.
                 Secure = isSecured,
                 SameSite = isSecured ? (SameSiteMode)_privacySettings.SameSiteMode : SameSiteMode.Lax
             };
