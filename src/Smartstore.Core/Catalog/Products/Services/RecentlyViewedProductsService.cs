@@ -54,7 +54,7 @@ namespace Smartstore.Core.Catalog.Products
 
         public virtual void AddProductToRecentlyViewedList(int productId)
         {
-            if (!_catalogSettings.RecentlyViewedProductsEnabled)
+            if (!_catalogSettings.RecentlyViewedProductsEnabled || _httpContextAccessor.HttpContext is null)
             {
                 return;
             }
@@ -92,7 +92,14 @@ namespace Smartstore.Core.Catalog.Products
 
         protected virtual IEnumerable<int> GetRecentlyViewedProductsIds(int number)
         {
-            if (_httpContextAccessor.HttpContext.Request.Cookies.TryGetValue("SmartStore.RecentlyViewedProducts", out var values) && values.HasValue())
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext is null)
+            {
+                return Enumerable.Empty<int>();
+            }
+            
+            // TODO: (core) Move all cookie names to a static util class.
+            if (httpContext.Request.Cookies.TryGetValue("SmartStore.RecentlyViewedProducts", out var values) && values.HasValue())
             {
                 var ids = values.ToIntArray();
 
