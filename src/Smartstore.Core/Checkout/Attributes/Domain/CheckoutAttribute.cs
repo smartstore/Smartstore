@@ -15,7 +15,7 @@ namespace Smartstore.Core.Checkout.Attributes
     /// Represents a checkout attribute
     /// </summary>
     [CacheableEntity]
-    public partial class CheckoutAttribute : BaseEntity, ILocalizedEntity, IStoreRestricted
+    public partial class CheckoutAttribute : EntityWithAttributes, ILocalizedEntity, IStoreRestricted
     {
         private readonly ILazyLoader _lazyLoader;
 

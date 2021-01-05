@@ -24,7 +24,7 @@ namespace Smartstore.Core.Checkout.Affiliates
     /// <summary>
     /// Represents an affiliate
     /// </summary>
-    public partial class Affiliate : BaseEntity, ISoftDeletable
+    public partial class Affiliate : EntityWithAttributes, ISoftDeletable
     {
         private readonly ILazyLoader _lazyLoader;
 

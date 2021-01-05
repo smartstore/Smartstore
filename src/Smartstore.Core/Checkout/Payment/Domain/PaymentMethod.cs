@@ -41,7 +41,7 @@ namespace Smartstore.Core.Checkout.Payment
     /// Represents a payment method
     /// </summary>
     [CacheableEntity]
-    public partial class PaymentMethod : BaseEntity, ILocalizedEntity, IStoreRestricted, IRulesContainer
+    public partial class PaymentMethod : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;
 

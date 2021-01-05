@@ -41,7 +41,7 @@ namespace Smartstore.Core.Checkout.Shipping
     /// Represents a shipping method.
     /// </summary>
     [CacheableEntity]
-    public partial class ShippingMethod : BaseEntity, ILocalizedEntity, IStoreRestricted, IDisplayOrder, IRulesContainer
+    public partial class ShippingMethod : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IDisplayOrder, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;
 

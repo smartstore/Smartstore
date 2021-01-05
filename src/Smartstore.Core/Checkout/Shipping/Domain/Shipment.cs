@@ -22,7 +22,7 @@ namespace Smartstore.Core.Checkout.Shipping
     /// <summary>
     /// Represents a shipment
     /// </summary>
-    public partial class Shipment : BaseEntity
+    public partial class Shipment : EntityWithAttributes
     {
         private readonly ILazyLoader _lazyLoader;
 

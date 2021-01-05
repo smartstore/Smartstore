@@ -24,7 +24,7 @@ namespace Smartstore.Core.Checkout.Payment.Domain
     /// <summary>
     /// Represents a recurring payment
     /// </summary>
-    public partial class RecurringPayment : BaseEntity, ISoftDeletable
+    public partial class RecurringPayment : EntityWithAttributes, ISoftDeletable
     {
         private readonly ILazyLoader _lazyLoader;
 

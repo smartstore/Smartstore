@@ -22,7 +22,7 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// <summary>
     /// Represents a gift card
     /// </summary>
-    public partial class GiftCard : BaseEntity
+    public partial class GiftCard : EntityWithAttributes
     {
         private readonly ILazyLoader _lazyLoader;
 

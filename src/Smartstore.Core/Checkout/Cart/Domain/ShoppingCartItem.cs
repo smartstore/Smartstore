@@ -33,7 +33,7 @@ namespace Smartstore.Core.Checkout.Cart
     /// Represents a shopping cart item
     /// </summary>
     [Index(nameof(ShoppingCartTypeId), nameof(CustomerId), Name = "IX_ShoppingCartItem_ShoppingCartTypeId_CustomerId")]    
-    public partial class ShoppingCartItem : BaseEntity, IAuditable
+    public partial class ShoppingCartItem : EntityWithAttributes, IAuditable
     {
         private readonly ILazyLoader _lazyLoader;
 
