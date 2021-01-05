@@ -22,7 +22,7 @@ namespace Smartstore.Data.Hooks
 
     public class DbSaveChangesResult
     {
-        public static readonly DbSaveChangesResult Empty = new DbSaveChangesResult(Enumerable.Empty<IDbSaveHook>());
+        public static readonly DbSaveChangesResult Empty = new(Enumerable.Empty<IDbSaveHook>());
 
         public DbSaveChangesResult(IEnumerable<IDbSaveHook> processedHooks)
         {
@@ -45,7 +45,7 @@ namespace Smartstore.Data.Hooks
         /// <param name="entries">Entries</param>
         /// <param name="importantHooksOnly">Whether to trigger only hooks marked with the <see cref="ImportantAttribute"/> attribute</param>
         /// <returns>The list of actually processed hook instances and a value indicating whether the state of at least one entity has changed.</returns>
-        Task<DbSavingChangesResult> SavingChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken);
+        Task<DbSavingChangesResult> SavingChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Triggers all post action hooks
@@ -53,7 +53,7 @@ namespace Smartstore.Data.Hooks
         /// <param name="entries">Entries</param>
         /// <param name="importantHooksOnly">Whether to trigger only hooks marked with the <see cref="ImportantAttribute"/> attribute</param>
         /// <returns>The list of actually processed hook instances</returns>
-        Task<DbSaveChangesResult> SavedChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken);
+        Task<DbSaveChangesResult> SavedChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken = default);
     }
 
     public sealed class NullDbHookHandler : IDbHookHandler

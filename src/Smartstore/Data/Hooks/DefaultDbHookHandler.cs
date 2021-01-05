@@ -56,7 +56,7 @@ namespace Smartstore.Data.Hooks
             return _importantSaveHookTypes.Any();
         }
 
-        public async Task<DbSavingChangesResult> SavingChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken)
+        public async Task<DbSavingChangesResult> SavingChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken = default)
         {
             Guard.NotNull(entries, nameof(entries));
 
@@ -127,7 +127,7 @@ namespace Smartstore.Data.Hooks
             return new DbSavingChangesResult(processedHooks.Keys, anyStateChanged) { Entries = entries };
         }
 
-        public async Task<DbSaveChangesResult> SavedChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken)
+        public async Task<DbSaveChangesResult> SavedChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken = default)
         {
             Guard.NotNull(entries, nameof(entries));
 

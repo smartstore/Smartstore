@@ -4,6 +4,7 @@
 //using System.Linq.Expressions;
 //using NUnit.Framework;
 //using Smartstore.Core.Catalog.Products;
+//using Smartstore.Core.Checkout.Orders;
 //using Smartstore.Core.Common;
 //using Smartstore.Core.Customers;
 //using Smartstore.Core.Rules;
@@ -17,14 +18,14 @@
 //    {
 //        private List<Customer> _customers;
 
-//        private CustomerRole _role1 = new CustomerRole { Id = 1, Active = true, TaxExempt = false, TaxDisplayType = 1 };
-//        private CustomerRole _role2 = new CustomerRole { Id = 2, Active = true, TaxExempt = true, TaxDisplayType = 1 };
-//        private CustomerRole _role3 = new CustomerRole { Id = 3, Active = false, TaxExempt = false, TaxDisplayType = 1 };
-//        private CustomerRole _role4 = new CustomerRole { Id = 4, Active = true, TaxExempt = false, TaxDisplayType = 2 };
+//        private CustomerRole _role1 = new() { Id = 1, Active = true, TaxExempt = false, TaxDisplayType = 1 };
+//        private CustomerRole _role2 = new() { Id = 2, Active = true, TaxExempt = true, TaxDisplayType = 1 };
+//        private CustomerRole _role3 = new() { Id = 3, Active = false, TaxExempt = false, TaxDisplayType = 1 };
+//        private CustomerRole _role4 = new() { Id = 4, Active = true, TaxExempt = false, TaxDisplayType = 2 };
 
-//        private Store _store1 = new Store { Id = 1 };
-//        private Store _store2 = new Store { Id = 2 };
-//        private Store _store3 = new Store { Id = 3 };
+//        private Store _store1 = new() { Id = 1 };
+//        private Store _store2 = new() { Id = 2 };
+//        private Store _store3 = new() { Id = 3 };
 
 //        private string _pay1 = "Payment1";
 //        private string _pay2 = "Payment2";
@@ -34,7 +35,7 @@
 //        private string _ship2 = "Ship2";
 //        private string _ship3 = "Ship3";
 
-//        private List<Product> _products = new List<Product>();
+//        private List<Product> _products = new();
 
 //        protected static class FilterDescriptors
 //        {
