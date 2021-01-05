@@ -9,13 +9,15 @@ namespace Smartstore.Core.Checkout.Attributes
     public partial interface ICheckoutAttributeMaterializer
     {
         /// <summary>
-        /// Gets list of checkout attributes of attributes XML/Json from <see cref="CheckoutAttributeSelection"/>
+        /// Gets a list of all checkout attributes from <see cref="CheckoutAttributeSelection"/>.
         /// </summary>
+        /// <param name="selection">Attribute selection object</param>
         Task<List<CheckoutAttribute>> MaterializeCheckoutAttributesAsync(CheckoutAttributeSelection selection);
 
         /// <summary>
-        /// Gets list of checkout attribute values of attributes XML/Json from <see cref="CheckoutAttributeSelection"/>
+        /// Gets a list of all checkout attribute values from <see cref="CheckoutAttributeSelection"/>.
         /// </summary>
+        /// <param name="selection">Attribute selection object</param>
         Task<List<CheckoutAttributeValue>> MaterializeCheckoutAttributeValuesAsync(CheckoutAttributeSelection selection);
     }
 }
