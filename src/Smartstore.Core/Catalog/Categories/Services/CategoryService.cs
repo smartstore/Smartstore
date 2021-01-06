@@ -48,6 +48,8 @@ namespace Smartstore.Core.Catalog.Categories
                 .Select(x => x.Id)
                 .ToListAsync();
 
+            // TODO: (mg) (core) Don't leave unfinished code uncommented
+            // TODO: (mg) (core) InheritAclIntoChildrenAsync should return some status info (e.g. number of affected records)
         }
 
         public virtual async Task InheritStoresIntoChildrenAsync(
@@ -60,8 +62,9 @@ namespace Smartstore.Core.Catalog.Categories
                 .AsQueryable()
                 .Select(x => x.Id)
                 .ToListAsync();
-                
-                
+
+            // TODO: (mg) (core) Don't leave unfinished code uncommented
+            // TODO: (mg) (core) InheritStoresIntoChildrenAsync should return some status info (e.g. number of affected records)
         }
 
         public virtual async Task<string> GetCategoryPathAsync(
