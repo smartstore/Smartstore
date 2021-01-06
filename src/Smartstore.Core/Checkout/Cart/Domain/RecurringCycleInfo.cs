@@ -30,6 +30,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets a value indicating whether the nullable properties have already been assigned
         /// </summary>
-        public bool HasValues => CycleLength.HasValue && TotalCycles.HasValue && CyclePeriod.HasValue;
+        public bool HasValues 
+            => CycleLength.HasValue && TotalCycles.HasValue && CyclePeriod.HasValue;
     }
 }

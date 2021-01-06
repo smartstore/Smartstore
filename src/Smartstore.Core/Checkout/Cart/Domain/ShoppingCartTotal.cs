@@ -14,9 +14,11 @@ namespace Smartstore.Core.Checkout.Cart
             TotalAmount = totalAmount;
         }
 
-        public static implicit operator decimal?(ShoppingCartTotal obj) => obj.TotalAmount;
+        public static implicit operator decimal?(ShoppingCartTotal obj)
+            => obj.TotalAmount;
 
-        public static implicit operator ShoppingCartTotal(decimal? obj) => new(obj);
+        public static implicit operator ShoppingCartTotal(decimal? obj) 
+            => new(obj);
 
         /// <summary>
         /// Total amount of the shopping cart. <c>null</c> if the cart total couldn't be calculated now
@@ -66,7 +68,8 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="TotalAmount"/>
         /// </summary>
-        public override string ToString() => (TotalAmount ?? decimal.Zero).FormatInvariant();
+        public override string ToString() 
+            => (TotalAmount ?? decimal.Zero).FormatInvariant();
 
         /// <summary>
         /// Represents converted amount of <see cref="ShoppingCartTotal.TotalAmount"/> and <see cref="ShoppingCartTotal.RoundingAmount"/>
