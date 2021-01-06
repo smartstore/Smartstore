@@ -11,7 +11,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// <summary>
         /// Standard filter for checkout attributes.
         /// Applies store filter, may include hidden (<see cref="CheckoutAttribute.IsActive"/>) attributes 
-        /// and orders query by <see cref="CheckoutAttribute.DisplayOrder"/>
+        /// and orders query by <see cref="CheckoutAttribute.DisplayOrder"/>.
         /// </summary>
         public static IOrderedQueryable<CheckoutAttribute> ApplyStandardFilter(
             this IQueryable<CheckoutAttribute> query, 

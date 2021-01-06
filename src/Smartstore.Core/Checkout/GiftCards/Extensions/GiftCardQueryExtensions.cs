@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
+    /// <summary>
+    /// Gift card query extensions
+    /// </summary>
     public static class GiftCardQueryExtensions
     {
         /// <summary>

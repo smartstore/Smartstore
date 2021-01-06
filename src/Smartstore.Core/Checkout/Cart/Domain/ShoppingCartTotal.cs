@@ -74,8 +74,11 @@ namespace Smartstore.Core.Checkout.Cart
         public class ConvertedAmounts
         {
             /// <summary>
-            /// Converted total amount of the shopping cart. <c>null</c> if the cart total couldn't be calculated now
+            /// Converted total amount of the shopping cart.
             /// </summary>
+            /// <remarks>
+            /// <c>null</c> if the cart total couldn't be calculated now
+            /// </remarks>
             public decimal? TotalAmount { get; set; }
 
             /// <summary>

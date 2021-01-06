@@ -7,10 +7,8 @@ namespace Smartstore.Core.Checkout.Cart
     /// </summary>
     public static class ShoppingCartQueryExtensions
     {
-        /// <summary>
-        /// Standard filter for shopping cart.
-        /// Applies store and type filter, includes hidden (<see cref="CheckoutAttribute.IsActive"/>) attributes 
-        /// and orders query by <see cref="CheckoutAttribute.DisplayOrder"/>
+        /// <summary>        
+        /// Applies standard filter for store id and shopping cart type
         /// </summary>
         public static IQueryable<ShoppingCartItem> ApplyStandardFilter(
             this IQueryable<ShoppingCartItem> query,

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Localization;
 
@@ -14,6 +13,9 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Indicates whether the shopping cart requires shipping
         /// </summary>
+        /// <returns>
+        /// <c>true</c> if any product requires shipping
+        /// </returns>
         public static bool IsShippingRequired(this IEnumerable<OrganizedShoppingCartItem> cart)
         {
             Guard.NotNull(cart, nameof(cart));
@@ -34,6 +36,9 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets a value indicating whether the shopping cart is recurring
         /// </summary>
+        /// <returns>
+        /// <c>true</c> if any product is recurring
+        /// </returns>
 		public static bool IsRecurring(this IEnumerable<OrganizedShoppingCartItem> cart)
         {
             Guard.NotNull(cart, nameof(cart));
@@ -81,8 +86,11 @@ namespace Smartstore.Core.Checkout.Cart
         }
 
         /// <summary>
-        /// Get customer of shopping cart
+        /// Gets customer of shopping cart
         /// </summary>
+        /// <returns>
+        /// <see cref="Customer"/> of <see cref="OrganizedShoppingCartItem"/> or <c>null</c> if cart is empty
+        /// </returns>
         public static Customer GetCustomer(this IList<OrganizedShoppingCartItem> cart)
         {
             Guard.NotNull(cart, nameof(cart));

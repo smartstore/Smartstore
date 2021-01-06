@@ -24,7 +24,7 @@ namespace Smartstore.Core.Checkout.Attributes
 
         /// <summary>
         /// Removes attributes from list which require shippable products, if there are no shippable products in the cart
-        /// </summary>        
+        /// </summary>
         public static void RemoveShippableAttributes(this IEnumerable<CheckoutAttribute> attributes, IList<OrganizedShoppingCartItem> cart)
         {
             Guard.NotNull(attributes, nameof(attributes));
@@ -38,9 +38,9 @@ namespace Smartstore.Core.Checkout.Attributes
         /// <summary>
         /// Gets checkout attribute values by id. 
         /// </summary>
-        /// <param name="attributes"></param>
-        /// <param name="attributeId"></param>
-        /// <returns></returns>
+        /// <returns>
+        /// <see cref="List{string}"/> of attribute values as strings
+        /// </returns>
         public static List<string> GetAttributeValuesById(this IEnumerable<CheckoutAttribute> attributes, int attributeId)
         {
             Guard.NotNull(attributes, nameof(attributes));
