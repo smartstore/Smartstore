@@ -42,7 +42,7 @@ namespace Smartstore.IO
         //string GetStoragePath(string url);
 
         /// <summary>
-        /// Combines multiple path parts using the provider specific directory separator char.
+        /// Combines multiple path parts using '/' as directory separator char.
         /// </summary>
         /// <param name="paths">Path parts.</param>
         /// <returns>Combined path</returns>

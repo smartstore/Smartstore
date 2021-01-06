@@ -21,7 +21,7 @@ namespace Smartstore.Core.Content.Media
         /// If <c>false</c>, retrieves an app relative URL to delegate further processing to the media middleware (which can handle remote files)
         /// </param>
         /// <returns>The public URL.</returns>
-        string GetPublicUrl(IFile file, bool forCloud = false);
+        string MapToPublicUrl(IFile file, bool forCloud = false);
 
         /// <summary>
         /// Retrieves the public URL for a given file within the storage provider.
@@ -32,14 +32,14 @@ namespace Smartstore.Core.Content.Media
         /// If <c>false</c>, retrieves an app relative URL to delegate further processing to the media middleware (which can handle remote files)
         /// </param>
         /// <returns>The public URL.</returns>
-        string GetPublicUrl(string path, bool forCloud = false);
+        string MapToPublicUrl(string path, bool forCloud = false);
 
         /// <summary>
         /// Retrieves the path within the storage provider for a given public url.
         /// </summary>
         /// <param name="url">The virtual or public url of a file.</param>
-        /// <returns>The storage path or <value>null</value> if the media is not in a correct format.</returns>
-        string GetStoragePath(string url);
+        /// <returns>The storage path or <value>null</value> if the url is not in a correct format.</returns>
+        string MapUrlToStoragePath(string url);
 
         /// <summary>
         /// Gets the public base path to the media storage used to generate URLs for output HTML.

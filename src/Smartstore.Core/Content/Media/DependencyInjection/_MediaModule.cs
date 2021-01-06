@@ -23,11 +23,17 @@ namespace Smartstore.Core.DependencyInjection
             //// Utils
             //builder.RegisterType<MediaMigrator>().InstancePerRequest();
             //builder.RegisterType<MediaMigrator3>().InstancePerRequest();
-            //builder.RegisterType<MediaHelper>().InstancePerRequest();
-            //builder.RegisterType<MediaExceptionFactory>().InstancePerRequest();
+            builder.RegisterType<MediaHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<MediaExceptionFactory>().InstancePerLifetimeScope();
+
+            // Register IMediaFileSystem twice, this time explicitly named.
+            // We may need this later in decorator classes as a kind of fallback.
+            builder.RegisterType<MediaStorageInfo>().As<IMediaStorageInfo>().SingleInstance();
+            builder.RegisterType<LocalMediaFileSystem>().As<IMediaFileSystem>().SingleInstance();
+            builder.RegisterType<LocalMediaFileSystem>().Named<IMediaFileSystem>("local").SingleInstance();
 
             builder.RegisterType<MediaTypeResolver>().As<IMediaTypeResolver>().InstancePerLifetimeScope();
-            //builder.RegisterType<MediaUrlGenerator>().As<IMediaUrlGenerator>().InstancePerRequest();
+            builder.RegisterType<MediaUrlGenerator>().As<IMediaUrlGenerator>().InstancePerLifetimeScope();
             builder.RegisterType<AlbumRegistry>().As<IAlbumRegistry>().InstancePerLifetimeScope();
             builder.RegisterType<FolderService>().As<IFolderService>().InstancePerLifetimeScope();
             //builder.RegisterType<MediaTracker>().As<IMediaTracker>().InstancePerRequest();
@@ -52,12 +58,12 @@ namespace Smartstore.Core.DependencyInjection
             //    builder.Register<Func<IMediaStorageProvider>>(c => () => new FileSystemMediaStorageProvider(new MediaFileSystem()));
             //}
 
-            //// Register all album providers
-            //var albumProviderTypes = _typeFinder.FindClassesOfType<IAlbumProvider>(ignoreInactivePlugins: true);
-            //foreach (var type in albumProviderTypes)
-            //{
-            //    builder.RegisterType(type).As<IAlbumProvider>().Keyed<IAlbumProvider>(type).InstancePerRequest();
-            //}
+            // Register all album providers
+            var albumProviderTypes = _typeScanner.FindTypes<IAlbumProvider>(ignoreInactiveModules: true);
+            foreach (var type in albumProviderTypes)
+            {
+                builder.RegisterType(type).As<IAlbumProvider>().Keyed<IAlbumProvider>(type).InstancePerLifetimeScope();
+            }
 
             //// Handlers
             //builder.RegisterType<ImageHandler>().As<IMediaHandler>().InstancePerRequest();

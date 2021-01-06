@@ -26,7 +26,6 @@
     <Folder Include="Checkout\Shipping\Tracking\" />
     <Folder Include="Content\Media\Extensions\" />
     <Folder Include="Content\Media\Handlers\" />
-    <Folder Include="Content\Media\Imaging\" />
     <Folder Include="Content\Media\Events\" />
     <Folder Include="Content\Media\Tasks\" />
     <Folder Include="Content\Media\Storage\" />

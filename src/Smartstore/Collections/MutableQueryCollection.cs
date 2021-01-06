@@ -29,7 +29,14 @@ namespace Smartstore.Collections
         public MutableQueryCollection(Dictionary<string, StringValues> store)
             : base(store)
         {
+            Guard.NotNull(store, nameof(store));
+            
             _store = store;
+        }
+
+        public Dictionary<string, StringValues> Store
+        {
+            get => _store;
         }
 
         /// <summary>

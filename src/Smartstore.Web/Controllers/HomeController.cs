@@ -211,7 +211,6 @@ namespace Smartstore.Web.Controllers
 
             #endregion
 
-
             return View();
         }
 

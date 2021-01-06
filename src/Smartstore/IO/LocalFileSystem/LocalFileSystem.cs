@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
@@ -13,8 +12,6 @@ using Smartstore.Utilities;
 
 namespace Smartstore.IO
 {
-    // TODO: (core) FileSystemHelper.(TempDir | TempDirTenant | TempDirInternal | ClearTempDirectories) are missing. Change flow.
-
     /// <summary>
     /// Looks up files using the on-disk file system
     /// </summary>

@@ -35,7 +35,7 @@ namespace Smartstore.IO
 
             var combined = string.Join("/", normalizedParts);
 
-            // Preserve the initial '/' if it's present.
+            // Preserve the initial '/' if it is present.
             if (paths[0]?.StartsWith('/') == true)
                 combined = "/" + combined;
 
