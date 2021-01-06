@@ -118,7 +118,7 @@ namespace Smartstore.Core.Catalog.Products
 		/// <param name="product">Product entity.</param>
         /// <param name="localizationService">Localization service.</param>
         /// <returns>Product stock message.</returns>
-        public static async Task<string> FormatStockMessageAsync(this Product product, ILocalizationService localizationService)
+        public static string FormatStockMessage(this Product product, ILocalizationService localizationService)
         {
             Guard.NotNull(product, nameof(product));
             Guard.NotNull(localizationService, nameof(localizationService));
@@ -132,23 +132,23 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     if (product.DisplayStockQuantity)
                     {
-                        var str = await localizationService.GetResourceAsync("Products.Availability.InStockWithQuantity");
+                        var str = localizationService.GetResource("Products.Availability.InStockWithQuantity");
                         stockMessage = string.Format(str, product.StockQuantity);
                     }
                     else
                     {
-                        stockMessage = await localizationService.GetResourceAsync("Products.Availability.InStock");
+                        stockMessage = localizationService.GetResource("Products.Availability.InStock");
                     }
                 }
                 else
                 {
                     if (product.BackorderMode == BackorderMode.NoBackorders || product.BackorderMode == BackorderMode.AllowQtyBelow0)
                     {
-                        stockMessage = await localizationService.GetResourceAsync("Products.Availability.OutOfStock");
+                        stockMessage = localizationService.GetResource("Products.Availability.OutOfStock");
                     }
                     else if (product.BackorderMode == BackorderMode.AllowQtyBelow0AndNotifyCustomer)
                     {
-                        stockMessage = await localizationService.GetResourceAsync("Products.Availability.Backordering");
+                        stockMessage = localizationService.GetResource("Products.Availability.Backordering");
                     }
                 }
             }
