@@ -27,10 +27,9 @@ namespace Smartstore.Core.Checkout.Orders
 
             builder.Property(x => x.CurrencyRate).HasPrecision(18, 8);
 
-            // TODO: (ms) (core) needs orders nav prop in customer
-            //builder.HasOne(x => x.Customer)
-            //    .WithMany(x => x.Orders)
-            //    .HasForeignKey(x => x.CustomerId);
+            builder.HasOne(x => x.Customer)
+                .WithMany(x => x.Orders)
+                .HasForeignKey(x => x.CustomerId);
 
             builder.HasOne(o => o.BillingAddress)
                 .WithMany()
