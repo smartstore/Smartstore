@@ -27,8 +27,6 @@ namespace Smartstore.Core.Catalog.Categories
         private readonly IWorkContext _workContext;
         private readonly ICacheManager _cache;
 
-        // TODO: (mg) (core) Cache invalidation hook is missing in CategoryService
-
         public CategoryService(
             SmartDbContext db,
             IWorkContext workContext,
