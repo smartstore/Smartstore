@@ -21,10 +21,10 @@ namespace Smartstore.Core.Customers
             // Globally exclude soft-deleted entities from all queries.
             builder.HasQueryFilter(c => !c.Deleted);
 
-            builder
-                .HasMany(c => c.Addresses)
-                .WithMany("")
-                .UsingEntity(m => m.ToTable("CustomerAddresses"));
+            //builder
+            //    .HasMany(c => c.Addresses)
+            //    .WithMany("")
+            //    .UsingEntity(m => m.ToTable("CustomerAddresses"));
 
             builder
                 .HasOne(c => c.BillingAddress)
