@@ -27,6 +27,8 @@ namespace Smartstore.Core.Catalog.Categories
         private readonly IWorkContext _workContext;
         private readonly ICacheManager _cache;
 
+        // TODO: (mg) (core) Cache invalidation hook is missing in CategoryService
+
         public CategoryService(
             SmartDbContext db,
             IWorkContext workContext,
@@ -117,7 +119,7 @@ namespace Smartstore.Core.Catalog.Categories
 
                     if (aliasPattern.HasValue() && cat.Alias.HasValue())
                     {
-                        sb.Append(" ");
+                        sb.Append(' ');
                         sb.Append(string.Format(aliasPattern, cat.Alias));
                     }
 
@@ -135,10 +137,7 @@ namespace Smartstore.Core.Catalog.Categories
             return path;
         }
 
-        public async Task<TreeNode<ICategoryNode>> GetCategoryTreeAsync(
-            int rootCategoryId = 0,
-            bool includeHidden = false,
-            int storeId = 0)
+        public async Task<TreeNode<ICategoryNode>> GetCategoryTreeAsync(int rootCategoryId = 0, bool includeHidden = false, int storeId = 0)
         {
             var rolesIds = _workContext.CurrentCustomer.GetRoleIds();
             var storeToken = _db.QuerySettings.IgnoreMultiStore ? "0" : storeId.ToString();
