@@ -91,7 +91,7 @@ namespace Smartstore.Core.Catalog.Products
     [Index(nameof(SystemName), nameof(IsSystemProduct), Name = "IX_Product_SystemName_IsSystemProduct")]
     [Index(nameof(Published), nameof(Id), nameof(Visibility), nameof(Deleted), nameof(IsSystemProduct), nameof(AvailableStartDateTimeUtc), nameof(AvailableEndDateTimeUtc), Name = "IX_SeekExport1")]
     [Index(nameof(Visibility), Name = "IX_Visibility")]
-    public partial class Product : BaseEntity, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
+    public partial class Product : EntityWithAttributes, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
     {
         private readonly ILazyLoader _lazyLoader;
 

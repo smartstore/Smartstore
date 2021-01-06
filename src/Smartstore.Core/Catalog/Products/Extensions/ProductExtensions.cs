@@ -253,7 +253,7 @@ namespace Smartstore.Core.Catalog.Products
                 .ToArray();
         }
 
-        // TODO: (mg) (core) Add GetBasePriceInfoAsync extension method for products.
+        // TODO: (mg) (core) Add GetBasePriceInfo extension method for products.
         /// <summary>
         /// Gets the base price info.
         /// </summary>
@@ -267,7 +267,7 @@ namespace Smartstore.Core.Catalog.Products
 		/// <param name="currency">Target currency.</param>
 		/// <param name="priceAdjustment">Price adjustment.</param>
         /// <returns>The base price info</returns>
-        //public static async Task<string> GetBasePriceInfoAsync(this Product product,
+        //public static string GetBasePriceInfo(this Product product,
         //    ILocalizationService localizationService,
         //    IPriceFormatter priceFormatter,
         //    ICurrencyService currencyService,
@@ -290,53 +290,11 @@ namespace Smartstore.Core.Catalog.Products
         //        var price = taxService.GetProductPrice(product, decimal.Add(currentPrice, priceAdjustment), customer, currency, out var taxrate);
         //        price = currencyService.ConvertFromPrimaryStoreCurrency(price, currency);
 
-        //        return await product.GetBasePriceInfoAsync(price, localizationService, priceFormatter, currency);
+        //        return priceFormatter.GetBasePriceInfo(product, price, currency);
         //    }
 
         //    return string.Empty;
         //}
-
-        /// <summary>
-        /// Gets the base price info.
-        /// </summary>
-        /// <param name="product">Product entity.</param>
-        /// <param name="productPrice">The calculated product price.</param>
-        /// <param name="localizationService">Localization service.</param>
-        /// <param name="priceFormatter">Price formatter.</param>
-        /// <param name="currency">Target currency.</param>
-        /// <returns>The base price info</returns>
-        public static string GetBasePriceInfo(this Product product,
-            decimal productPrice,
-            ILocalizationService localizationService,
-            IPriceFormatter priceFormatter,
-            Currency currency)
-        {
-            // TODO: (mg) Move GetBasePriceInfo() extension methods to IPriceFormatter or any other applicable service.
-
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(localizationService, nameof(localizationService));
-            Guard.NotNull(priceFormatter, nameof(priceFormatter));
-            Guard.NotNull(currency, nameof(currency));
-
-            if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
-            {
-                var value = Convert.ToDecimal((productPrice / product.BasePriceAmount) * product.BasePriceBaseAmount);
-                var valueFormatted = priceFormatter.FormatPrice(value, true, currency);
-                var amountFormatted = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
-                var infoTemplate = localizationService.GetResource("Products.BasePriceInfo");
-
-                var result = infoTemplate.FormatInvariant(
-                    amountFormatted,
-                    product.BasePriceMeasureUnit,
-                    valueFormatted,
-                    product.BasePriceBaseAmount
-                );
-
-                return result;
-            }
-
-            return string.Empty;
-        }
 
         public static string GetProductTypeLabel(this Product product, ILocalizationService localizationService)
         {

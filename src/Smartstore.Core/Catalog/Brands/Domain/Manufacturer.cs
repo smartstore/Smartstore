@@ -36,7 +36,7 @@ namespace Smartstore.Core.Catalog.Brands
     [Index(nameof(DisplayOrder), Name = "IX_Manufacturer_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_Manufacturer_LimitedToStores")]
     [Index(nameof(SubjectToAcl), Name = "IX_SubjectToAcl")]
-    public partial class Manufacturer : BaseEntity, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IPagingOptions, IDisplayOrder
+    public partial class Manufacturer : EntityWithAttributes, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IPagingOptions, IDisplayOrder
     {
         private readonly ILazyLoader _lazyLoader;
 

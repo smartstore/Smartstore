@@ -34,8 +34,7 @@ namespace Smartstore.Core.Catalog.Brands
 
             var query = _db.Manufacturers
                 .AsNoTracking()
-                .ApplyStandardFilter(false, customerRolesIds, context.RequestStoreId)
-                .ThenBy(x => x.Name);
+                .ApplyStandardFilter(false, customerRolesIds, context.RequestStoreId);
 
             return new ManufacturerXmlSitemapResult { Query = query };
         }

@@ -7,7 +7,7 @@ namespace Smartstore.Core.Catalog.Brands
     public static partial class ManufacturerQueryExtensions
     {
         /// <summary>
-        /// Apply standard filter and sorts by <see cref="Manufacturer.DisplayOrder"/>.
+        /// Applies standard filter and sorts by <see cref="Manufacturer.DisplayOrder"/>, then by <see cref="Manufacturer.Name"/>.
         /// </summary>
         /// <param name="includeHidden">Applies filter by <see cref="Manufacturer.Published"/>.</param>
         /// <param name="customerRolesIds">Customer roles identifiers to apply filter by ACL restriction.</param>
@@ -36,7 +36,9 @@ namespace Smartstore.Core.Catalog.Brands
                 query = query.ApplyAclFilter(customerRolesIds);
             }
 
-            return query.OrderBy(x => x.DisplayOrder);
+            return query
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
         }
     }
 }

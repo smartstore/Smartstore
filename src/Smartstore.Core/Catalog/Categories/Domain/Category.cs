@@ -55,7 +55,7 @@ namespace Smartstore.Core.Catalog.Categories
     [Index(nameof(LimitedToStores), Name = "IX_Category_LimitedToStores")]
     [Index(nameof(ParentCategoryId), Name = "IX_Category_ParentCategoryId")]
     [Index(nameof(SubjectToAcl), Name = "IX_Category_SubjectToAcl")]
-    public partial class Category : BaseEntity, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder, IRulesContainer
+    public partial class Category : EntityWithAttributes, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;
 

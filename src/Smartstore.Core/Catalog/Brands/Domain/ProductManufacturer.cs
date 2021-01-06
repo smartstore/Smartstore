@@ -13,15 +13,15 @@ namespace Smartstore.Core.Catalog.Brands
     {
         public void Configure(EntityTypeBuilder<ProductManufacturer> builder)
         {
-            builder.HasQueryFilter(c => !c.Manufacturer.Deleted);
-
             builder.HasOne(c => c.Manufacturer)
                 .WithMany()
-                .HasForeignKey(c => c.ManufacturerId);
+                .HasForeignKey(c => c.ManufacturerId)
+                .IsRequired(false);
 
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductManufacturers)
-                .HasForeignKey(c => c.ProductId);
+                .HasForeignKey(c => c.ProductId)
+                .IsRequired(false);
         }
     }
 

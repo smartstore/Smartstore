@@ -104,7 +104,7 @@ namespace Smartstore.Core.Catalog.Discounts
     /// </summary>
     [DebuggerDisplay("{Name} - {DiscountType}")]
     [CacheableEntity]
-    public partial class Discount : BaseEntity, IRulesContainer
+    public partial class Discount : EntityWithAttributes, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;
 

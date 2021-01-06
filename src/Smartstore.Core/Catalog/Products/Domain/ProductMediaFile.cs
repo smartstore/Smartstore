@@ -12,8 +12,6 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<ProductMediaFile> builder)
         {
-            builder.HasQueryFilter(c => !c.Product.Deleted);
-
             builder.HasOne(c => c.MediaFile)
                 .WithMany(c => c.ProductMediaFiles)
                 .HasForeignKey(c => c.MediaFileId)
@@ -22,7 +20,8 @@ namespace Smartstore.Core.Catalog.Products
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductPictures)
                 .HasForeignKey(c => c.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
         }
     }
 

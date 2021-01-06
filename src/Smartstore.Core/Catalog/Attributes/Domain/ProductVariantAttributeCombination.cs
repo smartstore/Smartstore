@@ -16,11 +16,10 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         public void Configure(EntityTypeBuilder<ProductVariantAttributeCombination> builder)
         {
-            builder.HasQueryFilter(c => !c.Product.Deleted);
-
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductVariantAttributeCombinations)
-                .HasForeignKey(c => c.ProductId);
+                .HasForeignKey(c => c.ProductId)
+                .IsRequired(false);
 
             builder.HasOne(c => c.DeliveryTime)
                 .WithMany()

@@ -17,7 +17,7 @@ namespace Smartstore.Core.Catalog.Attributes
     /// </summary>
     [Index(nameof(AllowFiltering), Name = "IX_AllowFiltering")]
     [Index(nameof(DisplayOrder), Name = "IX_DisplayOrder")]
-    public partial class ProductAttribute : BaseEntity, ILocalizedEntity, IDisplayOrder, ISearchAlias
+    public partial class ProductAttribute : EntityWithAttributes, ILocalizedEntity, IDisplayOrder, ISearchAlias
     {
         private readonly ILazyLoader _lazyLoader;
 

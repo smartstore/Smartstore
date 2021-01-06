@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Dasync.Collections;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
@@ -84,6 +85,31 @@ namespace Smartstore.Core.Catalog.Pricing
         public virtual string FormatTaxRate(decimal taxRate)
         {
             return taxRate.ToString("G29");
+        }
+
+        public virtual string GetBasePriceInfo(Product product, decimal productPrice, Currency currency)
+        {
+            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(currency, nameof(currency));
+
+            if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
+            {
+                var value = Convert.ToDecimal((productPrice / product.BasePriceAmount) * product.BasePriceBaseAmount);
+                var valueFormatted = FormatPrice(value, true, currency);
+                var amountFormatted = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
+                var infoTemplate = _localizationService.GetResource("Products.BasePriceInfo");
+
+                var result = infoTemplate.FormatInvariant(
+                    amountFormatted,
+                    product.BasePriceMeasureUnit,
+                    valueFormatted,
+                    product.BasePriceBaseAmount
+                );
+
+                return result;
+            }
+
+            return string.Empty;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Smartstore.Core.Catalog.Attributes
     /// Represents a specification attribute.
     /// </summary>
     [Index(nameof(AllowFiltering), Name = "IX_AllowFiltering")]
-    public partial class SpecificationAttribute : BaseEntity, ILocalizedEntity, IDisplayOrder, ISearchAlias
+    public partial class SpecificationAttribute : EntityWithAttributes, ILocalizedEntity, IDisplayOrder, ISearchAlias
     {
         private readonly ILazyLoader _lazyLoader;
 

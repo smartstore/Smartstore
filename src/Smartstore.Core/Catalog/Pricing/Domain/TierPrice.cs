@@ -13,13 +13,10 @@ namespace Smartstore.Core.Catalog.Pricing
     {
         public void Configure(EntityTypeBuilder<TierPrice> builder)
         {
-            // Avoids EF warning: Entity '"Product"' has a global query filter defined and is the required end of a relationship with the entity '"TierPrice"'.
-            // This may lead to unexpected results when the required entity is filtered out.
-            builder.HasQueryFilter(c => !c.Product.Deleted);
-
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.TierPrices)
-                .HasForeignKey(c => c.ProductId);
+                .HasForeignKey(c => c.ProductId)
+                .IsRequired(false);
 
             builder.HasOne(c => c.CustomerRole)
                 .WithMany()

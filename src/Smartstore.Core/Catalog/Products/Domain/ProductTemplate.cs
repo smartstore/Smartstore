@@ -9,7 +9,7 @@ namespace Smartstore.Core.Catalog.Products
     /// Represents a product template.
     /// </summary>
     [CacheableEntity]
-    public partial class ProductTemplate : BaseEntity, IDisplayOrder
+    public partial class ProductTemplate : EntityWithAttributes, IDisplayOrder
     {
         /// <summary>
         /// Gets or sets the template name.

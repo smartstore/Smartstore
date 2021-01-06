@@ -9,7 +9,7 @@ namespace Smartstore.Core.Catalog.Categories
     /// Represents a category template.
     /// </summary>
     [CacheableEntity]
-    public partial class CategoryTemplate : BaseEntity, IDisplayOrder
+    public partial class CategoryTemplate : EntityWithAttributes, IDisplayOrder
     {
         /// <summary>
         /// Gets or sets the template name.

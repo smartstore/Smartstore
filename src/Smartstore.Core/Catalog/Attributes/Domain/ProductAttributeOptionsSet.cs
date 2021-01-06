@@ -21,7 +21,7 @@ namespace Smartstore.Core.Catalog.Attributes
     /// <summary>
     /// Represents an options set for a product attribute.
     /// </summary>
-    public partial class ProductAttributeOptionsSet : BaseEntity, INamedEntity
+    public partial class ProductAttributeOptionsSet : EntityWithAttributes, INamedEntity
     {
         private readonly ILazyLoader _lazyLoader;
 

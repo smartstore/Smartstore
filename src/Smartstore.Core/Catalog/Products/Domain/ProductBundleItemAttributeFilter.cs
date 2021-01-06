@@ -11,8 +11,6 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<ProductBundleItemAttributeFilter> builder)
         {
-            builder.HasQueryFilter(c => !c.BundleItem.Product.Deleted);
-
             builder.HasOne(c => c.BundleItem)
                 .WithMany(c => c.AttributeFilters)
                 .HasForeignKey(c => c.BundleItemId)

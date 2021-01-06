@@ -13,15 +13,14 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         public void Configure(EntityTypeBuilder<ProductSpecificationAttribute> builder)
         {
-            builder.HasQueryFilter(c => !c.Product.Deleted);
-
             builder.HasOne(c => c.SpecificationAttributeOption)
                 .WithMany(c => c.ProductSpecificationAttributes)
                 .HasForeignKey(c => c.SpecificationAttributeOptionId);
 
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductSpecificationAttributes)
-                .HasForeignKey(c => c.ProductId);
+                .HasForeignKey(c => c.ProductId)
+                .IsRequired(false);
 
             builder
                 .HasIndex(x => x.AllowFiltering, "IX_PSAM_AllowFiltering")
