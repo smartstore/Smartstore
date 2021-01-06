@@ -46,8 +46,6 @@ namespace Smartstore.Core.Checkout.Orders
 
     [Index(nameof(Deleted), Name = "IX_Deleted")]
     [Index(nameof(CustomerId), Name = "IX_Order_CustomerId")]
-    [Index(nameof(BillingAddressId), Name = "IX_BillingAddressId")]
-    [Index(nameof(ShippingAddressId), Name = "IX_ShippingAddressId")]
     public partial class Order : EntityWithAttributes, IAuditable, ISoftDeletable
     {
         private readonly ILazyLoader _lazyLoader;

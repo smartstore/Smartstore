@@ -29,8 +29,6 @@ namespace Smartstore.Core.Checkout.Attributes
     /// Represents a checkout attribute value
     /// </summary>
     [CacheableEntity]
-    [Index(nameof(MediaFileId), Name = "IX_MediaFileId")]
-    [Index(nameof(CheckoutAttributeId), Name = "IX_CheckoutAttributeId")]
     public partial class CheckoutAttributeValue : BaseEntity, ILocalizedEntity
     {
         private readonly ILazyLoader _lazyLoader;

@@ -30,8 +30,6 @@ namespace Smartstore.Core.Checkout.Orders
     /// <summary>
     /// Represents an order item
     /// </summary>
-    [Index(nameof(OrderId), Name = "IX_OrderItem_OrderId")]
-    [Index(nameof(ProductId), Name = "IX_ProductId")]
     public partial class OrderItem : BaseEntity
     {
         private readonly ILazyLoader _lazyLoader;

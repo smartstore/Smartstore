@@ -22,7 +22,6 @@ namespace Smartstore.Core.Checkout.Orders
     /// <summary>
     /// Represents an order note
     /// </summary>
-    [Index(nameof(OrderId), Name = "IX_OrderNote_OrderId")]
     public partial class OrderNote : BaseEntity
     {
         private readonly ILazyLoader _lazyLoader;

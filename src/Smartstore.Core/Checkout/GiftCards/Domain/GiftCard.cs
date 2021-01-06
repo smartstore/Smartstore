@@ -22,7 +22,6 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// <summary>
     /// Represents a gift card
     /// </summary>
-    [Index(nameof(PurchasedWithOrderItemId), Name = "IX_PurchasedWithOrderItemId")]
     public partial class GiftCard : EntityWithAttributes
     {
         private readonly ILazyLoader _lazyLoader;

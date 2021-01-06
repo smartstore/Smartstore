@@ -34,9 +34,6 @@ namespace Smartstore.Core.Checkout.Cart
     /// <summary>
     /// Represents a shopping cart item
     /// </summary>
-    [Index(nameof(BundleItemId), Name = "IX_BundleItemId")]
-    [Index(nameof(CustomerId), Name = "IX_CustomerId")]
-    [Index(nameof(ProductId), Name = "IX_ProductId")]
     [Index(nameof(ShoppingCartTypeId), nameof(CustomerId), Name = "IX_ShoppingCartItem_ShoppingCartTypeId_CustomerId")]
     public partial class ShoppingCartItem : EntityWithAttributes, IAuditable
     {

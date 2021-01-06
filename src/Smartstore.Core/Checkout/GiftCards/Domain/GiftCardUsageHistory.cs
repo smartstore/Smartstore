@@ -26,8 +26,6 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// <summary>
     /// Represents a gift card usage history entry
     /// </summary>
-    [Index(nameof(GiftCardId), Name = "IX_GiftCardId")]
-    [Index(nameof(UsedWithOrderId), Name = "IX_UsedWithOrderId")]
     public partial class GiftCardUsageHistory : BaseEntity
     {
         private readonly ILazyLoader _lazyLoader;

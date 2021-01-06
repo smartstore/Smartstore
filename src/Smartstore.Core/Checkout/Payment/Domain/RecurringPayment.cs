@@ -25,7 +25,6 @@ namespace Smartstore.Core.Checkout.Payment.Domain
     /// <summary>
     /// Represents a recurring payment
     /// </summary>
-    [Index(nameof(InitialOrderId), Name = "IX_InitialOrderId")]
     public partial class RecurringPayment : EntityWithAttributes, ISoftDeletable
     {
         private readonly ILazyLoader _lazyLoader;

@@ -20,7 +20,6 @@ namespace Smartstore.Core.Checkout.Payment.Domain
     /// <summary>
     /// Represents a recurring payment history
     /// </summary>
-    [Index(nameof(RecurringPaymentId), Name = "IX_RecurringPaymentId")]
     public partial class RecurringPaymentHistory : BaseEntity
     {
         private readonly ILazyLoader _lazyLoader;
