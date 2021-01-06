@@ -18,16 +18,15 @@ namespace Smartstore.Core.Security
                 return query;
             }
 
-            // TODO: (mg) (core) Join AclRecord in ApplyAclFilter.
-            //var entityName = typeof(T).Name;
+            var entityName = typeof(T).Name;
 
-            //query = 
-            //    from m in query
-            //    join a in  db.AclRecord
-            //    on new { m1 = m.Id, m2 = entityName } equals new { m1 = a.EntityId, m2 = a.EntityName } into ma
-            //    from a in ma.DefaultIfEmpty()
-            //    where !m.SubjectToAcl || customerRolesIds.Contains(a.CustomerRoleId)
-            //    select m;
+            query =
+                from m in query
+                join a in db.AclRecords
+                on new { m1 = m.Id, m2 = entityName } equals new { m1 = a.EntityId, m2 = a.EntityName } into ma
+                from a in ma.DefaultIfEmpty()
+                where !m.SubjectToAcl || customerRolesIds.Contains(a.CustomerRoleId)
+                select m;
 
             return query;
         }
