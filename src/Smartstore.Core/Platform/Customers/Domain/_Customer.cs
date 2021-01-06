@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Domain;
 
@@ -19,10 +20,11 @@ namespace Smartstore.Core.Customers
         {
             // Globally exclude soft-deleted entities from all queries.
             builder.HasQueryFilter(c => !c.Deleted);
-            
-            //builder.HasMany(c => c.Addresses)
-            //    .WithMany("")
-            //    .UsingEntity(m => m.ToTable("CustomerAddresses"));
+
+            builder
+                .HasMany(c => c.Addresses)
+                .WithMany("")
+                .UsingEntity(m => m.ToTable("CustomerAddresses"));
 
             builder
                 .HasOne(c => c.BillingAddress)
@@ -242,15 +244,15 @@ namespace Smartstore.Core.Customers
             set => _shippingAddress = value;
         }
 
-        //private ICollection<Address> _addresses;
-        ///// <summary>
-        ///// Gets or sets customer addresses
-        ///// </summary>
-        //public ICollection<Address> Addresses
-        //{
-        //    get => _lazyLoader?.Load(this, ref _addresses) ?? (_addresses ??= new HashSet<Address>());
-        //    protected set => _addresses = value;
-        //}
+        private ICollection<Address> _addresses;
+        /// <summary>
+        /// Gets or sets customer addresses
+        /// </summary>
+        public ICollection<Address> Addresses
+        {
+            get => _lazyLoader?.Load(this, ref _addresses) ?? (_addresses ??= new HashSet<Address>());
+            protected set => _addresses = value;
+        }
 
         private ICollection<CustomerContent> _customerContent;
         /// <summary>
@@ -267,10 +269,20 @@ namespace Smartstore.Core.Customers
         /// Gets or sets shopping cart items
         /// </summary>
         [JsonIgnore]
-        public virtual ICollection<ShoppingCartItem> ShoppingCartItems
+        public ICollection<ShoppingCartItem> ShoppingCartItems
         {
             get => _lazyLoader?.Load(this, ref _shoppingCartItems) ?? (_shoppingCartItems ??= new HashSet<ShoppingCartItem>());
             protected set => _shoppingCartItems = value;
+        }
+
+        private ICollection<Order> _orders;
+        /// <summary>
+        /// Gets or sets orders
+        /// </summary>        
+        public ICollection<Order> Orders
+        {
+            get => _lazyLoader?.Load(this, ref _orders) ?? (_orders ??= new HashSet<Order>());
+            protected set => _orders = value;
         }
 
         #endregion
