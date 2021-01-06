@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Seo;
@@ -11,6 +12,11 @@ namespace Smartstore.Core.DependencyInjection
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<ProductService>().As<IProductService>().InstancePerLifetimeScope();
+
+            builder.RegisterType<CategoryService>()
+                .As<ICategoryService>()
+                .As<IXmlSitemapPublisher>()
+                .InstancePerLifetimeScope();
 
             builder.RegisterType<ManufacturerService>()
                 .As<IManufacturerService>()

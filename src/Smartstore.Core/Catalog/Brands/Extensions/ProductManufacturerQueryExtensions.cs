@@ -9,7 +9,7 @@ namespace Smartstore.Core.Catalog.Brands
     public static partial class ProductManufacturerQueryExtensions
     {
         /// <summary>
-        /// Applies standard filter and sorts by <see cref="Manufacturer.DisplayOrder"/>, then by <see cref="Manufacturer.Name"/>.
+        /// Applies standard filter and sorts by <see cref="Manufacturer.DisplayOrder"/>.
         /// </summary>
         /// <param name="query">Product manufacturer query.</param>
         /// <param name="customerRolesIds">Customer roles identifiers to apply filter by ACL restriction.</param>
@@ -26,21 +26,21 @@ namespace Smartstore.Core.Catalog.Brands
 
             if (storeId > 0)
             {
-                var manufacturerQuery = db.Manufacturers.ApplyStoreFilter(storeId);
+                var manufacturersQuery = db.Manufacturers.ApplyStoreFilter(storeId);
 
                 query =
                     from pm in query
-                    join m in manufacturerQuery on pm.ManufacturerId equals m.Id
+                    join m in manufacturersQuery on pm.ManufacturerId equals m.Id
                     select pm;
             }
 
             if (customerRolesIds != null)
             {
-                var manufacturerQuery = db.Manufacturers.ApplyAclFilter(customerRolesIds);
+                var manufacturersQuery = db.Manufacturers.ApplyAclFilter(customerRolesIds);
 
                 query =
                     from pm in query
-                    join m in manufacturerQuery on pm.ManufacturerId equals m.Id
+                    join m in manufacturersQuery on pm.ManufacturerId equals m.Id
                     select pm;
             }
 

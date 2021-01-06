@@ -160,31 +160,5 @@ namespace Smartstore.Core.Catalog.Categories
 
             return sb.ToString();
         }
-
-        // TODO: (mg) (core) Move GetCategoryPath extension method to category service.
-        /// <summary>
-        /// Builds a category breadcrumb (path) for a particular category node
-        /// </summary>
-        /// <param name="categoryNode">The category node</param>
-        /// <param name="languageId">The id of language. Pass <c>null</c> to skip localization.</param>
-        /// <param name="withAlias"><c>true</c> appends the category alias - if specified - to the name</param>
-        /// <param name="separator">The separator string</param>
-        /// <returns>Category breadcrumb path</returns>
-        //public static string GetCategoryPath(this ICategoryNode categoryNode,
-        //    ICategoryService categoryService,
-        //    int? languageId = null,
-        //    string aliasPattern = null,
-        //    string separator = " » ")
-        //{
-        //    Guard.NotNull(categoryNode, nameof(categoryNode));
-
-        //    var treeNode = categoryService.GetCategoryTree(categoryNode.Id, true);
-        //    if (treeNode != null)
-        //    {
-        //        return categoryService.GetCategoryPath(treeNode, languageId, aliasPattern, separator);
-        //    }
-
-        //    return string.Empty;
-        //}
     }
 }
