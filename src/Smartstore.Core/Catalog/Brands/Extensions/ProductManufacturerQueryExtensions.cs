@@ -24,6 +24,8 @@ namespace Smartstore.Core.Catalog.Brands
 
             var db = query.GetDbContext<SmartDbContext>();
 
+            // TODO: (mg) (core) Please DOUBLE-check the code here. I guess Copy&Paste error?
+
             if (storeId > 0)
             {
                 var manufacturersQuery = db.Manufacturers.ApplyStoreFilter(storeId);
