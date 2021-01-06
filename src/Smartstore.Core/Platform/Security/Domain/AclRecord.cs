@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Customers;
+using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Security
@@ -25,6 +26,7 @@ namespace Smartstore.Core.Security
     /// </summary>
     [Index(nameof(EntityId), nameof(EntityName), Name = "IX_AclRecord_EntityId_EntityName")]
     [Index(nameof(IsIdle), Name = "IX_AclRecord_IsIdle")]
+    [CacheableEntity]
     public partial class AclRecord : BaseEntity
     {
         private readonly ILazyLoader _lazyLoader;
