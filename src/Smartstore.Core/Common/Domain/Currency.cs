@@ -25,7 +25,7 @@ namespace Smartstore.Core.Common
     /// </summary>
     [Index(nameof(DisplayOrder), Name = "IX_Currency_DisplayOrder")]
     [CacheableEntity]
-    public partial class Currency : BaseEntity, IAuditable, ILocalizedEntity, IStoreRestricted, IDisplayOrder, ICloneable<Currency>
+    public partial class Currency : EntityWithAttributes, IAuditable, ILocalizedEntity, IStoreRestricted, IDisplayOrder, ICloneable<Currency>
     {
         /// <summary>
         /// Gets or sets the name

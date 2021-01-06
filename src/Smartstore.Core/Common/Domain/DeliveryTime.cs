@@ -9,7 +9,7 @@ namespace Smartstore.Core.Common
     /// Represents a delivery time
     /// </summary>
     [CacheableEntity]
-    public partial class DeliveryTime : BaseEntity, ILocalizedEntity, IDisplayOrder
+    public partial class DeliveryTime : EntityWithAttributes, ILocalizedEntity, IDisplayOrder
     {
         /// <summary>
         /// Gets or sets the name

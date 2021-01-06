@@ -21,7 +21,7 @@ namespace Smartstore.Core.Rules
     [Index(nameof(IsSubGroup), Name = "IX_IsSubGroup")]
     [Index(nameof(IsActive), nameof(Scope), Name = "IX_RuleSetEntity_Scope")]
     [CacheableEntity(MaxRows = 1, Expiry = 480)] // MaxRows = 1 caches only ById calls
-    public partial class RuleSetEntity : BaseEntity, IAuditable
+    public partial class RuleSetEntity : EntityWithAttributes, IAuditable
     {
         private readonly ILazyLoader _lazyLoader;
 

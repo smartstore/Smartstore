@@ -21,7 +21,7 @@ namespace Smartstore.Core.Common
     /// Represents a measure dimension
     /// </summary>
     [CacheableEntity]
-    public partial class MeasureDimension : BaseEntity, ILocalizedEntity, IDisplayOrder
+    public partial class MeasureDimension : EntityWithAttributes, ILocalizedEntity, IDisplayOrder
     {
         /// <summary>
         /// Gets or sets the name

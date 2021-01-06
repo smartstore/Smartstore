@@ -15,7 +15,7 @@ namespace Smartstore.Core.Security
     /// </summary>
     [Index(nameof(SystemName), Name = "IX_SystemName")]
     [CacheableEntity]
-    public partial class PermissionRecord : BaseEntity
+    public partial class PermissionRecord : EntityWithAttributes
     {
         private readonly ILazyLoader _lazyLoader;
 

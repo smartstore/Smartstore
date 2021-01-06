@@ -9,7 +9,7 @@ namespace Smartstore.Core.Catalog.Brands
     /// Represents a manufacturer template.
     /// </summary>
     [CacheableEntity]
-    public partial class ManufacturerTemplate : BaseEntity, IDisplayOrder
+    public partial class ManufacturerTemplate : EntityWithAttributes, IDisplayOrder
     {
         /// <summary>
         /// Gets or sets the template name.

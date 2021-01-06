@@ -12,7 +12,7 @@ namespace Smartstore.Core.Configuration
     [DebuggerDisplay("{Name}: {Value}")]
     [Index(nameof(Name))]
     [Index(nameof(StoreId))]
-    public partial class Setting : BaseEntity
+    public partial class Setting : EntityWithAttributes
     {
         /// <summary>
         /// Gets or sets the name

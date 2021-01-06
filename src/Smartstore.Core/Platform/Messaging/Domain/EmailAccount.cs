@@ -12,7 +12,7 @@ namespace Smartstore.Core.Messages
     /// Represents an email account.
     /// </summary>
     [CacheableEntity]
-    public partial class EmailAccount : BaseEntity, ICloneable<EmailAccount>, IMailAccount
+    public partial class EmailAccount : EntityWithAttributes, ICloneable<EmailAccount>, IMailAccount
     {
         /// <summary>
         /// Gets or sets an email address.

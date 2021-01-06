@@ -46,7 +46,7 @@ namespace Smartstore.Core.Customers
     [Index(nameof(IsSystemRole), Name = "IX_IsSystemRole")]
     [Index(nameof(SystemName), Name = "IX_SystemName")]
     [Index(nameof(SystemName), nameof(IsSystemRole), Name = "IX_CustomerRole_SystemName_IsSystemRole")]
-    public partial class CustomerRole : BaseEntity, IRulesContainer
+    public partial class CustomerRole : EntityWithAttributes, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;
 

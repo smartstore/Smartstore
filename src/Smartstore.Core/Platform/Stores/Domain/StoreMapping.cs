@@ -8,7 +8,7 @@ namespace Smartstore.Core.Stores
     /// Represents a store mapping record
     /// </summary>
     [Index(nameof(EntityId), nameof(EntityName), Name = "IX_StoreMapping_EntityId_EntityName")]
-    public partial class StoreMapping : BaseEntity
+    public partial class StoreMapping : EntityWithAttributes
     {
         /// <summary>
         /// Gets or sets the entity identifier

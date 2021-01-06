@@ -23,7 +23,7 @@ namespace Smartstore.Core.Common
         }
     }
 
-    public partial class Address : BaseEntity, ICloneable
+    public partial class Address : EntityWithAttributes, ICloneable
     {
         public Address()
         {

@@ -12,7 +12,7 @@ namespace Smartstore.Core.Messages
     [Index(nameof(Email), nameof(StoreId), Name = "IX_NewsletterSubscription_Email_StoreId")]
     [Index(nameof(Active), Name = "IX_Active")]
     [Table("NewsLetterSubscription")]
-    public partial class NewsletterSubscription : BaseEntity
+    public partial class NewsletterSubscription : EntityWithAttributes
     {
         /// <summary>
         /// Gets or sets the newsletter subscription GUID.

@@ -29,7 +29,7 @@ namespace Smartstore.Core.Localization
     [DebuggerDisplay("{LanguageCulture}")]
     [Index(nameof(DisplayOrder), Name = "IX_Language_DisplayOrder")]
     [CacheableEntity]
-    public partial class Language : BaseEntity, IStoreRestricted
+    public partial class Language : EntityWithAttributes, IStoreRestricted
     {
         private readonly ILazyLoader _lazyLoader;
 

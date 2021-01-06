@@ -33,7 +33,7 @@ namespace Smartstore.Core.Common
     /// </summary>
     [Index(nameof(DisplayOrder), Name = "IX_Country_DisplayOrder")]
     [CacheableEntity]
-    public partial class Country : BaseEntity, ILocalizedEntity, IStoreRestricted, IDisplayOrder
+    public partial class Country : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IDisplayOrder
     {
         public Country()
         {

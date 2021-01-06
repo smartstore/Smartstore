@@ -9,7 +9,7 @@ namespace Smartstore.Core.Messages
     /// <summary>
     /// Represents a campaign.
     /// </summary>
-	public partial class Campaign : BaseEntity, IStoreRestricted, IAclRestricted
+	public partial class Campaign : EntityWithAttributes, IStoreRestricted, IAclRestricted
     {
         /// <summary>
         /// Gets or sets the name.

@@ -19,7 +19,7 @@ namespace Smartstore.Core.Common
     /// Represents a measure weight
     /// </summary>
     [CacheableEntity]
-    public partial class MeasureWeight : BaseEntity, ILocalizedEntity, IDisplayOrder
+    public partial class MeasureWeight : EntityWithAttributes, ILocalizedEntity, IDisplayOrder
     {
         /// <summary>
         /// Gets or sets the name
@@ -33,7 +33,7 @@ namespace Smartstore.Core.Common
 
         /// <summary>
         /// Gets or sets the ratio
-        /// </summary>
+        /// </summary>        
         public decimal Ratio { get; set; }
 
         /// <summary>

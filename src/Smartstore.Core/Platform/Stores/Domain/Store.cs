@@ -30,7 +30,7 @@ namespace Smartstore.Core.Stores
     /// Represents a store
     /// </summary>
     [CacheableEntity]
-    public partial class Store : BaseEntity, IDisplayOrder
+    public partial class Store : EntityWithAttributes, IDisplayOrder
     {
         public Store()
         {

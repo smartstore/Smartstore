@@ -9,7 +9,7 @@ namespace Smartstore.Core.Common
     /// Represents a quantity unit
     /// </summary>
     [CacheableEntity]
-    public partial class QuantityUnit : BaseEntity, ILocalizedEntity, IDisplayOrder
+    public partial class QuantityUnit : EntityWithAttributes, ILocalizedEntity, IDisplayOrder
     {
         /// <summary>
         /// Gets or sets the name
