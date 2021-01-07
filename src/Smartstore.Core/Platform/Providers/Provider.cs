@@ -2,13 +2,6 @@
 
 namespace Smartstore.Engine.Modularity
 {
-    /// <summary>
-    /// Marker interface for a provider
-    /// </summary>
-    public interface IProvider
-    {
-    }
-
     public sealed class Provider<TProvider> where TProvider : IProvider
     {
         private readonly Lazy<TProvider, ProviderMetadata> _lazy;

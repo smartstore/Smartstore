@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using Smartstore.Services.Messages;
+using Smartstore.Core.Messages;
 
 namespace Smartstore.Core.DependencyInjection
 {
