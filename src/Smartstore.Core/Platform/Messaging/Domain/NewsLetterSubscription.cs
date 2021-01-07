@@ -17,7 +17,8 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Gets or sets the newsletter subscription GUID.
         /// </summary>
-        public Guid NewsLetterSubscriptionGuid { get; set; }
+        [Column("NewsLetterSubscriptionGuid")]
+        public Guid NewsletterSubscriptionGuid { get; set; }
 
         /// <summary>
         /// Gets or sets the subscriber email.
