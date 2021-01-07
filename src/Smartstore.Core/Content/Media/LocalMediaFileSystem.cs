@@ -10,13 +10,13 @@ namespace Smartstore.Core.Content.Media
 {
     public partial class LocalMediaFileSystem : LocalFileSystem, IMediaFileSystem
     {
-        private readonly IMediaStorageInfo _storageInfo;
+        private readonly IMediaStorageConfiguration _storageConfig;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public LocalMediaFileSystem(IMediaStorageInfo storageInfo, IHttpContextAccessor httpContextAccessor)
-            : base(storageInfo.RootPath)
+        public LocalMediaFileSystem(IMediaStorageConfiguration storageConfig, IHttpContextAccessor httpContextAccessor)
+            : base(storageConfig.RootPath)
         {
-            _storageInfo = storageInfo;
+            _storageConfig = storageConfig;
             _httpContextAccessor = httpContextAccessor;
 
             // Create required folders
@@ -32,7 +32,7 @@ namespace Smartstore.Core.Content.Media
         /// <returns>The relative path combined with the public path in an URL friendly format ('/' character for directory separator).</returns>
         protected virtual string MapPublic(string path)
         {
-            return string.IsNullOrEmpty(path) ? _storageInfo.PublicPath : WebUtility.UrlDecode(PathCombine(_storageInfo.PublicPath, path).Replace(Path.DirectorySeparatorChar, '/'));
+            return string.IsNullOrEmpty(path) ? _storageConfig.PublicPath : WebUtility.UrlDecode(PathCombine(_storageConfig.PublicPath, path).Replace(Path.DirectorySeparatorChar, '/'));
         }
 
         private IUrlHelper UrlHelper
@@ -42,7 +42,7 @@ namespace Smartstore.Core.Content.Media
 
         #region IMediaFileSystem
 
-        public bool IsCloudStorage => _storageInfo.IsCloudStorage;
+        public bool IsCloudStorage => _storageConfig.IsCloudStorage;
 
         public string MapToPublicUrl(IFile file, bool forCloud = false)
         {
@@ -73,9 +73,9 @@ namespace Smartstore.Core.Content.Media
                 }
             }
 
-            if (path.StartsWith(_storageInfo.PublicPath))
+            if (path.StartsWith(_storageConfig.PublicPath))
             {
-                return WebUtility.UrlDecode(path[_storageInfo.PublicPath.Length..]);
+                return WebUtility.UrlDecode(path[_storageConfig.PublicPath.Length..]);
             }
             else
             {
@@ -83,9 +83,9 @@ namespace Smartstore.Core.Content.Media
             } 
         }
 
-        public string PublicPath => _storageInfo.PublicPath;
+        public string PublicPath => _storageConfig.PublicPath;
 
-        public string StoragePath => _storageInfo.StoragePath;
+        public string StoragePath => _storageConfig.StoragePath;
 
         #endregion
     }

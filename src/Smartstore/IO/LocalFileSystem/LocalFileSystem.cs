@@ -122,7 +122,7 @@ namespace Smartstore.IO
         }
 
         /// <inheritdoc/>
-        public override long GetDirectorySize(string subpath, string pattern, Func<string, bool> predicate, bool deep = true)
+        public override long GetDirectorySize(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
         {
             return EnumerateEntries(subpath, pattern, deep)
                 .AsParallel()
@@ -131,7 +131,7 @@ namespace Smartstore.IO
                 .Sum(x => x.Length);
         }
 
-        public override long CountFiles(string subpath, string pattern, Func<string, bool> predicate, bool deep = true)
+        public override long CountFiles(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
         {
             return EnumerateEntries(subpath, pattern, deep)
                 .AsParallel()

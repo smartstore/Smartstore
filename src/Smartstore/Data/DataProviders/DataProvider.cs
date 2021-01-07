@@ -145,6 +145,17 @@ namespace Smartstore.Data
 
         #endregion
 
+        #region Sql
+
+        /// <summary>
+        /// Executes the given INSERT INTO sql command and returns ident of the inserted row.
+        /// </summary>
+        /// <returns>The ident / primary key value of the newly inserted row.</returns>
+        public virtual Task<int> InsertIntoAsync(string sql, params object[] parameters)
+            => throw new NotSupportedException();
+
+        #endregion
+
         #region Maintenance
 
         /// <summary>

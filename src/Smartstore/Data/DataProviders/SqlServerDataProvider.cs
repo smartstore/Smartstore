@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -73,6 +74,14 @@ namespace Smartstore.Data.DataProviders
         public override Task<decimal> GetDatabaseSizeAsync()
         {
             return Database.ExecuteScalarRawAsync<decimal>("SELECT SUM(size) / 128.0 FROM sysfiles");
+        }
+
+        public override async Task<int> InsertIntoAsync(string sql, params object[] parameters)
+        {
+            // TODO: (core) Test InsertIntoAsync with SqlServer & MySql
+            Guard.NotEmpty(sql, nameof(sql));
+            return (await Database.ExecuteQueryRawAsync<decimal>(
+                sql + "; SELECT @@IDENTITY;", parameters).FirstOrDefaultAsync()).Convert<int>();
         }
 
         protected override int? GetTableIncrementCore(string tableName)

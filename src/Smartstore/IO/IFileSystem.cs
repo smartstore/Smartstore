@@ -135,7 +135,7 @@ namespace Smartstore.IO
         /// <param name="predicate">Optional. Files not matching the predicate are excluded.</param>
         /// <param name="deep">Whether to sum up length in all subdirectories also.</param>
         /// <returns>Total length of all files.</returns>
-        long GetDirectorySize(string subpath, string pattern, Func<string, bool> predicate, bool deep = true);
+        long GetDirectorySize(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true);
 
         /// <summary>
         /// Sums the total length of all files contained within a given directory.
@@ -145,7 +145,7 @@ namespace Smartstore.IO
         /// <param name="predicate">Optional. Files not matching the predicate are excluded.</param>
         /// <param name="deep">Whether to sum up length in all subdirectories also.</param>
         /// <returns>Total length of all files.</returns>
-        Task<long> GetDirectorySizeAsync(string subpath, string pattern, Func<string, bool> predicate, bool deep = true);
+        Task<long> GetDirectorySizeAsync(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true);
 
         /// <summary>
         /// Retrieves the count of files within a path.
@@ -155,7 +155,7 @@ namespace Smartstore.IO
         /// <param name="predicate">Optional. Files not matching the predicate are excluded.</param>
         /// <param name="deep">Whether to count files in all subdirectories also</param>
         /// <returns>Total count of files.</returns>
-        long CountFiles(string subpath, string pattern, Func<string, bool> predicate, bool deep = true);
+        long CountFiles(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true);
 
         /// <summary>
         /// Retrieves the count of files within a path.
@@ -165,7 +165,7 @@ namespace Smartstore.IO
         /// <param name="predicate">Optional. Files not matching the predicate are excluded.</param>
         /// <param name="deep">Whether to count files in all subdirectories also</param>
         /// <returns>Total count of files.</returns>
-        Task<long> CountFilesAsync(string subpath, string pattern, Func<string, bool> predicate, bool deep = true);
+        Task<long> CountFilesAsync(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true);
 
         /// <summary>
         /// Enumerates the content (files and directories) in a given directory.
@@ -191,7 +191,7 @@ namespace Smartstore.IO
         /// <remarks>
         /// Results are grouped by entry type, where directories are followed by files.
         /// </remarks>
-        Task<IEnumerable<IFileEntry>> EnumerateEntriesAsync(string subpath = null, string pattern = "*", bool deep = false);
+        IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(string subpath = null, string pattern = "*", bool deep = false);
 
         /// <summary>
         /// Creates all directories and subdirectories in the specified target unless they already exist.

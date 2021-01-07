@@ -254,11 +254,6 @@ namespace Smartstore
             return obj;
         }
 
-        private static T MapReaderToScalar<T>(DbDataReader reader)
-        {
-            return reader.GetValue(0).Convert<T>();
-        }
-
         #endregion
 
         private static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(DatabaseFacade databaseFacade)

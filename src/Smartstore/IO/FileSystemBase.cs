@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 
@@ -77,21 +78,21 @@ namespace Smartstore.IO
         public abstract IEnumerable<IFileEntry> EnumerateEntries(string subpath = null, string pattern = "*", bool deep = false);
 
         /// <inheritdoc/>
-        public virtual Task<IEnumerable<IFileEntry>> EnumerateEntriesAsync(string subpath = null, string pattern = "*", bool deep = false)
-            => Task.FromResult(EnumerateEntries(subpath, pattern, deep));
+        public virtual IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(string subpath = null, string pattern = "*", bool deep = false)
+            => EnumerateEntries(subpath, pattern, deep).ToAsyncEnumerable();
 
         /// <inheritdoc/>
-        public abstract long GetDirectorySize(string subpath, string pattern, Func<string, bool> predicate, bool deep = true);
+        public abstract long GetDirectorySize(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true);
 
         /// <inheritdoc/>
-        public virtual Task<long> GetDirectorySizeAsync(string subpath, string pattern, Func<string, bool> predicate, bool deep = true)
+        public virtual Task<long> GetDirectorySizeAsync(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
             => Task.FromResult(GetDirectorySize(subpath, pattern, predicate, deep));
 
         /// <inheritdoc/>
-        public abstract long CountFiles(string subpath, string pattern, Func<string, bool> predicate, bool deep = true);
+        public abstract long CountFiles(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true);
 
         /// <inheritdoc/>
-        public virtual Task<long> CountFilesAsync(string subpath, string pattern, Func<string, bool> predicate, bool deep = true)
+        public virtual Task<long> CountFilesAsync(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
             => Task.FromResult(CountFiles(subpath, pattern, predicate, deep));
 
         /// <inheritdoc/>

@@ -10,7 +10,7 @@ using Smartstore.Engine;
 
 namespace Smartstore.Core.Content.Media
 {
-    public interface IMediaStorageInfo
+    public interface IMediaStorageConfiguration
     {
         /// <summary>
         /// Gets the public base path to the media storage used to generate URLs for output HTML.
@@ -40,7 +40,7 @@ namespace Smartstore.Core.Content.Media
         bool IsCloudStorage { get; }
     }
     
-    public class MediaStorageInfo : IMediaStorageInfo
+    public class MediaStorageConfiguration : IMediaStorageConfiguration
     {
         //// /myshop
         //private string _pathBase;
@@ -51,7 +51,7 @@ namespace Smartstore.Core.Content.Media
         private readonly IApplicationContext _appContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public MediaStorageInfo(IApplicationContext appContext, IHttpContextAccessor httpContextAccessor)
+        public MediaStorageConfiguration(IApplicationContext appContext, IHttpContextAccessor httpContextAccessor)
         {
             _appContext = appContext;
             _httpContextAccessor = httpContextAccessor;

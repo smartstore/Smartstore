@@ -105,6 +105,13 @@ namespace Smartstore.Data.DataProviders
                 GetDatabaseSizeSql(Database.GetDbConnection().Database)).FirstOrDefaultAsync())?.SizeMB ?? 0;
         }
 
+        public override async Task<int> InsertIntoAsync(string sql, params object[] parameters)
+        {
+            Guard.NotEmpty(sql, nameof(sql));
+            return (await Database.ExecuteQueryRawAsync<decimal>(
+                sql + "; SELECT LAST_INSERT_ID();", parameters).FirstOrDefaultAsync()).Convert<int>();
+        }
+
         protected override IList<string> TokenizeSqlScript(string sqlScript)
         {
             var commands = new List<string>();

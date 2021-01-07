@@ -272,9 +272,13 @@ namespace Smartstore
         /// <param name="deep">A flag to indicate whether to get the contents from just the top directory or from all sub-directories as well.</param>
         /// <returns>The list of files in the given directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
-        public static async Task<IEnumerable<IFile>> EnumerateFilesAsync(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
+        public static async IAsyncEnumerable<IFile> EnumerateFilesAsync(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
         {
-            return (await fs.EnumerateEntriesAsync(subpath, pattern, deep)).OfType<IFile>();
+            await foreach (var entry in fs.EnumerateEntriesAsync(subpath, pattern, deep))
+            {
+                if (entry is IFile file)
+                    yield return file;
+            }
         }
 
         /// <summary>
@@ -307,18 +311,22 @@ namespace Smartstore
         /// <param name="deep">A flag to indicate whether to get the contents from just the top directory or from all sub-directories as well.</param>
         /// <returns>The list of directories in the given directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
-        public static async Task<IEnumerable<IDirectory>> EnumerateDirectoriesAsync(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
+        public static async IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
         {
             if (subpath.HasValue() && !(await fs.DirectoryExistsAsync(subpath)))
             {
                 // I don't like this, but it mimics the behavior of classic Smartstore.
                 if (!(await fs.TryCreateDirectoryAsync(subpath))) 
                 {
-                    throw new FileSystemException(string.Format("The directory could not be created at path: {0}. {1}", subpath));
+                    throw new FileSystemException(string.Format("The directory could not be created at path: {0}.", subpath));
                 }
             }
 
-            return (await fs.EnumerateEntriesAsync(subpath, pattern, deep)).OfType<IDirectory>();
+            await foreach (var entry in fs.EnumerateEntriesAsync(subpath, pattern, deep))
+            {
+                if (entry is IDirectory dir)
+                    yield return dir;
+            }
         }
 
         #endregion
@@ -444,7 +452,7 @@ namespace Smartstore
         {
             await fs.TryCreateDirectoryAsync(destinationPath);
 
-            foreach (var entry in (await fs.EnumerateEntriesAsync(subpath)))
+            await foreach (var entry in fs.EnumerateEntriesAsync(subpath))
             {
                 var newPath = fs.PathCombine(destinationPath, entry.Name);
 

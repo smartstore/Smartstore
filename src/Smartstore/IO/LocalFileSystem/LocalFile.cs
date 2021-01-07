@@ -102,7 +102,7 @@ namespace Smartstore.IO
                     
                     try
                     {
-                        //// TODO: (core) Implement MimeTypes and ImageHeader
+                        //// TODO: (core) Implement ImageHeader
                         //var mime = MimeTypes.MapNameToMimeType(Name);
                         //_size = ImageHeader.GetDimensions(OpenRead(), mime, false);
                     }

@@ -54,6 +54,7 @@ namespace Smartstore.Core
             builder.RegisterModule(new LoggingModule());
             builder.RegisterModule(new SettingsModule());
             builder.RegisterModule(new LocalizationModule());
+            builder.RegisterModule(new MediaModule(appContext.TypeScanner));
 
             if (appContext.IsInstalled)
             {
@@ -65,7 +66,6 @@ namespace Smartstore.Core
                 builder.RegisterModule(new MessagingModule());
                 builder.RegisterModule(new CatalogModule());
                 builder.RegisterModule(new CheckoutModule());
-                builder.RegisterModule(new MediaModule(appContext.TypeScanner));
             }
         }
     }
