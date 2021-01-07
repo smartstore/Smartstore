@@ -87,7 +87,7 @@ namespace Smartstore.Core.Checkout.Shipping
                 return base.ConvertTo(culture, format, value, to);
             }
             
-            if (value != null and (ShippingOption or IList<ShippingOption>))
+            if (value is not null and (ShippingOption or IList<ShippingOption>))
             {
                 var sb = new StringBuilder();
                 using var writer = new StringWriter(sb);

@@ -11,7 +11,7 @@ namespace Smartstore.Core.Checkout.Cart
     public static class ShoppingCartExtensions
     {
         /// <summary>
-        /// Indicates whether the shopping cart requires shipping
+        /// Checks whether the shopping cart requires shipping
         /// </summary>
         /// <returns>
         /// <c>true</c> if any product requires shipping
