@@ -18,7 +18,8 @@ namespace Smartstore.Core.Catalog.Categories
         /// A value indicating whether to delete existing ACL restrictions.</param>
         /// <param name="categoriesOnly">Reserved for future use. 
         /// A value indicating whether to assign ACL restrictions only to categories.</param>
-        Task InheritAclIntoChildrenAsync(
+        /// <returns>Number of affected categories and products.</returns>
+        Task<(int AffectedCategories, int AffectedProducts)> InheritAclIntoChildrenAsync(
             int categoryId,
             bool touchProductsWithMultipleCategories = false,
             bool touchExistingAcls = false,
@@ -34,7 +35,8 @@ namespace Smartstore.Core.Catalog.Categories
         /// A value indicating whether to delete existing store restrictions.</param>
         /// <param name="categoriesOnly">Reserved for future use.
         /// A value indicating whether to assign store restrictions only to categories.</param>
-        Task InheritStoresIntoChildrenAsync(
+        /// <returns>Number of affected categories and products.</returns>
+        Task<(int AffectedCategories, int AffectedProducts)> InheritStoresIntoChildrenAsync(
             int categoryId,
             bool touchProductsWithMultipleCategories = false,
             bool touchExistingAcls = false,

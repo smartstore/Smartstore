@@ -12,6 +12,8 @@ namespace Smartstore.Core.Security
             Guard.NotNull(query, nameof(query));
             Guard.NotNull(customerRolesIds, nameof(customerRolesIds));
 
+            // TODO: (core) Find a way to make ApplyAclFilter to work in cross-context scenarios.
+
             var db = query.GetDbContext<SmartDbContext>();
             if (!customerRolesIds.Any() || db.QuerySettings.IgnoreAcl)
             {
@@ -27,6 +29,15 @@ namespace Smartstore.Core.Security
                 from a in ma.DefaultIfEmpty()
                 where !m.SubjectToAcl || customerRolesIds.Contains(a.CustomerRoleId)
                 select m;
+
+            // TODO: (core) Does not work with efcore5 anymore 
+            //query = query.Distinct();
+
+            //// Does not work anymore in efcore
+            //query = from c in query
+            //        group c by c.Id into cGroup
+            //        orderby cGroup.Key
+            //        select cGroup.FirstOrDefault();
 
             return query;
         }
