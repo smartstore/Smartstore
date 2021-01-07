@@ -13,10 +13,14 @@ namespace Smartstore.Core.Catalog.Categories
     public class CategoryHook : AsyncDbSaveHook<Category>
     {
         private readonly SmartDbContext _db;
+        private readonly ICategoryService _categoryService;
 
-        public CategoryHook(SmartDbContext db)
+        public CategoryHook(
+            SmartDbContext db,
+            ICategoryService categoryService)
         {
             _db = db;
+            _categoryService = categoryService;
         }
 
         protected override Task<HookResult> OnInsertedAsync(Category entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -74,7 +78,7 @@ namespace Smartstore.Core.Catalog.Categories
 
             foreach (var category in modifiedCategories)
             {
-                var valid = await IsValidateCategoryHierarchy(category.Id, category.ParentCategoryId);
+                var valid = await IsValidCategoryHierarchy(category.Id, category.ParentCategoryId);
                 if (!valid)
                 {
                     invalidCategoryIds.Add(category.Id);
@@ -89,22 +93,21 @@ namespace Smartstore.Core.Catalog.Categories
             }
         }
 
-        private async Task<List<int>> GetSubCategoryIds(IEnumerable<int> categoryIds)
+        private async Task<IEnumerable<int>> GetSubCategoryIds(IEnumerable<int> categoryIds)
         {
-            // TODO: (mg) (core) (perf) Subcategory ids can be obtained via ICatgoryService.GetCategoryTreeAsync() significantly faster.
+            var result = new HashSet<int>();
             var ids = categoryIds.Distinct().ToArray();
 
-            if (ids.Any())
+            foreach (var id in ids)
             {
-                var subCategoryIds = await _db.Categories
-                    .Where(x => ids.Contains(x.ParentCategoryId))
-                    .Select(x => x.Id)
-                    .ToListAsync();
-
-                return subCategoryIds;
+                var tree = await _categoryService.GetCategoryTreeAsync(id, true);
+                if (tree?.HasChildren ?? false)
+                {
+                    result.AddRange(tree.Children.Select(x => x.Value.Id));
+                }
             }
 
-            return new List<int>();
+            return result;
         }
 
         private async Task SoftDeleteCategories(IEnumerable<int> categoryIds, bool softDelete)
@@ -127,7 +130,7 @@ namespace Smartstore.Core.Catalog.Categories
             await SoftDeleteCategories(subCategoryIds, softDelete);
         }
 
-        private async Task<bool> IsValidateCategoryHierarchy(int categoryId, int parentCategoryId)
+        private async Task<bool> IsValidCategoryHierarchy(int categoryId, int parentCategoryId)
         {
             var parent = await _db.Categories
                 .Where(x => x.Id == parentCategoryId)
