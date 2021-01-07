@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
-using Smartstore.Core.Content.Media.Imaging.Impl.ImageSharp;
+using Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Data;
 using Smartstore.Engine;
@@ -50,7 +50,7 @@ namespace Smartstore.Core.DependencyInjection
             //builder.RegisterType<DownloadService>().As<IDownloadService>().InstancePerRequest();
 
             // ImageSharp adapter factory
-            builder.RegisterType<ImageSharpImageFactory>().As<IImageFactory>().SingleInstance();
+            builder.RegisterType<SharpImageFactory>().As<IImageFactory>().SingleInstance();
 
             builder.RegisterType<ImageCache>().As<IImageCache>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultImageProcessor>().As<IImageProcessor>().InstancePerLifetimeScope();

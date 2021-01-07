@@ -2,9 +2,9 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Smartstore.Core.Content.Media.Imaging.Impl.ImageSharp
+namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
 {
-    public class ImageSharpImageFactory : IImageFactory
+    public class SharpImageFactory : IImageFactory
     {
         public bool IsSupportedImage(string extension)
         {
