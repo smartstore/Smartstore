@@ -52,9 +52,10 @@ namespace Smartstore.Core
         {
             builder.RegisterModule(new CommonModule());
             builder.RegisterModule(new LoggingModule());
+            builder.RegisterModule(new ProvidersModule(appContext));
             builder.RegisterModule(new SettingsModule());
             builder.RegisterModule(new LocalizationModule());
-            builder.RegisterModule(new MediaModule(appContext.TypeScanner));
+            builder.RegisterModule(new MediaModule(appContext));
 
             if (appContext.IsInstalled)
             {

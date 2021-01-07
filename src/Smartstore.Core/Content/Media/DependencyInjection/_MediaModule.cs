@@ -19,11 +19,11 @@ namespace Smartstore.Core.DependencyInjection
 {
     public class MediaModule : Autofac.Module
     {
-        private readonly ITypeScanner _typeScanner;
+        private readonly IApplicationContext _appContext;
 
-        public MediaModule(ITypeScanner typeScanner)
+        public MediaModule(IApplicationContext appContext)
         {
-            _typeScanner = typeScanner;
+            _appContext = appContext;
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -70,7 +70,7 @@ namespace Smartstore.Core.DependencyInjection
             }
 
             // Register all album providers
-            var albumProviderTypes = _typeScanner.FindTypes<IAlbumProvider>(ignoreInactiveModules: true);
+            var albumProviderTypes = _appContext.TypeScanner.FindTypes<IAlbumProvider>(ignoreInactiveModules: true);
             foreach (var type in albumProviderTypes)
             {
                 builder.RegisterType(type).As<IAlbumProvider>().Keyed<IAlbumProvider>(type).InstancePerLifetimeScope();
