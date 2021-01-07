@@ -11,16 +11,16 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Gets or sets a customer
         /// </summary>
-        public Customer Customer { get; set; }
+        public Customer Customer { get; init; }
 
         /// <summary>
         /// Gets or sets an address
         /// </summary>
-        public Address Address { get; set; }
+        public Address Address { get; init; }
 
         /// <summary>
         /// Gets or sets a tax category identifier
         /// </summary>
-        public int TaxCategoryId { get; set; }
+        public int TaxCategoryId { get; init; }
     }
 }

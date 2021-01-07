@@ -15,7 +15,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// </summary>
         public static bool ShouldHaveValues(this CheckoutAttribute attribute)
         {
-            return attribute is not null
+            return attribute != null
                 && attribute.AttributeControlType is not AttributeControlType.TextBox
                 or AttributeControlType.MultilineTextbox
                 or AttributeControlType.Datepicker

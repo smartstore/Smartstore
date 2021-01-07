@@ -49,15 +49,11 @@ namespace Smartstore.Core.Checkout.Shipping
             _forList = forList;
         }
 
-        public override bool CanConvertFrom(Type type)
-        {
-            return type == typeof(string);
-        }
+        public override bool CanConvertFrom(Type type) 
+            => type == typeof(string);
 
-        public override bool CanConvertTo(Type type)
-        {
-            return type == typeof(string);
-        }
+        public override bool CanConvertTo(Type type) 
+            => type == typeof(string);
 
         public override object ConvertFrom(CultureInfo culture, object value)
         {
@@ -91,7 +87,7 @@ namespace Smartstore.Core.Checkout.Shipping
                 return base.ConvertTo(culture, format, value, to);
             }
             
-            if (value != null && (value is ShippingOption || value is IList<ShippingOption>))
+            if (value != null and (ShippingOption or IList<ShippingOption>))
             {
                 var sb = new StringBuilder();
                 using var writer = new StringWriter(sb);

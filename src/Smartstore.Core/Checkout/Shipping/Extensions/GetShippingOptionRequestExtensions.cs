@@ -16,7 +16,7 @@ namespace Smartstore.Core.Checkout.Shipping.Extensions
             Guard.NotNull(request, nameof(request));
 
             return request.OrganizedItems
-                .Where(x => x.Item.Product is not null)
+                .Where(x => x.Item.Product != null)
                 .Select(x => x.Item.Quantity * x.Item.Product.Width)
                 .Sum();
         }
@@ -30,7 +30,7 @@ namespace Smartstore.Core.Checkout.Shipping.Extensions
             Guard.NotNull(request, nameof(request));
 
             return request.OrganizedItems
-                .Where(x => x.Item.Product is not null)
+                .Where(x => x.Item.Product != null)
                 .Select(x => x.Item.Quantity * x.Item.Product.Length)
                 .Sum();
         }
@@ -44,7 +44,7 @@ namespace Smartstore.Core.Checkout.Shipping.Extensions
             Guard.NotNull(request, nameof(request));
 
             return request.OrganizedItems
-                .Where(x => x.Item.Product is not null)
+                .Where(x => x.Item.Product != null)
                 .Select(x => x.Item.Quantity * x.Item.Product.Height)
                 .Sum();
         }

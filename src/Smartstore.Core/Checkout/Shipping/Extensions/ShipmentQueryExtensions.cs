@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
+    /// <summary>
+    /// Shipment query extensions
+    /// </summary>
     public static class ShipmentQueryExtensions
     {
         /// <summary>

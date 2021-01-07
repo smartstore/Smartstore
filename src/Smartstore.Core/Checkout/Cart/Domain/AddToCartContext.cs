@@ -4,6 +4,9 @@ using Smartstore.Core.Customers;
 
 namespace Smartstore.Core.Checkout.Cart
 {
+    /// <summary>
+    /// Represents a context of adding to the shopping cart
+    /// </summary>
     public class AddToCartContext
     {
         /// <summary>

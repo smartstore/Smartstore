@@ -21,6 +21,7 @@ namespace Smartstore.Core.Customers
             // Globally exclude soft-deleted entities from all queries.
             builder.HasQueryFilter(c => !c.Deleted);
 
+            // TODO: (ms) (core) Implement this correctly, did cause ArgumentExeption 'inverseName cannot be empty'
             //builder
             //    .HasMany(c => c.Addresses)
             //    .WithMany("")

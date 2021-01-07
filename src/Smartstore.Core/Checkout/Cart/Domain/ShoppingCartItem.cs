@@ -156,13 +156,13 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         [NotMapped]
         public bool IsShippingEnabled 
-            => Product is not null && Product.IsShippingEnabled;
+            => Product != null && Product.IsShippingEnabled;
 
         /// <summary>
         /// Gets a value indicating whether the shopping cart item is tax exempt
         /// </summary>
         [NotMapped]
         public bool IsTaxExempt 
-            => Product is not null && Product.IsTaxExempt;
+            => Product != null && Product.IsTaxExempt;
     }
 }

@@ -4,7 +4,7 @@ using Smartstore.Core.Checkout.GiftCards;
 
 namespace Smartstore.Core.DependencyInjection
 {
-    public sealed class CheckoutModule : Autofac.Module
+    public sealed class CheckoutModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
