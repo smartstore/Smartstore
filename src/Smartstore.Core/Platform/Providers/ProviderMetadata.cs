@@ -63,7 +63,7 @@ namespace Smartstore.Engine.Modularity
         /// Gets or sets the setting key pattern for user data (e.g. DisplayOrder)
         /// </summary>
         /// <example>
-        /// Plugins.{0}.{1} > 0 = provider system name, 1 = propertyname
+        /// Plugind.{0}.{1} > 0 = provider system name, 1 = propertyname
         /// </example>
         public string SettingKeyPattern { get; set; }
 

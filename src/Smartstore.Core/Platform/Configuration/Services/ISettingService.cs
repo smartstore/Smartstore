@@ -35,6 +35,17 @@ namespace Smartstore.Core.Configuration
         /// <param name="storeId">Store identifier</param>
         /// <param name="doFallback">A value indicating whether a shared (for all stores) value should be loaded if a value specific for a certain store is not found</param>
         /// <returns>Setting value</returns>
+        T GetSettingByKey<T>(string key, T defaultValue = default, int storeId = 0, bool doFallback = false);
+
+        /// <summary>
+        /// Get setting value by key
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="key">Key</param>
+        /// <param name="defaultValue">Default value</param>
+        /// <param name="storeId">Store identifier</param>
+        /// <param name="doFallback">A value indicating whether a shared (for all stores) value should be loaded if a value specific for a certain store is not found</param>
+        /// <returns>Setting value</returns>
         Task<T> GetSettingByKeyAsync<T>(string key, T defaultValue = default, int storeId = 0, bool doFallback = false);
 
         /// <summary>

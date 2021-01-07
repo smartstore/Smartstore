@@ -47,5 +47,14 @@ namespace Smartstore.Engine.Modularity
             get => "Smartstore.PseudoModule";
             set => _resourceRootKey = value;
         }
+
+        /// <summary>
+        /// Builds a setting key. Pattern: "PluginSetting.{ModuleSystemName}.{SettingName}"
+        /// </summary>
+        public string GetSettingKey(string name)
+        {
+            // Compat: DON'T change Plugin > Module
+            return "PluginSetting.{0}.{1}".FormatWith(SystemName, name);
+        }
     }
 }

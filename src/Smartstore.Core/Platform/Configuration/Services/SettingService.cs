@@ -88,6 +88,23 @@ namespace Smartstore.Core.Configuration
         }
 
         /// <inheritdoc/>
+        public virtual T GetSettingByKey<T>(string key, T defaultValue = default, int storeId = 0, bool doFallback = false)
+        {
+            Guard.NotEmpty(key, nameof(key));
+
+            var cachedSetting = GetCachedSetting(key, storeId);
+
+            if (doFallback && cachedSetting.Id == 0 && storeId > 0)
+            {
+                cachedSetting = GetCachedSetting(key, 0);
+            }
+
+            return cachedSetting.Id > 0
+                ? cachedSetting.Value.Convert<T>()
+                : defaultValue;
+        }
+
+        /// <inheritdoc/>
         public virtual async Task<T> GetSettingByKeyAsync<T>(string key, T defaultValue = default, int storeId = 0, bool doFallback = false)
         {
             Guard.NotEmpty(key, nameof(key));
@@ -102,6 +119,26 @@ namespace Smartstore.Core.Configuration
             return cachedSetting.Id > 0
                 ? cachedSetting.Value.Convert<T>()
                 : defaultValue;
+        }
+
+        private CachedSetting GetCachedSetting(string key, int storeId)
+        {
+            var cacheKey = BuildCacheKeyForRawAccess(key, storeId);
+
+            var cachedSetting = _cache.Get(cacheKey, o =>
+            {
+                o.ExpiresIn(DefaultExpiry);
+
+                var setting = _setSettings.AsNoTracking().FirstOrDefault(x => x.Name == key && x.StoreId == storeId);
+                return new CachedSetting
+                {
+                    Id = setting?.Id ?? 0,
+                    StoreId = storeId,
+                    Value = setting?.Value
+                };
+            }, independent: true, allowRecursion: true);
+
+            return cachedSetting;
         }
 
         private async Task<CachedSetting> GetCachedSettingAsync(string key, int storeId)

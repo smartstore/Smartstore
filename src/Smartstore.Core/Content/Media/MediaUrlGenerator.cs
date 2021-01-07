@@ -55,7 +55,7 @@ namespace Smartstore.Core.Content.Media
 
             _host = _host.EmptyNull().EnsureEndsWith('/');
             _pathBase = pathBase.EnsureEndsWith('/');
-            _fallbackImageFileName = settingService.GetSettingByKeyAsync("Media.DefaultImageName", "default-image.png").Await();
+            _fallbackImageFileName = settingService.GetSettingByKey("Media.DefaultImageName", "default-image.png");
         }
 
         public static string FallbackImagesRootPath => _fallbackImagesRootPath;

@@ -82,7 +82,7 @@ namespace Smartstore.Core.DependencyInjection
 
         private static Func<IMediaStorageProvider> MediaStorageProviderFactory(IComponentContext c)
         {
-            var systemName = c.Resolve<ISettingService>().GetSettingByKeyAsync("Media.Storage.Provider", FileSystemMediaStorageProvider.SystemName).Await();
+            var systemName = c.Resolve<ISettingService>().GetSettingByKey("Media.Storage.Provider", FileSystemMediaStorageProvider.SystemName);
             var provider = c.Resolve<IProviderManager>().GetProvider<IMediaStorageProvider>(systemName);
             return () => provider.Value;
         }
