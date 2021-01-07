@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
-using Smartstore.Core.Messages;
 using Smartstore.Data.Hooks;
 
-namespace Smartstore.Services.Messages
+namespace Smartstore.Core.Messages
 {
     [Important]
     public partial class EmailAccountService : AsyncDbSaveHook<EmailAccount>, IEmailAccountService

@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Smartstore.Core.Messages;
 
-namespace Smartstore.Services.Messages
+namespace Smartstore.Core.Messages
 {
     public partial interface IEmailAccountService
     {

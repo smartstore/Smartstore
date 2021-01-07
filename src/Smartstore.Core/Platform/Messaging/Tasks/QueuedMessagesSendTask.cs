@@ -1,13 +1,11 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Smartstore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Scheduling;
-using Smartstore.Core.Messages;
 using Microsoft.EntityFrameworkCore;
 
-namespace Smartstore.Services.Messages.Tasks
+namespace Smartstore.Core.Messages.Tasks
 {
     /// <summary>
     /// A task that periodically send queued messages.

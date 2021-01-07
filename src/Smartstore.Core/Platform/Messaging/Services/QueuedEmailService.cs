@@ -8,11 +8,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messages;
 using Smartstore.Data.Batching;
 using Smartstore.Net.Mail;
 
-namespace Smartstore.Services.Messages
+namespace Smartstore.Core.Messages
 {
     public partial class QueuedEmailService : IQueuedEmailService
     {
