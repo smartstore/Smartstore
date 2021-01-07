@@ -91,6 +91,7 @@ namespace Smartstore.Core.Catalog.Categories
 
         private async Task<List<int>> GetSubCategoryIds(IEnumerable<int> categoryIds)
         {
+            // TODO: (mg) (core) (perf) Subcategory ids can be obtained via ICatgoryService.GetCategoryTreeAsync() significantly faster.
             var ids = categoryIds.Distinct().ToArray();
 
             if (ids.Any())
