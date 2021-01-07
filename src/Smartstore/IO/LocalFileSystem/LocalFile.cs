@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.IO.SymLinks;
 
@@ -121,9 +122,11 @@ namespace Smartstore.IO
             => _fi.IsSymbolicLink(out finalPhysicalPath);
 
         Stream IFileInfo.CreateReadStream()
-        {
-            return OpenRead();
-        }
+            => OpenRead();
+
+        /// <inheritdoc/>
+        public Task<Stream> OpenReadAsync()
+            => Task.FromResult(OpenRead());
 
         /// <inheritdoc/>
         public Stream OpenRead()

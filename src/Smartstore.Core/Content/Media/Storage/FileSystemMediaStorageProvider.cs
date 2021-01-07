@@ -88,6 +88,14 @@ namespace Smartstore.Core.Content.Media.Storage
             return mediaFile.Size;
         }
 
+        public Stream OpenRead(MediaFile mediaFile)
+        {
+            Guard.NotNull(mediaFile, nameof(mediaFile));
+
+            var file = _fileSystem.GetFile(GetPath(mediaFile));
+            return file.Exists ? file.OpenRead() : null;
+        }
+
         public async Task<Stream> OpenReadAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));

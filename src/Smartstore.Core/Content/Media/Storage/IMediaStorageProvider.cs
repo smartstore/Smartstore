@@ -29,6 +29,12 @@ namespace Smartstore.Core.Content.Media.Storage
         /// Opens the media item for reading
         /// </summary>
         /// <param name="mediaFile">Media file item</param>
+        Stream OpenRead(MediaFile mediaFile);
+
+        /// <summary>
+        /// Opens the media item for reading
+        /// </summary>
+        /// <param name="mediaFile">Media file item</param>
         Task<Stream> OpenReadAsync(MediaFile mediaFile);
 
         /// <summary>

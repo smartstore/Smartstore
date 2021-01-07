@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Smartstore.IO
 {
@@ -30,6 +31,12 @@ namespace Smartstore.IO
         /// </summary>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exist.</exception>
         Stream OpenRead();
+
+        /// <summary>
+        /// Creates a stream for reading from the file.
+        /// </summary>
+        /// <exception cref="FileNotFoundException">Thrown if the file does not exist.</exception>
+        Task<Stream> OpenReadAsync();
 
         /// <summary>
         /// Creates a stream for writing to the file. If the directory does not exist, it will be created.

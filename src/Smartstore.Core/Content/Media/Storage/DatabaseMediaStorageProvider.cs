@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -9,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Data;
 using Smartstore.Engine.Modularity;
-using Smartstore.Threading;
 
 namespace Smartstore.Core.Content.Media.Storage
 {
@@ -63,7 +61,7 @@ namespace Smartstore.Core.Content.Media.Storage
             }
         }
 
-        public Task<Stream> OpenReadAsync(MediaFile mediaFile)
+        public Stream OpenRead(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -71,16 +69,19 @@ namespace Smartstore.Core.Content.Media.Storage
             {
                 if (mediaFile.MediaStorageId > 0)
                 {
-                    return Task.FromResult(OpenBlobStream(mediaFile.MediaStorageId.Value));
+                    return OpenBlobStream(mediaFile.MediaStorageId.Value);
                 }
 
-                return Task.FromResult<Stream>(null);
+                return null;
             }
             else
             {
-                return Task.FromResult(mediaFile.MediaStorage?.Data?.ToStream());
+                return mediaFile.MediaStorage?.Data?.ToStream();
             }
         }
+
+        public Task<Stream> OpenReadAsync(MediaFile mediaFile)
+            => Task.FromResult<Stream>(OpenRead(mediaFile));
 
         public async Task<byte[]> LoadAsync(MediaFile mediaFile)
         {
