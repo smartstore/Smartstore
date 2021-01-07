@@ -2,6 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Smartstore.Core.Customers;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
@@ -31,6 +34,17 @@ namespace Smartstore.Core.Logging
     [CacheableEntity(NeverCache = true)]
     public partial class Log : BaseEntity
     {
+        private readonly ILazyLoader _lazyLoader;
+
+        public Log()
+        {
+        }
+
+        public Log(ILazyLoader lazyLoader)
+        {
+            _lazyLoader = lazyLoader;
+        }
+
         /// <summary>
         /// Gets or sets the log level identifier
         /// </summary>
@@ -100,14 +114,18 @@ namespace Smartstore.Core.Logging
         [NotMapped]
         public LogLevel LogLevel
         {
-            get => (LogLevel)this.LogLevelId;
-            set => this.LogLevelId = (int)value;
+            get => (LogLevel)LogLevelId;
+            set => LogLevelId = (int)value;
         }
 
-        //// TODO: (core) Add "Customer" nav property to "Log" entity.
-        ///// <summary>
-        ///// Gets or sets the customer
-        ///// </summary>
-        //public virtual Customer Customer { get; set; }
+        private Customer _customer;
+        /// <summary>
+        /// Gets or sets the customer
+        /// </summary>
+        public Customer Customer 
+        {
+            get => _lazyLoader?.Load(this, ref _customer) ?? _customer;
+            set => _customer = value;
+        }
     }
 }
