@@ -45,7 +45,7 @@ namespace Smartstore.Core.DependencyInjection
             builder.RegisterType<AlbumRegistry>().As<IAlbumRegistry>().InstancePerLifetimeScope();
             builder.RegisterType<FolderService>().As<IFolderService>().InstancePerLifetimeScope();
             //builder.RegisterType<MediaTracker>().As<IMediaTracker>().InstancePerRequest();
-            //builder.RegisterType<MediaSearcher>().As<IMediaSearcher>().InstancePerRequest();
+            builder.RegisterType<MediaSearcher>().As<IMediaSearcher>().InstancePerLifetimeScope();
             //builder.RegisterType<MediaService>().As<IMediaService>().InstancePerRequest();
             //builder.RegisterType<DownloadService>().As<IDownloadService>().InstancePerRequest();
 

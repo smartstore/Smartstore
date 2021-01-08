@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using Smartstore.IO;
+using System.Threading.Tasks;
 
 namespace Smartstore
 {
@@ -31,7 +32,7 @@ namespace Smartstore
             return new SeekableReadOnlyStream(stream, (int)stream.Length);
         }
 
-        public static bool ToFile(this Stream srcStream, string path) 
+        public static async Task<bool> ToFileAsync(this Stream srcStream, string path) 
         {
 			if (srcStream == null)
 				return false;
@@ -43,12 +44,12 @@ namespace Smartstore
 
 			try 
             {
-                using (dstStream = File.Open(path, FileMode.Create))
+                await using (dstStream = File.Open(path, FileMode.Create))
                 {
 					int len;
-                    while ((len = srcStream.Read(buffer, 0, BuffSize)) > 0)
+                    while ((len = await srcStream.ReadAsync(buffer, 0, BuffSize)) > 0)
                     {
-                        dstStream.Write(buffer, 0, len);
+                        await dstStream.WriteAsync(buffer, 0, len);
                     }
 				}
             }
@@ -61,14 +62,14 @@ namespace Smartstore
 				if (dstStream != null)
 				{
 					dstStream.Close();
-					dstStream.Dispose();
+					await dstStream.DisposeAsync();
 				}
 			}
 
 			return (result && File.Exists(path));
 		}
 
-        public static bool ContentsEqual(this Stream src, Stream other, bool? forceLengthCompare = null) 
+        public static async Task<bool> ContentsEqualAsync(this Stream src, Stream other, bool? forceLengthCompare = null) 
         {
 			if (src == null)
 				throw new ArgumentNullException(nameof(src));
@@ -101,8 +102,8 @@ namespace Smartstore
             
             while (true)
             {
-                int len1 = src.Read(buffer1, 0, bufferSize);
-                int len2 = other.Read(buffer2, 0, bufferSize);
+                int len1 = await src.ReadAsync(buffer1, 0, bufferSize);
+                int len2 = await other.ReadAsync(buffer2, 0, bufferSize);
 
 				if (len1 != len2)
                     return false;

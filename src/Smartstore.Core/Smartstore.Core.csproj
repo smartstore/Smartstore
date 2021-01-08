@@ -27,7 +27,6 @@
     <Folder Include="Content\Media\Events\" />
     <Folder Include="Content\Media\Handlers\" />
     <Folder Include="Content\Media\Tasks\" />
-    <Folder Include="Content\Media\Search\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +42,8 @@
     <PackageReference Include="Serilog.Sinks.Async" Version="1.4.0" />
     <PackageReference Include="Serilog.Sinks.Map" Version="1.0.1" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.6" />
   </ItemGroup>
 
   <ItemGroup>

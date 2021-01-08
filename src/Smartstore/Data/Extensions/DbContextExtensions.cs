@@ -81,12 +81,13 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Change the state of an entity object
+        /// Changes the state of an entity object when requested state differs.
         /// </summary>
         /// <typeparam name="TEntity">Type of entity</typeparam>
         /// <param name="entity">The entity instance</param>
         /// <param name="requestedState">The requested new state</param>
-        public static void ChangeState<TEntity>(this HookingDbContext ctx, TEntity entity, EfState requestedState) where TEntity : BaseEntity
+        /// <returns><c>true</c> if the state has been changed, <c>false</c> if current state did not differ from <paramref name="requestedState"/>.</returns>
+        public static bool TryChangeState<TEntity>(this HookingDbContext ctx, TEntity entity, EfState requestedState) where TEntity : BaseEntity
         {
             //Console.WriteLine("ChangeState ORIGINAL");
             var entry = ctx.Entry(entity);
@@ -97,7 +98,11 @@ namespace Smartstore
                 // because EF internally sets all properties to modified
                 // if necessary, even when requested state equals current state.
                 entry.State = requestedState;
+
+                return true;
             }
+
+            return false;
         }
 
         /// <summary>
