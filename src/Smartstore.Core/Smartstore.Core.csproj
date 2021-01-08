@@ -24,7 +24,6 @@
     <Folder Include="Catalog\Attributes\Services\" />
     <Folder Include="Checkout\Cart\Rules\" />
     <Folder Include="Checkout\Shipping\Tracking\" />
-    <Folder Include="Content\Media\Events\" />
     <Folder Include="Content\Media\Handlers\" />
     <Folder Include="Content\Media\Tasks\" />
   </ItemGroup>

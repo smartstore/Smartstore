@@ -10,20 +10,22 @@ namespace Smartstore.Core.Content.Media.Imaging
     public enum ResizeMode
     {
         /// <summary>
+        /// Crops the resized image to fit the bounds of its container.
+        /// </summary>
+        Crop,
+
+        /// <summary>
         /// Pads the resized image to fit the bounds of its container.
         /// If only one dimension is passed, will maintain the original aspect ratio.
         /// </summary>
         Pad,
 
         /// <summary>
-        /// Stretches the resized image to fit the bounds of its container.
+        /// Pads the image to fit the bound of the container without resizing the
+        /// original source.
+        /// When downscaling, performs the same functionality as <see cref="Pad"/>
         /// </summary>
-        Stretch,
-
-        /// <summary>
-        /// Crops the resized image to fit the bounds of its container.
-        /// </summary>
-        Crop,
+        BoxPad,
 
         /// <summary>
         /// Constrains the resized image to fit the bounds of its container maintaining
@@ -33,16 +35,20 @@ namespace Smartstore.Core.Content.Media.Imaging
 
         /// <summary>
         /// Resizes the image until the shortest side reaches the set given dimension.
-        /// Sets <see cref="ResizeLayer.Upscale"/> to <c>false</c> only allowing downscaling.
+        /// Upscaling is disabled in this mode and the original image will be returned
+        /// if attempted.
         /// </summary>
         Min,
 
         /// <summary>
-        /// Pads the image to fit the bound of the container without resizing the 
-        /// original source. Sets <see cref="ResizeLayer.Upscale"/> to <c>true</c>.
-        /// When downscaling, performs the same functionality as <see cref="ResizeMode.Pad"/>
+        /// Stretches the resized image to fit the bounds of its container.
         /// </summary>
-        BoxPad
+        Stretch,
+
+        /// <summary>
+        /// The target location and size of the resized image has been manually set.
+        /// </summary>
+        Manual
     }
 
     /// <summary>
@@ -131,15 +137,15 @@ namespace Smartstore.Core.Content.Media.Imaging
 
         /// <summary>
         /// Returns a value that indicates whether the specified object is an 
-        /// <see cref="ResizeLayer"/> object that is equivalent to 
-        /// this <see cref="ResizeLayer"/> object.
+        /// <see cref="ResizeOptions"/> object that is equivalent to 
+        /// this <see cref="ResizeOptions"/> object.
         /// </summary>
         /// <param name="obj">
         /// The object to test.
         /// </param>
         /// <returns>
-        /// True if the given object  is an <see cref="ResizeLayer"/> object that is equivalent to 
-        /// this <see cref="ResizeLayer"/> object; otherwise, false.
+        /// True if the given object  is an <see cref="ResizeOptions"/> object that is equivalent to 
+        /// this <see cref="ResizeOptions"/> object; otherwise, false.
         /// </returns>
         public override bool Equals(object obj)
         {

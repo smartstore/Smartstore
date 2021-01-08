@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {
@@ -10,14 +9,19 @@ namespace Smartstore.Core.Content.Media.Imaging
     public interface IImageInfo
     {
         /// <summary>
-        /// Gets width and height.
+        /// Image width.
         /// </summary>
-        Size Size { get; }
+        int Width { get; }
+
+        /// <summary>
+        /// Image width.
+        /// </summary>
+        int Height { get; }
 
         /// <summary>
         /// Gets the color depth in number of bits per pixel (1, 4, 8, 16, 24, 32)
         /// </summary>
-        BitDepth BitDepth { get; }
+        byte BitDepth { get; }
 
         /// <summary>
         /// Gets the format of the image.

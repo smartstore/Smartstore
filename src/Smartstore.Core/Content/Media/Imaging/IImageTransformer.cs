@@ -6,10 +6,13 @@ namespace Smartstore.Core.Content.Media.Imaging
     public interface IImageTransformer
     {
         /// <summary>
-        /// Changes the opacity of the current image.
+        /// Multiplies the alpha component of the image.
         /// </summary>
-        /// <param name="percentage">The percentage by which to alter the images opacity. Any integer between 0 and 100.</param>
-        IImageTransformer Alpha(int percentage);
+        /// <param name="amount">The proportion of the conversion. Must be between 0 and 1.</param>
+        /// <param name="rectangle">
+        /// The <see cref="Rectangle"/> structure that specifies the portion of the image object to alter.
+        /// </param>
+        IImageTransformer Opacity(float amount, Rectangle rect);
 
         /// <summary>
         /// Changes the background color of the current image.
@@ -23,7 +26,7 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// Alters the bit depth of the current image.
         /// </summary>
         /// <param name="bitDepth">The new bit depth.</param>
-        IImageTransformer BitDepth(BitDepth bitDepth);
+        IImageTransformer BitDepth(byte bitDepth);
 
         /// <summary>
         /// Changes the brightness of the current image. 

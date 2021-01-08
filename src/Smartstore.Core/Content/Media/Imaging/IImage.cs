@@ -32,7 +32,21 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// </summary>
         /// <param name="stream">The stream to save the image to.</param>
         /// <returns>The current <see cref="IImage"/>.</returns>
+        IImage Save(Stream stream);
+
+        /// <summary>
+        /// Saves the current image to the specified output stream.
+        /// </summary>
+        /// <param name="stream">The stream to save the image to.</param>
+        /// <returns>The current <see cref="IImage"/>.</returns>
         Task<IImage> SaveAsync(Stream stream);
+
+        /// <summary>
+        /// Saves the current image to the specified file path.
+        /// </summary>
+        /// <param name="path">The path to save the image to.</param>
+        /// <returns>The current <see cref="IImage"/>.</returns>
+        IImage Save(string path);
 
         /// <summary>
         /// Saves the current image to the specified file path.

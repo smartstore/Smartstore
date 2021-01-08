@@ -47,25 +47,25 @@ namespace Smartstore.Core.Content.Media.Imaging
                 if (source is byte[] b)
                 {
                     using var memStream = new MemoryStream(b);
-                    image = await Factory.LoadImageAsync(memStream);
+                    image = await Factory.LoadAsync(memStream);
                     len = b.LongLength;
                 }
                 else if (source is Stream s)
                 {
-                    image = await Factory.LoadImageAsync(s);
+                    image = await Factory.LoadAsync(s);
                     len = s.Length;
                 }
                 else if (source is string str)
                 {
                     str = NormalizePath(str);
-                    image = await Factory.LoadImageAsync(str);
+                    image = Factory.Load(str);
                     len = (new FileInfo(str)).Length;
                 }
                 else if (source is IFile file)
                 {
                     using (var fs = file.OpenRead())
                     {
-                        image = await Factory.LoadImageAsync(fs);
+                        image = await Factory.LoadAsync(fs);
                         len = file.Length;
                     }
                 }
@@ -158,7 +158,7 @@ namespace Smartstore.Core.Content.Media.Imaging
 
                     if (requestedFormat == null && query.Format is string)
                     {
-                        requestedFormat = Factory.GetImageFormat(((string)query.Format).ToLowerInvariant());
+                        requestedFormat = Factory.FindFormatByExtension(((string)query.Format).ToLowerInvariant());
                     }
 
                     if (requestedFormat != null && requestedFormat.DefaultMimeType != image.Format.DefaultMimeType)

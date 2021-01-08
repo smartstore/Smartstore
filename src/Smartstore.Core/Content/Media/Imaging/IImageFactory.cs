@@ -19,24 +19,69 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// <summary>
         /// Resolves the image format instance for a given file extension.
         /// </summary>
-        /// <param name="extension">The (dot-less) file extension.</param>
+        /// <param name="extension">The file extension (with or without dot).</param>
         /// <returns>An object that adapts the library specific format implementation.</returns>
-        IImageFormat GetImageFormat(string extension);
+        IImageFormat FindFormatByExtension(string extension);
+
+        /// <summary>
+        /// By reading the header on the provided stream this calculates the images format type.
+        /// </summary>
+        /// <param name="stream">The image stream to read the header from.</param>
+        /// <exception cref="ArgumentNullException">The stream is null.</exception>
+        /// <exception cref="NotSupportedException">The stream is not readable.</exception>
+        /// <returns>The format type or null if none found.</returns>
+        IImageFormat DetectFormat(Stream stream);
+
+        /// <summary>
+        /// By reading the header on the provided stream this calculates the images format type.
+        /// </summary>
+        /// <param name="stream">The image stream to read the header from.</param>
+        /// <exception cref="ArgumentNullException">The stream is null.</exception>
+        /// <exception cref="NotSupportedException">The stream is not readable.</exception>
+        /// <returns>The format type or null if none found.</returns>
+        Task<IImageFormat> DetectFormatAsync(Stream stream);
+
+        /// <summary>
+        /// Reads the raw image information from the specified stream without fully decoding it.
+        /// </summary>
+        /// <param name="stream">The image stream to read the header from.</param>
+        /// <exception cref="ArgumentNullException">The stream is null.</exception>
+        /// <exception cref="NotSupportedException">The stream is not readable.</exception>
+        /// <returns>
+        /// The <see cref="IImageInfo"/> or null if a suitable info detector is not found.
+        /// </returns>
+        IImageInfo DetectInfo(Stream stream);
+
+        /// <summary>
+        /// Reads the raw image information from the specified stream without fully decoding it.
+        /// </summary>
+        /// <param name="stream">The image stream to read the header from.</param>
+        /// <exception cref="ArgumentNullException">The stream is null.</exception>
+        /// <exception cref="NotSupportedException">The stream is not readable.</exception>
+        /// <returns>
+        /// The <see cref="IImageInfo"/> or null if a suitable info detector is not found.
+        /// </returns>
+        Task<IImageInfo> DetectInfoAsync(Stream stream);
 
         /// <summary>
         /// Loads an image by path.
         /// </summary>
         /// <param name="path">The full physical path to the image file.</param>
-        /// <param name="preserveExif">Whether to preserve exif metadata. Defaults to false. </param>
         /// <returns>An object that adapts the library specific imaging implementation.</returns>
-        Task<IProcessableImage> LoadImageAsync(string path, bool preserveExif = false);
+        IProcessableImage Load(string path);
 
         /// <summary>
         /// Loads an image by stream.
         /// </summary>
         /// <param name="stream">The stream that contains image data.</param>
-        /// <param name="preserveExif">Whether to preserve exif metadata. Defaults to false. </param>
         /// <returns>An object that adapts the library specific imaging implementation.</returns>
-        Task<IProcessableImage> LoadImageAsync(Stream stream, bool preserveExif = false);
+        IProcessableImage Load(Stream stream);
+
+        /// <summary>
+        /// Loads an image by stream.
+        /// </summary>
+        /// <param name="stream">The stream that contains image data.</param>
+        /// <returns>An object that adapts the library specific imaging implementation.</returns>
+        Task<IProcessableImage> LoadAsync(Stream stream);
     }
 }

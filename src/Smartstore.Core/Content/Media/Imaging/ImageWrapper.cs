@@ -9,14 +9,15 @@ namespace Smartstore.Core.Content.Media.Imaging
     {
         private readonly bool _disposeStream;
 
-        public ImageWrapper(Stream stream, Size size, IImageFormat format, BitDepth bitDepth = BitDepth.Bit24, bool disposeStream = true)
+        public ImageWrapper(Stream stream, Size size, IImageFormat format, byte bitDepth = 24, bool disposeStream = true)
         {
             Guard.NotNull(stream, nameof(stream));
             Guard.NotNull(format, nameof(format));
 
             InStream = stream;
             Format = format;
-            Size = size;
+            Width = size.Width;
+            Height = size.Height;
             SourceSize = size;
             BitDepth = bitDepth;
             _disposeStream = disposeStream;
@@ -25,10 +26,13 @@ namespace Smartstore.Core.Content.Media.Imaging
         #region IImageInfo
 
         /// <inheritdoc/>
-        public Size Size { get; }
+        public int Width { get; }
 
         /// <inheritdoc/>
-        public BitDepth BitDepth { get; set; } = BitDepth.Bit24;
+        public int Height { get; }
+
+        /// <inheritdoc/>
+        public byte BitDepth { get; set; } = 24;
 
         /// <inheritdoc/>
         public IImageFormat Format { get; set; }
@@ -39,6 +43,21 @@ namespace Smartstore.Core.Content.Media.Imaging
 
         /// <inheritdoc/>
         public Size SourceSize { get; set; }
+
+        /// <inheritdoc/>
+        public IImage Save(string path)
+        {
+            Guard.NotEmpty(path, nameof(path));
+
+            var di = new DirectoryInfo(Path.GetDirectoryName(path));
+            if (!di.Exists)
+            {
+                di.Create();
+            }
+
+            using var stream = File.OpenWrite(path);
+            return Save(stream);
+        }
 
         /// <inheritdoc/>
         public Task<IImage> SaveAsync(string path)
@@ -53,6 +72,31 @@ namespace Smartstore.Core.Content.Media.Imaging
 
             using var stream = File.OpenWrite(path);
             return SaveAsync(stream);
+        }
+
+        /// <inheritdoc/>
+        public IImage Save(Stream stream)
+        {
+            Guard.NotNull(stream, nameof(stream));
+
+            if (stream.CanSeek)
+            {
+                stream.SetLength(0);
+            }
+
+            InStream.CopyTo(stream);
+
+            if (stream.CanSeek)
+            {
+                stream.Position = 0;
+            }
+
+            if (InStream.CanSeek)
+            {
+                InStream.Position = 0;
+            }
+
+            return this;
         }
 
         /// <inheritdoc/>
