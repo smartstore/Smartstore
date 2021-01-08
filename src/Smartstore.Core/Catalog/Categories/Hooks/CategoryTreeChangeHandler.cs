@@ -69,7 +69,7 @@ namespace Smartstore.Core.Catalog.Categories
             nameof(Category.BadgeStyle)
         };
 
-        private static readonly HashSet<Type> _candidateTypes = new HashSet<Type>
+        private static readonly HashSet<Type> _candidateTypes = new()
         {
             typeof(Product),
             typeof(Category),
@@ -140,7 +140,7 @@ namespace Smartstore.Core.Catalog.Categories
                 if (modProps.Keys.Any(x => _h.Contains(x)))
                 {
                     // Hierarchy affecting properties has changed. Nuke each tree.
-                    _cache.RemoveByPattern(CategoryService.CATEGORY_TREE_PATTERN_KEY);
+                    await _cache.RemoveByPatternAsync(CategoryService.CATEGORY_TREE_PATTERN_KEY);
                     await PublishEvent(CategoryTreeChangeReason.Hierarchy);
                     _invalidated = true;
                 }
@@ -149,13 +149,13 @@ namespace Smartstore.Core.Catalog.Categories
                     if (modProps.ContainsKey("LimitedToStores"))
                     {
                         // Don't nuke store agnostic trees.
-                        _cache.RemoveByPattern(BuildCacheKeyPattern("*", "*", "[^0]*"));
+                        await _cache.RemoveByPatternAsync(BuildCacheKeyPattern("*", "*", "[^0]*"));
                         await PublishEvent(CategoryTreeChangeReason.StoreMapping);
                     }
                     if (modProps.ContainsKey("SubjectToAcl"))
                     {
                         // Don't nuke ACL agnostic trees.
-                        _cache.RemoveByPattern(BuildCacheKeyPattern("*", "[^0]*", "*"));
+                        await _cache.RemoveByPatternAsync(BuildCacheKeyPattern("*", "[^0]*", "*"));
                         await PublishEvent(CategoryTreeChangeReason.Acl);
                     }
                 }
@@ -204,7 +204,7 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 // INFO: 'Modified' case already handled in 'OnBeforeSave()'.
                 // Hierarchy affecting change, nuke all.
-                _cache.RemoveByPattern(CategoryService.CATEGORY_TREE_PATTERN_KEY);
+                await _cache.RemoveByPatternAsync(CategoryService.CATEGORY_TREE_PATTERN_KEY);
                 await PublishEvent(CategoryTreeChangeReason.Hierarchy);
                 _invalidated = true;
             }
@@ -237,7 +237,7 @@ namespace Smartstore.Core.Catalog.Categories
                 else if (stm.EntityName == "Category")
                 {
                     // Don't nuke store agnostic trees.
-                    _cache.RemoveByPattern(BuildCacheKeyPattern("*", "*", "[^0]*"));
+                    await _cache.RemoveByPatternAsync(BuildCacheKeyPattern("*", "*", "[^0]*"));
                     await PublishEvent(CategoryTreeChangeReason.StoreMapping);
                 }
             }
@@ -252,7 +252,7 @@ namespace Smartstore.Core.Catalog.Categories
                     else if (acl.EntityName == "Category")
                     {
                         // Don't nuke ACL agnostic trees.
-                        _cache.RemoveByPattern(BuildCacheKeyPattern("*", "[^0]*", "*"));
+                        await _cache.RemoveByPatternAsync(BuildCacheKeyPattern("*", "[^0]*", "*"));
                         await PublishEvent(CategoryTreeChangeReason.Acl);
                     }
                 }
@@ -278,7 +278,7 @@ namespace Smartstore.Core.Catalog.Categories
             }
         }
 
-        private string BuildCacheKeyPattern(string includeHiddenToken = "*", string rolesToken = "*", string storeToken = "*")
+        private static string BuildCacheKeyPattern(string includeHiddenToken = "*", string rolesToken = "*", string storeToken = "*")
         {
             return CategoryService.CATEGORY_TREE_KEY.FormatInvariant(includeHiddenToken, rolesToken, storeToken);
         }
