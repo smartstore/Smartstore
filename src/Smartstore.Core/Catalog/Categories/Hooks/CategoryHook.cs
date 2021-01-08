@@ -162,6 +162,7 @@ namespace Smartstore.Core.Catalog.Categories
             return true;
         }
 
+        // TODO: (mg) (core) Extremely bad API design! Service layer should be client-agnostic. I don't know what this is for but it screams for refactoring.
         private bool SoftDeleteChildCategories
         {
             get
