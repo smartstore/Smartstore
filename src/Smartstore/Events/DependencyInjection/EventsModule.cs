@@ -4,6 +4,7 @@ using System.Reflection;
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
+using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 using Smartstore.Events;
 
@@ -93,7 +94,7 @@ namespace Smartstore.DependencyInjection
                 // either injected as ISettingService or IConsumer.
                 var interfaces = consumerType.GetTypeInfo().ImplementedInterfaces
                     .Where(x => !x.IsGenericType)
-                    .Except(IgnoredInterfaces.Concat(new[] { typeof(IConsumer) }))
+                    .Except(IgnoredInterfaces.Concat(new[] { typeof(IConsumer), typeof(IDbSaveHook) }))
                     .ToArray();
 
                 if (interfaces.Length > 0)

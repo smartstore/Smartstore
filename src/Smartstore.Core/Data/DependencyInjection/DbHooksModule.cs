@@ -9,6 +9,7 @@ using Smartstore.Domain;
 using Smartstore.Engine;
 using Smartstore.DependencyInjection;
 using Smartstore.Engine.Modularity;
+using Smartstore.Events;
 
 namespace Smartstore.Core.DependencyInjection
 {
@@ -65,7 +66,7 @@ namespace Smartstore.Core.DependencyInjection
                 // either injected as ISettingService or IDbSaveHook.
                 var interfaces = hookType.GetTypeInfo().ImplementedInterfaces
                     .Where(x => !x.IsGenericType)
-                    .Except(EventsModule.IgnoredInterfaces.Concat(new[] { typeof(IDbSaveHook) }))
+                    .Except(EventsModule.IgnoredInterfaces.Concat(new[] { typeof(IDbSaveHook), typeof(IConsumer) }))
                     .ToArray();
 
                 if (interfaces.Length > 0)

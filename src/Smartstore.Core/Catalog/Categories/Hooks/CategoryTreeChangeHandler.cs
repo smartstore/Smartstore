@@ -37,8 +37,7 @@ namespace Smartstore.Core.Catalog.Categories
         public CategoryTreeChangeReason Reason { get; private set; }
     }
 
-    // TODO: (mg) (core) CategoryTreeChangeHook requires IConsumer (throws Autofac.Core.DependencyResolutionException).
-    public class CategoryTreeChangeHook : AsyncDbSaveHook<Category>//, IConsumer
+    public class CategoryTreeChangeHook : AsyncDbSaveHook<Category>, IConsumer
     {
         #region static
 
