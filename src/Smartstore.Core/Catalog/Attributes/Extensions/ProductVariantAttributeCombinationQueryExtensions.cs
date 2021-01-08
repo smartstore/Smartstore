@@ -2,7 +2,7 @@
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public static partial class AttributeQueryExtensions
+    public static partial class ProductVariantAttributeCombinationQueryExtensions
     {
         /// <summary>
         /// Apply standard filter for a product variant combinations query.
