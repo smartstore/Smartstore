@@ -11,28 +11,27 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="customerId">Customer identifier.</param>
         /// <param name="productId">Product identifier.</param>
         /// <param name="storeId">Store identifier.</param>
-        /// <returns>Back in stock subscription query.</returns>
         public static IQueryable<BackInStockSubscription> ApplyStandardFilter(
             this IQueryable<BackInStockSubscription> query,
-            int customerId = 0,
-            int productId = 0,
-            int storeId = 0)
+            int? customerId = null,
+            int? productId = null,
+            int? storeId = null)
         {
             Guard.NotNull(query, nameof(query));
 
-            if (customerId != 0)
+            if (customerId > 0)
             {
-                query = query.Where(x => x.CustomerId == customerId);
+                query = query.Where(x => x.CustomerId == customerId.Value);
             }
 
-            if (productId != 0)
+            if (productId > 0)
             {
-                query = query.Where(x => x.ProductId == productId);
+                query = query.Where(x => x.ProductId == productId.Value);
             }
 
-            if (storeId != 0)
+            if (storeId > 0)
             {
-                query = query.Where(x => x.StoreId == storeId);
+                query = query.Where(x => x.StoreId == storeId.Value);
             }
 
             return query.OrderByDescending(x => x.CreatedOnUtc);
