@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Core.Checkout.Shipping.Event
+namespace Smartstore.Core.Checkout.Shipping.Events
 {
     /// <summary>
     /// Represents a shipment status event
