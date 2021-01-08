@@ -77,7 +77,7 @@ namespace Smartstore.Core.Content.Media.Imaging
                 var sourceFormat = image.Format;
 
                 // Pre-process event
-                _eventPublisher.Publish(new ImageProcessingEvent(query, image));
+                await _eventPublisher.PublishAsync(new ImageProcessingEvent(query, image));
 
                 var result = new ProcessImageResult
                 {
@@ -87,13 +87,13 @@ namespace Smartstore.Core.Content.Media.Imaging
                     DisposeImage = disposeOutput
                 };
 
-                // Core processing
+                // >>>>>> Core processing
                 ProcessImageCore(query, image, out var fxApplied);
 
                 result.HasAppliedVisualEffects = fxApplied;
 
                 // Post-process event
-                _eventPublisher.Publish(new ImageProcessedEvent(query, result));
+                await _eventPublisher.PublishAsync(new ImageProcessedEvent(query, result));
 
                 result.ProcessTimeMs = watch.ElapsedMilliseconds;
 
@@ -140,8 +140,8 @@ namespace Smartstore.Core.Content.Media.Imaging
                     transformer.Resize(new ResizeOptions
                     {
                         Size = size,
-                        ResizeMode = ProcessImageQuery.ConvertScaleMode(query.ScaleMode),
-                        AnchorPosition = ProcessImageQuery.ConvertAnchorPosition(query.AnchorPosition)
+                        Mode = ProcessImageQuery.ConvertScaleMode(query.ScaleMode),
+                        Position = ProcessImageQuery.ConvertAnchorPosition(query.AnchorPosition)
                     });
                 }
 
@@ -150,31 +150,32 @@ namespace Smartstore.Core.Content.Media.Imaging
                     transformer.BackgroundColor(ColorTranslator.FromHtml(query.BackgroundColor));
                     fxAppliedInternal = true;
                 }
-
-                // Format
-                if (query.Format != null)
-                {
-                    var requestedFormat = query.Format as IImageFormat;
-
-                    if (requestedFormat == null && query.Format is string)
-                    {
-                        requestedFormat = Factory.FindFormatByExtension(((string)query.Format).ToLowerInvariant());
-                    }
-
-                    if (requestedFormat != null && requestedFormat.DefaultMimeType != image.Format.DefaultMimeType)
-                    {
-                        transformer.Format(requestedFormat);
-                    }
-                }
-
-                // Quality
-                if (query.Quality.HasValue)
-                {
-                    transformer.Quality(query.Quality.Value);
-                }
             });
 
             fxApplied = fxAppliedInternal;
+
+            // Format
+            if (query.Format != null)
+            {
+                var requestedFormat = query.Format as IImageFormat;
+
+                if (requestedFormat is null && query.Format is string queryFormat)
+                {
+                    requestedFormat = Factory.FindFormatByExtension(queryFormat.ToLowerInvariant());
+                }
+
+                if (requestedFormat != null && requestedFormat.DefaultMimeType != image.Format.DefaultMimeType)
+                {
+                    image.Format = requestedFormat;
+                }
+            }
+
+            // Quality
+            if (query.Quality.HasValue && image.Format is IJpegFormat jpegFormat)
+            {
+                // TODO: (core) Apply ProcessImageQuery.Quality to Png and Gif somehow.
+                jpegFormat.Quality = query.Quality.Value;
+            }
         }
 
         protected virtual string NormalizePath(string path)

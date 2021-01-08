@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Drawing;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
+using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
 
 namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
 {
@@ -15,12 +11,10 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
         private readonly Image _image;
         private SharpImageFormat _format;
 
-        public SharpImage(Image image, SixLabors.ImageSharp.Formats.IImageFormat format)
+        public SharpImage(Image image, SharpFormat sharpFormat)
         {
             _image = image;
-            _format = new SharpImageFormat(format);
-
-            SourceFormat = _format;
+            _format = ImageSharpUtility.CreateFormat(sharpFormat);
             SourceSize = new System.Drawing.Size(image.Width, image.Height);
         }
 
@@ -56,9 +50,6 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
         public Image WrappedImage => _image;
 
         /// <inheritdoc/>
-        public IImageFormat SourceFormat { get; }
-
-        /// <inheritdoc/>
         public System.Drawing.Size SourceSize { get; }
 
         /// <inheritdoc/>
@@ -70,30 +61,32 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
         }
 
         /// <inheritdoc/>
-        public IImage Save(Stream stream)
+        public IImage Save(Stream stream, IImageFormat format = null)
         {
-            _image.Save(stream, _format.WrappedFormat);
+            var encoder = ((SharpImageFormat)(format ?? _format)).CreateEncoder();
+            _image.Save(stream, encoder);
+
+            // Remember format for next save
+            if (format != null)
+            {
+                Format = format;
+            }
+
             return this;
         }
 
         /// <inheritdoc/>
-        public async Task<IImage> SaveAsync(Stream stream)
+        public async Task<IImage> SaveAsync(Stream stream, IImageFormat format = null)
         {
-            await _image.SaveAsync(stream, _format.WrappedFormat);
-            return this;
-        }
+            var encoder = ((SharpImageFormat)(format ?? _format)).CreateEncoder();
+            await _image.SaveAsync(stream, encoder);
 
-        /// <inheritdoc/>
-        public IImage Save(string path)
-        {
-            _image.Save(path);
-            return this;
-        }
+            // Remember format for next save
+            if (format != null)
+            {
+                Format = format;
+            }
 
-        /// <inheritdoc/>
-        public async Task<IImage> SaveAsync(string path)
-        {
-            await _image.SaveAsync(path);
             return this;
         }
 

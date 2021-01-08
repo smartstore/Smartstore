@@ -102,38 +102,134 @@ namespace Smartstore.Core.Content.Media.Imaging
         BottomLeft
     }
 
+    /// <summary>
+    /// Enumerates known resampling algorithms
+    /// </summary>
+    public enum ResamplingMode
+    {
+        /// <summary>
+        /// Bicubic sampler that implements the bicubic kernel algorithm W(x)
+        /// </summary>
+        Bicubic,
+
+        /// <summary>
+        /// Box sampler that implements the box algorithm. Similar to nearest neighbor when upscaling.
+        /// When downscaling the pixels will average, merging pixels together.
+        /// </summary>
+        Box,
+
+        /// <summary>
+        /// Catmull-Rom sampler, a well known standard Cubic Filter often used as a interpolation function
+        /// </summary>
+        CatmullRom,
+
+        /// <summary>
+        /// Hermite sampler. A type of smoothed triangular interpolation filter that rounds off strong edges while
+        /// preserving flat 'color levels' in the original image.
+        /// </summary>
+        Hermite,
+
+        /// <summary>
+        /// Lanczos kernel sampler that implements smooth interpolation with a radius of 2 pixels.
+        /// This algorithm provides sharpened results when compared to others when downsampling.
+        /// </summary>
+        Lanczos2,
+
+        /// <summary>
+        /// Lanczos kernel sampler that implements smooth interpolation with a radius of 3 pixels
+        /// This algorithm provides sharpened results when compared to others when downsampling.
+        /// </summary>
+        Lanczos3,
+
+        /// <summary>
+        /// Lanczos kernel sampler that implements smooth interpolation with a radius of 5 pixels
+        /// This algorithm provides sharpened results when compared to others when downsampling.
+        /// </summary>
+        Lanczos5,
+
+        /// <summary>
+        /// Lanczos kernel sampler that implements smooth interpolation with a radius of 8 pixels
+        /// This algorithm provides sharpened results when compared to others when downsampling.
+        /// </summary>
+        Lanczos8,
+
+        /// <summary>
+        ///  Mitchell-Netravali sampler. This seperable cubic algorithm yields a very good equilibrium between
+        /// detail preservation (sharpness) and smoothness.
+        /// </summary>
+        MitchellNetravali,
+
+        /// <summary>
+        /// Nearest-Neighbour sampler that implements the nearest neighbor algorithm. This uses a very fast, unscaled filter
+        /// which will select the closest pixel to the new pixels position.
+        /// </summary>
+        NearestNeighbor,
+
+        /// <summary>
+        /// Robidoux sampler. This algorithm developed by Nicolas Robidoux providing a very good equilibrium between
+        /// detail preservation (sharpness) and smoothness comparable to <see cref="MitchellNetravali"/>.
+        /// </summary>
+        Robidoux,
+
+        /// <summary>
+        /// Robidoux Sharp sampler. A sharpened form of the <see cref="Robidoux"/> sampler
+        /// </summary>
+        RobidouxSharp,
+
+        /// <summary>
+        /// Spline sampler. A separable cubic algorithm similar to <see cref="MitchellNetravali"/> but yielding smoother results.
+        /// </summary>
+        Spline,
+
+        /// <summary>
+        /// Triangle sampler, otherwise known as Bilinear. This interpolation algorithm can be used where perfect image transformation
+        /// with pixel matching is impossible, so that one can calculate and assign appropriate intensity values to pixels
+        /// </summary>
+        Triangle,
+
+        /// <summary>
+        /// Welch sampler. A high speed algorithm that delivers very sharpened results.
+        /// </summary>
+        Welch
+    }
+
     public class ResizeOptions
     {
         /// <summary>
-        /// Gets or sets the size.
+        /// Gets or sets the resize mode. Defaults to <see cref="ResizeMode.Pad"/>.
         /// </summary>
-        public Size Size { get; set; }
+        public ResizeMode Mode { get; set; } = ResizeMode.Pad;
 
         /// <summary>
-        /// Gets or sets the resize mode.
+        /// Gets or sets the anchor position. Defaults to <see cref="AnchorPosition.Center"/>.
         /// </summary>
-        public ResizeMode ResizeMode { get; set; } = ResizeMode.Pad;
-
-        /// <summary>
-        /// Gets or sets the anchor position.
-        /// </summary>
-        public AnchorPosition AnchorPosition { get; set; } = AnchorPosition.Center;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to allow up-scaling of images.
-        /// For <see cref="T:ResizeMode.BoxPad"/> this is always true.
-        /// </summary>
-        public bool Upscale { get; set; }
+        public AnchorPosition Position { get; set; } = AnchorPosition.Center;
 
         /// <summary>
         /// Gets or sets the center coordinates.
         /// </summary>
-        public float[] CenterCoordinates { get; set; }
+        public PointF? CenterCoordinates { get; set; }
 
         /// <summary>
-        /// Gets or sets the anchor point.
+        /// Gets or sets the resampling algorithm to perform the resize operation. Defaults to <see cref="ResamplingMode.Bicubic"/>.
         /// </summary>
-        public Point? AnchorPoint { get; set; }
+        public ResamplingMode Resampling { get; set; } = ResamplingMode.Bicubic;
+
+        /// <summary>
+        /// Gets or sets the target size.
+        /// </summary>
+        public Size Size { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to compress
+        /// or expand individual pixel colors the value on processing.
+        /// </summary>
+        public bool Compand { get; set; }
+
+        /// <summary>
+        /// Gets or sets the target rectangle to resize into.
+        /// </summary>
+        public Rectangle? TargetRectangle { get; set; }
 
         /// <summary>
         /// Returns a value that indicates whether the specified object is an 
@@ -149,20 +245,18 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// </returns>
         public override bool Equals(object obj)
         {
-            if (obj is not ResizeOptions options)
+            if (obj is not ResizeOptions other)
             {
                 return false;
             }
 
-            return this.Size == options.Size
-                && this.ResizeMode == options.ResizeMode
-                && this.AnchorPosition == options.AnchorPosition
-                && this.Upscale == options.Upscale
-                && ((this.CenterCoordinates != null
-                    && options.CenterCoordinates != null
-                    && this.CenterCoordinates.SequenceEqual(options.CenterCoordinates))
-                    || (this.CenterCoordinates == options.CenterCoordinates))
-                && this.AnchorPoint == options.AnchorPoint;
+            return this.Size == other.Size
+                && this.Mode == other.Mode
+                && this.Position == other.Position
+                && this.CenterCoordinates == other.CenterCoordinates
+                && this.Resampling == other.Resampling
+                && this.Compand == other.Compand
+                && this.TargetRectangle == other.TargetRectangle;
         }
 
         /// <summary>
@@ -175,12 +269,13 @@ namespace Smartstore.Core.Content.Media.Imaging
         {
             unchecked
             {
-                int hashCode = this.Size.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int)this.ResizeMode;
-                hashCode = (hashCode * 397) ^ (int)this.AnchorPosition;
-                hashCode = (hashCode * 397) ^ this.Upscale.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.CenterCoordinates?.GetHashCode() ?? 0);
-                return (hashCode * 397) ^ this.AnchorPoint.GetHashCode();
+                int hashCode = Size.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int)Mode;
+                hashCode = (hashCode * 397) ^ (int)Position;
+                hashCode = (hashCode * 397) ^ (CenterCoordinates?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (int)Resampling;
+                hashCode = (hashCode * 397) ^ Compand.GetHashCode();
+                return (hashCode * 397) ^ (hashCode * 397) ^ (TargetRectangle?.GetHashCode() ?? 0);
             }
         }
     }

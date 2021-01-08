@@ -10,7 +10,7 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
         public SharpImageInfo(SixLabors.ImageSharp.IImageInfo info, SixLabors.ImageSharp.Formats.IImageFormat format)
         {
             _info = info;
-            _format = new SharpImageFormat(format);
+            _format = ImageSharpUtility.CreateFormat(format);
         }
 
         public int Width 

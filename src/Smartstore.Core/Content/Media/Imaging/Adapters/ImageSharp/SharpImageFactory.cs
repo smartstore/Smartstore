@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SixLabors.ImageSharp;
 
 namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
@@ -17,7 +19,7 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
             var internalFormat = FindInternalImageFormat(extension);
             if (internalFormat != null)
             {
-                return new SharpImageFormat(internalFormat);
+                return ImageSharpUtility.CreateFormat(internalFormat);
             }
 
             return null;
@@ -28,7 +30,7 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
             var internalFormat = Image.DetectFormat(stream);
             if (internalFormat != null)
             {
-                return new SharpImageFormat(internalFormat);
+                return ImageSharpUtility.CreateFormat(internalFormat);
             }
 
             return null;
@@ -39,7 +41,7 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
             var internalFormat = await Image.DetectFormatAsync(stream);
             if (internalFormat != null)
             {
-                return new SharpImageFormat(internalFormat);
+                return ImageSharpUtility.CreateFormat(internalFormat);
             }
 
             return null;

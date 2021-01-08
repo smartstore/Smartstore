@@ -45,37 +45,7 @@ namespace Smartstore.Core.Content.Media.Imaging
         public Size SourceSize { get; set; }
 
         /// <inheritdoc/>
-        public IImage Save(string path)
-        {
-            Guard.NotEmpty(path, nameof(path));
-
-            var di = new DirectoryInfo(Path.GetDirectoryName(path));
-            if (!di.Exists)
-            {
-                di.Create();
-            }
-
-            using var stream = File.OpenWrite(path);
-            return Save(stream);
-        }
-
-        /// <inheritdoc/>
-        public Task<IImage> SaveAsync(string path)
-        {
-            Guard.NotEmpty(path, nameof(path));
-
-            var di = new DirectoryInfo(Path.GetDirectoryName(path));
-            if (!di.Exists)
-            {
-                di.Create();
-            }
-
-            using var stream = File.OpenWrite(path);
-            return SaveAsync(stream);
-        }
-
-        /// <inheritdoc/>
-        public IImage Save(Stream stream)
+        public IImage Save(Stream stream, IImageFormat format = null)
         {
             Guard.NotNull(stream, nameof(stream));
 
@@ -100,7 +70,7 @@ namespace Smartstore.Core.Content.Media.Imaging
         }
 
         /// <inheritdoc/>
-        public async Task<IImage> SaveAsync(Stream stream)
+        public async Task<IImage> SaveAsync(Stream stream, IImageFormat format = null)
         {
             Guard.NotNull(stream, nameof(stream));
 
