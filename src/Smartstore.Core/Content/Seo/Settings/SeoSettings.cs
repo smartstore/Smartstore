@@ -9,6 +9,7 @@ namespace Smartstore.Core.Content.Seo
         public SeoSettings()
         {
             ExtraRobotsDisallows = new List<string> { "/blog/tag/", "/blog/month/", "/producttags/" };
+            ExtraRobotsAllows = new List<string>();
 
             ReservedUrlRecordSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
@@ -79,6 +80,7 @@ namespace Smartstore.Core.Content.Seo
         public HashSet<string> ReservedUrlRecordSlugs { get; set; }
 
         public List<string> ExtraRobotsDisallows { get; set; }
+        public List<string> ExtraRobotsAllows { get; set; }
 
         /// <summary>
         /// A value indicating whether to load all URL records and active slugs on application startup
