@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -10,27 +11,41 @@ using Smartstore.Domain;
 
 namespace Smartstore.Data
 {
-    public class DbContextScope : IDisposable
+    public class DbContextScope : Disposable
     {
         private readonly HookingDbContext _ctx;
         private readonly bool _autoDetectChangesEnabled;
         private readonly bool _hooksEnabled;
         private readonly bool _lazyLoadingEnabled;
+        private readonly bool _retainConnection;
+        private readonly bool _suppressCommit;
         private readonly QueryTrackingBehavior _queryTrackingBehavior;
         private readonly CascadeTiming _cascadeDeleteTiming;
         private readonly CascadeTiming _deleteOrphansTiming;
         private readonly bool _autoTransactionEnabled;
-        private readonly bool _retainConnection;
 
+        /// <summary>
+        /// Creates a scope in which a DbContext instance behaves differently. 
+        /// The behaviour is resetted on disposal of the scope to what it was before.
+        /// </summary>
+        /// <param name="ctx">The context instance to change behavior for.</param>
+        /// <param name="deferCommit">
+        /// Suppresses the execution of <see cref="DbContext.SaveChanges()"/> / <see cref="DbContext.SaveChangesAsync(CancellationToken)"/> 
+        /// until this instance is diposed or <see cref="Commit()"/> / <see cref="CommitAsync(CancellationToken)"/> is called explicitly.
+        /// </param>
+        /// <param name="retainConnection">
+        /// Opens connection and retains it until disposal. May increase load/save performance in large scopes.
+        /// </param>
         public DbContextScope(HookingDbContext ctx,
             bool? autoDetectChanges = null,
             bool? hooksEnabled = null,
             bool? lazyLoading = null,
             bool? forceNoTracking = null,
+            bool? deferCommit = false,
+            bool retainConnection = false,
             CascadeTiming? cascadeDeleteTiming = null,
             CascadeTiming? deleteOrphansTiming = null,
-            bool? autoTransactions = null,
-            bool retainConnection = false)
+            bool? autoTransactions = null)
         {
             Guard.NotNull(ctx, nameof(ctx));
 
@@ -39,6 +54,7 @@ namespace Smartstore.Data
             _ctx = ctx;
             _autoDetectChangesEnabled = changeTracker.AutoDetectChangesEnabled;
             _hooksEnabled = ctx.HooksEnabled;
+            _suppressCommit = ctx.SuppressCommit;
             _lazyLoadingEnabled = changeTracker.LazyLoadingEnabled;
             _queryTrackingBehavior = changeTracker.QueryTrackingBehavior;
             _cascadeDeleteTiming = changeTracker.CascadeDeleteTiming;
@@ -57,6 +73,9 @@ namespace Smartstore.Data
 
             if (forceNoTracking == true)
                 changeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+            if (deferCommit.HasValue)
+                ctx.SuppressCommit = deferCommit.Value;
 
             if (cascadeDeleteTiming.HasValue)
                 changeTracker.CascadeDeleteTiming = cascadeDeleteTiming.Value;
@@ -94,21 +113,78 @@ namespace Smartstore.Data
             return _ctx.LoadReferenceAsync(entity, navigationProperty, force);
         }
 
+        /// <summary>
+        /// Saves changes to database regardless of <c>deferCommit</c> parameter.
+        /// </summary>
         public int Commit()
         {
-            return _ctx.SaveChanges();
+            var suppressCommit = _ctx.SuppressCommit;
+
+            try
+            {
+                _ctx.SuppressCommit = false;
+                return _ctx.SaveChanges();
+            }
+            finally
+            {
+                _ctx.SuppressCommit = suppressCommit;
+            }
         }
 
-        public async Task<int> CommitAsync()
+        /// <summary>
+        /// Saves changes to database regardless of <c>deferCommit</c> parameter.
+        /// </summary>
+        public Task<int> CommitAsync(CancellationToken cancelToken = default)
         {
-            return await _ctx.SaveChangesAsync();
+            var suppressCommit = _ctx.SuppressCommit;
+
+            try
+            {
+                _ctx.SuppressCommit = false;
+                return _ctx.SaveChangesAsync(cancelToken);
+            }
+            finally
+            {
+                _ctx.SuppressCommit = suppressCommit;
+            }
         }
 
-        public void Dispose()
+        protected override void OnDispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Must come before ResetState()
+                if (_ctx.SuppressCommit && _ctx.DeferCommit)
+                    Commit();
+                
+                ResetState();
+
+                if (_retainConnection && _ctx.Database.GetDbConnection().State == ConnectionState.Open)
+                    _ctx.Database.CloseConnection();
+            }
+        }
+
+        protected override async ValueTask OnDisposeAsync(bool disposing)
+        {
+            if (disposing)
+            {
+                // Must come before ResetState()
+                if (_ctx.SuppressCommit && _ctx.DeferCommit)
+                    await CommitAsync();
+
+                ResetState();
+
+                if (_retainConnection && _ctx.Database.GetDbConnection().State == ConnectionState.Open)
+                    await _ctx.Database.CloseConnectionAsync();
+            }
+        }
+
+        private void ResetState()
         {
             var changeTracker = _ctx.ChangeTracker;
 
             _ctx.HooksEnabled = _hooksEnabled;
+            _ctx.SuppressCommit = _suppressCommit;
             _ctx.Database.AutoTransactionsEnabled = _autoTransactionEnabled;
 
             changeTracker.AutoDetectChangesEnabled = _autoDetectChangesEnabled;
@@ -116,9 +192,6 @@ namespace Smartstore.Data
             changeTracker.QueryTrackingBehavior = _queryTrackingBehavior;
             changeTracker.CascadeDeleteTiming = _cascadeDeleteTiming;
             changeTracker.DeleteOrphansTiming = _deleteOrphansTiming;
-
-            if (_retainConnection && _ctx.Database.GetDbConnection().State == ConnectionState.Open)
-                _ctx.Database.CloseConnection();
         }
     }
 }

@@ -54,6 +54,8 @@ namespace Smartstore.Data
         {
             // Instance is returned to pool: reset state.
             HooksEnabled = true;
+            SuppressCommit = false;
+            DeferCommit = false;
             _currentSaveOperation = null;
 
             if (_dataProvider != null)
@@ -67,6 +69,16 @@ namespace Smartstore.Data
 
         public bool HooksEnabled { get; set; } = true;
 
+        /// <summary>
+        /// DON'T SET THIS TO TRUE. It's only meant to be working within a <see cref="DbContextScope"/> instance.
+        /// </summary>
+        internal bool SuppressCommit { get; set; }
+
+        /// <summary>
+        /// Internal API meant to be working within a <see cref="DbContextScope"/> instance only.
+        /// </summary>
+        internal bool DeferCommit { get; set; }
+
         [SuppressMessage("Performance", "CA1822:Member can be static", Justification = "Seriously?")]
         protected internal IDbHookHandler DbHookHandler
         {
@@ -78,6 +90,16 @@ namespace Smartstore.Data
         /// <inheritdoc/>
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
+            if (SuppressCommit)
+            {
+                DeferCommit = true;
+                return 0;
+            }
+            else
+            {
+                DeferCommit = false;
+            }
+            
             var op = _currentSaveOperation;
 
             if (op != null)
@@ -116,6 +138,16 @@ namespace Smartstore.Data
         /// <inheritdoc/>
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
+            if (SuppressCommit)
+            {
+                DeferCommit = true;
+                return 0;
+            }
+            else
+            {
+                DeferCommit = false;
+            }
+
             var op = _currentSaveOperation;
 
             if (op != null)
