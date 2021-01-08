@@ -93,6 +93,29 @@ namespace Smartstore.Core.Catalog.Products
     [Index(nameof(Visibility), Name = "IX_Visibility")]
     public partial class Product : EntityWithAttributes, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
     {
+        #region static
+
+        private static readonly HashSet<string> _visibilityAffectingProductProps = new HashSet<string>
+        {
+            nameof(AvailableEndDateTimeUtc),
+            nameof(AvailableStartDateTimeUtc),
+            nameof(Deleted),
+            nameof(LowStockActivityId),
+            nameof(LimitedToStores),
+            nameof(ManageInventoryMethodId),
+            nameof(MinStockQuantity),
+            nameof(Published),
+            nameof(SubjectToAcl),
+            nameof(Visibility)
+        };
+
+        public static IReadOnlyCollection<string> GetVisibilityAffectingPropertyNames()
+        {
+            return _visibilityAffectingProductProps;
+        }
+
+        #endregion
+
         private readonly ILazyLoader _lazyLoader;
 
         public Product()
