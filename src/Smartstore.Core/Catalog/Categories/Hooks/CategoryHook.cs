@@ -2,7 +2,9 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using Smartstore.Core.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
@@ -14,13 +16,16 @@ namespace Smartstore.Core.Catalog.Categories
     {
         private readonly SmartDbContext _db;
         private readonly ICategoryService _categoryService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CategoryHook(
             SmartDbContext db,
-            ICategoryService categoryService)
+            ICategoryService categoryService,
+            IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _categoryService = categoryService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         protected override Task<HookResult> OnInsertedAsync(Category entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -38,10 +43,8 @@ namespace Smartstore.Core.Catalog.Categories
                 .OfType<Category>()
                 .ToList();
 
-            // TODO: (mg) (core) How do get deletion type for deleting sub-categories into category hook?
-            // Get directly from request form data?
             var subCategoryIds = await GetSubCategoryIds(softDeletedCategories.Select(x => x.Id));
-            await SoftDeleteCategories(subCategoryIds, false);
+            await SoftDeleteCategories(subCategoryIds, SoftDeleteChildCategories);
 
 
             // Update HasDiscountsApplied property.
@@ -157,6 +160,22 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             return true;
+        }
+
+        private bool SoftDeleteChildCategories
+        {
+            get
+            {
+                var values = StringValues.Empty;
+
+                // TODO: (mg) (web) Use "ChildCategoriesDeleteType" (no longer "deleteType") as unique form key for deleting child categories.
+                if (_httpContextAccessor.HttpContext?.Request?.Form?.TryGetValue("ChildCategoriesDeleteType", out values) ?? false)
+                {
+                    return values.FirstOrDefault().EqualsNoCase("deletechilds");
+                }
+
+                return false;
+            }
         }
     }
 }
