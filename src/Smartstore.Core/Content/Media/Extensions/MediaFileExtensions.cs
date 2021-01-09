@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
-using Smartstore.Core.Content.Media.Imaging;
+using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media
 {

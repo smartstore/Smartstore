@@ -1,14 +1,27 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using System.Threading;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Memory;
+using SharpConfiguration = SixLabors.ImageSharp.Configuration;
 
-namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
+namespace Smartstore.Imaging.Adapters.ImageSharp
 {
-    public class SharpImageFactory : IImageFactory
+    public class SharpImageFactory : Disposable, IImageFactory
     {
+        private readonly MemoryAllocator _memAllocator = ArrayPoolMemoryAllocator.CreateWithMinimalPooling();
+        private readonly Timer _releaseMemTimer;
+        
+        public SharpImageFactory()
+        {
+            SharpConfiguration.Default.MemoryAllocator = _memAllocator;
+
+            // Release memory pool every 10 minutes
+            var releaseInterval = TimeSpan.FromMinutes(10);
+            _releaseMemTimer = new Timer(o => ReleaseMemory(), null, releaseInterval, releaseInterval);
+        }
+
         public bool IsSupportedImage(string extension)
         {
             return FindInternalImageFormat(extension) != null;
@@ -97,7 +110,16 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
                 return null;
             }
 
-            return SixLabors.ImageSharp.Configuration.Default.ImageFormatsManager.FindFormatByFileExtension(extension);
+            return SharpConfiguration.Default.ImageFormatsManager.FindFormatByFileExtension(extension);
+        }
+
+        public void ReleaseMemory()
+            => _memAllocator.ReleaseRetainedResources();
+
+        protected override void OnDispose(bool disposing)
+        {
+            if (disposing)
+                _releaseMemTimer.Dispose();
         }
     }
 }

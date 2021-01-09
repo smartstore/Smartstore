@@ -31,6 +31,11 @@ using Smartstore.Core.Content.Seo;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Imaging;
+using Smartstore.Core.Content.Media.Storage;
+using System.IO;
+using System.Drawing;
+using Humanizer;
 
 namespace Smartstore.Web.Controllers
 {
@@ -63,6 +68,8 @@ namespace Smartstore.Web.Controllers
         private readonly ICommonServices _services;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILocalizationService _locService;
+        private readonly IImageFactory _imageFactory;
+        private readonly IMediaStorageProvider _mediaStorageProvider;
 
         public HomeController(
             SmartDbContext db, 
@@ -79,7 +86,9 @@ namespace Smartstore.Web.Controllers
             TaxSettings taxSettings,
             ICommonServices services,
             ILoggerFactory loggerFactory,
-            ILocalizationService locService)
+            ILocalizationService locService,
+            IImageFactory imageFactory,
+            IMediaStorageProvider mediaStorageProvider)
         {
             _db = db;
             _eventPublisher = eventPublisher;
@@ -93,13 +102,88 @@ namespace Smartstore.Web.Controllers
             _services = services;
             _loggerFactory = loggerFactory;
             _locService = locService;
+            _imageFactory = imageFactory;
+            _mediaStorageProvider = mediaStorageProvider;
 
             var currentStore = _services.StoreContext.CurrentStore;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
-
         public Localizer T { get; set; } = NullLocalizer.Instance;
+
+        [Route("imaging")]
+        public async Task<IActionResult> ImagingTest()
+        {
+            var tempPath = "D:\\_temp\\_ImageSharp";
+            
+            var files = await _db.MediaFiles
+                .Where(x => x.MediaType == "image" && x.Size < 10000)
+                .OrderByDescending(x => x.Size)
+                .Take(100)
+                .ToListAsync();
+
+            // Save originals
+            foreach (var file in files)
+            {
+                var outPath = System.IO.Path.Combine(tempPath, System.IO.Path.GetFileNameWithoutExtension(file.Name) + "-orig." + file.Extension);
+                using (var outFile = new FileStream(outPath, FileMode.Create))
+                {
+                    using (var inStream = await _mediaStorageProvider.OpenReadAsync(file))
+                    {
+                        await inStream.CopyToAsync(outFile);
+                    }
+                }
+            }
+
+            long len = 0;
+            var watch = new Stopwatch();
+            watch.Start();
+
+            foreach (var file in files)
+            {
+                using (var inStream = await _mediaStorageProvider.OpenReadAsync(file))
+                {
+                    var image = await _imageFactory.LoadAsync(inStream);
+
+                    image.Transform(x => 
+                    {
+                        x.Resize(new ResizeOptions
+                        {
+                            Size = new Size(500, 500),
+                            Mode = ResizeMode.Max,
+                            Resampling = ResamplingMode.Bicubic
+                        });
+                    });
+
+                    if (image.Format is IJpegFormat jpeg)
+                    {
+                        jpeg.Quality = 90;
+                        jpeg.Subsample = JpegSubsample.Ratio420;
+                    }
+                    else if (image.Format is IPngFormat png)
+                    {
+                        //png.ChunkFilter = PngChunkFilter.ExcludeAll;
+                        //png.ColorType = PngColorType.Grayscale;
+                        png.CompressionLevel = PngCompressionLevel.DefaultCompression;
+                        png.QuantizationMethod = QuantizationMethod.Wu;
+                    }
+                    
+                    var outPath = System.IO.Path.Combine(tempPath, file.Name);
+                    using (var outFile = new FileStream(outPath, FileMode.Create))
+                    {
+                        await image.SaveAsync(outFile);
+                        len += outFile.Length;
+                    }
+                }    
+            }
+
+            watch.Stop();
+            var msg = $"Images: {files.Count}. Duration: {watch.ElapsedMilliseconds} ms., Size: {len.Bytes().Humanize()}";
+
+            _imageFactory.ReleaseMemory();
+
+            return Content(msg);
+        }
 
         [LocalizedRoute("/", Name = "Homepage")]
         public async Task<IActionResult> Index()

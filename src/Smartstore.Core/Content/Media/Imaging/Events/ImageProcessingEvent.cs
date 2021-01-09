@@ -1,4 +1,5 @@
 ﻿using System;
+using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {

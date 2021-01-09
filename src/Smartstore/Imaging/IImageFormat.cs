@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Smartstore.Core.Content.Media.Imaging
+namespace Smartstore.Imaging
 {
     /// <summary>
     /// Defines the contract for an image format.

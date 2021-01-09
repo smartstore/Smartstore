@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
+namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     internal sealed class SharpImageInfo : IImageInfo
     {

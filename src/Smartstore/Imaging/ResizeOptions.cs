@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Linq;
 
-namespace Smartstore.Core.Content.Media.Imaging
+namespace Smartstore.Imaging
 {
     /// <summary>
     /// Enumerated resize modes to apply to resized images.
@@ -196,9 +196,14 @@ namespace Smartstore.Core.Content.Media.Imaging
     public class ResizeOptions
     {
         /// <summary>
-        /// Gets or sets the resize mode. Defaults to <see cref="ResizeMode.Pad"/>.
+        /// Gets or sets the target size.
         /// </summary>
-        public ResizeMode Mode { get; set; } = ResizeMode.Pad;
+        public Size Size { get; set; }
+
+        /// <summary>
+        /// Gets or sets the resize mode. Defaults to <see cref="ResizeMode.Max"/>.
+        /// </summary>
+        public ResizeMode Mode { get; set; } = ResizeMode.Max;
 
         /// <summary>
         /// Gets or sets the anchor position. Defaults to <see cref="AnchorPosition.Center"/>.
@@ -214,11 +219,6 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// Gets or sets the resampling algorithm to perform the resize operation. Defaults to <see cref="ResamplingMode.Bicubic"/>.
         /// </summary>
         public ResamplingMode Resampling { get; set; } = ResamplingMode.Bicubic;
-
-        /// <summary>
-        /// Gets or sets the target size.
-        /// </summary>
-        public Size Size { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to compress

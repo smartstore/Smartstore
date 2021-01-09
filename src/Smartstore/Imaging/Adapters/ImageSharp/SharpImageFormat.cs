@@ -14,7 +14,7 @@ using SharpPngTransparentColorMode = SixLabors.ImageSharp.Formats.Png.PngTranspa
 using SharpPngChunkFilter = SixLabors.ImageSharp.Formats.Png.PngChunkFilter;
 using SixLabors.ImageSharp.Formats.Png;
 
-namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
+namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     internal class SharpImageFormat : IImageFormat
     {
@@ -62,7 +62,7 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
         {
             if (Quality != null || Subsample != null)
             {
-                return new JpegEncoder { Quality = Quality, Subsample = (SharpJpegSubsample)Subsample };
+                return new JpegEncoder { Quality = Quality, Subsample = (SharpJpegSubsample?)Subsample };
             }
 
             return base.CreateEncoder();
@@ -85,7 +85,7 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
             {
                 return new GifEncoder 
                 { 
-                    ColorTableMode = (SharpGifColorTableMode)ColorTableMode,
+                    ColorTableMode = (SharpGifColorTableMode?)ColorTableMode,
                     Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod)
                 };
             }
@@ -125,14 +125,18 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
             {
                 var encoder = new PngEncoder
                 {
-                    BitDepth = (SharpPngBitDepth)BitDepth,
-                    ColorType = (SharpPngColorType)ColorType,
+                    BitDepth = (SharpPngBitDepth?)BitDepth,
+                    ColorType = (SharpPngColorType?)ColorType,
                     Gamma = Gamma,
-                    InterlaceMethod = (SharpPngInterlaceMode)InterlaceMode,
-                    ChunkFilter = (SharpPngChunkFilter)ChunkFilter,
-                    TransparentColorMode = (SharpPngTransparentColorMode)TransparentColorMode,
+                    InterlaceMethod = (SharpPngInterlaceMode?)InterlaceMode,
+                    ChunkFilter = (SharpPngChunkFilter?)ChunkFilter,
                     Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod)
                 };
+
+                if (TransparentColorMode != null)
+                {
+                    encoder.TransparentColorMode = (SharpPngTransparentColorMode)TransparentColorMode.Value;
+                }
 
                 if (CompressionLevel != null)
                 {

@@ -3,7 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Smartstore.Core.Content.Media.Imaging
+namespace Smartstore.Imaging
 {
     /// <summary>
     /// Represents a processable image.

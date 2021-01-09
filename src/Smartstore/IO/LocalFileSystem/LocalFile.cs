@@ -2,7 +2,10 @@
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
+using Autofac;
 using Microsoft.Extensions.FileProviders;
+using Smartstore.Engine;
+using Smartstore.Imaging;
 using Smartstore.IO.SymLinks;
 
 namespace Smartstore.IO
@@ -103,9 +106,18 @@ namespace Smartstore.IO
                     
                     try
                     {
-                        //// TODO: (core) Implement ImageHeader
-                        //var mime = MimeTypes.MapNameToMimeType(Name);
-                        //_size = ImageHeader.GetDimensions(OpenRead(), mime, false);
+                        var imageFactory = EngineContext.Current.Application.Services.ResolveOptional<IImageFactory>();
+                        if (imageFactory != null)
+                        {
+                            var imageInfo = imageFactory.DetectInfo(OpenRead());
+                            if (imageInfo != null)
+                            {
+                                _size = new Size(imageInfo.Width, imageInfo.Height);
+                            }
+                        }
+
+                        // Don't attemp again
+                        _size ??= Size.Empty;
                     }
                     catch
                     {

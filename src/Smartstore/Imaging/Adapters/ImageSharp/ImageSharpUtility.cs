@@ -7,7 +7,7 @@ using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
 
-namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
+namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     internal static class ImageSharpUtility
     {

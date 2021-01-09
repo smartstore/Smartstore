@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace Smartstore.Utilities
+namespace Smartstore.Imaging
 {
 	public static class ImagingHelper
 	{
@@ -30,7 +30,7 @@ namespace Smartstore.Utilities
 		}
 
 		/// <summary>
-		/// Recalculates an image size while keeping aspect ratio
+		/// Recalculates an image size while keeping aspect ratio but does not upscale.
 		/// </summary>
 		/// <param name="original">Original size</param>
 		/// <param name="maxSize">New max size</param>
@@ -43,7 +43,7 @@ namespace Smartstore.Utilities
 		}
 
 		/// <summary>
-		/// Recalculates an image size while keeping aspect ratio
+		/// Recalculates an image size while keeping aspect ratio but does not upscale.
 		/// </summary>
 		/// <param name="original">Original size</param>
 		/// <param name="maxSize">New max size</param>

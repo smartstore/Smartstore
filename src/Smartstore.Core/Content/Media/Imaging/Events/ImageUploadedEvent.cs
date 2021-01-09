@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
+using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {

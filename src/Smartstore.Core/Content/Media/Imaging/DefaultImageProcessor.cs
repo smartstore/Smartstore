@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Threading.Tasks;
 using Smartstore.IO;
+using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {

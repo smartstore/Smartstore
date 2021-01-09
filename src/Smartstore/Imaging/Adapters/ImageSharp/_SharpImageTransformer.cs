@@ -18,31 +18,51 @@ using SharpPointF = SixLabors.ImageSharp.PointF;
 using SharpResizeMode = SixLabors.ImageSharp.Processing.ResizeMode;
 using SharpAnchorPositionMode = SixLabors.ImageSharp.Processing.AnchorPositionMode;
 using SharpResizeOptions = SixLabors.ImageSharp.Processing.ResizeOptions;
+using SixLabors.ImageSharp.Memory;
 #endregion
 
-namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
+namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     internal sealed class SharpImageTransformer : IImageTransformer
     {
         private readonly IImageProcessingContext _context;
 
-        public SharpImageTransformer(IImageProcessingContext context)
+        public SharpImageTransformer(IImageProcessingContext context, IProcessableImage image)
         {
             _context = context;
+            Image = image;
         }
 
-        public IImageTransformer Resize(Size size)
+        /// <summary>
+        /// Gets the current processed image.
+        /// </summary>
+        public IProcessableImage Image { get; }
+
+        /// <summary>
+        /// Gets the image dimensions at the current point in the processing pipeline.
+        /// </summary>
+        public Size CurrentSize 
         {
-            return Resize(new ResizeOptions { Size = size });
+            get
+            {
+                var sharpSize = _context.GetCurrentSize();
+                return new Size(sharpSize.Width, sharpSize.Height);
+            }
         }
 
         public IImageTransformer Resize(ResizeOptions options)
         {
             Guard.NotNull(options, nameof(options));
 
+            var size = options.Size;
+            if (options.Mode == ResizeMode.Max && size.Width > 0 && size.Width == size.Height)
+            {
+                size = ImagingHelper.Rescale(CurrentSize, size);
+            }
+
             var sharpResizeOptions = new SharpResizeOptions
             {
-                Size = new SharpSize(options.Size.Width, options.Size.Height),
+                Size = new SharpSize(size.Width, size.Height),
                 Mode = (SharpResizeMode)options.Mode,
                 Position = (SharpAnchorPositionMode)options.Position,
                 Compand = options.Compand
@@ -81,23 +101,23 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
         //    return this;
         //}
 
-        //public IImageTransformer Brightness(int percentage)
-        //{
-        //    _op.Brightness(percentage);
-        //    return this;
-        //}
+        public IImageTransformer Brightness(float amount)
+        {
+            _context.Brightness(amount);
+            return this;
+        }
 
-        //public IImageTransformer Contrast(int percentage)
-        //{
-        //    _op.Contrast(percentage);
-        //    return this;
-        //}
+        public IImageTransformer Contrast(float amount)
+        {
+            _context.Contrast(amount);
+            return this;
+        }
 
-        //public IImageTransformer Crop(Rectangle rect)
-        //{
-        //    _op.Crop(rect);
-        //    return this;
-        //}
+        public IImageTransformer Crop(Rectangle rect)
+        {
+            _context.Crop(new SharpRectangle(rect.X, rect.Y, rect.Width, rect.Height));
+            return this;
+        }
 
         //public IImageTransformer EntropyCrop(byte threshold = 128)
         //{

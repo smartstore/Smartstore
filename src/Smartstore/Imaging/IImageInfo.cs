@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Core.Content.Media.Imaging
+namespace Smartstore.Imaging
 {
     /// <summary>
     /// Encapsulates properties that describe basic image information including dimensions, pixel type information

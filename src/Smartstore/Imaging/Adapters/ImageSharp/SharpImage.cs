@@ -2,9 +2,11 @@
 using System.IO;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using Size = System.Drawing.Size;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
 
-namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
+namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     internal sealed class SharpImage : Disposable, IProcessableImage
     {
@@ -50,14 +52,13 @@ namespace Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp
         public Image WrappedImage => _image;
 
         /// <inheritdoc/>
-        public System.Drawing.Size SourceSize { get; }
+        public Size SourceSize { get; }
 
         /// <inheritdoc/>
         public IImage Transform(Action<IImageTransformer> transformer)
         {
-            //_image.Mutate(x => transformer(new SharpImageTransformer(x)));
-            //return this;
-            throw new NotImplementedException();
+            _image.Mutate(x => transformer(new SharpImageTransformer(x, this)));
+            return this;
         }
 
         /// <inheritdoc/>

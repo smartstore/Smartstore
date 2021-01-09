@@ -57,7 +57,7 @@ namespace Smartstore.Core.Content.Media
             _httpContextAccessor = httpContextAccessor;
 
             PublicPath = "media/";
-            StoragePath = "/App_Data/Tenants/" + DataSettings.Instance.TenantName + "/Media";
+            StoragePath = "App_Data/Tenants/" + DataSettings.Instance.TenantName + "/Media";
             RootPath = Path.Combine(appContext.ContentRoot.Root, StoragePath.Replace('/', '\\'));
             IsStoragePathRooted = false;
             IsCloudStorage = false;

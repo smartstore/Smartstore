@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Core.Content.Media.Imaging
+namespace Smartstore.Imaging
 {
     /// <summary>
     /// Provides enumeration for the available image quantization methods.

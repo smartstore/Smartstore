@@ -3,7 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Smartstore.Core.Content.Media.Imaging
+namespace Smartstore.Imaging
 {
     public class ImageWrapper : Disposable, IImage
     {

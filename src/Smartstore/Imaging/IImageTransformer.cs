@@ -1,10 +1,20 @@
 ﻿using System;
 using System.Drawing;
 
-namespace Smartstore.Core.Content.Media.Imaging
+namespace Smartstore.Imaging
 {
     public interface IImageTransformer
     {
+        /// <summary>
+        /// Gets the current processed image.
+        /// </summary>
+        IProcessableImage Image { get; }
+
+        /// <summary>
+        /// Gets the image dimensions at the current point in the processing pipeline.
+        /// </summary>
+        public Size CurrentSize { get; }
+
         ///// <summary>
         ///// Multiplies the alpha component of the image.
         ///// </summary>
@@ -22,29 +32,32 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// </param>
         IImageTransformer BackgroundColor(Color color);
 
-        ///// <summary>
-        ///// Alters the bit depth of the current image.
-        ///// </summary>
-        ///// <param name="bitDepth">The new bit depth.</param>
-        //IImageTransformer BitDepth(byte bitDepth);
 
-        ///// <summary>
-        ///// Changes the brightness of the current image. 
-        ///// </summary>
-        ///// <param name="percentage">The percentage by which to alter the images brightness. Any integer between -100 and 100.</param>
-        //IImageTransformer Brightness(int percentage);
+        /// <summary>
+        /// Alters the brightness component of the image.
+        /// </summary>
+        /// <remarks>
+        /// A value of 0 will create an image that is completely black. A value of 1 leaves the input unchanged.
+        /// Other values are linear multipliers on the effect. Values of an amount over 1 are allowed, providing brighter results.
+        /// </remarks>
+        /// <param name="amount">The proportion of the conversion. Must be greater than or equal to 0.</param>
+        IImageTransformer Brightness(float amount);
 
-        ///// <summary>
-        ///// Changes the contrast of the current image. 
-        ///// </summary>
-        ///// <param name="percentage">The percentage by which to alter the images contrast. Any integer between -100 and 100.</param>
-        //IImageTransformer Contrast(int percentage);
+        /// <summary>
+        /// Alters the contrast component of the image.
+        /// </summary>
+        /// <remarks>
+        /// A value of 0 will create an image that is completely gray. A value of 1 leaves the input unchanged.
+        /// Other values are linear multipliers on the effect. Values of an amount over 1 are allowed, providing results with more contrast.
+        /// </remarks>
+        /// <param name="amount">The proportion of the conversion. Must be greater than or equal to 0.</param>
+        IImageTransformer Contrast(float amount);
 
-        ///// <summary>
-        ///// Crops the current image to the given location and size.
-        ///// </summary>
-        ///// <param name="rect">The rectangle containing the coordinates to crop the image to.</param>
-        //IImageTransformer Crop(Rectangle rect);
+        /// <summary>
+        /// Crops an image to the given rectangle.
+        /// </summary>
+        /// <param name="cropRectangle">The <see cref="Rectangle"/> structure that specifies the portion of the image object to retain.</param>
+        IImageTransformer Crop(Rectangle rect);
 
         ///// <summary>
         ///// Crops an image to the area of greatest entropy.
@@ -164,6 +177,45 @@ namespace Smartstore.Core.Content.Media.Imaging
         public static IImageTransformer Resize(this IImageTransformer transformer, Size size)
         {
             return transformer.Resize(new ResizeOptions { Size = size });
+        }
+
+        /// <summary>
+        /// Resizes the current image to the given max size while preserving aspect ratio.
+        /// </summary>
+        /// <param name="maxSize">
+        /// The maximum size to resize an image to. Used to restrict resizing based on calculated resizing.
+        /// </param>
+        /// <returns>
+        public static IImageTransformer Resize(this IImageTransformer transformer, int maxSize)
+        {
+            var size = ImagingHelper.Rescale(transformer.CurrentSize, maxSize);
+            return transformer.Resize(new ResizeOptions { Size = size });
+        }
+
+        /// <summary>
+        /// Resizes the current image to the given max size while preserving aspect ratio.
+        /// </summary>
+        /// <param name="maxSize">
+        /// The maximum size to resize an image to. Used to restrict resizing based on calculated resizing.
+        /// </param>
+        /// <param name="options">The options.</param>
+        /// <returns>
+        public static IImageTransformer Resize(this IImageTransformer transformer, int maxSize, ResizeOptions options)
+        {
+            Guard.NotNull(options, nameof(options));
+
+            options.Size = ImagingHelper.Rescale(transformer.CurrentSize, maxSize);
+            return transformer.Resize(options);
+        }
+
+        /// <summary>
+        /// Crops an image to the given width and height.
+        /// </summary>
+        /// <param name="width">The target image width.</param>
+        /// <param name="height">The target image height.</param>
+        public static IImageTransformer Crop(this IImageTransformer transformer, int width, int height)
+        {
+            return transformer.Crop(new Rectangle(0, 0, width, height));
         }
     }
 }

@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
-using Smartstore.Core.Content.Media.Imaging.Adapters.ImageSharp;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Data;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
+using Smartstore.Imaging;
+using Smartstore.Imaging.Adapters.ImageSharp;
 using Smartstore.Threading;
 
 namespace Smartstore.Core.DependencyInjection

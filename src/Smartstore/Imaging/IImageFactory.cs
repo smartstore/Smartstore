@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Smartstore.Core.Content.Media.Imaging
+namespace Smartstore.Imaging
 {
     /// <summary>
     /// A provider interface for imaging libraries.
@@ -83,5 +83,10 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// <param name="stream">The stream that contains image data.</param>
         /// <returns>An object that adapts the library specific imaging implementation.</returns>
         Task<IProcessableImage> LoadAsync(Stream stream);
+
+        /// <summary>
+        /// Releases all retained resources not being in use. Eg: by resetting array pools and letting GC to free the arrays.
+        /// </summary>
+        void ReleaseMemory();
     }
 }

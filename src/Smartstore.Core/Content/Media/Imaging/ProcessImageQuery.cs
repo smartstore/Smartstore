@@ -5,6 +5,7 @@ using System.IO;
 using Smartstore.Collections;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Http;
+using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {
@@ -254,23 +255,23 @@ namespace Smartstore.Core.Content.Media.Imaging
             switch (anchor.EmptyNull().ToLower())
             {
                 case "top":
-                    return Smartstore.Core.Content.Media.Imaging.AnchorPosition.Top;
+                    return Smartstore.Imaging.AnchorPosition.Top;
                 case "bottom":
-                    return Smartstore.Core.Content.Media.Imaging.AnchorPosition.Bottom;
+                    return Smartstore.Imaging.AnchorPosition.Bottom;
                 case "left":
-                    return Smartstore.Core.Content.Media.Imaging.AnchorPosition.Left;
+                    return Smartstore.Imaging.AnchorPosition.Left;
                 case "right":
-                    return Smartstore.Core.Content.Media.Imaging.AnchorPosition.Right;
+                    return Smartstore.Imaging.AnchorPosition.Right;
                 case "top-left":
-                    return Smartstore.Core.Content.Media.Imaging.AnchorPosition.TopLeft;
+                    return Smartstore.Imaging.AnchorPosition.TopLeft;
                 case "top-right":
-                    return Smartstore.Core.Content.Media.Imaging.AnchorPosition.TopRight;
+                    return Smartstore.Imaging.AnchorPosition.TopRight;
                 case "bottom-left":
-                    return Smartstore.Core.Content.Media.Imaging.AnchorPosition.BottomLeft;
+                    return Smartstore.Imaging.AnchorPosition.BottomLeft;
                 case "bottom-right":
-                    return Smartstore.Core.Content.Media.Imaging.AnchorPosition.BottomRight;
+                    return Smartstore.Imaging.AnchorPosition.BottomRight;
                 default:
-                    return Smartstore.Core.Content.Media.Imaging.AnchorPosition.Center;
+                    return Smartstore.Imaging.AnchorPosition.Center;
             }
         }
 
