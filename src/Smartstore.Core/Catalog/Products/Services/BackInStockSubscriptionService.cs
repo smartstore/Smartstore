@@ -6,6 +6,8 @@ namespace Smartstore.Core.Catalog.Products
 {
     public partial class StockSubscriptionService : IStockSubscriptionService
     {
+        // TODO: (mg) (core) API predictability: add Subscribe/Unsubscribe methods to IStockSubscriptionService  
+
         private readonly SmartDbContext _db;
         //private readonly IMessageFactory _messageFactory;
 
