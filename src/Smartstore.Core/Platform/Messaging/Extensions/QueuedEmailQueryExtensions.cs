@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Smartstore.Core.Messages;
 
-namespace Smartstore
+namespace Smartstore.Core.Messages
 {
     public static class QueuedEmailQueryExtensions
     {

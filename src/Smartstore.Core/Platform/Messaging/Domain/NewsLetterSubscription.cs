@@ -7,7 +7,7 @@ using Smartstore.Domain;
 namespace Smartstore.Core.Messages
 {
     /// <summary>
-    /// Represents NewsLetterSubscription entity.
+    /// Represents NewsletterSubscription entity.
     /// </summary>
     [Index(nameof(Email), nameof(StoreId), Name = "IX_NewsletterSubscription_Email_StoreId")]
     [Index(nameof(Active), Name = "IX_Active")]

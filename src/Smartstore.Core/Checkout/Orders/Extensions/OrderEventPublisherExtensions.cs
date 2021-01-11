@@ -10,7 +10,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Publishes the order paid event.
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
-        /// <param name="order">The order instance</param>
+        /// <param name="order">The order instance.</param>
         public static Task PublishOrderPaid(this IEventPublisher eventPublisher, Order order)
         {
             if (order != null)
@@ -23,7 +23,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Publishes the order placed event.
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
-        /// <param name="order">The order instance</param>
+        /// <param name="order">The order instance.</param>
         public static Task PublishOrderPlaced(this IEventPublisher eventPublisher, Order order)
         {
             if (order != null)
@@ -36,7 +36,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Publishes the order updated event.
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
-        /// <param name="order">The order instance</param>
+        /// <param name="order">The order instance.</param>
         public static Task PublishOrderUpdated(this IEventPublisher eventPublisher, Order order)
         {
             if (order != null)

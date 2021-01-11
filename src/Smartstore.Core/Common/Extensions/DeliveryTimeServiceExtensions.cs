@@ -1,11 +1,7 @@
-﻿using Autofac;
-using Smartstore.Core;
+﻿using System.Threading.Tasks;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Catalog.Products;
-using Smartstore.Engine;
-using System;
-using System.Threading.Tasks;
 
 namespace Smartstore
 {
