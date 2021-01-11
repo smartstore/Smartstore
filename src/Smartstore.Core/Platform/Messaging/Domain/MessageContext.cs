@@ -29,7 +29,7 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// If <c>null</c>, the email account specifies the sender.
         /// </summary>
-        public MailAddress SenderEmailAddress { get; set; }
+        public MailAddress SenderMailAddress { get; set; }
 
         /// <summary>
         /// If <c>null</c>, obtained from WorkContext.CurrentCustomer.
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Messages
         public bool TestMode { get; set; }
 
         /// <summary>
-        /// If <c>null</c>, obtained from <see cref="SmartStore.Services.Stores.IStoreService.GetHost(Store, bool?)"/>.
+        /// If <c>null</c>, obtained from <see cref="Store.GetHost(bool)"/>.
         /// </summary>
         public Uri BaseUri { get; set; }
 
@@ -71,7 +71,7 @@ namespace Smartstore.Core.Messages
             {
                 if (_formatProvider == null)
                 {
-                    var culture = this.Language?.LanguageCulture;
+                    var culture = Language?.LanguageCulture;
                     if (culture != null && CultureHelper.IsValidCultureCode(culture))
                     {
                         _formatProvider = CultureInfo.GetCultureInfo(culture);
