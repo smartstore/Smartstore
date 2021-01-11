@@ -6,35 +6,35 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Compare products service.
     /// </summary>
-    public partial interface ICompareProductsService
+    public partial interface IProductCompareService
     {
         /// <summary>
         /// Gets the number of compared products.
         /// </summary>
         /// <returns>Number of compared products.</returns>
-        int GetComparedProductsCount();
+        int CountComparedProducts();
 
         /// <summary>
         /// Gets the list of compared products.
         /// </summary>
         /// <returns>List of compared products.</returns>
-        Task<IList<Product>> GetComparedProductsAsync();
+        Task<IList<Product>> GetCompareListAsync();
 
         /// <summary>
         /// Clears the list of compared products.
         /// </summary>
-        void ClearComparedProducts();
+        void ClearCompareList();
 
         /// <summary>
         /// Removes a product from the list of compared products.
         /// </summary>
         /// <param name="productId">Product identifier.</param>
-        void RemoveProductFromComparedProducts(int productId);
+        void RemoveFromList(int productId);
 
         /// <summary>
         /// Adds a product to the list of compared products.
         /// </summary>
         /// <param name="productId">Product identifier.</param>
-        void AddProductToComparedProducts(int productId);
+        void AddToList(int productId);
     }
 }

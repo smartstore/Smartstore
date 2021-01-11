@@ -10,14 +10,14 @@ using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class CompareProductsService : ICompareProductsService
+    public partial class ProductCompareService : IProductCompareService
     {
         private readonly SmartDbContext _db;
         private readonly IWebHelper _webHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly PrivacySettings _privacySettings;
 
-        public CompareProductsService(
+        public ProductCompareService(
             SmartDbContext db,
             IWebHelper webHelper,
             IHttpContextAccessor httpContextAccessor,
@@ -29,7 +29,7 @@ namespace Smartstore.Core.Catalog.Products
             _privacySettings = privacySettings;
         }
 
-        public virtual int GetComparedProductsCount()
+        public virtual int CountComparedProducts()
         {
             var productIds = GetComparedProductsIds();
             if (productIds.Any())
@@ -47,7 +47,7 @@ namespace Smartstore.Core.Catalog.Products
             return 0;
         }
 
-        public virtual async Task<IList<Product>> GetComparedProductsAsync()
+        public virtual async Task<IList<Product>> GetCompareListAsync()
         {
             var productIds = GetComparedProductsIds();
             if (!productIds.Any())
@@ -64,12 +64,12 @@ namespace Smartstore.Core.Catalog.Products
             return comparedProducts;
         }
 
-        public virtual void ClearComparedProducts()
+        public virtual void ClearCompareList()
         {
             SetComparedProductsIds(null);
         }
 
-        public virtual void RemoveProductFromComparedProducts(int productId)
+        public virtual void RemoveFromList(int productId)
         {
             var productIds = GetComparedProductsIds();
 
@@ -79,7 +79,7 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        public virtual void AddProductToComparedProducts(int productId)
+        public virtual void AddToList(int productId)
         {
             if (productId != 0)
             {
@@ -100,7 +100,7 @@ namespace Smartstore.Core.Catalog.Products
             var request = _httpContextAccessor?.HttpContext?.Request;
 
             // TODO: (core) Move all cookie names to a static util class.
-            if (request != null && request.Cookies.TryGetValue("sm.CompareProducts", out var values) && values.HasValue())
+            if (request != null && request.Cookies.TryGetValue("Smartstore.CompareProducts", out var values) && values.HasValue())
             {
                 var ids = values.ToIntArray();
 
@@ -138,11 +138,11 @@ namespace Smartstore.Core.Catalog.Products
                 SameSite = isSecured ? (SameSiteMode)_privacySettings.SameSiteMode : SameSiteMode.Lax
             };
 
-            cookies.Delete("sm.CompareProducts", options);
+            cookies.Delete("Smartstore.CompareProducts", options);
 
             if (productIds?.Any() ?? false)
             {
-                cookies.Append("sm.CompareProducts", string.Join(",", productIds), options);
+                cookies.Append("Smartstore.CompareProducts", string.Join(",", productIds), options);
             }
         }
     }

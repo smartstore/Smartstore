@@ -30,7 +30,7 @@ namespace Smartstore.Core.DependencyInjection
             builder.RegisterType<PriceFormatter>().As<IPriceFormatter>().InstancePerLifetimeScope();
             builder.RegisterType<BackInStockSubscriptionService>().As<IBackInStockSubscriptionService>().InstancePerLifetimeScope();
             builder.RegisterType<RecentlyViewedProductsService>().As<IRecentlyViewedProductsService>().InstancePerLifetimeScope();
-            builder.RegisterType<CompareProductsService>().As<ICompareProductsService>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductCompareService>().As<IProductCompareService>().InstancePerLifetimeScope();
         }
     }
 }
