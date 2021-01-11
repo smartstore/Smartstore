@@ -7,7 +7,7 @@ namespace Smartstore.Core.Common.Services
         /// <summary>
         /// The GeoName ID for the country. 
         /// </summary>
-        public int? GeoNameId { get; set; }
+        public long? GeoNameId { get; set; }
 
         /// <summary>
         /// The english name of the country.
