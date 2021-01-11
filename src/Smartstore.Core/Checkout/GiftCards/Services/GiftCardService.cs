@@ -37,7 +37,7 @@ namespace Smartstore.Core.Checkout.GiftCards
 
             var couponCodeXml = customer.GenericAttributes.GiftCardCouponCodes;
 
-            if (!couponCodeXml.HasValue())
+            if (couponCodeXml.IsEmpty())
                 return new();
 
             var query = _db.GiftCards

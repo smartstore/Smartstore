@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Engine.Modularity;
@@ -34,23 +35,22 @@ namespace Smartstore.Core.Checkout.Tax
             }
         }
 
-        // TODO: (ms) (core) implement GeoCountryLookup
         private readonly Dictionary<TaxRateCacheKey, decimal> _cachedTaxRates = new();
         private readonly Dictionary<TaxAddressKey, Address> _cachedTaxAddresses = new();
-        //private readonly IGeoCountryLookup _geoCountryLookup;
+        private readonly IGeoCountryLookup _geoCountryLookup;
         private readonly IProviderManager _providerManager;
         private readonly IWorkContext _workContext;
         private readonly TaxSettings _taxSettings;
         private readonly SmartDbContext _db;
 
         public TaxService(
-            //IGeoCountryLookup geoCountryLookup,
+            IGeoCountryLookup geoCountryLookup,
             IProviderManager providerManager,
             IWorkContext workContext,
             TaxSettings taxSettings,
             SmartDbContext db)
         {
-            //_geoCountryLookup = geoCountryLookup;
+            _geoCountryLookup = geoCountryLookup;
             _providerManager = providerManager;
             _workContext = workContext;
             _taxSettings = taxSettings;
@@ -138,12 +138,11 @@ namespace Smartstore.Core.Checkout.Tax
             var address = customer.BillingAddress;
             if (address != null && address.Company.IsEmpty())
                 return true;
-
-            // TODO: (ms) (core) implement this with GeoCountryLookup
+                        
             // Otherwise, check whether customer's IP country is in the EU
-            //var isInEu = _geoCountryLookup.LookupCountry(customer.LastIpAddress)?.IsInEu;
-            //if (!isInEu)
-            //    return false;
+            var isInEu = _geoCountryLookup.LookupCountry(customer.LastIpAddress)?.IsInEu is true;
+            if (!isInEu)
+                return false;
 
             // Companies with an invalid VAT number are assumed to be consumers
             return customer.VatNumberStatusId != (int)VatNumberStatus.Valid;
