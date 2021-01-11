@@ -25,7 +25,7 @@ namespace Smartstore.Core.Catalog.Attributes
         Task<IList<ProductVariantAttribute>> GetProductVariantAttributesByIdsAsync(IEnumerable<int> productVariantAttributeIds, IEnumerable<ProductVariantAttribute> attributes = null);
 
         /// <summary>
-        /// Copies attribute options to product variant attribute values commits them to the database. Existing values are ignored (identified by name field).
+        /// Copies attribute options to product variant attribute values and commits them to the database. Existing values are ignored (identified by name field).
         /// </summary>
         /// <param name="productVariantAttribute">The product variant attribute mapping entity.</param>
         /// <param name="productAttributeOptionsSetId">Identifier of product attribute options set.</param>

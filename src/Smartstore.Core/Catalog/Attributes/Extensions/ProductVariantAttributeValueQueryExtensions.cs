@@ -6,23 +6,41 @@ namespace Smartstore.Core.Catalog.Attributes
     public static partial class ProductVariantAttributeValueQueryExtensions
     {
         /// <summary>
-        /// Applies a filter product variant attribute values and sorts by <see cref="ProductVariantAttribute.DisplayOrder"/>, then by <see cref="ProductVariantAttributeValue.DisplayOrder"/>.
+        /// Applies a filter for product variant attribute and sorts by <see cref="ProductVariantAttributeValue.DisplayOrder"/>.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="productVariantAttributeId"></param>
+        /// <returns></returns>
+        public static IOrderedQueryable<ProductVariantAttributeValue> ApplyProductAttributeFilter(this IQueryable<ProductVariantAttributeValue> query, int productVariantAttributeId)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            if (productVariantAttributeId == 0)
+            {
+                query = query.Where(x => x.ProductVariantAttributeId == productVariantAttributeId);
+            }
+
+            return query.OrderBy(x => x.DisplayOrder);
+        }
+
+        /// <summary>
+        /// Applies a filter for product variant attribute values and sorts by <see cref="ProductVariantAttribute.DisplayOrder"/>, then by <see cref="ProductVariantAttributeValue.DisplayOrder"/>.
         /// </summary>
         /// <param name="query">Product variant attribute value query.</param>
-        /// <param name="valueIds">Identifiers of <see cref="ProductVariantAttributeValue"/> to be filtered.</param>
+        /// <param name="ids">Identifiers of <see cref="ProductVariantAttributeValue"/> to be filtered.</param>
         /// <param name="controlTypes">Attribute control types to be filtered.</param>
         /// <returns>Product variant attribute value query.</returns>
         public static IOrderedQueryable<ProductVariantAttributeValue> ApplyValueFilter(
-            this IQueryable<ProductVariantAttributeValue> query, 
-            int[] valueIds,
+            this IQueryable<ProductVariantAttributeValue> query,
+            int[] ids,
             AttributeControlType[] controlTypes = null)
         {
             Guard.NotNull(query, nameof(query));
-            Guard.NotNull(valueIds, nameof(valueIds));
+            Guard.NotNull(ids, nameof(ids));
 
             var db = query.GetDbContext<SmartDbContext>();
 
-            query = query.Where(x => valueIds.Contains(x.Id));
+            query = query.Where(x => ids.Contains(x.Id));
 
             if (controlTypes?.Any() ?? false)
             {

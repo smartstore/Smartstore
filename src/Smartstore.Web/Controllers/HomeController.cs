@@ -595,6 +595,10 @@ namespace Smartstore.Web.Controllers
             //_db.Discounts.Remove(discount);
             //await _db.SaveChangesAsync();
 
+            //var pva = await _db.ProductVariantAttributes.FindByIdAsync(1018);
+            //var addedValues = await _productAttributeService.CopyAttributeOptionsAsync(pva, 3, true);
+            //content.AppendLine($"Added {addedValues} attribute values.");
+
 
             var product = await _db.Products.FindByIdAsync(4366);
             content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");
