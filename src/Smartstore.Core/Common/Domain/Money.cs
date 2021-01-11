@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Runtime.Serialization;
-using Smartstore.Core.Common;
+using Newtonsoft.Json;
 using Sys = System;
 
 namespace Smartstore.Core.Common
 {
-    public class Money : IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
+    public struct Money : IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
     {
         public Money(Currency currency)
             : this(0m, currency)
@@ -38,14 +36,14 @@ namespace Smartstore.Core.Common
             HideCurrency = hideCurrency;
         }
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         public bool HideCurrency
         {
             get;
             internal set;
         }
 
-        [IgnoreDataMember]
+        [JsonIgnore]
         public Currency Currency
         {
             get;
@@ -75,10 +73,7 @@ namespace Smartstore.Core.Common
         /// </summary>
         public decimal RoundedAmount
         {
-            get
-            {
-                return decimal.Round(Amount, DecimalDigits);
-            }
+            get => decimal.Round(Amount, DecimalDigits);
         }
 
         /// <summary>
@@ -136,10 +131,9 @@ namespace Smartstore.Core.Common
 
         public override bool Equals(object obj)
         {
-            // Prevent stack overflow.
-            if (obj != null)
+            if (obj is Money money)
             {
-                return Equals(obj as Money);
+                return Equals(money);
             }
 
             return false;
@@ -147,12 +141,6 @@ namespace Smartstore.Core.Common
 
         bool IEquatable<Money>.Equals(Money other)
         {
-            if (other == null)
-                return false;
-
-            if (ReferenceEquals(this, other))
-                return true;
-
             if (other.Amount == 0 && this.Amount == 0)
                 return true;
 
@@ -222,22 +210,22 @@ namespace Smartstore.Core.Common
 
         string IFormattable.ToString(string format, IFormatProvider formatProvider)
         {
-            return this.ToString(!HideCurrency, false);
+            return ToString(!HideCurrency, false);
         }
 
         string IConvertible.ToString(IFormatProvider provider)
         {
-            return this.ToString(!HideCurrency, false);
+            return ToString(!HideCurrency, false);
         }
 
         public override string ToString()
         {
-            return this.ToString(!HideCurrency, false);
+            return ToString(!HideCurrency, false);
         }
 
         public string ToString(bool showCurrency)
         {
-            return this.ToString(showCurrency, false);
+            return ToString(showCurrency, false);
         }
 
         public string ToString(bool showCurrency, bool useISOCodeAsSymbol)
