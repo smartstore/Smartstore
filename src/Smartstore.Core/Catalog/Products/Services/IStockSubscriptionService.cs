@@ -5,7 +5,7 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Back in stock subscription service.
     /// </summary>
-    public partial interface IBackInStockSubscriptionService
+    public partial interface IStockSubscriptionService
     {
         /// <summary>
         /// Send notification to subscribers.

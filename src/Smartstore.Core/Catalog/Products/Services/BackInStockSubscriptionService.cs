@@ -4,12 +4,12 @@ using Smartstore.Data;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class BackInStockSubscriptionService : IBackInStockSubscriptionService
+    public partial class StockSubscriptionService : IStockSubscriptionService
     {
         private readonly SmartDbContext _db;
         //private readonly IMessageFactory _messageFactory;
 
-        public BackInStockSubscriptionService(
+        public StockSubscriptionService(
             SmartDbContext db
             /*IMessageFactory messageFactory*/)
         {
