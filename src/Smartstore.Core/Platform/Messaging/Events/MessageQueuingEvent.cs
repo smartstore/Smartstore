@@ -7,8 +7,8 @@ namespace Smartstore.Core.Messages.Events
     /// </summary>
     public class MessageQueuingEvent
     {
-        public QueuedEmail QueuedEmail { get; set; }
-        public MessageContext MessageContext { get; set; }
-        public TemplateModel MessageModel { get; set; }
+        public QueuedEmail QueuedEmail { get; init; }
+        public MessageContext MessageContext { get; init; }
+        public TemplateModel MessageModel { get; init; }
     }
 }
