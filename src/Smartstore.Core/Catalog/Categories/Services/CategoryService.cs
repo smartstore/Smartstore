@@ -124,7 +124,7 @@ namespace Smartstore.Core.Catalog.Categories
                 //var productsQuery = _catalogSearchService.PrepareQuery(searchQuery);
                 //var productsPager = new FastPager<Product>(productsQuery, 500);
 
-                //while (productsPager.ReadNextPage(out var products))
+                //while ((await productsPager.ReadNextPageAsync<Product>()).Out(out var products))
                 //{
                 //    foreach (var product in products)
                 //    {
@@ -252,7 +252,7 @@ namespace Smartstore.Core.Catalog.Categories
                 //var productsQuery = _catalogSearchService.PrepareQuery(searchQuery);
                 //var productsPager = new FastPager<Product>(productsQuery, 500);
 
-                //while (productsPager.ReadNextPage(out var products))
+                //while ((await productsPager.ReadNextPageAsync<Product>()).Out(out var products))
                 //{
                 //    foreach (var product in products)
                 //    {

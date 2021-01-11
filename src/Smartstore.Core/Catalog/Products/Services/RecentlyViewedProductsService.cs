@@ -42,7 +42,7 @@ namespace Smartstore.Core.Catalog.Products
                 return new List<Product>();
             }
 
-            // TODO: (mg) (core) Apply IAclRestricted to recently viewed products query.
+            // TODO: (mg) (core) Apply IAclRestricted to recently viewed products query (IAclService required).
             var recentlyViewedProducts = await _db.Products
                 .AsNoTracking()
                 .Where(x => productIds.Contains(x.Id))
@@ -93,14 +93,10 @@ namespace Smartstore.Core.Catalog.Products
 
         protected virtual IEnumerable<int> GetRecentlyViewedProductsIds(int number)
         {
-            var httpContext = _httpContextAccessor.HttpContext;
-            if (httpContext is null)
-            {
-                return Enumerable.Empty<int>();
-            }
+            var request = _httpContextAccessor?.HttpContext?.Request;
             
             // TODO: (core) Move all cookie names to a static util class.
-            if (httpContext.Request.Cookies.TryGetValue("SmartStore.RecentlyViewedProducts", out var values) && values.HasValue())
+            if (request != null && request.Cookies.TryGetValue("SmartStore.RecentlyViewedProducts", out var values) && values.HasValue())
             {
                 var ids = values.ToIntArray();
 

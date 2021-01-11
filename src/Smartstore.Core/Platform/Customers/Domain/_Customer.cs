@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -265,6 +266,16 @@ namespace Smartstore.Core.Customers
             protected set => _customerContent = value;
         }
 
+        private ICollection<CustomerRoleMapping> _customerRoleMappings;
+        /// <summary>
+        /// Gets or sets the customer role mappings.
+        /// </summary>
+        public ICollection<CustomerRoleMapping> CustomerRoleMappings
+        {
+            get => _lazyLoader?.Load(this, ref _customerRoleMappings) ?? (_customerRoleMappings ??= new HashSet<CustomerRoleMapping>());
+            protected set => _customerRoleMappings = value;
+        }
+
         private ICollection<ShoppingCartItem> _shoppingCartItems;
         /// <summary>
         /// Gets or sets shopping cart items
@@ -307,13 +318,11 @@ namespace Smartstore.Core.Customers
         /// <returns>Customer role identifiers.</returns>
         public int[] GetRoleIds(bool onlyActiveCustomerRoles = true)
         {
-            return Array.Empty<int>();
-            // TODO: (core) Implement Customer.GetRoleIds()
-            //return CustomerRoleMappings
-            //    .Select(x => x.CustomerRole)
-            //    .Where(x => !onlyActiveCustomerRoles || x.Active)
-            //    .Select(x => x.Id)
-            //    .ToArray();
+            return CustomerRoleMappings
+                .Select(x => x.CustomerRole)
+                .Where(x => !onlyActiveCustomerRoles || x.Active)
+                .Select(x => x.Id)
+                .ToArray();
         }
 
         //// // TODO: (core) Implement Customer.RemoveAddress()

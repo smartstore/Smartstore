@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
@@ -24,8 +25,12 @@ namespace Smartstore.Core.DependencyInjection
                 //.WithNullCache()  // TODO: (core) Do we really need Autofac registration "WithNullCache"?
                 .InstancePerLifetimeScope();
 
+            builder.RegisterType<ProductAttributeService>().As<IProductAttributeService>().InstancePerLifetimeScope();
+
             builder.RegisterType<PriceFormatter>().As<IPriceFormatter>().InstancePerLifetimeScope();
+            builder.RegisterType<BackInStockSubscriptionService>().As<IBackInStockSubscriptionService>().InstancePerLifetimeScope();
             builder.RegisterType<RecentlyViewedProductsService>().As<IRecentlyViewedProductsService>().InstancePerLifetimeScope();
+            builder.RegisterType<CompareProductsService>().As<ICompareProductsService>().InstancePerLifetimeScope();
         }
     }
 }

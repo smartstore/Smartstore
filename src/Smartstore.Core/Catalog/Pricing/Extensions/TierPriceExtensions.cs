@@ -1,48 +1,51 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Smartstore.Core.Customers;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
     public static partial class TierPriceExtensions
     {
-        // TODO: (mg) (core) Add FilterForCustomer extension method for tier prices.
         /// <summary>
         /// Filter tier prices by customer.
         /// </summary>
         /// <param name="source">Tier prices.</param>
         /// <param name="customer">Customer entity.</param>
         /// <returns>Filtered tier prices.</returns>
-        //public static IEnumerable<TierPrice> FilterForCustomer(this IEnumerable<TierPrice> source, Customer customer)
-        //{
-        //    Guard.NotNull(source, nameof(source));
+        public static IEnumerable<TierPrice> FilterForCustomer(this IEnumerable<TierPrice> source, Customer customer)
+        {
+            Guard.NotNull(source, nameof(source));
 
-        //    foreach (var tierPrice in source)
-        //    {
-        //        // Check customer role requirement.
-        //        if (tierPrice.CustomerRole != null)
-        //        {
-        //            if (customer == null)
-        //                continue;
+            foreach (var tierPrice in source)
+            {
+                // Check customer role requirement.
+                if (tierPrice.CustomerRole != null)
+                {
+                    if (customer == null)
+                        continue;
 
-        //            var customerRoles = customer.CustomerRoleMappings.Select(x => x.CustomerRole).Where(cr => cr.Active);
-        //            if (!customerRoles.Any())
-        //                continue;
+                    var customerRoles = customer.CustomerRoleMappings
+                        .Select(x => x.CustomerRole)
+                        .Where(cr => cr.Active);
 
-        //            var roleIsFound = false;
+                    if (!customerRoles.Any())
+                        continue;
 
-        //            foreach (var customerRole in customerRoles)
-        //            {
-        //                if (customerRole == tierPrice.CustomerRole)
-        //                    roleIsFound = true;
-        //            }
+                    var roleIsFound = false;
 
-        //            if (!roleIsFound)
-        //                continue;
-        //        }
+                    foreach (var customerRole in customerRoles)
+                    {
+                        if (customerRole == tierPrice.CustomerRole)
+                            roleIsFound = true;
+                    }
 
-        //        yield return tierPrice;
-        //    }
-        //}
+                    if (!roleIsFound)
+                        continue;
+                }
+
+                yield return tierPrice;
+            }
+        }
 
         /// <summary>
         /// Remove duplicated quantities (leave only a tier price with minimum price).

@@ -21,6 +21,7 @@ namespace Smartstore.Core.Data
         public DbSet<CrossSellProduct> CrossSellProducts { get; set; }
         public DbSet<ProductBundleItem> ProductBundleItem { get; set; }
         public DbSet<ProductMediaFile> ProductMediaFiles { get; set; }
+        public DbSet<BackInStockSubscription> BackInStockSubscriptions { get; set; }
 
         public DbSet<ProductAttribute> ProductAttributes { get; set; }
         public DbSet<ProductVariantAttribute> ProductVariantAttributes { get; set; }
