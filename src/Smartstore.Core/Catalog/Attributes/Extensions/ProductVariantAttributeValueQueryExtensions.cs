@@ -8,9 +8,9 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Applies a filter for product variant attribute and sorts by <see cref="ProductVariantAttributeValue.DisplayOrder"/>.
         /// </summary>
-        /// <param name="query"></param>
-        /// <param name="productVariantAttributeId"></param>
-        /// <returns></returns>
+        /// <param name="query">Product variant attribute value query.</param>
+        /// <param name="productVariantAttributeId">Filter by <see cref="ProductVariantAttribute.Id"/>.</param>
+        /// <returns>Product variant attribute value query.</returns>
         public static IOrderedQueryable<ProductVariantAttributeValue> ApplyProductAttributeFilter(this IQueryable<ProductVariantAttributeValue> query, int productVariantAttributeId)
         {
             Guard.NotNull(query, nameof(query));
@@ -27,7 +27,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Applies a filter for product variant attribute values and sorts by <see cref="ProductVariantAttribute.DisplayOrder"/>, then by <see cref="ProductVariantAttributeValue.DisplayOrder"/>.
         /// </summary>
         /// <param name="query">Product variant attribute value query.</param>
-        /// <param name="ids">Identifiers of <see cref="ProductVariantAttributeValue"/> to be filtered.</param>
+        /// <param name="ids">Filter by multiple <see cref="ProductVariantAttributeValue.Id"/>.</param>
         /// <param name="controlTypes">Attribute control types to be filtered.</param>
         /// <returns>Product variant attribute value query.</returns>
         public static IOrderedQueryable<ProductVariantAttributeValue> ApplyValueFilter(
