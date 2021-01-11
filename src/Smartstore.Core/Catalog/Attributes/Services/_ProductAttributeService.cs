@@ -29,7 +29,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             var result = new Multimap<string, int>(StringComparer.OrdinalIgnoreCase);
 
-            if (!fieldPrefix.EndsWith(":"))
+            if (!fieldPrefix.EndsWith(':'))
             {
                 fieldPrefix += ":";
             }
@@ -87,6 +87,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
                     if (ids.Any())
                     {
+                        // TODO: (mg) (core) (perf) Refactor: try to load data with the fewest rouindtrips possible.
                         var newLoadedMappings = await GetSwitchedLoadedAttributeMappings(ids);
                         result.AddRange(newLoadedMappings);
                     }
@@ -102,6 +103,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             async Task<IList<ProductVariantAttribute>> GetSwitchedLoadedAttributeMappings(IEnumerable<int> pvaIds)
             {
+                // TODO: (mg) (core) (perf) Refactor: try to load data with the fewest rouindtrips possible.
                 var count = pvaIds?.Count() ?? 0;
 
                 if (count > 0)
