@@ -36,6 +36,7 @@ using Smartstore.Core.Content.Media.Storage;
 using System.IO;
 using System.Drawing;
 using Humanizer;
+using System.Numerics;
 
 namespace Smartstore.Web.Controllers
 {
@@ -117,12 +118,14 @@ namespace Smartstore.Web.Controllers
             var tempPath = "D:\\_temp\\_ImageSharp";
             
             var files = await _db.MediaFiles
-                .Where(x => x.MediaType == "image" && x.Size < 10000)
+                .AsNoTracking()
+                .Where(x => x.MediaType == "image" && x.Size > 0 /*&& x.Extension == "jpg" && x.Size < 10000*/)
                 .OrderByDescending(x => x.Size)
+                //.OrderBy(x => x.Size)
                 .Take(100)
                 .ToListAsync();
 
-            // Save originals
+            //Save originals
             foreach (var file in files)
             {
                 var outPath = System.IO.Path.Combine(tempPath, System.IO.Path.GetFileNameWithoutExtension(file.Name) + "-orig." + file.Extension);
@@ -145,7 +148,7 @@ namespace Smartstore.Web.Controllers
                 {
                     var image = await _imageFactory.LoadAsync(inStream);
 
-                    image.Transform(x => 
+                    image.Transform(x =>
                     {
                         x.Resize(new ResizeOptions
                         {
@@ -164,10 +167,10 @@ namespace Smartstore.Web.Controllers
                     {
                         //png.ChunkFilter = PngChunkFilter.ExcludeAll;
                         //png.ColorType = PngColorType.Grayscale;
-                        png.CompressionLevel = PngCompressionLevel.DefaultCompression;
+                        png.CompressionLevel = PngCompressionLevel.BestCompression;
                         png.QuantizationMethod = QuantizationMethod.Wu;
                     }
-                    
+
                     var outPath = System.IO.Path.Combine(tempPath, file.Name);
                     using (var outFile = new FileStream(outPath, FileMode.Create))
                     {
@@ -178,7 +181,7 @@ namespace Smartstore.Web.Controllers
             }
 
             watch.Stop();
-            var msg = $"Images: {files.Count}. Duration: {watch.ElapsedMilliseconds} ms., Size: {len.Bytes().Humanize()}";
+            var msg = $"Images: {files.Count}. Duration: {watch.ElapsedMilliseconds} ms., Size: {len.Bytes().Humanize()}, SIMD: {Vector.IsHardwareAccelerated}";
 
             _imageFactory.ReleaseMemory();
 

@@ -106,14 +106,10 @@ namespace Smartstore.IO
                     
                     try
                     {
-                        var imageFactory = EngineContext.Current.Application.Services.ResolveOptional<IImageFactory>();
-                        if (imageFactory != null)
+                        var mime = MimeTypes.MapNameToMimeType(Name);
+                        if (mime.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
                         {
-                            var imageInfo = imageFactory.DetectInfo(OpenRead());
-                            if (imageInfo != null)
-                            {
-                                _size = new Size(imageInfo.Width, imageInfo.Height);
-                            }
+                            _size = ImageHeader.GetPixelSize(OpenRead(), mime, false);
                         }
 
                         // Don't attemp again

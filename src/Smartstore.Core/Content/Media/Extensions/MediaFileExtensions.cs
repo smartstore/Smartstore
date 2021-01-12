@@ -38,7 +38,7 @@ namespace Smartstore.Core.Content.Media
         /// Refreshes file metadata like size, dimensions etc.
         /// </summary>
         /// <param name="stream">The file stream (can be null)</param>
-        public static async Task RefreshMetadataAsync(this MediaFile file, Stream stream, IImageFactory imageFactory)
+        public static void RefreshMetadata(this MediaFile file, Stream stream, IImageFactory imageFactory)
         {
             Guard.NotNull(file, nameof(file));
 
@@ -51,13 +51,10 @@ namespace Smartstore.Core.Content.Media
             {
                 try
                 {
-                    var imageInfo = await imageFactory.DetectInfoAsync(stream);
-                    if (imageInfo != null)
-                    {
-                        file.Width = imageInfo.Width;
-                        file.Height = imageInfo.Height;
-                        file.PixelSize = imageInfo.Width * imageInfo.Height;
-                    }
+                    var size = ImageHeader.GetPixelSize(stream, file.MimeType);
+                    file.Width = size.Width;
+                    file.Height = size.Height;
+                    file.PixelSize = size.Width * size.Height;
                 }
                 catch
                 {

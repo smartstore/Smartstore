@@ -8,9 +8,13 @@
 
   <ItemGroup>
     <Compile Remove="App_Data\Logs\**" />
+    <Compile Remove="App_Data\Tenants\**" />
     <Content Remove="App_Data\Logs\**" />
+    <Content Remove="App_Data\Tenants\**" />
     <EmbeddedResource Remove="App_Data\Logs\**" />
+    <EmbeddedResource Remove="App_Data\Tenants\**" />
     <None Remove="App_Data\Logs\**" />
+    <None Remove="App_Data\Tenants\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,6 +60,21 @@
     <None Include="wwwroot\lib\fa5\webfonts\fa-solid-900.svg" />
     <None Include="wwwroot\lib\fa5\webfonts\fa-solid-900.woff2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="App_Data\Geo\COPYRIGHT.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="App_Data\Geo\dbip-country-lite.mmdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="App_Data\Geo\LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Themes\Flex\grippy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   
   <PropertyGroup>
   	<!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project-->
@@ -87,6 +106,15 @@
       
       More details here: https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals#concurrent-garbage-collection-->
     <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
 </Project>
