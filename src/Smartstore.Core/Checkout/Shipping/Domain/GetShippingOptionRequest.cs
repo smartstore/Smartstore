@@ -23,7 +23,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets organized shopping cart items
         /// </summary>
-        public List<OrganizedShoppingCartItem> OrganizedItems { get; init; } = new();
+        public List<OrganizedShoppingCartItem> Items { get; init; } = new();
 
         /// <summary>
         /// Gets the shipping address
@@ -43,6 +43,6 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets or sets the sender's zip/postal code
         /// </summary>
-        public string ZipPostalCodeFrom { get; set; }
+        public string ZipPostalCodeFrom { get; set; } = string.Empty;
     }
 }

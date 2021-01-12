@@ -7,22 +7,21 @@ namespace Smartstore
 {
     public static class ShippingExtentions
     {
-        // TODO: (ms) (core) IShippingRateComputationMethod is missing.
         /// <summary>
         /// Checks whether shipping rate computation method is active
         /// </summary>
         /// <returns>
-        /// <c>true</c> if is active, <c>false</c> if it is not active
+        /// <c>True</c> if is active, <c>false</c> if it is not active
         /// </returns>
-        //public static bool IsShippingRateComputationMethodActive(this Provider<IShippingRateComputationMethod> method, ShippingSettings settings)
-        //{
-        //    Guard.NotNull(method, nameof(method));
-        //    Guard.NotNull(settings, nameof(settings));
+        public static bool IsShippingRateComputationMethodActive(this Provider<IShippingRateComputationMethod> method, ShippingSettings settings)
+        {
+            Guard.NotNull(method, nameof(method));
+            Guard.NotNull(settings, nameof(settings));
 
-        //    if (settings.ActiveShippingRateComputationMethodSystemNames.IsNullOrEmpty() || !method.Value.IsActive)
-        //        return false;
+            if (settings.ActiveShippingRateComputationMethodSystemNames.IsNullOrEmpty() || !method.Value.IsActive)
+                return false;
 
-        //    return settings.ActiveShippingRateComputationMethodSystemNames.Contains(method.Metadata.SystemName, StringComparer.OrdinalIgnoreCase);
-        //}
+            return settings.ActiveShippingRateComputationMethodSystemNames.Contains(method.Metadata.SystemName, StringComparer.OrdinalIgnoreCase);
+        }
     }
 }

@@ -14,36 +14,31 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
     public partial class ShipmentHook : AsyncDbSaveHook<Shipment>
     {
         private readonly IEventPublisher _eventPublisher;
+        private readonly SmartDbContext _db;
 
-        public ShipmentHook(IEventPublisher eventPublisher)
+        public ShipmentHook(IEventPublisher eventPublisher, SmartDbContext db)
         {
             _eventPublisher = eventPublisher;
+            _db = db;
         }
 
-        //public override Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
-        //{
-        //    if (entry.InitialState == Smartstore.Data.EntityState.Deleted)
-        //    {
-
-        //    }
-        //    else
-        //    {
-
-        //    }
-        //}
-
-        protected override Task<HookResult> OnInsertingAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken) 
-            => PublishOrderUpdatedAsync(entity.Order);
-
-        protected override Task<HookResult> OnUpdatingAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken) 
-            => PublishOrderUpdatedAsync(entity.Order);
-
-        protected override Task<HookResult> OnDeletingAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken) 
-            => PublishOrderUpdatedAsync(entity.Order);
-
-        private async Task<HookResult> PublishOrderUpdatedAsync(Order order)
+        protected override async Task<HookResult> OnInsertedAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            await _eventPublisher.PublishOrderUpdatedAsync(order);
+            await _eventPublisher.PublishOrderUpdated(entity.Order);
+            return HookResult.Ok;
+        }
+
+        protected override async Task<HookResult> OnUpdatedAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            await _eventPublisher.PublishOrderUpdated(entity.Order);
+            return HookResult.Ok;
+        }
+
+        protected override async Task<HookResult> OnDeletedAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            var order = await _db.Orders.FindByIdAsync(entity.OrderId, cancelToken);
+            if (order != null)
+                await _eventPublisher.PublishOrderUpdated(order);
 
             return HookResult.Ok;
         }
@@ -56,26 +51,33 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
     public partial class ShipmentItemHook : AsyncDbSaveHook<ShipmentItem>
     {
         private readonly IEventPublisher _eventPublisher;
+        private readonly SmartDbContext _db;
 
-        public ShipmentItemHook(IEventPublisher eventPublisher)
+        public ShipmentItemHook(IEventPublisher eventPublisher, SmartDbContext db)
         {
             _eventPublisher = eventPublisher;
+            _db = db;
         }
 
-        private Task<HookResult> PublishOrderUpdatedAsync(Order order)
+        protected override async Task<HookResult> OnInsertingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            _eventPublisher.PublishOrderUpdatedAsync(order);
-
-            return Task.FromResult(HookResult.Ok);
+            await _eventPublisher.PublishOrderUpdated(entity.Shipment.Order);
+            return HookResult.Ok;
         }
 
-        protected override Task<HookResult> OnInsertingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
-            => PublishOrderUpdatedAsync(entity.Shipment?.Order);
+        protected override async Task<HookResult> OnUpdatingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            await _eventPublisher.PublishOrderUpdated(entity.Shipment.Order);
+            return HookResult.Ok;
+        }
 
-        protected override Task<HookResult> OnUpdatingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
-            => PublishOrderUpdatedAsync(entity.Shipment?.Order);
+        protected override async Task<HookResult> OnDeletingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            var order = await _db.Orders.FindByIdAsync(entity.Shipment.OrderId, cancelToken);
+            if (order != null)
+                await _eventPublisher.PublishOrderUpdated(order);
 
-        protected override Task<HookResult> OnDeletingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
-            => PublishOrderUpdatedAsync(entity.Shipment?.Order);
+            return HookResult.Ok;
+        }
     }
 }

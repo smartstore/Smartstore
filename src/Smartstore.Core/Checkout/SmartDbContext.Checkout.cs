@@ -21,5 +21,6 @@ namespace Smartstore.Core.Data
         public DbSet<ShoppingCartItem> ShoppingCartItems { get; set; }
         public DbSet<Shipment> Shipments { get; set; }
         public DbSet<ShipmentItem> ShipmentItems { get; set; }
+        public DbSet<ShippingMethod> ShippingMethods { get; set; }
     }
 }

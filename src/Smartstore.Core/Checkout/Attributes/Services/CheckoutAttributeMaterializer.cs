@@ -23,7 +23,6 @@ namespace Smartstore.Core.Checkout.Attributes
 
         public async Task<List<CheckoutAttributeValue>> MaterializeCheckoutAttributeValuesAsync(CheckoutAttributeSelection selection)
         {
-            var attr = new CheckoutAttributeSelection("");
             var attributes = await MaterializeCheckoutAttributesAsync(selection);
             var valueIds = attributes.SelectMany(x => x.CheckoutAttributeValues.Select(y => y.Id));
             return await _db.CheckoutAttributeValues.GetManyAsync(valueIds);
