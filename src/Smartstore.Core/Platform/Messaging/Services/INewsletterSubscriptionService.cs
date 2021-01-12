@@ -7,9 +7,9 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Adds or deletes a newsletter subscription.
         /// </summary>
-        /// <param name="add"><c>true</c> add subscription, <c>false</c> remove subscription</param>
+        /// <param name="subscribe"><c>true</c> add subscription, <c>false</c> remove subscription</param>
         /// <returns><c>true</c> added subscription, <c>false</c> removed subscription, <c>null</c> did nothing</returns>
-        Task<bool?> AddNewsletterSubscriptionAsync(bool add, string mail, int storeId);
+        Task<bool?> ApplySubscriptionAsync(bool subscribe, string email, int storeId);
 
         /// <summary>
         /// Activates an existing newsletter subscription and publishes corresponding event.

@@ -9,18 +9,18 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Applies filter by <see cref="NewsletterSubscription.Email"/> and <see cref="NewsletterSubscription.StoreId"/> and validates mail address.
         /// </summary>
-        public static IQueryable<NewsletterSubscription> ApplyMailAddressFilter(this IQueryable<NewsletterSubscription> query, string mail, int storeId = 0)
+        public static IQueryable<NewsletterSubscription> ApplyMailAddressFilter(this IQueryable<NewsletterSubscription> query, string email, int storeId = 0)
         {
             Guard.NotNull(query, nameof(query));
 
-            if (mail.HasValue())
+            if (email.HasValue())
             {
-                mail = mail.Trim();
+                email = email.Trim();
 
-                if (!mail.IsEmail())
+                if (!email.IsEmail())
                     return null;
 
-                query = query.Where(x => x.Email.Contains(mail));
+                query = query.Where(x => x.Email == email);
 
                 if (storeId > 0)
                 {
@@ -40,7 +40,7 @@ namespace Smartstore.Core.Messages
         /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
         /// <returns>NewsletterSubscriber query.</returns>
         public static IOrderedQueryable<NewsletterSubscriber> ApplyStandardFilter(this IQueryable<NewsletterSubscription> query,
-            string mail,
+            string email,
             bool includeHidden = false, 
             int[] storeIds = null,
             int[] customerRolesIds = null)
@@ -59,9 +59,9 @@ namespace Smartstore.Core.Messages
                     Customer = c
                 };
 
-            if (mail.HasValue())
+            if (email.HasValue())
             {
-                joinedQuery = joinedQuery.Where(x => x.Subscription.Email.Contains(mail));
+                joinedQuery = joinedQuery.Where(x => x.Subscription.Email.Contains(email));
             }
 
             if (!includeHidden)
@@ -69,13 +69,11 @@ namespace Smartstore.Core.Messages
                 joinedQuery = joinedQuery.Where(x => x.Subscription.Active);
             }
 
-            // TODO: (mh) (core) > We can't use ApplyStoreFilter here because NewsletterSubscriber aint't IStoreRestricted | REMOVE THIS COMMENT.
             if (storeIds?.Any() ?? false)
             {
                 joinedQuery = joinedQuery.Where(x => storeIds.Contains(x.Subscription.StoreId));
             }
 
-            // TODO: (mh) (core) > We can't use ApplyAclFilter here because NewsletterSubscriber aint't IAclRestricted | REMOVE THIS COMMENT.
             if (customerRolesIds?.Any() ?? false)
             {
                 joinedQuery = joinedQuery.Where(x => x.Customer.CustomerRoleMappings

@@ -10,11 +10,11 @@ namespace Smartstore.Core.Messages
         /// Publishes the newsletter subscribed event.
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
-        /// <param name="mailAddress">The mail address which has subscribed.</param>
-        public static Task PublishNewsletterSubscribedAsync(this IEventPublisher eventPublisher, string mailAddress)
+        /// <param name="email">The mail address which has subscribed.</param>
+        public static Task PublishNewsletterSubscribedAsync(this IEventPublisher eventPublisher, string email)
         {
-            return mailAddress.HasValue()
-                ? eventPublisher.PublishAsync(new NewsletterSubscribedEvent(mailAddress))
+            return email.HasValue()
+                ? eventPublisher.PublishAsync(new NewsletterSubscribedEvent(email))
                 : Task.CompletedTask;
         }
 
@@ -22,11 +22,11 @@ namespace Smartstore.Core.Messages
         /// Publishes the newsletter unsubscribed event.
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
-        /// <param name="mailAddress">The mail address which has unsubscribed.</param>
-        public static Task PublishNewsletterUnsubscribedAsync(this IEventPublisher eventPublisher, string mailAddress)
+        /// <param name="email">The mail address which has unsubscribed.</param>
+        public static Task PublishNewsletterUnsubscribedAsync(this IEventPublisher eventPublisher, string email)
         {
-            return mailAddress.HasValue()
-                ? eventPublisher.PublishAsync(new NewsletterUnsubscribedEvent(mailAddress))
+            return email.HasValue()
+                ? eventPublisher.PublishAsync(new NewsletterUnsubscribedEvent(email))
                 : Task.CompletedTask;
         }
     }

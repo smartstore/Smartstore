@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -73,9 +74,10 @@ namespace Smartstore.Core.Messages
 
             if (!subscription.Active)
             {
-                subscription.Active = true;
+                // Ensure that entity is tracked
+                _db.TryChangeState(subscription, EntityState.Modified);
 
-                _db.NewsletterSubscriptions.Update(subscription);
+                subscription.Active = true;
                 await _db.SaveChangesAsync();
 
                 // Publish the unsubscription event.
@@ -92,9 +94,9 @@ namespace Smartstore.Core.Messages
 
             if (subscription.Active)
             {
-                subscription.Active = false;
+                _db.TryChangeState(subscription, EntityState.Modified);
 
-                _db.NewsletterSubscriptions.Update(subscription);
+                subscription.Active = false;
                 await _db.SaveChangesAsync();
 
                 // Publish the unsubscription event.
@@ -113,11 +115,10 @@ namespace Smartstore.Core.Messages
 
             // Get original values of subscription entity.
             var modProps = _db.GetModifiedProperties(subscription);
-            var origActive = modProps.ContainsKey("CategoryId") ? (bool)modProps["Active"] : subscription.Active;
-            var origEmail = modProps.ContainsKey("Email") ? modProps["Email"].ToString() : subscription.Email;
+            var origActive = modProps.ContainsKey(nameof(NewsletterSubscription.Active)) ? (bool)modProps[nameof(NewsletterSubscription.Active)] : subscription.Active;
+            var origEmail = modProps.ContainsKey(nameof(NewsletterSubscription.Email)) ? modProps[nameof(NewsletterSubscription.Email)].ToString() : subscription.Email;
 
             // Persist.
-            _db.NewsletterSubscriptions.Update(subscription);
             await _db.SaveChangesAsync();
 
             // Publish events.
@@ -141,19 +142,19 @@ namespace Smartstore.Core.Messages
             return subscribed;
         }
 
-        public virtual async Task<bool?> AddNewsletterSubscriptionAsync(bool add, string mail, int storeId)
+        public virtual async Task<bool?> ApplySubscriptionAsync(bool subscribe, string email, int storeId)
         {
             bool? result = null;
 
-            if (mail.IsEmail())
+            if (email.IsEmail())
             {
                 var subscription = await _db.NewsletterSubscriptions
-                    .ApplyMailAddressFilter(mail, storeId)
+                    .ApplyMailAddressFilter(email, storeId)
                     .FirstOrDefaultAsync();
 
                 if (subscription != null)
                 {
-                    if (add)
+                    if (subscribe)
                     {
                         if (!subscription.Active)
                         {
@@ -161,8 +162,6 @@ namespace Smartstore.Core.Messages
                             // _messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
                         }
 
-                        // TODO: (mh) (core) why update? nothing has happened.
-                        _db.NewsletterSubscriptions.Update(subscription);
                         result = true;
                     }
                     else
@@ -173,12 +172,12 @@ namespace Smartstore.Core.Messages
                 }
                 else
                 {
-                    if (add)
+                    if (subscribe)
                     {
                         subscription = new NewsletterSubscription
                         {
                             NewsletterSubscriptionGuid = Guid.NewGuid(),
-                            Email = mail,
+                            Email = email,
                             Active = false,
                             CreatedOnUtc = DateTime.UtcNow,
                             StoreId = storeId,
@@ -193,8 +192,6 @@ namespace Smartstore.Core.Messages
                         result = true;
                     }
                 }
-
-                await _db.SaveChangesAsync();
             }
 
             return result;
