@@ -39,40 +39,36 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (productIds.Any())
             {
-                // TODO: (mg) (core) EF Core only supports server translation of GroupBy with key projection!! What? Really? Find solution (two queries?).
                 // Process the products in batches as they can have a large number of variant combinations assigned to them.
-                //foreach (var productIdsChunk in productIds.Slice(100))
-                //{
-                //    var variantCombinationQuery =
-                //        from pvac in _db.ProductVariantAttributeCombinations
-                //        where productIdsChunk.Contains(pvac.ProductId) && pvac.Price != null && pvac.IsActive
-                //        select pvac;
+                foreach (var productIdsChunk in productIds.Slice(100))
+                {
+                    var lowestPricesQuery =
+                        from x in _db.ProductVariantAttributeCombinations
+                        where productIdsChunk.Contains(x.ProductId) && x.Price != null && x.IsActive
+                        group x by x.ProductId into grp
+                        select new
+                        {
+                            ProductId = grp.Key,
+                            LowestPrice = _db.ProductVariantAttributeCombinations
+                                .Where(y => y.ProductId == grp.Key && y.Price != null && y.IsActive)
+                                .OrderBy(y => y.Price)
+                                .Select(y => y.Price)
+                                .FirstOrDefault()
+                        };
 
-                //    var lowestPricesQuery =
-                //        from x in variantCombinationQuery
-                //        group x by x.ProductId into grp
-                //        select new
-                //        {
-                //            ProductId = grp.Key,
-                //            LowestPrice = grp
-                //                .OrderBy(y => y.Price)
-                //                .Select(y => y.Price)
-                //                .FirstOrDefault()
-                //        };
+                    var lowestPrices = await lowestPricesQuery.ToListAsync();
+                    var lowestPricesDic = lowestPrices.ToDictionarySafe(x => x.ProductId, x => x.LowestPrice);
 
-                //    var lowestPrices = await lowestPricesQuery.ToListAsync();
-                //    var lowestPricesDic = lowestPrices.ToDictionarySafe(x => x.ProductId, x => x.LowestPrice);
+                    foreach (var productId in productIdsChunk)
+                    {
+                        var lowestAttributeCombinationPrice = lowestPricesDic.GetValueOrDefault(productId);
 
-                //    foreach (var productId in productIdsChunk)
-                //    {
-                //        var lowestAttributeCombinationPrice = lowestPricesDic.GetValueOrDefault(productId);
-
-                //        // BatchUpdate recommended because products contain a lot of data (like full description).
-                //        await _db.Products
-                //            .Where(x => x.Id == productId)
-                //            .BatchUpdateAsync(x => new Product { LowestAttributeCombinationPrice = lowestAttributeCombinationPrice });
-                //    }
-                //}
+                        // BatchUpdate recommended because products contain a lot of data (like full description).
+                        await _db.Products
+                            .Where(x => x.Id == productId)
+                            .BatchUpdateAsync(x => new Product { LowestAttributeCombinationPrice = lowestAttributeCombinationPrice });
+                    }
+                }
             }
         }
     }
