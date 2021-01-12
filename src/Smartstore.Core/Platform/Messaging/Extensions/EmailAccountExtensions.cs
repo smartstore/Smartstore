@@ -7,7 +7,7 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Creates a new <see cref="MailAddress"/> based on <see cref="EmailAccount.Email"/> and <see cref="EmailAccount.DisplayName"/>.
         /// </summary>
-        public static MailAddress ToEmailAddress(this EmailAccount emailAccount)
+        public static MailAddress ToMailAddress(this EmailAccount emailAccount)
         {
             Guard.NotNull(emailAccount, nameof(emailAccount));
 

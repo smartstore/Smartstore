@@ -12,20 +12,17 @@ namespace Smartstore.Core.Common.Services
     public partial class CurrencyService : ICurrencyService
     {
         private readonly SmartDbContext _db;
-        private readonly IStoreMappingService _storeMappingService;
         private readonly CurrencySettings _currencySettings;
         private readonly IProviderManager _providerManager;  
         private readonly IStoreContext _storeContext;
 
         public CurrencyService(
             SmartDbContext db,
-            IStoreMappingService storeMappingService,
             CurrencySettings currencySettings,
             IProviderManager providerManager,
             IStoreContext storeContext)
         {
             _db = db;
-            _storeMappingService = storeMappingService;
             _currencySettings = currencySettings;
             _providerManager = providerManager;
             _storeContext = storeContext;
