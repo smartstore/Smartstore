@@ -25,6 +25,7 @@ using SharpResizeOptions = SixLabors.ImageSharp.Processing.ResizeOptions;
 using SharpFlipMode = SixLabors.ImageSharp.Processing.FlipMode;
 using SharpPixelAlphaCompositionMode = SixLabors.ImageSharp.PixelFormats.PixelAlphaCompositionMode;
 using SharpPixelColorBlendingMode = SixLabors.ImageSharp.PixelFormats.PixelColorBlendingMode;
+using System.IO;
 #endregion
 
 namespace Smartstore.Imaging.Adapters.ImageSharp
@@ -239,21 +240,28 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             PixelAlphaCompositionMode alphaComposition,
             float opacity)
         {
-            if (image is SharpImage sharpImage)
+            Guard.NotNull(image, nameof(image));
+
+            var sharpImage = (image as SharpImage)?.WrappedImage;
+            if (sharpImage is null)
             {
-                var locationSize = (Size)position;
-                var locationPoint = new SharpPoint(new SharpSize(locationSize.Width, locationSize.Height));
-
-                _context.DrawImage(sharpImage.WrappedImage,
-                    locationPoint,
-                    (SharpPixelColorBlendingMode)colorBlending,
-                    (SharpPixelAlphaCompositionMode)alphaComposition,
-                    opacity);
-
-                return this;
+                using (var stream = new MemoryStream())
+                {
+                    image.Save(stream);
+                    sharpImage = SixLabors.ImageSharp.Image.Load(stream);
+                }
             }
 
-            throw new ArgumentException("Passed image type must be '{0}'.".FormatCurrent(typeof(SharpImage)), nameof(image));
+            var locationSize = (Size)position;
+            var locationPoint = new SharpPoint(new SharpSize(locationSize.Width, locationSize.Height));
+
+            _context.DrawImage(sharpImage,
+                locationPoint,
+                (SharpPixelColorBlendingMode)colorBlending,
+                (SharpPixelAlphaCompositionMode)alphaComposition,
+                opacity);
+
+            return this;
         }
 
         public IImageTransformer Rotate(float degrees)

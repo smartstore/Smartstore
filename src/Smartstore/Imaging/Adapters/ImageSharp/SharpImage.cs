@@ -14,9 +14,14 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         private SharpImageFormat _format;
 
         public SharpImage(Image image, SharpFormat sharpFormat)
+            : this(image, ImageSharpUtility.CreateFormat(sharpFormat))
+        {
+        }
+
+        private SharpImage(Image image, SharpImageFormat format)
         {
             _image = image;
-            _format = ImageSharpUtility.CreateFormat(sharpFormat);
+            _format = format;
             SourceSize = new System.Drawing.Size(image.Width, image.Height);
         }
 
@@ -55,10 +60,16 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         public Size SourceSize { get; }
 
         /// <inheritdoc/>
-        public IImage Transform(Action<IImageTransformer> transformer)
+        public void Transform(Action<IImageTransformer> operation)
         {
-            _image.Mutate(x => transformer(new SharpImageTransformer(x, this)));
-            return this;
+            _image.Mutate(x => operation(new SharpImageTransformer(x, this)));
+        }
+
+        /// <inheritdoc/>
+        public IProcessableImage Clone(Action<IImageTransformer> operation)
+        {
+            var clone = _image.Clone(x => operation(new SharpImageTransformer(x, this)));
+            return new SharpImage(clone, _format);
         }
 
         /// <inheritdoc/>

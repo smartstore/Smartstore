@@ -11,10 +11,17 @@ namespace Smartstore.Imaging
     public interface IProcessableImage : IImage
     {
         /// <summary>
-        /// Transforms the image.
+        /// Transforms the source image by applying the image operations to it.
         /// </summary>
-        /// <param name="transformer"></param>
-        IImage Transform(Action<IImageTransformer> transformer);
+        /// <param name="operation">The operation to perform on the source.</param>
+        void Transform(Action<IImageTransformer> operation);
+
+        /// <summary>
+        /// Creates a deep clone of the current image. The clone is then transformed by the given operation.
+        /// </summary>
+        /// <param name="operation">The operation to perform on the clone.</param>
+        /// <returns>The new <see cref="IProcessableImage"/>.</returns>
+        IProcessableImage Clone(Action<IImageTransformer> operation);
     }
 
     /// <summary>
