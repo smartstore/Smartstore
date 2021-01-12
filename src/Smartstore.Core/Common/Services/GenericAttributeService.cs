@@ -46,7 +46,7 @@ namespace Smartstore.Core.Common.Services
                 var orders = await _db.Orders.GetManyAsync(orderIds, true);
                 foreach (var order in orders)
                 {
-                    await _eventPublisher.PublishOrderUpdated(order);
+                    await _eventPublisher.PublishOrderUpdatedAsync(order);
                 }
             }
         }

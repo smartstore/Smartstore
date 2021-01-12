@@ -11,12 +11,11 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
         /// <param name="order">The order instance.</param>
-        public static Task PublishOrderPaid(this IEventPublisher eventPublisher, Order order)
+        public static Task PublishOrderPaidAsync(this IEventPublisher eventPublisher, Order order)
         {
-            if (order != null)
-                return eventPublisher.PublishAsync(new OrderPaidEvent(order));
-
-            return Task.CompletedTask;
+            return order != null 
+                ? eventPublisher.PublishAsync(new OrderPaidEvent(order)) 
+                : Task.CompletedTask;
         }
 
         /// <summary>
@@ -24,12 +23,11 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
         /// <param name="order">The order instance.</param>
-        public static Task PublishOrderPlaced(this IEventPublisher eventPublisher, Order order)
+        public static Task PublishOrderPlacedAsync(this IEventPublisher eventPublisher, Order order)
         {
-            if (order != null)
-                eventPublisher.PublishAsync(new OrderPlacedEvent(order));
-
-            return Task.CompletedTask;
+            return order != null
+                ? eventPublisher.PublishAsync(new OrderPlacedEvent(order))
+                : Task.CompletedTask;
         }
 
         /// <summary>
@@ -37,12 +35,11 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         /// <param name="eventPublisher">The event publisher.</param>
         /// <param name="order">The order instance.</param>
-        public static Task PublishOrderUpdated(this IEventPublisher eventPublisher, Order order)
+        public static Task PublishOrderUpdatedAsync(this IEventPublisher eventPublisher, Order order)
         {
-            if (order != null)
-                eventPublisher.PublishAsync(new OrderUpdatedEvent(order));
-
-            return Task.CompletedTask;
+            return order != null
+                ? eventPublisher.PublishAsync(new OrderUpdatedEvent(order))
+                : Task.CompletedTask;
         }
     }
 }

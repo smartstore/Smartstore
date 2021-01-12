@@ -20,12 +20,17 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
             _eventPublisher = eventPublisher;
         }
 
-        private Task<HookResult> PublishOrderUpdatedAsync(Order order)
-        {
-            _eventPublisher.PublishOrderUpdated(order);
+        //public override Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        //{
+        //    if (entry.InitialState == Smartstore.Data.EntityState.Deleted)
+        //    {
 
-            return Task.FromResult(HookResult.Ok);
-        }
+        //    }
+        //    else
+        //    {
+
+        //    }
+        //}
 
         protected override Task<HookResult> OnInsertingAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken) 
             => PublishOrderUpdatedAsync(entity.Order);
@@ -35,6 +40,13 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
 
         protected override Task<HookResult> OnDeletingAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken) 
             => PublishOrderUpdatedAsync(entity.Order);
+
+        private async Task<HookResult> PublishOrderUpdatedAsync(Order order)
+        {
+            await _eventPublisher.PublishOrderUpdatedAsync(order);
+
+            return HookResult.Ok;
+        }
     }
 
     /// <summary>
@@ -52,7 +64,7 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
 
         private Task<HookResult> PublishOrderUpdatedAsync(Order order)
         {
-            _eventPublisher.PublishOrderUpdated(order);
+            _eventPublisher.PublishOrderUpdatedAsync(order);
 
             return Task.FromResult(HookResult.Ok);
         }
