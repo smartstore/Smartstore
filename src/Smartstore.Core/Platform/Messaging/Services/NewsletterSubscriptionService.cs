@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
@@ -7,7 +8,7 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Messages
 {
-    public class NewsletterSubscriptionService : DbSaveHook<NewsletterSubscription>, INewsletterSubscriptionService
+    public class NewsletterSubscriptionService : AsyncDbSaveHook<NewsletterSubscription>, INewsletterSubscriptionService
     {
         private readonly SmartDbContext _db;
         private readonly IEventPublisher _eventPublisher;
@@ -30,7 +31,7 @@ namespace Smartstore.Core.Messages
 
         #region Hook 
 
-        protected override HookResult OnInserting(NewsletterSubscription entity, IHookedEntity entry)
+        protected override Task<HookResult> OnInsertingAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             Guard.NotNull(entity, nameof(entity));
 
@@ -40,10 +41,10 @@ namespace Smartstore.Core.Messages
             // Format and validate mail address.
             entity.Email = EnsureSubscriberEmailOrThrow(entity.Email);
 
-            return HookResult.Ok;
+            return Task.FromResult(HookResult.Ok);
         }
 
-        protected override HookResult OnUpdating(NewsletterSubscription entity, IHookedEntity entry)
+        protected override Task<HookResult> OnUpdatingAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             Guard.NotNull(entity, nameof(entity));
 
@@ -53,21 +54,20 @@ namespace Smartstore.Core.Messages
             // Format and validate mail address.
             entity.Email = EnsureSubscriberEmailOrThrow(entity.Email);
 
-            return HookResult.Ok;
+            return Task.FromResult(HookResult.Ok);
         }
 
-        protected override HookResult OnDeleted(NewsletterSubscription entity, IHookedEntity entry)
+        protected override async Task<HookResult> OnDeletedAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             Guard.NotNull(entity, nameof(entity));
 
-            _eventPublisher.PublishNewsletterUnsubscribed(entity.Email);
-        
+            await _eventPublisher.PublishNewsletterUnsubscribedAsync(entity.Email);
             return HookResult.Ok;
         }
 
         #endregion
 
-        public virtual async Task<bool> SubscribeAsnyc(NewsletterSubscription subscription)
+        public virtual async Task<bool> SubscribeAsync(NewsletterSubscription subscription)
         {
             Guard.NotNull(subscription, nameof(subscription));
 
@@ -79,7 +79,7 @@ namespace Smartstore.Core.Messages
                 await _db.SaveChangesAsync();
 
                 // Publish the unsubscription event.
-                await _eventPublisher.PublishNewsletterSubscribed(subscription.Email);
+                await _eventPublisher.PublishNewsletterSubscribedAsync(subscription.Email);
                 return true;
             }
 
@@ -98,7 +98,7 @@ namespace Smartstore.Core.Messages
                 await _db.SaveChangesAsync();
 
                 // Publish the unsubscription event.
-                await _eventPublisher.PublishNewsletterUnsubscribed(subscription.Email);
+                await _eventPublisher.PublishNewsletterUnsubscribedAsync(subscription.Email);
                 return true;
             }
 
@@ -126,7 +126,7 @@ namespace Smartstore.Core.Messages
                 // If the original entry was false and and the current is true
                 // or the mail address changed and subscription is active
                 // > publish subscribed.
-                await _eventPublisher.PublishNewsletterSubscribed(subscription.Email);
+                await _eventPublisher.PublishNewsletterSubscribedAsync(subscription.Email);
                 subscribed = true;
             }
             else if ((origActive && subscription.Active && (origEmail != subscription.Email)) || (origActive && !subscription.Active))
@@ -134,7 +134,7 @@ namespace Smartstore.Core.Messages
                 // If the two mail adresses are different > publish unsubscribed.
                 // or if the original entry was true and the current is false
                 // > publish unsubscribed.
-                await _eventPublisher.PublishNewsletterUnsubscribed(subscription.Email);
+                await _eventPublisher.PublishNewsletterUnsubscribedAsync(subscription.Email);
                 subscribed = false;
             }
             

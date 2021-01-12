@@ -14,13 +14,13 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Activates an existing newsletter subscription and publishes corresponding event.
         /// </summary>
-        /// <returns>Whether activation was successful.</returns>
-        Task<bool> SubscribeAsnyc(NewsletterSubscription subscription);
+        /// <returns>Whether subscription was successful.</returns>
+        Task<bool> SubscribeAsync(NewsletterSubscription subscription);
 
         /// <summary>
         /// Deactivates an existing newsletter subscription and publishes corresponding event.
         /// </summary>
-        /// <returns>Whether deactivation was successful.</returns>
+        /// <returns>Whether unsubscription was successful.</returns>
         Task<bool> UnsubscribeAsync(NewsletterSubscription subscription);
 
         /// <summary>
