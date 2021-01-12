@@ -62,7 +62,7 @@ namespace Smartstore.Core.Catalog.Categories
 
             var referenceCategory = await _db.Categories.FindByIdAsync(categoryId);
             // TODO: (mg) (core) Complete ICategoryService.InheritAclIntoChildrenAsync (IAclService required).
-            var referenceRoleIds = new int[0];
+            var referenceRoleIds = Array.Empty<int>();
 
             using (var scope = new DbContextScope(_db, autoDetectChanges: false))
             {
@@ -184,7 +184,7 @@ namespace Smartstore.Core.Catalog.Categories
             //var productEntityName = nameof(Product);
             var affectedCategories = 0;
             var affectedProducts = 0;
-
+            
             var allStoreIds = await _db.Stores
                 .AsQueryable()
                 .Select(x => x.Id)

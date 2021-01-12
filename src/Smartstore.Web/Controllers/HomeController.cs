@@ -122,7 +122,7 @@ namespace Smartstore.Web.Controllers
                 .Where(x => x.MediaType == "image" && x.Size > 0 /*&& x.Extension == "jpg" && x.Size < 10000*/)
                 .OrderByDescending(x => x.Size)
                 //.OrderBy(x => x.Size)
-                .Take(100)
+                .Take(1)
                 .ToListAsync();
 
             //Save originals
@@ -152,10 +152,14 @@ namespace Smartstore.Web.Controllers
                     {
                         x.Resize(new ResizeOptions
                         {
-                            Size = new Size(500, 500),
+                            Size = new Size(800, 800),
                             Mode = ResizeMode.Max,
                             Resampling = ResamplingMode.Bicubic
                         });
+
+                        //x.OilPaint(40, 30);
+                        //x.Pad(1200, 900, Color.Bisque);
+                        x.Sepia();
                     });
 
                     if (image.Format is IJpegFormat jpeg)
@@ -169,6 +173,8 @@ namespace Smartstore.Web.Controllers
                         //png.ColorType = PngColorType.Grayscale;
                         png.CompressionLevel = PngCompressionLevel.BestCompression;
                         png.QuantizationMethod = QuantizationMethod.Wu;
+                        //png.BitDepth = PngBitDepth.Bit8;
+                        //png.ColorType = PngColorType.Palette;
                     }
 
                     var outPath = System.IO.Path.Combine(tempPath, file.Name);
