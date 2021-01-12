@@ -3,6 +3,35 @@ using System.Collections.Generic;
 
 namespace Smartstore.Engine
 {
+    /// <summary>
+    /// Memory managers are used to allocate memory for image processing operations.
+    /// </summary>
+    public enum ImagingMemoryAllocation
+    {
+        /// <summary>
+        /// For environments with very limited memory capabilities, only small buffers like
+        //  image rows are pooled.
+        /// </summary>
+        Minimal,
+
+        /// <summary>
+        /// For environments with limited memory capabilities, only small array requests
+        //  are pooled, which can result in reduced throughput.
+        /// </summary>
+        Moderate,
+
+        /// <summary>
+        /// Should be good for most use cases.
+        /// </summary>
+        Default,
+
+        /// <summary>
+        /// For environments where memory capabilities are not an issue, the maximum amount
+        //  of array requests are pooled which results in optimal throughput.
+        /// </summary>
+        Aggressive
+    }
+    
     public partial class SmartConfiguration
     {
         public string ApplicationName { get; set; } = "Smartstore";
@@ -11,8 +40,6 @@ namespace Smartstore.Engine
         public string ModulesBasePath { get; set; } = "/Plugins";
         public string TempDirectory { get; set; } = "/App_Data/_temp";
         public string TranslateCheckUrl { get; set; } = "https://translate.smartstore.com/StringResource/CheckAvailableResources?version={0}";
-
-        public object ConnectionStrings { get; set; }
 
         /// <summary>
         /// Monitor all theme folders for file changes/creations/deletions. Only turn this off when you encounter problems on the production webserver.
@@ -60,6 +87,11 @@ namespace Smartstore.Engine
         /// </summary>
         public string MediaPublicPath { get; set; } = "media";
 
+        /// <summary>
+        /// The amount of memory allocated for image processing operations.
+        /// </summary>
+        public ImagingMemoryAllocation ImagingMemoryAllocation { get; set; } = ImagingMemoryAllocation.Minimal;
+
         public string[] PluginsIgnoredDuringInstallation { get; set; }
 
         /// <summary>
@@ -96,11 +128,5 @@ namespace Smartstore.Engine
         /// Default is False.
         /// </summary>
         public bool UseDeveloperExceptionPage { get; set; }
-
-        /// <summary>
-        /// When set to an existing local directory mails will
-        /// be saved here instead of actually being sent.
-        /// </summary>
-        public string MailPickupDirectory { get; set; }
     }
 }
