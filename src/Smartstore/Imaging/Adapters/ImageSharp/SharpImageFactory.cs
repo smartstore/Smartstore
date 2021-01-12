@@ -5,16 +5,33 @@ using System.Threading;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Memory;
 using SharpConfiguration = SixLabors.ImageSharp.Configuration;
+using Smartstore.Engine;
 
 namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     public class SharpImageFactory : Disposable, IImageFactory
     {
-        private readonly MemoryAllocator _memAllocator = ArrayPoolMemoryAllocator.CreateWithMinimalPooling();
+        private readonly MemoryAllocator _memAllocator;
         private readonly Timer _releaseMemTimer;
         
-        public SharpImageFactory()
+        public SharpImageFactory(SmartConfiguration appConfig)
         {
+            switch (appConfig.ImagingMemoryAllocation)
+            {
+                case ImagingMemoryAllocation.Minimal:
+                    _memAllocator = ArrayPoolMemoryAllocator.CreateWithMinimalPooling();
+                    break;
+                case ImagingMemoryAllocation.Moderate:
+                    _memAllocator = ArrayPoolMemoryAllocator.CreateWithModeratePooling();
+                    break;
+                case ImagingMemoryAllocation.Default:
+                    _memAllocator = ArrayPoolMemoryAllocator.CreateDefault();
+                    break;
+                case ImagingMemoryAllocation.Aggressive:
+                    _memAllocator = ArrayPoolMemoryAllocator.CreateWithAggressivePooling();
+                    break;
+            }
+            
             SharpConfiguration.Default.MemoryAllocator = _memAllocator;
 
             // Release memory pool every 10 minutes
