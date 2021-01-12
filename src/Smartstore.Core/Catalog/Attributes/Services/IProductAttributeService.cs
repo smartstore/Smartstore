@@ -32,5 +32,20 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <param name="deleteExistingValues">A value indicating whether to delete all existing product variant attribute values.</param>
         /// <returns>Number of added product variant attribute values.</returns>
         Task<int> CopyAttributeOptionsAsync(ProductVariantAttribute productVariantAttribute, int productAttributeOptionsSetId, bool deleteExistingValues);
+
+        /// <summary>
+        /// Gets a distinct list of media file identifiers.
+        /// Only files that are explicitly assigned to combinations are taken into account.
+        /// </summary>
+        /// <param name="productId">Product identifier.</param>
+        /// <returns>List of media file identifiers.</returns>
+        Task<IList<int>> GetAttributeCombinationFileIdsAsync(int productId);
+
+        /// <summary>
+        /// Creates all variant attributes combinations for a product.
+        /// </summary>
+        /// <param name="productId">Product identifier.</param>
+        /// <returns>Number of added attribute combinations.</returns>
+        Task<int> CreateAllAttributeCombinationsAsync(int productId);
     }
 }

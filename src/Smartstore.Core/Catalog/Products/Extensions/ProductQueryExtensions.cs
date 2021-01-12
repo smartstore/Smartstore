@@ -58,7 +58,7 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <summary>
-        /// Applies a filter for GTIN and sorts by <see cref="Product.Id"/>.
+        /// Applies a filter for GTIN and sorts by <see cref="Product.DisplayOrder"/>, then by <see cref="Product.Id"/>.
         /// </summary>
         /// <param name="query">Product query.</param>
         /// <param name="gtin">Global Trade Item Number (GTIN).</param>
@@ -71,11 +71,13 @@ namespace Smartstore.Core.Catalog.Products
 
             query = query.Where(x => x.Gtin == gtin);
 
-            return query.OrderBy(x => x.Id);
+            return query
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Id);
         }
 
         /// <summary>
-        /// Applies a filter for MPN and sorts by <see cref="Product.Id"/>.
+        /// Applies a filter for MPN and sorts by <see cref="Product.DisplayOrder"/>, then by <see cref="Product.Id"/>.
         /// </summary>
         /// <param name="query">Product query.</param>
         /// <param name="manufacturerPartNumber">Manufacturer Part Number (MPN).</param>
@@ -88,7 +90,9 @@ namespace Smartstore.Core.Catalog.Products
 
             query = query.Where(x => x.ManufacturerPartNumber == manufacturerPartNumber);
 
-            return query.OrderBy(x => x.Id);
+            return query
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Id);
         }
 
         /// <summary>

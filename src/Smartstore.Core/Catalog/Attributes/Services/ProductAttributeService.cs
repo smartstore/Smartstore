@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Data;
+using Smartstore.Data.Batching;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -245,6 +247,139 @@ namespace Smartstore.Core.Catalog.Attributes
             }
 
             return addedValues;
+        }
+
+        public virtual async Task<IList<int>> GetAttributeCombinationFileIdsAsync(int productId)
+        {
+            if (productId == 0)
+            {
+                return new List<int>();
+            }
+
+            var fileIds = await _db.ProductVariantAttributeCombinations
+                .Where(x => x.ProductId == productId && !string.IsNullOrEmpty(x.AssignedMediaFileIds) && x.IsActive)
+                .Select(x => x.AssignedMediaFileIds)
+                .ToListAsync();
+
+            if (!fileIds.Any())
+            {
+                return new List<int>();
+            }
+
+            var uniqueFileIds = fileIds
+                .SelectMany(x => x.SplitSafe(","))
+                .Distinct();
+
+            var result = uniqueFileIds
+                .Select(x => x.ToInt())
+                .Where(x => x != 0)
+                .ToList();
+
+            return result;
+        }
+
+        public virtual async Task<int> CreateAllAttributeCombinationsAsync(int productId)
+        {
+            if (productId == 0)
+            {
+                return 0;
+            }
+
+            // Delete all existing combinations for this product.
+            await _db.ProductVariantAttributeCombinations
+                .Where(x => x.ProductId == productId)
+                .BatchDeleteAsync();
+
+            var attributes = await _db.ProductVariantAttributes
+                .AsNoTracking()
+                .Include(x => x.ProductVariantAttributeValues)
+                .Where(x => x.ProductId == productId)
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            if (!attributes.Any())
+            {
+                return 0;
+            }
+
+            var mappedAttributes = attributes
+                .SelectMany(x => x.ProductVariantAttributeValues)
+                .ToDictionarySafe(x => x.Id, x => x.ProductVariantAttribute);
+
+            var toCombine = new List<List<ProductVariantAttributeValue>>();
+            var resultMatrix = new List<List<ProductVariantAttributeValue>>();
+            var tmpValues = new List<ProductVariantAttributeValue>();
+
+            attributes
+                .Where(x => x.ProductVariantAttributeValues.Any())
+                .Each(x => toCombine.Add(x.ProductVariantAttributeValues.ToList()));
+
+            if (!toCombine.Any())
+            {
+                return 0;
+            }
+
+            CombineAll(0, tmpValues);
+
+            var addedCombinations = 0;
+
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, hooksEnabled: false))
+            {
+                foreach (var values in resultMatrix)
+                {
+                    var attributeSelection = new ProductVariantAttributeSelection(string.Empty);
+
+                    foreach (var value in values)
+                    {
+                        attributeSelection.AddAttributeValue(mappedAttributes[value.Id].Id, value.Id);
+                    }
+
+                    var combination = new ProductVariantAttributeCombination
+                    {
+                        ProductId = productId,
+                        AttributesXml = attributeSelection.AsJson(),
+                        StockQuantity = 10000,
+                        AllowOutOfStockOrders = true,
+                        IsActive = true
+                    };
+
+                    _db.ProductVariantAttributeCombinations.Add(combination);
+                }
+
+                addedCombinations = await scope.CommitAsync();
+            }
+
+            //foreach (var y in resultMatrix)
+            //{
+            //	var sb = new System.Text.StringBuilder();
+            //	foreach (var x in y)
+            //	{
+            //		sb.AppendFormat("{0} ", x.Name);
+            //	}
+            //	sb.ToString().Dump();
+            //}
+
+            return addedCombinations;
+
+            void CombineAll(int row, List<ProductVariantAttributeValue> tmp)
+            {
+                var combine = toCombine[row];
+
+                for (var col = 0; col < combine.Count; ++col)
+                {
+                    var lst = new List<ProductVariantAttributeValue>(tmp);
+                    lst.Add(combine[col]);
+
+                    if (row == (toCombine.Count - 1))
+                    {
+                        resultMatrix.Add(lst);
+                    }
+                    else
+                    {
+                        CombineAll(row + 1, lst);
+                    }
+                }
+            }
         }
     }
 }

@@ -36,13 +36,14 @@ namespace Smartstore.Domain
         protected AttributeSelection(string rawAttributes, string xmlAttributeName, string xmlAttributeValueName = null)
         {
             Guard.NotEmpty(xmlAttributeName, nameof(xmlAttributeName));
-            Guard.NotEmpty(rawAttributes, nameof(rawAttributes));
 
-            _rawAttributes = rawAttributes.Trim();
+            _rawAttributes = rawAttributes.TrimSafe();
             _xmlAttributeName = xmlAttributeName;
             _xmlAttributeValueName = xmlAttributeValueName.HasValue() ? xmlAttributeValueName : xmlAttributeName + "Value";
 
-            _map = FromXmlOrJson(_rawAttributes, _xmlAttributeName, _xmlAttributeValueName);
+            _map = !string.IsNullOrEmpty(_rawAttributes)
+                ? FromXmlOrJson(_rawAttributes, _xmlAttributeName, _xmlAttributeValueName)
+                : new Multimap<int, object>();
         }
 
         /// <summary>
@@ -160,7 +161,7 @@ namespace Smartstore.Domain
 
             _isJson = false;
             _dirty = false;
-            _rawAttributes = root.ToString();
+            _rawAttributes = root.ToString(SaveOptions.DisableFormatting);
             return _rawAttributes;
         }
 
