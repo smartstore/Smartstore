@@ -24,13 +24,13 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
 
         protected override async Task<HookResult> OnInsertedAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            await _eventPublisher.PublishOrderUpdated(entity.Order);
+            await _eventPublisher.PublishOrderUpdatedAsync(entity.Order);
             return HookResult.Ok;
         }
 
         protected override async Task<HookResult> OnUpdatedAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            await _eventPublisher.PublishOrderUpdated(entity.Order);
+            await _eventPublisher.PublishOrderUpdatedAsync(entity.Order);
             return HookResult.Ok;
         }
 
@@ -38,7 +38,7 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
         {
             var order = await _db.Orders.FindByIdAsync(entity.OrderId, cancelToken);
             if (order != null)
-                await _eventPublisher.PublishOrderUpdated(order);
+                await _eventPublisher.PublishOrderUpdatedAsync(order);
 
             return HookResult.Ok;
         }
@@ -61,13 +61,13 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
 
         protected override async Task<HookResult> OnInsertingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            await _eventPublisher.PublishOrderUpdated(entity.Shipment.Order);
+            await _eventPublisher.PublishOrderUpdatedAsync(entity.Shipment.Order);
             return HookResult.Ok;
         }
 
         protected override async Task<HookResult> OnUpdatingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            await _eventPublisher.PublishOrderUpdated(entity.Shipment.Order);
+            await _eventPublisher.PublishOrderUpdatedAsync(entity.Shipment.Order);
             return HookResult.Ok;
         }
 
@@ -75,7 +75,7 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
         {
             var order = await _db.Orders.FindByIdAsync(entity.Shipment.OrderId, cancelToken);
             if (order != null)
-                await _eventPublisher.PublishOrderUpdated(order);
+                await _eventPublisher.PublishOrderUpdatedAsync(order);
 
             return HookResult.Ok;
         }
