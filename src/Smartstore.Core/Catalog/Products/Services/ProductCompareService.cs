@@ -102,19 +102,7 @@ namespace Smartstore.Core.Catalog.Products
             // TODO: (core) Move all cookie names to a static util class.
             if (request != null && request.Cookies.TryGetValue("Smartstore.CompareProducts", out var values) && values.HasValue())
             {
-                var ids = values.ToIntArray();
-
-                if (!ids.Any())
-                {
-                    // Backward compatibility.
-                    ids = values
-                        .Split('&')
-                        .Select(x => x.Split('=').Skip(1).FirstOrDefault().ToInt())
-                        .Where(x => x != 0)
-                        .ToArray();
-                }
-
-                return ids.Distinct();
+                return values.ToIntArray().Distinct();
             }
 
             return Enumerable.Empty<int>();
