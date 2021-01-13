@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents an entity with media storage.
     /// </summary>
-    public interface IHasMedia
+    public interface IMediaAware
     {
         /// <summary>
         /// Gets or sets the media storage identifier.

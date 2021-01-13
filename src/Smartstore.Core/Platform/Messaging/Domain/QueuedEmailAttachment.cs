@@ -35,7 +35,7 @@ namespace Smartstore.Core.Messages
     [Index(nameof(QueuedEmailId), Name = "IX_QueuedEmailId")]
     [Index(nameof(MediaStorageId), Name = "IX_MediaStorageId")]
     [Index(nameof(MediaFileId), Name = "IX_MediaFileId")]
-    public partial class QueuedEmailAttachment : BaseEntity, IHasMedia
+    public partial class QueuedEmailAttachment : BaseEntity, IMediaAware
     {
         private readonly ILazyLoader _lazyLoader;
 
