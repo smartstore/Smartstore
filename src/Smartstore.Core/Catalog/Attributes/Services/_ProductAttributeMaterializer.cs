@@ -86,6 +86,8 @@ namespace Smartstore.Core.Catalog.Attributes
             Guard.NotNull(attributes1, nameof(attributes1));
             Guard.NotNull(attributes2, nameof(attributes2));
 
+            // TODO: (mg) (core) Implement this in AttributeSelection.IEquatable<AttributeSelection>.Equals() and remove AreProductAttributesEqual later
+
             var map1 = attributes1.AttributesMap;
             var map2 = attributes2.AttributesMap;
 
