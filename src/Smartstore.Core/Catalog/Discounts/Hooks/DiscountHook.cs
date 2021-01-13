@@ -44,16 +44,19 @@ namespace Smartstore.Core.Catalog.Discounts
             if (_relatedEntityIds.Any())
             {
                 await ProcessChunk(
+                    cancelToken,
                     _db.Products,
                     _relatedEntityIds["product"],
                     x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
 
                 await ProcessChunk(
+                    cancelToken,
                     _db.Categories,
                     _relatedEntityIds["category"],
                     x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
 
                 await ProcessChunk(
+                    cancelToken,
                     _db.Manufacturers,
                     _relatedEntityIds["manufactuter"],
                     x => x.HasDiscountsApplied = x.AppliedDiscounts.Any());
@@ -69,7 +72,7 @@ namespace Smartstore.Core.Catalog.Discounts
             _relatedEntityIds.AddRange("manufacturer", entity.AppliedToManufacturers.Select(x => x.Id));
         }
 
-        private async Task ProcessChunk<TEntity>(DbSet<TEntity> dbSet, IEnumerable<int> ids, Action<TEntity> process)
+        private async Task ProcessChunk<TEntity>(CancellationToken cancelToken, DbSet<TEntity> dbSet, IEnumerable<int> ids, Action<TEntity> process)
             where TEntity : BaseEntity
         {
             var allIds = ids.ToArray();
@@ -78,7 +81,7 @@ namespace Smartstore.Core.Catalog.Discounts
             {
                 var entities = await dbSet
                     .Where(x => idsChunk.Contains(x.Id))
-                    .ToListAsync();
+                    .ToListAsync(cancelToken);
 
                 foreach (var entity in entities)
                 {

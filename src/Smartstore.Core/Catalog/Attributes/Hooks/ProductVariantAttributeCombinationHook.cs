@@ -56,7 +56,7 @@ namespace Smartstore.Core.Catalog.Attributes
                                 .FirstOrDefault()
                         };
 
-                    var lowestPrices = await lowestPricesQuery.ToListAsync();
+                    var lowestPrices = await lowestPricesQuery.ToListAsync(cancelToken);
                     var lowestPricesDic = lowestPrices.ToDictionarySafe(x => x.ProductId, x => x.LowestPrice);
 
                     foreach (var productId in productIdsChunk)

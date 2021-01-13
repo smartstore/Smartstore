@@ -40,7 +40,7 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     var combinations = await _db.ProductVariantAttributeCombinations
                         .Where(x => productIdsChunk.Contains(x.ProductId) && !string.IsNullOrEmpty(x.AssignedMediaFileIds))
-                        .ToListAsync();
+                        .ToListAsync(cancelToken);
 
                     foreach (var combination in combinations)
                     {

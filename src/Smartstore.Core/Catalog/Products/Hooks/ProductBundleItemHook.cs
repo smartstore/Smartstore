@@ -37,23 +37,23 @@ namespace Smartstore.Core.Catalog.Products
                     .Where(x => deletedBundleItemIds.Contains(x.BundleItemId ?? 0) && x.ParentItemId != null)
                     .Select(x => x.ParentItemId)
                     .Distinct()
-                    .ToListAsync();
+                    .ToListAsync(cancelToken);
 
                 foreach (var parentItemId in parentItemIds)
                 {
                     var childItemIds = await _db.ShoppingCartItems
                         .Where(x => x.ParentItemId != null && x.ParentItemId == parentItemId && x.Id != parentItemId)
                         .Select(x => x.Id)
-                        .ToListAsync();
+                        .ToListAsync(cancelToken);
 
                     await _db.ShoppingCartItems
                         .Where(x => childItemIds.Contains(x.Id))
-                        .BatchDeleteAsync();
+                        .BatchDeleteAsync(cancelToken);
                 }
 
                 await _db.ShoppingCartItems
                     .Where(x => parentItemIds.Contains(x.Id))
-                    .BatchDeleteAsync();
+                    .BatchDeleteAsync(cancelToken);
             }
         }
     }

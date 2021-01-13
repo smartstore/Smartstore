@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Data.Batching;
@@ -58,7 +57,7 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     var allAssociatedProducts = await _db.Products
                         .Where(x => groupedProductIds.Contains(x.ParentGroupedProductId))
-                        .BatchUpdateAsync(x => new Product { ParentGroupedProductId = 0 });
+                        .BatchUpdateAsync(x => new Product { ParentGroupedProductId = 0 }, cancelToken);
                 }
             }
 
@@ -80,7 +79,7 @@ namespace Smartstore.Core.Catalog.Products
                     .Where(x => productIdsChunk.Contains(x.Id))
                     .Select(x => x.Id)
                     .Distinct()
-                    .ToListAsync();
+                    .ToListAsync(cancelToken);
 
                 productsChunk.Each(x => x.HasDiscountsApplied = appliedProductIds.Contains(x.Id));
             }

@@ -61,7 +61,7 @@ namespace Smartstore.Core.Catalog.Categories
 
             foreach (var category in modifiedCategories)
             {
-                var valid = await IsValidCategoryHierarchy(category.Id, category.ParentCategoryId);
+                var valid = await IsValidCategoryHierarchy(category.Id, category.ParentCategoryId, cancelToken);
                 if (!valid)
                 {
                     invalidCategoryIds.Add(category.Id);
@@ -76,12 +76,12 @@ namespace Smartstore.Core.Catalog.Categories
             }
         }
 
-        private async Task<bool> IsValidCategoryHierarchy(int categoryId, int parentCategoryId)
+        private async Task<bool> IsValidCategoryHierarchy(int categoryId, int parentCategoryId, CancellationToken cancelToken)
         {
             var parent = await _db.Categories
                 .Where(x => x.Id == parentCategoryId)
                 .Select(x => new { x.Id, x.ParentCategoryId })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancelToken);
 
             while (parent?.Id > 0)
             {
@@ -99,7 +99,7 @@ namespace Smartstore.Core.Catalog.Categories
                 parent = await _db.Categories
                     .Where(x => x.Id == parent.ParentCategoryId)
                     .Select(x => new { x.Id, x.ParentCategoryId })
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(cancelToken);
             }
 
             return true;
