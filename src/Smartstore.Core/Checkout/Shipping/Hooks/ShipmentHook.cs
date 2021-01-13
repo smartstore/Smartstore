@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
@@ -38,7 +37,9 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
         {
             var order = await _db.Orders.FindByIdAsync(entity.OrderId, cancelToken);
             if (order != null)
+            {
                 await _eventPublisher.PublishOrderUpdatedAsync(order);
+            }
 
             return HookResult.Ok;
         }
@@ -75,7 +76,9 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
         {
             var order = await _db.Orders.FindByIdAsync(entity.Shipment.OrderId, cancelToken);
             if (order != null)
+            {
                 await _eventPublisher.PublishOrderUpdatedAsync(order);
+            }
 
             return HookResult.Ok;
         }

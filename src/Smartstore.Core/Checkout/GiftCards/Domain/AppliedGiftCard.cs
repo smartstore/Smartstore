@@ -6,7 +6,7 @@
     public partial class AppliedGiftCard
     {
         /// <summary>
-        /// Gets or sets the used value
+        /// Gets or sets the usable amount
         /// </summary>
         public decimal UsableAmount { get; set; }
 
