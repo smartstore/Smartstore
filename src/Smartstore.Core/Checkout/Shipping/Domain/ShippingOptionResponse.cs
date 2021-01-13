@@ -5,7 +5,7 @@ namespace Smartstore.Core.Checkout.Shipping
     /// <summary>
     /// Represents a response from get shipping options
     /// </summary>
-    public partial class GetShippingOptionResponse
+    public partial class ShippingOptionResponse
     {
         /// <summary>
         /// Gets shipping options

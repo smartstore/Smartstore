@@ -8,7 +8,7 @@ namespace Smartstore.Core.Checkout.Shipping
     /// <summary>
     /// Represents a request to get shipping options
     /// </summary>
-    public partial class GetShippingOptionRequest
+    public partial class ShippingOptionRequest
     {
         /// <summary>
         /// Gets the context store identifier

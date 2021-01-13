@@ -188,7 +188,7 @@ namespace Smartstore.Core.Checkout.Shipping
             return totalWeight;
         }
 
-        public virtual GetShippingOptionResponse GetShippingOptions(
+        public virtual ShippingOptionResponse GetShippingOptions(
             IList<OrganizedShoppingCartItem> cart,
             Address shippingAddress,
             string computationMethodSystemName = "",
@@ -203,7 +203,7 @@ namespace Smartstore.Core.Checkout.Shipping
             if (computationMethods.IsNullOrEmpty())
                 throw new SmartException(T("Shipping.CouldNotLoadMethod"));
 
-            var request = new GetShippingOptionRequest
+            var request = new ShippingOptionRequest
             {
                 StoreId = storeId,
                 ShippingAddress = shippingAddress,
@@ -212,7 +212,7 @@ namespace Smartstore.Core.Checkout.Shipping
             };
 
             // Get shipping options
-            var result = new GetShippingOptionResponse();
+            var result = new ShippingOptionResponse();
             foreach (var method in computationMethods)
             {
                 var response = method.Value.GetShippingOptions(request);

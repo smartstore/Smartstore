@@ -5,13 +5,13 @@ namespace Smartstore.Core.Checkout.Shipping.Extensions
     /// <summary>
     /// Get shipping option request extensions
     /// </summary>
-    public static class GetShippingOptionRequestExtensions
+    public static class ShippingOptionRequestExtensions
     {
         /// <summary>
-        /// Gets total width of <see cref="GetShippingOptionRequest.Items"/>
+        /// Gets total width of <see cref="ShippingOptionRequest.Items"/>
         /// </summary>
         /// <returns>Total width</returns>
-        public static decimal GetTotalWidth(this GetShippingOptionRequest request)
+        public static decimal GetTotalWidth(this ShippingOptionRequest request)
         {
             Guard.NotNull(request, nameof(request));
 
@@ -22,10 +22,10 @@ namespace Smartstore.Core.Checkout.Shipping.Extensions
         }
 
         /// <summary>
-        /// Gets total length of <see cref="GetShippingOptionRequest.Items"/>
+        /// Gets total length of <see cref="ShippingOptionRequest.Items"/>
         /// </summary>
         /// <returns>Total length</returns>
-        public static decimal GetTotalLength(this GetShippingOptionRequest request)
+        public static decimal GetTotalLength(this ShippingOptionRequest request)
         {
             Guard.NotNull(request, nameof(request));
 
@@ -36,10 +36,10 @@ namespace Smartstore.Core.Checkout.Shipping.Extensions
         }
 
         /// <summary>
-        /// Gets total height of <see cref="GetShippingOptionRequest.Items"/>
+        /// Gets total height of <see cref="ShippingOptionRequest.Items"/>
         /// </summary>
         /// <returns>Total height</returns>
-        public static decimal GetTotalHeight(this GetShippingOptionRequest request)
+        public static decimal GetTotalHeight(this ShippingOptionRequest request)
         {
             Guard.NotNull(request, nameof(request));
 

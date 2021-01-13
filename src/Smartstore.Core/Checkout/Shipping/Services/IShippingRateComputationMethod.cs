@@ -17,14 +17,14 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         /// <param name="request">Get shipping options request</param>
         /// <returns>Get shipping options response</returns>
-        GetShippingOptionResponse GetShippingOptions(GetShippingOptionRequest request);
+        ShippingOptionResponse GetShippingOptions(ShippingOptionRequest request);
 
         /// <summary>
         /// Gets fixed shipping rate (if the shipping rate computation method allows it and the shipping rate can be calculated before checkout)
         /// </summary>
         /// <param name="request">Get shipping options request</param>
         /// <returns>Fixed shipping rate. Or <c>null</c> if there is no fixed shipping rate</returns>
-        decimal? GetFixedRate(GetShippingOptionRequest request);
+        decimal? GetFixedRate(ShippingOptionRequest request);
 
         /// <summary>
         /// Gets a shipment tracker
