@@ -2,6 +2,7 @@
 using Autofac;
 using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Logging;
@@ -30,6 +31,7 @@ namespace Smartstore.Core
         IActivityLogger ActivityLogger { get; }
         INotifier Notifier { get; }
         IChronometer Chronometer { get; }
+        DateTimeHelper DateTimeHelper { get; }
 
         // TODO: (core) Add more props to ICommonServices once they drop in.
     }
