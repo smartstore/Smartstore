@@ -16,19 +16,19 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets the root folder node from cache.
         /// </summary>
-        Task<TreeNode<MediaFolderNode>> GetRootNodeAsync();
+        TreeNode<MediaFolderNode> GetRootNode();
 
         /// <summary>
         /// Gets a folder node by storage id.
         /// </summary>
-        Task<TreeNode<MediaFolderNode>> GetNodeByIdAsync(int id);
+        TreeNode<MediaFolderNode> GetNodeById(int id);
 
         /// <summary>
         /// Gets a folder node by path, e.g. "catalog/subfolder1/subfolder2".
         /// The first token always refers to an album. This method operates very fast 
         /// because all possible pathes are cached.
         /// </summary>
-        Task<TreeNode<MediaFolderNode>> GetNodeByPathAsync(string path);
+        TreeNode<MediaFolderNode> GetNodeByPath(string path);
 
         /// <summary>
         /// Checks whether any given path does already exist and - if true -
@@ -36,8 +36,9 @@ namespace Smartstore.Core.Content.Media
         /// to the database.
         /// </summary>
         /// <param name="path">The path to check.</param>
-        /// <returns>If <see cref="AsyncOut{TOut}.Success"/> is <c>true</c> <see cref="AsyncOut{TOut}.Value"/> will contain the new unique folder name.</returns>
-        Task<AsyncOut<string>> CheckUniqueFolderNameAsync(string path);
+        /// <param name="newName">If method return value is <c>true</c>: the new unique folder name, otherwise: <c>null</c>.</param>
+        /// <returns><c>true</c> when passed path exists already.</returns>
+        bool CheckUniqueFolderName(string path, out string newName);
 
         /// <summary>
         /// Clears the cache and reloads data from database.

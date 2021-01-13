@@ -12,27 +12,27 @@ namespace Smartstore.Core.Content.Media
         /// Finds the folder node for a given <see cref="MediaFile"/> object.
         /// </summary>
         /// <returns>The found folder node or <c>null</c>.</returns>
-        public static Task<TreeNode<MediaFolderNode>> FindNodeAsync(this IFolderService service, MediaFile mediaFile)
+        public static TreeNode<MediaFolderNode> FindNode(this IFolderService service, MediaFile mediaFile)
         {
-            return service.GetNodeByIdAsync(mediaFile?.FolderId ?? 0);
+            return service.GetNodeById(mediaFile?.FolderId ?? 0);
         }
 
         /// <summary>
         /// Finds the root album node for a given <see cref="MediaFile"/> object.
         /// </summary>
         /// <returns>The found album node or <c>null</c>.</returns>
-        public static async Task<TreeNode<MediaFolderNode>> FindAlbumAsync(this IFolderService service, MediaFile mediaFile)
+        public static TreeNode<MediaFolderNode> FindAlbum(this IFolderService service, MediaFile mediaFile)
         {
-            return (await FindNodeAsync(service, mediaFile))?.Closest(x => x.Value.IsAlbum);
+            return FindNode(service, mediaFile)?.Closest(x => x.Value.IsAlbum);
         }
 
         /// <summary>
         /// Finds the root album node for a given folder id.
         /// </summary>
         /// <returns>The found album node or <c>null</c>.</returns>
-        public static async Task<TreeNode<MediaFolderNode>> FindAlbumAsync(this IFolderService service, int folderId)
+        public static TreeNode<MediaFolderNode> FindAlbum(this IFolderService service, int folderId)
         {
-            return (await service.GetNodeByIdAsync(folderId))?.Closest(x => x.Value.IsAlbum);
+            return service.GetNodeById(folderId)?.Closest(x => x.Value.IsAlbum);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public static bool AreInSameAlbum(this IFolderService service, params MediaFile[] files)
         {
-            return files.Select(x => FindAlbumAsync(service, x)).Distinct().Count() <= 1;
+            return files.Select(x => FindAlbum(service, x)).Distinct().Count() <= 1;
         }
 
         /// <summary>
@@ -48,12 +48,12 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public static bool AreInSameAlbum(this IFolderService service, params int[] folderIds)
         {
-            return folderIds.Select(x => FindAlbumAsync(service, x)).Distinct().Count() <= 1;
+            return folderIds.Select(x => FindAlbum(service, x)).Distinct().Count() <= 1;
         }
 
-        public static async Task<IEnumerable<MediaFolderNode>> GetNodesFlattenedAsync(this IFolderService service, string path, bool includeSelf = true)
+        public static IEnumerable<MediaFolderNode> GetNodesFlattened(this IFolderService service, string path, bool includeSelf = true)
         {
-            var node = await service.GetNodeByPathAsync(path);
+            var node = service.GetNodeByPath(path);
             if (node == null)
             {
                 return Enumerable.Empty<MediaFolderNode>();
@@ -62,9 +62,9 @@ namespace Smartstore.Core.Content.Media
             return node.FlattenNodes(includeSelf).Select(x => x.Value);
         }
 
-        public static async Task<IEnumerable<MediaFolderNode>> GetNodesFlattenedAsync(this IFolderService service, int folderId, bool includeSelf = true)
+        public static IEnumerable<MediaFolderNode> GetNodesFlattened(this IFolderService service, int folderId, bool includeSelf = true)
         {
-            var node = await service.GetNodeByIdAsync(folderId);
+            var node = service.GetNodeById(folderId);
             if (node == null)
             {
                 return Enumerable.Empty<MediaFolderNode>();

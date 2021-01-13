@@ -43,9 +43,9 @@ namespace Smartstore.Core.Content.Media
 
         #endregion
 
-        public Task<TreeNode<MediaFolderNode>> GetRootNodeAsync()
+        public TreeNode<MediaFolderNode> GetRootNode()
         {
-            var root = _cache.GetAsync(FolderTreeKey, async (o) =>
+            var root = _cache.Get(FolderTreeKey, o =>
             {
                 o.ExpiresIn(FolderTreeCacheDuration);
                 
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Content.Media
                             orderby x.ParentId, x.Name
                             select x;
 
-                var unsortedNodes = (await query.ToListAsync()).Select(x =>
+                var unsortedNodes = query.ToList().Select(x =>
                 {
                     var item = new MediaFolderNode
                     {
@@ -74,7 +74,7 @@ namespace Smartstore.Core.Content.Media
                         item.IncludePath = album.IncludePath;
                         item.Order = album.Order ?? 0;
 
-                        var albumInfo = _albumRegistry.GetAlbumByNameAsync(album.Name).Await();
+                        var albumInfo = _albumRegistry.GetAlbumByName(album.Name);
                         if (albumInfo != null)
                         {
                             var displayHint = albumInfo.DisplayHint;
@@ -137,30 +137,32 @@ namespace Smartstore.Core.Content.Media
             }
         }
 
-        public async Task<TreeNode<MediaFolderNode>> GetNodeByIdAsync(int id)
+        public TreeNode<MediaFolderNode> GetNodeById(int id)
         {
             if (id <= 0)
                 return null;
 
-            return (await GetRootNodeAsync()).SelectNodeById(id);
+            return GetRootNode().SelectNodeById(id);
         }
 
-        public async Task<TreeNode<MediaFolderNode>> GetNodeByPathAsync(string path)
+        public TreeNode<MediaFolderNode> GetNodeByPath(string path)
         {
             Guard.NotEmpty(path, nameof(path));
-            return (await GetRootNodeAsync()).SelectNodeById(NormalizePath(path));
+            return GetRootNode().SelectNodeById(NormalizePath(path));
         }
 
-        public async Task<AsyncOut<string>> CheckUniqueFolderNameAsync(string path)
+        public bool CheckUniqueFolderName(string path, out string newName)
         {
             Guard.NotEmpty(path, nameof(path));
 
             // TODO: (mm) (mc) throw when path is not a folder path
 
-            var node = await GetNodeByPathAsync(path);
+            newName = null;
+
+            var node = GetNodeByPath(path);
             if (node == null)
             {
-                return new AsyncOut<string>(false);
+                return false;
             }
 
             var sourceName = node.Value.Name;
@@ -173,7 +175,8 @@ namespace Smartstore.Core.Content.Media
                 if (!names.Contains(test))
                 {
                     // Found our gap
-                    return new AsyncOut<string>(true, test);
+                    newName = test;
+                    return true;
                 }
 
                 i++;

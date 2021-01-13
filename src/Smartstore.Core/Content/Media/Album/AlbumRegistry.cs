@@ -26,14 +26,14 @@ namespace Smartstore.Core.Content.Media
             _albumProviders = albumProviders;
         }
 
-        public virtual async Task<IReadOnlyCollection<AlbumInfo>> GetAllAlbumsAsync()
+        public virtual IReadOnlyCollection<AlbumInfo> GetAllAlbums()
         {
-            return (await GetAlbumDictionary()).Values;
+            return GetAlbumDictionary().Values;
         }
 
-        public async Task<IEnumerable<string>> GetAlbumNamesAsync(bool withTrackDetectors = false)
+        public IEnumerable<string> GetAlbumNames(bool withTrackDetectors = false)
         {
-            var dict = await GetAlbumDictionary();
+            var dict = GetAlbumDictionary();
 
             if (!withTrackDetectors)
             {
@@ -43,23 +43,23 @@ namespace Smartstore.Core.Content.Media
             return dict.Where(x => x.Value.IsTrackDetector).Select(x => x.Key).ToArray();
         }
 
-        private async Task<Dictionary<string, AlbumInfo>> GetAlbumDictionary()
+        private Dictionary<string, AlbumInfo> GetAlbumDictionary()
         {
-            var albums = await _cache.GetAsync(AlbumInfosKey, o =>
+            var albums = _cache.Get(AlbumInfosKey, o =>
             {
                 o.ExpiresIn(TimeSpan.FromHours(24));
-                return LoadAllAlbumsAsync().AsyncToDictionary(x => x.Name);
+                return LoadAllAlbums().ToDictionary(x => x.Name);
             });
 
             return albums;
         }
 
-        protected virtual async IAsyncEnumerable<AlbumInfo> LoadAllAlbumsAsync()
+        protected virtual IEnumerable<AlbumInfo> LoadAllAlbums()
         {
-            var dbAlbums = await _db.MediaAlbums
+            var dbAlbums = _db.MediaAlbums
                 .AsNoTracking()
                 .Select(x => new { x.Id, x.Name })
-                .ToDictionaryAsync(x => x.Name);
+                .ToDictionary(x => x.Name);
 
             foreach (var lazyProvider in _albumProviders)
             {
@@ -92,7 +92,7 @@ namespace Smartstore.Core.Content.Media
                     else
                     {
                         _db.MediaAlbums.Add(album);
-                        await _db.SaveChangesAsync();
+                        _db.SaveChanges();
                         info.Id = album.Id;
                     }
 
@@ -101,47 +101,47 @@ namespace Smartstore.Core.Content.Media
             }
         }
 
-        public virtual async Task<AlbumInfo> GetAlbumByNameAsync(string name)
+        public virtual AlbumInfo GetAlbumByName(string name)
         {
             Guard.NotEmpty(name, nameof(name));
 
-            return (await GetAlbumDictionary()).Get(name);
+            return GetAlbumDictionary().Get(name);
         }
 
-        public virtual async Task<AlbumInfo> GetAlbumByIdAsync(int id)
+        public virtual AlbumInfo GetAlbumById(int id)
         {
             if (id > 0)
             {
-                return (await GetAlbumDictionary()).FirstOrDefault(x => x.Value.Id == id).Value;
+                return GetAlbumDictionary().Values.FirstOrDefault(x => x.Id == id);
             }
 
             return null;
         }
 
-        public async Task UninstallAlbumAsync(string albumName)
+        public Task UninstallAlbumAsync(string albumName)
         {
-            var album = await GetAlbumValidated(albumName, true);
+            var album = GetAlbumValidated(albumName, true);
 
             throw new NotImplementedException();
 
             //ClearCache();
         }
 
-        public async Task DeleteAlbumAsync(string albumName, string moveFilesToAlbum)
+        public Task DeleteAlbumAsync(string albumName, string moveFilesToAlbum)
         {
-            var album = await GetAlbumValidated(albumName, true);
-            var destinationAlbum = await GetAlbumValidated(moveFilesToAlbum, false);
+            var album = GetAlbumValidated(albumName, true);
+            var destinationAlbum = GetAlbumValidated(moveFilesToAlbum, false);
 
             throw new NotImplementedException();
 
             //ClearCache();
         }
 
-        private async Task<AlbumInfo> GetAlbumValidated(string albumName, bool throwWhenSystemAlbum)
+        private AlbumInfo GetAlbumValidated(string albumName, bool throwWhenSystemAlbum)
         {
             Guard.NotEmpty(albumName, nameof(albumName));
 
-            var album = await GetAlbumByNameAsync(albumName);
+            var album = GetAlbumByName(albumName);
 
             if (album == null)
             {

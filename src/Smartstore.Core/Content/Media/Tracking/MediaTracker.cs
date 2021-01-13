@@ -129,7 +129,7 @@ namespace Smartstore.Core.Content.Media
             var file = await _db.MediaFiles.FindByIdAsync(mediaFileId);
             if (file != null)
             {
-                var album = (await _folderService.FindAlbumAsync(file))?.Value;
+                var album = _folderService.FindAlbum(file)?.Value;
                 if (album == null)
                 {
                     throw new InvalidOperationException(T("Admin.Media.Exception.TrackUnassignedFile"));
@@ -201,7 +201,7 @@ namespace Smartstore.Core.Content.Media
             {
                 // Get the album (necessary later to set FolderId)...
                 MediaFolderNode albumNode = albumName.HasValue()
-                    ? (await _folderService.GetNodeByPathAsync(albumName))?.Value
+                    ? _folderService.GetNodeByPath(albumName)?.Value
                     : null;
 
                 // Get distinct ids of all detected files...
@@ -230,7 +230,7 @@ namespace Smartstore.Core.Content.Media
                             else if (file.FolderId.HasValue)
                             {
                                 // Determine album from file
-                                albumNode = (await _folderService.FindAlbumAsync(file))?.Value;
+                                albumNode = _folderService.FindAlbum(file)?.Value;
                                 track.Album = albumNode?.Name;
                             }
                         }
@@ -238,7 +238,7 @@ namespace Smartstore.Core.Content.Media
                         if (track.Album.IsEmpty())
                             continue; // cannot track without album
 
-                        if ((albumNode ?? (await _folderService.FindAlbumAsync(file))?.Value)?.CanDetectTracks == false)
+                        if ((albumNode ?? _folderService.FindAlbum(file)?.Value)?.CanDetectTracks == false)
                             continue; // should not track in albums that do not support track detection
 
                         // add or remove the track from file
@@ -291,7 +291,7 @@ namespace Smartstore.Core.Content.Media
             Guard.NotEmpty(albumName, nameof(albumName));
 
             // Get album info...
-            var albumInfo = await _albumRegistry.GetAlbumByNameAsync(albumName);
+            var albumInfo = _albumRegistry.GetAlbumByName(albumName);
             if (albumInfo == null)
             {
                 throw new InvalidOperationException(T("Admin.Media.Exception.AlbumNonexistent", albumName));
@@ -337,7 +337,7 @@ namespace Smartstore.Core.Content.Media
             var propsMap = _cache.Get(TrackedPropertiesKey, () =>
             {
                 var map = new Multimap<Type, TrackedMediaProperty>();
-                var props = _albumRegistry.GetAllAlbumsAsync().Await()
+                var props = _albumRegistry.GetAllAlbums()
                     .Where(x => x.TrackedProperties != null && x.TrackedProperties.Length > 0)
                     .SelectMany(x => x.TrackedProperties);
 

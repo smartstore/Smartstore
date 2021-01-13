@@ -12,25 +12,25 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Enlists all albums.
         /// </summary>
-        Task<IReadOnlyCollection<AlbumInfo>> GetAllAlbumsAsync();
+        IReadOnlyCollection<AlbumInfo> GetAllAlbums();
 
         /// <summary>
         /// Gets the names of all albums.
         /// </summary>
         /// <param name="withTrackDetectors">If <c>true</c> skips all albums without track detection capability.</param>
-        Task<IEnumerable<string>> GetAlbumNamesAsync(bool withTrackDetectors = false);
+        IEnumerable<string> GetAlbumNames(bool withTrackDetectors = false);
 
         /// <summary>
         /// Gets an album by name.
         /// </summary>
         /// <param name="name">Name of album to retrieve.</param>
-        Task<AlbumInfo> GetAlbumByNameAsync(string name);
+        AlbumInfo GetAlbumByName(string name);
 
         /// <summary>
         /// Gets an album by ID.
         /// </summary>
         /// <param name="name">Storage id of album to retrieve.</param>
-        Task<AlbumInfo> GetAlbumByIdAsync(int id);
+        AlbumInfo GetAlbumById(int id);
 
         /// <summary>
         /// Deletes album and all containing files

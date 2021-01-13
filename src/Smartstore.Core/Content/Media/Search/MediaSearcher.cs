@@ -26,11 +26,11 @@ namespace Smartstore.Core.Content.Media
 
         public virtual async Task<IPagedList<MediaFile>> SearchFilesAsync(MediaSearchQuery query, MediaLoadFlags flags = MediaLoadFlags.AsNoTracking)
         {
-            var q = await PrepareQueryAsync(query, flags);
+            var q = PrepareQuery(query, flags);
             return await q.ToPagedList(query.PageIndex, query.PageSize).LoadAsync();
         }
 
-        public virtual async Task<IQueryable<MediaFile>> PrepareQueryAsync(MediaSearchQuery query, MediaLoadFlags flags)
+        public virtual IQueryable<MediaFile> PrepareQuery(MediaSearchQuery query, MediaLoadFlags flags)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -42,7 +42,7 @@ namespace Smartstore.Core.Content.Media
             {
                 if (query.DeepSearch)
                 {
-                    var folderIds = (await _folderService.Value.GetNodesFlattenedAsync(query.FolderId.Value, true))
+                    var folderIds = _folderService.Value.GetNodesFlattened(query.FolderId.Value, true)
                         .Select(x => x.Id)
                         .ToArray();
                     q = q.Where(x => x.FolderId != null && folderIds.Contains(x.FolderId.Value));
@@ -66,7 +66,7 @@ namespace Smartstore.Core.Content.Media
                 else if (query.FolderId == (int)SpecialMediaFolder.Orphans)
                 {
                     // Get ids of untrackable folders, 'cause no orphan check can be made for them.
-                    var untrackableFolderIds = (await _folderService.Value.GetRootNodeAsync())
+                    var untrackableFolderIds = _folderService.Value.GetRootNode()
                         .SelectNodes(x => !x.Value.CanDetectTracks)
                         .Select(x => x.Value.Id)
                         .ToArray();
