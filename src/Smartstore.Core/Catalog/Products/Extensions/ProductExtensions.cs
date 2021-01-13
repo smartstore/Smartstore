@@ -13,9 +13,9 @@ namespace Smartstore.Core.Catalog.Products
     public static partial class ProductExtensions
     {
         // TODO: (mg) (core) Add MergeWithCombination extension method for products.
-        //public static ProductVariantAttributeCombination MergeWithCombination(this Product product, string selectedAttributes, IProductAttributeParser productAttributeParser)
+        //public static ProductVariantAttributeCombination MergeWithCombination(this Product product, string selectedAttributes, IProductAttributeMaterializer productAttributeMaterializer)
         //{
-        //    Guard.NotNull(productAttributeParser, nameof(productAttributeParser));
+        //    Guard.NotNull(productAttributeMaterializer, nameof(productAttributeMaterializer));
 
         //    if (selectedAttributes.IsEmpty())
         //    {
@@ -23,7 +23,7 @@ namespace Smartstore.Core.Catalog.Products
         //    }
 
         //    // Let's find appropriate record.
-        //    var combination = productAttributeParser.FindProductVariantAttributeCombination(product.Id, selectedAttributes);
+        //    var combination = productAttributeMaterializer.FindProductVariantAttributeCombination(product.Id, selectedAttributes);
 
         //    if (combination != null && combination.IsActive)
         //    {

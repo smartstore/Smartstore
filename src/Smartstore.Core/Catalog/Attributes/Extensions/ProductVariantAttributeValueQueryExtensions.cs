@@ -28,12 +28,12 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         /// <param name="query">Product variant attribute value query.</param>
         /// <param name="ids">Filter by multiple <see cref="ProductVariantAttributeValue.Id"/>.</param>
-        /// <param name="controlTypes">Attribute control types to be filtered.</param>
+        /// <param name="listTypesOnly">A Value indicating whether to only load list type values.</param>
         /// <returns>Product variant attribute value query.</returns>
         public static IOrderedQueryable<ProductVariantAttributeValue> ApplyValueFilter(
             this IQueryable<ProductVariantAttributeValue> query,
             int[] ids,
-            AttributeControlType[] controlTypes = null)
+            bool listTypesOnly = true)
         {
             Guard.NotNull(query, nameof(query));
             Guard.NotNull(ids, nameof(ids));
@@ -42,11 +42,17 @@ namespace Smartstore.Core.Catalog.Attributes
 
             query = query.Where(x => ids.Contains(x.Id));
 
-            if (controlTypes?.Any() ?? false)
+            if (listTypesOnly)
             {
-                var controlTypeIds = controlTypes.Select(x => (int)x).ToArray();
+                var listTypes = new[]
+                {
+                    (int)AttributeControlType.DropdownList,
+                    (int)AttributeControlType.RadioList,
+                    (int)AttributeControlType.Checkboxes,
+                    (int)AttributeControlType.Boxes
+                };
 
-                query = query.Where(x => controlTypeIds.Contains(x.ProductVariantAttribute.AttributeControlTypeId));
+                query = query.Where(x => listTypes.Contains(x.ProductVariantAttribute.AttributeControlTypeId));
             }
 
             return query

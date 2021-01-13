@@ -130,8 +130,11 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             return AttributeControlType switch
             {
-                AttributeControlType.Checkboxes or AttributeControlType.Boxes or AttributeControlType.DropdownList or AttributeControlType.RadioList => true,
-                _ => false,
+                AttributeControlType.TextBox or
+                AttributeControlType.MultilineTextbox or
+                AttributeControlType.Datepicker or
+                AttributeControlType.FileUpload => false,
+                _ => true,  // All other attribute control types support values.
             };
         }
 

@@ -332,7 +332,7 @@ namespace Smartstore.Core.Catalog.Products
                     break;
                 case ManageInventoryMethod.ManageStockByAttributes:
                     {
-                        //var combination = _productAttributeParser.FindProductVariantAttributeCombination(product.Id, attributes);
+                        //var combination = _productAttributeMaterializer.FindProductVariantAttributeCombination(product.Id, attributes);
                         ProductVariantAttributeCombination combination = null;
                         if (combination != null)
                         {
@@ -352,7 +352,7 @@ namespace Smartstore.Core.Catalog.Products
                     break;
             }
 
-            //var attributeValues = _productAttributeParser.ParseProductVariantAttributeValues(attributes);
+            //var attributeValues = _productAttributeMaterializer.ParseProductVariantAttributeValues(attributes);
             var attributeValues = new List<ProductVariantAttributeValue>();
             
             var productLinkageValues = attributeValues

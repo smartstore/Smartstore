@@ -22,7 +22,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <param name="productVariantAttributeIds">Enumerable of product variant attribute mapping identifiers.</param>
         /// <param name="attributes">Collection of already loaded product attribute mappings to reduce database round trips.</param>
         /// <returns>Product variant attribute mappings.</returns>
-        Task<IList<ProductVariantAttribute>> GetProductVariantAttributesByIdsAsync(IEnumerable<int> productVariantAttributeIds, IEnumerable<ProductVariantAttribute> attributes = null);
+        //Task<IList<ProductVariantAttribute>> GetProductVariantAttributesByIdsAsync(IEnumerable<int> productVariantAttributeIds, IEnumerable<ProductVariantAttribute> attributes = null);
 
         /// <summary>
         /// Copies attribute options to product variant attribute values and commits them to the database. Existing values are ignored (identified by name field).

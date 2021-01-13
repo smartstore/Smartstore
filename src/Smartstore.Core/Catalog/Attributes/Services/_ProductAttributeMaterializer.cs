@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -35,45 +36,54 @@ namespace Smartstore.Core.Catalog.Attributes
         }
 
 
-        public virtual ICollection<ProductVariantAttributeValue> MaterializeProductVariantAttributeValues(ProductVariantAttributeSelection attributeSelection, IEnumerable<ProductVariantAttribute> attributes)
+        public virtual async Task<IList<ProductVariantAttributeValue>> MaterializeProductVariantAttributeValuesAsync(ProductVariantAttributeSelection selection)
         {
-            var result = new HashSet<ProductVariantAttributeValue>();
-
-            if (!(attributeSelection?.AttributesMap?.Any() ?? false))
+            if (selection?.AttributesMap?.Any() ?? false)
             {
-                return result;
-            }
-
-            var allValueIds = new HashSet<int>();
-            var relevantAttributes = attributes
-                .Where(x => x.ShouldHaveValues())
-                .OrderBy(x => x.DisplayOrder)
-                .ToArray();
-
-            foreach (var pva in relevantAttributes)
-            {
-                var pvaValues = attributeSelection.AttributesMap
-                    .Where(x => x.Key == pva.Id)
-                    .Select(x => x.Value);
-
-                var ids = pvaValues
-                    .Select(x => x.ToString())
-                    .Where(x => x.HasValue())
-                    .Select(x => x.ToInt())
-                    .ToArray();
-
-                allValueIds.UnionWith(ids);
-            }
-
-            foreach (int id in allValueIds)
-            {
-                foreach (var attribute in attributes)
+                // TODO: (mg) (core) Single joined query should be possible for ProductVariantAttributes and ProductVariantAttributeValues.
+                var pvaIds = selection.AttributesMap.Select(x => x.Key).ToArray();
+                if (pvaIds.Any())
                 {
-                    var attributeValue = attribute.ProductVariantAttributeValues.FirstOrDefault(x => x.Id == id);
-                    if (attributeValue != null)
+                    var attributes = await _db.ProductVariantAttributes
+                        .AsNoTracking()
+                        .AsCaching(TimeSpan.FromSeconds(30))
+                        .Where(x => pvaIds.Contains(x.Id))
+                        .OrderBy(x => x.DisplayOrder)
+                        .ToListAsync();
+
+                    var valueIds = GetAttributeValueIds(attributes, selection).ToArray();
+
+                    var values = await _db.ProductVariantAttributeValues
+                        .AsNoTracking()
+                        .AsCaching(TimeSpan.FromSeconds(30))
+                        .ApplyValueFilter(valueIds)
+                        .ToListAsync();
+
+                    return values;
+                }
+            }
+
+            return new List<ProductVariantAttributeValue>();
+        }
+
+        public virtual IList<ProductVariantAttributeValue> MaterializeProductVariantAttributeValues(ProductVariantAttributeSelection selection, IEnumerable<ProductVariantAttribute> attributes)
+        {
+            var result = new List<ProductVariantAttributeValue>();
+
+            if (selection?.AttributesMap?.Any() ?? false)
+            {
+                var valueIds = GetAttributeValueIds(attributes, selection);
+
+                foreach (int valueId in valueIds)
+                {
+                    foreach (var attribute in attributes)
                     {
-                        result.Add(attributeValue);
-                        break;
+                        var attributeValue = attribute.ProductVariantAttributeValues.FirstOrDefault(x => x.Id == valueId);
+                        if (attributeValue != null)
+                        {
+                            result.Add(attributeValue);
+                            break;
+                        }
                     }
                 }
             }
@@ -81,15 +91,15 @@ namespace Smartstore.Core.Catalog.Attributes
             return result;
         }
 
-        public virtual bool AreProductAttributesEqual(AttributeSelection attributes1, AttributeSelection attributes2)
+        public virtual bool AreProductAttributesEqual(AttributeSelection selection1, AttributeSelection selection2)
         {
-            Guard.NotNull(attributes1, nameof(attributes1));
-            Guard.NotNull(attributes2, nameof(attributes2));
+            Guard.NotNull(selection1, nameof(selection1));
+            Guard.NotNull(selection2, nameof(selection2));
 
             // TODO: (mg) (core) Implement this in AttributeSelection.IEquatable<AttributeSelection>.Equals() and remove AreProductAttributesEqual later
 
-            var map1 = attributes1.AttributesMap;
-            var map2 = attributes2.AttributesMap;
+            var map1 = selection1.AttributesMap;
+            var map2 = selection2.AttributesMap;
 
             if (map1.Count() != map2.Count())
             {
@@ -131,14 +141,15 @@ namespace Smartstore.Core.Catalog.Attributes
             return true;
         }
 
-        public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection attributes)
+        public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection)
         {
-            if (productId == 0 || !(attributes?.AttributesMap?.Any() ?? false))
+            if (productId == 0 || !(selection?.AttributesMap?.Any() ?? false))
             {
                 return null;
             }
 
             var combinations = await _db.ProductVariantAttributeCombinations
+                .AsNoTracking()
                 .AsCaching(TimeSpan.FromSeconds(30))
                 .Where(x => x.ProductId == productId)
                 .Select(x => new { x.Id, x.AttributesXml })
@@ -146,7 +157,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             foreach (var combination in combinations)
             {
-                if (AreProductAttributesEqual(new ProductVariantAttributeSelection(combination.AttributesXml), attributes))
+                if (AreProductAttributesEqual(new ProductVariantAttributeSelection(combination.AttributesXml), selection))
                 {
                     return await _db.ProductVariantAttributeCombinations.FindByIdAsync(combination.Id);
                 }
@@ -299,6 +310,33 @@ namespace Smartstore.Core.Catalog.Attributes
                 }
                 sb.Append($"{pvaId}:{idsStr}");
             }
+        }
+
+        private static HashSet<int> GetAttributeValueIds(IEnumerable<ProductVariantAttribute> attributes, ProductVariantAttributeSelection selection)
+        {
+            var result = new HashSet<int>();
+
+            var listTypeAttributes = attributes
+                .Where(x => x.IsListTypeAttribute())
+                .OrderBy(x => x.DisplayOrder)
+                .ToArray();
+
+            foreach (var attribute in listTypeAttributes)
+            {
+                var values = selection.AttributesMap
+                    .Where(x => x.Key == attribute.Id)
+                    .Select(x => x.Value);
+
+                var ids = values
+                    .Select(x => x.ToString())
+                    .Where(x => x.HasValue())
+                    .Select(x => x.ToInt())
+                    .ToArray();
+
+                result.UnionWith(ids);
+            }
+
+            return result;
         }
     }
 }
