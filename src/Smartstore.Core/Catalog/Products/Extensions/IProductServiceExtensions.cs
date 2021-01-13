@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Catalog.Products
@@ -24,7 +25,11 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     foreach (var child in item.ChildItems.Where(x => x.Item.Id != item.Item.Id))
                     {
-                        await productService.AdjustInventoryAsync(child.Item.Product, decrease, item.Item.Quantity * child.Item.Quantity, child.Item.AttributesXml);
+                        await productService.AdjustInventoryAsync(
+                            child.Item.Product,
+                            decrease,
+                            item.Item.Quantity * child.Item.Quantity,
+                            new ProductVariantAttributeSelection(child.Item.AttributesXml));
                     }
                 }
 
@@ -32,7 +37,11 @@ namespace Smartstore.Core.Catalog.Products
             }
             else
             {
-                return await productService.AdjustInventoryAsync(item.Item.Product, decrease, item.Item.Quantity, item.Item.AttributesXml);
+                return await productService.AdjustInventoryAsync(
+                    item.Item.Product, 
+                    decrease, 
+                    item.Item.Quantity,
+                    new ProductVariantAttributeSelection(item.Item.AttributesXml));
             }
         }
     }

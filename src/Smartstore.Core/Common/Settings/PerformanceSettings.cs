@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.Configuration;
+﻿using Smartstore.Core.Configuration;
 
 namespace Smartstore.Core.Common.Settings
 {
@@ -30,5 +29,11 @@ namespace Smartstore.Core.Common.Settings
         /// resource usage.
         /// </summary>
         public bool AlwaysPrefetchUrlSlugs { get; set; }
+
+        /// <summary>
+        /// Maximum number of attribute combinations to be loaded and parsed
+        /// to make them unavailable for selection on the product detail page.
+        /// </summary>
+        public int MaxUnavailableAttributeCombinations { get; set; } = 10000;
     }
 }

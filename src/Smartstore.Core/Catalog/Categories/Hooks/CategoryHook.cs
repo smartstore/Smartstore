@@ -2,9 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Primitives;
 using Smartstore.Core.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
@@ -15,17 +13,10 @@ namespace Smartstore.Core.Catalog.Categories
     public class CategoryHook : AsyncDbSaveHook<Category>
     {
         private readonly SmartDbContext _db;
-        private readonly ICategoryService _categoryService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CategoryHook(
-            SmartDbContext db,
-            ICategoryService categoryService,
-            IHttpContextAccessor httpContextAccessor)
+        public CategoryHook(SmartDbContext db)
         {
             _db = db;
-            _categoryService = categoryService;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         protected override Task<HookResult> OnInsertedAsync(Category entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -36,17 +27,6 @@ namespace Smartstore.Core.Catalog.Categories
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            // Soft-delete sub-categories.
-            var softDeletedCategories = entries
-                .Where(x => x.IsSoftDeleted == true)
-                .Select(x => x.Entity)
-                .OfType<Category>()
-                .ToList();
-
-            var subCategoryIds = await GetSubCategoryIds(softDeletedCategories.Select(x => x.Id));
-            await SoftDeleteCategories(subCategoryIds, SoftDeleteChildCategories);
-
-
             // Update HasDiscountsApplied property.
             var categories = entries
                 .Select(x => x.Entity)
@@ -96,43 +76,6 @@ namespace Smartstore.Core.Catalog.Categories
             }
         }
 
-        private async Task<IEnumerable<int>> GetSubCategoryIds(IEnumerable<int> categoryIds)
-        {
-            var result = new HashSet<int>();
-            var ids = categoryIds.Distinct().ToArray();
-
-            foreach (var id in ids)
-            {
-                var tree = await _categoryService.GetCategoryTreeAsync(id, true);
-                if (tree?.HasChildren ?? false)
-                {
-                    result.AddRange(tree.Children.Select(x => x.Value.Id));
-                }
-            }
-
-            return result;
-        }
-
-        private async Task SoftDeleteCategories(IEnumerable<int> categoryIds, bool softDelete)
-        {
-            if (!categoryIds.Any())
-            {
-                return;
-            }
-
-            var num = await _db.Categories
-                .Where(x => categoryIds.Contains(x.Id))
-                .BatchUpdateAsync(x => new Category 
-                {
-                    Deleted = softDelete || x.Deleted,
-                    ParentCategoryId = softDelete ? x.ParentCategoryId : 0
-                });
-
-            // Process sub-categories.
-            var subCategoryIds = await GetSubCategoryIds(categoryIds);
-            await SoftDeleteCategories(subCategoryIds, softDelete);
-        }
-
         private async Task<bool> IsValidCategoryHierarchy(int categoryId, int parentCategoryId)
         {
             var parent = await _db.Categories
@@ -160,23 +103,6 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             return true;
-        }
-
-        // TODO: (mg) (core) Extremely bad API design! Service layer should be client-agnostic. I don't know what this is for but it screams for refactoring.
-        private bool SoftDeleteChildCategories
-        {
-            get
-            {
-                var values = StringValues.Empty;
-
-                // TODO: (mg) (web) Use "ChildCategoriesDeleteType" (no longer "deleteType") as unique form key for deleting child categories.
-                if (_httpContextAccessor.HttpContext?.Request?.Form?.TryGetValue("ChildCategoriesDeleteType", out values) ?? false)
-                {
-                    return values.FirstOrDefault().EqualsNoCase("deletechilds");
-                }
-
-                return false;
-            }
         }
     }
 }

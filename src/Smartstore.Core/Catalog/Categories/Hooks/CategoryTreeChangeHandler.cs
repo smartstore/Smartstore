@@ -13,6 +13,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
+using Smartstore.Domain;
 using Smartstore.Events;
 
 namespace Smartstore.Core.Catalog.Categories
@@ -37,7 +38,7 @@ namespace Smartstore.Core.Catalog.Categories
         public CategoryTreeChangeReason Reason { get; private set; }
     }
 
-    public class CategoryTreeChangeHook : AsyncDbSaveHook<Category>, IConsumer
+    public class CategoryTreeChangeHook : AsyncDbSaveHook<BaseEntity>, IConsumer
     {
         #region static
 

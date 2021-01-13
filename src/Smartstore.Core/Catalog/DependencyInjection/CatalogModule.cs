@@ -25,6 +25,7 @@ namespace Smartstore.Core.DependencyInjection
                 //.WithNullCache()  // TODO: (core) Do we really need Autofac registration "WithNullCache"?
                 .InstancePerLifetimeScope();
 
+            builder.RegisterType<ProductAttributeParser>().As<IProductAttributeParser>().InstancePerLifetimeScope();
             builder.RegisterType<ProductAttributeService>().As<IProductAttributeService>().InstancePerLifetimeScope();
 
             builder.RegisterType<PriceFormatter>().As<IPriceFormatter>().InstancePerLifetimeScope();

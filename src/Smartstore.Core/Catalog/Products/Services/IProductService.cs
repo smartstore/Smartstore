@@ -85,9 +85,9 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="product">Product entity.</param>
         /// <param name="decrease">A value indicating whether to increase or descrease product stock quantity.</param>
         /// <param name="quantity">The quantity to adjust.</param>
-        /// <param name="attributesXml">Attributes XML data.</param>
+        /// <param name="attributes">Selected attributes.</param>
         /// <returns>Adjust inventory result.</returns>
-        Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, bool decrease, int quantity, string attributesXml);
+        Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, bool decrease, int quantity, ProductVariantAttributeSelection attributes);
 
         /// <summary>
         /// Ensures the existence of all mutually related products.

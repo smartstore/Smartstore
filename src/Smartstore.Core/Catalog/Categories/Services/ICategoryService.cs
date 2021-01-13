@@ -9,6 +9,13 @@ namespace Smartstore.Core.Catalog.Categories
     public partial interface ICategoryService
     {
         /// <summary>
+        /// Deletes a category.
+        /// </summary>
+        /// <param name="category">Category entity.</param>
+        /// <param name="deleteSubCategories">A value indicating whether to delete child categories or to set them to no parent.</param>
+        Task DeleteCategoryAsync(Category category, bool deleteSubCategories = false);
+
+        /// <summary>
         /// Assigns ACL restrictions to sub-categories and products.
         /// </summary>
         /// <param name="categoryId">Category identifier.</param>

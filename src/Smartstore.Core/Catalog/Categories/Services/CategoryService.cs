@@ -15,6 +15,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Data.Batching;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Categories
@@ -42,6 +43,60 @@ namespace Smartstore.Core.Catalog.Categories
             _workContext = workContext;
             _cache = cache;
             _storeMappingService = storeMappingService;
+        }
+
+        public virtual async Task DeleteCategoryAsync(Category category, bool deleteSubCategories = false)
+        {
+            if (category == null)
+            {
+                return;
+            }
+
+            category.Deleted = true;
+
+            var subCategoryIds = await GetSubCategoryIds(new[] { category.Id });
+            await SoftDeleteCategories(subCategoryIds);
+
+            // Commit because we internally committed data anyway (because of BatchUpdateAsync when processing sub-categories).
+            await _db.SaveChangesAsync();
+
+            async Task<IEnumerable<int>> GetSubCategoryIds(IEnumerable<int> categoryIds)
+            {
+                var result = new HashSet<int>();
+                var ids = categoryIds.Distinct().ToArray();
+
+                foreach (var id in ids)
+                {
+                    var tree = await GetCategoryTreeAsync(id, true);
+                    if (tree?.HasChildren ?? false)
+                    {
+                        result.AddRange(tree.Children.Select(x => x.Value.Id));
+                    }
+                }
+
+                return result;
+            }
+
+            async Task SoftDeleteCategories(IEnumerable<int> categoryIds)
+            {
+                if (!categoryIds.Any())
+                {
+                    return;
+                }
+
+                var num = await _db.Categories
+                    .AsQueryable()
+                    .Where(x => categoryIds.Contains(x.Id))
+                    .BatchUpdateAsync(x => new Category
+                    {
+                        Deleted = deleteSubCategories || x.Deleted,
+                        ParentCategoryId = deleteSubCategories ? x.ParentCategoryId : 0
+                    });
+
+                // Process sub-categories.
+                var ids = await GetSubCategoryIds(categoryIds);
+                await SoftDeleteCategories(ids);
+            }
         }
 
         public virtual async Task<(int AffectedCategories, int AffectedProducts)> InheritAclIntoChildrenAsync(

@@ -266,7 +266,11 @@ namespace Smartstore.Core.Catalog.Products
                         {
                             if (productsDic.TryGetValue(item.ProductId, out var product))
                             {
-                                await AdjustInventoryAsync(product, decrease, quantity * item.Quantity, item.AttributesXml);
+                                await AdjustInventoryAsync(
+                                    product,
+                                    decrease,
+                                    quantity * item.Quantity,
+                                    new ProductVariantAttributeSelection(item.AttributesXml));
                             }
                         }
                     }
@@ -276,13 +280,13 @@ namespace Smartstore.Core.Catalog.Products
             }
             else
             {
-                return await AdjustInventoryAsync(orderItem.Product, decrease, quantity, orderItem.AttributesXml);
+                return await AdjustInventoryAsync(orderItem.Product, decrease, quantity, new ProductVariantAttributeSelection(orderItem.AttributesXml));
             }
         }
 
         // TODO: (mg) (core) Complete ProductService.AdjustInventoryAsync method.
         // SendQuantityBelowStoreOwnerNotification should be send by caller after (!) database commit.
-        public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, bool decrease, int quantity, string attributesXml)
+        public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, bool decrease, int quantity, ProductVariantAttributeSelection attributes)
         {
             Guard.NotNull(product, nameof(product));
 
@@ -328,7 +332,7 @@ namespace Smartstore.Core.Catalog.Products
                     break;
                 case ManageInventoryMethod.ManageStockByAttributes:
                     {
-                        //var combination = _productAttributeParser.FindProductVariantAttributeCombination(product.Id, attributesXml);
+                        //var combination = _productAttributeParser.FindProductVariantAttributeCombination(product.Id, attributes);
                         ProductVariantAttributeCombination combination = null;
                         if (combination != null)
                         {
@@ -348,7 +352,7 @@ namespace Smartstore.Core.Catalog.Products
                     break;
             }
 
-            //var attributeValues = _productAttributeParser.ParseProductVariantAttributeValues(attributesXml);
+            //var attributeValues = _productAttributeParser.ParseProductVariantAttributeValues(attributes);
             var attributeValues = new List<ProductVariantAttributeValue>();
             
             var productLinkageValues = attributeValues
@@ -365,7 +369,7 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     if (linkedProductsDic.TryGetValue(value.LinkedProductId, out var linkedProduct))
                     {
-                        await AdjustInventoryAsync(linkedProduct, decrease, quantity * value.Quantity, string.Empty);
+                        await AdjustInventoryAsync(linkedProduct, decrease, quantity * value.Quantity, null);
                     }
                 }
             }
