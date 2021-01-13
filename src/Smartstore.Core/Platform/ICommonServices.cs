@@ -31,7 +31,7 @@ namespace Smartstore.Core
         IActivityLogger ActivityLogger { get; }
         INotifier Notifier { get; }
         IChronometer Chronometer { get; }
-        DateTimeHelper DateTimeHelper { get; }
+        IDateTimeHelper DateTimeHelper { get; }
 
         // TODO: (core) Add more props to ICommonServices once they drop in.
     }

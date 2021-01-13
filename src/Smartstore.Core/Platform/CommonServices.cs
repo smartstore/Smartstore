@@ -2,6 +2,7 @@
 using Autofac;
 using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Logging;
@@ -30,6 +31,7 @@ namespace Smartstore.Core
         private readonly Lazy<IActivityLogger> _activityLogger;
         private readonly INotifier _notifier;
         private readonly IChronometer _chronometer;
+        private readonly IDateTimeHelper _dateTimeHelper;
 
         public CommonServices(
             IComponentContext container,
@@ -46,7 +48,8 @@ namespace Smartstore.Core
             ILoggerFactory loggerFactory,
             Lazy<IActivityLogger> activityLogger,
             INotifier notifier,
-            IChronometer chronometer)
+            IChronometer chronometer,
+            IDateTimeHelper dateTimeHelper)
         {
             _container = container;
             _appContext = appContext;
@@ -63,6 +66,7 @@ namespace Smartstore.Core
             _activityLogger = activityLogger;
             _notifier = notifier;
             _chronometer = chronometer;
+            _dateTimeHelper = dateTimeHelper;
         }
 
         public IComponentContext Container => _container;
@@ -80,5 +84,6 @@ namespace Smartstore.Core
         public IActivityLogger ActivityLogger => _activityLogger.Value;
         public INotifier Notifier => _notifier;
         public IChronometer Chronometer => _chronometer;
+        public IDateTimeHelper DateTimeHelper => _dateTimeHelper;
     }
 }

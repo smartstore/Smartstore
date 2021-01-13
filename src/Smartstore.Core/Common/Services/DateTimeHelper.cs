@@ -5,23 +5,27 @@ using System.Runtime.CompilerServices;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Customers;
+using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Common.Services
 {
     public partial class DateTimeHelper : IDateTimeHelper
     {
-        private readonly ICommonServices _services;
+        private readonly SmartDbContext _db;
+        private readonly ISettingService _settingService;
         private readonly IWorkContext _workContext;
         private readonly DateTimeSettings _dateTimeSettings;
 
         private TimeZoneInfo _cachedUserTimeZone;
 
         public DateTimeHelper(
-            ICommonServices services,
+            SmartDbContext db,
+            ISettingService settingService,
             IWorkContext workContext,
             DateTimeSettings dateTimeSettings)
         {
-            _services = services;
+            _db = db;
+            _settingService = settingService;
             _workContext = workContext;
             _dateTimeSettings = dateTimeSettings;
         }
@@ -119,8 +123,8 @@ namespace Smartstore.Core.Common.Services
 
                 _dateTimeSettings.DefaultStoreTimeZoneId = defaultTimeZoneId;
 
-                _services.Settings.ApplySettingAsync(_dateTimeSettings, x => x.DefaultStoreTimeZoneId).Await();
-                _services.DbContext.SaveChanges();
+                _settingService.ApplySettingAsync(_dateTimeSettings, x => x.DefaultStoreTimeZoneId).Await();
+                _db.SaveChanges();
 
                 _cachedUserTimeZone = null;
             }
@@ -142,7 +146,7 @@ namespace Smartstore.Core.Common.Services
 
                 _workContext.CurrentCustomer.TimeZoneId = timeZoneId;
 
-                _services.DbContext.SaveChanges();
+                _db.SaveChanges();
 
                 _cachedUserTimeZone = null;
             }
