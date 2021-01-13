@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ namespace Smartstore.Core.Messages
 
         // TODO: (mh) (core) Comment in once MessageFactory is available.
         //private readonly IMessageFactory _messageFactory;
+
+        private readonly HashSet<NewsletterSubscription> _toSubscribe = new HashSet<NewsletterSubscription>();
+        private readonly HashSet<NewsletterSubscription> _toUnsubscribe = new HashSet<NewsletterSubscription>();
 
         public NewsletterSubscriptionService(
             SmartDbContext db,
@@ -62,138 +66,168 @@ namespace Smartstore.Core.Messages
         {
             Guard.NotNull(entity, nameof(entity));
 
+            // TODO: (mh) (core) Does this belong in _toUnsubscribe? Or can OnDeletedAsync be executed after OnAfterSaveCompletedAsync
+            //       if so uncomment else delete comment
+            // Collect for later event publishing.
+            //_toUnsubscribe.Add(subscription);
+
             await _eventPublisher.PublishNewsletterUnsubscribedAsync(entity.Email);
+
             return HookResult.Ok;
+        }
+
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            var subscriptions = entries
+                .Select(x => x.Entity)
+                .OfType<NewsletterSubscription>()
+                .ToList();
+
+            foreach (var subscription in subscriptions)
+            {
+                var modProps = _db.GetModifiedProperties(subscription);
+                var origActive = modProps.ContainsKey(nameof(NewsletterSubscription.Active)) ? (bool)modProps[nameof(NewsletterSubscription.Active)] : subscription.Active;
+                var origEmail = modProps.ContainsKey(nameof(NewsletterSubscription.Email)) ? modProps[nameof(NewsletterSubscription.Email)].ToString() : subscription.Email;
+
+                // Collect events for modified entities.
+                if ((origActive == false && subscription.Active) || (subscription.Active && (origEmail != subscription.Email)))
+                {
+                    // If the original entry was false and and the current is true
+                    // or the mail address changed and subscription is active
+                    // > publish subscribed.
+                    _toSubscribe.Add(subscription);
+                }
+                else if ((origActive && subscription.Active && (origEmail != subscription.Email)) || (origActive && !subscription.Active))
+                {
+                    // If the two mail adresses are different > publish unsubscribed.
+                    // or if the original entry was true and the current is false
+                    // > publish unsubscribed.
+                    _toUnsubscribe.Add(subscription);
+                }
+            }
+
+            return Task.FromResult(HookResult.Ok);
+        }
+
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            if (_toSubscribe.Count > 0)
+            {
+                foreach (var subscription in _toSubscribe)
+                {
+                    await _eventPublisher.PublishNewsletterSubscribedAsync(subscription.Email);
+                }
+
+                _toSubscribe.Clear();
+            }
+
+            if (_toUnsubscribe.Count > 0)
+            {
+                foreach (var subscription in _toUnsubscribe)
+                {
+                    await _eventPublisher.PublishNewsletterUnsubscribedAsync(subscription.Email);
+                }
+
+                _toUnsubscribe.Clear();
+            }
         }
 
         #endregion
 
-        public virtual async Task<bool> SubscribeAsync(NewsletterSubscription subscription)
+        public virtual bool Subscribe(NewsletterSubscription subscription)
         {
             Guard.NotNull(subscription, nameof(subscription));
 
             if (!subscription.Active)
             {
-                // Ensure that entity is tracked
+                // Ensure that entity is tracked.
                 _db.TryChangeState(subscription, EntityState.Modified);
 
                 subscription.Active = true;
-                await _db.SaveChangesAsync();
 
-                // Publish the unsubscription event.
-                await _eventPublisher.PublishNewsletterSubscribedAsync(subscription.Email);
+                // Collect for later event publishing.
+                _toSubscribe.Add(subscription);
+
                 return true;
             }
 
             return false;
         }
         
-        public virtual async Task<bool> UnsubscribeAsync(NewsletterSubscription subscription)
+        public virtual bool Unsubscribe(NewsletterSubscription subscription)
         {
             Guard.NotNull(subscription, nameof(subscription));
 
             if (subscription.Active)
             {
+                // Ensure that entity is tracked.
                 _db.TryChangeState(subscription, EntityState.Modified);
 
                 subscription.Active = false;
-                await _db.SaveChangesAsync();
 
-                // Publish the unsubscription event.
-                await _eventPublisher.PublishNewsletterUnsubscribedAsync(subscription.Email);
+                // Collect for later event publishing.
+                _toUnsubscribe.Add(subscription);
+
                 return true;
             }
 
             return false;
         }
 
-        public virtual async Task<bool?> UpdateSubscriptionAsync(NewsletterSubscription subscription)
-        {
-            Guard.NotNull(subscription, nameof(subscription));
-
-            bool? subscribed = null;
-
-            // Get original values of subscription entity.
-            var modProps = _db.GetModifiedProperties(subscription);
-            var origActive = modProps.ContainsKey(nameof(NewsletterSubscription.Active)) ? (bool)modProps[nameof(NewsletterSubscription.Active)] : subscription.Active;
-            var origEmail = modProps.ContainsKey(nameof(NewsletterSubscription.Email)) ? modProps[nameof(NewsletterSubscription.Email)].ToString() : subscription.Email;
-
-            // Persist.
-            await _db.SaveChangesAsync();
-
-            // Publish events.
-            if ((origActive == false && subscription.Active) || (subscription.Active && (origEmail != subscription.Email)))
-            {
-                // If the original entry was false and and the current is true
-                // or the mail address changed and subscription is active
-                // > publish subscribed.
-                await _eventPublisher.PublishNewsletterSubscribedAsync(subscription.Email);
-                subscribed = true;
-            }
-            else if ((origActive && subscription.Active && (origEmail != subscription.Email)) || (origActive && !subscription.Active))
-            {
-                // If the two mail adresses are different > publish unsubscribed.
-                // or if the original entry was true and the current is false
-                // > publish unsubscribed.
-                await _eventPublisher.PublishNewsletterUnsubscribedAsync(subscription.Email);
-                subscribed = false;
-            }
-            
-            return subscribed;
-        }
-
         public virtual async Task<bool?> ApplySubscriptionAsync(bool subscribe, string email, int storeId)
         {
             bool? result = null;
 
-            if (email.IsEmail())
+            if (!email.IsEmail())
             {
-                var subscription = await _db.NewsletterSubscriptions
-                    .ApplyMailAddressFilter(email, storeId)
-                    .FirstOrDefaultAsync();
+                throw new ArgumentException("Email parameter must be a valid email address.", nameof(email));
+            }
 
-                if (subscription != null)
+            var subscription = await _db.NewsletterSubscriptions
+                .ApplyMailAddressFilter(email, storeId)
+                .FirstOrDefaultAsync();
+
+            if (subscription != null)
+            {
+                if (subscribe)
                 {
-                    if (subscribe)
+                    if (!subscription.Active)
                     {
-                        if (!subscription.Active)
-                        {
-                            // TODO: (mh) (core) make async
-                            // _messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
-                        }
+                        // TODO: (mh) (core) make async
+                        // _messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
+                    }
 
-                        result = true;
-                    }
-                    else
-                    {
-                        _db.NewsletterSubscriptions.Remove(subscription);
-                        result = false;
-                    }
+                    result = true;
                 }
                 else
                 {
-                    if (subscribe)
-                    {
-                        subscription = new NewsletterSubscription
-                        {
-                            NewsletterSubscriptionGuid = Guid.NewGuid(),
-                            Email = email,
-                            Active = false,
-                            CreatedOnUtc = DateTime.UtcNow,
-                            StoreId = storeId,
-                            WorkingLanguageId = _workContext.WorkingLanguage.Id
-                        };
-
-                        _db.NewsletterSubscriptions.Add(subscription);
-
-                        // TODO: (mh) (core) make async
-                        //_messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
-
-                        result = true;
-                    }
+                    _db.NewsletterSubscriptions.Remove(subscription);
+                    result = false;
                 }
             }
+            else
+            {
+                if (subscribe)
+                {
+                    subscription = new NewsletterSubscription
+                    {
+                        NewsletterSubscriptionGuid = Guid.NewGuid(),
+                        Email = email,
+                        Active = false,
+                        CreatedOnUtc = DateTime.UtcNow,
+                        StoreId = storeId,
+                        WorkingLanguageId = _workContext.WorkingLanguage.Id
+                    };
 
+                    _db.NewsletterSubscriptions.Add(subscription);
+
+                    // TODO: (mh) (core) make async
+                    //_messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
+
+                    result = true;
+                }
+            }
+        
             return result;
         }
 
