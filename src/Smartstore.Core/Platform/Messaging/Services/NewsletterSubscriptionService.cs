@@ -111,25 +111,17 @@ namespace Smartstore.Core.Messages
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            if (_toSubscribe.Count > 0)
+            foreach (var subscription in _toSubscribe)
             {
-                foreach (var subscription in _toSubscribe)
-                {
-                    await _eventPublisher.PublishNewsletterSubscribedAsync(subscription.Email);
-                }
-
-                _toSubscribe.Clear();
+                await _eventPublisher.PublishNewsletterSubscribedAsync(subscription.Email);
             }
+            _toSubscribe.Clear();
 
-            if (_toUnsubscribe.Count > 0)
+            foreach (var subscription in _toUnsubscribe)
             {
-                foreach (var subscription in _toUnsubscribe)
-                {
-                    await _eventPublisher.PublishNewsletterUnsubscribedAsync(subscription.Email);
-                }
-
-                _toUnsubscribe.Clear();
+                await _eventPublisher.PublishNewsletterUnsubscribedAsync(subscription.Email);
             }
+            _toUnsubscribe.Clear();
         }
 
         #endregion
