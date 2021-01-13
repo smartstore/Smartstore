@@ -82,7 +82,7 @@ namespace Smartstore.Core.Messages
                 .Select(x => x.Entity)
                 .OfType<NewsletterSubscription>()
                 .ToList();
-
+            
             foreach (var subscription in subscriptions)
             {
                 var modProps = _db.GetModifiedProperties(subscription);
@@ -136,10 +136,6 @@ namespace Smartstore.Core.Messages
                 _db.TryChangeState(subscription, EntityState.Modified);
 
                 subscription.Active = true;
-
-                // Collect for later event publishing.
-                _toSubscribe.Add(subscription);
-
                 return true;
             }
 
@@ -156,10 +152,6 @@ namespace Smartstore.Core.Messages
                 _db.TryChangeState(subscription, EntityState.Modified);
 
                 subscription.Active = false;
-
-                // Collect for later event publishing.
-                _toUnsubscribe.Add(subscription);
-
                 return true;
             }
 

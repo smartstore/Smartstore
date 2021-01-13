@@ -6,8 +6,9 @@ namespace Smartstore.Core.Messages
     {
         /// <summary>
         /// Adds or deletes a newsletter subscription and sends newsletter activation message to subscriber in case of addition.
+        /// The caller is responsible for database commit.
         /// </summary>
-        /// <param name="subscribe"><c>true</c> add subscription, <c>false</c> remove subscription</param>
+        /// <param name="subscribe"><c>true</c> adds subscription, <c>false</c> removes subscription</param>
         /// <returns><c>true</c> added subscription, <c>false</c> removed subscription, <c>null</c> did nothing</returns>
         Task<bool?> ApplySubscriptionAsync(bool subscribe, string email, int storeId);
 
