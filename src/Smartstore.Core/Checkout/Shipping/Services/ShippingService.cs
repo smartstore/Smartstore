@@ -98,7 +98,7 @@ namespace Smartstore.Core.Checkout.Shipping
                 // Apply store mapping, with linq?
                 query = 
                     from x in query
-                    join sm in _db.StoreMappings.Select(x => x)
+                    join sm in _db.StoreMappings
                     on new { c1 = x.Id, c2 = "ShippingMethod" } equals new { c1 = sm.EntityId, c2 = sm.EntityName } into x_sm
                     from sm in x_sm.DefaultIfEmpty()
                     where !x.LimitedToStores || storeId == sm.StoreId
