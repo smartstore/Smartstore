@@ -4,24 +4,6 @@ namespace Smartstore.Core.Common.Settings
 {
     public class AddressSettings : ISettings
     {
-        public AddressSettings()
-        {
-            CompanyEnabled = true;
-            StreetAddressEnabled = true;
-            StreetAddressRequired = true;
-            StreetAddress2Enabled = true;
-            ZipPostalCodeEnabled = true;
-            ZipPostalCodeRequired = true;
-            CityEnabled = true;
-            CityRequired = true;
-            CountryEnabled = true;
-            CountryRequired = true;
-            StateProvinceEnabled = true;
-            PhoneEnabled = true;
-            PhoneRequired = true;
-            FaxEnabled = true;
-        }
-
         /// <summary>
         /// Gets or sets a value indicating whether email address should be validated
         /// </summary>
@@ -45,7 +27,8 @@ namespace Smartstore.Core.Common.Settings
         /// <summary>
         /// Gets or sets a value indicating whether 'Company' is enabled
         /// </summary>
-        public bool CompanyEnabled { get; set; }
+        public bool CompanyEnabled { get; set; } = true;
+
         /// <summary>
         /// Gets or sets a value indicating whether 'Company' is required
         /// </summary>
@@ -54,16 +37,16 @@ namespace Smartstore.Core.Common.Settings
         /// <summary>
         /// Gets or sets a value indicating whether 'Street address' is enabled
         /// </summary>
-        public bool StreetAddressEnabled { get; set; }
+        public bool StreetAddressEnabled { get; set; } = true;
         /// <summary>
         /// Gets or sets a value indicating whether 'Street address' is required
         /// </summary>
-        public bool StreetAddressRequired { get; set; }
+        public bool StreetAddressRequired { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether 'Street address 2' is enabled
         /// </summary>
-        public bool StreetAddress2Enabled { get; set; }
+        public bool StreetAddress2Enabled { get; set; } = true;
         /// <summary>
         /// Gets or sets a value indicating whether 'Street address 2' is required
         /// </summary>
@@ -72,35 +55,35 @@ namespace Smartstore.Core.Common.Settings
         /// <summary>
         /// Gets or sets a value indicating whether 'Zip / postal code' is enabled
         /// </summary>
-        public bool ZipPostalCodeEnabled { get; set; }
+        public bool ZipPostalCodeEnabled { get; set; } = true;
         /// <summary>
         /// Gets or sets a value indicating whether 'Zip / postal code' is required
         /// </summary>
-        public bool ZipPostalCodeRequired { get; set; }
+        public bool ZipPostalCodeRequired { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether 'City' is enabled
         /// </summary>
-        public bool CityEnabled { get; set; }
+        public bool CityEnabled { get; set; } = true;
         /// <summary>
         /// Gets or sets a value indicating whether 'City' is required
         /// </summary>
-        public bool CityRequired { get; set; }
+        public bool CityRequired { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether 'Country' is enabled
         /// </summary>
-        public bool CountryEnabled { get; set; }
+        public bool CountryEnabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether 'Country' is required
         /// </summary>
-        public bool CountryRequired { get; set; }
+        public bool CountryRequired { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether 'State / province' is enabled
         /// </summary>
-        public bool StateProvinceEnabled { get; set; }
+        public bool StateProvinceEnabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether 'State / province' is required
@@ -110,16 +93,16 @@ namespace Smartstore.Core.Common.Settings
         /// <summary>
         /// Gets or sets a value indicating whether 'Phone number' is enabled
         /// </summary>
-        public bool PhoneEnabled { get; set; }
+        public bool PhoneEnabled { get; set; } = true;
         /// <summary>
         /// Gets or sets a value indicating whether 'Phone number' is required
         /// </summary>
-        public bool PhoneRequired { get; set; }
+        public bool PhoneRequired { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether 'Fax number' is enabled
         /// </summary>
-        public bool FaxEnabled { get; set; }
+        public bool FaxEnabled { get; set; } = true;
         /// <summary>
         /// Gets or sets a value indicating whether 'Fax number' is required
         /// </summary>
