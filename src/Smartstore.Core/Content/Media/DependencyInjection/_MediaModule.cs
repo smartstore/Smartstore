@@ -77,8 +77,8 @@ namespace Smartstore.Core.DependencyInjection
                 builder.RegisterType(type).As<IAlbumProvider>().Keyed<IAlbumProvider>(type).InstancePerLifetimeScope();
             }
 
-            //// Handlers
-            //builder.RegisterType<ImageHandler>().As<IMediaHandler>().InstancePerRequest();
+            // Handlers
+            builder.RegisterType<ImageHandler>().As<IMediaHandler>().InstancePerLifetimeScope();
         }
 
         private static Func<IMediaStorageProvider> MediaStorageProviderFactory(IComponentContext c)
