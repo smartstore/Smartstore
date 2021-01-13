@@ -30,8 +30,6 @@ namespace Smartstore.Core.DependencyInjection
         protected override void Load(ContainerBuilder builder)
         {
             //// Utils
-            //builder.RegisterType<MediaMigrator>().InstancePerRequest();
-            //builder.RegisterType<MediaMigrator3>().InstancePerRequest();
             builder.RegisterType<MediaHelper>().InstancePerLifetimeScope();
             builder.RegisterType<MediaExceptionFactory>().InstancePerLifetimeScope();
 
@@ -45,7 +43,7 @@ namespace Smartstore.Core.DependencyInjection
             builder.RegisterType<MediaUrlGenerator>().As<IMediaUrlGenerator>().InstancePerLifetimeScope();
             builder.RegisterType<AlbumRegistry>().As<IAlbumRegistry>().InstancePerLifetimeScope();
             builder.RegisterType<FolderService>().As<IFolderService>().InstancePerLifetimeScope();
-            //builder.RegisterType<MediaTracker>().As<IMediaTracker>().InstancePerRequest();
+            //builder.RegisterType<MediaTracker>().As<IMediaTracker>().InstancePerLifetimeScope();
             builder.RegisterType<MediaSearcher>().As<IMediaSearcher>().InstancePerLifetimeScope();
             //builder.RegisterType<MediaService>().As<IMediaService>().InstancePerRequest();
             //builder.RegisterType<DownloadService>().As<IDownloadService>().InstancePerRequest();
