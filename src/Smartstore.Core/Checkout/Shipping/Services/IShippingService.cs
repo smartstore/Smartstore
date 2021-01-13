@@ -45,7 +45,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Includes additional <see cref="ProductVariantAttribute"/> weight calculations, if <c>cartItem</c> has <see cref="ShoppingCartItem.AttributesXml"/>
         /// </remarks>
         /// <returns>Shopping cart item weight</returns>
-        Task<decimal> GetCartItemWeightAsync(OrganizedShoppingCartItem cartItem, bool multipliedByQuantity = false);
+        Task<decimal> GetCartItemWeightAsync(OrganizedShoppingCartItem cartItem, bool multipliedByQuantity = true);
 
         /// <summary>
         /// Gets shopping cart total weight async. Includes products with free shipping by default
@@ -56,7 +56,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Includes <see cref="CheckoutAttribute"/> of the customer in the calculations, if available
         /// </remarks>
         /// <returns>Shopping cart total weight</returns>
-        Task<decimal> GetShoppingCartTotalWeightAsync(IList<OrganizedShoppingCartItem> cart, bool includeFreeShippingProducts = true);
+        Task<decimal> GetCartTotalWeightAsync(IList<OrganizedShoppingCartItem> cart, bool includeFreeShippingProducts = true);
 
         /// <summary>
         /// Gets shipping options from shopping cart async.

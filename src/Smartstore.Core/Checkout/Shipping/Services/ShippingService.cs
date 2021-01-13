@@ -8,13 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
-using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
@@ -26,7 +23,6 @@ namespace Smartstore.Core.Checkout.Shipping
     public partial class ShippingService : IShippingService
     {
         private readonly ICheckoutAttributeMaterializer _attributeMaterializer;
-        private readonly IGenericAttributeService _attributeService;
         //private readonly ICartRuleProvider _cartRuleProvider;
         private readonly ShippingSettings _shippingSettings;
         private readonly IProviderManager _providerManager;
@@ -36,19 +32,15 @@ namespace Smartstore.Core.Checkout.Shipping
 
         public ShippingService(
             ICheckoutAttributeMaterializer attributeMaterializer,
-            IGenericAttributeService attributeService,
             //ICartRuleProvider cartRuleProvider,
             ShippingSettings shippingSettings,
             IProviderManager providerManager,
-            IProductService productService,
-            ISettingService settingService,
             ISettingFactory settingFactory,
             IWorkContext workContext,
             SmartDbContext db)
         {
             _attributeMaterializer = attributeMaterializer;
             //_cartRuleProvider = cartRuleProvider;
-            _attributeService = attributeService;
             _shippingSettings = shippingSettings;
             _providerManager = providerManager;
             _settingFactory = settingFactory;
@@ -60,12 +52,54 @@ namespace Smartstore.Core.Checkout.Shipping
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public DbQuerySettings QuerySettings { get; set; } = DbQuerySettings.Default;
 
+        internal async Task<decimal> GetCartItemsAttributesWeightAsync(IList<OrganizedShoppingCartItem> cart, bool multipliedByQuantity = true)
+        {
+            Guard.NotNull(cart, nameof(cart));
+
+            // Gets all attributes of cart items
+            var cartRawAttributes = cart
+                .Where(x => x.Item.AttributesXml.HasValue())
+                .Select(x => x.Item.AttributesXml)
+                .ToString();
+
+            // Gets parsed product variant attribute selection from raw attributes string.
+            var selection = new ProductVariantAttributeSelection(cartRawAttributes);
+            var ids = selection.AttributesMap.Select(x => x.Key).ToArray();
+
+            // Gets either all values of attributes without a product linkage
+            // or linked products which are shipping enabled
+            var query = _db.ProductVariantAttributeValues
+                .Include(x => x.ProductVariantAttribute)
+                    .ThenInclude(x => x.Product)
+                .ApplyValueFilter(ids)
+                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage
+                && x.ProductVariantAttribute.Product != null
+                && x.ProductVariantAttribute.Product.IsShippingEnabled
+                || x.ValueType != ProductVariantAttributeValueType.ProductLinkage);
+
+            // Calculates attributes weight
+            // Get attributes without product linkage > add attribute weight adjustment
+            var attributesWeight = await query
+                .Where(x => x.ValueType != ProductVariantAttributeValueType.ProductLinkage)
+                .SumAsync(x => x.WeightAdjustment * (multipliedByQuantity ? x.Quantity : 1));
+
+            // TODO: (ms) (core) needs to be tested with NullResult
+            // Get attributes with product linkage > add product weigth
+            attributesWeight += await query
+                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                .Select(x => new { x.ProductVariantAttribute.Product, x.Quantity })
+                .Where(x => x.Product != null && x.Product.IsShippingEnabled)
+                .SumAsync(x => x.Product.Weight * x.Quantity);
+
+            return attributesWeight;
+        }
+
         public virtual IEnumerable<Provider<IShippingRateComputationMethod>> LoadActiveShippingRateComputationMethods(int storeId = 0, string systemName = null)
         {
             var allMethods = _providerManager.GetAllProviders<IShippingRateComputationMethod>(storeId);
 
             // Get active shipping rate computation methods
-            var activeMethods = allMethods                
+            var activeMethods = allMethods
                 .Where(p => p.Value.IsActive && _shippingSettings.ActiveShippingRateComputationMethodSystemNames
                 .Contains(p.Metadata.SystemName, StringComparer.InvariantCultureIgnoreCase));
 
@@ -89,41 +123,27 @@ namespace Smartstore.Core.Checkout.Shipping
             return activeMethods;
         }
 
-        public virtual Task<List<ShippingMethod>> GetAllShippingMethodsAsync(bool matchRules = false, int storeId = 0)
+        public virtual async Task<List<ShippingMethod>> GetAllShippingMethodsAsync(bool matchRules = false, int storeId = 0)
         {
-            var query = _db.ShippingMethods.AsQueryable();
+            var activeShippingMethods = await _db.ShippingMethods
+                .ApplyStoreFilter(storeId)
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
 
-            if (!QuerySettings.IgnoreMultiStore && storeId > 0)
-            {
-                // Apply store mapping, with linq?
-                query = 
-                    from x in query
-                    join sm in _db.StoreMappings
-                    on new { c1 = x.Id, c2 = "ShippingMethod" } equals new { c1 = sm.EntityId, c2 = sm.EntityName } into x_sm
-                    from sm in x_sm.DefaultIfEmpty()
-                    where !x.LimitedToStores || storeId == sm.StoreId
-                    select x;
-
-                query =
-                    from x in query
-                    group x by x.Id into grp
-                    orderby grp.Key
-                    select grp.FirstOrDefault();
-            }
-
-            // TODO: (ms) (core) needs CartRuleProvider
-            //if (matchRules)
+            return activeShippingMethods;
+            //return activeShippingMethods.Where(s =>
             //{
-            //    return query
-            //        .Where(x => _cartRuleProvider.RuleMatches(x))
-            //        .OrderBy(x => x.DisplayOrder)
-            //        .ToListAsync();
-            //}
+            //    // Rule sets.
+            //    if (!_cartRuleProvider.RuleMatches(s))
+            //    {
+            //        return false;
+            //    }
 
-            return query.OrderBy(x => x.DisplayOrder).ToListAsync();
+            //    return true;
+            //});
         }
 
-        public virtual async Task<decimal> GetCartItemWeightAsync(OrganizedShoppingCartItem cartItem, bool multipliedByQuantity = false)
+        public virtual async Task<decimal> GetCartItemWeightAsync(OrganizedShoppingCartItem cartItem, bool multipliedByQuantity = true)
         {
             Guard.NotNull(cartItem, nameof(cartItem));
 
@@ -133,50 +153,30 @@ namespace Smartstore.Core.Checkout.Shipping
             var attributesWeight = decimal.Zero;
             if (cartItem.Item.AttributesXml.HasValue())
             {
-                // Gets parsed product variant attribute selection from raw attributes string.
-                // Calculates attributes weight
-                var selection = new ProductVariantAttributeSelection(cartItem.Item.AttributesXml);
-                var ids = selection.AttributesMap.Select(x => x.Key).ToArray();
-                var query = _db.ProductVariantAttributeValues.ApplyValueFilter(ids);
-
-                attributesWeight += await query
-                    .Where(x => x.ValueType != ProductVariantAttributeValueType.ProductLinkage)
-                    .SumAsync(x => x.WeightAdjustment);
-
-                attributesWeight += await query
-                    .Include(x => x.ProductVariantAttribute)
-                        .ThenInclude(x => x.Product)
-                    .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
-                    .Select(x => new { x.ProductVariantAttribute.Product, x.Quantity })
-                    .Where(x => x.Product != null && x.Product.IsShippingEnabled)
-                    .SumAsync(x => x.Product.Weight * x.Quantity);
+                attributesWeight = await GetCartItemsAttributesWeightAsync(new List<OrganizedShoppingCartItem> { cartItem }, false);
             }
 
-            return multipliedByQuantity 
+            return multipliedByQuantity
                 ? (cartItem.Item.Product.Weight + attributesWeight) * cartItem.Item.Quantity
                 : cartItem.Item.Product.Weight + attributesWeight;
         }
 
-        public virtual async Task<decimal> GetShoppingCartTotalWeightAsync(IList<OrganizedShoppingCartItem> cart, bool includeFreeShippingProducts = true)
+        public virtual async Task<decimal> GetCartTotalWeightAsync(IList<OrganizedShoppingCartItem> cart, bool includeFreeShippingProducts = true)
         {
             Guard.NotNull(cart, nameof(cart));
 
-            var totalWeight = (await Task.WhenAll(cart
-                .Where(x => !(!includeFreeShippingProducts && x.Item.Product.IsFreeShipping))
-                .Select(async x => await GetCartItemWeightAsync(x, true))))
-                .Sum();
+            // Cart total weight > products weight * quantity + attributes weight * quantity
+            cart = cart.Where(x => !(!includeFreeShippingProducts && x.Item.Product.IsFreeShipping)).ToList();
+            var attributesTotalWeight = await GetCartItemsAttributesWeightAsync(cart);
+            var cartTotalWeight = cart.Sum(x => x.Item.Product.Weight * x.Item.Quantity);
+            var totalWeight = attributesTotalWeight + cartTotalWeight;
 
             var customer = cart.GetCustomer();
             if (customer == null)
                 return totalWeight;
 
             // Checkout attributes
-            var checkoutAttributesRaw = _attributeService.GetAttributesForEntity(customer).Map
-                .Where(x => x.Key == SystemCustomerAttributeNames.CheckoutAttributes)
-                .Select(x => x.Value)
-                .FirstOrDefault()
-                .ToString();
-
+            var checkoutAttributesRaw = customer.GenericAttributes.CheckoutAttributes;
             if (checkoutAttributesRaw.HasValue())
             {
                 var attributeValues = await _attributeMaterializer
