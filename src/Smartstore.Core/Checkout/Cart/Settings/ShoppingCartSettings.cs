@@ -18,7 +18,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets a value indicating maximum number of items in the shopping cart
         /// </summary>
-        public int MaximumCartItems { get; set; } = 1000;
+        public int MaximumShoppingCartItems { get; set; } = 1000;
 
         /// <summary>
         /// Gets or sets a value indicating maximum number of items in the wishlist
@@ -28,7 +28,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets a value indicating whether to show product images in the mini-shopping cart block
         /// </summary>
-        public bool AllowOutOfStockItemsWishlist { get; set; }
+        public bool AllowOutOfStockItemsToBeAddedToWishlist { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to move items from wishlist to cart when clicking "Add to cart" button. Otherwise, they are copied
@@ -38,47 +38,47 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets a value indicating whether to show the items from wishlist to ahopping cart button
         /// </summary>
-        public bool DisplayFromWishlistToCartButton { get; set; } = true;
+        public bool ShowItemsFromWishlistToCartButton { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show product image on shopping cart page
         /// </summary>
-        public bool DisplayImagesOnCart { get; set; } = true;
+        public bool ShowProductImagesOnShoppingCart { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show product bundle images on shopping cart page
         /// </summary>
-        public bool DisplayBundleImagesOnCart { get; set; } = true;
+        public bool ShowProductBundleImagesOnShoppingCart { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show product image on wishlist page
         /// </summary>
-        public bool DisplayImagesOnWishlist { get; set; } = true;
+        public bool ShowProductImagesOnWishList { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show product image on wishlist page
         /// </summary>
-        public bool DisplayBundleImagesOnWishlist { get; set; } = true;
+        public bool ShowProductBundleImagesOnWishList { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show discount box on shopping cart page
         /// </summary>
-        public bool DisplayDiscountBox { get; set; } = true;
+        public bool ShowDiscountBox { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show gift card box on shopping cart page
         /// </summary>
-        public bool DisplayGiftCardBox { get; set; } = true;
+        public bool ShowGiftCardBox { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show a comment box on shopping cart page
         /// </summary>
-        public bool DisplayCommentBox { get; set; } = true;
+        public bool ShowCommentBox { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show a revocation waiver checkbox box for ESD products
         /// </summary>
-        public bool DisplayEsdWaiverBox { get; set; } = true;
+        public bool ShowEsdRevocationWaiverBox { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show a checkbox to subscribe to newsletters
@@ -88,17 +88,17 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets a value indicating whether to show a checkbox to let the customer accept to hand over email address to third party
         /// </summary>
-        public CheckoutThirdPartyEmailHandOver ThirdPartyHandOver { get; set; }
+        public CheckoutThirdPartyEmailHandOver ThirdPartyEmailHandOver { get; set; }
 
         /// <summary>
         /// Gets or sets the label to accept to hand over the email to third party
         /// </summary>
-        public string ThirdPartyLabel { get; set; }
+        public string ThirdPartyEmailHandOverLabel { get; set; }
 
         /// <summary>
         /// Gets or sets a number of "Cross-sells" on shopping cart page
         /// </summary>
-        public int CrossSells { get; set; } = 8;
+        public int CrossSellsNumber { get; set; } = 8;
 
         /// <summary>
         /// Gets or sets a value indicating whether "email a wishlist" feature is enabled
@@ -112,41 +112,41 @@ namespace Smartstore.Core.Checkout.Cart
 
         /// <summary>Gets or sets a value indicating whether mini-shopping cart is enabled
         /// </summary>
-        public bool MiniCartEnabled { get; set; } = true;
+        public bool MiniShoppingCartEnabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show product images in the mini-shopping cart block
         /// </summary>
-        public bool DisplayImagesInMiniCart { get; set; } = true;
+        public bool ShowProductImagesInMiniShoppingCart { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show a legal hint in the order summary
         /// </summary>
-        public bool DisplayOrderLegalHint { get; set; }
+        public bool ShowConfirmOrderLegalHint { get; set; }
 
         /// <summary>
         /// Specifies the presentation of delivery times in shopping cart.
         /// </summary>
-        public DeliveryTimesPresentation DeliveryTimes { get; set; } = DeliveryTimesPresentation.DateOnly;
+        public DeliveryTimesPresentation DeliveryTimesInShoppingCart { get; set; } = DeliveryTimesPresentation.DateOnly;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show the product short description in the order summary
         /// </summary>
-        public bool DisplayShortDesc { get; set; } = true;
+        public bool ShowShortDesc { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show the product weight in the order summary
         /// </summary>
-        public bool DisplayWeight { get; set; }
+        public bool ShowWeight { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to show the product short description in the order summary
         /// </summary>
-        public bool DisplayBasePrice { get; set; } = true;
+        public bool ShowBasePrice { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show the quantity of linked product attribute value
         /// </summary>
-        public bool DisplayLinkedAttributeQuantity { get; set; }
+        public bool ShowLinkedAttributeValueQuantity { get; set; }
     }
 }
