@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Shipping.Events;
 
 namespace Smartstore.Core.Checkout.Shipping
@@ -27,6 +28,6 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         /// <param name="trackingNumber">The number to track</param>
         /// <returns>Shipment status events</returns>
-        IList<ShipmentStatusEvent> GetShipmentEvents(string trackingNumber);
+        Task<List<ShipmentStatusEvent>> GetShipmentEventsAsync(string trackingNumber);
     }
 }

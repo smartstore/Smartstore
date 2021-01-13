@@ -4,6 +4,7 @@ using Autofac;
 using Autofac.Builder;
 using Humanizer;
 using Smartstore.Caching.OutputCache;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media.Storage;
@@ -70,7 +71,7 @@ namespace Smartstore.Core.DependencyInjection
                 // Register specific provider type.
                 RegisterAsSpecificProvider<ITaxProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IExchangeRateProvider>(type, systemName, registration);
-                //RegisterAsSpecificProvider<IShippingRateComputationMethod>(type, systemName, registration);
+                RegisterAsSpecificProvider<IShippingRateComputationMethod>(type, systemName, registration);
                 //RegisterAsSpecificProvider<IWidget>(type, systemName, registration);
                 //RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
                 //RegisterAsSpecificProvider<IPaymentMethod>(type, systemName, registration);

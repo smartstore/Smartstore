@@ -23,7 +23,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Tries to get any fallback computation method when no active methods were found. Throws a <see cref="SmartException"/> when no computation method was found at all.
         /// </remarks>
         /// <returns>Shipping rate computation methods</returns>
-        Task<IEnumerable<Provider<IShippingRateComputationMethod>>> LoadActiveShippingRateComputationMethodsAsync(int storeId = 0, string systemName = null);
+        IEnumerable<Provider<IShippingRateComputationMethod>> LoadActiveShippingRateComputationMethods(int storeId = 0, string systemName = null);
 
         /// <summary>
         /// Gets all <see cref="ShippingMethod"/>s async with store mappings if active
@@ -70,6 +70,10 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </remarks>
         /// <returns>Get shipping option resopnse</returns>
         /// 
-        Task<GetShippingOptionResponse> GetShippingOptionsAsync(IList<OrganizedShoppingCartItem> cart, Address shippingAddress, string computationMethodSystemName = "", int storeId = 0);
+        GetShippingOptionResponse GetShippingOptions(
+            IList<OrganizedShoppingCartItem> cart, 
+            Address shippingAddress, 
+            string computationMethodSystemName = "", 
+            int storeId = 0);
     }
 }

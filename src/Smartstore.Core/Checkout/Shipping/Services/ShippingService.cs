@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -16,6 +17,7 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
 
@@ -58,7 +60,7 @@ namespace Smartstore.Core.Checkout.Shipping
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public DbQuerySettings QuerySettings { get; set; } = DbQuerySettings.Default;
 
-        public virtual async Task<IEnumerable<Provider<IShippingRateComputationMethod>>> LoadActiveShippingRateComputationMethodsAsync(int storeId = 0, string systemName = null)
+        public virtual IEnumerable<Provider<IShippingRateComputationMethod>> LoadActiveShippingRateComputationMethods(int storeId = 0, string systemName = null)
         {
             var allMethods = _providerManager.GetAllProviders<IShippingRateComputationMethod>(storeId);
 
@@ -76,10 +78,9 @@ namespace Smartstore.Core.Checkout.Shipping
             {
                 _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Clear();
                 _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Add(fallbackMethod.Metadata.SystemName);
-                await _settingFactory.SaveSettingsAsync(_shippingSettings);
+                _settingFactory.SaveSettingsAsync(_shippingSettings).Await();
 
-                var providerList = new Provider<IShippingRateComputationMethod>[] { fallbackMethod };
-                return providerList;
+                return new Provider<IShippingRateComputationMethod>[] { fallbackMethod };
             }
 
             if (DataSettings.DatabaseIsInstalled())
@@ -90,7 +91,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
         public virtual Task<List<ShippingMethod>> GetAllShippingMethodsAsync(bool matchRules = false, int storeId = 0)
         {
-            var query = _db.ShippingMethods.Select(x => x);
+            var query = _db.ShippingMethods.AsQueryable();
 
             if (!QuerySettings.IgnoreMultiStore && storeId > 0)
             {
@@ -187,7 +188,7 @@ namespace Smartstore.Core.Checkout.Shipping
             return totalWeight;
         }
 
-        public virtual async Task<GetShippingOptionResponse> GetShippingOptionsAsync(
+        public virtual GetShippingOptionResponse GetShippingOptions(
             IList<OrganizedShoppingCartItem> cart,
             Address shippingAddress,
             string computationMethodSystemName = "",
@@ -195,7 +196,7 @@ namespace Smartstore.Core.Checkout.Shipping
         {
             Guard.NotNull(cart, nameof(cart));
 
-            var computationMethods = (await LoadActiveShippingRateComputationMethodsAsync(storeId))
+            var computationMethods = LoadActiveShippingRateComputationMethods(storeId)
                 .Where(x => computationMethodSystemName.IsEmpty() || computationMethodSystemName == x.Metadata.SystemName)
                 .ToList();
 
