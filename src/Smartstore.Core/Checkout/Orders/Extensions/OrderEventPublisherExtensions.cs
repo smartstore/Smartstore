@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Events;
 using Smartstore.Events;
 
-namespace Smartstore.Core.Checkout.Orders
+namespace Smartstore
 {
     public static class OrderEventPublisherExtensions
     {

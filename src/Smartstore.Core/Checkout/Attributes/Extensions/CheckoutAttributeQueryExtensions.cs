@@ -1,7 +1,8 @@
 ﻿using System.Linq;
+using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Stores;
 
-namespace Smartstore.Core.Checkout.Attributes
+namespace Smartstore
 {
     /// <summary>
     /// Checkout attribute query extensions

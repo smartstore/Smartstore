@@ -1,6 +1,7 @@
 ﻿using System.Linq;
+using Smartstore.Core.Checkout.Shipping;
 
-namespace Smartstore.Core.Checkout.Shipping.Extensions
+namespace Smartstore
 {
     /// <summary>
     /// Get shipping option request extensions

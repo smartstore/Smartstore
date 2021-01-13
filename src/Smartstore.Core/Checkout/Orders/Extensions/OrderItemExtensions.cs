@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Orders;
 
-namespace Smartstore.Core.Checkout.Orders
+namespace Smartstore
 {
     public static partial class OrderItemExtensions
     {

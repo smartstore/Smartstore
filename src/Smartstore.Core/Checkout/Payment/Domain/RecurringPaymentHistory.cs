@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Checkout.Payment.Domain
+namespace Smartstore.Core.Checkout.Payment
 {
     public class RecurringPaymentHistoryMap : IEntityTypeConfiguration<RecurringPaymentHistory>
     {

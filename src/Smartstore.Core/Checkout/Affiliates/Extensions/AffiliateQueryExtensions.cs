@@ -1,6 +1,7 @@
 ﻿using System.Linq;
+using Smartstore.Core.Checkout.Affiliates;
 
-namespace Smartstore.Core.Checkout.Affiliates
+namespace Smartstore
 {
     public static class AffiliateQueryExtensions
     {

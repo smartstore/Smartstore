@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
+using Smartstore.Core.Checkout.GiftCards;
 
-namespace Smartstore.Core.Checkout.GiftCards
+namespace Smartstore
 {
     /// <summary>
     /// Gift card query extensions

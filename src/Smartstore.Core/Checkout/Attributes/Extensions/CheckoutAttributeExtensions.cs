@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 
-namespace Smartstore.Core.Checkout.Attributes
+namespace Smartstore
 {
     /// <summary>
     /// Checkout attribute extensions

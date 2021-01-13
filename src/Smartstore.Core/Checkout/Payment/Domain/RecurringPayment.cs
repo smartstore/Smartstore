@@ -8,7 +8,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Checkout.Payment.Domain
+namespace Smartstore.Core.Checkout.Payment
 {
     public class RecurringPaymentMap : IEntityTypeConfiguration<RecurringPayment>
     {

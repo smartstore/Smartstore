@@ -1,6 +1,7 @@
 ﻿using System.Linq;
+using Smartstore.Core.Checkout.Cart;
 
-namespace Smartstore.Core.Checkout.Cart
+namespace Smartstore
 {
     /// <summary>
     /// Shopping cart query extensions
