@@ -4,10 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -39,7 +41,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (entity is Setting setting)
             {
-                if (setting.Name.EqualsNoCase("PerformanceSettings.MaxUnavailableAttributeCombinations"))
+                if (setting.Name.EqualsNoCase(TypeHelper.NameOf<PerformanceSettings>(x => x.MaxUnavailableAttributeCombinations, true)))
                 {
                     await _cache.RemoveByPatternAsync(ProductAttributeMaterializer.UNAVAILABLE_COMBINATIONS_PATTERN_KEY);
                 }
