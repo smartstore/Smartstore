@@ -549,7 +549,6 @@
 
 //            var query = new ProcessImageQuery(inStream)
 //            {
-//                Quality = _mediaSettings.DefaultImageQuality,
 //                Format = file.Extension,
 //                DisposeSource = true,
 //                ExecutePostProcessor = ImagePostProcessingEnabled,

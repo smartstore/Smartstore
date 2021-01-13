@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Core.Configuration;
+using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -9,11 +10,6 @@ namespace Smartstore.Core.Content.Media
     {
         public bool DefaultPictureZoomEnabled { get; set; } = true;
         public string PictureZoomType { get; set; } = "window";
-
-        /// <summary>
-        /// Geta or sets a default quality used for image generation
-        /// </summary>
-        public int DefaultImageQuality { get; set; } = 90;
 
         /// <summary>
         /// Gets or sets the height to width ratio for thumbnails in grid style lists (0.2 - 2)
@@ -166,6 +162,50 @@ namespace Smartstore.Core.Content.Media
         /// A space separated list of other types file extensions (dotless)
         /// </summary>
         public string BinTypes { get; set; }
+
+        #endregion
+
+        #region Image processing
+
+        /// <summary>
+        /// Gets or sets the default resampling mode during image resize operations.
+        /// </summary>
+        public ResamplingMode DefaultResamplingMode { get; set; } = ResamplingMode.Bicubic;
+
+        /// <summary>
+        /// Gets or sets the default JPEG quality used for JPEG encoding.
+        /// </summary>
+        public int DefaultImageQuality { get; set; } = 90;
+
+        /// <summary>
+        /// Gets or sets the default JPEG subsampling used for JPEG encoding.
+        /// </summary>
+        public JpegSubsample JpegSubsampling { get; set; } = JpegSubsample.Ratio420;
+
+        /// <summary>
+        /// Gets or sets the default compression level used for PNG encoding.
+        /// </summary>
+        public PngCompressionLevel PngCompressionLevel { get; set; } = PngCompressionLevel.Level0;
+
+        /// <summary>
+        /// Gets or sets the default quantization method used for PNG encoding.
+        /// </summary>
+        public QuantizationMethod PngQuantizationMethod { get; set; } = QuantizationMethod.Wu;
+
+        /// <summary>
+        /// Whether PNG should be encoded interlaced.
+        /// </summary>
+        public bool PngInterlaced { get; set; }
+
+        /// <summary>
+        /// Whether PNG metadata should be ignored when the image is being encoded.
+        /// </summary>
+        public bool PngIgnoreMetadata { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default quantization method used for GIF encoding.
+        /// </summary>
+        public QuantizationMethod GifQuantizationMethod { get; set; } = QuantizationMethod.Octree;
 
         #endregion
     }

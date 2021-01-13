@@ -96,6 +96,12 @@ namespace Smartstore.Imaging
         /// should be converted to transparent black, which can yield in better compression in some cases.
         /// </summary>
         PngTransparentColorMode? TransparentColorMode { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the metadata should be ignored when the image is being encoded.
+        /// When set to true, all ancillary chunks will be skipped.
+        /// </summary>
+        bool IgnoreMetadata { get; set; }
     }
 
     public interface IGifFormat : IImageFormat

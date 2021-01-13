@@ -110,6 +110,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         public PngInterlaceMode? InterlaceMode { get; set; }
         public PngChunkFilter? ChunkFilter { get; set; }
         public PngTransparentColorMode? TransparentColorMode { get; set; }
+        public bool IgnoreMetadata { get; set; }
 
         public override IImageEncoder CreateEncoder()
         {
@@ -121,7 +122,8 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
                 || QuantizationMethod != null
                 || InterlaceMode != null
                 || ChunkFilter != null
-                || TransparentColorMode != null)
+                || TransparentColorMode != null
+                || IgnoreMetadata)
             {
                 var encoder = new PngEncoder
                 {
@@ -130,7 +132,8 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
                     Gamma = Gamma,
                     InterlaceMethod = (SharpPngInterlaceMode?)InterlaceMode,
                     ChunkFilter = (SharpPngChunkFilter?)ChunkFilter,
-                    Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod)
+                    Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod),
+                    IgnoreMetadata = IgnoreMetadata
                 };
 
                 if (TransparentColorMode != null)

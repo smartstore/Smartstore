@@ -17,11 +17,13 @@ namespace Smartstore.Core.Content.Media.Imaging
         private static long _totalProcessingTime;
 
         private readonly IEventPublisher _eventPublisher;
+        private readonly MediaSettings _mediaSettings;
 
-        public DefaultImageProcessor(IImageFactory imageFactory, IEventPublisher eventPublisher)
+        public DefaultImageProcessor(IImageFactory imageFactory, IEventPublisher eventPublisher, MediaSettings mediaSettings)
         {
             Factory = imageFactory;
             _eventPublisher = eventPublisher;
+            _mediaSettings = mediaSettings;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -142,7 +144,8 @@ namespace Smartstore.Core.Content.Media.Imaging
                     {
                         Size = size,
                         Mode = ProcessImageQuery.ConvertScaleMode(query.ScaleMode),
-                        Position = ProcessImageQuery.ConvertAnchorPosition(query.AnchorPosition)
+                        Position = ProcessImageQuery.ConvertAnchorPosition(query.AnchorPosition),
+                        Resampling = _mediaSettings.DefaultResamplingMode
                     });
                 }
 
@@ -171,11 +174,22 @@ namespace Smartstore.Core.Content.Media.Imaging
                 }
             }
 
-            // Quality
-            if (query.Quality.HasValue && image.Format is IJpegFormat jpegFormat)
+            // Encoding
+            if (image.Format is IJpegFormat jpegFormat)
             {
-                // TODO: (core) Apply ProcessImageQuery.Quality to Png and Gif somehow.
-                jpegFormat.Quality = query.Quality.Value;
+                jpegFormat.Quality = query.Quality ?? _mediaSettings.DefaultImageQuality;
+                jpegFormat.Subsample = _mediaSettings.JpegSubsampling;
+            }
+            else if (image.Format is IPngFormat pngFormat)
+            {
+                pngFormat.CompressionLevel = _mediaSettings.PngCompressionLevel;
+                pngFormat.QuantizationMethod = _mediaSettings.PngQuantizationMethod;
+                pngFormat.InterlaceMode = _mediaSettings.PngInterlaced ? PngInterlaceMode.None : PngInterlaceMode.Adam7;
+                pngFormat.IgnoreMetadata = _mediaSettings.PngIgnoreMetadata;
+            }
+            else if (image.Format is IGifFormat gifFormat)
+            {
+                gifFormat.QuantizationMethod = _mediaSettings.GifQuantizationMethod;
             }
         }
 
