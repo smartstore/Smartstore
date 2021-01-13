@@ -9,7 +9,7 @@ namespace Smartstore.Core.Catalog.Attributes
     /// <summary>
     /// Product attribute parser interface.
     /// </summary>
-    public partial interface IProductAttributeParser
+    public partial interface IProductAttributeMaterializer
     {
         /// <summary>
         /// Gets a list of product variant attribute values.
@@ -17,7 +17,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <param name="attributeSelection">Attributes selection.</param>
         /// <param name="attributes">Product variant attributes.</param>
         /// <returns>Parsed product variant values.</returns>
-        ICollection<ProductVariantAttributeValue> ParseProductVariantAttributeValues(ProductVariantAttributeSelection attributeSelection, IEnumerable<ProductVariantAttribute> attributes);
+        ICollection<ProductVariantAttributeValue> MaterializeProductVariantAttributeValues(ProductVariantAttributeSelection attributeSelection, IEnumerable<ProductVariantAttribute> attributes);
 
         /// <summary>
         /// Gets a value indicating whether two attribute selections are equal.

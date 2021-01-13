@@ -70,7 +70,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </remarks>
         /// <returns>Get shipping option resopnse</returns>
         /// 
-        GetShippingOptionResponse GetShippingOptions(
+        ShippingOptionResponse GetShippingOptions(
             IList<OrganizedShoppingCartItem> cart, 
             Address shippingAddress, 
             string computationMethodSystemName = "", 

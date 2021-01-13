@@ -14,7 +14,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public partial class ProductAttributeParser : IProductAttributeParser
+    public partial class ProductAttributeMaterializer : IProductAttributeMaterializer
     {
         // 0 = ProductId
         internal const string UNAVAILABLE_COMBINATIONS_KEY = "attributecombination:unavailable-{0}";
@@ -24,7 +24,7 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly ICacheManager _cache;
         private readonly PerformanceSettings _performanceSettings;
 
-        public ProductAttributeParser(
+        public ProductAttributeMaterializer(
             SmartDbContext db,
             ICacheManager cache,
             PerformanceSettings performanceSettings)
@@ -35,7 +35,7 @@ namespace Smartstore.Core.Catalog.Attributes
         }
 
 
-        public virtual ICollection<ProductVariantAttributeValue> ParseProductVariantAttributeValues(ProductVariantAttributeSelection attributeSelection, IEnumerable<ProductVariantAttribute> attributes)
+        public virtual ICollection<ProductVariantAttributeValue> MaterializeProductVariantAttributeValues(ProductVariantAttributeSelection attributeSelection, IEnumerable<ProductVariantAttribute> attributes)
         {
             var result = new HashSet<ProductVariantAttributeValue>();
 
