@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -20,6 +21,7 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Represents a product review helpfulness.
     /// </summary>
+    [Table("ProductReviewHelpfulness")] // Enables EF TPT inheritance
     public partial class ProductReviewHelpfulness : CustomerContent
     {
         private readonly ILazyLoader _lazyLoader;

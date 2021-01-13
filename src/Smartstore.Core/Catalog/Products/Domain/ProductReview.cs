@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -22,6 +23,7 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Represents a product review.
     /// </summary>
+    [Table("ProductReview")] // Enables EF TPT inheritance
     public partial class ProductReview : CustomerContent
     {
         private readonly ILazyLoader _lazyLoader;

@@ -15,6 +15,10 @@ namespace Smartstore.Core.Content.Media
     {
         public void Configure(EntityTypeBuilder<MediaFolder> builder)
         {
+            builder
+                .Property("Discriminator")
+                .HasMaxLength(128);
+
             builder.HasOne(c => c.Parent)
                 .WithMany(c => c.Children)
                 .HasForeignKey(c => c.ParentId)

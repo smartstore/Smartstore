@@ -56,11 +56,8 @@ namespace Smartstore.Core.Content.Media
 
         protected virtual async IAsyncEnumerable<AlbumInfo> LoadAllAlbumsAsync()
         {
-            var setFolders = _db.MediaFolders;
-
-            var dbAlbums = await setFolders
+            var dbAlbums = await _db.MediaAlbums
                 .AsNoTracking()
-                .OfType<MediaAlbum>()
                 .Select(x => new { x.Id, x.Name })
                 .ToDictionaryAsync(x => x.Name);
 
@@ -94,7 +91,7 @@ namespace Smartstore.Core.Content.Media
                     }
                     else
                     {
-                        setFolders.Add(album);
+                        _db.MediaAlbums.Add(album);
                         await _db.SaveChangesAsync();
                         info.Id = album.Id;
                     }

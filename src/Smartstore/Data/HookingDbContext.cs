@@ -257,6 +257,12 @@ namespace Smartstore.Data
                 return;
             }
 
+            if (entityType.BaseType != null)
+            {
+                // TPH inheritance: derived type maps to base type table.
+                return;
+            }
+
             var conventionAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.TableName) as IConventionAnnotation;
             if (conventionAnnotation == null || conventionAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
             {
