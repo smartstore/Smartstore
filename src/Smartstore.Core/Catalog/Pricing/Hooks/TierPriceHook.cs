@@ -45,7 +45,7 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 await _db.Products
                     .Where(x => addedTierPricesProductIds.Contains(x.Id))
-                    .BatchUpdateAsync(x => new Product { HasTierPrices = true });
+                    .BatchUpdateAsync(x => new Product { HasTierPrices = true }, cancelToken);
             }
 
             // Process products that have not assigned tier prices.
@@ -70,7 +70,7 @@ namespace Smartstore.Core.Catalog.Pricing
                     .Where(x =>
                         deletedTierPricesProductIds.Contains(x.Id) &&
                         !x.TierPrices.Where(y => !deletedTierPricesIds.Contains(y.Id)).Any())
-                    .BatchUpdateAsync(x => new Product { HasTierPrices = false });
+                    .BatchUpdateAsync(x => new Product { HasTierPrices = false }, cancelToken);
             }
         }
     }

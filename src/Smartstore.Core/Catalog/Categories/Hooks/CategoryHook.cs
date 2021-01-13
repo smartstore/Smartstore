@@ -64,12 +64,12 @@ namespace Smartstore.Core.Catalog.Categories
                     .Where(x => categoryIdsChunk.Contains(x.Id))
                     .Select(x => x.Id)
                     .Distinct()
-                    .ToListAsync();
+                    .ToListAsync(cancelToken);
 
                 categoriesChunk.Each(x => x.HasDiscountsApplied = appliedCategoryIds.Contains(x.Id));
             }
 
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(cancelToken);
 
             // Validate category hierarchy.
             var invalidCategoryIds = new HashSet<int>();
@@ -92,7 +92,7 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 var num = await _db.Categories
                     .Where(x => invalidCategoryIds.Contains(x.Id))
-                    .BatchUpdateAsync(x => new Category { ParentCategoryId = 0 });
+                    .BatchUpdateAsync(x => new Category { ParentCategoryId = 0 }, cancelToken);
             }
         }
 

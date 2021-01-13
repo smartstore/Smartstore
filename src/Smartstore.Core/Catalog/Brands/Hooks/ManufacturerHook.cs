@@ -43,12 +43,12 @@ namespace Smartstore.Core.Catalog.Brands
                     .Where(x => manufacturerIdsChunk.Contains(x.Id))
                     .Select(x => x.Id)
                     .Distinct()
-                    .ToListAsync();
+                    .ToListAsync(cancelToken);
 
                 manufacturersChunk.Each(x => x.HasDiscountsApplied = appliedManufacturerIds.Contains(x.Id));
             }
 
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(cancelToken);
         }
     }
 }
