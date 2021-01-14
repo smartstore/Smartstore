@@ -8,11 +8,11 @@
         /// <summary>
         /// Gets or sets the usable amount
         /// </summary>
-        public decimal UsableAmount { get; set; }
+        public decimal UsableAmount { get; init; }
 
         /// <summary>
         /// Gets the gift card
         /// </summary>
-        public GiftCard GiftCard { get; set; }
+        public GiftCard GiftCard { get; init; }
     }
 }
