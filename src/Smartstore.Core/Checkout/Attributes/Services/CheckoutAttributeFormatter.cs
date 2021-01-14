@@ -13,7 +13,7 @@ using System.Web;
 
 namespace Smartstore.Core.Checkout.Attributes
 {
-    // TODO: (mg) (core) needs download & tax service and price formatter
+    // TODO: (ms) (core) implement this
     public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     {
         private readonly ICheckoutAttributeMaterializer _materializer;

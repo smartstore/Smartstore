@@ -56,6 +56,7 @@ namespace Smartstore.Core.Checkout.Shipping
         {
             Guard.NotNull(cart, nameof(cart));
 
+            // TODO: (ms) (core) make sure this is working correnctly no .tostring()......iteration
             // Gets all attributes of cart items
             var cartRawAttributes = cart
                 .Where(x => x.Item.AttributesXml.HasValue())
