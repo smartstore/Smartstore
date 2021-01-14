@@ -1,6 +1,7 @@
 ﻿using Smartstore.Net.Mail;
+using Smartstore.Core.Messages;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore
 {
     public static class EmailAccountExtensions
     {

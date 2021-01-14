@@ -1,8 +1,9 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
+using Smartstore.Core.Messages;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore
 {
     public static class NewsletterSubscriptionQueryExtensions
     {

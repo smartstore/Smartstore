@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Smartstore.Core.Messages.Events;
 using Smartstore.Events;
+using Smartstore.Core.Messages;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore
 {
     public static class NewsletterSubscriptionEventPublisherExtensions
     {
