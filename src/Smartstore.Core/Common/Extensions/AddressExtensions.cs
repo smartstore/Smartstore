@@ -83,12 +83,12 @@ namespace Smartstore
             string result = string.Empty;
             if (address.FirstName.HasValue() || address.LastName.HasValue())
             {
-                result = string.Format("{0} {1}", address.FirstName, address.LastName).Trim();
+                result = (address.FirstName + ' ' + address.LastName).Trim();
             }
 
             if (withCompanyName && address.Company.HasValue())
             {
-                result = string.Concat(result, result.HasValue() ? ", " : "", address.Company);
+                result = string.Concat(result, result.HasValue() ? ", " : string.Empty, address.Company);
             }
 
             return result;

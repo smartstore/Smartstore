@@ -11,7 +11,7 @@ using Smartstore.Engine;
 
 namespace Smartstore
 {
-    public static class CustomerExtentions
+    public static class CustomerExtensions
     {
         private static readonly string[] _systemColors = new string[] { "primary", "secondary", "success", "info", "warning", "danger", "light", "dark" };
 
@@ -28,7 +28,7 @@ namespace Smartstore
             var result = customer.CustomerRoleMappings
                 .Where(rm => !onlyActiveCustomerRoles || rm.CustomerRole.Active)
                 .Where(rm => rm.CustomerRole.SystemName == customerRoleSystemName)
-                .FirstOrDefault() != null;
+                .Any();
 
             return result;
         }

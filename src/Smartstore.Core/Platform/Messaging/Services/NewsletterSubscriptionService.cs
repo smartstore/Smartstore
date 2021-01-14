@@ -38,10 +38,11 @@ namespace Smartstore.Core.Messages
 
         protected override Task<HookResult> OnInsertingAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            Guard.NotNull(entity, nameof(entity));
-
             if (entity.StoreId == 0)
+            {
+                entry.State = Smartstore.Data.EntityState.Detached;
                 throw new SmartException("Newsletter subscription must be assigned to a valid store.");
+            }
 
             // Format and validate mail address.
             entity.Email = EnsureSubscriberEmailOrThrow(entity.Email);
@@ -51,8 +52,6 @@ namespace Smartstore.Core.Messages
 
         protected override Task<HookResult> OnInsertedAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            Guard.NotNull(entity, nameof(entity));
-
             if (entity.Active)
             {
                 _toSubscribe.Add(entity);
@@ -63,8 +62,6 @@ namespace Smartstore.Core.Messages
 
         protected override Task<HookResult> OnUpdatingAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            Guard.NotNull(entity, nameof(entity));
-
             if (entity.StoreId == 0)
                 throw new SmartException("Newsletter subscription must be assigned to a valid store.");
 
@@ -76,14 +73,15 @@ namespace Smartstore.Core.Messages
 
         protected override async Task<HookResult> OnDeletedAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            Guard.NotNull(entity, nameof(entity));
-
             // TODO: (mh) (core) Does this belong in _toUnsubscribe? Or can OnDeletedAsync be executed after OnAfterSaveCompletedAsync
             //       if so uncomment else delete comment
             // Collect for later event publishing.
             //_toUnsubscribe.Add(subscription);
 
-            await _eventPublisher.PublishNewsletterUnsubscribedAsync(entity.Email);
+            if (entity.Active)
+            {
+                await _eventPublisher.PublishNewsletterUnsubscribedAsync(entity.Email);
+            }  
 
             return HookResult.Ok;
         }
