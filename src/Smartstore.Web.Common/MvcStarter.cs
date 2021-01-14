@@ -6,8 +6,10 @@ using System.Text.Unicode;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -146,6 +148,18 @@ namespace Smartstore.Web
         {
             builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
             builder.RegisterDecorator<SmartRouteValuesAddressScheme, IEndpointAddressScheme<RouteValuesAddress>>();
+
+            // Convenience: Register IUrlHelper as transient dependency.
+            builder.Register<IUrlHelper>(c =>
+            {
+                var actionContext = c.Resolve<IActionContextAccessor>().ActionContext;
+                if (actionContext == null)
+                {
+                    return null;
+                }
+
+                return c.Resolve<IUrlHelperFactory>().GetUrlHelper(actionContext);
+            }).InstancePerDependency();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
