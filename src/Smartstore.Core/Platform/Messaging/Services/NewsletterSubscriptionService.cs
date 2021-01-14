@@ -19,8 +19,8 @@ namespace Smartstore.Core.Messages
         // TODO: (mh) (core) Comment in once MessageFactory is available.
         //private readonly IMessageFactory _messageFactory;
 
-        private readonly HashSet<NewsletterSubscription> _toSubscribe = new HashSet<NewsletterSubscription>();
-        private readonly HashSet<NewsletterSubscription> _toUnsubscribe = new HashSet<NewsletterSubscription>();
+        private readonly HashSet<NewsletterSubscription> _toSubscribe = new();
+        private readonly HashSet<NewsletterSubscription> _toUnsubscribe = new();
 
         public NewsletterSubscriptionService(
             SmartDbContext db,
@@ -45,6 +45,18 @@ namespace Smartstore.Core.Messages
 
             // Format and validate mail address.
             entity.Email = EnsureSubscriberEmailOrThrow(entity.Email);
+
+            return Task.FromResult(HookResult.Ok);
+        }
+
+        protected override Task<HookResult> OnInsertedAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            Guard.NotNull(entity, nameof(entity));
+
+            if (entity.Active)
+            {
+                _toSubscribe.Add(entity);
+            }
 
             return Task.FromResult(HookResult.Ok);
         }
