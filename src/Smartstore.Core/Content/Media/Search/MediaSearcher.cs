@@ -24,10 +24,10 @@ namespace Smartstore.Core.Content.Media
             _folderService = folderService;
         }
 
-        public virtual async Task<IPagedList<MediaFile>> SearchFilesAsync(MediaSearchQuery query, MediaLoadFlags flags = MediaLoadFlags.AsNoTracking)
+        public virtual IPagedList<MediaFile> SearchFiles(MediaSearchQuery query, MediaLoadFlags flags = MediaLoadFlags.AsNoTracking)
         {
             var q = PrepareQuery(query, flags);
-            return await q.ToPagedList(query.PageIndex, query.PageSize).LoadAsync();
+            return q.ToPagedList(query.PageIndex, query.PageSize);
         }
 
         public virtual IQueryable<MediaFile> PrepareQuery(MediaSearchQuery query, MediaLoadFlags flags)

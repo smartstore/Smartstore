@@ -9,7 +9,7 @@
     /// <typeparam name="TOut"></typeparam>
     public struct AsyncOut<TOut>
     {
-        public static AsyncOut<TOut> Empty = new AsyncOut<TOut>(false);
+        public static AsyncOut<TOut> Empty = new(false);
 
         public AsyncOut(bool success, TOut value = default)
         {

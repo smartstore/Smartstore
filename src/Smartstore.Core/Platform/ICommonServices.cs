@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
@@ -32,6 +33,7 @@ namespace Smartstore.Core
         INotifier Notifier { get; }
         IChronometer Chronometer { get; }
         IDateTimeHelper DateTimeHelper { get; }
+        IMediaService MediaService { get; }
 
         // TODO: (core) Add more props to ICommonServices once they drop in.
     }

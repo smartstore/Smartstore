@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
@@ -32,6 +33,7 @@ namespace Smartstore.Core
         private readonly INotifier _notifier;
         private readonly IChronometer _chronometer;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly IMediaService _mediaService;
 
         public CommonServices(
             IComponentContext container,
@@ -49,7 +51,8 @@ namespace Smartstore.Core
             Lazy<IActivityLogger> activityLogger,
             INotifier notifier,
             IChronometer chronometer,
-            IDateTimeHelper dateTimeHelper)
+            IDateTimeHelper dateTimeHelper,
+            IMediaService mediaService)
         {
             _container = container;
             _appContext = appContext;
@@ -67,6 +70,7 @@ namespace Smartstore.Core
             _notifier = notifier;
             _chronometer = chronometer;
             _dateTimeHelper = dateTimeHelper;
+            _mediaService = mediaService;
         }
 
         public IComponentContext Container => _container;
@@ -85,5 +89,6 @@ namespace Smartstore.Core
         public INotifier Notifier => _notifier;
         public IChronometer Chronometer => _chronometer;
         public IDateTimeHelper DateTimeHelper => _dateTimeHelper;
+        public IMediaService MediaService => _mediaService;
     }
 }

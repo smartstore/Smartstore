@@ -45,8 +45,8 @@ namespace Smartstore.Core.DependencyInjection
             builder.RegisterType<FolderService>().As<IFolderService>().InstancePerLifetimeScope();
             builder.RegisterType<MediaTracker>().As<IMediaTracker>().InstancePerLifetimeScope();
             builder.RegisterType<MediaSearcher>().As<IMediaSearcher>().InstancePerLifetimeScope();
-            //builder.RegisterType<MediaService>().As<IMediaService>().InstancePerRequest();
-            //builder.RegisterType<DownloadService>().As<IDownloadService>().InstancePerRequest();
+            builder.RegisterType<MediaService>().As<IMediaService>().InstancePerLifetimeScope();
+            //builder.RegisterType<DownloadService>().As<IDownloadService>().InstancePerLifetimeScope();
 
             // ImageSharp adapter factory
             builder.RegisterType<SharpImageFactory>().As<IImageFactory>().SingleInstance();

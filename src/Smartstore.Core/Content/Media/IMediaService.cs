@@ -162,6 +162,16 @@ namespace Smartstore.Core.Content.Media
         /// <param name="source">The source stream to find a match for.</param>
         /// <param name="files">The sequence of files to seek within for duplicates.</param>
         /// <param name="leaveOpen">Whether to leave the <paramref name="source"/>source stream</param> open.
+        /// <param name="equalFile">A file from the <paramref name="files"/> collection whose content is equal to <paramref name="source"/>.</param>
+        /// <returns><c>true</c> when a duplicate file was found, <c>false</c> otherwise.</returns>
+        bool FindEqualFile(Stream source, IEnumerable<MediaFile> files, bool leaveOpen, out MediaFile equalFile);
+
+        /// <summary>
+        /// Tries to find an equal file by comparing the source stream to a list of files.
+        /// </summary>
+        /// <param name="source">The source stream to find a match for.</param>
+        /// <param name="files">The sequence of files to seek within for duplicates.</param>
+        /// <param name="leaveOpen">Whether to leave the <paramref name="source"/>source stream</param> open.
         /// <returns>
         /// <c>true</c> when a duplicate file was found, <c>false</c> otherwise.
         /// If true, a file from the <paramref name="files"/> collection whose content is equal to <paramref name="source"/> is the <c>out</c> parameter.
@@ -174,7 +184,7 @@ namespace Smartstore.Core.Content.Media
         Task<MediaFileInfo> MoveFileAsync(MediaFile file, string destinationFileName, DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError);
         Task<MediaFileInfo> ReplaceFileAsync(MediaFile file, Stream inStream, string newFileName);
 
-        Task<bool> FolderExistsAsync(string path);
+        bool FolderExists(string path);
         Task<MediaFolderInfo> CreateFolderAsync(string path);
         Task<MediaFolderInfo> MoveFolderAsync(string path, string destinationPath);
         Task<FolderOperationResult> CopyFolderAsync(string path, string destinationPath, DuplicateEntryHandling dupeEntryHandling = DuplicateEntryHandling.Skip);
