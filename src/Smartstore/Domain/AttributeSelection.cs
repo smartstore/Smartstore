@@ -5,6 +5,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using Smartstore.Collections;
+using Smartstore.Utilities;
 
 namespace Smartstore.Domain
 {
@@ -14,7 +15,7 @@ namespace Smartstore.Domain
     /// <remarks>
     /// This class can parse strings with XML or JSON format to <see cref="Multimap{TKey, TValue}"/> and vice versa.
     /// </remarks>
-    public abstract class AttributeSelection
+    public abstract class AttributeSelection : IEquatable<AttributeSelection>
     {
         private readonly Multimap<int, object> _map;
         private readonly string _xmlAttributeName;
@@ -63,7 +64,7 @@ namespace Smartstore.Domain
             {
                 return FromXml(rawAttributes, xmlAttributeName, xmlAttributeValueName);
             }
-            else if (firstChar == '{')
+            else if (firstChar == '{' || firstChar == '[')
             {
                 return FromJson(rawAttributes);
             }
@@ -81,8 +82,19 @@ namespace Smartstore.Domain
 
                 foreach (var element in attributeElements)
                 {
-                    var values = element.Descendants(attributeValueName).Select(x => x.Value).ToList();
-                    map.Add(element.Value.Convert<int>(), values);
+                    //var values = element.Descendants(attributeValueName).Select(x => x.Value).ToList();
+                    //map.Add(element.Value.Convert<int>(), values);
+
+                    var id = element
+                        .Attribute("ID")
+                        .Value
+                        .Convert<int>();
+
+                    var values = element
+                        .Descendants(attributeValueName)
+                        .Select(x => x.Value);
+
+                    map.AddRange(id, values);
                 }
 
                 return map;
@@ -179,6 +191,28 @@ namespace Smartstore.Domain
             => _map.ContainsKey(attributeId) ? _map[attributeId] : null;
 
         /// <summary>
+        /// Gets attribute value identifiers.
+        /// </summary>
+        /// <param name="attributeId">Attribute identifier. <c>null</c> to get all value identifiers.</param>
+        /// <returns>Attribute value identifiers.</returns>
+        public int[] GetAttributeValueIds(int? attributeId = null)
+        {
+            var values = attributeId.HasValue
+                ? (_map.ContainsKey(attributeId.Value) ? _map[attributeId.Value] : Enumerable.Empty<object>())
+                : _map.SelectMany(x => x.Value);
+
+            var valueIds = values
+                .Select(x => x.ToString())
+                .Where(x => x.HasValue())   // Important, avoid exception when string is empty.
+                .Select(x => x.ToInt())
+                .Where(x => x != 0)
+                .Distinct()
+                .ToArray();
+
+            return valueIds;
+        }
+
+        /// <summary>
         /// Adds an attribute with possible multiple values to <see cref="Multimap{TKey, TValue}"/>.
         /// </summary>
         /// <param name="attributeId">Attribute identifier</param>
@@ -235,5 +269,75 @@ namespace Smartstore.Domain
             _map.Clear();
             _dirty = true;
         }
+
+        #region Compare
+
+        public override int GetHashCode()
+        {
+            var combiner = HashCodeCombiner.Start();
+
+            foreach (var kvp in _map)
+            {
+                combiner.Add(kvp.GetHashCode());
+                kvp.Value.Each(x => combiner.Add(x.GetHashCode()));
+            }
+
+            return combiner.CombinedHash;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is AttributeSelection selection)
+            {
+                return Equals(selection);
+            }
+
+            return false;
+        }
+
+        bool IEquatable<AttributeSelection>.Equals(AttributeSelection other)
+        {
+            var map1 = _map;
+            var map2 = other?._map;
+
+            if (map2 == null || map1.Count != map2.Count)
+            {
+                return false;
+            }
+
+            foreach (var kvp in map1)
+            {
+                if (!map2.ContainsKey(kvp.Key))
+                {
+                    // The second list does not contain this key > not equal.
+                    return false;
+                }
+
+                // Compare the values.
+                var values1 = kvp.Value;
+                var values2 = map2[kvp.Key];
+
+                if (values1.Count != values2.Count)
+                {
+                    // Number of values differ > not equal.
+                    return false;
+                }
+
+                foreach (var value1 in values1)
+                {
+                    var str1 = value1.ToString().TrimSafe();
+
+                    if (!values2.Any(x => x.ToString().TrimSafe().EqualsNoCase(str1)))
+                    {
+                        // The second values list for this attribute does not contain this value > not equal.
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        #endregion
     }
 }

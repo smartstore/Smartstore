@@ -1,5 +1,5 @@
-﻿using Smartstore.Domain;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
+using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
 {

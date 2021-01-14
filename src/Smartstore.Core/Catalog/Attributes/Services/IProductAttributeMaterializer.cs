@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -12,20 +11,26 @@ namespace Smartstore.Core.Catalog.Attributes
     public partial interface IProductAttributeMaterializer
     {
         /// <summary>
+        /// Gets a list of product variant attributes.
+        /// </summary>
+        /// <param name="selection">Attributes selection.</param>
+        /// <returns>List of product variant attributes.</returns>
+        Task<IList<ProductVariantAttribute>> MaterializeProductVariantAttributesAsync(ProductVariantAttributeSelection selection);
+
+        /// <summary>
+        /// Gets a list of product variant attribute values.
+        /// </summary>
+        /// <param name="selection">Attributes selection.</param>
+        /// <returns>List of product variant attribute values.</returns>
+        Task<IList<ProductVariantAttributeValue>> MaterializeProductVariantAttributeValuesAsync(ProductVariantAttributeSelection selection);
+
+        /// <summary>
         /// Gets a list of product variant attribute values.
         /// </summary>
         /// <param name="selection">Attributes selection.</param>
         /// <param name="attributes">Product variant attributes.</param>
-        /// <returns>Materialized product variant values.</returns>
+        /// <returns>List of product variant attribute values.</returns>
         IList<ProductVariantAttributeValue> MaterializeProductVariantAttributeValues(ProductVariantAttributeSelection selection, IEnumerable<ProductVariantAttribute> attributes);
-
-        /// <summary>
-        /// Gets a value indicating whether two attribute selections are equal.
-        /// </summary>
-        /// <param name="selection1">First attribute selection.</param>
-        /// <param name="selection2">Second attribute selection.</param>
-        /// <returns>A value indicating whether two attribute selections are equal.</returns>
-        bool AreProductAttributesEqual(AttributeSelection selection1, AttributeSelection selection2);
 
         /// <summary>
         /// Finds an attribute combination by attribute selection.

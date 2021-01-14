@@ -37,6 +37,8 @@ using System.IO;
 using System.Drawing;
 using Humanizer;
 using System.Numerics;
+using Smartstore.Core.Catalog.Attributes;
+using StackExchange.Profiling.Internal;
 
 namespace Smartstore.Web.Controllers
 {
@@ -600,24 +602,35 @@ namespace Smartstore.Web.Controllers
         {
             var content = new StringBuilder();
 
-            //var discount = await _db.Discounts.FindByIdAsync(29);
-            //_db.Discounts.Remove(discount);
+            var xml1 = "<Attributes><ProductVariantAttribute ID=\"1015\"><ProductVariantAttributeValue><Value>4299</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1016\"><ProductVariantAttributeValue><Value>4302</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
+            var xml2 = "<Attributes><ProductVariantAttribute ID=\"817\"><ProductVariantAttributeValue><Value>3361</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"669\"><ProductVariantAttributeValue><Value>2668</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
+
+            var selections = new List<ProductVariantAttributeSelection>
+            {
+                new ProductVariantAttributeSelection(xml1), new ProductVariantAttributeSelection(xml2)
+            };
+
+            var materializer = _services.Resolve<IProductAttributeMaterializer>();
+
+            foreach (var selection in selections)
+            {
+                var values = await materializer.MaterializeProductVariantAttributeValuesAsync(selection);
+                if (values.Any())
+                {
+                    var str = string.Join(", ", values.Select(x => $"{x.Id}:{x.ProductVariantAttribute.ProductAttribute.Name}-{x.Name}"));
+                    content.AppendLine(str);
+                }
+            }            
+
+            //var product = await _db.Products.FindByIdAsync(4366);
+            //content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");
+
+            //var discount = await _db.Discounts.FirstOrDefaultAsync(x => x.Id == 25);
+            //product.AppliedDiscounts.Add(discount);
             //await _db.SaveChangesAsync();
 
-            //var pva = await _db.ProductVariantAttributes.FindByIdAsync(1018);
-            //var addedValues = await _productAttributeService.CopyAttributeOptionsAsync(pva, 3, true);
-            //content.AppendLine($"Added {addedValues} attribute values.");
-
-
-            var product = await _db.Products.FindByIdAsync(4366);
-            content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");
-
-            var discount = await _db.Discounts.FirstOrDefaultAsync(x => x.Id == 25);
-            product.AppliedDiscounts.Add(discount);
-            await _db.SaveChangesAsync();
-
-            product = await _db.Products.FindByIdAsync(4366);
-            content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");
+            //product = await _db.Products.FindByIdAsync(4366);
+            //content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");
 
 
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
