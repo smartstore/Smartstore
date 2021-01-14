@@ -11,23 +11,17 @@ using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Data;
 using Smartstore.Engine;
+using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity;
 using Smartstore.Imaging;
 using Smartstore.Imaging.Adapters.ImageSharp;
 using Smartstore.Threading;
 
-namespace Smartstore.Core.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
-    public class MediaModule : Autofac.Module
+    public class MediaStarter : StarterBase
     {
-        private readonly IApplicationContext _appContext;
-
-        public MediaModule(IApplicationContext appContext)
-        {
-            _appContext = appContext;
-        }
-
-        protected override void Load(ContainerBuilder builder)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             //// Utils
             builder.RegisterType<MediaHelper>().InstancePerLifetimeScope();
@@ -46,30 +40,29 @@ namespace Smartstore.Core.DependencyInjection
             builder.RegisterType<MediaTracker>().As<IMediaTracker>().InstancePerLifetimeScope();
             builder.RegisterType<MediaSearcher>().As<IMediaSearcher>().InstancePerLifetimeScope();
             builder.RegisterType<MediaService>().As<IMediaService>().InstancePerLifetimeScope();
+            builder.RegisterType<MediaMover>().As<IMediaMover>().InstancePerLifetimeScope();
             //builder.RegisterType<DownloadService>().As<IDownloadService>().InstancePerLifetimeScope();
 
             // ImageSharp adapter factory
             builder.RegisterType<SharpImageFactory>().As<IImageFactory>().SingleInstance();
-
             builder.RegisterType<ImageCache>().As<IImageCache>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultImageProcessor>().As<IImageProcessor>().InstancePerLifetimeScope();
-            builder.RegisterType<MediaMover>().As<IMediaMover>().InstancePerLifetimeScope();
 
             // Register factory for currently active media storage provider
-            if (DataSettings.DatabaseIsInstalled())
+            if (appContext.IsInstalled)
             {
                 builder.Register(MediaStorageProviderFactory);
             }
             else
             {
-                builder.Register<Func<IMediaStorageProvider>>(c => () => 
+                builder.Register<Func<IMediaStorageProvider>>(c => () =>
                     new FileSystemMediaStorageProvider(
-                        c.ResolveNamed<IMediaFileSystem>("local"), 
+                        c.ResolveNamed<IMediaFileSystem>("local"),
                         c.Resolve<AsyncRunner>()));
             }
 
             // Register all album providers
-            var albumProviderTypes = _appContext.TypeScanner.FindTypes<IAlbumProvider>(ignoreInactiveModules: true);
+            var albumProviderTypes = appContext.TypeScanner.FindTypes<IAlbumProvider>(ignoreInactiveModules: true);
             foreach (var type in albumProviderTypes)
             {
                 builder.RegisterType(type).As<IAlbumProvider>().Keyed<IAlbumProvider>(type).InstancePerLifetimeScope();

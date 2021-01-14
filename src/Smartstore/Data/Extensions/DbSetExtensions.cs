@@ -28,20 +28,70 @@ namespace Smartstore
             return (HookingDbContext)currentDbContext.Context;
         }
 
-        #region GetMany
+        #region Get*
+
+        /// <summary>
+        /// Loads a single entity by id. If <paramref name="tracked"/> is false,
+        /// a query is made to the database for an entity with the given <paramref name="id"/>.
+        /// If <paramref name="tracked"/> is true, the entity will be requested from the change tracker first, THEN from the database.
+        /// If no entity is found, then null is returned.
+        /// </summary>
+        /// <param name="id">The primary id of the entity.</param>
+        /// <returns>The entity found, or null.</returns>
+        public static TEntity GetById<TEntity>(this DbSet<TEntity> dbSet, int id, bool tracked = false)
+            where TEntity : BaseEntity, new()
+        {
+            Guard.NotNull(dbSet, nameof(dbSet));
+
+            if (tracked)
+                return FindById(dbSet, id);
+
+            if (id <= 0)
+                return default;
+
+            var item = dbSet
+                .ApplyTracking(tracked)
+                .FirstOrDefault(x => x.Id == id);
+
+            return item;
+        }
+
+        /// <summary>
+        /// Loads a single entity by id. If <paramref name="tracked"/> is false,
+        /// a query is made to the database for an entity with the given <paramref name="id"/>.
+        /// If <paramref name="tracked"/> is true, the entity will be requested from the change tracker first, THEN from the database.
+        /// If no entity is found, then null is returned.
+        /// </summary>
+        /// <param name="id">The primary id of the entity.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The entity found, or null.</returns>
+        public static ValueTask<TEntity> GetByIdAsync<TEntity>(this DbSet<TEntity> dbSet, int id, bool tracked = false, CancellationToken cancellationToken = default)
+            where TEntity : BaseEntity, new()
+        {
+            Guard.NotNull(dbSet, nameof(dbSet));
+
+            if (tracked)
+                return FindByIdAsync(dbSet, id, cancellationToken);
+
+            if (id <= 0)
+                return ValueTask.FromResult((TEntity)null);
+
+            return new ValueTask<TEntity>(
+                    dbSet.ApplyTracking(tracked).FirstOrDefaultAsync(x => x.Id == id, cancellationToken));
+        }
 
         /// <summary>
         /// Loads many entities from database sorted by the given id sequence.
         /// Sort is applied in-memory.
         /// </summary>
-        public static IList<T> GetMany<T>(this DbSet<T> dbSet, IEnumerable<int> ids, bool tracked = false) 
-            where T : BaseEntity, new()
+        public static IList<TEntity> GetMany<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids, bool tracked = false) 
+            where TEntity : BaseEntity, new()
         {
             Guard.NotNull(dbSet, nameof(dbSet));
             Guard.NotNull(ids, nameof(ids));
 
             if (!ids.Any())
-                return new List<T>();
+                return new List<TEntity>();
 
             var items = dbSet
                 .ApplyTracking(tracked)
@@ -55,14 +105,14 @@ namespace Smartstore
         /// Loads many entities from database sorted by the given id sequence.
         /// Sort is applied in-memory.
         /// </summary>
-        public static async Task<List<T>> GetManyAsync<T>(this DbSet<T> dbSet, IEnumerable<int> ids, bool tracked = false) 
-            where T : BaseEntity, new()
+        public static async Task<List<TEntity>> GetManyAsync<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids, bool tracked = false) 
+            where TEntity : BaseEntity, new()
         {
             Guard.NotNull(dbSet, nameof(dbSet));
             Guard.NotNull(ids, nameof(ids));
 
             if (!ids.Any())
-                return new List<T>();
+                return new List<TEntity>();
 
             var items = await dbSet
                 .ApplyTracking(tracked)
@@ -76,20 +126,20 @@ namespace Smartstore
 
         #region Remove
 
-        public static void Remove<T>(this DbSet<T> dbSet, int id) where T : BaseEntity, new()
+        public static void Remove<TEntity>(this DbSet<TEntity> dbSet, int id) where TEntity : BaseEntity, new()
         {
             Guard.NotZero(id, nameof(id));
 
-            dbSet.Remove(new T { Id = id });
+            dbSet.Remove(new TEntity { Id = id });
         }
 
-        public static void RemoveRange<T>(this DbSet<T> dbSet, IEnumerable<int> ids) where T : BaseEntity, new()
+        public static void RemoveRange<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids) where TEntity : BaseEntity, new()
         {
             Guard.NotNull(ids, nameof(ids));
 
             var entities = ids
                 .Where(id => id > 0)
-                .Select(id => new T { Id = id });
+                .Select(id => new TEntity { Id = id });
 
             dbSet.RemoveRange(entities);
         }
@@ -97,7 +147,7 @@ namespace Smartstore
         /// <summary>
         /// Truncates the table
         /// </summary>
-        /// <typeparam name="T">Entity type</typeparam>
+        /// <typeparam name="TEntity">Entity type</typeparam>
         /// <param name="predicate">An optional filter</param>
         /// <param name="cascade">
         /// <c>false</c>: does not make any attempts to determine dependant entities, just deletes ONLY them (faster).
@@ -107,7 +157,7 @@ namespace Smartstore
         /// <remarks>
         /// This method turns off auto detection, validation and hooking.
         /// </remarks>
-        public static int DeleteAll<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate = null, bool cascade = false) where T : BaseEntity, new()
+        public static int DeleteAll<TEntity>(this DbSet<TEntity> dbSet, Expression<Func<TEntity, bool>> predicate = null, bool cascade = false) where TEntity : BaseEntity, new()
         {
             var numDeleted = 0;
             var ctx = dbSet.GetDbContext();
@@ -131,7 +181,7 @@ namespace Smartstore
                 }
                 else
                 {
-                    var entities = query.Select(x => new T { Id = x.Id }).ToList();
+                    var entities = query.Select(x => new TEntity { Id = x.Id }).ToList();
                     foreach (var chunk in entities.Slice(500))
                     {
                         dbSet.RemoveRange(chunk);
@@ -233,16 +283,15 @@ namespace Smartstore
         ///     This method is slightly faster than <see cref="DbSet{TEntity}.FindAsync(object[], CancellationToken)(object[])"/>
         ///     because the key is known.
         /// </remarks>
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Perf")]
         public static ValueTask<TEntity> FindByIdAsync<TEntity>(this DbSet<TEntity> dbSet, int id, CancellationToken cancellationToken = default) 
             where TEntity : BaseEntity
         {
             if (id == 0)
                 return ValueTask.FromResult((TEntity)null);
 
-            var tracked = FindTracked<TEntity>(dbSet.GetDbContext(), id);
-            return tracked != null
-                ? new ValueTask<TEntity>(tracked)
+            var trackedEntity = FindTracked<TEntity>(dbSet.GetDbContext(), id);
+            return trackedEntity != null
+                ? new ValueTask<TEntity>(trackedEntity)
                 : new ValueTask<TEntity>(
                     dbSet.FirstOrDefaultAsync(x => x.Id == id, cancellationToken));
         }

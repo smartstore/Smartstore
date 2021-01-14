@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Smartstore.Core.Content.Media.Imaging;
@@ -187,8 +188,8 @@ namespace Smartstore.Core.Content.Media
         bool FolderExists(string path);
         Task<MediaFolderInfo> CreateFolderAsync(string path);
         Task<MediaFolderInfo> MoveFolderAsync(string path, string destinationPath);
-        Task<FolderOperationResult> CopyFolderAsync(string path, string destinationPath, DuplicateEntryHandling dupeEntryHandling = DuplicateEntryHandling.Skip);
-        Task<FolderDeleteResult> DeleteFolderAsync(string path, FileHandling fileHandling = FileHandling.SoftDelete);
+        Task<FolderOperationResult> CopyFolderAsync(string path, string destinationPath, DuplicateEntryHandling dupeEntryHandling = DuplicateEntryHandling.Skip, CancellationToken cancelToken = default);
+        Task<FolderDeleteResult> DeleteFolderAsync(string path, FileHandling fileHandling = FileHandling.SoftDelete, CancellationToken cancelToken = default);
 
         MediaFileInfo ConvertMediaFile(MediaFile file);
         string GetUrl(MediaFileInfo file, ProcessImageQuery query, string host = null, bool doFallback = true);

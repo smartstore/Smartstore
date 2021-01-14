@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -149,7 +150,11 @@ namespace Smartstore.Core.Content.Media
             return new MediaFolderInfo(_folderService.GetNodeById(folder.Id));
         }
 
-        public async Task<FolderOperationResult> CopyFolderAsync(string path, string destinationPath, DuplicateEntryHandling dupeEntryHandling = DuplicateEntryHandling.Skip)
+        public async Task<FolderOperationResult> CopyFolderAsync(
+            string path, 
+            string destinationPath, 
+            DuplicateEntryHandling dupeEntryHandling = DuplicateEntryHandling.Skip, 
+            CancellationToken cancelToken = default)
         {
             Guard.NotEmpty(path, nameof(path));
             Guard.NotEmpty(destinationPath, nameof(destinationPath));
@@ -180,7 +185,7 @@ namespace Smartstore.Core.Content.Media
                 var dupeFiles = new List<DuplicateFileInfo>();
 
                 // >>>> Do the heavy stuff
-                var folder = await InternalCopyFolder(scope, node, destinationPath, dupeEntryHandling, dupeFiles);
+                var folder = await InternalCopyFolder(scope, node, destinationPath, dupeEntryHandling, dupeFiles, cancelToken);
 
                 var result = new FolderOperationResult
                 {
@@ -194,7 +199,13 @@ namespace Smartstore.Core.Content.Media
             }
         }
 
-        private async Task<MediaFolderInfo> InternalCopyFolder(DbContextScope scope, TreeNode<MediaFolderNode> sourceNode, string destPath, DuplicateEntryHandling dupeEntryHandling, IList<DuplicateFileInfo> dupeFiles)
+        private async Task<MediaFolderInfo> InternalCopyFolder(
+            DbContextScope scope, 
+            TreeNode<MediaFolderNode> sourceNode, 
+            string destPath, 
+            DuplicateEntryHandling dupeEntryHandling, 
+            IList<DuplicateFileInfo> dupeFiles, 
+            CancellationToken cancelToken = default)
         {
             // Get dest node
             var destNode = _folderService.GetNodeByPath(destPath);
@@ -241,8 +252,14 @@ namespace Smartstore.Core.Content.Media
             // Copy files batched
             foreach (var batch in files.Slice(500))
             {
+                if (cancelToken.IsCancellationRequested)
+                    break;
+                
                 foreach (var file in batch)
                 {
+                    if (cancelToken.IsCancellationRequested)
+                        break;
+
                     destPathData.FileName = file.Name;
 
                     // >>> Do copy
@@ -273,17 +290,20 @@ namespace Smartstore.Core.Content.Media
                     }
                 }
 
-                // Save batch to DB (1st pass)
-                await scope.CommitAsync();
-
-                // Now copy file data
-                foreach (var op in tuples)
+                if (!cancelToken.IsCancellationRequested)
                 {
-                    await InternalCopyFileData(op.Item1, op.Item2);
-                }
+                    // Save batch to DB (1st pass)
+                    await scope.CommitAsync(cancelToken);
 
-                // Save batch to DB (2nd pass)
-                await scope.CommitAsync();
+                    // Now copy file data
+                    foreach (var op in tuples)
+                    {
+                        await InternalCopyFileData(op.Item1, op.Item2);
+                    }
+
+                    // Save batch to DB (2nd pass)
+                    await scope.CommitAsync(cancelToken);
+                }
 
                 _db.DetachEntities<MediaFolder>();
                 _db.DetachEntities<MediaFile>();
@@ -293,8 +313,11 @@ namespace Smartstore.Core.Content.Media
             // Copy folders
             foreach (var node in sourceNode.Children)
             {
+                if (cancelToken.IsCancellationRequested)
+                    break;
+
                 destPath = destNode.Value.Path + "/" + node.Value.Name;
-                await InternalCopyFolder(scope, node, destPath, dupeEntryHandling, dupeFiles);
+                await InternalCopyFolder(scope, node, destPath, dupeEntryHandling, dupeFiles, cancelToken);
             }
 
             return new MediaFolderInfo(destNode);
@@ -310,7 +333,10 @@ namespace Smartstore.Core.Content.Media
             }
         }
 
-        public async Task<FolderDeleteResult> DeleteFolderAsync(string path, FileHandling fileHandling = FileHandling.SoftDelete)
+        public async Task<FolderDeleteResult> DeleteFolderAsync(
+            string path, 
+            FileHandling fileHandling = FileHandling.SoftDelete, 
+            CancellationToken cancelToken = default)
         {
             Guard.NotEmpty(path, nameof(path));
 
@@ -332,10 +358,13 @@ namespace Smartstore.Core.Content.Media
                 // Delete all from DB
                 foreach (var node in allNodes)
                 {
+                    if (cancelToken.IsCancellationRequested)
+                        break;
+                    
                     var folder = await _db.MediaFolders.FindByIdAsync(node.Value.Id);
                     if (folder != null)
                     {
-                        await InternalDeleteFolder(scope, folder, node, root, result, fileHandling);
+                        await InternalDeleteFolder(scope, folder, node, root, result, fileHandling, cancelToken);
                     }
                 }
             }
@@ -349,7 +378,8 @@ namespace Smartstore.Core.Content.Media
             TreeNode<MediaFolderNode> node,
             TreeNode<MediaFolderNode> root,
             FolderDeleteResult result,
-            FileHandling strategy)
+            FileHandling strategy,
+            CancellationToken cancelToken = default)
         {
             // (perf) We gonna check file tracks, so we should preload all tracks.
             await _db.LoadCollectionAsync(folder, (MediaFolder x) => x.Files, false, q => q.Include(f => f.Tracks));
@@ -367,8 +397,14 @@ namespace Smartstore.Core.Content.Media
 
                 foreach (var batch in files.Slice(500))
                 {
+                    if (cancelToken.IsCancellationRequested)
+                        break;
+
                     foreach (var file in batch)
                     {
+                        if (cancelToken.IsCancellationRequested)
+                            break;
+
                         if (strategy == FileHandling.Delete && file.Tracks.Any())
                         {
                             // Don't delete tracked files
@@ -405,7 +441,7 @@ namespace Smartstore.Core.Content.Media
                         }
                     }
 
-                    await scope.CommitAsync();
+                    await scope.CommitAsync(cancelToken);
                 }
 
                 if (lockedFiles.Any())
@@ -414,6 +450,9 @@ namespace Smartstore.Core.Content.Media
                     // INFO: By default "LocalFileSystem" waits for 500ms until the lock is revoked or it throws.
                     foreach (var lockedFile in lockedFiles.ToArray())
                     {
+                        if (cancelToken.IsCancellationRequested)
+                            break;
+
                         try
                         {
                             await DeleteFileAsync(lockedFile, true);
@@ -422,22 +461,22 @@ namespace Smartstore.Core.Content.Media
                         catch { }
                     }
 
-                    await scope.CommitAsync();
+                    await scope.CommitAsync(cancelToken);
                 }
             }
 
-            if (lockedFiles.Count > 0)
+            if (!cancelToken.IsCancellationRequested && lockedFiles.Count > 0)
             {
                 var fullPath = CombinePaths(root.Value.Path, lockedFiles[0].Name);
                 throw new IOException(T("Admin.Media.Exception.InUse", fullPath));
             }
 
-            if (lockedFiles.Count == 0 && trackedFiles.Count == 0 && node.Children.All(x => result.DeletedFolderIds.Contains(x.Value.Id)))
+            if (!cancelToken.IsCancellationRequested && lockedFiles.Count == 0 && trackedFiles.Count == 0 && node.Children.All(x => result.DeletedFolderIds.Contains(x.Value.Id)))
             {
                 // Don't delete folder if a containing file could not be deleted, 
                 // any tracked file was found or any of its child folders could not be deleted..
                 _db.MediaFolders.Remove(folder);
-                await scope.CommitAsync();
+                await scope.CommitAsync(cancelToken);
                 result.DeletedFolderIds.Add(folder.Id);
             }
 
