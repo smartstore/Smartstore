@@ -29,11 +29,11 @@ namespace Smartstore.Core.Common.Hooks
             if (entity.IsDefault == true)
             {
                 var temp = new List<DeliveryTime> { entity };
-                var query = await _db.DeliveryTimes
+                var dts = await _db.DeliveryTimes
                     .Where(x => x.IsDefault == true && x.Id != entity.Id)
                     .ToListAsync(cancellationToken: cancelToken);
 
-                foreach (var dt in query)
+                foreach (var dt in dts)
                 {
                     dt.IsDefault = false;
                 }
@@ -49,17 +49,14 @@ namespace Smartstore.Core.Common.Hooks
         protected override async Task<HookResult> OnDeletingAsync(DeliveryTime entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             // Remove associations to deleted products.
-            var productsQuery = _db.Products
-                .Where(x => x.Deleted && x.DeliveryTimeId == entity.Id);
+            var productsQuery = _db.Products.Where(x => x.Deleted && x.DeliveryTimeId == entity.Id);
 
             var productsPager = new FastPager<Product>(productsQuery, 500);
-
-            while (productsPager.ReadNextPage(out var products))
+            while ((await productsPager.ReadNextPageAsync<Product>()).Out(out var products))
             {
                 if (products.Any())
                 {
                     products.Each(x => x.DeliveryTimeId = null);
-                    _db.SaveChanges();
                 }
             }
 
@@ -70,13 +67,11 @@ namespace Smartstore.Core.Common.Hooks
                 select ac;
 
             var attributeCombinationPager = new FastPager<ProductVariantAttributeCombination>(attributeCombinationQuery, 1000);
-
-            while (attributeCombinationPager.ReadNextPage(out var attributeCombinations))
+            while ((await attributeCombinationPager.ReadNextPageAsync<ProductVariantAttributeCombination>()).Out(out var attributeCombinations))
             {
                 if (attributeCombinations.Any())
                 {
                     attributeCombinations.Each(x => x.DeliveryTimeId = null);
-                    _db.SaveChanges();
                 }
             }
 
@@ -90,7 +85,7 @@ namespace Smartstore.Core.Common.Hooks
             {
                 // Prohibit saving of associated entities.
                 entry.State = Smartstore.Data.EntityState.Detached;
-                throw new SmartException("The delivery time cannot be deleted. It has associated product or product variants.");
+                throw new SmartException("The delivery time cannot be deleted. It has associated products or product variants.");
             }
 
             return HookResult.Ok;
