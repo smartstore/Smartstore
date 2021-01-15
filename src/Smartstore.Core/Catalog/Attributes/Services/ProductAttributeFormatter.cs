@@ -3,8 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
@@ -21,6 +24,9 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly IWorkContext _workContext;
         private readonly IWebHelper _webHelper;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+        private readonly IPriceFormatter _priceFormatter;
+        private readonly ITaxService _taxService;
+        private readonly ICurrencyService _currencyService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CatalogSettings _catalogSettings;
 
@@ -29,6 +35,9 @@ namespace Smartstore.Core.Catalog.Attributes
             IWorkContext workContext,
             IWebHelper webHelper,
             IProductAttributeMaterializer productAttributeMaterializer,
+            IPriceFormatter priceFormatter,
+            ITaxService taxService,
+            ICurrencyService currencyService,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
         {
@@ -36,15 +45,17 @@ namespace Smartstore.Core.Catalog.Attributes
             _workContext = workContext;
             _webHelper = webHelper;
             _productAttributeMaterializer = productAttributeMaterializer;
+            _priceFormatter = priceFormatter;
+            _taxService = taxService;
+            _currencyService = currencyService;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
         }
 
-        // TODO: (mg) (core) Complete ProductAttributeFormatter.
         public virtual async Task<string> FormatAttributesAsync(
             ProductVariantAttributeSelection selection,
             Product product,
-            Customer customer,
+            Customer customer = null,
             string separator = "<br />",
             bool htmlEncode = true,
             bool includePrices = true,
@@ -54,7 +65,6 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             Guard.NotNull(selection, nameof(selection));
             Guard.NotNull(product, nameof(product));
-            Guard.NotNull(customer, nameof(customer));
 
             using var pool = StringBuilderPool.Instance.Get(out var result);
 
@@ -66,7 +76,10 @@ namespace Smartstore.Core.Catalog.Attributes
 
                 foreach (var kvp in selection.AttributesMap)
                 {
-                    var pva = attributesDic[kvp.Key];
+                    if (!attributesDic.TryGetValue(kvp.Key, out var pva))
+                    {
+                        continue;
+                    }
 
                     foreach (var value in kvp.Value)
                     {
@@ -75,6 +88,46 @@ namespace Smartstore.Core.Catalog.Attributes
 
                         if (pva.IsListTypeAttribute())
                         {
+                            var pvaValue = pva.ProductVariantAttributeValues.FirstOrDefault(x => x.Id == valueStr.ToInt());
+                            if (pvaValue != null)
+                            {
+                                pvaAttribute = "{0}: {1}".FormatInvariant(
+                                    pva.ProductAttribute.GetLocalized(x => x.Name, languageId),
+                                    pvaValue.GetLocalized(x => x.Name, languageId));
+
+                                if (includePrices)
+                                {
+                                    // TODO: (mg) (core) Complete ProductAttributeFormatter.FormatAttributesAsync (IPriceCalculationService required).
+                                    //var attributeValuePriceAdjustment = _priceCalculationService.GetProductVariantAttributeValuePriceAdjustment(pvaValue, product, customer ?? _workContext.CurrentCustomer, null, 1);
+                                    var attributeValuePriceAdjustment = decimal.Zero;
+                                    var priceAdjustmentBase = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment, customer: customer ?? _workContext.CurrentCustomer);
+                                    var priceAdjustment = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, _workContext.WorkingCurrency);
+
+                                    if (_shoppingCartSettings.ShowLinkedAttributeValueQuantity &&
+                                        pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
+                                        pvaValue.Quantity > 1)
+                                    {
+                                        pvaAttribute = pvaAttribute + " × " + pvaValue.Quantity;
+                                    }
+
+                                    if (_catalogSettings.ShowVariantCombinationPriceAdjustment)
+                                    {
+                                        if (priceAdjustmentBase > 0)
+                                        {
+                                            pvaAttribute += " (+{0})".FormatInvariant(_priceFormatter.FormatPrice(priceAdjustment, true, displayTax: false));
+                                        }
+                                        else if (priceAdjustmentBase < decimal.Zero)
+                                        {
+                                            pvaAttribute += " (-{0})".FormatInvariant(_priceFormatter.FormatPrice(-priceAdjustment, true, displayTax: false));
+                                        }
+                                    }
+                                }
+
+                                if (htmlEncode)
+                                {
+                                    pvaAttribute = HttpUtility.HtmlEncode(pvaAttribute);
+                                }
+                            }
                         }
                         else if (pva.AttributeControlType == AttributeControlType.MultilineTextbox)
                         {
@@ -138,6 +191,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (includeGiftCardAttributes && product.IsGiftCard)
             {
+                // TODO: (mg) (core) Complete ProductAttributeFormatter.FormatAttributesAsync (GiftCardAttributeSelection required).
             }
 
             return result.ToString();

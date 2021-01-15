@@ -604,6 +604,7 @@ namespace Smartstore.Web.Controllers
 
             var xml1 = "<Attributes><ProductVariantAttribute ID=\"1015\"><ProductVariantAttributeValue><Value>4299</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1016\"><ProductVariantAttributeValue><Value>4302</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
             var xml2 = "<Attributes><ProductVariantAttribute ID=\"817\"><ProductVariantAttributeValue><Value>3361</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"669\"><ProductVariantAttributeValue><Value>2668</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
+            var xml3 = "<Attributes><ProductVariantAttribute ID=\"1015\"><ProductVariantAttributeValue><Value>4299</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1016\" ><ProductVariantAttributeValue><Value>4302</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1020\"><ProductVariantAttributeValue><Value>hello world</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
 
             var selections = new List<ProductVariantAttributeSelection>
             {
@@ -611,6 +612,7 @@ namespace Smartstore.Web.Controllers
             };
 
             var materializer = _services.Resolve<IProductAttributeMaterializer>();
+            var formatter = _services.Resolve<IProductAttributeFormatter>();
 
             foreach (var selection in selections)
             {
@@ -620,7 +622,16 @@ namespace Smartstore.Web.Controllers
                     var str = string.Join(", ", values.Select(x => $"{x.Id}:{x.ProductVariantAttribute.ProductAttribute.Name}-{x.Name}"));
                     content.AppendLine(str);
                 }
-            }            
+            }
+
+            var formattedAttributes = await formatter.FormatAttributesAsync(
+                new ProductVariantAttributeSelection(xml3),
+                await _db.Products.FindByIdAsync(1751),
+                separator: Environment.NewLine,
+                htmlEncode: false,
+                includePrices: false);
+            content.AppendLine("Formatted attributes:");
+            content.AppendLine(formattedAttributes);
 
             //var product = await _db.Products.FindByIdAsync(4366);
             //content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");

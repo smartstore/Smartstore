@@ -12,9 +12,9 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Formats product and gift card attributes.
         /// </summary>
-        /// <param name="attributes">Attribute selection</param>
+        /// <param name="attributes">Attribute selection.</param>
         /// <param name="product">Product entity.</param>
-        /// <param name="customer">Customer entity.</param>
+        /// <param name="customer">Customer entity. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="separator">Separator between the formatted attributes.</param>
         /// <param name="htmlEncode">A value indicating whether to HTML encode values.</param>
         /// <param name="includePrices">A value indicating whether to include prices.</param>
@@ -25,7 +25,7 @@ namespace Smartstore.Core.Catalog.Attributes
         Task<string> FormatAttributesAsync(
             ProductVariantAttributeSelection attributes,
             Product product,
-            Customer customer,
+            Customer customer = null,
             string separator = "<br />",
             bool htmlEncode = true,
             bool includePrices = true,
