@@ -22,8 +22,8 @@ namespace Smartstore.IO
     public class LocalFileSystem : FileSystemBase, IFileProvider
     {
         // Defaults are: AttributesToSkip = FileAttributes.Hidden | FileAttributes.System, IgnoreInaccessible = true
-        private static readonly EnumerationOptions _flatEnumerationOptions = new EnumerationOptions();
-        private static readonly EnumerationOptions _deepEnumerationOptions = new EnumerationOptions { RecurseSubdirectories = true };
+        private static readonly EnumerationOptions _flatEnumerationOptions = new();
+        private static readonly EnumerationOptions _deepEnumerationOptions = new() { RecurseSubdirectories = true };
 
         private static readonly char[] PathSeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
