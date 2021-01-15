@@ -17,6 +17,7 @@ namespace Smartstore.Core.DependencyInjection
             builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultWebHelper>().As<IWebHelper>().InstancePerLifetimeScope();
             builder.RegisterType<CommonServices>().As<ICommonServices>().InstancePerLifetimeScope();
+            builder.RegisterType<GeoCountryLookup>().As<IGeoCountryLookup>().InstancePerLifetimeScope();
         }
     }
 }
