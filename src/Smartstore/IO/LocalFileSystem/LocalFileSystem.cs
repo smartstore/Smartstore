@@ -124,18 +124,16 @@ namespace Smartstore.IO
         /// <inheritdoc/>
         public override long GetDirectorySize(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
         {
-            return EnumerateEntries(subpath, pattern, deep)
+            return EnumerateFiles(subpath, pattern, deep)
                 .AsParallel()
-                .OfType<IFile>()
                 .Where(x => predicate == null || predicate(x.SubPath))
                 .Sum(x => x.Length);
         }
 
         public override long CountFiles(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
         {
-            return EnumerateEntries(subpath, pattern, deep)
+            return EnumerateFiles(subpath, pattern, deep)
                 .AsParallel()
-                .OfType<IFile>()
                 .Where(x => predicate == null || predicate(x.SubPath))
                 .Count();
         }
@@ -150,8 +148,46 @@ namespace Smartstore.IO
 
             return directoryInfo
                 .EnumerateFileSystemInfos(pattern, deep ? _deepEnumerationOptions : _flatEnumerationOptions)
-                .Select(ConvertFileSystemInfo)
+                .Select(x => 
+                {
+                    if (x is FileInfo fi)
+                    {
+                        return ConvertFileInfo(fi);
+                    }
+                    else if (x is DirectoryInfo di)
+                    {
+                        return ConvertDirectoryInfo(di);
+                    }
+
+                    return (IFileEntry)null;
+                })
                 .Where(x => x != null);
+        }
+
+        public override IEnumerable<IDirectory> EnumerateDirectories(string subpath = null, string pattern = "*", bool deep = false)
+        {
+            var directoryInfo = new DirectoryInfo(MapPathInternal(subpath, true));
+            if (!directoryInfo.Exists)
+            {
+                throw new DirectoryNotFoundException($"Directory '{subpath}' does not exist.");
+            }
+
+            return directoryInfo
+                .EnumerateDirectories(pattern, deep ? _deepEnumerationOptions : _flatEnumerationOptions)
+                .Select(ConvertDirectoryInfo);
+        }
+
+        public override IEnumerable<IFile> EnumerateFiles(string subpath = null, string pattern = "*", bool deep = false)
+        {
+            var directoryInfo = new DirectoryInfo(MapPathInternal(subpath, true));
+            if (!directoryInfo.Exists)
+            {
+                throw new DirectoryNotFoundException($"Directory '{subpath}' does not exist.");
+            }
+
+            return directoryInfo
+                .EnumerateFiles(pattern, deep ? _deepEnumerationOptions : _flatEnumerationOptions)
+                .Select(ConvertFileInfo);
         }
 
         public override bool TryCreateDirectory(string subpath)
@@ -269,7 +305,7 @@ namespace Smartstore.IO
 
             var pattern = file.NameWithoutExtension + "-*" + file.Extension;
             var dir = file.Directory;
-            var files = new HashSet<string>(EnumerateEntries(dir, pattern, false).OfType<IFile>().Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
+            var files = new HashSet<string>(EnumerateFiles(dir, pattern, false).Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
 
             int i = 1;
             while (true)
@@ -421,22 +457,16 @@ namespace Smartstore.IO
             return fullPath.StartsWith(Root, StringComparison.OrdinalIgnoreCase);
         }
 
-        private IFileEntry ConvertFileSystemInfo(FileSystemInfo fsi)
+        private IDirectory ConvertDirectoryInfo(DirectoryInfo info)
         {
-            var subpath = fsi.FullName[Root.Length..];
+            var subpath = info.FullName[Root.Length..];
+            return new LocalDirectory(subpath, info, this);
+        }
 
-            if (fsi is FileInfo fi)
-            {
-                return new LocalFile(subpath, fi, this);
-            }
-            else if (fsi is DirectoryInfo di)
-            {
-                return new LocalDirectory(subpath, di, this);
-            }
-            else
-            {
-                return null;
-            }
+        private IFile ConvertFileInfo(FileInfo info)
+        {
+            var subpath = info.FullName[Root.Length..];
+            return new LocalFile(subpath, info, this);
         }
 
         private FileInfo StartCreateFile(string subpath, bool overwrite)

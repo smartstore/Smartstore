@@ -168,6 +168,7 @@ namespace Smartstore.IO
         /// <returns>Total count of files.</returns>
         Task<long> CountFilesAsync(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true);
 
+
         /// <summary>
         /// Enumerates the content (files and directories) in a given directory.
         /// </summary>
@@ -193,6 +194,46 @@ namespace Smartstore.IO
         /// Results are grouped by entry type, where directories are followed by files.
         /// </remarks>
         IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(string subpath = null, string pattern = "*", bool deep = false);
+
+        /// <summary>
+        /// Enumerates the files in a given directory.
+        /// </summary>
+        /// <param name="subpath">The path of the directory to enumerate, or <c>null</c> to enumerate the root of the file store.</param>
+        /// <param name="pattern">The file pattern to match.</param>
+        /// <param name="deep">A flag to indicate whether to get the files from just the top directory or from all sub-directories as well.</param>
+        /// <returns>The list of files in the given directory.</returns>
+        /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
+        IEnumerable<IFile> EnumerateFiles(string subpath = null, string pattern = "*", bool deep = false);
+
+        /// <summary>
+        /// Enumerates the files in a given directory.
+        /// </summary>
+        /// <param name="subpath">The path of the directory to enumerate, or <c>null</c> to enumerate the root of the file store.</param>
+        /// <param name="pattern">The file pattern to match.</param>
+        /// <param name="deep">A flag to indicate whether to get the files from just the top directory or from all sub-directories as well.</param>
+        /// <returns>The list of files in the given directory.</returns>
+        /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
+        IAsyncEnumerable<IFile> EnumerateFilesAsync(string subpath = null, string pattern = "*", bool deep = false);
+
+        /// <summary>
+        /// Enumerates the directories in a given directory.
+        /// </summary>
+        /// <param name="subpath">The path of the directory to enumerate, or <c>null</c> to enumerate the root of the file store.</param>
+        /// <param name="pattern">The directory pattern to match.</param>
+        /// <param name="deep">A flag to indicate whether to get the directories from just the top directory or from all sub-directories as well.</param>
+        /// <returns>The list of directories in the given directory.</returns>
+        /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
+        IEnumerable<IDirectory> EnumerateDirectories(string subpath = null, string pattern = "*", bool deep = false);
+
+        /// <summary>
+        /// Enumerates the directories in a given directory.
+        /// </summary>
+        /// <param name="subpath">The path of the directory to enumerate, or <c>null</c> to enumerate the root of the file store.</param>
+        /// <param name="pattern">The directory pattern to match.</param>
+        /// <param name="deep">A flag to indicate whether to get the directories from just the top directory or from all sub-directories as well.</param>
+        /// <returns>The list of directories in the given directory.</returns>
+        /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
+        IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(string subpath = null, string pattern = "*", bool deep = false);
 
         /// <summary>
         /// Creates all directories and subdirectories in the specified target unless they already exist.

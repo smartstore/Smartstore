@@ -249,88 +249,6 @@ namespace Smartstore
 
         #endregion
 
-        #region Enumeration
-
-        /// <summary>
-        /// Enumerates files in a given directory.
-        /// </summary>
-        /// <param name="subpath">The path of the directory to enumerate, or <c>null</c> to enumerate the root of the file store.</param>
-        /// <param name="pattern">The file pattern to match.</param>
-        /// <param name="deep">A flag to indicate whether to get the contents from just the top directory or from all sub-directories as well.</param>
-        /// <returns>The list of files in the given directory.</returns>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
-        public static IEnumerable<IFile> EnumerateFiles(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
-        {
-            return fs.EnumerateEntries(subpath, pattern, deep).OfType<IFile>();
-        }
-
-        /// <summary>
-        /// Enumerates files in a given directory.
-        /// </summary>
-        /// <param name="subpath">The path of the directory to enumerate, or <c>null</c> to enumerate the root of the file store.</param>
-        /// <param name="pattern">The file pattern to match.</param>
-        /// <param name="deep">A flag to indicate whether to get the contents from just the top directory or from all sub-directories as well.</param>
-        /// <returns>The list of files in the given directory.</returns>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
-        public static async IAsyncEnumerable<IFile> EnumerateFilesAsync(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
-        {
-            await foreach (var entry in fs.EnumerateEntriesAsync(subpath, pattern, deep))
-            {
-                if (entry is IFile file)
-                    yield return file;
-            }
-        }
-
-        /// <summary>
-        /// Enumerates directory in a given directory.
-        /// </summary>
-        /// <param name="subpath">The path of the directory to enumerate, or <c>null</c> to enumerate the root of the file store.</param>
-        /// <param name="pattern">The directory pattern to match.</param>
-        /// <param name="deep">A flag to indicate whether to get the contents from just the top directory or from all sub-directories as well.</param>
-        /// <returns>The list of directories in the given directory.</returns>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
-        public static IEnumerable<IDirectory> EnumerateDirectories(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
-        {
-            if (subpath.HasValue() && !fs.DirectoryExists(subpath))
-            {
-                // I don't like this, but it mimics the behavior of classic Smartstore.
-                if (!fs.TryCreateDirectory(subpath))
-                {
-                    throw new FileSystemException(string.Format("The directory could not be created at path: {0}.", subpath));
-                }
-            }
-            
-            return fs.EnumerateEntries(subpath, pattern, deep).OfType<IDirectory>();
-        }
-
-        /// <summary>
-        /// Enumerates directory in a given directory.
-        /// </summary>
-        /// <param name="subpath">The path of the directory to enumerate, or <c>null</c> to enumerate the root of the file store.</param>
-        /// <param name="pattern">The directory pattern to match.</param>
-        /// <param name="deep">A flag to indicate whether to get the contents from just the top directory or from all sub-directories as well.</param>
-        /// <returns>The list of directories in the given directory.</returns>
-        /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
-        public static async IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
-        {
-            if (subpath.HasValue() && !(await fs.DirectoryExistsAsync(subpath)))
-            {
-                // I don't like this, but it mimics the behavior of classic Smartstore.
-                if (!(await fs.TryCreateDirectoryAsync(subpath))) 
-                {
-                    throw new FileSystemException(string.Format("The directory could not be created at path: {0}.", subpath));
-                }
-            }
-
-            await foreach (var entry in fs.EnumerateEntriesAsync(subpath, pattern, deep))
-            {
-                if (entry is IDirectory dir)
-                    yield return dir;
-            }
-        }
-
-        #endregion
-
         #region Copy / Move / Delete
 
         public static bool CopyFileAndDeleteSource(this IFileSystem fs, string subpath, string newPath, bool overwrite = false)
@@ -433,18 +351,16 @@ namespace Smartstore
         {
             fs.TryCreateDirectory(destinationPath);
 
-            foreach (var entry in fs.EnumerateEntries(subpath))
+            foreach (var entry in fs.EnumerateFiles(subpath))
             {
                 var newPath = fs.PathCombine(destinationPath, entry.Name);
+                fs.CopyFile(entry.SubPath, newPath, overwrite);
+            }
 
-                if (entry.IsDirectory)
-                {
-                    CopyDirectoryInternal(fs, entry.SubPath, newPath, overwrite);
-                }
-                else
-                {
-                    fs.CopyFile(entry.SubPath, newPath, overwrite);
-                }
+            foreach (var entry in fs.EnumerateDirectories(subpath))
+            {
+                var newPath = fs.PathCombine(destinationPath, entry.Name);
+                CopyDirectoryInternal(fs, entry.SubPath, newPath, overwrite);
             }
         }
 
@@ -452,19 +368,16 @@ namespace Smartstore
         {
             await fs.TryCreateDirectoryAsync(destinationPath);
 
-            await foreach (var entry in fs.EnumerateEntriesAsync(subpath))
+            await foreach (var entry in fs.EnumerateFilesAsync(subpath))
             {
                 var newPath = fs.PathCombine(destinationPath, entry.Name);
+                await fs.CopyFileAsync(entry.SubPath, newPath, overwrite);
+            }
 
-                if (entry.IsDirectory)
-                {
-                    await fs.CopyFileAsync(entry.SubPath, newPath, overwrite);
-                }
-                else
-                {
-
-                    await CopyDirectoryInternalAsync(fs, entry.SubPath, newPath, overwrite);
-                }
+            await foreach (var entry in fs.EnumerateDirectoriesAsync(subpath))
+            {
+                var newPath = fs.PathCombine(destinationPath, entry.Name);
+                await CopyDirectoryInternalAsync(fs, entry.SubPath, newPath, overwrite);
             }
         }
 

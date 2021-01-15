@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Smartstore.IO;
 using Smartstore.Collections;
@@ -10,7 +9,6 @@ using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Threading;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
-using Microsoft.EntityFrameworkCore;
 using Dasync.Collections;
 using Smartstore.Utilities;
 
@@ -25,6 +23,7 @@ namespace Smartstore.Core.Content.Media
         private readonly IMediaSearcher _mediaSearcher;
         private readonly IFolderService _folderService;
         private readonly MediaHelper _mediaHelper;
+        private readonly IMediaStorageConfiguration _storageConfig;
         private readonly IMediaStorageProvider _storageProvider;
         private readonly MediaExceptionFactory _exceptionFactory;
         private readonly string _mediaRootPath;
@@ -33,7 +32,7 @@ namespace Smartstore.Core.Content.Media
             IMediaService mediaService,
             IMediaSearcher mediaSearcher,
             IFolderService folderService,
-            IMediaStorageConfiguration mediaStorageConfiguration,
+            IMediaStorageConfiguration storageConfig,
             MediaHelper mediaHelper,
             MediaExceptionFactory exceptionFactory)
         {
@@ -42,8 +41,9 @@ namespace Smartstore.Core.Content.Media
             _folderService = folderService;
             _mediaHelper = mediaHelper;
             _storageProvider = mediaService.StorageProvider;
+            _storageConfig = storageConfig;
             _exceptionFactory = exceptionFactory;
-            _mediaRootPath = mediaStorageConfiguration.PublicPath;
+            _mediaRootPath = storageConfig.PublicPath;
         }
 
         protected string Fix(string path)
@@ -53,13 +53,18 @@ namespace Smartstore.Core.Content.Media
 
         public bool IsCloudStorage => _mediaService.StorageProvider.IsCloudStorage;
 
-        public string PublicPath => throw new NotImplementedException();
+        public string PublicPath => _storageConfig.PublicPath;
 
-        public string StoragePath => throw new NotImplementedException();
+        public string StoragePath => _storageConfig.StoragePath;
 
         public string MapToPublicUrl(IFile file, bool forCloud = false)
         {
-            throw new NotImplementedException();
+            if (file is MediaFileInfo mediaFile)
+            {
+                return _mediaService.GetUrl(mediaFile, null, string.Empty);
+            }
+
+            throw new ArgumentException("Type of file must be '{0}'.".FormatInvariant(typeof(MediaFileInfo).FullName), nameof(file));
         }
 
         public string MapToPublicUrl(string path, bool forCloud = false)
@@ -69,7 +74,21 @@ namespace Smartstore.Core.Content.Media
 
         public string MapUrlToStoragePath(string url)
         {
-            throw new NotImplementedException();
+            url = Fix(url).TrimStart('/');
+
+            if (!url.StartsWith(_mediaRootPath, StringComparison.OrdinalIgnoreCase))
+            {
+                // Is a folder path, no need to strip off public URL stuff.
+                return url;
+            }
+
+            // Strip off root, e.g. "media/"
+            var path = url[_mediaRootPath.Length..];
+
+            // Strip off media id from path, e.g. "123/"
+            var firstSlashIndex = path.IndexOf('/');
+
+            return path[firstSlashIndex..];
         }
 
         #endregion
@@ -171,6 +190,26 @@ namespace Smartstore.Core.Content.Media
             return _mediaService.FolderExists(subpath);
         }
 
+        public override IEnumerable<IFileEntry> EnumerateEntries(string subpath = null, string pattern = "*", bool deep = false)
+        {
+            return EnumerateFiles(subpath, pattern, deep)
+                .OfType<IFileEntry>()
+                .Concat(EnumerateDirectories(subpath, pattern, deep));
+        }
+
+        public override async IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(string subpath = null, string pattern = "*", bool deep = false)
+        {
+            await foreach (var entry in EnumerateFilesAsync(subpath, pattern, deep))
+            {
+                yield return entry;
+            }
+
+            await foreach (var entry in EnumerateDirectoriesAsync(subpath, pattern, deep))
+            {
+                yield return entry;
+            }
+        }
+
         public override IEnumerable<IFile> EnumerateFiles(string subpath = null, string pattern = "*", bool deep = false)
         {
             var node = _folderService.GetNodeByPath(subpath);
@@ -265,14 +304,7 @@ namespace Smartstore.Core.Content.Media
         }
 
         public override long GetDirectorySize(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<long> GetDirectorySizeAsync(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override IFile GetFile(string subpath)
         {

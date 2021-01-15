@@ -481,22 +481,22 @@ namespace Smartstore.Web.Theming
 
         protected override void OnDispose(bool disposing)
         {
-            //if (disposing)
-            //{
-            //    if (_monitorFiles != null)
-            //    {
-            //        _monitorFiles.EnableRaisingEvents = false;
-            //        _monitorFiles.Dispose();
-            //        _monitorFiles = null;
-            //    }
+            if (disposing)
+            {
+                if (_monitorFiles != null)
+                {
+                    _monitorFiles.EnableRaisingEvents = false;
+                    _monitorFiles.Dispose();
+                    _monitorFiles = null;
+                }
 
-            //    if (_monitorFolders != null)
-            //    {
-            //        _monitorFolders.EnableRaisingEvents = false;
-            //        _monitorFolders.Dispose();
-            //        _monitorFolders = null;
-            //    }
-            //}
+                if (_monitorFolders != null)
+                {
+                    _monitorFolders.EnableRaisingEvents = false;
+                    _monitorFolders.Dispose();
+                    _monitorFolders = null;
+                }
+            }
         }
 
         #endregion

@@ -83,6 +83,20 @@ namespace Smartstore.IO
             => EnumerateEntries(subpath, pattern, deep).ToAsyncEnumerable();
 
         /// <inheritdoc/>
+        public abstract IEnumerable<IFile> EnumerateFiles(string subpath = null, string pattern = "*", bool deep = false);
+
+        /// <inheritdoc/>
+        public virtual IAsyncEnumerable<IFile> EnumerateFilesAsync(string subpath = null, string pattern = "*", bool deep = false)
+            => EnumerateFiles(subpath, pattern, deep).ToAsyncEnumerable();
+
+        /// <inheritdoc/>
+        public abstract IEnumerable<IDirectory> EnumerateDirectories(string subpath = null, string pattern = "*", bool deep = false);
+
+        /// <inheritdoc/>
+        public virtual IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(string subpath = null, string pattern = "*", bool deep = false)
+            => EnumerateDirectories(subpath, pattern, deep).ToAsyncEnumerable();
+
+        /// <inheritdoc/>
         public abstract long GetDirectorySize(string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true);
 
         /// <inheritdoc/>
