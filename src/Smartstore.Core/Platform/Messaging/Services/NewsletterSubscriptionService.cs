@@ -38,14 +38,7 @@ namespace Smartstore.Core.Messages
 
         protected override Task<HookResult> OnInsertingAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (entity.StoreId == 0)
-            {
-                entry.State = Smartstore.Data.EntityState.Detached;
-                throw new SmartException("Newsletter subscription must be assigned to a valid store.");
-            }
-
-            // Format and validate mail address.
-            entity.Email = EnsureSubscriberEmailOrThrow(entity.Email);
+            EnsureValidEntityOrThrow(entity, entry);
 
             return Task.FromResult(HookResult.Ok);
         }
@@ -62,11 +55,7 @@ namespace Smartstore.Core.Messages
 
         protected override Task<HookResult> OnUpdatingAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (entity.StoreId == 0)
-                throw new SmartException("Newsletter subscription must be assigned to a valid store.");
-
-            // Format and validate mail address.
-            entity.Email = EnsureSubscriberEmailOrThrow(entity.Email);
+            EnsureValidEntityOrThrow(entity, entry);
 
             return Task.FromResult(HookResult.Ok);
         }
@@ -132,6 +121,27 @@ namespace Smartstore.Core.Messages
                 await _eventPublisher.PublishNewsletterUnsubscribedAsync(subscription.Email);
             }
             _toUnsubscribe.Clear();
+        }
+
+        private static void EnsureValidEntityOrThrow(NewsletterSubscription entity, IHookedEntity entry)
+        {
+            // Subscriptions without store ids aren't allowed.
+            if (entity.StoreId == 0)
+            {
+                entry.State = Smartstore.Data.EntityState.Detached;
+                throw new SmartException("Newsletter subscription must be assigned to a valid store.");
+            }
+
+            // Format and validate mail address.
+            string email = entity.Email.EmptyNull().Trim().Truncate(255);
+
+            if (!email.IsEmail())
+            {
+                entry.State = Smartstore.Data.EntityState.Detached;
+                throw new SmartException("Newsletter subscription must be assigned to a valid email address.");
+            }
+
+            entity.Email = email;
         }
 
         #endregion
@@ -223,20 +233,6 @@ namespace Smartstore.Core.Messages
             }
         
             return result;
-        }
-
-        private static string EnsureSubscriberEmailOrThrow(string email)
-        {
-            // TODO: (mh) (core) Maybe this validation should better be placed in the frontend/backend models.
-
-            string output = email.EmptyNull().Trim().Truncate(255);
-
-            if (!output.IsEmail())
-            {
-                throw Error.ArgumentOutOfRange("email", "Email is not valid.", email);
-            }
-
-            return output;
         }
     }
 }
