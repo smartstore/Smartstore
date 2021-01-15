@@ -190,12 +190,7 @@ namespace Smartstore.Core.Messages
 
             if (file == null)
             {
-                // TODO: (mh) (core) Mediaservice get filebyidasxync
-                var mediaFile = await _db.MediaFiles
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.Id == (product.MainPictureId ?? 0));
-
-                file = mediaService.ConvertMediaFile(mediaFile);
+                file = await mediaService.GetFileByIdAsync(product.MainPictureId ?? 0, MediaLoadFlags.AsNoTracking);
             }
 
             if (file == null && product.Visibility == ProductVisibility.Hidden && product.ParentGroupedProductId > 0)

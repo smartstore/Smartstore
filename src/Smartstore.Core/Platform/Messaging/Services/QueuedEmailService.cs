@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Batching;
@@ -17,6 +18,7 @@ namespace Smartstore.Core.Messages
     {
         private readonly SmartDbContext _db;
         private readonly IMailService _mailService;
+        private readonly IMediaService _mediaService;
         internal readonly EmailAccountSettings _emailAccountSettings;
         
         private bool? _shouldSaveToDisk = false;
@@ -24,10 +26,12 @@ namespace Smartstore.Core.Messages
         public QueuedEmailService(
             SmartDbContext db,
             IMailService mailService,
+            IMediaService mediaService,
             EmailAccountSettings emailAccountSettings)
         {
             _db = db;
             _mailService = mailService;
+            _mediaService = mediaService;
             _emailAccountSettings = emailAccountSettings;
         }
 
@@ -175,7 +179,7 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Converts <see cref="QueuedEmail"/> to <see cref="MailMessage"/>.
         /// </summary>
-        internal static MailMessage ConvertMail(QueuedEmail qe)
+        internal MailMessage ConvertMail(QueuedEmail qe)
         {
             // 'internal' for testing purposes
 
@@ -229,13 +233,12 @@ namespace Smartstore.Core.Messages
                         var file = qea.MediaFile;
                         if (file != null)
                         {
-                            // TODO: (mh) (core) Uncomment when MediaService is available.
-                            //var mediaFile = _services.MediaService.ConvertMediaFile(file);
-                            //var stream = mediaFile.OpenRead();
-                            //if (stream != null)
-                            //{
-                            //    attachment = new System.Net.Mail.Attachment(stream, file.Name, file.MimeType);
-                            //}
+                            var mediaFile = _mediaService.ConvertMediaFile(file);
+                            var stream = mediaFile.OpenRead();
+                            if (stream != null)
+                            {
+                                attachment = new MailAttachment(stream, file.Name, file.MimeType);
+                            }
                         }
                     }
 
