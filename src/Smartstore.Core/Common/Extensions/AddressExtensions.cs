@@ -11,11 +11,14 @@ namespace Smartstore
         /// </summary>
         /// <param name="source">Addresses in which to search.</param>
         /// <param name="address">Address to find.</param>
-        /// <param name="email">Specifies whether addresses must match per email. If not empty the parameter must match the email of the returned address.</param>
+        /// <param name="email">Specifies whether addresses must match per email. If not empty, the parameter must match the email of the returned address.</param>
         /// <returns>First matched address.</returns>
         public static Address FindAddress(this ICollection<Address> source, Address address, string email = "")
         {
-            var found = source.FirstOrDefault(x => x == address);
+            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(address, nameof(address));
+            
+            var found = source.FirstOrDefault(x => Equals(x, address));
 
             if (found != null && email.HasValue() && email != found.Email)
             {
@@ -29,28 +32,25 @@ namespace Smartstore
         /// Finds first occurrence of an address and patches it by adding <see cref="Address.PhoneNumber"/> and <see cref="Address.FaxNumber"/> if target properties are empty.
         /// The caller is responsible for database commit.
         /// </summary>
-        /// <param name="source">Addresses in which to search.</param>
-        /// <param name="address">Address to find.</param>
-        /// <param name="email">Specifies whether addresses must match per email. If not empty the parameter must match the email of the returned address.</param>
-        /// <returns>First matched address, patched with <see cref="Address.PhoneNumber"/> and <see cref="Address.FaxNumber"/>.</returns>
-        public static Address PatchAddress(this ICollection<Address> source, Address address, string email = "")
+        /// <param name="source">Source address to apply patch from.</param>
+        /// <param name="target">Target Address to patch.</param>
+        /// <returns>The patched target address.</returns>
+        public static Address PatchAddress(Address source, Address target)
         {
-            var found = source.FindAddress(address, email);
+            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(target, nameof(target));
 
-            if (found != null)
+            if (target.PhoneNumber.IsEmpty())
             {
-                if (!found.PhoneNumber.HasValue())
-                {
-                    found.PhoneNumber = address.PhoneNumber;
-                }
+                target.PhoneNumber = source.PhoneNumber;
+            }
 
-                if (!found.FaxNumber.HasValue())
-                {
-                    found.FaxNumber = address.FaxNumber;
-                }
+            if (target.FaxNumber.IsEmpty())
+            {
+                target.FaxNumber = source.FaxNumber;
             }
             
-            return found;
+            return target;
         }
 
         /// <summary>

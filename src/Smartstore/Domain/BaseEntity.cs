@@ -85,7 +85,7 @@ namespace Smartstore.Domain
 
         public static bool operator !=(BaseEntity x, BaseEntity y)
         {
-            return !(x == y);
+            return !Equals(x, y);
         }
 
         private bool HasSameNonDefaultIds(BaseEntity other)

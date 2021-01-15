@@ -135,7 +135,7 @@ namespace Smartstore.Core.Common
 
         public object Clone()
         {
-            var addr = new Address()
+            var addr = new Address
             {
                 Salutation = this.Salutation,
                 Title = this.Title,
@@ -167,11 +167,19 @@ namespace Smartstore.Core.Common
 
         #region IEquatable 
 
-        private int? _hashCode;
-
-        protected override bool Equals(BaseEntity other)
+        public static bool operator ==(Address x, Address y)
         {
-            return ((IEquatable<Address>)this).Equals(other as Address);
+            return Equals(x, y);
+        }
+
+        public static bool operator !=(Address x, Address y)
+        {
+            return !Equals(x, y);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ((IEquatable<Address>)this).Equals(obj as Address);
         }
 
         bool IEquatable<Address>.Equals(Address other)
@@ -183,7 +191,7 @@ namespace Smartstore.Core.Common
                 return true;
 
             // If ids are equal, its the same address.
-            if (Id == other.Id)
+            if (Id > 0 && Id == other.Id)
             {
                 return true;
             }
@@ -201,26 +209,21 @@ namespace Smartstore.Core.Common
 
         public override int GetHashCode()
         {
-            if (_hashCode == null)
-            {
-                var combiner = HashCodeCombiner
-                    .Start()
-                    .Add(GetType().GetHashCode())
-                    .Add(Id)
-                    .Add(FirstName)
-                    .Add(LastName)
-                    .Add(Company)
-                    .Add(Address1)
-                    .Add(Address2)
-                    .Add(ZipPostalCode)
-                    .Add(City)
-                    .Add(StateProvinceId)
-                    .Add(CountryId);
+            var combiner = HashCodeCombiner
+                .Start()
+                .Add(GetType().GetHashCode())
+                .Add(Id)
+                .Add(FirstName)
+                .Add(LastName)
+                .Add(Company)
+                .Add(Address1)
+                .Add(Address2)
+                .Add(ZipPostalCode)
+                .Add(City)
+                .Add(StateProvinceId)
+                .Add(CountryId);
 
-                _hashCode = combiner.CombinedHash;
-            }
-
-            return _hashCode.Value;
+            return combiner.CombinedHash;
         }
 
         public override string ToString()
