@@ -24,7 +24,7 @@ namespace Smartstore.Net.Mail
     /// <summary>
     /// Represent an email message.
     /// </summary>
-    public class MailMessage : ICloneable<MailMessage>
+    public class MailMessage : Disposable, ICloneable<MailMessage>
     {
         public MailMessage()
         {
@@ -100,6 +100,15 @@ namespace Smartstore.Net.Mail
             Body = await sr.ReadToEndAsync();
 
             sr.Close();
+        }
+
+        protected override void OnDispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Attachments.Each(x => x.Dispose());
+                Attachments.Clear();
+            }
         }
 
         #region ICloneable Members

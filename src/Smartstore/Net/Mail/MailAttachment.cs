@@ -15,7 +15,7 @@ namespace Smartstore.Net.Mail
         UUEncode = 6
     }
 
-    public class MailAttachment
+    public class MailAttachment : Disposable
     {
         public MailAttachment(IFile file)
         {
@@ -61,5 +61,13 @@ namespace Smartstore.Net.Mail
         public DateTimeOffset? CreationDate { get; set; }
         public DateTimeOffset? ModificationDate { get; set; }
         public DateTimeOffset? ReadDate { get; set; }
+
+        protected override void OnDispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ContentStream?.Close();
+            }
+        }
     }
 }
