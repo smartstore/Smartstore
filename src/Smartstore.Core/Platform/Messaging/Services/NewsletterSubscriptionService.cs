@@ -60,29 +60,18 @@ namespace Smartstore.Core.Messages
             return Task.FromResult(HookResult.Ok);
         }
 
-        protected override async Task<HookResult> OnDeletedAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            // TODO: (mh) (core) Does this belong in _toUnsubscribe? Or can OnDeletedAsync be executed after OnAfterSaveCompletedAsync
-            //       if so uncomment else delete comment
-            // Collect for later event publishing.
-            //_toUnsubscribe.Add(subscription);
-
-            if (entity.Active)
-            {
-                await _eventPublisher.PublishNewsletterUnsubscribedAsync(entity.Email);
-            }  
-
-            return HookResult.Ok;
-        }
+        protected override Task<HookResult> OnDeletedAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
 
         public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            var subscriptions = entries
+            var modifiedSubscriptions = entries
+                .Where(x => x.State == Smartstore.Data.EntityState.Modified)
                 .Select(x => x.Entity)
                 .OfType<NewsletterSubscription>()
                 .ToList();
-            
-            foreach (var subscription in subscriptions)
+
+            foreach (var subscription in modifiedSubscriptions)
             {
                 var modProps = _db.GetModifiedProperties(subscription);
                 var origActive = modProps.ContainsKey(nameof(NewsletterSubscription.Active)) ? (bool)modProps[nameof(NewsletterSubscription.Active)] : subscription.Active;
@@ -101,6 +90,20 @@ namespace Smartstore.Core.Messages
                     // If the two mail adresses are different > publish unsubscribed.
                     // or if the original entry was true and the current is false
                     // > publish unsubscribed.
+                    _toUnsubscribe.Add(subscription);
+                }
+            }
+
+            var deletedSubscriptions = entries
+                .Where(x => x.State == Smartstore.Data.EntityState.Deleted)
+                .Select(x => x.Entity)
+                .OfType<NewsletterSubscription>()
+                .ToList();
+
+            foreach (var subscription in deletedSubscriptions)
+            {
+                if (subscription.Active)
+                {
                     _toUnsubscribe.Add(subscription);
                 }
             }
@@ -153,7 +156,7 @@ namespace Smartstore.Core.Messages
             if (!subscription.Active)
             {
                 // Ensure that entity is tracked.
-                _db.TryChangeState(subscription, EntityState.Modified);
+                _db.TryChangeState(subscription, Microsoft.EntityFrameworkCore.EntityState.Modified);
 
                 subscription.Active = true;
                 return true;
@@ -169,7 +172,7 @@ namespace Smartstore.Core.Messages
             if (subscription.Active)
             {
                 // Ensure that entity is tracked.
-                _db.TryChangeState(subscription, EntityState.Modified);
+                _db.TryChangeState(subscription, Microsoft.EntityFrameworkCore.EntityState.Modified);
 
                 subscription.Active = false;
                 return true;
