@@ -6,7 +6,7 @@ using Smartstore.Core.Domain.Catalog;
 
 namespace Smartstore
 {
-    public static class DeliveryTimeServiceExtensions
+    public static class IDeliveryTimeServiceExtensions
     {
         /// <summary>
         /// Gets the product delivery time according to stock.
