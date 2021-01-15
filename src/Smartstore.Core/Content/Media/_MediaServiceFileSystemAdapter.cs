@@ -12,6 +12,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Microsoft.EntityFrameworkCore;
 using Dasync.Collections;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -151,8 +152,8 @@ namespace Smartstore.Core.Content.Media
                 return await _mediaService.CountFilesAsync(query);
             }
 
-            var files = this.EnumerateFilesAsync(subpath, pattern, deep);
-            throw new NotImplementedException(); // TODO: (core) (mm) CountFilesAsync
+            var count = await EnumerateFilesAsync(subpath, pattern, deep).LongCountAsync();
+            return count;
         }
 
         public override IFile CreateFile(string subpath, Stream inStream = null, bool overwrite = false)
@@ -170,24 +171,13 @@ namespace Smartstore.Core.Content.Media
             return _mediaService.FolderExists(subpath);
         }
 
-        public override IEnumerable<IFileEntry> EnumerateEntries(string subpath = null, string pattern = "*", bool deep = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(string subpath = null, string pattern = "*", bool deep = false)
+        public override IEnumerable<IFile> EnumerateFiles(string subpath = null, string pattern = "*", bool deep = false)
         {
             var node = _folderService.GetNodeByPath(subpath);
             if (node == null)
             {
                 throw _exceptionFactory.FolderNotFound(subpath);
             }
-
-            // TODO: (core) Apply pattern parameter to folder enumeration
-            var folders = deep ? node.FlattenNodes(false) : node.Children;
-            var result = folders.Select(x => new MediaFolderInfo(x))
-                .Cast<IFileEntry>()
-                .ToAsyncEnumerable();
 
             var query = new MediaSearchQuery
             {
@@ -196,13 +186,61 @@ namespace Smartstore.Core.Content.Media
                 Term = pattern
             };
 
-            var files = _mediaSearcher.SearchFiles(query).SourceQuery
-                .AsAsyncEnumerable()
-                .Select(_mediaService.ConvertMediaFile);
+            var files = _mediaSearcher.SearchFiles(query)
+                .Load()
+                .Select(_mediaService.ConvertMediaFile)
+                .OfType<IFile>();
 
-            result = result.Concat(files);
+            return files;
+        }
+
+        public override async IAsyncEnumerable<IFile> EnumerateFilesAsync(string subpath = null, string pattern = "*", bool deep = false)
+        {
+            var node = _folderService.GetNodeByPath(subpath);
+            if (node == null)
+            {
+                throw _exceptionFactory.FolderNotFound(subpath);
+            }
+
+            var query = new MediaSearchQuery
+            {
+                FolderId = node.Value.Id,
+                DeepSearch = deep,
+                Term = pattern
+            };
+
+            var result = await _mediaService.SearchFilesAsync(query);
+
+            foreach (var file in result.OfType<IFile>())
+            {
+                yield return file;
+            }
+        }
+
+        public override IEnumerable<IDirectory> EnumerateDirectories(string subpath = null, string pattern = "*", bool deep = false)
+        {
+            var node = _folderService.GetNodeByPath(subpath);
+            if (node == null)
+            {
+                throw _exceptionFactory.FolderNotFound(subpath);
+            }
+
+            Wildcard wildcard = pattern.IsEmpty() || pattern == "*" 
+                ? null 
+                : new Wildcard(pattern);
+
+            var folders = deep ? node.FlattenNodes(false) : node.Children;
+            var result = folders
+                .Where(MatchesPattern)
+                .Select(x => new MediaFolderInfo(x))
+                .OfType<IDirectory>();
 
             return result;
+
+            bool MatchesPattern(TreeNode<MediaFolderNode> node)
+            {
+                return wildcard == null ? true : wildcard.IsMatch(node.Value.Name);
+            }
         }
 
         public override bool FileExists(string subpath)

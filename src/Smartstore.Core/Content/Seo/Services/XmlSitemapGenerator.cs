@@ -292,7 +292,7 @@ namespace Smartstore.Core.Content.Seo
                     var nodes = new List<XmlSitemapNode>();
 
                     var providers = CreateProviders(ctx);
-                    var total = (await providers.SelectAsync(x => x.GetTotalCountAsync()).ToListAsync(ctx.CancellationToken)).Sum();
+                    var total = await providers.SelectAsync(x => x.GetTotalCountAsync()).SumAsync(ctx.CancellationToken);
                     var totalSegments = (int)Math.Ceiling(total / (double)MaximumSiteMapNodeCount);
                     var hasIndex = totalSegments > 1;
                     var indexNodes = new Multimap<int, XmlSitemapNode>();
