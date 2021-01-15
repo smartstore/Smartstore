@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
+using Smartstore.Threading;
 
 namespace Smartstore.IO
 {
@@ -123,14 +124,14 @@ namespace Smartstore.IO
         public abstract bool CheckUniqueFileName(string subpath, out string newPath);
 
         /// <inheritdoc/>
-        public virtual Task<bool> CheckUniqueFileNameAsync(string subpath, Action<string> success)
+        public virtual Task<AsyncOut<string>> CheckUniqueFileNameAsync(string subpath)
         {
             if (CheckUniqueFileName(subpath, out var newPath))
             {
-                success?.Invoke(newPath);
+                return Task.FromResult(new AsyncOut<string>(true, newPath));
             }
 
-            return Task.FromResult(false);
+            return Task.FromResult(AsyncOut<string>.Empty);
         }
 
         /// <inheritdoc/>

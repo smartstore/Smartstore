@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
+using Smartstore.Threading;
 
 namespace Smartstore.IO
 {
@@ -258,11 +259,10 @@ namespace Smartstore.IO
         /// the check returns false.
         /// </summary>
         /// <param name="subpath">The relative path of file to check</param>
-        /// <param name="success">If <paramref name="subpath"/> existed, calls this action passing the new unique path.</param>
         /// <returns>
-        /// <c>true</c> if a new unique file name was resolved; <c>false</c> if the file name was unique already.
+        /// <c>true</c> and new path if a new unique file name was resolved; <c>false</c> and <c>null</c> if the file name was unique already.
         /// </returns>
-        Task<bool> CheckUniqueFileNameAsync(string subpath, Action<string> success);
+        Task<AsyncOut<string>> CheckUniqueFileNameAsync(string subpath);
 
         /// <summary>
         /// Deletes a file if it exists.
