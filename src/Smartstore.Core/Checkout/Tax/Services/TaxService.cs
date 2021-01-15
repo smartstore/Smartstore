@@ -179,11 +179,11 @@ namespace Smartstore.Core.Checkout.Tax
                 basedOn = TaxBasedOn.BillingAddress;
             }
 
-            if (basedOn is TaxBasedOn.BillingAddress && customer?.BillingAddress is null)
+            if (basedOn is TaxBasedOn.BillingAddress && customer?.BillingAddress == null)
             {
                 basedOn = TaxBasedOn.DefaultAddress;
             }
-            else if (basedOn is TaxBasedOn.ShippingAddress && customer?.ShippingAddress is null)
+            else if (basedOn is TaxBasedOn.ShippingAddress && customer?.ShippingAddress == null)
             {
                 basedOn = TaxBasedOn.DefaultAddress;
             }
@@ -352,7 +352,7 @@ namespace Smartstore.Core.Checkout.Tax
             twoLetterIsoCode = twoLetterIsoCode.ToUpper();
 
             return VatNumberStatus.Valid;
-            // TODO: (ms) (core) implement this with EuropeCheckVatService 
+            // TODO: (ms) (core) implement EuropeCheckVatService 
             //EuropeCheckVatService.checkVatService vatService = null;
             //try
             //{

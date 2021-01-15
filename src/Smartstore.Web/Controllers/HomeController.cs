@@ -39,6 +39,10 @@ using Humanizer;
 using System.Numerics;
 using Smartstore.Core.Catalog.Attributes;
 using StackExchange.Profiling.Internal;
+using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Checkout.GiftCards;
 
 namespace Smartstore.Web.Controllers
 {
@@ -58,10 +62,9 @@ namespace Smartstore.Web.Controllers
     public class HomeController : Controller
     {
         private static CancellationTokenSource _cancelTokenSource = new();
-        
+
         private readonly SmartDbContext _db;
         private readonly IEventPublisher _eventPublisher;
-        private readonly ISettingFactory _settingFactory;
         private readonly IStoreContext _storeContext;
         private readonly ILogger<HomeController> _logger1;
         private readonly ILogger _logger2;
@@ -73,9 +76,14 @@ namespace Smartstore.Web.Controllers
         private readonly ILocalizationService _locService;
         private readonly IImageFactory _imageFactory;
         private readonly IMediaStorageProvider _mediaStorageProvider;
+        private readonly ISettingFactory _settingFactory;
+        private readonly IShippingService _shippingService;
+        private readonly IShoppingCartService _cartService;
+        private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
+        private readonly IGiftCardService _giftCardService;
 
         public HomeController(
-            SmartDbContext db, 
+            SmartDbContext db,
             ILogger<HomeController> logger1,
             ILogger logger2,
             ISettingFactory settingFactory,
@@ -91,7 +99,11 @@ namespace Smartstore.Web.Controllers
             ILoggerFactory loggerFactory,
             ILocalizationService locService,
             IImageFactory imageFactory,
-            IMediaStorageProvider mediaStorageProvider)
+            IMediaStorageProvider mediaStorageProvider,
+            IShippingService shippingService,
+            IShoppingCartService cartService,
+            ICheckoutAttributeFormatter checkoutAttributeFormatter,
+            IGiftCardService giftCardService)
         {
             _db = db;
             _eventPublisher = eventPublisher;
@@ -107,6 +119,10 @@ namespace Smartstore.Web.Controllers
             _locService = locService;
             _imageFactory = imageFactory;
             _mediaStorageProvider = mediaStorageProvider;
+            _shippingService = shippingService;
+            _cartService = cartService;
+            _checkoutAttributeFormatter = checkoutAttributeFormatter;
+            _giftCardService = giftCardService;
 
             var currentStore = _services.StoreContext.CurrentStore;
         }
@@ -118,7 +134,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ImagingTest()
         {
             var tempPath = "D:\\_temp\\_ImageSharp";
-            
+
             var files = await _db.MediaFiles
                 .AsNoTracking()
                 .Where(x => x.MediaType == "image" && x.Size > 0 /*&& x.Extension == "jpg" && x.Size < 10000*/)
@@ -185,7 +201,7 @@ namespace Smartstore.Web.Controllers
                         await image.SaveAsync(outFile);
                         len += outFile.Length;
                     }
-                }    
+                }
             }
 
             watch.Stop();
@@ -303,6 +319,21 @@ namespace Smartstore.Web.Controllers
             ////var dt = _db.DeliveryTimes.GetDeliveryTimeFilter(1);
 
             //var test = "";
+
+            #endregion
+
+            #region MS test area
+
+            //var customerCart = await _cartService.GetCartItemsAsync(_services.WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart);
+            //var result = await _shippingService.GetCartTotalWeightAsync(customerCart);
+
+            // GetAllProviders throws....
+            //var shippingOptions = _shippingService.GetShippingOptions(customerCart, _services.WorkContext.CurrentCustomer.ShippingAddress);
+
+            //var rawCheckoutAttributes = _services.WorkContext.CurrentCustomer.GenericAttributes.CheckoutAttributes;
+            //var formatted = _checkoutAttributeFormatter.FormatAttributesAsync(new(rawCheckoutAttributes));
+
+            //var giftCards = await _giftCardService.GetValidGiftCardsAsync();
 
             #endregion
 

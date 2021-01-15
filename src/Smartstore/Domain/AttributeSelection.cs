@@ -42,7 +42,7 @@ namespace Smartstore.Domain
             _xmlAttributeName = xmlAttributeName;
             _xmlAttributeValueName = xmlAttributeValueName.HasValue() ? xmlAttributeValueName : xmlAttributeName + "Value";
 
-            _map = !string.IsNullOrEmpty(_rawAttributes)
+            _map = _rawAttributes.HasValue()
                 ? FromXmlOrJson(_rawAttributes, _xmlAttributeName, _xmlAttributeValueName)
                 : new Multimap<int, object>();
         }
@@ -64,7 +64,7 @@ namespace Smartstore.Domain
             {
                 return FromXml(rawAttributes, xmlAttributeName, xmlAttributeValueName);
             }
-            else if (firstChar == '{' || firstChar == '[')
+            else if (firstChar is '{' or '[')
             {
                 return FromJson(rawAttributes);
             }
@@ -82,9 +82,6 @@ namespace Smartstore.Domain
 
                 foreach (var element in attributeElements)
                 {
-                    //var values = element.Descendants(attributeValueName).Select(x => x.Value).ToList();
-                    //map.Add(element.Value.Convert<int>(), values);
-
                     var id = element
                         .Attribute("ID")
                         .Value
@@ -106,10 +103,10 @@ namespace Smartstore.Domain
         }
 
         private static Multimap<int, object> FromJson(string jsonAttributes)
-        {            
+        {
             try
             {
-                return JsonConvert.DeserializeObject<Multimap<int, object>>(jsonAttributes);                
+                return JsonConvert.DeserializeObject<Multimap<int, object>>(jsonAttributes);
             }
             catch (Exception ex)
             {
@@ -180,7 +177,7 @@ namespace Smartstore.Domain
         /// <summary>
         /// Gets deserialized attributes.
         /// </summary>
-        public IEnumerable<KeyValuePair<int, ICollection<object>>> AttributesMap 
+        public IEnumerable<KeyValuePair<int, ICollection<object>>> AttributesMap
             => _map;
 
         /// <summary>
