@@ -39,7 +39,6 @@ namespace Smartstore.Core.Messages
         protected override Task<HookResult> OnInsertingAsync(NewsletterSubscription entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             EnsureValidEntityOrThrow(entity, entry);
-
             return Task.FromResult(HookResult.Ok);
         }
 
@@ -65,46 +64,35 @@ namespace Smartstore.Core.Messages
 
         public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            var modifiedSubscriptions = entries
-                .Where(x => x.State == Smartstore.Data.EntityState.Modified)
-                .Select(x => x.Entity)
-                .OfType<NewsletterSubscription>()
-                .ToList();
-
-            foreach (var subscription in modifiedSubscriptions)
+            foreach (var entry in entries)
             {
-                var modProps = _db.GetModifiedProperties(subscription);
-                var origActive = modProps.ContainsKey(nameof(NewsletterSubscription.Active)) ? (bool)modProps[nameof(NewsletterSubscription.Active)] : subscription.Active;
-                var origEmail = modProps.ContainsKey(nameof(NewsletterSubscription.Email)) ? modProps[nameof(NewsletterSubscription.Email)].ToString() : subscription.Email;
+                var subscription = (NewsletterSubscription)entry.Entity;
 
-                // Collect events for modified entities.
-                if ((origActive == false && subscription.Active) || (subscription.Active && (origEmail != subscription.Email)))
+                if (entry.State == Smartstore.Data.EntityState.Deleted && subscription.Active)
                 {
-                    // If the original entry was false and and the current is true
-                    // or the mail address changed and subscription is active
-                    // > publish subscribed.
-                    _toSubscribe.Add(subscription);
-                }
-                else if ((origActive && subscription.Active && (origEmail != subscription.Email)) || (origActive && !subscription.Active))
-                {
-                    // If the two mail adresses are different > publish unsubscribed.
-                    // or if the original entry was true and the current is false
-                    // > publish unsubscribed.
                     _toUnsubscribe.Add(subscription);
                 }
-            }
-
-            var deletedSubscriptions = entries
-                .Where(x => x.State == Smartstore.Data.EntityState.Deleted)
-                .Select(x => x.Entity)
-                .OfType<NewsletterSubscription>()
-                .ToList();
-
-            foreach (var subscription in deletedSubscriptions)
-            {
-                if (subscription.Active)
+                else if (entry.State == Smartstore.Data.EntityState.Modified)
                 {
-                    _toUnsubscribe.Add(subscription);
+                    var modProps = _db.GetModifiedProperties(subscription);
+                    var origActive = modProps.ContainsKey(nameof(NewsletterSubscription.Active)) ? (bool)modProps[nameof(NewsletterSubscription.Active)] : subscription.Active;
+                    var origEmail = modProps.ContainsKey(nameof(NewsletterSubscription.Email)) ? modProps[nameof(NewsletterSubscription.Email)].ToString() : subscription.Email;
+
+                    // Collect events for modified entities.
+                    if ((origActive == false && subscription.Active) || (subscription.Active && (origEmail != subscription.Email)))
+                    {
+                        // If the original entry was false and and the current is true
+                        // or the mail address changed and subscription is active
+                        // > publish subscribed.
+                        _toSubscribe.Add(subscription);
+                    }
+                    else if ((origActive && subscription.Active && (origEmail != subscription.Email)) || (origActive && !subscription.Active))
+                    {
+                        // If the two mail adresses are different > publish unsubscribed.
+                        // or if the original entry was true and the current is false
+                        // > publish unsubscribed.
+                        _toUnsubscribe.Add(subscription);
+                    }
                 }
             }
 
