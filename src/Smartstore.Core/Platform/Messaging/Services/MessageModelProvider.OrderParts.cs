@@ -63,7 +63,7 @@ namespace Smartstore.Core.Messages
             d.Billing = await CreateModelPartAsync(part.BillingAddress, messageContext);
             if (part.ShippingAddress != null)
             {
-                d.Shipping = part.ShippingAddress.IsPostalDataEqual(part.BillingAddress) == true ? null : await CreateModelPartAsync(part.ShippingAddress, messageContext);
+                d.Shipping = part.ShippingAddress == part.BillingAddress ? null : await CreateModelPartAsync(part.ShippingAddress, messageContext);
             }
             d.CustomerEmail = part.BillingAddress.Email.NullEmpty();
             d.CustomerComment = part.CustomerOrderComment.NullEmpty();

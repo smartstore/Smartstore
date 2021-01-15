@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Core.Common;
 
@@ -12,62 +11,46 @@ namespace Smartstore
         /// </summary>
         /// <param name="source">Addresses in which to search.</param>
         /// <param name="address">Address to find.</param>
-        /// <returns>First address matched by one property.</returns>
-        public static Address FindAddress(this ICollection<Address> source, Address address)
+        /// <param name="email">Specifies whether addresses must match per email. If not empty the parameter must match the email of the returned address.</param>
+        /// <returns>First matched address.</returns>
+        public static Address FindAddress(this ICollection<Address> source, Address address, string email = "")
         {
-            return source.FindAddress(
-                address.FirstName,
-                address.LastName,
-                address.PhoneNumber,
-                address.Email,
-                address.FaxNumber,
-                address.Company,
-                address.Address1,
-                address.Address2,
-                address.City,
-                address.StateProvinceId,
-                address.ZipPostalCode,
-                address.CountryId
-            );
+            var found = source.FirstOrDefault(x => x == address);
+
+            if (found != null && email.HasValue() && email != found.Email)
+            {
+                return null;
+            }
+
+            return found;
         }
 
         /// <summary>
-        /// Finds first occurrence of an address by single parameters.
+        /// Finds first occurrence of an address and patches it by adding <see cref="Address.PhoneNumber"/> and <see cref="Address.FaxNumber"/> if target properties are empty.
+        /// The caller is responsible for database commit.
         /// </summary>
         /// <param name="source">Addresses in which to search.</param>
-        /// <returns>First address matched by one parameter.</returns>
-        public static Address FindAddress(
-            this ICollection<Address> source,
-            string firstName,
-            string lastName,
-            string phoneNumber,
-            string email,
-            string faxNumber,
-            string company,
-            string address1,
-            string address2,
-            string city,
-            int? stateProvinceId,
-            string zipPostalCode,
-            int? countryId)
+        /// <param name="address">Address to find.</param>
+        /// <param name="email">Specifies whether addresses must match per email. If not empty the parameter must match the email of the returned address.</param>
+        /// <returns>First matched address, patched with <see cref="Address.PhoneNumber"/> and <see cref="Address.FaxNumber"/>.</returns>
+        public static Address PatchAddress(this ICollection<Address> source, Address address, string email = "")
         {
-            Func<Address, bool> addressMatcher = (x) =>
-            {
-                return x.Email.EqualsNoCase(email)
-                    && x.LastName.EqualsNoCase(lastName)
-                    && x.FirstName.EqualsNoCase(firstName)
-                    && x.Address1.EqualsNoCase(address1)
-                    && x.Address2.EqualsNoCase(address2)
-                    && x.Company.EqualsNoCase(company)
-                    && x.ZipPostalCode.EqualsNoCase(zipPostalCode)
-                    && x.City.EqualsNoCase(city)
-                    && x.PhoneNumber.EqualsNoCase(phoneNumber)
-                    && x.FaxNumber.EqualsNoCase(faxNumber)
-                    && x.StateProvinceId == stateProvinceId
-                    && x.CountryId == countryId;
-            };
+            var found = source.FindAddress(address, email);
 
-            return source.FirstOrDefault(addressMatcher);
+            if (found != null)
+            {
+                if (!found.PhoneNumber.HasValue())
+                {
+                    found.PhoneNumber = address.PhoneNumber;
+                }
+
+                if (!found.FaxNumber.HasValue())
+                {
+                    found.FaxNumber = address.FaxNumber;
+                }
+            }
+            
+            return found;
         }
 
         /// <summary>
@@ -92,30 +75,6 @@ namespace Smartstore
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Checks whether the postal data of two addresses are equal.
-        /// </summary>
-        public static bool IsPostalDataEqual(this Address address, Address other)
-        {
-            if (address != null && other != null)
-            {
-                if (address.FirstName.EqualsNoCase(other.FirstName) &&
-                    address.LastName.EqualsNoCase(other.LastName) &&
-                    address.Company.EqualsNoCase(other.Company) &&
-                    address.Address1.EqualsNoCase(other.Address1) &&
-                    address.Address2.EqualsNoCase(other.Address2) &&
-                    address.ZipPostalCode.EqualsNoCase(other.ZipPostalCode) &&
-                    address.City.EqualsNoCase(other.City) &&
-                    address.StateProvinceId == other.StateProvinceId &&
-                    address.CountryId == other.CountryId)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }
