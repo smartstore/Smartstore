@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
@@ -536,7 +537,7 @@ namespace Smartstore.Core.Messages
             return m;
         }
 
-        protected virtual async Task<object> CreateModelPartAsync(Product part, MessageContext messageContext, string attributesXml = null)
+        protected virtual async Task<object> CreateModelPartAsync(Product part, MessageContext messageContext, ProductVariantAttributeSelection attrSelection = null)
         {
             Guard.NotNull(messageContext, nameof(messageContext));
             Guard.NotNull(part, nameof(part));
@@ -558,7 +559,7 @@ namespace Smartstore.Core.Messages
             // TODO: (mh) (core) > Do this right
             //var url = BuildUrl(productUrlHelper.GetProductUrl(part.Id, part.GetSeName(messageContext.Language.Id), attributesXml), messageContext);
             var url = string.Empty;
-            var file = await GetMediaFileForAsync(part, attributesXml);
+            var file = await GetMediaFileForAsync(part, attrSelection);
             var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;
             var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).Value;
 

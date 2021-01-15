@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -313,7 +314,7 @@ namespace Smartstore.Core.Messages
                 { "Qty", part.Quantity },
                 { "UnitPrice", FormatPrice(isNet ? part.UnitPriceExclTax : part.UnitPriceInclTax, part.Order, messageContext) },
                 { "LineTotal", FormatPrice(isNet ? part.PriceExclTax : part.PriceInclTax, part.Order, messageContext) },
-                { "Product", await CreateModelPartAsync(product, messageContext, part.AttributesXml) },
+                { "Product", await CreateModelPartAsync(product, messageContext, new ProductVariantAttributeSelection(part.AttributesXml) ) },
                 { "BundleItems", bundleItems },
                 { "IsGross", !isNet },
                 { "DisplayDeliveryTime", part.DisplayDeliveryTime },
@@ -352,7 +353,7 @@ namespace Smartstore.Core.Messages
                 { "Quantity", part.Quantity > 1 && part.PerItemShoppingCart ? part.Quantity.ToString() : null },
                 { "PerItemShoppingCart", part.PerItemShoppingCart },
                 { "PriceWithDiscount", priceWithDiscount },
-                { "Product", await CreateModelPartAsync(product, messageContext, part.AttributesXml) }
+                { "Product", await CreateModelPartAsync(product, messageContext, new ProductVariantAttributeSelection(part.AttributesXml)) }
             };
 
             await PublishModelPartCreatedEventAsync(part, m);
@@ -387,7 +388,7 @@ namespace Smartstore.Core.Messages
             {
                 { "Id", part.Id },
                 { "Quantity", part.Quantity },
-                { "Product", await CreateModelPartAsync(part.Product, messageContext, part.AttributesXml) },
+                { "Product", await CreateModelPartAsync(part.Product, messageContext, new ProductVariantAttributeSelection(part.AttributesXml)) },
             };
 
             await PublishModelPartCreatedEventAsync(part, m);

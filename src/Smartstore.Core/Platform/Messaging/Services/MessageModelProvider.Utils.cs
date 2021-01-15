@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +13,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Messages.Events;
 using Smartstore.Engine.Modularity;
-using Smartstore.Events;
 using Smartstore.Utilities;
-using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Messages
 {
@@ -165,27 +162,25 @@ namespace Smartstore.Core.Messages
             return new Money(price, currency);
         }
 
-        private async Task<MediaFileInfo> GetMediaFileForAsync(Product product, string attributesXml)
+        private async Task<MediaFileInfo> GetMediaFileForAsync(Product product, ProductVariantAttributeSelection attrSelection = null)
         {
             var attrParser = _services.Resolve<IProductAttributeMaterializer>();
-            var productService = _services.Resolve<IProductService>();
             var mediaService = _services.Resolve<IMediaService>();
 
             MediaFileInfo file = null;
 
-            if (attributesXml.HasValue())
+            if (attrSelection != null)
             {
-                // TODO: (mh) (core) Do it when IProductAttributeMaterializer is ready...
-                //var combination = await attrParser.FindAttributeCombinationAsync(product.Id, attributesXml);
+                var combination = await attrParser.FindAttributeCombinationAsync(product.Id, attrSelection);
 
-                //if (combination != null)
-                //{
-                //    var fileIds = combination.GetAssignedMediaIds();
-                //    if (fileIds?.Any() ?? false)
-                //    {
-                //        file = mediaService.GetFileById(fileIds[0], MediaLoadFlags.AsNoTracking);
-                //    }
-                //}
+                if (combination != null)
+                {
+                    var fileIds = combination.GetAssignedMediaIds();
+                    if (fileIds?.Any() ?? false)
+                    {
+                        file = await mediaService.GetFileByIdAsync(fileIds[0], MediaLoadFlags.AsNoTracking);
+                    }
+                }
             }
 
             if (file == null)
