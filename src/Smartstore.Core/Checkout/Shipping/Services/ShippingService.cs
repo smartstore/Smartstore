@@ -20,9 +20,11 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
+
     public partial class ShippingService : IShippingService
     {
-        private readonly ICheckoutAttributeMaterializer _attributeMaterializer;
+        private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         //private readonly ICartRuleProvider _cartRuleProvider;
         private readonly ShippingSettings _shippingSettings;
         private readonly IProviderManager _providerManager;
@@ -31,7 +33,8 @@ namespace Smartstore.Core.Checkout.Shipping
         private readonly SmartDbContext _db;
 
         public ShippingService(
-            ICheckoutAttributeMaterializer attributeMaterializer,
+            ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+            IProductAttributeMaterializer productAttributeMaterializer,
             //ICartRuleProvider cartRuleProvider,
             ShippingSettings shippingSettings,
             IProviderManager providerManager,
@@ -39,7 +42,8 @@ namespace Smartstore.Core.Checkout.Shipping
             IWorkContext workContext,
             SmartDbContext db)
         {
-            _attributeMaterializer = attributeMaterializer;
+            _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+            _productAttributeMaterializer = productAttributeMaterializer;
             //_cartRuleProvider = cartRuleProvider;
             _shippingSettings = shippingSettings;
             _providerManager = providerManager;
@@ -56,38 +60,46 @@ namespace Smartstore.Core.Checkout.Shipping
         {
             Guard.NotNull(cart, nameof(cart));
 
-            // TODO: (ms) (core) make sure this is working correnctly no .tostring()......iteration
-            // Gets all attributes of cart items
-            var cartRawAttributes = cart
+            var rawCartAttributes = cart
                 .Where(x => x.Item.AttributesXml.HasValue())
-                .Select(x => x.Item.AttributesXml)
-                .ToString();
+                .Select(x => x.Item.AttributesXml);
 
-            // Gets parsed product variant attribute selection from raw attributes string.
-            var selection = new ProductVariantAttributeSelection(cartRawAttributes);
-            var ids = selection.AttributesMap.Select(x => x.Key).ToArray();
+            var selection = new ProductVariantAttributeSelection(string.Empty);
+            foreach (var rawCartAttribute in rawCartAttributes)
+            {
+                var attributeSelection = new ProductVariantAttributeSelection(rawCartAttribute);
+                foreach (var attribute in attributeSelection.AttributesMap)
+                {
+                    if (attribute.Value.IsNullOrEmpty())
+                        continue;
+
+                    selection.AddAttribute(attribute.Key, attribute.Value.ToArray());
+                }
+            }
+
+            var attributeValueIds = selection.GetAttributeValueIds();
 
             // Gets either all values of attributes without a product linkage
             // or linked products which are shipping enabled
             var query = _db.ProductVariantAttributeValues
                 .Include(x => x.ProductVariantAttribute)
                     .ThenInclude(x => x.Product)
-                .ApplyValueFilter(ids)
-                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage
+                .ApplyValueFilter(attributeValueIds)
+                .Where(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage
                 && x.ProductVariantAttribute.Product != null
                 && x.ProductVariantAttribute.Product.IsShippingEnabled
-                || x.ValueType != ProductVariantAttributeValueType.ProductLinkage);
+                || x.ValueTypeId != (int)ProductVariantAttributeValueType.ProductLinkage);
 
             // Calculates attributes weight
             // Get attributes without product linkage > add attribute weight adjustment
             var attributesWeight = await query
-                .Where(x => x.ValueType != ProductVariantAttributeValueType.ProductLinkage)
+                .Where(x => x.ValueTypeId != (int)ProductVariantAttributeValueType.ProductLinkage)
                 .SumAsync(x => x.WeightAdjustment * (multipliedByQuantity ? x.Quantity : 1));
 
             // TODO: (ms) (core) needs to be tested with NullResult
             // Get attributes with product linkage > add product weigth
             attributesWeight += await query
-                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                .Where(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage)
                 .Select(x => new { x.ProductVariantAttribute.Product, x.Quantity })
                 .Where(x => x.Product != null && x.Product.IsShippingEnabled)
                 .SumAsync(x => x.Product.Weight * x.Quantity);
@@ -151,11 +163,9 @@ namespace Smartstore.Core.Checkout.Shipping
             if (cartItem.Item.Product is null)
                 return decimal.Zero;
 
-            var attributesWeight = decimal.Zero;
-            if (cartItem.Item.AttributesXml.HasValue())
-            {
-                attributesWeight = await GetCartItemsAttributesWeightAsync(new List<OrganizedShoppingCartItem> { cartItem }, false);
-            }
+            var attributesWeight = cartItem.Item.AttributesXml.HasValue()
+                ? await GetCartItemsAttributesWeightAsync(new List<OrganizedShoppingCartItem> { cartItem }, false)
+                : decimal.Zero;
 
             return multipliedByQuantity
                 ? (cartItem.Item.Product.Weight + attributesWeight) * cartItem.Item.Quantity
@@ -169,24 +179,43 @@ namespace Smartstore.Core.Checkout.Shipping
             // Cart total weight > products weight * quantity + attributes weight * quantity
             cart = cart.Where(x => !(!includeFreeShippingProducts && x.Item.Product.IsFreeShipping)).ToList();
             var attributesTotalWeight = await GetCartItemsAttributesWeightAsync(cart);
-            var cartTotalWeight = cart.Sum(x => x.Item.Product.Weight * x.Item.Quantity);
-            var totalWeight = attributesTotalWeight + cartTotalWeight;
+            var productsTotalWeight = cart.Sum(x => x.Item.Product.Weight * x.Item.Quantity);
+            var cartTotalWeight = attributesTotalWeight + productsTotalWeight;
 
             var customer = cart.GetCustomer();
             if (customer == null)
-                return totalWeight;
+                return cartTotalWeight;
 
             // Checkout attributes
             var checkoutAttributesRaw = customer.GenericAttributes.CheckoutAttributes;
             if (checkoutAttributesRaw.HasValue())
             {
-                var attributeValues = await _attributeMaterializer
-                    .MaterializeCheckoutAttributeValuesAsync(new CheckoutAttributeSelection(checkoutAttributesRaw));
+                var attributeValues = await _checkoutAttributeMaterializer
+                    .MaterializeCheckoutAttributeValuesAsync(new(checkoutAttributesRaw));
 
-                totalWeight += attributeValues.Sum(x => x.WeightAdjustment);
+                cartTotalWeight += attributeValues.Sum(x => x.WeightAdjustment);
             }
 
-            return totalWeight;
+            return cartTotalWeight;
+        }
+
+
+        public virtual ShippingOptionRequest CreateShippingOptionRequest(IList<OrganizedShoppingCartItem> cart, Address shippingAddress, int storeId)
+        {
+            var shipping = cart.Where(x => x.Item.IsShippingEnabled);
+            var request = new ShippingOptionRequest
+            {
+                StoreId = storeId,
+                Customer = cart.GetCustomer(),
+                ShippingAddress = shippingAddress,
+                CountryFrom = null,
+                StateProvinceFrom = null,
+                ZipPostalCodeFrom = string.Empty,
+
+                Items = new List<OrganizedShoppingCartItem>(shipping)
+            };
+
+            return request;
         }
 
         public virtual ShippingOptionResponse GetShippingOptions(
