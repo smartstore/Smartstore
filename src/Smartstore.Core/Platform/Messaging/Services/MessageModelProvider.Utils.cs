@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
@@ -27,36 +28,27 @@ namespace Smartstore.Core.Messages
             model["UpdatedOn"] = ToUserDate(content.UpdatedOnUtc, ctx);
         }
 
-        private string BuildUrl(string url, MessageContext ctx)
+        private static string BuildUrl(string url, MessageContext ctx)
         {
             return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + url.EnsureStartsWith("/");
         }
 
         private string BuildRouteUrl(object routeValues, MessageContext ctx)
         {
-            if (_urlHelper == null)
-                return string.Empty;
-
-            // TODO: (mh) (core) Test if this works.
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper.RouteUrl(new UrlRouteContext { Values = routeValues });
+            // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.RouteUrl(routeValues);
         }
 
         private string BuildRouteUrl(string routeName, object routeValues, MessageContext ctx)
         {
-            if (_urlHelper == null)
-                return string.Empty;
-
-            // TODO: (mh) (core) Test if this works.
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper.RouteUrl(new UrlRouteContext { RouteName = routeName, Values = routeValues });
+            // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.RouteUrl(routeName, routeValues);
         }
 
         private string BuildActionUrl(string action, string controller, object routeValues, MessageContext ctx)
         {
-            if (_urlHelper == null)
-                return string.Empty;
-
-            // TODO: (mh) (core) Test if this works.
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper.Action(new UrlActionContext { Action = action, Controller = controller, Values = routeValues });
+            // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.Action(action, controller, routeValues);
         }
 
         private async Task PublishModelPartCreatedEventAsync<T>(T source, dynamic part) where T : class
@@ -137,6 +129,7 @@ namespace Smartstore.Core.Messages
         {
             // Currency is cached, so no need for async in this simple case.
             var currency = _db.Currencies
+                .AsNoTracking()
                 .Where(x => x.CurrencyCode == currencyCode)
                 .FirstOrDefault();
 
@@ -162,7 +155,7 @@ namespace Smartstore.Core.Messages
             return new Money(price, currency);
         }
 
-        private async Task<MediaFileInfo> GetMediaFileForAsync(Product product, ProductVariantAttributeSelection attrSelection = null)
+        private async Task<MediaFileInfo> GetMediaFileFor(Product product, ProductVariantAttributeSelection attrSelection = null)
         {
             var attrParser = _services.Resolve<IProductAttributeMaterializer>();
             var mediaService = _services.Resolve<IMediaService>();

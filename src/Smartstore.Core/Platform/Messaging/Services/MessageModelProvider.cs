@@ -18,6 +18,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
@@ -74,13 +75,10 @@ namespace Smartstore.Core.Messages
             _emailAccountService = emailAccountService;
             _localizationService = localizationService;
             _urlHelper = urlHelper;
-
-            T = NullLocalizer.InstanceEx;
-            Logger = NullLogger.Instance;
         }
 
-        public LocalizerEx T { get; set; }
-        public ILogger Logger { get; set; }
+        public LocalizerEx T { get; set; } = NullLocalizer.InstanceEx;
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public virtual async Task AddGlobalModelPartsAsync(MessageContext messageContext)
         {
@@ -221,9 +219,9 @@ namespace Smartstore.Core.Messages
                 case Address x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
-                //case Shipment x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
+                case Shipment x:
+                    modelPart = await CreateModelPartAsync(x, messageContext);
+                    break;
                 case OrderNote x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
@@ -242,9 +240,9 @@ namespace Smartstore.Core.Messages
                 case Campaign x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
-                //case ProductReview x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
+                case ProductReview x:
+                    modelPart = await CreateModelPartAsync(x, messageContext);
+                    break;
                 //case BlogComment x:
                 //    modelPart = await CreateModelPartAsync(x, messageContext);
                 //    break;
@@ -547,7 +545,7 @@ namespace Smartstore.Core.Messages
             var catalogSettings = await _services.SettingFactory.LoadSettingsAsync<CatalogSettings>((int)messageContext.StoreId);
 
             var currencyService = _services.Resolve<ICurrencyService>();
-            // TODO: (mh) (core) > Do this right
+            // TODO: (mh) (core) > Do this right when ProductUrlHelper is available
             //var productUrlHelper = _services.Resolve<ProductUrlHelper>();
 
             var quantityUnit = await _db.QuantityUnits.FindByIdAsync(part.QuantityUnitId ?? 0);
@@ -559,7 +557,7 @@ namespace Smartstore.Core.Messages
             // TODO: (mh) (core) > Do this right
             //var url = BuildUrl(productUrlHelper.GetProductUrl(part.Id, part.GetSeName(messageContext.Language.Id), attributesXml), messageContext);
             var url = string.Empty;
-            var file = await GetMediaFileForAsync(part, attrSelection);
+            var file = await GetMediaFileFor(part, attrSelection);
             var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;
             var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).Value;
 

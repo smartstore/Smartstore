@@ -291,7 +291,7 @@ namespace Smartstore.Core.Messages
                 if (bundleData.Any())
                 {
                     var productIds = bundleData.Select(x => x.ProductId).ToArray();
-                    var products = await _db.Products.Where(x => productIds.Contains(x.Id)).ToListAsync();
+                    var products = await _db.Products.GetManyAsync(productIds);
                     var productsDic = products.ToDictionarySafe(x => x.Id, x => x);
 
                     bundleItems = bundleData
@@ -370,7 +370,7 @@ namespace Smartstore.Core.Messages
             {
                 { "Id", part.Id },
                 { "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) },
-                // TODO: (mh) (core) Uncomment when available.
+                // TODO: (mh) (core) Uncomment when FormatOrderNoteText is available.
                 //{ "Text", part.FormatOrderNoteText().NullEmpty() }
             };
 
@@ -403,7 +403,7 @@ namespace Smartstore.Core.Messages
 
             var itemParts = new List<object>();
 
-            // TODO: (mh) (core) Uncomment when available.
+            // TODO: (mh) (core) Uncomment when IOrderService is available.
             //var orderService = _services.Resolve<IOrderService>();
             //var orderItems = orderService.GetOrderItemsByOrderIds(new int[] { part.OrderId })[part.OrderId];
             //var orderItemsDic = orderItems.ToDictionarySafe(x => x.Id);
@@ -483,7 +483,7 @@ namespace Smartstore.Core.Messages
             return m;
         }
 
-        // TODO: (mh) (core) Uncomment when available.
+        //// TODO: (mh) (core) Uncomment when available.
         //protected virtual object CreateModelPart(ReturnRequest part, MessageContext messageContext)
         //{
         //    Guard.NotNull(messageContext, nameof(messageContext));
