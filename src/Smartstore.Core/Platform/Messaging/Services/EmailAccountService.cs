@@ -24,7 +24,7 @@ namespace Smartstore.Core.Messages
 
         protected override async Task<HookResult> OnDeletingAsync(EmailAccount entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if ((await _db.EmailAccounts.CountAsync()) == 1)
+            if ((await _db.EmailAccounts.CountAsync(cancellationToken: cancelToken)) == 1)
                 throw new SmartException("You cannot delete this email account. At least one account is required.");
 
             return HookResult.Ok;

@@ -8,11 +8,11 @@ namespace Smartstore
     public static class CurrencyExtensions
     {
         /// <summary>
-        /// Round decimal up or down to the nearest multiple of denomination if activated for currency
+        /// Round decimal up or down to the nearest multiple of denomination if activated for currency.
         /// </summary>
-        /// <param name="value">Value to round</param>
+        /// <param name="value">Value to round.</param>
         /// <param name="currency">Currency. Rounding must be activated for this currency.</param>
-        /// <param name="roundingAmount">The rounding amount</param>
+        /// <param name="roundingAmount">The rounding amount.</param>
         /// <returns>Rounded value</returns>
         public static decimal RoundToNearest(this Currency currency, decimal value, out decimal roundingAmount)
         {
@@ -43,11 +43,11 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Rounds a value if rounding is enabled for the currency
+        /// Rounds a value if rounding is enabled for the currency.
         /// </summary>
-        /// <param name="value">Value to round</param>
+        /// <param name="value">Value to round.</param>
         /// <param name="currency">Currency</param>
-        /// <returns>Rounded value</returns>
+        /// <returns>Rounded value.</returns>
         public static decimal RoundIfEnabledFor(this Currency currency, decimal value)
         {
             Guard.NotNull(currency, nameof(currency));
@@ -63,7 +63,7 @@ namespace Smartstore
         /// <summary>
         /// Checks if a currency was configured for the domain ending.
         /// </summary>
-        /// <param name="domain">Domain to check</param>
+        /// <param name="domain">Domain to check.</param>
         public static bool HasDomainEnding(this Currency currency, string domain)
         {
             if (currency == null || domain.IsEmpty() || currency.DomainEndings.IsEmpty())
@@ -76,7 +76,7 @@ namespace Smartstore
         /// <summary>
         /// Returns the currency configured for the domain ending.
         /// </summary>
-        /// <param name="domain">Domain to check</param>
+        /// <param name="domain">Domain to check.</param>
         public static Currency GetByDomainEnding(this IEnumerable<Currency> currencies, string domain)
         {
             if (currencies == null || domain.IsEmpty())

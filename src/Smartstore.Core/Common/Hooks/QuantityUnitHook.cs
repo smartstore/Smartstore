@@ -28,7 +28,7 @@ namespace Smartstore.Core.Common.Hooks
                 var temp = new List<QuantityUnit> { entity };
                 var qus = await _db.QuantityUnits
                     .Where(x => x.IsDefault && x.Id != entity.Id)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken: cancelToken);
 
                 foreach (var qu in qus)
                 {

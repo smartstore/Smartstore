@@ -28,7 +28,7 @@ namespace Smartstore.Core.Common.Hooks
                 var temp = new List<DeliveryTime> { entity };
                 var query = await _db.DeliveryTimes
                     .Where(x => x.IsDefault == true && x.Id != entity.Id)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken: cancelToken);
 
                 foreach (var dt in query)
                 {
