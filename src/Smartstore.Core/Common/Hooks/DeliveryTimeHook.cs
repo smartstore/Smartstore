@@ -3,7 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
+using Smartstore.Data;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Common.Hooks
@@ -40,45 +43,44 @@ namespace Smartstore.Core.Common.Hooks
         }
 
         /// <summary>
-        /// Prevents saving of delivery time if it's referenced in products or attribute combinations.
+        /// Prevents saving of delivery time if it's referenced in products or attribute combinations 
+        /// and removes associations to deleted products and attribute combinations.
         /// </summary>
         protected override async Task<HookResult> OnDeletingAsync(DeliveryTime entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            // TODO: (MH) (core) Implement when attributes are available
             // Remove associations to deleted products.
-            //using (var scope = new DbContextScope(_productRepository.Context, autoDetectChanges: false, validateOnSave: false, hooksEnabled: false, autoCommit: false))
-            //{
-            //    var productsQuery = _productRepository.Table.Where(x => x.Deleted && x.DeliveryTimeId == entity.Id);
-            //    var productsPager = new FastPager<Product>(productsQuery, 500);
+            var productsQuery = _db.Products
+                .Where(x => x.Deleted && x.DeliveryTimeId == entity.Id);
 
-            //    while (productsPager.ReadNextPage(out var products))
-            //    {
-            //        if (products.Any())
-            //        {
-            //            products.Each(x => x.DeliveryTimeId = null);
-            //            scope.Commit();
-            //        }
-            //    }
+            var productsPager = new FastPager<Product>(productsQuery, 500);
 
-            //    var attributeCombinationQuery =
-            //        from ac in _attributeCombinationRepository.Table
-            //        join p in _productRepository.Table on ac.ProductId equals p.Id
-            //        where p.Deleted && ac.DeliveryTimeId == entity.Id
-            //        select ac;
+            while (productsPager.ReadNextPage(out var products))
+            {
+                if (products.Any())
+                {
+                    products.Each(x => x.DeliveryTimeId = null);
+                    _db.SaveChanges();
+                }
+            }
 
-            //    var attributeCombinationPager = new FastPager<ProductVariantAttributeCombination>(attributeCombinationQuery, 1000);
+            var attributeCombinationQuery =
+                from ac in _db.ProductVariantAttributeCombinations
+                join p in _db.Products.AsNoTracking() on ac.ProductId equals p.Id
+                where p.Deleted && ac.DeliveryTimeId == entity.Id
+                select ac;
 
-            //    while (attributeCombinationPager.ReadNextPage(out var attributeCombinations))
-            //    {
-            //        if (attributeCombinations.Any())
-            //        {
-            //            attributeCombinations.Each(x => x.DeliveryTimeId = null);
-            //            scope.Commit();
-            //        }
-            //    }
-            //}
+            var attributeCombinationPager = new FastPager<ProductVariantAttributeCombination>(attributeCombinationQuery, 1000);
 
-            // IsAssociated
+            while (attributeCombinationPager.ReadNextPage(out var attributeCombinations))
+            {
+                if (attributeCombinations.Any())
+                {
+                    attributeCombinations.Each(x => x.DeliveryTimeId = null);
+                    _db.SaveChanges();
+                }
+            }
+
+            // Warn and throw if there are associations to active products or attribute combinations.
             var query =
                 from x in _db.Products
                 where x.DeliveryTimeId == entity.Id || x.ProductVariantAttributeCombinations.Any(c => c.DeliveryTimeId == entity.Id)
@@ -86,7 +88,9 @@ namespace Smartstore.Core.Common.Hooks
 
             if (await query.AnyAsync(cancellationToken: cancelToken))
             {
-                throw new SmartException("The delivery time cannot be deleted. It has associated product variants.");
+                // Prohibit saving of associated entities.
+                entry.State = Smartstore.Data.EntityState.Detached;
+                throw new SmartException("The delivery time cannot be deleted. It has associated product or product variants.");
             }
 
             return HookResult.Ok;
