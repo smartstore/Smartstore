@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Customers;
 
 namespace Smartstore
 {
@@ -9,12 +10,13 @@ namespace Smartstore
     public static class ShoppingCartQueryExtensions
     {
         /// <summary>        
-        /// Applies standard filter for store id and shopping cart type
+        /// Applies standard filter for store id, shopping cart type and customer mapping
         /// </summary>
-        public static IQueryable<ShoppingCartItem> ApplyStandardFilter(
+        public static IOrderedQueryable<ShoppingCartItem> ApplyStandardFilter(
             this IQueryable<ShoppingCartItem> query,
             ShoppingCartType type = ShoppingCartType.ShoppingCart,
-            int storeId = 0)
+            int storeId = 0,
+            Customer customer = null)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -23,9 +25,14 @@ namespace Smartstore
                 query = query.Where(x => x.StoreId == storeId);
             }
 
+            if (customer != null)
+            {
+                query = query.Where(x => x.CustomerId == customer.Id);
+            }
+
             query = query.Where(x => x.ShoppingCartTypeId == (int)type);
 
-            return query;
+            return query.OrderByDescending(x => x.Id);
         }
     }
 }
