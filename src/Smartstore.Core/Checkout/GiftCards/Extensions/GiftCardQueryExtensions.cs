@@ -11,7 +11,7 @@ namespace Smartstore
     public static class GiftCardQueryExtensions
     {
         /// <summary>
-        /// Applies date time filter to gift cards query
+        /// Applies date time filter to gift cards query.
         /// </summary>
         public static IQueryable<GiftCard> ApplyTimeFilter(this IQueryable<GiftCard> query, DateTime? startTime = null, DateTime? endTime = null)
         {
@@ -44,14 +44,14 @@ namespace Smartstore
         /// <summary>
         /// Applies standard filter to gift cards query.
         /// Store filter is applied based on <see cref="GiftCard.PurchasedWithOrderItem"/> store identifier.
-        /// May exclude not activated gift cards
+        /// May exclude not activated gift cards.
         /// </summary>        
         /// <remarks>
-        /// Access <see cref="GiftCard.PurchasedWithOrderItem"/> and <see cref="OrderItem.Order"/>. 
-        /// The caller is responsible for eager loading
+        /// Accesses <see cref="GiftCard.PurchasedWithOrderItem"/> and <see cref="OrderItem.Order"/>. 
+        /// The caller is responsible for eager loading.
         /// </remarks>
         /// <returns>
-        /// Valid gift cards for store with <see cref="storeId"/> ordered descending by <see cref="GiftCard.CreatedOnUtc"/>
+        /// Valid gift cards for store with <see cref="storeId"/> ordered descending by <see cref="GiftCard.CreatedOnUtc"/>.
         /// </returns>
         public static IOrderedQueryable<GiftCard> ApplyStandardFilter(this IQueryable<GiftCard> query, int storeId = 0, bool includeInactive = false)
         {
@@ -70,10 +70,10 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Applies order filter to gift cards query
+        /// Applies order filter to gift cards query.
         /// </summary>
         /// <returns>
-        /// Gift cards filtered by <see cref="orderIds"/> and ordered by identifiers
+        /// Gift cards filtered by <see cref="orderIds"/> and ordered by identifiers.
         /// </returns>
         public static IOrderedQueryable<GiftCard> ApplyOrderFilter(this IQueryable<GiftCard> query, int[] orderIds)
         {

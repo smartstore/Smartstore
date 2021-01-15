@@ -48,6 +48,7 @@ namespace Smartstore.Core.Checkout.GiftCards
             }
 
             // Get valid gift cards (remaining useable amount > 0)
+            // TODO: (ms) (core) Test this! Will most probably fail.
             var giftCards = query
                 .Select(x => new AppliedGiftCard
                 {

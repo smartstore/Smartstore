@@ -156,7 +156,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
                                     if (includeHyperlinks)
                                     {
-                                        // TODO: add a method for getting URL (use routing because it handles all SEO friendly URLs).
+                                        // TODO: (core) add a method for getting URL (use routing because it handles all SEO friendly URLs).
                                         var downloadLink = _webHelper.GetStoreLocation(false) + "download/getfileupload/?downloadId=" + download.DownloadGuid;
                                         attributeText = $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{fileName}</a>";
                                     }
