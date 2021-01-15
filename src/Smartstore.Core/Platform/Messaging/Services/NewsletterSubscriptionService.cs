@@ -156,7 +156,7 @@ namespace Smartstore.Core.Messages
             if (!subscription.Active)
             {
                 // Ensure that entity is tracked.
-                _db.TryChangeState(subscription, Microsoft.EntityFrameworkCore.EntityState.Modified);
+                _db.TryChangeState(subscription, EntityState.Modified);
 
                 subscription.Active = true;
                 return true;
@@ -172,7 +172,7 @@ namespace Smartstore.Core.Messages
             if (subscription.Active)
             {
                 // Ensure that entity is tracked.
-                _db.TryChangeState(subscription, Microsoft.EntityFrameworkCore.EntityState.Modified);
+                _db.TryChangeState(subscription, EntityState.Modified);
 
                 subscription.Active = false;
                 return true;
