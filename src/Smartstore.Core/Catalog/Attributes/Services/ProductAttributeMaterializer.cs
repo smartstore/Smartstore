@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +9,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes
@@ -37,6 +35,9 @@ namespace Smartstore.Core.Catalog.Attributes
             _performanceSettings = performanceSettings;
         }
 
+        // TODO: (mg) (core) Check whether IProductAttributeMaterializer.PrefetchProductVariantAttributes is still required.
+        // Looks like it can be done by MaterializeProductVariantAttributeValuesAsync.
+
         public virtual async Task<IList<ProductVariantAttribute>> MaterializeProductVariantAttributesAsync(ProductVariantAttributeSelection selection)
         {
             Guard.NotNull(selection, nameof(selection));
@@ -49,12 +50,14 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 var query = _db.ProductVariantAttributes
                     .Include(x => x.ProductAttribute)
+                    .Include(x => x.ProductVariantAttributeValues)
                     .AsNoTracking()
                     .AsCaching(ProductAttributesCacheDuration)
                     .Where(x => pvaIds.Contains(x.Id));
 
                 var attributes = await query.ToListAsync();
-                return attributes;
+
+                return attributes.OrderBySequence(pvaIds).ToList();
             }
 
             return new List<ProductVariantAttribute>();
@@ -67,6 +70,7 @@ namespace Smartstore.Core.Catalog.Attributes
             var valueIds = selection.GetAttributeValueIds();
             if (valueIds.Any())
             {
+                // Only consider values of list control types. Otherwise for instance text entered in a text-box is misinterpreted as an attribute value id.
                 var query = _db.ProductVariantAttributeValues
                     .Include(x => x.ProductVariantAttribute)
                         .ThenInclude(x => x.ProductAttribute)
@@ -106,7 +110,7 @@ namespace Smartstore.Core.Catalog.Attributes
             return new List<ProductVariantAttributeValue>();
         }
 
-        // Depending on caller it will probably become obsolete:
+        // TODO: (mg) (core) Check whether IProductAttributeMaterializer.MaterializeProductVariantAttributeValues is still required.
         public virtual IList<ProductVariantAttributeValue> MaterializeProductVariantAttributeValues(ProductVariantAttributeSelection selection, IEnumerable<ProductVariantAttribute> attributes)
         {
             var result = new List<ProductVariantAttributeValue>();
