@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
+using Smartstore.Core.Security;
 using Smartstore.Imaging;
 using Smartstore.IO;
 using Smartstore.Utilities;
@@ -23,7 +24,7 @@ namespace Smartstore.Core.Content.Media
 
         public SmartDbContext Db { get; set; }
         public IMediaService MediaService { get; set; }
-        //public IPermissionService PermissionService { get; set; }
+        public IPermissionService PermissionService { get; set; }
         public Customer CurrentCustomer { get; set; }
         public HttpContext HttpContext { get; set; }
 
@@ -69,10 +70,9 @@ namespace Smartstore.Core.Content.Media
                 // File must exist
                 if (mediaFile != null)
                 {
-                    //// TODO: (core) Uncomment when IPermissionService is available
-                    //// Serve deleted or hidden files only with sufficient permission
-                    //if ((mediaFile.Deleted || mediaFile.Hidden) && !PermissionService.Authorize(Permissions.Media.Update, CurrentCustomer))
-                    //    return null;
+                    // Serve deleted or hidden files only with sufficient permission
+                    if ((mediaFile.Deleted || mediaFile.Hidden) && !PermissionService.Authorize(Permissions.Media.Update, CurrentCustomer))
+                        return null;
 
                     //// File's mime must match requested mime
                     //if (!mediaFile.MimeType.IsCaseInsensitiveEqual(prevMime ?? pathData.MimeType))

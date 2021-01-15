@@ -313,6 +313,7 @@ namespace Smartstore.Core.Content.Media
             // (perf) batch result data...
             await foreach (var batch in tracks.SliceAsync(500))
             {
+                cancelToken.ThrowIfCancellationRequested();
                 // process the batch
                 await TrackManyCoreAsync(batch, albumName);
             }
