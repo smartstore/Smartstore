@@ -41,7 +41,7 @@ namespace Smartstore.Core.Content.Media.Imaging
         {
         }
 
-        public ProcessImageQuery(object source, QueryCollection query)
+        public ProcessImageQuery(object source, IQueryCollection query)
         {
             Source = source;
             DisposeSource = true;
@@ -158,7 +158,7 @@ namespace Smartstore.Core.Content.Media.Imaging
 
         private T Get<T>(string name)
         {
-            return this[name].Convert<T>();
+            return this[name].ToString().Convert<T>();
         }
 
         private void Set<T>(string name, T val)

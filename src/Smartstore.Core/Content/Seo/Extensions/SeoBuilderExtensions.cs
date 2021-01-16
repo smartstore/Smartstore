@@ -24,8 +24,6 @@ namespace Microsoft.AspNetCore.Builder
         /// <summary>
         /// Maps XML sitemap endpoints ({culture}/sitemap.xml and sitemap.xml)
         /// </summary>
-        /// <param name="endpoints"></param>
-        /// <returns></returns>
         public static IEndpointConventionBuilder MapXmlSitemap(this IEndpointRouteBuilder endpoints)
         {
             Guard.NotNull(endpoints, nameof(endpoints));

@@ -232,7 +232,7 @@ namespace Smartstore.Web
 
         public override void MapRoutes(EndpointRoutingBuilder builder)
         {
-            builder.MapRoutes(StarterOrdering.EarlyMiddleware, routes =>
+            builder.MapRoutes(StarterOrdering.EarlyRoute, routes =>
             {
                 //routes.MapControllerRoute(
                 //    name: "areas",

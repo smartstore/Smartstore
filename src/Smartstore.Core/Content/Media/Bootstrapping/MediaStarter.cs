@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
-using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
@@ -21,6 +20,14 @@ namespace Smartstore.Core.Bootstrapping
 {
     public class MediaStarter : StarterBase
     {
+        public override void MapRoutes(EndpointRoutingBuilder builder)
+        {
+            builder.MapRoutes(StarterOrdering.FirstRoute, endpoints =>
+            {
+                endpoints.MapMedia();
+            });
+        }
+
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             //// Utils
