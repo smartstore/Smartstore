@@ -20,9 +20,17 @@ namespace Smartstore.Core.Content.Media
                 return downloads.ToList();
             }
 
-            // TODO: (core) Implement SemanticVersion
             var orderedIds = downloads
-                .Select(x => new { x.Id, Version = new Version(x.FileVersion.HasValue() ? x.FileVersion : "0.0") });
+                .Select(d =>
+                {
+                    var strVer = d.FileVersion.NullEmpty() ?? "0.0";
+                    if (!SemanticVersion.TryParse(strVer, out var semVer))
+                    {
+                        semVer = new SemanticVersion(0);
+                    }
+
+                    return new { d.Id, Version = semVer };
+                });
 
             if (descending)
             {
