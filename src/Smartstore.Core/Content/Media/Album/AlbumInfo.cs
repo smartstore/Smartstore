@@ -28,19 +28,25 @@ namespace Smartstore.Core.Content.Media
         public bool IsSystemAlbum { get; set; }
 
         /// <summary>
-        /// <c>true</c> when the provider (<see cref="IAlbumProvider"/>) also implements <see cref="IMediaTrackDetector"/>.
-        /// </summary>
-        public bool IsTrackDetector { get; set; }
-
-        /// <summary>
         /// Info about how to display the album by the media manager UI
         /// </summary>
         public AlbumDisplayHint DisplayHint { get; set; }
 
         /// <summary>
+        /// <c>true</c> if at least one (<see cref="IMediaTrackDetector"/>) implementation
+        /// can detect tracks for this album.
+        /// </summary>
+        public bool HasTrackDetector => TrackDetectorTypes?.Length > 0;
+
+        /// <summary>
+        /// The types of the matching concrete <see cref="IMediaTrackDetector"/> implementations.
+        /// </summary>
+        public Type[] TrackDetectorTypes { get; set; }
+
+        /// <summary>
         /// Reflection info about trackable properties.
         /// </summary>
-        public TrackedMediaProperty[] TrackedProperties { get; set; } = new TrackedMediaProperty[0];
+        public TrackedMediaProperty[] TrackedProperties { get; set; } = Array.Empty<TrackedMediaProperty>();
     }
 
     public class AlbumDisplayHint

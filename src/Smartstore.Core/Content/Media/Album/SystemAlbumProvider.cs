@@ -121,6 +121,15 @@ namespace Smartstore.Core.Content.Media
 
         #region Tracking
 
+        public bool MatchAlbum(string albumName)
+        {
+            return albumName switch
+            {
+                Catalog or Content or Downloads or Messages or Customers => true,
+                _ => false,
+            };
+        }
+
         public void ConfigureTracks(string albumName, TrackedMediaPropertyTable table)
         {
             if (albumName == Catalog)

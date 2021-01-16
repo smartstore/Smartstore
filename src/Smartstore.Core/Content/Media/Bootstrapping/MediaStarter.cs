@@ -68,6 +68,13 @@ namespace Smartstore.Core.Bootstrapping
                 builder.RegisterType(type).As<IAlbumProvider>().Keyed<IAlbumProvider>(type).InstancePerLifetimeScope();
             }
 
+            // Register all track detectors
+            var trackDetectorTypes = appContext.TypeScanner.FindTypes<IMediaTrackDetector>(ignoreInactiveModules: true);
+            foreach (var type in trackDetectorTypes)
+            {
+                builder.RegisterType(type).As<IMediaTrackDetector>().Keyed<IMediaTrackDetector>(type).InstancePerLifetimeScope();
+            }
+
             // Handlers
             builder.RegisterType<ImageHandler>().As<IMediaHandler>().InstancePerLifetimeScope();
         }

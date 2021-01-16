@@ -34,7 +34,7 @@ namespace Smartstore.Core.Content.Media
         private readonly IAlbumRegistry _albumRegistry;
         private readonly IFolderService _folderService;
         private readonly MediaSettings _mediaSettings;
-        private readonly IIndex<Type, IAlbumProvider> _albumProviderFactory;
+        private readonly IIndex<Type, IMediaTrackDetector> _trackDetectorFactory;
 
         private bool _makeFilesTransientWhenOrphaned;
 
@@ -46,7 +46,7 @@ namespace Smartstore.Core.Content.Media
             IAlbumRegistry albumRegistry,
             IFolderService folderService,
             MediaSettings mediaSettings,
-            IIndex<Type, IAlbumProvider> albumProviderFactory)
+            IIndex<Type, IMediaTrackDetector> trackDetectorFactory)
         {
             _cache = cache;
             _db = db;
@@ -55,7 +55,7 @@ namespace Smartstore.Core.Content.Media
             _albumRegistry = albumRegistry;
             _folderService = folderService;
             _mediaSettings = mediaSettings;
-            _albumProviderFactory = albumProviderFactory;
+            _trackDetectorFactory = trackDetectorFactory;
 
             _makeFilesTransientWhenOrphaned = _mediaSettings.MakeFilesTransientWhenOrphaned;
         }
@@ -297,21 +297,40 @@ namespace Smartstore.Core.Content.Media
                 throw new InvalidOperationException(T("Admin.Media.Exception.AlbumNonexistent", albumName));
             }
 
-            // load corresponding detector provider for current album...
-            var provider = _albumProviderFactory[albumInfo.ProviderType] as IMediaTrackDetector;
-            if (provider == null)
+            if (!albumInfo.HasTrackDetector)
             {
                 throw new InvalidOperationException(T("Admin.Media.Exception.AlbumNoTrack", albumName));
             }
 
-            // first delete all tracks for current album...
+            // Load corresponding track detectors for current album...
+            var trackDetectors = albumInfo
+                .TrackDetectorTypes
+                .Select(x => _trackDetectorFactory[x])
+                .ToArray();
+
+            // First delete all tracks for current album...
             await DeleteAllTracksAsync(albumName);
 
-            // >>>>> DO detection (potentially a very long process)...
-            var tracks = provider.DetectAllTracksAsync(albumName, cancelToken);
+            IAsyncEnumerable<MediaTrack> allTracks = null;
 
-            // (perf) batch result data...
-            await foreach (var batch in tracks.SliceAsync(500))
+            for (int i = 0; i < trackDetectors.Length; i++)
+            {
+                // >>>>> DO detection (potentially a long process)...
+                var tracks = trackDetectors[i].DetectAllTracksAsync(albumName, cancelToken);
+
+                if (i == 0)
+                {
+                    allTracks = tracks;
+                }
+                else if (allTracks != null)
+                {
+                    // Must be this way to prevent namespace collision with EF.
+                    allTracks = Dasync.Collections.IAsyncEnumerableExtensions.Concat(allTracks, tracks);
+                }
+            }
+
+            // (perf) Batch result data...
+            await foreach (var batch in allTracks.SliceAsync(500))
             {
                 cancelToken.ThrowIfCancellationRequested();
                 // process the batch

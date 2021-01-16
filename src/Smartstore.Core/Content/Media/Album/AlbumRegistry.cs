@@ -15,15 +15,18 @@ namespace Smartstore.Core.Content.Media
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
         private readonly IEnumerable<Lazy<IAlbumProvider>> _albumProviders;
+        private readonly IEnumerable<Lazy<IMediaTrackDetector>> _trackDetectors;
 
         public AlbumRegistry(
             SmartDbContext db,
             ICacheManager cache,
-            IEnumerable<Lazy<IAlbumProvider>> albumProviders)
+            IEnumerable<Lazy<IAlbumProvider>> albumProviders,
+            IEnumerable<Lazy<IMediaTrackDetector>> trackDetectors)
         {
             _db = db;
             _cache = cache;
             _albumProviders = albumProviders;
+            _trackDetectors = trackDetectors;
         }
 
         public virtual IReadOnlyCollection<AlbumInfo> GetAllAlbums()
@@ -40,7 +43,7 @@ namespace Smartstore.Core.Content.Media
                 return dict.Keys;
             }
 
-            return dict.Where(x => x.Value.IsTrackDetector).Select(x => x.Key).ToArray();
+            return dict.Where(x => x.Value.HasTrackDetector).Select(x => x.Key).ToArray();
         }
 
         private Dictionary<string, AlbumInfo> GetAlbumDictionary()
@@ -61,6 +64,8 @@ namespace Smartstore.Core.Content.Media
                 .Select(x => new { x.Id, x.Name })
                 .ToDictionary(x => x.Name);
 
+            var trackDetectors = _trackDetectors.Select(x => x.Value).ToArray();
+
             foreach (var lazyProvider in _albumProviders)
             {
                 var provider = lazyProvider.Value;
@@ -68,35 +73,37 @@ namespace Smartstore.Core.Content.Media
 
                 foreach (var album in albums)
                 {
-                    var info = new AlbumInfo
+                    var albumTrackDetectors = trackDetectors.Where(x => x.MatchAlbum(album.Name));
+
+                    var albumInfo = new AlbumInfo
                     {
                         Name = album.Name,
                         ProviderType = provider.GetType(),
                         IsSystemAlbum = typeof(SystemAlbumProvider) == provider.GetType(),
-                        DisplayHint = provider.GetDisplayHint(album) ?? new AlbumDisplayHint()
+                        DisplayHint = provider.GetDisplayHint(album) ?? new AlbumDisplayHint(),
+                        TrackDetectorTypes = albumTrackDetectors.Select(x => x.GetType()).ToArray()
                     };
 
-                    if (provider is IMediaTrackDetector detector)
+                    if (albumInfo.HasTrackDetector)
                     {
                         var propertyTable = new TrackedMediaPropertyTable(album.Name);
-                        detector.ConfigureTracks(album.Name, propertyTable);
+                        albumTrackDetectors.Each(detector => detector.ConfigureTracks(album.Name, propertyTable));
+                        albumInfo.TrackedProperties = propertyTable.GetProperties();
 
-                        info.IsTrackDetector = true;
-                        info.TrackedProperties = propertyTable.GetProperties();
                     }
 
                     if (dbAlbums.TryGetValue(album.Name, out var dbAlbum))
                     {
-                        info.Id = dbAlbum.Id;
+                        albumInfo.Id = dbAlbum.Id;
                     }
                     else
                     {
                         _db.MediaAlbums.Add(album);
                         _db.SaveChanges();
-                        info.Id = album.Id;
+                        albumInfo.Id = album.Id;
                     }
 
-                    yield return info;
+                    yield return albumInfo;
                 }
             }
         }
