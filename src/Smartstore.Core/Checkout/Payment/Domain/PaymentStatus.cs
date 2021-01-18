@@ -1,32 +1,32 @@
 ﻿namespace Smartstore.Core.Checkout.Payment
 {
     /// <summary>
-    /// Represents a payment status
+    /// Represents a payment status.
     /// </summary>
     public enum PaymentStatus
     {
         /// <summary>
-        /// Pending
+        /// Pending.
         /// </summary>
         Pending = 10,
         /// <summary>
-        /// Authorized
+        /// Authorized.
         /// </summary>
         Authorized = 20,
         /// <summary>
-        /// Paid
+        /// Paid.
         /// </summary>
         Paid = 30,
         /// <summary>
-        /// Partially Refunded
+        /// Partially Refunded.
         /// </summary>
         PartiallyRefunded = 35,
         /// <summary>
-        /// Refunded
+        /// Refunded.
         /// </summary>
         Refunded = 40,
         /// <summary>
-        /// Voided
+        /// Voided.
         /// </summary>
         Voided = 50,
     }

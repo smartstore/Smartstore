@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Core.Checkout.Payment
 {
     /// <summary>
-    /// The reason for the automatic recording of the payment amount
+    /// The reason for the automatic recording of the payment amount.
     /// </summary>
     public enum CapturePaymentReason
     {

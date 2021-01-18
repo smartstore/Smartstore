@@ -14,16 +14,16 @@ namespace Smartstore.Core.Checkout.Payment
     {
         public void Configure(EntityTypeBuilder<RecurringPayment> builder)
         {
-            builder.HasOne(rp => rp.InitialOrder)
+            builder.HasOne(x => x.InitialOrder)
                 .WithMany()
-                .HasForeignKey(o => o.InitialOrderId)
+                .HasForeignKey(x => x.InitialOrderId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
     /// <summary>
-    /// Represents a recurring payment
+    /// Represents a recurring payment.
     /// </summary>
     public partial class RecurringPayment : EntityWithAttributes, ISoftDeletable
     {
@@ -39,17 +39,17 @@ namespace Smartstore.Core.Checkout.Payment
         }
 
         /// <summary>
-        /// Gets or sets the cycle length
+        /// Gets or sets the cycle length.
         /// </summary>
         public int CycleLength { get; set; }
 
         /// <summary>
-        /// Gets or sets the cycle period identifier
+        /// Gets or sets the cycle period identifier.
         /// </summary>
         public int CyclePeriodId { get; set; }
 
         /// <summary>
-        /// Gets or sets the payment status
+        /// Gets or sets the payment status.
         /// </summary>
         [NotMapped]
         public RecurringProductCyclePeriod CyclePeriod
@@ -59,44 +59,43 @@ namespace Smartstore.Core.Checkout.Payment
         }
 
         /// <summary>
-        /// Gets or sets the total cycles
+        /// Gets or sets the total cycles.
         /// </summary>
         public int TotalCycles { get; set; }
 
         /// <summary>
-        /// Gets or sets the start date
+        /// Gets or sets the start date.
         /// </summary>
         public DateTime StartDateUtc { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the payment is active
+        /// Gets or sets a value indicating whether the payment is active.
         /// </summary>
         public bool IsActive { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the entity has been deleted
+        /// Gets or sets a value indicating whether the entity has been deleted.
         /// </summary>
         public bool Deleted { get; set; }
 
         /// <summary>
-        /// Gets or sets the initial order identifier
+        /// Gets or sets the initial order identifier.
         /// </summary>
         public int InitialOrderId { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of payment creation
+        /// Gets or sets the date and time of payment creation.
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }
 
         /// <summary>
-        /// Gets the next payment date
+        /// Gets the next payment date.
         /// </summary>
         [NotMapped]
         public DateTime? NextPaymentDate
         {
             get
             {
-
                 if (!IsActive || RecurringPaymentHistory.Count >= TotalCycles)
                     return null;
 
@@ -122,14 +121,14 @@ namespace Smartstore.Core.Checkout.Payment
         }
 
         /// <summary>
-        /// Gets the cycles remaining
+        /// Gets the cycles remaining.
         /// </summary>
         [NotMapped]
         public int CyclesRemaining => Math.Clamp(TotalCycles - RecurringPaymentHistory.Count, 0, int.MaxValue);
 
         private ICollection<RecurringPaymentHistory> _recurringPaymentHistory;
         /// <summary>
-        /// Gets or sets the recurring payment history
+        /// Gets or sets the recurring payment history.
         /// </summary>
         public ICollection<RecurringPaymentHistory> RecurringPaymentHistory
         {
@@ -139,7 +138,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         private Order _initialOrder;
         /// <summary>
-        /// Gets the initial order
+        /// Gets the initial order.
         /// </summary>
         public Order InitialOrder
         {

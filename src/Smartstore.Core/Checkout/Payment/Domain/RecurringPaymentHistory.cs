@@ -18,7 +18,7 @@ namespace Smartstore.Core.Checkout.Payment
     }
 
     /// <summary>
-    /// Represents a recurring payment history
+    /// Represents a recurring payment history.
     /// </summary>
     public partial class RecurringPaymentHistory : BaseEntity
     {
@@ -34,23 +34,23 @@ namespace Smartstore.Core.Checkout.Payment
         }
 
         /// <summary>
-        /// Gets or sets the recurring payment identifier
+        /// Gets or sets the recurring payment identifier.
         /// </summary>
         public int RecurringPaymentId { get; set; }
 
         /// <summary>
-        /// Gets or sets the recurring payment identifier
+        /// Gets or sets the recurring payment identifier.
         /// </summary>
         public int OrderId { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of entity creation
+        /// Gets or sets the date and time of entity creation.
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }
 
         private RecurringPayment _recurringPayment;
         /// <summary>
-        /// Gets the recurring payment
+        /// Gets the recurring payment.
         /// </summary>
         public RecurringPayment RecurringPayment
         {
