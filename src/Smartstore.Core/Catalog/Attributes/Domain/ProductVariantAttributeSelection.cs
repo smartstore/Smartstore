@@ -69,7 +69,6 @@ namespace Smartstore.Core.Catalog.Attributes
         string Message { get; }
     }
 
-    [Serializable]
     public class GiftCardAttributes : IGiftCardAttributes
     {
         public string RecipientName { get; set; }
