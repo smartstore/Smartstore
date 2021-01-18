@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Caching;
 using Smartstore.Events;
 
 // TODO: (ms) (core) needs multiple services and refactoring (wip)
@@ -124,6 +126,10 @@ namespace Smartstore.Core.Checkout.Cart
                 var query = _db.ShoppingCartItems
                     .Include(x => x.Product.ProductVariantAttributes)
                     .ApplyStandardFilter(cartType, storeId, customer);
+
+                //// TODO: (ms) (core) PrefetchProductVariantAttributes is missing.
+                //// Perf: Prefetch (load) all attribute values in any of the attribute definitions across all cart items (including any bundle part)
+                //_productAttributeMaterializer.PrefetchProductVariantAttributes(items.Select(x => x.AttributesXml));
 
                 return OrganizeCartItemsAsync(query.ToList());
             });
