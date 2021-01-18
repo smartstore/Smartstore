@@ -323,6 +323,7 @@ namespace Smartstore.Core.Catalog.Products
                         product.Published = newPublished;
 
                         // TODO: (mg) (core) ProductService.AdjustInventoryAsync doesn't send SendQuantityBelowStoreOwnerNotification anymore. Must be sent by caller after (!) database commit.
+                        // TODO: (mg) (core) The caller should definitely NOT be responsible for figuring out, when and how to publish messages. That would be extremely bad API design.
                         //if (decrease && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
                         //{
                         //    _services.MessageFactory.SendQuantityBelowStoreOwnerNotification(product, _localizationSettings.DefaultAdminLanguageId);

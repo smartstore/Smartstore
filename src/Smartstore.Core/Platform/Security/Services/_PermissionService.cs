@@ -370,7 +370,7 @@ namespace Smartstore.Core.Security
             {
                 if (clearCache)
                 {
-                    _cache.RemoveByPattern(PERMISSION_TREE_PATTERN_KEY);
+                    await _cache.RemoveByPatternAsync(PERMISSION_TREE_PATTERN_KEY);
                 }
             }
         }
