@@ -104,10 +104,15 @@ namespace Smartstore.Core.Checkout.Attributes
                         else if (currentAttribute.AttributeControlType is AttributeControlType.FileUpload)
                         {
                             Guid.TryParse(currentValue, out var downloadGuid);
-                            var download = await _db.Downloads.Where(x => x.DownloadGuid == downloadGuid).FirstOrDefaultAsync();
+
+                            var download = await _db.Downloads
+                                .Include(x => x.MediaFile)
+                                .Where(x => x.DownloadGuid == downloadGuid)
+                                .FirstOrDefaultAsync();
+
                             if (download?.MediaFile != null)
                             {
-                                var genratedUrl = await _mediaService.GetUrlAsync(download.MediaFileId, 0);
+                                var genratedUrl = _mediaService.GetUrl(download.MediaFile, 0);
                                 // TODO: (ms) (core) add a method for getting URL (use routing because it handles all SEO friendly URLs) ?
                                 var attributeText = string.Empty;
                                 var fileName = download.MediaFile.Name;
