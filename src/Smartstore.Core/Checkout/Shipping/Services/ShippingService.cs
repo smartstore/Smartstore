@@ -86,14 +86,15 @@ namespace Smartstore.Core.Checkout.Shipping
                     .ThenInclude(x => x.Product)
                 .ApplyValueFilter(attributeValueIds)
                 .Where(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage
-                && x.ProductVariantAttribute.Product != null
-                && x.ProductVariantAttribute.Product.IsShippingEnabled
-                || x.ValueTypeId != (int)ProductVariantAttributeValueType.ProductLinkage);
+                    && x.ProductVariantAttribute.Product != null
+                    && x.ProductVariantAttribute.Product.IsShippingEnabled
+                    || x.ValueTypeId != (int)ProductVariantAttributeValueType.ProductLinkage);
 
             // Calculates attributes weight
             // Get attributes without product linkage > add attribute weight adjustment
             var attributesWeight = await query
                 .Where(x => x.ValueTypeId != (int)ProductVariantAttributeValueType.ProductLinkage)
+                // TODO: (ms) (core) Test possible SumAsync SQL projection failure (IIF)
                 .SumAsync(x => x.WeightAdjustment * (multipliedByQuantity ? x.Quantity : 1));
 
             // TODO: (ms) (core) needs to be tested with NullResult
