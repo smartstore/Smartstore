@@ -155,6 +155,8 @@ namespace Smartstore.Core.Checkout.Cart
 
                 var parentItem = new OrganizedShoppingCartItem(parent);
 
+                // TODO: (ms) (core) Reduce database roundtrips in OrganizeCartItemsAsync
+
                 foreach (var child in children)
                 {
                     var childItem = new OrganizedShoppingCartItem(child);
