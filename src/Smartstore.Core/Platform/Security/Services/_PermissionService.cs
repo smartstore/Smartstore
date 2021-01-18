@@ -103,14 +103,15 @@ namespace Smartstore.Core.Security
         };
 
         private readonly SmartDbContext _db;
-        //private readonly IWorkContext _workContext;
-        //private readonly ILocalizationService _localizationService;
+        private readonly IWorkContext _workContext;
+        private readonly ILocalizationService _localizationService;
         private readonly ICacheManager _cache;
 
+        // TODO: (mg) (core) Fix Autofac exception in PermissionService ctor.
         public PermissionService(
             SmartDbContext db,
             //IWorkContext workContext,
-            //ILocalizationService localizationService
+            //ILocalizationService localizationService,
             ICacheManager cache)
         {
             _db = db;
@@ -119,7 +120,6 @@ namespace Smartstore.Core.Security
             _cache = cache;
         }
 
-        public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public bool Authorize(string permissionSystemName)
@@ -192,11 +192,6 @@ namespace Smartstore.Core.Security
             return Task.FromResult(new Dictionary<string, string>());
         }
 
-        public string GetDiplayName(string permissionSystemName)
-        {
-            return permissionSystemName;
-        }
-
         public Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false)
         {
             return Task.FromResult(new TreeNode<IPermissionNode>(new PermissionNode()));
@@ -207,158 +202,179 @@ namespace Smartstore.Core.Security
             return Task.FromResult(new TreeNode<IPermissionNode>(new PermissionNode()));
         }
 
-        public string GetUnauthorizedMessage(string permissionSystemName)
+        public async Task<string> GetDiplayNameAsync(string permissionSystemName)
         {
-            return permissionSystemName;
+            var tokens = permissionSystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+            if (tokens.Any())
+            {
+                var language = _workContext.WorkingLanguage;
+                var resourcesLookup = await GetDisplayNameLookup(language.Id);
+
+                return await GetDisplayName(tokens, language.Id, resourcesLookup);
+            }
+
+            return string.Empty;
         }
 
-        public void InstallPermissions(IPermissionProvider[] permissionProviders, bool removeUnusedPermissions = false)
+        public async Task<string> GetUnauthorizedMessageAsync(string permissionSystemName)
         {
-            //if (!(permissionProviders?.Any() ?? false))
-            //{
-            //    return;
-            //}
+            var displayName = await GetDiplayNameAsync(permissionSystemName);
+            var message = await _localizationService.GetResourceAsync("Admin.AccessDenied.DetailedDescription");
 
-            //var allPermissionNames = await _db.PermissionRecords
-            //    .Select(x => x.SystemName)
-            //    .ToListAsync();
-
-            //Dictionary<string, CustomerRole> existingRoles = null;
-            //var existing = new HashSet<string>(allPermissionNames, StringComparer.InvariantCultureIgnoreCase);
-            //var added = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-            //var providerPermissions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
-            //var log = existing.Any();
-            //var clearCache = false;
-
-            //if (existing.Any())
-            //{
-            //    var permissionsMigrated = existing.Contains(Permissions.System.AccessShop) && !existing.Contains("PublicStoreAllowNavigation");
-            //    if (!permissionsMigrated)
-            //    {
-            //        // Migrations must have been completed before permissions can be added or deleted.
-            //        return;
-            //    }
-            //}
-
-            //try
-            //{
-            //    using (var scope = new DbContextScope(_db, hooksEnabled: false))
-            //    {
-            //        // Add new permissions.
-            //        foreach (var provider in permissionProviders)
-            //        {
-            //            try
-            //            {
-            //                var systemNames = provider.GetPermissions().Select(x => x.SystemName);
-            //                var missingSystemNames = systemNames.Except(existing);
-
-            //                if (removeUnusedPermissions)
-            //                {
-            //                    providerPermissions.AddRange(systemNames);
-            //                }
-
-            //                if (missingSystemNames.Any())
-            //                {
-            //                    var defaultPermissions = provider.GetDefaultPermissions();
-            //                    foreach (var systemName in missingSystemNames)
-            //                    {
-            //                        var roleNames = defaultPermissions
-            //                            .Where(x => x.PermissionRecords.Any(y => y.SystemName == systemName))
-            //                            .Select(x => x.CustomerRoleSystemName);
-
-            //                        var newPermission = new PermissionRecord { SystemName = systemName };
-
-            //                        foreach (var roleName in new HashSet<string>(roleNames, StringComparer.InvariantCultureIgnoreCase))
-            //                        {
-            //                            if (existingRoles == null)
-            //                            {
-            //                                existingRoles = new Dictionary<string, CustomerRole>();
-
-            //                                var rolesPager = _db.CustomerRoles
-            //                                    .AsNoTracking()
-            //                                    .Where(x => !string.IsNullOrEmpty(x.SystemName))
-            //                                    .ToFastPager(500);
-
-            //                                while ((await rolesPager.ReadNextPageAsync<CustomerRole>()).Out(out var roles))
-            //                                {
-            //                                    roles.Each(x => existingRoles[x.SystemName] = x);
-            //                                }
-            //                            }
-
-            //                            if (!existingRoles.TryGetValue(roleName, out var role))
-            //                            {
-            //                                role = new CustomerRole
-            //                                {
-            //                                    Active = true,
-            //                                    Name = roleName,
-            //                                    SystemName = roleName
-            //                                };
-
-            //                                await _db.CustomerRoles.AddAsync(role);
-
-            //                                await scope.CommitAsync();
-            //                                existingRoles[roleName] = role;
-            //                            }
-
-            //                            newPermission.PermissionRoleMappings.Add(new PermissionRoleMapping
-            //                            {
-            //                                Allow = true,
-            //                                CustomerRoleId = role.Id
-            //                            });
-            //                        }
-
-            //                        await _db.PermissionRecords.AddAsync(newPermission);
-
-            //                        clearCache = true;
-            //                        added.Add(newPermission.SystemName);
-            //                        existing.Add(newPermission.SystemName);
-            //                    }
-            //                }
-            //            }
-            //            catch (Exception ex)
-            //            {
-            //                //Logger.Error(ex);
-            //            }
-            //        }
-
-            //        await scope.CommitAsync();
-
-            //        if (log && added.Any())
-            //        {
-            //            //Logger.Info(T("Admin.Permissions.AddedPermissions", string.Join(", ", added)));
-            //        }
-
-            //        // Remove permissions no longer supported by providers.
-            //        if (removeUnusedPermissions)
-            //        {
-            //            var toDelete = existing.Except(providerPermissions).ToList();
-            //            if (toDelete.Any())
-            //            {
-            //                clearCache = true;
-
-            //                foreach (var chunk in toDelete.Slice(500))
-            //                {
-            //                    await _db.PermissionRecords
-            //                        .Where(x => chunk.Contains(x.SystemName))
-            //                        .BatchDeleteAsync();
-            //                }
-
-            //                if (log)
-            //                {
-            //                    //Logger.Info(T("Admin.Permissions.RemovedPermissions", string.Join(", ", toDelete)));
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-            //finally
-            //{
-            //    if (clearCache)
-            //    {
-            //        _cache.RemoveByPattern(PERMISSION_TREE_PATTERN_KEY);
-            //    }
-            //}
+            return message.FormatInvariant(displayName.NaIfEmpty(), permissionSystemName.NaIfEmpty());
         }
+
+        public async Task InstallPermissionsAsync(IPermissionProvider[] permissionProviders, bool removeUnusedPermissions = false)
+        {
+            if (!(permissionProviders?.Any() ?? false))
+            {
+                return;
+            }
+
+            var allPermissionNames = await _db.PermissionRecords
+                .Select(x => x.SystemName)
+                .ToListAsync();
+
+            Dictionary<string, CustomerRole> existingRoles = null;
+            var existing = new HashSet<string>(allPermissionNames, StringComparer.InvariantCultureIgnoreCase);
+            var added = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            var providerPermissions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            var log = existing.Any();
+            var clearCache = false;
+
+            if (existing.Any())
+            {
+                var permissionsMigrated = existing.Contains(Permissions.System.AccessShop) && !existing.Contains("PublicStoreAllowNavigation");
+                if (!permissionsMigrated)
+                {
+                    // Migrations must have been completed before permissions can be added or deleted.
+                    return;
+                }
+            }
+
+            try
+            {
+                using (var scope = new DbContextScope(_db, hooksEnabled: false))
+                {
+                    // Add new permissions.
+                    foreach (var provider in permissionProviders)
+                    {
+                        try
+                        {
+                            var systemNames = provider.GetPermissions().Select(x => x.SystemName);
+                            var missingSystemNames = systemNames.Except(existing);
+
+                            if (removeUnusedPermissions)
+                            {
+                                providerPermissions.AddRange(systemNames);
+                            }
+
+                            if (missingSystemNames.Any())
+                            {
+                                var defaultPermissions = provider.GetDefaultPermissions();
+                                foreach (var systemName in missingSystemNames)
+                                {
+                                    var roleNames = defaultPermissions
+                                        .Where(x => x.PermissionRecords.Any(y => y.SystemName == systemName))
+                                        .Select(x => x.CustomerRoleSystemName);
+
+                                    var newPermission = new PermissionRecord { SystemName = systemName };
+
+                                    foreach (var roleName in new HashSet<string>(roleNames, StringComparer.InvariantCultureIgnoreCase))
+                                    {
+                                        if (existingRoles == null)
+                                        {
+                                            existingRoles = new Dictionary<string, CustomerRole>();
+
+                                            var rolesPager = _db.CustomerRoles
+                                                .AsNoTracking()
+                                                .Where(x => !string.IsNullOrEmpty(x.SystemName))
+                                                .ToFastPager(500);
+
+                                            while ((await rolesPager.ReadNextPageAsync<CustomerRole>()).Out(out var roles))
+                                            {
+                                                roles.Each(x => existingRoles[x.SystemName] = x);
+                                            }
+                                        }
+
+                                        if (!existingRoles.TryGetValue(roleName, out var role))
+                                        {
+                                            role = new CustomerRole
+                                            {
+                                                Active = true,
+                                                Name = roleName,
+                                                SystemName = roleName
+                                            };
+
+                                            await _db.CustomerRoles.AddAsync(role);
+
+                                            await scope.CommitAsync();
+                                            existingRoles[roleName] = role;
+                                        }
+
+                                        newPermission.PermissionRoleMappings.Add(new PermissionRoleMapping
+                                        {
+                                            Allow = true,
+                                            CustomerRoleId = role.Id
+                                        });
+                                    }
+
+                                    await _db.PermissionRecords.AddAsync(newPermission);
+
+                                    clearCache = true;
+                                    added.Add(newPermission.SystemName);
+                                    existing.Add(newPermission.SystemName);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex);
+                        }
+                    }
+
+                    await scope.CommitAsync();
+
+                    if (log && added.Any())
+                    {
+                        var message = await _localizationService.GetResourceAsync("Admin.Permissions.AddedPermissions");
+                        Logger.Info(message.FormatInvariant(string.Join(", ", added)));
+                    }
+
+                    // Remove permissions no longer supported by providers.
+                    if (removeUnusedPermissions)
+                    {
+                        var toDelete = existing.Except(providerPermissions).ToList();
+                        if (toDelete.Any())
+                        {
+                            clearCache = true;
+
+                            foreach (var chunk in toDelete.Slice(500))
+                            {
+                                await _db.PermissionRecords
+                                    .Where(x => chunk.Contains(x.SystemName))
+                                    .BatchDeleteAsync();
+                            }
+
+                            if (log)
+                            {
+                                var message = await _localizationService.GetResourceAsync("Admin.Permissions.RemovedPermissions");
+                                Logger.Info(message.FormatInvariant(string.Join(", ", toDelete)));
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                if (clearCache)
+                {
+                    _cache.RemoveByPattern(PERMISSION_TREE_PATTERN_KEY);
+                }
+            }
+        }
+
+        #region Utilities
 
         private void AddChildItems(TreeNode<IPermissionNode> parentNode, List<PermissionRecord> permissions, string path, Func<PermissionRecord, bool?> allow)
         {
@@ -392,67 +408,67 @@ namespace Smartstore.Core.Security
             }
         }
 
-        //private async Task AddDisplayName(TreeNode<IPermissionNode> node, int languageId, Dictionary<string, string> resourcesLookup)
-        //{
-        //    var tokens = node.Value.SystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-        //    var token = tokens.LastOrDefault();
-        //    var displayName = (await GetDisplayName(token, languageId, resourcesLookup)) ?? token ?? node.Value.SystemName;
+        private async Task AddDisplayName(TreeNode<IPermissionNode> node, int languageId, Dictionary<string, string> resourcesLookup)
+        {
+            var tokens = node.Value.SystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+            var token = tokens.LastOrDefault();
+            var displayName = (await GetDisplayName(token, languageId, resourcesLookup)) ?? token ?? node.Value.SystemName;
 
-        //    node.SetThreadMetadata("DisplayName", displayName);
+            node.SetThreadMetadata("DisplayName", displayName);
 
-        //    if (node.HasChildren)
-        //    {
-        //        foreach (var child in node.Children)
-        //        {
-        //            await AddDisplayName(child, languageId, resourcesLookup);
-        //        }
-        //    }
-        //}
+            if (node.HasChildren)
+            {
+                foreach (var children in node.Children)
+                {
+                    await AddDisplayName(children, languageId, resourcesLookup);
+                }
+            }
+        }
 
-        //private async Task<string> GetDisplayName(string[] tokens, int languageId, Dictionary<string, string> resourcesLookup)
-        //{
-        //    var displayName = string.Empty;
+        private async Task<string> GetDisplayName(string[] tokens, int languageId, Dictionary<string, string> resourcesLookup)
+        {
+            var displayName = string.Empty;
 
-        //    if (tokens?.Any() ?? false)
-        //    {
-        //        foreach (var token in tokens)
-        //        {
-        //            if (displayName.Length > 0)
-        //            {
-        //                displayName += " » ";
-        //            }
+            if (tokens?.Any() ?? false)
+            {
+                foreach (var token in tokens)
+                {
+                    if (displayName.Length > 0)
+                    {
+                        displayName += " » ";
+                    }
 
-        //            displayName += (await GetDisplayName(token, languageId, resourcesLookup)) ?? token ?? string.Empty;
-        //        }
-        //    }
+                    displayName += (await GetDisplayName(token, languageId, resourcesLookup)) ?? token ?? string.Empty;
+                }
+            }
 
-        //    return displayName;
-        //}
+            return displayName;
+        }
 
-        //private async Task<string> GetDisplayName(string token, int languageId, Dictionary<string, string> resourcesLookup)
-        //{
-        //    if (!string.IsNullOrWhiteSpace(token))
-        //    {
-        //        // Try known token of default permissions.
-        //        if (!_displayNameResourceKeys.TryGetValue(token, out var key) || !resourcesLookup.TryGetValue(key, out var name))
-        //        {
-        //            // Unknown token. Try to find resource by name convention.
-        //            key = "Permissions.DisplayName." + token.Replace("-", "");
+        private async Task<string> GetDisplayName(string token, int languageId, Dictionary<string, string> resourcesLookup)
+        {
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                // Try known token of default permissions.
+                if (!_displayNameResourceKeys.TryGetValue(token, out var key) || !resourcesLookup.TryGetValue(key, out var name))
+                {
+                    // Unknown token. Try to find resource by name convention.
+                    key = "Permissions.DisplayName." + token.Replace("-", "");
 
-        //            // Try resource provided by core.
-        //            name = await _localizationService.GetResourceAsync(key, languageId, false, string.Empty, true);
-        //            if (name.IsEmpty())
-        //            {
-        //                // Try resource provided by plugin.
-        //                name = await _localizationService.GetResourceAsync("Plugins." + key, languageId, false, string.Empty, true);
-        //            }
-        //        }
+                    // Try resource provided by core.
+                    name = await _localizationService.GetResourceAsync(key, languageId, false, string.Empty, true);
+                    if (name.IsEmpty())
+                    {
+                        // Try resource provided by plugin.
+                        name = await _localizationService.GetResourceAsync("Plugins." + key, languageId, false, string.Empty, true);
+                    }
+                }
 
-        //        return name;
-        //    }
+                return name;
+            }
 
-        //    return null;
-        //}
+            return null;
+        }
 
         private async Task<Dictionary<string, string>> GetDisplayNameLookup(int languageId)
         {
@@ -467,5 +483,7 @@ namespace Smartstore.Core.Security
 
             return resourcesLookup;
         }
+
+        #endregion
     }
 }

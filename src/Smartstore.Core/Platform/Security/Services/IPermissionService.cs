@@ -21,7 +21,7 @@ namespace Smartstore.Core.Security
         /// </summary>
         /// <param name="permissionProviders">Providers whose permissions are to be installed.</param>
         /// <param name="removeUnusedPermissions">Whether to remove permissions no longer supported by the providers.</param>
-        void InstallPermissions(IPermissionProvider[] permissionProviders, bool removeUnusedPermissions = false);
+        Task InstallPermissionsAsync(IPermissionProvider[] permissionProviders, bool removeUnusedPermissions = false);
 
         /// <summary>
         /// Checks whether given permission is granted.
@@ -97,13 +97,13 @@ namespace Smartstore.Core.Security
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
         /// <returns>Display name.</returns>
-        string GetDiplayName(string permissionSystemName);
+        Task<string> GetDiplayNameAsync(string permissionSystemName);
 
         /// <summary>
         /// Get detailed unauthorization message.
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
         /// <returns>Detailed unauthorization message</returns>
-        string GetUnauthorizedMessage(string permissionSystemName);
+        Task<string> GetUnauthorizedMessageAsync(string permissionSystemName);
     }
 }
