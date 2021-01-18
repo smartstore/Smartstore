@@ -15,10 +15,14 @@ namespace Smartstore.Core.Catalog.Products
     public partial class ProductService : IProductService
     {
         private readonly SmartDbContext _db;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
 
-        public ProductService(SmartDbContext db)
+        public ProductService(
+            SmartDbContext db,
+            IProductAttributeMaterializer productAttributeMaterializer)
         {
             _db = db;
+            _productAttributeMaterializer = productAttributeMaterializer;
         }
 
         public virtual async Task<(Product Product, ProductVariantAttributeCombination VariantCombination)> GetProductByIdentificationNumberAsync(
@@ -266,11 +270,7 @@ namespace Smartstore.Core.Catalog.Products
                         {
                             if (productsDic.TryGetValue(item.ProductId, out var product))
                             {
-                                await AdjustInventoryAsync(
-                                    product,
-                                    decrease,
-                                    quantity * item.Quantity,
-                                    new ProductVariantAttributeSelection(item.AttributesXml));
+                                await AdjustInventoryAsync(product, new ProductVariantAttributeSelection(item.AttributesXml), decrease, quantity * item.Quantity);
                             }
                         }
                     }
@@ -280,15 +280,14 @@ namespace Smartstore.Core.Catalog.Products
             }
             else
             {
-                return await AdjustInventoryAsync(orderItem.Product, decrease, quantity, new ProductVariantAttributeSelection(orderItem.AttributesXml));
+                return await AdjustInventoryAsync(orderItem.Product, new ProductVariantAttributeSelection(orderItem.AttributesXml), decrease, quantity);
             }
         }
 
-        // TODO: (mg) (core) Complete ProductService.AdjustInventoryAsync method.
-        // SendQuantityBelowStoreOwnerNotification should be send by caller after (!) database commit.
-        public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, bool decrease, int quantity, ProductVariantAttributeSelection attributes)
+        public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, ProductVariantAttributeSelection selection, bool decrease, int quantity)
         {
             Guard.NotNull(product, nameof(product));
+            Guard.NotNull(selection, nameof(selection));
 
             var result = new AdjustInventoryResult();
 
@@ -323,17 +322,16 @@ namespace Smartstore.Core.Catalog.Products
                         product.DisableWishlistButton = newDisableWishlistButton;
                         product.Published = newPublished;
 
-                        // Send email notification.
-                        if (decrease && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
-                        {
-                            //_services.MessageFactory.SendQuantityBelowStoreOwnerNotification(product, _localizationSettings.DefaultAdminLanguageId);
-                        }
+                        // TODO: (mg) (core) ProductService.AdjustInventoryAsync doesn't send SendQuantityBelowStoreOwnerNotification anymore. Must be sent by caller after (!) database commit.
+                        //if (decrease && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
+                        //{
+                        //    _services.MessageFactory.SendQuantityBelowStoreOwnerNotification(product, _localizationSettings.DefaultAdminLanguageId);
+                        //}
                     }
                     break;
                 case ManageInventoryMethod.ManageStockByAttributes:
                     {
-                        //var combination = _productAttributeMaterializer.FindProductVariantAttributeCombination(product.Id, attributes);
-                        ProductVariantAttributeCombination combination = null;
+                        var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
                         if (combination != null)
                         {
                             result.StockQuantityOld = combination.StockQuantity;
@@ -352,9 +350,8 @@ namespace Smartstore.Core.Catalog.Products
                     break;
             }
 
-            //var attributeValues = _productAttributeMaterializer.ParseProductVariantAttributeValues(attributes);
-            var attributeValues = new List<ProductVariantAttributeValue>();
-            
+            var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
+
             var productLinkageValues = attributeValues
                 .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
                 .ToList();
@@ -369,7 +366,7 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     if (linkedProductsDic.TryGetValue(value.LinkedProductId, out var linkedProduct))
                     {
-                        await AdjustInventoryAsync(linkedProduct, decrease, quantity * value.Quantity, null);
+                        await AdjustInventoryAsync(linkedProduct, null, decrease, quantity * value.Quantity);
                     }
                 }
             }

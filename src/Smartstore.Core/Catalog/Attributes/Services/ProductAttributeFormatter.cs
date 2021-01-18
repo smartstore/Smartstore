@@ -27,6 +27,7 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly IPriceFormatter _priceFormatter;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
+        private readonly ILocalizationService _localizationService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CatalogSettings _catalogSettings;
 
@@ -38,6 +39,7 @@ namespace Smartstore.Core.Catalog.Attributes
             IPriceFormatter priceFormatter,
             ITaxService taxService,
             ICurrencyService currencyService,
+            ILocalizationService localizationService,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
         {
@@ -48,6 +50,7 @@ namespace Smartstore.Core.Catalog.Attributes
             _priceFormatter = priceFormatter;
             _taxService = taxService;
             _currencyService = currencyService;
+            _localizationService = localizationService;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
         }
@@ -191,7 +194,28 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (includeGiftCardAttributes && product.IsGiftCard)
             {
-                // TODO: (mg) (core) Complete ProductAttributeFormatter.FormatAttributesAsync (GiftCardAttributeSelection required).
+                var gca = selection.GetGiftCardAttributes();
+                if (gca != null)
+                {
+                    // Sender.
+                    var giftCardFrom = product.GiftCardType == GiftCardType.Virtual
+                        ? (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Virtual")).FormatInvariant(gca.SenderName, gca.SenderEmail)
+                        : (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Physical")).FormatInvariant(gca.SenderName);
+
+                    // Recipient.
+                    var giftCardFor = product.GiftCardType == GiftCardType.Virtual
+                        ? (await _localizationService.GetResourceAsync("GiftCardAttribute.For.Virtual")).FormatInvariant(gca.RecipientName, gca.RecipientEmail)
+                        : (await _localizationService.GetResourceAsync("GiftCardAttribute.For.Physical")).FormatInvariant(gca.RecipientName);
+
+                    if (htmlEncode)
+                    {
+                        giftCardFrom = HttpUtility.HtmlEncode(giftCardFrom);
+                        giftCardFor = HttpUtility.HtmlEncode(giftCardFor);
+                    }
+
+                    result.Grow(giftCardFrom, separator);
+                    result.Grow(giftCardFor, separator);
+                }
             }
 
             return result.ToString();

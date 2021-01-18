@@ -82,10 +82,7 @@ namespace Smartstore.Domain
 
                 foreach (var element in attributeElements)
                 {
-                    var id = element
-                        .Attribute("ID")
-                        .Value
-                        .Convert<int>();
+                    var id = element.Attribute("ID")?.Value?.Convert<int>() ?? 0;
 
                     var values = element
                         .Descendants(attributeValueName)

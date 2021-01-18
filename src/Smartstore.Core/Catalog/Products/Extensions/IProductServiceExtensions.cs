@@ -27,9 +27,9 @@ namespace Smartstore.Core.Catalog.Products
                     {
                         await productService.AdjustInventoryAsync(
                             child.Item.Product,
+                            new ProductVariantAttributeSelection(child.Item.AttributesXml),
                             decrease,
-                            item.Item.Quantity * child.Item.Quantity,
-                            new ProductVariantAttributeSelection(child.Item.AttributesXml));
+                            item.Item.Quantity * child.Item.Quantity);
                     }
                 }
 
@@ -38,10 +38,10 @@ namespace Smartstore.Core.Catalog.Products
             else
             {
                 return await productService.AdjustInventoryAsync(
-                    item.Item.Product, 
+                    item.Item.Product,
+                    new ProductVariantAttributeSelection(item.Item.AttributesXml),
                     decrease, 
-                    item.Item.Quantity,
-                    new ProductVariantAttributeSelection(item.Item.AttributesXml));
+                    item.Item.Quantity);
             }
         }
     }

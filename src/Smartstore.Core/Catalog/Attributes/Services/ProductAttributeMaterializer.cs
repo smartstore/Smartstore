@@ -176,6 +176,22 @@ namespace Smartstore.Core.Catalog.Attributes
             return null;
         }
 
+        public virtual async Task<ProductVariantAttributeCombination> MergeWithCombinationAsync(Product product, ProductVariantAttributeSelection selection)
+        {
+            var combination = await FindAttributeCombinationAsync(product.Id, selection);
+
+            if (combination != null && combination.IsActive)
+            {
+                product.MergeWithCombination(combination);
+            }
+            else if (product.MergedDataValues != null)
+            {
+                product.MergedDataValues.Clear();
+            }
+
+            return combination;
+        }
+
         public virtual async Task<CombinationAvailabilityInfo> IsCombinationAvailableAsync(
             Product product,
             IEnumerable<ProductVariantAttribute> attributes,

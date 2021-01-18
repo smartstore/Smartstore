@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Common;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 
@@ -12,33 +9,8 @@ namespace Smartstore.Core.Catalog.Products
 {
     public static partial class ProductExtensions
     {
-        // TODO: (mg) (core) Add MergeWithCombination extension method for products.
-        //public static ProductVariantAttributeCombination MergeWithCombination(this Product product, string selectedAttributes, IProductAttributeMaterializer productAttributeMaterializer)
-        //{
-        //    Guard.NotNull(productAttributeMaterializer, nameof(productAttributeMaterializer));
-
-        //    if (selectedAttributes.IsEmpty())
-        //    {
-        //        return null;
-        //    }
-
-        //    // Let's find appropriate record.
-        //    var combination = productAttributeMaterializer.FindProductVariantAttributeCombination(product.Id, selectedAttributes);
-
-        //    if (combination != null && combination.IsActive)
-        //    {
-        //        product.MergeWithCombination(combination);
-        //    }
-        //    else if (product.MergedDataValues != null)
-        //    {
-        //        product.MergedDataValues.Clear();
-        //    }
-
-        //    return combination;
-        //}
-
         /// <summary>
-        /// Merges the data of an attribute combination with those of the product.
+        /// Applies data of an attribute combination to the product.
         /// </summary>
         /// <param name="product">Target product entity.</param>
         /// <param name="combination">Source attribute combination.</param>
@@ -253,7 +225,7 @@ namespace Smartstore.Core.Catalog.Products
                 .ToArray();
         }
 
-        // TODO: (mg) (core) Add GetBasePriceInfo extension method for products.
+        // TODO: (mg) (core) Move GetBasePriceInfoAsync extension method to IPriceCalculationService (it has too many dependencies).
         /// <summary>
         /// Gets the base price info.
         /// </summary>

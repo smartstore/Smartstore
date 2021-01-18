@@ -41,6 +41,14 @@ namespace Smartstore.Core.Catalog.Attributes
         Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection);
 
         /// <summary>
+        /// Finds an attribute combination by attribute selection and applies its data to the product.
+        /// </summary>
+        /// <param name="product">Product entity.</param>
+        /// <param name="selection">Attribute selection.</param>
+        /// <returns>Found attribute combination or <c>null</c> if none was found.</returns>
+        Task<ProductVariantAttributeCombination> MergeWithCombinationAsync(Product product, ProductVariantAttributeSelection selection);
+
+        /// <summary>
         /// Returns informations about the availability of an attribute combination.
         /// </summary>
         /// <param name="product">Product.</param>
