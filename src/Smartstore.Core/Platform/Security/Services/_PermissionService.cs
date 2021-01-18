@@ -319,6 +319,7 @@ namespace Smartstore.Core.Security
                                         });
                                     }
 
+                                    // TODO: (mg) (core) DbSet.AddAsync() does not save anything. It just begins tracking!
                                     await _db.PermissionRecords.AddAsync(newPermission);
 
                                     clearCache = true;
