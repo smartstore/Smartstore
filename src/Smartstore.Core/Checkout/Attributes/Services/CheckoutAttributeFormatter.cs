@@ -8,6 +8,7 @@ using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
+using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 using System;
 using System.Collections.Immutable;
@@ -65,7 +66,7 @@ namespace Smartstore.Core.Checkout.Attributes
 
             customer ??= _workContext.CurrentCustomer;
 
-            var result = new StringBuilder();            
+            using var psb = StringBuilderPool.Instance.Get(out var sb);            
             var attributesList = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(selection);
             if (attributesList.IsNullOrEmpty())
                 return null;
@@ -103,7 +104,7 @@ namespace Smartstore.Core.Checkout.Attributes
                         else if (currentAttribute.AttributeControlType is AttributeControlType.FileUpload)
                         {
                             Guid.TryParse(currentValue, out var downloadGuid);
-                            var download = await _db.Downloads.Where(x=>x.DownloadGuid == downloadGuid).FirstOrDefaultAsync();
+                            var download = await _db.Downloads.Where(x => x.DownloadGuid == downloadGuid).FirstOrDefaultAsync();
                             if (download?.MediaFile != null)
                             {
                                 var genratedUrl = _mediaService.GetUrlAsync(download.MediaFileId, 0);
@@ -190,15 +191,15 @@ namespace Smartstore.Core.Checkout.Attributes
                     {
                         if (i != 0 || j != 0)
                         {
-                            result.Append(serapator);
+                            sb.Append(serapator);
                         }
 
-                        result.Append(attributeStr);
+                        sb.Append(attributeStr);
                     }
                 }
             }
 
-            return result.ToString();
+            return sb.ToString();
         }
     }
 }
