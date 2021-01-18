@@ -337,7 +337,7 @@ namespace Smartstore.Core.Catalog.Attributes
                     var combination = new ProductVariantAttributeCombination
                     {
                         ProductId = productId,
-                        AttributesXml = attributeSelection.AsJson(),
+                        RawAttributes = attributeSelection.AsJson(),
                         StockQuantity = 10000,
                         AllowOutOfStockOrders = true,
                         IsActive = true

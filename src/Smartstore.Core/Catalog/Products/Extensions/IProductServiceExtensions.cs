@@ -27,7 +27,7 @@ namespace Smartstore.Core.Catalog.Products
                     {
                         await productService.AdjustInventoryAsync(
                             child.Item.Product,
-                            new ProductVariantAttributeSelection(child.Item.AttributesXml),
+                            new ProductVariantAttributeSelection(child.Item.RawAttributes),
                             decrease,
                             item.Item.Quantity * child.Item.Quantity);
                     }
@@ -39,7 +39,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 return await productService.AdjustInventoryAsync(
                     item.Item.Product,
-                    new ProductVariantAttributeSelection(item.Item.AttributesXml),
+                    new ProductVariantAttributeSelection(item.Item.RawAttributes),
                     decrease, 
                     item.Item.Quantity);
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(ManufacturerPartNumber), Name = "IX_ManufacturerPartNumber")]
     [Index(nameof(IsActive), Name = "IX_IsActive")]
     [Index(nameof(StockQuantity), nameof(AllowOutOfStockOrders), Name = "IX_StockQuantity_AllowOutOfStockOrders")]
-    public partial class ProductVariantAttributeCombination : BaseEntity
+    public partial class ProductVariantAttributeCombination : BaseEntity, IAttributeAware
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -163,10 +164,10 @@ namespace Smartstore.Core.Catalog.Attributes
         }
 
         /// <summary>
-        /// Gets or sets the attributes XML.
+        /// Gets or sets the attributes in XML or JSON format
         /// </summary>
-        [StringLength(4000)]
-        public string AttributesXml { get; set; }
+        [Column("AttributesXml"), StringLength(4000)]
+        public string RawAttributes { get; set; }
 
         /// <summary>
         /// Gets or sets the stock quantity.

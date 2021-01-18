@@ -35,7 +35,7 @@ namespace Smartstore.Core.Checkout.Cart
     /// Represents a shopping cart item
     /// </summary>
     [Index(nameof(ShoppingCartTypeId), nameof(CustomerId), Name = "IX_ShoppingCartItem_ShoppingCartTypeId_CustomerId")]
-    public partial class ShoppingCartItem : EntityWithAttributes, IAuditable
+    public partial class ShoppingCartItem : EntityWithAttributes, IAuditable, IAttributeAware
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -74,10 +74,10 @@ namespace Smartstore.Core.Checkout.Cart
 		public int ProductId { get; set; }
 
         /// <summary>
-        /// Gets or sets the product variant attributes
+        /// Gets or sets the product variant attributes in XML or JSON format
         /// </summary>
-        [MaxLength]
-        public string AttributesXml { get; set; }
+        [Column("AttributesXml"), MaxLength]
+        public string RawAttributes { get; set; }
 
         /// <summary>
         /// Gets or sets the price enter by a customer
@@ -164,5 +164,6 @@ namespace Smartstore.Core.Checkout.Cart
         [NotMapped]
         public bool IsTaxExempt 
             => Product != null && Product.IsTaxExempt;
+
     }
 }

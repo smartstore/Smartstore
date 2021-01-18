@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -30,7 +31,7 @@ namespace Smartstore.Core.Checkout.Orders
     /// <summary>
     /// Represents an order item
     /// </summary>
-    public partial class OrderItem : BaseEntity
+    public partial class OrderItem : BaseEntity, IAttributeAware
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -104,10 +105,10 @@ namespace Smartstore.Core.Checkout.Orders
         public string AttributeDescription { get; set; }
 
         /// <summary>
-        /// Gets or sets the product variant attributes in XML format
+        /// Gets or sets the product variant attributes in XML or JSON format
         /// </summary>
-        [MaxLength]
-        public string AttributesXml { get; set; }
+        [Column("AttributesXml"), MaxLength]
+        public string RawAttributes { get; set; }
 
         /// <summary>
         /// Gets or sets the download count

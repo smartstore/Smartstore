@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 using Smartstore.ComponentModel.TypeConverters;
+using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -29,7 +30,7 @@ namespace Smartstore.Core.Catalog.Products
     /// Contains the deserialised bundle item data of an ordered product.
     /// </summary>
     [Serializable]
-    public partial class ProductBundleItemOrderData
+    public partial class ProductBundleItemOrderData : IAttributeAware
     {
         public int BundleItemId { get; set; }
         public int ProductId { get; set; }
@@ -40,7 +41,7 @@ namespace Smartstore.Core.Catalog.Products
         public int Quantity { get; set; }
         public decimal PriceWithDiscount { get; set; }
         public int DisplayOrder { get; set; }
-        public string AttributesXml { get; set; }
+        public string RawAttributes { get; set; }
         public string AttributesInfo { get; set; }
         public bool PerItemShoppingCart { get; set; }
     }

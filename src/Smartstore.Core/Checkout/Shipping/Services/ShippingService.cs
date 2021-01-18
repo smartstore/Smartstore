@@ -60,14 +60,14 @@ namespace Smartstore.Core.Checkout.Shipping
         {
             Guard.NotNull(cart, nameof(cart));
 
-            var rawCartAttributes = cart
-                .Where(x => x.Item.AttributesXml.HasValue())
-                .Select(x => x.Item.AttributesXml);
+            var rawAttributes = cart
+                .Where(x => x.Item.RawAttributes.HasValue())
+                .Select(x => x.Item.RawAttributes);
 
             var selection = new ProductVariantAttributeSelection(string.Empty);
-            foreach (var rawCartAttribute in rawCartAttributes)
+            foreach (var rawAttribute in rawAttributes)
             {
-                var attributeSelection = new ProductVariantAttributeSelection(rawCartAttribute);
+                var attributeSelection = new ProductVariantAttributeSelection(rawAttribute);
                 foreach (var attribute in attributeSelection.AttributesMap)
                 {
                     if (attribute.Value.IsNullOrEmpty())
@@ -163,7 +163,7 @@ namespace Smartstore.Core.Checkout.Shipping
             if (cartItem.Item.Product is null)
                 return decimal.Zero;
 
-            var attributesWeight = cartItem.Item.AttributesXml.HasValue()
+            var attributesWeight = cartItem.Item.RawAttributes.HasValue()
                 ? await GetCartItemsAttributesWeightAsync(new List<OrganizedShoppingCartItem> { cartItem }, false)
                 : decimal.Zero;
 

@@ -207,9 +207,10 @@ namespace Smartstore.Core.Checkout.Orders
         public string CheckoutAttributeDescription { get; set; }
 
         /// <summary>
-        /// Gets or sets the checkout attributes in XML format
+        /// Gets or sets the checkout attributes in XML or JSON format
         /// </summary>
-        public string CheckoutAttributesXml { get; set; }
+        [Column("CheckoutAttributesXml")]
+        public string RawAttributes { get; set; }
 
         /// <summary>
         /// Gets or sets the customer language identifier

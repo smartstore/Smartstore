@@ -46,7 +46,7 @@ namespace Smartstore.Core.Catalog.Products
                 Quantity = item.Quantity,
                 DisplayOrder = item.DisplayOrder,
                 PriceWithDiscount = priceWithDiscount,
-                AttributesXml = attributesXml,
+                RawAttributes = attributesXml,
                 AttributesInfo = attributesInfo,
                 PerItemShoppingCart = item.BundleProduct.BundlePerItemShoppingCart
             };

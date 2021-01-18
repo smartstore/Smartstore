@@ -270,7 +270,7 @@ namespace Smartstore.Core.Catalog.Products
                         {
                             if (productsDic.TryGetValue(item.ProductId, out var product))
                             {
-                                await AdjustInventoryAsync(product, new ProductVariantAttributeSelection(item.AttributesXml), decrease, quantity * item.Quantity);
+                                await AdjustInventoryAsync(product, new ProductVariantAttributeSelection(item.RawAttributes), decrease, quantity * item.Quantity);
                             }
                         }
                     }
@@ -280,7 +280,7 @@ namespace Smartstore.Core.Catalog.Products
             }
             else
             {
-                return await AdjustInventoryAsync(orderItem.Product, new ProductVariantAttributeSelection(orderItem.AttributesXml), decrease, quantity);
+                return await AdjustInventoryAsync(orderItem.Product, new ProductVariantAttributeSelection(orderItem.RawAttributes), decrease, quantity);
             }
         }
 

@@ -162,12 +162,12 @@ namespace Smartstore.Core.Catalog.Attributes
                 .AsNoTracking()
                 .AsCaching(ProductAttributesCacheDuration)
                 .Where(x => x.ProductId == productId)
-                .Select(x => new { x.Id, x.AttributesXml })
+                .Select(x => new { x.Id, x.RawAttributes })
                 .ToListAsync();
 
             foreach (var combination in combinations)
             {
-                if (selection.Equals(new ProductVariantAttributeSelection(combination.AttributesXml)))
+                if (selection.Equals(new ProductVariantAttributeSelection(combination.RawAttributes)))
                 {
                     return await _db.ProductVariantAttributeCombinations.FindByIdAsync(combination.Id);
                 }
@@ -235,7 +235,7 @@ namespace Smartstore.Core.Catalog.Attributes
                     {
                         foreach (var combination in combinations)
                         {
-                            var selection = new ProductVariantAttributeSelection(combination.AttributesXml);
+                            var selection = new ProductVariantAttributeSelection(combination.RawAttributes);
                             if (selection.AttributesMap.Any())
                             {
                                 // <ProductVariantAttribute.Id>:<ProductVariantAttributeValue.Id>[,...]

@@ -42,7 +42,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <param name="cartItem">Organized shopping cart item</param>
         /// <param name="multipliedByQuantity">Indicator whether the item weight is to be multiplied by the quantity (for several of the same item)</param>
         /// <remarks>
-        /// Includes additional <see cref="ProductVariantAttribute"/> weight calculations, if <c>cartItem</c> has <see cref="ShoppingCartItem.AttributesXml"/>
+        /// Includes additional <see cref="ProductVariantAttribute"/> weight calculations, if <c>cartItem</c> has <see cref="ShoppingCartItem.RawAttributes"/>
         /// </remarks>
         /// <returns>Shopping cart item weight</returns>
         Task<decimal> GetCartItemWeightAsync(OrganizedShoppingCartItem cartItem, bool multipliedByQuantity = true);

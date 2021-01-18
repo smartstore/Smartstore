@@ -153,11 +153,11 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     var childItem = new OrganizedShoppingCartItem(child);
 
-                    if (child.AttributesXml.HasValue()                        
+                    if (child.RawAttributes.HasValue()                        
                         && (parent.Product?.BundlePerItemPricing ?? false)
                         && child.BundleItem != null)
                     {
-                        var selection = new ProductVariantAttributeSelection(child.AttributesXml);
+                        var selection = new ProductVariantAttributeSelection(child.RawAttributes);
 
                         child.Product.MergeWithCombination(
                             await _productAttributeMaterializer.FindAttributeCombinationAsync(child.ProductId, selection));
