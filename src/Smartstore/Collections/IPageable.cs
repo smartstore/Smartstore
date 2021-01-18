@@ -80,7 +80,7 @@ namespace Smartstore.Collections
     /// <summary>
     /// Paged list interface
     /// </summary>
-    public interface IPagedList<T> : IPageable, IList<T>
+    public interface IPagedList<T> : IPageable, IList<T>, IAsyncEnumerable<T>
     {
         /// <summary>
         /// Gets underlying query without any paging applied
@@ -120,5 +120,4 @@ namespace Smartstore.Collections
         /// </summary>
         Task<int> GetTotalCountAsync();
     }
-
 }

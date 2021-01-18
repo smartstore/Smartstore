@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Threading;
+using Dasync.Collections;
 
 namespace Smartstore.Collections
 {
@@ -64,22 +66,22 @@ namespace Smartstore.Collections
 			}
 		}
 
-		private async Task EnsureIsLoadedAsync()
+		private async Task EnsureIsLoadedAsync(CancellationToken cancellationToken = default)
 		{
 			if (_list == null)
 			{
 				if (_totalCount == null)
 				{
-					_totalCount = await SourceQuery.CountAsync();
+					_totalCount = await SourceQuery.CountAsync(cancellationToken);
 				}
 
 				if (_queryIsPagedAlready)
 				{
-					_list = await SourceQuery.ToListAsync();
+					_list = await SourceQuery.ToListAsync(cancellationToken);
 				}
 				else
 				{
-					_list = await ApplyPaging(SourceQuery).ToListAsync();
+					_list = await ApplyPaging(SourceQuery).ToListAsync(cancellationToken);
 				}
 			}
 		}
@@ -173,23 +175,17 @@ namespace Smartstore.Collections
 
 		public int PageNumber
 		{
-			get
-			{
-				return this.PageIndex + 1;
-			}
-			set
-			{
-				this.PageIndex = value - 1;
-			}
+			get => PageIndex + 1;
+			set => PageIndex = value - 1;
 		}
 
 		public int TotalPages
 		{
 			get
 			{
-				var total = this.TotalCount / this.PageSize;
+				var total = TotalCount / PageSize;
 
-				if (this.TotalCount % this.PageSize > 0)
+				if (TotalCount % PageSize > 0)
 					total++;
 
 				return total;
@@ -198,50 +194,32 @@ namespace Smartstore.Collections
 
 		public bool HasPreviousPage
 		{
-			get
-			{
-				return this.PageIndex > 0;
-			}
+			get => PageIndex > 0;
 		}
 
 		public bool HasNextPage
 		{
-			get
-			{
-				return (this.PageIndex < (this.TotalPages - 1));
-			}
+			get => (PageIndex < (TotalPages - 1));
 		}
 
 		public int FirstItemIndex
 		{
-			get
-			{
-				return (this.PageIndex * this.PageSize) + 1;
-			}
+			get => (PageIndex * PageSize) + 1;
 		}
 
 		public int LastItemIndex
 		{
-			get
-			{
-				return Math.Min(this.TotalCount, ((this.PageIndex * this.PageSize) + this.PageSize));
-			}
+			get => Math.Min(TotalCount, ((PageIndex * PageSize) + PageSize));
 		}
 
 		public bool IsFirstPage
 		{
-			get
-			{
-				return (this.PageIndex <= 0);
-			}
+			get => (PageIndex <= 0);
 		}
 
 		public bool IsLastPage
 		{
-			get
-			{
-				return (this.PageIndex >= (this.TotalPages - 1));
-			}
+			get => (PageIndex >= (TotalPages - 1));
 		}
 
 		#endregion
@@ -296,7 +274,7 @@ namespace Smartstore.Collections
 
 		public bool IsReadOnly
 		{
-			get { return false; }
+			get => false;
 		}
 
 		public int IndexOf(T item)
@@ -344,6 +322,18 @@ namespace Smartstore.Collections
 			return _list.GetEnumerator();
 		}
 
+		public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+		{
+			await EnsureIsLoadedAsync(cancellationToken);
+
+			var e = _list.GetAsyncEnumerator<T>();
+			try
+			{
+				while (await e.MoveNextAsync()) yield return e.Current;
+			}
+			finally { if (e != null) await e.DisposeAsync(); }
+		}
+
 		#endregion
 
 		#region Utils
@@ -360,6 +350,6 @@ namespace Smartstore.Collections
 			return _list.AsReadOnly();
 		}
 
-		#endregion
-	}
+        #endregion
+    }
 }

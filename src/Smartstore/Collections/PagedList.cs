@@ -9,37 +9,37 @@ namespace Smartstore.Collections
     {
         protected PagedListBase()
         {
-            this.PageIndex = 0;
-            this.PageSize = 0;
-            this.TotalCount = 1;
+            PageIndex = 0;
+            PageSize = 0;
+            TotalCount = 1;
         }
 
         protected PagedListBase(IPageable pageable)
         {
-            this.Init(pageable);
+            Init(pageable);
         }
 
         protected PagedListBase(int pageIndex, int pageSize, int totalItemsCount)
         {
             Guard.PagingArgsValid(pageIndex, pageSize, "pageIndex", "pageSize");
 
-            this.PageIndex = pageIndex;
-            this.PageSize = pageSize;
-            this.TotalCount = totalItemsCount;
+            PageIndex = pageIndex;
+            PageSize = pageSize;
+            TotalCount = totalItemsCount;
         }
 
         public void LoadPagedList<T>(IPagedList<T> pagedList)
         {
-            this.Init(pagedList);
+            Init(pagedList);
         }
 
         protected void Init(IPageable pageable)
         {
             Guard.NotNull(pageable, "pageable");
 
-            this.PageIndex = pageable.PageIndex;
-            this.PageSize = pageable.PageSize;
-            this.TotalCount = pageable.TotalCount;
+            PageIndex = pageable.PageIndex;
+            PageSize = pageable.PageSize;
+            TotalCount = pageable.TotalCount;
         }
 
         public int PageIndex
@@ -62,26 +62,20 @@ namespace Smartstore.Collections
 
         public int PageNumber
         {
-            get
-            {
-                return this.PageIndex + 1;
-            }
-            set
-            {
-                this.PageIndex = value - 1;
-            }
+            get => PageIndex + 1;
+            set => PageIndex = value - 1;
         }
 
         public int TotalPages
         {
             get
             {
-                if (this.PageSize == 0)
+                if (PageSize == 0)
                     return 0;
 
-                var total = this.TotalCount / this.PageSize;
+                var total = TotalCount / PageSize;
 
-                if (this.TotalCount % this.PageSize > 0)
+                if (TotalCount % PageSize > 0)
                     total++;
 
                 return total;
@@ -90,50 +84,32 @@ namespace Smartstore.Collections
 
         public bool HasPreviousPage
         {
-            get
-            {
-                return this.PageIndex > 0;
-            }
+            get => PageIndex > 0;
         }
 
         public bool HasNextPage
         {
-            get
-            {
-                return (this.PageIndex < (this.TotalPages - 1));
-            }
+            get => (PageIndex < (TotalPages - 1));
         }
 
         public int FirstItemIndex
         {
-            get
-            {
-                return (this.PageIndex * this.PageSize) + 1;
-            }
+            get => (PageIndex * PageSize) + 1;
         }
 
         public int LastItemIndex
         {
-            get
-            {
-                return Math.Min(this.TotalCount, ((this.PageIndex * this.PageSize) + this.PageSize));
-            }
+            get => Math.Min(TotalCount, ((PageIndex * PageSize) + PageSize));
         }
 
         public bool IsFirstPage
         {
-            get
-            {
-                return (this.PageIndex <= 0);
-            }
+            get => (PageIndex <= 0);
         }
 
         public bool IsLastPage
         {
-            get
-            {
-                return (this.PageIndex >= (this.TotalPages - 1));
-            }
+            get => (PageIndex >= (TotalPages - 1));
         }
 
         public virtual IEnumerator GetEnumerator()
