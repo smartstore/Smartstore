@@ -11,12 +11,12 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Content.Topics
 {
-    public partial class TopicSitemapPublisher : IXmlSitemapPublisher
+    public partial class TopicXmlSitemapPublisher : IXmlSitemapPublisher
     {
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         
-        public TopicSitemapPublisher(
+        public TopicXmlSitemapPublisher(
             SmartDbContext db,
             IWorkContext workContext)
         {

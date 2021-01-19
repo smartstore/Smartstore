@@ -1,11 +1,16 @@
 ﻿using Autofac;
 using Smartstore.Core.Messages;
+using Smartstore.Engine;
+using Smartstore.Engine.Builders;
 
-namespace Smartstore.Core.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
-    public sealed class MessagingModule : Autofac.Module
+    public sealed class MessagingStarter : StarterBase
     {
-        protected override void Load(ContainerBuilder builder)
+        public override bool Matches(IApplicationContext appContext)
+            => appContext.IsInstalled;
+
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<EmailAccountService>().As<IEmailAccountService>().InstancePerLifetimeScope();
             builder.RegisterType<QueuedEmailService>().As<IQueuedEmailService>().InstancePerLifetimeScope();

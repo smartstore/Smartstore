@@ -58,12 +58,10 @@ namespace Smartstore.Core
 
             if (appContext.IsInstalled)
             {
-                builder.RegisterModule(new SeoModule());
                 builder.RegisterModule(new DbHooksModule(appContext));
                 builder.RegisterModule(new StoresModule());
                 builder.RegisterModule(new CustomersModule());
                 builder.RegisterModule(new RuleModule());
-                builder.RegisterModule(new MessagingModule());
                 builder.RegisterModule(new CatalogModule());
                 builder.RegisterModule(new CheckoutModule());
             }
