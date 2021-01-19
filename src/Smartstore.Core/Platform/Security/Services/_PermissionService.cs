@@ -131,7 +131,7 @@ namespace Smartstore.Core.Security
         public bool Authorize(string permissionSystemName, Customer customer)
         {
             // TODO: (mg) (core) Really absolutely sure to do the whole authorization thing again in sync (see GetPermissionTreeAsync(CustomerRole))?
-            throw new NotImplementedException();
+            return true;
         }
 
         public async Task<bool> AuthorizeAsync(string permissionSystemName)
