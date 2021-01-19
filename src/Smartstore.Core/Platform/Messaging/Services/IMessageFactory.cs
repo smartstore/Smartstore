@@ -66,8 +66,14 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Sends the "ContactUs" message to the store owner.
         /// </summary>
-        public static Task<CreateMessageResult> SendContactUsMessage(this IMessageFactory factory, Customer customer,
-            string senderMail, string senderName, string subject, string message, MailAddress senderMailAddress, int languageId = 0)
+        public static Task<CreateMessageResult> SendContactUsMessageAsync(this IMessageFactory factory, 
+            Customer customer,
+            string senderMail, 
+            string senderName, 
+            string subject, 
+            string message, 
+            MailAddress senderMailAddress, 
+            int languageId = 0)
         {
             var model = new NamedModelPart("Message")
             {
@@ -89,7 +95,7 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Sends a newsletter subscription activation message.
         /// </summary>
-        public static Task<CreateMessageResult> SendNewsLetterSubscriptionActivationMessage(this IMessageFactory factory, NewsletterSubscription subscription, int languageId = 0)
+        public static Task<CreateMessageResult> SendNewsLetterSubscriptionActivationMessageAsync(this IMessageFactory factory, NewsletterSubscription subscription, int languageId = 0)
         {
             Guard.NotNull(subscription, nameof(subscription));
             return factory.CreateMessageAsync(MessageContext.Create(MessageTemplateNames.NewsLetterSubscriptionActivation, languageId), true, subscription);
@@ -98,7 +104,7 @@ namespace Smartstore.Core.Messages
         /// <summary>
         /// Sends a newsletter subscription deactivation message.
         /// </summary>
-        public static Task<CreateMessageResult> SendNewsLetterSubscriptionDeactivationMessage(this IMessageFactory factory, NewsletterSubscription subscription, int languageId = 0)
+        public static Task<CreateMessageResult> SendNewsLetterSubscriptionDeactivationMessageAsync(this IMessageFactory factory, NewsletterSubscription subscription, int languageId = 0)
         {
             Guard.NotNull(subscription, nameof(subscription));
             return factory.CreateMessageAsync(MessageContext.Create(MessageTemplateNames.NewsLetterSubscriptionDeactivation, languageId), true, subscription);

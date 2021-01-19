@@ -184,7 +184,7 @@ namespace Smartstore.Core.Messages
                 {
                     if (!subscription.Active)
                     {
-                        await _messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
+                        await _messageFactory.SendNewsLetterSubscriptionActivationMessageAsync(subscription, _workContext.WorkingLanguage.Id);
                     }
 
                     result = true;
@@ -211,7 +211,7 @@ namespace Smartstore.Core.Messages
 
                     _db.NewsletterSubscriptions.Add(subscription);
 
-                    await _messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
+                    await _messageFactory.SendNewsLetterSubscriptionActivationMessageAsync(subscription, _workContext.WorkingLanguage.Id);
 
                     result = true;
                 }

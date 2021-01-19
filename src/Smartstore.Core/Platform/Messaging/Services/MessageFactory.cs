@@ -260,10 +260,10 @@ namespace Smartstore.Core.Messages
         private string BuildTemplateKey(MessageContext messageContext)
         {
             var prefix = messageContext.MessageTemplate.IsTransientRecord() ? "TransientTemplate/" : "MessageTemplate/";
-            return prefix + messageContext.MessageTemplate.Name + "/" + messageContext.Language.Id + "/Body";
+            return prefix + messageContext.MessageTemplate.Name + '/' + messageContext.Language.Id + "/Body";
         }
 
-        private string InlineCss(string html, dynamic model)
+        private static string InlineCss(string html, dynamic model)
         {
             Uri baseUri = null;
 
@@ -319,7 +319,7 @@ namespace Smartstore.Core.Messages
             {
                 if (t.To.IsEmpty() || t.Subject.IsEmpty() || t.Name.IsEmpty())
                 {
-                    throw new InvalidOperationException("Message template validation failed, because at least one of the following properties has not been set: Name, To, Subject.");
+                    throw new InvalidOperationException("Message template validation failed because at least one of the following properties has not been set: Name, To, Subject.");
                 }
             }
 
