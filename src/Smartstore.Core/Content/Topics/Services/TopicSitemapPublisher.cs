@@ -59,7 +59,7 @@ namespace Smartstore.Core.Content.Topics
                 }
             }
 
-            public override int Order => int.MinValue;
+            public override int Order => 200;
         }
     }
 }
