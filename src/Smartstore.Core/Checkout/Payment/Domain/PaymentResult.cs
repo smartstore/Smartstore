@@ -7,26 +7,48 @@ namespace Smartstore.Core.Checkout.Payment
     /// </summary>
     public partial class PaymentResult
     {
-        private readonly List<string> _errors = new();
-        /// <summary>
-        /// Gets the list of errors as <see cref="IEnumerable{T}"/>.
-        /// </summary>
-        public IEnumerable<string> Errors => _errors;
-
-        /// <summary>
-        /// Gets a value indicating whether errors list is empty.
-        /// </summary>
-        public bool Success => _errors.Count == 0;
-
-        /// <summary>
-        /// Adds a new error to <see cref="_errors"/>.
-        /// </summary>
-        /// <param name="error">Error to add.</param>
-        public void AddError(string error) => _errors.Add(error);
-
         /// <summary>
         /// Gets or sets a payment status after processing.
         /// </summary>
         public PaymentStatus NewPaymentStatus { get; set; } = PaymentStatus.Pending;
+
+        /// <summary>
+        /// Gets the list of errors
+        /// </summary>
+        public List<string> Errors { get; set; } = new();
+
+        /// <summary>
+        /// Gets a value indicating whether errors list is empty.
+        /// </summary>
+        public bool Success 
+            => Errors.Count == 0;
+    }
+
+    /// <summary>
+    /// Represents a cancel recurring payment result.
+    /// </summary>
+    public partial class CancelRecurringPaymentResult : PaymentResult
+    {
+    }
+
+    /// <summary>
+    /// Represents a pre process payment result.
+    /// </summary>
+    public partial class PreProcessPaymentResult : PaymentResult
+    {
+    }
+
+    /// <summary>
+    /// Represents a void payment result.
+    /// </summary>
+    public partial class VoidPaymentResult : PaymentResult
+    {
+    }
+
+    /// <summary>
+    /// Represents a refund payment result.
+    /// </summary>
+    public partial class RefundPaymentResult : PaymentResult
+    {
     }
 }

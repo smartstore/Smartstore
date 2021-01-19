@@ -7,7 +7,6 @@ namespace Smartstore.Core.Checkout.Payment
     /// <summary>
     /// Represents a payment info holder.
     /// </summary>
-    [Serializable]
     public partial class ProcessPaymentRequest : PaymentRequest
     {
         /// <summary>
@@ -194,7 +193,6 @@ namespace Smartstore.Core.Checkout.Payment
         #endregion
     }
 
-    [Serializable]
     public partial class CustomPaymentRequestValue
     {
         /// <summary>
