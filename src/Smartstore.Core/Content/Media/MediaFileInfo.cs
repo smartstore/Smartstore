@@ -100,7 +100,8 @@ namespace Smartstore.Core.Content.Media
             => fileInfo.File;
 
         [JsonProperty("path")]
-        public string Path => (Directory + File.Name);
+        public string Path 
+            => (Directory + '/' + File.Name).Trim('/');
 
         #region Url
 

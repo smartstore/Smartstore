@@ -43,6 +43,8 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
+using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Core.Content.Media;
 
 namespace Smartstore.Web.Controllers
 {
@@ -387,46 +389,6 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
-        [LocalizedRoute("/logs")]
-        public async Task<IActionResult> Logs()
-        {
-            #region Test
-
-            //var logger = _loggerFactory.CreateLogger("File");
-            //logger.Debug("Yodeleeeee");
-            //logger.Info("Yodeleeeee");
-            //logger.Warn("Yodeleeeee");
-            //logger.Error("Yodeleeeee");
-
-            //logger = _loggerFactory.CreateLogger("File/App_Data/Logs/yodele/");
-            //logger.Debug("Yodeleeeee");
-            //logger.Info("Yodeleeeee");
-            //logger.Warn("Yodeleeeee");
-            //logger.Error("Yodeleeeee");
-
-            //logger = _loggerFactory.CreateLogger("File/App_Data/Logs/hello");
-            //logger.Debug("Yodeleeeee");
-            //logger.Info("Yodeleeeee");
-            //logger.Warn("Yodeleeeee");
-            //logger.Error("Yodeleeeee");
-
-            #endregion
-
-            var query = _db.Logs
-                .AsNoTracking()
-                .Where(x => x.CustomerId != 399003)
-                .OrderByDescending(x => x.CreatedOnUtc)
-                .Take(500);
-
-            var logs = await query.ToListAsync();
-
-            var country = await _db.Countries.OrderByDescending(x => x.Id).FirstOrDefaultAsync();
-            country.DisplayCookieManager = !country.DisplayCookieManager;
-            await _db.SaveChangesAsync();
-
-            return View(logs);
-        }
-
         [LocalizedRoute("/countries")]
         public async Task<IActionResult> Countries()
         {
@@ -561,6 +523,63 @@ namespace Smartstore.Web.Controllers
             //_db.SaveChanges();
 
             #endregion
+        }
+
+        [LocalizedRoute("/logs")]
+        public async Task<IActionResult> Logs()
+        {
+            #region Test
+
+            //var logger = _loggerFactory.CreateLogger("File");
+            //logger.Debug("Yodeleeeee");
+            //logger.Info("Yodeleeeee");
+            //logger.Warn("Yodeleeeee");
+            //logger.Error("Yodeleeeee");
+
+            //logger = _loggerFactory.CreateLogger("File/App_Data/Logs/yodele/");
+            //logger.Debug("Yodeleeeee");
+            //logger.Info("Yodeleeeee");
+            //logger.Warn("Yodeleeeee");
+            //logger.Error("Yodeleeeee");
+
+            //logger = _loggerFactory.CreateLogger("File/App_Data/Logs/hello");
+            //logger.Debug("Yodeleeeee");
+            //logger.Info("Yodeleeeee");
+            //logger.Warn("Yodeleeeee");
+            //logger.Error("Yodeleeeee");
+
+            #endregion
+
+            var query = _db.Logs
+                .AsNoTracking()
+                .Where(x => x.CustomerId != 399003)
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .Take(500);
+
+            var logs = await query.ToListAsync();
+
+            var country = await _db.Countries.OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+            country.DisplayCookieManager = !country.DisplayCookieManager;
+            await _db.SaveChangesAsync();
+
+            return View(logs);
+        }
+
+        [Route("/files")]
+        public async Task<IActionResult> Files()
+        {
+            var mediaService = HttpContext.RequestServices.GetRequiredService<IMediaService>();
+            
+            var files = (await _db.MediaFiles
+                .AsNoTracking()
+                .Where(x => x.MediaType == "image" && x.Extension != "svg" && x.Size > 0 && x.FolderId != null /*&& x.Extension == "jpg" && x.Size < 10000*/)
+                .OrderByDescending(x => x.Size)
+                .Take(100)
+                .ToListAsync())
+                .Select(x => mediaService.ConvertMediaFile(x))
+                .ToList();
+            
+            return View(files);
         }
 
         private Task<List<Country>> GetCountries()

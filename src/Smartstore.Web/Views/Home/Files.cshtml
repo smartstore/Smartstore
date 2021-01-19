@@ -1,0 +1,25 @@
+﻿@model List<MediaFileInfo>
+
+@*@inject IMediaService mediaService*@
+
+@{
+    ViewData["Title"] = "Files";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="artlist artlist-grid artlist-5-cols artlist-boxed">
+    @foreach (var file in Model)
+    {
+        //var thumbUrl = mediaService.GetUrl(file, 256);
+        //var imgUrl = mediaService.GetUrl(file, 0);
+
+        <article class="art">
+            <div class="art-picture-block">
+                <a class="art-picture img-center-container" href="@(file.GetUrl(0, string.Empty))" target="_blank">
+                    <img src="@(file.GetUrl(256, string.Empty))" alt="@file.Alt" title="@file.TitleAttribute" loading="lazy">
+                </a>
+            </div>
+        </article>
+    }
+</div>

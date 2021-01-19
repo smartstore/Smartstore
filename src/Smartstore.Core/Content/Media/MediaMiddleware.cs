@@ -86,13 +86,16 @@ namespace Smartstore.Core.Content.Media
             var q = await CreateImageQuery(context, pathData.MimeType, pathData.Extension);
 
             // Security: check allowed thumnail sizes and return 404 if disallowed.
-            var thumbSizeAllowed = IsThumbnailSizeAllowed(q.MaxWidth) && (q.MaxHeight == q.MaxWidth || IsThumbnailSizeAllowed(q.MaxHeight));
+            var thumbMaxWidth = q.MaxWidth;
+            var thumbMaxHeight = q.MaxHeight;
+            var thumbSizeAllowed = IsThumbnailSizeAllowed(thumbMaxWidth) && (thumbMaxHeight == thumbMaxWidth || IsThumbnailSizeAllowed(thumbMaxHeight));
             if (!thumbSizeAllowed)
             {
                 await NotFound(pathData.MimeType);
                 return;
             }
 
+            // Create the handler context
             var handlerContext = new MediaHandlerContext
             {
                 HttpContext = context,
@@ -108,6 +111,7 @@ namespace Smartstore.Core.Content.Media
 
             var handlers = mediaHandlers.Value.OrderBy(x => x.Order).ToArray();
 
+            // Run every registered media handler to obtain a thumbnail for the requested media file
             IMediaHandler currentHandler;
             for (var i = 0; i < handlers.Length; i++)
             {
@@ -147,14 +151,17 @@ namespace Smartstore.Core.Content.Media
                     pathData.MimeType = MimeTypes.MapNameToMimeType(responseFile.Extension);
                 }
 
-                // TODO: (core) cache-control
+                // Create FileStreamResult object
                 var fileResult = CreateFileResult(responseFile, pathData);
-                var actionContext = new ActionContext
-                {
-                    HttpContext = context,
-                    RouteData = context.GetRouteData()
-                };
-                await fileResult.ExecuteResultAsync(actionContext);
+
+                // Cache control
+                ApplyResponseCaching(context);
+
+                // INFO: Although we are outside of the MVC pipeline we gonna use ActionContext anyway, because "FileStreamResult"
+                // does everything we need (ByteRange, ETag etc.), so wo we gonna use it instead of reinventing the wheel.
+                // A look at the MVC source code reveals that HttpContext is the only property that gets accessed, therefore we can omit 
+                // all the other stuff like ActionDescriptor or ModelState (which we cannot access or create from a middleware anyway).
+                await fileResult.ExecuteResultAsync(new ActionContext { HttpContext = context, RouteData = context.GetRouteData() });
             }
             finally
             {
@@ -187,7 +194,7 @@ namespace Smartstore.Core.Content.Media
             #endregion
         }
 
-        private FileStreamResult CreateFileResult(IFile file, MediaPathData pathData)
+        private static FileStreamResult CreateFileResult(IFile file, MediaPathData pathData)
         {
             return new FileStreamResult(file.OpenRead(), pathData.MimeType)
             {
@@ -231,6 +238,17 @@ namespace Smartstore.Core.Content.Media
             await _eventPublisher.PublishAsync(new ImageQueryCreatedEvent(query, context, mimeType, extension));
 
             return query;
+        }
+
+        private static void ApplyResponseCaching(HttpContext context)
+        {
+            // TODO: (core) cache-control for media files from config
+            context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue
+            {
+                Public = true,
+                MustRevalidate = true,
+                MaxAge = TimeSpan.FromSeconds(60000)
+            };
         }
     }
 }
