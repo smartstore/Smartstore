@@ -64,7 +64,7 @@ namespace Smartstore.Core.Security
         Task<bool> FindAuthorizationAsync(string permissionSystemName, Customer customer);
 
         /// <summary>
-        /// Gets the permission tree for a customer role.
+        /// Gets the permission tree for a customer role from cache.
         /// </summary>
         /// <param name="role">Customer role.</param>
         /// <param name="addDisplayNames">Whether to add the permission display names.</param>
@@ -72,12 +72,12 @@ namespace Smartstore.Core.Security
         Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false);
 
         /// <summary>
-        /// Gets the permission tree for a customer.
+        /// Builds the permission tree for a customer.
         /// </summary>
         /// <param name="customer">Customer.</param>
         /// <param name="addDisplayNames">Whether to add the permission display names.</param>
         /// <returns>Permission tree.</returns>
-        Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(Customer customer, bool addDisplayNames = false);
+        Task<TreeNode<IPermissionNode>> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false);
 
         /// <summary>
         /// Gets system and display names of all permissions.

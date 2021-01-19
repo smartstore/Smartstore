@@ -131,6 +131,7 @@ namespace Smartstore.Core.Security
         public bool Authorize(string permissionSystemName, Customer customer)
         {
             // TODO: (mg) (core) Really absolutely sure to do the whole authorization thing again in sync (see GetPermissionTreeAsync(CustomerRole))?
+            // TODO: (mg) (core) (info) Yes, because low-level stuff should also have a sync counterpart and permission tree comes from cache most of the time.
             return true;
         }
 
@@ -170,6 +171,7 @@ namespace Smartstore.Core.Security
                     {
                         node = node.Parent;
                     }
+
                     if (node?.Value?.Allow ?? false)
                     {
                         return true;
@@ -231,6 +233,8 @@ namespace Smartstore.Core.Security
 
         public async Task<bool> FindAuthorizationAsync(string permissionSystemName, Customer customer)
         {
+            // TODO: (mg) (core) I don't like the fact that FindAuthorizationAsync() shares a lot with AuthorizeAsync() but is isolated on its own. I mean, what is this for?
+
             if (string.IsNullOrEmpty(permissionSystemName))
             {
                 return false;
@@ -258,6 +262,7 @@ namespace Smartstore.Core.Security
                 {
                     node = node.Parent;
                 }
+
                 if (node?.Value?.Allow ?? false)
                 {
                     return true;
@@ -315,6 +320,8 @@ namespace Smartstore.Core.Security
             if (addDisplayNames)
             {
                 var language = _workContext.WorkingLanguage;
+                // TODO: (mg) (core) Every call to GetPermissionTree() results in a database roundtrip. But this is HOT PATH code.
+                // Needs urgent refactoring.
                 var resourcesLookup = await GetDisplayNameLookup(language.Id);
                 await AddDisplayName(result, language.Id, resourcesLookup);
             }
@@ -322,7 +329,7 @@ namespace Smartstore.Core.Security
             return result;
         }
 
-        public async Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(Customer customer, bool addDisplayNames = false)
+        public async Task<TreeNode<IPermissionNode>> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false)
         {
             Guard.NotNull(customer, nameof(customer));
 
@@ -561,7 +568,7 @@ namespace Smartstore.Core.Security
             }
             else
             {
-                var tmpPath = path.EnsureEndsWith(".");
+                var tmpPath = path.EnsureEndsWith('.');
                 entities = permissions.Where(x => x.SystemName.StartsWith(tmpPath) && x.SystemName.IndexOf('.', tmpPath.Length) == -1);
             }
 
