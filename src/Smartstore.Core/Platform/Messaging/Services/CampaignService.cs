@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
@@ -36,11 +38,12 @@ namespace Smartstore.Core.Messages
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public virtual async Task<int> SendCampaignAsync(Campaign campaign)
+        public virtual async Task<int> SendCampaignAsync(Campaign campaign, CancellationToken cancelToken = default)
         {
             Guard.NotNull(campaign, nameof(campaign));
 
             var totalEmailsSent = 0;
+            var pageIndex = -1;
             int[] storeIds = null;
             int[] roleIds = null;
             var alreadyProcessedEmails = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
@@ -59,47 +62,54 @@ namespace Smartstore.Core.Messages
                     .ToArrayAsync();
             }
 
-            var subscribers = await _db.NewsletterSubscriptions
-                .ApplyStandardFilter(null, false, storeIds, roleIds)
-                .ToPagedList(1 /* ++pageIndex */, 500)
-                .LoadAsync();
-
-            // TODO: (mh) (core) Work with PagedList.
-
-            foreach (var subscriber in subscribers)
+            while (true)
             {
-                // Create only one message per subscription email.
-                if (alreadyProcessedEmails.Contains(subscriber.Subscription.Email))
-                {
-                    continue;
-                }
+                cancelToken.ThrowIfCancellationRequested();
 
-                if (subscriber.Customer != null && !subscriber.Customer.Active)
-                {
-                    continue;
-                }
+                var subscribers = _db.NewsletterSubscriptions
+                    .ApplyStandardFilter(null, false, storeIds, roleIds)
+                    .ToPagedList(++pageIndex, 500);
 
-                var result = await CreateCampaignMessageAsync(campaign, subscriber);
-                if ((result?.Email?.Id ?? 0) != 0)
+                await foreach (var subscriber in subscribers)
                 {
-                    alreadyProcessedEmails.Add(subscriber.Subscription.Email);
-                    ++totalEmailsSent;
-
-                    // Publish event so that integrators can add attachments, alter the email etc.
-                    await _eventPublisher.PublishAsync(new MessageQueuingEvent
+                    // Create only one message per subscription email.
+                    if (alreadyProcessedEmails.Contains(subscriber.Subscription.Email))
                     {
-                        QueuedEmail = result.Email,
-                        MessageContext = result.MessageContext,
-                        MessageModel = result.MessageContext.Model
-                    });
+                        continue;
+                    }
 
-                    // Queue emails so they can be saved later in one go.
-                    _db.QueuedEmails.Add(result.Email);
+                    if (subscriber.Customer != null && !subscriber.Customer.Active)
+                    {
+                        continue;
+                    }
+
+                    var result = await CreateCampaignMessageAsync(campaign, subscriber);
+                    if ((result?.Email?.Id ?? 0) != 0)
+                    {
+                        alreadyProcessedEmails.Add(subscriber.Subscription.Email);
+                        ++totalEmailsSent;
+
+                        // Publish event so that integrators can add attachments, alter the email etc.
+                        await _eventPublisher.PublishAsync(new MessageQueuingEvent
+                        {
+                            QueuedEmail = result.Email,
+                            MessageContext = result.MessageContext,
+                            MessageModel = result.MessageContext.Model
+                        });
+
+                        // Queue emails so they can be saved later in one go.
+                        _db.QueuedEmails.Add(result.Email);
+                    }
+                }
+
+                // Save all queued emails now.
+                await _db.SaveChangesAsync(cancelToken);
+
+                if (!subscribers.HasNextPage)
+                {
+                    break;
                 }
             }
-
-            // Save all queued emails now.
-            await _db.SaveChangesAsync();
 
             return totalEmailsSent;
         }

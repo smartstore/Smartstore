@@ -1,17 +1,19 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Smartstore.Core.Messages
 {
     public partial interface ICampaignService
     {
         /// <summary>
-        /// Sends a campaign to all newsletter subscribers.
+        /// Sends a campaign newsletter to newsletter subscribers.
         /// </summary>
         /// <returns>Number of queued messages.</returns>
-        Task<int> SendCampaignAsync(Campaign campaign);
+        Task<int> SendCampaignAsync(Campaign campaign, CancellationToken cancelToken = default);
 
         /// <summary>
-        /// Sends a campaign to specified subscriber.
+        /// Creates a campaign message for the specified subscriber.
+        /// Caller is responsible for database commit.
         /// </summary>
         /// <param name="campaign">Campaign.</param>
         /// <param name="subscriber">Newsletter subscriber.</param>
