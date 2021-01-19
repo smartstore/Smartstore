@@ -113,7 +113,7 @@ namespace Smartstore.Core.Checkout.Cart
                 query = query.Where(x => x.StoreId == storeId);
             }
 
-            return query.SumAsync(x => (int?)x.Quantity ?? 0);
+            return query.SumAsync(x => x.Quantity);
         }
 
         public virtual async Task<List<OrganizedShoppingCartItem>> GetCartItemsAsync(Customer customer, ShoppingCartType cartType, int storeId = 0)

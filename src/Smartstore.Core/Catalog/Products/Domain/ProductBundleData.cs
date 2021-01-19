@@ -29,7 +29,6 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Contains the deserialised bundle item data of an ordered product.
     /// </summary>
-    [Serializable]
     public partial class ProductBundleItemOrderData : IAttributeAware
     {
         public int BundleItemId { get; set; }

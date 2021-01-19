@@ -69,11 +69,10 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Always returns <see cref="ShippingOption"/> if there are any, even when there are warnings
         /// </remarks>
         /// <returns>Get shipping option resopnse</returns>
-        /// 
         ShippingOptionResponse GetShippingOptions(
-            IList<OrganizedShoppingCartItem> cart, 
-            Address shippingAddress, 
-            string computationMethodSystemName = "", 
+            IList<OrganizedShoppingCartItem> cart,
+            Address shippingAddress,
+            string computationMethodSystemName = "",
             int storeId = 0);
     }
 }

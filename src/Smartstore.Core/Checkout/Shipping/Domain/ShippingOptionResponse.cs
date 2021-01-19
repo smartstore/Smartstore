@@ -13,9 +13,9 @@ namespace Smartstore.Core.Checkout.Shipping
         public List<ShippingOption> ShippingOptions { get; init; } = new();
 
         /// <summary>
-        /// Gets errors
+        /// Gets or sets errors
         /// </summary>
-        public List<string> Errors { get; init; } = new();
+        public List<string> Errors { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the response is successful
@@ -23,11 +23,5 @@ namespace Smartstore.Core.Checkout.Shipping
         public bool Success 
             => Errors.Count == 0;
 
-        /// <summary>
-        /// Adds an error to <see cref="Errors"/>
-        /// </summary>
-        /// <param name="error">Error message</param>
-        public void AddError(string error) 
-            => Errors.Add(error);
     }
 }

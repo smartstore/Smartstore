@@ -22,11 +22,8 @@ namespace Smartstore.Core.Checkout.Attributes
     public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     {
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICurrencyService _currencyService;
-        private readonly IDownloadService _downloadService;
         private readonly IPriceFormatter _priceFormatter;
-        private readonly IMediaService _mediaService;
         private readonly IWorkContext _workContext;
         private readonly ITaxService _taxService;
         private readonly IWebHelper _webHelper;
@@ -35,9 +32,7 @@ namespace Smartstore.Core.Checkout.Attributes
         public CheckoutAttributeFormatter(
             ICheckoutAttributeMaterializer attributeMaterializer,
             ICurrencyService currencyService,
-            IDownloadService downloadService,
             IPriceFormatter priceFormatter,
-            IMediaService mediaService,
             IWorkContext workContext,
             ITaxService taxService,
             IWebHelper webHelper,
@@ -45,9 +40,7 @@ namespace Smartstore.Core.Checkout.Attributes
         {
             _checkoutAttributeMaterializer = attributeMaterializer;
             _currencyService = currencyService;
-            _downloadService = downloadService;
             _priceFormatter = priceFormatter;
-            _mediaService = mediaService;
             _workContext = workContext;
             _taxService = taxService;
             _webHelper = webHelper;
@@ -112,7 +105,6 @@ namespace Smartstore.Core.Checkout.Attributes
 
                             if (download?.MediaFile != null)
                             {
-                                var genratedUrl = _mediaService.GetUrl(download.MediaFile, 0);
                                 // TODO: (ms) (core) add a method for getting URL (use routing because it handles all SEO friendly URLs) ?
                                 var attributeText = string.Empty;
                                 var fileName = download.MediaFile.Name;

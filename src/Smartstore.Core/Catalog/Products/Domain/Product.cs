@@ -13,6 +13,7 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Seo;
