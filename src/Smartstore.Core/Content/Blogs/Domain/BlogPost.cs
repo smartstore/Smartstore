@@ -35,7 +35,6 @@ namespace Smartstore.Core.Content.Blogs
         }
     }
 
-
     /// <summary>
     /// Represents a blog post.
     /// </summary>

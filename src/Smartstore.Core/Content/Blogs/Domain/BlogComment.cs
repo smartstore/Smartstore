@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -20,6 +21,7 @@ namespace Smartstore.Core.Content.Blogs
     /// <summary>
     /// Represents a blog comment.
     /// </summary>
+    [Table("BlogComment")] // Enables EF TPT inheritance
     public partial class BlogComment : CustomerContent
     {
         private readonly ILazyLoader _lazyLoader;

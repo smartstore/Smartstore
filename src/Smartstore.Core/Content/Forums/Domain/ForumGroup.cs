@@ -19,7 +19,7 @@ namespace Smartstore.Core.Content.Forums.Domain
     [Table("Forums_Group")]
     // TODO: (mh) (core) Is this correct or can we get rid of one Index for DisplayOrder?
     [Index(nameof(DisplayOrder), Name = "IX_Forums_Group_DisplayOrder")]
-    [Index(nameof(DisplayOrder), Name = "IX_LimitedToStores")]
+    [Index(nameof(DisplayOrder), Name = "IX_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_LimitedToStores")]
     [Index(nameof(SubjectToAcl), Name = "IX_SubjectToAcl")]
     public partial class ForumGroup : BaseEntity, IAuditable, IStoreRestricted, IAclRestricted, ILocalizedEntity, ISlugSupported

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -20,6 +21,7 @@ namespace Smartstore.Core.Content.Forums
     /// <summary>
     /// Represents a vote for a forum post.
     /// </summary>
+    [Table("ForumPostVote")] // Enables EF TPT inheritance
     public partial class ForumPostVote : CustomerContent
     {
         private readonly ILazyLoader _lazyLoader;
