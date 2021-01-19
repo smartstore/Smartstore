@@ -12,9 +12,12 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Customers;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Messages.Events;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
+using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Messages
 {
@@ -71,26 +74,23 @@ namespace Smartstore.Core.Messages
             return result;
         }
 
-        // TODO: (mh) (core) make async
-        private object GetTopic(string topicSystemName, MessageContext ctx)
+        private async Task<object> GetTopicAsync(string topicSystemName, MessageContext ctx)
         {
-            // TODO: (mh) (core) Uncomment once topicservice is available.
+            var topic = await _db.Topics
+                .AsNoTracking()
+                .ApplyStoreFilter(ctx.StoreId ?? 0)
+                .FirstOrDefaultAsync(x => x.SystemName == topicSystemName);
 
-            //var topicService = _services.Resolve<ITopicService>();
-
-            //// Load by store
-            //var topic = topicService.GetTopicBySystemName(topicSystemName, ctx.StoreId ?? 0, false);
-
-            //string body = topic?.GetLocalized(x => x.Body, ctx.Language);
-            //if (body.HasValue())
-            //{
-            //    body = HtmlUtils.RelativizeFontSizes(body);
-            //}
+            string body = topic?.GetLocalized(x => x.Body, ctx.Language);
+            if (body.HasValue())
+            {
+                body = HtmlUtils.RelativizeFontSizes(body);
+            }
 
             return new
             {
-                //Title = topic?.GetLocalized(x => x.Title, ctx.Language).Value.NullEmpty(),
-                //Body = body.NullEmpty()
+                Title = topic?.GetLocalized(x => x.Title, ctx.Language).Value.NullEmpty(),
+                Body = body.NullEmpty()
             };
         }
 

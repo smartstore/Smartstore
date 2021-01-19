@@ -13,7 +13,10 @@ using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Content.Blogs;
+using Smartstore.Core.Content.Forums;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.News;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -452,7 +455,7 @@ namespace Smartstore.Core.Messages
             // TODO: (mh) (core) uncomment missing entities when available.
             var factories = new Dictionary<string, Func<Task<object>>>(StringComparer.OrdinalIgnoreCase)
             {
-                //{ "BlogComment", () => GetRandomEntity<BlogComment>(x => true) },
+                { "BlogComment", () => GetRandomEntity<BlogComment>(x => true) },
                 { "Product", () => GetRandomEntity<Product>(x => !x.Deleted && !x.IsSystemProduct && x.Visibility != ProductVisibility.Hidden && x.Published) },
                 { "Customer", () => GetRandomEntity<Customer>(x => !x.Deleted && !x.IsSystemAccount && x.Email.HasValue()) },
                 { "Order", () => GetRandomEntity<Order>(x => !x.Deleted) },
@@ -463,12 +466,12 @@ namespace Smartstore.Core.Messages
                 { "Campaign", () => GetRandomEntity<Campaign>(x => true) },
                 //{ "ReturnRequest", () => GetRandomEntity<ReturnRequest>(x => true) },
                 { "OrderItem", () => GetRandomEntity<OrderItem>(x => !x.Order.Deleted) },
-                //{ "ForumTopic", () => GetRandomEntity<ForumTopic>(x => true) },
-                //{ "ForumPost", () => GetRandomEntity<ForumPost>(x => true) },
-                //{ "PrivateMessage", () => GetRandomEntity<PrivateMessage>(x => true) },
+                { "ForumTopic", () => GetRandomEntity<ForumTopic>(x => true) },
+                { "ForumPost", () => GetRandomEntity<ForumPost>(x => true) },
+                { "PrivateMessage", () => GetRandomEntity<PrivateMessage>(x => true) },
                 { "GiftCard", () => GetRandomEntity<GiftCard>(x => true) },
                 { "ProductReview", () => GetRandomEntity<ProductReview>(x => !x.Product.Deleted && !x.Product.IsSystemProduct && x.Product.Visibility != ProductVisibility.Hidden && x.Product.Published) },
-                //{ "NewsComment", () => GetRandomEntity<NewsComment>(x => x.NewsItem.Published) },
+                { "NewsComment", () => GetRandomEntity<NewsComment>(x => x.NewsItem.Published) },
                 //{ "WalletHistory", () => GetRandomEntity<WalletHistory>(x => true) }
             };
 

@@ -68,8 +68,8 @@ namespace Smartstore.Core.Messages
             }
             d.CustomerEmail = part.BillingAddress.Email.NullEmpty();
             d.CustomerComment = part.CustomerOrderComment.NullEmpty();
-            d.Disclaimer = GetTopic("Disclaimer", messageContext);
-            d.ConditionsOfUse = GetTopic("ConditionsOfUse", messageContext);
+            d.Disclaimer = GetTopicAsync("Disclaimer", messageContext);
+            d.ConditionsOfUse = GetTopicAsync("ConditionsOfUse", messageContext);
             d.Status = part.OrderStatus.GetLocalizedEnum(messageContext.Language.Id);
             d.CreatedOn = ToUserDate(part.CreatedOnUtc, messageContext);
             d.PaidOn = ToUserDate(part.PaidDateUtc, messageContext);
