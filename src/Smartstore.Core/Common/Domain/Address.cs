@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Smartstore.Core.Customers;
 using Smartstore.Domain;
 using Smartstore.Utilities;
 
@@ -132,6 +134,14 @@ namespace Smartstore.Core.Common
             get => _lazyLoader?.Load(this, ref _stateProvince) ?? _stateProvince;
             set => _stateProvince = value;
         }
+
+        /// <remarks>
+        /// Unused but required to avoid ArgumentExeption 'inverseName cannot be empty' in <see cref="CustomerMap.Configure(EntityTypeBuilder{Customer})"/>.
+        /// See https://github.com/dotnet/efcore/issues/3864#issuecomment-749981539
+        /// </remarks>
+#pragma warning disable IDE0051 // Remove unused private members
+        private ICollection<Customer> Customers { get; set; }
+#pragma warning restore IDE0051 // Remove unused private members
 
         public object Clone()
         {

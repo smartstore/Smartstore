@@ -22,11 +22,24 @@ namespace Smartstore.Core.Customers
             // Globally exclude soft-deleted entities from all queries.
             builder.HasQueryFilter(c => !c.Deleted);
 
-            // TODO: (ms) (core) Implement this correctly, did cause ArgumentExeption 'inverseName cannot be empty'
-            //builder
-            //    .HasMany(c => c.Addresses)
-            //    .WithMany("")
-            //    .UsingEntity(m => m.ToTable("CustomerAddresses"));
+            builder
+                .HasMany(c => c.Addresses)
+                .WithMany("Customers")  // Refers to private Address.Customers.
+                .UsingEntity<Dictionary<string, object>>(
+                    "CustomerAddresses",
+                    c => c
+                        .HasOne<Address>()
+                        .WithMany()
+                        .HasForeignKey("Address_Id")
+                        .HasConstraintName("FK_dbo.CustomerAddresses_dbo.Address_Address_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c
+                        .HasOne<Customer>()
+                        .WithMany()
+                        .HasForeignKey("Customer_Id")
+                        .HasConstraintName("FK_dbo.CustomerAddresses_dbo.Customer_Customer_Id")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    c => c.HasKey("Customer_Id", "Address_Id"));
 
             builder
                 .HasOne(c => c.BillingAddress)

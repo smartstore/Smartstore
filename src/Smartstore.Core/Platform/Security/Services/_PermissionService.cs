@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -20,7 +21,7 @@ namespace Smartstore.Core.Security
     {
         // {0} = roleId
         internal const string PERMISSION_TREE_KEY = "permission:tree-{0}";
-        private const string PERMISSION_TREE_PATTERN_KEY = "permission:tree-*";
+        internal const string PERMISSION_TREE_PATTERN_KEY = "permission:tree-*";
 
         private static readonly Dictionary<string, string> _permissionAliases = new()
         {
@@ -107,7 +108,7 @@ namespace Smartstore.Core.Security
         private readonly ILocalizationService _localizationService;
         private readonly ICacheManager _cache;
 
-        // TODO: (mg) (core) Fix Autofac exception in PermissionService ctor.
+        // TODO: (core) Fix dependency exception in PermissionService ctor caused by early Autofac registration in SecurityStarter.
         public PermissionService(
             SmartDbContext db,
             //IWorkContext workContext,
@@ -124,82 +125,247 @@ namespace Smartstore.Core.Security
 
         public bool Authorize(string permissionSystemName)
         {
-            return true;
+            return Authorize(permissionSystemName, _workContext.CurrentCustomer);
         }
 
         public bool Authorize(string permissionSystemName, Customer customer)
         {
+            // TODO: (mg) (core) Really absolutely sure to do the whole authorization thing again in sync (see GetPermissionTreeAsync(CustomerRole))?
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> AuthorizeAsync(string permissionSystemName)
+        {
+            return await AuthorizeAsync(permissionSystemName, _workContext.CurrentCustomer);
+        }
+
+        public async Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer)
+        {
+            if (customer == null || string.IsNullOrEmpty(permissionSystemName))
+            {
+                return false;
+            }
+
+            var cacheKey = "permission." + customer.Id.ToString() + "." + permissionSystemName;
+
+            var authorized = await _cache.GetAsync(cacheKey, async o =>
+            {
+                o.ExpiresIn(TimeSpan.FromSeconds(30));
+
+                var roles = customer.CustomerRoleMappings
+                    .Where(x => x.CustomerRole?.Active ?? false)
+                    .Select(x => x.CustomerRole)
+                    .ToArray();
+
+                foreach (var role in roles)
+                {
+                    var tree = await GetPermissionTreeAsync(role);
+                    var node = tree.SelectNodeById(permissionSystemName);
+                    if (node == null)
+                    {
+                        continue;
+                    }
+
+                    while (node != null && !node.Value.Allow.HasValue)
+                    {
+                        node = node.Parent;
+                    }
+                    if (node?.Value?.Allow ?? false)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+
+            return authorized;
+        }
+
+        public async Task<bool> AuthorizeByAliasAsync(string permissionSystemName)
+        {
+            if (string.IsNullOrEmpty(permissionSystemName) || !_permissionAliases.TryGetValue(permissionSystemName, out var alias))
+            {
+                return false;
+            }
+
+            var aliasPermission = await _db.PermissionRecords
+                .ApplySystemNameFilter(permissionSystemName)
+                .FirstOrDefaultAsync();
+
+            if (aliasPermission == null)
+            {
+                return false;
+            }
+
+            // SQL required because the old mapping was only accessible via navigation property but it no longer exists.
+            if (await _db.DataProvider.HasTableAsync("PermissionRecord_Role_Mapping"))
+            {
+                var aliasCutomerRoleIds = await _db.Database
+                    .ExecuteQueryRawAsync<int>("select [CustomerRole_Id] from [dbo].[PermissionRecord_Role_Mapping] where [PermissionRecord_Id] = " + aliasPermission.Id)
+                    .ToListAsync();
+
+                if (aliasCutomerRoleIds.Any())
+                {
+                    var roles = _workContext.CurrentCustomer.CustomerRoleMappings
+                        .Select(x => x.CustomerRole)
+                        .Where(x => x.Active);
+
+                    foreach (var role in roles)
+                    {
+                        if (aliasCutomerRoleIds.Contains(role.Id))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
             return true;
         }
 
-        public Task<bool> AuthorizeAsync(string permissionSystemName)
+        public async Task<bool> FindAuthorizationAsync(string permissionSystemName)
         {
-            return Task.FromResult(true);
+            return await FindAuthorizationAsync(permissionSystemName, _workContext.CurrentCustomer);
         }
 
-        public Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer)
+        public async Task<bool> FindAuthorizationAsync(string permissionSystemName, Customer customer)
         {
-            //if (customer == null || string.IsNullOrEmpty(permissionSystemName))
-            //{
-            //    return false;
-            //}
+            if (string.IsNullOrEmpty(permissionSystemName))
+            {
+                return false;
+            }
 
-            //await _db.LoadCollectionAsync(customer, x => x.CustomerRoleMappings);
+            var roles = customer.CustomerRoleMappings
+                .Select(x => x.CustomerRole)
+                .Where(x => x.Active);
 
-            //var roles = customer.CustomerRoleMappings
-            //    .Where(x => x.CustomerRole?.Active ?? false)
-            //    .Select(x => x.CustomerRole)
-            //    .ToArray();
+            foreach (var role in roles)
+            {
+                var tree = await GetPermissionTreeAsync(role);
+                var node = tree.SelectNodeById(permissionSystemName);
+                if (node == null)
+                {
+                    continue;
+                }
 
+                if (FindAllowByChild(node))
+                {
+                    return true;
+                }
 
-            return Task.FromResult(true);
+                while (node != null && !node.Value.Allow.HasValue)
+                {
+                    node = node.Parent;
+                }
+                if (node?.Value?.Allow ?? false)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+
+            static bool FindAllowByChild(TreeNode<IPermissionNode> n)
+            {
+                if (n?.Value?.Allow ?? false)
+                {
+                    return true;
+                }
+
+                if (n.HasChildren)
+                {
+                    foreach (var child in n.Children)
+                    {
+                        if (FindAllowByChild(child))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
         }
 
-        public Task<bool> AuthorizeByAliasAsync(string permissionSystemName)
+        public async Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false)
         {
-            return Task.FromResult(true);
+            Guard.NotNull(role, nameof(role));
+
+            var result = await _cache.GetAsync(PERMISSION_TREE_KEY.FormatInvariant(role.Id), async o =>
+            {
+                var root = new TreeNode<IPermissionNode>(new PermissionNode());
+
+                var permissions = await _db.PermissionRecords
+                    .AsNoTracking()
+                    .Include(x => x.PermissionRoleMappings)
+                    .ToListAsync();
+
+                await AddChildItems(root, permissions, null, permission =>
+                {
+                    // TODO: (mg) (core) PermissionService.AddChildItems looks like it has to be refactored (if possible).
+                    var mapping = permission.PermissionRoleMappings.FirstOrDefault(x => x.CustomerRoleId == role.Id);
+
+                    return Task.FromResult(mapping?.Allow ?? null);
+                });
+
+                return root;
+            });
+
+            if (addDisplayNames)
+            {
+                var language = _workContext.WorkingLanguage;
+                var resourcesLookup = await GetDisplayNameLookup(language.Id);
+                await AddDisplayName(result, language.Id, resourcesLookup);
+            }
+
+            return result;
         }
 
-        public Task<bool> FindAuthorizationAsync(string permissionSystemName)
+        public async Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(Customer customer, bool addDisplayNames = false)
         {
-            return Task.FromResult(true);
+            Guard.NotNull(customer, nameof(customer));
+
+            var root = new TreeNode<IPermissionNode>(new PermissionNode());
+            var permissions = await _db.PermissionRecords
+                .AsNoTracking()
+                .ToListAsync();
+
+            await AddChildItems(root, permissions, null, async permission =>
+            {
+                return await AuthorizeAsync(permission.SystemName, customer);
+            });
+
+            if (addDisplayNames)
+            {
+                var language = _workContext.WorkingLanguage;
+                var resourcesLookup = await GetDisplayNameLookup(language.Id);
+                await AddDisplayName(root, language.Id, resourcesLookup);
+            }
+
+            return root;
         }
 
-        public Task<bool> FindAuthorizationAsync(string permissionSystemName, Customer customer)
+        public async Task<Dictionary<string, string>> GetAllSystemNamesAsync()
         {
-            return Task.FromResult(true);
-        }
+            var result = new Dictionary<string, string>();
+            var language = _workContext.WorkingLanguage;
+            var resourcesLookup = await GetDisplayNameLookup(language.Id);
 
-        public Task<Dictionary<string, string>> GetAllSystemNamesAsync()
-        {
-            //var result = new Dictionary<string, string>();
-            //var language = _workContext.WorkingLanguage;
-            //var resourcesLookup = await GetDisplayNameLookup(language.Id);
+            var systemNames = await _db.PermissionRecords
+                .AsQueryable()
+                .Select(x => x.SystemName)
+                .ToListAsync();
 
-            //var systemNames = await _db.PermissionRecords
-            //    .Select(x => x.SystemName)
-            //    .ToListAsync();
+            foreach (var systemName in systemNames)
+            {
+                var safeSytemName = systemName.EmptyNull().ToLower();
+                var tokens = safeSytemName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
 
-            //foreach (var systemName in systemNames)
-            //{
-            //    var safeSytemName = systemName.EmptyNull().ToLower();
-            //    var tokens = safeSytemName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                result[safeSytemName] = await GetDisplayName(tokens, language.Id, resourcesLookup);
+            }
 
-            //    result[safeSytemName] = await GetDisplayName(tokens, language.Id, resourcesLookup);
-            //}
-
-            //return result;
-            return Task.FromResult(new Dictionary<string, string>());
-        }
-
-        public Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false)
-        {
-            return Task.FromResult(new TreeNode<IPermissionNode>(new PermissionNode()));
-        }
-
-        public Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(Customer customer, bool addDisplayNames = false)
-        {
-            return Task.FromResult(new TreeNode<IPermissionNode>(new PermissionNode()));
+            return result;
         }
 
         public async Task<string> GetDiplayNameAsync(string permissionSystemName)
@@ -232,6 +398,7 @@ namespace Smartstore.Core.Security
             }
 
             var allPermissionNames = await _db.PermissionRecords
+                .AsQueryable()
                 .Select(x => x.SystemName)
                 .ToListAsync();
 
@@ -353,6 +520,7 @@ namespace Smartstore.Core.Security
                             foreach (var chunk in toDelete.Slice(500))
                             {
                                 await _db.PermissionRecords
+                                    .AsQueryable()
                                     .Where(x => chunk.Contains(x.SystemName))
                                     .BatchDeleteAsync();
                             }
@@ -377,7 +545,8 @@ namespace Smartstore.Core.Security
 
         #region Utilities
 
-        private void AddChildItems(TreeNode<IPermissionNode> parentNode, List<PermissionRecord> permissions, string path, Func<PermissionRecord, bool?> allow)
+        // TODO: (mg) (core) PermissionService.AddChildItems looks like it has to be refactored (if possible).
+        private async Task AddChildItems(TreeNode<IPermissionNode> parentNode, List<PermissionRecord> permissions, string path, Func<PermissionRecord, Task<bool?>> allow)
         {
             if (parentNode == null)
             {
@@ -401,11 +570,11 @@ namespace Smartstore.Core.Security
                 var newNode = parentNode.Append(new PermissionNode
                 {
                     PermissionRecordId = entity.Id,
-                    Allow = allow(entity),  // null = inherit
+                    Allow = await allow(entity),  // null = inherit
                     SystemName = entity.SystemName
                 }, entity.SystemName);
 
-                AddChildItems(newNode, permissions, entity.SystemName, allow);
+                await AddChildItems(newNode, permissions, entity.SystemName, allow);
             }
         }
 

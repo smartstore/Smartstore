@@ -7,7 +7,6 @@ namespace Smartstore.Core.DependencyInjection
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
         }
     }
 }

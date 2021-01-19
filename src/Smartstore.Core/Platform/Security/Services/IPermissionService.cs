@@ -11,19 +11,6 @@ namespace Smartstore.Core.Security
     public interface IPermissionService
     {
         /// <summary>
-        /// Gets system and display names of all permissions.
-        /// </summary>
-        /// <returns>System and display names.</returns>
-        Task<Dictionary<string, string>> GetAllSystemNamesAsync();
-
-        /// <summary>
-        /// Installs permissions. Permissions are automatically installed by <see cref="InstallPermissionsInitializer"/>.
-        /// </summary>
-        /// <param name="permissionProviders">Providers whose permissions are to be installed.</param>
-        /// <param name="removeUnusedPermissions">Whether to remove permissions no longer supported by the providers.</param>
-        Task InstallPermissionsAsync(IPermissionProvider[] permissionProviders, bool removeUnusedPermissions = false);
-
-        /// <summary>
         /// Checks whether given permission is granted.
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
@@ -93,6 +80,12 @@ namespace Smartstore.Core.Security
         Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(Customer customer, bool addDisplayNames = false);
 
         /// <summary>
+        /// Gets system and display names of all permissions.
+        /// </summary>
+        /// <returns>System and display names.</returns>
+        Task<Dictionary<string, string>> GetAllSystemNamesAsync();
+
+        /// <summary>
         /// Get display name for a permission system name.
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
@@ -105,5 +98,12 @@ namespace Smartstore.Core.Security
         /// <param name="permissionSystemName">Permission record system name.</param>
         /// <returns>Detailed unauthorization message</returns>
         Task<string> GetUnauthorizedMessageAsync(string permissionSystemName);
+
+        /// <summary>
+        /// Installs permissions. Permissions are automatically installed by <see cref="InstallPermissionsInitializer"/>.
+        /// </summary>
+        /// <param name="permissionProviders">Providers whose permissions are to be installed.</param>
+        /// <param name="removeUnusedPermissions">Whether to remove permissions no longer supported by the providers.</param>
+        Task InstallPermissionsAsync(IPermissionProvider[] permissionProviders, bool removeUnusedPermissions = false);
     }
 }

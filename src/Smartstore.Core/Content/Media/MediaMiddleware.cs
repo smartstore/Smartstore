@@ -88,7 +88,7 @@ namespace Smartstore.Core.Content.Media
             // Security: check allowed thumnail sizes and return 404 if disallowed.
             var thumbMaxWidth = q.MaxWidth;
             var thumbMaxHeight = q.MaxHeight;
-            var thumbSizeAllowed = IsThumbnailSizeAllowed(thumbMaxWidth) && (thumbMaxHeight == thumbMaxWidth || IsThumbnailSizeAllowed(thumbMaxHeight));
+            var thumbSizeAllowed = (await IsThumbnailSizeAllowed(thumbMaxWidth)) && (thumbMaxHeight == thumbMaxWidth || (await IsThumbnailSizeAllowed(thumbMaxHeight)));
             if (!thumbSizeAllowed)
             {
                 await NotFound(pathData.MimeType);
@@ -171,11 +171,11 @@ namespace Smartstore.Core.Content.Media
 
             #region Functions
 
-            bool IsThumbnailSizeAllowed(int? size)
+            async Task<bool> IsThumbnailSizeAllowed(int? size)
             {
                 return size.GetValueOrDefault() == 0
                     || mediaSettings.IsAllowedThumbnailSize(size.Value)
-                    || permissionService.Authorize(Permissions.Media.Update, workContext.CurrentCustomer);
+                    || !await permissionService.AuthorizeAsync(Permissions.Media.Update, workContext.CurrentCustomer);
             }
 
             async Task NotFound(string mime)

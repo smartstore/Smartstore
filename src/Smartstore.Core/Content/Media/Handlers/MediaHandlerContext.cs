@@ -71,7 +71,7 @@ namespace Smartstore.Core.Content.Media
                 if (mediaFile != null)
                 {
                     // Serve deleted or hidden files only with sufficient permission
-                    if ((mediaFile.Deleted || mediaFile.Hidden) && !PermissionService.Authorize(Permissions.Media.Update, CurrentCustomer))
+                    if ((mediaFile.Deleted || mediaFile.Hidden) && !await PermissionService.AuthorizeAsync(Permissions.Media.Update, CurrentCustomer))
                         return null;
 
                     //// File's mime must match requested mime
