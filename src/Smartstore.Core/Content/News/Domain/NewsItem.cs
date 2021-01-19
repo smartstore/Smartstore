@@ -38,10 +38,6 @@ namespace Smartstore.Core.Content.News
     /// <summary>
     /// Represents a news item.
     /// </summary>
-    // TODO: (mh) (core) not neccessary because of mapping configuration. REMOVE THIS COMMENT.
-    //[Index(nameof(LanguageId), Name = "IX_LanguageId")]
-    //[Index(nameof(MediaFileId), Name = "IX_MediaFileId")]
-    //[Index(nameof(PreviewMediaFileId), Name = "IX_PreviewMediaFileId")]
     public partial class NewsItem : BaseEntity, ISlugSupported, IStoreRestricted, ILocalizedEntity
     {
         #region static

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Customers;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Content.Forums.Domain
+namespace Smartstore.Core.Content.Forums
 {
     public class ForumTopicMap : IEntityTypeConfiguration<ForumTopic>
     {

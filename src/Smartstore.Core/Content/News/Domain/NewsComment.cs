@@ -18,8 +18,6 @@ namespace Smartstore.Core.Content.News
         }
     }
 
-    // TODO: (mh) (core) Indizes wurden bei ProductReview abgeschaut.
-
     /// <summary>
     /// Represents a news comment.
     /// </summary>

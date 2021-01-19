@@ -64,7 +64,7 @@ namespace Smartstore.Core.Messages
                 .ToPagedList(1 /* ++pageIndex */, 500)
                 .LoadAsync();
 
-            // TODO: PagedList machen wie im alten Code.
+            // TODO: (mh) (core) Work with PagedList.
 
             foreach (var subscriber in subscribers)
             {
