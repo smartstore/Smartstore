@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.Common;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Smartstore.Data
 {
@@ -141,26 +142,23 @@ namespace Smartstore.Data
         }
 
         public override void Flush()
-        {
-            throw new NotSupportedException();
-        }
+            => throw new NotSupportedException();
 
         public override void SetLength(long value)
-        {
-            throw new NotSupportedException();
-        }
+            => throw new NotSupportedException();
 
         public override void Write(byte[] buffer, int offset, int count)
-        {
-            throw new NotSupportedException();
-        }
+            => throw new NotSupportedException();
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 CloseReader();
-            }
+        }
+
+        public override ValueTask DisposeAsync()
+        {
+            return CloseReaderAsync();
         }
 
         public void CloseReader()
@@ -177,6 +175,26 @@ namespace Smartstore.Data
             {
                 if (_connection.State == ConnectionState.Open)
                     _connection.Close();
+            }
+
+            _dataIndex = 0;
+            PrimaryKey = null;
+        }
+
+        public async ValueTask CloseReaderAsync()
+        {
+            if (_reader != null)
+            {
+                if (!_reader.IsClosed)
+                    await _reader.CloseAsync();
+
+                _reader = null;
+            }
+
+            if (_connection != null)
+            {
+                if (_connection.State == ConnectionState.Open)
+                    await _connection.CloseAsync();
             }
 
             _dataIndex = 0;
