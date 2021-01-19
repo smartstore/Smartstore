@@ -301,18 +301,12 @@ namespace Smartstore.Core.Security
             {
                 var root = new TreeNode<IPermissionNode>(new PermissionNode());
 
-                var permissions = await _db.PermissionRecords
+                var allPermissions = await _db.PermissionRecords
                     .AsNoTracking()
                     .Include(x => x.PermissionRoleMappings)
                     .ToListAsync();
 
-                await AddChildItems(root, permissions, null, permission =>
-                {
-                    // TODO: (mg) (core) PermissionService.AddChildItems looks like it has to be refactored (if possible).
-                    var mapping = permission.PermissionRoleMappings.FirstOrDefault(x => x.CustomerRoleId == role.Id);
-
-                    return Task.FromResult(mapping?.Allow ?? null);
-                });
+                AddPermissions(root, allPermissions, GetChildren(null, allPermissions));
 
                 return root;
             });
@@ -327,6 +321,23 @@ namespace Smartstore.Core.Security
             }
 
             return result;
+
+            void AddPermissions(TreeNode<IPermissionNode> parent, List<PermissionRecord> allPermissions, IEnumerable<PermissionRecord> toAdd)
+            {
+                foreach (var entity in toAdd)
+                {
+                    var mapping = entity.PermissionRoleMappings.FirstOrDefault(x => x.CustomerRoleId == role.Id);
+
+                    var newNode = parent.Append(new PermissionNode
+                    {
+                        PermissionRecordId = entity.Id,
+                        Allow = mapping?.Allow ?? null,  // null = inherit
+                        SystemName = entity.SystemName
+                    }, entity.SystemName);
+
+                    AddPermissions(newNode, allPermissions, GetChildren(entity, allPermissions));
+                }
+            }
         }
 
         public async Task<TreeNode<IPermissionNode>> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false)
@@ -334,14 +345,11 @@ namespace Smartstore.Core.Security
             Guard.NotNull(customer, nameof(customer));
 
             var root = new TreeNode<IPermissionNode>(new PermissionNode());
-            var permissions = await _db.PermissionRecords
+            var allPermissions = await _db.PermissionRecords
                 .AsNoTracking()
                 .ToListAsync();
 
-            await AddChildItems(root, permissions, null, async permission =>
-            {
-                return await AuthorizeAsync(permission.SystemName, customer);
-            });
+            await AddPermissions(root, GetChildren(null, allPermissions));
 
             if (addDisplayNames)
             {
@@ -351,6 +359,21 @@ namespace Smartstore.Core.Security
             }
 
             return root;
+
+            async Task AddPermissions(TreeNode<IPermissionNode> parent, IEnumerable<PermissionRecord> toAdd)
+            {
+                foreach (var entity in toAdd)
+                {
+                    var newNode = parent.Append(new PermissionNode
+                    {
+                        PermissionRecordId = entity.Id,
+                        Allow = await AuthorizeAsync(entity.SystemName, customer),
+                        SystemName = entity.SystemName
+                    }, entity.SystemName);
+
+                    await AddPermissions(newNode, GetChildren(entity, allPermissions));
+                }
+            }
         }
 
         public async Task<Dictionary<string, string>> GetAllSystemNamesAsync()
@@ -552,36 +575,19 @@ namespace Smartstore.Core.Security
 
         #region Utilities
 
-        // TODO: (mg) (core) PermissionService.AddChildItems looks like it has to be refactored (if possible).
-        private async Task AddChildItems(TreeNode<IPermissionNode> parentNode, List<PermissionRecord> permissions, string path, Func<PermissionRecord, Task<bool?>> allow)
+        private static IEnumerable<PermissionRecord> GetChildren(PermissionRecord permission, IEnumerable<PermissionRecord> allPermissions)
         {
-            if (parentNode == null)
+            if (permission == null)
             {
-                return;
-            }
-
-            IEnumerable<PermissionRecord> entities = null;
-
-            if (path == null)
-            {
-                entities = permissions.Where(x => !x.SystemName.Contains('.'));
+                // Get root permissions.
+                return allPermissions.Where(x => !x.SystemName.Contains('.'));
             }
             else
             {
-                var tmpPath = path.EnsureEndsWith('.');
-                entities = permissions.Where(x => x.SystemName.StartsWith(tmpPath) && x.SystemName.IndexOf('.', tmpPath.Length) == -1);
-            }
+                // Get children.
+                var tmpPath = permission.SystemName.EnsureEndsWith(".");
 
-            foreach (var entity in entities)
-            {
-                var newNode = parentNode.Append(new PermissionNode
-                {
-                    PermissionRecordId = entity.Id,
-                    Allow = await allow(entity),  // null = inherit
-                    SystemName = entity.SystemName
-                }, entity.SystemName);
-
-                await AddChildItems(newNode, permissions, entity.SystemName, allow);
+                return allPermissions.Where(x => x.SystemName.StartsWith(tmpPath) && x.SystemName.IndexOf('.', tmpPath.Length) == -1);
             }
         }
 
