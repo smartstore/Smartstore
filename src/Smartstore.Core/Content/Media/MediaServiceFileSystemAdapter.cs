@@ -227,6 +227,7 @@ namespace Smartstore.Core.Content.Media
 
             var files = _mediaSearcher.SearchFiles(query)
                 .Load()
+                .AsEnumerable()
                 .Select(_mediaService.ConvertMediaFile)
                 .OfType<IFile>();
 
