@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -15,23 +14,20 @@ namespace Smartstore.Core.Messages
         private readonly SmartDbContext _db;
         private readonly IEventPublisher _eventPublisher;
         private readonly IWorkContext _workContext;
-
-        // TODO: (mh) (core) Comment in once MessageFactory is available.
-        //private readonly IMessageFactory _messageFactory;
-
+        private readonly IMessageFactory _messageFactory;
         private readonly HashSet<NewsletterSubscription> _toSubscribe = new();
         private readonly HashSet<NewsletterSubscription> _toUnsubscribe = new();
 
         public NewsletterSubscriptionService(
             SmartDbContext db,
             IEventPublisher eventPublisher,
-            IWorkContext workContext)
-            //,IMessageFactory messageFactory)
+            IWorkContext workContext,
+            IMessageFactory messageFactory)
         {
             _db = db;
             _eventPublisher = eventPublisher;
             _workContext = workContext;
-            //_messageFactory = messageFactory;
+            _messageFactory = messageFactory;
         }
 
         #region Hook 
@@ -188,8 +184,7 @@ namespace Smartstore.Core.Messages
                 {
                     if (!subscription.Active)
                     {
-                        // TODO: (mh) (core) make async
-                        // _messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
+                        await _messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
                     }
 
                     result = true;
@@ -216,8 +211,7 @@ namespace Smartstore.Core.Messages
 
                     _db.NewsletterSubscriptions.Add(subscription);
 
-                    // TODO: (mh) (core) make async
-                    //_messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
+                    await _messageFactory.SendNewsLetterSubscriptionActivationMessage(subscription, _workContext.WorkingLanguage.Id);
 
                     result = true;
                 }
