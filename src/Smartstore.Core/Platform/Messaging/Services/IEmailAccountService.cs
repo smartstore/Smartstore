@@ -8,6 +8,6 @@ namespace Smartstore.Core.Messages
         /// Gets the default email account.
         /// </summary>
         /// <returns>Email account</returns>
-        Task<EmailAccount> GetDefaultEmailAccountAsync();
+        EmailAccount GetDefaultEmailAccount();
     }
 }

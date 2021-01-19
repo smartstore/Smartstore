@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
@@ -33,16 +34,16 @@ namespace Smartstore.Core.Messages
         #endregion
 
         // TODO: (mh) (core) Don't forget model validation on insert
-        public virtual async Task<EmailAccount> GetDefaultEmailAccountAsync()
+        public virtual EmailAccount GetDefaultEmailAccount()
         {
-            var defaultEmailAccount = await _db.EmailAccounts
-                .FindByIdAsync(_emailAccountSettings.DefaultEmailAccountId);
+            var defaultEmailAccount = _db.EmailAccounts
+                .FindById(_emailAccountSettings.DefaultEmailAccountId);
 
             if (defaultEmailAccount == null)
             {
-                defaultEmailAccount = await _db.EmailAccounts
+                defaultEmailAccount = _db.EmailAccounts
                     .AsNoTracking()
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefault();
             }
         
             return defaultEmailAccount;
