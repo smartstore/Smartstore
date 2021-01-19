@@ -175,7 +175,7 @@ namespace Smartstore.Core.Content.Media
             {
                 return size.GetValueOrDefault() == 0
                     || mediaSettings.IsAllowedThumbnailSize(size.Value)
-                    || !permissionService.Authorize(Permissions.Media.Update, workContext.CurrentCustomer);
+                    || permissionService.Authorize(Permissions.Media.Update, workContext.CurrentCustomer);
             }
 
             async Task NotFound(string mime)
