@@ -224,13 +224,13 @@ namespace Smartstore.Core.Checkout.Shipping
         public virtual ShippingOptionResponse GetShippingOptions(
             IList<OrganizedShoppingCartItem> cart,
             Address shippingAddress,
-            string computationMethodSystemName = "",
+            string allowedComputationMethodSystemName = "",
             int storeId = 0)
         {
             Guard.NotNull(cart, nameof(cart));
 
             var computationMethods = LoadActiveShippingRateComputationMethods(storeId)
-                .Where(x => computationMethodSystemName.IsEmpty() || computationMethodSystemName == x.Metadata.SystemName)
+                .Where(x => allowedComputationMethodSystemName.IsEmpty() || allowedComputationMethodSystemName == x.Metadata.SystemName)
                 .ToList();
 
             if (computationMethods.IsNullOrEmpty())

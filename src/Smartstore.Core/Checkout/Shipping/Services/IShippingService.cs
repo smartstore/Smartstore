@@ -63,7 +63,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         /// <param name="cart">Shopping cart</param>
         /// <param name="shippingAddress">Shipping address</param>
-        /// <param name="computationMethodSystemName">Allowed shipping rate computation method system name</param>
+        /// <param name="allowedComputationMethodSystemName">Allowed shipping rate computation method system name</param>
         /// <param name="storeId">Filters methods by store identifier. 0 to load all methods</param>
         /// <remarks>
         /// Always returns <see cref="ShippingOption"/> if there are any, even when there are warnings
@@ -72,7 +72,7 @@ namespace Smartstore.Core.Checkout.Shipping
         ShippingOptionResponse GetShippingOptions(
             IList<OrganizedShoppingCartItem> cart,
             Address shippingAddress,
-            string computationMethodSystemName = "",
+            string allowedComputationMethodSystemName = "",
             int storeId = 0);
     }
 }
