@@ -49,7 +49,7 @@ namespace Smartstore.Core.Security
         /// Gets the permission tree for a customer role from cache.
         /// </summary>
         /// <param name="role">Customer role.</param>
-        /// <param name="addDisplayNames">A value indicating whether to add the permission display names.</param>
+        /// <param name="addDisplayNames">A value indicating whether to add permission display names.</param>
         /// <returns>Permission tree.</returns>
         Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false);
 
@@ -57,7 +57,7 @@ namespace Smartstore.Core.Security
         /// Builds the permission tree for a customer.
         /// </summary>
         /// <param name="customer">Customer.</param>
-        /// <param name="addDisplayNames">A value indicating whether to add the permission display names.</param>
+        /// <param name="addDisplayNames">A value indicating whether to add permission display names.</param>
         /// <returns>Permission tree.</returns>
         Task<TreeNode<IPermissionNode>> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false);
 

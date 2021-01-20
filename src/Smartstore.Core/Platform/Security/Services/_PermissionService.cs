@@ -268,9 +268,9 @@ namespace Smartstore.Core.Security
 
             if (addDisplayNames)
             {
-                // TODO: (mg) (core) Every call to GetPermissionTree() results in a database roundtrip. But this is HOT PATH code.
-                // Needs urgent refactoring.
-                await AddDisplayNames(result, _workContext.WorkingLanguage, null);
+                // Adds the localized display name to permission nodes as thread metadata. Only required for backend.
+                var resourcesLookup = await GetDisplayNameLookup(_workContext.WorkingLanguage.Id);
+                AddDisplayNames(result, resourcesLookup);
             }
 
             return result;
@@ -289,7 +289,8 @@ namespace Smartstore.Core.Security
 
             if (addDisplayNames)
             {
-                await AddDisplayNames(root, _workContext.WorkingLanguage, null);
+                var resourcesLookup = await GetDisplayNameLookup(_workContext.WorkingLanguage.Id);
+                AddDisplayNames(root, resourcesLookup);
             }
 
             return root;
@@ -298,8 +299,7 @@ namespace Smartstore.Core.Security
         public async Task<Dictionary<string, string>> GetAllSystemNamesAsync()
         {
             var result = new Dictionary<string, string>();
-            var language = _workContext.WorkingLanguage;
-            var resourcesLookup = await GetDisplayNameLookup(language.Id);
+            var resourcesLookup = await GetDisplayNameLookup(_workContext.WorkingLanguage.Id);
 
             var systemNames = await _db.PermissionRecords
                 .AsQueryable()
@@ -311,7 +311,7 @@ namespace Smartstore.Core.Security
                 var safeSytemName = systemName.EmptyNull().ToLower();
                 var tokens = safeSytemName.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
 
-                result[safeSytemName] = await GetDisplayName(tokens, language.Id, resourcesLookup);
+                result[safeSytemName] = GetDisplayName(tokens, resourcesLookup);
             }
 
             return result;
@@ -322,10 +322,9 @@ namespace Smartstore.Core.Security
             var tokens = permissionSystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
             if (tokens.Any())
             {
-                var language = _workContext.WorkingLanguage;
-                var resourcesLookup = await GetDisplayNameLookup(language.Id);
+                var resourcesLookup = await GetDisplayNameLookup(_workContext.WorkingLanguage.Id);
 
-                return await GetDisplayName(tokens, language.Id, resourcesLookup);
+                return GetDisplayName(tokens, resourcesLookup);
             }
 
             return string.Empty;
@@ -543,13 +542,11 @@ namespace Smartstore.Core.Security
             }
         }
 
-        private async Task AddDisplayNames(TreeNode<IPermissionNode> node, Language language, Dictionary<string, string> resourcesLookup)
+        private static void AddDisplayNames(TreeNode<IPermissionNode> node, Dictionary<string, string> resourcesLookup)
         {
-            resourcesLookup ??= await GetDisplayNameLookup(language.Id);
-
             var tokens = node.Value.SystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
             var token = tokens.LastOrDefault();
-            var displayName = await GetDisplayName(token, language.Id, resourcesLookup);
+            var displayName = GetDisplayName(token, resourcesLookup);
 
             node.SetThreadMetadata("DisplayName", displayName ?? token ?? node.Value.SystemName);
 
@@ -557,12 +554,12 @@ namespace Smartstore.Core.Security
             {
                 foreach (var children in node.Children)
                 {
-                    await AddDisplayNames(children, language, resourcesLookup);
+                    AddDisplayNames(children, resourcesLookup);
                 }
             }
         }
 
-        private async Task<string> GetDisplayName(string[] tokens, int languageId, Dictionary<string, string> resourcesLookup)
+        private static string GetDisplayName(string[] tokens, Dictionary<string, string> resourcesLookup)
         {
             var displayName = string.Empty;
 
@@ -575,32 +572,37 @@ namespace Smartstore.Core.Security
                         displayName += " » ";
                     }
 
-                    displayName += (await GetDisplayName(token, languageId, resourcesLookup)) ?? token ?? string.Empty;
+                    displayName += GetDisplayName(token, resourcesLookup) ?? token ?? string.Empty;
                 }
             }
 
             return displayName;
         }
 
-        private async Task<string> GetDisplayName(string token, int languageId, Dictionary<string, string> resourcesLookup)
+        private static string GetDisplayName(string token, Dictionary<string, string> resourcesLookup)
         {
-            if (!string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token))
             {
-                // Try known token of default permissions.
-                if (!_displayNameResourceKeys.TryGetValue(token, out var key) || !resourcesLookup.TryGetValue(key, out var name))
-                {
-                    // Unknown token. Try to find resource by name convention.
-                    key = "Permissions.DisplayName." + token.Replace("-", "");
+                return null;
+            }
 
-                    // Try resource provided by core.
-                    name = await _localizationService.GetResourceAsync(key, languageId, false, string.Empty, true);
-                    if (name.IsEmpty())
-                    {
-                        // Try resource provided by plugin.
-                        name = await _localizationService.GetResourceAsync("Plugins." + key, languageId, false, string.Empty, true);
-                    }
-                }
+            // Try known token of default permissions.
+            if (_displayNameResourceKeys.TryGetValue(token, out string key) && resourcesLookup.TryGetValue(key, out string name))
+            {
+                return name;
+            }
 
+            // Unknown token. Try to find resource by name convention.
+            key = "Permissions.DisplayName." + token.Replace("-", "");
+            if (resourcesLookup.TryGetValue(key, out name))
+            {
+                return name;
+            }
+
+            // Try resource provided by plugin.
+            key = "Plugins." + key;
+            if (resourcesLookup.TryGetValue(key, out name))
+            {
                 return name;
             }
 
@@ -609,16 +611,23 @@ namespace Smartstore.Core.Security
 
         private async Task<Dictionary<string, string>> GetDisplayNameLookup(int languageId)
         {
-            var allKeys = _displayNameResourceKeys.Select(x => x.Value);
+            var displayNames = await _cache.GetAsync("permission:displayname-" + languageId, async o =>
+            {
+                o.ExpiresIn(TimeSpan.FromDays(1));
 
-            var resources = await _db.LocaleStringResources
-                .AsNoTracking()
-                .Where(x => x.LanguageId == languageId && allKeys.Contains(x.ResourceName))
-                .ToListAsync();
+                var allKeys = _displayNameResourceKeys.Select(x => x.Value);
 
-            var resourcesLookup = resources.ToDictionarySafe(x => x.ResourceName, x => x.ResourceValue);
+                var resources = await _db.LocaleStringResources
+                    .AsNoTracking()
+                    .Where(x => x.LanguageId == languageId && 
+                        (x.ResourceName.StartsWith("Permissions.DisplayName.") || x.ResourceName.StartsWith("Plugins.Permissions.DisplayName.") || allKeys.Contains(x.ResourceName)) &&
+                        !string.IsNullOrEmpty(x.ResourceValue))
+                    .ToListAsync();
 
-            return resourcesLookup;
+                return resources.ToDictionarySafe(x => x.ResourceName, x => x.ResourceValue, StringComparer.OrdinalIgnoreCase);
+            });
+
+            return displayNames;
         }
 
         #endregion
