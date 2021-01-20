@@ -134,19 +134,16 @@ namespace Smartstore.Core.Security
             return true;
         }
 
-        public async Task<bool> AuthorizeAsync(string permissionSystemName)
+        public async Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false)
         {
-            return await AuthorizeAsync(permissionSystemName, _workContext.CurrentCustomer);
-        }
-
-        public async Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer)
-        {
-            if (customer == null || string.IsNullOrEmpty(permissionSystemName))
+            if (string.IsNullOrEmpty(permissionSystemName))
             {
                 return false;
             }
 
-            var cacheKey = "permission." + customer.Id.ToString() + "." + permissionSystemName;
+            customer ??= _workContext.CurrentCustomer;
+
+            var cacheKey = $"permission.{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
 
             var authorized = await _cache.GetAsync(cacheKey, async o =>
             {
@@ -166,6 +163,11 @@ namespace Smartstore.Core.Security
                         continue;
                     }
 
+                    if (allowByChildPermission && FindAllowByChild(node))
+                    {
+                        return true;
+                    }
+
                     while (node != null && !node.Value.Allow.HasValue)
                     {
                         node = node.Parent;
@@ -181,6 +183,27 @@ namespace Smartstore.Core.Security
             });
 
             return authorized;
+
+            static bool FindAllowByChild(TreeNode<IPermissionNode> n)
+            {
+                if (n?.Value?.Allow ?? false)
+                {
+                    return true;
+                }
+
+                if (n.HasChildren)
+                {
+                    foreach (var child in n.Children)
+                    {
+                        if (FindAllowByChild(child))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
         }
 
         public async Task<bool> AuthorizeByAliasAsync(string permissionSystemName)
@@ -223,73 +246,6 @@ namespace Smartstore.Core.Security
             }
 
             return true;
-        }
-
-        public async Task<bool> FindAuthorizationAsync(string permissionSystemName)
-        {
-            return await FindAuthorizationAsync(permissionSystemName, _workContext.CurrentCustomer);
-        }
-
-        public async Task<bool> FindAuthorizationAsync(string permissionSystemName, Customer customer)
-        {
-            // TODO: (mg) (core) I don't like the fact that FindAuthorizationAsync() shares a lot with AuthorizeAsync() but is isolated on its own. I mean, what is this for?
-
-            if (string.IsNullOrEmpty(permissionSystemName))
-            {
-                return false;
-            }
-
-            var roles = customer.CustomerRoleMappings
-                .Select(x => x.CustomerRole)
-                .Where(x => x.Active);
-
-            foreach (var role in roles)
-            {
-                var tree = await GetPermissionTreeAsync(role);
-                var node = tree.SelectNodeById(permissionSystemName);
-                if (node == null)
-                {
-                    continue;
-                }
-
-                if (FindAllowByChild(node))
-                {
-                    return true;
-                }
-
-                while (node != null && !node.Value.Allow.HasValue)
-                {
-                    node = node.Parent;
-                }
-
-                if (node?.Value?.Allow ?? false)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-
-            static bool FindAllowByChild(TreeNode<IPermissionNode> n)
-            {
-                if (n?.Value?.Allow ?? false)
-                {
-                    return true;
-                }
-
-                if (n.HasChildren)
-                {
-                    foreach (var child in n.Children)
-                    {
-                        if (FindAllowByChild(child))
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                return false;
-            }
         }
 
         public async Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false)

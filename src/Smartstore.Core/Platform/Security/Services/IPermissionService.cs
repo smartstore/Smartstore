@@ -29,16 +29,13 @@ namespace Smartstore.Core.Security
         /// Checks whether given permission is granted.
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
+        /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
+        /// <param name="allowByChildPermission">
+        /// A value indicating whether the permission is granted if any child permission is granted.
+        /// Example: if a customer has not been granted the permission to view a menu item, it should still be displayed if him has been granted the right to view any child item.
+        /// </param>
         /// <returns><c>true</c> if granted, otherwise <c>false</c>.</returns>
-        Task<bool> AuthorizeAsync(string permissionSystemName);
-
-        /// <summary>
-        /// Checks whether given permission is granted.
-        /// </summary>
-        /// <param name="permissionSystemName">Permission record system name.</param>
-        /// <param name="customer">Customer.</param>
-        /// <returns><c>true</c> if granted, otherwise <c>false</c>.</returns>
-        Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer);
+        Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false);
 
         /// <summary>
         /// Authorize permission by alias permission name. Required if granular permission migration has not yet run.
@@ -49,25 +46,10 @@ namespace Smartstore.Core.Security
         Task<bool> AuthorizeByAliasAsync(string permissionSystemName);
 
         /// <summary>
-        /// Search all child permissions for an authorization (initial permission included).
-        /// </summary>
-        /// <param name="permissionSystemName">Permission record system name.</param>
-        /// <returns><c>true</c> if authorization found, otherwise <c>false</c>.</returns>
-        Task<bool> FindAuthorizationAsync(string permissionSystemName);
-
-        /// <summary>
-        /// Search all child permissions for an authorization (initial permission included).
-        /// </summary>
-        /// <param name="permissionSystemName">Permission record system name.</param>
-        /// <param name="customer">Customer.</param>
-        /// <returns><c>true</c> if authorization found, otherwise <c>false</c>.</returns>
-        Task<bool> FindAuthorizationAsync(string permissionSystemName, Customer customer);
-
-        /// <summary>
         /// Gets the permission tree for a customer role from cache.
         /// </summary>
         /// <param name="role">Customer role.</param>
-        /// <param name="addDisplayNames">Whether to add the permission display names.</param>
+        /// <param name="addDisplayNames">A value indicating whether to add the permission display names.</param>
         /// <returns>Permission tree.</returns>
         Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false);
 
@@ -75,7 +57,7 @@ namespace Smartstore.Core.Security
         /// Builds the permission tree for a customer.
         /// </summary>
         /// <param name="customer">Customer.</param>
-        /// <param name="addDisplayNames">Whether to add the permission display names.</param>
+        /// <param name="addDisplayNames">A value indicating whether to add the permission display names.</param>
         /// <returns>Permission tree.</returns>
         Task<TreeNode<IPermissionNode>> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false);
 
