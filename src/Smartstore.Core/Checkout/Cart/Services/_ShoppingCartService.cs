@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Customers;
@@ -103,17 +105,12 @@ namespace Smartstore.Core.Checkout.Cart
         {
             Guard.NotNull(customer, nameof(customer));
 
-            var query = _db.ShoppingCartItems.Where(
-                x => x.ParentItemId == null
-                && x.CustomerId == customer.Id
-                && x.ShoppingCartTypeId == (int)cartType);
+            var query = _db.ShoppingCartItems
+                .ApplyStandardFilter(cartType, storeId, customer)
+                .Where(x => x.ParentItemId == null)
+                .SumAsync(x => (int?)x.Quantity ?? 0);
 
-            if (storeId > 0)
-            {
-                query = query.Where(x => x.StoreId == storeId);
-            }
-
-            return query.SumAsync(x => x.Quantity);
+            return query;
         }
 
         public virtual async Task<List<OrganizedShoppingCartItem>> GetCartItemsAsync(Customer customer, ShoppingCartType cartType, int storeId = 0)
@@ -121,17 +118,32 @@ namespace Smartstore.Core.Checkout.Cart
             Guard.NotNull(customer, nameof(customer));
 
             var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId);
-            var result = await _requestCache.Get(cacheKey, () =>
+            var result = await _requestCache.Get(cacheKey, async () =>
             {
-                var query = _db.ShoppingCartItems
-                    .Include(x => x.Product.ProductVariantAttributes)
-                    .ApplyStandardFilter(cartType, storeId, customer);
+                var cartItems = await _db.ShoppingCartItems
+                    .Include(x => x.Product)
+                        .ThenInclude(x=>x.ProductVariantAttributes)
+                    .ApplyStandardFilter(cartType, storeId, customer)
+                    .ToListAsync();
 
                 //// TODO: (ms) (core) PrefetchProductVariantAttributes is missing.
                 //// Perf: Prefetch (load) all attribute values in any of the attribute definitions across all cart items (including any bundle part)
-                //_productAttributeMaterializer.PrefetchProductVariantAttributes(items.Select(x => x.AttributesXml));
 
-                return OrganizeCartItemsAsync(query.ToList());
+                var allAttributes = new ProductVariantAttributeSelection(string.Empty);
+
+                foreach (var cartItem in cartItems)
+                {
+                    var attributes = new ProductVariantAttributeSelection(cartItem.RawAttributes);
+
+                    foreach (var attribute in attributes.AttributesMap)
+                    {
+                        allAttributes.AddAttribute(attribute.Key, attribute.Value);
+                    }
+                }
+
+                await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(allAttributes);
+
+                return await OrganizeCartItemsAsync(cartItems);
             });
 
             return result;
@@ -161,7 +173,7 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     var childItem = new OrganizedShoppingCartItem(child);
 
-                    if (child.RawAttributes.HasValue()                        
+                    if (child.RawAttributes.HasValue()
                         && (parent.Product?.BundlePerItemPricing ?? false)
                         && child.BundleItem != null)
                     {
@@ -219,17 +231,17 @@ namespace Smartstore.Core.Checkout.Cart
         //    // validate checkout attributes
         //    if (ensureOnlyActiveCheckoutAttributes && shoppingCartItem.ShoppingCartType == ShoppingCartType.ShoppingCart && customer != null)
         //    {
-        //        var cart = GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
+        //        var cart = await GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
 
-        //        var checkoutAttributesXml = customer.GetAttribute<string>(SystemCustomerAttributeNames.CheckoutAttributes, _genericAttributeService);
-        //        checkoutAttributesXml = _checkoutAttributeMaterializer.EnsureOnlyActiveAttributes(checkoutAttributesXml, cart);
+        //        var checkoutAttributesXml = customer.GenericAttributes.CheckoutAttributes;
+        //        checkoutAttributesXml =  cart _checkoutAttributeMaterializer.EnsureOnlyActiveAttributes(checkoutAttributesXml, cart);
         //        _genericAttributeService.SaveAttribute(customer, SystemCustomerAttributeNames.CheckoutAttributes, checkoutAttributesXml);
         //    }
 
-        //    // delete child items
+        //    // delet e child items
         //    if (deleteChildCartItems && customer != null)
         //    {
-        //        var childCartItems = _sciRepository.Table
+        //        var childCartItems = _db.ShoppingCartItems
         //            .Where(x => x.CustomerId == customer.Id && x.ParentItemId != null && x.ParentItemId.Value == cartItemId && x.Id != cartItemId)
         //            .ToList();
 
@@ -917,7 +929,7 @@ namespace Smartstore.Core.Checkout.Cart
 
         //        // existing checkout attributes
         //        var ca2Collection = _checkoutAttributeService.GetAllCheckoutAttributes(_storeContext.CurrentStore.Id);
-        //        if (!shoppingCart.RequiresShipping())
+        //        if (!shoppingCart.IsShippingRequired())
         //        {
         //            // remove attributes which require shippable products
         //            ca2Collection = ca2Collection.RemoveShippableAttributes();
@@ -984,7 +996,7 @@ namespace Smartstore.Core.Checkout.Cart
         //        if (sci.Item.ProductId == product.Id && sci.Item.Product.ProductTypeId == product.ProductTypeId)
         //        {
         //            // attributes
-        //            bool attributesEqual = _productAttributeMaterializer.AreProductAttributesEqual(sci.Item.AttributesXml, selectedAttributes);
+        //            bool attributesEqual = _productAttributeMaterializer.AreProductAttributesEqual(sci.Item.RawAttributes, selectedAttributes);
 
         //            // gift cards
         //            var giftCardInfoSame = true;
@@ -1011,7 +1023,7 @@ namespace Smartstore.Core.Checkout.Cart
         //                string giftCardMessage2 = string.Empty;
 
         //                _productAttributeMaterializer.GetGiftCardAttribute(
-        //                    sci.Item.AttributesXml,
+        //                    sci.Item.RawAttributes,
         //                    out giftCardRecipientName2,
         //                    out giftCardRecipientEmail2,
         //                    out giftCardSenderName2,
@@ -1111,10 +1123,10 @@ namespace Smartstore.Core.Checkout.Cart
 
         //        if (warnings.Count == 0)
         //        {
-        //            existingCartItem.Item.AttributesXml = selectedAttributes;
+        //            existingCartItem.Item.RawAttributes = selectedAttributes;
         //            existingCartItem.Item.Quantity = newQuantity;
         //            existingCartItem.Item.UpdatedOnUtc = DateTime.UtcNow;
-        //            _customerService.UpdateCustomer(customer);
+        //            _db.Customers.Update(customer);
         //        }
         //    }
         //    else
@@ -1145,7 +1157,7 @@ namespace Smartstore.Core.Checkout.Cart
         //                ShoppingCartType = cartType,
         //                StoreId = storeId,
         //                Product = product,
-        //                AttributesXml = selectedAttributes,
+        //                RawAttributes = selectedAttributes,
         //                CustomerEnteredPrice = customerEnteredPrice,
         //                Quantity = quantity,
         //                ParentItemId = null
@@ -1159,7 +1171,7 @@ namespace Smartstore.Core.Checkout.Cart
         //            if (ctx == null)
         //            {
         //                customer.ShoppingCartItems.Add(cartItem);
-        //                _customerService.UpdateCustomer(customer);
+        //                _db.Customers.Update(customer);
         //            }
         //            else
         //            {
@@ -1257,14 +1269,14 @@ namespace Smartstore.Core.Checkout.Cart
         //        var customer = ctx.Customer ?? _workContext.CurrentCustomer;
 
         //        customer.ShoppingCartItems.Add(ctx.Item);
-        //        _customerService.UpdateCustomer(customer);
+        //        _db.Customers.Update(customer);
 
         //        foreach (var childItem in ctx.ChildItems)
         //        {
         //            childItem.ParentItemId = ctx.Item.Id;
 
         //            customer.ShoppingCartItems.Add(childItem);
-        //            _customerService.UpdateCustomer(customer);
+        //            _db.Customers.Update(customer);
         //        }
         //    }
         //}
@@ -1287,14 +1299,14 @@ namespace Smartstore.Core.Checkout.Cart
         //        {
         //            // check warnings
         //            warnings.AddRange(GetShoppingCartItemWarnings(customer, shoppingCartItem.ShoppingCartType, shoppingCartItem.Product, shoppingCartItem.StoreId,
-        //                shoppingCartItem.AttributesXml, shoppingCartItem.CustomerEnteredPrice, newQuantity, false));
+        //                shoppingCartItem.RawAttributes, shoppingCartItem.CustomerEnteredPrice, newQuantity, false));
 
         //            if (warnings.Count == 0)
         //            {
         //                // if everything is OK, then update a shopping cart item
         //                shoppingCartItem.Quantity = newQuantity;
         //                shoppingCartItem.UpdatedOnUtc = DateTime.UtcNow;
-        //                _customerService.UpdateCustomer(customer);
+        //                _db.Customers.Update(customer);
         //            }
         //        }
         //        else
@@ -1309,7 +1321,7 @@ namespace Smartstore.Core.Checkout.Cart
         //    return warnings;
         //}
 
-        //public virtual void MigrateShoppingCart(Customer fromCustomer, Customer toCustomer)
+        //public virtual async void MigrateShoppingCartAsync(Customer fromCustomer, Customer toCustomer)
         //{
         //    Guard.NotNull(fromCustomer, nameof(fromCustomer));
         //    Guard.NotNull(toCustomer, nameof(toCustomer));
@@ -1318,7 +1330,7 @@ namespace Smartstore.Core.Checkout.Cart
         //        return;
 
         //    int storeId = 0;
-        //    var cartItems = OrganizeCartItems(fromCustomer.ShoppingCartItems);
+        //    var cartItems = await OrganizeCartItemsAsync(fromCustomer.ShoppingCartItems);
 
         //    if (cartItems.Count <= 0)
         //        return;
@@ -1349,7 +1361,7 @@ namespace Smartstore.Core.Checkout.Cart
         //        Customer = customer
         //    };
 
-        //    addToCartContext.Warnings = AddToCart(customer, sci.Item.Product, cartType, storeId, sci.Item.AttributesXml, sci.Item.CustomerEnteredPrice,
+        //    addToCartContext.Warnings = AddToCart(customer, sci.Item.Product, cartType, storeId, sci.Item.RawAttributes, sci.Item.CustomerEnteredPrice,
         //        sci.Item.Quantity, addRequiredProductsIfEnabled, addToCartContext);
 
         //    if (addToCartContext.Warnings.Count == 0 && sci.ChildItems != null)
@@ -1358,7 +1370,7 @@ namespace Smartstore.Core.Checkout.Cart
         //        {
         //            addToCartContext.BundleItem = childItem.Item.BundleItem;
 
-        //            addToCartContext.Warnings = AddToCart(customer, childItem.Item.Product, cartType, storeId, childItem.Item.AttributesXml, childItem.Item.CustomerEnteredPrice,
+        //            addToCartContext.Warnings = AddToCart(customer, childItem.Item.Product, cartType, storeId, childItem.Item.RawAttributes, childItem.Item.CustomerEnteredPrice,
         //                childItem.Item.Quantity, false, addToCartContext);
         //        }
         //    }
@@ -1370,14 +1382,11 @@ namespace Smartstore.Core.Checkout.Cart
         //    return addToCartContext.Warnings;
         //}
 
-        //public virtual decimal GetCurrentCartSubTotal()
-        //{
-        //    var cart = GetCartItemsAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
-        //    return GetCurrentCartSubTotal(cart);
-        //}
 
-        //public virtual decimal GetCurrentCartSubTotal(IList<OrganizedShoppingCartItem> cart)
+        //public virtual async decimal GetCurrentCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart = null)
         //{
+        //    cart ??= await GetCartItemsAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
+
         //    if (cart.Any())
         //    {
         //        _orderTotalCalculationService.GetShoppingCartSubTotal(cart, out _, out _, out var subTotalWithoutDiscountBase, out _);
@@ -1385,12 +1394,12 @@ namespace Smartstore.Core.Checkout.Cart
         //        return _currencyService.ConvertFromPrimaryStoreCurrency(subTotalWithoutDiscountBase, _workContext.WorkingCurrency);
         //    }
 
-        //    return decimal.Zero;
+        //    return Task.FromResult(decimal.Zero);
         //}
 
         //public virtual string GetFormattedCurrentCartSubTotal()
         //{
-        //    return _priceFormatter.FormatPrice(GetCurrentCartSubTotal());
+        //    return _priceFormatter.FormatPrice(GetCurrentCartSubTotalAsync());
         //}
 
         //public virtual string GetFormattedCurrentCartSubTotal(IList<OrganizedShoppingCartItem> cart)
@@ -1400,7 +1409,7 @@ namespace Smartstore.Core.Checkout.Cart
 
         //public decimal GetAllOpenCartSubTotal()
         //{
-        //    var subTotal = _sciRepository.Table
+        //    var subTotal = _db.ShoppingCartItems
         //        .Where(x => x.ShoppingCartTypeId == (int)ShoppingCartType.ShoppingCart && x.Product != null)
         //        .Sum(x => (decimal?)(x.Product.Price * x.Quantity)) ?? decimal.Zero;
 
@@ -1409,7 +1418,7 @@ namespace Smartstore.Core.Checkout.Cart
 
         //public decimal GetAllOpenWishlistSubTotal()
         //{
-        //    var subTotal = _sciRepository.Table
+        //    var subTotal = _db.ShoppingCartItems
         //        .Where(x => x.ShoppingCartTypeId == (int)ShoppingCartType.Wishlist && x.Product != null)
         //        .Sum(x => (decimal?)(x.Product.Price * x.Quantity)) ?? decimal.Zero;
 

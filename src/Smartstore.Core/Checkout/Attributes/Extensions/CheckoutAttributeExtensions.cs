@@ -26,14 +26,16 @@ namespace Smartstore
         /// <summary>
         /// Removes attributes from list which require shippable products, if there are no shippable products in the cart
         /// </summary>
-        public static void RemoveShippableAttributes(this IEnumerable<CheckoutAttribute> attributes, IList<OrganizedShoppingCartItem> cart)
+        public static List<CheckoutAttribute> RemoveShippableAttributes(this IEnumerable<CheckoutAttribute> attributes, IList<OrganizedShoppingCartItem> cart)
         {
             Guard.NotNull(attributes, nameof(attributes));
 
-            if (cart.IsNullOrEmpty() || !cart.IsShippingRequired())
-                return;
+            if (cart.Count == 0 || !cart.IsShippingRequired())
+                return attributes.ToList();
 
-            attributes = attributes.Where(x => !x.ShippableProductRequired);
+            return attributes
+                .Where(x => !x.ShippableProductRequired)
+                .ToList();
         }
 
         /// <summary>

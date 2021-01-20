@@ -10,8 +10,12 @@ namespace Smartstore
     public static class ShoppingCartQueryExtensions
     {
         /// <summary>        
-        /// Applies standard filter for store id, shopping cart type and customer mapping
+        /// Applies standard filter for shopping cart item.
+        /// Applies store filter, shopping cart type and customer mapping filter.
         /// </summary>
+        /// <returns>
+        /// Orders query by ID
+        /// </returns>
         public static IOrderedQueryable<ShoppingCartItem> ApplyStandardFilter(
             this IQueryable<ShoppingCartItem> query,
             ShoppingCartType type = ShoppingCartType.ShoppingCart,
@@ -30,9 +34,9 @@ namespace Smartstore
                 query = query.Where(x => x.CustomerId == customer.Id);
             }
 
-            query = query.Where(x => x.ShoppingCartTypeId == (int)type);
-
-            return query.OrderByDescending(x => x.Id);
+            return query
+                .Where(x => x.ShoppingCartTypeId == (int)type)
+                .OrderByDescending(x => x.Id);
         }
     }
 }
