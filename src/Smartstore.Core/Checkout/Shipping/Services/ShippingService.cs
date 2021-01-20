@@ -222,33 +222,24 @@ namespace Smartstore.Core.Checkout.Shipping
         }
 
         public virtual ShippingOptionResponse GetShippingOptions(
-            IList<OrganizedShoppingCartItem> cart,
-            Address shippingAddress,
-            string allowedComputationMethodSystemName = "",
-            int storeId = 0)
+            ShippingOptionRequest shippingOptionRequest, 
+            string allowedShippingRateComputationMethodSystemName = "")
         {
-            Guard.NotNull(cart, nameof(cart));
+            Guard.NotNull(shippingOptionRequest, nameof(shippingOptionRequest));
 
-            var computationMethods = LoadActiveShippingRateComputationMethods(storeId)
-                .Where(x => allowedComputationMethodSystemName.IsEmpty() || allowedComputationMethodSystemName == x.Metadata.SystemName)
+            var computationMethods = LoadActiveShippingRateComputationMethods(shippingOptionRequest.StoreId)
+                .Where(x => allowedShippingRateComputationMethodSystemName.IsEmpty() 
+                || allowedShippingRateComputationMethodSystemName == x.Metadata.SystemName)
                 .ToList();
 
             if (computationMethods.IsNullOrEmpty())
                 throw new SmartException(T("Shipping.CouldNotLoadMethod"));
 
-            var request = new ShippingOptionRequest
-            {
-                StoreId = storeId,
-                ShippingAddress = shippingAddress,
-                Customer = cart.GetCustomer(),
-                Items = cart.Where(x => x.Item.IsShippingEnabled).ToList()
-            };
-
             // Get shipping options
             var result = new ShippingOptionResponse();
             foreach (var method in computationMethods)
             {
-                var response = method.Value.GetShippingOptions(request);
+                var response = method.Value.GetShippingOptions(shippingOptionRequest);
                 foreach (var option in response.ShippingOptions)
                 {
                     option.ShippingRateComputationMethodSystemName = method.Metadata.SystemName;
@@ -263,7 +254,7 @@ namespace Smartstore.Core.Checkout.Shipping
                     foreach (var error in response.Errors)
                     {
                         result.Errors.Add(error);
-                        if (!request.Items.IsNullOrEmpty())
+                        if (!shippingOptionRequest.Items.IsNullOrEmpty())
                         {
                             Logger.Warn(error);
                         }

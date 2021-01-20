@@ -22,6 +22,5 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         public bool Success 
             => Errors.Count == 0;
-
     }
 }

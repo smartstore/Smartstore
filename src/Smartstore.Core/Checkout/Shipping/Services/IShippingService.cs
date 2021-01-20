@@ -59,20 +59,25 @@ namespace Smartstore.Core.Checkout.Shipping
         Task<decimal> GetCartTotalWeightAsync(IList<OrganizedShoppingCartItem> cart, bool includeFreeShippingProducts = true);
 
         /// <summary>
+        /// Creates a shipping option request.
+        /// </summary>
+        /// <param name="cart">List of organized shopping cart items.</param>
+        /// <param name="shippingAddress">Shipping address.</param>
+        /// <param name="storeId">Store identifier.</param>
+        /// <returns><see cref="ShippingOptionRequest"/>.</returns>
+        ShippingOptionRequest CreateShippingOptionRequest(IList<OrganizedShoppingCartItem> cart, Address shippingAddress, int storeId);
+
+        /// <summary>
         /// Gets shipping options from shopping cart async.
         /// </summary>
         /// <param name="cart">Shopping cart</param>
         /// <param name="shippingAddress">Shipping address</param>
-        /// <param name="allowedComputationMethodSystemName">Allowed shipping rate computation method system name</param>
+        /// <param name="computationMethodSystemName">Allowed shipping rate computation method system name</param>
         /// <param name="storeId">Filters methods by store identifier. 0 to load all methods</param>
         /// <remarks>
         /// Always returns <see cref="ShippingOption"/> if there are any, even when there are warnings
         /// </remarks>
         /// <returns>Get shipping option resopnse</returns>
-        ShippingOptionResponse GetShippingOptions(
-            IList<OrganizedShoppingCartItem> cart,
-            Address shippingAddress,
-            string allowedComputationMethodSystemName = "",
-            int storeId = 0);
+        ShippingOptionResponse GetShippingOptions(ShippingOptionRequest shippingOptionRequest, string allowedShippingRateComputationMethodSystemName = "");
     }
 }
