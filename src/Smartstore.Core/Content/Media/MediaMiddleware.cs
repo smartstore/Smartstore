@@ -157,7 +157,7 @@ namespace Smartstore.Core.Content.Media
                 var fileResult = CreateFileResult(responseFile, pathData);
 
                 // Cache control
-                ApplyResponseCaching(context);
+                ApplyResponseCaching(context, mediaSettings);
 
                 // INFO: Although we are outside of the MVC pipeline we gonna use ActionContext anyway, because "FileStreamResult"
                 // does everything we need (ByteRange, ETag etc.), so wo we gonna use it instead of reinventing the wheel.
@@ -207,17 +207,54 @@ namespace Smartstore.Core.Content.Media
             };
         }
 
-        private static void ApplyResponseCaching(HttpContext context)
+        private static void ApplyResponseCaching(HttpContext context, MediaSettings mediaSettings)
         {
-            // TODO: (core) cache-control for media files from config
-            context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue
+            var headers = context.Response.Headers;
+
+            // Clear current cache headers
+            headers.Remove(HeaderNames.CacheControl);
+            headers.Remove(HeaderNames.Pragma);
+
+            if (mediaSettings.ResponseCacheNoStore)
             {
-                //Public = true,
-                NoCache = true,
-                //NoStore = true,
-                //MustRevalidate = true,
-                //MaxAge = TimeSpan.FromSeconds(60000)
-            };
+                headers[HeaderNames.CacheControl] = "no-store";
+
+                // Cache-control: no-store, no-cache is valid.
+                if (mediaSettings.ResponseCacheLocation == ResponseCacheLocation.None)
+                {
+                    headers.AppendCommaSeparatedValues(HeaderNames.CacheControl, "no-cache");
+                    headers[HeaderNames.Pragma] = "no-cache";
+                }
+            }
+            else
+            {
+                string cacheControlValue;
+                switch (mediaSettings.ResponseCacheLocation)
+                {
+                    case ResponseCacheLocation.Any:
+                        cacheControlValue = "public,";
+                        break;
+                    case ResponseCacheLocation.Client:
+                        cacheControlValue = "private,";
+                        break;
+                    case ResponseCacheLocation.None:
+                        cacheControlValue = "no-cache,";
+                        headers[HeaderNames.Pragma] = "no-cache";
+                        break;
+                    default:
+                        cacheControlValue = null;
+                        break;
+                }
+
+                var duration = mediaSettings.ResponseCacheDuration;
+                if (duration <= 0)
+                {
+                    duration = 60; // 1 minute.
+                }
+
+                cacheControlValue = $"{cacheControlValue}max-age={duration}";
+                headers[HeaderNames.CacheControl] = cacheControlValue;
+            }
         }
 
         private async Task<ProcessImageQuery> CreateImageQuery(HttpContext context, string mimeType, string extension)

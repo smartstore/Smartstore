@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Configuration;
 using Smartstore.Imaging;
 
@@ -212,10 +213,38 @@ namespace Smartstore.Core.Content.Media
         #region Response Caching
 
         /// <summary>
+        /// Gets or sets the duration in seconds for which a media file response is cached.
+        /// This sets "max-age" in "Cache-control" header.
+        /// The default is 604800 sec. (7 days).
+        /// </summary>
+        public int ResponseCacheDuration { get; set; } = 604800;
+
+        /// <summary>
+        /// Gets or sets the location where a media file response must be cached.
+        /// The defualt is <see cref="ResponseCacheLocation.Any"/>
+        /// (cache in both proxies and client, sets "Cache-control" header to "public").
+        /// </summary>
+        public ResponseCacheLocation ResponseCacheLocation { get; set; } = ResponseCacheLocation.Any;
+
+        /// <summary>
+        /// Gets or sets the value which determines whether a media file response should be stored or not.
+        /// When set to <see langword="true"/>, it sets "Cache-control" header to "no-store".
+        /// Ignores the "Location" parameter for values other than "None".
+        /// Ignores the "duration" parameter.
+        /// Setting this to <see langword="true"/> has the effect that no HTTP 304 revalidation can
+        /// occur on the server because the client has been instructed not to cache the response.
+        /// </summary>
+        public bool ResponseCacheNoStore { get; set; }
+
+        /// <summary>
         /// If <see langword="true"/>, appends file version hash to every generated url in "ver" query
         /// to force clients (e.g. the browser) to ignore their local copy when the file has changed.
         /// The hash includes last modified date and file size.
         /// </summary>
+        /// <remarks>
+        /// Setting this to <see langword="true"/> does not make any sense when the cache location
+        /// is <see cref="ResponseCacheLocation.None"/> or <see cref="ResponseCacheNoStore"/> is <see langword="true"/>.
+        /// </remarks>
         public bool AppendFileVersionToUrl { get; set; }
 
         #endregion
