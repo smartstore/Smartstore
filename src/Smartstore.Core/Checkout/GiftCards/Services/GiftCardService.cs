@@ -35,16 +35,12 @@ namespace Smartstore.Core.Checkout.GiftCards
             {
                 // Get gift card codes applied by customer
                 // TODO: (ms) (core) make sure this (attributesselection) works correctly
-                var rawCouponCodes = customer.GenericAttributes.GiftCardCouponCodes;
-                if (rawCouponCodes.IsEmpty())
+                var couponCodes = customer.GenericAttributes.GiftCardCouponCodes;
+                if (couponCodes.IsNullOrEmpty())
                     return Task.FromResult(new List<AppliedGiftCard>());
 
                 // Get gift card codes applied by customer
-                var couponCodes = new GiftCardCoupon(rawCouponCodes).AttributesMap
-                    .SelectMany(x => x.Value.Cast<string>())
-                    .ToArray();
-
-                query = query.ApplyCouponFilter(couponCodes);
+                query = query.ApplyCouponFilter(couponCodes.ToArray());
             }
 
             // Get valid gift cards (remaining useable amount > 0)
