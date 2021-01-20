@@ -12,23 +12,23 @@ namespace Smartstore.Core.Checkout.Cart
     /// </summary>
     public partial interface IShoppingCartService
     {
-		/// <summary>
-		/// Gets the shopping cart items count
-		/// </summary>
-		/// <param name="customer">Customer. Cannot be null.</param>
-		/// <param name="cartType">Type of cart to get items count for</param>
-		/// <param name="storeId">Store id</param>
-		/// <returns>Sum of all item quantities</returns>
-		int CountItems(Customer customer, ShoppingCartType cartType, int? storeId = null);
+        /// <summary>
+        /// Gets the shopping cart items count
+        /// </summary>
+        /// <param name="customer">Customer. Cannot be null.</param>
+        /// <param name="cartType">Type of cart to get items count for</param>
+        /// <param name="storeId">Store id</param>
+        /// <returns>Sum of all item quantities</returns>
+        Task<int> CountItemsAsync(Customer customer, ShoppingCartType cartType, int storeId = 0);
 
-		/// <summary>
-		/// Gets the shopping cart items
-		/// </summary>
-		/// <param name="customer">Customer. Cannot be null.</param>
-		/// <param name="cartType">Type of cart to get items for</param>
-		/// <param name="storeId">Store id</param>
-		/// <returns>All cart items</returns>
-		Task<List<OrganizedShoppingCartItem>> GetCartItemsAsync(Customer customer, ShoppingCartType cartType, int storeId = 0);
+        /// <summary>
+        /// Gets the shopping cart items
+        /// </summary>
+        /// <param name="customer">Customer. Cannot be null.</param>
+        /// <param name="cartType">Type of cart to get items for</param>
+        /// <param name="storeId">Store id</param>
+        /// <returns>All cart items</returns>
+        Task<List<OrganizedShoppingCartItem>> GetCartItemsAsync(Customer customer, ShoppingCartType cartType, int storeId = 0);
 
         ///// <summary>
         ///// Delete shopping cart item
