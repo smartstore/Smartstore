@@ -45,6 +45,7 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Web.Controllers
 {
@@ -683,6 +684,20 @@ namespace Smartstore.Web.Controllers
                 includePrices: false);
             content.AppendLine("Formatted attributes:");
             content.AppendLine(formattedAttributes);
+
+            var role = await _db.CustomerRoles.FindByIdAsync(1);
+            var permissionService = _services.Resolve<IPermissionService>();
+            var tree = await permissionService.GetPermissionTreeAsync(role, true);
+            var nodes = tree.FlattenNodes();
+
+            content.AppendLine();
+            foreach (var node in nodes)
+            {
+                var displayName = node.GetMetadata<string>("DisplayName", false);
+                var allow = node.Value.Allow.HasValue ? (node.Value.Allow.Value ? "1" : "0") : "-";
+                content.AppendLine($"{allow} {node.Value.SystemName}: {displayName}");
+            }
+
 
             //var product = await _db.Products.FindByIdAsync(4366);
             //content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");

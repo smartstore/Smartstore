@@ -305,38 +305,19 @@ namespace Smartstore.Core.Security
                     .Include(x => x.PermissionRoleMappings)
                     .ToListAsync();
 
-                AddPermissions(root, allPermissions, GetChildren(null, allPermissions));
+                await AddPermissions(root, GetChildren(null, allPermissions), allPermissions, null, role);
 
                 return root;
             });
 
             if (addDisplayNames)
             {
-                var language = _workContext.WorkingLanguage;
                 // TODO: (mg) (core) Every call to GetPermissionTree() results in a database roundtrip. But this is HOT PATH code.
                 // Needs urgent refactoring.
-                var resourcesLookup = await GetDisplayNameLookup(language.Id);
-                await AddDisplayName(result, language.Id, resourcesLookup);
+                await AddDisplayNames(result, _workContext.WorkingLanguage, null);
             }
 
             return result;
-
-            void AddPermissions(TreeNode<IPermissionNode> parent, List<PermissionRecord> allPermissions, IEnumerable<PermissionRecord> toAdd)
-            {
-                foreach (var entity in toAdd)
-                {
-                    var mapping = entity.PermissionRoleMappings.FirstOrDefault(x => x.CustomerRoleId == role.Id);
-
-                    var newNode = parent.Append(new PermissionNode
-                    {
-                        PermissionRecordId = entity.Id,
-                        Allow = mapping?.Allow ?? null,  // null = inherit
-                        SystemName = entity.SystemName
-                    }, entity.SystemName);
-
-                    AddPermissions(newNode, allPermissions, GetChildren(entity, allPermissions));
-                }
-            }
         }
 
         public async Task<TreeNode<IPermissionNode>> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false)
@@ -348,31 +329,14 @@ namespace Smartstore.Core.Security
                 .AsNoTracking()
                 .ToListAsync();
 
-            await AddPermissions(root, GetChildren(null, allPermissions));
+            await AddPermissions(root, GetChildren(null, allPermissions), allPermissions, customer, null);
 
             if (addDisplayNames)
             {
-                var language = _workContext.WorkingLanguage;
-                var resourcesLookup = await GetDisplayNameLookup(language.Id);
-                await AddDisplayName(root, language.Id, resourcesLookup);
+                await AddDisplayNames(root, _workContext.WorkingLanguage, null);
             }
 
             return root;
-
-            async Task AddPermissions(TreeNode<IPermissionNode> parent, IEnumerable<PermissionRecord> toAdd)
-            {
-                foreach (var entity in toAdd)
-                {
-                    var newNode = parent.Append(new PermissionNode
-                    {
-                        PermissionRecordId = entity.Id,
-                        Allow = await AuthorizeAsync(entity.SystemName, customer),
-                        SystemName = entity.SystemName
-                    }, entity.SystemName);
-
-                    await AddPermissions(newNode, GetChildren(entity, allPermissions));
-                }
-            }
         }
 
         public async Task<Dictionary<string, string>> GetAllSystemNamesAsync()
@@ -590,19 +554,54 @@ namespace Smartstore.Core.Security
             }
         }
 
-        private async Task AddDisplayName(TreeNode<IPermissionNode> node, int languageId, Dictionary<string, string> resourcesLookup)
+        private async Task AddPermissions(
+            TreeNode<IPermissionNode> parent,
+            IEnumerable<PermissionRecord> toAdd,
+            List<PermissionRecord> allPermissions,
+            Customer customer,
+            CustomerRole role)
         {
+            foreach (var entity in toAdd)
+            {
+                // null = inherit
+                bool? allow = null;
+
+                if (role != null)
+                {
+                    var mapping = entity.PermissionRoleMappings.FirstOrDefault(x => x.CustomerRoleId == role.Id);
+                    allow = mapping?.Allow ?? null;
+                }
+                else
+                {
+                    allow = await AuthorizeAsync(entity.SystemName, customer);
+                }                
+
+                var newNode = parent.Append(new PermissionNode
+                {
+                    PermissionRecordId = entity.Id,
+                    Allow = allow,
+                    SystemName = entity.SystemName
+                }, entity.SystemName);
+
+                await AddPermissions(newNode, GetChildren(entity, allPermissions), allPermissions, customer, role);
+            }
+        }
+
+        private async Task AddDisplayNames(TreeNode<IPermissionNode> node, Language language, Dictionary<string, string> resourcesLookup)
+        {
+            resourcesLookup ??= await GetDisplayNameLookup(language.Id);
+
             var tokens = node.Value.SystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
             var token = tokens.LastOrDefault();
-            var displayName = (await GetDisplayName(token, languageId, resourcesLookup)) ?? token ?? node.Value.SystemName;
+            var displayName = await GetDisplayName(token, language.Id, resourcesLookup);
 
-            node.SetThreadMetadata("DisplayName", displayName);
+            node.SetThreadMetadata("DisplayName", displayName ?? token ?? node.Value.SystemName);
 
             if (node.HasChildren)
             {
                 foreach (var children in node.Children)
                 {
-                    await AddDisplayName(children, languageId, resourcesLookup);
+                    await AddDisplayNames(children, language, resourcesLookup);
                 }
             }
         }
