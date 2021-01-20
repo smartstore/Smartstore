@@ -16,6 +16,8 @@ using Smartstore.Core.Customers;
 using Smartstore.Core.Security;
 using Smartstore.Events;
 using Smartstore.IO;
+using Smartstore.Net;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -199,20 +201,23 @@ namespace Smartstore.Core.Content.Media
             return new FileStreamResult(file.OpenRead(), pathData.MimeType)
             {
                 EnableRangeProcessing = true,
-                LastModified = file.LastModified,
-                EntityTag = GenerateETag(file)
+                // INFO: (core)(perf)I think ETag is sufficient and ignoring this reduces header comparison by one item.
+                //LastModified = file.LastModified,
+                EntityTag = new EntityTagHeaderValue('\"' + ETagUtility.GenerateETag(file) + '\"')
             };
         }
 
-        private static EntityTagHeaderValue GenerateETag(IFile file)
+        private static void ApplyResponseCaching(HttpContext context)
         {
-            // TODO: (core) Make extension methods for IFile, FileInfo etc.
-            var len = file.Length;
-            var last = file.LastModified;
-            var lastModified = new DateTimeOffset(last.Year, last.Month, last.Day, last.Hour, last.Minute, last.Second, last.Offset).ToUniversalTime();
-            long etagHash = lastModified.ToFileTime() ^ len;
-
-            return new EntityTagHeaderValue('\"' + Convert.ToString(etagHash, 16) + '\"');
+            // TODO: (core) cache-control for media files from config
+            context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue
+            {
+                //Public = true,
+                NoCache = true,
+                //NoStore = true,
+                //MustRevalidate = true,
+                //MaxAge = TimeSpan.FromSeconds(60000)
+            };
         }
 
         private async Task<ProcessImageQuery> CreateImageQuery(HttpContext context, string mimeType, string extension)
@@ -238,17 +243,6 @@ namespace Smartstore.Core.Content.Media
             await _eventPublisher.PublishAsync(new ImageQueryCreatedEvent(query, context, mimeType, extension));
 
             return query;
-        }
-
-        private static void ApplyResponseCaching(HttpContext context)
-        {
-            // TODO: (core) cache-control for media files from config
-            context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue
-            {
-                Public = true,
-                MustRevalidate = true,
-                MaxAge = TimeSpan.FromSeconds(60000)
-            };
         }
     }
 }

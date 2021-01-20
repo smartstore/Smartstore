@@ -108,16 +108,15 @@ namespace Smartstore.Core.Security
         private readonly ILocalizationService _localizationService;
         private readonly ICacheManager _cache;
 
-        // TODO: (core) Fix dependency exception in PermissionService ctor caused by early Autofac registration in SecurityStarter.
         public PermissionService(
             SmartDbContext db,
-            //IWorkContext workContext,
-            //ILocalizationService localizationService,
+            IWorkContext workContext,
+            ILocalizationService localizationService,
             ICacheManager cache)
         {
             _db = db;
-            //_workContext = workContext;
-            //_localizationService = localizationService;
+            _workContext = workContext;
+            _localizationService = localizationService;
             _cache = cache;
         }
 

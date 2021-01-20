@@ -5,6 +5,7 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
+using Smartstore.Net;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
@@ -14,6 +15,8 @@ namespace Smartstore.Core.Content.Media
         const string _fallbackImagesRootPath = "content/images/";
 
         private readonly IMediaStorageConfiguration _storageConfig;
+        private readonly MediaSettings _mediaSettings;
+
         private readonly string _host;
         private readonly string _pathBase;
         private readonly string _fallbackImageFileName;
@@ -27,6 +30,8 @@ namespace Smartstore.Core.Content.Media
             IStoreContext storeContext,
             IHttpContextAccessor httpContextAccessor)
         {
+            _mediaSettings = mediaSettings;
+            
             _storageConfig = storageConfig;
             _processedImagesRootPath = storageConfig.PublicPath;
 
@@ -62,7 +67,7 @@ namespace Smartstore.Core.Content.Media
 
         public virtual string GenerateUrl(
             MediaFileInfo file,
-            ProcessImageQuery imageQuery,
+            QueryString query = default,
             string host = null,
             bool doFallback = true)
         {
@@ -107,10 +112,16 @@ namespace Smartstore.Core.Content.Media
             url += path;
 
             // Append query
-            var query = imageQuery?.ToString();
-            if (query != null && query.Length > 0)
+            var hasQuery = false;
+            if (query.HasValue)
             {
-                url += query;
+                url += query.ToString();
+                hasQuery = true;
+            }
+
+            if (file != null && _mediaSettings.AppendFileVersionToUrl)
+            {
+                url += (hasQuery ? '&' : '?') + "ver=" + ETagUtility.GenerateETag(file.LastModified, file.Length);
             }
 
             return url;

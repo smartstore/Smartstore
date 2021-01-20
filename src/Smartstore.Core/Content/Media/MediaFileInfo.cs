@@ -5,8 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
+using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.IO;
 
@@ -24,6 +26,9 @@ namespace Smartstore.Core.Content.Media
         {
             File = file;
             Directory = directory.EmptyNull();
+            Path = Directory.Length > 0
+                ? Directory + '/' + file.Name
+                : file.Name;
 
             if (file.Width.HasValue && file.Height.HasValue)
             {
@@ -100,8 +105,7 @@ namespace Smartstore.Core.Content.Media
             => fileInfo.File;
 
         [JsonProperty("path")]
-        public string Path 
-            => (Directory + '/' + File.Name).Trim('/');
+        public string Path { get; }
 
         #region Url
 
@@ -125,14 +129,11 @@ namespace Smartstore.Core.Content.Media
             var cacheKey = (maxSize, host);
             if (!_cachedUrls.TryGetValue(cacheKey, out var url))
             {
-                url = _urlGenerator.GenerateUrl(this, null, host, false);
-
-                if (maxSize > 0)
-                {
-                    // (perf) Instead of calling GenerateUrl() with a processing query we simply
-                    // append the query part to the string.
-                    url += "?size=" + maxSize.ToString(CultureInfo.InvariantCulture);
-                }
+                var query = maxSize > 0
+                    ? QueryString.Create("size", maxSize.ToString(CultureInfo.InvariantCulture))
+                    : QueryString.Empty;
+                
+                url = _urlGenerator.GenerateUrl(this, query, host, false);
 
                 _cachedUrls[cacheKey] = url;
             }
@@ -154,11 +155,11 @@ namespace Smartstore.Core.Content.Media
 
         /// <inheritdoc/>
         [JsonProperty("lastUpdated")]
-        DateTimeOffset IFileInfo.LastModified => File.UpdatedOnUtc;
+        public DateTimeOffset LastModified => File.UpdatedOnUtc;
 
         /// <inheritdoc/>
         [JsonProperty("size")]
-        long IFileInfo.Length => File.Size;
+        public long Length => File.Size;
 
         /// <inheritdoc/>
         [JsonProperty("name")]

@@ -208,5 +208,16 @@ namespace Smartstore.Core.Content.Media
         public QuantizationMethod GifQuantizationMethod { get; set; } = QuantizationMethod.Octree;
 
         #endregion
+
+        #region Response Caching
+
+        /// <summary>
+        /// If <see langword="true"/>, appends file version hash to every generated url in "ver" query
+        /// to force clients (e.g. the browser) to ignore their local copy when the file has changed.
+        /// The hash includes last modified date and file size.
+        /// </summary>
+        public bool AppendFileVersionToUrl { get; set; }
+
+        #endregion
     }
 }
