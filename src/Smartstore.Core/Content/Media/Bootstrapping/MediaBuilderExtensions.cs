@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Content.Media;
 
 namespace Smartstore.Core.Bootstrapping
@@ -14,11 +15,14 @@ namespace Smartstore.Core.Bootstrapping
         {
             Guard.NotNull(endpoints, nameof(endpoints));
 
+            var mediaStorageConfiguration = endpoints.ServiceProvider.GetRequiredService<IMediaStorageConfiguration>();
+            var mediaPublicPath = mediaStorageConfiguration.PublicPath;
+
             var pipeline = endpoints.CreateApplicationBuilder()
                .UseMiddleware<MediaMiddleware>()
                .Build();
-
-            return endpoints.Map("media/{id:int}/{**path}", pipeline)
+            
+            return endpoints.Map(mediaPublicPath + "{id:int}/{**path}", pipeline)
                 .WithMetadata(new HttpMethodMetadata(new[] { "GET", "HEAD" }))
                 .WithDisplayName("Media");
         }

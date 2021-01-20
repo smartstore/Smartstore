@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Data;
 using Smartstore.Engine;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -56,7 +57,7 @@ namespace Smartstore.Core.Content.Media
             _appContext = appContext;
             _httpContextAccessor = httpContextAccessor;
 
-            PublicPath = "media/";
+            PublicPath = GetPublicPath(appContext.AppConfiguration);
             StoragePath = "App_Data/Tenants/" + DataSettings.Instance.TenantName + "/Media";
             RootPath = Path.Combine(appContext.ContentRoot.Root, StoragePath.Replace('/', '\\'));
             IsStoragePathRooted = false;
@@ -68,6 +69,18 @@ namespace Smartstore.Core.Content.Media
         public string RootPath { get; private set; }
         public bool IsStoragePathRooted { get; private set; }
         public bool IsCloudStorage { get; private set; }
+
+        private static string GetPublicPath(SmartConfiguration appConfig)
+        {
+            var path = appConfig.MediaPublicPath?.Trim().NullEmpty() ?? "media";
+
+            if (path.IsWebUrl())
+            {
+                throw new NotSupportedException($"Fully qualified URLs are not supported for the {TypeHelper.NameOf<SmartConfiguration>(x => x.MediaPublicPath)} setting.");
+            }
+
+            return path.TrimStart('~', '/').Replace('\\', '/').ToLower().EnsureEndsWith('/');
+        }
 
         //private static string GetRootPath(IApplicationContext appContext)
         //{
