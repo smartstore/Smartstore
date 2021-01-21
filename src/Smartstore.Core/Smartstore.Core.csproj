@@ -23,6 +23,7 @@
     <Folder Include="Catalog\Attributes\Utils\" />
     <Folder Include="Checkout\Shipping\Tracking\" />
     <Folder Include="Content\Media\Tasks\" />
+    <Folder Include="Content\Blocks\" />
   </ItemGroup>
 
   <ItemGroup>

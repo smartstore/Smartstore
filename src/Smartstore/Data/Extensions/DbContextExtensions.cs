@@ -298,7 +298,7 @@ namespace Smartstore
             var collection = entry.Collection(navigationProperty);
 
             // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
-            if (entry.State == EfState.Detached)
+            if (entry.State == EfState.Detached || entry.State == EfState.Added)
             {
                 return false;
             }
@@ -320,7 +320,7 @@ namespace Smartstore
             var reference = entry.Reference(navigationProperty);
 
             // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
-            if (entry.State == EfState.Detached)
+            if (entry.State == EfState.Detached || entry.State == EfState.Added)
             {
                 return false;
             }

@@ -430,8 +430,8 @@ namespace Smartstore.Core.Security
                                             };
 
                                             _db.CustomerRoles.Add(role);
-
                                             await scope.CommitAsync();
+
                                             existingRoles[roleName] = role;
                                         }
 
