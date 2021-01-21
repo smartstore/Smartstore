@@ -442,7 +442,6 @@ namespace Smartstore.Core.Security
                                         });
                                     }
 
-                                    // TODO: (mg) (core) DbSet.AddAsync() does not save anything. It just begins tracking!
                                     await _db.PermissionRecords.AddAsync(newPermission);
 
                                     clearCache = true;
@@ -624,7 +623,8 @@ namespace Smartstore.Core.Security
             var token = tokens.LastOrDefault();
             var displayName = GetDisplayName(token, resourcesLookup);
 
-            // TODO: (mg) (core) SetThreadMetadata cannot work anymore because methods are async. Requires refactoring.
+            // TODO: (core) SetThreadMetadata\AsyncLocal doesn't work with async methods (here GetPermissionTreeAsync) because the "inner" context values never flow back to the caller.
+            // See https://stackoverflow.com/a/42959816.
             node.SetThreadMetadata("DisplayName", displayName ?? token ?? node.Value.SystemName);
 
             if (node.HasChildren)
