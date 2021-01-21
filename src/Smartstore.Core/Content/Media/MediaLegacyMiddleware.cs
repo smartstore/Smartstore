@@ -1,19 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Smartstore.Core.Content.Media.Imaging;
-using Smartstore.Core.Security;
-using Smartstore.Events;
-using Smartstore.IO;
-using Smartstore.Net;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -22,6 +10,10 @@ namespace Smartstore.Core.Content.Media
     /// </summary>
     public class MediaLegacyMiddleware
     {
+        public MediaLegacyMiddleware(RequestDelegate _)
+        {
+        }
+
         public async Task Invoke(HttpContext context, IMediaService mediaService, IMediaUrlGenerator mediaUrlGenerator)
         {
             var path = context.GetRouteValueAs<string>("path");

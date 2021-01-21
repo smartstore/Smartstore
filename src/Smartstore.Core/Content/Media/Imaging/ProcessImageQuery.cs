@@ -175,15 +175,15 @@ namespace Smartstore.Core.Content.Media.Imaging
             if (Count == 0)
                 return false;
 
-            if (Equals(Format, "svg"))
-            {
-                // SVG cannot be processed.
-                return false;
-            }
-
             if (ignoreQualityFlag && Count == 1 && this["q"].Count > 0)
             {
                 // Return false if ignoreQualityFlag is true and "q" is the only flag.
+                return false;
+            }
+
+            if (Equals(Format, "svg"))
+            {
+                // SVG cannot be processed.
                 return false;
             }
 
