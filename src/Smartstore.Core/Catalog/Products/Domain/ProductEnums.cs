@@ -122,22 +122,6 @@
     }
 
     /// <summary>
-    /// Represents the gift card type.
-    /// </summary>
-    public enum GiftCardType
-    {
-        /// <summary>
-        /// Virtual gift card.
-        /// </summary>
-        Virtual = 0,
-
-        /// <summary>
-        /// Physical gift card.
-        /// </summary>
-        Physical = 1
-    }
-
-    /// <summary>
     /// Represents the low stock activity.
     /// </summary>
     public enum LowStockActivity

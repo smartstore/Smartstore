@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Smartstore.Core.Checkout.GiftCards.Domain;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Domain;
 
@@ -22,7 +23,7 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// <summary>
     /// Represents a gift card
     /// </summary>
-    public partial class GiftCard : EntityWithAttributes
+    public partial class GiftCard : EntityWithAttributes, IGiftCardAttributes
     {
         private readonly ILazyLoader _lazyLoader;
 

@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
 using Smartstore.Collections;
+using Smartstore.Core.Checkout.GiftCards.Domain;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    // TODO: (mg) (core) AttributeSelection doesn't support Gift Card attributes format!
-    // E.g. <Attributes><GiftCardInfo><RecipientName>Max</RecipientName><RecipientEmail>maxmustermann@yahoo.de</RecipientEmail><SenderName>Erika</SenderName><SenderEmail>....
-
     /// <summary>
     /// Represents a product variant attribute selection.
     /// </summary>
@@ -15,66 +17,78 @@ namespace Smartstore.Core.Catalog.Attributes
     /// </remarks>
     public class ProductVariantAttributeSelection : AttributeSelection
     {
+        public GiftCardAttributes GiftCardAttributes { get; private set; } = null;
+
+        private readonly Dictionary<string, int> _additionalKeyCodes = new()
+        {
+            { "GiftCardInfo", -10 }
+        };
+
+        protected override Dictionary<string, int> AdditionalKeyCodes
+            => _additionalKeyCodes;
+
         /// <summary>
         /// Creates product variant attribute selection from string as <see cref="Multimap{int, object}"/>. 
         /// Use <see cref="AttributeSelection.AttributesMap"/> to access parsed attributes afterwards.
         /// </summary>
         /// <remarks>
         /// Automatically differentiates between XML and JSON.
-        /// </remarks>        
+        /// </remarks>
         /// <param name="rawAttributes">XML or JSON attributes string.</param>  
         public ProductVariantAttributeSelection(string rawAttributes)
             : base(rawAttributes, "ProductVariantAttribute")
         {
         }
 
-        public IGiftCardAttributes GetGiftCardAttributes()
+        protected override void FromAdditionalXml(XElement xElement, Multimap<int, object> map)
         {
-            return null;
+            if (xElement.Name.LocalName == "GiftCardInfo")
+            {
+                try
+                {
+                    var attributes = new List<string>();
+
+                    var giftCardAttributes = new GiftCardAttributes();
+                    foreach (var element in xElement.Descendants())
+                    {
+                        giftCardAttributes.AddAttribute(element.Name.LocalName, element.Value);
+                    }
+
+                    if (giftCardAttributes.IsValidInfo())
+                    {
+                        GiftCardAttributes = giftCardAttributes;
+                        map.AddRange(AdditionalKeyCodes["GiftCardInfo"], giftCardAttributes.ToList());
+                    }
+                    else
+                    {
+                        throw new Exception("No valid gift card attribute info");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new XmlException("Error while trying to parse from additional XML: " + nameof(ProductVariantAttributeSelection), ex);
+                }
+            }
         }
 
-        //private static GiftCardAttributes FromXml(string xmlAttributes)
-        //{
-        //    try
-        //    {
-        //        var xElement = XElement.Parse(xmlAttributes);
-        //        var element = xElement.Descendants("GiftCardInfo").FirstOrDefault();
-        //        if (element != null)
-        //        {
-        //            return new GiftCardAttributes
-        //            {
-        //                RecipientName = element.Element("RecipientName")?.Value,
-        //                RecipientEmail = element.Element("RecipientEmail")?.Value,
-        //                SenderName = element.Element("SenderName")?.Value,
-        //                SenderEmail = element.Element("SenderEmail")?.Value,
-        //                Message = element.Element("Message")?.Value
-        //            };
-        //        }
+        protected override bool ToAdditionalXml(XElement root, KeyValuePair<int, ICollection<object>> attribute)
+        {
+            if (attribute.Key == AdditionalKeyCodes["GiftCardInfo"])
+            {
+                var xElement = new XElement("GiftCardInfo");
+                var attributeValues = attribute.Value.Select(x => x.ToString()).ToList();
+                var giftCardAttributes = new GiftCardAttributes(attributeValues);
 
-        //        return null;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new XmlException("Error while trying to parse from gift card XML: " + xmlAttributes, ex);
-        //    }
-        //}
-    }
+                foreach (var prop in giftCardAttributes.GetType().GetProperties())
+                {
+                    xElement.Add(new XElement(prop.Name, prop.GetValue(giftCardAttributes)));
+                }
 
-    public interface IGiftCardAttributes
-    {
-        string RecipientName { get; }
-        string RecipientEmail { get; }
-        string SenderName { get; }
-        string SenderEmail { get; }
-        string Message { get; }
-    }
+                root.Add(xElement);
+                return true;
+            }
 
-    public class GiftCardAttributes : IGiftCardAttributes
-    {
-        public string RecipientName { get; set; }
-        public string RecipientEmail { get; set; }
-        public string SenderName { get; set; }
-        public string SenderEmail { get; set; }
-        public string Message { get; set; }
+            return false;
+        }
     }
 }

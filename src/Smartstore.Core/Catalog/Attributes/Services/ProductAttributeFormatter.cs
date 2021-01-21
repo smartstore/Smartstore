@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.GiftCards;
+using Smartstore.Core.Checkout.GiftCards.Domain;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Customers;
@@ -193,8 +195,8 @@ namespace Smartstore.Core.Catalog.Attributes
             }
 
             if (includeGiftCardAttributes && product.IsGiftCard)
-            {
-                var gca = selection.GetGiftCardAttributes();
+            {                
+                var gca = selection.GiftCardAttributes;
                 if (gca != null)
                 {
                     // Sender.
