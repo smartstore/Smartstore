@@ -14,7 +14,7 @@ namespace Smartstore.Data.Caching
         const string KeyPrefix = "efcache:";
 
         private readonly ICacheManager _cache;
-        private readonly AsyncLock _lock = new AsyncLock();
+        private readonly AsyncLock _lock = new();
 
         public DbCache()
         {

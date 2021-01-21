@@ -5,7 +5,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -14,6 +16,7 @@ using Serilog.Events;
 using Serilog.Extensions.Logging;
 using Serilog.Filters;
 using Smartstore.Core.Logging.Serilog;
+using Smartstore.Engine;
 using Smartstore.Engine.Initialization;
 using MsHost = Microsoft.Extensions.Hosting.Host;
 
@@ -54,7 +57,8 @@ namespace Smartstore.Web
         {
             Log.Logger = SetupSerilog(Configuration);
 
-            return MsHost.CreateDefaultBuilder(args)
+            // Build the host
+            var host = MsHost.CreateDefaultBuilder(args)
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureLogging(SetupLogging)
                 .UseSerilog(dispose: true)
@@ -66,6 +70,21 @@ namespace Smartstore.Web
                         return new Startup(hostingContext, startupLogger); 
                     }))
                 .Build();
+
+            // At this stage - after ConfigureServices & ConfigureContainer have been called - we can access IServiceProvider.
+            var appContext = host.Services.GetRequiredService<IApplicationContext>();
+            var providerContainer = (appContext as IServiceProviderContainer)
+                ?? throw new ApplicationException($"The implementation of '${nameof(IApplicationContext)}' must also implement '${nameof(IServiceProviderContainer)}'.");
+            providerContainer.ApplicationServices = host.Services;
+
+            // At this stage we can set the scoped service container.
+            var engine = host.Services.GetRequiredService<IEngine>();
+            engine.Scope = new ScopedServiceContainer(
+                host.Services.GetRequiredService<ILifetimeScopeAccessor>(),
+                host.Services.GetRequiredService<IHttpContextAccessor>(),
+                host.Services.AsLifetimeScope());
+
+            return host;
         }
 
         private static void SetupLogging(HostBuilderContext hostingContext, ILoggingBuilder loggingBuilder)

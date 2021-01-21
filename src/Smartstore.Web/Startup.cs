@@ -67,7 +67,7 @@ namespace Smartstore.Web
         private void OnStarted(object app = null)
         {
             _appContext.Freeze();
-
+            
             _engineStarter.Dispose();
             _engineStarter = null;
         }

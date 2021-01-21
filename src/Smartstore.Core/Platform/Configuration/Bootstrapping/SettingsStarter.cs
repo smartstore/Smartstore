@@ -1,11 +1,13 @@
 ﻿using Autofac;
 using Smartstore.Core.Configuration;
+using Smartstore.Engine;
+using Smartstore.Engine.Builders;
 
-namespace Smartstore.Core.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
-    public sealed class SettingsModule : Autofac.Module
+    public sealed class SettingsStarter : StarterBase
     {
-        protected override void Load(ContainerBuilder builder)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterSource(new SettingsSource());
 

@@ -59,7 +59,6 @@ namespace Smartstore.Core
             builder.RegisterModule(new CommonModule());
             builder.RegisterModule(new LoggingModule());
             builder.RegisterModule(new ProvidersModule(appContext));
-            builder.RegisterModule(new SettingsModule());
             builder.RegisterModule(new LocalizationModule());
 
             if (appContext.IsInstalled)

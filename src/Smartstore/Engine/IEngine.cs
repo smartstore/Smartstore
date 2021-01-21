@@ -23,7 +23,7 @@ namespace Smartstore.Engine
         /// <summary>
         /// Provides access to the scoped services container.
         /// </summary>
-        ScopedServiceContainer Scope { get; }
+        ScopedServiceContainer Scope { get; set; }
 
         /// <summary>
         /// Returns a value indicating whether the engine has been started (after all starters).

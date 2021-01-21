@@ -7,7 +7,7 @@ using Autofac.Core;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
 
-namespace Smartstore.Core.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
     internal class SettingsSource : IRegistrationSource
     {

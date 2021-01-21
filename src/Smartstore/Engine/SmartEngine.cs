@@ -21,7 +21,7 @@ namespace Smartstore.Engine
     public class SmartEngine : IEngine
     {
         public IApplicationContext Application { get; private set; }
-        public ScopedServiceContainer Scope { get; private set; }
+        public ScopedServiceContainer Scope { get; set; }
         public bool IsStarted { get; private set; }
         public bool IsInitialized { get; private set; }
 
@@ -132,17 +132,6 @@ namespace Smartstore.Engine
 
             public void ConfigureApplication(IApplicationBuilder app)
             {
-                var providerContainer = (_appContext as IServiceProviderContainer)
-                    ?? throw new ApplicationException($"The implementation of '${nameof(IApplicationContext)}' must also implement '${nameof(IServiceProviderContainer)}'.");
-
-                providerContainer.ApplicationServices = app.ApplicationServices;
-
-                // At this stage - after the service container was built - we can set the scoped service container.
-                _engine.Scope = new ScopedServiceContainer(
-                    app.ApplicationServices.GetRequiredService<ILifetimeScopeAccessor>(),
-                    app.ApplicationServices.GetRequiredService<IHttpContextAccessor>(),
-                    app.ApplicationServices.AsLifetimeScope());
-
                 var activeModuleStarters = _starters.Where(IsActiveModule).ToArray();
 
                 // Configure all modular pipelines

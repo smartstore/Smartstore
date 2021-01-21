@@ -15,15 +15,13 @@ namespace Smartstore.Core.Bootstrapping
     public class InstallPermissionsInitializer : IApplicationInitializer
     {
         private readonly SmartDbContext _db;
-        //private readonly IPermissionService _permissionService;
+        private readonly IPermissionService _permissionService;
         private readonly ITypeScanner _typeScanner;
 
-        public InstallPermissionsInitializer(SmartDbContext db,/* IPermissionService permissionService,*/ ITypeScanner typeScanner)
+        public InstallPermissionsInitializer(SmartDbContext db, IPermissionService permissionService, ITypeScanner typeScanner)
         {
-            // TODO: (core) Resolving IPermissionService in initializer throws. Why? Investigate,
-
             _db = db;
-            //_permissionService = permissionService;
+            _permissionService = permissionService;
             _typeScanner = typeScanner;
         }
 
