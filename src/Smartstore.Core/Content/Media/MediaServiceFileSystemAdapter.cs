@@ -23,7 +23,6 @@ namespace Smartstore.Core.Content.Media
         private readonly IMediaSearcher _mediaSearcher;
         private readonly IFolderService _folderService;
         private readonly MediaHelper _mediaHelper;
-        private readonly IMediaStorageConfiguration _storageConfig;
         private readonly IMediaStorageProvider _storageProvider;
         private readonly MediaExceptionFactory _exceptionFactory;
         private readonly string _mediaRootPath;
@@ -41,9 +40,9 @@ namespace Smartstore.Core.Content.Media
             _folderService = folderService;
             _mediaHelper = mediaHelper;
             _storageProvider = mediaService.StorageProvider;
-            _storageConfig = storageConfig;
             _exceptionFactory = exceptionFactory;
             _mediaRootPath = storageConfig.PublicPath;
+            StorageConfiguration = storageConfig;
         }
 
         protected string Fix(string path)
@@ -51,11 +50,7 @@ namespace Smartstore.Core.Content.Media
 
         #region IMediaFileSystem
 
-        public bool IsCloudStorage => _mediaService.StorageProvider.IsCloudStorage;
-
-        public string PublicPath => _storageConfig.PublicPath;
-
-        public string StoragePath => _storageConfig.StoragePath;
+        public IMediaStorageConfiguration StorageConfiguration { get; }
 
         public string MapToPublicUrl(IFile file, bool forCloud = false)
         {

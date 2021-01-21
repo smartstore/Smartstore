@@ -111,17 +111,16 @@ namespace Smartstore.Core.Content.Media
             // Append media path
             url += path;
 
-            // Append query
-            var hasQuery = false;
+            // Append file hash to query
+            if (file != null && _mediaSettings.AppendFileVersionToUrl)
+            {
+                query = query.Add("ver", ETagUtility.GenerateETag(file.LastModified, file.Length));
+            }
+
+            // Append query to url
             if (query.HasValue)
             {
                 url += query.ToString();
-                hasQuery = true;
-            }
-
-            if (file != null && _mediaSettings.AppendFileVersionToUrl)
-            {
-                url += (hasQuery ? '&' : '?') + "ver=" + ETagUtility.GenerateETag(file.LastModified, file.Length);
             }
 
             return url;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Smartstore.IO;
@@ -30,6 +31,19 @@ namespace Smartstore
         public static ILifetimeScope GetServiceScope(this HttpContext httpContext)
         {
             return httpContext.RequestServices.AsLifetimeScope();
+        }
+
+        /// <summary>
+        /// Gets a typed route value from <see cref="Microsoft.AspNetCore.Routing.RouteData.Values"/> associated
+        /// with the provided <paramref name="httpContext"/>.
+        /// </summary>
+        /// <typeparam name="T">The type to convert the route value to.</typeparam>
+        /// <param name="key">The key of the route value.</param>
+        /// <param name="defaultValue">The default value to return if route parameter does not exist.</param>
+        /// <returns>The corresponding typed route value, or passed <paramref name="defaultValue"/>.</returns>
+        public static T GetRouteValueAs<T>(this HttpContext httpContext, string key, T defaultValue = default)
+        {
+            return httpContext.GetRouteValue(key).Convert<T>(defaultValue);
         }
 
         public static string UserAgent(this HttpRequest httpRequest)

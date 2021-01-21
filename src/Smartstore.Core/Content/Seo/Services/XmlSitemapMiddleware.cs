@@ -28,7 +28,7 @@ namespace Smartstore.Core.Content.Seo
             try
             {
                 //var index = context.Request.Query["index"].ToString().Convert<int>();
-                var index = context.GetRouteValue("index")?.ToString().Convert<int>() ?? 0;
+                var index = context.GetRouteValueAs<int>("index");
                 var partition = await sitemapGenerator.GetSitemapPartAsync(index);
 
                 using (partition.Stream)

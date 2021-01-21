@@ -61,7 +61,7 @@ namespace Smartstore.Core.Content.Media.Storage
         #region IMediaStorageProvider
 
         public bool IsCloudStorage 
-            => _fileSystem.IsCloudStorage;
+            => _fileSystem.StorageConfiguration.IsCloudStorage;
 
         public string GetPublicUrl(MediaFile mediaFile)
         {

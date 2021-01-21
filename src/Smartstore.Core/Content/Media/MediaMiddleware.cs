@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,23 +9,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Core.Content.Media.Imaging;
-using Smartstore.Core.Customers;
 using Smartstore.Core.Security;
 using Smartstore.Events;
 using Smartstore.IO;
 using Smartstore.Net;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
 {
     public class MediaMiddleware
     {
-        private readonly RequestDelegate _next;
         private readonly IEventPublisher _eventPublisher;
 
         public MediaMiddleware(RequestDelegate next, IEventPublisher eventPublisher)
         {
-            _next = next;
             _eventPublisher = eventPublisher;
         }
 
@@ -43,8 +36,8 @@ namespace Smartstore.Core.Content.Media
             Lazy<IEnumerable<IMediaHandler>> mediaHandlers,
             ILogger<MediaMiddleware> logger)
         {
-            var mediaFileId = context.GetRouteValue("id")?.Convert<int>() ?? 0;
-            var path = context.GetRouteValue("path")?.Convert<string>();
+            var mediaFileId = context.GetRouteValueAs<int>("id");
+            var path = context.GetRouteValueAs<string>("path");
 
             if (context.Request.Method != HttpMethods.Get && context.Request.Method != HttpMethods.Head)
             {
@@ -168,7 +161,7 @@ namespace Smartstore.Core.Content.Media
             finally
             {
                 var imageProcessor = context.RequestServices.GetRequiredService<IImageProcessor>();
-                Debug.WriteLine("ImageProcessor TOTAL: {0} ms.".FormatCurrent(imageProcessor.TotalProcessingTimeMs));
+                logger.Debug("ImageProcessor TOTAL: {0} ms.", imageProcessor.TotalProcessingTimeMs);
             }
 
             #region Functions

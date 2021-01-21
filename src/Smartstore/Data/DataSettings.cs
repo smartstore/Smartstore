@@ -30,7 +30,7 @@ namespace Smartstore.Data
         private static bool _testMode;
 
         protected const char SEPARATOR = ':';
-        protected const string FILENAME = "Settings.txt";
+        protected const string SETTINGS_FILENAME = "Settings.txt";
 
         #region Static members
 
@@ -111,7 +111,7 @@ namespace Smartstore.Data
             {
                 using (_rwLock.GetWriteLock())
                 {
-                    if (_instance.TenantRoot.TryDeleteFile(FILENAME))
+                    if (_instance.TenantRoot.TryDeleteFile(SETTINGS_FILENAME))
                     {
                         _installed = null;
                         _instance = null;
@@ -177,12 +177,13 @@ namespace Smartstore.Data
         {
             using (_rwLock.GetWriteLock())
             {
-                this.Reset();
+                Reset();
+
                 (TenantName, TenantRoot) = ResolveTenant();
 
-                if (TenantRoot.FileExists(FILENAME) && !_testMode)
+                if (TenantRoot.FileExists(SETTINGS_FILENAME) && !_testMode)
                 {
-                    string text = TenantRoot.ReadAllText(FILENAME);
+                    string text = TenantRoot.ReadAllText(SETTINGS_FILENAME);
                     var settings = ParseSettings(text);
                     if (settings.Any())
                     {
@@ -245,7 +246,7 @@ namespace Smartstore.Data
 
             using (_rwLock.GetWriteLock())
             {
-                TenantRoot.WriteAllText(FILENAME, SerializeSettings());
+                TenantRoot.WriteAllText(SETTINGS_FILENAME, SerializeSettings());
                 return true;
             }
         }

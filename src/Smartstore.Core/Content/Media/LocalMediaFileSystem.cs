@@ -10,14 +10,13 @@ namespace Smartstore.Core.Content.Media
 {
     public partial class LocalMediaFileSystem : LocalFileSystem, IMediaFileSystem
     {
-        private readonly IMediaStorageConfiguration _storageConfig;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public LocalMediaFileSystem(IMediaStorageConfiguration storageConfig, IHttpContextAccessor httpContextAccessor)
-            : base(storageConfig.RootPath)
+        public LocalMediaFileSystem(IHttpContextAccessor httpContextAccessor, IMediaStorageConfiguration storageConfiguration)
+            : base(storageConfiguration.RootPath)
         {
-            _storageConfig = storageConfig;
             _httpContextAccessor = httpContextAccessor;
+            StorageConfiguration = storageConfiguration;
 
             // Create required folders
             TryCreateDirectory("Storage");
@@ -32,7 +31,9 @@ namespace Smartstore.Core.Content.Media
         /// <returns>The relative path combined with the public path in an URL friendly format ('/' character for directory separator).</returns>
         protected virtual string MapPublic(string path)
         {
-            return string.IsNullOrEmpty(path) ? _storageConfig.PublicPath : WebUtility.UrlDecode(PathCombine(_storageConfig.PublicPath, path).Replace(Path.DirectorySeparatorChar, '/'));
+            return string.IsNullOrEmpty(path) 
+                ? StorageConfiguration.PublicPath 
+                : WebUtility.UrlDecode(PathCombine(StorageConfiguration.PublicPath, path).Replace(Path.DirectorySeparatorChar, '/'));
         }
 
         private IUrlHelper UrlHelper
@@ -42,7 +43,7 @@ namespace Smartstore.Core.Content.Media
 
         #region IMediaFileSystem
 
-        public bool IsCloudStorage => _storageConfig.IsCloudStorage;
+        public IMediaStorageConfiguration StorageConfiguration { get; }
 
         public string MapToPublicUrl(IFile file, bool forCloud = false)
         {
@@ -73,19 +74,15 @@ namespace Smartstore.Core.Content.Media
                 }
             }
 
-            if (path.StartsWith(_storageConfig.PublicPath))
+            if (path.StartsWith(StorageConfiguration.PublicPath))
             {
-                return WebUtility.UrlDecode(path[_storageConfig.PublicPath.Length..]);
+                return WebUtility.UrlDecode(path[StorageConfiguration.PublicPath.Length..]);
             }
             else
             {
                 return path;
             } 
         }
-
-        public string PublicPath => _storageConfig.PublicPath;
-
-        public string StoragePath => _storageConfig.StoragePath;
 
         #endregion
     }

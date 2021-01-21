@@ -11,36 +11,6 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
 {
-    public interface IMediaStorageConfiguration
-    {
-        /// <summary>
-        /// Gets the public base path to the media storage used to generate URLs for output HTML.
-        /// e.g.: "media" (default), "static", "storage/files" etc. 
-        /// </summary>
-        string PublicPath { get; }
-
-        /// <summary>
-        /// Gets the storage path for media files
-        /// either as app local relative path or as a fully qualified physical path to a shared location. E.g.:
-        /// <list type="bullet">
-        ///     <item>"Media" points to the subfolder named "Media" in the application root.</item>
-        ///     <item>"F:\SharedMedia" points to a (mapped network) drive.</item>
-        ///     <item>"\\Server1\SharedMedia" points to a network drive.</item>
-        /// </list>
-        /// <para>Default is <c>App_Data/Tenants/{Tenant}/Media</c></para>
-        /// </summary>
-        string StoragePath { get; }
-
-        /// <summary>
-        /// Gets the storage root physical path for media files.
-        /// </summary>
-        string RootPath { get; }
-
-        bool IsStoragePathRooted { get; }
-
-        bool IsCloudStorage { get; }
-    }
-    
     public class MediaStorageConfiguration : IMediaStorageConfiguration
     {
         //// /myshop
@@ -58,17 +28,17 @@ namespace Smartstore.Core.Content.Media
             _httpContextAccessor = httpContextAccessor;
 
             PublicPath = GetPublicPath(appContext.AppConfiguration);
-            StoragePath = "App_Data/Tenants/" + DataSettings.Instance.TenantName + "/Media";
+            StoragePath = GetStoragePath(appContext.AppConfiguration, out var pathIsAbsolute);
+            StoragePathIsAbsolute = pathIsAbsolute;
             RootPath = Path.Combine(appContext.ContentRoot.Root, StoragePath.Replace('/', '\\'));
-            IsStoragePathRooted = false;
             IsCloudStorage = false;
         }
 
-        public string PublicPath { get; private set; }
-        public string StoragePath { get; private set; }
-        public string RootPath { get; private set; }
-        public bool IsStoragePathRooted { get; private set; }
-        public bool IsCloudStorage { get; private set; }
+        public string PublicPath { get; }
+        public string StoragePath { get; }
+        public string RootPath { get; }
+        public bool StoragePathIsAbsolute { get; }
+        public bool IsCloudStorage { get; }
 
         private static string GetPublicPath(SmartConfiguration appConfig)
         {
@@ -80,6 +50,20 @@ namespace Smartstore.Core.Content.Media
             }
 
             return path.TrimStart('~', '/').Replace('\\', '/').ToLower().EnsureEndsWith('/');
+        }
+
+        private static string GetStoragePath(SmartConfiguration appConfig, out bool pathIsAbsolute)
+        {
+            pathIsAbsolute = false;
+
+            var path = appConfig.MediaStoragePath?.Trim().NullEmpty();
+            if (path == null)
+            {
+                path = "App_Data/Tenants/" + DataSettings.Instance.TenantName + "/Media";
+                pathIsAbsolute = PathHelper.IsAbsolutePhysicalPath(path);
+            }
+
+            return path;
         }
 
         //private static string GetRootPath(IApplicationContext appContext)

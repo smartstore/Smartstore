@@ -8,9 +8,9 @@ namespace Smartstore.Core.Content.Media
     public interface IMediaFileSystem : IFileSystem
     {
         /// <summary>
-        /// Checks whether the underlying storage is remote, like 'Azure' for example. 
+        /// Contains media storage and path configuration.
         /// </summary>
-        bool IsCloudStorage { get; }
+        IMediaStorageConfiguration StorageConfiguration { get; }
 
         /// <summary>
         /// Retrieves the public URL for a given file within the storage provider.
@@ -40,23 +40,5 @@ namespace Smartstore.Core.Content.Media
         /// <param name="url">The virtual or public url of a file.</param>
         /// <returns>The storage path or <value>null</value> if the url is not in a correct format.</returns>
         string MapUrlToStoragePath(string url);
-
-        /// <summary>
-        /// Gets the public base path to the media storage used to generate URLs for output HTML.
-        /// e.g.: "media" (default), "static", "storage/files" etc. 
-        /// </summary>
-        string PublicPath { get; }
-
-        /// <summary>
-        /// Gets the storage path for media files
-        /// either as app local relative path or as a fully qualified physical path to a shared location. E.g.:
-        /// <list type="bullet">
-        ///     <item>"Media" points to the subfolder named "Media" in the application root.</item>
-        ///     <item>"F:\SharedMedia" points to a (mapped network) drive.</item>
-        ///     <item>"\\Server1\SharedMedia" points to a network drive.</item>
-        /// </list>
-        /// <para>Default is <c>App_Data/Tenants/{Tenant}/Media</c></para>
-        /// </summary>
-        string StoragePath { get; }
     }
 }
