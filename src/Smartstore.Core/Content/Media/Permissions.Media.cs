@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Security
+﻿namespace Smartstore.Core.Security
 {
     public static partial class Permissions
     {
