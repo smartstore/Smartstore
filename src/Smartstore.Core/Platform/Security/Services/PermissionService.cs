@@ -429,7 +429,7 @@ namespace Smartstore.Core.Security
                                                 SystemName = roleName
                                             };
 
-                                            await _db.CustomerRoles.AddAsync(role);
+                                            _db.CustomerRoles.Add(role);
 
                                             await scope.CommitAsync();
                                             existingRoles[roleName] = role;
@@ -442,7 +442,7 @@ namespace Smartstore.Core.Security
                                         });
                                     }
 
-                                    await _db.PermissionRecords.AddAsync(newPermission);
+                                    _db.PermissionRecords.Add(newPermission);
 
                                     clearCache = true;
                                     added.Add(newPermission.SystemName);

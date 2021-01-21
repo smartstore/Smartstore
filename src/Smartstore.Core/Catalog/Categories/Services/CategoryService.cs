@@ -157,7 +157,7 @@ namespace Smartstore.Core.Catalog.Categories
                         {
                             if (!aclRecordsDic.ContainsKey(roleId))
                             {
-                                await _db.AclRecords.AddAsync(new AclRecord { CustomerRoleId = roleId, EntityId = subCategory.Id, EntityName = categoryEntityName });
+                                _db.AclRecords.Add(new AclRecord { CustomerRoleId = roleId, EntityId = subCategory.Id, EntityName = categoryEntityName });
                             }
                         }
                         else if (aclRecordsDic.TryGetValue(roleId, out var aclRecordToDelete))
@@ -200,7 +200,7 @@ namespace Smartstore.Core.Catalog.Categories
                 //            {
                 //                if (!aclRecordsDic.ContainsKey(roleId))
                 //                {
-                //                    await _db.AclRecords.AddAsync(new AclRecord { CustomerRoleId = roleId, EntityId = product.Id, EntityName = productEntityName });
+                //                    _db.AclRecords.Add(new AclRecord { CustomerRoleId = roleId, EntityId = product.Id, EntityName = productEntityName });
                 //                }
                 //            }
                 //            else if (aclRecordsDic.TryGetValue(roleId, out var aclRecordToDelete))
@@ -285,7 +285,7 @@ namespace Smartstore.Core.Catalog.Categories
                         {
                             if (!storeMappingsDic.ContainsKey(storeId))
                             {
-                                await _db.StoreMappings.AddAsync(new StoreMapping { StoreId = storeId, EntityId = subCategory.Id, EntityName = categoryEntityName });
+                                _db.StoreMappings.Add(new StoreMapping { StoreId = storeId, EntityId = subCategory.Id, EntityName = categoryEntityName });
                             }
                         }
                         else if (storeMappingsDic.TryGetValue(storeId, out var storeMappingToDelete))
@@ -328,7 +328,7 @@ namespace Smartstore.Core.Catalog.Categories
                 //            {
                 //                if (!storeMappingsDic.ContainsKey(storeId))
                 //                {
-                //                    await _db.StoreMappings.AddAsync(new StoreMapping { StoreId = storeId, EntityId = product.Id, EntityName = productEntityName });
+                //                    _db.StoreMappings.Add(new StoreMapping { StoreId = storeId, EntityId = product.Id, EntityName = productEntityName });
                 //                }
                 //            }
                 //            else if (storeMappingsDic.TryGetValue(storeId, out var storeMappingToDelete))

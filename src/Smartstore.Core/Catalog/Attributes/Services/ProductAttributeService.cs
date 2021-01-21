@@ -226,7 +226,7 @@ namespace Smartstore.Core.Catalog.Attributes
                     {
                         foreach (var property in localizedPropertiesMap[option.Id])
                         {
-                            await _db.LocalizedProperties.AddAsync(new LocalizedProperty
+                            _db.LocalizedProperties.Add(new LocalizedProperty
                             {
                                 EntityId = value.Id,
                                 LocaleKeyGroup = pvavName,

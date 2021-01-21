@@ -83,7 +83,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
         /// <summary>
         /// Gets or sets a value indicating whether the attribute can be filtered.
-        /// Only effective in accordance with MegaSearchPlus plugin.
+        /// Only effective in accordance with MegaSearchPlus module.
         /// </summary>
         public bool? AllowFiltering { get; set; }
 

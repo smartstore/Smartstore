@@ -59,13 +59,13 @@ namespace Smartstore.Core.Catalog.Attributes
 
         /// <summary>
         /// Gets or sets the facet template hint.
-        /// Only effective in accordance with MegaSearchPlus plugin.
+        /// Only effective in accordance with MegaSearchPlus module.
         /// </summary>
         public FacetTemplateHint FacetTemplateHint { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether option names should be included in the search index.
-        /// Only effective in accordance with MegaSearchPlus plugin.
+        /// Only effective in accordance with MegaSearchPlus module.
         /// </summary>
         public bool IndexOptionNames { get; set; }
 

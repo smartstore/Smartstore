@@ -38,7 +38,7 @@
                 public const string Update = "configuration.acl.update";
             }
 
-            public static class Plugin
+            public static class Module
             {
                 public const string Self = "configuration.plugin";
                 public const string Read = "configuration.plugin.read";

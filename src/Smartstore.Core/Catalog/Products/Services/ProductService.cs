@@ -428,7 +428,7 @@ namespace Smartstore.Core.Catalog.Products
                             .Select(x => x.DisplayOrder)
                             .FirstOrDefaultAsync();
 
-                        await _db.RelatedProducts.AddAsync(new RelatedProduct
+                        _db.RelatedProducts.Add(new RelatedProduct
                         {
                             ProductId1 = id2,
                             ProductId2 = id1,
@@ -490,7 +490,7 @@ namespace Smartstore.Core.Catalog.Products
 
                     if (!associatedIds.Any(x => x == id2))
                     {
-                        await _db.CrossSellProducts.AddAsync(new CrossSellProduct
+                        _db.CrossSellProducts.Add(new CrossSellProduct
                         {
                             ProductId1 = id2,
                             ProductId2 = id1
