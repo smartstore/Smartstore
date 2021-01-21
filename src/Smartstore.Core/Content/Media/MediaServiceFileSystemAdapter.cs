@@ -48,24 +48,7 @@ namespace Smartstore.Core.Content.Media
         protected string Fix(string path)
             => path.Replace('\\', '/');
 
-        #region IMediaFileSystem
-
         public IMediaStorageConfiguration StorageConfiguration { get; }
-
-        public string MapToPublicUrl(IFile file, bool forCloud = false)
-        {
-            if (file is MediaFileInfo mediaFile)
-            {
-                return _mediaService.GetUrl(mediaFile, null, string.Empty);
-            }
-
-            throw new ArgumentException("Type of file must be '{0}'.".FormatInvariant(typeof(MediaFileInfo).FullName), nameof(file));
-        }
-
-        public string MapToPublicUrl(string path, bool forCloud = false)
-        {
-            throw new NotImplementedException();
-        }
 
         public string MapUrlToStoragePath(string url)
         {
@@ -85,8 +68,6 @@ namespace Smartstore.Core.Content.Media
 
             return path[firstSlashIndex..];
         }
-
-        #endregion
 
         #region IFileProvider
 

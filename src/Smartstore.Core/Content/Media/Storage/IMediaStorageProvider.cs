@@ -12,14 +12,6 @@ namespace Smartstore.Core.Content.Media.Storage
         bool IsCloudStorage { get; }
 
         /// <summary>
-        /// Retrieves the public URL for a given file within the storage provider.
-        /// Returns <c>null</c> if the file is stored as a database BLOB.
-        /// </summary>
-        /// <param name="mediaFile">Media file item</param>
-        /// <returns>The public URL.</returns>
-        string GetPublicUrl(MediaFile mediaFile);
-
-        /// <summary>
         /// Gets the size of the media item in bytes.
         /// </summary>
         /// <param name="mediaFile">Media file item</param>

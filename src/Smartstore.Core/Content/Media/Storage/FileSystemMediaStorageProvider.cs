@@ -63,12 +63,6 @@ namespace Smartstore.Core.Content.Media.Storage
         public bool IsCloudStorage 
             => _fileSystem.StorageConfiguration.IsCloudStorage;
 
-        public string GetPublicUrl(MediaFile mediaFile)
-        {
-            Guard.NotNull(mediaFile, nameof(mediaFile));
-            return _fileSystem.MapToPublicUrl(GetPath(mediaFile), true);
-        }
-
         public async Task<long> GetLengthAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
