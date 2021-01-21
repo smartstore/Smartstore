@@ -195,6 +195,8 @@ namespace Smartstore.Collections
 			Metadata[key] = value;
 		}
 
+		// TODO: (core) SetThreadMetadata\AsyncLocal doesn't work with async methods because the "inner" context values never flow back to the caller.
+		// See https://stackoverflow.com/a/42959816.
 		public void SetThreadMetadata(string key, object value)
 		{
 			Guard.NotEmpty(key, nameof(key));

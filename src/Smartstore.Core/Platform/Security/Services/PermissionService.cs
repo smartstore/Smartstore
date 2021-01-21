@@ -181,7 +181,7 @@ namespace Smartstore.Core.Security
                 {
                     var tree = await GetPermissionTreeAsync(role);
 
-                    if (AuthorizeCore(tree, permissionSystemName, allowByChildPermission))
+                    if (AuthorizeCore(tree.Permissions, permissionSystemName, allowByChildPermission))
                     {
                         return true;
                     }
@@ -256,7 +256,7 @@ namespace Smartstore.Core.Security
             return tree;
         }
 
-        public virtual async Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false)
+        public virtual async Task<PermissionTree> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false)
         {
             Guard.NotNull(role, nameof(role));
 
@@ -276,32 +276,35 @@ namespace Smartstore.Core.Security
 
             if (addDisplayNames)
             {
-                // Adds the localized display name to permission nodes as thread metadata. Only required for backend.
-                var resourcesLookup = await GetDisplayNameLookup(_workContext.WorkingLanguage.Id);
-                AddDisplayNames(tree, resourcesLookup);
+                var languageId = _workContext.WorkingLanguage.Id;
+                var displayNamesLookup = await GetDisplayNameLookup(languageId);
+
+                return new PermissionTree(tree, displayNamesLookup, languageId);
             }
 
-            return tree;
+            return new PermissionTree(tree);
         }
 
-        public virtual async Task<TreeNode<IPermissionNode>> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false)
+        public virtual async Task<PermissionTree> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false)
         {
             Guard.NotNull(customer, nameof(customer));
 
-            var root = new TreeNode<IPermissionNode>(new PermissionNode());
+            var tree = new TreeNode<IPermissionNode>(new PermissionNode());
             var allPermissions = await _db.PermissionRecords
                 .AsNoTracking()
                 .ToListAsync();
 
-            await AddPermissions(root, GetChildren(null, allPermissions), allPermissions, customer, null);
+            await AddPermissions(tree, GetChildren(null, allPermissions), allPermissions, customer, null);
 
             if (addDisplayNames)
             {
-                var resourcesLookup = await GetDisplayNameLookup(_workContext.WorkingLanguage.Id);
-                AddDisplayNames(root, resourcesLookup);
+                var languageId = _workContext.WorkingLanguage.Id;
+                var displayNamesLookup = await GetDisplayNameLookup(languageId);
+
+                return new PermissionTree(tree, displayNamesLookup, languageId);
             }
 
-            return root;
+            return new PermissionTree(tree);
         }
 
         public virtual async Task<Dictionary<string, string>> GetAllSystemNamesAsync()
@@ -325,7 +328,7 @@ namespace Smartstore.Core.Security
             return result;
         }
 
-        public virtual async Task<string> GetDiplayNameAsync(string permissionSystemName)
+        public virtual async Task<string> GetDisplayNameAsync(string permissionSystemName)
         {
             var tokens = permissionSystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
             if (tokens.Any())
@@ -340,7 +343,7 @@ namespace Smartstore.Core.Security
 
         public virtual async Task<string> GetUnauthorizedMessageAsync(string permissionSystemName)
         {
-            var displayName = await GetDiplayNameAsync(permissionSystemName);
+            var displayName = await GetDisplayNameAsync(permissionSystemName);
             var message = await _localizationService.GetResourceAsync("Admin.AccessDenied.DetailedDescription");
 
             return message.FormatInvariant(displayName.NaIfEmpty(), permissionSystemName.NaIfEmpty());
@@ -617,26 +620,7 @@ namespace Smartstore.Core.Security
             }
         }
 
-        private static void AddDisplayNames(TreeNode<IPermissionNode> node, Dictionary<string, string> resourcesLookup)
-        {
-            var tokens = node.Value.SystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-            var token = tokens.LastOrDefault();
-            var displayName = GetDisplayName(token, resourcesLookup);
-
-            // TODO: (core) SetThreadMetadata\AsyncLocal doesn't work with async methods (here GetPermissionTreeAsync) because the "inner" context values never flow back to the caller.
-            // See https://stackoverflow.com/a/42959816.
-            node.SetThreadMetadata("DisplayName", displayName ?? token ?? node.Value.SystemName);
-
-            if (node.HasChildren)
-            {
-                foreach (var children in node.Children)
-                {
-                    AddDisplayNames(children, resourcesLookup);
-                }
-            }
-        }
-
-        private static string GetDisplayName(string[] tokens, Dictionary<string, string> resourcesLookup)
+        private static string GetDisplayName(string[] tokens, Dictionary<string, string> namesLookup)
         {
             var displayName = string.Empty;
 
@@ -649,14 +633,14 @@ namespace Smartstore.Core.Security
                         displayName += " » ";
                     }
 
-                    displayName += GetDisplayName(token, resourcesLookup) ?? token ?? string.Empty;
+                    displayName += GetDisplayName(token, namesLookup) ?? token ?? string.Empty;
                 }
             }
 
             return displayName;
         }
 
-        private static string GetDisplayName(string token, Dictionary<string, string> resourcesLookup)
+        internal static string GetDisplayName(string token, IReadOnlyDictionary<string, string> namesLookup)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
@@ -664,21 +648,21 @@ namespace Smartstore.Core.Security
             }
 
             // Try known token of default permissions.
-            if (_displayNameResourceKeys.TryGetValue(token, out string key) && resourcesLookup.TryGetValue(key, out string name))
+            if (_displayNameResourceKeys.TryGetValue(token, out string key) && namesLookup.TryGetValue(key, out string name))
             {
                 return name;
             }
 
             // Unknown token. Try to find resource by name convention.
             key = "Permissions.DisplayName." + token.Replace("-", "");
-            if (resourcesLookup.TryGetValue(key, out name))
+            if (namesLookup.TryGetValue(key, out name))
             {
                 return name;
             }
 
             // Try resource provided by plugin.
             key = "Plugins." + key;
-            if (resourcesLookup.TryGetValue(key, out name))
+            if (namesLookup.TryGetValue(key, out name))
             {
                 return name;
             }

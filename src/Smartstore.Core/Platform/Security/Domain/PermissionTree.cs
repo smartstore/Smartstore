@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Smartstore.Collections;
 
 namespace Smartstore.Core.Security
@@ -35,5 +37,24 @@ namespace Smartstore.Core.Security
         /// The key is the string resource name and the value the localized display name of the permission.
         /// </summary>
         public IReadOnlyDictionary<string, string> DisplayNames { get; init; }
+
+        /// <summary>
+        /// Gets the localized display name for a permission node.
+        /// </summary>
+        /// <param name="node">Permission node.</param>
+        /// <returns>Display name.</returns>
+        public string GetDisplayName(TreeNode<IPermissionNode> node)
+        {
+            if (node != null && DisplayNames != null)
+            {
+                var tokens = node.Value.SystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                var token = tokens.LastOrDefault();
+                var displayName = PermissionService.GetDisplayName(token, DisplayNames);
+
+                return displayName ?? token ?? node.Value.SystemName;
+            }
+
+            return null;
+        }
     }
 }

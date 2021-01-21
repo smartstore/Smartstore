@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Smartstore.Collections;
 using Smartstore.Core.Customers;
 
 namespace Smartstore.Core.Security
@@ -49,7 +48,7 @@ namespace Smartstore.Core.Security
         /// <param name="role">Customer role.</param>
         /// <param name="addDisplayNames">A value indicating whether to add permission display names.</param>
         /// <returns>Permission tree.</returns>
-        Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false);
+        Task<PermissionTree> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false);
 
         /// <summary>
         /// Builds the permission tree for a customer.
@@ -57,7 +56,7 @@ namespace Smartstore.Core.Security
         /// <param name="customer">Customer.</param>
         /// <param name="addDisplayNames">A value indicating whether to add permission display names.</param>
         /// <returns>Permission tree.</returns>
-        Task<TreeNode<IPermissionNode>> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false);
+        Task<PermissionTree> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false);
 
         /// <summary>
         /// Gets system and display names of all permissions.
@@ -66,14 +65,14 @@ namespace Smartstore.Core.Security
         Task<Dictionary<string, string>> GetAllSystemNamesAsync();
 
         /// <summary>
-        /// Get display name for a permission system name.
+        /// Gets the display name for a permission system name.
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
         /// <returns>Display name.</returns>
-        Task<string> GetDiplayNameAsync(string permissionSystemName);
+        Task<string> GetDisplayNameAsync(string permissionSystemName);
 
         /// <summary>
-        /// Get detailed unauthorization message.
+        /// Gets the detailed unauthorization message.
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
         /// <returns>Detailed unauthorization message</returns>

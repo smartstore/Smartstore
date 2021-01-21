@@ -688,12 +688,12 @@ namespace Smartstore.Web.Controllers
             var role = await _db.CustomerRoles.FindByIdAsync(1);
             var permissionService = _services.Resolve<IPermissionService>();
             var tree = await permissionService.GetPermissionTreeAsync(role, true);
-            var nodes = tree.FlattenNodes();
+            var nodes = tree.Permissions.FlattenNodes();
 
             content.AppendLine();
             foreach (var node in nodes)
             {
-                var displayName = node.GetMetadata<string>("DisplayName", false);
+                var displayName = tree.GetDisplayName(node);
                 var allow = node.Value.Allow.HasValue ? (node.Value.Allow.Value ? "1" : "0") : "-";
                 content.AppendLine($"{allow} {node.Value.SystemName}: {displayName}");
             }
