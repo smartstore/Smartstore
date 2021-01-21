@@ -14,16 +14,13 @@ namespace Smartstore.Core.Security
         /// Checks whether given permission is granted.
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
+        /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
+        /// <param name="allowByChildPermission">
+        /// A value indicating whether the permission is granted if any child permission is granted.
+        /// Example: if a customer has not been granted the permission to view a menu item, it should still be displayed if he has been granted the right to view any child item.
+        /// </param>
         /// <returns><c>true</c> if granted, otherwise <c>false</c>.</returns>
-        bool Authorize(string permissionSystemName);
-
-        /// <summary>
-        /// Checks whether given permission is granted.
-        /// </summary>
-        /// <param name="permissionSystemName">Permission record system name.</param>
-        /// <param name="customer">Customer.</param>
-        /// <returns><c>true</c> if granted, otherwise <c>false</c>.</returns>
-        bool Authorize(string permissionSystemName, Customer customer);
+        bool Authorize(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false);
 
         /// <summary>
         /// Checks whether given permission is granted.
@@ -32,7 +29,7 @@ namespace Smartstore.Core.Security
         /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="allowByChildPermission">
         /// A value indicating whether the permission is granted if any child permission is granted.
-        /// Example: if a customer has not been granted the permission to view a menu item, it should still be displayed if him has been granted the right to view any child item.
+        /// Example: if a customer has not been granted the permission to view a menu item, it should still be displayed if he has been granted the right to view any child item.
         /// </param>
         /// <returns><c>true</c> if granted, otherwise <c>false</c>.</returns>
         Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false);
@@ -42,6 +39,7 @@ namespace Smartstore.Core.Security
         /// Functional only if the old permission resources still exist in the database.
         /// </summary>
         /// <param name="permissionSystemName">Permission record system name.</param>
+        /// <remarks>This method is for backward compatibility and probably removed in the future.</remarks>
         /// <returns><c>true</c> if authorized, otherwise <c>false</c>.</returns>
         Task<bool> AuthorizeByAliasAsync(string permissionSystemName);
 

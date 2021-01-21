@@ -16,7 +16,6 @@ using Smartstore.Data.Batching;
 
 namespace Smartstore.Core.Security
 {
-    // TODO: (mg) (core) Implement PermissionService
     public partial class PermissionService : IPermissionService
     {
         // {0} = roleId
@@ -122,19 +121,43 @@ namespace Smartstore.Core.Security
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public bool Authorize(string permissionSystemName)
+        public virtual bool Authorize(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false)
         {
-            return Authorize(permissionSystemName, _workContext.CurrentCustomer);
+            if (string.IsNullOrEmpty(permissionSystemName))
+            {
+                return false;
+            }
+
+            customer ??= _workContext.CurrentCustomer;
+
+            var cacheKey = $"permission.{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
+
+            var authorized = _cache.Get(cacheKey, o =>
+            {
+                o.ExpiresIn(TimeSpan.FromSeconds(30));
+
+                var roles = customer.CustomerRoleMappings
+                    .Where(x => x.CustomerRole?.Active ?? false)
+                    .Select(x => x.CustomerRole)
+                    .ToArray();
+
+                foreach (var role in roles)
+                {
+                    var tree = GetPermissionTree(role);
+
+                    if (AuthorizeCore(tree, permissionSystemName, allowByChildPermission))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+
+            return authorized;
         }
 
-        public bool Authorize(string permissionSystemName, Customer customer)
-        {
-            // TODO: (mg) (core) Really absolutely sure to do the whole authorization thing again in sync (see GetPermissionTreeAsync(CustomerRole))?
-            // TODO: (mg) (core) (info) Yes, because low-level stuff should also have a sync counterpart and permission tree comes from cache most of the time.
-            return true;
-        }
-
-        public async Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false)
+        public virtual async Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false)
         {
             if (string.IsNullOrEmpty(permissionSystemName))
             {
@@ -157,23 +180,8 @@ namespace Smartstore.Core.Security
                 foreach (var role in roles)
                 {
                     var tree = await GetPermissionTreeAsync(role);
-                    var node = tree.SelectNodeById(permissionSystemName);
-                    if (node == null)
-                    {
-                        continue;
-                    }
 
-                    if (allowByChildPermission && FindAllowByChild(node))
-                    {
-                        return true;
-                    }
-
-                    while (node != null && !node.Value.Allow.HasValue)
-                    {
-                        node = node.Parent;
-                    }
-
-                    if (node?.Value?.Allow ?? false)
+                    if (AuthorizeCore(tree, permissionSystemName, allowByChildPermission))
                     {
                         return true;
                     }
@@ -183,27 +191,6 @@ namespace Smartstore.Core.Security
             });
 
             return authorized;
-
-            static bool FindAllowByChild(TreeNode<IPermissionNode> n)
-            {
-                if (n?.Value?.Allow ?? false)
-                {
-                    return true;
-                }
-
-                if (n.HasChildren)
-                {
-                    foreach (var child in n.Children)
-                    {
-                        if (FindAllowByChild(child))
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                return false;
-            }
         }
 
         public async Task<bool> AuthorizeByAliasAsync(string permissionSystemName)
@@ -248,11 +235,32 @@ namespace Smartstore.Core.Security
             return true;
         }
 
-        public async Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false)
+        private TreeNode<IPermissionNode> GetPermissionTree(CustomerRole role)
         {
             Guard.NotNull(role, nameof(role));
 
-            var result = await _cache.GetAsync(PERMISSION_TREE_KEY.FormatInvariant(role.Id), async o =>
+            var tree = _cache.Get(PERMISSION_TREE_KEY.FormatInvariant(role.Id), () =>
+            {
+                var root = new TreeNode<IPermissionNode>(new PermissionNode());
+
+                var allPermissions = _db.PermissionRecords
+                    .AsNoTracking()
+                    .Include(x => x.PermissionRoleMappings)
+                    .ToList();
+
+                AddPermissions(root, GetChildren(null, allPermissions), allPermissions, role);
+
+                return root;
+            });
+
+            return tree;
+        }
+
+        public virtual async Task<TreeNode<IPermissionNode>> GetPermissionTreeAsync(CustomerRole role, bool addDisplayNames = false)
+        {
+            Guard.NotNull(role, nameof(role));
+
+            var tree = await _cache.GetAsync(PERMISSION_TREE_KEY.FormatInvariant(role.Id), async () =>
             {
                 var root = new TreeNode<IPermissionNode>(new PermissionNode());
 
@@ -270,13 +278,13 @@ namespace Smartstore.Core.Security
             {
                 // Adds the localized display name to permission nodes as thread metadata. Only required for backend.
                 var resourcesLookup = await GetDisplayNameLookup(_workContext.WorkingLanguage.Id);
-                AddDisplayNames(result, resourcesLookup);
+                AddDisplayNames(tree, resourcesLookup);
             }
 
-            return result;
+            return tree;
         }
 
-        public async Task<TreeNode<IPermissionNode>> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false)
+        public virtual async Task<TreeNode<IPermissionNode>> BuildCustomerPermissionTreeAsync(Customer customer, bool addDisplayNames = false)
         {
             Guard.NotNull(customer, nameof(customer));
 
@@ -296,7 +304,7 @@ namespace Smartstore.Core.Security
             return root;
         }
 
-        public async Task<Dictionary<string, string>> GetAllSystemNamesAsync()
+        public virtual async Task<Dictionary<string, string>> GetAllSystemNamesAsync()
         {
             var result = new Dictionary<string, string>();
             var resourcesLookup = await GetDisplayNameLookup(_workContext.WorkingLanguage.Id);
@@ -317,7 +325,7 @@ namespace Smartstore.Core.Security
             return result;
         }
 
-        public async Task<string> GetDiplayNameAsync(string permissionSystemName)
+        public virtual async Task<string> GetDiplayNameAsync(string permissionSystemName)
         {
             var tokens = permissionSystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
             if (tokens.Any())
@@ -330,7 +338,7 @@ namespace Smartstore.Core.Security
             return string.Empty;
         }
 
-        public async Task<string> GetUnauthorizedMessageAsync(string permissionSystemName)
+        public virtual async Task<string> GetUnauthorizedMessageAsync(string permissionSystemName)
         {
             var displayName = await GetDiplayNameAsync(permissionSystemName);
             var message = await _localizationService.GetResourceAsync("Admin.AccessDenied.DetailedDescription");
@@ -338,7 +346,7 @@ namespace Smartstore.Core.Security
             return message.FormatInvariant(displayName.NaIfEmpty(), permissionSystemName.NaIfEmpty());
         }
 
-        public async Task InstallPermissionsAsync(IPermissionProvider[] permissionProviders, bool removeUnusedPermissions = false)
+        public virtual async Task InstallPermissionsAsync(IPermissionProvider[] permissionProviders, bool removeUnusedPermissions = false)
         {
             if (!(permissionProviders?.Any() ?? false))
             {
@@ -493,6 +501,53 @@ namespace Smartstore.Core.Security
 
         #region Utilities
 
+        private static bool AuthorizeCore(TreeNode<IPermissionNode> tree, string permissionSystemName, bool allowByChildPermission)
+        {
+            var node = tree.SelectNodeById(permissionSystemName);
+            if (node == null)
+            {
+                return false;
+            }
+
+            if (allowByChildPermission && FindAllowByChild(node))
+            {
+                return true;
+            }
+
+            while (node != null && !node.Value.Allow.HasValue)
+            {
+                node = node.Parent;
+            }
+
+            if (node?.Value?.Allow ?? false)
+            {
+                return true;
+            }
+
+            return false;
+
+            static bool FindAllowByChild(TreeNode<IPermissionNode> n)
+            {
+                if (n?.Value?.Allow ?? false)
+                {
+                    return true;
+                }
+
+                if (n.HasChildren)
+                {
+                    foreach (var child in n.Children)
+                    {
+                        if (FindAllowByChild(child))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+        }
+
         private static IEnumerable<PermissionRecord> GetChildren(PermissionRecord permission, IEnumerable<PermissionRecord> allPermissions)
         {
             if (permission == null)
@@ -506,6 +561,27 @@ namespace Smartstore.Core.Security
                 var tmpPath = permission.SystemName.EnsureEndsWith(".");
 
                 return allPermissions.Where(x => x.SystemName.StartsWith(tmpPath) && x.SystemName.IndexOf('.', tmpPath.Length) == -1);
+            }
+        }
+
+        private static void AddPermissions(
+            TreeNode<IPermissionNode> parent,
+            IEnumerable<PermissionRecord> toAdd,
+            List<PermissionRecord> allPermissions,
+            CustomerRole role)
+        {
+            foreach (var entity in toAdd)
+            {                
+                var mapping = entity.PermissionRoleMappings.FirstOrDefault(x => x.CustomerRoleId == role.Id);
+
+                var newNode = parent.Append(new PermissionNode
+                {
+                    PermissionRecordId = entity.Id,
+                    Allow = mapping?.Allow ?? null, // null = inherit
+                    SystemName = entity.SystemName
+                }, entity.SystemName);
+
+                AddPermissions(newNode, GetChildren(entity, allPermissions), allPermissions, role);
             }
         }
 
@@ -548,6 +624,7 @@ namespace Smartstore.Core.Security
             var token = tokens.LastOrDefault();
             var displayName = GetDisplayName(token, resourcesLookup);
 
+            // TODO: (mg) (core) SetThreadMetadata cannot work anymore because methods are async. Requires refactoring.
             node.SetThreadMetadata("DisplayName", displayName ?? token ?? node.Value.SystemName);
 
             if (node.HasChildren)
