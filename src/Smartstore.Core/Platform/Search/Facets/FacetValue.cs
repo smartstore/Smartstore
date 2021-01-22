@@ -4,7 +4,6 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Search.Facets
 {
-    [Serializable]
     public class FacetValue : IEquatable<FacetValue>, ICloneable<FacetValue>
     {
         public FacetValue()

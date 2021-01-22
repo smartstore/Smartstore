@@ -7,8 +7,8 @@ namespace Smartstore.Core.Search
 {
     public interface ISearchEngine
     {
-        // TODO: (core) Port search classes from SmartStore.Services.Search. Put catalog specific stuff to Smartstore.Core.Catalog.Search.
-        
+        // TODO: (mg) (core) Port search classes from SmartStore.Services.Search. Put catalog specific stuff to Smartstore.Core.Catalog.Search.
+
         /// <summary>
         /// Search query
         /// </summary>
