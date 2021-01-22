@@ -119,9 +119,9 @@ namespace Smartstore.Core.Content.Media
                 {
                     var isThumbExtractFail = handlerContext.Exception is ExtractThumbnailException;
                     var statusCode = isThumbExtractFail ? StatusCodes.Status204NoContent : StatusCodes.Status500InternalServerError;
-                    var statusMessage = isThumbExtractFail ? handlerContext.Exception.InnerException?.Message.EmptyNull() : handlerContext.Exception.Message;
+                    var statusMessage = isThumbExtractFail ? handlerContext.Exception.InnerException?.Message : handlerContext.Exception.Message;
 
-                    await SendStatus(statusCode, statusMessage);
+                    await SendStatus(statusCode, statusMessage.EmptyNull());
                     return;
                 }
 
