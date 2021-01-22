@@ -24,18 +24,20 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Removes attributes from list which require shippable products, if there are no shippable products in the cart
+        /// Gets invalid shippable attribute ids.
+        /// Invalid shippable attributes are attributes that require a shippable product, when the shopping cart does not require shipping at all.
         /// </summary>
-        public static List<CheckoutAttribute> RemoveShippableAttributes(this IEnumerable<CheckoutAttribute> attributes, IList<OrganizedShoppingCartItem> cart)
+        /// <returns><see cref="IEnumerable{int}"/> with invalid shippable attribute identifiers.</returns>
+        public static IEnumerable<int> GetInvalidShippableAttributesIds(this IEnumerable<CheckoutAttribute> attributes, IList<OrganizedShoppingCartItem> cart)
         {
             Guard.NotNull(attributes, nameof(attributes));
 
-            if (cart.Count == 0 || !cart.IsShippingRequired())
-                return attributes.ToList();
+            if (cart.IsShippingRequired())
+                return Enumerable.Empty<int>();
 
             return attributes
-                .Where(x => !x.ShippableProductRequired)
-                .ToList();
+                .Where(x => x.ShippableProductRequired)
+                .Select(x => x.Id);
         }
 
         /// <summary>
