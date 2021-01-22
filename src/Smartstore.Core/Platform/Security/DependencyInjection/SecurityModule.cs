@@ -7,6 +7,7 @@ namespace Smartstore.Core.DependencyInjection
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
         }
     }
 }

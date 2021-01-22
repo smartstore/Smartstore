@@ -181,12 +181,12 @@ namespace Smartstore.Core.Stores
             return string.Format(STOREMAPPING_SEGMENT_KEY, segment);
         }
 
-        private string GetSegmentKeyPart(string entityName, int entityId)
+        private static string GetSegmentKeyPart(string entityName, int entityId)
         {
             return GetSegmentKeyPart(entityName, entityId, out _, out _);
         }
 
-        private string GetSegmentKeyPart(string entityName, int entityId, out int minId, out int maxId)
+        private static string GetSegmentKeyPart(string entityName, int entityId, out int minId, out int maxId)
         {
             (minId, maxId) = entityId.GetRange(1000);
             return (entityName + "." + minId.ToString()).ToLowerInvariant();

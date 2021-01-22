@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Stores
@@ -29,7 +28,7 @@ namespace Smartstore.Core.Stores
         /// </summary>
         /// <param name="entityName">Entity name to check</param>
         /// <param name="entityId">Entity id to check</param>
-        /// <returns>true - authorized; otherwise, false</returns>
+        /// <returns><c>true</c> authorized, otherwise <c>false</c>.</returns>
         Task<bool> AuthorizeAsync(string entityName, int entityId);
 
         /// <summary>
@@ -38,7 +37,7 @@ namespace Smartstore.Core.Stores
         /// <param name="entityName">Entity name to check</param>
         /// <param name="entityId">Entity id to check</param>
         /// <param name="storeId">Store identifier to check against</param>
-        /// <returns>true - authorized; otherwise, false</returns>
+        /// <returns><c>true</c> authorized, otherwise <c>false</c>.</returns>
         Task<bool> AuthorizeAsync(string entityName, int entityId, int storeId);
 
         /// <summary>

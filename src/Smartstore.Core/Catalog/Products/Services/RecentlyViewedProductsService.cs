@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
+using Smartstore.Core.Security;
 using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Catalog.Products
@@ -16,6 +18,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly SmartDbContext _db;
         private readonly IWebHelper _webHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IAclService _aclService;
         private readonly CatalogSettings _catalogSettings;
         private readonly PrivacySettings _privacySettings;
 
@@ -23,12 +26,14 @@ namespace Smartstore.Core.Catalog.Products
             SmartDbContext db,
             IWebHelper webHelper,
             IHttpContextAccessor httpContextAccessor,
+            IAclService aclService,
             CatalogSettings catalogSettings,
             PrivacySettings privacySettings)
         {
             _db = db;
             _webHelper = webHelper;
             _httpContextAccessor = httpContextAccessor;
+            _aclService = aclService;
             _catalogSettings = catalogSettings;
             _privacySettings = privacySettings;
         }
@@ -42,14 +47,17 @@ namespace Smartstore.Core.Catalog.Products
                 return new List<Product>();
             }
 
-            // TODO: (mg) (core) Apply IAclRestricted to recently viewed products query (IAclService required).
             var recentlyViewedProducts = await _db.Products
                 .AsNoTracking()
                 .Where(x => productIds.Contains(x.Id))
                 .ApplyStandardFilter()
                 .ToListAsync();
 
-            return recentlyViewedProducts;
+            var authorizedProducts = await _aclService
+                .SelectAuthorizedAsync(recentlyViewedProducts)
+                .ToListAsync();
+
+            return authorizedProducts;
         }
 
         public virtual void AddProductToRecentlyViewedList(int productId)
