@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
-using Smartstore.Core.Checkout.GiftCards.Domain;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Customers;
@@ -130,7 +128,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
                                 if (htmlEncode)
                                 {
-                                    pvaAttribute = HttpUtility.HtmlEncode(pvaAttribute);
+                                    pvaAttribute = pvaAttribute.HtmlEncode();
                                 }
                             }
                         }
@@ -139,7 +137,7 @@ namespace Smartstore.Core.Catalog.Attributes
                             string attributeName = pva.ProductAttribute.GetLocalized(x => x.Name, languageId);
 
                             pvaAttribute = "{0}: {1}".FormatInvariant(
-                                htmlEncode ? HttpUtility.HtmlEncode(attributeName) : attributeName,
+                                htmlEncode ? attributeName.HtmlEncode() : attributeName,
                                 HtmlUtils.ConvertPlainTextToHtml(valueStr.HtmlEncode()));
                         }
                         else if (pva.AttributeControlType == AttributeControlType.FileUpload)
@@ -156,7 +154,7 @@ namespace Smartstore.Core.Catalog.Attributes
                                 {
                                     var attributeText = string.Empty;
                                     var fileName = htmlEncode
-                                        ? HttpUtility.HtmlEncode(download.MediaFile.Name)
+                                        ? download.MediaFile.Name.HtmlEncode()
                                         : download.MediaFile.Name;
 
                                     if (includeHyperlinks)
@@ -173,7 +171,7 @@ namespace Smartstore.Core.Catalog.Attributes
                                     string attributeName = pva.ProductAttribute.GetLocalized(a => a.Name, languageId);
 
                                     pvaAttribute = "{0}: {1}".FormatInvariant(
-                                        htmlEncode ? HttpUtility.HtmlEncode(attributeName) : attributeName,
+                                        htmlEncode ? attributeName.HtmlEncode() : attributeName,
                                         attributeText);
                                 }
                             }
@@ -185,7 +183,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
                             if (htmlEncode)
                             {
-                                pvaAttribute = HttpUtility.HtmlEncode(pvaAttribute);
+                                pvaAttribute = pvaAttribute.HtmlEncode();
                             }
                         }
 
@@ -196,23 +194,23 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (includeGiftCardAttributes && product.IsGiftCard)
             {                
-                var gca = selection.GiftCardAttributes;
-                if (gca != null)
+                var gci = selection.GiftCardInfo;
+                if (gci != null)
                 {
                     // Sender.
                     var giftCardFrom = product.GiftCardType == GiftCardType.Virtual
-                        ? (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Virtual")).FormatInvariant(gca.SenderName, gca.SenderEmail)
-                        : (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Physical")).FormatInvariant(gca.SenderName);
+                        ? (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Virtual")).FormatInvariant(gci.SenderName, gci.SenderEmail)
+                        : (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Physical")).FormatInvariant(gci.SenderName);
 
                     // Recipient.
                     var giftCardFor = product.GiftCardType == GiftCardType.Virtual
-                        ? (await _localizationService.GetResourceAsync("GiftCardAttribute.For.Virtual")).FormatInvariant(gca.RecipientName, gca.RecipientEmail)
-                        : (await _localizationService.GetResourceAsync("GiftCardAttribute.For.Physical")).FormatInvariant(gca.RecipientName);
+                        ? (await _localizationService.GetResourceAsync("GiftCardAttribute.For.Virtual")).FormatInvariant(gci.RecipientName, gci.RecipientEmail)
+                        : (await _localizationService.GetResourceAsync("GiftCardAttribute.For.Physical")).FormatInvariant(gci.RecipientName);
 
                     if (htmlEncode)
                     {
-                        giftCardFrom = HttpUtility.HtmlEncode(giftCardFrom);
-                        giftCardFor = HttpUtility.HtmlEncode(giftCardFor);
+                        giftCardFrom = giftCardFrom.HtmlEncode();
+                        giftCardFor = giftCardFor.HtmlEncode();
                     }
 
                     result.Grow(giftCardFrom, separator);

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Smartstore.Core.Checkout.GiftCards.Domain
+namespace Smartstore.Core.Checkout.GiftCards
 {
-    public interface IGiftCardAttributes
+    public interface IGiftCardInfo
     {
         string RecipientName { get; }
         string RecipientEmail { get; }
@@ -12,7 +12,7 @@ namespace Smartstore.Core.Checkout.GiftCards.Domain
         string Message { get; }
     }
 
-    public class GiftCardAttributes : IGiftCardAttributes
+    public class GiftCardInfo : IGiftCardInfo
     {
         public string RecipientName { get; set; }
         public string RecipientEmail { get; set; }
@@ -20,11 +20,11 @@ namespace Smartstore.Core.Checkout.GiftCards.Domain
         public string SenderEmail { get; set; }
         public string Message { get; set; }
 
-        public GiftCardAttributes()
+        public GiftCardInfo()
         {
         }
 
-        public GiftCardAttributes(List<string> list)
+        public GiftCardInfo(List<string> list)
         {
             FromList(list);
         }
@@ -64,7 +64,7 @@ namespace Smartstore.Core.Checkout.GiftCards.Domain
             var property = GetType().GetProperty(name);
             if (property is null)
             {
-                throw new NullReferenceException("Could not find property of " + nameof(GiftCardAttributes) + " with name " + name);
+                throw new NullReferenceException("Could not find property of " + nameof(GiftCardInfo) + " with name " + name);
             }
 
             property.SetValue(this, value);

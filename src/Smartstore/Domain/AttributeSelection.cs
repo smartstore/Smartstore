@@ -98,7 +98,7 @@ namespace Smartstore.Domain
                     }
                     else
                     {
-                        FromAdditionalXml(element, map);
+                        MapElement(element, map);
                     }
                 }
 
@@ -123,18 +123,18 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Tries to parse from additional XML.
-        /// Gets called if attribute element name is not <see cref="_xmlAttributeName"/>.
+        /// Tries to parse and map custom/unknown XML element.
+        /// Gets called if XML element name is unknown.
         /// </summary>
-        /// <param name="xElement">Current element to parse</param>
-        /// <param name="map"><see cref="Multimap{TKey, TValue}"/> of attributes</param>
-        protected virtual void FromAdditionalXml(XElement xElement, Multimap<int, object> map) { }
+        /// <param name="element">Current element to parse</param>
+        /// <param name="map">The traget attributes<see cref="Multimap{TKey, TValue}"/>.</param>
+        protected virtual void MapElement(XElement element, Multimap<int, object> map) { }
 
         /// <summary>
         /// Tries to parse additional XML.
         /// Checks whether <see cref="KeyValuePair{TKey, TValue}.Key"/> is contained within the derived class' <see cref="AdditionalKeyCodes"/> implementation.
         /// </summary>
-        /// <param name="xElement">Root element</param>
+        /// <param name="root">Root element</param>
         /// <param name="pair">Attribute <see cref="KeyValuePair{TKey, TValue}"/></param>
         /// <returns><c>True</c> if additional XML was found and parsed; <c>False</c> otherwise</returns>
         protected virtual bool ToAdditionalXml(XElement root, KeyValuePair<int, ICollection<object>> pair) => false;

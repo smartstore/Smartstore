@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using Smartstore.Collections;
-using Smartstore.Core.Checkout.GiftCards.Domain;
+using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
@@ -17,15 +17,10 @@ namespace Smartstore.Core.Catalog.Attributes
     /// </remarks>
     public class ProductVariantAttributeSelection : AttributeSelection
     {
-        public GiftCardAttributes GiftCardAttributes { get; private set; } = null;
-
-        private readonly Dictionary<string, int> _additionalKeyCodes = new()
+        private static readonly Dictionary<string, int> _additionalKeyCodes = new()
         {
             { "GiftCardInfo", -10 }
         };
-
-        protected override Dictionary<string, int> AdditionalKeyCodes
-            => _additionalKeyCodes;
 
         /// <summary>
         /// Creates product variant attribute selection from string as <see cref="Multimap{int, object}"/>. 
@@ -40,23 +35,33 @@ namespace Smartstore.Core.Catalog.Attributes
         {
         }
 
-        protected override void FromAdditionalXml(XElement xElement, Multimap<int, object> map)
+        public GiftCardInfo GiftCardInfo { get; private set; }
+
+        protected override Dictionary<string, int> AdditionalKeyCodes
+            => _additionalKeyCodes;
+
+        protected override void MapElement(XElement element, Multimap<int, object> map)
         {
-            if (xElement.Name.LocalName == "GiftCardInfo")
+            if (element.Name.LocalName == "GiftCardInfo")
             {
                 try
                 {
                     var attributes = new List<string>();
 
-                    var giftCardAttributes = new GiftCardAttributes();
-                    foreach (var element in xElement.Descendants())
+                    var giftCardAttributes = new GiftCardInfo();
+                    foreach (var el in element.Descendants())
                     {
-                        giftCardAttributes.AddAttribute(element.Name.LocalName, element.Value);
+                        giftCardAttributes.AddAttribute(el.Name.LocalName, el.Value);
+                        //switch (el.Name.LocalName)
+                        //{
+                        //    case nameof(GiftCardAttributes.SenderName):
+                        //        giftCardAttributes.SenderName = el.Value;
+                        //}
                     }
 
                     if (giftCardAttributes.IsValidInfo())
                     {
-                        GiftCardAttributes = giftCardAttributes;
+                        GiftCardInfo = giftCardAttributes;
                         map.AddRange(AdditionalKeyCodes["GiftCardInfo"], giftCardAttributes.ToList());
                     }
                     else
@@ -77,7 +82,7 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 var xElement = new XElement("GiftCardInfo");
                 var attributeValues = attribute.Value.Select(x => x.ToString()).ToList();
-                var giftCardAttributes = new GiftCardAttributes(attributeValues);
+                var giftCardAttributes = new GiftCardInfo(attributeValues);
 
                 foreach (var prop in giftCardAttributes.GetType().GetProperties())
                 {
