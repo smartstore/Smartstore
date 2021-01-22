@@ -23,15 +23,14 @@ namespace Smartstore.Core.Logging.Serilog
 
         public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
         {
-            var entities = batch.Select(CovertLogEvent);
-
             var db = CreateDbContext();
 
             if (db != null)
             {
                 await using (db)
                 {
-                    db.Logs.AddRange(entities);
+                    db.HooksEnabled = false;
+                    db.Logs.AddRange(batch.Select(CovertLogEvent));
                     await db.SaveChangesAsync();
                 }
             }

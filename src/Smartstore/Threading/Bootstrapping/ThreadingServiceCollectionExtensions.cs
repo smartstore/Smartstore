@@ -1,7 +1,7 @@
-﻿using Smartstore;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Threading;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Smartstore.Bootstrapping
 {
     public static class ThreadingServiceCollectionExtensions
     {

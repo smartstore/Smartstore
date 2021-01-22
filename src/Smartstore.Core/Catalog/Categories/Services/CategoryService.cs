@@ -420,7 +420,7 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             var path = sb.ToString();
-            treeNode.SetThreadMetadata(lookupKey, path);
+            treeNode.SetContextMetadata(lookupKey, path);
 
             return path;
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
-using Smartstore.Engine;
+using Smartstore.Threading;
 
 namespace Smartstore.Web.Modelling
 {
@@ -25,7 +25,7 @@ namespace Smartstore.Web.Modelling
         {
             Guard.NotEmpty(key, nameof(key));
 
-            if (TryGetCustomThreadProperties(false, out var dict) && dict.TryGetValue(key, out var value))
+            if (TryGetCustomContextProperties(false, out var dict) && dict.TryGetValue(key, out var value))
             {
                 return (TProperty)value;
             }
@@ -52,24 +52,24 @@ namespace Smartstore.Web.Modelling
         /// but the model is potentially cached statically.
         /// </remarks>
         [JsonIgnore]
-        public IDictionary<string, object> CustomThreadProperties
+        public IDictionary<string, object> CustomContextProperties
         {
             get
             {
-                TryGetCustomThreadProperties(true, out var dict);
+                TryGetCustomContextProperties(true, out var dict);
                 return dict;
             }
         }
 
-        private bool TryGetCustomThreadProperties(bool create, out IDictionary<string, object> dict)
+        private bool TryGetCustomContextProperties(bool create, out IDictionary<string, object> dict)
         {
             dict = null;
-            var state = _contextState.GetState();
+            var state = _contextState.Get();
 
             if (state == null && create)
             {
                 state = new Dictionary<ModelBase, IDictionary<string, object>>();
-                _contextState.SetState(state);
+                _contextState.Push(state);
             }
 
             if (state != null)

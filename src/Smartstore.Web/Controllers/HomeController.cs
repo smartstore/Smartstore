@@ -46,6 +46,7 @@ using Smartstore.Core.Checkout.GiftCards;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Security;
+using Smartstore.Collections;
 
 namespace Smartstore.Web.Controllers
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
-using Smartstore.Engine;
+using Smartstore.Threading;
 
 namespace Smartstore.Collections
 {
@@ -19,7 +19,7 @@ namespace Smartstore.Collections
 		private IDictionary<object, TreeNodeBase<T>> _idNodeMap;
 
 		protected IDictionary<string, object> _metadata;
-		private readonly static ContextState<Dictionary<string, object>> _contextState = new ContextState<Dictionary<string, object>>("TreeNodeBase.ThreadMetadata");
+		private readonly static ContextState<Dictionary<string, object>> _contextState = new("TreeNodeBase.ContextMetadata");
 
 		public TreeNodeBase()
 		{
@@ -162,10 +162,10 @@ namespace Smartstore.Collections
 
 		private IDictionary<object, TreeNodeBase<T>> GetIdNodeMap()
 		{
-			var map = this.Root._idNodeMap;
+			var map = Root._idNodeMap;
 			if (map == null)
 			{
-				map = this.Root._idNodeMap = new Dictionary<object, TreeNodeBase<T>>();
+				map = Root._idNodeMap = new Dictionary<object, TreeNodeBase<T>>();
 			}
 
 			return map;
@@ -177,14 +177,8 @@ namespace Smartstore.Collections
 
 		public IDictionary<string, object> Metadata
 		{
-			get
-			{
-				return _metadata ?? (_metadata = new Dictionary<string, object>());
-			}
-			set
-			{
-				_metadata = value;
-			}
+			get => _metadata ??= new Dictionary<string, object>();
+			set => _metadata = value;
 		}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -195,17 +189,15 @@ namespace Smartstore.Collections
 			Metadata[key] = value;
 		}
 
-		// TODO: (core) SetThreadMetadata\AsyncLocal doesn't work with async methods because the "inner" context values never flow back to the caller.
-		// See https://stackoverflow.com/a/42959816.
-		public void SetThreadMetadata(string key, object value)
+		public void SetContextMetadata(string key, object value)
 		{
 			Guard.NotEmpty(key, nameof(key));
 
-			var state = _contextState.GetState();
+			var state = _contextState.Get();
 			if (state == null)
 			{
 				state = new Dictionary<string, object>();
-				_contextState.SetState(state);
+				_contextState.Push(state);
 			}
 
 			state[GetContextKey(this, key)] = value;
@@ -219,7 +211,7 @@ namespace Smartstore.Collections
 
 			if (!recursive)
 			{
-				return TryGetMetadataForNode(this, key, out metadata) ? (TMetadata)metadata : default(TMetadata);
+				return TryGetMetadataForNode(this, key, out metadata) ? (TMetadata)metadata : default;
 			}
 
 			// recursively search for the metadata value in current node and ancestors
@@ -236,28 +228,26 @@ namespace Smartstore.Collections
                 return (TMetadata)metadata;
             }
 
-            return default(TMetadata);
+            return default;
 		}
 
-		private bool TryGetMetadataForNode(TreeNodeBase<T> node, string key, out object metadata)
+		private static bool TryGetMetadataForNode(TreeNodeBase<T> node, string key, out object metadata)
 		{
 			metadata = null;
 
-			var state = _contextState.GetState();
+			var state = _contextState.Get();
 
 			if (state != null)
 			{
 				var contextKey = GetContextKey(node, key);
-				if (state.ContainsKey(contextKey))
+				if (state.TryGetValue(contextKey, out metadata))
 				{
-					metadata = state[contextKey];
 					return true;
 				}
 			}
 
-			if (node._metadata != null && node._metadata.ContainsKey(key))
+			if (node._metadata != null && node._metadata.TryGetValue(key, out metadata))
 			{
-				metadata = node._metadata[key];
 				return true;
 			}
 

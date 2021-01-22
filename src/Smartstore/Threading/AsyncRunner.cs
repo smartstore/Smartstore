@@ -180,9 +180,7 @@ namespace Smartstore.Threading
         private ILifetimeScope CreateScope()
         {
             var scope = _scopeAccessor.CreateLifetimeScope();
-
             _scopeAccessor.LifetimeScope = scope;
-            scope.CurrentScopeEnding += (s, e) => _scopeAccessor.LifetimeScope = null;
 
             return scope;
         }

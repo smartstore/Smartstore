@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using Microsoft.AspNetCore.Http;
+using Smartstore.Threading;
 using Smartstore.Utilities;
 
 namespace Smartstore.Engine
@@ -9,7 +10,7 @@ namespace Smartstore.Engine
     {
         internal static readonly object ScopeTag = "CustomScope";
 
-        private readonly ContextState<ILifetimeScope> _state;
+        private readonly ContextState<ILifetimeScope> _contextState;
         private readonly ILifetimeScope _rootContainer;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -20,24 +21,34 @@ namespace Smartstore.Engine
 
             _rootContainer = applicationServices.AsLifetimeScope();
             _httpContextAccessor = httpContextAccessor;
-            _state = new ContextState<ILifetimeScope>("CustomLifetimeScopeProvider.WorkScope");
+            _contextState = new ContextState<ILifetimeScope>("CustomLifetimeScopeProvider.WorkScope");
         }
 
         public ILifetimeScope LifetimeScope
         { 
             get
             {
-                var scope = _state.GetState();
+                var scope = _contextState.Get();
                 if (scope == null)
                 {
-                    scope = _state.SetState(_httpContextAccessor.HttpContext?.GetServiceScope() ?? CreateLifetimeScope());
+                    scope = _httpContextAccessor.HttpContext?.GetServiceScope();
+                    if (scope != null)
+                    {
+                        scope.CurrentScopeEnding += (s, e) => _contextState.Remove();
+                    }
+                    else
+                    {
+                        scope = CreateLifetimeScope();
+                    }
+
+                    scope = _contextState.Push(scope);
                 }
 
                 return scope;
             }
             set
             {
-                _state.SetState(value);
+                _contextState.Push(value);
             }
         }
 
@@ -54,11 +65,13 @@ namespace Smartstore.Engine
             }
             else
             {
-                scope = _state.GetState();
+                scope = _contextState.Get();
                 if (scope == null)
                 {
-                    scope = _state.SetState(CreateLifetimeScope());
-                    return new ActionDisposable(() => EndCurrentLifetimeScope());
+                    scope = _contextState.Push(CreateLifetimeScope());
+                    // out param not allowed in anon method.
+                    var scope2 = scope;
+                    return new ActionDisposable(() => scope2.Dispose());
                 }
 
                 return ActionDisposable.Empty;
@@ -67,35 +80,24 @@ namespace Smartstore.Engine
 
         public void EndCurrentLifetimeScope()
         {
-            var scope = _state.GetState();
+            var scope = _contextState.Get();
             if (scope != null && scope.Tag == ScopeTag)
             {
                 // Never dispose scopes which we didn't create here.
                 scope.Dispose();
-                _state.RemoveState();
+                _contextState.Remove();
             }
         }
 
         public ILifetimeScope CreateLifetimeScope(Action<ContainerBuilder> configurationAction = null)
         {   
-            return (configurationAction == null)
+            var scope = (configurationAction == null)
                 ? _rootContainer.BeginLifetimeScope(ScopeTag)
                 : _rootContainer.BeginLifetimeScope(ScopeTag, configurationAction);
+
+            scope.CurrentScopeEnding += (s, e) => _contextState.Remove();
+
+            return scope;
         }
-
-        //class ContextAwareScope : IDisposable
-        //{
-        //    private readonly Action _disposer;
-
-        //    public ContextAwareScope(Action disposer)
-        //    {
-        //        _disposer = disposer;
-        //    }
-
-        //    public void Dispose()
-        //    {
-        //        _disposer?.Invoke();
-        //    }
-        //}
     }
 }

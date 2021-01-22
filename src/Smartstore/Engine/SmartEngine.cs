@@ -5,7 +5,6 @@ using System.Net;
 using System.Reflection;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Collections;
@@ -15,6 +14,7 @@ using Smartstore.DependencyInjection;
 using Smartstore.Engine.Builders;
 using Smartstore.Pdf;
 using Smartstore.ComponentModel;
+using Smartstore.Bootstrapping;
 
 namespace Smartstore.Engine
 {
