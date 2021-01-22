@@ -39,11 +39,22 @@ namespace Smartstore.Core.Security
 
         #region Hook
 
-        public override async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            var entity = entry.Entity as AclRecord;
-            await ClearCacheSegmentAsync(entity.EntityName, entity.EntityId);
-            return HookResult.Ok;
+            var distinctEntries = entries
+                .Select(x => x.Entity)
+                .OfType<AclRecord>()
+                .Select(x => (x.EntityName, x.EntityId))
+                .Distinct()
+                .ToArray();
+
+            foreach (var entry in distinctEntries)
+            {
+                await ClearCacheSegmentAsync(entry.EntityName, entry.EntityId);
+            }
         }
 
         #endregion

@@ -91,9 +91,7 @@ namespace Smartstore.Core.Content.Seo
         #region Hook
 
         public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
-        {
-            return Task.FromResult(HookResult.Ok);
-        }
+            => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
