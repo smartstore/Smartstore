@@ -16,7 +16,6 @@ namespace Smartstore.Core.Localization
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
         private readonly ILanguageService _languageService;
-        private readonly IGenericAttributeService _attrService;
         private readonly LocalizationSettings _localizationSettings;
 
         private readonly AcceptLanguageHeaderRequestCultureProvider _acceptHeaderProvider = new();
@@ -25,13 +24,11 @@ namespace Smartstore.Core.Localization
             SmartDbContext db, 
             IStoreContext storeContext, 
             ILanguageService languageService, 
-            IGenericAttributeService attrService, 
             LocalizationSettings localizationSettings)
         {
             _db = db;
             _storeContext = storeContext;
             _languageService = languageService;
-            _attrService = attrService;
             _localizationSettings = localizationSettings;
         }
 

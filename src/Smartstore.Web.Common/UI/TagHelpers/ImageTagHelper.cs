@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
+using Smartstore.Core.Localization;
 using Smartstore.Imaging;
 
 namespace Smartstore.Web.UI.TagHelpers
@@ -24,8 +25,8 @@ namespace Smartstore.Web.UI.TagHelpers
         const string HeightAttributeName = "img-height";
         const string ResizeModeAttributeName = "img-resize-mode";
         const string AnchorPosAttributeName = "img-anchor-position";
+        const string NoFallbackAttributeName = "img-no-fallback";
         const string HostAttributeName = "url-host";
-        const string NoFallbackAttributeName = "url-no-fallback";
 
         private readonly IMediaUrlGenerator _urlGenerator;
         private readonly IMediaService _mediaService;
@@ -77,13 +78,16 @@ namespace Smartstore.Web.UI.TagHelpers
         public AnchorPosition? AnchorPosition { get; set; }
 
         /// <summary>
-        /// TODO.
+        /// Store host for an absolute URL that also contains scheme and host parts. 
+        /// <c>Omitting</c> this attribute tries to resolve host automatically based on <see cref="Store.ContentDeliveryNetwork"/> or <see cref="MediaSettings.AutoGenerateAbsoluteUrls"/>.
+        /// <c>Empty</c> attribute value bypasses automatic host resolution and does NOT prepend host to path.
+        /// <c>Any string</c> value: host name to use explicitly.
         /// </summary>
         [HtmlAttributeName(HostAttributeName)]
         public string Host { get; set; }
 
         /// <summary>
-        /// TODO.
+        /// If <c>true</c>, output will be suppressed when url generation fails.
         /// </summary>
         [HtmlAttributeName(NoFallbackAttributeName)]
         public bool NoFallback { get; set; }
@@ -121,16 +125,24 @@ namespace Smartstore.Web.UI.TagHelpers
 
             var src = _urlGenerator.GenerateUrl(File, query.ToQueryString(), Host, !NoFallback);
 
-            output.Attributes.SetAttribute("src", src);
-
-            if (File.Alt.HasValue())
+            if (src.IsEmpty())
             {
-                output.Attributes.SetAttributeNoReplace("alt", File.Alt);
+                output.SuppressOutput();
+                return;
             }
-
-            if (File.TitleAttribute.HasValue())
+            else
             {
-                output.Attributes.SetAttributeNoReplace("title", File.TitleAttribute);
+                output.Attributes.SetAttribute("src", src);
+
+                if (File.Alt.HasValue())
+                {
+                    output.Attributes.SetAttributeNoReplace("alt", () => File.File.GetLocalized(x => x.Alt));
+                }
+
+                if (File.TitleAttribute.HasValue())
+                {
+                    output.Attributes.SetAttributeNoReplace("title", () => File.File.GetLocalized(x => x.Title));
+                }
             }
         }
 

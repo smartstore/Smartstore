@@ -11,6 +11,12 @@ namespace Smartstore.Core.Content.Media.Imaging
 {
     public class ProcessImageQuery : MutableQueryCollection
     {
+        private readonly static string[] _validScaleModes
+            = new[] { "max", "boxpad", "crop", "min", "pad", "stretch" };
+
+        private readonly static string[] _validAnchorPositions
+            = new[] { "center", "top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right" };
+
         // Key = Supported token name, Value = Validator
         private readonly static Dictionary<string, Func<string, string, bool>> _supportedTokens = new()
         {
@@ -288,12 +294,12 @@ namespace Smartstore.Core.Content.Media.Imaging
 
         private static bool ValidateScaleModeToken(string key, string value)
         {
-            return (new[] { "max", "boxpad", "crop", "min", "pad", "stretch" }).Contains(value);
+            return _validScaleModes.Contains(value);
         }
 
         private static bool ValidateAnchorPosToken(string key, string value)
         {
-            return (new[] { "center", "top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right" }).Contains(value);
+            return _validAnchorPositions.Contains(value);
         }
 
         #endregion

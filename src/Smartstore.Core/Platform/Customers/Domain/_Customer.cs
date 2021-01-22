@@ -233,7 +233,7 @@ namespace Smartstore.Core.Customers
 
         [NotMapped, JsonIgnore]
         public override CustomerAttributeCollection GenericAttributes 
-            => new CustomerAttributeCollection(base.GenericAttributes);
+            => new(base.GenericAttributes);
 
         #region Navigation properties
 
