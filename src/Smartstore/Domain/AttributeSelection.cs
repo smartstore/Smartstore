@@ -13,7 +13,7 @@ namespace Smartstore.Domain
     /// Represents an attribute selection.
     /// </summary>
     /// <remarks>
-    /// This class can parse strings with XML or JSON format to <see cref="Multimap{TKey, TValue}"/> and vice versa.
+    /// This class can parse strings with XML or JSON format to <see cref="Multimap{int, object}"/> and vice versa.
     /// </remarks>
     public abstract class AttributeSelection : IEquatable<AttributeSelection>
     {
@@ -23,12 +23,6 @@ namespace Smartstore.Domain
         private string _rawAttributes;
         private bool _dirty = true;
         private bool _isJson;
-
-        /// <summary>
-        /// Dictionary with additional key codes representing deviating XML structure elements.
-        /// Like <see cref="GiftCardAttributes"/> in <see cref="ProductVariantAttributeSelection"/>.
-        /// </summary>
-        protected virtual Dictionary<string, int> AdditionalKeyCodes { get; }
 
         /// <summary>
         /// Creates a new attribute selection from string as <see cref="Multimap{int, object}"/>. 
@@ -127,23 +121,22 @@ namespace Smartstore.Domain
         /// Gets called if XML element name is unknown.
         /// </summary>
         /// <param name="element">Current element to parse</param>
-        /// <param name="map">The traget attributes<see cref="Multimap{TKey, TValue}"/>.</param>
+        /// <param name="map">The traget attributes<see cref="Multimap{int, object}"/>.</param>
         protected virtual void MapElement(XElement element, Multimap<int, object> map) { }
 
         /// <summary>
         /// Tries to parse additional XML.
-        /// Checks whether <see cref="KeyValuePair{TKey, TValue}.Key"/> is contained within the derived class' <see cref="AdditionalKeyCodes"/> implementation.
         /// </summary>
         /// <param name="root">Root element</param>
-        /// <param name="pair">Attribute <see cref="KeyValuePair{TKey, TValue}"/></param>
+        /// <param name="pair">Attribute <see cref="KeyValuePair{int, object}"/></param>
         /// <returns><c>True</c> if additional XML was found and parsed; <c>False</c> otherwise</returns>
-        protected virtual bool ToAdditionalXml(XElement root, KeyValuePair<int, ICollection<object>> pair) => false;
+        protected virtual void ToAdditionalXml(XElement root) { }
 
         /// <summary>
         /// Creates and returns a string in JSON format.
         /// </summary>
         /// <remarks>
-        /// Tries to serialize <see cref="Multimap{TKey, TValue}"/> and throws a <see cref="JsonSerializationException"/> if not possible.
+        /// Tries to serialize <see cref="Multimap{int, object}"/> and throws a <see cref="JsonSerializationException"/> if not possible.
         /// </remarks>
         public string AsJson()
         {
@@ -169,7 +162,7 @@ namespace Smartstore.Domain
         /// Creates and returns a string in XML format.
         /// </summary>
         /// <remarks>
-        /// Tries to serialize <see cref="Multimap{TKey, TValue}"/> and throws a <see cref="JsonSerializationException"/> if not possible.
+        /// Tries to serialize <see cref="Multimap{int, object}"/> and throws a <see cref="JsonSerializationException"/> if not possible.
         /// </remarks>
         public string AsXml()
         {
@@ -179,7 +172,7 @@ namespace Smartstore.Domain
             var root = new XElement("Attributes");
             foreach (var attribute in _map)
             {
-                if (ToAdditionalXml(root, attribute))
+                if (attribute.Key <= 0) 
                     continue;
 
                 var attributeElement = new XElement(_xmlAttributeName, new XAttribute("ID", attribute.Key));
@@ -195,6 +188,8 @@ namespace Smartstore.Domain
 
                 root.Add(attributeElement);
             }
+
+            ToAdditionalXml(root);
 
             _isJson = false;
             _dirty = false;
@@ -238,10 +233,10 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Adds an attribute with possible multiple values to <see cref="Multimap{TKey, TValue}"/>.
+        /// Adds an attribute with possible multiple values to <see cref="AttributesMap"/>.
         /// </summary>
         /// <remarks>
-        /// Sets <see cref="_dirty"/> flag to <c>true</c>.
+        /// Changes to <see cref="AttributesMap"/> causes selection to reparse attributes string.
         /// </remarks>
         /// <param name="attributeId">Attribute identifier</param>
         /// <param name="value">Attribute value</param>
@@ -254,10 +249,10 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Adds an attribute value to <see cref="Multimap{TKey, TValue}"/> by attribute id.
+        /// Adds an attribute value to <see cref="AttributesMap"/> by attribute id.
         /// </summary>
         /// <remarks>
-        /// Sets <see cref="_dirty"/> flag to <c>true</c>.
+        /// Changes to <see cref="AttributesMap"/> causes selection to reparse attributes string.
         /// </remarks>
         /// <param name="attributeId">Identifier of attribute</param>
         /// <param name="value">Attribute value</param>
@@ -270,10 +265,10 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Removes an attribute set from <see cref="Multimap{TKey, TValue}"/> by attribute id.
+        /// Removes an attribute set from <see cref="AttributesMap"/> by attribute id.
         /// </summary>
         /// <remarks>
-        /// Sets <see cref="_dirty"/> flag to <c>true</c>.
+        /// Changes to <see cref="AttributesMap"/> causes selection to reparse attributes string.
         /// </remarks>
         /// <param name="attributeId">Identifier of attribute</param>
         public void RemoveAttribute(int attributeId)
@@ -283,10 +278,27 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Removes an attribute value from <see cref="Multimap{TKey, TValue}"/> by attribute id.
+        /// Removes attribute sets from <see cref="AttributesMap"/> by attribute ids.
         /// </summary>
         /// <remarks>
-        /// Sets <see cref="_dirty"/> flag to <c>true</c>.
+        /// Changes to <see cref="AttributesMap"/> causes selection to reparse attributes string.
+        /// </remarks>
+        /// <param name="attributeIds">List of attribute identifiers</param>
+        public void RemoveAttributes(IEnumerable<int> attributeIds)
+        {
+            foreach (var attributeId in attributeIds)
+            {
+                _map.RemoveAll(attributeId);
+            }
+
+            _dirty = true;
+        }
+
+        /// <summary>
+        /// Removes an attribute value from <see cref="AttributesMap"/> by attribute id.
+        /// </summary>
+        /// <remarks>
+        /// Changes to <see cref="AttributesMap"/> causes selection to reparse attributes string.
         /// </remarks>
         /// <param name="attributeId">Identifier of attribute</param>
         /// <param name="value">Attribute value</param>
@@ -299,10 +311,10 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Removes all attribute sets from <see cref="Multimap{TKey, TValue}"/>.
+        /// Removes all attribute sets from <see cref="AttributesMap"/>.
         /// </summary>
         /// <remarks>
-        /// Sets <see cref="_dirty"/> flag to <c>true</c>.
+        /// Changes to <see cref="AttributesMap"/> causes selection to reparse attributes string.
         /// </remarks>
         public void ClearAttributes()
         {

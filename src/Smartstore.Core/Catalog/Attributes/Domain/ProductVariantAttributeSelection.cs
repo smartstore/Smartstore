@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
 using System.Xml;
 using System.Xml.Linq;
 using Smartstore.Collections;
@@ -13,15 +13,10 @@ namespace Smartstore.Core.Catalog.Attributes
     /// Represents a product variant attribute selection.
     /// </summary>
     /// <remarks>
-    /// This class can parse strings with XML or JSON format to <see cref="Multimap{TKey, TValue}"/> and vice versa.
+    /// This class can parse strings with XML or JSON format to <see cref="Multimap{int, object}"/> and vice versa.
     /// </remarks>
     public class ProductVariantAttributeSelection : AttributeSelection
     {
-        private static readonly Dictionary<string, int> _additionalKeyCodes = new()
-        {
-            { "GiftCardInfo", -10 }
-        };
-
         /// <summary>
         /// Creates product variant attribute selection from string as <see cref="Multimap{int, object}"/>. 
         /// Use <see cref="AttributeSelection.AttributesMap"/> to access parsed attributes afterwards.
@@ -37,37 +32,60 @@ namespace Smartstore.Core.Catalog.Attributes
 
         public GiftCardInfo GiftCardInfo { get; private set; }
 
-        protected override Dictionary<string, int> AdditionalKeyCodes
-            => _additionalKeyCodes;
-
         protected override void MapElement(XElement element, Multimap<int, object> map)
         {
             if (element.Name.LocalName == "GiftCardInfo")
             {
                 try
                 {
-                    var attributes = new List<string>();
+                    var giftCardInfo = new GiftCardInfo();
+                    foreach (var el in element.Elements())
+                    {
+                        switch (el.Name.LocalName)
+                        {
+                            case nameof(GiftCardInfo.RecipientEmail):
+                                {
+                                    giftCardInfo.RecipientEmail = el.Value;
+                                    break;
+                                }
+                            case nameof(GiftCardInfo.RecipientName):
+                                {
+                                    giftCardInfo.RecipientName = el.Value;
+                                    break;
+                                }
+                            case nameof(GiftCardInfo.SenderName):
+                                {
+                                    giftCardInfo.SenderName = el.Value;
+                                    break;
+                                }
+                            case nameof(GiftCardInfo.SenderEmail):
+                                {
+                                    giftCardInfo.SenderEmail = el.Value;
+                                    break;
+                                }
+                            case nameof(GiftCardInfo.Message):
+                                {
+                                    giftCardInfo.Message = el.Value;
+                                    break;
+                                }
 
-                    var giftCardAttributes = new GiftCardInfo();
-                    foreach (var el in element.Descendants())
-                    {
-                        giftCardAttributes.AddAttribute(el.Name.LocalName, el.Value);
-                        //switch (el.Name.LocalName)
-                        //{
-                        //    case nameof(GiftCardAttributes.SenderName):
-                        //        giftCardAttributes.SenderName = el.Value;
-                        //}
+                            default:
+                                throw new InvalidEnumArgumentException(el.Name.LocalName);
+                        }
                     }
 
-                    if (giftCardAttributes.IsValidInfo())
+                    GiftCardInfo = giftCardInfo;
+                    var giftCardInfos = new List<string>
                     {
-                        GiftCardInfo = giftCardAttributes;
-                        map.AddRange(AdditionalKeyCodes["GiftCardInfo"], giftCardAttributes.ToList());
-                    }
-                    else
-                    {
-                        throw new Exception("No valid gift card attribute info");
-                    }
+                        GiftCardInfo.RecipientName,
+                        GiftCardInfo.RecipientEmail,
+                        GiftCardInfo.SenderName,
+                        GiftCardInfo.SenderEmail,
+                        GiftCardInfo.Message
+                    };
+
+                    map.AddRange(0, giftCardInfos);
+
                 }
                 catch (Exception ex)
                 {
@@ -76,24 +94,19 @@ namespace Smartstore.Core.Catalog.Attributes
             }
         }
 
-        protected override bool ToAdditionalXml(XElement root, KeyValuePair<int, ICollection<object>> attribute)
+        protected override void ToAdditionalXml(XElement root)
         {
-            if (attribute.Key == AdditionalKeyCodes["GiftCardInfo"])
-            {
-                var xElement = new XElement("GiftCardInfo");
-                var attributeValues = attribute.Value.Select(x => x.ToString()).ToList();
-                var giftCardAttributes = new GiftCardInfo(attributeValues);
+            if (GiftCardInfo is null)
+                return;
 
-                foreach (var prop in giftCardAttributes.GetType().GetProperties())
-                {
-                    xElement.Add(new XElement(prop.Name, prop.GetValue(giftCardAttributes)));
-                }
+            var xElement = new XElement("GiftCardInfo");
+            xElement.Add(new XElement(nameof(GiftCardInfo.RecipientName), GiftCardInfo.RecipientName));
+            xElement.Add(new XElement(nameof(GiftCardInfo.RecipientEmail), GiftCardInfo.RecipientEmail));
+            xElement.Add(new XElement(nameof(GiftCardInfo.SenderName), GiftCardInfo.SenderName));
+            xElement.Add(new XElement(nameof(GiftCardInfo.SenderEmail), GiftCardInfo.SenderEmail));
+            xElement.Add(new XElement(nameof(GiftCardInfo.Message), GiftCardInfo.Message));
 
-                root.Add(xElement);
-                return true;
-            }
-
-            return false;
+            root.Add(xElement);
         }
     }
 }
