@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -72,6 +73,8 @@ namespace Smartstore.Core.Security
         public virtual async Task ApplyAclMappingsAsync<T>(T entity, int[] selectedCustomerRoleIds)
             where T : BaseEntity, IAclRestricted
         {
+            Guard.NotNull(entity, nameof(entity));
+            
             selectedCustomerRoleIds ??= Array.Empty<int>();
 
             var existingAclRecords = await _db.AclRecords
@@ -128,6 +131,7 @@ namespace Smartstore.Core.Security
             return roleIds;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual async Task<bool> AuthorizeAsync(string entityName, int entityId)
         {
             return await AuthorizeAsync(entityName, entityId, _workContext.Value.CurrentCustomer?.CustomerRoleMappings?.Select(x => x.CustomerRole));
