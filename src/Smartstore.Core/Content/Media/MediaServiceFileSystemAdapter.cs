@@ -50,6 +50,8 @@ namespace Smartstore.Core.Content.Media
 
         public IMediaStorageConfiguration StorageConfiguration { get; }
 
+        public bool IsCloudStorage => _storageProvider.IsCloudStorage;
+
         public string MapUrlToStoragePath(string url)
         {
             url = Fix(url).TrimStart('/');

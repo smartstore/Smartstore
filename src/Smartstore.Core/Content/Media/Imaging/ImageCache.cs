@@ -95,7 +95,7 @@ namespace Smartstore.Core.Content.Media.Imaging
             {
                 Path = imagePath,
                 Extension = pathData.Extension,
-                IsRemote = _fileSystem.StorageConfiguration.IsCloudStorage
+                IsRemote = _fileSystem.IsCloudStorage
             };
 
             return result;

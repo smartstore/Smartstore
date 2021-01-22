@@ -11,5 +11,10 @@ namespace Smartstore.Core.Content.Media
         /// Contains media storage and path configuration.
         /// </summary>
         IMediaStorageConfiguration StorageConfiguration { get; }
+
+        /// <summary>
+        /// Checks whether the underlying storage is remote, like 'Azure' for example. 
+        /// </summary>
+        bool IsCloudStorage { get; }
     }
 }

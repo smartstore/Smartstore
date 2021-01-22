@@ -61,7 +61,7 @@ namespace Smartstore.Core.Content.Media.Storage
         #region IMediaStorageProvider
 
         public bool IsCloudStorage 
-            => _fileSystem.StorageConfiguration.IsCloudStorage;
+            => _fileSystem.IsCloudStorage;
 
         public async Task<long> GetLengthAsync(MediaFile mediaFile)
         {

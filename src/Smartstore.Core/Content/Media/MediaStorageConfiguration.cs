@@ -13,12 +13,6 @@ namespace Smartstore.Core.Content.Media
 {
     public class MediaStorageConfiguration : IMediaStorageConfiguration
     {
-        //// /myshop
-        //private string _pathBase;
-
-        //// When public URL is outside of current app
-        //private bool _isCloudStorage;
-
         private readonly IApplicationContext _appContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -27,11 +21,13 @@ namespace Smartstore.Core.Content.Media
             _appContext = appContext;
             _httpContextAccessor = httpContextAccessor;
 
+            IsCloudStorage = false;
             PublicPath = GetPublicPath(appContext.AppConfiguration);
             StoragePath = GetStoragePath(appContext.AppConfiguration, out var pathIsAbsolute);
             StoragePathIsAbsolute = pathIsAbsolute;
-            RootPath = Path.Combine(appContext.ContentRoot.Root, StoragePath.Replace('/', '\\'));
-            IsCloudStorage = false;
+            RootPath = pathIsAbsolute 
+                ? StoragePath.Replace('/', '\\')
+                : Path.Combine(appContext.ContentRoot.Root, StoragePath.Replace('/', '\\'));
         }
 
         public string PublicPath { get; }
@@ -54,14 +50,13 @@ namespace Smartstore.Core.Content.Media
 
         private static string GetStoragePath(SmartConfiguration appConfig, out bool pathIsAbsolute)
         {
-            pathIsAbsolute = false;
-
             var path = appConfig.MediaStoragePath?.Trim().NullEmpty();
             if (path == null)
             {
                 path = "App_Data/Tenants/" + DataSettings.Instance.TenantName + "/Media";
-                pathIsAbsolute = PathHelper.IsAbsolutePhysicalPath(path);
             }
+
+            pathIsAbsolute = PathHelper.IsAbsolutePhysicalPath(path);
 
             return path;
         }

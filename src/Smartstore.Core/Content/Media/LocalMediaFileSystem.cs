@@ -16,5 +16,7 @@ namespace Smartstore.Core.Content.Media
         }
 
         public IMediaStorageConfiguration StorageConfiguration { get; }
+
+        public bool IsCloudStorage => StorageConfiguration.IsCloudStorage;
     }
 }
