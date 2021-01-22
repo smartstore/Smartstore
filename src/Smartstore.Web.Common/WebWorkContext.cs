@@ -12,6 +12,7 @@ using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Web;
 
 namespace Smartstore.Web
 {
@@ -21,9 +22,16 @@ namespace Smartstore.Web
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILanguageResolver _languageResolver;
         private readonly IStoreContext _storeContext;
+        private readonly ICurrencyService _currencyService;
         private readonly IGenericAttributeService _attrService;
         private readonly TaxSettings _taxSettings;
+        private readonly PrivacySettings _privacySettings;
+        private readonly LocalizationSettings _localizationSettings;
         private readonly ICacheManager _cache;
+        private readonly Lazy<ITaxService> _taxService;
+        //private readonly IUserAgent _userAgent;
+        private readonly IWebHelper _webHelper;
+        private readonly IGeoCountryLookup _geoCountryLookup;
 
         private TaxDisplayType? _taxDisplayType;
         private Language _language;
@@ -37,18 +45,31 @@ namespace Smartstore.Web
             IHttpContextAccessor httpContextAccessor,
             ILanguageResolver languageResolver,
             IStoreContext storeContext,
+            ICurrencyService currencyService,
             IGenericAttributeService attrService,
             TaxSettings taxSettings,
-            ICacheManager cache)
+            PrivacySettings privacySettings,
+            LocalizationSettings localizationSettings,
+            Lazy<ITaxService> taxService,
+            ICacheManager cache,
+            IWebHelper webHelper,
+            IGeoCountryLookup geoCountryLookup)
         {
             // TODO: (core) Implement WebWorkContext
             _db = db;
             _httpContextAccessor = httpContextAccessor;
             _languageResolver = languageResolver;
             _storeContext = storeContext;
+            _currencyService = currencyService;
             _attrService = attrService;
             _taxSettings = taxSettings;
+            _privacySettings = privacySettings;
+            _taxService = taxService;
+            _localizationSettings = localizationSettings;
+            //_userAgent = userAgent;
             _cache = cache;
+            _webHelper = webHelper;
+            _geoCountryLookup = geoCountryLookup;
         }
 
         public Customer CurrentCustomer 
@@ -117,11 +138,131 @@ namespace Smartstore.Web
                     return _currency;
                 }
 
-                _currency = _db.Currencies.AsNoTracking().FirstOrDefault();
+                var query = _db.Currencies.AsNoTracking();
 
+                Currency currency = null;
+
+                // Return primary store currency when we're in admin area/mode
+                if (IsAdminArea)
+                {
+                    currency = _storeContext.CurrentStore.PrimaryStoreCurrency;
+                }
+
+                if (currency == null)
+                {
+                    // Find current customer language
+                    var customer = CurrentCustomer;
+                    var storeCurrenciesMap = query.ApplyStandardFilter(storeId: _storeContext.CurrentStore.Id).ToDictionary(x => x.Id);
+
+                    if (customer != null && !customer.IsSearchEngineAccount())
+                    {
+                        // Search engines should always crawl by primary store currency
+                        var customerCurrencyId = customer.GenericAttributes.CurrencyId;
+                        if (customerCurrencyId > 0)
+                        {
+                            if (storeCurrenciesMap.TryGetValue(customerCurrencyId.Value, out currency))
+                            {
+                                currency = VerifyCurrency(currency);
+                                if (currency == null)
+                                {
+                                    SetCustomerCurrency(null);
+                                }
+                            }
+                        }
+                    }
+
+                    // if there's only one currency for current store it dominates the primary currency
+                    if (storeCurrenciesMap.Count == 1)
+                    {
+                        currency = storeCurrenciesMap[storeCurrenciesMap.Keys.First()];
+                    }
+
+                    // Default currency of country to which the current IP address belongs.
+                    if (currency == null)
+                    {
+                        var ipAddress = _webHelper.GetClientIpAddress();
+                        var lookupCountry = _geoCountryLookup.LookupCountry(ipAddress);
+                        if (lookupCountry != null)
+                        {
+                            var country = _db.Countries
+                                .AsNoTracking()
+                                .Include(x => x.DefaultCurrency)
+                                .ApplyIsoCodeFilter(lookupCountry.IsoCode)
+                                .FirstOrDefault();
+
+                            if (country?.DefaultCurrency?.Published == true)
+                            {
+                                currency = country.DefaultCurrency;
+                            }
+                        }
+                    }
+
+                    // Find currency by domain ending
+                    if (currency == null)
+                    {
+                        var request = _httpContextAccessor.HttpContext?.Request;
+                        if (request != null)
+                        {
+                            currency = storeCurrenciesMap.Values.GetByDomainEnding(request.Host.Value);
+                        }
+                    }
+
+                    // Get PrimaryStoreCurrency
+                    if (currency == null)
+                    {
+                        currency = VerifyCurrency(_storeContext.CurrentStore.PrimaryStoreCurrency);
+                    }
+
+                    // Get the first published currency for current store
+                    if (currency == null)
+                    {
+                        currency = storeCurrenciesMap.Values.FirstOrDefault();
+                    }
+                }
+
+                // If not found in currencies filtered by the current store, then return any currency
+                if (currency == null)
+                {
+                    currency = query.ApplyStandardFilter().FirstOrDefault();
+
+                }
+
+                // No published currency available (fix it)
+                if (currency == null)
+                {
+                    currency = query.AsTracking().ApplyStandardFilter(true).FirstOrDefault();
+                    if (currency != null)
+                    {
+                        currency.Published = true;
+                        _db.SaveChanges();
+                    }
+                }
+
+                _currency = currency;
                 return _currency;
             }
-            set => _currency = value;
+            set 
+            {
+                SetCustomerCurrency(value?.Id);
+                _currency = null;
+            }
+        }
+
+        private static Currency VerifyCurrency(Currency currency)
+        {
+            if (currency != null && !currency.Published)
+            {
+                return null;
+            }
+
+            return currency;
+        }
+
+        private void SetCustomerCurrency(int? currencyId)
+        {
+            var customer = CurrentCustomer;
+            customer.GenericAttributes.CurrencyId = currencyId;
+            customer.GenericAttributes.SaveChanges();
         }
 
         public TaxDisplayType TaxDisplayType 
