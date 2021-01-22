@@ -6,27 +6,6 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.UI.TagHelpers
 {
-	/// <summary>
-	/// Content injection modes.
-	/// </summary>
-	public enum ZoneInjectMode
-	{
-		/// <summary>
-		/// Inserts injected content after existing content.
-		/// </summary>
-		Append,
-
-		/// <summary>
-		/// Inserts injected content before existing content.
-		/// </summary>
-		Prepend,
-
-		/// <summary>
-		/// Replaces existing with injected content.
-		/// </summary>
-		Replace
-	}
-
 	[HtmlTargetElement("zone", Attributes = ZoneNameAttributeName)]
 	[HtmlTargetElement("div", Attributes = ZoneNameAttributeName)]
 	[HtmlTargetElement("span", Attributes = ZoneNameAttributeName)]
@@ -36,18 +15,24 @@ namespace Smartstore.Web.UI.TagHelpers
 	[HtmlTargetElement("header", Attributes = ZoneNameAttributeName)]
 	[HtmlTargetElement("footer", Attributes = ZoneNameAttributeName)]
 	public class ZoneTagHelper : SmartTagHelper
-    {
+	{
 		const string ZoneNameAttributeName = "zone-name";
 
 		private readonly IWidgetSelector _widgetSelector;
 
 		public ZoneTagHelper(IWidgetSelector widgetSelector)
-        {
+		{
 			_widgetSelector = widgetSelector;
-        }
+		}
 
 		[HtmlAttributeName(ZoneNameAttributeName)]
 		public string ZoneName { get; set; }
+
+		/// <summary>
+		/// Specifies whether any default zone content should be removed if at least one 
+		/// widget is rendered in the zone.
+		/// </summary>
+		public bool ReplaceContent { get; set; }
 
 		/// <summary>
 		/// Whether to remove the root zone tag when it has no content. 
@@ -55,11 +40,6 @@ namespace Smartstore.Web.UI.TagHelpers
 		/// <c>zone</c> tags are always removed.
 		/// </summary>
 		public bool RemoveWhenEmpty { get; set; }
-
-		/// <summary>
-		/// Specifies how content should be injected if zone contains default content. Default is <see cref="ZoneInjectMode.Append"/>.
-		/// </summary>
-		public ZoneInjectMode? InjectMode { get; set; }
 
 		protected override string GenerateTagId(TagHelperContext context) => null;
 
@@ -77,25 +57,15 @@ namespace Smartstore.Web.UI.TagHelpers
 
 			if (widgets.Any())
             {
-				var injectMode = InjectMode ?? ZoneInjectMode.Append;
-				if (injectMode == ZoneInjectMode.Prepend)
+				if (ReplaceContent)
 				{
-					foreach (var widget in widgets.Reverse())
-					{
-						output.PreContent.SetHtmlContent(await widget.InvokeAsync(ViewContext));
-					}
+					output.Content.SetContent(string.Empty);
 				}
-				else
-				{
-					if (injectMode == ZoneInjectMode.Replace)
-                    {
-						output.SuppressOutput();
-					}
 
-					foreach (var widget in widgets)
-					{
-						output.PostContent.SetHtmlContent(await widget.InvokeAsync(ViewContext));
-					}
+				foreach (var widget in widgets)
+				{
+					var target = widget.Prepend ? output.PreContent : output.PostContent;
+					target.AppendHtml(await widget.InvokeAsync(ViewContext));
 				}
 			}
 			else

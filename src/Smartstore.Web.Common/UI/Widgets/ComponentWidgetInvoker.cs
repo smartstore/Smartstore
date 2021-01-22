@@ -30,7 +30,6 @@ namespace Smartstore.Web.UI
         private static IViewComponentHelper CreateViewComponentHelper(ViewContext viewContext)
         {
             var viewComponentHelper = viewContext.HttpContext.RequestServices.GetService<IViewComponentHelper>();
-            var hasViewContext = viewComponentHelper as IViewContextAware;
             if (viewComponentHelper is IViewContextAware viewContextAware)
             {
                 viewContextAware.Contextualize(viewContext);
