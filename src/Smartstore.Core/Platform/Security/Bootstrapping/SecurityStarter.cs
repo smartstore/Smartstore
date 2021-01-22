@@ -10,7 +10,11 @@ namespace Smartstore.Core.Bootstrapping
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
-            builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
+            if (appContext.IsInstalled)
+            {
+                builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
+                builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
+            }
         }
     }
 }
