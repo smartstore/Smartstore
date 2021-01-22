@@ -18,7 +18,8 @@ namespace Smartstore.Core.Content.Media.Imaging
             ["h"] = (k, v) => ValidateSizeToken(k, v),
             ["size"] = (k, v) => ValidateSizeToken(k, v),
             ["q"] = (k, v) => ValidateQualityToken(k, v),
-            ["m"] = (k, v) => ValidateScaleModeToken(k, v)
+            ["m"] = (k, v) => ValidateScaleModeToken(k, v),
+            ["pos"] = (k, v) => ValidateAnchorPosToken(k, v)
         };
 
         public ProcessImageQuery()
@@ -288,6 +289,11 @@ namespace Smartstore.Core.Content.Media.Imaging
         private static bool ValidateScaleModeToken(string key, string value)
         {
             return (new[] { "max", "boxpad", "crop", "min", "pad", "stretch" }).Contains(value);
+        }
+
+        private static bool ValidateAnchorPosToken(string key, string value)
+        {
+            return (new[] { "center", "top", "bottom", "left", "right", "top-left", "top-right", "bottom-left", "bottom-right" }).Contains(value);
         }
 
         #endregion

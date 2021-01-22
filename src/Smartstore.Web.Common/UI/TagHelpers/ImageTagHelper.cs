@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media;
@@ -11,14 +12,28 @@ using Smartstore.Imaging;
 
 namespace Smartstore.Web.UI.TagHelpers
 {
-    [HtmlTargetElement("img", Attributes = "file")]
+    [HtmlTargetElement(ImageTagName, Attributes = FileAttributeName)]
+    [HtmlTargetElement(ImageTagName, Attributes = FileIdAttributeName)]
     public class ImageTagHelper : SmartTagHelper
     {
-        private readonly IMediaUrlGenerator _urlGenerator;
+        const string ImageTagName = "img";
+        const string FileAttributeName = "file";
+        const string FileIdAttributeName = "file-id";
+        const string SizeAttributeName = "img-size";
+        const string WidthAttributeName = "img-width";
+        const string HeightAttributeName = "img-height";
+        const string ResizeModeAttributeName = "img-resize-mode";
+        const string AnchorPosAttributeName = "img-anchor-position";
+        const string HostAttributeName = "url-host";
+        const string NoFallbackAttributeName = "url-no-fallback";
 
-        public ImageTagHelper(IMediaUrlGenerator urlGenerator)
+        private readonly IMediaUrlGenerator _urlGenerator;
+        private readonly IMediaService _mediaService;
+
+        public ImageTagHelper(IMediaUrlGenerator urlGenerator, IMediaService mediaService)
         {
             _urlGenerator = urlGenerator;
+            _mediaService = mediaService;
         }
 
         /// <summary>
@@ -27,54 +42,84 @@ namespace Smartstore.Web.UI.TagHelpers
         public MediaFileInfo File { get; set; }
 
         /// <summary>
+        /// The <see cref="MediaFileInfo"/> instance to render an img tag for.
+        /// </summary>
+        public int? FileId { get; set; }
+
+        /// <summary>
         /// The max physical size (either width or height) to resize the image to.
         /// </summary>
-        [HtmlAttributeName("img-size")]
-        public int? ImageSize { get; set; }
+        [HtmlAttributeName(SizeAttributeName)]
+        public int? Size { get; set; }
 
         /// <summary>
         /// The max physical width to resize the image to.
         /// </summary>
-        [HtmlAttributeName("img-width")]
-        public int? ImageWidth { get; set; }
+        [HtmlAttributeName(WidthAttributeName)]
+        public int? Width { get; set; }
 
         /// <summary>
         /// The max physical width to resize the image to.
         /// </summary>
-        [HtmlAttributeName("img-height")]
-        public int? ImageHeight { get; set; }
+        [HtmlAttributeName(HeightAttributeName)]
+        public int? Height { get; set; }
 
         /// <summary>
         /// The resize mode to apply during resizing. Defaults to <see cref="ResizeMode.Max"/>.
         /// </summary>
-        [HtmlAttributeName("img-resize-mode")]
-        public ResizeMode? ImageResizeMode { get; set; }
+        [HtmlAttributeName(ResizeModeAttributeName)]
+        public ResizeMode? ResizeMode { get; set; }
 
-        protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
+        /// <summary>
+        /// The anchor position for (crop) resizing. Defaults to <see cref="AnchorPosition.Center"/>.
+        /// </summary>
+        [HtmlAttributeName(AnchorPosAttributeName)]
+        public AnchorPosition? AnchorPosition { get; set; }
+
+        /// <summary>
+        /// TODO.
+        /// </summary>
+        [HtmlAttributeName(HostAttributeName)]
+        public string Host { get; set; }
+
+        /// <summary>
+        /// TODO.
+        /// </summary>
+        [HtmlAttributeName(NoFallbackAttributeName)]
+        public bool NoFallback { get; set; }
+
+        protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
+            await ResolveFileAsync();
+            
             var query = new ProcessImageQuery();
 
-            if (ImageSize > 0)
+            if (Size > 0)
             {
-                query.MaxSize = ImageSize.Value;
+                query.MaxSize = Size.Value;
             }
 
-            if (ImageWidth > 0)
+            if (Width > 0)
             {
-                query.MaxWidth = ImageWidth.Value;
+                query.MaxWidth = Width.Value;
             }
 
-            if (ImageHeight > 0)
+            if (Height > 0)
             {
-                query.MaxHeight = ImageHeight.Value;
+                query.MaxHeight = Height.Value;
             }
 
-            if (ImageResizeMode.HasValue)
+            if (ResizeMode.HasValue)
             {
-                query.ScaleMode = ImageResizeMode.Value.ToString().ToLower();
+                query.ScaleMode = ResizeMode.Value.ToString().ToLower();
             }
 
-            var src = _urlGenerator.GenerateUrl(File, query.ToQueryString());
+            if (AnchorPosition.HasValue)
+            {
+                query.AnchorPosition = AnchorPosition.Value.ToString().Kebaberize();
+            }
+
+            var src = _urlGenerator.GenerateUrl(File, query.ToQueryString(), Host, !NoFallback);
 
             output.Attributes.SetAttribute("src", src);
 
@@ -86,6 +131,14 @@ namespace Smartstore.Web.UI.TagHelpers
             if (File.TitleAttribute.HasValue())
             {
                 output.Attributes.SetAttributeNoReplace("title", File.TitleAttribute);
+            }
+        }
+
+        protected async Task ResolveFileAsync()
+        {
+            if (File == null)
+            {
+                File = await _mediaService.GetFileByIdAsync(FileId ?? 0, MediaLoadFlags.AsNoTracking);
             }
         }
 
