@@ -9,42 +9,57 @@ namespace Smartstore.Web.UI.TagHelpers
     public static class TagHelperContentExtensions
     {
         /// <summary>
-        /// Prepends <see cref="value"/> to the current content of <see cref="content"/>
+        /// Prepends <paramref name="unencoded"/> to the existing content.
         /// </summary>
-        public static void Prepend(this TagHelperContent content, string value)
+        /// <param name="unencoded">The <see cref="string"/> to be prepended.</param>
+        /// <returns>A reference to this instance after the prepend operation has completed.</returns>
+        public static TagHelperContent Prepend(this TagHelperContent content, string unencoded)
         {
             if (content.IsEmptyOrWhiteSpace)
-                content.SetContent(value);
+                return content.SetContent(unencoded);
             else
-                content.SetContent(value + content.GetContent());
+                return content.SetContent(unencoded + content.GetContent());
         }
 
         /// <summary>
-        /// Prepends <see cref="value"/> to the current content of <see cref="content"/> without encoding it
+        /// Prepends <paramref name="encoded"/> to the existing content. <paramref name="encoded"/> is assumed
+        /// to be an HTML encoded <see cref="string"/> and no further encoding will be performed.
         /// </summary>
-        public static void PrependHtml(this TagHelperContent content, string value)
-        {
-            if (content.IsEmptyOrWhiteSpace)
-                content.SetHtmlContent(value);
-            else
-                content.SetHtmlContent(value + content.GetContent());
-        }
-
-        /// <summary>
-        /// Prepends <see cref="value"/> to the current content of <see cref="content"/> without encoding it
-        /// </summary>
-        public static void Prepend(this TagHelperContent content, IHtmlContent value)
+        /// <param name="encoded">The <see cref="string"/> to be prepended.</param>
+        /// <returns>A reference to this instance after the prepend operation has completed.</returns>
+        public static TagHelperContent PrependHtml(this TagHelperContent content, string encoded)
         {
             if (content.IsEmptyOrWhiteSpace)
             {
-                content.SetHtmlContent(value);
+                content.SetHtmlContent(encoded);
+                content.AppendLine();
+            } 
+            else
+            {
+                content.SetHtmlContent(encoded + content.GetContent());
+            }
+
+            return content;
+        }
+
+        /// <summary>
+        /// Prepends <paramref name="htmlContent"/> to the existing content.
+        /// </summary>
+        /// <param name="htmlContent">The <see cref="IHtmlContent"/> to be prepended.</param>
+        /// <returns>A reference to this instance after the prepend operation has completed.</returns>
+        public static TagHelperContent PrependHtml(this TagHelperContent content, IHtmlContent htmlContent)
+        {
+            if (content.IsEmptyOrWhiteSpace)
+            {
+                content.SetHtmlContent(htmlContent);
                 content.AppendLine();
             }
             else
             {
-                content.SetHtmlContent(value);
-                content.AppendHtml(content.GetContent());
+                content.SetHtmlContent(htmlContent + content.GetContent());
             }
+
+            return content;
         }
 
         /// <summary>
@@ -52,43 +67,37 @@ namespace Smartstore.Web.UI.TagHelpers
         /// </summary>
         public static void Prepend(this TagHelperContent content, TagHelperOutput output)
         {
-            content.Prepend(output.ToTagHelperContent());
+            content.PrependHtml(output.ToTagHelperContent());
         }
 
         /// <summary>
         /// Wraps <see cref="builder"/> around <see cref="content"/>. <see cref="TagBuilder.InnerHtml"/> will be ignored.
         /// </summary>
-        public static void Wrap(this TagHelperContent content, TagBuilder builder)
+        public static TagHelperContent WrapWith(this TagHelperContent content, TagBuilder builder)
         {
-            builder.TagRenderMode = TagRenderMode.StartTag;
-            Wrap(content, builder, new TagBuilder(builder.TagName) { TagRenderMode = TagRenderMode.EndTag });
+            content.PrependHtml(builder.RenderStartTag());
+            content.AppendHtml(builder.RenderEndTag());
+
+            return content;
         }
 
         /// <summary>
-        /// Wraps <see cref="contentStart"/> and <see cref="contentEnd"/> around <see cref="content"/>
+        /// Wraps <see cref="unencodedStart"/> and <see cref="unencodedEnd"/> around <see cref="content"/>
         /// </summary>
-        public static void Wrap(TagHelperContent content, IHtmlContent contentStart, IHtmlContent contentEnd)
+        public static void Wrap(TagHelperContent content, string unencodedStart, string unencodedEnd)
         {
-            content.Prepend(contentStart);
-            content.AppendHtml(contentEnd);
+            content.Prepend(unencodedStart);
+            content.Append(unencodedEnd);
         }
 
         /// <summary>
-        /// Wraps <see cref="contentStart"/> and <see cref="contentEnd"/> around <see cref="content"/>
+        /// Wraps HTML encoded <see cref="encodedStart"/> and <see cref="encodedEnd"/> around <see cref="content"/>.
+        /// No further encoding will be performed.
         /// </summary>
-        public static void Wrap(TagHelperContent content, string contentStart, string contentEnd)
+        public static void WrapHtml(TagHelperContent content, string encodedStart, string encodedEnd)
         {
-            content.Prepend(contentStart);
-            content.Append(contentEnd);
-        }
-
-        /// <summary>
-        /// Wraps <see cref="contentStart"/> and <see cref="contentEnd"/> around <see cref="content"/> without encoding it
-        /// </summary>
-        public static void WrapHtml(TagHelperContent content, string contentStart, string contentEnd)
-        {
-            content.PrependHtml(contentStart);
-            content.AppendHtml(contentEnd);
+            content.PrependHtml(encodedStart);
+            content.AppendHtml(encodedEnd);
         }
     }
 }

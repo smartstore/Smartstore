@@ -78,7 +78,7 @@ namespace Smartstore.Web.UI.TagHelpers
 
         #endregion
 
-        #region Attributess
+        #region Attributes
 
         public static void MergeAttribute(this TagHelperOutput output, string name, object value, bool replace = false)
         {
@@ -143,6 +143,24 @@ namespace Smartstore.Web.UI.TagHelpers
             return content;
         }
 
+        #endregion
+
+        #region Wrap
+
+        public static void WrapWith(this TagHelperOutput output, TagBuilder builder)
+        {
+            Guard.NotNull(builder, nameof(builder));
+            
+            output.PreContent.PrependHtml(builder.RenderStartTag());
+
+            if (builder.HasInnerHtml)
+            {
+                output.PreContent.AppendHtml(builder.RenderBody());
+            }
+
+            output.PostContent.AppendHtml(builder.RenderEndTag());
+        }
+
         /// <summary>
         ///     Wraps a <see cref="builder" /> around the content of the <see cref="output" /> using
         ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />. All content that is
@@ -151,19 +169,8 @@ namespace Smartstore.Web.UI.TagHelpers
         /// </summary>
         public static void WrapContentOutside(this TagHelperOutput output, TagBuilder builder)
         {
-            builder.TagRenderMode = TagRenderMode.StartTag;
-            WrapContentOutside(output, builder, new TagBuilder(builder.TagName) { TagRenderMode = TagRenderMode.EndTag });
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the content of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />. All content that is
-        ///     inside the <see cref="output" /> will be inside of the <see cref="Microsoft.AspNetCore.Html.IHtmlContent" />s.
-        /// </summary>
-        public static void WrapContentOutside(this TagHelperOutput output, IHtmlContent startTag, IHtmlContent endTag)
-        {
-            output.PreContent.Prepend(startTag);
-            output.PostContent.AppendHtml(endTag);
+            output.PreContent.PrependHtml(builder.RenderStartTag());
+            output.PostContent.AppendHtml(builder.RenderEndTag());
         }
 
         /// <summary>
@@ -196,20 +203,8 @@ namespace Smartstore.Web.UI.TagHelpers
         /// </summary>
         public static void WrapContentInside(this TagHelperOutput output, TagBuilder builder)
         {
-            builder.TagRenderMode = TagRenderMode.StartTag;
-            WrapContentInside(output, builder, new TagBuilder(builder.TagName) { TagRenderMode = TagRenderMode.EndTag });
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the content of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />.
-        ///     <see cref="TagBuilder.InnerHtml" /> will not be included. The current contents of
-        ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" /> will be outside.
-        /// </summary>
-        public static void WrapContentInside(this TagHelperOutput output, IHtmlContent startTag, IHtmlContent endTag)
-        {
-            output.PreContent.AppendHtml(startTag);
-            output.PostContent.Prepend(endTag);
+            output.PreContent.AppendHtml(builder.RenderStartTag());
+            output.PostContent.PrependHtml(builder.RenderEndTag());
         }
 
         /// <summary>
@@ -245,19 +240,8 @@ namespace Smartstore.Web.UI.TagHelpers
         /// </summary>
         public static void WrapOutside(this TagHelperOutput output, TagBuilder builder)
         {
-            builder.TagRenderMode = TagRenderMode.StartTag;
-            WrapOutside(output, builder, new TagBuilder(builder.TagName) { TagRenderMode = TagRenderMode.EndTag });
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the element of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" />. The current contents of
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be inside.
-        /// </summary>
-        public static void WrapOutside(this TagHelperOutput output, IHtmlContent startTag, IHtmlContent endTag)
-        {
-            output.PreElement.Prepend(startTag);
-            output.PostElement.AppendHtml(endTag);
+            output.PreElement.PrependHtml(builder.RenderStartTag());
+            output.PostElement.AppendHtml(builder.RenderEndTag());
         }
 
         /// <summary>
@@ -291,19 +275,8 @@ namespace Smartstore.Web.UI.TagHelpers
         /// </summary>
         public static void WrapInside(this TagHelperOutput output, TagBuilder builder)
         {
-            builder.TagRenderMode = TagRenderMode.StartTag;
-            WrapInside(output, builder, new TagBuilder(builder.TagName) { TagRenderMode = TagRenderMode.EndTag });
-        }
-
-        /// <summary>
-        ///     Wraps <see cref="startTag" /> and <see cref="endTag" /> around the element of the <see cref="output" /> using
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" />. The current contents of
-        ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be Outside.
-        /// </summary>
-        public static void WrapInside(this TagHelperOutput output, IHtmlContent startTag, IHtmlContent endTag)
-        {
-            output.PreElement.AppendHtml(startTag);
-            output.PostElement.Prepend(endTag);
+            output.PreElement.AppendHtml(builder.RenderStartTag());
+            output.PostElement.PrependHtml(builder.RenderEndTag());
         }
 
         /// <summary>

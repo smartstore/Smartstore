@@ -45,5 +45,30 @@ namespace Smartstore.Web.UI
                 builder.Attributes["style"] = styles;
             }
         }
+
+        public static void MergeAttribute(this TagBuilder builder, string key, string value, bool replaceExisting, bool ignoreNull)
+        {
+            if (value == null && ignoreNull)
+            {
+                return;
+            }
+
+            builder.MergeAttribute(key, value, replaceExisting);
+        }
+
+        public static void MergeAttribute(this TagBuilder builder, string key, Func<string> valueAccessor, bool replaceExisting, bool ignoreNull)
+        {
+            Guard.NotEmpty(key, nameof(key));
+            Guard.NotNull(valueAccessor, nameof(valueAccessor));
+
+            if (replaceExisting || !builder.Attributes.ContainsKey(key))
+            {
+                var value = valueAccessor();
+                if (value != null || !ignoreNull)
+                {
+                    builder.Attributes[key] = value;
+                }
+            }
+        }
     }
 }
