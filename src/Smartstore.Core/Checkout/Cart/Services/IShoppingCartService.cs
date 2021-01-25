@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Customers;
 
 namespace Smartstore.Core.Checkout.Cart
@@ -10,6 +11,7 @@ namespace Smartstore.Core.Checkout.Cart
     /// <summary>
     /// Shopping cart service
     /// </summary>
+    // TODO: (ms) (core) Revise dev docu (wip)
     public partial interface IShoppingCartService
     {
         /// <summary>
@@ -19,7 +21,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="cartType">Type of cart to get items count for</param>
         /// <param name="storeId">Store id</param>
         /// <returns>Sum of all item quantities</returns>
-        Task<int> CountItemsAsync(Customer customer, ShoppingCartType cartType, int storeId = 0);
+        Task<int> CountCartItemsAsync(Customer customer, ShoppingCartType cartType, int storeId = 0);
 
         /// <summary>
         /// Gets the shopping cart items
@@ -37,17 +39,7 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="resetCheckoutData">A value indicating whether to reset checkout data</param>
         ///// <param name="ensureOnlyActiveCheckoutAttributes">A value indicating whether to ensure that only active checkout attributes are attached to the current customer</param>
         ///// <param name="deleteChildCartItems">A value indicating whether to delete child cart items</param>
-        //void DeleteShoppingCartItem(
-        //    ShoppingCartItem shoppingCartItem,
-        //    bool resetCheckoutData = true,
-        //    bool ensureOnlyActiveCheckoutAttributes = false,
-        //    bool deleteChildCartItems = true);
-
-        //void DeleteShoppingCartItem(
-        //    int shoppingCartItemId,
-        //    bool resetCheckoutData = true,
-        //    bool ensureOnlyActiveCheckoutAttributes = false,
-        //    bool deleteChildCartItems = true);
+        void DeleteCartItemAsync(ShoppingCartItem shoppingCartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false, bool deleteChildCartItems = true);
 
         ///// <summary>
         ///// Deletes expired shopping cart items
@@ -55,7 +47,7 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="olderThanUtc">Older than date and time</param>
         ///// <param name="customerId"><c>null</c> to delete ALL cart items, or a customer id to only delete items of a single customer.</param>
         ///// <returns>Number of deleted items</returns>
-        //int DeleteExpiredShoppingCartItems(DateTime olderThanUtc, int? customerId = null);
+        Task<int> DeleteExpiredCartItemsAsync(DateTime olderThanUtc, int? customerId = null);
 
         ///// <summary>
         ///// Validates required products (products which require other variant to be added to the cart)
@@ -66,12 +58,7 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="storeId">Store identifier</param>
         ///// <param name="automaticallyAddRequiredProductsIfEnabled">Automatically add required products if enabled</param>
         ///// <returns>Warnings</returns>
-        //IList<string> GetRequiredProductWarnings(
-        //    Customer customer,
-        //    ShoppingCartType shoppingCartType,
-        //    Product product,
-        //    int storeId,
-        //    bool automaticallyAddRequiredProductsIfEnabled);
+        Task<List<string>> GetRequiredProductWarningsAsync(Customer customer, ShoppingCartType shoppingCartType, Product product, int storeId, bool addRequiredProducts);
 
         ///// <summary>
         ///// Validates a product for standard properties
@@ -83,14 +70,14 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="customerEnteredPrice">Customer entered price</param>
         ///// <param name="quantity">Quantity</param>
         ///// <returns>Warnings</returns>
-        //IList<string> GetStandardWarnings(
-        //    Customer customer,
-        //    ShoppingCartType shoppingCartType,
-        //    Product product,
-        //    string selectedAttributes,
-        //    decimal customerEnteredPrice,
-        //    int quantity,
-        //    int storeId = 0);
+        Task<IList<string>> GetStandardWarningsAsync(
+            Customer customer,
+            ShoppingCartType shoppingCartType,
+            Product product,
+            ProductVariantAttributeSelection selection,
+            decimal customerEnteredPrice,
+            int quantity,
+            int? storeId = null);
 
         ///// <summary>
         ///// Validates shopping cart item attributes
@@ -103,14 +90,14 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="quantity">Quantity</param>
         ///// <param name="bundleItem">Product bundle item</param>
         ///// <returns>Warnings</returns>
-        //IList<string> GetShoppingCartItemAttributeWarnings(
-        //    Customer customer,
-        //    ShoppingCartType shoppingCartType,
-        //    Product product,
-        //    string selectedAttributes,
-        //    int quantity = 1,
-        //    ProductBundleItem bundleItem = null,
-        //    ProductVariantAttributeCombination combination = null);
+        Task<IList<string>> GetShoppingCartItemAttributeWarningsAsync(
+            Customer customer,
+            ShoppingCartType shoppingCartType,
+            Product product,
+            ProductVariantAttributeSelection selection,
+            int quantity = 1,
+            ProductBundleItem bundleItem = null,
+            ProductVariantAttributeCombination combination = null);
 
         ///// <summary>
         ///// Validates shopping cart item (gift card)
@@ -119,7 +106,7 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="product">Product</param>
         ///// <param name="selectedAttributes">Selected attributes</param>
         ///// <returns>Warnings</returns>
-        //IList<string> GetShoppingCartItemGiftCardWarnings(ShoppingCartType shoppingCartType, Product product, string selectedAttributes);
+        IList<string> GetShoppingCartItemGiftCardWarnings(Product product, ShoppingCartType shoppingCartType, ProductVariantAttributeSelection selection);
 
         ///// <summary>
         ///// Validates bundle items
@@ -127,8 +114,8 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="shoppingCartType">Shopping cart type</param>
         ///// <param name="bundleItem">Product bundle item</param>
         ///// <returns>Warnings</returns>
-        //IList<string> GetBundleItemWarnings(ProductBundleItem bundleItem);
-        //IList<string> GetBundleItemWarnings(IList<OrganizedShoppingCartItem> cartItems);
+        IList<string> GetBundleItemWarnings(ProductBundleItem bundleItem);
+        IList<string> GetCartBundleItemWarnings(IList<OrganizedShoppingCartItem> cartItems);
 
         ///// <summary>
         ///// Validates shopping cart item
@@ -149,22 +136,23 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="bundleItem">Product bundle item if bundles should be validated</param>
         ///// <param name="childItems">Child cart items to validate bundle items</param>
         ///// <returns>Warnings</returns>
-        //IList<string> GetShoppingCartItemWarnings(
-        //    Customer customer,
-        //    ShoppingCartType shoppingCartType,
-        //    Product product,
-        //    int storeId,
-        //    string selectedAttributes,
-        //    decimal customerEnteredPrice,
-        //    int quantity,
-        //    bool automaticallyAddRequiredProductsIfEnabled,
-        //    bool getStandardWarnings = true,
-        //    bool getAttributesWarnings = true,
-        //    bool getGiftCardWarnings = true,
-        //    bool getRequiredProductWarnings = true,
-        //    bool getBundleWarnings = true,
-        //    ProductBundleItem bundleItem = null,
-        //    IList<OrganizedShoppingCartItem> childItems = null);
+
+        Task<IList<string>> GetShoppingCartItemWarningsAsync(
+            Customer customer,
+            ShoppingCartType shoppingCartType,
+            Product product,
+            int storeId,
+            ProductVariantAttributeSelection selection,
+            decimal customerEnteredPrice,
+            int quantity,
+            bool addRequiredProducts,
+            bool getStandardWarnings = true,
+            bool getAttributesWarnings = true,
+            bool getGiftCardWarnings = true,
+            bool getRequiredProductWarnings = true,
+            bool getBundleWarnings = true,
+            ProductBundleItem bundleItem = null,
+            IList<OrganizedShoppingCartItem> childItems = null);
 
         ///// <summary>
         ///// Validates whether this shopping cart is valid
@@ -173,7 +161,7 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="checkoutAttributes">Checkout attributes</param>
         ///// <param name="validateCheckoutAttributes">A value indicating whether to validate checkout attributes</param>
         ///// <returns>Warnings</returns>
-        //IList<string> GetShoppingCartWarnings(IList<OrganizedShoppingCartItem> shoppingCart, string checkoutAttributes, bool validateCheckoutAttributes);
+        Task<IList<string>> GetShoppingCartWarningsAsync(IList<OrganizedShoppingCartItem> shoppingCart, CheckoutAttributeSelection selection, bool validateCheckoutAttributes);
 
         ///// <summary>
         ///// Finds a shopping cart item in the cart
@@ -204,16 +192,16 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="automaticallyAddRequiredProductsIfEnabled">Whether to add required products</param>
         ///// <param name="ctx">Add to cart context</param>
         ///// <returns>List with warnings</returns>
-        //List<string> AddToCart(
-        //    Customer customer,
-        //    Product product,
-        //    ShoppingCartType cartType,
-        //    int storeId,
-        //    string selectedAttributes,
-        //    decimal customerEnteredPrice,
-        //    int quantity,
-        //    bool automaticallyAddRequiredProductsIfEnabled,
-        //    AddToCartContext ctx = null);
+        Task<List<string>> AddToCartAsync(
+            Customer customer,
+            Product product,
+            ShoppingCartType cartType,
+            int storeId,
+            ProductVariantAttributeSelection selection,
+            decimal customerEnteredPrice,
+            int quantity,
+            bool addRequiredProducts,
+            AddToCartContext ctx = null);
 
         ///// <summary>
         ///// Add product to cart
@@ -225,7 +213,7 @@ namespace Smartstore.Core.Checkout.Cart
         ///// Stores the shopping card items in the database
         ///// </summary>
         ///// <param name="ctx">Add to cart context</param>
-        //void AddToCartStoring(AddToCartContext ctx);
+        void AddToCartStoring(AddToCartContext ctx);
 
         ///// <summary>
         ///// Validates if all required attributes are selected
@@ -243,14 +231,14 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="newQuantity">New shopping cart item quantity</param>
         ///// <param name="resetCheckoutData">A value indicating whether to reset checkout data</param>
         ///// <returns>Warnings</returns>
-        //IList<string> UpdateShoppingCartItem(Customer customer, int shoppingCartItemId, int newQuantity, bool resetCheckoutData);
+        Task<IList<string>> UpdateShoppingCartItemAsync(Customer customer, int shoppingCartItemId, int newQuantity, bool resetCheckoutData);
 
         ///// <summary>
         ///// Migrate shopping cart
         ///// </summary>
         ///// <param name="fromCustomer">From customer</param>
         ///// <param name="toCustomer">To customer</param>
-        //void MigrateShoppingCart(Customer fromCustomer, Customer toCustomer);
+        void MigrateShoppingCartAsync(Customer fromCustomer, Customer toCustomer);
 
         ///// <summary>
         ///// Copies a shopping cart item.
@@ -261,7 +249,7 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="storeId">Store Id</param>
         ///// <param name="addRequiredProductsIfEnabled">Add required products if enabled</param>
         ///// <returns>List with add-to-cart warnings.</returns>
-        //IList<string> Copy(OrganizedShoppingCartItem sci, Customer customer, ShoppingCartType cartType, int storeId, bool addRequiredProductsIfEnabled);
+        Task<IList<string>> CopyAsync(OrganizedShoppingCartItem cartItem, Customer customer, ShoppingCartType cartType, int storeId, bool addRequiredProducts);
 
         ///// <summary>
         ///// Gets the subtotal of cart items for the current user
@@ -291,12 +279,12 @@ namespace Smartstore.Core.Checkout.Cart
         ///// Get open carts subtotal
         ///// </summary>
         ///// <returns>subtotal</returns>
-        //decimal GetAllOpenCartSubTotal();
+        Task<decimal> GetAllOpenCartSubTotalAsync();
 
         ///// <summary>
         ///// Get open wishlists subtotal
         ///// </summary>
         ///// <returns>subtotal</returns>
-        //decimal GetAllOpenWishlistSubTotal();
+        Task<decimal> GetAllOpenWishlistSubTotalAsync();
     }
 }

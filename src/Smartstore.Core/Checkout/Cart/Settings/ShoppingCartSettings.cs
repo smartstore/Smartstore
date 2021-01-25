@@ -26,7 +26,7 @@ namespace Smartstore.Core.Checkout.Cart
         public int MaximumWishlistItems { get; set; } = 1000;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to show product images in the mini-shopping cart block
+        /// Gets or sets a value indicating whether to allow out of stock items to be added to the wishlist
         /// </summary>
         public bool AllowOutOfStockItemsToBeAddedToWishlist { get; set; }
 
