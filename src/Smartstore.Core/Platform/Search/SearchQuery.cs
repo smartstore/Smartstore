@@ -8,6 +8,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Search
 {
+    [Flags]
     public enum SearchResultFlags
     {
         WithHits = 1 << 0,

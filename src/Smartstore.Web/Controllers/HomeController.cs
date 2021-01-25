@@ -654,77 +654,10 @@ namespace Smartstore.Web.Controllers
         {
             var content = new StringBuilder();
 
-            var xml1 = "<Attributes><ProductVariantAttribute ID=\"1015\"><ProductVariantAttributeValue><Value>4299</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1016\"><ProductVariantAttributeValue><Value>4302</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
-            var xml2 = "<Attributes><ProductVariantAttribute ID=\"817\"><ProductVariantAttributeValue><Value>3361</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"669\"><ProductVariantAttributeValue><Value>2668</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
-            
-            var xml3 = "<Attributes><ProductVariantAttribute ID=\"1015\"><ProductVariantAttributeValue><Value>4299</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1016\" ><ProductVariantAttributeValue><Value>4302</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1020\"><ProductVariantAttributeValue><Value>hello world</Value></ProductVariantAttributeValue></ProductVariantAttribute><GiftCardInfo><RecipientName>Erika</RecipientName><RecipientEmail>erikamustermann@yahoo.de</RecipientEmail><SenderName>Max</SenderName><SenderEmail>maxmustermann@yahoo.de</SenderEmail><Message>Proactively syndicate leveraged infrastructures and unique communities. Compellingly drive vertical relationships without front-end relationships. Rapidiously leverage existing highly efficient leadership skills and interactive methods of empowerment. Seamlessly coordinate excellent paradigms via inexpensive experiences. Competently simplify exceptional networks for.</Message></GiftCardInfo></Attributes>";
-
-            var selections = new List<ProductVariantAttributeSelection>
-            {
-                new ProductVariantAttributeSelection(xml1), new ProductVariantAttributeSelection(xml2)
-            };
-
-            var materializer = _services.Resolve<IProductAttributeMaterializer>();
-            var formatter = _services.Resolve<IProductAttributeFormatter>();
-
-            foreach (var selection in selections)
-            {
-                var values = await materializer.MaterializeProductVariantAttributeValuesAsync(selection);
-                if (values.Any())
-                {
-                    var str = string.Join(", ", values.Select(x => $"{x.Id}:{x.ProductVariantAttribute.ProductAttribute.Name}-{x.Name}"));
-                    content.AppendLine(str);
-                }
-            }
-
-            var formattedAttributes = await formatter.FormatAttributesAsync(
-                new ProductVariantAttributeSelection(xml3),
-                await _db.Products.FindByIdAsync(1751),
-                separator: Environment.NewLine,
-                htmlEncode: false,
-                includePrices: false);
-            content.AppendLine("Formatted attributes:");
-            content.AppendLine(formattedAttributes);
-
-            var role = await _db.CustomerRoles.FindByIdAsync(1);
-            var permissionService = _services.Resolve<IPermissionService>();
-            var tree = await permissionService.GetPermissionTreeAsync(role, true);
-            var nodes = tree.Permissions.FlattenNodes();
-
-            content.AppendLine();
-            foreach (var node in nodes)
-            {
-                var displayName = tree.GetDisplayName(node);
-                var allow = node.Value.Allow.HasValue ? (node.Value.Allow.Value ? "1" : "0") : "-";
-                content.AppendLine($"{allow} {node.Value.SystemName}: {displayName}");
-            }
-
-
-            //var product = await _db.Products.FindByIdAsync(4366);
-            //content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");
-
-            //var discount = await _db.Discounts.FirstOrDefaultAsync(x => x.Id == 25);
-            //product.AppliedDiscounts.Add(discount);
-            //await _db.SaveChangesAsync();
-
-            //product = await _db.Products.FindByIdAsync(4366);
-            //content.AppendLine($"number of applied discounts {product.AppliedDiscounts.Count}: {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. has discounts applied {product.HasDiscountsApplied}.");
-
-
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            //var query = _db.Discounts
-            //    .SelectMany(x => x.AppliedToProducts)
-            //    .Where(x => productIds.Contains(x.Id))
-            //    .Select(x => x.Id)
-            //    .Distinct();
-
-            //content.AppendLine("Query string:");
-            //content.AppendLine(query.ToQueryString());
-            //content.AppendLine();
-
-            //var ids = await query.ToListAsync();
-            //content.AppendLine($"discount applied to products {ids.Count}: {string.Join(", ", ids)}");
+            var product = await _db.Products.FindByIdAsync(4366);
+            content.AppendLine($"Number of applied discounts {product.AppliedDiscounts.Count}. Ids {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. Has discounts applied {product.HasDiscountsApplied}.");
 
             return Content(content.ToString());
         }

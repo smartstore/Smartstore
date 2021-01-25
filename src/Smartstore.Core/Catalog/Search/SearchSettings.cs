@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Search;
 
-namespace Smartstore.Core.Search
+namespace Smartstore.Core.Catalog.Search
 {
-    // TODO: (mg) (core) Put catalog specific search stuff to Smartstore.Core.Catalog.Search.
     public class SearchSettings : ISettings
     {
         /// <summary>

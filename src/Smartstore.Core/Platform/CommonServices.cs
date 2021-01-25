@@ -6,6 +6,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
@@ -26,6 +27,7 @@ namespace Smartstore.Core
         private readonly IWorkContext _workContext;
         private readonly IWebHelper _webHelper;
         private readonly IEventPublisher _eventPublisher;
+        private readonly ILocalizationService _localization;
         private readonly Lazy<ISettingService> _settings;
         private readonly ISettingFactory _settingFactory;
         private readonly ILoggerFactory _loggerFactory;
@@ -45,6 +47,7 @@ namespace Smartstore.Core
             IWorkContext workContext,
             IWebHelper webHelper,
             IEventPublisher eventPublisher,
+            ILocalizationService localization,
             Lazy<ISettingService> settings,
             ISettingFactory settingFactory,
             ILoggerFactory loggerFactory,
@@ -63,6 +66,7 @@ namespace Smartstore.Core
             _workContext = workContext;
             _webHelper = webHelper;
             _eventPublisher = eventPublisher;
+            _localization = localization;
             _settings = settings;
             _settingFactory = settingFactory;
             _loggerFactory = loggerFactory;
@@ -82,6 +86,7 @@ namespace Smartstore.Core
         public IWorkContext WorkContext => _workContext;
         public IWebHelper WebHelper => _webHelper;
         public IEventPublisher EventPublisher => _eventPublisher;
+        public ILocalizationService Localization => _localization;
         public ISettingService Settings => _settings.Value;
         public ISettingFactory SettingFactory => _settingFactory;
         public ILoggerFactory LoggerFactory => _loggerFactory;

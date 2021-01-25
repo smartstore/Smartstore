@@ -6,6 +6,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
@@ -26,6 +27,7 @@ namespace Smartstore.Core
         IWorkContext WorkContext { get; }
         IWebHelper WebHelper { get; }
         IEventPublisher EventPublisher { get; }
+        ILocalizationService Localization { get; }
         ISettingService Settings { get; }
         ISettingFactory SettingFactory { get; }
         ILoggerFactory LoggerFactory { get; }
