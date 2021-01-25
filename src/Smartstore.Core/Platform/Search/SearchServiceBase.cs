@@ -13,8 +13,7 @@ namespace Smartstore.Core.Search
         {
             foreach (var filter in filters)
             {
-                var combinedFilter = filter as ICombinedSearchFilter;
-                if (combinedFilter != null)
+                if (filter is ICombinedSearchFilter combinedFilter)
                 {
                     FlattenFilters(combinedFilter.Filters, result);
                 }
@@ -31,14 +30,12 @@ namespace Smartstore.Core.Search
             {
                 foreach (var filter in filters)
                 {
-                    var attributeFilter = filter as IAttributeSearchFilter;
-                    if (attributeFilter != null && attributeFilter.FieldName == fieldName)
+                    if (filter is IAttributeSearchFilter attributeFilter && attributeFilter.FieldName == fieldName)
                     {
                         return attributeFilter;
                     }
 
-                    var combinedFilter = filter as ICombinedSearchFilter;
-                    if (combinedFilter != null)
+                    if (filter is ICombinedSearchFilter combinedFilter)
                     {
                         var filter2 = FindFilter(combinedFilter.Filters, fieldName);
                         if (filter2 != null)

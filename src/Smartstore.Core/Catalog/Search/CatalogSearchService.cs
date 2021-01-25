@@ -16,7 +16,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Diagnostics;
-using Smartstore.Events;
 
 namespace Smartstore.Core.Catalog.Search
 {
@@ -99,22 +98,7 @@ namespace Smartstore.Core.Catalog.Search
                             using (_services.Chronometer.Step(stepPrefix + "Collect"))
                             {
                                 hitsEntityIds = searchHits.Select(x => x.EntityId).ToArray();
-
-                                hitsFactory = async () =>
-                                {
-                                    if (hitsEntityIds.Any())
-                                    {
-                                        var hits = await _db.Products
-                                            .Where(x => hitsEntityIds.Contains(x.Id))
-                                            .ToListAsync();
-
-                                        return hits.OrderBySequence(hitsEntityIds).ToList();
-                                    }
-                                    else
-                                    {
-                                        return new List<Product>();
-                                    }
-                                };
+                                hitsFactory = async () => await _db.Products.GetManyAsync(hitsEntityIds);
                             }
                         }
 
