@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml;
 using System.Xml.Linq;
@@ -30,9 +29,12 @@ namespace Smartstore.Core.Catalog.Attributes
         {
         }
 
-        public GiftCardInfo GiftCardInfo { get; private set; }
+        /// <summary>
+        /// Gets or sets gift card info
+        /// </summary>
+        public GiftCardInfo GiftCardInfo { get; set; }
 
-        protected override void MapElement(XElement element, Multimap<int, object> map)
+        protected override void MapUnknownElement(XElement element, Multimap<int, object> map)
         {
             if (element.Name.LocalName == "GiftCardInfo")
             {
@@ -75,17 +77,6 @@ namespace Smartstore.Core.Catalog.Attributes
                     }
 
                     GiftCardInfo = giftCardInfo;
-                    var giftCardInfos = new List<string>
-                    {
-                        GiftCardInfo.RecipientName,
-                        GiftCardInfo.RecipientEmail,
-                        GiftCardInfo.SenderName,
-                        GiftCardInfo.SenderEmail,
-                        GiftCardInfo.Message
-                    };
-
-                    map.AddRange(0, giftCardInfos);
-
                 }
                 catch (Exception ex)
                 {
@@ -94,7 +85,7 @@ namespace Smartstore.Core.Catalog.Attributes
             }
         }
 
-        protected override void ToAdditionalXml(XElement root)
+        protected override void OnSerialize(XElement root)
         {
             if (GiftCardInfo is null)
                 return;

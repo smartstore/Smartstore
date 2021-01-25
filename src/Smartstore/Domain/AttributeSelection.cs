@@ -92,7 +92,7 @@ namespace Smartstore.Domain
                     }
                     else
                     {
-                        MapElement(element, map);
+                        MapUnknownElement(element, map);
                     }
                 }
 
@@ -122,7 +122,7 @@ namespace Smartstore.Domain
         /// </summary>
         /// <param name="element">Current element to parse</param>
         /// <param name="map">The traget attributes<see cref="Multimap{int, object}"/>.</param>
-        protected virtual void MapElement(XElement element, Multimap<int, object> map) { }
+        protected virtual void MapUnknownElement(XElement element, Multimap<int, object> map) { }
 
         /// <summary>
         /// Tries to parse additional XML.
@@ -130,14 +130,15 @@ namespace Smartstore.Domain
         /// <param name="root">Root element</param>
         /// <param name="pair">Attribute <see cref="KeyValuePair{int, object}"/></param>
         /// <returns><c>True</c> if additional XML was found and parsed; <c>False</c> otherwise</returns>
-        protected virtual void ToAdditionalXml(XElement root) { }
+        protected virtual void OnSerialize(XElement root) { }
 
         /// <summary>
-        /// Creates and returns a string in JSON format.
+        /// Creates and returns the raw attributes string in JSON format.
         /// </summary>
         /// <remarks>
         /// Tries to serialize <see cref="Multimap{int, object}"/> and throws a <see cref="JsonSerializationException"/> if not possible.
         /// </remarks>
+        // TODO: (ms) (core) Have MapUnkownElement applied with AsJson(), too
         public string AsJson()
         {
             if (_rawAttributes.HasValue() && _isJson && !_dirty)
@@ -159,7 +160,7 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Creates and returns a string in XML format.
+        /// Creates and returns the raw attributes string in XML format.
         /// </summary>
         /// <remarks>
         /// Tries to serialize <see cref="Multimap{int, object}"/> and throws a <see cref="JsonSerializationException"/> if not possible.
@@ -189,7 +190,7 @@ namespace Smartstore.Domain
                 root.Add(attributeElement);
             }
 
-            ToAdditionalXml(root);
+            OnSerialize(root);
 
             _isJson = false;
             _dirty = false;

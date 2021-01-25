@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Customers;
 
@@ -47,10 +48,15 @@ namespace Smartstore.Core.Checkout.Cart
         // TODO: (ms) (core) implement this. Needs ProductVariantQuery
         //public ProductVariantQuery VariantQuery { get; set; }
 
+        ///// <summary>
+        ///// Gets or sets the raw attributes string
+        ///// </summary>
+        //public string RawAttributes { get; set; }
+
         /// <summary>
-        /// Gets or sets the raw attributes string
+        /// Gets or sets the product variant attribute selection
         /// </summary>
-        public string RawAttributes { get; set; }
+        public ProductVariantAttributeSelection AttributeSelection { get; set; } = new(string.Empty);
 
         /// <summary>
         /// Gets or sets the price entered by customer
