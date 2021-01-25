@@ -110,7 +110,7 @@ namespace Smartstore.Core.Search
         // Misc
         public string Origin { get; protected set; }
 
-        public IDictionary<string, object> CustomData => _customData ?? (_customData = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase));
+        public IDictionary<string, object> CustomData => _customData ??= new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
         #region Fluent builder
 

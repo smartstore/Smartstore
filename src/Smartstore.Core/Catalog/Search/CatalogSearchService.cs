@@ -75,13 +75,13 @@ namespace Smartstore.Core.Catalog.Search
                     Func<Task<IList<Product>>> hitsFactory = null;
                     IDictionary<string, FacetGroup> facets = null;
 
-                    _services.EventPublisher.Publish(new CatalogSearchingEvent(searchQuery, false));
+                    await _services.EventPublisher.PublishAsync(new CatalogSearchingEvent(searchQuery, false));
 
                     if (searchQuery.Take > 0)
                     {
                         using (_services.Chronometer.Step(stepPrefix + "Search"))
                         {
-                            totalCount = searchEngine.Count();
+                            totalCount = await searchEngine.CountAsync();
                             // Fix paging boundaries.
                             if (searchQuery.Skip > 0 && searchQuery.Skip >= totalCount)
                             {
@@ -93,7 +93,7 @@ namespace Smartstore.Core.Catalog.Search
                         {
                             using (_services.Chronometer.Step(stepPrefix + "Hits"))
                             {
-                                searchHits = searchEngine.Search();
+                                searchHits = await searchEngine.SearchAsync();
                             }
 
                             using (_services.Chronometer.Step(stepPrefix + "Collect"))
@@ -124,7 +124,7 @@ namespace Smartstore.Core.Catalog.Search
                             {
                                 using (_services.Chronometer.Step(stepPrefix + "Facets"))
                                 {
-                                    facets = searchEngine.GetFacetMap();
+                                    facets = await searchEngine.GetFacetMapAsync();
                                     ApplyFacetLabels(facets);
                                 }
                             }
@@ -141,7 +141,7 @@ namespace Smartstore.Core.Catalog.Search
                         {
                             using (_services.Chronometer.Step(stepPrefix + "Spellcheck"))
                             {
-                                spellCheckerSuggestions = searchEngine.CheckSpelling();
+                                spellCheckerSuggestions = await searchEngine.CheckSpellingAsync();
                             }
                         }
                         catch (Exception ex)
@@ -161,7 +161,7 @@ namespace Smartstore.Core.Catalog.Search
                         facets);
 
                     var searchedEvent = new CatalogSearchedEvent(searchQuery, result);
-                    _services.EventPublisher.Publish(searchedEvent);
+                    await _services.EventPublisher.PublishAsync(searchedEvent);
 
                     return searchedEvent.Result;
                 }
