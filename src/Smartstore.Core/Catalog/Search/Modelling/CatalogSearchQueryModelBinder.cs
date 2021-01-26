@@ -1,24 +1,25 @@
 ﻿using System.Threading.Tasks;
+using Autofac;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Smartstore.Core.Catalog.Search.Modelling
 {
     public class CatalogSearchQueryModelBinder : IModelBinder
     {
-        private readonly ICatalogSearchQueryFactory _factory;
-
-        public CatalogSearchQueryModelBinder(ICatalogSearchQueryFactory factory)
-        {
-            _factory = factory;
-        }
-
         public async Task BindModelAsync(ModelBindingContext bindingContext)
         {
             Guard.NotNull(bindingContext, nameof(bindingContext));
 
-            if (_factory.Current != null)
+            var factory = bindingContext.HttpContext.GetServiceScope().ResolveOptional<ICatalogSearchQueryFactory>();
+
+            if (factory == null)
             {
-                bindingContext.Result = ModelBindingResult.Success(_factory.Current);
+                bindingContext.Result = ModelBindingResult.Failed();
+            }
+
+            if (factory.Current != null)
+            {
+                bindingContext.Result = ModelBindingResult.Success(factory.Current);
                 return;
             }
 
@@ -29,7 +30,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 return;
             }
 
-            var query = await _factory.CreateFromQueryAsync();
+            var query = await factory.CreateFromQueryAsync();
             bindingContext.Result = ModelBindingResult.Success(query);
         }
     }
