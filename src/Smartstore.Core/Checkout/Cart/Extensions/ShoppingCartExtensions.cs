@@ -52,7 +52,7 @@ namespace Smartstore
             foreach (var cartItem in filteredCart)
             {
                 // Compare attribute selection
-                var cartItemSelection = new ProductVariantAttributeSelection(cartItem.Item.RawAttributes);
+                var cartItemSelection = cartItem.Item.AttributeSelection;
                 if (cartItemSelection != selection)
                     continue;
 

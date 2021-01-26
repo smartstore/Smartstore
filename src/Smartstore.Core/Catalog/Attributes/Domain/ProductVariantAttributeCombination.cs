@@ -45,6 +45,8 @@ namespace Smartstore.Core.Catalog.Attributes
     public partial class ProductVariantAttributeCombination : BaseEntity, IAttributeAware
     {
         private readonly ILazyLoader _lazyLoader;
+        private ProductVariantAttributeSelection _attributeSelection;
+        private string _rawAttributes;
 
         public ProductVariantAttributeCombination()
         {
@@ -164,10 +166,22 @@ namespace Smartstore.Core.Catalog.Attributes
         }
 
         /// <summary>
-        /// Gets or sets the attributes in XML or JSON format
+        /// Gets or sets the product variant attributes in XML or JSON format
         /// </summary>
-        [Column("AttributesXml"), StringLength(4000)]
-        public string RawAttributes { get; set; }
+        [Column("AttributesXml"), MaxLength]
+        public string RawAttributes
+        {
+            get => _rawAttributes;
+            set
+            {
+                _rawAttributes = value;
+                _attributeSelection = null;
+            }
+        }
+
+        [NotMapped]
+        public ProductVariantAttributeSelection AttributeSelection
+            => _attributeSelection ??= new(RawAttributes);
 
         /// <summary>
         /// Gets or sets the stock quantity.

@@ -69,8 +69,7 @@ namespace Smartstore.Core.Checkout.Shipping
                 if (cartItem.Item.RawAttributes.IsEmpty() || cartItem.Item.Product.IsGiftCard)
                     continue;
 
-                var attributeSelection = new ProductVariantAttributeSelection(cartItem.Item.RawAttributes);
-                foreach (var attribute in attributeSelection.AttributesMap)
+                foreach (var attribute in cartItem.Item.AttributeSelection.AttributesMap)
                 {
                     if (attribute.Value.IsNullOrEmpty())
                         continue;
