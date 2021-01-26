@@ -7,20 +7,13 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
-using Smartstore.Core.Checkout.GiftCards;
-using Smartstore.Core.Common.Services;
-using Smartstore.Core.Content.Media;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Core.Stores;
 using Smartstore.Data.Batching;
-using Smartstore.Events;
 
 // TODO: (ms) (core) needs multiple services and refactoring (wip)
 namespace Smartstore.Core.Checkout.Cart

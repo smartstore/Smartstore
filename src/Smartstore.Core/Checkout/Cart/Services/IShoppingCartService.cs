@@ -38,16 +38,26 @@ namespace Smartstore.Core.Checkout.Cart
         ///// <param name="shoppingCartItem">Shopping cart item</param>
         ///// <param name="resetCheckoutData">A value indicating whether to reset checkout data</param>
         ///// <param name="ensureOnlyActiveCheckoutAttributes">A value indicating whether to ensure that only active checkout attributes are attached to the current customer</param>
-        ///// <param name="deleteChildCartItems">A value indicating whether to delete child cart items</param>
-        Task DeleteCartItemAsync(ShoppingCartItem shoppingCartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false, bool deleteChildCartItems = true);
+        ///// <param name="deleteChildCartItems">A value indicating whether to delete child cart items</param>        
+        Task<int> DeleteCartItemAsync(
+            ShoppingCartItem shoppingCartItem, 
+            bool resetCheckoutData = true, 
+            bool removeInvalidCheckoutAttributes = false, 
+            bool deleteChildCartItems = true);
 
-        ///// <summary>
+        Task<int> DeleteCartItemsAsync(
+            IEnumerable<ShoppingCartItem> shoppingCartItem,
+            bool resetCheckoutData = true,
+            bool removeInvalidCheckoutAttributes = false,
+            bool deleteChildCartItems = true);
+        
+            ///// <summary>
         ///// Deletes expired shopping cart items
         ///// </summary>
         ///// <param name="olderThanUtc">Older than date and time</param>
         ///// <param name="customerId"><c>null</c> to delete ALL cart items, or a customer id to only delete items of a single customer.</param>
         ///// <returns>Number of deleted items</returns>
-        Task<int> DeleteExpiredCartItemsAsync(DateTime olderThanUtc, int? customerId = null);
+        Task<int> DeleteExpiredCartItemsAsync(DateTime olderThanUtc, Customer customer);
 
         ///// <summary>
         ///// Finds a shopping cart item in the cart
@@ -99,7 +109,7 @@ namespace Smartstore.Core.Checkout.Cart
         ///// Stores the shopping card items in the database
         ///// </summary>
         ///// <param name="ctx">Add to cart context</param>
-        Task AddToCartStoring(AddToCartContext ctx);
+        Task AddToCartStoringAsync(AddToCartContext ctx);
 
         ///// <summary>
         ///// Validates if all required attributes are selected
@@ -165,12 +175,12 @@ namespace Smartstore.Core.Checkout.Cart
         ///// Get open carts subtotal
         ///// </summary>
         ///// <returns>subtotal</returns>
-        Task<decimal> GetAllOpenCartSubTotalAsync();
+        Task<decimal> GetOpenCartsSubTotalAsync();
 
         ///// <summary>
         ///// Get open wishlists subtotal
         ///// </summary>
         ///// <returns>subtotal</returns>
-        Task<decimal> GetAllOpenWishlistSubTotalAsync();
+        Task<decimal> GetOpenWishlistsSubTotalAsync();
     }
 }
