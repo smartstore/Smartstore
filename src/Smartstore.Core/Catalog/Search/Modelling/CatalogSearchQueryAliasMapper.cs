@@ -394,10 +394,9 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
         #region Common Facets
 
-        public async Task<string> GetCommonFacetAliasByGroupKindAsync(FacetGroupKind kind, int languageId)
+        public string GetCommonFacetAliasByGroupKind(FacetGroupKind kind, int languageId)
         {
-            var mappings = await GetCommonFacetAliasByGroupKindMappingsAsync();
-
+            var mappings = GetCommonFacetAliasByGroupKindMappings();
             return mappings.Get(FacetUtility.GetFacetAliasSettingKey(kind, languageId));
         }
 
@@ -406,10 +405,12 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             await _cache.RemoveAsync(ALL_COMMONFACET_ALIAS_BY_KIND_KEY);
         }
 
-        protected virtual async Task<IDictionary<string, string>> GetCommonFacetAliasByGroupKindMappingsAsync()
+        protected virtual IDictionary<string, string> GetCommonFacetAliasByGroupKindMappings()
         {
-            var mappings = await _cache.GetAsync(ALL_COMMONFACET_ALIAS_BY_KIND_KEY, async () =>
+            var mappings = _cache.Get(ALL_COMMONFACET_ALIAS_BY_KIND_KEY, o =>
             {
+                o.ExpiresIn(TimeSpan.FromHours(8));
+                
                 var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
                 var groupKinds = new FacetGroupKind[]
@@ -423,19 +424,19 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     FacetGroupKind.NewArrivals
                 };
 
-                var languageIds = await _db.Languages
+                var languageIds = _db.Languages
                     .AsNoTracking()
                     .Where(x => x.Published)
                     .OrderBy(x => x.DisplayOrder)
                     .Select(x => x.Id)
-                    .ToListAsync();
+                    .ToList();
 
                 foreach (var languageId in languageIds)
                 {
                     foreach (var groupKind in groupKinds)
                     {
                         var key = FacetUtility.GetFacetAliasSettingKey(groupKind, languageId);
-                        var value = await _settingService.GetSettingByKeyAsync<string>(key);
+                        var value = _settingService.GetSettingByKey<string>(key);
                         if (value.HasValue())
                         {
                             result.Add(key, value);

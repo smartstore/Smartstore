@@ -90,7 +90,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         /// <param name="kind">Facet group kind.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Common facet alias.</returns>
-        Task<string> GetCommonFacetAliasByGroupKindAsync(FacetGroupKind kind, int languageId);
+        string GetCommonFacetAliasByGroupKind(FacetGroupKind kind, int languageId);
 
         /// <summary>
         /// Clears all cached common facet mappings.

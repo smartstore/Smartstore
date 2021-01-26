@@ -119,21 +119,21 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             }
 
             // Availability.
-            await ConvertAvailabilityAsync(query, origin);
+            ConvertAvailability(query, origin);
 
             // Instant-Search never uses these filter parameters.
             if (!isInstantSearch)
             {
                 await ConvertPagingSortingAsync(query, origin);
-                await ConvertPriceAsync(query, origin);
-                await ConvertCategoryAsync(query, origin);
-                await ConvertManufacturerAsync(query, origin);
-                await ConvertRatingAsync(query, origin);
-                await ConvertNewArrivalsAsync(query, origin);
-                await ConvertDeliveryTimeAsync(query, origin);
+                ConvertPrice(query, origin);
+                ConvertCategory(query, origin);
+                ConvertManufacturer(query, origin);
+                ConvertRating(query, origin);
+                ConvertNewArrivals(query, origin);
+                ConvertDeliveryTime(query, origin);
             }
 
-            await OnConvertedAsync (query, origin);
+            await OnConvertedAsync(query, origin);
 
             Current = query;
             return query;
@@ -282,7 +282,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             query.CustomData["ViewMode"] = _catalogSettings.DefaultViewMode;
         }
 
-        private async Task AddFacet(
+        private void AddFacet(
             CatalogSearchQuery query,
             FacetGroupKind kind,
             bool isMultiSelect,
@@ -304,7 +304,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     displayOrder = _searchSettings.BrandDisplayOrder;
                     break;
                 case FacetGroupKind.Price:
-                    if (_searchSettings.PriceDisabled || !await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice))
+                    if (_searchSettings.PriceDisabled || !_services.Permissions.Authorize(Permissions.Catalog.DisplayPrice))
                         return;
                     fieldName = "price";
                     displayOrder = _searchSettings.PriceDisplayOrder;
@@ -339,7 +339,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
             var descriptor = new FacetDescriptor(fieldName)
             {
-                Label = (await _services.Localization.GetResourceAsync(FacetUtility.GetLabelResourceKey(kind))) ?? kind.ToString(),
+                Label = _services.Localization.GetResource(FacetUtility.GetLabelResourceKey(kind)) ?? kind.ToString(),
                 IsMultiSelect = isMultiSelect,
                 DisplayOrder = displayOrder,
                 OrderBy = sorting,
@@ -351,7 +351,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             query.WithFacet(descriptor);
         }
 
-        protected virtual async Task ConvertCategoryAsync(CatalogSearchQuery query, string origin)
+        protected virtual void ConvertCategory(CatalogSearchQuery query, string origin)
         {
             if (origin == "Catalog/Category")
             {
@@ -359,7 +359,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 return;
             }
 
-            var alias = await _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKindAsync(FacetGroupKind.Category, query.LanguageId ?? 0);
+            var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Category, query.LanguageId ?? 0);
             
             if (TryGetValueFor(alias ?? "c", out List<int> ids) && ids != null && ids.Any())
             {
@@ -367,7 +367,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 query.WithCategoryIds(_catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false, ids.ToArray());
             }
 
-            await AddFacet(query, FacetGroupKind.Category, true, FacetSorting.HitsDesc, descriptor =>
+            AddFacet(query, FacetGroupKind.Category, true, FacetSorting.HitsDesc, descriptor =>
             {
                 if (ids != null)
                 {
@@ -382,7 +382,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             });
         }
 
-        protected virtual async Task ConvertManufacturerAsync(CatalogSearchQuery query, string origin)
+        protected virtual void ConvertManufacturer(CatalogSearchQuery query, string origin)
         {
             //List<int> ids = null;
             //int? minHitCount = null;
@@ -410,14 +410,14 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 return;
             }
 
-            var alias = await _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKindAsync(FacetGroupKind.Brand, query.LanguageId ?? 0);
+            var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Brand, query.LanguageId ?? 0);
 
             if (TryGetValueFor(alias ?? "m", out List<int> ids) && ids != null && ids.Any())
             {
                 query.WithManufacturerIds(null, ids.ToArray());
             }
 
-            await AddFacet(query, FacetGroupKind.Brand, true, FacetSorting.LabelAsc, descriptor =>
+            AddFacet(query, FacetGroupKind.Brand, true, FacetSorting.LabelAsc, descriptor =>
             {
                 if (ids != null)
                 {
@@ -432,11 +432,11 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             });
         }
 
-        protected virtual async Task ConvertPriceAsync(CatalogSearchQuery query, string origin)
+        protected virtual void ConvertPrice(CatalogSearchQuery query, string origin)
         {
             double? minPrice = null;
             double? maxPrice = null;
-            var alias = await _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKindAsync(FacetGroupKind.Price, query.LanguageId ?? 0);
+            var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Price, query.LanguageId ?? 0);
 
             if (TryGetValueFor(alias ?? "p", out string price) && TryParseRange(price, out minPrice, out maxPrice))
             {
@@ -466,7 +466,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 }
             }
 
-            await AddFacet(query, FacetGroupKind.Price, false, FacetSorting.DisplayOrder, descriptor =>
+            AddFacet(query, FacetGroupKind.Price, false, FacetSorting.DisplayOrder, descriptor =>
             {
                 if (minPrice.HasValue || maxPrice.HasValue)
                 {
@@ -483,16 +483,16 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             });
         }
 
-        protected virtual async Task ConvertRatingAsync(CatalogSearchQuery query, string origin)
+        protected virtual void ConvertRating(CatalogSearchQuery query, string origin)
         {
-            var alias = await _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKindAsync(FacetGroupKind.Rating, query.LanguageId ?? 0);
+            var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Rating, query.LanguageId ?? 0);
 
             if (TryGetValueFor(alias ?? "r", out double? fromRate) && fromRate.HasValue)
             {
                 query.WithRating(fromRate, null);
             }
 
-            await AddFacet(query, FacetGroupKind.Rating, false, FacetSorting.DisplayOrder, descriptor =>
+            AddFacet(query, FacetGroupKind.Rating, false, FacetSorting.DisplayOrder, descriptor =>
             {
                 descriptor.MinHitCount = 0;
                 descriptor.MaxChoicesCount = 5;
@@ -507,9 +507,9 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             });
         }
 
-        protected virtual async Task ConvertAvailabilityAsync(CatalogSearchQuery query, string origin)
+        protected virtual void ConvertAvailability(CatalogSearchQuery query, string origin)
         {
-            var alias = await _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKindAsync(FacetGroupKind.Availability, query.LanguageId ?? 0);
+            var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Availability, query.LanguageId ?? 0);
             TryGetValueFor(alias ?? "a", out bool availability);
 
             // Setting specifies the logical direction of the filter. That's smarter than just to specify a default value.
@@ -530,7 +530,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 }
             }
 
-            await AddFacet(query, FacetGroupKind.Availability, true, FacetSorting.LabelAsc, async descriptor =>
+            AddFacet(query, FacetGroupKind.Availability, true, FacetSorting.LabelAsc, async descriptor =>
             {
                 descriptor.MinHitCount = 0;
 
@@ -539,13 +539,13 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     : new FacetValue(null, IndexTypeCode.Empty);
 
                 newValue.IsSelected = availability;
-                newValue.Label = await _services.Localization.GetResourceAsync(_searchSettings.IncludeNotAvailable ? "Search.Facet.ExcludeOutOfStock" : "Search.Facet.IncludeOutOfStock");
+                newValue.Label = _services.Localization.GetResource(_searchSettings.IncludeNotAvailable ? "Search.Facet.ExcludeOutOfStock" : "Search.Facet.IncludeOutOfStock");
 
                 descriptor.AddValue(newValue);
             });
         }
 
-        protected virtual async Task ConvertNewArrivalsAsync(CatalogSearchQuery query, string origin)
+        protected virtual void ConvertNewArrivals(CatalogSearchQuery query, string origin)
         {
             var newForMaxDays = _catalogSettings.LabelAsNewForMaxDays ?? 0;
             if (newForMaxDays <= 0)
@@ -555,16 +555,16 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             }
 
             var fromUtc = DateTime.UtcNow.Subtract(TimeSpan.FromDays(newForMaxDays));
-            var alias = await _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKindAsync(FacetGroupKind.NewArrivals, query.LanguageId ?? 0);
+            var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.NewArrivals, query.LanguageId ?? 0);
 
             if (TryGetValueFor(alias ?? "n", out bool newArrivalsOnly) && newArrivalsOnly)
             {
                 query.CreatedBetween(fromUtc, null);
             }
 
-            await AddFacet(query, FacetGroupKind.NewArrivals, true, FacetSorting.LabelAsc, async descriptor =>
+            AddFacet(query, FacetGroupKind.NewArrivals, true, FacetSorting.LabelAsc, async descriptor =>
             {
-                var label = await _services.Localization.GetResourceAsync("Search.Facet.LastDays");
+                var label = _services.Localization.GetResource("Search.Facet.LastDays");
 
                 descriptor.AddValue(new FacetValue(fromUtc, null, IndexTypeCode.DateTime, true, false)
                 {
@@ -574,16 +574,16 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             });
         }
 
-        protected virtual async Task ConvertDeliveryTimeAsync(CatalogSearchQuery query, string origin)
+        protected virtual void ConvertDeliveryTime(CatalogSearchQuery query, string origin)
         {
-            var alias = await _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKindAsync(FacetGroupKind.DeliveryTime, query.LanguageId ?? 0);
+            var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.DeliveryTime, query.LanguageId ?? 0);
 
             if (TryGetValueFor(alias ?? "d", out List<int> ids) && ids != null && ids.Any())
             {
                 query.WithDeliveryTimeIds(ids.ToArray());
             }
 
-            await AddFacet(query, FacetGroupKind.DeliveryTime, true, FacetSorting.DisplayOrder, descriptor =>
+            AddFacet(query, FacetGroupKind.DeliveryTime, true, FacetSorting.DisplayOrder, descriptor =>
             {
                 if (ids != null)
                 {
