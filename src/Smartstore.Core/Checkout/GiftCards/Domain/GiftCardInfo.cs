@@ -20,23 +20,11 @@ namespace Smartstore.Core.Checkout.GiftCards
         public string SenderEmail { get; set; }
         public string Message { get; set; }
 
-        public static bool operator ==(GiftCardInfo firstCard, GiftCardInfo otherCard)
-        {
-            return firstCard.RecipientName == otherCard.RecipientName
-                && firstCard.RecipientEmail == otherCard.RecipientEmail
-                && firstCard.SenderName == otherCard.SenderName
-                && firstCard.SenderEmail == otherCard.SenderEmail
-                && firstCard.Message == otherCard.Message;
-        }
+        public static bool operator ==(GiftCardInfo left, GiftCardInfo right)
+            => Equals(left, right);
 
-        public static bool operator !=(GiftCardInfo firstCard, GiftCardInfo otherCard)
-        {
-            return firstCard.RecipientName != otherCard.RecipientName
-                || firstCard.RecipientEmail != otherCard.RecipientEmail
-                || firstCard.SenderName != otherCard.SenderName
-                || firstCard.SenderEmail != otherCard.SenderEmail
-                || firstCard.Message != otherCard.Message;
-        }
+        public static bool operator !=(GiftCardInfo left, GiftCardInfo right)
+            => !Equals(left, right);
 
         public override bool Equals(object obj)
         {
@@ -45,9 +33,13 @@ namespace Smartstore.Core.Checkout.GiftCards
                 return true;
             }
 
-            if(obj is GiftCardInfo giftCardInfo)
+            if (obj is GiftCardInfo other)
             {
-                return giftCardInfo == this;
+                return RecipientName == other.RecipientName
+                    && RecipientEmail == other.RecipientEmail
+                    && SenderName == other.SenderName
+                    && SenderEmail == other.SenderEmail
+                    && Message == other.Message;
             }
 
             return false;
