@@ -33,6 +33,11 @@ namespace Smartstore.Core.Catalog.Attributes
         IList<ProductVariantAttributeValue> MaterializeProductVariantAttributeValues(ProductVariantAttributeSelection selection, IEnumerable<ProductVariantAttribute> attributes);
 
         /// <summary>
+        /// Clears cached product attribute and attribute values.
+        /// </summary>
+        void ClearCachedAttributes();
+
+        /// <summary>
         /// Finds an attribute combination by attribute selection.
         /// </summary>
         /// <param name="productId">Product identifier.</param>

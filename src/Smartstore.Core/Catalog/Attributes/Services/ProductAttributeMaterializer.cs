@@ -8,29 +8,40 @@ using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
-using Smartstore.Data.Caching;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
     public partial class ProductAttributeMaterializer : IProductAttributeMaterializer
     {
-        private static readonly TimeSpan ProductAttributesCacheDuration = TimeSpan.FromSeconds(30);
+        // 0 = Attribute IDs
+        private const string ATTRIBUTES_BY_IDS_KEY = "materialized-attributes-{0}";
+        private const string ATTRIBUTES_PATTERN_KEY = "materialized-attributes-*";
+
+        // 0 = Attribute value IDs
+        private const string ATTRIBUTEVALUES_BY_IDS_KEY = "materialized-attributevalues-{0}";
+        private const string ATTRIBUTEVALUES_PATTERN_KEY = "materialized-attributevalues-*";
+
+        // 0 = ProductId, 1 = Attribute JSON
+        private const string ATTRIBUTECOMBINATION_BY_IDJSON_KEY = "materialized-attributecombination.id-{0}-{1}";
 
         // 0 = ProductId
         internal const string UNAVAILABLE_COMBINATIONS_KEY = "attributecombination:unavailable-{0}";
         internal const string UNAVAILABLE_COMBINATIONS_PATTERN_KEY = "attributecombination:unavailable-*";
 
         private readonly SmartDbContext _db;
+        private readonly IRequestCache _requestCache;
         private readonly ICacheManager _cache;
         private readonly PerformanceSettings _performanceSettings;
 
         public ProductAttributeMaterializer(
             SmartDbContext db,
+            IRequestCache requestCache,
             ICacheManager cache,
             PerformanceSettings performanceSettings)
         {
             _db = db;
+            _requestCache = requestCache;
             _cache = cache;
             _performanceSettings = performanceSettings;
         }
@@ -42,25 +53,30 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             Guard.NotNull(selection, nameof(selection));
 
-            var pvaIds = selection.AttributesMap
+            var ids = selection.AttributesMap
                 .Select(x => x.Key)
                 .ToArray();
+            if (!ids.Any())
+            {
+                return new List<ProductVariantAttribute>();
+            }
 
-            if (pvaIds.Any())
+            var cacheKey = ATTRIBUTES_BY_IDS_KEY + string.Join(",", ids);
+
+            var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
                 var query = _db.ProductVariantAttributes
+                    .AsNoTracking()
                     .Include(x => x.ProductAttribute)
                     .Include(x => x.ProductVariantAttributeValues)
-                    .AsNoTracking()
-                    .AsCaching(ProductAttributesCacheDuration)
-                    .Where(x => pvaIds.Contains(x.Id));
+                    .Where(x => ids.Contains(x.Id));
 
                 var attributes = await query.ToListAsync();
 
-                return attributes.OrderBySequence(pvaIds).ToList();
-            }
+                return attributes.OrderBySequence(ids).ToList();
+            });
 
-            return new List<ProductVariantAttribute>();
+            return result;
         }
 
         // TODO: (mg) (core) Check caller's return value handling of MaterializeProductVariantAttributeValuesAsync (now returns IList instead of ICollection).
@@ -68,20 +84,25 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             Guard.NotNull(selection, nameof(selection));
 
-            var valueIds = selection.GetAttributeValueIds();
-            if (valueIds.Any())
+            var ids = selection.GetAttributeValueIds();
+            if (!ids.Any())
+            {
+                return new List<ProductVariantAttributeValue>();
+            }
+
+            var cacheKey = ATTRIBUTEVALUES_BY_IDS_KEY + string.Join(",", ids);
+
+            var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
                 // Only consider values of list control types. Otherwise for instance text entered in a text-box is misinterpreted as an attribute value id.
                 var query = _db.ProductVariantAttributeValues
                     .Include(x => x.ProductVariantAttribute)
                         .ThenInclude(x => x.ProductAttribute)
                     .AsNoTracking()
-                    .AsCaching(ProductAttributesCacheDuration)
-                    .ApplyValueFilter(valueIds);
+                    .ApplyValueFilter(ids);
 
-                var values = await query.ToListAsync();
-                return values;
-            }
+                return await query.ToListAsync();
+            });
 
             // That's what the old ported code did:
             //if (selection?.AttributesMap?.Any() ?? false)
@@ -108,7 +129,7 @@ namespace Smartstore.Core.Catalog.Attributes
             //    }
             //}
 
-            return new List<ProductVariantAttributeValue>();
+            return result;
         }
 
         // TODO: (mg) (core) Check whether IProductAttributeMaterializer.MaterializeProductVariantAttributeValues is still required.
@@ -151,6 +172,12 @@ namespace Smartstore.Core.Catalog.Attributes
 
             return result;
         }
+        
+        public virtual void ClearCachedAttributes()
+        {
+            _requestCache.RemoveByPattern(ATTRIBUTES_PATTERN_KEY);
+            _requestCache.RemoveByPattern(ATTRIBUTEVALUES_PATTERN_KEY);
+        }
 
         public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection)
         {
@@ -159,20 +186,26 @@ namespace Smartstore.Core.Catalog.Attributes
                 return null;
             }
 
-            var combinations = await _db.ProductVariantAttributeCombinations
-                .AsNoTracking()
-                .AsCaching(ProductAttributesCacheDuration)
-                .Where(x => x.ProductId == productId)
-                .Select(x => new { x.Id, x.RawAttributes })
-                .ToListAsync();
+            var cacheKey = ATTRIBUTECOMBINATION_BY_IDJSON_KEY.FormatInvariant(productId, selection.AsJson());
 
-            foreach (var combination in combinations)
+            var combinations = await _requestCache.GetAsync(cacheKey, async () =>
             {
-                if (selection.Equals(new ProductVariantAttributeSelection(combination.RawAttributes)))
+                var combinations = await _db.ProductVariantAttributeCombinations
+                    .AsNoTracking()
+                    .Where(x => x.ProductId == productId)
+                    .Select(x => new { x.Id, x.RawAttributes })
+                    .ToListAsync();
+
+                foreach (var combination in combinations)
                 {
-                    return await _db.ProductVariantAttributeCombinations.FindByIdAsync(combination.Id);
+                    if (selection.Equals(new ProductVariantAttributeSelection(combination.RawAttributes)))
+                    {
+                        return await _db.ProductVariantAttributeCombinations.FindByIdAsync(combination.Id);
+                    }
                 }
-            }
+
+                return null;
+            });
 
             return null;
         }
