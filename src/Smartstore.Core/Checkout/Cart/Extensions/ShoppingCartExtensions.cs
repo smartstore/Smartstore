@@ -15,10 +15,10 @@ namespace Smartstore
     public static class ShoppingCartExtensions
     {
         /// <summary>
-        /// Finds and returns matching product from shopping cart.
+        /// Finds and returns first matching product from shopping cart.
         /// </summary>
         /// <remarks>
-        /// Products with the same identifier need to have matching attribute selections aswell.
+        /// Products with the same identifier need to have matching attribute selections as well.
         /// </remarks>
         /// <param name="cart"></param>
         /// <param name="shoppingCartType"></param>
@@ -130,6 +130,13 @@ namespace Smartstore
             Guard.NotNull(cart, nameof(cart));
 
             return cart.Where(x => !x.Item.Product?.IsRecurring ?? false).Any();
+        }
+
+        public static bool Includes(this IEnumerable<OrganizedShoppingCartItem> cart, Func<Product, bool> matcher)
+        {
+            Guard.NotNull(cart, nameof(cart));
+            // TODO: (ms) (core) Find a better name for this.
+            return cart.Where(x => x.Item.Product != null ? matcher(x.Item.Product) : false).Any();
         }
 
         /// <summary>

@@ -33,7 +33,7 @@ namespace Smartstore.Core.Checkout.Cart
         Task<List<OrganizedShoppingCartItem>> GetCartItemsAsync(Customer customer, ShoppingCartType cartType, int storeId = 0);
 
         ///// <summary>
-        ///// Delete shopping cart item
+        ///// Delete shopping cart item.
         ///// </summary>
         ///// <param name="shoppingCartItem">Shopping cart item</param>
         ///// <param name="resetCheckoutData">A value indicating whether to reset checkout data</param>
@@ -117,26 +117,25 @@ namespace Smartstore.Core.Checkout.Cart
         IList<string> GetBundleItemWarnings(ProductBundleItem bundleItem);
         IList<string> GetCartBundleItemWarnings(IList<OrganizedShoppingCartItem> cartItems);
 
-        ///// <summary>
-        ///// Validates shopping cart item
-        ///// </summary>
-        ///// <param name="customer">Customer</param>
-        ///// <param name="shoppingCartType">Shopping cart type</param>
-        ///// <param name="product">Product</param>
-        ///// <param name="storeId">Store identifier</param>
-        ///// <param name="selectedAttributes">Selected attributes</param>
-        ///// <param name="customerEnteredPrice">Customer entered price</param>
-        ///// <param name="quantity">Quantity</param>
-        ///// <param name="automaticallyAddRequiredProductsIfEnabled">Automatically add required products if enabled</param>
-        ///// <param name="getStandardWarnings">A value indicating whether we should validate a product for standard properties</param>
-        ///// <param name="getAttributesWarnings">A value indicating whether we should validate product attributes</param>
-        ///// <param name="getGiftCardWarnings">A value indicating whether we should validate gift card properties</param>
-        ///// <param name="getRequiredProductWarnings">A value indicating whether we should validate required products (products which require other products to be added to the cart)</param>
-        ///// <param name="getBundleWarnings">A value indicating whether we should validate bundle and bundle items</param>
-        ///// <param name="bundleItem">Product bundle item if bundles should be validated</param>
-        ///// <param name="childItems">Child cart items to validate bundle items</param>
-        ///// <returns>Warnings</returns>
-
+        /// <summary>
+        /// Validates shopping cart item
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="shoppingCartType">Shopping cart type</param>
+        /// <param name="product">Product</param>
+        /// <param name="storeId">Store identifier</param>
+        /// <param name="selectedAttributes">Selected attributes</param>
+        /// <param name="customerEnteredPrice">Customer entered price</param>
+        /// <param name="quantity">Quantity</param>
+        /// <param name="automaticallyAddRequiredProductsIfEnabled">Automatically add required products if enabled</param>
+        /// <param name="getStandardWarnings">A value indicating whether we should validate a product for standard properties</param>
+        /// <param name="getAttributesWarnings">A value indicating whether we should validate product attributes</param>
+        /// <param name="getGiftCardWarnings">A value indicating whether we should validate gift card properties</param>
+        /// <param name="getRequiredProductWarnings">A value indicating whether we should validate required products (products which require other products to be added to the cart)</param>
+        /// <param name="getBundleWarnings">A value indicating whether we should validate bundle and bundle items</param>
+        /// <param name="bundleItem">Product bundle item if bundles should be validated</param>
+        /// <param name="childItems">Child cart items to validate bundle items</param>
+        /// <returns>Warnings</returns>
         Task<IList<string>> GetShoppingCartItemWarningsAsync(
             Customer customer,
             ShoppingCartType shoppingCartType,

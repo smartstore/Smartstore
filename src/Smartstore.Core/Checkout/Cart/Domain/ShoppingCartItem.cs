@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Customers;
 using Smartstore.Domain;
@@ -38,6 +39,8 @@ namespace Smartstore.Core.Checkout.Cart
     public partial class ShoppingCartItem : EntityWithAttributes, IAuditable, IAttributeAware
     {
         private readonly ILazyLoader _lazyLoader;
+        private ProductVariantAttributeSelection _attributeSelection;
+        private string _rawAttributes;
 
         public ShoppingCartItem()
         {
@@ -77,7 +80,22 @@ namespace Smartstore.Core.Checkout.Cart
         /// Gets or sets the product variant attributes in XML or JSON format
         /// </summary>
         [Column("AttributesXml"), MaxLength]
-        public string RawAttributes { get; set; }
+        public string RawAttributes 
+        {
+            get => _rawAttributes; 
+            set
+            {
+                _rawAttributes = value;
+                _attributeSelection = null;
+            }
+        }
+
+        // TODO: (ms) (core) Refactor callers!
+        [NotMapped]
+        public ProductVariantAttributeSelection AttributeSelection
+        {
+            get => _attributeSelection ??= new(RawAttributes);
+        }
 
         /// <summary>
         /// Gets or sets the price enter by a customer

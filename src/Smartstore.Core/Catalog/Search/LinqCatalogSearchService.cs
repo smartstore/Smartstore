@@ -95,6 +95,8 @@ namespace Smartstore.Core.Catalog.Search
 
         protected virtual IQueryable<Product> GetProductQuery(CatalogSearchQuery searchQuery, IQueryable<Product> baseQuery)
         {
+            // TODO: (mg) (core) Try to modularize this monolithic function: e.g. ApplyFilters, ApplyAcl, ApplyOrdering etc.
+            
             var ordered = false;
             var utcNow = DateTime.UtcNow;
             var categoryId = 0;

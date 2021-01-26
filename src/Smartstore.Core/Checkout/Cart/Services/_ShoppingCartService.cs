@@ -985,15 +985,13 @@ namespace Smartstore.Core.Checkout.Cart
             if (bundleItem != null && ctx.Warnings.Count > 0)
                 return ctx.Warnings;
 
-            if (cartType == ShoppingCartType.ShoppingCart
-                && !await _permissionService.AuthorizeAsync(Permissions.Cart.AccessShoppingCart, customer))
+            if (cartType == ShoppingCartType.ShoppingCart && !await _permissionService.AuthorizeAsync(Permissions.Cart.AccessShoppingCart, customer))
             {
                 warnings.Add(T("ShoppingCart.IsDisabled"));
                 return warnings;
             }
 
-            if (cartType == ShoppingCartType.Wishlist
-                && !await _permissionService.AuthorizeAsync(Permissions.Cart.AccessWishlist, customer))
+            if (cartType == ShoppingCartType.Wishlist && !await _permissionService.AuthorizeAsync(Permissions.Cart.AccessWishlist, customer))
             {
                 warnings.Add(T("Wishlist.IsDisabled"));
                 return warnings;
@@ -1240,7 +1238,8 @@ namespace Smartstore.Core.Checkout.Cart
                 customer.ShoppingCartItems.AddRange(ctx.ChildItems);
             }
 
-            _db.Customers.Update(customer);
+            _db.TryChangeState(customer, EntityState.Modified);
+            // SaveChanges
         }
 
         public virtual async Task<IList<string>> UpdateShoppingCartItemAsync(Customer customer, int shoppingCartItemId, int newQuantity, bool resetCheckoutData)
