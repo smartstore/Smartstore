@@ -51,9 +51,13 @@ namespace Smartstore.Web.UI.TagHelpers
         [HtmlAttributeName(NoFallbackAttributeName)]
         public bool NoFallback { get; set; }
 
+        [HtmlAttributeName(NoFallbackAttributeName)]
+        internal ProcessImageQuery ImageQuery { get; set; }
+
         protected override string GenerateMediaUrl()
         {
-            return MediaUrlGenerator.GenerateUrl(File, BuildImageQuery().ToQueryString(), Host, !NoFallback);
+            ImageQuery = BuildImageQuery();
+            return MediaUrlGenerator.GenerateUrl(File, ImageQuery.ToQueryString(), Host, !NoFallback);
         }
 
         protected virtual ProcessImageQuery BuildImageQuery()

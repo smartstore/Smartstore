@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Security;
+using Smartstore.Engine;
 using Smartstore.Events;
 using Smartstore.IO;
 using Smartstore.Net;
@@ -19,9 +20,11 @@ namespace Smartstore.Core.Content.Media
     public class MediaMiddleware
     {
         private readonly IEventPublisher _eventPublisher;
+        private readonly IApplicationContext _appContext;
 
-        public MediaMiddleware(RequestDelegate next, IEventPublisher eventPublisher)
+        public MediaMiddleware(RequestDelegate next, IApplicationContext appContext, IEventPublisher eventPublisher)
         {
+            _appContext = appContext;
             _eventPublisher = eventPublisher;
         }
 
@@ -93,6 +96,7 @@ namespace Smartstore.Core.Content.Media
             // Create the handler context
             var handlerContext = new MediaHandlerContext
             {
+                ApplicationContext = _appContext,
                 HttpContext = context,
                 CurrentCustomer = workContext.CurrentCustomer,
                 PermissionService = permissionService,

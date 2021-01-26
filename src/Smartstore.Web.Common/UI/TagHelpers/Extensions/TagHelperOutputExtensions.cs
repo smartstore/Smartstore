@@ -147,20 +147,6 @@ namespace Smartstore.Web.UI.TagHelpers
 
         #region Wrap
 
-        public static void WrapWith(this TagHelperOutput output, TagBuilder builder)
-        {
-            Guard.NotNull(builder, nameof(builder));
-            
-            output.PreContent.PrependHtml(builder.RenderStartTag());
-
-            if (builder.HasInnerHtml)
-            {
-                output.PreContent.AppendHtml(builder.RenderBody());
-            }
-
-            output.PostContent.AppendHtml(builder.RenderEndTag());
-        }
-
         /// <summary>
         ///     Wraps a <see cref="builder" /> around the content of the <see cref="output" /> using
         ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />. All content that is

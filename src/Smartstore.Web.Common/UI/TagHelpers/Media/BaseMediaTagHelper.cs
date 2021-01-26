@@ -28,7 +28,10 @@ namespace Smartstore.Web.UI.TagHelpers
         protected IMediaUrlGenerator MediaUrlGenerator { get; set; }
 
         [HtmlAttributeNotBound]
-        protected string Src { get; set; }
+        internal bool Initialized { get; set; }
+
+        [HtmlAttributeNotBound]
+        protected internal string Src { get; set; }
 
         /// <summary>
         /// The <see cref="MediaFileInfo"/> instance to render a tag for.
@@ -51,16 +54,24 @@ namespace Smartstore.Web.UI.TagHelpers
 
         protected override sealed async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
-            File ??= await MediaService.GetFileByIdAsync(FileId ?? 0, MediaLoadFlags.AsNoTracking);
-            Src = GenerateMediaUrl();
+            if (!Initialized)
+            {
+                File ??= await MediaService.GetFileByIdAsync(FileId ?? 0, MediaLoadFlags.AsNoTracking);
+                Src = GenerateMediaUrl();
+                Initialized = true;
+            }
 
             await ProcessMediaAsync(context, output);
         }
 
         protected override sealed void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
-            File ??= MediaService.GetFileByIdAsync(FileId ?? 0, MediaLoadFlags.AsNoTracking).Await();
-            Src = GenerateMediaUrl();
+            if (!Initialized)
+            {
+                File ??= MediaService.GetFileByIdAsync(FileId ?? 0, MediaLoadFlags.AsNoTracking).Await();
+                Src = GenerateMediaUrl();
+                Initialized = true;
+            }
 
             ProcessMedia(context, output);
         }

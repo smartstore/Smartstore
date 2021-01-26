@@ -6,9 +6,9 @@ using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
+using Smartstore.Engine;
 using Smartstore.Imaging;
 using Smartstore.IO;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -17,22 +17,18 @@ namespace Smartstore.Core.Content.Media
         private IFile _sourceFile;
         private bool _sourceFileResolved;
 
-        public MediaHandlerContext()
-        {
-            // ...
-        }
+        public IApplicationContext ApplicationContext { get; init; }
+        public SmartDbContext Db { get; init; }
+        public IMediaService MediaService { get; init; }
+        public IPermissionService PermissionService { get; init; }
+        public Customer CurrentCustomer { get; init; }
+        public HttpContext HttpContext { get; init; }
 
-        public SmartDbContext Db { get; set; }
-        public IMediaService MediaService { get; set; }
-        public IPermissionService PermissionService { get; set; }
-        public Customer CurrentCustomer { get; set; }
-        public HttpContext HttpContext { get; set; }
+        public int MediaFileId { get; init; }
+        public string RawPath { get; init; }
 
-        public int MediaFileId { get; set; }
-        public string RawPath { get; set; }
-
-        public MediaPathData PathData { get; set; }
-        public ProcessImageQuery ImageQuery { get; set; }
+        public MediaPathData PathData { get; init; }
+        public ProcessImageQuery ImageQuery { get; init; }
 
         public bool Executed { get; set; }
         public Exception Exception { get; set; }
@@ -56,10 +52,11 @@ namespace Smartstore.Core.Content.Media
             {
                 // This is most likely a request for a default placeholder image
                 var fallbackImagePath = Path.Combine(MediaUrlGenerator.FallbackImagesRootPath, RawPath).Replace('\\', '/');
-                var fi = new FileInfo(CommonHelper.MapPath("~/" + fallbackImagePath, false));
-                if (fi.Exists)
+                //var fi = new FileInfo(CommonHelper.MapPath("~/" + fallbackImagePath, false));
+                var fallbackFile = ApplicationContext.WebRoot.GetFile(fallbackImagePath);
+                if (fallbackFile.Exists)
                 {
-                    _sourceFile = new LocalFile(fallbackImagePath, fi, null);
+                    _sourceFile = fallbackFile;
                 }    
             }
             else

@@ -7,7 +7,7 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<div class="artlist artlist-grid artlist-5-cols artlist-boxed">
+<div id="files" class="artlist artlist-grid artlist-5-cols artlist-boxed">
     @foreach (var file in Model)
     {
         //var thumbUrl = mediaService.GetUrl(file, 256);
@@ -16,10 +16,17 @@
         <article class="art">
             <div class="art-picture-block">
                 <a class="art-picture img-center-container" href="@(file.GetUrl(0, string.Empty))" target="_blank">
-                    @*<img file="file" img-size="256" />*@
-                    <media-thumbnail file="file" img-size="256" />
+                    <img file="file" img-size="256" />
                 </a>
             </div>
         </article>
     }
 </div>
+
+<widget target="end">
+    <script>
+        $(function () {
+            SmartStore.media.lazyLoadThumbnails($('#files'));
+        });
+    </script>
+</widget>

@@ -46,17 +46,18 @@ namespace Smartstore.Web.UI
             }
         }
 
-        public static void MergeAttribute(this TagBuilder builder, string key, string value, bool replaceExisting, bool ignoreNull)
+        public static bool MergeAttribute(this TagBuilder builder, string key, string value, bool replaceExisting, bool ignoreNull)
         {
             if (value == null && ignoreNull)
             {
-                return;
+                return false;
             }
 
             builder.MergeAttribute(key, value, replaceExisting);
+            return true;
         }
 
-        public static void MergeAttribute(this TagBuilder builder, string key, Func<string> valueAccessor, bool replaceExisting, bool ignoreNull)
+        public static bool MergeAttribute(this TagBuilder builder, string key, Func<string> valueAccessor, bool replaceExisting, bool ignoreNull)
         {
             Guard.NotEmpty(key, nameof(key));
             Guard.NotNull(valueAccessor, nameof(valueAccessor));
@@ -67,8 +68,11 @@ namespace Smartstore.Web.UI
                 if (value != null || !ignoreNull)
                 {
                     builder.Attributes[key] = value;
+                    return true;
                 }
             }
+
+            return false;
         }
     }
 }

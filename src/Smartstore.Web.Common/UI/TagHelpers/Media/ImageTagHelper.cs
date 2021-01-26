@@ -21,8 +21,8 @@ namespace Smartstore.Web.UI.TagHelpers
             output.AppendCssClass("file-img");
             output.Attributes.SetAttribute("src", Src);
 
-            output.Attributes.SetAttributeNoReplace("alt", () => File.File.GetLocalized(x => x.Alt).Value.NullEmpty());
-            output.Attributes.SetAttributeNoReplace("title", () => File.File.GetLocalized(x => x.Title).Value.NullEmpty());
+            output.Attributes.SetAttributeNoReplace("alt", () => File?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty());
+            output.Attributes.SetAttributeNoReplace("title", () => File?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty());
         }
     }
 }

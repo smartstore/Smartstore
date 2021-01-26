@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.UI.TagHelpers
@@ -43,6 +44,54 @@ namespace Smartstore.Web.UI.TagHelpers
                     attributes.SetAttribute(name, valueAccessor());
                 }
             }
+        }
+
+        /// <summary>
+        /// Copies the html attribute <paramref name="name"/> from source <paramref name="attributes"/> to <see cref="TagBuilder"/> <paramref name="target"/>.
+        /// </summary>
+        /// <param name="attributes">The source to find attribute to copy.</param>
+        /// <param name="target">The target <see cref="TagBuilder"/> instance to copy found attribute to.</param>
+        /// <param name="name">Name of attribute to find in source.</param>
+        /// <param name="replaceExisting">Whether to replace existing attribute in <paramref name="target"/>.</param>
+        /// <param name="ignoreNull">Whether to skip copying if source attribute's value is <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if an attribute has been copied, <see langword="false"/> otherwise.</returns>
+        public static bool CopyAttribute(this TagHelperAttributeList attributes, TagBuilder target, string name, bool replaceExisting = true, bool ignoreNull = true)
+        {
+            Guard.NotEmpty(name, nameof(name));
+            Guard.NotNull(target, nameof(target));
+
+            if (attributes.TryGetAttribute(name, out var attribute))
+            {
+                return target.MergeAttribute(name, () => attribute.Value?.ToString(), replaceExisting, ignoreNull);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Moves the html attribute <paramref name="name"/> from source <paramref name="attributes"/> to <see cref="TagBuilder"/> <paramref name="target"/>.
+        /// </summary>
+        /// <param name="attributes">The source to find attribute to move.</param>
+        /// <param name="target">The target <see cref="TagBuilder"/> instance to move found attribute to.</param>
+        /// <param name="name">Name of attribute to find in source.</param>
+        /// <param name="replaceExisting">Whether to replace existing attribute in <paramref name="target"/>.</param>
+        /// <param name="ignoreNull">Whether to skip moving if source attribute's value is <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> if an attribute has been moved, <see langword="false"/> otherwise.</returns>
+        public static bool MoveAttribute(this TagHelperAttributeList attributes, TagBuilder target, string name, bool replaceExisting = true, bool ignoreNull = true)
+        {
+            Guard.NotEmpty(name, nameof(name));
+            Guard.NotNull(target, nameof(target));
+
+            if (attributes.TryGetAttribute(name, out var attribute))
+            {
+                if (target.MergeAttribute(name, () => attribute.Value?.ToString(), replaceExisting, ignoreNull))
+                {
+                    attributes.RemoveAll(name);
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

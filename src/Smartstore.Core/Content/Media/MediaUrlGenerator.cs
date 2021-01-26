@@ -12,7 +12,7 @@ namespace Smartstore.Core.Content.Media
 {
     public partial class MediaUrlGenerator : IMediaUrlGenerator
     {
-        const string _fallbackImagesRootPath = "content/images/";
+        const string _fallbackImagesRootPath = "images/";
 
         private readonly IMediaStorageConfiguration _storageConfig;
         private readonly MediaSettings _mediaSettings;

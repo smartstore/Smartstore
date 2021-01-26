@@ -13,32 +13,44 @@ namespace Smartstore.Web.UI.TagHelpers
 {
 	public abstract class SmartTagHelper : TagHelper
 	{
-        public override void Init(TagHelperContext context)
-        {
-            var requestServices = ViewContext.HttpContext.RequestServices;
-
-            ActionContextAccessor = requestServices.GetRequiredService<IActionContextAccessor>();
-            HtmlHelper = requestServices.GetRequiredService<IHtmlHelper>();
-            UrlHelper = requestServices.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(ActionContextAccessor.ActionContext);
-
-            if (HtmlHelper is IViewContextAware contextAware)
-            {
-                contextAware.Contextualize(ViewContext);
-            }
-        }
+        private IActionContextAccessor _actionContextAccessor;
+        private IHtmlHelper _htmlHelper;
+        private IUrlHelper _urlHelper;
 
         [HtmlAttributeNotBound]
 		[ViewContext]
 		public ViewContext ViewContext { get; set; }
 
         [HtmlAttributeNotBound]
-        protected IHtmlHelper HtmlHelper { get; set; }
+        protected internal IActionContextAccessor ActionContextAccessor 
+        {
+            get => _actionContextAccessor ??= ViewContext.HttpContext.RequestServices.GetRequiredService<IActionContextAccessor>();      
+        }
+
 
         [HtmlAttributeNotBound]
-        protected IActionContextAccessor ActionContextAccessor { get; set; }
+        protected internal IUrlHelper UrlHelper
+        {
+            get => _urlHelper ??= ViewContext.HttpContext.RequestServices.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(ActionContextAccessor.ActionContext);
+        }
 
         [HtmlAttributeNotBound]
-        protected IUrlHelper UrlHelper { get; set; }
+        protected internal IHtmlHelper HtmlHelper
+        {
+            get
+            {
+                if (_htmlHelper == null)
+                {
+                    _htmlHelper = ViewContext.HttpContext.RequestServices.GetRequiredService<IHtmlHelper>();
+                    if (_htmlHelper is IViewContextAware contextAware)
+                    {
+                        contextAware.Contextualize(ViewContext);
+                    }
+                }
+                
+                return _htmlHelper;
+            }
+        }
 
         [HtmlAttributeNotBound]
         public TagHelperOutput Output { get; set; }

@@ -572,14 +572,35 @@ namespace Smartstore.Web.Controllers
         {
             var mediaService = HttpContext.RequestServices.GetRequiredService<IMediaService>();
             
-            var files = (await _db.MediaFiles
+            var images = (await _db.MediaFiles
                 .AsNoTracking()
-                .Where(x => x.MediaType == "image" && x.Extension != "svg" && x.Size > 0 && x.FolderId != null /*&& x.Extension == "jpg" && x.Size < 10000*/)
-                .OrderByDescending(x => x.Size)
+                .Where(x => x.MediaType == MediaType.Image && x.Extension != "svg" && x.Size > 0 && x.FolderId != null /*&& x.Extension == "jpg" && x.Size < 10000*/)
+                //.OrderByDescending(x => x.Size)
                 .Take(100)
                 .ToListAsync())
                 .Select(x => mediaService.ConvertMediaFile(x))
                 .ToList();
+
+            //var videos = (await _db.MediaFiles
+            //    .AsNoTracking()
+            //    .Where(x => x.MediaType == MediaType.Video && x.FolderId != null)
+            //    .Take(20)
+            //    .ToListAsync())
+            //    .Select(x => mediaService.ConvertMediaFile(x))
+            //    .ToList();
+
+            //var audios = (await _db.MediaFiles
+            //    .AsNoTracking()
+            //    .Where(x => x.MediaType == MediaType.Audio && x.FolderId != null)
+            //    .Take(20)
+            //    .ToListAsync())
+            //    .Select(x => mediaService.ConvertMediaFile(x))
+            //    .ToList();
+
+            var files = new List<MediaFileInfo>();
+            //files.AddRange(videos);
+            //files.AddRange(audios);
+            files.AddRange(images);
             
             return View(files);
         }

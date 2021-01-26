@@ -38,11 +38,12 @@ namespace Smartstore.Web.UI.TagHelpers
 
             // Append <i/> to root <figure/>
             output.Content.AppendHtml(ic);
-
+            
             // Build <picture/>
             var picture = new TagBuilder("picture");
             picture.Attributes["class"] = "file-thumb";
             picture.Attributes["data-type"] = File.MediaType;
+            output.Attributes.MoveAttribute(picture, "title");
             picture.MergeAttribute("title", () => File.File.GetLocalized(x => x.Title).Value.NullEmpty(), false, true);
 
             // Build <img/>
