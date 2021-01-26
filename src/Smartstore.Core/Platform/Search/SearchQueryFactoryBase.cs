@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Collections;
 using Smartstore.Utilities;
@@ -48,6 +49,7 @@ namespace Smartstore.Core.Search
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual T GetValueFor<T>(string key)
         {
             return TryGetValueFor(key, out T value) ? value : default;
@@ -60,7 +62,7 @@ namespace Smartstore.Core.Search
             if (request != null && key.HasValue())
             {
                 var values = request?.Form[key] ?? request.Query[key];
-                var strValue = values.FirstOrDefault();
+                var strValue = values.ToString();
                 if (strValue.HasValue())
                 {
                     return CommonHelper.TryConvert(strValue, out value);
