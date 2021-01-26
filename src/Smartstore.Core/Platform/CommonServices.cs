@@ -8,6 +8,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Diagnostics;
@@ -33,6 +34,7 @@ namespace Smartstore.Core
         private readonly ILoggerFactory _loggerFactory;
         private readonly Lazy<IActivityLogger> _activityLogger;
         private readonly INotifier _notifier;
+        private readonly IPermissionService _permissions;
         private readonly IChronometer _chronometer;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IMediaService _mediaService;
@@ -53,6 +55,7 @@ namespace Smartstore.Core
             ILoggerFactory loggerFactory,
             Lazy<IActivityLogger> activityLogger,
             INotifier notifier,
+            IPermissionService permissions,
             IChronometer chronometer,
             IDateTimeHelper dateTimeHelper,
             IMediaService mediaService)
@@ -72,6 +75,7 @@ namespace Smartstore.Core
             _loggerFactory = loggerFactory;
             _activityLogger = activityLogger;
             _notifier = notifier;
+            _permissions = permissions;
             _chronometer = chronometer;
             _dateTimeHelper = dateTimeHelper;
             _mediaService = mediaService;
@@ -92,6 +96,7 @@ namespace Smartstore.Core
         public ILoggerFactory LoggerFactory => _loggerFactory;
         public IActivityLogger ActivityLogger => _activityLogger.Value;
         public INotifier Notifier => _notifier;
+        public IPermissionService Permissions => _permissions;
         public IChronometer Chronometer => _chronometer;
         public IDateTimeHelper DateTimeHelper => _dateTimeHelper;
         public IMediaService MediaService => _mediaService;

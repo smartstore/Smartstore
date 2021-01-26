@@ -8,6 +8,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Diagnostics;
@@ -33,6 +34,7 @@ namespace Smartstore.Core
         ILoggerFactory LoggerFactory { get; }
         IActivityLogger ActivityLogger { get; }
         INotifier Notifier { get; }
+        IPermissionService Permissions { get; }
         IChronometer Chronometer { get; }
         IDateTimeHelper DateTimeHelper { get; }
         IMediaService MediaService { get; }

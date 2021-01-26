@@ -63,6 +63,7 @@ namespace Smartstore.Core.Catalog.Attributes
             return new List<ProductVariantAttribute>();
         }
 
+        // TODO: (mg) (core) Check caller's return value handling of MaterializeProductVariantAttributeValuesAsync (now returns IList instead of ICollection).
         public virtual async Task<IList<ProductVariantAttributeValue>> MaterializeProductVariantAttributeValuesAsync(ProductVariantAttributeSelection selection)
         {
             Guard.NotNull(selection, nameof(selection));

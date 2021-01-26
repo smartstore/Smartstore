@@ -138,6 +138,7 @@ namespace Smartstore.Core.Catalog.Products
             return map;
         }
 
+        // // TODO: (mg) (core) Call GetAppliedDiscountsByProductIdsAsync with includeHidden (default was true).
         public virtual async Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(
             int[] productIds,
             bool includeHidden = false,
