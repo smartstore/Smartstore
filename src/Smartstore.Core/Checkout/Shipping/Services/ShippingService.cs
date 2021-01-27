@@ -190,11 +190,11 @@ namespace Smartstore.Core.Checkout.Shipping
                 return cartTotalWeight;
 
             // Checkout attributes
-            var checkoutAttributesRaw = customer.GenericAttributes.CheckoutAttributes;
-            if (checkoutAttributesRaw.HasValue())
+            var attributeSelection = customer.GenericAttributes.CheckoutAttributes;
+            if (attributeSelection.AttributesMap.Any())
             {
                 var attributeValues = await _checkoutAttributeMaterializer
-                    .MaterializeCheckoutAttributeValuesAsync(new(checkoutAttributesRaw));
+                    .MaterializeCheckoutAttributeValuesAsync(attributeSelection);
 
                 cartTotalWeight += attributeValues.Sum(x => x.WeightAdjustment);
             }

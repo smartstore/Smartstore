@@ -672,7 +672,7 @@ namespace Smartstore.Core.Messages
                 { "RecipientName", part.RecipientName.NullEmpty() },
                 { "RecipientEmail", part.RecipientEmail.NullEmpty() },
                 { "Amount", FormatPrice(part.Amount, messageContext) },
-                { "CouponCode", part.GiftCardCouponCode.NullEmpty() }
+                { "CouponCode", part.GiftCardCouponCode.Value.NullEmpty() }
             };
 
             // Message

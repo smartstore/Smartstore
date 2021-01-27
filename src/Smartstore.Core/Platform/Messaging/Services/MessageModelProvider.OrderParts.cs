@@ -220,7 +220,7 @@ namespace Smartstore.Core.Messages
 
                 return new
                 {
-                    GiftCard = T("Order.GiftCardInfo", language.Id, x.GiftCard.GiftCardCouponCode).Value,
+                    GiftCard = T("Order.GiftCardInfo", language.Id, x.GiftCard.GiftCardCouponCode.Value).Value,
                     UsedAmount = FormatPrice(-x.UsedValue, order, messageContext),
                     RemainingAmount = FormatPrice(remainingAmount, order, messageContext)
                 };

@@ -43,7 +43,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                         if (firstChar is '<')
                         {
                             // It's XML
-                            var attributes = new List<string>();
+                            var attributes = new List<GiftCardCouponCode>();
                             var xel = XElement.Parse(str);
                             var elements = xel.Descendants("CouponCode");
 
@@ -52,7 +52,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                                 var code = element.Attribute("Code")?.Value ?? null;
                                 if (code.HasValue())
                                 {
-                                    attributes.Add(code);
+                                    attributes.Add(new(code));
                                 }
                             }
 
@@ -61,7 +61,9 @@ namespace Smartstore.Core.Checkout.GiftCards
                         else if (firstChar is '[')
                         {
                             // It's JSON
-                            return JsonConvert.DeserializeObject<List<string>>(str);
+                            return JsonConvert.DeserializeObject<List<string>>(str)
+                                .Select(x => new GiftCardCouponCode(x))
+                                .ToList();
                         }
                     }
                     catch (JsonSerializationException ex)
@@ -91,7 +93,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                 return base.ConvertTo(culture, format, value, to);
             }
 
-            if (value is not null and IEnumerable<string> attributes)
+            if (value is not null and IEnumerable<GiftCardCouponCode> attributes)
             {
                 // XML
                 //var root = new XElement("Attributes");
@@ -107,12 +109,30 @@ namespace Smartstore.Core.Checkout.GiftCards
                 //return root.ToString(SaveOptions.DisableFormatting);
 
                 // JSON
-                return JsonConvert.SerializeObject(attributes);
+
+                var converted = attributes as IEnumerable<string>;
+                return JsonConvert.SerializeObject(converted);
             }
             else
             {
                 return string.Empty;
             }
         }
+    }
+
+    /// <summary>
+    /// This class is needed for <see cref="GiftCardCouponCodeConverter"/> to explicitly define converter from 
+    /// <see cref="List{GiftCardCouponCode}"/> to string and vice versa.
+    /// </summary>
+    public class GiftCardCouponCode
+    {
+        public string Value { get; init; }
+
+        public GiftCardCouponCode(string value)
+        {
+            Value = value;
+        }
+
+        public static explicit operator string(GiftCardCouponCode code) => code.Value;
     }
 }

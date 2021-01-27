@@ -10,6 +10,8 @@ namespace Smartstore.Core.Checkout.Cart
     /// </summary>
     public class AddToCartContext
     {
+        private ProductVariantAttributeSelection _attributeSelection;
+        private string _rawAttributes;
         /// <summary>
         /// Gets or sets warnings
         /// </summary>
@@ -48,16 +50,21 @@ namespace Smartstore.Core.Checkout.Cart
         // TODO: (ms) (core) implement this. Needs ProductVariantQuery
         //public ProductVariantQuery VariantQuery { get; set; }
 
-        ///// <summary>
-        ///// Gets or sets the raw attributes string
-        ///// </summary>
-        //public string RawAttributes { get; set; }
-
         /// <summary>
-        /// Gets or sets the product variant attribute selection
+        /// Gets or sets the product variant attributes in XML or JSON format
         /// </summary>
-        public ProductVariantAttributeSelection AttributeSelection { get; set; } = new(string.Empty);
+        public string RawAttributes
+        {
+            get => _rawAttributes;
+            set
+            {
+                _rawAttributes = value;
+                _attributeSelection = null;
+            }
+        }
 
+        public ProductVariantAttributeSelection AttributeSelection
+            => _attributeSelection ??= new(RawAttributes);
         /// <summary>
         /// Gets or sets the price entered by customer
         /// </summary>
@@ -71,7 +78,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets a value indicating whether to add required products
         /// </summary>
-        public bool AddRequiredProducts { get; set; }
+        public bool AutomaticallyAddRequiredProductsIfEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets store identifier

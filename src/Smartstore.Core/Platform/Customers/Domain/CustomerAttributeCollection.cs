@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Customers
@@ -152,16 +153,16 @@ namespace Smartstore.Core.Customers
             set => Set(SystemCustomerAttributeNames.DiscountCouponCode, value);
         }
 
-        public IEnumerable<string> GiftCardCouponCodes
+        public List<GiftCardCouponCode> GiftCardCouponCodes
         {
-            get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes).Convert<List<string>>() ?? Enumerable.Empty<string>();
+            get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes).Convert<List<GiftCardCouponCode>>();
             set => Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value.Convert<string>());
         }
 
-        public string CheckoutAttributes
+        public CheckoutAttributeSelection CheckoutAttributes
         {
-            get => Get<string>(SystemCustomerAttributeNames.CheckoutAttributes);
-            set => Set(SystemCustomerAttributeNames.CheckoutAttributes, value);
+            get => new(Get<string>(SystemCustomerAttributeNames.CheckoutAttributes));
+            set => Set(SystemCustomerAttributeNames.CheckoutAttributes, value.AsJson());
         }
 
         #endregion
