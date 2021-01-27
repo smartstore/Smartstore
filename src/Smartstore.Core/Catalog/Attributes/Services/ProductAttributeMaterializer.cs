@@ -269,11 +269,10 @@ namespace Smartstore.Core.Catalog.Attributes
                     {
                         foreach (var combination in combinations)
                         {
-                            var selection = new ProductVariantAttributeSelection(combination.RawAttributes);
-                            if (selection.AttributesMap.Any())
+                            if (combination.AttributeSelection.AttributesMap.Any())
                             {
                                 // <ProductVariantAttribute.Id>:<ProductVariantAttributeValue.Id>[,...]
-                                var valuesKeys = selection.AttributesMap
+                                var valuesKeys = combination.AttributeSelection.AttributesMap
                                     .OrderBy(x => x.Key)
                                     .Select(x => $"{x.Key}:{string.Join(",", x.Value.OrderBy(y => y))}");
 

@@ -90,12 +90,9 @@ namespace Smartstore.Core.Checkout.Cart
             }
         }
 
-        // TODO: (ms) (core) Refactor callers!
         [NotMapped]
         public ProductVariantAttributeSelection AttributeSelection
-        {
-            get => _attributeSelection ??= new(RawAttributes);
-        }
+            => _attributeSelection ??= new(RawAttributes);
 
         /// <summary>
         /// Gets or sets the price enter by a customer

@@ -36,12 +36,12 @@ namespace Smartstore.Core.Search
                         request.Form?.Keys
                             .Where(x => x.HasValue() && !tokens.Contains(x))
                             .Select(x => new { key = x, val = request.Form[x] })
-                            .Each(x => _aliases.AddRange(x.key, x.val));
+                            .Each(x => _aliases.AddRange(x.key, x.val.SelectMany(y => y.SplitSafe(","))));
 
                         request.Query?.Keys
                             .Where(x => x.HasValue() && !tokens.Contains(x))
                             .Select(x => new { key = x, val = request.Query[x] })
-                            .Each(x => _aliases.AddRange(x.key, x.val));
+                            .Each(x => _aliases.AddRange(x.key, x.val.SelectMany(y => y.SplitSafe(","))));
                     }
                 }
 

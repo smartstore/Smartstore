@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Domain;
@@ -34,6 +35,8 @@ namespace Smartstore.Core.Checkout.Orders
     public partial class OrderItem : BaseEntity, IAttributeAware
     {
         private readonly ILazyLoader _lazyLoader;
+        private ProductVariantAttributeSelection _attributeSelection;
+        private string _rawAttributes;
 
         public OrderItem()
         {
@@ -108,8 +111,19 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets or sets the product variant attributes in XML or JSON format
         /// </summary>
         [Column("AttributesXml"), MaxLength]
-        public string RawAttributes { get; set; }
+        public string RawAttributes
+        {
+            get => _rawAttributes;
+            set
+            {
+                _rawAttributes = value;
+                _attributeSelection = null;
+            }
+        }
 
+        [NotMapped]
+        public ProductVariantAttributeSelection AttributeSelection
+            => _attributeSelection ??= new(RawAttributes);
         /// <summary>
         /// Gets or sets the download count
         /// </summary>

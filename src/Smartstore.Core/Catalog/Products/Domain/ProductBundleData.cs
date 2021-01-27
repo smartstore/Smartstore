@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 using Smartstore.ComponentModel.TypeConverters;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
@@ -31,6 +33,9 @@ namespace Smartstore.Core.Catalog.Products
     /// </summary>
     public partial class ProductBundleItemOrderData : IAttributeAware
     {
+        private ProductVariantAttributeSelection _attributeSelection;
+        private string _rawAttributes;
+
         public int BundleItemId { get; set; }
         public int ProductId { get; set; }
         public string Sku { get; set; }
@@ -40,9 +45,21 @@ namespace Smartstore.Core.Catalog.Products
         public int Quantity { get; set; }
         public decimal PriceWithDiscount { get; set; }
         public int DisplayOrder { get; set; }
-        public string RawAttributes { get; set; }
         public string AttributesInfo { get; set; }
         public bool PerItemShoppingCart { get; set; }
+        public string RawAttributes
+        {
+            get => _rawAttributes;
+            set
+            {
+                _rawAttributes = value;
+                _attributeSelection = null;
+            }
+        }
+
+        [NotMapped]
+        public ProductVariantAttributeSelection AttributeSelection
+            => _attributeSelection ??= new(RawAttributes);
     }
 
     public class ProductBundleItemOrderDataConverter : DefaultTypeConverter
