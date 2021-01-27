@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.UI.TagHelpers
@@ -25,13 +26,15 @@ namespace Smartstore.Web.UI.TagHelpers
                 return;
             }
 
+            var mediaType = File?.MediaType ?? MediaType.Image;
+
             // Root
             output.TagName = "figure";
             output.TagMode = TagMode.StartTagAndEndTag;
             output.AppendCssClass("file-figure");
 
             // Build <i/>
-            var iconHint = GetIconHint(File.MediaType);
+            var iconHint = GetIconHint(mediaType);
             var ic = new TagBuilder("i");
             ic.Attributes["class"] = "file-icon show fa-5x fa-fw " + iconHint.Name;
             ic.Attributes["style"] = "color: " + iconHint.Color;
@@ -42,15 +45,15 @@ namespace Smartstore.Web.UI.TagHelpers
             // Build <picture/>
             var picture = new TagBuilder("picture");
             picture.Attributes["class"] = "file-thumb";
-            picture.Attributes["data-type"] = File.MediaType;
+            picture.Attributes["data-type"] = mediaType;
             output.Attributes.MoveAttribute(picture, "title");
-            picture.MergeAttribute("title", () => File.File.GetLocalized(x => x.Title).Value.NullEmpty(), false, true);
+            picture.MergeAttribute("title", () => File?.File?.GetLocalized(x => x.Title).Value.NullEmpty(), false, true);
 
             // Build <img/>
             var img = new TagBuilder("img") { TagRenderMode = TagRenderMode.SelfClosing };
             img.Attributes["class"] = "file-img";
             img.Attributes["data-src"] = Src;
-            img.MergeAttribute("alt", () => File.File.GetLocalized(x => x.Alt).Value.NullEmpty(), false, true);
+            img.MergeAttribute("alt", () => File?.File?.GetLocalized(x => x.Alt).Value.NullEmpty(), false, true);
 
             // picture > img
             picture.InnerHtml.SetHtmlContent(img);

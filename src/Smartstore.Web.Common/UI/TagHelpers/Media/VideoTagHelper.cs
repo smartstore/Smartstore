@@ -12,7 +12,7 @@ namespace Smartstore.Web.UI.TagHelpers
 
         protected override void ProcessMedia(TagHelperContext context, TagHelperOutput output)
         {
-            if (Src.IsEmpty())
+            if (Src.IsEmpty() || File == null)
             {
                 output.SuppressOutput();
                 return;
@@ -20,7 +20,7 @@ namespace Smartstore.Web.UI.TagHelpers
 
             output.Attributes.SetAttribute("src", Src);
             output.AppendCssClass("file-preview");
-            output.Attributes.SetAttributeNoReplace("title", () => File?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty());
+            output.Attributes.SetAttributeNoReplace("title", () => File.File.GetLocalized(x => x.Title)?.Value.NullEmpty());
             output.Attributes.SetAttributeNoReplace("preload", "metadata");
 
             if (!output.Attributes.ContainsName("controls"))
