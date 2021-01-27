@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
@@ -92,8 +93,8 @@ namespace Smartstore.Web.Modelling
 
     public abstract partial class EntityModelBase : ModelBase
     {
-        // TODO: (core) (Re)implement SmartResourceDisplayName
-        //[SmartResourceDisplayName("Admin.Common.Entity.Fields.Id")]
+        [LocalizedDisplayName("Admin.Common.Entity.Fields.Id")]
+        //[Display(Name = "Admin.Common.Entity.Fields.Id")]
         public virtual int Id { get; set; }
 
         /// <remarks>

@@ -341,7 +341,9 @@ namespace Smartstore.Web.Controllers
 
             #endregion
 
-            return View();
+            var testModel = new TestModel { TestProp1 = "Hello", TestProp2 = "World" };
+
+            return View(testModel);
         }
 
         [LocalizedRoute("/privacy", Name = "Privacy")]

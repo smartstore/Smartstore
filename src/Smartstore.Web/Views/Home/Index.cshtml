@@ -1,4 +1,6 @@
-﻿@{
+﻿@model TestModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -10,6 +12,11 @@
     Launch demo modal
 </button>
 
+<p class="mt-2">
+    @Html.DisplayNameFor(x => x.TestProp1)
+    <br />
+    @Html.DisplayNameFor(x => x.TestProp2)
+</p>
 
 <modal id="cookie-manager-window" render-at-page-end="true" center-vertically="true">
     <modal-header title="Modal Title" show-close="true"></modal-header>
