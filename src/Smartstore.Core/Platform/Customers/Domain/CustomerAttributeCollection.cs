@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Customers
@@ -151,9 +152,9 @@ namespace Smartstore.Core.Customers
             set => Set(SystemCustomerAttributeNames.DiscountCouponCode, value);
         }
 
-        public List<string> GiftCardCouponCodes
+        public IEnumerable<string> GiftCardCouponCodes
         {
-            get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes).Convert<List<string>>();
+            get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes).Convert<List<string>>() ?? Enumerable.Empty<string>();
             set => Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value.Convert<string>());
         }
 

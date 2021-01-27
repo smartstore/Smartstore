@@ -124,6 +124,7 @@ namespace Smartstore.Core.Checkout.Orders
         [NotMapped]
         public ProductVariantAttributeSelection AttributeSelection
             => _attributeSelection ??= new(RawAttributes);
+
         /// <summary>
         /// Gets or sets the download count
         /// </summary>

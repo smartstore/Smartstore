@@ -51,7 +51,6 @@ namespace Smartstore.Core
             converter = new GiftCardCouponCodeConverter();
             TypeConverterFactory.RegisterConverter<IList<string>>(converter);
             TypeConverterFactory.RegisterConverter<List<string>>(converter);
-            TypeConverterFactory.RegisterConverter<string>(new GiftCardCouponCodeConverter());
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)

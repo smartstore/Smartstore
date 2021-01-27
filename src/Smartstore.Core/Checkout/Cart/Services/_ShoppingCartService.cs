@@ -191,6 +191,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             return result;
         }
+
         public virtual async Task<int> DeleteCartItemAsync(
             ShoppingCartItem shoppingCartItem,
             bool resetCheckoutData = true,

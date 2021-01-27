@@ -43,8 +43,8 @@ namespace Smartstore.Core.Checkout.GiftCards
                         {
                             // It's XML
                             var attributes = new List<string>();
-                            var xElement = XElement.Parse(str);
-                            var elements = xElement.Descendants("CouponCode");
+                            var xel = XElement.Parse(str);
+                            var elements = xel.Descendants("CouponCode");
 
                             foreach (var element in elements)
                             {
@@ -57,7 +57,7 @@ namespace Smartstore.Core.Checkout.GiftCards
 
                             return attributes;
                         }
-                        else if (firstChar is '{' or '[')
+                        else if (firstChar is '[')
                         {
                             // It's JSON
                             return JsonConvert.DeserializeObject<List<string>>(str);

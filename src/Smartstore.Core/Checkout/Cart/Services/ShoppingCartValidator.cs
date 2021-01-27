@@ -23,7 +23,6 @@ namespace Smartstore.Core.Checkout.Cart
 {
     public partial class ShoppingCartValidator : IShoppingCartValidator
     {
-
         private readonly SmartDbContext _db;
         private readonly IAclService _aclService;
         private readonly IWorkContext _workContext;
