@@ -5,7 +5,6 @@ using Smartstore.ComponentModel.TypeConverters;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Routing;
 using System.Dynamic;
-using Smartstore.Net.Mail;
 
 namespace Smartstore.ComponentModel
 {
@@ -42,7 +41,21 @@ namespace Smartstore.ComponentModel
 
         public static void RegisterConverter<T>(ITypeConverter typeConverter)
 		{
-			RegisterConverter(typeof(T), typeConverter);
+			Guard.NotNull(typeConverter, nameof(typeConverter));
+
+			_typeConverters.TryAdd(typeof(T), typeConverter);
+		}
+
+		public static void RegisterListConverter<T>(ITypeConverter typeConverter)
+		{
+			Guard.NotNull(typeConverter, nameof(typeConverter));
+
+			_typeConverters.TryAdd(typeof(List<T>), typeConverter);
+			_typeConverters.TryAdd(typeof(IList<T>), typeConverter);
+			_typeConverters.TryAdd(typeof(ICollection<T>), typeConverter);
+			_typeConverters.TryAdd(typeof(IReadOnlyCollection<T>), typeConverter);
+			_typeConverters.TryAdd(typeof(IEnumerable<T>), typeConverter);
+			_typeConverters.TryAdd(typeof(T[]), typeConverter);
 		}
 
 		public static void RegisterConverter(Type type, ITypeConverter typeConverter)

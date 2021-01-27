@@ -34,6 +34,12 @@ namespace Smartstore.Core
             }
         }
 
+        //// TODO: (ms) (core) Test only
+        //public class GiftCardCouponCode
+        //{
+        //    public string Value { get; init; }
+        //}
+
         internal static void RegisterTypeConverters()
         {
             // Internal for testing
@@ -49,8 +55,8 @@ namespace Smartstore.Core
             TypeConverterFactory.RegisterConverter<ProductBundleItemOrderData>(new ProductBundleItemOrderDataConverter(false));
 
             converter = new GiftCardCouponCodeConverter();
-            TypeConverterFactory.RegisterConverter<IList<string>>(converter);
-            TypeConverterFactory.RegisterConverter<List<string>>(converter);
+            //TypeConverterFactory.RegisterListConverter<GiftCardCouponCode>(converter);
+            //TypeConverterFactory.RegisterConverter<List<string>>(converter);
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)

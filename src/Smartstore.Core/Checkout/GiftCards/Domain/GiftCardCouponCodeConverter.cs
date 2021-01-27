@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json;
@@ -90,7 +91,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                 return base.ConvertTo(culture, format, value, to);
             }
 
-            if (value is not null and IList<string> attributes)
+            if (value is not null and IEnumerable<string> attributes)
             {
                 // XML
                 //var root = new XElement("Attributes");
