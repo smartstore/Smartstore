@@ -35,7 +35,7 @@ namespace Smartstore.Core.Checkout.GiftCards
             {
                 // Get gift card codes applied by customer
                 var couponCodes = customer.GenericAttributes.GiftCardCouponCodes;
-                if (couponCodes.IsNullOrEmpty())
+                if (!couponCodes.Any())
                     return Task.FromResult(new List<AppliedGiftCard>());
 
                 // Get gift card codes applied by customer
