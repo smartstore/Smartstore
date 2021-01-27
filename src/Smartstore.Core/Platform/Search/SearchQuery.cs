@@ -253,19 +253,15 @@ namespace Smartstore.Core.Search
         {
             using var psb = StringBuilderPool.Instance.Get(out var sb);
 
-            if (Term.HasValue())
+            var fields = (Fields?.Any() ?? false) ? string.Join(", ", Fields) : "".NaIfEmpty();
+            var parameters = string.Join(" ", EscapeTerm ? "escape" : "", IsFuzzySearch ? "fuzzy" : Mode.ToString()).TrimSafe();
+
+            sb.AppendFormat("'{0}' in {1}", Term.EmptyNull(), fields);
+            if (parameters.HasValue())
             {
-                var fields = (Fields != null && Fields.Length > 0 ? string.Join(", ", Fields) : "".NaIfEmpty());
-
-                sb.AppendFormat("'{0}' in {1}", Term, fields);
-
-                var parameters = string.Join(" ", EscapeTerm ? "escape" : "", IsFuzzySearch ? "fuzzy" : Mode.ToString()).TrimSafe();
-
-                if (parameters.HasValue())
-                {
-                    sb.AppendFormat(" ({0})", parameters);
-                }
+                sb.AppendFormat(" ({0})", parameters);
             }
+            sb.Append(". ");
 
             foreach (var filter in Filters)
             {
@@ -277,7 +273,7 @@ namespace Smartstore.Core.Search
                 sb.Append(filter.ToString());
             }
 
-            return psb.ToString();
+            return sb.ToString();
         }
 
         #region Utilities

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Data.Batching;
@@ -15,10 +16,14 @@ namespace Smartstore.Core.Catalog.Attributes
     public class ProductVariantAttributeCombinationHook : AsyncDbSaveHook<ProductVariantAttributeCombination>
     {
         private readonly SmartDbContext _db;
+        private readonly IRequestCache _requestCache;
 
-        public ProductVariantAttributeCombinationHook(SmartDbContext db)
+        public ProductVariantAttributeCombinationHook(
+            SmartDbContext db,
+            IRequestCache requestCache)
         {
             _db = db;
+            _requestCache = requestCache;
         }
 
         public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken) 
@@ -70,6 +75,8 @@ namespace Smartstore.Core.Catalog.Attributes
                     }
                 }
             }
+
+            _requestCache.RemoveByPattern(ProductAttributeMaterializer.ATTRIBUTECOMBINATION_PATTERN_KEY);
         }
     }
 }

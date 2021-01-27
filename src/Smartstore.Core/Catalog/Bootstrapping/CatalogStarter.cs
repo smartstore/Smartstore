@@ -4,13 +4,17 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Content.Seo;
+using Smartstore.Engine;
+using Smartstore.Engine.Builders;
 
-namespace Smartstore.Core.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
-    public sealed class CatalogModule : Autofac.Module
+    public class CatalogStarter : StarterBase
     {
-        protected override void Load(ContainerBuilder builder)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<ProductService>().As<IProductService>().InstancePerLifetimeScope();
 
@@ -33,6 +37,12 @@ namespace Smartstore.Core.DependencyInjection
             builder.RegisterType<StockSubscriptionService>().As<IStockSubscriptionService>().InstancePerLifetimeScope();
             builder.RegisterType<RecentlyViewedProductsService>().As<IRecentlyViewedProductsService>().InstancePerLifetimeScope();
             builder.RegisterType<ProductCompareService>().As<IProductCompareService>().InstancePerLifetimeScope();
+
+            // Search.
+            builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().As<IXmlSitemapPublisher>().InstancePerLifetimeScope();
+            builder.RegisterType<LinqCatalogSearchService>().Named<ICatalogSearchService>("linq").InstancePerLifetimeScope();
+            builder.RegisterType<CatalogSearchQueryFactory>().As<ICatalogSearchQueryFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<CatalogSearchQueryAliasMapper>().As<ICatalogSearchQueryAliasMapper>().InstancePerLifetimeScope();
         }
     }
 }

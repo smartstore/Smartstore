@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
@@ -12,10 +13,14 @@ namespace Smartstore.Core.Catalog.Brands
     public class ManufacturerHook : AsyncDbSaveHook<Manufacturer>
     {
         private readonly SmartDbContext _db;
+        private readonly IRequestCache _requestCache;
 
-        public ManufacturerHook(SmartDbContext db)
+        public ManufacturerHook(
+            SmartDbContext db,
+            IRequestCache requestCache)
         {
             _db = db;
+            _requestCache = requestCache;
         }
 
         protected override Task<HookResult> OnInsertedAsync(Manufacturer entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -49,6 +54,8 @@ namespace Smartstore.Core.Catalog.Brands
             }
 
             await _db.SaveChangesAsync(cancelToken);
+
+            _requestCache.RemoveByPattern(ManufacturerService.PRODUCTMANUFACTURERS_PATTERN_KEY);
         }
     }
 }

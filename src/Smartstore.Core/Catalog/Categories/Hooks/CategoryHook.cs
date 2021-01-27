@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
@@ -13,10 +14,14 @@ namespace Smartstore.Core.Catalog.Categories
     public class CategoryHook : AsyncDbSaveHook<Category>
     {
         private readonly SmartDbContext _db;
+        private readonly IRequestCache _requestCache;
 
-        public CategoryHook(SmartDbContext db)
+        public CategoryHook(
+            SmartDbContext db,
+            IRequestCache requestCache)
         {
             _db = db;
+            _requestCache = requestCache;
         }
 
         protected override Task<HookResult> OnInsertedAsync(Category entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -74,6 +79,9 @@ namespace Smartstore.Core.Catalog.Categories
                     .Where(x => invalidCategoryIds.Contains(x.Id))
                     .BatchUpdateAsync(x => new Category { ParentCategoryId = 0 }, cancelToken);
             }
+
+            _requestCache.RemoveByPattern(CategoryService.CATEGORIES_PATTERN_KEY);
+            _requestCache.RemoveByPattern(CategoryService.PRODUCTCATEGORIES_PATTERN_KEY);
         }
 
         private async Task<bool> IsValidCategoryHierarchy(int categoryId, int parentCategoryId, CancellationToken cancelToken)

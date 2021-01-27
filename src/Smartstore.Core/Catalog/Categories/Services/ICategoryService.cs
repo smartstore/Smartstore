@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Smartstore.Collections;
 
 namespace Smartstore.Core.Catalog.Categories
@@ -48,6 +49,22 @@ namespace Smartstore.Core.Catalog.Categories
             bool touchProductsWithMultipleCategories = false,
             bool touchExistingAcls = false,
             bool categoriesOnly = false);
+
+        /// <summary>
+        /// Get categories by parent category identifier.
+        /// </summary>
+        /// <param name="parentCategoryId">Parent category identifier.</param>
+        /// <param name="includeHidden">A value indicating whether to include hidden categories.</param>
+        /// <returns>Categories.</returns>
+        Task<IList<Category>> GetCategoriesByParentCategoryIdAsync(int parentCategoryId, bool includeHidden = false);
+
+        /// <summary>
+        /// Gets product category mappings.
+        /// </summary>
+        /// <param name="productIds">Product identifiers.</param>
+        /// <param name="includeHidden">A value indicating whether to include hidden categories.</param>
+        /// <returns>Product categories.</returns>
+        Task<IList<ProductCategory>> GetProductCategoriesByProductIdsAsync(int[] productIds, bool includeHidden = false);
 
         /// <summary>
         /// Builds a category breadcrumb (path) for a particular category node.

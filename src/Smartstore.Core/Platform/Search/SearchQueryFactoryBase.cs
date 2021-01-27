@@ -33,10 +33,13 @@ namespace Smartstore.Core.Search
                     {
                         var tokens = Tokens;
 
-                        request.Form?.Keys
-                            .Where(x => x.HasValue() && !tokens.Contains(x))
-                            .Select(x => new { key = x, val = request.Form[x] })
-                            .Each(x => _aliases.AddRange(x.key, x.val.SelectMany(y => y.SplitSafe(","))));
+                        if (request.HasFormContentType)
+                        {
+                            request.Form?.Keys
+                                .Where(x => x.HasValue() && !tokens.Contains(x))
+                                .Select(x => new { key = x, val = request.Form[x] })
+                                .Each(x => _aliases.AddRange(x.key, x.val.SelectMany(y => y.SplitSafe(","))));
+                        }
 
                         request.Query?.Keys
                             .Where(x => x.HasValue() && !tokens.Contains(x))
@@ -61,7 +64,10 @@ namespace Smartstore.Core.Search
 
             if (request != null && key.HasValue())
             {
-                var values = request?.Form[key] ?? request.Query[key];
+                var values = request.HasFormContentType
+                    ? request.Form[key]
+                    : request.Query[key];
+
                 var strValue = values.ToString();
                 if (strValue.HasValue())
                 {

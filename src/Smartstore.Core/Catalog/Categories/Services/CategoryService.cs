@@ -28,22 +28,36 @@ namespace Smartstore.Core.Catalog.Categories
         internal const string CATEGORY_TREE_KEY = "category:tree-{0}-{1}-{2}";
         internal const string CATEGORY_TREE_PATTERN_KEY = "category:tree-*";
 
+        // {0} = IncludeHidden, {1} = CustomerId, {2} = StoreId, {3} ParentCategoryId
+        private const string CATEGORIES_BY_PARENT_CATEGORY_ID_KEY = "category:byparent-{0}-{1}-{2}-{3}";
+        internal const string CATEGORIES_PATTERN_KEY = "category:*";
+
+        // {0} = IncludeHidden, {1} = CustomerId, {2} = StoreId, {3} ProductIds
+        private const string PRODUCTCATEGORIES_BYPRODUCTIDS_KEY = "productcategory:byproductids-{0}-{1}-{2}-{3}";
+        internal const string PRODUCTCATEGORIES_PATTERN_KEY = "productcategory:*";
+
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
         private readonly ICacheManager _cache;
+        private readonly IRequestCache _requestCache;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IAclService _aclService;
 
         public CategoryService(
             SmartDbContext db,
             IWorkContext workContext,
+            IStoreContext storeContext,
             ICacheManager cache,
+            IRequestCache requestCache,
             IStoreMappingService storeMappingService,
             IAclService aclService)
         {
             _db = db;
             _workContext = workContext;
+            _storeContext = storeContext;
             _cache = cache;
+            _requestCache = requestCache;
             _storeMappingService = storeMappingService;
             _aclService = aclService;
         }
@@ -62,6 +76,8 @@ namespace Smartstore.Core.Catalog.Categories
 
             // Commit because we internally committed data anyway (because of BatchUpdateAsync when processing sub-categories).
             await _db.SaveChangesAsync();
+
+            _requestCache.RemoveByPattern(PRODUCTCATEGORIES_PATTERN_KEY);
 
             async Task<IEnumerable<int>> GetSubCategoryIds(IEnumerable<int> categoryIds)
             {
@@ -358,6 +374,66 @@ namespace Smartstore.Core.Catalog.Categories
                     await ProcessCategory(scope, subCategory);
                 }
             }
+        }
+
+        public virtual async Task<IList<Category>> GetCategoriesByParentCategoryIdAsync(int parentCategoryId, bool includeHidden = false)
+        {
+            var storeId = _storeContext.CurrentStore.Id;
+            var cacheKey = CATEGORIES_BY_PARENT_CATEGORY_ID_KEY.FormatInvariant(includeHidden, _workContext.CurrentCustomer.Id, storeId, parentCategoryId);
+
+            var result = await _requestCache.GetAsync(cacheKey, async () =>
+            {
+                var customerRolesIds = includeHidden ? null : _workContext.CurrentCustomer.GetRoleIds();
+
+                var query = _db.Categories
+                    .AsNoTracking()
+                    .Where(x => x.ParentCategoryId == parentCategoryId)
+                    .ApplyStandardFilter(includeHidden, customerRolesIds, includeHidden ? 0 : storeId);
+
+                var entities = await query.ToListAsync();
+                return entities;
+            });
+
+            return result;
+        }
+
+        public virtual async Task<IList<ProductCategory>> GetProductCategoriesByProductIdsAsync(int[] productIds, bool includeHidden = false)
+        {
+            Guard.NotNull(productIds, nameof(productIds));
+
+            if (!productIds.Any())
+            {
+                return new List<ProductCategory>();
+            }
+
+            var storeId = _storeContext.CurrentStore.Id;
+            var cacheKey = PRODUCTCATEGORIES_BYPRODUCTIDS_KEY.FormatInvariant(includeHidden, _workContext.CurrentCustomer.Id, storeId, string.Join(",", productIds));
+
+            var result = await _requestCache.GetAsync(cacheKey, async () =>
+            {
+                var customerRolesIds = includeHidden ? null : _workContext.CurrentCustomer.GetRoleIds();
+
+                var categoriesQuery = _db.Categories
+                    .AsNoTracking()
+                    .Include(x => x.MediaFile)
+                    .ApplyStandardFilter(includeHidden, customerRolesIds, includeHidden ? 0 : storeId);
+
+                var productCategoriesQuery = _db.ProductCategories
+                    .AsNoTracking()
+                    .Include(x => x.Category);
+
+                var query =
+                    from pc in productCategoriesQuery
+                    join c in categoriesQuery on pc.CategoryId equals c.Id
+                    where productIds.Contains(pc.ProductId)
+                    orderby pc.DisplayOrder
+                    select pc;
+
+                var entities = await query.ToListAsync();
+                return entities;
+            });
+
+            return result;
         }
 
         public virtual async Task<string> GetCategoryPathAsync(

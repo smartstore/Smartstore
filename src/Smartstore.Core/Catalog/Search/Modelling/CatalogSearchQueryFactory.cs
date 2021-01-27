@@ -83,13 +83,13 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
                 foreach (var fieldName in _instantSearchFields)
                 {
-                    if (_searchSettings.SearchFields.Contains(fieldName))
+                    if (_searchSettings?.SearchFields?.Contains(fieldName) ?? false)
                     {
                         fields.Add(fieldName);
                     }
                 }
             }
-            else
+            else if (_searchSettings.SearchFields != null)
             {
                 fields.AddRange(_searchSettings.SearchFields);
             }

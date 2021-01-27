@@ -47,6 +47,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Security;
 using Smartstore.Collections;
+using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Search;
 
 namespace Smartstore.Web.Controllers
 {
@@ -673,7 +675,7 @@ namespace Smartstore.Web.Controllers
             return Content($"Slug matched >>> Entity: {e.EntityName} {e.EntityId}, Id: {e.Id}, Language: {e.LanguageId}, Slug: {e.Slug}, IsActive: {e.IsActive}");
         }
 
-        public async Task<IActionResult> MgTest()
+        public async Task<IActionResult> MgTest(CatalogSearchQuery query)
         {
             var content = new StringBuilder();
 
@@ -681,6 +683,9 @@ namespace Smartstore.Web.Controllers
 
             var product = await _db.Products.FindByIdAsync(4366);
             content.AppendLine($"Number of applied discounts {product.AppliedDiscounts.Count}. Ids {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. Has discounts applied {product.HasDiscountsApplied}.");
+
+            content.AppendLine();
+            content.AppendLine(query.ToString());
 
             return Content(content.ToString());
         }

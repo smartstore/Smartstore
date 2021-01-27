@@ -23,7 +23,8 @@ namespace Smartstore.Core.Catalog.Attributes
         private const string ATTRIBUTEVALUES_PATTERN_KEY = "materialized-attributevalues-*";
 
         // 0 = ProductId, 1 = Attribute JSON
-        private const string ATTRIBUTECOMBINATION_BY_IDJSON_KEY = "materialized-attributecombination.id-{0}-{1}";
+        private const string ATTRIBUTECOMBINATION_BY_IDJSON_KEY = "attributecombination:byjson-{0}-{1}";
+        internal const string ATTRIBUTECOMBINATION_PATTERN_KEY = "attributecombination:*";
 
         // 0 = ProductId
         internal const string UNAVAILABLE_COMBINATIONS_KEY = "attributecombination:unavailable-{0}";
