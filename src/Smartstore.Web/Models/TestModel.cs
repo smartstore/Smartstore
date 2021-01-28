@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models
@@ -17,5 +15,11 @@ namespace Smartstore.Web.Models
 
         [LocalizedDisplayName("*ShortDescription")]
         public string TestProp2 { get; set; }
+
+        [LocalizedDisplayName("*ShowOnHomePage")]
+        public bool TestProp3 { get; set; }
+
+        [LocalizedDisplayName("*AllowCustomerReviews")]
+        public bool TestProp4 { get; set; }
     }
 }

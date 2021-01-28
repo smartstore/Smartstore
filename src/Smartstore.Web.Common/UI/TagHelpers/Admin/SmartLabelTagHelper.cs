@@ -1,18 +1,15 @@
 ﻿using System;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.UI.TagHelpers.Admin
 {
     [OutputElementHint("label")]
     [HtmlTargetElement(LabelTagName, Attributes = ForAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-    public class SmartLabelTagHelper : SmartTagHelper
+    public class SmartLabelTagHelper : BaseFormTagHelper
     {
         const string LabelTagName = "smart-label";
-        const string ForAttributeName = "asp-for";
 
         private readonly IWorkContext _workContext;
         private readonly ILocalizationService _localizationService;
@@ -22,12 +19,6 @@ namespace Smartstore.Web.UI.TagHelpers.Admin
             _workContext = workContext;
             _localizationService = localizationService;
         }
-
-        /// <summary>
-        /// An expression to be evaluated against the current model.
-        /// </summary>
-        [HtmlAttributeName(ForAttributeName)]
-        public ModelExpression For { get; set; }
 
         /// <summary>
         /// Whether to ignore display hint/description.
@@ -42,7 +33,8 @@ namespace Smartstore.Web.UI.TagHelpers.Admin
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
-            string hintText = null;
+            base.ProcessCore(context, output);
+
             string labelText = Text 
                 ?? For.Metadata.DisplayName.NullEmpty() 
                 ?? For.Metadata.PropertyName.SplitPascalCase();
@@ -53,17 +45,18 @@ namespace Smartstore.Web.UI.TagHelpers.Admin
             output.MergeAttribute("for", HtmlHelper.GenerateIdFromName(For.Name), true);
             output.Content.SetContent(labelText);
 
-            if (!IgnoreHint 
-                && For.Metadata.AdditionalValues.TryGetValue(nameof(LocalizedDisplayNameAttribute), out var value)
-                && value is LocalizedDisplayNameAttribute attribute)
+            if (!IgnoreHint)
             {
-                var langId = _workContext.WorkingLanguage.Id;
-                hintText = _localizationService.GetResource(attribute.ResourceKey + ".Hint", langId, logIfNotFound: false, returnEmptyIfNotFound: true);
-
-                if (hintText.HasValue())
+                if (LocalizedDisplayName != null)
                 {
-                    // Append hint element to label
-                    output.PostElement.AppendHtml(HtmlHelper.Hint(hintText));
+                    var langId = _workContext.WorkingLanguage.Id;
+                    var hintText = _localizationService.GetResource(LocalizedDisplayName.ResourceKey + ".Hint", langId, logIfNotFound: false, returnEmptyIfNotFound: true);
+
+                    if (hintText.HasValue())
+                    {
+                        // Append hint element to label
+                        output.PostElement.AppendHtml(HtmlHelper.Hint(hintText));
+                    }
                 }
             }
 

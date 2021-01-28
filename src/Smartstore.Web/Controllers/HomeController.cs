@@ -343,7 +343,7 @@ namespace Smartstore.Web.Controllers
 
             #endregion
 
-            var testModel = new TestModel { TestProp1 = "Hello", TestProp2 = "World" };
+            var testModel = new TestModel { TestProp1 = "Hello", TestProp2 = "World", TestProp4 = true };
 
             return View(testModel);
         }

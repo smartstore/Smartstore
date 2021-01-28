@@ -8,29 +8,39 @@
     <h1 class="display-3">Welcome</h1>
 </div> 
 
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#cookie-manager-window">
+<button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#cookie-manager-window">
     Launch demo modal
 </button>
 
 <div class="my-2">
     <div class="form-group row">
-        <label asp-for="TestProp1" class="col-lg-3 col-form-label required"></label>
+        <label asp-for="TestProp1" class="col-lg-3 col-form-label text-right required"></label>
         @*<div class="col-lg-3">
-            <smart-label asp-for="TestProp1" />
-        </div>*@
+                <smart-label asp-for="TestProp1" />
+            </div>*@
         <div class="col-lg-9">
-            <input asp-for="TestProp1" class="form-control" />
+            <input asp-for="TestProp1" asp-append-hint />
             <span asp-validation-for="TestProp1"></span>
         </div>
     </div>
     <div class="form-group row">
-        <label asp-for="TestProp2" class="col-lg-3 col-form-label"></label>
-        @*<div class="col-lg-3">
-            <smart-label asp-for="TestProp2" />
-        </div>*@
+        <label asp-for="TestProp2" class="col-lg-3 col-form-label text-right"></label>
         <div class="col-lg-9">
-            <input asp-for="TestProp2" class="form-control" />
+            <input asp-for="TestProp2" asp-append-hint />
             <span asp-validation-for="TestProp2"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="offset-lg-3 col-lg-9">
+            <input asp-for="TestProp3" asp-switch="false" asp-append-hint />
+            <span asp-validation-for="TestProp3"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="TestProp4" class="col-lg-3 col-form-label text-right"></label>
+        <div class="col-lg-9">
+            <input asp-for="TestProp4" />
+            <span asp-validation-for="TestProp4"></span>
         </div>
     </div>
 </div>

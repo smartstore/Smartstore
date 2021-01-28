@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Engine;
 using Smartstore.Web.UI.TagHelpers;
+using Smartstore.Web.UI.TagHelpers.Shared;
 
 namespace Smartstore.Web.Controllers
 {
