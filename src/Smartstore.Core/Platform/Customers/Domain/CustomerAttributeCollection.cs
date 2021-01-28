@@ -153,7 +153,7 @@ namespace Smartstore.Core.Customers
             set => Set(SystemCustomerAttributeNames.DiscountCouponCode, value);
         }
 
-        public List<GiftCardCouponCode> GiftCardCouponCodes
+        public IEnumerable<GiftCardCouponCode> GiftCardCouponCodes
         {
             get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes).Convert<List<GiftCardCouponCode>>();
             set => Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value.Convert<string>());
