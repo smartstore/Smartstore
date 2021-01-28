@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Smartstore.Web.UI.TagHelpers
+namespace Smartstore.Web.UI.TagHelpers.Shared
 {
     [OutputElementHint("div")]
     [HtmlTargetElement("modal-header", ParentTag = "modal")]

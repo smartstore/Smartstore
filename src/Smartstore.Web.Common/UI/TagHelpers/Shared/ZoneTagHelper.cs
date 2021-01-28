@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Smartstore.Web.UI.TagHelpers
+namespace Smartstore.Web.UI.TagHelpers.Shared
 {
 	[HtmlTargetElement("zone", Attributes = ZoneNameAttributeName)]
 	[HtmlTargetElement("div", Attributes = ZoneNameAttributeName)]

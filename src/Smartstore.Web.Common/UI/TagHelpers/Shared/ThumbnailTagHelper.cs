@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Web.UI.TagHelpers
+namespace Smartstore.Web.UI.TagHelpers.Shared
 {
     /// <summary>
     /// Outputs a rich <c>figure</c> tag that contains a thumbnail view of a media file.

@@ -5,7 +5,7 @@ using Smartstore.Core;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Web.UI.TagHelpers
+namespace Smartstore.Web.UI.TagHelpers.Admin
 {
     [OutputElementHint("label")]
     [HtmlTargetElement(LabelTagName, Attributes = ForAttributeName, TagStructure = TagStructure.WithoutEndTag)]
@@ -16,13 +16,11 @@ namespace Smartstore.Web.UI.TagHelpers
 
         private readonly IWorkContext _workContext;
         private readonly ILocalizationService _localizationService;
-        private readonly IHtmlGenerator _htmlGenerator;
 
-        public SmartLabelTagHelper(IWorkContext workContext, ILocalizationService localizationService, IHtmlGenerator htmlGenerator)
+        public SmartLabelTagHelper(IWorkContext workContext, ILocalizationService localizationService)
         {
             _workContext = workContext;
             _localizationService = localizationService;
-            _htmlGenerator = htmlGenerator;
         }
 
         /// <summary>

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Web.UI.TagHelpers
+namespace Smartstore.Web.UI.TagHelpers.Shared
 {
     public enum TabsPosition
     {

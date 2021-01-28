@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media;
 
-namespace Smartstore.Web.UI.TagHelpers
+namespace Smartstore.Web.UI.TagHelpers.Shared
 {
     public abstract class BaseMediaTagHelper : SmartTagHelper
     {

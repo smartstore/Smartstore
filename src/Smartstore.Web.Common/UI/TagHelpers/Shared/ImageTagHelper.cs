@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Web.UI.TagHelpers
+namespace Smartstore.Web.UI.TagHelpers.Shared
 {
     [HtmlTargetElement(ImageTagName, Attributes = FileAttributeName)]
     [HtmlTargetElement(ImageTagName, Attributes = FileIdAttributeName)]

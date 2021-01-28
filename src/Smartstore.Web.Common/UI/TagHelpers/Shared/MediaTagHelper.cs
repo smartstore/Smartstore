@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media;
 
-namespace Smartstore.Web.UI.TagHelpers
+namespace Smartstore.Web.UI.TagHelpers.Shared
 {
     /// <summary>
     /// Outputs suitable tag for given media type (img, audio, video, thumbnail etc.)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Smartstore.Web.UI.TagHelpers
+namespace Smartstore.Web.UI.TagHelpers.Shared
 {
     [HtmlTargetElement(WidgetTagName, Attributes = TargetAttributeName)]
     public class WidgetTagHelper : SmartTagHelper

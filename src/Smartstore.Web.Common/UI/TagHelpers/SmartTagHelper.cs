@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Autofac;
 
 namespace Smartstore.Web.UI.TagHelpers
 {
@@ -16,6 +17,7 @@ namespace Smartstore.Web.UI.TagHelpers
         private IActionContextAccessor _actionContextAccessor;
         private IHtmlHelper _htmlHelper;
         private IUrlHelper _urlHelper;
+        private IHtmlGenerator _htmlGenerator;
 
         [HtmlAttributeNotBound]
 		[ViewContext]
@@ -24,14 +26,14 @@ namespace Smartstore.Web.UI.TagHelpers
         [HtmlAttributeNotBound]
         protected internal IActionContextAccessor ActionContextAccessor 
         {
-            get => _actionContextAccessor ??= ViewContext.HttpContext.RequestServices.GetRequiredService<IActionContextAccessor>();      
+            get => _actionContextAccessor ??= ViewContext.HttpContext.GetServiceScope().Resolve<IActionContextAccessor>();      
         }
 
 
         [HtmlAttributeNotBound]
         protected internal IUrlHelper UrlHelper
         {
-            get => _urlHelper ??= ViewContext.HttpContext.RequestServices.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(ActionContextAccessor.ActionContext);
+            get => _urlHelper ??= ViewContext.HttpContext.GetServiceScope().Resolve<IUrlHelperFactory>().GetUrlHelper(ActionContextAccessor.ActionContext);
         }
 
         [HtmlAttributeNotBound]
@@ -41,7 +43,7 @@ namespace Smartstore.Web.UI.TagHelpers
             {
                 if (_htmlHelper == null)
                 {
-                    _htmlHelper = ViewContext.HttpContext.RequestServices.GetRequiredService<IHtmlHelper>();
+                    _htmlHelper = ViewContext.HttpContext.GetServiceScope().Resolve<IHtmlHelper>();
                     if (_htmlHelper is IViewContextAware contextAware)
                     {
                         contextAware.Contextualize(ViewContext);
@@ -50,6 +52,12 @@ namespace Smartstore.Web.UI.TagHelpers
                 
                 return _htmlHelper;
             }
+        }
+
+        [HtmlAttributeNotBound]
+        protected internal IHtmlGenerator HtmlGenerator
+        {
+            get => _htmlGenerator ??= ViewContext.HttpContext.GetServiceScope().Resolve<IHtmlGenerator>();
         }
 
         [HtmlAttributeNotBound]
