@@ -9,6 +9,9 @@ namespace Smartstore.Core.Search
 {
     public abstract partial class SearchServiceBase
     {
+        /// <summary>
+        /// Flattens a list with filters including <see cref="ICombinedSearchFilter"/>.
+        /// </summary>
         protected virtual void FlattenFilters(ICollection<ISearchFilter> filters, List<ISearchFilter> result)
         {
             foreach (var filter in filters)
@@ -24,6 +27,9 @@ namespace Smartstore.Core.Search
             }
         }
 
+        /// <summary>
+        /// Searches for a filter including <see cref="ICombinedSearchFilter"/>.
+        /// </summary>
         protected virtual ISearchFilter FindFilter(ICollection<ISearchFilter> filters, string fieldName)
         {
             if (fieldName.HasValue())
@@ -49,6 +55,9 @@ namespace Smartstore.Core.Search
             return null;
         }
 
+        /// <summary>
+        /// Gets a list of entity identifiers from search filters excluding <see cref="IRangeSearchFilter"/>.
+        /// </summary>
         protected virtual List<int> GetIdList(List<ISearchFilter> filters, string fieldName)
         {
             var result = new List<int>();
@@ -64,6 +73,9 @@ namespace Smartstore.Core.Search
             return result;
         }
 
+        /// <summary>
+        /// Helper to apply ordering to a query.
+        /// </summary>
         protected virtual IOrderedQueryable<TEntity> OrderBy<TEntity, TKey>(
             ref bool ordered,
             IQueryable<TEntity> query,

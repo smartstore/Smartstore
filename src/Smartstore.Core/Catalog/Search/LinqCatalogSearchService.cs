@@ -96,33 +96,30 @@ namespace Smartstore.Core.Catalog.Search
         protected virtual IQueryable<Product> GetProductQuery(CatalogSearchQuery searchQuery, IQueryable<Product> baseQuery)
         {
             // TODO: (mg) (core) Try to modularize this monolithic function: e.g. ApplyFilters, ApplyAcl, ApplyOrdering etc.
-            
-            var ordered = false;
-            var utcNow = DateTime.UtcNow;
-            var categoryId = 0;
-            var manufacturerId = 0;
+
+            var ctx = new QueryBuilderContext
+            {
+                SearchQuery = searchQuery
+            };
+
+            FlattenFilters(searchQuery.Filters, ctx.Filters);
+
             var query = baseQuery ?? _db.Products;
-
             query = query.Where(x => !x.IsSystemProduct);
-            query = ApplySearchTerm(query, searchQuery, out var isGroupingRequired);
+            query = ApplySearchTerm(ctx, query);
 
-            #region Filters
-
-            var filters = new List<ISearchFilter>();
-            FlattenFilters(searchQuery.Filters, filters);
-
-            var productIds = GetIdList(filters, "id");
+            var productIds = GetIdList(ctx.Filters, "id");
             if (productIds.Any())
             {
                 query = query.Where(x => productIds.Contains(x.Id));
             }
 
-            var categoryIds = GetIdList(filters, "categoryid");
+            var categoryIds = GetIdList(ctx.Filters, "categoryid");
             if (categoryIds.Any())
             {
-                isGroupingRequired = true;
-                categoryId = categoryIds.First();
-                if (categoryIds.Count == 1 && categoryId == 0)
+                ctx.IsGroupingRequired = true;
+                ctx.CategoryId ??= categoryIds.First();
+                if (categoryIds.Count == 1 && ctx.CategoryId == 0)
                 {
                     // Has no category.
                     query = query.Where(x => x.ProductCategories.Count == 0);
@@ -133,27 +130,27 @@ namespace Smartstore.Core.Catalog.Search
                 }
             }
 
-            var featuredCategoryIds = GetIdList(filters, "featuredcategoryid");
-            var notFeaturedCategoryIds = GetIdList(filters, "notfeaturedcategoryid");
+            var featuredCategoryIds = GetIdList(ctx.Filters, "featuredcategoryid");
+            var notFeaturedCategoryIds = GetIdList(ctx.Filters, "notfeaturedcategoryid");
             if (featuredCategoryIds.Any())
             {
-                isGroupingRequired = true;
-                categoryId = categoryId == 0 ? featuredCategoryIds.First() : categoryId;
+                ctx.IsGroupingRequired = true;
+                ctx.CategoryId ??= featuredCategoryIds.First();
                 query = ApplyCategoriesFilter(query, featuredCategoryIds, true);
             }
             if (notFeaturedCategoryIds.Any())
             {
-                isGroupingRequired = true;
-                categoryId = categoryId == 0 ? notFeaturedCategoryIds.First() : categoryId;
+                ctx.IsGroupingRequired = true;
+                ctx.CategoryId ??= notFeaturedCategoryIds.First();
                 query = ApplyCategoriesFilter(query, notFeaturedCategoryIds, false);
             }
 
-            var manufacturerIds = GetIdList(filters, "manufacturerid");
+            var manufacturerIds = GetIdList(ctx.Filters, "manufacturerid");
             if (manufacturerIds.Any())
             {
-                isGroupingRequired = true;
-                manufacturerId = manufacturerIds.First();
-                if (manufacturerIds.Count == 1 && manufacturerId == 0)
+                ctx.IsGroupingRequired = true;
+                ctx.ManufacturerId ??= manufacturerIds.First();
+                if (manufacturerIds.Count == 1 && ctx.ManufacturerId == 0)
                 {
                     // Has no manufacturer.
                     query = query.Where(x => x.ProductManufacturers.Count == 0);
@@ -164,67 +161,53 @@ namespace Smartstore.Core.Catalog.Search
                 }
             }
 
-            var featuredManuIds = GetIdList(filters, "featuredmanufacturerid");
-            var notFeaturedManuIds = GetIdList(filters, "notfeaturedmanufacturerid");
+            var featuredManuIds = GetIdList(ctx.Filters, "featuredmanufacturerid");
+            var notFeaturedManuIds = GetIdList(ctx.Filters, "notfeaturedmanufacturerid");
             if (featuredManuIds.Any())
             {
-                isGroupingRequired = true;
-                manufacturerId = manufacturerId == 0 ? featuredManuIds.First() : manufacturerId;
+                ctx.IsGroupingRequired = true;
+                ctx.ManufacturerId ??= featuredManuIds.First();
                 query = ApplyManufacturersFilter(query, featuredManuIds, true);
             }
             if (notFeaturedManuIds.Any())
             {
-                isGroupingRequired = true;
-                manufacturerId = manufacturerId == 0 ? notFeaturedManuIds.First() : manufacturerId;
+                ctx.IsGroupingRequired = true;
+                ctx.ManufacturerId ??= notFeaturedManuIds.First();
                 query = ApplyManufacturersFilter(query, notFeaturedManuIds, false);
             }
 
-            var tagIds = GetIdList(filters, "tagid");
+            var tagIds = GetIdList(ctx.Filters, "tagid");
             if (tagIds.Any())
             {
-                isGroupingRequired = true;
+                ctx.IsGroupingRequired = true;
                 query =
                     from p in query
                     from pt in p.ProductTags.Where(pt => tagIds.Contains(pt.Id))
                     select p;
             }
 
-            if (!_db.QuerySettings.IgnoreAcl)
-            {
-                var roleIds = GetIdList(filters, "roleid");
-                if (roleIds.Any())
-                {
-                    isGroupingRequired = true;
-
-                    // Do not use ApplyAclFilter to avoid multiple grouping.
-                    query =
-                        from p in query
-                        join acl in _db.AclRecords.AsNoTracking() on new { pid = p.Id, pname = "Product" } equals new { pid = acl.EntityId, pname = acl.EntityName } into pacl
-                        from acl in pacl.DefaultIfEmpty()
-                        where !p.SubjectToAcl || roleIds.Contains(acl.CustomerRoleId)
-                        select p;
-                }
-            }
-
-            var deliverTimeIds = GetIdList(filters, "deliveryid");
+            var deliverTimeIds = GetIdList(ctx.Filters, "deliveryid");
             if (deliverTimeIds.Any())
             {
                 query = query.Where(x => x.DeliveryTimeId != null && deliverTimeIds.Contains(x.DeliveryTimeId.Value));
             }
 
-            var parentProductIds = GetIdList(filters, "parentid");
+            var parentProductIds = GetIdList(ctx.Filters, "parentid");
             if (parentProductIds.Any())
             {
                 query = query.Where(x => parentProductIds.Contains(x.ParentGroupedProductId));
             }
 
-            var conditions = GetIdList(filters, "condition");
+            var conditions = GetIdList(ctx.Filters, "condition");
             if (conditions.Any())
             {
                 query = query.Where(x => conditions.Contains((int)x.Condition));
             }
 
-            foreach (IAttributeSearchFilter filter in filters)
+            query = ApplyAclFilter(ctx, query);
+            query = ApplyStoreFilter(ctx, query);
+
+            foreach (IAttributeSearchFilter filter in ctx.Filters)
             {
                 var rf = filter as IRangeSearchFilter;
 
@@ -256,7 +239,7 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     if (rf != null && 1 == ((filter.Term as int?) ?? 0) && int.MaxValue == ((rf.UpperTerm as int?) ?? 0))
                     {
-                        isGroupingRequired = true;
+                        ctx.IsGroupingRequired = true;
                         // Has any category.
                         query = query.Where(x => x.ProductCategories.Count > 0);
                     }
@@ -265,7 +248,7 @@ namespace Smartstore.Core.Catalog.Search
                 {
                     if (rf != null && 1 == ((filter.Term as int?) ?? 0) && int.MaxValue == ((rf.UpperTerm as int?) ?? 0))
                     {
-                        isGroupingRequired = true;
+                        ctx.IsGroupingRequired = true;
                         // Has any manufacturer.
                         query = query.Where(x => x.ProductManufacturers.Count > 0);
                     }
@@ -439,78 +422,7 @@ namespace Smartstore.Core.Catalog.Search
                 }
                 else if (filter.FieldName.StartsWith("price"))
                 {
-                    if (rf != null)
-                    {
-                        var lower = filter.Term as double?;
-                        var upper = rf.UpperTerm as double?;
-
-                        if (lower.HasValue)
-                        {
-                            var minPrice = Convert.ToDecimal(lower.Value);
-
-                            query = query.Where(x =>
-                                ((x.SpecialPrice.HasValue &&
-                                ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < utcNow) &&
-                                (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > utcNow))) &&
-                                (x.SpecialPrice >= minPrice))
-                                ||
-                                ((!x.SpecialPrice.HasValue ||
-                                ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > utcNow) ||
-                                (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < utcNow))) &&
-                                (x.Price >= minPrice))
-                            );
-                        }
-
-                        if (upper.HasValue)
-                        {
-                            var maxPrice = Convert.ToDecimal(upper);
-
-                            query = query.Where(x =>
-                                ((x.SpecialPrice.HasValue &&
-                                ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < utcNow) &&
-                                (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > utcNow))) &&
-                                (x.SpecialPrice <= maxPrice))
-                                ||
-                                ((!x.SpecialPrice.HasValue ||
-                                ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > utcNow) ||
-                                (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < utcNow))) &&
-                                (x.Price <= maxPrice))
-                            );
-                        }
-                    }
-                    else
-                    {
-                        var price = Convert.ToDecimal(filter.Term);
-
-                        if (filter.Occurence == SearchFilterOccurence.MustNot)
-                        {
-                            query = query.Where(x =>
-                                ((x.SpecialPrice.HasValue &&
-                                ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < utcNow) &&
-                                (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > utcNow))) &&
-                                (x.SpecialPrice != price))
-                                ||
-                                ((!x.SpecialPrice.HasValue ||
-                                ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > utcNow) ||
-                                (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < utcNow))) &&
-                                (x.Price != price))
-                            );
-                        }
-                        else
-                        {
-                            query = query.Where(x =>
-                                ((x.SpecialPrice.HasValue &&
-                                ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < utcNow) &&
-                                (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > utcNow))) &&
-                                (x.SpecialPrice == price))
-                                ||
-                                ((!x.SpecialPrice.HasValue ||
-                                ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > utcNow) ||
-                                (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < utcNow))) &&
-                                (x.Price == price))
-                            );
-                        }
-                    }
+                    query = ApplyPriceFilter(query, rf);
                 }
                 else if (filter.FieldName == "createdon")
                 {
@@ -543,31 +455,10 @@ namespace Smartstore.Core.Catalog.Search
                             query = query.Where(x => x.CreatedOnUtc == (DateTime)filter.Term);
                     }
                 }
-                else if (filter.FieldName == "storeid")
-                {
-                    if (!_db.QuerySettings.IgnoreMultiStore)
-                    {
-                        var storeId = (int)filter.Term;
-                        if (storeId != 0)
-                        {
-                            isGroupingRequired = true;
-
-                            // Do not use ApplyStoreFilter to avoid multiple grouping.
-                            query =
-                                from p in query
-                                join sm in _db.StoreMappings.AsNoTracking() on new { pid = p.Id, pname = "Product" } equals new { pid = sm.EntityId, pname = sm.EntityName } into psm
-                                from sm in psm.DefaultIfEmpty()
-                                where !p.LimitedToStores || sm.StoreId == storeId
-                                select p;
-                        }
-                    }
-                }
             }
 
-            #endregion
-
             // Grouping is very slow if there are many products.
-            if (isGroupingRequired)
+            if (ctx.IsGroupingRequired)
             {
                 query =
                     from p in query
@@ -576,97 +467,7 @@ namespace Smartstore.Core.Catalog.Search
                     select grp.FirstOrDefault();
             }
 
-            #region Sorting
-
-            foreach (var sort in searchQuery.Sorting)
-            {
-                if (sort.FieldName.IsEmpty())
-                {
-                    // Sort by relevance.
-                    if (categoryId != 0)
-                    {
-                        query = OrderBy(ref ordered, query, x => x.ProductCategories.Where(pc => pc.CategoryId == categoryId).FirstOrDefault().DisplayOrder);
-                    }
-                    else if (manufacturerId != 0)
-                    {
-                        query = OrderBy(ref ordered, query, x => x.ProductManufacturers.Where(pm => pm.ManufacturerId == manufacturerId).FirstOrDefault().DisplayOrder);
-                    }
-                }
-                else if (sort.FieldName == "createdon")
-                {
-                    query = OrderBy(ref ordered, query, x => x.CreatedOnUtc, sort.Descending);
-                }
-                else if (sort.FieldName == "name")
-                {
-                    query = OrderBy(ref ordered, query, x => x.Name, sort.Descending);
-                }
-                else if (sort.FieldName == "price")
-                {
-                    query = OrderBy(ref ordered, query, x => x.Price, sort.Descending);
-                }
-            }
-
-            if (!ordered)
-            {
-                if (FindFilter(searchQuery.Filters, "parentid") != null)
-                {
-                    query = query.OrderBy(x => x.DisplayOrder);
-                }
-                else
-                {
-                    query = query.OrderBy(x => x.Id);
-                }
-            }
-
-            #endregion
-
-            return query;
-        }
-
-        protected virtual IQueryable<Product> ApplySearchTerm(IQueryable<Product> query, CatalogSearchQuery searchQuery, out bool isGroupingRequired)
-        {
-            isGroupingRequired = false;
-
-            var term = searchQuery.Term;
-            var fields = searchQuery.Fields;
-            var languageId = searchQuery.LanguageId ?? 0;
-
-            if (term.HasValue() && fields != null && fields.Length != 0 && fields.Any(x => x.HasValue()))
-            {
-                isGroupingRequired = true;
-
-                var lpQuery = _db.LocalizedProperties.AsNoTracking();
-
-                // SearchMode.ExactMatch doesn't make sense here
-                if (searchQuery.Mode == SearchMode.StartsWith)
-                {
-                    query =
-                        from p in query
-                        join lp in lpQuery on p.Id equals lp.EntityId into plp
-                        from lp in plp.DefaultIfEmpty()
-                        where
-                        (fields.Contains("name") && p.Name.StartsWith(term)) ||
-                        (fields.Contains("sku") && p.Sku.StartsWith(term)) ||
-                        (fields.Contains("shortdescription") && p.ShortDescription.StartsWith(term)) ||
-                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith(term)) ||
-                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.StartsWith(term))
-                        select p;
-                }
-                else
-                {
-                    query =
-                        from p in query
-                        join lp in lpQuery on p.Id equals lp.EntityId into plp
-                        from lp in plp.DefaultIfEmpty()
-                        where
-                        (fields.Contains("name") && p.Name.Contains(term)) ||
-                        (fields.Contains("sku") && p.Sku.Contains(term)) ||
-                        (fields.Contains("shortdescription") && p.ShortDescription.Contains(term)) ||
-                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.Contains(term)) ||
-                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.Contains(term))
-                        select p;
-                }
-            }
+            query = ApplyOrdering(ctx, query);
 
             return query;
         }
@@ -861,6 +662,132 @@ namespace Smartstore.Core.Catalog.Search
             return result;
         }
 
+        protected virtual IQueryable<Product> ApplySearchTerm(QueryBuilderContext ctx, IQueryable<Product> query)
+        {
+            var term = ctx.SearchQuery.Term;
+            var fields = ctx.SearchQuery.Fields;
+            var languageId = ctx.SearchQuery.LanguageId ?? 0;
+
+            if (term.HasValue() && fields != null && fields.Length != 0 && fields.Any(x => x.HasValue()))
+            {
+                ctx.IsGroupingRequired = true;
+
+                var lpQuery = _db.LocalizedProperties.AsNoTracking();
+
+                // SearchMode.ExactMatch doesn't make sense here
+                if (ctx.SearchQuery.Mode == SearchMode.StartsWith)
+                {
+                    query =
+                        from p in query
+                        join lp in lpQuery on p.Id equals lp.EntityId into plp
+                        from lp in plp.DefaultIfEmpty()
+                        where
+                        (fields.Contains("name") && p.Name.StartsWith(term)) ||
+                        (fields.Contains("sku") && p.Sku.StartsWith(term)) ||
+                        (fields.Contains("shortdescription") && p.ShortDescription.StartsWith(term)) ||
+                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.StartsWith(term)) ||
+                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.StartsWith(term))
+                        select p;
+                }
+                else
+                {
+                    query =
+                        from p in query
+                        join lp in lpQuery on p.Id equals lp.EntityId into plp
+                        from lp in plp.DefaultIfEmpty()
+                        where
+                        (fields.Contains("name") && p.Name.Contains(term)) ||
+                        (fields.Contains("sku") && p.Sku.Contains(term)) ||
+                        (fields.Contains("shortdescription") && p.ShortDescription.Contains(term)) ||
+                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "Name" && lp.LocaleValue.Contains(term)) ||
+                        (languageId != 0 && lp.LanguageId == languageId && lp.LocaleKeyGroup == "Product" && lp.LocaleKey == "ShortDescription" && lp.LocaleValue.Contains(term))
+                        select p;
+                }
+            }
+
+            return query;
+        }
+
+        private static IQueryable<Product> ApplyPriceFilter(IQueryable<Product> query, IRangeSearchFilter filter)
+        {
+            var utcNow = DateTime.UtcNow;
+
+            if (filter != null)
+            {
+                var lower = filter.Term as double?;
+                var upper = filter.UpperTerm as double?;
+
+                if (lower.HasValue)
+                {
+                    var minPrice = Convert.ToDecimal(lower.Value);
+
+                    query = query.Where(x =>
+                        ((x.SpecialPrice.HasValue &&
+                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < utcNow) &&
+                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > utcNow))) &&
+                        (x.SpecialPrice >= minPrice))
+                        ||
+                        ((!x.SpecialPrice.HasValue ||
+                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > utcNow) ||
+                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < utcNow))) &&
+                        (x.Price >= minPrice))
+                    );
+                }
+
+                if (upper.HasValue)
+                {
+                    var maxPrice = Convert.ToDecimal(upper);
+
+                    query = query.Where(x =>
+                        ((x.SpecialPrice.HasValue &&
+                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < utcNow) &&
+                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > utcNow))) &&
+                        (x.SpecialPrice <= maxPrice))
+                        ||
+                        ((!x.SpecialPrice.HasValue ||
+                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > utcNow) ||
+                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < utcNow))) &&
+                        (x.Price <= maxPrice))
+                    );
+                }
+            }
+            else
+            {
+                var price = Convert.ToDecimal(filter.Term);
+
+                if (filter.Occurence == SearchFilterOccurence.MustNot)
+                {
+                    query = query.Where(x =>
+                        ((x.SpecialPrice.HasValue &&
+                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < utcNow) &&
+                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > utcNow))) &&
+                        (x.SpecialPrice != price))
+                        ||
+                        ((!x.SpecialPrice.HasValue ||
+                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > utcNow) ||
+                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < utcNow))) &&
+                        (x.Price != price))
+                    );
+                }
+                else
+                {
+                    query = query.Where(x =>
+                        ((x.SpecialPrice.HasValue &&
+                        ((!x.SpecialPriceStartDateTimeUtc.HasValue || x.SpecialPriceStartDateTimeUtc.Value < utcNow) &&
+                        (!x.SpecialPriceEndDateTimeUtc.HasValue || x.SpecialPriceEndDateTimeUtc.Value > utcNow))) &&
+                        (x.SpecialPrice == price))
+                        ||
+                        ((!x.SpecialPrice.HasValue ||
+                        ((x.SpecialPriceStartDateTimeUtc.HasValue && x.SpecialPriceStartDateTimeUtc.Value > utcNow) ||
+                        (x.SpecialPriceEndDateTimeUtc.HasValue && x.SpecialPriceEndDateTimeUtc.Value < utcNow))) &&
+                        (x.Price == price))
+                    );
+                }
+            }
+
+            return query;
+        }
+
         private static IQueryable<Product> ApplyCategoriesFilter(IQueryable<Product> query, List<int> ids, bool? featuredOnly)
         {
             return
@@ -879,6 +806,97 @@ namespace Smartstore.Core.Catalog.Search
                 select p;
         }
 
+        private IQueryable<Product> ApplyStoreFilter(QueryBuilderContext ctx, IQueryable<Product> query)
+        {
+            if (!_db.QuerySettings.IgnoreMultiStore)
+            {
+                var storeIds = GetIdList(ctx.Filters, "storeid");
+                if (storeIds.Any())
+                {
+                    ctx.IsGroupingRequired = true;
+
+                    // Do not use ApplyStoreFilter extension method to avoid multiple grouping.
+                    query =
+                        from p in query
+                        join sm in _db.StoreMappings.AsNoTracking() on new { pid = p.Id, pname = "Product" } equals new { pid = sm.EntityId, pname = sm.EntityName } into psm
+                        from sm in psm.DefaultIfEmpty()
+                        where !p.LimitedToStores || storeIds.Contains(sm.StoreId)
+                        select p;
+                }
+            }
+
+            return query;
+        }
+
+        private IQueryable<Product> ApplyAclFilter(QueryBuilderContext ctx, IQueryable<Product> query)
+        {
+            if (!_db.QuerySettings.IgnoreAcl)
+            {
+                var roleIds = GetIdList(ctx.Filters, "roleid");
+                if (roleIds.Any())
+                {
+                    ctx.IsGroupingRequired = true;
+
+                    // Do not use ApplyAclFilter extension method to avoid multiple grouping.
+                    query =
+                        from p in query
+                        join acl in _db.AclRecords.AsNoTracking() on new { pid = p.Id, pname = "Product" } equals new { pid = acl.EntityId, pname = acl.EntityName } into pacl
+                        from acl in pacl.DefaultIfEmpty()
+                        where !p.SubjectToAcl || roleIds.Contains(acl.CustomerRoleId)
+                        select p;
+                }
+            }
+
+            return query;
+        }
+
+        private IQueryable<Product> ApplyOrdering(QueryBuilderContext ctx, IQueryable<Product> query)
+        {
+            var ordered = false;
+
+            foreach (var sort in ctx.SearchQuery.Sorting)
+            {
+                if (sort.FieldName.IsEmpty())
+                {
+                    // Sort by relevance.
+                    if (ctx.CategoryId > 0)
+                    {
+                        query = OrderBy(ref ordered, query, x => x.ProductCategories.Where(pc => pc.CategoryId == ctx.CategoryId.Value).FirstOrDefault().DisplayOrder);
+                    }
+                    else if (ctx.ManufacturerId > 0)
+                    {
+                        query = OrderBy(ref ordered, query, x => x.ProductManufacturers.Where(pm => pm.ManufacturerId == ctx.ManufacturerId.Value).FirstOrDefault().DisplayOrder);
+                    }
+                }
+                else if (sort.FieldName == "createdon")
+                {
+                    query = OrderBy(ref ordered, query, x => x.CreatedOnUtc, sort.Descending);
+                }
+                else if (sort.FieldName == "name")
+                {
+                    query = OrderBy(ref ordered, query, x => x.Name, sort.Descending);
+                }
+                else if (sort.FieldName == "price")
+                {
+                    query = OrderBy(ref ordered, query, x => x.Price, sort.Descending);
+                }
+            }
+
+            if (!ordered)
+            {
+                if (FindFilter(ctx.SearchQuery.Filters, "parentid") != null)
+                {
+                    query = query.OrderBy(x => x.DisplayOrder);
+                }
+                else
+                {
+                    query = query.OrderBy(x => x.Id);
+                }
+            }
+
+            return query;
+        }
+
         private async Task<Dictionary<int, string>> GetLocalizedNames(string entityName, int languageId, string key = "Name")
         {
             var values = await _db.LocalizedProperties
@@ -891,5 +909,15 @@ namespace Smartstore.Core.Catalog.Search
         }
 
         #endregion
+
+        protected class QueryBuilderContext
+        {
+            public CatalogSearchQuery SearchQuery { get; init; }
+            public List<ISearchFilter> Filters { get; init; } = new();
+            public DateTime Now { get; init; } = DateTime.UtcNow;
+            public bool IsGroupingRequired { get; set; }
+            public int? CategoryId { get; set; }
+            public int? ManufacturerId { get; set; }
+        }
     }
 }
