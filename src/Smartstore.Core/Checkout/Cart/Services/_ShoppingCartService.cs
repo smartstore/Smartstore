@@ -237,14 +237,13 @@ namespace Smartstore.Core.Checkout.Cart
             // Validate checkout attributes, removes attributes that require shipping (if cart does not require shipping)
             if (removeInvalidCheckoutAttributes && cartType == ShoppingCartType.ShoppingCart && customer != null)
             {
-                var rawCheckoutAttributes = customer.GenericAttributes.CheckoutAttributes;
-                var selection = new CheckoutAttributeSelection(rawCheckoutAttributes);
+                var selection = customer.GenericAttributes.CheckoutAttributes;
                 var attributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(selection);
                 var cartItems = await GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
                 var attributeIdsToRemove = attributes.GetInvalidShippableAttributesIds(cartItems);
 
                 selection.RemoveAttributes(attributeIdsToRemove);
-                customer.GenericAttributes.CheckoutAttributes = selection.AsJson();
+                customer.GenericAttributes.CheckoutAttributes = selection;
 
                 _db.TryChangeState(customer, EntityState.Modified);
             }

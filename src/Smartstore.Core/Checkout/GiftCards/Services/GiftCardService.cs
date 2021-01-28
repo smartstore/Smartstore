@@ -39,7 +39,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                     return Task.FromResult(new List<AppliedGiftCard>());
 
                 // Get gift card codes applied by customer
-                query = query.ApplyCouponFilter(couponCodes.ToArray());
+                query = query.ApplyCouponFilter(couponCodes.Select(x => x.Value).ToArray());
             }
 
             // Get valid gift cards (remaining useable amount > 0)

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -43,6 +44,7 @@ namespace Smartstore.Core.Catalog.Categories
         private readonly IRequestCache _requestCache;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IAclService _aclService;
+        private readonly ICatalogSearchService _catalogSearchService;
 
         public CategoryService(
             SmartDbContext db,
@@ -51,7 +53,8 @@ namespace Smartstore.Core.Catalog.Categories
             ICacheManager cache,
             IRequestCache requestCache,
             IStoreMappingService storeMappingService,
-            IAclService aclService)
+            IAclService aclService,
+            ICatalogSearchService catalogSearchService)
         {
             _db = db;
             _workContext = workContext;
@@ -60,6 +63,7 @@ namespace Smartstore.Core.Catalog.Categories
             _requestCache = requestCache;
             _storeMappingService = storeMappingService;
             _aclService = aclService;
+            _catalogSearchService = catalogSearchService;
         }
 
         public virtual async Task DeleteCategoryAsync(Category category, bool deleteSubCategories = false)
@@ -191,10 +195,8 @@ namespace Smartstore.Core.Catalog.Categories
                 var categoryIds = new HashSet<int>(subCategories.Select(x => x.Id));
                 categoryIds.Add(c.Id);
 
-                // TODO: (mg) (core) Complete ICategoryService.InheritAclIntoChildrenAsync (ICatalogSearchService required).
-                //var searchQuery = new CatalogSearchQuery().WithCategoryIds(null, categoryIds.ToArray());
-                //var productsQuery = _catalogSearchService.PrepareQuery(searchQuery);
-                var productsQuery = new List<Product>().AsQueryable();
+                var searchQuery = new CatalogSearchQuery().WithCategoryIds(null, categoryIds.ToArray());
+                var productsQuery = _catalogSearchService.PrepareQuery(searchQuery);
                 var productsPager = new FastPager<Product>(productsQuery, 500);
 
                 while ((await productsPager.ReadNextPageAsync<Product>()).Out(out var products))
@@ -320,10 +322,8 @@ namespace Smartstore.Core.Catalog.Categories
                 var categoryIds = new HashSet<int>(subCategories.Select(x => x.Id));
                 categoryIds.Add(c.Id);
 
-                // TODO: (mg) (core) Complete ICategoryService.InheritStoresIntoChildrenAsync (ICatalogSearchService required).
-                //var searchQuery = new CatalogSearchQuery().WithCategoryIds(null, categoryIds.ToArray());
-                //var productsQuery = _catalogSearchService.PrepareQuery(searchQuery);
-                var productsQuery = new List<Product>().AsQueryable();
+                var searchQuery = new CatalogSearchQuery().WithCategoryIds(null, categoryIds.ToArray());
+                var productsQuery = _catalogSearchService.PrepareQuery(searchQuery);
                 var productsPager = new FastPager<Product>(productsQuery, 500);
 
                 while ((await productsPager.ReadNextPageAsync<Product>()).Out(out var products))

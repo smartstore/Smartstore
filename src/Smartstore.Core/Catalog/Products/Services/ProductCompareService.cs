@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Web;
@@ -15,33 +16,35 @@ namespace Smartstore.Core.Catalog.Products
         private readonly SmartDbContext _db;
         private readonly IWebHelper _webHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICatalogSearchService _catalogSearchService;
         private readonly PrivacySettings _privacySettings;
 
         public ProductCompareService(
             SmartDbContext db,
             IWebHelper webHelper,
             IHttpContextAccessor httpContextAccessor,
+            ICatalogSearchService catalogSearchService,
             PrivacySettings privacySettings)
         {
             _db = db;
             _webHelper = webHelper;
             _httpContextAccessor = httpContextAccessor;
+            _catalogSearchService = catalogSearchService;
             _privacySettings = privacySettings;
         }
 
-        public virtual int CountComparedProducts()
+        public virtual async Task<int> CountComparedProductsAsync()
         {
             var productIds = GetComparedProductsIds();
             if (productIds.Any())
             {
-                // TODO: (mg) (core) Complete GetComparedProductsCount (ICatalogSearchService required).
-                //var searchQuery = new CatalogSearchQuery()
-                //    .VisibleOnly()
-                //    .WithProductIds(productIds.ToArray())
-                //    .BuildHits(false);
+                var searchQuery = new CatalogSearchQuery()
+                    .VisibleOnly()
+                    .WithProductIds(productIds.ToArray())
+                    .BuildHits(false);
 
-                //var result = _catalogSearchService.Search(searchQuery);
-                //return result.TotalHitsCount;
+                var result = await _catalogSearchService.SearchAsync(searchQuery);
+                return result.TotalHitsCount;
             }
 
             return 0;

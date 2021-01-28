@@ -12,7 +12,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets the number of compared products.
         /// </summary>
         /// <returns>Number of compared products.</returns>
-        int CountComparedProducts();
+        Task<int> CountComparedProductsAsync();
 
         /// <summary>
         /// Gets the list of compared products.
