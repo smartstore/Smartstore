@@ -22,7 +22,7 @@ namespace Smartstore.Collections
         }
 
         public MutableQueryCollection(string queryString)
-            : this(QueryHelpers.ParseNullableQuery(queryString))
+            : this(QueryHelpers.ParseQuery(queryString))
         {
         }
 

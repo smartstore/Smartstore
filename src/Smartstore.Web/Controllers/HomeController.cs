@@ -48,7 +48,6 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Security;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Search;
-using Smartstore.Core.Search;
 
 namespace Smartstore.Web.Controllers
 {
@@ -686,6 +685,12 @@ namespace Smartstore.Web.Controllers
 
             content.AppendLine();
             content.AppendLine(query.ToString());
+
+            var qs = new MutableQueryCollection(Request.QueryString);
+            content.AppendLine();
+            content.AppendLine(qs.ToString());
+            qs.Add("i", "3");
+            content.AppendLine(qs.ToString());
 
             return Content(content.ToString());
         }

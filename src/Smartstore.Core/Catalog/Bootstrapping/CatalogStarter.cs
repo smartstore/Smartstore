@@ -7,6 +7,8 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Platform.Search.Facets;
+using Smartstore.Core.Search.Facets;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
@@ -43,6 +45,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<LinqCatalogSearchService>().Named<ICatalogSearchService>("linq").InstancePerLifetimeScope();
             builder.RegisterType<CatalogSearchQueryFactory>().As<ICatalogSearchQueryFactory>().InstancePerLifetimeScope();
             builder.RegisterType<CatalogSearchQueryAliasMapper>().As<ICatalogSearchQueryAliasMapper>().InstancePerLifetimeScope();
+            builder.RegisterType<CatalogFacetUrlHelper>().As<IFacetUrlHelper>().InstancePerLifetimeScope();
         }
     }
 }
