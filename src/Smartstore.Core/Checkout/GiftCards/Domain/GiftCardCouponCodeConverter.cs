@@ -126,13 +126,14 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// </summary>
     public class GiftCardCouponCode
     {
-        public string Value { get; init; }
-
         public GiftCardCouponCode(string value)
         {
             Value = value;
         }
 
+        public string Value { get; init; }
+
         public static explicit operator string(GiftCardCouponCode code) => code.Value;
+        public static explicit operator GiftCardCouponCode(string code) => new GiftCardCouponCode(code);
     }
 }

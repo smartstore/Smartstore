@@ -65,6 +65,7 @@ namespace Smartstore.Core.Checkout.Cart
 
         public ProductVariantAttributeSelection AttributeSelection
             => _attributeSelection ??= new(RawAttributes);
+
         /// <summary>
         /// Gets or sets the price entered by customer
         /// </summary>

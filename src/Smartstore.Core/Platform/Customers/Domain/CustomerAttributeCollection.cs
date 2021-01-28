@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common;
@@ -155,7 +156,7 @@ namespace Smartstore.Core.Customers
 
         public IEnumerable<GiftCardCouponCode> GiftCardCouponCodes
         {
-            get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes).Convert<List<GiftCardCouponCode>>();
+            get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes).Convert<List<GiftCardCouponCode>>() ?? Enumerable.Empty<GiftCardCouponCode>();
             set => Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value.Convert<string>());
         }
 
