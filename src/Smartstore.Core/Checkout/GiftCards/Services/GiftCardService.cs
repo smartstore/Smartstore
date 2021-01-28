@@ -38,7 +38,6 @@ namespace Smartstore.Core.Checkout.GiftCards
                 if (!couponCodes.Any())
                     return Task.FromResult(new List<AppliedGiftCard>());
 
-                // Get gift card codes applied by customer
                 query = query.ApplyCouponFilter(couponCodes.Select(x => x.Value).ToArray());
             }
 

@@ -68,8 +68,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <summary>
         /// Gets or sets a gift card coupon code
         /// </summary>
-        [NotMapped]
-        public GiftCardCouponCode GiftCardCouponCode { get; set; }
+        public string GiftCardCouponCode { get; set; }
 
         /// <summary>
         /// Gets or sets a recipient name
