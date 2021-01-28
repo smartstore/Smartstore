@@ -9,7 +9,7 @@ namespace Smartstore.Core.Bootstrapping
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
-            builder.RegisterType<FacetHelperProvider>().As<IFacetHelperProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<FacetUrlHelperProvider>().As<IFacetUrlHelperProvider>().InstancePerLifetimeScope();
         }
     }
 }

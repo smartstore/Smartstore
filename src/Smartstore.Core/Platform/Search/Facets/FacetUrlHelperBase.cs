@@ -113,6 +113,7 @@ namespace Smartstore.Core.Platform.Search.Facets
 
         protected abstract string GetUnmappedQueryName(Facet facet);
 
+        // TODO: (mg) (core) If the result cannot contain duplicate keys: use Dictionary<string, string> instead of NameValueCollection bacause it's just a legacy port.
         protected abstract Task<NameValueCollection> GetQueryPartsAsync(Facet facet);
     }
 }

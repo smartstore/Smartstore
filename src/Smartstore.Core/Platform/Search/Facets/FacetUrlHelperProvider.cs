@@ -6,7 +6,7 @@ namespace Smartstore.Core.Platform.Search.Facets
     /// <summary>
     /// Represents a provider to get facet helpers.
     /// </summary>
-    public partial interface IFacetHelperProvider
+    public partial interface IFacetUrlHelperProvider
     {
         /// <summary>
         /// Gets a facet URL helper.
@@ -17,11 +17,11 @@ namespace Smartstore.Core.Platform.Search.Facets
     }
 
 
-    public partial class FacetHelperProvider : IFacetHelperProvider
+    public partial class FacetUrlHelperProvider : IFacetUrlHelperProvider
     {
         protected readonly IFacetUrlHelper[] _facetUrlHelpers;
 
-        public FacetHelperProvider(IEnumerable<IFacetUrlHelper> facetUrlHelpers)
+        public FacetUrlHelperProvider(IEnumerable<IFacetUrlHelper> facetUrlHelpers)
         {
             _facetUrlHelpers = facetUrlHelpers.OrderBy(x => x.Order).ToArray();
         }
