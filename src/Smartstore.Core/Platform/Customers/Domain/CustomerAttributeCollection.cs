@@ -154,16 +154,40 @@ namespace Smartstore.Core.Customers
             set => Set(SystemCustomerAttributeNames.DiscountCouponCode, value);
         }
 
+        private IEnumerable<GiftCardCouponCode> _giftCardCouponCodes;
+
         public IEnumerable<GiftCardCouponCode> GiftCardCouponCodes
         {
-            get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes).Convert<List<GiftCardCouponCode>>() ?? Enumerable.Empty<GiftCardCouponCode>();
-            set => Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value.Convert<string>());
+            get => _giftCardCouponCodes ??= Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes).Convert<List<GiftCardCouponCode>>() ?? Enumerable.Empty<GiftCardCouponCode>();
+            set
+            {
+                Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value.Convert<string>());
+                _giftCardCouponCodes = null;
+            }
         }
+
+        public string RawGiftCardCouponCodes
+        {
+            get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes);
+            set => Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value);
+        }
+
+        private CheckoutAttributeSelection _checkoutAttributes;
 
         public CheckoutAttributeSelection CheckoutAttributes
         {
-            get => new(Get<string>(SystemCustomerAttributeNames.CheckoutAttributes));
-            set => Set(SystemCustomerAttributeNames.CheckoutAttributes, value.AsJson());
+            get => _checkoutAttributes ??= new(Get<string>(SystemCustomerAttributeNames.CheckoutAttributes));
+            set
+            {
+                Set(SystemCustomerAttributeNames.CheckoutAttributes, value.AsJson());
+                _checkoutAttributes = null;
+            }
+        }
+
+        public string RawCheckoutAttributes
+        {
+            get => Get<string>(SystemCustomerAttributeNames.CheckoutAttributes);
+            set => Set(SystemCustomerAttributeNames.CheckoutAttributes, value);
         }
 
         #endregion

@@ -110,6 +110,7 @@ namespace Smartstore.Core.Checkout.GiftCards
 
                 // JSON
 
+                // TODO: (ms) (core) Check that this cast works!
                 var converted = attributes as IEnumerable<string>;
                 return JsonConvert.SerializeObject(converted);
             }
@@ -134,6 +135,6 @@ namespace Smartstore.Core.Checkout.GiftCards
         public string Value { get; init; }
 
         public static explicit operator string(GiftCardCouponCode code) => code.Value;
-        public static explicit operator GiftCardCouponCode(string code) => new GiftCardCouponCode(code);
+        public static explicit operator GiftCardCouponCode(string code) => new(code);
     }
 }
