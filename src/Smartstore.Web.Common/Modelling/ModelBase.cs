@@ -9,7 +9,7 @@ namespace Smartstore.Web.Modelling
 {
     public abstract partial class ModelBase
     {
-        private readonly static ContextState<Dictionary<ModelBase, IDictionary<string, object>>> _contextState = new("ModelBase.CustomThreadProperties");
+        private readonly static ContextState<Dictionary<ModelBase, IDictionary<string, object>>> _contextState = new("ModelBase.CustomContextProperties");
 
         public virtual void BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
@@ -96,7 +96,7 @@ namespace Smartstore.Web.Modelling
         public virtual int Id { get; set; }
 
         /// <remarks>
-        /// This property is required for serialization JSON data of Telerik grids.
+        /// This property is required for serialization JSON data in grid controls.
         /// Without a lower case Id property in JSON results its AJAX operations do not work correctly.
         /// Occurs since RouteCollection.LowercaseUrls was set to true in Global.asax.
         /// </remarks>
