@@ -31,6 +31,11 @@ namespace Smartstore.Web.UI.TagHelpers.Admin
         /// </summary>
         public string Text { get; set; }
 
+        /// <summary>
+        /// The description text to use instead of the automatically resolved description from model metadata.
+        /// </summary>
+        public string Hint { get; set; }
+
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             base.ProcessCore(context, output);
@@ -47,16 +52,11 @@ namespace Smartstore.Web.UI.TagHelpers.Admin
 
             if (!IgnoreHint)
             {
-                if (LocalizedDisplayName != null)
+                var hintText = Hint ?? For.Metadata.Description;
+                if (hintText.HasValue())
                 {
-                    var langId = _workContext.WorkingLanguage.Id;
-                    var hintText = _localizationService.GetResource(LocalizedDisplayName.ResourceKey + ".Hint", langId, logIfNotFound: false, returnEmptyIfNotFound: true);
-
-                    if (hintText.HasValue())
-                    {
-                        // Append hint element to label
-                        output.PostElement.AppendHtml(HtmlHelper.Hint(hintText));
-                    }
+                    // Append hint element to label
+                    output.PostElement.AppendHtml(HtmlHelper.HintTooltip(hintText));
                 }
             }
 

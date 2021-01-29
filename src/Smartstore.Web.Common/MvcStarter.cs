@@ -119,7 +119,7 @@ namespace Smartstore.Web
                     // TODO: (core) More MVC config?
 
                     // Register custom metadata provider
-                    o.ModelMetadataDetailsProviders.Add(new SmartMetadataProvider());
+                    o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
                 });
 
             // Add TempData feature

@@ -17,6 +17,7 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
         const string AppendHintAttributeName = "asp-append-hint";
         //const string IgnoreLabelAttributeName = "asp-ignore-label";
         const string SwitchAttributeName = "asp-switch";
+        protected const string RequiredAttributeName = "asp-required";
 
         private readonly IWorkContext _workContext;
         private readonly ILocalizationService _localizationService;
@@ -26,6 +27,9 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
             _workContext = workContext;
             _localizationService = localizationService;
         }
+
+        [HtmlAttributeName(RequiredAttributeName)]
+        public bool? IsRequired { get; set; }
 
         // Must comer AFTER AspNetCore origin TagHelper (Input | Select | TextArea)
         public override int Order => 0;
@@ -41,7 +45,7 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
-            base.ProcessCore(context, output);
+            IsRequired ??= For?.Metadata.IsRequired;
 
             switch (output.TagName)
             {
@@ -119,25 +123,18 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
         {
             if (AppendHint)
             {
-                if (LocalizedDisplayName != null)
+                var hintText = For?.Metadata?.Description;
+
+                if (hintText.HasValue())
                 {
-                    var langId = _workContext.WorkingLanguage.Id;
-                    var hintText = _localizationService.GetResource(LocalizedDisplayName.ResourceKey + ".Hint", langId, logIfNotFound: false, returnEmptyIfNotFound: true);
+                    // Append hint element to control
+                    var div = new TagBuilder("small");
+                    div.Attributes.Add("class", "form-text text-muted");
+                    div.InnerHtml.SetContent(hintText);
 
-                    if (hintText.HasValue())
-                    {
-                        // Append hint element to control
-                        var div = new TagBuilder("small");
-                        div.Attributes.Add("class", "form-text text-muted");
-                        div.InnerHtml.SetContent(hintText);
-
-                        output.PostElement.AppendHtml(div);
-                    }
+                    output.PostElement.AppendHtml(div);
                 }
             }
         }
-
-        protected override string GenerateTagId(TagHelperContext context)
-            => null;
     }
 }

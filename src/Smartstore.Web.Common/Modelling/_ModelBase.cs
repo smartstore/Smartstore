@@ -92,7 +92,7 @@ namespace Smartstore.Web.Modelling
 
     public abstract partial class EntityModelBase : ModelBase
     {
-        [LocalizedDisplayName("Admin.Common.Entity.Fields.Id")]
+        [LocalizedDisplay("Admin.Common.Entity.Fields.Id")]
         public virtual int Id { get; set; }
 
         /// <remarks>
