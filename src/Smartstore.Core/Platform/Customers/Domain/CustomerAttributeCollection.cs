@@ -155,10 +155,9 @@ namespace Smartstore.Core.Customers
         }
 
         private IEnumerable<GiftCardCouponCode> _giftCardCouponCodes;
-
         public IEnumerable<GiftCardCouponCode> GiftCardCouponCodes
         {
-            get => _giftCardCouponCodes ??= Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes).Convert<List<GiftCardCouponCode>>() ?? Enumerable.Empty<GiftCardCouponCode>();
+            get => _giftCardCouponCodes ??= (RawGiftCardCouponCodes.Convert<List<GiftCardCouponCode>>() ?? Enumerable.Empty<GiftCardCouponCode>());
             set
             {
                 Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value.Convert<string>());
@@ -173,10 +172,9 @@ namespace Smartstore.Core.Customers
         }
 
         private CheckoutAttributeSelection _checkoutAttributes;
-
         public CheckoutAttributeSelection CheckoutAttributes
         {
-            get => _checkoutAttributes ??= new(Get<string>(SystemCustomerAttributeNames.CheckoutAttributes));
+            get => _checkoutAttributes ??= new(RawCheckoutAttributes);
             set
             {
                 Set(SystemCustomerAttributeNames.CheckoutAttributes, value.AsJson());
