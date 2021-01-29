@@ -35,7 +35,7 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
 
         protected override async Task<HookResult> OnDeletedAsync(Shipment entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            var order = await _db.Orders.FindByIdAsync(entity.OrderId, cancelToken);
+            var order = await _db.Orders.FindByIdAsync(entity.OrderId, cancellationToken: cancelToken);
             if (order != null)
             {
                 await _eventPublisher.PublishOrderUpdatedAsync(order);
@@ -74,7 +74,7 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
 
         protected override async Task<HookResult> OnDeletingAsync(ShipmentItem entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            var order = await _db.Orders.FindByIdAsync(entity.Shipment.OrderId, cancelToken);
+            var order = await _db.Orders.FindByIdAsync(entity.Shipment.OrderId, cancellationToken: cancelToken);
             if (order != null)
             {
                 await _eventPublisher.PublishOrderUpdatedAsync(order);
