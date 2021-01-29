@@ -26,7 +26,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the display locale
         /// </summary>
-        [Required, StringLength(50)]
+        [StringLength(50)]
         public string DisplayLocale { get; set; }
 
         /// <summary>

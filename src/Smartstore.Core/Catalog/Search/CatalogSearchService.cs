@@ -247,7 +247,7 @@ namespace Smartstore.Core.Catalog.Search
 
         protected virtual string FormatPrice(decimal price)
         {
-            return _priceFormatter.FormatPrice(price, true, false);
+            return _priceFormatter.FormatPrice(price, true, displayTax: false);
         }
 
         #region XML Sitemap

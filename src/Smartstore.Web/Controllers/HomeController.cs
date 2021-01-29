@@ -692,6 +692,17 @@ namespace Smartstore.Web.Controllers
             qs.Add("i", "3");
             content.AppendLine(qs.ToString());
 
+            var searchService = _services.Resolve<ICatalogSearchService>();
+            var searchResult = await searchService.SearchAsync(query.BuildFacetMap(true), true);
+            var hits = await searchResult.GetHitsAsync();
+
+            content.AppendLine();
+            content.AppendLine("Search hits:" + searchResult.TotalHitsCount);
+            foreach (var hit in hits)
+            {
+                content.AppendLine($"{hit.Id} {hit.Name} ({hit.Sku.NaIfEmpty()})");
+            }
+            
             return Content(content.ToString());
         }
     }
