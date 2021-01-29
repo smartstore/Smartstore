@@ -9,7 +9,7 @@ namespace Smartstore.Web.Modelling
 
     public interface ILocalizedModel<T> : ILocalizedModel where T : ILocalizedLocaleModel
     {
-        IList<T> Locales { get; set; }
+        List<T> Locales { get; set; }
     }
 
     public interface ILocalizedLocaleModel

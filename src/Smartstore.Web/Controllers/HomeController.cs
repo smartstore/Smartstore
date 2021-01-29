@@ -343,6 +343,8 @@ namespace Smartstore.Web.Controllers
             #endregion
 
             var testModel = new TestModel { TestProp1 = "Hello", TestProp2 = "World", TestProp4 = true };
+            testModel.Locales.Add(new LocalizedTestModel { LanguageId = 1, TestProp1 = "Hello 1", TestProp2 = "Word 1" });
+            testModel.Locales.Add(new LocalizedTestModel { LanguageId = 2, TestProp1 = "Hello 2", TestProp2 = "Word 2" });
 
             return View(testModel);
         }

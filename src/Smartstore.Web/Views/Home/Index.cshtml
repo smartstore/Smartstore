@@ -13,37 +13,59 @@
 </button>
 
 <div class="my-2">
-    <div class="form-group row">
-        <label asp-for="TestProp1" class="col-lg-3 col-form-label text-right required"></label>
-        @*<div class="col-lg-3">
-                <smart-label asp-for="TestProp1" />
-            </div>*@
-        <div class="col-lg-9">
-            <input asp-for="TestProp1" />
-            <hint asp-for="TestProp1" />
-            <span asp-validation-for="TestProp1"></span>
+    @(Html.LocalizedEditor<TestModel, LocalizedTestModel>("testmodel-localized",
+    @<text>
+        <div class="form-group row">
+            <label asp-for="Locales[item].TestProp1" class="col-lg-3 col-form-label text-right required"></label>
+            <div class="col-lg-9">
+                <input asp-for="Locales[item].TestProp1" />
+                <hint asp-for="Locales[item].TestProp1" />
+                <span asp-validation-for="Locales[item].TestProp1"></span>
+            </div>
         </div>
-    </div>
-    <div class="form-group row">
-        <label asp-for="TestProp2" class="col-lg-3 col-form-label text-right"></label>
-        <div class="col-lg-9">
-            <input asp-for="TestProp2" asp-append-hint />
-            <span asp-validation-for="TestProp2"></span>
+        <div class="form-group row">
+            <label asp-for="Locales[item].TestProp2" class="col-lg-3 col-form-label text-right"></label>
+            <div class="col-lg-9">
+                <input asp-for="Locales[item].TestProp2" asp-append-hint />
+                <span asp-validation-for="Locales[item].TestProp2"></span>
+            </div>
         </div>
-    </div>
-    <div class="form-group row">
-        <div class="offset-lg-3 col-lg-9">
-            <input asp-for="TestProp3" asp-switch="false" asp-append-hint />
-            <span asp-validation-for="TestProp3"></span>
+         <input type="hidden" asp-for="Locales[item].LanguageId" />
+    </text>
+    ,
+    @<text>
+        <div class="form-group row">
+            <label asp-for="TestProp1" class="col-lg-3 col-form-label text-right required"></label>
+            @*<div class="col-lg-3">
+                    <smart-label asp-for="TestProp1" />
+                </div>*@
+            <div class="col-lg-9">
+                <input asp-for="TestProp1" />
+                <hint asp-for="TestProp1" />
+                <span asp-validation-for="TestProp1"></span>
+            </div>
         </div>
-    </div>
-    <div class="form-group row">
-        <label asp-for="TestProp4" class="col-lg-3 col-form-label text-right"></label>
-        <div class="col-lg-9">
-            <input asp-for="TestProp4" />
-            <span asp-validation-for="TestProp4"></span>
+        <div class="form-group row">
+            <label asp-for="TestProp2" class="col-lg-3 col-form-label text-right"></label>
+            <div class="col-lg-9">
+                <input asp-for="TestProp2" asp-append-hint />
+                <span asp-validation-for="TestProp2"></span>
+            </div>
         </div>
-    </div>
+        <div class="form-group row">
+            <div class="offset-lg-3 col-lg-9">
+                <input asp-for="TestProp3" asp-switch="false" asp-append-hint />
+                <span asp-validation-for="TestProp3"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="TestProp4" class="col-lg-3 col-form-label text-right"></label>
+            <div class="col-lg-9">
+                <input asp-for="TestProp4" />
+                <span asp-validation-for="TestProp4"></span>
+            </div>
+        </div>
+    </text>))
 </div>
 
 <modal id="cookie-manager-window" render-at-page-end="true" center-vertically="true">

@@ -13,6 +13,7 @@ using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.UI.TagHelpers.Shared;
 using Smartstore.Core.Data;
+using Smartstore.Web.UI.TagHelpers;
 
 namespace Smartstore.Web.UI
 {
@@ -106,51 +107,78 @@ namespace Smartstore.Web.UI
             where TLocalizedModelLocal : ILocalizedLocaleModel
         {
             var locales = helper.ViewData.Model.Locales;
-            var services = helper.ViewContext.HttpContext.RequestServices;
             int i = -1;
 
             if (locales.Count > 1)
             {
+                var services = helper.ViewContext.HttpContext.RequestServices;
                 var db = services.GetRequiredService<SmartDbContext>();
                 var languageService = services.GetRequiredService<ILanguageService>();
                 var localizationService = services.GetRequiredService<ILocalizationService>();
-
-                var context = new TagHelperContext(new TagHelperAttributeList(), new Dictionary<object, object>(), CommonHelper.GenerateRandomDigitCode(10));
-                var stripOutputAttrList = new TagHelperAttributeList(new[] { new TagHelperAttribute("class", "nav-locales") });
-                var stripOutput = new TagHelperOutput("tabstrip", stripOutputAttrList, GetTabStripChildContentAsync);
                 
                 var strip = new TabStripTagHelper 
                 {
+                    ViewContext = helper.ViewContext,
                     Id = name,
                     SmartTabSelection = false,
                     Style = TabsStyle.Tabs
                 };
 
-                var tabs = new List<TabTagHelper>(locales.Count + 1);
                 var masterLanguage = db.Languages.FindById(languageService.GetMasterLanguageId(), false);
+                var contentTag = new TagBuilder("div");
+                contentTag.Attributes.Add("class", "locale-editor-content");
+                contentTag.Attributes.Add("data-lang", masterLanguage.LanguageCulture);
+                contentTag.Attributes.Add("data-rtl", masterLanguage.Rtl.ToString().ToLower());
 
-                tabs.Add(new TabTagHelper
+                strip.Tabs.Add(new TabTagHelper
                 {
+                    ViewContext = helper.ViewContext,
                     Selected = true,
-                    Title = localizationService.GetResource("Admin.Common.Standard")
-                    // ...
+                    Title = localizationService.GetResource("Admin.Common.Standard"),
+                    TabInnerContent = new DefaultTagHelperContent()
+                        .AppendHtml(contentTag.RenderStartTag())
+                        .AppendHtml(masterTemplate(helper.ViewData.Model))
+                        .AppendHtml(contentTag.RenderEndTag()),
+                    Attributes = new TagHelperAttributeList(),
+                    Parent = strip,
+                    Index = 0
                 });
 
                 for (i = 0; i < locales.Count; i++)
                 {
                     var locale = helper.ViewData.Model.Locales[i];
                     var language = db.Languages.FindById(locale.LanguageId, false);
-                    var tabInnerContent = new DefaultTagHelperContent();
-                    tabInnerContent.SetHtmlContent(localizedTemplate(i));
 
-                    tabs.Add(new TabTagHelper
+                    contentTag.MergeAttribute("data-lang", language.LanguageCulture, true);
+                    contentTag.MergeAttribute("data-rtl", language.Rtl.ToString().ToLower(), true);
+
+                    strip.Tabs.Add(new TabTagHelper
                     {
+                        ViewContext = helper.ViewContext,
                         Selected = i == 0 && masterTemplate == null,
                         Title = language.Name,
-                        // ...
-                        TabInnerContent = tabInnerContent
+                        ImageUrl = "~/images/flags/" + language.FlagImageFileName,
+                        TabInnerContent = new DefaultTagHelperContent()
+                            .AppendHtml(contentTag.RenderStartTag())
+                            .AppendHtml(localizedTemplate(i))
+                            .AppendHtml(contentTag.RenderEndTag()),
+                        Attributes = new TagHelperAttributeList
+                        {
+                            new TagHelperAttribute("title", language.Name)
+                        },
+                        Parent = strip,
+                        Index = i + 1
                     });
                 }
+
+                var context = new TagHelperContext(new TagHelperAttributeList(), new Dictionary<object, object>(), CommonHelper.GenerateRandomDigitCode(10));
+                var outputAttrList = new TagHelperAttributeList { new TagHelperAttribute("class", "nav-locales") };
+                var output = new TagHelperOutput("tabstrip", outputAttrList, (useCachedResult, encoder) => 
+                {
+                    return Task.FromResult<TagHelperContent>(new DefaultTagHelperContent());
+                });
+
+                strip.ProcessAsync(context, output).GetAwaiter().GetResult();
             }
             else if (masterTemplate != null)
             {
@@ -158,27 +186,6 @@ namespace Smartstore.Web.UI
             }
 
             return HtmlString.Empty;
-
-            Task<TagHelperContent> GetTabStripChildContentAsync(bool useCachedResult, HtmlEncoder encoder)
-            {
-                return null;
-            }
-
-            //Task<TagHelperContent> GetTabChildContentAsync(bool useCachedResult, HtmlEncoder encoder)
-            //{
-            //    TagHelperContent content = new DefaultTagHelperContent();
-
-            //    if (i < 0 && masterTemplate != null)
-            //    {
-            //        content.SetHtmlContent(masterTemplate(helper.ViewData.Model));
-            //    }
-            //    else if (i >= 0)
-            //    {
-            //        content.SetHtmlContent(localizedTemplate(i));
-            //    }
-
-            //    return Task.FromResult(content);
-            //}
         }
 
         #endregion
