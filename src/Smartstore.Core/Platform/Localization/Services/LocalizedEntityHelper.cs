@@ -38,7 +38,7 @@ namespace Smartstore.Core.Localization
             _workContext = workContext;
 
             _languageCount = _languageService.GetAllLanguages().Count();
-            _defaultLanguage = _db.Languages.FindById(_languageService.GetDefaultLanguageId());
+            _defaultLanguage = _db.Languages.FindById(_languageService.GetMasterLanguageId());
         }
 
         public LocalizedValue<TProp> GetLocalizedValue<T, TProp>(T obj,

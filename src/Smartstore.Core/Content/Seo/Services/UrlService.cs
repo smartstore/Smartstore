@@ -235,7 +235,7 @@ namespace Smartstore.Core.Content.Seo
 
                 _urlPolicy = new UrlPolicy(request)
                 {
-                    DefaultCultureCode = _languageService.GetDefaultLanguageSeoCode(),
+                    DefaultCultureCode = _languageService.GetMasterLanguageSeoCode(),
                     LocalizationSettings = _localizationSettings,
                     SeoSettings = _seoSettings,
                     WorkingLanguage = _workContext.WorkingLanguage

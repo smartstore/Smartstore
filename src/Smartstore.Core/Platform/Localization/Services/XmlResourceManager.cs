@@ -168,7 +168,7 @@ namespace Smartstore.Core.Localization
 
             var unprocessedLanguages = new List<Language>();
 
-            var defaultLanguageId = await _languageService.GetDefaultLanguageIdAsync();
+            var defaultLanguageId = await _languageService.GetMasterLanguageIdAsync();
             var languages = filterLanguages ?? await _requestCache.GetAsync("db.lang.all.tracked", () => _db.Languages.ToListAsync());
 
             string code = null;

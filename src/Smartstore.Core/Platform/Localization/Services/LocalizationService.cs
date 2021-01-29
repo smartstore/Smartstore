@@ -169,7 +169,7 @@ namespace Smartstore.Core.Localization
                     // Try fallback to default language
                     if (!_defaultLanguageId.HasValue)
                     {
-                        _defaultLanguageId = _languageService.GetDefaultLanguageId();
+                        _defaultLanguageId = _languageService.GetMasterLanguageId();
                     }
 
                     var defaultLangId = _defaultLanguageId.Value;
@@ -223,7 +223,7 @@ namespace Smartstore.Core.Localization
                     // Try fallback to default language
                     if (!_defaultLanguageId.HasValue)
                     {
-                        _defaultLanguageId = await _languageService.GetDefaultLanguageIdAsync();
+                        _defaultLanguageId = await _languageService.GetMasterLanguageIdAsync();
                     }
 
                     var defaultLangId = _defaultLanguageId.Value;

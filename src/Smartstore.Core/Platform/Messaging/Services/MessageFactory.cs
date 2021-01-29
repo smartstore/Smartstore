@@ -431,7 +431,7 @@ namespace Smartstore.Core.Messages
                 // Load any language from the specified store.
                 language = _db.Languages
                     .AsNoTracking()
-                    .FirstOrDefault(x => x.Id == _languageService.GetDefaultLanguageId(ctx.StoreId.Value));
+                    .FirstOrDefault(x => x.Id == _languageService.GetMasterLanguageId(ctx.StoreId.Value));
             }
 
             if (language == null || !language.Published)

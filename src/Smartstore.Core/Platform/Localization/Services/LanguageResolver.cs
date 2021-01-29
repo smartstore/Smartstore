@@ -115,7 +115,7 @@ namespace Smartstore.Core.Localization
         {
             if (customerLangId == 0 || !_languageService.IsPublishedLanguage(customerLangId, storeId))
             {
-                customerLangId = _languageService.GetDefaultLanguageId(storeId);
+                customerLangId = _languageService.GetMasterLanguageId(storeId);
             }
 
             return await _db.Languages.FindByIdAsync(customerLangId);

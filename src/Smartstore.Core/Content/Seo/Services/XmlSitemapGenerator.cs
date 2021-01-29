@@ -420,7 +420,7 @@ namespace Smartstore.Core.Content.Seo
             var localizationSettings = await _services.SettingFactory.LoadSettingsAsync<LocalizationSettings>(store.Id);
             if (localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
-                var defaultLangId = await _languageService.GetDefaultLanguageIdAsync(store.Id);
+                var defaultLangId = await _languageService.GetMasterLanguageIdAsync(store.Id);
                 if (language.Id != defaultLangId || localizationSettings.DefaultLanguageRedirectBehaviour < DefaultLanguageRedirectBehaviour.StripSeoCode)
                 {
                     host += language.GetTwoLetterISOLanguageName() + '/';

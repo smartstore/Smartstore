@@ -13,16 +13,18 @@ namespace Smartstore.Core.Localization
         /// </summary>
         /// <param name="includeHidden">A value indicating whether to include hidden records</param>
         /// <param name="storeId">Load records only in specified store; pass 0 to load all records.</param>
+        /// <param name="tracked">Whether to put entities to EF change tracker.</param>
         /// <returns>Language collection</returns>
-        List<Language> GetAllLanguages(bool includeHidden = false, int storeId = 0);
+        List<Language> GetAllLanguages(bool includeHidden = false, int storeId = 0, bool tracked = false);
 
         /// <summary>
         /// Gets all (cached) languages.
         /// </summary>
         /// <param name="includeHidden">A value indicating whether to include hidden records</param>
         /// <param name="storeId">Load records only in specified store; pass 0 to load all records.</param>
+        /// <param name="tracked">Whether to put entities to EF change tracker.</param>
         /// <returns>Language collection</returns>
-        Task<List<Language>> GetAllLanguagesAsync(bool includeHidden = false, int storeId = 0);
+        Task<List<Language>> GetAllLanguagesAsync(bool includeHidden = false, int storeId = 0, bool tracked = false);
 
         /// <summary>
         /// Determines whether a language is active/published
@@ -57,31 +59,45 @@ namespace Smartstore.Core.Localization
         Task<bool> IsPublishedLanguageAsync(string seoCode, int storeId = 0);
 
         /// <summary>
-        /// Gets the seo code of the default (first) active language
+        /// Gets the seo code of the master (first) active language
         /// </summary>
         /// <param name="storeId">The store id</param>
         /// <returns>The seo code</returns>
-        string GetDefaultLanguageSeoCode(int storeId = 0);
+        string GetMasterLanguageSeoCode(int storeId = 0);
 
         /// <summary>
-        /// Gets the seo code of the default (first) active language
+        /// Gets the seo code of the master (first) active language
         /// </summary>
         /// <param name="storeId">The store id</param>
         /// <returns>The seo code</returns>
-        Task<string> GetDefaultLanguageSeoCodeAsync(int storeId = 0);
+        Task<string> GetMasterLanguageSeoCodeAsync(int storeId = 0);
 
         /// <summary>
-        /// Gets the id of the default (first) active language
+        /// Gets the id of the master (first) active language
         /// </summary>
         /// <param name="storeId">The store id</param>
         /// <returns>The language id</returns>
-        int GetDefaultLanguageId(int storeId = 0);
+        int GetMasterLanguageId(int storeId = 0);
 
         /// <summary>
-        /// Gets the id of the default (first) active language
+        /// Gets the id of the master (first) active language
         /// </summary>
         /// <param name="storeId">The store id</param>
         /// <returns>The language id</returns>
-        Task<int> GetDefaultLanguageIdAsync(int storeId = 0);
+        Task<int> GetMasterLanguageIdAsync(int storeId = 0);
+
+        /// <summary>
+        /// Gets the master (first) active language as untracked entity.
+        /// </summary>
+        /// <param name="storeId">The store id</param>
+        /// <returns>The language</returns>
+        Language GetMasterLanguage(int storeId = 0);
+
+        /// <summary>
+        /// Gets the master (first) active language as untracked entity.
+        /// </summary>
+        /// <param name="storeId">The store id</param>
+        /// <returns>The language</returns>
+        Task<Language> GetMasterLanguageAsync(int storeId = 0);
     }
 }

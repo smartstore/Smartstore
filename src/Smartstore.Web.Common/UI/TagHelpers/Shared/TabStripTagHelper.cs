@@ -103,6 +103,11 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
 
         #endregion
 
+        protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
+        {
+            ProcessCoreAsync(context, output).Await();
+        }
+
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             await output.GetChildContentAsync();

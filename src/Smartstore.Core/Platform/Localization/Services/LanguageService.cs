@@ -88,14 +88,20 @@ namespace Smartstore.Core.Localization
 
         #region ILanguageService
 
-        public virtual List<Language> GetAllLanguages(bool includeHidden = false, int storeId = 0)
+        public virtual List<Language> GetAllLanguages(bool includeHidden = false, int storeId = 0, bool tracked = false)
         {
-            return _db.Languages.ApplyStandardFilter(includeHidden, storeId).ToList();
+            return _db.Languages
+                .ApplyTracking(tracked)
+                .ApplyStandardFilter(includeHidden, storeId)
+                .ToList();
         }
 
-        public virtual async Task<List<Language>> GetAllLanguagesAsync(bool includeHidden = false, int storeId = 0)
+        public virtual async Task<List<Language>> GetAllLanguagesAsync(bool includeHidden = false, int storeId = 0, bool tracked = false)
         {
-            return await _db.Languages.ApplyStandardFilter(includeHidden, storeId).ToListAsync();
+            return await _db.Languages
+                .ApplyTracking(tracked)
+                .ApplyStandardFilter(includeHidden, storeId)
+                .ToListAsync();
         }
 
         public virtual bool IsPublishedLanguage(int languageId, int storeId = 0)
@@ -166,7 +172,7 @@ namespace Smartstore.Core.Localization
             return false;
         }
 
-        public virtual string GetDefaultLanguageSeoCode(int storeId = 0)
+        public virtual string GetMasterLanguageSeoCode(int storeId = 0)
         {
             if (storeId <= 0)
                 storeId = _storeContext.CurrentStore.Id;
@@ -180,7 +186,7 @@ namespace Smartstore.Core.Localization
             return null;
         }
 
-        public virtual async Task<string> GetDefaultLanguageSeoCodeAsync(int storeId = 0)
+        public virtual async Task<string> GetMasterLanguageSeoCodeAsync(int storeId = 0)
         {
             if (storeId <= 0)
                 storeId = _storeContext.CurrentStore.Id;
@@ -194,7 +200,7 @@ namespace Smartstore.Core.Localization
             return null;
         }
 
-        public virtual int GetDefaultLanguageId(int storeId = 0)
+        public virtual int GetMasterLanguageId(int storeId = 0)
         {
             if (storeId <= 0)
                 storeId = _storeContext.CurrentStore.Id;
@@ -208,7 +214,7 @@ namespace Smartstore.Core.Localization
             return 0;
         }
 
-        public virtual async Task<int> GetDefaultLanguageIdAsync(int storeId = 0)
+        public virtual async Task<int> GetMasterLanguageIdAsync(int storeId = 0)
         {
             if (storeId <= 0)
                 storeId = _storeContext.CurrentStore.Id;
@@ -220,6 +226,18 @@ namespace Smartstore.Core.Localization
             }
 
             return 0;
+        }
+
+        public virtual Language GetMasterLanguage(int storeId = 0)
+        {
+            var id = GetMasterLanguageId(storeId);
+            return _db.Languages.AsNoTracking().FirstOrDefault(x => x.Id == id);
+        }
+
+        public virtual Task<Language> GetMasterLanguageAsync(int storeId = 0)
+        {
+            var id = GetMasterLanguageId(storeId);
+            return _db.Languages.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
 
         protected Multimap<int, LanguageStub> GetStoreLanguageMap()

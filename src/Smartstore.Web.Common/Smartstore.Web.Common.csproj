@@ -13,7 +13,6 @@
     <Folder Include="Routing\" />
     <Folder Include="Security\" />
     <Folder Include="Pdf\" />
-    <Folder Include="UI\TagHelpers\Public\" />
   </ItemGroup>
 
   <ItemGroup>
