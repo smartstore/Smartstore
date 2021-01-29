@@ -85,19 +85,5 @@ namespace Smartstore.Core.Localization
         /// <param name="storeId">The store id</param>
         /// <returns>The language id</returns>
         Task<int> GetMasterLanguageIdAsync(int storeId = 0);
-
-        /// <summary>
-        /// Gets the master (first) active language as untracked entity.
-        /// </summary>
-        /// <param name="storeId">The store id</param>
-        /// <returns>The language</returns>
-        Language GetMasterLanguage(int storeId = 0);
-
-        /// <summary>
-        /// Gets the master (first) active language as untracked entity.
-        /// </summary>
-        /// <param name="storeId">The store id</param>
-        /// <returns>The language</returns>
-        Task<Language> GetMasterLanguageAsync(int storeId = 0);
     }
 }

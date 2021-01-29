@@ -228,18 +228,6 @@ namespace Smartstore.Core.Localization
             return 0;
         }
 
-        public virtual Language GetMasterLanguage(int storeId = 0)
-        {
-            var id = GetMasterLanguageId(storeId);
-            return _db.Languages.AsNoTracking().FirstOrDefault(x => x.Id == id);
-        }
-
-        public virtual Task<Language> GetMasterLanguageAsync(int storeId = 0)
-        {
-            var id = GetMasterLanguageId(storeId);
-            return _db.Languages.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-        }
-
         protected Multimap<int, LanguageStub> GetStoreLanguageMap()
         {
             return GetStoreLanguageMapAsync().Await();
