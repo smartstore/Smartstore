@@ -107,7 +107,7 @@ namespace Smartstore.Web.UI
             where TLocalizedModelLocal : ILocalizedLocaleModel
         {
             var locales = helper.ViewData.Model.Locales;
-            int i = -1;
+            var hasMasterTemplate = masterTemplate != null;
 
             if (locales.Count > 1)
             {
@@ -115,7 +115,10 @@ namespace Smartstore.Web.UI
                 var db = services.GetRequiredService<SmartDbContext>();
                 var languageService = services.GetRequiredService<ILanguageService>();
                 var localizationService = services.GetRequiredService<ILocalizationService>();
+                var tabs = new List<TabTagHelper>(locales.Count + 1);
+                var languages = new List<Language>(locales.Count + 1);
                 
+                // Create the parent tabstrip
                 var strip = new TabStripTagHelper 
                 {
                     ViewContext = helper.ViewContext,
@@ -124,63 +127,101 @@ namespace Smartstore.Web.UI
                     Style = TabsStyle.Tabs
                 };
 
-                var masterLanguage = db.Languages.FindById(languageService.GetMasterLanguageId(), false);
-                var contentTag = new TagBuilder("div");
-                contentTag.Attributes.Add("class", "locale-editor-content");
-                contentTag.Attributes.Add("data-lang", masterLanguage.LanguageCulture);
-                contentTag.Attributes.Add("data-rtl", masterLanguage.Rtl.ToString().ToLower());
-
-                strip.Tabs.Add(new TabTagHelper
+                if (hasMasterTemplate)
                 {
-                    ViewContext = helper.ViewContext,
-                    Selected = true,
-                    Title = localizationService.GetResource("Admin.Common.Standard"),
-                    TabInnerContent = new DefaultTagHelperContent()
-                        .AppendHtml(contentTag.RenderStartTag())
-                        .AppendHtml(masterTemplate(helper.ViewData.Model))
-                        .AppendHtml(contentTag.RenderEndTag()),
-                    Attributes = new TagHelperAttributeList(),
-                    Parent = strip,
-                    Index = 0
-                });
+                    var masterLanguage = db.Languages.FindById(languageService.GetMasterLanguageId(), false);
+                    languages.Add(masterLanguage);
 
-                for (i = 0; i < locales.Count; i++)
-                {
-                    var locale = helper.ViewData.Model.Locales[i];
-                    var language = db.Languages.FindById(locale.LanguageId, false);
-
-                    contentTag.MergeAttribute("data-lang", language.LanguageCulture, true);
-                    contentTag.MergeAttribute("data-rtl", language.Rtl.ToString().ToLower(), true);
-
-                    strip.Tabs.Add(new TabTagHelper
+                    // Add the first default tab for the master template
+                    tabs.Add(new TabTagHelper
                     {
                         ViewContext = helper.ViewContext,
-                        Selected = i == 0 && masterTemplate == null,
-                        Title = language.Name,
-                        ImageUrl = "~/images/flags/" + language.FlagImageFileName,
-                        TabInnerContent = new DefaultTagHelperContent()
-                            .AppendHtml(contentTag.RenderStartTag())
-                            .AppendHtml(localizedTemplate(i))
-                            .AppendHtml(contentTag.RenderEndTag()),
-                        Attributes = new TagHelperAttributeList
-                        {
-                            new TagHelperAttribute("title", language.Name)
-                        },
-                        Parent = strip,
-                        Index = i + 1
+                        Selected = true,
+                        Title = localizationService.GetResource("Admin.Common.Standard")
                     });
                 }
 
-                var context = new TagHelperContext(new TagHelperAttributeList(), new Dictionary<object, object>(), CommonHelper.GenerateRandomDigitCode(10));
-                var outputAttrList = new TagHelperAttributeList { new TagHelperAttribute("class", "nav-locales") };
-                var output = new TagHelperOutput("tabstrip", outputAttrList, (useCachedResult, encoder) => 
+                // Add all language specific tabs
+                for (var i = 0; i < locales.Count; i++)
                 {
+                    var locale = locales[i];
+                    var language = db.Languages.FindById(locale.LanguageId, false);
+                    languages.Add(language);
+
+                    tabs.Add(new TabTagHelper
+                    {
+                        ViewContext = helper.ViewContext,
+                        Selected = !hasMasterTemplate && i == 0,
+                        Title = language.Name,
+                        ImageUrl = "~/images/flags/" + language.FlagImageFileName
+                    });
+                }
+
+                // Create TagHelperContext for tabstrip.
+                var stripContext = new TagHelperContext("tabstrip", new TagHelperAttributeList(), new Dictionary<object, object>(), CommonHelper.GenerateRandomDigitCode(10));
+
+                // Must init tabstrip, otherwise "Parent" is null inside tab helpers.
+                strip.Init(stripContext);
+
+                // Create AttributeList for tabstrip
+                var stripOutputAttrList = new TagHelperAttributeList { new TagHelperAttribute("class", "nav-locales") };
+
+                // Emulate tabstrip output
+                var stripOutput = new TagHelperOutput("tabstrip", stripOutputAttrList, (_, _) => 
+                {
+                    // getChildContentAsync for tabstrip
+                    for (var i = 0; i < tabs.Count; i++)
+                    {
+                        var isMaster = hasMasterTemplate && i == 0;
+                        var language = languages[i];
+
+                        // Create TagHelperContext for tab passing it parent context's items dictionary (that's what Razor does)
+                        var context = new TagHelperContext("tab", new TagHelperAttributeList(), stripContext.Items, CommonHelper.GenerateRandomDigitCode(10));
+
+                        // Must init tabstrip, otherwise "Tabs" list is empty inside tabstrip helper.
+                        tabs[i].Init(context);
+
+                        var outputAttrList = new TagHelperAttributeList();
+                        if (!isMaster)
+                        {
+                            outputAttrList.Add("title", language.Name);
+                        }
+
+                        var output = new TagHelperOutput("tab", outputAttrList, (_, _) => 
+                        {
+                            // getChildContentAsync for tab
+                            var contentTag = new TagBuilder("div");
+
+                            // Wrap tab's template result with specific element
+                            contentTag.Attributes.Add("class", "locale-editor-content");
+                            contentTag.Attributes.Add("data-lang", language.LanguageCulture);
+                            contentTag.Attributes.Add("data-rtl", language.Rtl.ToString().ToLower());
+
+                            TagHelperContent tabContent = new DefaultTagHelperContent()
+                                .AppendHtml(contentTag.RenderStartTag())
+                                .AppendHtml(isMaster ? masterTemplate(helper.ViewData.Model) : localizedTemplate(i - 1))
+                                .AppendHtml(contentTag.RenderEndTag());
+
+                            return Task.FromResult(tabContent);
+                        });
+
+                        // Process single tab
+                        tabs[i].ProcessAsync(context, output).GetAwaiter().GetResult();
+                    }
+
+                    // We don't need the child content for tabstrip. It builds everything without any child content.
                     return Task.FromResult<TagHelperContent>(new DefaultTagHelperContent());
                 });
 
-                strip.ProcessAsync(context, output).GetAwaiter().GetResult();
+                // Process parent tabstrip
+                strip.ProcessAsync(stripContext, stripOutput).GetAwaiter().GetResult();
+
+                var wrapper = new TagBuilder("div");
+                wrapper.Attributes.Add("class", "locale-editor");
+
+                return stripOutput.WrapElementWith(wrapper);
             }
-            else if (masterTemplate != null)
+            else if (hasMasterTemplate)
             {
                 return masterTemplate(helper.ViewData.Model);
             }

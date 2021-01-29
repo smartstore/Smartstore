@@ -152,11 +152,11 @@ namespace Smartstore.Web.UI.TagHelpers
         /// and the last one as the direct element parent.
         /// </summary>
         /// <param name="tags">The tags to wrap the element with.</param>
-        public static void WrapElementWith(this TagHelperOutput output, params TagBuilder[] tags)
+        public static TagHelperOutput WrapElementWith(this TagHelperOutput output, params TagBuilder[] tags)
         {
             Guard.NotNull(output, nameof(output));
 
-            WrapWithCore(output, true, tags);
+            return WrapWithCore(output, true, tags);
         }
 
         /// <summary>
@@ -164,18 +164,18 @@ namespace Smartstore.Web.UI.TagHelpers
         /// and the last one as the direct content parent.
         /// </summary>
         /// <param name="tags">The tags to wrap the content with.</param>
-        public static void WrapContentWith(this TagHelperOutput output, params TagBuilder[] tags)
+        public static TagHelperOutput WrapContentWith(this TagHelperOutput output, params TagBuilder[] tags)
         {
             Guard.NotNull(output, nameof(output));
 
-            WrapWithCore(output, false, tags);
+            return WrapWithCore(output, false, tags);
         }
 
-        private static void WrapWithCore(TagHelperOutput output, bool wrapElement, TagBuilder[] tags)
+        private static TagHelperOutput WrapWithCore(TagHelperOutput output, bool wrapElement, TagBuilder[] tags)
         {
             if (tags.Length == 0)
             {
-                return;
+                return output;
             }
 
             var pre = wrapElement ? output.PreElement : output.PreContent;
@@ -194,6 +194,8 @@ namespace Smartstore.Web.UI.TagHelpers
             {
                 post.AppendHtml(tags[i].RenderEndTag());
             }
+
+            return output;
         }
 
         /// <summary>
@@ -202,10 +204,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     inside the <see cref="output" /> will be inside of the <see cref="builder" />.
         ///     <see cref="TagBuilder.InnerHtml" /> will not be included.
         /// </summary>
-        public static void WrapContentOutside(this TagHelperOutput output, TagBuilder tag)
+        public static TagHelperOutput WrapContentOutside(this TagHelperOutput output, TagBuilder tag)
         {
             output.PreContent.PrependHtml(tag.RenderStartTag());
             output.PostContent.AppendHtml(tag.RenderEndTag());
+            return output;
         }
 
         /// <summary>
@@ -213,10 +216,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />. All content that is
         ///     inside the <see cref="output" /> will be inside of the <see cref="string" />s.
         /// </summary>
-        public static void WrapContentOutside(this TagHelperOutput output, string startTag, string endTag)
+        public static TagHelperOutput WrapContentOutside(this TagHelperOutput output, string startTag, string endTag)
         {
             output.PreContent.Prepend(startTag);
             output.PostContent.Append(endTag);
+            return output;
         }
 
         /// <summary>
@@ -225,10 +229,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     inside the <see cref="output" /> will be inside of the <see cref="string" />s. <see cref="startTag" /> and
         ///     <see cref="endTag" /> will not be encoded.
         /// </summary>
-        public static void WrapHtmlContentOutside(this TagHelperOutput output, string startTag, string endTag)
+        public static TagHelperOutput WrapHtmlContentOutside(this TagHelperOutput output, string startTag, string endTag)
         {
             output.PreContent.PrependHtml(startTag);
             output.PostContent.AppendHtml(endTag);
+            return output;
         }
 
         /// <summary>
@@ -236,10 +241,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" />. The current contents of
         ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" /> will be outside.
         /// </summary>
-        public static void WrapContentInside(this TagHelperOutput output, TagBuilder tag)
+        public static TagHelperOutput WrapContentInside(this TagHelperOutput output, TagBuilder tag)
         {
             output.PreContent.AppendHtml(tag.RenderStartTag());
             output.PostContent.PrependHtml(tag.RenderEndTag());
+            return output;
         }
 
         /// <summary>
@@ -248,10 +254,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     <see cref="TagBuilder.InnerHtml" /> will not be included. The current contents of
         ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" /> will be outside.
         /// </summary>
-        public static void WrapContentInside(this TagHelperOutput output, string startTag, string endTag)
+        public static TagHelperOutput WrapContentInside(this TagHelperOutput output, string startTag, string endTag)
         {
             output.PreContent.Append(startTag);
             output.PostContent.Prepend(endTag);
+            return output;
         }
 
         /// <summary>
@@ -261,10 +268,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     <see cref="TagHelperOutput.PreContent" /> and <see cref="TagHelperOutput.PostContent" /> will be outside.
         ///     <see cref="startTag" /> and <see cref="endTag" /> will not be encoded.
         /// </summary>
-        public static void WrapHtmlContentInside(this TagHelperOutput output, string startTag, string endTag)
+        public static TagHelperOutput WrapHtmlContentInside(this TagHelperOutput output, string startTag, string endTag)
         {
             output.PreContent.AppendHtml(startTag);
             output.PostContent.PrependHtml(endTag);
+            return output;
         }
 
         /// <summary>
@@ -273,10 +281,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be inside.
         ///     <see cref="TagBuilder.InnerHtml" /> will not be included.
         /// </summary>
-        public static void WrapOutside(this TagHelperOutput output, TagBuilder tag)
+        public static TagHelperOutput WrapOutside(this TagHelperOutput output, TagBuilder tag)
         {
             output.PreElement.PrependHtml(tag.RenderStartTag());
             output.PostElement.AppendHtml(tag.RenderEndTag());
+            return output;
         }
 
         /// <summary>
@@ -284,10 +293,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" />. The current contents of
         ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be inside.
         /// </summary>
-        public static void WrapOutside(this TagHelperOutput output, string startTag, string endTag)
+        public static TagHelperOutput WrapOutside(this TagHelperOutput output, string startTag, string endTag)
         {
             output.PreElement.Prepend(startTag);
             output.PostElement.Append(endTag);
+            return output;
         }
 
         /// <summary>
@@ -296,10 +306,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be inside.
         ///     <see cref="startTag" /> and <see cref="endTag" /> will not be encoded.
         /// </summary>
-        public static void WrapHtmlOutside(this TagHelperOutput output, string startTag, string endTag)
+        public static TagHelperOutput WrapHtmlOutside(this TagHelperOutput output, string startTag, string endTag)
         {
             output.PreElement.PrependHtml(startTag);
             output.PostElement.AppendHtml(endTag);
+            return output;
         }
 
         /// <summary>
@@ -308,10 +319,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be outside.
         ///     <see cref="TagBuilder.InnerHtml" /> will not be included.
         /// </summary>
-        public static void WrapInside(this TagHelperOutput output, TagBuilder tag)
+        public static TagHelperOutput WrapInside(this TagHelperOutput output, TagBuilder tag)
         {
             output.PreElement.AppendHtml(tag.RenderStartTag());
             output.PostElement.PrependHtml(tag.RenderEndTag());
+            return output;
         }
 
         /// <summary>
@@ -319,10 +331,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" />. The current contents of
         ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be outside.
         /// </summary>
-        public static void WrapInside(this TagHelperOutput output, string startTag, string endTag)
+        public static TagHelperOutput WrapInside(this TagHelperOutput output, string startTag, string endTag)
         {
             output.PreElement.Append(startTag);
             output.PostElement.Prepend(endTag);
+            return output;
         }
 
         /// <summary>
@@ -331,10 +344,11 @@ namespace Smartstore.Web.UI.TagHelpers
         ///     <see cref="TagHelperOutput.PreElement" /> and <see cref="TagHelperOutput.PostElement" /> will be outside.
         ///     <see cref="startTag" /> and <see cref="endTag" /> will not be encoded.
         /// </summary>
-        public static void WrapHtmlInside(this TagHelperOutput output, string startTag, string endTag)
+        public static TagHelperOutput WrapHtmlInside(this TagHelperOutput output, string startTag, string endTag)
         {
             output.PreElement.AppendHtml(startTag);
             output.PostElement.PrependHtml(endTag);
+            return output;
         }
 
         #endregion
