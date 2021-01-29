@@ -2,25 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Content.Media;
-using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Cart
 {
+    // TODO: (ms) (core) Media load flags warnings
+    /// <summary>
+    /// Shopping cart validation methods
+    /// </summary>
     public partial class ShoppingCartValidator : IShoppingCartValidator
     {
         private readonly SmartDbContext _db;
@@ -30,11 +30,11 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IPriceFormatter _priceFormatter;
         private readonly ICurrencyService _currencyService;
         private readonly ShoppingCartSettings _cartSettings;
+        private readonly IPermissionService _permissionService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly ILocalizationService _localizationService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        //private readonly IOrderTotalCalculationService _orderTotalCalculationService;
 
         public ShoppingCartValidator(
             SmartDbContext db,
@@ -44,12 +44,11 @@ namespace Smartstore.Core.Checkout.Cart
             IPriceFormatter priceFormatter,
             ICurrencyService currencyService,
             ShoppingCartSettings cartSettings,
+            IPermissionService permissionService,
             IStoreMappingService storeMappingService,
-            ILocalizationService localizationService,            
+            ILocalizationService localizationService,
             IProductAttributeMaterializer productAttributeMaterializer,
-            ICheckoutAttributeMaterializer checkoutAttributeMaterializer
-            //,IOrderTotalCalculationService orderTotalCalculationService
-            )
+            ICheckoutAttributeMaterializer checkoutAttributeMaterializer)
         {
             _db = db;
             _aclService = aclService;
@@ -58,372 +57,157 @@ namespace Smartstore.Core.Checkout.Cart
             _priceFormatter = priceFormatter;
             _currencyService = currencyService;
             _cartSettings = cartSettings;
+            _permissionService = permissionService;
             _storeMappingService = storeMappingService;
             _localizationService = localizationService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            //_orderTotalCalculationService = orderTotalCalculationService;
 
             T = NullLocalizer.Instance;
         }
 
         public Localizer T { get; set; }
 
-        public virtual async Task<List<string>> GetRequiredProductWarningsAsync(
-            Customer customer,
-            ShoppingCartType shoppingCartType,
-            Product product,
-            int storeId,
-            bool automaticallyAddRequiredProducsIfEnabled)
+        public virtual async Task<IList<string>> ValidateAccessPermissionsAsync(AddToCartContext ctx)
         {
-            Guard.NotNull(customer, nameof(customer));
-            Guard.NotNull(product, nameof(product));
-
-            if (!product.RequireOtherProducts)
-                return new();
-
-            // TODO: Needs return values of GetCarItemsAsync and AddToCartAsync w/o accessing shopping cart service
-            var cart = new List<OrganizedShoppingCartItem>(); //await GetCartItemsAsync(customer, shoppingCartType, storeId);
-
-            var requiredProducts = await _db.Products.GetManyAsync(product.ParseRequiredProductIds());
-            var productsNotInCart = requiredProducts.Where(x => !cart.Select(x => x.Item.ProductId).Contains(x.Id));
+            Guard.NotNull(ctx, nameof(ctx));
 
             var warnings = new List<string>();
-            foreach (var currentProduct in productsNotInCart)
+
+            // Validate access permissions
+            if (ctx.CartType == ShoppingCartType.ShoppingCart && !await _permissionService.AuthorizeAsync(Permissions.Cart.AccessShoppingCart, ctx.Customer))
             {
-                if (currentProduct.AutomaticallyAddRequiredProducts && automaticallyAddRequiredProducsIfEnabled)
+                warnings.Add(T("ShoppingCart.IsDisabled"));
+            }
+            else if (ctx.CartType == ShoppingCartType.Wishlist && !await _permissionService.AuthorizeAsync(Permissions.Cart.AccessWishlist, ctx.Customer))
+            {
+                warnings.Add(T("Wishlist.IsDisabled"));
+            }
+
+            ctx.Warnings.AddRange(warnings);
+            return warnings;
+        }
+
+        // was GetBundleItemWarnings
+        public virtual IList<string> ValidateBundleItems(IList<ProductBundleItem> bundleItems)
+        {
+            Guard.NotNull(bundleItems, nameof(bundleItems));
+
+            var warnings = new List<string>();
+
+            foreach (var bundleItem in bundleItems)
+            {
+                var name = bundleItem.GetLocalizedName();
+
+                if (!bundleItem.Published)
                 {
-                    //// Pass 'false' for 'automaticallyAddRequiredProducsIfEnabled' to prevent circular references
-                    //var addToCartWarnings = await AddToCartAsync(customer, currentProduct, shoppingCartType, storeId);
-                    //if (addToCartWarnings.Count > 0)
-                    //{
-                    //    // A product could not be added for some reasons
-                    //    // in this case, we display only generic errors
-                    //    warnings.Add(T("ShoppingCart.RequiredProductWarning", currentProduct.GetLocalized(x => x.Name)));
-                    //}
+                    warnings.Add(T("ShoppingCart.Bundle.BundleItemUnpublished", name));
                 }
-                else
+
+                if (bundleItem.ProductId == 0
+                    || bundleItem.Product == null
+                    || bundleItem.BundleProductId == 0
+                    || bundleItem.BundleProduct == null)
                 {
-                    warnings.Add(T("ShoppingCart.RequiredProductWarning", currentProduct.GetLocalized(x => x.Name)));
+                    warnings.Add(T("ShoppingCart.Bundle.MissingProduct", name));
+                }
+
+                if (bundleItem.Quantity <= 0)
+                {
+                    warnings.Add(T("ShoppingCart.Bundle.Quantity", name));
+                }
+
+                if (bundleItem.Product.IsDownload || bundleItem.Product.IsRecurring)
+                {
+                    warnings.Add(T("ShoppingCart.Bundle.ProductResrictions", name));
                 }
             }
 
             return warnings;
         }
 
-        public virtual async Task<IList<string>> GetStandardWarningsAsync(
-            Customer customer,
-            ShoppingCartType shoppingCartType,
-            Product product,
-            ProductVariantAttributeSelection selection,
-            decimal customerEnteredPrice,
-            int quantity,
-            int? storeId = null)
+        // was GetShoppingCartWarnings
+        public virtual async Task<IList<string>> ValidateCartCheckoutAsync(
+            IEnumerable<OrganizedShoppingCartItem> cartItems,
+            CheckoutAttributeSelection attributeSelection,
+            bool validateCheckoutAttributes)
         {
-            Guard.NotNull(selection, nameof(selection));
-            Guard.NotNull(customer, nameof(customer));
-            Guard.NotNull(product, nameof(product));
-
-            storeId ??= _storeContext.CurrentStore.Id;
+            Guard.NotNull(attributeSelection, nameof(attributeSelection));
+            Guard.NotNull(cartItems, nameof(cartItems));
 
             var warnings = new List<string>();
 
-            if (product.Deleted)
+            var missingProduct = cartItems.Where(x => x.Item.Product is null).FirstOrDefault();
+            if (missingProduct != null)
             {
-                warnings.Add(T("ShoppingCart.ProductDeleted"));
+                warnings.Add(T("ShoppingCart.CannotLoadProduct", missingProduct.Item.ProductId));
                 return warnings;
             }
 
-            // Grouped products are not available for order
-            if (product.ProductType == ProductType.GroupedProduct)
+            var hasNonRecurringProducts = cartItems.IncludesMatchingItems(x => !x.IsRecurring);
+            var hasRecurringProducts = cartItems.IncludesMatchingItems(x => x.IsRecurring);
+
+            // Do not mix recurring and non-recurring products
+            if (hasNonRecurringProducts && hasRecurringProducts)
             {
-                warnings.Add(T("ShoppingCart.ProductNotAvailableForOrder"));
+                warnings.Add(T("ShoppingCart.CannotMixStandardAndAutoshipProducts"));
             }
 
-            // Validate product bundle, no customer entered price allowed
-            if (product.ProductType == ProductType.BundledProduct
-                && product.BundlePerItemPricing
-                && customerEnteredPrice != decimal.Zero)
+            // Validate recurring products
+            if (hasRecurringProducts)
             {
-                warnings.Add(T("ShoppingCart.Bundle.NoCustomerEnteredPrice"));
-            }
-
-            if (!product.Published)
-            {
-                warnings.Add(T("ShoppingCart.ProductUnpublished"));
-            }
-
-            if (!await _aclService.AuthorizeAsync(product, customer))
-            {
-                warnings.Add(T("ShoppingCart.ProductUnpublished"));
-            }
-
-            if (!await _storeMappingService.AuthorizeAsync(product.Name, product.Id, storeId.Value))
-            {
-                warnings.Add(T("ShoppingCart.ProductUnpublished"));
-            }
-
-            // Disabled buy button
-            if (shoppingCartType == ShoppingCartType.ShoppingCart && product.DisableBuyButton)
-            {
-                warnings.Add(T("ShoppingCart.BuyingDisabled"));
-            }
-
-            // Disabled wishlist button
-            if (shoppingCartType == ShoppingCartType.Wishlist && product.DisableWishlistButton)
-            {
-                warnings.Add(T("ShoppingCart.WishlistDisabled"));
-            }
-
-            // Call for price
-            if (shoppingCartType == ShoppingCartType.ShoppingCart && product.CallForPrice)
-            {
-                warnings.Add(T("Products.CallForPrice"));
-            }
-
-            // Customer entered price            
-            if (product.CustomerEntersPrice
-                && (customerEnteredPrice < product.MinimumCustomerEnteredPrice
-                || customerEnteredPrice > product.MaximumCustomerEnteredPrice))
-            {
-                var minimum = _currencyService.ConvertFromPrimaryStoreCurrency(product.MinimumCustomerEnteredPrice, _workContext.WorkingCurrency);
-                var maximum = _currencyService.ConvertFromPrimaryStoreCurrency(product.MaximumCustomerEnteredPrice, _workContext.WorkingCurrency);
-
-                warnings.Add(T(
-                    "ShoppingCart.CustomerEnteredPrice.RangeError",
-                    _priceFormatter.FormatPrice(minimum, true, displayTax: false),
-                    _priceFormatter.FormatPrice(maximum, true, displayTax: false))
-                    );
-            }
-
-            // Quantity validation
-            var hasQtyWarnings = false;
-            if (quantity < product.OrderMinimumQuantity)
-            {
-                warnings.Add(T("ShoppingCart.MinimumQuantity", product.OrderMinimumQuantity));
-                hasQtyWarnings = true;
-            }
-
-            if (quantity > product.OrderMaximumQuantity)
-            {
-                warnings.Add(T("ShoppingCart.MaximumQuantity", product.OrderMaximumQuantity));
-                hasQtyWarnings = true;
-            }
-
-            var allowedQuantities = product.ParseAllowedQuantities();
-            if (allowedQuantities.Length > 0 && !allowedQuantities.Contains(quantity))
-            {
-                warnings.Add(T("ShoppingCart.AllowedQuantities", string.Join(", ", allowedQuantities)));
-            }
-
-            // Checks whether out of stock validation is required.
-            // a) Checks if cart type is shopping cart ||
-            // b) Check whether it is allowed to add out of stock items to the whishlist
-            // Otherwise out of stock validation is required
-            var validateOutOfStock = shoppingCartType == ShoppingCartType.ShoppingCart || !_cartSettings.AllowOutOfStockItemsToBeAddedToWishlist;
-            if (validateOutOfStock && !hasQtyWarnings)
-            {
-                switch (product.ManageInventoryMethod)
+                var recurringCycleInfo = cartItems.GetRecurringCycleInfo(_localizationService);
+                if (recurringCycleInfo.ErrorMessage.HasValue())
                 {
-                    case ManageInventoryMethod.ManageStock:
-                        {
-                            if (product.BackorderMode != BackorderMode.NoBackorders || product.StockQuantity >= quantity)
-                                break;
-
-                            var warning = product.StockQuantity > 0
-                                ? T("ShoppingCart.QuantityExceedsStock", product.StockQuantity)
-                                : T("ShoppingCart.OutOfStock");
-
-                            warnings.Add(warning);
-                            break;
-                        }
-                    case ManageInventoryMethod.ManageStockByAttributes:
-                        {
-                            var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
-                            if (combination == null || combination.AllowOutOfStockOrders || combination.StockQuantity >= quantity)
-                                break;
-
-                            var warning = combination.StockQuantity > 0
-                                ? T("ShoppingCart.QuantityExceedsStock", combination.StockQuantity)
-                                : T("ShoppingCart.OutOfStock");
-
-                            warnings.Add(warning);
-                            break;
-                        }
-                    case ManageInventoryMethod.DontManageStock:
-                    default:
-                        break;
-                }
-            }
-
-            // Availability dates
-            var availableStartDateError = false;
-            if (product.AvailableStartDateTimeUtc.HasValue)
-            {
-                var availableStartDate = DateTime.SpecifyKind(product.AvailableStartDateTimeUtc.Value, DateTimeKind.Utc);
-                if (availableStartDate.CompareTo(DateTime.UtcNow) > 0)
-                {
-                    warnings.Add(T("ShoppingCart.NotAvailable"));
-                    availableStartDateError = true;
-                }
-            }
-
-            if (product.AvailableEndDateTimeUtc.HasValue && !availableStartDateError)
-            {
-                var availableEndDate = DateTime.SpecifyKind(product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc);
-                if (availableEndDate.CompareTo(DateTime.UtcNow) < 0)
-                {
-                    warnings.Add(T("ShoppingCart.NotAvailable"));
-                }
-            }
-
-            return warnings;
-        }
-
-
-        public virtual async Task<IList<string>> GetShoppingCartItemAttributeWarningsAsync(
-            Customer customer,
-            ShoppingCartType shoppingCartType,
-            Product product,
-            ProductVariantAttributeSelection selection,
-            int quantity = 1,
-            ProductBundleItem bundleItem = null,
-            ProductVariantAttributeCombination combination = null)
-        {
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(selection, nameof(selection));
-
-            var warnings = new List<string>();
-
-            // customer cannot select anything... selectedAttribute is always empty
-            // customer cannot select anything cause bundles have no attributes
-            if (product.ProductType == ProductType.BundledProduct
-                || bundleItem != null && !bundleItem.BundleProduct.BundlePerItemPricing)
-                return warnings;
-
-            // Get selected product variant attributes
-            var selectedAttributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(selection);
-            foreach (var attribute in selectedAttributes)
-            {
-                if (attribute.Product == null || attribute.Product.Id != product.Id)
-                {
-                    warnings.Add(T("ShoppingCart.AttributeError"));
+                    warnings.Add(recurringCycleInfo.ErrorMessage);
                     return warnings;
                 }
             }
 
-            // Get existing product variant attributes
-            foreach (var existingAttribute in product.ProductVariantAttributes)
+            if (validateCheckoutAttributes)
             {
-                if (!existingAttribute.IsRequired)
-                    continue;
-
-                var found = false;
-                // Selected product attributes
-                foreach (var selectedAttribute in selectedAttributes)
+                var existingAttributesQuery = _db.CheckoutAttributes.ApplyStoreFilter(_storeContext.CurrentStore.Id);
+                if (!cartItems.IsShippingRequired())
                 {
-                    if (selectedAttribute.Id == existingAttribute.Id)
-                    {
-                        var values = selection.GetAttributeValues(selectedAttribute.Id).Select(x => x.ToString()).ToList();
-                        found = values.Find(x => x.HasValue()).HasValue();
-                    }
+                    // No shipping required. Filter attributes which require shippable products
+                    existingAttributesQuery = existingAttributesQuery.Where(x => !x.ShippableProductRequired);
                 }
 
-                // Attribute is filtered out on bundle item level... it cannot be selected by the customer
-                found = !found && (bundleItem?.FilterAttributes ?? false)
-                    ? !bundleItem.AttributeFilters.Any(x => x.AttributeId == existingAttribute.ProductAttributeId)
-                    : true;
+                var selectedAttributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection);
+                var notSelectedAttributes = await existingAttributesQuery
+                    .Where(x => x.IsRequired)
+                    .Except(selectedAttributes)
+                    .ToListAsync();
 
-                if (!found)
+                // Check for not selected attributes
+                foreach (var attribute in notSelectedAttributes)
                 {
                     warnings.Add(T(
                         "ShoppingCart.SelectAttribute",
-                        existingAttribute.TextPrompt.IsEmpty()
-                            ? existingAttribute.ProductAttribute.GetLocalized(a => a.Name)
-                            : existingAttribute.TextPrompt)
-                        );
-                }
-            }
-
-            // Check whether there is an active selected attribute combination
-            if (warnings.Count == 0)
-            {
-                if (selection.AttributesMap.Any())
-                {
-                    if (combination == null)
-                    {
-                        combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
-                    }
-
-                    if (combination != null && !combination.IsActive)
-                    {
-                        warnings.Add(T("ShoppingCart.NotAvailable"));
-                    }
-                }
-
-                var values = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
-                var linkedProductIds = values.Select(x => x.LinkedProductId);
-                var linkedProducts = await _db.Products.GetManyAsync(linkedProductIds);
-
-                foreach (var value in values)
-                {
-                    if (value.ValueType != ProductVariantAttributeValueType.ProductLinkage)
-                        continue;
-
-                    var linkedProduct = linkedProducts.Find(x => x.Id == value.LinkedProductId);
-                    if (linkedProduct == null)
-                    {
-                        warnings.Add(T("ShoppingCart.ProductLinkageProductNotLoading", value.LinkedProductId));
-                        continue;
-                    }
-
-                    var linkageWarnings = await GetShoppingCartItemWarningsAsync(
-                        customer,
-                        shoppingCartType,
-                        linkedProduct,
-                        _storeContext.CurrentStore.Id,
-                        selection,
-                        decimal.Zero,
-                        quantity * value.Quantity,
-                        false,
-                        true,
-                        true,
-                        true,
-                        true);
-
-                    foreach (var linkageWarning in linkageWarnings)
-                    {
-                        warnings.Add(T(
-                            "ShoppingCart.ProductLinkageAttributeWarning",
-                            value.ProductVariantAttribute.ProductAttribute.GetLocalized(a => a.Name),
-                            value.GetLocalized(a => a.Name),
-                            linkageWarning)
-                            );
-                    }
+                        attribute.TextPrompt.IsEmpty()
+                            ? attribute.GetLocalized(x => x.Name)
+                            : attribute.GetLocalized(x => x.TextPrompt)
+                        ));
                 }
             }
 
             return warnings;
         }
 
-
-        public virtual IList<string> GetShoppingCartItemGiftCardWarnings(
-            Product product,
-            ShoppingCartType shoppingCartType,
-            ProductVariantAttributeSelection selection)
+        // was GetShoppingCartItemGiftCardWarnings
+        public virtual IList<string> ValidateGiftCardInfo(AddToCartContext ctx)
         {
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(selection, nameof(selection));
+            Guard.NotNull(ctx, nameof(ctx));
 
             var warnings = new List<string>();
 
-            if (!product.IsGiftCard)
+            if (!ctx.Product.IsGiftCard)
                 return warnings;
 
-            var recipientName = selection.GiftCardInfo?.RecipientName;
-            var recipientEmail = selection.GiftCardInfo?.RecipientEmail;
-            var senderName = selection.GiftCardInfo?.SenderName;
-            var senderEmail = selection.GiftCardInfo?.SenderEmail;
+            var recipientName = ctx.AttributeSelection.GiftCardInfo?.RecipientName;
+            var recipientEmail = ctx.AttributeSelection.GiftCardInfo?.RecipientEmail;
+            var senderName = ctx.AttributeSelection.GiftCardInfo?.SenderName;
+            var senderEmail = ctx.AttributeSelection.GiftCardInfo?.SenderEmail;
 
             if (recipientName.IsEmpty())
             {
@@ -435,7 +219,7 @@ namespace Smartstore.Core.Checkout.Cart
                 warnings.Add(T("ShoppingCart.SenderNameError"));
             }
 
-            if (product.GiftCardType == GiftCardType.Virtual)
+            if (ctx.Product.GiftCardType == GiftCardType.Virtual)
             {
                 if (recipientEmail.IsEmpty() || !recipientEmail.IsEmail())
                 {
@@ -448,185 +232,366 @@ namespace Smartstore.Core.Checkout.Cart
                 }
             }
 
+            ctx.Warnings.AddRange(warnings);
             return warnings;
         }
 
-        public virtual IList<string> GetBundleItemWarnings(ProductBundleItem bundleItem)
+        // was GetShoppingCartItemWarnings
+        // TODO (ms) (core) Have bundle item, and child item already added to context
+        public virtual async Task<IList<string>> ValidateCartItemAsync(AddToCartContext ctx, IEnumerable<OrganizedShoppingCartItem> shoppingCart)
         {
-            var warnings = new List<string>();
+            Guard.NotNull(ctx, nameof(ctx));
+            Guard.NotNull(shoppingCart, nameof(shoppingCart));
 
-            if (bundleItem == null)
-                return warnings;
-
-            var name = bundleItem.GetLocalizedName();
-            if (!bundleItem.Published)
-            {
-                warnings.Add(T("ShoppingCart.Bundle.BundleItemUnpublished", name));
-            }
-
-            if (bundleItem.ProductId == 0
-                || bundleItem.Product == null
-                || bundleItem.BundleProductId == 0
-                || bundleItem.BundleProduct == null)
-            {
-                warnings.Add(T("ShoppingCart.Bundle.MissingProduct", name));
-            }
-
-            if (bundleItem.Quantity <= 0)
-            {
-                warnings.Add(T("ShoppingCart.Bundle.Quantity", name));
-            }
-
-            if (bundleItem.Product.IsDownload || bundleItem.Product.IsRecurring)
-            {
-                warnings.Add(T("ShoppingCart.Bundle.ProductResrictions", name));
-            }
-
-            return warnings;
-        }
-
-        public virtual IList<string> GetCartBundleItemWarnings(IList<OrganizedShoppingCartItem> cartItems)
-        {
-            var warnings = new List<string>();
-
-            if (cartItems.IsNullOrEmpty())
-                return warnings;
-
-            var bundleItems = cartItems
-                .Where(x => x.Item.BundleItem != null)
-                .Select(x => x.Item.BundleItem);
-
-            foreach (var bundleItem in bundleItems)
-            {
-                warnings.AddRange(GetBundleItemWarnings(bundleItem));
-            }
-
-            return warnings;
-        }
-
-        public virtual async Task<IList<string>> GetShoppingCartItemWarningsAsync(
-            Customer customer,
-            ShoppingCartType shoppingCartType,
-            Product product,
-            int storeId,
-            ProductVariantAttributeSelection selection,
-            decimal customerEnteredPrice,
-            int quantity,
-            bool addRequiredProducts,
-            bool getStandardWarnings = true,
-            bool getAttributesWarnings = true,
-            bool getGiftCardWarnings = true,
-            bool getRequiredProductWarnings = true,
-            bool getBundleWarnings = true,
-            ProductBundleItem bundleItem = null,
-            IList<OrganizedShoppingCartItem> childItems = null)
-        {
-            Guard.NotNull(product, nameof(product));
-            Guard.NotNull(selection, nameof(selection));
-
-            var warnings = new List<string>();
-
-            if (getStandardWarnings)
-                warnings.AddRange(await GetStandardWarningsAsync(customer, shoppingCartType, product, selection, customerEnteredPrice, quantity, storeId));
-
-            if (getAttributesWarnings)
-                warnings.AddRange(await GetShoppingCartItemAttributeWarningsAsync(customer, shoppingCartType, product, selection, quantity, bundleItem));
-
-            if (getGiftCardWarnings)
-                warnings.AddRange(GetShoppingCartItemGiftCardWarnings(product, shoppingCartType, selection));
-
-            if (getRequiredProductWarnings)
-                warnings.AddRange(await GetRequiredProductWarningsAsync(customer, shoppingCartType, product, storeId, addRequiredProducts));
+            await ValidateProductAsync(ctx, shoppingCart);
+            await ValidateProductAttributesAsync(ctx, shoppingCart);
+            ValidateGiftCardInfo(ctx);
+            ctx.Warnings.AddRange(await ValidateRequiredProductsAsync(ctx, shoppingCart));
 
             // Bundle and bundle item warnings
-            if (getBundleWarnings)
+            if (ctx.BundleItem != null)
             {
-                if (bundleItem != null)
-                {
-                    warnings.AddRange(GetBundleItemWarnings(bundleItem));
-                }
+                ctx.Warnings.AddRange(this.ValidateBundleItem(ctx.BundleItem));
+            }
 
-                if (childItems != null)
-                {
-                    warnings.AddRange(GetCartBundleItemWarnings(childItems));
-                }
+            if (ctx.ChildItems != null)
+            {
+                var childItems = ctx.ChildItems.Select(x => x.BundleItem).ToList();
+                ctx.Warnings.AddRange(ValidateBundleItems(childItems));
+            }
+
+            return ctx.Warnings;
+        }
+
+        public virtual IList<string> ValidateCartItemsMaximum(ShoppingCartType cartType, int cartItemsCount)
+        {
+            var warnings = new List<string>();
+
+            if (cartType == ShoppingCartType.ShoppingCart && cartItemsCount >= _cartSettings.MaximumShoppingCartItems)
+            {
+                warnings.Add(T("ShoppingCart.MaximumShoppingCartItems"));
+            }
+            else if (cartType == ShoppingCartType.Wishlist && cartItemsCount >= _cartSettings.MaximumWishlistItems)
+            {
+                warnings.Add(T("ShoppingCart.MaximumWishlistItems"));
             }
 
             return warnings;
         }
 
-        public virtual async Task<IList<string>> GetShoppingCartWarningsAsync(
-            IList<OrganizedShoppingCartItem> shoppingCart,
-            CheckoutAttributeSelection selection,
-            bool validateCheckoutAttributes)
+        public virtual async Task<IList<string>> ValidateProductAsync(AddToCartContext ctx, IEnumerable<OrganizedShoppingCartItem> shoppingCart)
         {
+            Guard.NotNull(ctx, nameof(ctx));
+
+            var warnings = new List<string>();
+            var product = ctx.Product;
+            var cartType = ctx.CartType;
+
+            if (product.Deleted)
+            {
+                warnings.Add(T("ShoppingCart.ProductDeleted"));
+                ctx.Warnings.AddRange(warnings);
+                return ctx.Warnings;
+            }
+
+            // Grouped products are not available for order
+            if (product.ProductType == ProductType.GroupedProduct)
+            {
+                warnings.Add(T("ShoppingCart.ProductNotAvailableForOrder"));
+            }
+
+            // Validate product bundle, no customer entered price allowed
+            if (product.ProductType == ProductType.BundledProduct
+                && product.BundlePerItemPricing
+                && ctx.CustomerEnteredPrice != decimal.Zero)
+            {
+                warnings.Add(T("ShoppingCart.Bundle.NoCustomerEnteredPrice"));
+            }
+
+            // Not published or no permissions for customer or store
+            if (!product.Published
+                || !await _aclService.AuthorizeAsync(product, ctx.Customer)
+                || !await _storeMappingService.AuthorizeAsync(product.Name, product.Id, ctx.StoreId ?? _storeContext.CurrentStore.Id))
+            {
+                warnings.Add(T("ShoppingCart.ProductUnpublished"));
+            }
+
+            // Disabled buy button
+            if (cartType == ShoppingCartType.ShoppingCart && product.DisableBuyButton)
+            {
+                warnings.Add(T("ShoppingCart.BuyingDisabled"));
+            }
+
+            // Disabled wishlist button
+            if (cartType == ShoppingCartType.Wishlist && product.DisableWishlistButton)
+            {
+                warnings.Add(T("ShoppingCart.WishlistDisabled"));
+            }
+
+            // Call for price
+            if (cartType == ShoppingCartType.ShoppingCart && product.CallForPrice)
+            {
+                warnings.Add(T("Products.CallForPrice"));
+            }
+
+            // Customer entered price
+            if (product.CustomerEntersPrice
+                && (ctx.CustomerEnteredPrice < product.MinimumCustomerEnteredPrice
+                || ctx.CustomerEnteredPrice > product.MaximumCustomerEnteredPrice))
+            {
+                var minimum = _currencyService.ConvertFromPrimaryStoreCurrency(product.MinimumCustomerEnteredPrice, _workContext.WorkingCurrency);
+                var maximum = _currencyService.ConvertFromPrimaryStoreCurrency(product.MaximumCustomerEnteredPrice, _workContext.WorkingCurrency);
+
+                warnings.Add(T(
+                    "ShoppingCart.CustomerEnteredPrice.RangeError",
+                    _priceFormatter.FormatPrice(minimum, true, displayTax: false),
+                    _priceFormatter.FormatPrice(maximum, true, displayTax: false))
+                    );
+            }
+
+            // Quantity validation
+            if (ctx.Quantity <= 0)
+            {
+                warnings.Add(T("ShoppingCart.QuantityShouldPositive"));
+            }
+
+            if (ctx.Quantity < product.OrderMinimumQuantity)
+            {
+                warnings.Add(T("ShoppingCart.MinimumQuantity", product.OrderMinimumQuantity));
+            }
+
+            if (ctx.Quantity > product.OrderMaximumQuantity)
+            {
+                warnings.Add(T("ShoppingCart.MaximumQuantity", product.OrderMaximumQuantity));
+            }
+
+            var allowedQuantities = product.ParseAllowedQuantities();
+            if (allowedQuantities.Length > 0 && !allowedQuantities.Contains(ctx.Quantity))
+            {
+                warnings.Add(T("ShoppingCart.AllowedQuantities", string.Join(", ", allowedQuantities)));
+            }
+
+            // Stock validation
+            var validateOutOfStock = ctx.CartType == ShoppingCartType.ShoppingCart || !_cartSettings.AllowOutOfStockItemsToBeAddedToWishlist;
+            if (validateOutOfStock)
+            {
+                switch (product.ManageInventoryMethod)
+                {
+                    case ManageInventoryMethod.ManageStock:
+                        {
+                            if (product.BackorderMode != BackorderMode.NoBackorders || product.StockQuantity >= ctx.Quantity)
+                                break;
+
+                            var warning = product.StockQuantity > 0
+                                ? T("ShoppingCart.QuantityExceedsStock", product.StockQuantity)
+                                : T("ShoppingCart.OutOfStock");
+
+                            warnings.Add(warning);
+                        }
+                        break;
+                    case ManageInventoryMethod.ManageStockByAttributes:
+                        {
+                            var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, ctx.AttributeSelection);
+                            if (combination == null || combination.AllowOutOfStockOrders || combination.StockQuantity >= ctx.Quantity)
+                                break;
+
+                            var warning = combination.StockQuantity > 0
+                                ? T("ShoppingCart.QuantityExceedsStock", combination.StockQuantity)
+                                : T("ShoppingCart.OutOfStock");
+
+                            warnings.Add(warning);
+                        }
+                        break;
+                    case ManageInventoryMethod.DontManageStock:
+                    default:
+                        break;
+                }
+            }
+
+            // Validate availability
+            var availableStartDateError = false;
+            if (ctx.Product.AvailableStartDateTimeUtc.HasValue)
+            {
+                var availableStartDate = DateTime.SpecifyKind(ctx.Product.AvailableStartDateTimeUtc.Value, DateTimeKind.Utc);
+                if (availableStartDate.CompareTo(DateTime.UtcNow) > 0)
+                {
+                    warnings.Add(T("ShoppingCart.NotAvailable"));
+                    availableStartDateError = true;
+                }
+            }
+
+            if (ctx.Product.AvailableEndDateTimeUtc.HasValue && !availableStartDateError)
+            {
+                var availableEndDate = DateTime.SpecifyKind(ctx.Product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc);
+                if (availableEndDate.CompareTo(DateTime.UtcNow) < 0)
+                {
+                    warnings.Add(T("ShoppingCart.NotAvailable"));
+                }
+            }
+
+            ctx.Warnings.AddRange(warnings);
+            return warnings;
+        }
+
+        // was GetShoppingCartItemAttributeWarnings
+        public virtual async Task<IList<string>> ValidateProductAttributesAsync(AddToCartContext ctx, IEnumerable<OrganizedShoppingCartItem> shoppingCart)
+        {
+            Guard.NotNull(ctx, nameof(ctx));
+
             var warnings = new List<string>();
 
-            var missingProduct = shoppingCart.Where(x => x.Item.Product is null).FirstOrDefault();
-            if (missingProduct != null)
-            {
-                warnings.Add(T("ShoppingCart.CannotLoadProduct", missingProduct.Item.ProductId));
+            // Customer cannot select anything cause bundles have no attributes
+            if (ctx.Product.ProductType == ProductType.BundledProduct
+                || ctx.BundleItem != null && !ctx.BundleItem.BundleProduct.BundlePerItemPricing)
                 return warnings;
-            }
 
-            var hasStandardProducts = shoppingCart.IncludesStandardProducts();
-            var hasRecurringProducts = shoppingCart.IncludesRecurringProducts();
-            // Do not mix standard and recurring products
-            if (hasStandardProducts && hasRecurringProducts)
+            // Get selected product variant attributes
+            var selectedAttributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(ctx.AttributeSelection);
+            foreach (var attribute in selectedAttributes)
             {
-                warnings.Add(T("ShoppingCart.CannotMixStandardAndAutoshipProducts"));
-            }
-
-            // Validate recurring products
-            if (hasRecurringProducts)
-            {
-                var recurringCycleInfo = shoppingCart.GetRecurringCycleInfo(_localizationService);
-                if (!recurringCycleInfo.ErrorMessage.IsEmpty())
+                if (attribute.Product == null || attribute.Product.Id != ctx.Product.Id)
                 {
-                    warnings.Add(recurringCycleInfo.ErrorMessage);
+                    warnings.Add(T("ShoppingCart.AttributeError"));
+                    ctx.Warnings.AddRange(warnings);
                     return warnings;
                 }
             }
 
-            if (validateCheckoutAttributes)
+            // Get existing product variant attributes
+            foreach (var existingAttribute in ctx.Product.ProductVariantAttributes)
             {
-                var existingAttributesQuery = _db.CheckoutAttributes.ApplyStoreFilter(_storeContext.CurrentStore.Id);
-                if (!shoppingCart.IsShippingRequired())
+                if (!existingAttribute.IsRequired)
+                    continue;
+
+                var found = false;
+                // Selected product attributes
+                foreach (var selectedAttribute in selectedAttributes)
                 {
-                    // Filter attributes which require shippable products
-                    existingAttributesQuery = existingAttributesQuery.Where(x => !x.ShippableProductRequired);
+                    if (selectedAttribute.Id == existingAttribute.Id)
+                    {
+                        var values = ctx.AttributeSelection.GetAttributeValues(selectedAttribute.Id).Select(x => x.ToString()).ToList();
+                        found = values.Find(x => x.HasValue()).HasValue();
+
+                        if (found)
+                            break;
+                    }
                 }
 
-                var existingAttributes = await existingAttributesQuery.ToListAsync();
-                var selectedAttributesValues = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributeValuesAsync(selection);
+                // If attribute is filtered out by bundle item, it cannot be selected by the customer
+                found = !found && (ctx.BundleItem?.FilterAttributes ?? false)
+                    ? !ctx.BundleItem.AttributeFilters.Any(x => x.AttributeId == existingAttribute.ProductAttributeId)
+                    : true;
 
-                // Check for not selected attributes
-                foreach (var existingAttribute in existingAttributes)
+                if (!found)
                 {
-                    if (!existingAttribute.IsRequired)
-                        continue;
-
-                    var found = selectedAttributesValues
-                        .Where(x => x.CheckoutAttributeId == existingAttribute.Id)
-                        .Any();
-
-                    if (found)
-                        continue;
-
-                    string textPrompt = existingAttribute.GetLocalized(a => a.TextPrompt);
-                    if (textPrompt.HasValue())
-                    {
-                        warnings.Add(textPrompt);
-                    }
-                    else
-                    {
-                        warnings.Add(T("ShoppingCart.SelectAttribute", existingAttribute.GetLocalized(a => a.Name)));
-                    }
+                    warnings.Add(T(
+                        "ShoppingCart.SelectAttribute",
+                        existingAttribute.TextPrompt.IsEmpty()
+                            ? existingAttribute.ProductAttribute.GetLocalized(x => x.Name)
+                            : existingAttribute.GetLocalized(x => x.TextPrompt)
+                        ));
                 }
             }
 
+            if (warnings.Count > 0)
+            {
+                ctx.Warnings.AddRange(warnings);
+                return warnings;
+            }
+
+            // Checks whether there is an active selected attribute combination
+            if (ctx.AttributeSelection.AttributesMap.Any())
+            {
+                var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(ctx.Product.Id, ctx.AttributeSelection);
+                if (combination != null && !combination.IsActive)
+                {
+                    warnings.Add(T("ShoppingCart.NotAvailable"));
+                }
+            }
+
+            var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(ctx.AttributeSelection);
+
+            var linkedProductIds = attributeValues
+                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                .Select(x => x.LinkedProductId)
+                .Distinct();
+
+            // Get products linked to attributes
+            var linkedProducts = await _db.Products.GetManyAsync(linkedProductIds);
+
+            // Filter products which could not be loaded
+            var notFoundProductIds = linkedProductIds.Except(linkedProducts.Select(x => x.Id));
+            foreach (var productId in notFoundProductIds)
+            {
+                warnings.Add(T("ShoppingCart.ProductLinkageProductNotLoading", productId));
+            }
+
+            // Validate each linkedProduct, create shopping cart item from linkedProduct and run validation
+            foreach (var attributeValue in attributeValues)
+            {
+                var linkedProduct = linkedProducts.FirstOrDefault(x => x.Id == attributeValue.LinkedProductId);
+                if (linkedProduct == null)
+                {
+                    warnings.Add(T("ShoppingCart.ProductLinkageProductNotLoading", attributeValue.LinkedProductId));
+                    continue;
+                }
+
+                var newCtx = new AddToCartContext
+                {
+                    Product = linkedProduct,
+                    Customer = ctx.Customer,
+                    CartType = ctx.CartType,
+                    StoreId = ctx.StoreId,
+                    Quantity = ctx.Quantity * attributeValue.Quantity
+                };
+
+                var linkageWarnings = await ValidateCartItemAsync(newCtx, shoppingCart);
+                foreach (var linkageWarning in linkageWarnings)
+                {
+                    warnings.Add(
+                        T("ShoppingCart.ProductLinkageAttributeWarning",
+                            attributeValue.ProductVariantAttribute.ProductAttribute.GetLocalized(x => x.Name),
+                            attributeValue.GetLocalized(x => x.Name),
+                            linkageWarning)
+                        );
+                }
+            }
+
+            ctx.Warnings.AddRange(warnings);
             return warnings;
         }
 
+        // TODO: (ms) (core) Have shopping cart service try adding required products first and then call this directly
+        // => apply this either on each item or once for whole shopping cart...
+        public virtual async Task<IList<string>> ValidateRequiredProductsAsync(AddToCartContext ctx, IEnumerable<OrganizedShoppingCartItem> cartItems)
+        {
+            Guard.NotNull(cartItems, nameof(cartItems));
+            Guard.NotNull(ctx, nameof(ctx));
+
+            var warnings = new List<string>();
+
+            if (!ctx.Product.RequireOtherProducts)
+                return warnings;
+
+            var requiredProductIds = ctx.Product.ParseRequiredProductIds();
+            if (!requiredProductIds.Any())
+                return warnings;
+
+            var cartProductIds = cartItems.Select(x => x.Item.ProductId).ToList();
+
+            var missingRequiredProductIds = requiredProductIds.Except(cartProductIds);
+            if (!missingRequiredProductIds.Any())
+                return warnings;
+
+            var missingRequiredProducts = await _db.Products.GetManyAsync(missingRequiredProductIds);
+
+            foreach (var product in missingRequiredProducts)
+            {
+                warnings.Add(T("ShoppingCart.RequiredProductWarning", product.GetLocalized(x => x.Name)));
+            }
+
+            ctx.Warnings.AddRange(warnings);
+            return warnings;
+        }
     }
 }

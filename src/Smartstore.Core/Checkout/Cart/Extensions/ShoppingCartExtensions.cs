@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -20,11 +21,11 @@ namespace Smartstore
         /// <remarks>
         /// Products with the same identifier need to have matching attribute selections as well.
         /// </remarks>
-        /// <param name="cart"></param>
-        /// <param name="shoppingCartType"></param>
-        /// <param name="product"></param>
-        /// <param name="selection"></param>
-        /// <param name="customerEnteredPrice"></param>
+        /// <param name="cart">Shopping cart to search in.</param>
+        /// <param name="shoppingCartType">Shopping cart type to search in.</param>
+        /// <param name="product">Product to search for.</param>
+        /// <param name="selection">Attribute selection.</param>
+        /// <param name="customerEnteredPrice">Customers entered price needs to match (if enabled by product).</param>
         /// <returns>Matching <see cref="OrganizedShoppingCartItem"/> or <c>null</c> if none was found.</returns>
         public static OrganizedShoppingCartItem FindItemInCart(
             this IList<OrganizedShoppingCartItem> cart,
@@ -84,10 +85,10 @@ namespace Smartstore
 
 
         /// <summary>
-        /// Checks whether the shopping cart requires shipping
+        /// Checks whether the shopping cart requires shipping.
         /// </summary>
         /// <returns>
-        /// <c>true</c> if any product requires shipping
+        /// <c>True</c> if any product requires shipping; otherwise <c>false</c>.
         /// </returns>
         public static bool IsShippingRequired(this IEnumerable<OrganizedShoppingCartItem> cart)
         {
@@ -97,7 +98,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets the total quantity of products in the cart
+        /// Gets the total quantity of products in the cart.
         /// </summary>
 		public static int GetTotalQuantity(this IEnumerable<OrganizedShoppingCartItem> cart)
         {
@@ -107,41 +108,27 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets a value indicating whether the shopping cart includes recurring products
+        /// Gets a value indicating whether the cart includes products matching the condition.
         /// </summary>
+        /// <param name="matcher">The condition to match cart items.</param>
         /// <returns>
-        /// <c>true</c> if any product is recurring
+        /// <c>True</c> if any product matches the condition; otherwise <c>false</c>.
+        /// <see cref=""/>
         /// </returns>
-		public static bool IncludesRecurringProducts(this IEnumerable<OrganizedShoppingCartItem> cart)
+        public static bool IncludesMatchingItems(this IEnumerable<OrganizedShoppingCartItem> cart, Func<Product, bool> matcher)
         {
             Guard.NotNull(cart, nameof(cart));
 
-            return cart.Where(x => x.Item.Product?.IsRecurring ?? false).Any();
+            return cart.Where(x => x.Item.Product != null && matcher(x.Item.Product)).Any();
         }
 
         /// <summary>
-        /// Gets a value indicating whether the shopping cart includes standard (not recurring) products
+        /// Gets the recurring cycle information.
+        /// <param name="localizationService">The localization service.</param>
         /// </summary>
         /// <returns>
-        /// <c>true</c> if any product is standard
+        /// <see cref="RecurringCycleInfo"/>
         /// </returns>
-        public static bool IncludesStandardProducts(this IEnumerable<OrganizedShoppingCartItem> cart)
-        {
-            Guard.NotNull(cart, nameof(cart));
-
-            return cart.Where(x => !x.Item.Product?.IsRecurring ?? false).Any();
-        }
-
-        public static bool Includes(this IEnumerable<OrganizedShoppingCartItem> cart, Func<Product, bool> matcher)
-        {
-            Guard.NotNull(cart, nameof(cart));
-            // TODO: (ms) (core) Find a better name for this.
-            return cart.Where(x => x.Item.Product != null ? matcher(x.Item.Product) : false).Any();
-        }
-
-        /// <summary>
-        /// Gets the recurring cycle information
-        /// </summary>
 		public static RecurringCycleInfo GetRecurringCycleInfo(this IEnumerable<OrganizedShoppingCartItem> cart, ILocalizationService localizationService)
         {
             Guard.NotNull(cart, nameof(cart));
@@ -179,16 +166,55 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets customer of shopping cart
+        /// Gets customer of shopping cart.
         /// </summary>
         /// <returns>
-        /// <see cref="Customer"/> of <see cref="OrganizedShoppingCartItem"/> or <c>null</c> if cart is empty
+        /// <see cref="Customer"/> of <see cref="OrganizedShoppingCartItem"/> or <c>null</c> if cart is empty.
         /// </returns>
         public static Customer GetCustomer(this IList<OrganizedShoppingCartItem> cart)
         {
             Guard.NotNull(cart, nameof(cart));
 
             return cart.Count > 0 ? cart[0].Item.Customer : null;
+        }
+
+        /// <summary>
+        /// Removes a single cart item from shopping cart of <see cref="ShoppingCartItem.Customer"/>.
+        /// </summary>        
+        /// <param name="cartItem">Cart item to remove from shopping cart.</param>
+        /// <param name="resetCheckoutData">A value indicating whether to reset checkout data.</param>
+        /// <param name="removeInvalidCheckoutAttributes">A value indicating whether to remove incalid checkout attributes.</param>
+        /// <param name="deleteChildCartItems">A value indicating whether to delete child cart items of <c>cartItem.</c></param>
+        /// <returns>Number of deleted entries.</returns>
+        public static Task<int> DeleteCartItemAsync(
+            this IShoppingCartService cartService,
+            ShoppingCartItem cartItem,
+            bool resetCheckoutData = true,
+            bool removeInvalidCheckoutAttributes = false,
+            bool deleteChildCartItems = true)
+        {
+            Guard.NotNull(cartService, nameof(cartService));
+            Guard.NotNull(cartItem, nameof(cartItem));
+
+            return cartService.DeleteCartItemsAsync(
+                new List<ShoppingCartItem>() { cartItem },
+                resetCheckoutData,
+                removeInvalidCheckoutAttributes,
+                deleteChildCartItems);
+        }
+
+        /// <summary>
+        /// Validates a single cart item for bundle items.
+        /// </summary>
+        /// <param name="cartValidator"></param>
+        /// <param name="bundleItem"></param>
+        /// <returns></returns>
+        public static IList<string> ValidateBundleItem(this IShoppingCartValidator cartValidator, ProductBundleItem bundleItem)
+        {
+            Guard.NotNull(cartValidator, nameof(cartValidator));
+            Guard.NotNull(bundleItem, nameof(bundleItem));
+
+            return cartValidator.ValidateBundleItems(new List<ProductBundleItem> { bundleItem });
         }
     }
 }
