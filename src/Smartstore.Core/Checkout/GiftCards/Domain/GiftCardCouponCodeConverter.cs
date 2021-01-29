@@ -109,9 +109,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                 //return root.ToString(SaveOptions.DisableFormatting);
 
                 // JSON
-
-                // TODO: (ms) (core) Check that this cast works!
-                var converted = attributes as IEnumerable<string>;
+                var converted = attributes.Select(x=>x.Value);
                 return JsonConvert.SerializeObject(converted);
             }
             else
