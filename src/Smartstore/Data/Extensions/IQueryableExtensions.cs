@@ -33,7 +33,7 @@ namespace Smartstore
         /// Applies "AsTracking()" or "AsNoTracking()" according to <paramref name="tracked"/> parameter.
         /// </summary>
         public static IQueryable<T> ApplyTracking<T>(this IQueryable<T> query, bool tracked)
-            where T : BaseEntity, new()
+            where T : BaseEntity
         {
             Guard.NotNull(query, nameof(query));
 
@@ -49,7 +49,7 @@ namespace Smartstore
         /// is known for performing really bad on large tables.
         /// </summary>
         public static FastPager<T> ToFastPager<T>(this IQueryable<T> query, int pageSize = 1000)
-            where T : BaseEntity, new()
+            where T : BaseEntity
         {
             Guard.NotNull(query, nameof(query));
 

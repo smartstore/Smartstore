@@ -12,6 +12,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.UI.TagHelpers.Shared;
+using Smartstore.Core.Data;
 
 namespace Smartstore.Web.UI
 {
@@ -110,6 +111,7 @@ namespace Smartstore.Web.UI
 
             if (locales.Count > 1)
             {
+                var db = services.GetRequiredService<SmartDbContext>();
                 var languageService = services.GetRequiredService<ILanguageService>();
                 var localizationService = services.GetRequiredService<ILocalizationService>();
 
@@ -125,7 +127,7 @@ namespace Smartstore.Web.UI
                 };
 
                 var tabs = new List<TabTagHelper>(locales.Count + 1);
-                var masterLanguage = languageService.GetMasterLanguage();
+                var masterLanguage = db.Languages.FindById(languageService.GetMasterLanguageId(), false);
 
                 tabs.Add(new TabTagHelper
                 {
@@ -137,7 +139,7 @@ namespace Smartstore.Web.UI
                 for (i = 0; i < locales.Count; i++)
                 {
                     var locale = helper.ViewData.Model.Locales[i];
-                    var language = languageService.GetMasterLanguage(); // languageService.GetLanguageById(locale.LanguageId);
+                    var language = db.Languages.FindById(locale.LanguageId, false);
                     var tabInnerContent = new DefaultTagHelperContent();
                     tabInnerContent.SetHtmlContent(localizedTemplate(i));
 

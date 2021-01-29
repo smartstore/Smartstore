@@ -28,64 +28,89 @@ namespace Smartstore
             return (HookingDbContext)currentDbContext.Context;
         }
 
-        #region Get*
+        #region Find
 
         /// <summary>
-        /// Loads a single entity by id. If <paramref name="tracked"/> is false,
-        /// a query is made to the database for an entity with the given <paramref name="id"/>.
-        /// If <paramref name="tracked"/> is true, the entity will be requested from the change tracker first, THEN from the database.
-        /// If no entity is found, then null is returned.
+        ///     Finds an entity with the given id. If an entity with the given id
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the database for an entity with the given id
+        ///     and this entity, if found, is returned. If no entity is found, then
+        ///     null is returned. If <paramref name="tracked"/> is <see langword="true"/>, 
+        ///     then the entity is also attached to the context, so that subsequent calls can
+        ///     return the tracked entity without a database roundtrip.
         /// </summary>
         /// <param name="id">The primary id of the entity.</param>
+        /// <param name="tracked">
+        ///     Whether to put entity to change tracker after it was loaded from database. Note that <c>false</c>
+        ///     has no effect if the entity was in change tracker already (it will NOT be detached).
+        /// </param>
         /// <returns>The entity found, or null.</returns>
-        public static TEntity GetById<TEntity>(this DbSet<TEntity> dbSet, int id, bool tracked = false)
-            where TEntity : BaseEntity, new()
+        /// <remarks>
+        ///     This method is slightly faster than <see cref="DbSet{TEntity}.Find(object[])"/>
+        ///     because the key is known.
+        /// </remarks>
+        public static TEntity FindById<TEntity>(this DbSet<TEntity> dbSet, int id, bool tracked = true)
+            where TEntity : BaseEntity
         {
-            Guard.NotNull(dbSet, nameof(dbSet));
+            if (id == 0)
+                return null;
 
-            if (tracked)
-                return FindById(dbSet, id);
-
-            if (id <= 0)
-                return default;
-
-            var item = dbSet
-                .ApplyTracking(tracked)
-                .FirstOrDefault(x => x.Id == id);
-
-            return item;
+            return FindTracked<TEntity>(dbSet.GetDbContext(), id) ?? dbSet.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
         }
 
         /// <summary>
-        /// Loads a single entity by id. If <paramref name="tracked"/> is false,
-        /// a query is made to the database for an entity with the given <paramref name="id"/>.
-        /// If <paramref name="tracked"/> is true, the entity will be requested from the change tracker first, THEN from the database.
-        /// If no entity is found, then null is returned.
+        ///     Finds an entity with the given id. If an entity with the given id
+        ///     is being tracked by the context, then it is returned immediately without making a request to the
+        ///     database. Otherwise, a query is made to the database for an entity with the given id
+        ///     and this entity, if found, is returned. If no entity is found, then
+        ///     null is returned. If <paramref name="tracked"/> is <see langword="true"/>, 
+        ///     then the entity is also attached to the context, so that subsequent calls can
+        ///     return the tracked entity without a database roundtrip.
         /// </summary>
         /// <param name="id">The primary id of the entity.</param>
+        /// <param name="tracked">
+        ///     Whether to put entity to change tracker after it was loaded from database. Note that <c>false</c>
+        ///     has no effect if the entity was in change tracker already (it will NOT be detached).
+        /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public static ValueTask<TEntity> GetByIdAsync<TEntity>(this DbSet<TEntity> dbSet, int id, bool tracked = false, CancellationToken cancellationToken = default)
-            where TEntity : BaseEntity, new()
+        /// <remarks>
+        ///     This method is slightly faster than <see cref="DbSet{TEntity}.FindAsync(object[], CancellationToken)(object[])"/>
+        ///     because the key is known.
+        /// </remarks>
+        public static ValueTask<TEntity> FindByIdAsync<TEntity>(this DbSet<TEntity> dbSet, int id, bool tracked = true, CancellationToken cancellationToken = default)
+            where TEntity : BaseEntity
         {
-            Guard.NotNull(dbSet, nameof(dbSet));
-
-            if (tracked)
-                return FindByIdAsync(dbSet, id, cancellationToken);
-
-            if (id <= 0)
+            if (id == 0)
                 return ValueTask.FromResult((TEntity)null);
 
-            return new ValueTask<TEntity>(
-                    dbSet.ApplyTracking(tracked).FirstOrDefaultAsync(x => x.Id == id, cancellationToken));
+            var trackedEntity = FindTracked<TEntity>(dbSet.GetDbContext(), id);
+            return trackedEntity != null
+                ? new ValueTask<TEntity>(trackedEntity)
+                : new ValueTask<TEntity>(
+                    dbSet.ApplyTracking(tracked).SingleOrDefaultAsync(x => x.Id == id, cancellationToken));
         }
+
+        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Perf")]
+        private static TEntity FindTracked<TEntity>(DbContext dbContext, int id)
+            where TEntity : BaseEntity
+        {
+            var stateManager = dbContext.GetDependencies().StateManager;
+            var key = dbContext.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey();
+
+            return stateManager.TryGetEntry(key, new object[] { id })?.Entity as TEntity;
+        }
+
+        #endregion
+
+        #region Get*
 
         /// <summary>
         /// Loads many entities from database sorted by the given id sequence.
         /// Sort is applied in-memory.
         /// </summary>
         public static IList<TEntity> GetMany<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids, bool tracked = false) 
-            where TEntity : BaseEntity, new()
+            where TEntity : BaseEntity
         {
             Guard.NotNull(dbSet, nameof(dbSet));
             Guard.NotNull(ids, nameof(ids));
@@ -106,7 +131,7 @@ namespace Smartstore
         /// Sort is applied in-memory.
         /// </summary>
         public static async Task<List<TEntity>> GetManyAsync<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids, bool tracked = false) 
-            where TEntity : BaseEntity, new()
+            where TEntity : BaseEntity
         {
             Guard.NotNull(dbSet, nameof(dbSet));
             Guard.NotNull(ids, nameof(ids));
@@ -240,70 +265,6 @@ namespace Smartstore
             }
 
             return numDeleted;
-        }
-
-        #endregion
-
-        #region Find
-
-        /// <summary>
-        ///     Finds an entity with the given id. If an entity with the given id
-        ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the database for an entity with the given id
-        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
-        ///     null is returned.
-        /// </summary>
-        /// <param name="id">The primary id of the entity.</param>
-        /// <returns>The entity found, or null.</returns>
-        /// <remarks>
-        ///     This method is slightly faster than <see cref="DbSet{TEntity}.Find(object[])"/>
-        ///     because the key is known.
-        /// </remarks>
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Perf")]
-        public static TEntity FindById<TEntity>(this DbSet<TEntity> dbSet, int id) 
-            where TEntity : BaseEntity
-        {
-            if (id == 0)
-                return null;
-
-            return FindTracked<TEntity>(dbSet.GetDbContext(), id) ?? dbSet.FirstOrDefault(x => x.Id == id);
-        }
-
-        /// <summary>
-        ///     Finds an entity with the given id. If an entity with the given id
-        ///     is being tracked by the context, then it is returned immediately without making a request to the
-        ///     database. Otherwise, a query is made to the database for an entity with the given id
-        ///     and this entity, if found, is attached to the context and returned. If no entity is found, then
-        ///     null is returned.
-        /// </summary>
-        /// <param name="id">The primary id of the entity.</param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>The entity found, or null.</returns>
-        /// <remarks>
-        ///     This method is slightly faster than <see cref="DbSet{TEntity}.FindAsync(object[], CancellationToken)(object[])"/>
-        ///     because the key is known.
-        /// </remarks>
-        public static ValueTask<TEntity> FindByIdAsync<TEntity>(this DbSet<TEntity> dbSet, int id, CancellationToken cancellationToken = default) 
-            where TEntity : BaseEntity
-        {
-            if (id == 0)
-                return ValueTask.FromResult((TEntity)null);
-
-            var trackedEntity = FindTracked<TEntity>(dbSet.GetDbContext(), id);
-            return trackedEntity != null
-                ? new ValueTask<TEntity>(trackedEntity)
-                : new ValueTask<TEntity>(
-                    dbSet.FirstOrDefaultAsync(x => x.Id == id, cancellationToken));
-        }
-
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Perf")]
-        private static TEntity FindTracked<TEntity>(DbContext dbContext, int id)
-            where TEntity : BaseEntity
-        {
-            var stateManager = dbContext.GetDependencies().StateManager;
-            var key = dbContext.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey();
-
-            return stateManager.TryGetEntry(key, new object[] { id })?.Entity as TEntity;
         }
 
         #endregion

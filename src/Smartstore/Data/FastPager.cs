@@ -17,7 +17,7 @@ namespace Smartstore.Data
     /// it for the next batches' WHERE clause. This way Skip() can be avoided which
     /// is known for performing really bad on large tables.
     /// </summary>
-    public sealed class FastPager<T> where T : BaseEntity, new()
+    public sealed class FastPager<T> where T : BaseEntity
     {
         private readonly IQueryable<T> _query;
         private readonly int _pageSize;
