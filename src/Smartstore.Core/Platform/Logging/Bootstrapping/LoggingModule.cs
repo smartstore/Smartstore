@@ -11,7 +11,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Logging;
 using Smartstore.Data;
 
-namespace Smartstore.Core.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
     internal class LoggingModule : Autofac.Module
     {

@@ -2,6 +2,7 @@
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
@@ -57,6 +58,7 @@ namespace Smartstore.Core
             builder.RegisterModule(new LoggingModule());
             builder.RegisterModule(new ProvidersModule(appContext));
             builder.RegisterModule(new LocalizationModule());
+            builder.RegisterModule(new CommonServicesModule());
 
             if (appContext.IsInstalled)
             {

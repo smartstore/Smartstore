@@ -37,8 +37,6 @@ using System.IO;
 using System.Drawing;
 using Humanizer;
 using System.Numerics;
-using Smartstore.Core.Catalog.Attributes;
-using StackExchange.Profiling.Internal;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Attributes;
@@ -64,7 +62,7 @@ namespace Smartstore.Web.Controllers
         public string Prop3 { get; set; } = "Prop3";
     }
 
-    public class HomeController : Controller
+    public class HomeController : SmartController
     {
         private static CancellationTokenSource _cancelTokenSource = new();
 
@@ -76,7 +74,6 @@ namespace Smartstore.Web.Controllers
         private readonly ICacheManager _cache;
         private readonly IAsyncState _asyncState;
         private readonly IThemeRegistry _themeRegistry;
-        private readonly ICommonServices _services;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILocalizationService _locService;
         private readonly IImageFactory _imageFactory;
@@ -100,7 +97,6 @@ namespace Smartstore.Web.Controllers
             IAsyncState asyncState,
             IThemeRegistry themeRegistry,
             TaxSettings taxSettings,
-            ICommonServices services,
             ILoggerFactory loggerFactory,
             ILocalizationService locService,
             IImageFactory imageFactory,
@@ -119,7 +115,6 @@ namespace Smartstore.Web.Controllers
             _cache = cache;
             _asyncState = asyncState;
             _themeRegistry = themeRegistry;
-            _services = services;
             _loggerFactory = loggerFactory;
             _locService = locService;
             _imageFactory = imageFactory;
@@ -128,12 +123,9 @@ namespace Smartstore.Web.Controllers
             _cartService = cartService;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
             _giftCardService = giftCardService;
-
-            var currentStore = _services.StoreContext.CurrentStore;
+            
+            var currentStore = _storeContext.CurrentStore;
         }
-
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         [Route("imaging")]
         public async Task<IActionResult> ImagingTest()
@@ -221,37 +213,37 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> Index()
         {
             #region Settings Test
-            ////var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
+            ////var xxx = await Services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
 
-            ////await _services.SettingFactory.SaveSettingsAsync(new TestSettings(), 1);
+            ////await Services.SettingFactory.SaveSettingsAsync(new TestSettings(), 1);
             ////await _db.SaveChangesAsync();
 
-            ////await _services.Settings.ApplySettingAsync("yodele.gut", "yodele");
-            ////await _services.Settings.ApplySettingAsync("yodele.schlecht", "yodele");
-            ////await _services.Settings.ApplySettingAsync("yodele.prop3", "yodele");
-            ////await _services.Settings.ApplySettingAsync("yodele.prop4", "yodele");
+            ////await Services.Settings.ApplySettingAsync("yodele.gut", "yodele");
+            ////await Services.Settings.ApplySettingAsync("yodele.schlecht", "yodele");
+            ////await Services.Settings.ApplySettingAsync("yodele.prop3", "yodele");
+            ////await Services.Settings.ApplySettingAsync("yodele.prop4", "yodele");
             ////await _db.SaveChangesAsync();
 
-            ////var yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
-            ////var yodele2 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
-            ////var yodele3 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
-            ////var yodele4 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
-            //////await _services.Settings.DeleteSettingsAsync("yodele");
-            ////yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+            ////var yodele1 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+            ////var yodele2 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
+            ////var yodele3 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
+            ////var yodele4 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
+            //////await Services.Settings.DeleteSettingsAsync("yodele");
+            ////yodele1 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
 
             ////await _db.SaveChangesAsync();
 
-            //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
+            //var testSettings = await Services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
             //testSettings.Prop1 = CommonHelper.GenerateRandomDigitCode(10);
             //testSettings.Prop2 = CommonHelper.GenerateRandomDigitCode(10);
             //testSettings.Prop3 = CommonHelper.GenerateRandomDigitCode(10);
-            //var numSaved = await _services.SettingFactory.SaveSettingsAsync(testSettings, 1);
+            //var numSaved = await Services.SettingFactory.SaveSettingsAsync(testSettings, 1);
             #endregion
 
             //_cancelTokenSource = new CancellationTokenSource();
             //await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
 
-            //var result = await _services.Resolve<IDbLogService>().ClearLogsAsync(new DateTime(2016, 12, 31), LogLevel.Fatal);
+            //var result = await Services.Resolve<IDbLogService>().ClearLogsAsync(new DateTime(2016, 12, 31), LogLevel.Fatal);
 
             //var count = await _db.Countries
             //    .AsNoTracking()
@@ -259,7 +251,7 @@ namespace Smartstore.Web.Controllers
             //    .AsCaching()
             //    .CountAsync();
 
-            //var langService = _services.Resolve<ILanguageService>();
+            //var langService = Services.Resolve<ILanguageService>();
             //for (var i = 0; i < 50; i++)
             //{
             //    var lid = await langService.GetDefaultLanguageIdAsync();
@@ -329,13 +321,13 @@ namespace Smartstore.Web.Controllers
 
             #region MS test area
 
-            //var customerCart = await _cartService.GetCartItemsAsync(_services.WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart);
+            //var customerCart = await _cartService.GetCartItemsAsync(Services.WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart);
             //var result = await _shippingService.GetCartTotalWeightAsync(customerCart);
 
             // GetAllProviders throws....
-            //var shippingOptions = _shippingService.GetShippingOptions(customerCart, _services.WorkContext.CurrentCustomer.ShippingAddress);
+            //var shippingOptions = _shippingService.GetShippingOptions(customerCart, Services.WorkContext.CurrentCustomer.ShippingAddress);
 
-            //var rawCheckoutAttributes = _services.WorkContext.CurrentCustomer.GenericAttributes.CheckoutAttributes;
+            //var rawCheckoutAttributes = Services.WorkContext.CurrentCustomer.GenericAttributes.CheckoutAttributes;
             //var formatted = _checkoutAttributeFormatter.FormatAttributesAsync(new(rawCheckoutAttributes));
 
             //var giftCards = await _giftCardService.GetValidGiftCardsAsync();
@@ -353,16 +345,16 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> Privacy()
         {
             #region Settings Test
-            //var xxx = await _services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
+            //var xxx = await Services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
 
-            //var yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
-            //var yodele2 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
-            //var yodele3 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
-            //var yodele4 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
-            ////await _services.Settings.DeleteSettingsAsync("yodele");
-            //yodele1 = await _services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+            //var yodele1 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+            //var yodele2 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
+            //var yodele3 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
+            //var yodele4 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
+            ////await Services.Settings.DeleteSettingsAsync("yodele");
+            //yodele1 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
 
-            //var testSettings = await _services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
+            //var testSettings = await Services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
             #endregion
 
             //await _asyncState.UpdateAsync<MyProgress>(x =>
@@ -376,7 +368,7 @@ namespace Smartstore.Web.Controllers
             await using var scope = await _db.OpenConnectionAsync();
 
             var products = await _db.Products.OrderByDescending(x => x.Id).Skip(600).Take(100).ToListAsync();
-            var urlService = _services.Resolve<IUrlService>();
+            var urlService = Services.Resolve<IUrlService>();
 
             //foreach (var product in products)
             //{
@@ -694,7 +686,7 @@ namespace Smartstore.Web.Controllers
             qs.Add("i", "3");
             content.AppendLine(qs.ToString());
 
-            var searchService = _services.Resolve<ICatalogSearchService>();
+            var searchService = Services.Resolve<ICatalogSearchService>();
             var searchResult = await searchService.SearchAsync(query.BuildFacetMap(true), true);
             var hits = await searchResult.GetHitsAsync();
 

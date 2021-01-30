@@ -76,31 +76,6 @@ namespace Smartstore.Core.DependencyInjection
                     catch { }
                 });
             };
-
-            //registration.Activated += (sender, e) =>
-            //{
-            //    if (DataSettings.DatabaseIsInstalled() && e.Context.Resolve<IEngine>().IsFullyInitialized)
-            //    {
-            //        if (e.Component.Metadata.Get("Property.T") is FastProperty prop)
-            //        {
-            //            try
-            //            {
-            //                var iText = e.Context.Resolve<IText>();
-            //                if (prop.Property.PropertyType == typeof(Localizer))
-            //                {
-            //                    Localizer localizer = e.Context.Resolve<IText>().Get;
-            //                    prop.SetValue(e.Instance, localizer);
-            //                }
-            //                else
-            //                {
-            //                    LocalizerEx localizerEx = e.Context.Resolve<IText>().GetEx;
-            //                    prop.SetValue(e.Instance, localizerEx);
-            //                }
-            //            }
-            //            catch { }
-            //        }
-            //    }
-            //};
         }
 
         private static PropertyInfo FindUserProperty(Type type)
