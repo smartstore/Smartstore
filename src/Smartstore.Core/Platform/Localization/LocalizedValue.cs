@@ -10,10 +10,29 @@ using Newtonsoft.Json;
 
 namespace Smartstore.Core.Localization
 {
-    public class LocalizedValue
+    public abstract class LocalizedValue
     {
         // Regex for all types of brackets which need to be "swapped": ({[]})
         private readonly static Regex _rgBrackets = new Regex(@"\(|\{|\[|\]|\}|\)", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        private readonly Language _requestLanguage;
+        private readonly Language _currentLanguage;
+
+        protected LocalizedValue(Language requestLanguage, Language currentLanguage)
+        {
+            _requestLanguage = requestLanguage;
+            _currentLanguage = currentLanguage;
+        }
+
+        [JsonIgnore]
+        public Language RequestLanguage => _requestLanguage;
+
+        [JsonIgnore]
+        public Language CurrentLanguage => _currentLanguage;
+
+        public bool IsFallback => _requestLanguage != _currentLanguage;
+
+        public bool BidiOverride => _requestLanguage != _currentLanguage && _requestLanguage?.Rtl != _currentLanguage?.Rtl;
 
         /// <summary>
         /// Fixes the flow of brackets within a text if the current page language has RTL flow.
@@ -36,34 +55,21 @@ namespace Smartstore.Core.Localization
         }
     }
 
-    public class LocalizedValue<T> : IHtmlContent, IEquatable<LocalizedValue<T>>, IComparable, IComparable<LocalizedValue<T>>
+    public class LocalizedValue<T> : LocalizedValue, IHtmlContent, IEquatable<LocalizedValue<T>>, IComparable, IComparable<LocalizedValue<T>>
     {
         private T _value;
-        private readonly Language _requestLanguage;
-        private readonly Language _currentLanguage;
-
-        public LocalizedValue(T value, Language requestLanguage, Language currentLanguage)
-        {
-            _value = value;
-            _requestLanguage = requestLanguage;
-            _currentLanguage = currentLanguage;
-        }
 
         internal LocalizedValue(T value) : this(value, null, null)
         {
         }
 
+        public LocalizedValue(T value, Language requestLanguage, Language currentLanguage)
+            : base(requestLanguage, currentLanguage)
+        {
+            _value = value;
+        }
+
         public T Value => _value;
-
-        [JsonIgnore]
-        public Language RequestLanguage => _requestLanguage;
-
-        [JsonIgnore]
-        public Language CurrentLanguage => _currentLanguage;
-
-        public bool IsFallback => _requestLanguage != _currentLanguage;
-
-        public bool BidiOverride => _requestLanguage != _currentLanguage && _requestLanguage?.Rtl != _currentLanguage?.Rtl;
 
         public void ChangeValue(T value)
         {
@@ -82,7 +88,7 @@ namespace Smartstore.Core.Localization
 
         public string ToHtmlString()
         {
-            return this.ToString();
+            return ToString();
         }
 
         public void WriteTo(TextWriter writer, HtmlEncoder encoder)
@@ -105,7 +111,7 @@ namespace Smartstore.Core.Localization
                 return _value as string;
             }
 
-            return _value.Convert<string>(CultureInfo.GetCultureInfo(_currentLanguage?.LanguageCulture ?? "en-US"));
+            return _value.Convert<string>(CultureInfo.GetCultureInfo(CurrentLanguage?.LanguageCulture ?? "en-US"));
         }
 
         public override int GetHashCode()
@@ -115,7 +121,7 @@ namespace Smartstore.Core.Localization
 
         public override bool Equals(object other)
         {
-            return this.Equals(other as LocalizedValue<T>);
+            return Equals(other as LocalizedValue<T>);
         }
 
         public bool Equals(LocalizedValue<T> other)

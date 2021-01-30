@@ -26,11 +26,6 @@ namespace Smartstore.Web.Theming.DependencyInjection
                 .As<IThemeFileResolver>()
                 .SingleInstance();
 
-            // Razor
-            builder.RegisterType<LanguageDirTagHelperComponent>()
-                .As<ITagHelperComponent>()
-                .InstancePerLifetimeScope();
-
             builder.RegisterType<RazorViewRenderer>()
                 .As<IRazorViewRenderer>()
                 .InstancePerLifetimeScope();
