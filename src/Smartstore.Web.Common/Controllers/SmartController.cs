@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
@@ -14,6 +12,7 @@ using Smartstore.Core.Logging;
 
 namespace Smartstore.Web.Controllers
 {
+    // TODO: (core) Implement base filters for SmartController
     public abstract class SmartController : Controller
     {
         protected SmartController()

@@ -26,9 +26,9 @@ namespace Smartstore.Web.Theming.DependencyInjection
                 .As<IThemeFileResolver>()
                 .SingleInstance();
 
-            builder.RegisterType<RazorViewRenderer>()
-                .As<IRazorViewRenderer>()
-                .InstancePerLifetimeScope();
+            builder.RegisterType<RazorViewInvoker>()
+                .As<IRazorViewInvoker>()
+                .InstancePerDependency();
         }
     }
 }
