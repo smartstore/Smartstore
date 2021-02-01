@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Globalization;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
@@ -19,7 +17,7 @@ namespace Smartstore.Core.Search.Facets
             { FacetGroupKind.Rating, "r" },
             { FacetGroupKind.DeliveryTime, "d" },
             { FacetGroupKind.Availability, "a" },
-            { FacetGroupKind.NewArrivals, "n" },
+            { FacetGroupKind.NewArrivals, "n" }
         };
 
         private readonly IWorkContext _workContext;
@@ -60,9 +58,9 @@ namespace Smartstore.Core.Search.Facets
             }
         }
 
-        protected override async Task<NameValueCollection> GetQueryPartsAsync(Facet facet)
+        protected override Dictionary<string, string> GetQueryParts(Facet facet)
         {
-            var result = new NameValueCollection(2);
+            var result = new Dictionary<string, string>();
             string name;
             string value;
             int entityId;
@@ -81,17 +79,17 @@ namespace Smartstore.Core.Search.Facets
                     else
                     {
                         entityId = val.Value.Convert<int>();
-                        value = await _catalogAliasMapper.GetAttributeOptionAliasByIdAsync(entityId, languageId) ?? "opt" + entityId;
+                        value = _catalogAliasMapper.GetAttributeOptionAliasById(entityId, languageId) ?? "opt" + entityId;
                     }
-                    name = await _catalogAliasMapper.GetAttributeAliasByIdAsync(val.ParentId, languageId) ?? "attr" + val.ParentId;
-                    result.Add(name, value);
+                    name = _catalogAliasMapper.GetAttributeAliasById(val.ParentId, languageId) ?? "attr" + val.ParentId;
+                    result[name] = value;
                     break;
 
                 case FacetGroupKind.Variant:
                     entityId = val.Value.Convert<int>();
-                    name = await _catalogAliasMapper.GetVariantAliasByIdAsync(val.ParentId, languageId) ?? "vari" + val.ParentId;
-                    value = await _catalogAliasMapper.GetVariantOptionAliasByIdAsync(entityId, languageId) ?? "opt" + entityId;
-                    result.Add(name, value);
+                    name = _catalogAliasMapper.GetVariantAliasById(val.ParentId, languageId) ?? "vari" + val.ParentId;
+                    value = _catalogAliasMapper.GetVariantOptionAliasById(entityId, languageId) ?? "opt" + entityId;
+                    result[name] = value;
                     break;
 
                 case FacetGroupKind.Category:
@@ -105,7 +103,7 @@ namespace Smartstore.Core.Search.Facets
                     if (value.HasValue())
                     {
                         name = _catalogAliasMapper.GetCommonFacetAliasByGroupKind(facet.FacetGroup.Kind, languageId) ?? _queryNames[facet.FacetGroup.Kind];
-                        result.Add(name, value);
+                        result[name] = value;
                     }
                     break;
             }

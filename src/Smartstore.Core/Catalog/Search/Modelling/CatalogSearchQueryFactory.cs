@@ -530,7 +530,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 }
             }
 
-            AddFacet(query, FacetGroupKind.Availability, true, FacetSorting.LabelAsc, async descriptor =>
+            AddFacet(query, FacetGroupKind.Availability, true, FacetSorting.LabelAsc, descriptor =>
             {
                 descriptor.MinHitCount = 0;
 
@@ -562,7 +562,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 query.CreatedBetween(fromUtc, null);
             }
 
-            AddFacet(query, FacetGroupKind.NewArrivals, true, FacetSorting.LabelAsc, async descriptor =>
+            AddFacet(query, FacetGroupKind.NewArrivals, true, FacetSorting.LabelAsc, descriptor =>
             {
                 var label = _services.Localization.GetResource("Search.Facet.LastDays");
 

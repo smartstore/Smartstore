@@ -14,7 +14,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         /// <param name="attributeAlias">Attribute alias.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Attribute identifier.</returns>
-        Task<int> GetAttributeIdByAliasAsync(string attributeAlias, int languageId = 0);
+        int GetAttributeIdByAlias(string attributeAlias, int languageId = 0);
 
         /// <summary>
         /// Gets the attribute option id by option alias.
@@ -23,7 +23,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         /// <param name="attributeId">Attribute identifier.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Attribute option identifier.</returns>
-        Task<int> GetAttributeOptionIdByAliasAsync(string optionAlias, int attributeId, int languageId = 0);
+        int GetAttributeOptionIdByAlias(string optionAlias, int attributeId, int languageId = 0);
 
         /// <summary>
         /// Gets the attribute alias by attribute identifier.
@@ -31,7 +31,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         /// <param name="attributeId">Attribute identifier.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Attribute alias.</returns>
-        Task<string> GetAttributeAliasByIdAsync(int attributeId, int languageId = 0);
+        string GetAttributeAliasById(int attributeId, int languageId = 0);
 
         /// <summary>
         /// Get the attribute option alias by option identifier.
@@ -39,7 +39,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         /// <param name="optionId">Option identifier.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Attribute option alias.</returns>
-        Task<string> GetAttributeOptionAliasByIdAsync(int optionId, int languageId = 0);
+        string GetAttributeOptionAliasById(int optionId, int languageId = 0);
 
         /// <summary>
         /// Clears all cached attribute mappings.
@@ -52,7 +52,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         /// <param name="variantAlias">Variant alias.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Variant identifier.</returns>
-        Task<int> GetVariantIdByAliasAsync(string variantAlias, int languageId = 0);
+        int GetVariantIdByAlias(string variantAlias, int languageId = 0);
 
         /// <summary>
         /// Gets the variant option identifier by option alias.
@@ -61,7 +61,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         /// <param name="variantId">Variant identifier.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Variant option identifier.</returns>
-        Task<int> GetVariantOptionIdByAliasAsync(string optionAlias, int variantId, int languageId = 0);
+        int GetVariantOptionIdByAlias(string optionAlias, int variantId, int languageId = 0);
 
         /// <summary>
         /// Gets the variant alias by variant identifier.
@@ -69,7 +69,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         /// <param name="variantId">Variant identifier.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Variant alias.</returns>
-        Task<string> GetVariantAliasByIdAsync(int variantId, int languageId = 0);
+        string GetVariantAliasById(int variantId, int languageId = 0);
 
         /// <summary>
         /// Get the variant option alias by value identifier.
@@ -77,7 +77,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         /// <param name="optionId">Option identifier.</param>
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Variant option alias.</returns>
-        Task<string> GetVariantOptionAliasByIdAsync(int optionId, int languageId = 0);
+        string GetVariantOptionAliasById(int optionId, int languageId = 0);
 
         /// <summary>
         /// Clears all cached variant mappings.

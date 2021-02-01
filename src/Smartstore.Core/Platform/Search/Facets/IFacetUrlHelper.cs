@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Search.Facets;
+﻿using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Core.Platform.Search.Facets
 {
@@ -21,21 +20,21 @@ namespace Smartstore.Core.Platform.Search.Facets
         /// <summary>
         /// Gets the query name.
         /// </summary>
-        Task<string> GetQueryNameAsync(Facet facet);
+        string GetQueryName(Facet facet);
 
         /// <summary>
         /// Adds query string parts for facets.
         /// </summary>
-        Task<string> AddAsync(params Facet[] facets);
+        string Add(params Facet[] facets);
 
         /// <summary>
         /// Removes query string parts for facets.
         /// </summary>
-        Task<string> RemoveAsync(params Facet[] facets);
+        string Remove(params Facet[] facets);
 
         /// <summary>
         /// Removes a query string part if the facet is selected, otherwise the part is added.
         /// </summary>
-        Task<string> ToggleAsync(Facet facet);
+        string Toggle(Facet facet);
     }
 }

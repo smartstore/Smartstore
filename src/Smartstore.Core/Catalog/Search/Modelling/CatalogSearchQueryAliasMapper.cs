@@ -37,13 +37,13 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
         #region Specification Attributes
 
-        public async Task<int> GetAttributeIdByAliasAsync(string attributeAlias, int languageId = 0)
+        public int GetAttributeIdByAlias(string attributeAlias, int languageId = 0)
         {
             var result = 0;
 
             if (attributeAlias.HasValue())
             {
-                var mappings = await GetAttributeIdByAliasMappingsAsync();
+                var mappings = GetAttributeIdByAliasMappings();
 
                 if (!mappings.TryGetValue(CreateKey("attr", languageId, attributeAlias), out result) && languageId != 0)
                 {
@@ -54,13 +54,13 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             return result;
         }
 
-        public async Task<int> GetAttributeOptionIdByAliasAsync(string optionAlias, int attributeId, int languageId = 0)
+        public int GetAttributeOptionIdByAlias(string optionAlias, int attributeId, int languageId = 0)
         {
             var result = 0;
 
             if (optionAlias.HasValue() && attributeId != 0)
             {
-                var mappings = await GetAttributeIdByAliasMappingsAsync();
+                var mappings = GetAttributeIdByAliasMappings();
 
                 if (!mappings.TryGetValue(CreateOptionKey("attr.option", languageId, attributeId, optionAlias), out result) && languageId != 0)
                 {
@@ -71,13 +71,13 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             return result;
         }
 
-        public async Task<string> GetAttributeAliasByIdAsync(int attributeId, int languageId = 0)
+        public string GetAttributeAliasById(int attributeId, int languageId = 0)
         {
             string result = null;
 
             if (attributeId != 0)
             {
-                var mappings = await GetAttributeAliasByIdMappingsAsync();
+                var mappings = GetAttributeAliasByIdMappings();
 
                 if (!mappings.TryGetValue(CreateKey("attr", languageId, attributeId), out result) && languageId != 0)
                 {
@@ -88,13 +88,13 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             return result;
         }
 
-        public async Task<string> GetAttributeOptionAliasByIdAsync(int optionId, int languageId = 0)
+        public string GetAttributeOptionAliasById(int optionId, int languageId = 0)
         {
             string result = null;
 
             if (optionId != 0)
             {
-                var mappings = await GetAttributeAliasByIdMappingsAsync();
+                var mappings = GetAttributeAliasByIdMappings();
 
                 if (!mappings.TryGetValue(CreateOptionKey("attr.option", languageId, optionId), out result) && languageId != 0)
                 {
@@ -111,9 +111,9 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             await _cache.RemoveAsync(ALL_ATTRIBUTE_ALIAS_BY_ID_KEY);
         }
 
-        protected virtual async Task<IDictionary<string, int>> GetAttributeIdByAliasMappingsAsync()
+        protected virtual IDictionary<string, int> GetAttributeIdByAliasMappings()
         {
-            var mappings = await _cache.GetAsync(ALL_ATTRIBUTE_ID_BY_ALIAS_KEY, async () =>
+            var mappings = _cache.Get(ALL_ATTRIBUTE_ID_BY_ALIAS_KEY, () =>
             {
                 var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
                 var optionIdMappings = new Dictionary<int, int>();
@@ -124,7 +124,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     .OrderBy(x => x.Id)
                     .ToFastPager(500);
 
-                while ((await pager.ReadNextPageAsync<SpecificationAttribute>()).Out(out var attributes))
+                while (pager.ReadNextPage(out var attributes))
                 {
                     foreach (var attribute in attributes)
                     {
@@ -145,8 +145,8 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     }
                 }
 
-                await CacheLocalizedAliasAsync(nameof(SpecificationAttribute), x => result[CreateKey("attr", x.LanguageId, x.LocaleValue)] = x.EntityId);
-                await CacheLocalizedAliasAsync(nameof(SpecificationAttributeOption), x =>
+                CacheLocalizedAlias(nameof(SpecificationAttribute), x => result[CreateKey("attr", x.LanguageId, x.LocaleValue)] = x.EntityId);
+                CacheLocalizedAlias(nameof(SpecificationAttributeOption), x =>
                 {
                     if (optionIdMappings.TryGetValue(x.EntityId, out var attributeId))
                     {
@@ -160,9 +160,9 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             return mappings;
         }
 
-        protected virtual async Task<IDictionary<string, string>> GetAttributeAliasByIdMappingsAsync()
+        protected virtual IDictionary<string, string> GetAttributeAliasByIdMappings()
         {
-            var mappings = await _cache.GetAsync(ALL_ATTRIBUTE_ALIAS_BY_ID_KEY, async () =>
+            var mappings = _cache.Get(ALL_ATTRIBUTE_ALIAS_BY_ID_KEY, () =>
             {
                 var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -172,7 +172,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     .OrderBy(x => x.Id)
                     .ToFastPager(500);
 
-                while ((await pager.ReadNextPageAsync<SpecificationAttribute>()).Out(out var attributes))
+                while (pager.ReadNextPage(out var attributes))
                 {
                     foreach (var attribute in attributes)
                     {
@@ -188,8 +188,8 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     }
                 }
 
-                await CacheLocalizedAliasAsync(nameof(SpecificationAttribute), x => result[CreateKey("attr", x.LanguageId, x.EntityId)] = x.LocaleValue);
-                await CacheLocalizedAliasAsync(nameof(SpecificationAttributeOption), x => result[CreateOptionKey("attr.option", x.LanguageId, x.EntityId)] = x.LocaleValue);
+                CacheLocalizedAlias(nameof(SpecificationAttribute), x => result[CreateKey("attr", x.LanguageId, x.EntityId)] = x.LocaleValue);
+                CacheLocalizedAlias(nameof(SpecificationAttributeOption), x => result[CreateOptionKey("attr.option", x.LanguageId, x.EntityId)] = x.LocaleValue);
 
                 return result;
             });
@@ -201,13 +201,13 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
         #region Product Variants
 
-        public async Task<int> GetVariantIdByAliasAsync(string variantAlias, int languageId = 0)
+        public int GetVariantIdByAlias(string variantAlias, int languageId = 0)
         {
             var result = 0;
 
             if (variantAlias.HasValue())
             {
-                var mappings = await GetVariantIdByAliasMappingsAsync();
+                var mappings = GetVariantIdByAliasMappings();
 
                 if (!mappings.TryGetValue(CreateKey("vari", languageId, variantAlias), out result) && languageId != 0)
                 {
@@ -218,13 +218,13 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             return result;
         }
 
-        public async Task<int> GetVariantOptionIdByAliasAsync(string optionAlias, int variantId, int languageId = 0)
+        public int GetVariantOptionIdByAlias(string optionAlias, int variantId, int languageId = 0)
         {
             var result = 0;
 
             if (optionAlias.HasValue() && variantId != 0)
             {
-                var mappings = await GetVariantIdByAliasMappingsAsync();
+                var mappings = GetVariantIdByAliasMappings();
 
                 if (!mappings.TryGetValue(CreateOptionKey("vari.option", languageId, variantId, optionAlias), out result) && languageId != 0)
                 {
@@ -235,13 +235,13 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             return result;
         }
 
-        public async Task<string> GetVariantAliasByIdAsync(int variantId, int languageId = 0)
+        public string GetVariantAliasById(int variantId, int languageId = 0)
         {
             string result = null;
 
             if (variantId != 0)
             {
-                var mappings = await GetVariantAliasByIdMappingsAsync();
+                var mappings = GetVariantAliasByIdMappings();
 
                 if (!mappings.TryGetValue(CreateKey("vari", languageId, variantId), out result) && languageId != 0)
                 {
@@ -252,13 +252,13 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             return result;
         }
 
-        public async Task<string> GetVariantOptionAliasByIdAsync(int optionId, int languageId = 0)
+        public string GetVariantOptionAliasById(int optionId, int languageId = 0)
         {
             string result = null;
 
             if (optionId != 0)
             {
-                var mappings = await GetVariantAliasByIdMappingsAsync();
+                var mappings = GetVariantAliasByIdMappings();
 
                 if (!mappings.TryGetValue(CreateOptionKey("vari.option", languageId, optionId), out result) && languageId != 0)
                 {
@@ -275,9 +275,9 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             await _cache.RemoveAsync(ALL_VARIANT_ALIAS_BY_ID_KEY);
         }
 
-        protected virtual async Task<IDictionary<string, int>> GetVariantIdByAliasMappingsAsync()
+        protected virtual IDictionary<string, int> GetVariantIdByAliasMappings()
         {
-            var mappings = await _cache.GetAsync(ALL_VARIANT_ID_BY_ALIAS_KEY, async () =>
+            var mappings = _cache.Get(ALL_VARIANT_ID_BY_ALIAS_KEY, () =>
             {
                 var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
@@ -288,7 +288,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                         .OrderBy(x => x.Id)
                         .ToFastPager(500);
 
-                    while ((await variantPager.ReadNextPageAsync<ProductAttribute>()).Out(out var variants))
+                    while (variantPager.ReadNextPage(out var variants))
                     {
                         foreach (var variant in variants)
                         {
@@ -306,7 +306,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                         .OrderBy(x => x.Id)
                         .ToFastPager(500);
 
-                    while ((await optionPager.ReadNextPageAsync<ProductVariantAttributeValue>()).Out(out var options))
+                    while (optionPager.ReadNextPage(out var options))
                     {
                         foreach (var option in options)
                         {
@@ -316,7 +316,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     }
                 }
 
-                var optionIdMappings = await _db.ProductVariantAttributeValues
+                var optionIdMappings = _db.ProductVariantAttributeValues
                     .AsNoTracking()
                     .Include(x => x.ProductVariantAttribute)
                         .ThenInclude(x => x.ProductAttribute)
@@ -325,11 +325,11 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                         OptionId = x.Id,
                         VariantId = x.ProductVariantAttribute.ProductAttribute.Id
                     })
-                    .ToListAsync();
+                    .ToList();
                 var optionIdMappingsDic = optionIdMappings.ToDictionary(x => x.OptionId, x => x.VariantId);
 
-                await CacheLocalizedAliasAsync(nameof(ProductAttribute), x => result[CreateKey("vari", x.LanguageId, x.LocaleValue)] = x.EntityId);
-                await CacheLocalizedAliasAsync(nameof(ProductVariantAttributeValue), x =>
+                CacheLocalizedAlias(nameof(ProductAttribute), x => result[CreateKey("vari", x.LanguageId, x.LocaleValue)] = x.EntityId);
+                CacheLocalizedAlias(nameof(ProductVariantAttributeValue), x =>
                 {
                     if (optionIdMappingsDic.TryGetValue(x.EntityId, out var variantId))
                     {
@@ -343,9 +343,9 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             return mappings;
         }
 
-        protected virtual async Task<IDictionary<string, string>> GetVariantAliasByIdMappingsAsync()
+        protected virtual IDictionary<string, string> GetVariantAliasByIdMappings()
         {
-            var mappings = await _cache.GetAsync(ALL_VARIANT_ALIAS_BY_ID_KEY, async () =>
+            var mappings = _cache.Get(ALL_VARIANT_ALIAS_BY_ID_KEY, () =>
             {
                 var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -356,7 +356,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                         .OrderBy(x => x.Id)
                         .ToFastPager(500);
 
-                    while ((await variantPager.ReadNextPageAsync<ProductAttribute>()).Out(out var variants))
+                    while (variantPager.ReadNextPage(out var variants))
                     {
                         foreach (var variant in variants)
                         {
@@ -372,7 +372,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                         .OrderBy(x => x.Id)
                         .ToFastPager(500);
 
-                    while ((await optionPager.ReadNextPageAsync<ProductVariantAttributeValue>()).Out(out var options))
+                    while (optionPager.ReadNextPage(out var options))
                     {
                         foreach (var option in options)
                         {
@@ -381,8 +381,8 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     }
                 }
 
-                await CacheLocalizedAliasAsync(nameof(ProductAttribute), x => result[CreateKey("vari", x.LanguageId, x.EntityId)] = x.LocaleValue);
-                await CacheLocalizedAliasAsync(nameof(ProductVariantAttributeValue), x => result[CreateOptionKey("vari.option", x.LanguageId, x.EntityId)] = x.LocaleValue);
+                CacheLocalizedAlias(nameof(ProductAttribute), x => result[CreateKey("vari", x.LanguageId, x.EntityId)] = x.LocaleValue);
+                CacheLocalizedAlias(nameof(ProductVariantAttributeValue), x => result[CreateOptionKey("vari.option", x.LanguageId, x.EntityId)] = x.LocaleValue);
 
                 return result;
             });
@@ -472,12 +472,12 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             return $"{prefix}.{languageId}.{optionId}";
         }
 
-        protected async Task CacheLocalizedAliasAsync(string localeKeyGroup, Action<LocalizedProperty> caching)
+        protected void CacheLocalizedAlias(string localeKeyGroup, Action<LocalizedProperty> caching)
         {
-            var properties = await _db.LocalizedProperties
+            var properties = _db.LocalizedProperties
                 .AsNoTracking()
                 .Where(x => x.LocaleKeyGroup == localeKeyGroup && x.LocaleKey == "Alias" && !string.IsNullOrWhiteSpace(x.LocaleValue))
-                .ToListAsync();
+                .ToList();
 
             properties.ForEach(caching);
         }

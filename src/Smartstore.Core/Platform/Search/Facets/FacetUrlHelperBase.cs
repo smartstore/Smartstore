@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Collections;
 using Smartstore.Core.Search.Facets;
@@ -26,14 +25,14 @@ namespace Smartstore.Core.Platform.Search.Facets
 
         public abstract string Scope { get; }
 
-        public virtual async Task<string> AddAsync(params Facet[] facets)
+        public virtual string Add(params Facet[] facets)
         {
             var qs = new MutableQueryCollection(InitialQuery);
 
             foreach (var facet in facets)
             {
-                var parts = await GetQueryPartsAsync(facet);
-                foreach (var name in parts.AllKeys)
+                var parts = GetQueryParts(facet);
+                foreach (var name in parts.Keys)
                 {
                     qs.Add(name, parts[name], !facet.FacetGroup.IsMultiSelect);
                 }
@@ -42,14 +41,14 @@ namespace Smartstore.Core.Platform.Search.Facets
             return Url + qs.ToString();
         }
 
-        public virtual async Task<string> RemoveAsync(params Facet[] facets)
+        public virtual string Remove(params Facet[] facets)
         {
             var qs = new MutableQueryCollection(InitialQuery);
 
             foreach (var facet in facets)
             {
-                var parts = await GetQueryPartsAsync(facet);
-                foreach (var name in parts.AllKeys)
+                var parts = GetQueryParts(facet);
+                foreach (var name in parts.Keys)
                 {
                     var qsName = name;
 
@@ -80,9 +79,11 @@ namespace Smartstore.Core.Platform.Search.Facets
 
                     if (currentValues != null)
                     {
-                        var removeValues = parts.GetValues(name);
-                        var newValues = currentValues.Except(removeValues).ToArray();
-                        if (newValues.Length > 0)
+                        var newValues = parts.TryGetValue(name, out var removeValue)
+                            ? currentValues.Where(x => !x.EqualsNoCase(removeValue))
+                            : currentValues;
+
+                        if (newValues.Any())
                         {
                             newValues.Each(x => qs.Add(name, x, false));
                         }
@@ -93,27 +94,26 @@ namespace Smartstore.Core.Platform.Search.Facets
             return Url + qs.ToString();
         }
 
-        public virtual async Task<string> ToggleAsync(Facet facet)
+        public virtual string Toggle(Facet facet)
         {
             if (facet.Value.IsSelected)
             {
-                return await RemoveAsync(facet);
+                return Remove(facet);
             }
             else
             {
-                return await AddAsync(facet);
+                return Add(facet);
             }
         }
 
-        public virtual async Task<string> GetQueryNameAsync(Facet facet)
+        public virtual string GetQueryName(Facet facet)
         {
-            var parts = await GetQueryPartsAsync(facet);
-            return parts.GetKey(0);
+            var parts = GetQueryParts(facet);
+            return parts.Keys?.FirstOrDefault();
         }
 
         protected abstract string GetUnmappedQueryName(Facet facet);
 
-        // TODO: (mg) (core) If the result cannot contain duplicate keys: use Dictionary<string, string> instead of NameValueCollection bacause it's just a legacy port.
-        protected abstract Task<NameValueCollection> GetQueryPartsAsync(Facet facet);
+        protected abstract Dictionary<string, string> GetQueryParts(Facet facet);
     }
 }

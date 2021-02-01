@@ -51,6 +51,7 @@ namespace Smartstore.Core.Catalog.Search
                 var query = GetProductQuery(searchQuery, null);
 
                 totalHits = await query.CountAsync();
+                //totalHits = await query.Select(x => x.Id).Distinct().CountAsync();
 
                 // Fix paging boundaries.
                 if (searchQuery.Skip > 0 && searchQuery.Skip >= totalHits)
@@ -61,6 +62,14 @@ namespace Smartstore.Core.Catalog.Search
                 if (searchQuery.ResultFlags.HasFlag(SearchResultFlags.WithHits))
                 {
                     var skip = searchQuery.PageIndex * searchQuery.Take;
+
+                    //var query2 = query
+                    //    .Select(x => x.Id)
+                    //    .Distinct()
+                    //    .Skip(skip)
+                    //    .Take(searchQuery.Take);
+                    //query2.ToQueryString().Dump();
+                    //hitsEntityIds = query2.ToArray();
 
                     query = query
                         .Skip(skip)
@@ -338,9 +347,6 @@ namespace Smartstore.Core.Catalog.Search
             //        orderby grp.Key
             //        select grp.FirstOrDefault();
             //}
-
-            // TODO: (mg) (core) LinqCatalogSearchService: Distinct too slow? Here at the wrong place? Should be last statement before materialization. Doesn't work in conjunction with PrepareQuery.
-            // should be faster: hitsEntityIds = query.Select(x => x.Id).Distinct().Skip(skip).Take(searchQuery.Take).ToArray()
 
             if (ctx.IsGroupingRequired)
             {
