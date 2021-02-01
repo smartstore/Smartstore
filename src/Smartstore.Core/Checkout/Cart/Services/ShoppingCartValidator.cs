@@ -89,7 +89,7 @@ namespace Smartstore.Core.Checkout.Cart
         }
 
         // was GetBundleItemWarnings
-        public virtual IList<string> ValidateBundleItems(IList<ProductBundleItem> bundleItems)
+        public virtual IList<string> ValidateBundleItems(IEnumerable<ProductBundleItem> bundleItems)
         {
             Guard.NotNull(bundleItems, nameof(bundleItems));
 
@@ -127,7 +127,7 @@ namespace Smartstore.Core.Checkout.Cart
         }
 
         // was GetShoppingCartWarnings
-        public virtual async Task<IList<string>> ValidateCartCheckoutAsync(
+        public virtual async Task<IList<string>> ValidateCartAsync(
             IEnumerable<OrganizedShoppingCartItem> cartItems,
             CheckoutAttributeSelection attributeSelection,
             bool validateCheckoutAttributes)

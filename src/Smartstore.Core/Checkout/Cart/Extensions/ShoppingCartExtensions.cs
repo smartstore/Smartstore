@@ -177,44 +177,5 @@ namespace Smartstore
 
             return cart.Count > 0 ? cart[0].Item.Customer : null;
         }
-
-        /// <summary>
-        /// Removes a single cart item from shopping cart of <see cref="ShoppingCartItem.Customer"/>.
-        /// </summary>        
-        /// <param name="cartItem">Cart item to remove from shopping cart.</param>
-        /// <param name="resetCheckoutData">A value indicating whether to reset checkout data.</param>
-        /// <param name="removeInvalidCheckoutAttributes">A value indicating whether to remove incalid checkout attributes.</param>
-        /// <param name="deleteChildCartItems">A value indicating whether to delete child cart items of <c>cartItem.</c></param>
-        /// <returns>Number of deleted entries.</returns>
-        public static Task<int> DeleteCartItemAsync(
-            this IShoppingCartService cartService,
-            ShoppingCartItem cartItem,
-            bool resetCheckoutData = true,
-            bool removeInvalidCheckoutAttributes = false,
-            bool deleteChildCartItems = true)
-        {
-            Guard.NotNull(cartService, nameof(cartService));
-            Guard.NotNull(cartItem, nameof(cartItem));
-
-            return cartService.DeleteCartItemsAsync(
-                new List<ShoppingCartItem>() { cartItem },
-                resetCheckoutData,
-                removeInvalidCheckoutAttributes,
-                deleteChildCartItems);
-        }
-
-        /// <summary>
-        /// Validates a single cart item for bundle items.
-        /// </summary>
-        /// <param name="cartValidator"></param>
-        /// <param name="bundleItem"></param>
-        /// <returns></returns>
-        public static IList<string> ValidateBundleItem(this IShoppingCartValidator cartValidator, ProductBundleItem bundleItem)
-        {
-            Guard.NotNull(cartValidator, nameof(cartValidator));
-            Guard.NotNull(bundleItem, nameof(bundleItem));
-
-            return cartValidator.ValidateBundleItems(new List<ProductBundleItem> { bundleItem });
-        }
     }
 }

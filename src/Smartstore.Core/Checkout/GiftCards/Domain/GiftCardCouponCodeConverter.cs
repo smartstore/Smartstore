@@ -109,7 +109,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                 //return root.ToString(SaveOptions.DisableFormatting);
 
                 // JSON
-                var converted = attributes.Select(x=>x.Value);
+                var converted = attributes.Select(x => x.Value);
                 return JsonConvert.SerializeObject(converted);
             }
             else

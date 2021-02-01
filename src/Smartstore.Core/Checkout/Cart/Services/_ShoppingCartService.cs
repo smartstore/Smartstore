@@ -411,8 +411,6 @@ namespace Smartstore.Core.Checkout.Cart
 
                 attributeSelection.RemoveAttributes(attributeIdsToRemove);
                 customer.GenericAttributes.CheckoutAttributes = attributeSelection;
-
-                _db.TryChangeState(customer, EntityState.Modified);
             }
 
             return await _db.SaveChangesAsync();
@@ -538,7 +536,7 @@ namespace Smartstore.Core.Checkout.Cart
                 }
 
                 await CopyAsync(
-                    new AddToCartContext()
+                    new AddToCartContext
                     {
                         Product = cartItem.Item.Product,
                         RawAttributes = cartItem.Item.AttributeSelection.AsJson(),
@@ -577,7 +575,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             if (newQuantity > 0)
             {
-                var ctx = new AddToCartContext()
+                var ctx = new AddToCartContext
                 {
                     Customer = customer,
                     CartType = cartItem.ShoppingCartType,
@@ -602,7 +600,7 @@ namespace Smartstore.Core.Checkout.Cart
             }
             else
             {
-                await this.DeleteCartItemAsync(cartItem, resetCheckoutData, true);
+                await DeleteCartItemsAsync(new[] { cartItem }, resetCheckoutData, true);
             }
 
             _requestCache.RemoveByPattern(CartItemsPatternKey);
