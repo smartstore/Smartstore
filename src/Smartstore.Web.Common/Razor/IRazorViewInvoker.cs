@@ -14,7 +14,7 @@ namespace Smartstore.Web.Razor
         /// <param name="model">Model</param>
         /// <param name="isMainPage"><c>false</c>: View is partial</param>
         /// <returns>View rendering result</returns>
-        Task<IHtmlContent> InvokeViewAsync<TModel>(string viewName, TModel model, bool isMainPage = false);
+        Task<string> InvokeViewAsync(string viewName, object model, bool isMainPage = false);
 
         /// <summary>
         /// Invokes a view component and returns its html content.
@@ -27,7 +27,7 @@ namespace Smartstore.Web.Razor
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        Task<IHtmlContent> InvokeViewComponentAsync(ViewDataDictionary viewData, string componentName, object arguments);
+        Task<string> InvokeViewComponentAsync(ViewDataDictionary viewData, string componentName, object arguments);
 
         /// <summary>
         /// Invokes a view component and returns its html content.
@@ -40,6 +40,6 @@ namespace Smartstore.Web.Razor
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        Task<IHtmlContent> InvokeViewComponentAsync(ViewDataDictionary viewData, Type componentType, object arguments);
+        Task<string> InvokeViewComponentAsync(ViewDataDictionary viewData, Type componentType, object arguments);
     }
 }
