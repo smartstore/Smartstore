@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -21,15 +22,6 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly List<int> _bundledProductIds;
         private readonly List<int> _groupedProductIds;
 
-        private readonly Func<int[], Multimap<int, ProductVariantAttribute>> _funcAttributes;
-        private readonly Func<int[], Multimap<int, ProductVariantAttributeCombination>> _funcAttributeCombinations;
-        private readonly Func<int[], Multimap<int, TierPrice>> _funcTierPrices;
-        private readonly Func<int[], Multimap<int, ProductCategory>> _funcProductCategories;
-        private readonly Func<int[], Multimap<int, ProductManufacturer>> _funcProductManufacturers;
-        private readonly Func<int[], Multimap<int, Discount>> _funcAppliedDiscounts;
-        private readonly Func<int[], Multimap<int, ProductBundleItem>> _funcProductBundleItems;
-        private readonly Func<int[], Multimap<int, Product>> _funcAssociatedProducts;
-
         private LazyMultimap<ProductVariantAttribute> _attributes;
         private LazyMultimap<ProductVariantAttributeCombination> _attributeCombinations;
         private LazyMultimap<TierPrice> _tierPrices;
@@ -39,15 +31,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private LazyMultimap<ProductBundleItem> _productBundleItems;
         private LazyMultimap<Product> _associatedProducts;
 
-        public PriceCalculationContext(IEnumerable<Product> products,
-            Func<int[], Multimap<int, ProductVariantAttribute>> attributes,
-            Func<int[], Multimap<int, ProductVariantAttributeCombination>> attributeCombinations,
-            Func<int[], Multimap<int, TierPrice>> tierPrices,
-            Func<int[], Multimap<int, ProductCategory>> productCategories,
-            Func<int[], Multimap<int, ProductManufacturer>> productManufacturers,
-            Func<int[], Multimap<int, Discount>> appliedDiscounts,
-            Func<int[], Multimap<int, ProductBundleItem>> productBundleItems,
-            Func<int[], Multimap<int, Product>> associatedProducts)
+        public PriceCalculationContext(IEnumerable<Product> products)
         {
             if (products == null)
             {
@@ -65,18 +49,11 @@ namespace Smartstore.Core.Catalog.Pricing
                 _bundledProductIds = new List<int>(products.Where(x => x.ProductType == ProductType.BundledProduct).Select(x => x.Id));
                 _groupedProductIds = new List<int>(products.Where(x => x.ProductType == ProductType.GroupedProduct).Select(x => x.Id));
             }
-
-            _funcAttributes = attributes;
-            _funcAttributeCombinations = attributeCombinations;
-            _funcTierPrices = tierPrices;
-            _funcProductCategories = productCategories;
-            _funcProductManufacturers = productManufacturers;
-            _funcAppliedDiscounts = appliedDiscounts;
-            _funcProductBundleItems = productBundleItems;
-            _funcAssociatedProducts = associatedProducts;
         }
 
         public IReadOnlyList<int> ProductIds => _productIds;
+
+        public Func<int[], Task<Multimap<int, ProductVariantAttribute>>> AttributesFactory { get; init; }
 
         public LazyMultimap<ProductVariantAttribute> Attributes
         {
@@ -84,11 +61,14 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (_attributes == null)
                 {
-                    _attributes = new LazyMultimap<ProductVariantAttribute>(keys => _funcAttributes(keys), _productIds);
+                    _attributes = new LazyMultimap<ProductVariantAttribute>(keys => AttributesFactory(keys), _productIds);
                 }
+
                 return _attributes;
             }
         }
+
+        public Func<int[], Task<Multimap<int, ProductVariantAttributeCombination>>> AttributeCombinationsFactory { get; init; }
 
         public LazyMultimap<ProductVariantAttributeCombination> AttributeCombinations
         {
@@ -96,11 +76,14 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (_attributeCombinations == null)
                 {
-                    _attributeCombinations = new LazyMultimap<ProductVariantAttributeCombination>(keys => _funcAttributeCombinations(keys), _productIds);
+                    _attributeCombinations = new LazyMultimap<ProductVariantAttributeCombination>(keys => AttributeCombinationsFactory(keys), _productIds);
                 }
+
                 return _attributeCombinations;
             }
         }
+
+        public Func<int[], Task<Multimap<int, TierPrice>>> TierPricesFactory { get; init; }
 
         public LazyMultimap<TierPrice> TierPrices
         {
@@ -108,11 +91,14 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (_tierPrices == null)
                 {
-                    _tierPrices = new LazyMultimap<TierPrice>(keys => _funcTierPrices(keys), _productIdsTierPrices);
+                    _tierPrices = new LazyMultimap<TierPrice>(keys => TierPricesFactory(keys), _productIdsTierPrices);
                 }
+
                 return _tierPrices;
             }
         }
+
+        public Func<int[], Task<Multimap<int, ProductCategory>>> ProductCategoriesFactory { get; init; }
 
         public LazyMultimap<ProductCategory> ProductCategories
         {
@@ -120,11 +106,14 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (_productCategories == null)
                 {
-                    _productCategories = new LazyMultimap<ProductCategory>(keys => _funcProductCategories(keys), _productIds);
+                    _productCategories = new LazyMultimap<ProductCategory>(keys => ProductCategoriesFactory(keys), _productIds);
                 }
+
                 return _productCategories;
             }
         }
+
+        public Func<int[], Task<Multimap<int, ProductManufacturer>>> ProductManufacturersFactory { get; init; }
 
         public LazyMultimap<ProductManufacturer> ProductManufacturers
         {
@@ -132,11 +121,14 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (_productManufacturers == null)
                 {
-                    _productManufacturers = new LazyMultimap<ProductManufacturer>(keys => _funcProductManufacturers(keys), _productIds);
+                    _productManufacturers = new LazyMultimap<ProductManufacturer>(keys => ProductManufacturersFactory(keys), _productIds);
                 }
+
                 return _productManufacturers;
             }
         }
+
+        public Func<int[], Task<Multimap<int, Discount>>> AppliedDiscountsFactory { get; init; }
 
         public LazyMultimap<Discount> AppliedDiscounts
         {
@@ -144,11 +136,14 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (_appliedDiscounts == null)
                 {
-                    _appliedDiscounts = new LazyMultimap<Discount>(keys => _funcAppliedDiscounts(keys), _productIdsAppliedDiscounts);
+                    _appliedDiscounts = new LazyMultimap<Discount>(keys => AppliedDiscountsFactory(keys), _productIdsAppliedDiscounts);
                 }
+
                 return _appliedDiscounts;
             }
         }
+
+        public Func<int[], Task<Multimap<int, ProductBundleItem>>> ProductBundleItemsFactory { get; init; }
 
         public LazyMultimap<ProductBundleItem> ProductBundleItems
         {
@@ -156,11 +151,14 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (_productBundleItems == null)
                 {
-                    _productBundleItems = new LazyMultimap<ProductBundleItem>(keys => _funcProductBundleItems(keys), _bundledProductIds);
+                    _productBundleItems = new LazyMultimap<ProductBundleItem>(keys => ProductBundleItemsFactory(keys), _bundledProductIds);
                 }
+
                 return _productBundleItems;
             }
         }
+
+        public Func<int[], Task<Multimap<int, Product>>> AssociatedProductsFactory { get; init; }
 
         public LazyMultimap<Product> AssociatedProducts
         {
@@ -168,7 +166,7 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (_associatedProducts == null)
                 {
-                    _associatedProducts = new LazyMultimap<Product>(keys => _funcAssociatedProducts(keys), _groupedProductIds);
+                    _associatedProducts = new LazyMultimap<Product>(keys => AssociatedProductsFactory(keys), _groupedProductIds);
                 }
 
                 return _associatedProducts;

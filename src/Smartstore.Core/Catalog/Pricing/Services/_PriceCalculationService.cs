@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -13,7 +17,6 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Pricing
@@ -52,6 +55,296 @@ namespace Smartstore.Core.Catalog.Pricing
             _taxSettings = taxSettings;
         }
 
+        public virtual PriceCalculationContext CreatePriceCalculationContext(
+            IEnumerable<Product> products = null,
+            Customer customer = null,
+            int? storeId = null,
+            bool includeHidden = true)
+        {
+            customer ??= _workContext.CurrentCustomer;
+            storeId ??= _storeContext.CurrentStore.Id;
+
+            async Task<Multimap<int, ProductVariantAttribute>> attributesFactory(int[] ids)
+            {
+                var attributes = await _db.ProductVariantAttributes
+                    .AsNoTracking()
+                    .Include(x => x.ProductAttribute)
+                    .Include(x => x.ProductVariantAttributeValues)
+                    .Where(x => ids.Contains(x.ProductId))
+                    .OrderBy(x => x.ProductId)
+                    .ThenBy(x => x.DisplayOrder)
+                    .ToListAsync();
+
+                return attributes.ToMultimap(x => x.ProductId, x => x);
+            }
+
+            async Task<Multimap<int, ProductVariantAttributeCombination>> attributeCombinationsFactory(int[] ids)
+            {
+                var attributeCombinations = await _db.ProductVariantAttributeCombinations
+                    .AsNoTracking()
+                    .Where(x => ids.Contains(x.ProductId))
+                    .OrderBy(x => x.ProductId)
+                    .ToListAsync();
+
+                return attributeCombinations.ToMultimap(x => x.ProductId, x => x);
+            }
+
+            async Task<Multimap<int, TierPrice>> tierPriceFactory(int[] ids)
+            {
+                var tierPrices = await _db.TierPrices
+                    .AsNoTracking()
+                    .Include(x => x.CustomerRole)
+                    .Where(x => ids.Contains(x.ProductId) && (x.StoreId == 0 || x.StoreId == storeId.Value))
+                    .ToListAsync();
+
+                return tierPrices
+                    // Sorting locally is most likely faster.
+                    .OrderBy(x => x.ProductId)
+                    .ThenBy(x => x.Quantity)
+                    .FilterForCustomer(customer)
+                    .ToMultimap(x => x.ProductId, x => x);
+            }
+
+            async Task<Multimap<int, ProductCategory>> productCategoriesFactory(int[] ids)
+            {
+                var productCategories = await _categoryService.GetProductCategoriesByProductIdsAsync(ids, includeHidden);
+
+                return productCategories.ToMultimap(x => x.ProductId, x => x);
+            }
+
+            async Task<Multimap<int, ProductManufacturer>> productManufacturersFactory(int[] ids)
+            {
+                var productManufacturers = await _manufacturerService.GetProductManufacturersByProductIdsAsync(ids, includeHidden);
+
+                return productManufacturers.ToMultimap(x => x.ProductId, x => x);
+            }
+
+            async Task<Multimap<int, Discount>> appliedDiscountsFactory(int[] ids)
+            {
+                var discounts = await _db.Products
+                    .AsNoTracking()
+                    .Include(x => x.AppliedDiscounts)
+                        .ThenInclude(x => x.RuleSets)
+                    .Where(x => ids.Contains(x.Id))
+                    .Select(x => new
+                    {
+                        ProductId = x.Id,
+                        Discounts = x.AppliedDiscounts
+                    })
+                    .ToListAsync();
+
+                var map = new Multimap<int, Discount>();
+                discounts.Each(x => map.AddRange(x.ProductId, x.Discounts));
+
+                return map;
+            }
+
+            async Task<Multimap<int, ProductBundleItem>> productBundleItemsFactory(int[] ids)
+            {
+                var bundleItemsQuery = _db.ProductBundleItem
+                    .AsNoTracking()
+                    .Include(x => x.Product)
+                    .Include(x => x.BundleProduct);
+
+                var query =
+                    from pbi in bundleItemsQuery
+                    join p in _db.Products.AsNoTracking() on pbi.ProductId equals p.Id
+                    where ids.Contains(pbi.BundleProductId) && (includeHidden || (pbi.Published && p.Published))
+                    orderby pbi.DisplayOrder
+                    select pbi;
+
+                var bundleItems = await query.ToListAsync();
+
+                return bundleItems.ToMultimap(x => x.BundleProductId, x => x);
+            }
+
+            async Task<Multimap<int, Product>> associatedProductsFactory(int[] ids)
+            {
+                var associatedProducts = await _db.Products
+                    .AsNoTracking()
+                    .ApplyAssociatedProductsFilter(ids, includeHidden)
+                    .ToListAsync();
+
+                return associatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
+            }
+
+            var context = new PriceCalculationContext(products)
+            {
+                AttributesFactory = attributesFactory,
+                AttributeCombinationsFactory = attributeCombinationsFactory,
+                TierPricesFactory = tierPriceFactory,
+                ProductCategoriesFactory = productCategoriesFactory,
+                ProductManufacturersFactory = productManufacturersFactory,
+                AppliedDiscountsFactory = appliedDiscountsFactory,
+                ProductBundleItemsFactory = productBundleItemsFactory,
+                AssociatedProductsFactory = associatedProductsFactory
+            };
+
+            return context;
+        }
+
+        public virtual decimal? GetSpecialPrice(Product product)
+        {
+            Guard.NotNull(product, nameof(product));
+
+            if (!product.SpecialPrice.HasValue)
+            {
+                return null;
+            }
+
+            var now = DateTime.UtcNow;
+
+            if (product.SpecialPriceStartDateTimeUtc.HasValue)
+            {
+                var startDate = DateTime.SpecifyKind(product.SpecialPriceStartDateTimeUtc.Value, DateTimeKind.Utc);
+                if (startDate.CompareTo(now) > 0)
+                {
+                    return null;
+                }
+            }
+            if (product.SpecialPriceEndDateTimeUtc.HasValue)
+            {
+                var endDate = DateTime.SpecifyKind(product.SpecialPriceEndDateTimeUtc.Value, DateTimeKind.Utc);
+                if (endDate.CompareTo(now) < 0)
+                {
+                    return null;
+                }
+            }
+
+            return product.SpecialPrice.Value;
+        }
+
+        public virtual async Task<decimal> GetProductCostAsync(Product product, ProductVariantAttributeSelection selection)
+        {
+            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(selection, nameof(selection));
+
+            var result = product.ProductCost;
+            var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
+
+            var productLinkageValues = attributeValues
+                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
+                .ToList();
+            var linkedProductIds = productLinkageValues
+                .Select(x => x.LinkedProductId)
+                .Distinct()
+                .ToArray();
+
+            if (linkedProductIds.Any())
+            {
+                var linkedProducts = await _db.Products
+                    .AsNoTracking()
+                    .Where(x => linkedProductIds.Contains(x.Id))
+                    .Select(x => new { x.Id, x.ProductCost })
+                    .ToListAsync();
+                var linkedProductsDic = linkedProducts.ToDictionarySafe(x => x.Id, x => x.ProductCost);
+
+                foreach (var value in productLinkageValues)
+                {
+                    if (linkedProductsDic.TryGetValue(value.LinkedProductId, out var productCost))
+                    {
+                        result += productCost * value.Quantity;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public virtual async Task<decimal> GetPreselectedPriceAsync(Product product, Customer customer, Currency currency, PriceCalculationContext context)
+        {
+            Guard.NotNull(product, nameof(product));
+
+            var result = decimal.Zero;
+
+            context ??= CreatePriceCalculationContext(customer: customer);
+
+            if (product.ProductType == ProductType.BundledProduct)
+            {
+                var bundleItems = await context.ProductBundleItems.GetOrLoadAsync(product.Id);
+                var bundleItemsData = bundleItems.Select(x => new ProductBundleItemData(x)).ToList();
+
+                var productIds = bundleItemsData.Select(x => x.Item.ProductId).ToList();
+                productIds.Add(product.Id);
+                context.Collect(productIds);
+
+                // Fetch bundleItemsData.AdditionalCharge for all bundle items.
+                foreach (var bundleItem in bundleItemsData.Where(x => x.Item.Product.CanBeBundleItem()))
+                {
+                    var _ = await GetPreselectedPriceAsync(bundleItem.Item.Product, customer, currency, context, bundleItem, bundleItemsData);
+                }
+
+                result = await GetPreselectedPriceAsync(product, customer, currency, context, null, bundleItemsData);
+            }
+            else
+            {
+                result = await GetPreselectedPriceAsync(product, customer, currency, context, null, null);
+            }
+
+            return result;
+        }
+
+        public virtual async Task<(decimal Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(
+            Product product,
+            Customer customer = null,
+            decimal additionalCharge = decimal.Zero,
+            int quantity = 1,
+            ProductBundleItemData bundleItem = null,
+            PriceCalculationContext context = null,
+            decimal? finalPrice = null)
+        {
+            Guard.NotNull(product, nameof(product));
+
+            customer ??= _workContext.CurrentCustomer;
+
+            var discountAmount = decimal.Zero;
+            Discount appliedDiscount = null;
+
+            if (bundleItem != null && bundleItem.Item != null)
+            {
+                var bi = bundleItem.Item;
+                if (bi.Discount.HasValue && bi.BundleProduct.BundlePerItemPricing)
+                {
+                    appliedDiscount = new Discount
+                    {
+                        UsePercentage = bi.DiscountPercentage,
+                        DiscountPercentage = bi.Discount.Value,
+                        DiscountAmount = bi.Discount.Value
+                    };
+
+                    // TODO: (mg) (core) Complete PriceCalculationService (internal stuff required).
+                    //var finalPriceWithoutDiscount = finalPrice ?? await GetFinalPriceAsync(product, customer, additionalCharge, false, quantity, bundleItem, context);
+                    var finalPriceWithoutDiscount = decimal.Zero;
+                    discountAmount = appliedDiscount.GetDiscountAmount(finalPriceWithoutDiscount);
+                }
+            }
+            else
+            {
+                // Don't apply when customer entered price or discounts should be ignored in any case.
+                if (!product.CustomerEntersPrice && _catalogSettings.IgnoreDiscounts)
+                {
+                    return (discountAmount, appliedDiscount);
+                }
+
+                var allowedDiscounts = await GetAllowedDiscountsAsync(product, customer, context);
+                if (!allowedDiscounts.Any())
+                {
+                    return (discountAmount, appliedDiscount);
+                }
+
+                // TODO: (mg) (core) Complete PriceCalculationService (internal stuff required).
+                //var finalPriceWithoutDiscount = finalPrice ?? await GetFinalPriceAsync(product, customer, additionalCharge, false, quantity, bundleItem, context);
+                var finalPriceWithoutDiscount = decimal.Zero;
+                appliedDiscount = allowedDiscounts.GetPreferredDiscount(finalPriceWithoutDiscount);
+
+                if (appliedDiscount != null)
+                {
+                    discountAmount = appliedDiscount.GetDiscountAmount(finalPriceWithoutDiscount);
+                }
+            }
+
+            return (discountAmount, appliedDiscount);
+        }
 
         #region Utilities
 
@@ -74,9 +367,8 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
                 else
                 {
-                    result = context.TierPrices
-                        .GetOrLoad(product.Id)
-                        .RemoveDuplicatedQuantities();
+                    var tierPrices = await context.TierPrices.GetOrLoadAsync(product.Id);
+                    result = tierPrices.RemoveDuplicatedQuantities();
                 }
             }
 
@@ -108,7 +400,7 @@ namespace Smartstore.Core.Catalog.Pricing
                     {
                         context.AppliedDiscounts.LoadAll();
                     }
-                    appliedDiscounts = context.AppliedDiscounts.GetOrLoad(product.Id);
+                    appliedDiscounts = await context.AppliedDiscounts.GetOrLoadAsync(product.Id);
                 }
 
                 if (appliedDiscounts != null)
@@ -135,7 +427,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
                 else
                 {
-                    productCategories = context.ProductCategories.GetOrLoad(product.Id);
+                    productCategories = await context.ProductCategories.GetOrLoadAsync(product.Id);
                 }
 
                 if (productCategories?.Any() ?? false)
@@ -172,7 +464,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
                 else
                 {
-                    productManufacturers = context.ProductManufacturers.GetOrLoad(product.Id);
+                    productManufacturers = await context.ProductManufacturers.GetOrLoadAsync(product.Id);
                 }
 
                 if (productManufacturers?.Any() ?? false)
@@ -283,7 +575,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var query = new ProductVariantQuery();
             var selectedAttributeValues = new List<ProductVariantAttributeValue>();
-            var attributes = context.Attributes.GetOrLoad(product.Id);
+            var attributes = await context.Attributes.GetOrLoadAsync(product.Id);
 
             // 1. Fill query with initially selected attributes.
             foreach (var attribute in attributes.Where(x => x.ProductVariantAttributeValues.Any() && x.IsListTypeAttribute()))
@@ -356,7 +648,7 @@ namespace Smartstore.Core.Catalog.Pricing
             if (!isBundle && query.Variants.Any())
             {
                 var (selection, warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId, true);
-                var combinations = context.AttributeCombinations.GetOrLoad(product.Id);
+                var combinations = await context.AttributeCombinations.GetOrLoadAsync(product.Id);
                 var selectedCombination = combinations.FirstOrDefault(x => x.AttributeSelection.Equals(selection));
 
                 if (selectedCombination != null && selectedCombination.IsActive && selectedCombination.Price.HasValue)
