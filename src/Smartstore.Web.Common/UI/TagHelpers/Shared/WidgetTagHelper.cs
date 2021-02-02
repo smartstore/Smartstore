@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.UI.TagHelpers.Shared
 {
-    [HtmlTargetElement(WidgetTagName, Attributes = TargetAttributeName)]
+    [HtmlTargetElement(WidgetTagName, Attributes = TargetZoneAttributeName)]
     public class WidgetTagHelper : SmartTagHelper
     {
-        const string UniqueKeysKey = "WidgetTagHelper.UniqueKeys";
         const string WidgetTagName = "widget";
-        const string TargetAttributeName = "target";
+        const string TargetZoneAttributeName = "zone";
         const string OrderAttributeName = "order";
+        const string PrependAttributeName = "prepend";
+        const string KeyAttributeName = "key";
 
         private readonly IWidgetProvider _widgetProvider;
 
@@ -23,7 +24,8 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
         /// <summary>
         /// The target zone name to inject this widget to.
         /// </summary>
-        public string Target { get; set; }
+        [HtmlAttributeName(TargetZoneAttributeName)]
+        public string TargetZone { get; set; }
 
         /// <summary>
         /// The order within the target zone.
@@ -35,43 +37,36 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
         /// Whether the widget output should be inserted BEFORE target zone's existing content. 
         /// Omitting this attribute renders widget output AFTER any existing content.
         /// </summary>
+        [HtmlAttributeName(PrependAttributeName)]
         public bool Prepend { get; set; }
 
         /// <summary>
-        /// When set, ensures uniqueness within a request
+        /// When set, ensures uniqueness within a particular zone.
         /// </summary>
+        [HtmlAttributeName(KeyAttributeName)]
         public string Key { get; set; }
 
-        protected override string GenerateTagId(TagHelperContext context) => null;
+        protected override string GenerateTagId(TagHelperContext context) 
+            => null;
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             output.SuppressOutput();
 
-            if (Target.IsEmpty())
+            if (TargetZone.IsEmpty())
             {
                 return;
             }
 
-            if (Key.HasValue())
+            if (Key.HasValue() && _widgetProvider.ContainsWidget(TargetZone, Key))
             {
-                var uniqueKeys = GetUniqueKeys();
-                if (uniqueKeys.Contains(Key))
-                {
-                    return;
-                }
-                uniqueKeys.Add(Key);
+                return;
             }
             
             var childContent = await output.GetChildContentAsync();
-            var widget = new HtmlWidgetInvoker(childContent) { Order = Ordinal, Prepend = Prepend };
+            var widget = new HtmlWidgetInvoker(childContent) { Order = Ordinal, Prepend = Prepend, Key = Key };
 
-            _widgetProvider.RegisterWidget(Target, widget);
-        }
-
-        private HashSet<string> GetUniqueKeys()
-        {
-            return ViewContext.HttpContext.GetItem(UniqueKeysKey, () => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+            _widgetProvider.RegisterWidget(TargetZone, widget);
         }
     }
 }

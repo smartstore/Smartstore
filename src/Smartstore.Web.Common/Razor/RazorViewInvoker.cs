@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.Razor
 {
@@ -60,7 +61,8 @@ namespace Smartstore.Web.Razor
                 Model = model
             };
 
-            using (var output = new StringWriter())
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            using (var output = new StringWriter(sb))
             {
                 var viewContext = new ViewContext(
                     actionContext,
@@ -79,22 +81,23 @@ namespace Smartstore.Web.Razor
         public Task<string> InvokeViewComponentAsync(ViewDataDictionary viewData, string componentName, object arguments)
         {
             Guard.NotEmpty(componentName, nameof(componentName));
-            return InvokeViewComponentInternal(viewData, arguments, () => _viewComponentHelper.InvokeAsync(componentName, arguments));
+            return InvokeViewComponentInternal(viewData, () => _viewComponentHelper.InvokeAsync(componentName, arguments));
         }
 
         public Task<string> InvokeViewComponentAsync(ViewDataDictionary viewData, Type componentType, object arguments)
         {
             Guard.NotNull(componentType, nameof(componentType));
-            return InvokeViewComponentInternal(viewData, arguments, () => _viewComponentHelper.InvokeAsync(componentType, arguments));
+            return InvokeViewComponentInternal(viewData, () => _viewComponentHelper.InvokeAsync(componentType, arguments));
         }
 
-        private async Task<string> InvokeViewComponentInternal(ViewDataDictionary viewData, object arguments, Func<Task<IHtmlContent>> invoker)
+        private async Task<string> InvokeViewComponentInternal(ViewDataDictionary viewData, Func<Task<IHtmlContent>> invoker)
         {
             Guard.NotNull(viewData, nameof(viewData));
 
             var actionContext = GetActionContext();
 
-            using (var output = new StringWriter())
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            using (var output = new StringWriter(sb))
             {
                 var viewContext = new ViewContext(
                     actionContext,

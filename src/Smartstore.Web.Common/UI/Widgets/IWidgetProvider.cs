@@ -32,6 +32,14 @@ namespace Smartstore.Web.UI
         /// <param name="zone">Zone name to retrieve widgets for.</param>
         /// <returns>List of <see cref="WidgetInvoker"/> instances.</returns>
         IEnumerable<WidgetInvoker> GetWidgets(string zone);
+
+        /// <summary>
+        /// Checks whether given <paramref name="zone"/> contains a widget
+        /// with the same <see cref="WidgetInvoker.Key"/> as <paramref name="widgetKey"/>.
+        /// </summary>
+        /// <param name="zone">The zone name to check for existing widget.</param>
+        /// <param name="widgetKey">The widget key to check.</param>
+        bool ContainsWidget(string zone, string widgetKey);
     }
 
     public static class IWidgetProviderExtensions

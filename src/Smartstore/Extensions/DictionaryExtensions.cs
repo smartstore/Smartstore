@@ -39,12 +39,42 @@ namespace Smartstore
 
         public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IDictionary<TKey, TValue> from, bool replaceExisting = true)
         {
+            Guard.NotNull(instance, nameof(instance));
+            Guard.NotNull(from, nameof(from));
+
             foreach (var kvp in from)
             {
                 if (replaceExisting || !instance.ContainsKey(kvp.Key))
                 {
                     instance[kvp.Key] = kvp.Value;
                 }
+            }
+
+            return instance;
+        }
+
+        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, TValue value, bool replaceExisting = true)
+        {
+            Guard.NotNull(instance, nameof(instance));
+            Guard.NotNull(key, nameof(key));
+
+            if (replaceExisting || !instance.ContainsKey(key))
+            {
+                instance[key] = value;
+            }
+
+            return instance;
+        }
+
+        public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key, Func<TValue> valueAccessor, bool replaceExisting = true)
+        {
+            Guard.NotNull(instance, nameof(instance));
+            Guard.NotNull(key, nameof(key));
+            Guard.NotNull(valueAccessor, nameof(valueAccessor));
+
+            if (replaceExisting || !instance.ContainsKey(key))
+            {
+                instance[key] = valueAccessor();
             }
 
             return instance;

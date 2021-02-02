@@ -39,7 +39,10 @@ namespace Smartstore.Web.UI
 
             #endregion
 
-            return widgets.OrderBy(x => x.Prepend).ThenBy(x => x.Order);
+            return widgets
+                .Distinct()
+                .OrderBy(x => x.Prepend)
+                .ThenBy(x => x.Order);
         }
     }
 }

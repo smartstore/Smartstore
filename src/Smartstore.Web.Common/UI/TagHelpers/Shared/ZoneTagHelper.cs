@@ -39,7 +39,7 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
 		/// Only applies to HTML tags like div, span, section etc..
 		/// <c>zone</c> tags are always removed.
 		/// </summary>
-		public bool RemoveWhenEmpty { get; set; }
+		public bool RemoveIfEmpty { get; set; }
 
 		protected override string GenerateTagId(TagHelperContext context) => null;
 
@@ -71,7 +71,7 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
 			else
             {
 				// No widgets
-				if (RemoveWhenEmpty && output.TagName.HasValue())
+				if (RemoveIfEmpty && output.TagName.HasValue())
                 {
 					var childContent = await output.GetChildContentAsync();
 					if (childContent.IsEmptyOrWhiteSpace)

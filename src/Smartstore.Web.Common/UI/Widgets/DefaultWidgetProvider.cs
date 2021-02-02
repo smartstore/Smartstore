@@ -31,7 +31,7 @@ namespace Smartstore.Web.UI
 
             if (_zoneWidgetsMap == null)
             {
-                _zoneWidgetsMap = new Multimap<string, WidgetInvoker>(StringComparer.OrdinalIgnoreCase);
+                _zoneWidgetsMap = new Multimap<string, WidgetInvoker>(StringComparer.OrdinalIgnoreCase, invokers => new HashSet<WidgetInvoker>());
             }
 
             foreach (var zone in zones)
@@ -52,7 +52,7 @@ namespace Smartstore.Web.UI
 
             if (_zoneExpressionWidgetsMap == null)
             {
-                _zoneExpressionWidgetsMap = new Multimap<Regex, WidgetInvoker>();
+                _zoneExpressionWidgetsMap = new Multimap<Regex, WidgetInvoker>(invokers => new HashSet<WidgetInvoker>());
             }
 
             _zoneExpressionWidgetsMap.Add(zonePattern, widget);
@@ -85,6 +85,19 @@ namespace Smartstore.Web.UI
             }
 
             return result;
+        }
+
+        public bool ContainsWidget(string zone, string widgetKey)
+        {
+            Guard.NotEmpty(zone, nameof(zone));
+            Guard.NotEmpty(widgetKey, nameof(widgetKey));
+
+            if (_zoneWidgetsMap != null && _zoneWidgetsMap.ContainsKey(zone))
+            {
+                return _zoneWidgetsMap[zone].Any(x => x.Key == widgetKey);
+            }
+
+            return false;
         }
     }
 }

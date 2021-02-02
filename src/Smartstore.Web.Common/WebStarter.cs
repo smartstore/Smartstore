@@ -16,6 +16,7 @@ namespace Smartstore.Web
             services.AddScoped<IWorkContext, WebWorkContext>();
             services.AddScoped<IWidgetProvider, DefaultWidgetProvider>();
             services.AddScoped<IWidgetSelector, DefaultWidgetSelector>();
+            services.AddScoped<IPageAssetBuilder, PageAssetBuilder>();
             services.AddScoped<SlugRouteTransformer>();
         }
 

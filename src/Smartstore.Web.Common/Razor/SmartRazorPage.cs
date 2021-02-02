@@ -5,6 +5,7 @@ using Smartstore.Core;
 using Smartstore.Core.Localization;
 using Smartstore.Engine;
 using Smartstore.Events;
+using Smartstore.Web.UI;
 
 namespace Smartstore.Web.Razor
 {
@@ -25,5 +26,8 @@ namespace Smartstore.Web.Razor
 
         [RazorInject]
         public IApplicationContext ApplicationContext { get; set; }
+
+        [RazorInject]
+        public IPageAssetBuilder AssetBuilder { get; set; }
     }
 }

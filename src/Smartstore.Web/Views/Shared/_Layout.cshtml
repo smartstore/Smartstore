@@ -8,18 +8,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no" />
     <meta name="HandheldFriendly" content="true">
 
-    <title>@ViewData["Title"] - SmartstoreCorePlayground</title>
+    <title itemprop="name">SmartstoreCorePlayground - @AssetBuilder.GetDocumentTitle(true)</title>
 
     <partial name="_HeadScripts" />
 
-    <link rel="stylesheet" href="~/bundles/css/common.css" />
-    <link rel="stylesheet" href="~/bundles/css/theme.css" />
+    <zone zone-name="head_stylesheets">
+        <link rel="stylesheet" href="~/bundles/css/common.css" />
+        <link rel="stylesheet" href="~/bundles/css/theme.css" />
+    </zone>
 
-    <script src="~/bundles/js/common.js"></script>
+    <zone zone-name="head_scripts">
+        <script src="~/bundles/js/common.js"></script>
+    </zone>
 
     <partial name="_GlobalizationScripts" />
 
     <script src="~/js/smartstore.globalization.adapter.js"></script>
+
+    <zone zone-name="head_canonical"></zone>
+    <zone zone-name="head_links"></zone>
+    <zone zone-name="head"></zone>
 
     <mini-profiler />
 </head>
