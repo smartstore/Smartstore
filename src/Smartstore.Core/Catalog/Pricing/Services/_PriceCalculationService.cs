@@ -26,6 +26,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly ICategoryService _categoryService;
         private readonly IManufacturerService _manufacturerService;
         private readonly ITaxService _taxService;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly CatalogSettings _catalogSettings;
         private readonly TaxSettings _taxSettings;
 
@@ -36,6 +37,7 @@ namespace Smartstore.Core.Catalog.Pricing
             ICategoryService categoryService,
             IManufacturerService manufacturerService,
             ITaxService taxService,
+            IProductAttributeMaterializer productAttributeMaterializer,
             CatalogSettings catalogSettings,
             TaxSettings taxSettings)
         {
@@ -45,6 +47,7 @@ namespace Smartstore.Core.Catalog.Pricing
             _categoryService = categoryService;
             _manufacturerService = manufacturerService;
             _taxService = taxService;
+            _productAttributeMaterializer = productAttributeMaterializer;
             _catalogSettings = catalogSettings;
             _taxSettings = taxSettings;
         }
@@ -271,7 +274,6 @@ namespace Smartstore.Core.Catalog.Pricing
             ProductBundleItemData bundleItem,
             IEnumerable<ProductBundleItemData> bundleItems)
         {
-            // TODO: (mg) (core) Complete PriceCalculationService (internal stuff required).
             var attributesTotalPriceBase = decimal.Zero;
             var preSelectedPriceAdjustmentBase = decimal.Zero;
             var isBundle = product.ProductType == ProductType.BundledProduct;
@@ -308,6 +310,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
                     if (!isBundlePricing && pvaValue.IsPreSelected)
                     {
+                        // TODO: (mg) (core) Complete PriceCalculationService (internal stuff required).
                         //var attributeValuePriceAdjustment = GetProductVariantAttributeValuePriceAdjustment(pvaValue, product, customer, context, 1);
                         var attributeValuePriceAdjustment = decimal.Zero;
                         var priceAdjustmentBase = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment, currency: currency, customer: customer );
@@ -352,13 +355,8 @@ namespace Smartstore.Core.Catalog.Pricing
             // 2. Find attribute combination for selected attributes and merge it.
             if (!isBundle && query.Variants.Any())
             {
-                //var attributeXml = query.CreateSelectedAttributesXml(product.Id, bundleItemId, attributes, _productAttributeParser, _services.Localization,
-                //    _downloadService, _catalogSettings, _httpRequestBase, new List<string>());
-                var selection = new ProductVariantAttributeSelection("");
-
+                var (selection, warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId, true);
                 var combinations = context.AttributeCombinations.GetOrLoad(product.Id);
-
-                // TODO: (mg) (core) Check whether equality check really works here (should only compare ProductVariantAttribute nodes!).
                 var selectedCombination = combinations.FirstOrDefault(x => x.AttributeSelection.Equals(selection));
 
                 if (selectedCombination != null && selectedCombination.IsActive && selectedCombination.Price.HasValue)
@@ -377,6 +375,7 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (selectedAttributeValues.Count > 0)
                 {
+                    // TODO: (mg) (core) Complete PriceCalculationService (internal stuff required).
                     //selectedAttributeValues.Each(x => attributesTotalPriceBase += GetProductVariantAttributeValuePriceAdjustment(x, product, customer, context, 1));
                 }
                 else
@@ -390,6 +389,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 bundleItem.AdditionalCharge = attributesTotalPriceBase;
             }
 
+            // TODO: (mg) (core) Complete PriceCalculationService (internal stuff required).
             //var result = GetFinalPrice(product, bundleItems, customer, attributesTotalPriceBase, true, 1, bundleItem, context);
             var result = decimal.Zero;
             return result;

@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.Core.Domain.Catalog;
+using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes
@@ -31,21 +35,32 @@ namespace Smartstore.Core.Catalog.Attributes
         internal const string UNAVAILABLE_COMBINATIONS_PATTERN_KEY = "attributecombination:unavailable-*";
 
         private readonly SmartDbContext _db;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRequestCache _requestCache;
         private readonly ICacheManager _cache;
+        private readonly Lazy<IDownloadService> _downloadService;
+        private readonly Lazy<CatalogSettings> _catalogSettings;
         private readonly PerformanceSettings _performanceSettings;
 
         public ProductAttributeMaterializer(
             SmartDbContext db,
+            IHttpContextAccessor httpContextAccessor,
             IRequestCache requestCache,
             ICacheManager cache,
+            Lazy<IDownloadService> downloadService,
+            Lazy<CatalogSettings> catalogSettings,
             PerformanceSettings performanceSettings)
         {
             _db = db;
+            _httpContextAccessor = httpContextAccessor;
             _requestCache = requestCache;
             _cache = cache;
+            _downloadService = downloadService;
+            _catalogSettings = catalogSettings;
             _performanceSettings = performanceSettings;
         }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         // TODO: (mg) (core) Check whether IProductAttributeMaterializer.PrefetchProductVariantAttributes is still required.
         // Looks like it can be done by MaterializeProductVariantAttributeValuesAsync.
@@ -173,7 +188,131 @@ namespace Smartstore.Core.Catalog.Attributes
 
             return result;
         }
-        
+
+        public virtual async Task<(ProductVariantAttributeSelection Selection, List<string> Warnings)> CreateAttributeSelectionAsync(
+            ProductVariantQuery query,
+            IEnumerable<ProductVariantAttribute> attributes,
+            int productId,
+            int bundleItemId,
+            bool getFilesFromRequest = true)
+        {
+            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(attributes, nameof(attributes));
+
+            var selection = new ProductVariantAttributeSelection(null);
+            var warnings = new List<string>();
+
+            foreach (var pva in attributes)
+            {
+                var selectedItems = query.Variants.Where(x =>
+                    x.ProductId == productId &&
+                    x.BundleItemId == bundleItemId &&
+                    x.AttributeId == pva.ProductAttributeId &&
+                    x.VariantAttributeId == pva.Id);
+
+                switch (pva.AttributeControlType)
+                {
+                    case AttributeControlType.DropdownList:
+                    case AttributeControlType.RadioList:
+                    case AttributeControlType.Boxes:
+                        {
+                            var valueId = selectedItems.FirstOrDefault()
+                                ?.Value
+                                ?.SplitSafe(",")
+                                ?.FirstOrDefault()
+                                ?.ToInt() ?? 0;
+
+                            if (valueId > 0)
+                            {
+                                selection.AddAttributeValue(pva.Id, valueId);
+                            }
+                        }
+                        break;
+
+                    case AttributeControlType.Checkboxes:
+                        foreach (var item in selectedItems)
+                        {
+                            var valueId = item.Value.SplitSafe(",").FirstOrDefault()?.ToInt() ?? 0;
+                            if (valueId > 0)
+                            {
+                                selection.AddAttributeValue(pva.Id, valueId);
+                            }
+                        }
+                        break;
+
+                    case AttributeControlType.TextBox:
+                    case AttributeControlType.MultilineTextbox:
+                        {
+                            var value = string.Join(",", selectedItems.Select(x => x.Value));
+                            if (value.HasValue())
+                            {
+                                selection.AddAttributeValue(pva.Id, value);
+                            }
+                        }
+                        break;
+
+                    case AttributeControlType.Datepicker:
+                        var firstItemDate = selectedItems.FirstOrDefault()?.Date;
+                        if (firstItemDate.HasValue)
+                        {
+                            selection.AddAttributeValue(pva.Id, firstItemDate.Value.ToString("D"));
+                        }
+                        break;
+
+                    case AttributeControlType.FileUpload:
+                        if (getFilesFromRequest)
+                        {
+                            var files = _httpContextAccessor?.HttpContext?.Request?.Form?.Files;
+                            if (files?.Any() ?? false)
+                            {
+                                var postedFile = files[ProductVariantQueryItem.CreateKey(productId, bundleItemId, pva.ProductAttributeId, pva.Id)];
+                                if (postedFile != null && postedFile.FileName.HasValue())
+                                {
+                                    if (postedFile.Length > _catalogSettings.Value.FileUploadMaximumSizeBytes)
+                                    {
+                                        warnings.Add(T("ShoppingCart.MaximumUploadedFileSize", (int)(_catalogSettings.Value.FileUploadMaximumSizeBytes / 1024)));
+                                    }
+                                    else
+                                    {
+                                        var download = new Download
+                                        {
+                                            DownloadGuid = Guid.NewGuid(),
+                                            UseDownloadUrl = false,
+                                            DownloadUrl = string.Empty,
+                                            UpdatedOnUtc = DateTime.UtcNow,
+                                            EntityId = productId,
+                                            EntityName = "ProductAttribute"
+                                        };
+
+                                        using var stream = postedFile.OpenReadStream();
+                                        await _downloadService.Value.InsertDownloadAsync(download, stream, postedFile.FileName);
+
+                                        selection.AddAttributeValue(pva.Id, download.DownloadGuid.ToString());
+                                    }
+                                }
+                            }
+                        }
+                        else if (Guid.TryParse(selectedItems.FirstOrDefault()?.Value, out var downloadGuid) && downloadGuid != Guid.Empty)
+                        {
+                            var download = await _db.Downloads.Where(x => x.DownloadGuid == downloadGuid).FirstOrDefaultAsync();
+                            if (download != null)
+                            {
+                                if (download.IsTransient)
+                                {
+                                    download.IsTransient = false;
+                                    await _db.SaveChangesAsync();
+                                }
+
+                                selection.AddAttributeValue(pva.Id, download.DownloadGuid.ToString());
+                            }
+                        }
+                        break;
+                }
+            }
+
+            return (selection, warnings);
+        }
+
         public virtual void ClearCachedAttributes()
         {
             _requestCache.RemoveByPattern(ATTRIBUTES_PATTERN_KEY);

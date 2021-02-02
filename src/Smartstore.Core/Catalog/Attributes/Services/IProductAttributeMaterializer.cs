@@ -33,6 +33,23 @@ namespace Smartstore.Core.Catalog.Attributes
         IList<ProductVariantAttributeValue> MaterializeProductVariantAttributeValues(ProductVariantAttributeSelection selection, IEnumerable<ProductVariantAttribute> attributes);
 
         /// <summary>
+        /// Creates an attribute selection.
+        /// </summary>
+        /// <param name="query">Product variant query.</param>
+        /// <param name="attributes">Product variant attributes for the product.</param>
+        /// <param name="productId">Product identifier.</param>
+        /// <param name="bundleItemId">Bundle item identifier.</param>
+        /// <param name="getFilesFromRequest">A value indicating whether to get the uploaded file from current request. 
+        /// <c>false</c> to get the file GUID from the query object.</param>
+        /// <returns>Created attribute selection and warnings, if any.</returns>
+        Task<(ProductVariantAttributeSelection Selection, List<string> Warnings)> CreateAttributeSelectionAsync(
+            ProductVariantQuery query,
+            IEnumerable<ProductVariantAttribute> attributes,
+            int productId,
+            int bundleItemId,
+            bool getFilesFromRequest = true);
+
+        /// <summary>
         /// Clears cached product attribute and attribute values.
         /// </summary>
         void ClearCachedAttributes();
