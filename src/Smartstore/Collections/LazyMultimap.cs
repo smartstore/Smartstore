@@ -101,22 +101,7 @@ namespace Smartstore.Collections
 		/// <returns>Collection of data.</returns>
 		public virtual ICollection<T> GetOrLoad(int key)
 		{
-			if (key == 0)
-			{
-				return new List<T>();
-			}
-
-			if (!_loaded.Contains(key))
-			{
-				LoadAsync(new int[] { key }).Await();
-			}
-
-			// better not override indexer cause of stack overflow risk
-			var result = base[key];
-
-			Debug.Assert(_loaded.Contains(key), $"Possible missing multimap result for key {key} and type {typeof(T).Name}.", string.Empty);
-
-			return result;
+			return GetOrLoadAsync(key).Await();
 		}
 
 		public async Task LoadAllAsync()

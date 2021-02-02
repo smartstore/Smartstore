@@ -108,14 +108,12 @@ namespace Smartstore.Core.Catalog.Pricing
             async Task<Multimap<int, ProductCategory>> productCategoriesFactory(int[] ids)
             {
                 var productCategories = await _categoryService.GetProductCategoriesByProductIdsAsync(ids, includeHidden);
-
                 return productCategories.ToMultimap(x => x.ProductId, x => x);
             }
 
             async Task<Multimap<int, ProductManufacturer>> productManufacturersFactory(int[] ids)
             {
                 var productManufacturers = await _manufacturerService.GetProductManufacturersByProductIdsAsync(ids, includeHidden);
-
                 return productManufacturers.ToMultimap(x => x.ProductId, x => x);
             }
 

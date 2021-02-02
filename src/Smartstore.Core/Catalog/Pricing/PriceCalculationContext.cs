@@ -16,11 +16,11 @@ namespace Smartstore.Core.Catalog.Pricing
     /// </summary>
     public class PriceCalculationContext
     {
-        protected readonly List<int> _productIds;
-        private readonly List<int> _productIdsTierPrices;
-        private readonly List<int> _productIdsAppliedDiscounts;
-        private readonly List<int> _bundledProductIds;
-        private readonly List<int> _groupedProductIds;
+        protected readonly List<int> _productIds = new();
+        private readonly List<int> _productIdsTierPrices = new();
+        private readonly List<int> _productIdsAppliedDiscounts = new();
+        private readonly List<int> _bundledProductIds = new();
+        private readonly List<int> _groupedProductIds = new();
 
         private LazyMultimap<ProductVariantAttribute> _attributes;
         private LazyMultimap<ProductVariantAttributeCombination> _attributeCombinations;
@@ -33,144 +33,80 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public PriceCalculationContext(IEnumerable<Product> products)
         {
-            if (products == null)
+            if (products != null)
             {
-                _productIds = new List<int>();
-                _productIdsTierPrices = new List<int>();
-                _productIdsAppliedDiscounts = new List<int>();
-                _bundledProductIds = new List<int>();
-                _groupedProductIds = new List<int>();
-            }
-            else
-            {
-                _productIds = new List<int>(products.Select(x => x.Id));
-                _productIdsTierPrices = new List<int>(products.Where(x => x.HasTierPrices).Select(x => x.Id));
-                _productIdsAppliedDiscounts = new List<int>(products.Where(x => x.HasDiscountsApplied).Select(x => x.Id));
-                _bundledProductIds = new List<int>(products.Where(x => x.ProductType == ProductType.BundledProduct).Select(x => x.Id));
-                _groupedProductIds = new List<int>(products.Where(x => x.ProductType == ProductType.GroupedProduct).Select(x => x.Id));
+                _productIds.AddRange(products.Select(x => x.Id));
+                _productIdsTierPrices.AddRange(products.Where(x => x.HasTierPrices).Select(x => x.Id));
+                _productIdsAppliedDiscounts.AddRange(products.Where(x => x.HasDiscountsApplied).Select(x => x.Id));
+                _bundledProductIds.AddRange(products.Where(x => x.ProductType == ProductType.BundledProduct).Select(x => x.Id));
+                _groupedProductIds.AddRange(products.Where(x => x.ProductType == ProductType.GroupedProduct).Select(x => x.Id));
             }
         }
 
         public IReadOnlyList<int> ProductIds => _productIds;
 
-        public Func<int[], Task<Multimap<int, ProductVariantAttribute>>> AttributesFactory { get; init; }
+        public Func<int[], Task<Multimap<int, ProductVariantAttribute>>> 
+            AttributesFactory { get; init; }
+
+        public Func<int[], Task<Multimap<int, ProductVariantAttributeCombination>>> 
+            AttributeCombinationsFactory { get; init; }
+
+        public Func<int[], Task<Multimap<int, TierPrice>>> 
+            TierPricesFactory { get; init; }
+
+        public Func<int[], Task<Multimap<int, ProductCategory>>> 
+            ProductCategoriesFactory { get; init; }
+
+        public Func<int[], Task<Multimap<int, ProductManufacturer>>> 
+            ProductManufacturersFactory { get; init; }
+
+        public Func<int[], Task<Multimap<int, Discount>>> 
+            AppliedDiscountsFactory { get; init; }
+
+        public Func<int[], Task<Multimap<int, ProductBundleItem>>> 
+            ProductBundleItemsFactory { get; init; }
+
+        public Func<int[], Task<Multimap<int, Product>>> 
+            AssociatedProductsFactory { get; init; }
 
         public LazyMultimap<ProductVariantAttribute> Attributes
         {
-            get
-            {
-                if (_attributes == null)
-                {
-                    _attributes = new LazyMultimap<ProductVariantAttribute>(keys => AttributesFactory(keys), _productIds);
-                }
-
-                return _attributes;
-            }
+            get => _attributes ??= new LazyMultimap<ProductVariantAttribute>(keys => AttributesFactory(keys), _productIds);
         }
-
-        public Func<int[], Task<Multimap<int, ProductVariantAttributeCombination>>> AttributeCombinationsFactory { get; init; }
 
         public LazyMultimap<ProductVariantAttributeCombination> AttributeCombinations
         {
-            get
-            {
-                if (_attributeCombinations == null)
-                {
-                    _attributeCombinations = new LazyMultimap<ProductVariantAttributeCombination>(keys => AttributeCombinationsFactory(keys), _productIds);
-                }
-
-                return _attributeCombinations;
-            }
+            get => _attributeCombinations ??= new LazyMultimap<ProductVariantAttributeCombination>(keys => AttributeCombinationsFactory(keys), _productIds);
         }
-
-        public Func<int[], Task<Multimap<int, TierPrice>>> TierPricesFactory { get; init; }
 
         public LazyMultimap<TierPrice> TierPrices
         {
-            get
-            {
-                if (_tierPrices == null)
-                {
-                    _tierPrices = new LazyMultimap<TierPrice>(keys => TierPricesFactory(keys), _productIdsTierPrices);
-                }
-
-                return _tierPrices;
-            }
+            get => _tierPrices ??= new LazyMultimap<TierPrice>(keys => TierPricesFactory(keys), _productIdsTierPrices);
         }
-
-        public Func<int[], Task<Multimap<int, ProductCategory>>> ProductCategoriesFactory { get; init; }
 
         public LazyMultimap<ProductCategory> ProductCategories
         {
-            get
-            {
-                if (_productCategories == null)
-                {
-                    _productCategories = new LazyMultimap<ProductCategory>(keys => ProductCategoriesFactory(keys), _productIds);
-                }
-
-                return _productCategories;
-            }
+            get => _productCategories ??= new LazyMultimap<ProductCategory>(keys => ProductCategoriesFactory(keys), _productIds);
         }
-
-        public Func<int[], Task<Multimap<int, ProductManufacturer>>> ProductManufacturersFactory { get; init; }
 
         public LazyMultimap<ProductManufacturer> ProductManufacturers
         {
-            get
-            {
-                if (_productManufacturers == null)
-                {
-                    _productManufacturers = new LazyMultimap<ProductManufacturer>(keys => ProductManufacturersFactory(keys), _productIds);
-                }
-
-                return _productManufacturers;
-            }
+            get => _productManufacturers ??= new LazyMultimap<ProductManufacturer>(keys => ProductManufacturersFactory(keys), _productIds);
         }
-
-        public Func<int[], Task<Multimap<int, Discount>>> AppliedDiscountsFactory { get; init; }
 
         public LazyMultimap<Discount> AppliedDiscounts
         {
-            get
-            {
-                if (_appliedDiscounts == null)
-                {
-                    _appliedDiscounts = new LazyMultimap<Discount>(keys => AppliedDiscountsFactory(keys), _productIdsAppliedDiscounts);
-                }
-
-                return _appliedDiscounts;
-            }
-        }
-
-        public Func<int[], Task<Multimap<int, ProductBundleItem>>> ProductBundleItemsFactory { get; init; }
+            get => _appliedDiscounts ??= new LazyMultimap<Discount>(keys => AppliedDiscountsFactory(keys), _productIdsAppliedDiscounts);
+        }     
 
         public LazyMultimap<ProductBundleItem> ProductBundleItems
         {
-            get
-            {
-                if (_productBundleItems == null)
-                {
-                    _productBundleItems = new LazyMultimap<ProductBundleItem>(keys => ProductBundleItemsFactory(keys), _bundledProductIds);
-                }
-
-                return _productBundleItems;
-            }
+            get => _productBundleItems ??= new LazyMultimap<ProductBundleItem>(keys => ProductBundleItemsFactory(keys), _bundledProductIds);
         }
-
-        public Func<int[], Task<Multimap<int, Product>>> AssociatedProductsFactory { get; init; }
 
         public LazyMultimap<Product> AssociatedProducts
         {
-            get
-            {
-                if (_associatedProducts == null)
-                {
-                    _associatedProducts = new LazyMultimap<Product>(keys => AssociatedProductsFactory(keys), _groupedProductIds);
-                }
-
-                return _associatedProducts;
-            }
+            get => _associatedProducts ??= new LazyMultimap<Product>(keys => AssociatedProductsFactory(keys), _groupedProductIds);
         }
 
         public void Collect(IEnumerable<int> productIds)
