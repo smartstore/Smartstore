@@ -107,6 +107,17 @@ namespace Smartstore.Net
             return path;
         }
 
+        /// <summary>
+        /// Checks whether the specified <paramref name="url"/> points to the local computer.
+        /// </summary>
+        /// <param name="url">URL to check.</param>
+        public static bool IsUrlLocalToHost(string url)
+        {
+            return !url.IsEmpty() &&
+                   ((url[0] == '/' && (url.Length == 1 || (url[1] != '/' && url[1] != '\\'))) || // "/" or "/foo" but not "//" or "/\"
+                    (url.Length > 1 && url[0] == '~' && url[1] == '/')); // "~/" or "~/foo"
+        }
+
         public static async Task<string> GetPublicIPAddressAsync()
         {
             string result = string.Empty;

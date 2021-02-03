@@ -1,38 +1,49 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Hosting;
 using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Engine;
+using Smartstore.Net;
 
 namespace Smartstore.Web.UI
 {
     public partial class PageAssetBuilder : IPageAssetBuilder
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IWidgetProvider _widgetProvider;
+        private readonly IApplicationContext _appContext;
+        private readonly IUrlHelper _urlHelper;
         private readonly SeoSettings _seoSettings;
 
         private List<string> _titleParts;
         private List<string> _metaDescriptionParts;
         private List<string> _metaKeywordParts;
 
+        private static readonly ConcurrentDictionary<string, string> _minFiles = new(StringComparer.InvariantCultureIgnoreCase);
+
         public PageAssetBuilder(
             IHttpContextAccessor httpContextAccessor,
+            IApplicationContext appContext,
+            IUrlHelper urlHelper,
             IWidgetProvider widgetProvider,
             SeoSettings seoSettings,
             IStoreContext storeContext)
         {
+            // TODO: (core) IApplicationContext.WebRoot > StaticFileOptions.FileProvider (?)
             _httpContextAccessor = httpContextAccessor;
-            _widgetProvider = widgetProvider;
+            _appContext = appContext;
+            _urlHelper = urlHelper;
             _seoSettings = seoSettings;
+            WidgetProvider = widgetProvider;
 
             var htmlBodyId = storeContext.CurrentStore.HtmlBodyId;
             if (htmlBodyId.HasValue())
@@ -41,22 +52,22 @@ namespace Smartstore.Web.UI
             }
         }
 
-        #region Build
+        public IWidgetProvider WidgetProvider { get; }
 
         public AttributeDictionary RootAttributes { get; } = new();
 
         public AttributeDictionary BodyAttributes { get; } = new();
 
-        public void PushTitleParts(IEnumerable<string> parts, bool append = false)
-            => AddPartsCore(ref _titleParts, parts, append);
+        public void AddTitleParts(IEnumerable<string> parts, bool prepend = false)
+            => AddPartsInternal(ref _titleParts, parts, prepend);
 
-        public void PushMetaDescriptionParts(IEnumerable<string> parts, bool append = false)
-            => AddPartsCore(ref _metaDescriptionParts, parts, append);
+        public void AddMetaDescriptionParts(IEnumerable<string> parts, bool prepend = false)
+            => AddPartsInternal(ref _metaDescriptionParts, parts, prepend);
 
-        public void PushMetaKeywordParts(IEnumerable<string> parts, bool append = false)
-            => AddPartsCore(ref _metaKeywordParts, parts, append);
+        public void AddMetaKeywordParts(IEnumerable<string> parts, bool prepend = false)
+            => AddPartsInternal(ref _metaKeywordParts, parts, prepend);
 
-        public void PushCanonicalUrlParts(IEnumerable<string> parts, bool append = false)
+        public void AddCanonicalUrlParts(IEnumerable<string> parts, bool prepend = false)
         {
             const string zoneName = "head_canonical";
             
@@ -69,20 +80,18 @@ namespace Smartstore.Web.UI
             {
                 var partKey = "canonical:" + href;
                 
-                if (!_widgetProvider.ContainsWidget(zoneName, partKey))
+                if (!WidgetProvider.ContainsWidget(zoneName, partKey))
                 {
-                    var tag = new TagBuilder("link");
-                    tag.Attributes["rel"] = "canonical";
-                    tag.Attributes["href"] = href;
-
-                    _widgetProvider.RegisterWidget(zoneName, new HtmlWidgetInvoker(tag) { Key = partKey, Prepend = !append });
+                    WidgetProvider.RegisterWidget(
+                        zoneName, 
+                        new HtmlWidgetInvoker(new HtmlString("<link rel=\"canonical\" href=\"{0}\" />".FormatInvariant(href))) 
+                        { 
+                            Key = partKey, 
+                            Prepend = prepend 
+                        });
                 }
             }
         }
-
-        #endregion
-
-        #region Resolve
 
         public virtual IHtmlContent GetDocumentTitle(bool addDefaultTitle)
         {
@@ -147,12 +156,58 @@ namespace Smartstore.Web.UI
             return new HtmlString(result.NullEmpty() ?? _seoSettings.GetLocalizedSetting(x => x.MetaKeywords).Value);
         }
 
-        #endregion
+        /// <summary>
+        /// Given an app relative path for a static script or css file, tries to locate
+        /// the minified version ([PathWithoutExtension].min.[Extension]) of this file in the same directory, but only if app
+        /// runs in production mode. If a minified file is found, then its path is returned, otherwise
+        /// <paramref name="path"/> is returned as is.
+        /// </summary>
+        /// <param name="path">File path to check a minified version for.</param>
+        public virtual string TryFindMinFile(string path)
+        {
+            Guard.NotEmpty(path, nameof(path));
+            
+            if (!_appContext.HostEnvironment.IsDevelopment())
+            {
+                path = _minFiles.GetOrAdd(path, key =>
+                {
+                    try
+                    {
+                        if (!WebHelper.IsUrlLocalToHost(key))
+                        {
+                            // No need to look for external files
+                            return key;
+                        }
+
+                        var extension = Path.GetExtension(key);
+                        if (key.EndsWith(".min" + extension, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            // Is already a MIN file, get out!
+                            return key;
+                        }
+
+                        var minPath = "{0}.min{1}".FormatInvariant(key.Substring(0, key.Length - extension.Length), extension);
+                        if (_appContext.WebRoot.FileExists(minPath.TrimStart('~', '/')))
+                        {
+                            return minPath;
+                        }
+
+                        return key;
+                    }
+                    catch
+                    {
+                        return key;
+                    }
+                });
+            }
+
+            return _urlHelper.Content(path);
+        }
 
         #region Utils
 
         // Helper func: changes all following public funcs to remove code redundancy
-        private static void AddPartsCore<T>(ref List<T> list, IEnumerable<T> partsToAdd, bool append = false)
+        private static void AddPartsInternal<T>(ref List<T> list, IEnumerable<T> partsToAdd, bool prepend = false)
         {
             var parts = (partsToAdd ?? Enumerable.Empty<T>()).Where(IsValidPart);
 
@@ -162,11 +217,8 @@ namespace Smartstore.Web.UI
             }
             else if (parts.Any())
             {
-                if (append)
+                if (prepend)
                 {
-                    // Appended elements must actually be prepended to the list, because
-                    // outermost templates come last in rendering process.
-                    // ---
                     // Insertion of multiple parts at the beginning
                     // should keep order (and not vice-versa as it was originally)
                     list.InsertRange(0, parts);

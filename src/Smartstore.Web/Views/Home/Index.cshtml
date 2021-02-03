@@ -2,8 +2,17 @@
 
 @{
     ViewData["Title"] = "Home Page";
-    AssetBuilder.PushCanonicalUrlParts(new[] { "/yodele/man" });
 }
+
+<script data-origin="1" zone="head_scripts">
+    var yesman1 = true;
+</script>
+
+<widget zone="head_scripts">
+    <script data-origin="2">
+        var yesman2 = true;
+    </script>
+</widget>
 
 <div class="text-left">
     <h1 class="display-3">Welcome</h1>
@@ -12,6 +21,8 @@
 <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#cookie-manager-window">
     Launch demo modal
 </button>
+
+<partial name="_TestPartial" />
 
 <div class="my-2">
     @(Html.LocalizedEditor<TestModel, LocalizedTestModel>("testmodel-localized",

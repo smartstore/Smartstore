@@ -5,10 +5,19 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.UI.TagHelpers.Shared
 {
-    [HtmlTargetElement(WidgetTagName, Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("widget", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("script", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("link", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("div", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("span", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("section", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("ul", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("ol", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("svg", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("img", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("a", Attributes = TargetZoneAttributeName)]
     public class WidgetTagHelper : SmartTagHelper
     {
-        const string WidgetTagName = "widget";
         const string TargetZoneAttributeName = "zone";
         const string OrderAttributeName = "order";
         const string PrependAttributeName = "prepend";
@@ -51,21 +60,38 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
-            output.SuppressOutput();
-
             if (TargetZone.IsEmpty())
             {
+                output.SuppressOutput();
                 return;
             }
 
             if (Key.HasValue() && _widgetProvider.ContainsWidget(TargetZone, Key))
             {
+                output.SuppressOutput();
                 return;
             }
-            
-            var childContent = await output.GetChildContentAsync();
-            var widget = new HtmlWidgetInvoker(childContent) { Order = Ordinal, Prepend = Prepend, Key = Key };
 
+            var childContent = await output.GetChildContentAsync();
+
+            TagHelperContent content;
+
+            if (output.TagName == "widget")
+            {
+                // Never render <widget> tag, only the content
+                output.TagName = null;
+                content = childContent;
+            }
+            else
+            {
+                childContent.CopyTo(output.Content);
+                //output.Content.SetHtmlContent(childContent);
+                content = output.ToTagHelperContent();
+            }
+
+            output.SuppressOutput();
+
+            var widget = new HtmlWidgetInvoker(content) { Order = Ordinal, Prepend = Prepend, Key = Key };
             _widgetProvider.RegisterWidget(TargetZone, widget);
         }
     }

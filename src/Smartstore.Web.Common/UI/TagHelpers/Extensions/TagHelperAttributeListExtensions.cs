@@ -1,11 +1,27 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.UI.TagHelpers
 {
     public static class TagHelperAttributeListExtensions
     {
+        /// <summary>
+        /// Copies all attributes from <paramref name="attributes"/> to <paramref name="target"/>
+        /// overriding any existing attribute.
+        /// </summary>
+        public static void CopyTo(this TagHelperAttributeList attributes, AttributeDictionary target)
+        {
+            Guard.NotNull(attributes, nameof(attributes));
+            Guard.NotNull(target, nameof(target));
+
+            foreach (var attr in attributes)
+            {
+                target[attr.Name] = attr.Value.ToString();
+            }
+        }
+
         /// <summary>
         /// Adds a <see cref="TagHelperAttribute"/> with <paramref name="name"/> and <paramref name="value"/> to the end of the collection,
         /// but only if the attribute does not exist.

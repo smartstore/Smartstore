@@ -107,28 +107,28 @@ namespace Smartstore.Web.UI.TagHelpers
         }
 
         /// <summary>
-        /// Converts a <see cref="output" /> into a <see cref="TagHelperContent" />
+        /// Converts a <see cref="output" /> to a <see cref="TagHelperContent" />
         /// </summary>
         public static TagHelperContent ToTagHelperContent(this TagHelperOutput output)
         {
             var content = new DefaultTagHelperContent();
             content.AppendHtml(output.PreElement);
-            var builder = new TagBuilder(output.TagName);
+            var tag = new TagBuilder(output.TagName);
 
             foreach (var attribute in output.Attributes)
             {
-                builder.Attributes.Add(attribute.Name, attribute.Value?.ToString());
+                tag.Attributes.Add(attribute.Name, attribute.Value?.ToString());
             }
 
             if (output.TagMode == TagMode.SelfClosing)
             {
-                builder.TagRenderMode = TagRenderMode.SelfClosing;
-                content.AppendHtml(builder);
+                tag.TagRenderMode = TagRenderMode.SelfClosing;
+                content.AppendHtml(tag);
             }
             else
             {
-                builder.TagRenderMode = TagRenderMode.StartTag;
-                content.AppendHtml(builder);
+                tag.TagRenderMode = TagRenderMode.StartTag;
+                content.AppendHtml(tag);
                 content.AppendHtml(output.PreContent);
                 content.AppendHtml(output.Content);
                 content.AppendHtml(output.PostContent);
