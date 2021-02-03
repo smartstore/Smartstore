@@ -162,7 +162,7 @@ namespace Smartstore.Utilities
 
             foreach (StringSegment segment in tokenizer)
             {
-                if (segment.Equals(".") || segment.Equals(""))
+                if (segment.Equals(".") || segment.Equals(string.Empty))
                 {
                     continue;
                 }

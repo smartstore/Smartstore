@@ -35,11 +35,11 @@ namespace Smartstore.IO
                     .Where(x => !string.IsNullOrEmpty(x))
                     .ToArray();
 
-            var combined = string.Join("/", normalizedParts);
+            var combined = string.Join('/', normalizedParts);
 
-            // Preserve the initial '/' if it is present.
-            if (paths[0]?.StartsWith('/') == true)
-                combined = "/" + combined;
+            // Preserve the leading '/' if it is present or if OS is Unix.
+            if (paths[0]?.StartsWith('/') == true || Environment.OSVersion.Platform == PlatformID.Unix)
+                combined = '/' + combined;
 
             return combined;
         }

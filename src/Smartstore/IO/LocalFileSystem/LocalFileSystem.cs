@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.Primitives;
+using Smartstore.Net;
 using Smartstore.Utilities;
 
 namespace Smartstore.IO
@@ -432,7 +433,18 @@ namespace Smartstore.IO
                 }
             }
 
-            var mappedPath = Root + subpath.Replace('/', '\\').Trim('\\');
+            var sepChar = Path.DirectorySeparatorChar; // --> '\\'
+
+            // Check if path ends with / or \
+            var hasTrailingSlash = subpath[^1] is ('/' or '\\');
+
+            // Convert "/myshop/file.png" --> "/file.png"
+            if (WebHelper.IsAbsolutePath(subpath, out var relativePath))
+            {
+                subpath = relativePath.Value;
+            }
+
+            var mappedPath = Root + subpath.Trim('~').Replace('/', sepChar).Trim(sepChar);
 
             // Verify that the resulting path is inside the root file system path.
             if (!IsUnderneathRoot(mappedPath))
@@ -445,6 +457,11 @@ namespace Smartstore.IO
                 {
                     return null;
                 }
+            }
+
+            if (hasTrailingSlash)
+            {
+                mappedPath += sepChar;
             }
 
             return mappedPath;

@@ -10,6 +10,9 @@ namespace Smartstore.Engine
 {
 	public interface IServiceProviderContainer
     {
+		/// <summary>
+		/// Gets or sets the ROOT (NOT scoped) application services container.
+		/// </summary>
 		IServiceProvider ApplicationServices { get; set; }
 	}
 
@@ -55,11 +58,34 @@ namespace Smartstore.Engine
 		string MachineName { get; }
 		string EnvironmentIdentifier { get; }
 
+		/// <summary>
+		/// Gets a <see cref="IFileSystem"/> pointing at the path that contains application content files.
+		/// </summary>
 		IFileSystem ContentRoot { get; }
+
+		/// <summary>
+		/// Gets a <see cref="IFileSystem"/> pointing at the path that contains web-servable application content files (wwwroot).
+		/// </summary>
 		IFileSystem WebRoot { get; }
+
+		/// <summary>
+		/// Gets a <see cref="IFileSystem"/> pointing at the path that contains all theme directories.
+		/// </summary>
 		IFileSystem ThemesRoot { get; }
+
+		/// <summary>
+		/// Gets a <see cref="IFileSystem"/> pointing at the path that contains all module directories.
+		/// </summary>
 		IFileSystem ModulesRoot { get; }
+
+		/// <summary>
+		/// Gets a <see cref="IFileSystem"/> pointing at the application data root (App_Data)
+		/// </summary>
 		IFileSystem AppDataRoot { get; }
+
+		/// <summary>
+		/// Gets a <see cref="IFileSystem"/> pointing at the path that contains all tenant files (App_Data/Tenants/{Tenant})
+		/// </summary>
 		IFileSystem TenantRoot { get; }
 	}
 }

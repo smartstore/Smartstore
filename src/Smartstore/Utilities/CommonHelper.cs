@@ -22,15 +22,15 @@ namespace Smartstore.Utilities
 
         private static bool? _isDevEnvironment;
         private static bool? _isHosted;
-        private static IFileSystem _fileSystem;
+        private static IFileSystem _contentRoot;
 
         /// <summary>
-        /// Gets or sets the file system provider pointing to the application root.
+        /// Gets or sets the file system provider pointing at the path that contains application content files.
         /// </summary>
         public static IFileSystem ContentRoot 
         {
-            get => _fileSystem ??= EngineContext.Current.Application.ContentRoot;
-            set => _fileSystem = value;
+            get => _contentRoot ??= EngineContext.Current.Application.ContentRoot;
+            set => _contentRoot = value;
         }
 
         public static bool IsDevEnvironment
@@ -46,9 +46,9 @@ namespace Smartstore.Utilities
         }
 
         /// <summary>
-        /// Maps a relative path to the full physical disk path.
+        /// Maps a path relative to application content root (<see cref="IApplicationContext.ContentRoot"/>) to the full physical disk path.
         /// </summary>
-        /// <param name="path">The path to map. E.g. "bin"</param>
+        /// <param name="path">The path to map. E.g. "~/bin"</param>
         /// <param name="findAppRoot">Specifies if the app root should be resolved when mapped directory does not exist</param>
         /// <returns>The physical path. E.g. "c:\inetpub\wwwroot\bin"</returns>
         /// <remarks>
@@ -68,7 +68,7 @@ namespace Smartstore.Utilities
             else
             {
                 // TODO: (core) Test thoroughly!
-                // not hosted. For example, running in unit tests or EF tooling
+                // Not hosted. For example, running in unit tests or EF tooling
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 path = path.TrimStart('~').TrimStart('/', '\\').Replace('/', '\\');
 

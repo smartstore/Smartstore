@@ -188,7 +188,7 @@ namespace Smartstore.Web
             builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
             {
                 //app.UseHttpsRedirection();
-                app.UseStaticFiles(); // TODO: (core) Set StaticFileOptions
+                app.UseStaticFiles(new StaticFileOptions { FileProvider = appContext.WebRoot }); // TODO: (core) Set StaticFileOptions
             });
 
             builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app =>

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
+using Smartstore.Net;
 using Smartstore.Utilities;
 
 namespace Smartstore.Engine
@@ -74,6 +75,7 @@ namespace Smartstore.Engine
             }
 
             CommonHelper.ContentRoot = ContentRoot;
+            WebHelper.WebRoot = WebRoot;
         }
 
         IServiceProvider IServiceProviderContainer.ApplicationServices { get; set; }
