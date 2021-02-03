@@ -46,6 +46,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Security;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Catalog.Pricing;
 
 namespace Smartstore.Web.Controllers
 {
@@ -668,7 +669,7 @@ namespace Smartstore.Web.Controllers
             return Content($"Slug matched >>> Entity: {e.EntityName} {e.EntityId}, Id: {e.Id}, Language: {e.LanguageId}, Slug: {e.Slug}, IsActive: {e.IsActive}");
         }
 
-        public async Task<IActionResult> MgTest(CatalogSearchQuery query)
+        public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*/)
         {
             var content = new StringBuilder();
 
@@ -677,30 +678,33 @@ namespace Smartstore.Web.Controllers
             var product = await _db.Products.FindByIdAsync(4366);
             content.AppendLine($"Number of applied discounts {product.AppliedDiscounts.Count}. Ids {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. Has discounts applied {product.HasDiscountsApplied}.");
 
+            var product2 = await _db.Products.FindByIdAsync(1751);
+            var pcs = Services.Resolve<IPriceCalculationService>();
+            var price = await pcs.GetFinalPriceAsync(product2);
             content.AppendLine();
-            content.AppendLine(query.ToString());
+            content.AppendLine("Price for 1751: " + price.ToString());
 
-            var qs = new MutableQueryCollection(Request.QueryString);
-            content.AppendLine();
-            content.AppendLine(qs.ToString());
-            qs.Add("i", "3");
-            content.AppendLine(qs.ToString());
+            //var qs = new MutableQueryCollection(Request.QueryString);
+            //content.AppendLine();
+            //content.AppendLine(qs.ToString());
+            //qs.Add("i", "3");
+            //content.AppendLine(qs.ToString());
 
-            var searchService = Services.Resolve<ICatalogSearchService>();
+            //var searchService = Services.Resolve<ICatalogSearchService>();
+            //var sw = Stopwatch.StartNew();
+            //var searchResult = await searchService.SearchAsync(query.BuildFacetMap(true), true);
+            //var hits = await searchResult.GetHitsAsync();
+            //sw.Stop();
 
-            var sw = Stopwatch.StartNew();
-            var searchResult = await searchService.SearchAsync(query.BuildFacetMap(true), true);
-            var hits = await searchResult.GetHitsAsync();
-            sw.Stop();
-            
-            content.AppendLine();
-            content.AppendLine("Search time: " + sw.ElapsedMilliseconds + "ms");
-            content.AppendLine("Search hits: " + searchResult.TotalHitsCount);
-            foreach (var hit in hits)
-            {
-                content.AppendLine($"{hit.Id} {hit.Name} ({hit.Sku.NaIfEmpty()})");
-            }
-            
+            //content.AppendLine();
+            //content.AppendLine("Search query: " + query.ToString());
+            //content.AppendLine("Search time: " + sw.ElapsedMilliseconds + "ms");
+            //content.AppendLine("Search hits: " + searchResult.TotalHitsCount);
+            //foreach (var hit in hits)
+            //{
+            //    content.AppendLine($"{hit.Id} {hit.Name} ({hit.Sku.NaIfEmpty()})");
+            //}
+
             return Content(content.ToString());
         }
     }

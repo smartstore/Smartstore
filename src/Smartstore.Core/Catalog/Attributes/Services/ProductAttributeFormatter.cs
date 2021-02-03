@@ -28,6 +28,7 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
         private readonly ILocalizationService _localizationService;
+        private readonly IPriceCalculationService _priceCalculationService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CatalogSettings _catalogSettings;
 
@@ -40,6 +41,7 @@ namespace Smartstore.Core.Catalog.Attributes
             ITaxService taxService,
             ICurrencyService currencyService,
             ILocalizationService localizationService,
+            IPriceCalculationService priceCalculationService,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
         {
@@ -51,6 +53,7 @@ namespace Smartstore.Core.Catalog.Attributes
             _taxService = taxService;
             _currencyService = currencyService;
             _localizationService = localizationService;
+            _priceCalculationService = priceCalculationService;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
         }
@@ -68,6 +71,8 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             Guard.NotNull(selection, nameof(selection));
             Guard.NotNull(product, nameof(product));
+
+            customer ??= _workContext.CurrentCustomer;
 
             using var pool = StringBuilderPool.Instance.Get(out var result);
 
@@ -100,10 +105,8 @@ namespace Smartstore.Core.Catalog.Attributes
 
                                 if (includePrices)
                                 {
-                                    // TODO: (mg) (core) Complete ProductAttributeFormatter.FormatAttributesAsync (IPriceCalculationService required).
-                                    //var attributeValuePriceAdjustment = _priceCalculationService.GetProductVariantAttributeValuePriceAdjustment(pvaValue, product, customer ?? _workContext.CurrentCustomer, null, 1);
-                                    var attributeValuePriceAdjustment = decimal.Zero;
-                                    var priceAdjustmentBase = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment, customer: customer ?? _workContext.CurrentCustomer);
+                                    var attributeValuePriceAdjustment = await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, null, 1);
+                                    var priceAdjustmentBase = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment, customer: customer);
                                     var priceAdjustment = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, _workContext.WorkingCurrency);
 
                                     if (_shoppingCartSettings.ShowLinkedAttributeValueQuantity &&

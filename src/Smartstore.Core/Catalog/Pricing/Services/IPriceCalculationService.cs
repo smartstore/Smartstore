@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Stores;
@@ -82,9 +83,9 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Gets the final price.
         /// </summary>
         /// <param name="product">Product.</param>
-        /// <param name="customer">Customer.</param>
+        /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="additionalCharge">Additional charge value.</param>
-        /// <param name="includeDiscounts">A value indicating whether include discounts for final price calculation.</param>
+        /// <param name="includeDiscounts">A value indicating whether to include discounts.</param>
         /// <param name="quantity">Product quantity.</param>
         /// <param name="bundleItem">Product bundle item.</param>
         /// <param name="context">Price calculation context.</param>
@@ -92,10 +93,10 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <returns>Final product price.</returns>
         Task<decimal> GetFinalPriceAsync(
             Product product,
-            Customer customer,
-            decimal additionalCharge,
-            bool includeDiscounts,
-            int quantity,
+            Customer customer = null,
+            decimal additionalCharge = decimal.Zero,
+            bool includeDiscounts = true,
+            int quantity = 1,
             ProductBundleItemData bundleItem = null,
             PriceCalculationContext context = null,
             bool isTierPrice = false);
@@ -105,9 +106,9 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="bundleItems">Bundle items.</param>
-        /// <param name="customer">Customer.</param>
+        /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="additionalCharge">Additional charge value.</param>
-        /// <param name="includeDiscounts">A value indicating whether include discounts for final price calculation.</param>
+        /// <param name="includeDiscounts">A value indicating whether to include discounts.</param>
         /// <param name="quantity">Product quantity.</param>
         /// <param name="bundleItem">A product bundle item.</param>
         /// <param name="context">Price calculation context.</param>
@@ -115,10 +116,10 @@ namespace Smartstore.Core.Catalog.Pricing
         Task<decimal> GetFinalPriceAsync(
             Product product,
             IEnumerable<ProductBundleItemData> bundleItems,
-            Customer customer,
-            decimal additionalCharge,
-            bool includeDiscounts,
-            int quantity,
+            Customer customer = null,
+            decimal additionalCharge = decimal.Zero,
+            bool includeDiscounts = true,
+            int quantity = 1,
             ProductBundleItemData bundleItem = null,
             PriceCalculationContext context = null);
 
@@ -157,5 +158,38 @@ namespace Smartstore.Core.Catalog.Pricing
             Customer customer,
             PriceCalculationContext context,
             int quantity = 1);
+
+        /// <summary>
+        /// /// Gets the base price info for a product.
+        /// </summary>
+        /// <param name="product">Product.</param>
+        /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
+        /// <param name="customer">Currency. If <c>null</c>, currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.</param>
+        /// <param name="priceAdjustment">Price adjustment.</param>
+        /// <returns>Base price info.</returns>
+        Task<string> GetBasePriceInfoAsync(Product product, Customer customer = null, Currency currency = null, decimal priceAdjustment = decimal.Zero);
+
+        /// <summary>
+        /// Gets the shopping cart unit price.
+        /// </summary>
+        /// <param name="shoppingCartItem">Shopping cart item.</param>
+        /// <param name="includeDiscounts">A value indicating whether to include discounts.</param>
+        /// <returns>Shopping cart unit price.</returns>
+        Task<decimal> GetUnitPriceAsync(OrganizedShoppingCartItem shoppingCartItem, bool includeDiscounts);
+
+        /// <summary>
+        /// Gets the shopping cart item sub total.
+        /// </summary>
+        /// <param name="shoppingCartItem">Shopping cart item.</param>
+        /// <param name="includeDiscounts">A value indicating whether to include discounts.</param>
+        /// <returns>Shopping cart item sub total.</returns>
+        Task<decimal> GetSubTotalAsync(OrganizedShoppingCartItem shoppingCartItem, bool includeDiscounts);
+
+        /// <summary>
+        /// Gets the discount amount.
+        /// </summary>
+        /// <param name="shoppingCartItem">Shopping cart item.</param>
+        /// <returns>The discount amount and the applied discount.</returns>
+        Task<(decimal Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(OrganizedShoppingCartItem shoppingCartItem);
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +12,10 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Customers;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
@@ -28,9 +31,10 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly ICategoryService _categoryService;
         private readonly IManufacturerService _manufacturerService;
         private readonly ITaxService _taxService;
+        private readonly ICurrencyService _currencyService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+        private readonly IPriceFormatter _priceFormatter;
         private readonly CatalogSettings _catalogSettings;
-        private readonly TaxSettings _taxSettings;
 
         public PriceCalculationService(
             SmartDbContext db,
@@ -39,9 +43,10 @@ namespace Smartstore.Core.Catalog.Pricing
             ICategoryService categoryService,
             IManufacturerService manufacturerService,
             ITaxService taxService,
+            ICurrencyService currencyService,
             IProductAttributeMaterializer productAttributeMaterializer,
-            CatalogSettings catalogSettings,
-            TaxSettings taxSettings)
+            IPriceFormatter priceFormatter,
+            CatalogSettings catalogSettings)
         {
             _db = db;
             _workContext = workContext;
@@ -49,9 +54,10 @@ namespace Smartstore.Core.Catalog.Pricing
             _categoryService = categoryService;
             _manufacturerService = manufacturerService;
             _taxService = taxService;
+            _currencyService = currencyService;
             _productAttributeMaterializer = productAttributeMaterializer;
+            _priceFormatter = priceFormatter;
             _catalogSettings = catalogSettings;
-            _taxSettings = taxSettings;
         }
 
         public virtual PriceCalculationContext CreatePriceCalculationContext(
@@ -373,15 +379,17 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public virtual async Task<decimal> GetFinalPriceAsync(
             Product product,
-            Customer customer,
-            decimal additionalCharge,
-            bool includeDiscounts,
-            int quantity,
+            Customer customer = null,
+            decimal additionalCharge = decimal.Zero,
+            bool includeDiscounts = true,
+            int quantity = 1,
             ProductBundleItemData bundleItem = null,
             PriceCalculationContext context = null,
             bool isTierPrice = false)
         {
             Guard.NotNull(product, nameof(product));
+
+            customer ??= _workContext.CurrentCustomer;
 
             // Initial price.
             var result = product.Price;
@@ -444,14 +452,16 @@ namespace Smartstore.Core.Catalog.Pricing
         public virtual async Task<decimal> GetFinalPriceAsync(
             Product product,
             IEnumerable<ProductBundleItemData> bundleItems,
-            Customer customer,
-            decimal additionalCharge,
-            bool includeDiscounts,
-            int quantity,
+            Customer customer = null,
+            decimal additionalCharge = decimal.Zero,
+            bool includeDiscounts = true,
+            int quantity = 1,
             ProductBundleItemData bundleItem = null,
             PriceCalculationContext context = null)
         {
             Guard.NotNull(product, nameof(product));
+
+            customer ??= _workContext.CurrentCustomer;
 
             if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
             {
@@ -577,12 +587,120 @@ namespace Smartstore.Core.Catalog.Pricing
                 var linkedProduct = await _db.Products.FindByIdAsync(attributeValue.LinkedProductId);
                 if (linkedProduct != null)
                 {
-                    var productPrice = await GetFinalPriceAsync(linkedProduct, _workContext.CurrentCustomer, decimal.Zero, true, 1) * attributeValue.Quantity;
+                    var productPrice = await GetFinalPriceAsync(linkedProduct) * attributeValue.Quantity;
                     return productPrice;
                 }
             }
 
             return decimal.Zero;
+        }
+
+        public virtual async Task<string> GetBasePriceInfoAsync(Product product, Customer customer = null, Currency currency = null, decimal priceAdjustment = decimal.Zero)
+        {
+            Guard.NotNull(product, nameof(product));
+
+            customer ??= _workContext.CurrentCustomer;
+            currency ??= _workContext.WorkingCurrency;
+
+            if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
+            {
+                var currentPrice = await GetFinalPriceAsync(product, customer, includeDiscounts: true);
+                var price =  await _taxService.GetProductPriceAsync(product, decimal.Add(currentPrice, priceAdjustment), currency: currency, customer: customer);
+                price = _currencyService.ConvertFromPrimaryStoreCurrency(price, currency);
+
+                return _priceFormatter.GetBasePriceInfo(product, price, currency);
+            }
+
+            return string.Empty;
+        }
+
+        public virtual async Task<decimal> GetUnitPriceAsync(OrganizedShoppingCartItem shoppingCartItem, bool includeDiscounts)
+        {
+            Guard.NotNull(shoppingCartItem, nameof(shoppingCartItem));
+
+            var finalPrice = decimal.Zero;
+            var customer = shoppingCartItem.Item.Customer;
+            var product = shoppingCartItem.Item.Product;
+
+            if (product != null)
+            {
+                if (product.CustomerEntersPrice)
+                {
+                    finalPrice = shoppingCartItem.Item.CustomerEnteredPrice;
+                }
+                else if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
+                {
+                    if (shoppingCartItem.ChildItems != null)
+                    {
+                        foreach (var bundleItem in shoppingCartItem.ChildItems)
+                        {
+                            await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Item.Product, bundleItem.Item.AttributeSelection);
+                        }
+
+                        var bundleItems = shoppingCartItem.ChildItems
+                            .Where(x => x.BundleItemData?.Item != null)
+                            .Select(x => x.BundleItemData)
+                            .ToList();
+
+                        finalPrice = await GetFinalPriceAsync(product, bundleItems, customer, decimal.Zero, includeDiscounts, shoppingCartItem.Item.Quantity);
+                    }
+                }
+                else
+                {
+                    await _productAttributeMaterializer.MergeWithCombinationAsync(product, shoppingCartItem.Item.AttributeSelection);
+
+                    var attributesTotalPrice = decimal.Zero;
+                    var pvaValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(shoppingCartItem.Item.AttributeSelection);
+
+                    foreach (var pvaValue in pvaValues)
+                    {
+                        attributesTotalPrice += await GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, null, shoppingCartItem.Item.Quantity);
+                    }
+
+                    finalPrice = await GetFinalPriceAsync(product, customer, attributesTotalPrice, includeDiscounts, shoppingCartItem.Item.Quantity, shoppingCartItem.BundleItemData);
+                }
+            }
+
+            finalPrice = _workContext.WorkingCurrency.RoundIfEnabledFor(finalPrice);
+            return finalPrice;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual async Task<decimal> GetSubTotalAsync(OrganizedShoppingCartItem shoppingCartItem, bool includeDiscounts)
+        {
+            return await GetUnitPriceAsync(shoppingCartItem, includeDiscounts) * shoppingCartItem.Item.Quantity;
+        }
+
+        public virtual async Task<(decimal Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(OrganizedShoppingCartItem shoppingCartItem)
+        {
+            Guard.NotNull(shoppingCartItem, nameof(shoppingCartItem));
+
+            var discountAmount = decimal.Zero;
+            Discount appliedDiscount = null;
+
+            var customer = shoppingCartItem.Item.Customer;
+            var product = shoppingCartItem.Item.Product;
+            var quantity = shoppingCartItem.Item.Quantity;
+
+            if (product != null)
+            {
+                var attributesTotalPrice = decimal.Zero;
+                var pvaValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(shoppingCartItem.Item.AttributeSelection);
+
+                foreach (var pvaValue in pvaValues)
+                {
+                    attributesTotalPrice += await GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, null, quantity);
+                }
+
+                var (productDiscountAmount, productAppliedDiscount) = await GetDiscountAmountAsync(product, customer, attributesTotalPrice, quantity);
+
+                discountAmount = productDiscountAmount * quantity;
+                appliedDiscount = productAppliedDiscount;
+            }
+
+            discountAmount = _workContext.WorkingCurrency.RoundIfEnabledFor(discountAmount);
+
+            return (discountAmount, appliedDiscount);
         }
 
         #region Utilities

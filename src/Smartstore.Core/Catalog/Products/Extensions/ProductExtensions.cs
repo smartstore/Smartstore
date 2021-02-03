@@ -225,49 +225,6 @@ namespace Smartstore.Core.Catalog.Products
                 .ToArray();
         }
 
-        // TODO: (mg) (core) Move GetBasePriceInfoAsync extension method to IPriceCalculationService (it has too many dependencies).
-        /// <summary>
-        /// Gets the base price info.
-        /// </summary>
-        /// <param name="product">Product entity.</param>
-        /// <param name="localizationService">Localization service.</param>
-        /// <param name="priceFormatter">Price formatter.</param>
-		/// <param name="currencyService">Currency service.</param>
-		/// <param name="taxService">Tax service.</param>
-		/// <param name="priceCalculationService">Price calculation service.</param>
-		/// <param name="customer">Customer entity.</param>
-		/// <param name="currency">Target currency.</param>
-		/// <param name="priceAdjustment">Price adjustment.</param>
-        /// <returns>The base price info</returns>
-        //public static string GetBasePriceInfo(this Product product,
-        //    ILocalizationService localizationService,
-        //    IPriceFormatter priceFormatter,
-        //    ICurrencyService currencyService,
-        //    ITaxService taxService,
-        //    IPriceCalculationService priceCalculationService,
-        //    Customer customer,
-        //    Currency currency,
-        //    decimal priceAdjustment = decimal.Zero)
-        //{
-        //    Guard.NotNull(product, nameof(product));
-        //    Guard.NotNull(currencyService, nameof(currencyService));
-        //    Guard.NotNull(taxService, nameof(taxService));
-        //    Guard.NotNull(priceCalculationService, nameof(priceCalculationService));
-        //    Guard.NotNull(customer, nameof(customer));
-        //    Guard.NotNull(currency, nameof(currency));
-
-        //    if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
-        //    {
-        //        var currentPrice = priceCalculationService.GetFinalPrice(product, customer, true);
-        //        var price = taxService.GetProductPrice(product, decimal.Add(currentPrice, priceAdjustment), customer, currency, out var taxrate);
-        //        price = currencyService.ConvertFromPrimaryStoreCurrency(price, currency);
-
-        //        return priceFormatter.GetBasePriceInfo(product, price, currency);
-        //    }
-
-        //    return string.Empty;
-        //}
-
         public static string GetProductTypeLabel(this Product product, ILocalizationService localizationService)
         {
             if (product != null && product.ProductType != ProductType.SimpleProduct)
