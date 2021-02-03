@@ -45,7 +45,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Security;
 using Smartstore.Collections;
-using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Pricing;
 
 namespace Smartstore.Web.Controllers
@@ -669,7 +668,7 @@ namespace Smartstore.Web.Controllers
             return Content($"Slug matched >>> Entity: {e.EntityName} {e.EntityId}, Id: {e.Id}, Language: {e.LanguageId}, Slug: {e.Slug}, IsActive: {e.IsActive}");
         }
 
-        public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*/)
+        public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*//*ProductVariantQuery query*/)
         {
             var content = new StringBuilder();
 
@@ -704,6 +703,15 @@ namespace Smartstore.Web.Controllers
             //{
             //    content.AppendLine($"{hit.Id} {hit.Name} ({hit.Sku.NaIfEmpty()})");
             //}
+
+            //var context = pcs.CreatePriceCalculationContext();
+            //var attributes = await context.Attributes.GetOrLoadAsync(1751);
+
+            //var attributeMaterializer = Services.Resolve<IProductAttributeMaterializer>();
+            //var (Selection, Warnings) = await attributeMaterializer.CreateAttributeSelectionAsync(query, attributes, 1751, 0);
+            //content.AppendLine();
+            //content.AppendLine("Variants JSON:" + Selection.AsJson());
+            //content.AppendLine("Variants XML:" + Selection.AsXml());
 
             return Content(content.ToString());
         }

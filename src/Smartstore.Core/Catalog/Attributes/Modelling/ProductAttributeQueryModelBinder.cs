@@ -2,15 +2,15 @@
 using Autofac;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Smartstore.Core.Catalog.Search.Modelling
+namespace Smartstore.Core.Catalog.Attributes.Modelling
 {
-    public class CatalogSearchQueryModelBinder : IModelBinder
+    public class ProductAttributeQueryModelBinder : IModelBinder
     {
-        public async Task BindModelAsync(ModelBindingContext bindingContext)
+        public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             Guard.NotNull(bindingContext, nameof(bindingContext));
 
-            var factory = bindingContext.HttpContext.GetServiceScope().ResolveOptional<ICatalogSearchQueryFactory>();
+            var factory = bindingContext.HttpContext.GetServiceScope().ResolveOptional<IProductVariantQueryFactory>();
             if (factory == null)
             {
                 bindingContext.Result = ModelBindingResult.Failed();
@@ -19,15 +19,17 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             {
                 bindingContext.Result = ModelBindingResult.Success(factory.Current);
             }
-            else if (bindingContext.ModelType != typeof(CatalogSearchQuery))
+            else if (bindingContext.ModelType != typeof(ProductVariantQuery))
             {
-                bindingContext.Result = ModelBindingResult.Success(new CatalogSearchQuery());
+                bindingContext.Result = ModelBindingResult.Success(new ProductVariantQuery());
             }
             else
             {
-                var query = await factory.CreateFromQueryAsync();
+                var query = factory.CreateFromQuery();
                 bindingContext.Result = ModelBindingResult.Success(query);
             }
+
+            return Task.CompletedTask;
         }
     }
 }

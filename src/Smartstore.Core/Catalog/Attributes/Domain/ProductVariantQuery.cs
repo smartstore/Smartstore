@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Catalog.Attributes.Modelling;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
+    [ModelBinder(typeof(ProductAttributeQueryModelBinder))]
     public class ProductVariantQuery
     {
         private readonly List<ProductVariantQueryItem> _variants = new();
