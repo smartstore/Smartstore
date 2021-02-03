@@ -65,9 +65,9 @@ namespace Smartstore.Web.UI.TagHelpers
         /// <summary>
         /// Prepends <see cref="output"/> to the current content of <see cref="content"/>
         /// </summary>
-        public static void Prepend(this TagHelperContent content, TagHelperOutput output)
+        public static void Prepend(this TagHelperContent content, TagHelperOutput source)
         {
-            content.PrependHtml(output.ToTagHelperContent());
+            content.PrependHtml(source.ToTagHelperContent());
         }
 
         /// <summary>

@@ -335,8 +335,7 @@ namespace Smartstore.Net
             request.ServerCertificateValidationCallback += (sender, cert, chain, errors) => true;
             request.ServicePoint.Expect100Continue = false;
 
-            // TODO: (core) Implement SmartStoreVersion
-            //request.UserAgent = "Smartstore {0}".FormatInvariant(SmartStoreVersion.CurrentFullVersion);
+            request.UserAgent = "Smartstore";
 
             return request;
         }

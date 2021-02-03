@@ -107,40 +107,120 @@ namespace Smartstore.Web.UI.TagHelpers
         }
 
         /// <summary>
-        /// Converts a <see cref="output" /> to a <see cref="TagHelperContent" />
+        /// Copies the complete HTML content of current <see cref="TagHelperOutput"/> to
+        /// <paramref name="destination"/> output.
+        /// </summary>
+        public static void CopyTo(this TagHelperOutput output, IHtmlContentBuilder destination)
+        {
+            Guard.NotNull(output, nameof(output));
+            Guard.NotNull(destination, nameof(destination));
+
+            // Copy PreElement
+            output.PreElement.CopyTo(destination);
+
+            // Copy Element (Tag and Attributes).
+            // "contentBuilder" is either "destination" or "TagBuilder.InnerHtml".
+            CopyElement(output, destination, out var contentBuilder);
+
+            // Copy Content
+            if (contentBuilder != null)
+            {
+                output.PreContent.CopyTo(contentBuilder);
+                output.Content.CopyTo(contentBuilder);
+                output.PostContent.CopyTo(contentBuilder);
+            }
+
+            // Copy PostElement
+            output.PostElement.CopyTo(destination);
+        }
+
+        /// <summary>
+        /// Moves the complete HTML content of current <see cref="TagHelperOutput"/> to
+        /// <paramref name="destination"/> output.
+        /// </summary>
+        public static void MoveTo(this TagHelperOutput output, IHtmlContentBuilder destination)
+        {
+            Guard.NotNull(output, nameof(output));
+            Guard.NotNull(destination, nameof(destination));
+
+            // Copy PreElement
+            output.PreElement.MoveTo(destination);
+
+            // Copy Element (Tag and Attributes).
+            // "contentBuilder" is either "destination" or "TagBuilder.InnerHtml".
+            CopyElement(output, destination, out var contentBuilder);
+
+            // Copy Content
+            if (contentBuilder != null)
+            {
+                output.PreContent.MoveTo(contentBuilder);
+                output.Content.MoveTo(contentBuilder);
+                output.PostContent.MoveTo(contentBuilder);
+            }
+
+            // Copy PostElement
+            output.PostElement.MoveTo(destination);
+        }
+
+        /// <summary>
+        /// Converts a <see cref="TagHelperOutput" /> to a <see cref="TagHelperContent" />
         /// </summary>
         public static TagHelperContent ToTagHelperContent(this TagHelperOutput output)
         {
             var content = new DefaultTagHelperContent();
+
+            // Set PreElement
             content.AppendHtml(output.PreElement);
-            var tag = new TagBuilder(output.TagName);
 
-            foreach (var attribute in output.Attributes)
+            // Copy Element (Tag and Attributes).
+            // "contentBuilder" is either "destination" or "TagBuilder.InnerHtml".
+            CopyElement(output, content, out var contentBuilder);
+
+            // Set Content
+            if (contentBuilder != null)
             {
-                tag.Attributes.Add(attribute.Name, attribute.Value?.ToString());
+                contentBuilder.AppendHtml(output.PreContent);
+                contentBuilder.AppendHtml(output.Content);
+                contentBuilder.AppendHtml(output.PostContent);
             }
 
-            if (output.TagMode == TagMode.SelfClosing)
+            // Set PostElement
+            content.AppendHtml(output.PostElement);
+
+            return content;
+        }
+
+        private static void CopyElement(TagHelperOutput output, IHtmlContentBuilder destination, out IHtmlContentBuilder contentBuilder)
+        {
+            contentBuilder = destination;
+
+            if (output.TagName.HasValue())
             {
-                tag.TagRenderMode = TagRenderMode.SelfClosing;
-                content.AppendHtml(tag);
-            }
-            else
-            {
-                tag.TagRenderMode = TagRenderMode.StartTag;
-                content.AppendHtml(tag);
-                content.AppendHtml(output.PreContent);
-                content.AppendHtml(output.Content);
-                content.AppendHtml(output.PostContent);
+                var tag = new TagBuilder(output.TagName);
+
+                foreach (var attribute in output.Attributes)
+                {
+                    tag.Attributes.Add(attribute.Name, attribute.Value?.ToString());
+                }
 
                 if (output.TagMode == TagMode.StartTagAndEndTag)
                 {
-                    content.AppendHtml($"</{output.TagName}>");
+                    tag.TagRenderMode = TagRenderMode.Normal;
+                    contentBuilder = tag.InnerHtml;
                 }
-            }
+                else if (output.TagMode == TagMode.SelfClosing)
+                {
+                    tag.TagRenderMode = TagRenderMode.SelfClosing;
+                    contentBuilder = null;
+                }
+                else // StartTagOnly
+                {
+                    tag.TagRenderMode = TagRenderMode.StartTag;
+                    contentBuilder = null;
+                }
 
-            content.AppendHtml(output.PostElement);
-            return content;
+                destination.AppendHtml(tag);
+            }
         }
 
         #endregion

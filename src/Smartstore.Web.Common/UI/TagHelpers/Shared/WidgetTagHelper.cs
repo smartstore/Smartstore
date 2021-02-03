@@ -72,8 +72,7 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
                 return;
             }
 
-            var childContent = await output.GetChildContentAsync();
-
+            TagHelperContent childContent = await output.GetChildContentAsync();
             TagHelperContent content;
 
             if (output.TagName == "widget")
@@ -84,15 +83,18 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
             }
             else
             {
-                childContent.CopyTo(output.Content);
-                //output.Content.SetHtmlContent(childContent);
-                content = output.ToTagHelperContent();
+                output.Content.SetHtmlContent(childContent);
+                content = new DefaultTagHelperContent();
+                output.CopyTo(content);
             }
 
             output.SuppressOutput();
 
-            var widget = new HtmlWidgetInvoker(content) { Order = Ordinal, Prepend = Prepend, Key = Key };
-            _widgetProvider.RegisterWidget(TargetZone, widget);
+            if (!content.IsEmptyOrWhiteSpace)
+            {
+                var widget = new HtmlWidgetInvoker(content) { Order = Ordinal, Prepend = Prepend, Key = Key };
+                _widgetProvider.RegisterWidget(TargetZone, widget);
+            }
         }
     }
 }
