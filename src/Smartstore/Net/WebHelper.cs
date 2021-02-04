@@ -15,6 +15,7 @@ using Microsoft.Net.Http.Headers;
 using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Threading;
+using Smartstore.Utilities;
 
 namespace Smartstore.Net
 {
@@ -51,11 +52,18 @@ namespace Smartstore.Net
             {
                 if (_webBasePath == null)
                 {
-                    // We assume that HttpRequest.PathBase is always the same.
-                    var request = HttpContextAccessor?.HttpContext?.Request;
-                    if (request != null)
+                    if (!CommonHelper.IsHosted)
                     {
-                        _webBasePath = request.PathBase;
+                        _webBasePath = PathString.Empty;
+                    }
+                    else
+                    {
+                        // We assume that HttpRequest.PathBase is always the same.
+                        var request = HttpContextAccessor?.HttpContext?.Request;
+                        if (request != null)
+                        {
+                            _webBasePath = request.PathBase;
+                        }
                     }
                 }
 
