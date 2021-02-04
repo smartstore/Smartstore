@@ -1,7 +1,7 @@
 ﻿using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Configuration;
 
-namespace Smartstore.Core.Customers
+namespace Smartstore.Core.Identity
 {
     public class RewardPointsSettings : ISettings
     {

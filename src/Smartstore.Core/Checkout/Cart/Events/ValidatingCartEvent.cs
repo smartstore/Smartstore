@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Cart.Events
 {

@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Security

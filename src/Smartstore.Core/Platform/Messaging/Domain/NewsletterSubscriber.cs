@@ -1,4 +1,4 @@
-﻿using Smartstore.Core.Customers;
+﻿using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Messages
 {

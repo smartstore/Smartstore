@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Tax

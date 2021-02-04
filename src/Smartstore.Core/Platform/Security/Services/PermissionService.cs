@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Collections;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data;

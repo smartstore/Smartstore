@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Customers
+﻿namespace Smartstore.Core.Identity
 {
     public enum PasswordFormat
     {

@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Customers
+﻿namespace Smartstore.Core.Identity
 {
     /// <summary>
     /// Represents the customer registration type fortatting enumeration.

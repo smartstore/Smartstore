@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Content.Media.Imaging;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Engine;

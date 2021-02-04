@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Data.Caching;
 
-namespace Smartstore.Core.Customers
+namespace Smartstore.Core.Identity
 {
     public partial class CustomerService : ICustomerService
     {

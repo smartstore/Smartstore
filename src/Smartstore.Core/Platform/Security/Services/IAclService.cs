@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Security

@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Configuration;
 
-namespace Smartstore.Core.Customers
+namespace Smartstore.Core.Identity
 {
     public class CustomerSettings : ISettings
     {

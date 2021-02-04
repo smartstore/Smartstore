@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Catalog.Pricing
 {

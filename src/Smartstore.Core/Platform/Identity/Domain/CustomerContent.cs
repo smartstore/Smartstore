@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Customers
+namespace Smartstore.Core.Identity
 {
     public class CustomerContentMap : IEntityTypeConfiguration<CustomerContent>
     {

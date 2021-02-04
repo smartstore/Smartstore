@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Messages;
 
 namespace Smartstore.Core.Catalog.Products

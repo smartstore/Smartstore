@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Catalog.Attributes
 {

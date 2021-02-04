@@ -5,7 +5,7 @@ using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Pricing

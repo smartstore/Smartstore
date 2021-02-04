@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Localization
 {

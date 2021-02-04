@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Checkout.Tax;
 

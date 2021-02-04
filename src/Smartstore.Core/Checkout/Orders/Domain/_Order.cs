@@ -13,7 +13,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Orders

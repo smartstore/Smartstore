@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Common.Services

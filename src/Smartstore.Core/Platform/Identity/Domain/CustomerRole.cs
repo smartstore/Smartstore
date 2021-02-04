@@ -10,7 +10,7 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Customers
+namespace Smartstore.Core.Identity
 {
     public class CustomerRoleMap : IEntityTypeConfiguration<CustomerRole>
     {

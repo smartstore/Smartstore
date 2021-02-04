@@ -5,7 +5,7 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common;
 
-namespace Smartstore.Core.Customers
+namespace Smartstore.Core.Identity
 {
     public class CustomerAttributeCollection : GenericAttributeCollection<Customer>
     {

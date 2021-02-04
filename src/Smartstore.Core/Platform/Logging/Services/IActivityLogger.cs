@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Logging
 {

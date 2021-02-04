@@ -6,7 +6,7 @@
 //using Smartstore.Core.Catalog.Products;
 //using Smartstore.Core.Checkout.Orders;
 //using Smartstore.Core.Common;
-//using Smartstore.Core.Customers;
+//using Smartstore.Core.Identity;
 //using Smartstore.Core.Rules;
 //using Smartstore.Core.Rules.Filters;
 //using Smartstore.Core.Stores;

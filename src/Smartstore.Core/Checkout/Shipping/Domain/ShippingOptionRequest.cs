@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Shipping
 {

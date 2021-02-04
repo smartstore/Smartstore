@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Pricing

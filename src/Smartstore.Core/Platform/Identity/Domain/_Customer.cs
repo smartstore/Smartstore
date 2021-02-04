@@ -13,7 +13,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Customers
+namespace Smartstore.Core.Identity
 {
     public class CustomerMap : IEntityTypeConfiguration<Customer>
     {

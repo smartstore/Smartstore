@@ -17,7 +17,7 @@ using Smartstore.Data;
 using Smartstore.IO;
 using Smartstore.Threading;
 using Smartstore.Utilities;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using System.Threading;
 using System.Runtime.CompilerServices;
 

@@ -8,7 +8,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Data.Caching;
 using Smartstore.Domain;
 

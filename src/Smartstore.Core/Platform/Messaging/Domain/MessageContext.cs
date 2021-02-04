@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
 using Smartstore.Core.Stores;

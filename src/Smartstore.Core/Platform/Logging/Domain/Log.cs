@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;

@@ -1,7 +1,7 @@
 ﻿using System;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core

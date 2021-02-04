@@ -1,6 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Common.Services
 {

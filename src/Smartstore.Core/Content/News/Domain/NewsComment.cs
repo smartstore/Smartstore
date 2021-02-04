@@ -4,7 +4,7 @@
 //using Microsoft.EntityFrameworkCore;
 //using Microsoft.EntityFrameworkCore.Infrastructure;
 //using Microsoft.EntityFrameworkCore.Metadata.Builders;
-//using Smartstore.Core.Customers;
+//using Smartstore.Core.Identity;
 
 //namespace Smartstore.Core.Content.News
 //{

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 
 namespace Smartstore
 {

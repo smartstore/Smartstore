@@ -1,6 +1,6 @@
 ﻿using System;
 using Autofac;
-using Smartstore.Core.Customers;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Bootstrapping
 {
