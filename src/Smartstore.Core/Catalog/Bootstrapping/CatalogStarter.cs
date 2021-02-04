@@ -42,6 +42,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<RecentlyViewedProductsService>().As<IRecentlyViewedProductsService>().InstancePerLifetimeScope();
             builder.RegisterType<ProductCompareService>().As<IProductCompareService>().InstancePerLifetimeScope();
             builder.RegisterType<ProductVariantQueryFactory>().As<IProductVariantQueryFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductUrlHelper>().InstancePerLifetimeScope();
 
             // Search.
             builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().As<IXmlSitemapPublisher>().InstancePerLifetimeScope();
