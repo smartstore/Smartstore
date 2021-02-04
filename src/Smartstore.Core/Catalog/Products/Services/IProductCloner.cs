@@ -3,7 +3,7 @@
     /// <summary>
     /// Copy product service interface.
     /// </summary>
-    public partial interface ICopyProductService
+    public partial interface IProductCloner
     {
     }
 }

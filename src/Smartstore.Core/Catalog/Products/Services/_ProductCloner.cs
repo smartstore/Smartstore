@@ -17,7 +17,7 @@ using Smartstore.Diagnostics;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class CopyProductService : ICopyProductService
+    public partial class ProductCloner : IProductCloner
     {
         private readonly SmartDbContext _db;
         private readonly IChronometer _chronometer;
@@ -25,7 +25,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly IStoreMappingService _storeMappingService;
         private readonly IUrlService _urlService;
 
-        public CopyProductService(
+        public ProductCloner(
             SmartDbContext db,
             IChronometer chronometer,
             ILanguageService languageService,
@@ -41,14 +41,14 @@ namespace Smartstore.Core.Catalog.Products
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public virtual async Task<Product> CopyProductAsync(
+        public virtual async Task<Product> CloneProductAsync(
             Product product,
-            string newName,
+            string cloneName,
             bool isPublished,
             bool copyAssociatedProducts = true)
         {
             Guard.NotNull(product, nameof(product));
-            Guard.NotEmpty(newName, nameof(newName));
+            Guard.NotEmpty(cloneName, nameof(cloneName));
 
             using (_chronometer.Step("Copy product " + product.Id))
             {
@@ -74,7 +74,7 @@ namespace Smartstore.Core.Catalog.Products
                         ParentGroupedProductId = product.ParentGroupedProductId,
                         Visibility = product.Visibility,
                         Condition = product.Condition,
-                        Name = newName,
+                        Name = cloneName,
                         ShortDescription = product.ShortDescription,
                         FullDescription = product.FullDescription,
                         ProductTemplateId = product.ProductTemplateId,
