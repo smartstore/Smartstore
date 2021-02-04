@@ -51,12 +51,12 @@ namespace Smartstore.Data.Hooks
         Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken);
 
         /// <summary>
-        /// Called after all entities in the current unit of work has been handled right before saving changes to the database
+        /// Called after all entities in the current unit of work have been handled right before saving changes to the database
         /// </summary>
         Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken);
 
         /// <summary>
-        /// Called after all entities in the current unit of work has been handled after saving changes to the database
+        /// Called after all entities in the current unit of work have been handled after saving changes to the database
         /// </summary>
         Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken);
     }
