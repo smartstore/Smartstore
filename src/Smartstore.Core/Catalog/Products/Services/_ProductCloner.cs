@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -52,7 +53,7 @@ namespace Smartstore.Core.Catalog.Products
 
             using (_chronometer.Step("Copy product " + product.Id))
             {
-                Product clone = null;
+                var clone = new Product();
                 var utcNow = DateTime.UtcNow;
                 var languages = await _languageService.GetAllLanguagesAsync(true);
                 int? sampleDownloadId = null;
@@ -68,169 +69,72 @@ namespace Smartstore.Core.Catalog.Products
                         sampleDownloadId = sampleDownloadClone.Id;
                     }
 
-                    clone = new Product
+                    var props = FastProperty.GetProperties(typeof(Product), PropertyCachingStrategy.EagerCached);
+
+                    foreach (var prop in props.Values)
                     {
-                        ProductTypeId = product.ProductTypeId,
-                        ParentGroupedProductId = product.ParentGroupedProductId,
-                        Visibility = product.Visibility,
-                        Condition = product.Condition,
-                        Name = cloneName,
-                        ShortDescription = product.ShortDescription,
-                        FullDescription = product.FullDescription,
-                        ProductTemplateId = product.ProductTemplateId,
-                        AdminComment = product.AdminComment,
-                        ShowOnHomePage = product.ShowOnHomePage,
-                        HomePageDisplayOrder = product.HomePageDisplayOrder,
-                        MetaKeywords = product.MetaKeywords,
-                        MetaDescription = product.MetaDescription,
-                        MetaTitle = product.MetaTitle,
-                        AllowCustomerReviews = product.AllowCustomerReviews,
-                        LimitedToStores = product.LimitedToStores,
-                        Sku = product.Sku,
-                        ManufacturerPartNumber = product.ManufacturerPartNumber,
-                        Gtin = product.Gtin,
-                        IsGiftCard = product.IsGiftCard,
-                        GiftCardType = product.GiftCardType,
-                        RequireOtherProducts = product.RequireOtherProducts,
-                        RequiredProductIds = product.RequiredProductIds,
-                        AutomaticallyAddRequiredProducts = product.AutomaticallyAddRequiredProducts,
-                        IsDownload = product.IsDownload,
-                        UnlimitedDownloads = product.UnlimitedDownloads,
-                        MaxNumberOfDownloads = product.MaxNumberOfDownloads,
-                        DownloadExpirationDays = product.DownloadExpirationDays,
-                        DownloadActivationType = product.DownloadActivationType,
-                        HasSampleDownload = product.HasSampleDownload,
-                        SampleDownloadId = sampleDownloadId,
-                        HasUserAgreement = product.HasUserAgreement,
-                        UserAgreementText = product.UserAgreementText,
-                        IsRecurring = product.IsRecurring,
-                        RecurringCycleLength = product.RecurringCycleLength,
-                        RecurringCyclePeriod = product.RecurringCyclePeriod,
-                        RecurringTotalCycles = product.RecurringTotalCycles,
-                        IsShippingEnabled = product.IsShippingEnabled,
-                        IsFreeShipping = product.IsFreeShipping,
-                        AdditionalShippingCharge = product.AdditionalShippingCharge,
-                        IsEsd = product.IsEsd,
-                        IsTaxExempt = product.IsTaxExempt,
-                        TaxCategoryId = product.TaxCategoryId,
-                        ManageInventoryMethod = product.ManageInventoryMethod,
-                        StockQuantity = product.StockQuantity,
-                        DisplayStockAvailability = product.DisplayStockAvailability,
-                        DisplayStockQuantity = product.DisplayStockQuantity,
-                        MinStockQuantity = product.MinStockQuantity,
-                        LowStockActivityId = product.LowStockActivityId,
-                        NotifyAdminForQuantityBelow = product.NotifyAdminForQuantityBelow,
-                        BackorderMode = product.BackorderMode,
-                        AllowBackInStockSubscriptions = product.AllowBackInStockSubscriptions,
-                        OrderMinimumQuantity = product.OrderMinimumQuantity,
-                        OrderMaximumQuantity = product.OrderMaximumQuantity,
-                        QuantityStep = product.QuantityStep,
-                        QuantiyControlType = product.QuantiyControlType,
-                        HideQuantityControl = product.HideQuantityControl,
-                        AllowedQuantities = product.AllowedQuantities,
-                        DisableBuyButton = product.DisableBuyButton,
-                        DisableWishlistButton = product.DisableWishlistButton,
-                        AvailableForPreOrder = product.AvailableForPreOrder,
-                        CallForPrice = product.CallForPrice,
-                        Price = product.Price,
-                        OldPrice = product.OldPrice,
-                        ProductCost = product.ProductCost,
-                        SpecialPrice = product.SpecialPrice,
-                        SpecialPriceStartDateTimeUtc = product.SpecialPriceStartDateTimeUtc,
-                        SpecialPriceEndDateTimeUtc = product.SpecialPriceEndDateTimeUtc,
-                        CustomerEntersPrice = product.CustomerEntersPrice,
-                        MinimumCustomerEnteredPrice = product.MinimumCustomerEnteredPrice,
-                        MaximumCustomerEnteredPrice = product.MaximumCustomerEnteredPrice,
-                        LowestAttributeCombinationPrice = product.LowestAttributeCombinationPrice,
-                        AttributeChoiceBehaviour = product.AttributeChoiceBehaviour,
-                        Weight = product.Weight,
-                        Length = product.Length,
-                        Width = product.Width,
-                        Height = product.Height,
-                        AvailableStartDateTimeUtc = product.AvailableStartDateTimeUtc,
-                        AvailableEndDateTimeUtc = product.AvailableEndDateTimeUtc,
-                        DisplayOrder = product.DisplayOrder,
-                        Published = isPublished,
-                        Deleted = product.Deleted,
-                        IsSystemProduct = product.IsSystemProduct,
-                        DeliveryTimeId = product.DeliveryTimeId,
-                        QuantityUnitId = product.QuantityUnitId,
-                        BasePriceEnabled = product.BasePriceEnabled,
-                        BasePriceMeasureUnit = product.BasePriceMeasureUnit,
-                        BasePriceAmount = product.BasePriceAmount,
-                        BasePriceBaseAmount = product.BasePriceBaseAmount,
-                        BundleTitleText = product.BundleTitleText,
-                        BundlePerItemShipping = product.BundlePerItemShipping,
-                        BundlePerItemPricing = product.BundlePerItemPricing,
-                        BundlePerItemShoppingCart = product.BundlePerItemShoppingCart,
-                        CustomsTariffNumber = product.CustomsTariffNumber,
-                        CountryOfOriginId = product.CountryOfOriginId,
-                        CreatedOnUtc = utcNow,
-                        UpdatedOnUtc = utcNow
-                    };
+                        if (prop.IsComplexType)
+                            continue;
+
+                        if (!prop.IsPublicSettable)
+                            continue;
+
+                        prop.SetValue(clone, prop.GetValue(product));
+                    }
+
+                    clone.Id = 0;
+                    clone.Name = cloneName;
+                    clone.SampleDownloadId = sampleDownloadId;
+                    clone.Published = isPublished;
+                    clone.CreatedOnUtc = utcNow;
+                    clone.UpdatedOnUtc = utcNow;
 
                     // Category mappings.
-                    foreach (var pc in product.ProductCategories)
+                    clone.ProductCategories.AddRange(product.ProductCategories.Select(x => new ProductCategory
                     {
-                        clone.ProductCategories.Add(new ProductCategory
-                        {
-                            CategoryId = pc.CategoryId,
-                            IsFeaturedProduct = pc.IsFeaturedProduct,
-                            DisplayOrder = pc.DisplayOrder
-                        });
-                    }
+                        CategoryId = x.CategoryId,
+                        IsFeaturedProduct = x.IsFeaturedProduct,
+                        DisplayOrder = x.DisplayOrder
+                    }));
 
                     // Manufacturer mappings.
-                    foreach (var pm in product.ProductManufacturers)
+                    clone.ProductManufacturers.AddRange(product.ProductManufacturers.Select(x => new ProductManufacturer
                     {
-                        clone.ProductManufacturers.Add(new ProductManufacturer
-                        {
-                            ManufacturerId = pm.ManufacturerId,
-                            IsFeaturedProduct = pm.IsFeaturedProduct,
-                            DisplayOrder = pm.DisplayOrder
-                        });
-                    }
+                        ManufacturerId = x.ManufacturerId,
+                        IsFeaturedProduct = x.IsFeaturedProduct,
+                        DisplayOrder = x.DisplayOrder
+                    }));
 
                     // Media file mappings.
-                    foreach (var pp in product.ProductPictures)
+                    clone.ProductPictures.AddRange(product.ProductPictures.Select(x => new ProductMediaFile
                     {
-                        clone.ProductPictures.Add(new ProductMediaFile
-                        {
-                            MediaFileId = pp.MediaFileId,
-                            DisplayOrder = pp.DisplayOrder
-                        });
-
-                        if (!clone.MainPictureId.HasValue)
-                        {
-                            clone.MainPictureId = pp.MediaFileId;
-                        }
+                        MediaFileId = x.MediaFileId,
+                        DisplayOrder = x.DisplayOrder
+                    }));
+                    if (clone.MainPictureId == null)
+                    {
+                        clone.MainPictureId = product.ProductPictures.FirstOrDefault()?.MediaFileId;
                     }
 
                     // Product specification attributes.
-                    foreach (var psa in product.ProductSpecificationAttributes)
+                    clone.ProductSpecificationAttributes.AddRange(product.ProductSpecificationAttributes.Select(x => new ProductSpecificationAttribute
                     {
-                        clone.ProductSpecificationAttributes.Add(new ProductSpecificationAttribute
-                        {
-                            SpecificationAttributeOptionId = psa.SpecificationAttributeOptionId,
-                            AllowFiltering = psa.AllowFiltering,
-                            ShowOnProductPage = psa.ShowOnProductPage,
-                            DisplayOrder = psa.DisplayOrder
-                        });
-                    }
+                        SpecificationAttributeOptionId = x.SpecificationAttributeOptionId,
+                        AllowFiltering = x.AllowFiltering,
+                        ShowOnProductPage = x.ShowOnProductPage,
+                        DisplayOrder = x.DisplayOrder
+                    }));
 
                     // Tier prices.
-                    foreach (var tp in product.TierPrices)
+                    clone.TierPrices.AddRange(product.TierPrices.Select(x => new TierPrice
                     {
-                        clone.TierPrices.Add(new TierPrice
-                        {
-                            StoreId = tp.StoreId,
-                            CustomerRoleId = tp.CustomerRoleId,
-                            Quantity = tp.Quantity,
-                            Price = tp.Price,
-                            CalculationMethod = tp.CalculationMethod
-                        });
-                        clone.HasTierPrices = true;
-                    }
+                        StoreId = x.StoreId,
+                        CustomerRoleId = x.CustomerRoleId,
+                        Quantity = x.Quantity,
+                        Price = x.Price,
+                        CalculationMethod = x.CalculationMethod
+                    }));
+                    clone.HasTierPrices = clone.TierPrices.Any();
 
                     // Discount mappings.
                     foreach (var discount in product.AppliedDiscounts)
@@ -257,17 +161,14 @@ namespace Smartstore.Core.Catalog.Products
                         where rp.ProductId1 == product.Id && !p.Deleted
                         orderby rp.DisplayOrder
                         select rp;
+                    
                     var relatedProducts = await relatedProductsQuery.ToListAsync();
-
-                    foreach (var relatedProduct in relatedProducts)
+                    _db.RelatedProducts.AddRange(relatedProducts.Select(x => new RelatedProduct
                     {
-                        _db.RelatedProducts.Add(new RelatedProduct
-                        {
-                            ProductId1 = clone.Id,
-                            ProductId2 = relatedProduct.ProductId2,
-                            DisplayOrder = relatedProduct.DisplayOrder
-                        });
-                    }
+                        ProductId1 = clone.Id,
+                        ProductId2 = x.ProductId2,
+                        DisplayOrder = x.DisplayOrder
+                    }));
 
                     // Cross-sell products mappings.
                     var crossSellProductsQuery =
@@ -276,16 +177,13 @@ namespace Smartstore.Core.Catalog.Products
                         where csp.ProductId1 == product.Id && !p.Deleted
                         orderby csp.Id
                         select csp;
-                    var crossSellProducts = await crossSellProductsQuery.ToListAsync();
 
-                    foreach (var crossSellProduct in crossSellProducts)
+                    var crossSellProducts = await crossSellProductsQuery.ToListAsync();
+                    _db.CrossSellProducts.AddRange(crossSellProducts.Select(x => new CrossSellProduct
                     {
-                        _db.CrossSellProducts.Add(new CrossSellProduct
-                        {
-                            ProductId1 = clone.Id,
-                            ProductId2 = crossSellProduct.ProductId2
-                        });
-                    }
+                        ProductId1 = clone.Id,
+                        ProductId2 = x.ProductId2
+                    }));
 
                     // Store mappings.
                     var selectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(product);

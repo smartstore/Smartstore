@@ -43,12 +43,13 @@ namespace Smartstore.ComponentModel
         private Action<object, object> _valueSetter;
 		private bool? _isPublicSettable;
 		private bool? _isSequenceType;
+        private bool? _isComplexType;
 
-		/// <summary>
-		/// Initializes a <see cref="FastProperty"/>.
-		/// This constructor does not cache the helper. For caching, use <see cref="GetProperties(object, PropertyCachingStrategy)"/>.
-		/// </summary>
-		[SuppressMessage("ReSharper", "VirtualMemberCallInContructor")]
+        /// <summary>
+        /// Initializes a <see cref="FastProperty"/>.
+        /// This constructor does not cache the helper. For caching, use <see cref="GetProperties(object, PropertyCachingStrategy)"/>.
+        /// </summary>
+        [SuppressMessage("ReSharper", "VirtualMemberCallInContructor")]
 		protected FastProperty(PropertyInfo property)
 		{
 			Guard.NotNull(property, nameof(property));
@@ -125,14 +126,28 @@ namespace Smartstore.ComponentModel
 			}
 		}
 
-		public bool IsSequenceType
+        public bool IsComplexType
+        {
+            get
+            {
+                if (!_isComplexType.HasValue)
+                {
+                    var type = Property.PropertyType;
+                    _isComplexType = (type.IsClass || type.IsInterface) && !type.IsPredefinedType();
+                }
+                return _isComplexType.Value;
+            }
+        }
+
+        public bool IsSequenceType
 		{
 			get
 			{
 				if (!_isSequenceType.HasValue)
 				{
-					_isSequenceType = Property.PropertyType != typeof(string) 
-                        && (Property.PropertyType.IsSubClass(typeof(IEnumerable<>)) || Property.PropertyType.IsSubClass(typeof(IAsyncEnumerable<>)));
+                    var type = Property.PropertyType;
+                    _isSequenceType = type != typeof(string) 
+                        && (type.IsSubClass(typeof(IEnumerable<>)) || type.IsSubClass(typeof(IAsyncEnumerable<>)));
 				}
 				return _isSequenceType.Value;
 			}
