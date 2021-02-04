@@ -31,7 +31,7 @@ namespace Smartstore.Data
         /// <param name="ctx">The context instance to change behavior for.</param>
         /// <param name="deferCommit">
         /// Suppresses the execution of <see cref="DbContext.SaveChanges()"/> / <see cref="DbContext.SaveChangesAsync(CancellationToken)"/> 
-        /// until this instance is diposed or <see cref="Commit()"/> / <see cref="CommitAsync(CancellationToken)"/> is called explicitly.
+        /// until this instance is disposed or <see cref="Commit()"/> / <see cref="CommitAsync(CancellationToken)"/> is called explicitly.
         /// </param>
         /// <param name="retainConnection">
         /// Opens connection and retains it until disposal. May increase load/save performance in large scopes.

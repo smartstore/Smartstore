@@ -25,7 +25,7 @@ namespace Smartstore.Core.Content.Media
     [Index(nameof(DownloadGuid), Name = "IX_DownloadGuid")]
     [Index(nameof(EntityId), nameof(EntityName), Name = "IX_EntityId_EntityName")]
     [Index(nameof(UpdatedOnUtc), nameof(IsTransient), Name = "IX_UpdatedOn_IsTransient")]
-    public partial class Download : BaseEntity
+    public partial class Download : BaseEntity, ICloneable<Download>
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -102,5 +102,30 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         [MaxLength]
         public string Changelog { get; set; }
+
+        /// <inheritdoc/>
+        public Download Clone()
+        {
+            var download = new Download
+            {
+                DownloadGuid = Guid.NewGuid(),
+                UseDownloadUrl = UseDownloadUrl,
+                DownloadUrl = DownloadUrl,
+                IsTransient = IsTransient,
+                UpdatedOnUtc = DateTime.UtcNow,
+                MediaFileId = MediaFileId,
+                EntityId = EntityId,
+                EntityName = EntityName,
+                FileVersion = FileVersion,
+                Changelog = Changelog
+            };
+
+            return download;
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
     }
 }
