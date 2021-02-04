@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Core.Content.Seo;
 
 namespace Smartstore.Web.UI.TagHelpers.Shared
 {
@@ -13,20 +9,17 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
     /// </summary>
     [HtmlTargetElement("html")]
     [HtmlTargetElement("body")]
-    //[HtmlTargetElement("script", Attributes = TagLocationAttributeName)]
-    //[HtmlTargetElement("link", Attributes = TagLocationAttributeName)]
+    [HtmlTargetElement("title")]
     public class PageAssetsTagHelper : TagHelper
     {
-        const string TagLocationAttributeName = "asp-tag-location";
-
         private readonly IPageAssetBuilder _assetBuilder;
+        private readonly SeoSettings _seoSettings;
 
-        public PageAssetsTagHelper(IPageAssetBuilder assetBuilder)
+        public PageAssetsTagHelper(IPageAssetBuilder assetBuilder, SeoSettings seoSettings)
         {
             _assetBuilder = assetBuilder;
+            _seoSettings = seoSettings;
         }
-
-        public AssetLocation? TagLocation { get; set; }
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
@@ -38,9 +31,13 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
             {
                 _assetBuilder.BodyAttributes.CopyTo(output.Attributes);
             }
-            else if (TagLocation.HasValue)
+            else if (output.TagName == "title")
             {
-                // Is script or link
+                // Render meta robots right before the title tag
+                if (_seoSettings.MetaRobotsContent.HasValue())
+                {
+                    output.PreElement.AppendHtml(string.Format("<meta name=\"robots\" content=\"{0}\"/>", _seoSettings.MetaRobotsContent));
+                }
             }
         }
     }
