@@ -40,8 +40,8 @@
 
     <zone zone-name="scripts">
         <script src="~/bundles/js/site.js"></script>
-        <script src="~/lib/select2/js/i18n/de.js"></script>
-        <script src="~/lib/moment/locale/de.js"></script>
+        <script src="~/lib/select2/js/i18n/{lang}.js" asp-locale-for="WorkContext.WorkingLanguage"></script>
+        <script src="~/lib/moment/locale/{lang}.js" asp-locale-for="WorkContext.WorkingLanguage"></script>
     </zone>
     <zone zone-name="end" />
 </body>

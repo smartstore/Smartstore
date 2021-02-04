@@ -9,9 +9,9 @@ using Smartstore.Core.Localization;
 using Smartstore.Data;
 using Smartstore.Engine;
 
-namespace Smartstore.Core.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
-    public sealed class LocalizationModule : Autofac.Module
+    internal sealed class LocalizationModule : Autofac.Module
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -22,6 +22,7 @@ namespace Smartstore.Core.DependencyInjection
             builder.RegisterType<LocalizedEntityHelper>().InstancePerLifetimeScope();
 
             builder.RegisterType<LanguageResolver>().As<ILanguageResolver>().InstancePerLifetimeScope();
+            builder.RegisterType<LocalizationFileResolver>().As<ILocalizationFileResolver>().SingleInstance();
 
             builder.RegisterType<Text>().As<IText>().InstancePerLifetimeScope();
             builder.Register<Localizer>(c => c.Resolve<IText>().Get).InstancePerLifetimeScope();

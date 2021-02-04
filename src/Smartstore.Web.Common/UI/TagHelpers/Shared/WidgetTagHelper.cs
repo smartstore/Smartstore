@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
@@ -7,14 +6,15 @@ namespace Smartstore.Web.UI.TagHelpers.Shared
 {
     [HtmlTargetElement("widget", Attributes = TargetZoneAttributeName)]
     [HtmlTargetElement("script", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("link", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("link", Attributes = TargetZoneAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     [HtmlTargetElement("div", Attributes = TargetZoneAttributeName)]
     [HtmlTargetElement("span", Attributes = TargetZoneAttributeName)]
     [HtmlTargetElement("section", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("form", Attributes = TargetZoneAttributeName)]
     [HtmlTargetElement("ul", Attributes = TargetZoneAttributeName)]
     [HtmlTargetElement("ol", Attributes = TargetZoneAttributeName)]
     [HtmlTargetElement("svg", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("img", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("img", Attributes = TargetZoneAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     [HtmlTargetElement("a", Attributes = TargetZoneAttributeName)]
     public class WidgetTagHelper : SmartTagHelper
     {
