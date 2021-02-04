@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
@@ -19,7 +20,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
-        private readonly LinkGenerator _linkGenerator;
+        private readonly IUrlHelper _urlHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
         private readonly Lazy<ILanguageService> _languageService;
@@ -30,7 +31,7 @@ namespace Smartstore.Core.Catalog.Products
             SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,
-            LinkGenerator linkGenerator,
+            IUrlHelper urlHelper,
             IHttpContextAccessor httpContextAccessor,
             Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
             Lazy<ILanguageService> languageService,
@@ -39,7 +40,7 @@ namespace Smartstore.Core.Catalog.Products
             _db = db;
             _workContext = workContext;
             _storeContext = storeContext;
-            _linkGenerator = linkGenerator;
+            _urlHelper = urlHelper;
             _httpContextAccessor = httpContextAccessor;
             _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
             _languageService = languageService;
@@ -205,9 +206,7 @@ namespace Smartstore.Core.Catalog.Products
                 return null;
             }
 
-            var options = new LinkOptions { AppendTrailingSlash = false };
-            var url = Url ?? _linkGenerator.GetUriByRouteValues(_httpContextAccessor.HttpContext, "Product", new { SeName = productSlug }, options: options);
-
+            var url = Url ?? _urlHelper.RouteUrl("Product", new { SeName = productSlug });
             return url + ToQueryString(query);
         }
 
@@ -256,7 +255,7 @@ namespace Smartstore.Core.Catalog.Products
                 language ??= _workContext.WorkingLanguage;
 
                 // No given URL. Create SEO friendly URL.
-                var urlHelper = new LocalizedUrlHelper(request.PathBase.Value, productSlug);
+                var localizedUrlHelper = new LocalizedUrlHelper(request.PathBase.Value, productSlug);
 
                 if (_localizationSettings.Value.SeoFriendlyUrlsForLanguagesEnabled)
                 {
@@ -264,23 +263,23 @@ namespace Smartstore.Core.Catalog.Products
 
                     if (language.UniqueSeoCode == defaultSeoCode && _localizationSettings.Value.DefaultLanguageRedirectBehaviour > 0)
                     {
-                        urlHelper.StripCultureCode();
+                        localizedUrlHelper.StripCultureCode();
                     }
                     else
                     {
-                        urlHelper.PrependCultureCode(language.UniqueSeoCode, true);
+                        localizedUrlHelper.PrependCultureCode(language.UniqueSeoCode, true);
                     }
                 }
 
                 var storeUrl = store.Url.TrimEnd('/');
 
                 // Prevent duplicate occurrence of application path.
-                if (urlHelper.PathBase.HasValue() && storeUrl.EndsWith(urlHelper.PathBase, StringComparison.OrdinalIgnoreCase))
+                if (localizedUrlHelper.PathBase.HasValue() && storeUrl.EndsWith(localizedUrlHelper.PathBase, StringComparison.OrdinalIgnoreCase))
                 {
-                    storeUrl = storeUrl.Substring(0, storeUrl.Length - urlHelper.PathBase.Length).TrimEnd('/');
+                    storeUrl = storeUrl.Substring(0, storeUrl.Length - localizedUrlHelper.PathBase.Length).TrimEnd('/');
                 }
 
-                url = storeUrl + urlHelper.FullPath;
+                url = storeUrl + localizedUrlHelper.FullPath;
             }
 
             if (selection?.AttributesMap?.Any() ?? false)
