@@ -716,7 +716,7 @@ namespace Smartstore.Core.Catalog.Pricing
                     await _db.LoadCollectionAsync(product, x => x.TierPrices);
 
                     result = product.TierPrices
-                        .Where(x => x.StoreId == 0 || x.StoreId == _storeContext.CurrentStore.Id)
+                        .FilterByStore(_storeContext.CurrentStore.Id)
                         .FilterForCustomer(customer)
                         .OrderBy(x => x.Quantity)
                         .ToList()

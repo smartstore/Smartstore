@@ -61,7 +61,7 @@ namespace Smartstore.Core.Messages
         Task<object[]> GetTestModelsAsync(MessageContext messageContext);
     }
 
-    public static class IMessageFactoryExtensions
+    public static partial class IMessageFactoryExtensions
     {
         /// <summary>
         /// Sends the "ContactUs" message to the store owner.

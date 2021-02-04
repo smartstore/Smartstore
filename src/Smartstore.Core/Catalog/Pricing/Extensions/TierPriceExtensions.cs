@@ -7,6 +7,26 @@ namespace Smartstore.Core.Catalog.Pricing
     public static partial class TierPriceExtensions
     {
         /// <summary>
+        /// Filter tier prices by a store.
+        /// </summary>
+        /// <param name="source">Tier prices.</param>
+        /// <param name="storeId">Store identifier.</param>
+        /// <returns>Filtered tier prices.</returns>
+        public static IEnumerable<TierPrice> FilterByStore(this IEnumerable<TierPrice> source, int storeId)
+        {
+            Guard.NotNull(source, nameof(source));
+
+            if (storeId == 0)
+            {
+                return source.Where(x => x.StoreId == 0);
+            }
+            else
+            {
+                return source.Where(x => x.StoreId == 0 || x.StoreId == storeId);
+            }
+        }
+
+        /// <summary>
         /// Filter tier prices by customer.
         /// </summary>
         /// <param name="source">Tier prices.</param>
