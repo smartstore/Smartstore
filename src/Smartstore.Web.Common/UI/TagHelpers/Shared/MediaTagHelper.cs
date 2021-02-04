@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media;
 
