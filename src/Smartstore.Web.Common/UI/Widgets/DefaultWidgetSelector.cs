@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Smartstore.Core.Content.Widgets;
 
 namespace Smartstore.Web.UI
 {
@@ -19,7 +18,7 @@ namespace Smartstore.Web.UI
         {
             Guard.NotEmpty(zone, nameof(zone));
             
-            #region Plugin Widgets
+            #region Module Widgets
 
             // TODO: (core) DefaultWidgetSelector > Determine static plugin widgets
             var widgets = Enumerable.Empty<WidgetInvoker>();

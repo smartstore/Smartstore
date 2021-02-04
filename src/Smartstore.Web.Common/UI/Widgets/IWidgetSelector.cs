@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Smartstore.Core.Content.Widgets;
 
 namespace Smartstore.Web.UI
 {

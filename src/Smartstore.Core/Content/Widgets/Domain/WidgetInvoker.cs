@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Utilities;
 
-namespace Smartstore.Web.UI
+namespace Smartstore.Core.Content.Widgets
 {
     /// <summary>
     /// Base class for widgets.

@@ -9,8 +9,8 @@ namespace Smartstore.Core.Content.Widgets
 {
     public partial class WidgetService : IWidgetService
     {
-        private const string WIDGETS_ACTIVE_KEY = "SmartStore.widgets.active-{0}";
-        private const string WIDGETS_ZONEMAPPED_KEY = "SmartStore.widgets.zonemapped-{0}";
+        private const string WIDGETS_ACTIVE_KEY = "Smartstore.widgets.active-{0}";
+        private const string WIDGETS_ZONEMAPPED_KEY = "Smartstore.widgets.zonemapped-{0}";
 
         private readonly WidgetSettings _widgetSettings;
         private readonly IProviderManager _providerManager;

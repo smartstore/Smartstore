@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Core.Content.Widgets;
 
 namespace Smartstore.Web.UI
 {

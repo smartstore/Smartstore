@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Html;
+using Smartstore.Core.Content.Widgets;
 
 namespace Smartstore.Web.UI
 {
