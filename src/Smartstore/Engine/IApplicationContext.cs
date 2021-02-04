@@ -87,5 +87,17 @@ namespace Smartstore.Engine
 		/// Gets a <see cref="IFileSystem"/> pointing at the path that contains all tenant files (App_Data/Tenants/{Tenant})
 		/// </summary>
 		IFileSystem TenantRoot { get; }
+
+		/// <summary>
+		/// Gets the application temporary directory.
+		/// </summary>
+		/// <param name="subDirectory">Optional. The relative subdirectory path inside the temporary directory to return instead.</param>
+		IDirectory GetTempDirectory(string subDirectory = null);
+
+		/// <summary>
+		/// Gets the current tenant's temporary directory.
+		/// </summary>
+		/// <param name="subDirectory">Optional. The relative subdirectory path inside the temporary directory to return instead.</param>
+		IDirectory GetTenantTempDirectory(string subDirectory = null);
 	}
 }

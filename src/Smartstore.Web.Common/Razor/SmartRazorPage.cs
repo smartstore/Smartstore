@@ -5,7 +5,7 @@ using Smartstore.Core;
 using Smartstore.Core.Localization;
 using Smartstore.Engine;
 using Smartstore.Events;
-using Smartstore.Web.UI;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Razor
 {

@@ -10,12 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Routing\" />
-    <Folder Include="Security\" />
-    <Folder Include="Pdf\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.1" />
   </ItemGroup>
@@ -23,6 +17,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
     <ProjectReference Include="..\Smartstore\Smartstore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Rendering\Icons\" />
   </ItemGroup>
 
 </Project>

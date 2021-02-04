@@ -5,7 +5,8 @@ using Smartstore.Core;
 using Smartstore.Core.Content.Seo.Routing;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Web.UI;
+using Smartstore.Web.Rendering;
+using Smartstore.Web.Widgets;
 
 namespace Smartstore.Web
 {
@@ -16,7 +17,9 @@ namespace Smartstore.Web
             services.AddScoped<IWorkContext, WebWorkContext>();
             services.AddScoped<IWidgetProvider, DefaultWidgetProvider>();
             services.AddScoped<IWidgetSelector, DefaultWidgetSelector>();
+            services.AddScoped<IWidgetService, WidgetService>();
             services.AddScoped<IPageAssetBuilder, PageAssetBuilder>();
+            services.AddSingleton<IIconExplorer, IconExplorer>();
             services.AddScoped<SlugRouteTransformer>();
         }
 

@@ -18,6 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="App_Data\icons.json" />
+    <Content Remove="App_Data\widgetzones.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
   </ItemGroup>
 
@@ -28,12 +33,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Modules\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="App_Data\icons.json" />
+    <None Include="App_Data\widgetzones.json" />
     <None Include="wwwroot\fontastic\fonts\fontastic.svg" />
     <None Include="wwwroot\lib\fa5\scss\brands.scss" />
     <None Include="wwwroot\lib\fa5\scss\fontawesome.scss" />
@@ -62,6 +68,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="App_Data\AddressFormats.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="App_Data\Geo\COPYRIGHT.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

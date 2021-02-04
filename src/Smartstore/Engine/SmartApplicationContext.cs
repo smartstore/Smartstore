@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using Autofac;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,8 +17,12 @@ namespace Smartstore.Engine
 {
     public class SmartApplicationContext : IApplicationContext, IServiceProviderContainer
     {
-        private bool _freezed;
+        const string TempDirName = "_temp";
         
+        private bool _freezed;
+        private IDirectory _tempDirectory;
+        private IDirectory _tempDirectoryTenant;
+
         public SmartApplicationContext(
             IHostEnvironment hostEnvironment, 
             IConfiguration configuration,
@@ -117,6 +123,38 @@ namespace Smartstore.Engine
         public IFileSystem ModulesRoot { get; private set; }
         public IFileSystem AppDataRoot { get; private set; }
         public IFileSystem TenantRoot { get; private set; }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDirectory GetTempDirectory(string subDirectory = null)
+        {
+            return GetTempDirectoryInternal(AppDataRoot, ref _tempDirectory, subDirectory);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDirectory GetTenantTempDirectory(string subDirectory = null)
+        {
+            return GetTempDirectoryInternal(TenantRoot, ref _tempDirectoryTenant, subDirectory);
+        }
+
+        private static IDirectory GetTempDirectoryInternal(IFileSystem fs, ref IDirectory directory, string subDirectory)
+        {
+            if (directory == null)
+            {
+                fs.TryCreateDirectory(TempDirName);
+                Interlocked.Exchange(ref directory, fs.GetDirectory(TempDirName));
+            }
+
+            if (subDirectory.HasValue())
+            {
+                var path = fs.PathCombine(TempDirName, subDirectory);
+                fs.TryCreateDirectory(path);
+                return fs.GetDirectory(TempDirName);
+            }
+            else
+            {
+                return directory;
+            }
+        }
 
         public void Freeze()
         {
