@@ -376,38 +376,62 @@ namespace Smartstore
 		[DebuggerStepThrough]
 		public static string Hash(this byte[] value, bool toBase64 = false)
         {
-			if (value == null)
-				throw new ArgumentNullException(nameof(value));
+            Guard.NotNull(value, nameof(value));
 
-			using (MD5 md5 = MD5.Create())
+            using MD5 md5 = MD5.Create();
+
+            if (toBase64)
             {
+                byte[] hash = md5.ComputeHash(value);
+                return System.Convert.ToBase64String(hash);
+            }
+            else
+            {
+                using var psb = StringBuilderPool.Instance.Get(out var sb);
 
-                if (toBase64)
+                byte[] hashBytes = md5.ComputeHash(value);
+                foreach (byte b in hashBytes)
                 {
-                    byte[] hash = md5.ComputeHash(value);
-                    return System.Convert.ToBase64String(hash);
+                    sb.Append(b.ToString("x2").ToLower());
                 }
-                else
-                {
-                    using var psb = StringBuilderPool.Instance.Get(out var sb);
 
-                    byte[] hashBytes = md5.ComputeHash(value);
-                    foreach (byte b in hashBytes)
-                    {
-                        sb.Append(b.ToString("x2").ToLower());
-                    }
-
-                    return psb.ToString();
-                }
+                return sb.ToString();
             }
         }
 
-		/// <summary>
-		/// Compresses the input buffer with <see cref="GZipStream"/>
-		/// </summary>
-		/// <param name="buffer">Decompressed input</param>
-		/// <returns>The compressed result</returns>
-		public static byte[] Zip(this byte[] buffer)
+        /// <summary>
+        /// Converts bytes into a hex string.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static string ToHexString(this byte[] value, int length = 0)
+        {
+            if (value == null || value.Length <= 0)
+            {
+                return string.Empty;
+            }
+
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+
+            foreach (byte b in value)
+            {
+                sb.Append(b.ToString("x2"));
+
+                if (length > 0 && sb.Length >= length)
+                {
+                    break;
+                }
+            }
+
+            return sb.ToString();
+        }
+
+
+        /// <summary>
+        /// Compresses the input buffer with <see cref="GZipStream"/>
+        /// </summary>
+        /// <param name="buffer">Decompressed input</param>
+        /// <returns>The compressed result</returns>
+        public static byte[] Zip(this byte[] buffer)
 		{
 			if (buffer == null)
 				throw new ArgumentNullException(nameof(buffer));

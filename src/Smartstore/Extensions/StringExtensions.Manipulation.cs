@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
@@ -309,18 +310,47 @@ namespace Smartstore
 		}
 
 		/// <summary>
-		/// Appends grow and uses delimiter if the string is not empty.
+		/// Appends a string and uses the delimiter if the string is not empty.
 		/// </summary>
+		/// <param name="value">Source string.</param>
+		/// <param name="strToAppend">The string to be appended.</param>
+		/// <param name="delimiter">Delimiter.</param>
 		[DebuggerStepThrough]
-		public static string Grow(this string value, string grow, string delimiter)
+		public static string Grow(this string value, string strToAppend, string delimiter)
 		{
 			if (string.IsNullOrEmpty(value))
-				return (string.IsNullOrEmpty(grow) ? "" : grow);
+			{
+				return string.IsNullOrEmpty(strToAppend) ? string.Empty : strToAppend;
+			}
 
-			if (string.IsNullOrEmpty(grow))
-				return (string.IsNullOrEmpty(value) ? "" : value);
+			if (string.IsNullOrEmpty(strToAppend))
+			{
+				return string.IsNullOrEmpty(value) ? string.Empty : value;
+			}
 
-			return value + delimiter + grow;
+			return value + delimiter + strToAppend;
+		}
+
+		/// <summary>
+		/// Appends a string and uses the delimiter if the string is not empty.
+		/// </summary>
+		/// <param name="sb">Target string builder.</param>
+		/// <param name="strToAppend">The string to be appended.</param>
+		/// <param name="delimiter">Delimiter.</param>
+		[DebuggerStepThrough]
+		public static void Grow(this StringBuilder sb, string strToAppend, string delimiter)
+		{
+			Guard.NotNull(delimiter, nameof(delimiter));
+
+			if (!string.IsNullOrWhiteSpace(strToAppend))
+			{
+				if (sb.Length > 0)
+				{
+					sb.Append(delimiter);
+				}
+
+				sb.Append(strToAppend);
+			}
 		}
 
 		/// <summary>
