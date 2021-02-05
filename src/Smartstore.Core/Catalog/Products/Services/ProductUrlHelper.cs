@@ -57,6 +57,8 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>URL query string.</returns>
         public virtual string ToQueryString(ProductVariantQuery query)
         {
+            Guard.NotNull(query, nameof(query));
+
             var qs = InitialQuery ?? new MutableQueryCollection();
             var languageId = _workContext.WorkingLanguage.Id;
 
