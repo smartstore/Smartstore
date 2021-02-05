@@ -9,16 +9,10 @@ namespace Smartstore.Core.Content.Menus.Hooks
     [Important]
     public class MenuItemHook : AsyncDbSaveHook<MenuItem>
     {
-        private readonly SmartDbContext _db;
-        private readonly IMenuStorage _menuStorage;
         private readonly ICacheManager _cache;
         
-        public MenuItemHook(SmartDbContext db, 
-            IMenuStorage menuStorage,
-            ICacheManager cache)
+        public MenuItemHook(ICacheManager cache)
         {
-            _db = db;
-            _menuStorage = menuStorage;
             _cache = cache;
         }
 

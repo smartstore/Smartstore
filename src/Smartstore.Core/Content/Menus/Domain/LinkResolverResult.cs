@@ -65,7 +65,7 @@ namespace Smartstore.Core.Content.Menus
                     var index = _link.IndexOf('?');
                     if (index != -1)
                     {
-                        QueryString = _link.Substring(index + 1);
+                        QueryString = _link[(index + 1)..];
                         _link = _link.Substring(0, index);
                     }
                 }
@@ -101,27 +101,18 @@ namespace Smartstore.Core.Content.Menus
     {
         public static (string Icon, string ResKey) GetLinkTypeInfo(this LinkType type)
         {
-            switch (type)
+            return type switch
             {
-                case LinkType.Product:
-                    return ("fa fa-cube", "Common.Entity.Product");
-                case LinkType.Category:
-                    return ("fa fa-sitemap", "Common.Entity.Category");
-                case LinkType.Manufacturer:
-                    return ("far fa-building", "Common.Entity.Manufacturer");
-                case LinkType.Topic:
-                    return ("far fa-file-alt", "Common.Entity.Topic");
-                case LinkType.BlogPost:
-                    return ("fa fa-blog", "Common.Entity.BlogPost");
-                case LinkType.NewsItem:
-                    return ("far fa-newspaper", "Common.Entity.NewsItem");
-                case LinkType.Url:
-                    return ("fa fa-link", "Common.Url");
-                case LinkType.File:
-                    return ("far fa-folder-open", "Common.File");
-                default:
-                    throw new SmartException("Unknown link builder type.");
-            }
+                LinkType.Product => ("fa fa-cube", "Common.Entity.Product"),
+                LinkType.Category => ("fa fa-sitemap", "Common.Entity.Category"),
+                LinkType.Manufacturer => ("far fa-building", "Common.Entity.Manufacturer"),
+                LinkType.Topic => ("far fa-file-alt", "Common.Entity.Topic"),
+                LinkType.BlogPost => ("fa fa-blog", "Common.Entity.BlogPost"),
+                LinkType.NewsItem => ("far fa-newspaper", "Common.Entity.NewsItem"),
+                LinkType.Url => ("fa fa-link", "Common.Url"),
+                LinkType.File => ("far fa-folder-open", "Common.File"),
+                _ => throw new SmartException("Unknown link builder type."),
+            };
         }
 
         /// <summary>

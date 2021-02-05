@@ -170,7 +170,7 @@ namespace Smartstore.Core.Messages
                     {
                         var ignoreMemberNames2 = ignoreMemberNames
                             .Where(x => x.StartsWith(key + ".", StringComparison.OrdinalIgnoreCase))
-                            .Select(x => x.Substring(key.Length + 1))
+                            .Select(x => x[(key.Length + 1)..])
                             .ToArray();
 
                         if (value is IDictionary<string, object> dict2)

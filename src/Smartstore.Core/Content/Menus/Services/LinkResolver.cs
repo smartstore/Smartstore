@@ -97,7 +97,7 @@ namespace Smartstore.Core.Content.Menus
                 var url = d.Value.ToString();
                 if (url.EmptyNull().StartsWith("~"))
                 {
-                    // TODO: (mh) (core) PdfUrlContent: VirtualPathUtility.ToAbsolute() replacement (??)
+                    // TODO: (mh) (core) VirtualPathUtility.ToAbsolute() replacement (??)
                     //url = VirtualPathUtility.ToAbsolute(url);
                 }
                 d.Link = d.Label = url;

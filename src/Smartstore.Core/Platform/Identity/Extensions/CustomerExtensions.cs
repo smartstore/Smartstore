@@ -179,7 +179,6 @@ namespace Smartstore
         /// <returns>Formatted customer name.</returns>
         public static string FormatUserName(this Customer customer, bool stripTooLong)
         {
-            // TODO: (mh) (core) Scope or Application?
             var engine = EngineContext.Current.Application.Services;
 
             var userName = customer.FormatUserName(

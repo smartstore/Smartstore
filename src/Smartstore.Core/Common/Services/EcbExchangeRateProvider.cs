@@ -46,9 +46,11 @@ namespace Smartstore.Core.Common.Services
                 // see https://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html
                 updateDate = new DateTime(ecbDate.Year, ecbDate.Month, ecbDate.Day, 16, 0, 0);
 
-                var provider = new NumberFormatInfo();
-                provider.NumberDecimalSeparator = ".";
-                provider.NumberGroupSeparator = "";
+                var provider = new NumberFormatInfo
+                {
+                    NumberDecimalSeparator = ".",
+                    NumberGroupSeparator = ""
+                };
 
                 foreach (XmlNode childNode in node.ChildNodes)
                 {

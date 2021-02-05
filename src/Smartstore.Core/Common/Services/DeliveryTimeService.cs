@@ -14,7 +14,7 @@ namespace Smartstore.Core.Common.Services
 {
     public partial class DeliveryTimeService : IDeliveryTimeService
     {
-        private readonly static ConcurrentDictionary<string, string> _monthDayFormats = new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly static ConcurrentDictionary<string, string> _monthDayFormats = new(StringComparer.OrdinalIgnoreCase);
 
         private readonly SmartDbContext _db;
         private readonly IDateTimeHelper _dateTimeHelper;
