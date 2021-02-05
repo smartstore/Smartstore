@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Engine.Modularity
+namespace Smartstore.Core.Widgets
 {
     /// <summary>
     /// Enables provider developers to specify one or many widgets, which

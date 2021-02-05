@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Html;
-using Smartstore.Web.Widgets;
+using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.Rendering
 {

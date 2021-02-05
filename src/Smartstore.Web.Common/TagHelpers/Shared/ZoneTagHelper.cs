@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Web.Widgets;
+using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -48,7 +48,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
 			var isHtmlTag = output.TagName != "zone";
 
-			var widgets = _widgetSelector.GetWidgets(ZoneName, ViewContext.ViewData.Model);
+			var widgets = await _widgetSelector.GetWidgetsAsync(ZoneName, ViewContext.ViewData.Model);
 
 			if (!isHtmlTag)
 			{

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.Core.Content.Seo;
-using Smartstore.Web.Widgets;
+using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.Rendering
 {

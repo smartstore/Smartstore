@@ -46,9 +46,9 @@ namespace Smartstore.Core.Web
 			Guard.NotEmpty(action, nameof(action));
 			Guard.NotNull(routeValues, nameof(routeValues));
 
-			this.Action = action;
-			this.Controller = controller;
-			this.RouteValues = routeValues;
+			Action = action;
+			Controller = controller;
+			RouteValues = routeValues;
 		}
 
 		public string Action

@@ -8,6 +8,7 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media.Storage;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 
@@ -42,7 +43,7 @@ namespace Smartstore.Core.DependencyInjection
                 var systemName = GetSystemName(type, moduleDescriptor);
                 var friendlyName = GetFriendlyName(type, moduleDescriptor);
                 var displayOrder = GetDisplayOrder(type, moduleDescriptor);
-                //var dependentWidgets = GetDependentWidgets(type);
+                var dependentWidgets = GetDependentWidgets(type);
                 var resPattern = (moduleDescriptor != null ? "Plugins" : "Providers") + ".{1}.{0}"; // e.g. Plugins.FriendlyName.MySystemName
                 var settingPattern = (moduleDescriptor != null ? "Plugins" : "Providers") + ".{0}.{1}"; // e.g. Plugins.MySystemName.DisplayOrder
                 var isConfigurable = typeof(IConfigurable).IsAssignableFrom(type);
@@ -61,7 +62,7 @@ namespace Smartstore.Core.DependencyInjection
                     m.For(em => em.FriendlyName, friendlyName.Name);
                     m.For(em => em.Description, friendlyName.Description);
                     m.For(em => em.DisplayOrder, displayOrder);
-                    m.For(em => em.DependentWidgets, Array.Empty<string>() /*dependentWidgets*/);
+                    m.For(em => em.DependentWidgets, dependentWidgets);
                     m.For(em => em.IsConfigurable, isConfigurable);
                     m.For(em => em.IsEditable, isEditable);
                     m.For(em => em.IsHidden, isHidden);
@@ -72,7 +73,7 @@ namespace Smartstore.Core.DependencyInjection
                 RegisterAsSpecificProvider<ITaxProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IExchangeRateProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IShippingRateComputationMethod>(type, systemName, registration);
-                //RegisterAsSpecificProvider<IWidget>(type, systemName, registration);
+                RegisterAsSpecificProvider<IWidget>(type, systemName, registration);
                 //RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
                 //RegisterAsSpecificProvider<IPaymentMethod>(type, systemName, registration);
                 //RegisterAsSpecificProvider<IExportProvider>(type, systemName, registration);
@@ -182,20 +183,20 @@ namespace Smartstore.Core.DependencyInjection
             return (name, description);
         }
 
-        //private string[] GetDependentWidgets(Type type)
-        //{
-        //    if (!typeof(IWidget).IsAssignableFrom(type))
-        //    {
-        //        // don't let widgets depend on other widgets
-        //        var attr = type.GetAttribute<DependentWidgetsAttribute>(false);
-        //        if (attr != null)
-        //        {
-        //            return attr.WidgetSystemNames;
-        //        }
-        //    }
+        private string[] GetDependentWidgets(Type type)
+        {
+            if (!typeof(IWidget).IsAssignableFrom(type))
+            {
+                // don't let widgets depend on other widgets
+                var attr = type.GetAttribute<DependentWidgetsAttribute>(false);
+                if (attr != null)
+                {
+                    return attr.WidgetSystemNames;
+                }
+            }
 
-        //    return new string[] { };
-        //}
+            return Array.Empty<string>();
+        }
 
         private static string ProviderTypeToKnownGroupName(Type implType)
         {
@@ -219,10 +220,10 @@ namespace Smartstore.Core.DependencyInjection
             //{
             //    return "Security";
             //}
-            //else if (typeof(IWidget).IsAssignableFrom(implType))
-            //{
-            //    return "CMS";
-            //}
+            else if (typeof(IWidget).IsAssignableFrom(implType))
+            {
+                return "CMS";
+            }
             //else if (typeof(IExportProvider).IsAssignableFrom(implType))
             //{
             //    return "Exporting";

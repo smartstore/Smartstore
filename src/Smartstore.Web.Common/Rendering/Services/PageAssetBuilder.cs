@@ -13,7 +13,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.Net;
-using Smartstore.Web.Widgets;
+using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.Rendering
 {
