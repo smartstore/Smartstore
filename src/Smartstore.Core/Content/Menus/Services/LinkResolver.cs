@@ -97,8 +97,7 @@ namespace Smartstore.Core.Content.Menus
                 var url = d.Value.ToString();
                 if (url.EmptyNull().StartsWith("~"))
                 {
-                    // TODO: (mh) (core) VirtualPathUtility.ToAbsolute() replacement (??)
-                    //url = VirtualPathUtility.ToAbsolute(url);
+                    url = _urlHelper.Content(url);
                 }
                 d.Link = d.Label = url;
             }
@@ -195,7 +194,7 @@ namespace Smartstore.Core.Content.Menus
                 Id = d.Id,
                 PictureId = d.PictureId
             };
-
+            
             // Check ACL and limited to stores.
             switch (d.Type)
             {
@@ -210,13 +209,14 @@ namespace Smartstore.Core.Content.Menus
                     if (d.CheckLimitedToStores &&
                         d.LimitedToStores &&
                         d.Status == LinkStatus.Ok &&
-                        !await _storeMappingService.AuthorizeAsync(entityName, d.Id))
+                        !await _storeMappingService.AuthorizeAsync(entityName, d.Id, storeId))
                     {
                         result.Status = LinkStatus.NotFound;
                     }
                     else if (d.SubjectToAcl &&
                         d.Status == LinkStatus.Ok &&
-                        !await _aclService.AuthorizeAsync(entityName, d.Id))
+                        !_db.QuerySettings.IgnoreAcl &&
+                        !await _aclService.AuthorizeAsync(entityName, d.Id, roles))
                     {
                         result.Status = LinkStatus.Forbidden;
                     }
@@ -334,15 +334,15 @@ namespace Smartstore.Core.Content.Menus
             if (data.Type == LinkType.Topic)
             {
                 Topic topic = null;
-                var topicsQuery = _db.Set<Topic>().AsNoTracking();
 
                 if (string.IsNullOrEmpty(systemName))
                 {
-                    topic = await topicsQuery.FirstOrDefaultAsync(x => x.Id == data.Id);
+                    topic = await _db.Topics.FindByIdAsync(data.Id, false);
                 }
                 else
                 {
-                    topic = await topicsQuery
+                    topic = await _db.Topics
+                        .AsNoTracking()
                         .ApplyStandardFilter(true, null, storeId)
                         .FirstOrDefaultAsync(x => x.SystemName == systemName);
 
@@ -365,11 +365,11 @@ namespace Smartstore.Core.Content.Menus
             }
             else
             {
-                summary = _db.Set<T>()
+                summary = await _db.Set<T>()
                     .AsNoTracking()
                     .Where(x => x.Id == data.Id)
                     .Select(selector)
-                    .FirstOrDefault();
+                    .SingleOrDefaultAsync();
             }
 
             if (summary != null)
@@ -406,7 +406,6 @@ namespace Smartstore.Core.Content.Menus
                 data.Slug = slug.NullEmpty() ?? await _urlService.GetActiveSlugAsync(data.Id, entityName, 0);
                 if (!string.IsNullOrEmpty(data.Slug))
                 {
-                    // TODO: (mh) (core) Test this!!!
                     data.Link = _urlHelper.RouteUrl(entityName, new { SeName = data.Slug });
                 }
             }

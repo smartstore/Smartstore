@@ -14,7 +14,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Content.Menus
+namespace Smartstore.Core.Content.Menus.Hooks
 {
     public partial class LinkResolverInvalidator : AsyncDbSaveHook<BaseEntity>
     {
@@ -56,7 +56,7 @@ namespace Smartstore.Core.Content.Menus
 
             if (evict && entry.InitialState == Smartstore.Data.EntityState.Modified)
             {
-                var modProps = _db.GetModifiedProperties(e);
+                var modProps = entry.Entry.GetModifiedProperties();
                 evict = modProps.Keys.Any(x => _toxicProps.Contains(x));
             }
 

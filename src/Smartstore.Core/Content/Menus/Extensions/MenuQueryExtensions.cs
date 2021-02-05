@@ -9,13 +9,12 @@ namespace Smartstore.Core.Content.Menus
     public static partial class MenuQueryExtensions
     {
         /// <summary>
-        /// Applies standard filter and sorts by <see cref="Menu.DisplayOrder"/>, then by <see cref="Menu.SystemName"/>, then by <see cref="Menu.Title"/>.
+        /// Applies standard filter and optionally sorts by <see cref="Menu.DisplayOrder"/>, then by <see cref="Menu.SystemName"/>, then by <see cref="Menu.Title"/>.
         /// </summary>
         /// <param name="includeHidden">Applies filter by <see cref="Menu.Published"/>.</param>
         /// <param name="groupBy">Groups by <see cref="Menu.Id"/> and applies filter to first result.</param>
         /// <param name="sort">Sorts by <see cref="Menu.DisplayOrder"/>, then by <see cref="Menu.SystemName"/>, then by <see cref="Menu.Title"/>.</param>
-        public static IQueryable<Menu> ApplyStandardFilter(
-            this IQueryable<Menu> query,
+        public static IQueryable<Menu> ApplyStandardFilter(this IQueryable<Menu> query,
             bool includeHidden,
             bool groupBy = true,
             bool sort = true)
@@ -52,22 +51,30 @@ namespace Smartstore.Core.Content.Menus
         /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
         /// <param name="includeHidden">Applies filter by <see cref="MenuItem.Published"/>.</param>
         /// <param name="customerRolesIds">Customer roles identifiers to apply filter by ACL restriction.</param>
-        public static IQueryable<MenuItem> ApplyMenuFilter(
-            this IQueryable<MenuItem> query,
+        public static IQueryable<MenuItem> ApplyMenuFilter(this IQueryable<MenuItem> query,
             int menuId,
             string systemName,
-            int storeId,
-            bool includeHidden,
+            int storeId = 0,
+            bool includeHidden = false,
             int[] customerRolesIds = null)
         {
+            // TODO: (mh) (core) Revise this code THOROUGHLY!! It seems broken. The flow is not the same. Compare with source!
+            
             var applied = false;
             var singleMenu = menuId != 0 || (systemName.HasValue() && storeId != 0);
             var db = query.GetDbContext<SmartDbContext>();
-            var menuQuery = db.Menus
-                .ApplyStoreFilter(storeId)
-                .ApplyAclFilter(customerRolesIds)
-                .Where(x => x.Id == menuId || x.SystemName == systemName)
-                .ApplyStandardFilter(includeHidden, !singleMenu, !singleMenu);
+
+            var menuQuery = db.Menus.ApplyStandardFilter(includeHidden, !singleMenu, !singleMenu);
+
+            if (menuId != 0)
+            {
+                menuQuery = menuQuery.Where(x => x.Id == menuId);
+            }
+
+            if (systemName.HasValue())
+            {
+                menuQuery = menuQuery.Where(x => x.SystemName == systemName);
+            }
 
             if (singleMenu)
             {

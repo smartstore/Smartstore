@@ -8,7 +8,6 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Menus.Hooks
 {
-    [Important]
     public class MenuHook : AsyncDbSaveHook<Menu>
     {
         private readonly SmartDbContext _db;
@@ -24,54 +23,52 @@ namespace Smartstore.Core.Content.Menus.Hooks
             _cache = cache;
         }
 
-        public override Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnInsertingAsync(Menu entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            var entity = (Menu)entry.Entity;
-
             // Ensure valid system name.
             entity.SystemName = entity.SystemName.ToValidPath();
+            return Task.FromResult(HookResult.Ok);
+        }
+
+        protected override Task<HookResult> OnUpdatingAsync(Menu entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            // Ensure valid system name.
+            entity.SystemName = entity.SystemName.ToValidPath();
+
+            var modProps = _db.GetModifiedProperties(entity);
+
+            if (modProps.TryGetValue(nameof(entity.Published), out var original))
+            {
+                if (original.Convert<bool>() == true)
+                {
+                    _toRemove.Add(entity.SystemName);
+                }
+                else
+                {
+                    _toAdd.Add(entity.SystemName);
+                }
+            }
+            else if (modProps.TryGetValue(nameof(entity.SystemName), out original))
+            {
+                _toRemove.Add((string)original);
+                _toAdd.Add(entity.SystemName);
+            }
 
             return Task.FromResult(HookResult.Ok);
         }
 
         protected override Task<HookResult> OnInsertedAsync(Menu entity, IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Ok);
-
-        protected override Task<HookResult> OnDeletedAsync(Menu entity, IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Ok);
-
-        protected override Task<HookResult> OnUpdatingAsync(Menu entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            var modProps = _db.GetModifiedProperties(entity);
-
-            if (entry.State == Smartstore.Data.EntityState.Added && entity.Published)
+            if (entity.Published)
             {
                 _toAdd.Add(entity.SystemName);
             }
-            if (entry.State == Smartstore.Data.EntityState.Deleted && entity.Published)
-            {
-                _toRemove.Add(entity.SystemName);
-            }
-            else if (entry.State == Smartstore.Data.EntityState.Modified)
-            {
-                if (modProps.TryGetValue(nameof(entity.Published), out var original))
-                {
-                    if (original.Convert<bool>() == true)
-                    {
-                        _toRemove.Add(entity.SystemName);
-                    }
-                    else
-                    {
-                        _toAdd.Add(entity.SystemName);
-                    }
-                }
-                else if (modProps.TryGetValue(nameof(entity.SystemName), out original))
-                {
-                    _toRemove.Add((string)original);
-                    _toAdd.Add(entity.SystemName);
-                }
-            }
+            return Task.FromResult(HookResult.Ok);
+        }
 
+        protected override Task<HookResult> OnDeletedAsync(Menu entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            _toRemove.Add(entity.SystemName);
             return Task.FromResult(HookResult.Ok);
         }
 
@@ -81,11 +78,11 @@ namespace Smartstore.Core.Content.Menus.Hooks
             if (systemNames != null)
             {
                 await systemNames.AddRangeAsync(_toAdd);
-                _toAdd.Clear();
-
                 await systemNames.ExceptWithAsync(_toRemove.ToArray());
-                _toRemove.Clear();
             }
+
+            _toAdd.Clear();
+            _toRemove.Clear();
 
             await _cache.RemoveByPatternAsync(MenuStorage.MENU_PATTERN_KEY);
         }

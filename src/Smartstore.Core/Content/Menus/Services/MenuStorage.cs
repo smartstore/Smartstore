@@ -49,7 +49,7 @@ namespace Smartstore.Core.Content.Menus
             var roleIds = roles.Where(x => x.Active).Select(x => x.Id);
             var cacheKey = MENU_USER_CACHE_KEY.FormatInvariant(storeId, string.Join(",", roleIds));
 
-            var userMenusInfo = await _cache.GetAsync(cacheKey, () =>
+            var userMenusInfo = await _cache.GetAsync(cacheKey, async () =>
             {
                 var query = _db.Menus
                     .ApplyStoreFilter(storeId)
@@ -57,7 +57,7 @@ namespace Smartstore.Core.Content.Menus
                     .ApplyStandardFilter(false, true, true)
                     .AsNoTracking();
 
-                var data = query.Select(x => new
+                var data = await query.Select(x => new
                 {
                     x.Id,
                     x.SystemName,
@@ -65,7 +65,7 @@ namespace Smartstore.Core.Content.Menus
                     x.WidgetZone,
                     x.DisplayOrder
                 })
-                .ToList();
+                .ToListAsync();
 
                 var result = data.Select(x => new MenuInfo
                 {
@@ -93,9 +93,7 @@ namespace Smartstore.Core.Content.Menus
                 return false;
             }
 
-            var systemNames = await GetMenuSystemNamesAsync(true);
-
-            return systemNames.Contains(systemName);
+            return (await GetMenuSystemNamesAsync(true)).Contains(systemName);
         }
 
         public virtual async Task<ISet> GetMenuSystemNamesAsync(bool ensureCreated)
@@ -127,6 +125,9 @@ namespace Smartstore.Core.Content.Menus
             if (!deleteChilds)
             {
                 _db.MenuItems.Remove(item);
+
+                // INFO: let hook invalidate cache
+                await _db.SaveChangesAsync();
             }
             else
             {
@@ -139,11 +140,10 @@ namespace Smartstore.Core.Content.Menus
                         .Where(x => chunk.Contains(x.Id))
                         .BatchDeleteAsync();
                 }
+
+                // INFO: No hook will run. Invalidate cache manually.
+                await _cache.RemoveByPatternAsync(MENU_PATTERN_KEY);
             }
-
-            await _db.SaveChangesAsync();
-
-            await _cache.RemoveByPatternAsync(MENU_PATTERN_KEY);
 
             async Task GetChildIdsAsync(int parentId, HashSet<int> ids)
             {

@@ -8,7 +8,7 @@ namespace Smartstore.Core.Content.Menus
         Category,
         Manufacturer,
         Topic,
-        BlogPost,
+        BlogPost, // TODO: (core) Move LinkType.BlogPost & LinkType.NewsItem to external module somehow
         NewsItem,
         Url = 20,
         File = 30
