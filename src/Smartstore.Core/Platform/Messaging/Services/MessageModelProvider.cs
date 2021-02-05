@@ -471,8 +471,6 @@ namespace Smartstore.Core.Messages
             var host = messageContext.BaseUri.ToString();
             var logoFile = await _services.MediaService.GetFileByIdAsync(messageContext.Store.LogoMediaFileId, MediaLoadFlags.AsNoTracking);
             
-            // Issue: https://github.com/smartstore/SmartStoreNET/issues/1321
-
             var m = new Dictionary<string, object>
             {
                 { "Email", messageContext.EmailAccount.Email },
@@ -548,8 +546,7 @@ namespace Smartstore.Core.Messages
             var catalogSettings = await _services.SettingFactory.LoadSettingsAsync<CatalogSettings>((int)messageContext.StoreId);
 
             var currencyService = _services.Resolve<ICurrencyService>();
-            // TODO: (mh) (core) > Do this right when ProductUrlHelper is available
-            //var productUrlHelper = _services.Resolve<ProductUrlHelper>();
+            var productUrlHelper = _services.Resolve<ProductUrlHelper>();
 
             var quantityUnit = await _db.QuantityUnits.FindByIdAsync(part.QuantityUnitId ?? 0);
             var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(part.DeliveryTimeId ?? 0);
@@ -557,9 +554,10 @@ namespace Smartstore.Core.Messages
             var additionalShippingChargeAmount = currencyService.ConvertFromPrimaryStoreCurrency(part.AdditionalShippingCharge, currency);
             var additionalShippingCharge = new Money(additionalShippingChargeAmount, currency, true);
 
-            // TODO: (mh) (core) > Do this right
-            //var url = BuildUrl(productUrlHelper.GetProductUrl(part.Id, part.GetSeName(messageContext.Language.Id), attributesXml), messageContext);
-            var url = string.Empty;
+            var query = new ProductVariantQuery();
+            await productUrlHelper.AddAttributesToQueryAsync(query, attrSelection, part.Id);
+
+            var url = BuildUrl(productUrlHelper.GetProductUrl(await part.GetActiveSlugAsync(messageContext.Language.Id), query), messageContext);
             var file = await GetMediaFileFor(part, attrSelection);
             var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;
             var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).Value;
