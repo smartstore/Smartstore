@@ -179,9 +179,11 @@ namespace Smartstore
         /// <returns>Formatted customer name.</returns>
         public static string FormatUserName(this Customer customer, bool stripTooLong)
         {
-            var engine = EngineContext.Current.Application.Services;
+            // INFO: (mh) (core) You can ALWAYS use the scoped container, but not the app container. The latter can only resolve singletons, the first can resolve everything.
+            var engine = EngineContext.Current.Scope;
 
-            var userName = customer.FormatUserName(
+            var userName = FormatUserName(
+                customer,
                 engine.Resolve<CustomerSettings>(),
                 engine.Resolve<Localizer>(),
                 stripTooLong);
