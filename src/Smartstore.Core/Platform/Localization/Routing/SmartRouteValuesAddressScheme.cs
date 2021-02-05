@@ -42,14 +42,28 @@ namespace Smartstore.Core.Localization.Routing
             {
                 var urlPolicy = _httpContextAccessor.HttpContext?.RequestServices?.GetService<UrlPolicy>();
                 var localizationSettings = urlPolicy?.LocalizationSettings;
+                var explicitCulture = address.ExplicitValues.GetCultureCode();
+                var hasExplicitCulture = explicitCulture.HasValue();
 
-                if (localizationSettings?.SeoFriendlyUrlsForLanguagesEnabled == true && urlPolicy.IsDefaultCulture)
+                var isDefaultCulture = hasExplicitCulture
+                    ? explicitCulture.EqualsNoCase(urlPolicy.DefaultCultureCode)
+                    : urlPolicy.IsDefaultCulture;
+
+                if (localizationSettings?.SeoFriendlyUrlsForLanguagesEnabled == true && isDefaultCulture)
                 {
                     var localizedRouteMetadata = endpoints.FirstOrDefault()?.Metadata?.OfType<LocalizedRouteMetadata>().FirstOrDefault();
                     if (localizedRouteMetadata != null && !localizedRouteMetadata.IsCultureNeutralRoute)
                     {
                         if (localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode)
                         {
+                            if (hasExplicitCulture)
+                            {
+                                // We gonna remove explicit culture value. The code would be appended to URL otherwise,
+                                // because we instructed the endpoint matcher to use the culture agnostic route. Culture agnostic
+                                // routes do not contain the {culture} prefix.
+                                address.ExplicitValues.Remove("culture");
+                            }
+                            
                             return true;
                         }
                     }

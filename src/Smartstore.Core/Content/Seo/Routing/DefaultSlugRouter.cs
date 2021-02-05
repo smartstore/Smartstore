@@ -33,15 +33,16 @@ namespace Smartstore.Core.Content.Seo.Routing
 
         public override void MapRoutes(IEndpointRouteBuilder routes)
         {
-            //routes.MapLocalizedControllerRoute("Product", UrlPatternFor("Product"), new { controller = "Product", action = "ProductDetails" });
-
             // TODO: (core) check all these SEO routes for correctness once all slug supporting entities are ported.
-            routes.MapControllerRoute("Product", UrlPatternFor("Product"), new { controller = "Product", action = "ProductDetails" });
-            routes.MapControllerRoute("Category", UrlPatternFor("Category"), new { controller = "Catalog", action = "Category" });
-            routes.MapControllerRoute("Manufacturer", UrlPatternFor("Manufacturer"), new { controller = "Catalog", action = "Manufacturer" });
-            routes.MapControllerRoute("Topic", UrlPatternFor("Topic"), new { controller = "Topic", action = "TopicDetails" });
-            routes.MapControllerRoute("NewsItem", UrlPatternFor("NewsItem"), new { controller = "News", action = "NewsItem" });
-            routes.MapControllerRoute("BlogPost", UrlPatternFor("BlogPost"), new { controller = "Blog", action = "BlogPost" });
+            routes.MapLocalizedControllerRoute("Product", UrlPatternFor("Product"), new { controller = "Product", action = "ProductDetails" });
+            routes.MapLocalizedControllerRoute("Product", UrlPatternFor("Product"), new { controller = "Product", action = "ProductDetails" });
+            routes.MapLocalizedControllerRoute("Category", UrlPatternFor("Category"), new { controller = "Catalog", action = "Category" });
+            routes.MapLocalizedControllerRoute("Manufacturer", UrlPatternFor("Manufacturer"), new { controller = "Catalog", action = "Manufacturer" });
+            routes.MapLocalizedControllerRoute("Topic", UrlPatternFor("Topic"), new { controller = "Topic", action = "TopicDetails" });
+
+            // TODO: (core) Move these slug routes to external modules somehow
+            //routes.MapControllerRoute("NewsItem", UrlPatternFor("NewsItem"), new { controller = "News", action = "NewsItem" });
+            //routes.MapControllerRoute("BlogPost", UrlPatternFor("BlogPost"), new { controller = "Blog", action = "BlogPost" });
         }
     }
 }

@@ -134,6 +134,12 @@ namespace Smartstore.Web.Controllers
         {
             var tempPath = "D:\\_temp\\_ImageSharp";
 
+            //var urlHelper = HttpContext.RequestServices.GetRequiredService<IUrlHelper>();
+            //var yes = urlHelper.RouteUrl("Product", new { SeName = "yodele", culture = "de" }, "http");
+
+            //await Task.Delay(50);
+            //return Content(yes);
+
             var files = await _db.MediaFiles
                 .AsNoTracking()
                 .Where(x => x.MediaType == "image" && x.Size > 0 /*&& x.Extension == "jpg" && x.Size < 10000*/)

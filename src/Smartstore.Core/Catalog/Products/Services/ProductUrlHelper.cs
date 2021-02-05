@@ -11,6 +11,7 @@ using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Net;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -247,10 +248,11 @@ namespace Smartstore.Core.Catalog.Products
                 store ??= _storeContext.CurrentStore;
                 language ??= _workContext.WorkingLanguage;
 
+                // TODO: (mg) (core) This is not sufficient: the host from Store entity is also required.
                 url = _urlHelper.RouteUrl(
                     "Product",
                     new { SeName = productSlug, culture = language.UniqueSeoCode },
-                    store.SslEnabled ? "https" : "http");
+                    store.GetSecurityMode(true) == HttpSecurityMode.Ssl ? "https" : "http");
             }
 
             if (selection?.AttributesMap?.Any() ?? false)

@@ -27,8 +27,6 @@ namespace Smartstore.Core.Localization.Routing
                 return;
             }
 
-            var services = httpContext.RequestServices;
-
             if (address is RouteValuesAddress routeValueAddress && routeValueAddress.AmbientValues != null && routeValueAddress.ExplicitValues != null)
             {
                 if (routeValueAddress.ExplicitValues.ContainsKey("culture"))
@@ -37,6 +35,7 @@ namespace Smartstore.Core.Localization.Routing
                     return;
                 }
 
+                var services = httpContext.RequestServices;
                 var urlPolicy = services.GetRequiredService<UrlPolicy>();
 
                 if (!routeValueAddress.AmbientValues.TryGetValue("culture", out var currentCultureCode))
@@ -81,7 +80,6 @@ namespace Smartstore.Core.Localization.Routing
                             // The routing system is therefore about to render the "NotFound" view. Here we ensure that generated links
                             // in NotFound page do not contain the invalid seo code anymore: Either we strip it off or we replace it
                             // with the default language's seo code (according to "LocalizationSettings.DefaultLanguageRedirectBehaviour" setting).
-                            // TODO: (core) Handle 404 redirection decently
                             currentCultureCode = urlPolicy.Culture.Value;
                         }
 
