@@ -2,6 +2,7 @@
 using Autofac;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
@@ -18,6 +19,8 @@ namespace Smartstore.Core.Bootstrapping
             services.AddIdentity<Customer, CustomerRole>()
                 .AddDefaultTokenProviders()
                 .AddSignInManager();
+
+            services.AddSingleton<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>();
 
             // TODO: (core) // Add Identity IEmailSender and ISmsSender to service collection.
         }

@@ -722,7 +722,7 @@ namespace Smartstore.Core.Content.Media
             // Save to DB
             if (isDupe)
             {
-                _db.TryChangeState(copy, EntityState.Modified);
+                _db.TryUpdate(copy);
             }
             else
             {
@@ -808,7 +808,7 @@ namespace Smartstore.Core.Content.Media
                     await _imageCache.DeleteAsync(file);
                 }
 
-                _db.TryChangeState(file, EntityState.Modified);
+                _db.TryUpdate(file);
                 await _db.SaveChangesAsync();
             }
 
@@ -951,7 +951,7 @@ namespace Smartstore.Core.Content.Media
                     {
                         try
                         {
-                            _db.TryChangeState(file, EntityState.Modified);
+                            _db.TryUpdate(file);
                             await _db.SaveChangesAsync();
                         }
                         catch (InvalidOperationException ioe)

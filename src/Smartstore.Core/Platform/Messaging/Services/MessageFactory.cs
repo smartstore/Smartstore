@@ -141,7 +141,7 @@ namespace Smartstore.Core.Messages
                 messageContext.MessageTemplate.LastModelTree = modelTreeJson;
                 if (!messageTemplate.IsTransientRecord())
                 {
-                    _db.TryChangeState(messageContext.MessageTemplate, EntityState.Modified);
+                    _db.TryUpdate(messageContext.MessageTemplate);
                     await _db.SaveChangesAsync();
                 }
             }

@@ -107,7 +107,7 @@ namespace Smartstore.Core.Identity
             }
 
             user.Deleted = true;
-            _db.TryChangeState(user, EntityState.Modified);
+            _db.TryUpdate(user);
 
             // TODO: (core) Soft delete customer and anonymize data with IGdprTool
 
@@ -195,7 +195,7 @@ namespace Smartstore.Core.Identity
 
             // TODO: (core) Add Customer.ConcurrencyStamp field (?)
             //user.ConcurrencyStamp = Guid.NewGuid().ToString();
-            _db.TryChangeState(user, EntityState.Modified);
+            _db.TryUpdate(user);
 
             try
             {

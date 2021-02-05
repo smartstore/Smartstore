@@ -48,6 +48,9 @@ using Smartstore.Collections;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Attributes;
+using Microsoft.AspNetCore.Identity;
+using Smartstore.Core.Identity;
+using Microsoft.Extensions.Options;
 
 namespace Smartstore.Web.Controllers
 {
@@ -85,6 +88,7 @@ namespace Smartstore.Web.Controllers
         private readonly IShoppingCartService _cartService;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly IGiftCardService _giftCardService;
+        private readonly UserManager<Customer> _userManager;
 
         public HomeController(
             SmartDbContext db,
@@ -106,7 +110,8 @@ namespace Smartstore.Web.Controllers
             IShippingService shippingService,
             IShoppingCartService cartService,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
-            IGiftCardService giftCardService)
+            IGiftCardService giftCardService,
+            UserManager<Customer> userManager)
         {
             _db = db;
             _eventPublisher = eventPublisher;
@@ -125,6 +130,7 @@ namespace Smartstore.Web.Controllers
             _cartService = cartService;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
             _giftCardService = giftCardService;
+            _userManager = userManager;
             
             var currentStore = _storeContext.CurrentStore;
         }

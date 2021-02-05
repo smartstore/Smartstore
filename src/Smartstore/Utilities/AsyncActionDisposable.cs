@@ -23,6 +23,5 @@ namespace Smartstore.Utilities
         {
             await _action().ConfigureAwait(false);
         }
-
     }
 }

@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Smartstore.ComponentModel;
 using Smartstore.Data;
 using Smartstore.Domain;
@@ -81,6 +82,25 @@ namespace Smartstore
         }
 
         /// <summary>
+        /// Sets the state of an entity to <see cref="EfState.Modified"/> if it is detached.
+        /// </summary>
+        /// <typeparam name="TEntity">Type of entity</typeparam>
+        /// <param name="entity">The entity instance</param>
+        /// <returns><c>true</c> if the state has been changed, <c>false</c> if entity is attached already.</returns>
+        public static bool TryUpdate<TEntity>(this HookingDbContext ctx, TEntity entity) where TEntity : BaseEntity
+        {
+            var detectChanges = ctx.ChangeTracker.AutoDetectChangesEnabled;
+            ctx.ChangeTracker.AutoDetectChangesEnabled = false;
+
+            using (new ActionDisposable(() => ctx.ChangeTracker.AutoDetectChangesEnabled = detectChanges))
+            {
+                // (perf) turning off autoDetectChanges prevents that ctx.Entry() performs change detection internally.
+                var entry = ctx.Entry(entity);
+                return entry.TryUpdate();
+            }
+        }
+
+        /// <summary>
         /// Changes the state of an entity object when requested state differs.
         /// </summary>
         /// <typeparam name="TEntity">Type of entity</typeparam>
@@ -89,20 +109,15 @@ namespace Smartstore
         /// <returns><c>true</c> if the state has been changed, <c>false</c> if current state did not differ from <paramref name="requestedState"/>.</returns>
         public static bool TryChangeState<TEntity>(this HookingDbContext ctx, TEntity entity, EfState requestedState) where TEntity : BaseEntity
         {
-            //Console.WriteLine("ChangeState ORIGINAL");
-            var entry = ctx.Entry(entity);
+            var detectChanges = ctx.ChangeTracker.AutoDetectChangesEnabled;
+            ctx.ChangeTracker.AutoDetectChangesEnabled = false;
 
-            if (entry.State != requestedState)
+            using (new ActionDisposable(() => ctx.ChangeTracker.AutoDetectChangesEnabled = detectChanges))
             {
-                // Only change state when requested state differs,
-                // because EF internally sets all properties to modified
-                // if necessary, even when requested state equals current state.
-                entry.State = requestedState;
-
-                return true;
+                // (perf) turning off autoDetectChanges prevents that ctx.Entry() performs change detection internally.
+                var entry = ctx.Entry(entity);
+                return entry.TryChangeState(requestedState);
             }
-
-            return false;
         }
 
         /// <summary>

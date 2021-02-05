@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Smartstore.Data;
 using EfState = Microsoft.EntityFrameworkCore.EntityState;
@@ -9,6 +11,44 @@ namespace Smartstore
 {
     public static class EntityEntryExtensions
     {
+        /// <summary>
+        /// Sets the state of an entity entry to <see cref="EfState.Modified"/> if it is detached.
+        /// </summary>
+        /// <param name="entry">The entity entry.</param>
+        /// <returns><c>true</c> if the state has been changed, <c>false</c> if entity is attached already.</returns>
+        public static bool TryUpdate(this EntityEntry entry)
+        {
+            if (entry.State == EfState.Detached)
+            {
+                entry.State = EfState.Unchanged;
+                entry.State = EfState.Modified;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Changes the state of an entity entry when requested state differs.
+        /// </summary>
+        /// <param name="entry">The entry instance</param>
+        /// <param name="requestedState">The requested new state</param>
+        /// <returns><c>true</c> if the state has been changed, <c>false</c> if current state did not differ from <paramref name="requestedState"/>.</returns>
+        public static bool TryChangeState(this EntityEntry entry, EfState requestedState)
+        {
+            if (entry.State != requestedState)
+            {
+                // Only change state when requested state differs,
+                // because EF internally sets all properties to modified
+                // if necessary, even when requested state equals current state.
+                entry.State = requestedState;
+
+                return true;
+            }
+
+            return false;
+        }
+
         public static void ReloadEntity(this EntityEntry entry)
         {
             try
@@ -22,6 +62,23 @@ namespace Smartstore
                 {
                     entry.State = EfState.Unchanged;
                     entry.Reload();
+                }
+            }
+        }
+
+        public static async Task ReloadEntityAsync(this EntityEntry entry, CancellationToken cancelToken = default)
+        {
+            try
+            {
+                await entry.ReloadAsync(cancelToken);
+            }
+            catch
+            {
+                // Can occur when entity has been detached in the meantime (for whatever fucking reasons)
+                if (entry.State == EfState.Detached)
+                {
+                    entry.State = EfState.Unchanged;
+                    await entry.ReloadAsync(cancelToken);
                 }
             }
         }

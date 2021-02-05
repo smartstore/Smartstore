@@ -78,7 +78,7 @@ namespace Smartstore.Core.Checkout.Cart
                     ctx.Customer.ShoppingCartItems.AddRange(ctx.ChildItems);
                 }
 
-                _db.TryChangeState(ctx.Customer, EntityState.Modified);
+                _db.TryUpdate(ctx.Customer);
                 await _db.SaveChangesAsync();
             }
         }
@@ -207,7 +207,7 @@ namespace Smartstore.Core.Checkout.Cart
                 existingCartItem.Item.Quantity = ctx.Quantity;
                 existingCartItem.Item.UpdatedOnUtc = DateTime.UtcNow;
                 existingCartItem.Item.RawAttributes = ctx.RawAttributes;
-                _db.TryChangeState(ctx.Customer, EntityState.Modified);
+                _db.TryUpdate(ctx.Customer);
                 await _db.SaveChangesAsync();
             }
             else
@@ -594,7 +594,7 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     cartItem.Quantity = newQuantity;
                     cartItem.UpdatedOnUtc = DateTime.UtcNow;
-                    _db.TryChangeState(customer, EntityState.Modified);
+                    _db.TryUpdate(customer);
                     await _db.SaveChangesAsync();
                 }
             }

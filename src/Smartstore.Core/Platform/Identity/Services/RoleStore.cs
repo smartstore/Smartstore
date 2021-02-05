@@ -70,7 +70,7 @@ namespace Smartstore.Core.Identity
 
             // TODO: (core) Add CustomerRole.ConcurrencyStamp field (?)
             //role.ConcurrencyStamp = Guid.NewGuid().ToString();
-            _db.TryChangeState(role, EntityState.Modified);
+            _db.TryUpdate(role);
 
             try
             {

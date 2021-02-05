@@ -22,6 +22,5 @@ namespace Smartstore.Utilities
         {
             _action();
         }
-
     }
 }
