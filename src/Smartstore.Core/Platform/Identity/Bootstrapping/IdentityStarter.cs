@@ -26,11 +26,8 @@ namespace Smartstore.Core.Bootstrapping
         {
             builder.RegisterType<CustomerService>().As<ICustomerService>().InstancePerLifetimeScope();
 
-            builder.RegisterType<UserStore>()
-                .As<IUserStore>()
-                .As<IUserStore<Customer>>()
-                .As<IRoleStore<CustomerRole>>()
-                .InstancePerLifetimeScope();
+            builder.RegisterType<UserStore>().As<IUserStore>().As<IUserStore<Customer>>().InstancePerLifetimeScope();
+            builder.RegisterType<RoleStore>().As<IRoleStore>().As<IRoleStore<CustomerRole>>().InstancePerLifetimeScope();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

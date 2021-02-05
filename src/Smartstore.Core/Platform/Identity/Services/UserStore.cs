@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -14,8 +13,7 @@ using Smartstore.Core.Localization;
 namespace Smartstore.Core.Identity
 {
     public interface IUserStore : 
-        IQueryableUserStore<Customer>, 
-        IQueryableRoleStore<CustomerRole>
+        IQueryableUserStore<Customer>
     {
         /// <summary>
         /// Gets or sets a flag indicating if changes should be persisted after CreateAsync, UpdateAsync and DeleteAsync are called.
@@ -26,7 +24,7 @@ namespace Smartstore.Core.Identity
         bool AutoSaveChanges { get; set; }
     }
 
-    public class UserStore : Disposable, IUserStore
+    public class UserStore : IUserStore
     {
         private readonly SmartDbContext _db;
         private readonly CustomerSettings _customerSettings;
@@ -49,6 +47,10 @@ namespace Smartstore.Core.Identity
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public bool AutoSaveChanges { get; set; }
 
+        public void Dispose()
+        {
+        }
+
         protected IdentityErrorDescriber ErrorDescriber { get; set; }
 
         protected IdentityResult Failed(Exception exception)
@@ -67,10 +69,6 @@ namespace Smartstore.Core.Identity
         protected Task SaveChanges(CancellationToken cancellationToken)
         {
             return AutoSaveChanges ? _db.SaveChangesAsync(cancellationToken) : Task.CompletedTask;
-        }
-
-        protected override void OnDispose(bool disposing)
-        {
         }
 
         #region IUserStore
@@ -209,129 +207,6 @@ namespace Smartstore.Core.Identity
             }
 
             return IdentityResult.Success;
-        }
-
-        #endregion
-
-        #region IRoleStore
-
-        public IQueryable<CustomerRole> Roles => _roles;
-
-        public async Task<IdentityResult> CreateAsync(CustomerRole role, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            Guard.NotNull(role, nameof(role));
-
-            _roles.Add(role);
-            await SaveChanges(cancellationToken);
-            return IdentityResult.Success;
-        }
-
-        public async Task<IdentityResult> UpdateAsync(CustomerRole role, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            Guard.NotNull(role, nameof(role));
-
-            // TODO: (core) Add CustomerRole.ConcurrencyStamp field (?)
-            //role.ConcurrencyStamp = Guid.NewGuid().ToString();
-            _db.TryChangeState(role, EntityState.Modified);
-
-            try
-            {
-                await SaveChanges(cancellationToken);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return Failed(ErrorDescriber.ConcurrencyFailure());
-            }
-
-            return IdentityResult.Success;
-
-            // TODO: (core) Invalidate PermissionService.PERMISSION_TREE_KEY by hook
-        }
-
-        public async Task<IdentityResult> DeleteAsync(CustomerRole role, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            Guard.NotNull(role, nameof(role));
-
-            if (role.IsSystemRole)
-            {
-                throw new SmartException("System roles cannot be deleted");
-            }
-
-            _roles.Remove(role);
-
-            try
-            {
-                await SaveChanges(cancellationToken);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return Failed(ErrorDescriber.ConcurrencyFailure());
-            }
-
-            return IdentityResult.Success;
-
-            // TODO: (core) Invalidate PermissionService.PERMISSION_TREE_KEY by hook
-        }
-
-        Task<string> IRoleStore<CustomerRole>.GetRoleIdAsync(CustomerRole role, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            Guard.NotNull(role, nameof(role));
-
-            return Task.FromResult(role.Id.ToString());
-        }
-
-        Task<string> IRoleStore<CustomerRole>.GetRoleNameAsync(CustomerRole role, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            Guard.NotNull(role, nameof(role));
-
-            return Task.FromResult(role.Name);
-        }
-
-        Task IRoleStore<CustomerRole>.SetRoleNameAsync(CustomerRole role, string roleName, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            Guard.NotNull(role, nameof(role));
-
-            role.Name = roleName;
-            return Task.CompletedTask;
-        }
-
-        Task<string> IRoleStore<CustomerRole>.GetNormalizedRoleNameAsync(CustomerRole role, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            Guard.NotNull(role, nameof(role));
-
-            // TODO: (core) Add CustomerRole.NormalizedUserName field or implement normalization somehow.
-            return Task.FromResult(role.Name);
-        }
-
-        Task IRoleStore<CustomerRole>.SetNormalizedRoleNameAsync(CustomerRole role, string normalizedName, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            Guard.NotNull(role, nameof(role));
-
-            // TODO: (core) Add Customer.NormalizedUserName field or implement normalization somehow.
-            //role.Name = normalizedName;
-            return Task.CompletedTask;
-        }
-
-        Task<CustomerRole> IRoleStore<CustomerRole>.FindByIdAsync(string roleId, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return _roles.FindByIdAsync(roleId.Convert<int>(), cancellationToken: cancellationToken).AsTask();
-        }
-
-        Task<CustomerRole> IRoleStore<CustomerRole>.FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return _roles.FirstOrDefaultAsync(x => x.Name == normalizedRoleName);
         }
 
         #endregion
