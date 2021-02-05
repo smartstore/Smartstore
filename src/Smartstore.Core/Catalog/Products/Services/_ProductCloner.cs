@@ -154,6 +154,7 @@ namespace Smartstore.Core.Catalog.Products
                     await scope.CommitAsync();
 
                     // Related products mappings.
+                    // Join products to ignore deleted products.
                     var relatedProductsQuery = 
                         from rp in _db.RelatedProducts.AsNoTracking()
                         join p in _db.Products.AsNoTracking() on rp.ProductId2 equals p.Id
@@ -170,6 +171,7 @@ namespace Smartstore.Core.Catalog.Products
                     }));
 
                     // Cross-sell products mappings.
+                    // Join products to ignore deleted products.
                     var crossSellProductsQuery =
                         from csp in _db.CrossSellProducts.AsNoTracking()
                         join p in _db.Products.AsNoTracking() on csp.ProductId2 equals p.Id

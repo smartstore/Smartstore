@@ -33,6 +33,8 @@ namespace Smartstore.Core.Content.Seo.Routing
 
         public override void MapRoutes(IEndpointRouteBuilder routes)
         {
+            //routes.MapLocalizedControllerRoute("Product", UrlPatternFor("Product"), new { controller = "Product", action = "ProductDetails" });
+
             // TODO: (core) check all these SEO routes for correctness once all slug supporting entities are ported.
             routes.MapControllerRoute("Product", UrlPatternFor("Product"), new { controller = "Product", action = "ProductDetails" });
             routes.MapControllerRoute("Category", UrlPatternFor("Category"), new { controller = "Catalog", action = "Category" });

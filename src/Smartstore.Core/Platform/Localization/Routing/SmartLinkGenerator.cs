@@ -60,6 +60,8 @@ namespace Smartstore.Core.Localization.Routing
                         {
                             // Very special case where store's default culture matches current (resolved) culture,
                             // but no seo code should be prepended to URLs by configuration. We can stop here.
+
+                            // TODO: (core) looks like in this case the culture token is appended to the URL as a query string.
                             return;
                         }
                     }

@@ -49,7 +49,7 @@ namespace Smartstore.Core.Catalog.Products
                 });
             }
 
-            return helper.GetProductUrl(query, productSlug);
+            return helper.GetProductUrl(productSlug, query);
         }
 
         /// <summary>
@@ -85,17 +85,17 @@ namespace Smartstore.Core.Catalog.Products
 
             if (product.ProductType != ProductType.BundledProduct)
             {
-                await helper.DeserializeQueryAsync(query, product.Id, cartItem.Item.AttributeSelection);
+                await helper.AddAttributesToQueryAsync(query, cartItem.Item.AttributeSelection, product.Id);
             }
             else if (cartItem.ChildItems != null && product.BundlePerItemPricing)
             {
                 foreach (var childItem in cartItem.ChildItems.Where(x => x.Item.Id != cartItem.Item.Id))
                 {
-                    await helper.DeserializeQueryAsync(query, childItem.Item.ProductId, childItem.Item.AttributeSelection, childItem.BundleItemData.Item.Id);
+                    await helper.AddAttributesToQueryAsync(query, childItem.Item.AttributeSelection, childItem.Item.ProductId, childItem.BundleItemData.Item.Id);
                 }
             }
 
-            return helper.GetProductUrl(query, productSlug);
+            return helper.GetProductUrl(productSlug, query);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Smartstore.Core.Catalog.Products
 
             if (orderItem.Product.ProductType != ProductType.BundledProduct)
             {
-                await helper.DeserializeQueryAsync(query, orderItem.ProductId, orderItem.AttributeSelection);
+                await helper.AddAttributesToQueryAsync(query, orderItem.AttributeSelection, orderItem.ProductId);
             }
             else if (orderItem.Product.BundlePerItemPricing && orderItem.BundleData.HasValue())
             {
@@ -122,11 +122,11 @@ namespace Smartstore.Core.Catalog.Products
 
                 foreach (var item in bundleData)
                 {
-                    await helper.DeserializeQueryAsync(query, item.ProductId, item.AttributeSelection, item.BundleItemId);
+                    await helper.AddAttributesToQueryAsync(query, item.AttributeSelection, item.ProductId, item.BundleItemId);
                 }
             }
 
-            return helper.GetProductUrl(query, productSlug);
+            return helper.GetProductUrl(productSlug, query);
         }
 
     }

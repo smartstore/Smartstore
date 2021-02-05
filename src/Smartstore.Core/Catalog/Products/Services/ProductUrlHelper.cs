@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Search.Modelling;
@@ -23,9 +22,6 @@ namespace Smartstore.Core.Catalog.Products
         private readonly IUrlHelper _urlHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
-        private readonly Lazy<ILanguageService> _languageService;
-        private readonly Lazy<LocalizationSettings> _localizationSettings;
-        private readonly int _languageId;
 
         public ProductUrlHelper(
             SmartDbContext db,
@@ -33,9 +29,7 @@ namespace Smartstore.Core.Catalog.Products
             IStoreContext storeContext,
             IUrlHelper urlHelper,
             IHttpContextAccessor httpContextAccessor,
-            Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
-            Lazy<ILanguageService> languageService,
-            Lazy<LocalizationSettings> localizationSettings)
+            Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper)
         {
             _db = db;
             _workContext = workContext;
@@ -43,10 +37,6 @@ namespace Smartstore.Core.Catalog.Products
             _urlHelper = urlHelper;
             _httpContextAccessor = httpContextAccessor;
             _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
-            _languageService = languageService;
-            _localizationSettings = localizationSettings;
-
-            _languageId = _workContext.WorkingLanguage.Id;
         }
 
         /// <summary>
@@ -67,6 +57,7 @@ namespace Smartstore.Core.Catalog.Products
         public virtual string ToQueryString(ProductVariantQuery query)
         {
             var qs = InitialQuery ?? new MutableQueryCollection();
+            var languageId = _workContext.WorkingLanguage.Id;
 
             // Checkout attributes.
             foreach (var item in query.CheckoutAttributes)
@@ -92,7 +83,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 if (item.Alias.IsEmpty())
                 {
-                    item.Alias = _catalogSearchQueryAliasMapper.Value.GetVariantAliasById(item.AttributeId, _languageId);
+                    item.Alias = _catalogSearchQueryAliasMapper.Value.GetVariantAliasById(item.AttributeId, languageId);
                 }
 
                 if (item.Date.HasValue)
@@ -107,7 +98,7 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     if (item.ValueAlias.IsEmpty())
                     {
-                        item.ValueAlias = _catalogSearchQueryAliasMapper.Value.GetVariantOptionAliasById(item.Value.ToInt(), _languageId);
+                        item.ValueAlias = _catalogSearchQueryAliasMapper.Value.GetVariantOptionAliasById(item.Value.ToInt(), languageId);
                     }
 
                     var value = item.ValueAlias.HasValue()
@@ -122,36 +113,38 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <summary>
-        /// Deserializes an attributes selection into a product variant query.
+        /// Adds selected product variant attributes to a product variant query.
         /// </summary>
-        /// <param name="query">Product variant query.</param>
+        /// <param name="query">Target product variant query.</param>
+        /// <param name="source">Selected attributes.</param>
         /// <param name="productId">Product identifier.</param>
-        /// <param name="selection">Selected attributes.</param>
         /// <param name="bundleItemId">Bundle item identifier.</param>
         /// <param name="attributes">Product variant attributes.</param>
-        public virtual async Task DeserializeQueryAsync(
+        public virtual async Task AddAttributesToQueryAsync(
             ProductVariantQuery query,
+            ProductVariantAttributeSelection source,
             int productId,
-            ProductVariantAttributeSelection selection,
             int bundleItemId = 0,
             ICollection<ProductVariantAttribute> attributes = null)
         {
             Guard.NotNull(query, nameof(query));
 
-            if (productId == 0 || (selection?.AttributesMap?.Any() ?? false))
+            if (productId == 0 || !(source?.AttributesMap?.Any() ?? false))
             {
                 return;
             }
 
             if (attributes == null)
             {
-                var ids = selection.AttributesMap.Select(x => x.Key);
+                var ids = source.AttributesMap.Select(x => x.Key);
                 attributes = await _db.ProductVariantAttributes.GetManyAsync(ids);
             }
 
+            var languageId = _workContext.WorkingLanguage.Id;
+
             foreach (var attribute in attributes)
             {
-                var item = selection.AttributesMap.FirstOrDefault(x => x.Key == attribute.Id);
+                var item = source.AttributesMap.FirstOrDefault(x => x.Key == attribute.Id);
                 if (item.Key != 0)
                 {
                     foreach (var originalValue in item.Value)
@@ -176,7 +169,7 @@ namespace Smartstore.Core.Catalog.Products
                             BundleItemId = bundleItemId,
                             AttributeId = attribute.ProductAttributeId,
                             VariantAttributeId = attribute.Id,
-                            Alias = _catalogSearchQueryAliasMapper.Value.GetVariantAliasById(attribute.ProductAttributeId, _languageId),
+                            Alias = _catalogSearchQueryAliasMapper.Value.GetVariantAliasById(attribute.ProductAttributeId, languageId),
                             Date = date,
                             IsFile = attribute.AttributeControlType == AttributeControlType.FileUpload,
                             IsText = attribute.AttributeControlType == AttributeControlType.TextBox || attribute.AttributeControlType == AttributeControlType.MultilineTextbox
@@ -184,7 +177,7 @@ namespace Smartstore.Core.Catalog.Products
 
                         if (attribute.IsListTypeAttribute())
                         {
-                            queryItem.ValueAlias = _catalogSearchQueryAliasMapper.Value.GetVariantOptionAliasById(value.ToInt(), _languageId);
+                            queryItem.ValueAlias = _catalogSearchQueryAliasMapper.Value.GetVariantOptionAliasById(value.ToInt(), languageId);
                         }
 
                         query.AddVariant(queryItem);
@@ -196,10 +189,10 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Creates a product URL including variant query string.
         /// </summary>
-        /// <param name="query">Product variant query.</param>
         /// <param name="productSlug">Product URL slug.</param>
+        /// <param name="query">Product variant query.</param>
         /// <returns>Product URL.</returns>
-        public virtual string GetProductUrl(ProductVariantQuery query, string productSlug)
+        public virtual string GetProductUrl(string productSlug, ProductVariantQuery query)
         {
             if (productSlug.IsEmpty())
             {
@@ -207,7 +200,7 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             var url = Url ?? _urlHelper.RouteUrl("Product", new { SeName = productSlug });
-            return url + ToQueryString(query);
+            return url.TrimEnd('/') + ToQueryString(query);
         }
 
         /// <summary>
@@ -220,9 +213,9 @@ namespace Smartstore.Core.Catalog.Products
         public virtual async Task<string> GetProductUrlAsync(int productId, string productSlug, ProductVariantAttributeSelection selection)
         {
             var query = new ProductVariantQuery();
-            await DeserializeQueryAsync(query, productId, selection);
+            await AddAttributesToQueryAsync(query, selection, productId);
 
-            return GetProductUrl(query, productSlug);
+            return GetProductUrl(productSlug, query);
         }
 
         /// <summary>
@@ -237,7 +230,7 @@ namespace Smartstore.Core.Catalog.Products
         public virtual async Task<string> GetAbsoluteProductUrlAsync(
             int productId,
             string productSlug,
-            ProductVariantAttributeSelection selection,
+            ProductVariantAttributeSelection selection = null,
             Store store = null,
             Language language = null)
         {
@@ -254,40 +247,18 @@ namespace Smartstore.Core.Catalog.Products
                 store ??= _storeContext.CurrentStore;
                 language ??= _workContext.WorkingLanguage;
 
-                // No given URL. Create SEO friendly URL.
-                var localizedUrlHelper = new LocalizedUrlHelper(request.PathBase.Value, productSlug);
-
-                if (_localizationSettings.Value.SeoFriendlyUrlsForLanguagesEnabled)
-                {
-                    var defaultSeoCode = await _languageService.Value.GetMasterLanguageSeoCodeAsync(store.Id);
-
-                    if (language.UniqueSeoCode == defaultSeoCode && _localizationSettings.Value.DefaultLanguageRedirectBehaviour > 0)
-                    {
-                        localizedUrlHelper.StripCultureCode();
-                    }
-                    else
-                    {
-                        localizedUrlHelper.PrependCultureCode(language.UniqueSeoCode, true);
-                    }
-                }
-
-                var storeUrl = store.Url.TrimEnd('/');
-
-                // Prevent duplicate occurrence of application path.
-                if (localizedUrlHelper.PathBase.HasValue() && storeUrl.EndsWith(localizedUrlHelper.PathBase, StringComparison.OrdinalIgnoreCase))
-                {
-                    storeUrl = storeUrl.Substring(0, storeUrl.Length - localizedUrlHelper.PathBase.Length).TrimEnd('/');
-                }
-
-                url = storeUrl + localizedUrlHelper.FullPath;
+                url = _urlHelper.RouteUrl(
+                    "Product",
+                    new { SeName = productSlug, culture = language.UniqueSeoCode },
+                    store.SslEnabled ? "https" : "http");
             }
 
             if (selection?.AttributesMap?.Any() ?? false)
             {
                 var query = new ProductVariantQuery();
-                await DeserializeQueryAsync(query, productId, selection);
+                await AddAttributesToQueryAsync(query, selection, productId);
 
-                url += ToQueryString(query);
+                url = url.TrimEnd('/') + ToQueryString(query);
             }
 
             return url;

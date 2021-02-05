@@ -46,6 +46,8 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Security;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Attributes;
 
 namespace Smartstore.Web.Controllers
 {
@@ -668,20 +670,20 @@ namespace Smartstore.Web.Controllers
             return Content($"Slug matched >>> Entity: {e.EntityName} {e.EntityId}, Id: {e.Id}, Language: {e.LanguageId}, Slug: {e.Slug}, IsActive: {e.IsActive}");
         }
 
-        public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*//*ProductVariantQuery query*/)
+        public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*/ProductVariantQuery query)
         {
             var content = new StringBuilder();
 
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var product = await _db.Products.FindByIdAsync(4366);
-            content.AppendLine($"Number of applied discounts {product.AppliedDiscounts.Count}. Ids {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. Has discounts applied {product.HasDiscountsApplied}.");
+            //var product = await _db.Products.FindByIdAsync(4366);
+            //content.AppendLine($"Number of applied discounts {product.AppliedDiscounts.Count}. Ids {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. Has discounts applied {product.HasDiscountsApplied}.");
 
-            var product2 = await _db.Products.FindByIdAsync(1751);
-            var pcs = Services.Resolve<IPriceCalculationService>();
-            var price = await pcs.GetFinalPriceAsync(product2);
-            content.AppendLine();
-            content.AppendLine("Price for 1751: " + price.ToString());
+            //var product2 = await _db.Products.FindByIdAsync(1751);
+            //var pcs = Services.Resolve<IPriceCalculationService>();
+            //var price = await pcs.GetFinalPriceAsync(product2);
+            //content.AppendLine();
+            //content.AppendLine("Price for 1751: " + price.ToString());
 
             //var qs = new MutableQueryCollection(Request.QueryString);
             //content.AppendLine();
@@ -708,10 +710,34 @@ namespace Smartstore.Web.Controllers
             //var attributes = await context.Attributes.GetOrLoadAsync(1751);
 
             //var attributeMaterializer = Services.Resolve<IProductAttributeMaterializer>();
-            //var (Selection, Warnings) = await attributeMaterializer.CreateAttributeSelectionAsync(query, attributes, 1751, 0);
+            //var (selection, warnings) = await attributeMaterializer.CreateAttributeSelectionAsync(query, attributes, 1751, 0);
             //content.AppendLine();
-            //content.AppendLine("Variants JSON:" + Selection.AsJson());
-            //content.AppendLine("Variants XML:" + Selection.AsXml());
+            //content.AppendLine("Variants JSON:" + selection.AsJson());
+            //content.AppendLine("Variants XML:" + selection.AsXml());
+
+            var urlService = Services.Resolve<IUrlService>();
+            var urlHelper = Services.Resolve<ProductUrlHelper>();
+            var languageService = Services.Resolve<ILanguageService>();
+            var pcs = Services.Resolve<IPriceCalculationService>();
+            var allLanguages = await languageService.GetAllLanguagesAsync();
+            var enLanguage = allLanguages.FirstOrDefault(x => x.UniqueSeoCode.EqualsNoCase("en"));
+            var product = await _db.Products.FindByIdAsync(1751);
+
+            var context = pcs.CreatePriceCalculationContext();
+            var attributes = await context.Attributes.GetOrLoadAsync(product.Id);
+            var attributeMaterializer = Services.Resolve<IProductAttributeMaterializer>();
+            var (selection, warnings) = await attributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, 0);
+            var slug = await product.GetActiveSlugAsync();
+
+            content.AppendLine();
+            content.AppendLine("Relative URL: " + urlHelper.GetProductUrl(slug, query));
+            //content.AppendLine("Relative URL: " + await urlHelper.GetProductUrlAsync(product.Id, slug, selection));
+            content.AppendLine("Absolute URL: " + await urlHelper.GetAbsoluteProductUrlAsync(product.Id, slug, selection));
+
+            content.AppendLine();
+            content.AppendLine($"Relative URL {enLanguage.UniqueSeoCode}: " + urlHelper.GetProductUrl(slug, query));
+            //content.AppendLine($"Relative URL {enLanguage.UniqueSeoCode}: " + await urlHelper.GetProductUrlAsync(product.Id, slug, selection));
+            content.AppendLine($"Absolute URL {enLanguage.UniqueSeoCode}: " + await urlHelper.GetAbsoluteProductUrlAsync(product.Id, slug, selection, language: enLanguage));
 
             return Content(content.ToString());
         }
