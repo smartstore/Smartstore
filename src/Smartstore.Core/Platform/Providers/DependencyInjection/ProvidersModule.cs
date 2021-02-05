@@ -207,10 +207,10 @@ namespace Smartstore.Core.DependencyInjection
             {
                 return "Payment";
             }
-            //else if (typeof(IShippingRateComputationMethod).IsAssignableFrom(implType))
-            //{
-            //    return "Shipping";
-            //}
+            else if (typeof(IShippingRateComputationMethod).IsAssignableFrom(implType))
+            {
+                return "Shipping";
+            }
             //else if (typeof(IPaymentMethod).IsAssignableFrom(implType))
             //{
             //    return "Payment";
