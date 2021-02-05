@@ -1,0 +1,164 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Caching;
+using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
+using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
+using Smartstore.Data.Batching;
+
+namespace Smartstore.Core.Content.Menus
+{
+    public partial class MenuStorage : IMenuStorage
+    {
+        private const string MENU_ALLSYSTEMNAMES_CACHE_KEY = "MenuStorage:SystemNames";
+        private const string MENU_USER_CACHE_KEY = "MenuStorage:Menus:User-{0}-{1}";
+        internal const string MENU_PATTERN_KEY = "MenuStorage:Menus:*";
+
+        private readonly SmartDbContext _db;
+        private readonly ICacheManager _cache;
+        private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
+
+        public MenuStorage(SmartDbContext db,
+            ICacheManager cache,
+            IWorkContext workContext,
+            IStoreContext storeContext)
+        {
+            _db = db;
+            _cache = cache;
+            _workContext = workContext;
+            _storeContext = storeContext;
+        }
+
+        public virtual async Task<IEnumerable<MenuInfo>> GetUserMenuInfosAsync(IEnumerable<CustomerRole> roles = null, int storeId = 0)
+        {
+            if (roles == null)
+            {
+                roles = _workContext.CurrentCustomer.CustomerRoleMappings.Select(x => x.CustomerRole);
+            }
+
+            if (storeId == 0)
+            {
+                storeId = _storeContext.CurrentStore.Id;
+            }
+
+            var roleIds = roles.Where(x => x.Active).Select(x => x.Id);
+            var cacheKey = MENU_USER_CACHE_KEY.FormatInvariant(storeId, string.Join(",", roleIds));
+
+            var userMenusInfo = await _cache.GetAsync(cacheKey, () =>
+            {
+                var query = _db.Menus
+                    .ApplyStoreFilter(storeId)
+                    .ApplyAclFilter(roleIds.ToArray())
+                    .ApplyStandardFilter(false, true, true)
+                    .AsNoTracking();
+
+                var data = query.Select(x => new
+                {
+                    x.Id,
+                    x.SystemName,
+                    x.Template,
+                    x.WidgetZone,
+                    x.DisplayOrder
+                })
+                .ToList();
+
+                var result = data.Select(x => new MenuInfo
+                {
+                    Id = x.Id,
+                    SystemName = x.SystemName,
+                    Template = x.Template,
+                    DisplayOrder = x.DisplayOrder,
+                    WidgetZones = x.WidgetZone.EmptyNull().Trim()
+                        .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(y => y.Trim())
+                        .ToArray()
+                })
+                .ToList();
+
+                return result;
+            });
+
+            return userMenusInfo;
+        }
+
+        public virtual async Task<bool> MenuExistsAsync(string systemName)
+        {
+            if (systemName.IsEmpty())
+            {
+                return false;
+            }
+
+            var systemNames = await GetMenuSystemNamesAsync(true);
+
+            return systemNames.Contains(systemName);
+        }
+
+        public virtual async Task<ISet> GetMenuSystemNamesAsync(bool ensureCreated)
+        {
+            if (ensureCreated || await _cache.ContainsAsync(MENU_ALLSYSTEMNAMES_CACHE_KEY))
+            {
+                return await _cache.GetHashSetAsync(MENU_ALLSYSTEMNAMES_CACHE_KEY, async () =>
+                {
+                    return await _db.Menus
+                        .AsNoTracking()
+                        .Where(x => x.Published)
+                        .OrderByDescending(x => x.IsSystemMenu)
+                        .ThenBy(x => x.Id)
+                        .Select(x => x.SystemName)
+                        .ToArrayAsync();
+                });
+            }
+
+            return null;
+        }
+
+        public virtual async Task DeleteMenuItemAsync(MenuItem item, bool deleteChilds = true)
+        {
+            if (item == null)
+            {
+                return;
+            }
+
+            if (!deleteChilds)
+            {
+                _db.MenuItems.Remove(item);
+            }
+            else
+            {
+                var ids = new HashSet<int> { item.Id };
+                await GetChildIdsAsync(item.Id, ids);
+
+                foreach (var chunk in ids.Slice(200))
+                {
+                    var items = await _db.MenuItems
+                        .Where(x => chunk.Contains(x.Id))
+                        .BatchDeleteAsync();
+                }
+            }
+
+            await _db.SaveChangesAsync();
+
+            await _cache.RemoveByPatternAsync(MENU_PATTERN_KEY);
+
+            async Task GetChildIdsAsync(int parentId, HashSet<int> ids)
+            {
+                var childIds = await _db.MenuItems
+                    .AsNoTracking()
+                    .Where(x => x.ParentItemId == parentId)
+                    .Select(x => x.Id)
+                    .ToArrayAsync();
+
+                if (childIds.Any())
+                {
+                    ids.AddRange(childIds);
+                    childIds.Each(async x => await GetChildIdsAsync(x, ids));
+                }
+            }
+        }
+    }
+}
