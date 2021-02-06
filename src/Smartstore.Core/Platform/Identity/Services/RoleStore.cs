@@ -53,6 +53,18 @@ namespace Smartstore.Core.Identity
 
         public IQueryable<CustomerRole> Roles => _roles;
 
+        public Task<CustomerRole> FindByIdAsync(string roleId, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return _roles.FindByIdAsync(roleId.Convert<int>(), cancellationToken: cancellationToken).AsTask();
+        }
+
+        public Task<CustomerRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return _roles.FirstOrDefaultAsync(x => x.Name == normalizedRoleName);
+        }
+
         public async Task<IdentityResult> CreateAsync(CustomerRole role, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -112,62 +124,38 @@ namespace Smartstore.Core.Identity
             // TODO: (core) Invalidate PermissionService.PERMISSION_TREE_KEY by hook
         }
 
-        public Task<string> GetRoleIdAsync(CustomerRole role, CancellationToken cancellationToken = default)
+        Task<string> IRoleStore<CustomerRole>.GetRoleIdAsync(CustomerRole role, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             Guard.NotNull(role, nameof(role));
-
             return Task.FromResult(role.Id.ToString());
         }
 
-        public Task<string> GetRoleNameAsync(CustomerRole role, CancellationToken cancellationToken = default)
+        Task<string> IRoleStore<CustomerRole>.GetRoleNameAsync(CustomerRole role, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             Guard.NotNull(role, nameof(role));
-
             return Task.FromResult(role.Name);
         }
 
-        public Task SetRoleNameAsync(CustomerRole role, string roleName, CancellationToken cancellationToken = default)
+        Task IRoleStore<CustomerRole>.SetRoleNameAsync(CustomerRole role, string roleName, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             Guard.NotNull(role, nameof(role));
-
             role.Name = roleName;
             return Task.CompletedTask;
         }
 
-        public Task<string> GetNormalizedRoleNameAsync(CustomerRole role, CancellationToken cancellationToken = default)
+        Task<string> IRoleStore<CustomerRole>.GetNormalizedRoleNameAsync(CustomerRole role, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             Guard.NotNull(role, nameof(role));
-
             // TODO: (core) Add CustomerRole.NormalizedUserName field or implement normalization somehow.
             return Task.FromResult(role.Name);
         }
 
-        public Task SetNormalizedRoleNameAsync(CustomerRole role, string normalizedName, CancellationToken cancellationToken = default)
+        Task IRoleStore<CustomerRole>.SetNormalizedRoleNameAsync(CustomerRole role, string normalizedName, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
             Guard.NotNull(role, nameof(role));
-
             // TODO: (core) Add Customer.NormalizedUserName field or implement normalization somehow.
             //role.Name = normalizedName;
             return Task.CompletedTask;
-        }
-
-        public Task<CustomerRole> FindByIdAsync(string roleId, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return _roles.FindByIdAsync(roleId.Convert<int>(), cancellationToken: cancellationToken).AsTask();
-        }
-
-        public Task<CustomerRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return _roles.FirstOrDefaultAsync(x => x.Name == normalizedRoleName);
         }
     }
 }

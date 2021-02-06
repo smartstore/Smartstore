@@ -348,7 +348,7 @@ namespace Smartstore
             TEntity entity,
             Expression<Func<TEntity, IEnumerable<TCollection>>> navigationProperty,
             bool force = false,
-            Func<IQueryable<TCollection>, IQueryable<TCollection>> queryAction = null)
+            Func<IQueryable<TCollection>, IQueryable<TCollection>> queryModifier = null)
             where TEntity : BaseEntity
             where TCollection : BaseEntity
         {
@@ -371,15 +371,10 @@ namespace Smartstore
 
             if (!collection.IsLoaded)
             {
-                if (queryAction != null)
+                if (queryModifier != null)
                 {
-                    var query = collection.Query();
-
-                    var myQuery = queryAction != null
-                        ? queryAction(query)
-                        : query;
-
-                    collection.CurrentValue = await myQuery.ToListAsync();
+                    var query = queryModifier(collection.Query());
+                    collection.CurrentValue = await query.ToListAsync();
                 }
                 else
                 {
@@ -395,7 +390,7 @@ namespace Smartstore
             TEntity entity,
             Expression<Func<TEntity, TProperty>> navigationProperty,
             bool force = false,
-            Func<IQueryable<TProperty>, IQueryable<TProperty>> queryAction = null)
+            Func<IQueryable<TProperty>, IQueryable<TProperty>> queryModifier = null)
             where TEntity : BaseEntity
             where TProperty : BaseEntity
         {
@@ -418,15 +413,10 @@ namespace Smartstore
 
             if (!reference.IsLoaded)
             {
-                if (queryAction != null)
+                if (queryModifier != null)
                 {
-                    var query = reference.Query();
-
-                    var myQuery = queryAction != null
-                        ? queryAction(query)
-                        : query;
-
-                    reference.CurrentValue = await myQuery.FirstOrDefaultAsync();
+                    var query = queryModifier(reference.Query());
+                    reference.CurrentValue = await query.FirstOrDefaultAsync();
                 }
                 else
                 {

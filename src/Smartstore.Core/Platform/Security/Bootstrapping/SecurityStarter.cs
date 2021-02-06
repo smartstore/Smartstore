@@ -10,6 +10,8 @@ namespace Smartstore.Core.Bootstrapping
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
+            builder.RegisterType<Encryptor>().As<IEncryptor>().InstancePerLifetimeScope();
+
             if (appContext.IsInstalled)
             {
                 builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();

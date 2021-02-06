@@ -95,13 +95,23 @@ namespace Smartstore
 		[DebuggerStepThrough]
 		public static bool IsEmail(this string value)
 		{
-			return !String.IsNullOrEmpty(value) && RegularExpressions.IsEmail.IsMatch(value.Trim());
+			if (string.IsNullOrEmpty(value))
+				return false;
+
+			// Only return true if there is only 1 '@' character
+			// and it is neither the first nor the last character
+			int index = value.IndexOf('@');
+
+			return
+				index > 0 &&
+				index != value.Length - 1 &&
+				index == value.LastIndexOf('@');
 		}
 
 		[DebuggerStepThrough]
 		public static bool IsNumeric(this string value)
 		{
-			if (String.IsNullOrEmpty(value))
+			if (string.IsNullOrEmpty(value))
 				return false;
 
 			return !RegularExpressions.IsNotNumber.IsMatch(value) &&

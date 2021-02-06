@@ -22,15 +22,18 @@ namespace Smartstore.Core.Bootstrapping
 
             services.AddSingleton<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>();
 
+            // TODO: (core) // Add Identity UserName and EmailValidator to service collection.
             // TODO: (core) // Add Identity IEmailSender and ISmsSender to service collection.
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
-            builder.RegisterType<CustomerService>().As<ICustomerService>().InstancePerLifetimeScope();
-
             builder.RegisterType<UserStore>().As<IUserStore>().As<IUserStore<Customer>>().InstancePerLifetimeScope();
             builder.RegisterType<RoleStore>().As<IRoleStore>().As<IRoleStore<CustomerRole>>().InstancePerLifetimeScope();
+            builder.RegisterType<CustomerService>().As<ICustomerService>().InstancePerLifetimeScope();
+            builder.RegisterType<VoidLookupNormalizer>().As<ILookupNormalizer>().InstancePerLifetimeScope();
+            builder.RegisterType<PasswordHasher>().As<IPasswordHasher<Customer>>().InstancePerLifetimeScope();
+            builder.RegisterType<UserValidator>().As<IUserValidator<Customer>>().As<IPasswordValidator<Customer>>().InstancePerLifetimeScope();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
