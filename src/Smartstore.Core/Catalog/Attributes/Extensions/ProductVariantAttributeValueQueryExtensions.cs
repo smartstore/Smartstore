@@ -38,8 +38,6 @@ namespace Smartstore.Core.Catalog.Attributes
             Guard.NotNull(query, nameof(query));
             Guard.NotNull(ids, nameof(ids));
 
-            var db = query.GetDbContext<SmartDbContext>();
-
             query = query.Where(x => ids.Contains(x.Id));
 
             if (listTypesOnly)

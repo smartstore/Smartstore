@@ -241,10 +241,8 @@ namespace Smartstore.Domain
         /// </remarks>
         /// <param name="attributeId">Attribute identifier</param>
         /// <param name="value">Attribute value</param>
-        public void AddAttribute(int attributeId, params object[] values)
+        public void AddAttribute(int attributeId, IEnumerable<object> values)
         {
-            Guard.NotEmpty(values, nameof(values));
-
             _map.AddRange(attributeId, values);
             _dirty = true;
         }

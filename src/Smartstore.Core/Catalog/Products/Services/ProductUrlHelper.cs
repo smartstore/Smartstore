@@ -250,11 +250,20 @@ namespace Smartstore.Core.Catalog.Products
                 store ??= _storeContext.CurrentStore;
                 language ??= _workContext.WorkingLanguage;
 
-                // TODO: (mg) (core) This is not sufficient: the host from Store entity is also required.
+                string hostName = null;
+
+                try
+                {
+                    // Do not create crappy URLs (exclude scheme, include port and no slash)!
+                    hostName = new Uri(store.GetHost(true)).Authority;
+                }
+                catch { }
+
                 url = _urlHelper.RouteUrl(
                     "Product",
                     new { SeName = productSlug, culture = language.UniqueSeoCode },
-                    store.GetSecurityMode(true) == HttpSecurityMode.Ssl ? "https" : "http");
+                    store.GetSecurityMode(true) == HttpSecurityMode.Ssl ? "https" : "http",
+                    hostName);
             }
 
             if (selection?.AttributesMap?.Any() ?? false)
