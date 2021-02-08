@@ -52,6 +52,11 @@ namespace Smartstore.Engine.Modularity
         public string SystemName { get; set; }
 
         /// <summary>
+        /// Gets or sets the provider concrete implementation type.
+        /// </summary>
+        public Type ImplType { get; set; }
+
+        /// <summary>
         /// Gets or sets the resource key pattern for user data (e.g. FriendlyName)
         /// </summary>
         /// <example>

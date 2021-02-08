@@ -235,13 +235,23 @@ namespace Smartstore.Collections
         }
 
         /// <summary>
-        /// Determines whether the multimap contains any values for the specified key.
+        /// Checks whether the multimap contains any values for the specified key.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns><c>True</c> if the multimap has one or more values for the specified key, otherwise <c>false</c>.</returns>
         public virtual bool ContainsKey(TKey key)
         {
             return _dict.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// Gets the values associated with the specified key.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns><c>True</c> if the multimap has one or more values for the specified key, otherwise <c>false</c>.</returns>
+        public virtual bool TryGetValues(TKey key, out ICollection<TValue> values)
+        {
+            return _dict.TryGetValue(key, out values);
         }
 
         /// <summary>

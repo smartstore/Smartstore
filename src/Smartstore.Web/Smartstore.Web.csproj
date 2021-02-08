@@ -33,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Modules\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 

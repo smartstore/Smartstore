@@ -12,7 +12,7 @@ using Smartstore.Core.Widgets;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Core.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
     internal class ProvidersModule : Module
     {
@@ -51,23 +51,29 @@ namespace Smartstore.Core.DependencyInjection
                 var isHidden = GetIsHidden(type);
                 //var exportFeature = GetExportFeature(type);
 
-                var registration = builder.RegisterType(type).Named<IProvider>(systemName).InstancePerLifetimeScope().PropertiesAutowired(PropertyWiringOptions.None);
-                registration.WithMetadata<ProviderMetadata>(m =>
-                {
-                    m.For(em => em.ModuleDescriptor, moduleDescriptor);
-                    m.For(em => em.GroupName, groupName);
-                    m.For(em => em.SystemName, systemName);
-                    m.For(em => em.ResourceKeyPattern, resPattern);
-                    m.For(em => em.SettingKeyPattern, settingPattern);
-                    m.For(em => em.FriendlyName, friendlyName.Name);
-                    m.For(em => em.Description, friendlyName.Description);
-                    m.For(em => em.DisplayOrder, displayOrder);
-                    m.For(em => em.DependentWidgets, dependentWidgets);
-                    m.For(em => em.IsConfigurable, isConfigurable);
-                    m.For(em => em.IsEditable, isEditable);
-                    m.For(em => em.IsHidden, isHidden);
-                    //m.For(em => em.ExportFeatures, exportFeature);
-                });
+                var registration = builder
+                    .RegisterType(type)
+                    .Named<IProvider>(systemName)
+                    .Keyed<IProvider>(systemName)
+                    .InstancePerLifetimeScope()
+                    .PropertiesAutowired(PropertyWiringOptions.None)
+                    .WithMetadata<ProviderMetadata>(m =>
+                    {
+                        m.For(em => em.ModuleDescriptor, moduleDescriptor);
+                        m.For(em => em.GroupName, groupName);
+                        m.For(em => em.SystemName, systemName);
+                        m.For(em => em.ImplType, type);
+                        m.For(em => em.ResourceKeyPattern, resPattern);
+                        m.For(em => em.SettingKeyPattern, settingPattern);
+                        m.For(em => em.FriendlyName, friendlyName.Name);
+                        m.For(em => em.Description, friendlyName.Description);
+                        m.For(em => em.DisplayOrder, displayOrder);
+                        m.For(em => em.DependentWidgets, dependentWidgets);
+                        m.For(em => em.IsConfigurable, isConfigurable);
+                        m.For(em => em.IsEditable, isEditable);
+                        m.For(em => em.IsHidden, isHidden);
+                        //m.For(em => em.ExportFeatures, exportFeature);
+                    });
 
                 // Register specific provider type.
                 RegisterAsSpecificProvider<ITaxProvider>(type, systemName, registration);
