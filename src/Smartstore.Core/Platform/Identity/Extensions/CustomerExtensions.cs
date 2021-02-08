@@ -10,24 +10,30 @@ namespace Smartstore
 {
     public static class CustomerExtensions
     {
-        private static readonly string[] _systemColors = new string[] { "primary", "secondary", "success", "info", "warning", "danger", "light", "dark" };
-
         /// <summary>
         /// Gets a value indicating whether customer is in a certain customer role.
         /// </summary>
-        /// <param name="customerRoleSystemName">Customer role system name.</param>
-        /// <param name="onlyActiveCustomerRoles">A value indicating whether we should look only in active customer roles.</param>
-        public static bool IsInCustomerRole(this Customer customer, string customerRoleSystemName, bool onlyActiveCustomerRoles = true)
+        /// <param name="roleSystemName">Customer role system name.</param>
+        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
+        public static bool IsInRole(this Customer customer, string roleSystemName, bool onlyActiveRoles = true)
         {
-            Guard.NotNull(customer, nameof(customer));
-            Guard.NotEmpty(customerRoleSystemName, nameof(customerRoleSystemName));
+            if (customer == null)
+                throw new ArgumentNullException(nameof(customer));
 
-            var result = customer.CustomerRoleMappings
-                .Where(rm => !onlyActiveCustomerRoles || rm.CustomerRole.Active)
-                .Where(rm => rm.CustomerRole.SystemName == customerRoleSystemName)
-                .Any();
+            if (string.IsNullOrEmpty(roleSystemName))
+                throw new ArgumentNullException(nameof(roleSystemName));
 
-            return result;
+            foreach (var mapping in customer.CustomerRoleMappings)
+            {
+                var role = mapping.CustomerRole;
+
+                if (role.SystemName.EqualsNoCase(roleSystemName))
+                {
+                    return !onlyActiveRoles || role.Active;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -40,7 +46,7 @@ namespace Smartstore
             if (!customer.IsSystemAccount || customer.SystemName.IsEmpty())
                 return false;
 
-            return customer.SystemName.Equals(SystemCustomerNames.BackgroundTask, StringComparison.InvariantCultureIgnoreCase); ;
+            return customer.SystemName.Equals(SystemCustomerNames.BackgroundTask, StringComparison.InvariantCultureIgnoreCase);
         }
 
         /// <summary>
@@ -72,51 +78,52 @@ namespace Smartstore
         /// <summary>
         /// Gets a value indicating whether customer is administrator.
         /// </summary>
-        /// <param name="onlyActiveCustomerRoles">A value indicating whether we should look only in active customer roles.</param>
+        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsAdmin(this Customer customer, bool onlyActiveCustomerRoles = true)
+        public static bool IsAdmin(this Customer customer, bool onlyActiveRoles = true)
         {
-            return IsInCustomerRole(customer, SystemCustomerRoleNames.Administrators, onlyActiveCustomerRoles);
+            return IsInRole(customer, SystemCustomerRoleNames.Administrators, onlyActiveRoles);
         }
 
         /// <summary>
         /// Gets a value indicating whether customer is super administrator.
         /// </summary>
-        /// <param name="onlyActiveCustomerRoles">A value indicating whether we should look only in active customer roles.</param>
+        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsSuperAdmin(this Customer customer, bool onlyActiveCustomerRoles = true)
+        public static bool IsSuperAdmin(this Customer customer, bool onlyActiveRoles = true)
         {
-            return IsInCustomerRole(customer, SystemCustomerRoleNames.SuperAdministrators, onlyActiveCustomerRoles);
+            return IsInRole(customer, SystemCustomerRoleNames.SuperAdministrators, onlyActiveRoles);
         }
 
         /// <summary>
         /// Gets a value indicating whether customer is a forum moderator.
         /// </summary>
-        /// <param name="onlyActiveCustomerRoles">A value indicating whether we should look only in active customer roles.</param>
+        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsForumModerator(this Customer customer, bool onlyActiveCustomerRoles = true)
+        public static bool IsForumModerator(this Customer customer, bool onlyActiveRoles = true)
         {
-            return IsInCustomerRole(customer, SystemCustomerRoleNames.ForumModerators, onlyActiveCustomerRoles);
+            // TODO: (core) Move to external "forum" module
+            return IsInRole(customer, SystemCustomerRoleNames.ForumModerators, onlyActiveRoles);
         }
 
         /// <summary>
         /// Gets a value indicating whether customer is registered.
         /// </summary>
-        /// <param name="onlyActiveCustomerRoles">A value indicating whether we should look only in active customer roles.</param>
+        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsRegistered(this Customer customer, bool onlyActiveCustomerRoles = true)
+        public static bool IsRegistered(this Customer customer, bool onlyActiveRoles = true)
         {
-            return IsInCustomerRole(customer, SystemCustomerRoleNames.Registered, onlyActiveCustomerRoles);
+            return IsInRole(customer, SystemCustomerRoleNames.Registered, onlyActiveRoles);
         }
 
         /// <summary>
         /// Gets a value indicating whether customer is guest.
         /// </summary>
-        /// <param name="onlyActiveCustomerRoles">A value indicating whether we should look only in active customer roles.</param>
+        /// <param name="onlyActiveRoles">A value indicating whether we should look only in active customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsGuest(this Customer customer, bool onlyActiveCustomerRoles = true)
+        public static bool IsGuest(this Customer customer, bool onlyActiveRoles = true)
         {
-            return IsInCustomerRole(customer, SystemCustomerRoleNames.Guests, onlyActiveCustomerRoles);
+            return IsInRole(customer, SystemCustomerRoleNames.Guests, onlyActiveRoles);
         }
 
         /// <summary>
