@@ -15,9 +15,10 @@ namespace Smartstore.Core.Content.Menus
         public void Configure(EntityTypeBuilder<MenuItem> builder)
         {
             builder.HasOne(x => x.Menu)
-                .WithMany()
+                .WithMany(x => x.Items)
+                .HasForeignKey(c => c.MenuId)
                 .OnDelete(DeleteBehavior.Cascade);
-                //DeleteBehavior.NoAction TODO: (mh) (core) In classic there was no action on delete. Test!
+            //DeleteBehavior.NoAction TODO: (mh) (core) In classic there was no action on delete. Test!
         }
     }
 
@@ -53,7 +54,6 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// Gets the menu.
         /// </summary>
-        [ForeignKey("MenuId")]
         public virtual Menu Menu {
             get => _lazyLoader?.Load(this, ref _menu) ?? _menu;
             set => _menu = value;
