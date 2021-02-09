@@ -6,7 +6,7 @@ namespace Smartstore.Core.Content.Menus
 {
     public static class MenuExtensions
     {
-        public static IEnumerable<string> GetWidgetZones(this Menu menu)
+        public static IEnumerable<string> GetWidgetZones(this MenuEntity menu)
         {
             Guard.NotNull(menu, nameof(menu));
 

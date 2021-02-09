@@ -6,7 +6,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Menus.Hooks
 {
-    public class MenuItemHook : AsyncDbSaveHook<MenuItem>
+    public class MenuItemHook : AsyncDbSaveHook<MenuItemEntity>
     {
         private readonly ICacheManager _cache;
         
@@ -15,7 +15,7 @@ namespace Smartstore.Core.Content.Menus.Hooks
             _cache = cache;
         }
 
-        protected override Task<HookResult> OnInsertingAsync(MenuItem entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnInsertingAsync(MenuItemEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             // Prevent inconsistent tree structure.
             if (entity.ParentItemId != 0 && entity.ParentItemId == entity.Id)
@@ -26,7 +26,7 @@ namespace Smartstore.Core.Content.Menus.Hooks
             return Task.FromResult(HookResult.Ok);
         }
 
-        protected override Task<HookResult> OnUpdatingAsync(MenuItem entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnUpdatingAsync(MenuItemEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             // Prevent inconsistent tree structure.
             if (entity.ParentItemId != 0 && entity.ParentItemId == entity.Id)

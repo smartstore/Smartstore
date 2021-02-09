@@ -10,9 +10,9 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public class MenuItemMap : IEntityTypeConfiguration<MenuItem>
+    public class MenuItemMap : IEntityTypeConfiguration<MenuItemEntity>
     {
-        public void Configure(EntityTypeBuilder<MenuItem> builder)
+        public void Configure(EntityTypeBuilder<MenuItemEntity> builder)
         {
             builder.HasOne(x => x.Menu)
                 .WithMany(x => x.Items)
@@ -31,15 +31,15 @@ namespace Smartstore.Core.Content.Menus
     [Index(nameof(DisplayOrder), Name = "IX_MenuItem_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_MenuItem_LimitedToStores")]
     [Index(nameof(SubjectToAcl), Name = "IX_MenuItem_SubjectToAcl")]
-    public class MenuItem : BaseEntity, ILocalizedEntity, IStoreRestricted, IAclRestricted
+    public class MenuItemEntity : BaseEntity, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
         private readonly ILazyLoader _lazyLoader;
 
-        public MenuItem()
+        public MenuItemEntity()
         {
         }
 
-        public MenuItem(ILazyLoader lazyLoader)
+        public MenuItemEntity(ILazyLoader lazyLoader)
         {
             _lazyLoader = lazyLoader;
         }
@@ -50,11 +50,11 @@ namespace Smartstore.Core.Content.Menus
         [Required]
         public int MenuId { get; set; }
 
-        private Menu _menu;
+        private MenuEntity _menu;
         /// <summary>
         /// Gets the menu.
         /// </summary>
-        public virtual Menu Menu {
+        public virtual MenuEntity Menu {
             get => _lazyLoader?.Load(this, ref _menu) ?? _menu;
             set => _menu = value;
         }

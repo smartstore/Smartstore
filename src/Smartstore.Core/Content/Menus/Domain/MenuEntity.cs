@@ -20,15 +20,15 @@ namespace Smartstore.Core.Content.Menus
     [Index(nameof(Published), Name = "IX_Menu_Published")]
     [Index(nameof(LimitedToStores), Name = "IX_Menu_LimitedToStores")]
     [Index(nameof(SubjectToAcl), Name = "IX_Menu_SubjectToAcl")]
-    public class Menu : BaseEntity, ILocalizedEntity, IStoreRestricted, IAclRestricted
+    public class MenuEntity : BaseEntity, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
         private readonly ILazyLoader _lazyLoader;
 
-        public Menu()
+        public MenuEntity()
         {
         }
 
-        public Menu(ILazyLoader lazyLoader)
+        public MenuEntity(ILazyLoader lazyLoader)
         {
             _lazyLoader = lazyLoader;
         }
@@ -82,14 +82,14 @@ namespace Smartstore.Core.Content.Menus
         /// </summary>
         public bool SubjectToAcl { get; set; }
 
-        private ICollection<MenuItem> _items;
+        private ICollection<MenuItemEntity> _items;
         /// <summary>
         /// /// Gets or sets the menu items.
         /// </summary>
         [JsonIgnore]
-        public virtual ICollection<MenuItem> Items
+        public virtual ICollection<MenuItemEntity> Items
         {
-            get => _lazyLoader?.Load(this, ref _items) ?? (_items ??= new HashSet<MenuItem>());
+            get => _lazyLoader?.Load(this, ref _items) ?? (_items ??= new HashSet<MenuItemEntity>());
             protected set => _items = value;
         }
     }

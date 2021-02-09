@@ -115,7 +115,7 @@ namespace Smartstore.Core.Content.Menus
             return null;
         }
 
-        public virtual async Task DeleteMenuItemAsync(MenuItem item, bool deleteChilds = true)
+        public virtual async Task DeleteMenuItemAsync(MenuItemEntity item, bool deleteChilds = true)
         {
             if (item == null)
             {
