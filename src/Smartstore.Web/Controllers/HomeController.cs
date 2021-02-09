@@ -51,6 +51,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Microsoft.AspNetCore.Identity;
 using Smartstore.Core.Identity;
 using Microsoft.Extensions.Options;
+using Smartstore.Core.Content.Menus;
 
 namespace Smartstore.Web.Controllers
 {
@@ -89,7 +90,7 @@ namespace Smartstore.Web.Controllers
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly IGiftCardService _giftCardService;
         private readonly UserManager<Customer> _userManager;
-
+        
         public HomeController(
             SmartDbContext db,
             ILogger<HomeController> logger1,
@@ -253,6 +254,14 @@ namespace Smartstore.Web.Controllers
             //testSettings.Prop3 = CommonHelper.GenerateRandomDigitCode(10);
             //var numSaved = await Services.SettingFactory.SaveSettingsAsync(testSettings, 1);
             #endregion
+
+            var menuStorage = Services.Resolve<IMenuStorage>();
+            var userMenuInfos = await menuStorage.GetUserMenuInfosAsync();
+
+            //var menuItems = await _db.MenuItems
+            //    .AsNoTracking()
+            //    .ApplyMenuFilter(6, "")
+            //    .ToListAsync();
 
             //_cancelTokenSource = new CancellationTokenSource();
             //await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
