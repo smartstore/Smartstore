@@ -41,7 +41,7 @@ namespace Smartstore.Core.Identity
 			return query.FirstOrDefaultAsync();
 		}
 
-		public IQueryable<Customer> BuildQuery(CustomerSearchQuery q)
+		public IQueryable<Customer> BuildSearchQuery(CustomerSearchQuery q)
         {
             Guard.NotNull(q, nameof(q));
 

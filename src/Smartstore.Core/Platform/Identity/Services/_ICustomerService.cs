@@ -23,6 +23,6 @@ namespace Smartstore.Core.Identity
         /// Builds a customer query for all criteria specified by given <paramref name="q"/>.
         /// </summary>
         /// <param name="q">The filter query</param>
-        IQueryable<Customer> BuildQuery(CustomerSearchQuery q);
+        IQueryable<Customer> BuildSearchQuery(CustomerSearchQuery q);
     }
 }
