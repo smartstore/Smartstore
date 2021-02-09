@@ -16,9 +16,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
 
-        public ProductTagService(
-            SmartDbContext db,
-            ICacheManager cache)
+        public ProductTagService(SmartDbContext db, ICacheManager cache)
         {
             _db = db;
             _cache = cache;
