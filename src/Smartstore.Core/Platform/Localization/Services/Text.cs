@@ -11,10 +11,22 @@ namespace Smartstore.Core.Localization
             _localizationService = localizationService;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual LocalizedString Get(string key, params object[] args)
         {
-            return GetEx(key, 0, args);
+            // INFO: (perf) Hot path code, don't call GetEx().
+            var value = _localizationService.GetResource(key, 0);
+
+            if (string.IsNullOrEmpty(value))
+            {
+                return new LocalizedString(key);
+            }
+
+            if (args?.Length == 0)
+            {
+                return new LocalizedString(value);
+            }
+
+            return new LocalizedString(value, key, args);
         }
 
         public virtual LocalizedString GetEx(string key, int languageId, params object[] args)
@@ -31,7 +43,8 @@ namespace Smartstore.Core.Localization
                 return new LocalizedString(value);
             }
 
-            return new LocalizedString(string.Format(value, args), key, args);
+            // TODO: (mg) (core) Don't know what went wrong here but formatting is the job of LocalizedString --> HtmlFormattableString.
+            return new LocalizedString(value, key, args);
         }
     }
 }
