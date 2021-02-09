@@ -1,32 +1,9 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Content.Blocks
 {
-    /// <summary>
-    /// Indicates the view mode of a PageBuilder block.
-    /// </summary>
-    public enum StoryViewMode
-    {
-        /// <summary>
-        /// Final rendering result in public frontend.
-        /// </summary>
-        Public,
-        /// <summary>
-        /// Preview mode in backend
-        /// </summary>
-        Preview,
-        /// <summary>
-        /// Visual block editing in backend's story editor.
-        /// </summary>
-        GridEdit,
-        /// <summary>
-        /// Property dialog in backend.
-        /// </summary>
-        Edit
-    }
-
     public interface IBlockHtmlParts
     {
         void AddCssClass(string value);
@@ -52,7 +29,7 @@ namespace Smartstore.Core.Content.Blocks
         /// <param name="element">The block element to render.</param>
         /// <param name="templates">A list of template names. The first valid template will be used for rendering.</param>
         /// <param name="htmlHeper">Html helper instance.</param>
-        void Render(IBlockContainer element, IEnumerable<string> templates, HtmlHelper htmlHeper);
+        void Render(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHeper);
 
         /// <summary>
         /// Called after the entity has been saved to the database to perform operations which require an entity id (e.g. localization stuff).
@@ -78,7 +55,7 @@ namespace Smartstore.Core.Content.Blocks
         /// <param name="element">The block element to render.</param>
         /// <param name="templates">A list of valid template names. The first valid template will be used for rendering.</param>
         /// <param name="htmlHeper">Html helper instance.</param>
-        IHtmlContent ToHtmlContent(IBlockContainer element, IEnumerable<string> templates, HtmlHelper htmlHelper);
+        IHtmlContent ToHtmlContent(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper);
     }
 
     /// <summary>
