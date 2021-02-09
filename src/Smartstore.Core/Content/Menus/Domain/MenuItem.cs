@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -53,8 +54,9 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// Gets the menu.
         /// </summary>
+        [JsonIgnore]
         [ForeignKey("MenuId")]
-        public virtual Menu Menu {
+        public Menu Menu {
             get => _lazyLoader?.Load(this, ref _menu) ?? _menu;
             set => _menu = value;
         }
