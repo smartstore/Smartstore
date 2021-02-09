@@ -14,27 +14,10 @@ namespace Smartstore.Core.Messages.Events
 {
     public class CreateAttachmentsConsumer : IConsumer
     {
-        private readonly PdfSettings _pdfSettings;
-        private readonly Lazy<DownloadManager> _downloadManager;
-        private readonly Lazy<IUrlHelper> _urlHelper;
+        public ILogger Logger { get; set; } = NullLogger.Instance;
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public CreateAttachmentsConsumer(
-            PdfSettings pdfSettings,
-            Lazy<DownloadManager> downloadManager,
-            Lazy<IUrlHelper> urlHelper)
-        {
-            _pdfSettings = pdfSettings;
-            _downloadManager = downloadManager;
-            _urlHelper = urlHelper;
-
-            Logger = NullLogger.Instance;
-            T = NullLocalizer.Instance;
-        }
-
-        public ILogger Logger { get; set; }
-        public Localizer T { get; set; }
-
-        public async Task HandleEventAsync(MessageQueuingEvent message)
+        public async Task HandleEventAsync(MessageQueuingEvent message, PdfSettings pdfSettings, IUrlHelper urlHelper)
         {
             var qe = message.QueuedEmail;
             var ctx = message.MessageContext;
@@ -42,8 +25,8 @@ namespace Smartstore.Core.Messages.Events
 
             var handledTemplates = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
             {
-                { "OrderPlaced.CustomerNotification", _pdfSettings.AttachOrderPdfToOrderPlacedEmail },
-                { "OrderCompleted.CustomerNotification", _pdfSettings.AttachOrderPdfToOrderCompletedEmail }
+                { "OrderPlaced.CustomerNotification", pdfSettings.AttachOrderPdfToOrderPlacedEmail },
+                { "OrderCompleted.CustomerNotification", pdfSettings.AttachOrderPdfToOrderCompletedEmail }
             };
 
             if (handledTemplates.TryGetValue(ctx.MessageTemplate.Name, out var shouldHandle) && shouldHandle)
@@ -52,7 +35,7 @@ namespace Smartstore.Core.Messages.Events
                 {
                     try
                     {
-                        var qea = await CreatePdfInvoiceAttachmentAsync(orderId);
+                        var qea = await CreatePdfInvoiceAttachmentAsync(orderId, urlHelper);
                         qe.Attachments.Add(qea);
                     }
                     catch (Exception ex)
@@ -63,10 +46,12 @@ namespace Smartstore.Core.Messages.Events
             }
         }
 
-        private async Task<QueuedEmailAttachment> CreatePdfInvoiceAttachmentAsync(int orderId)
+        private async Task<QueuedEmailAttachment> CreatePdfInvoiceAttachmentAsync(int orderId, IUrlHelper urlHelper)
         {
-            var path = _urlHelper.Value.Action("Print", "Order", new { id = orderId, pdf = true, area = "" });
-            var fileResponse = await _downloadManager.Value.DownloadFileAsync(path, true, 5000);
+            // TODO: (mh) (core) Ensure that this path is correct after all routes has been ported.
+            var path = urlHelper.Action("Print", "Order", new { id = orderId, pdf = true, area = "" });
+            var downloadManager = new DownloadManager(urlHelper.ActionContext.HttpContext.Request);
+            var fileResponse = await downloadManager.DownloadFileAsync(path, true, 5000);
 
             if (fileResponse == null)
             {
