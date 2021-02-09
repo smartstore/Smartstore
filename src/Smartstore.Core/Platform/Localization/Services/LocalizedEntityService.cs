@@ -68,6 +68,9 @@ namespace Smartstore.Core.Localization
 
         #region Hook
 
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
         public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
             var tasks = entries

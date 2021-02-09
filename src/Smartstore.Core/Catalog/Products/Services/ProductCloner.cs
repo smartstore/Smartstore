@@ -16,6 +16,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Diagnostics;
+using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -58,13 +59,25 @@ namespace Smartstore.Core.Catalog.Products
             Guard.NotNull(product, nameof(product));
             Guard.NotEmpty(cloneName, nameof(cloneName));
 
+            var localizedKeySelectors = new List<Expression<Func<Product, string>>>
+            {
+                x => x.Name,
+                x => x.ShortDescription,
+                x => x.FullDescription,
+                x => x.MetaKeywords,
+                x => x.MetaDescription,
+                x => x.MetaTitle,
+                x => x.BundleTitleText
+            };
+
             var clone = new Product();
             var utcNow = DateTime.UtcNow;
             var languages = await _languageService.GetAllLanguagesAsync(true);
             int? sampleDownloadId = null;
 
-            using (_chronometer.Step("Copy product " + product.Id))
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, hooksEnabled: false, deferCommit: true, forceNoTracking: true))
+            // Enable hooks for slugs cache invalidation.
+            using (_chronometer.Step("Clone product " + product.Id))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, hooksEnabled: true, deferCommit: true, forceNoTracking: true))
             {
                 if (product.HasSampleDownload && product.SampleDownload != null)
                 {
@@ -167,14 +180,14 @@ namespace Smartstore.Core.Catalog.Products
 
                 await ProcessSlugs(product, clone, languages);
 
-                await ProcessLocalization(product, clone, languages);
-
-                await ProcessBundleItems(product, clone);
+                await ProcessLocalizations(product, clone, localizedKeySelectors, languages);
 
                 await ProcessDownloads(product, clone);
 
                 // >>>>>>> Put to db.
-                await scope.CommitAsync();                
+                await scope.CommitAsync();
+
+                await ProcessBundleItems(scope, product, clone, languages);
 
                 // Attributes and attribute combinations.
                 await ProcessAttributes(scope, product, clone, languages);
@@ -250,32 +263,6 @@ namespace Smartstore.Core.Catalog.Products
             }));
         }
 
-        private async Task ProcessLocalization(Product product, Product clone, IEnumerable<Language> languages)
-        {
-            var keySelectors = new List<Expression<Func<Product, string>>>
-            {
-                x => x.Name,
-                x => x.ShortDescription,
-                x => x.FullDescription,
-                x => x.MetaKeywords,
-                x => x.MetaDescription,
-                x => x.MetaTitle,
-                x => x.BundleTitleText
-            };
-
-            foreach (var lang in languages)
-            {
-                foreach (var keySelector in keySelectors)
-                {
-                    string value = product.GetLocalized(keySelector, lang, false, false);
-                    if (value.HasValue())
-                    {
-                        await _localizedEntityService.ApplyLocalizedValueAsync(clone, keySelector, value, lang.Id);
-                    }                    
-                }
-            }
-        }
-
         private async Task ProcessAttributes(DbContextScope scope, Product product, Product clone, IEnumerable<Language> languages)
         {
             await _db.LoadCollectionAsync(product, x => x.ProductVariantAttributes);
@@ -285,11 +272,13 @@ namespace Smartstore.Core.Catalog.Products
             var attributeMap = new Dictionary<int, ProductVariantAttribute>();
             // Former attribute value id > clone.
             var valueMap = new Dictionary<int, ProductVariantAttributeValue>();
+            var newCombinations = new List<ProductVariantAttributeCombination>();
 
             // Product attributes.
             foreach (var pva in product.ProductVariantAttributes)
             {
-                var attributeClone = new ProductVariantAttribute
+                // Save associated value (used for combinations copying).
+                attributeMap[pva.Id] = new ProductVariantAttribute
                 {
                     ProductId = clone.Id,
                     ProductAttributeId = pva.ProductAttributeId,
@@ -298,12 +287,10 @@ namespace Smartstore.Core.Catalog.Products
                     AttributeControlTypeId = pva.AttributeControlTypeId,
                     DisplayOrder = pva.DisplayOrder
                 };
-
-                _db.ProductVariantAttributes.Add(attributeClone);
-
-                // Save associated value (used for combinations copying).
-                attributeMap[pva.Id] = attributeClone;
             }
+
+            // Reverse tracking order to have the clones in the same order in the database as the originals.
+            _db.ProductVariantAttributes.AddRange(attributeMap.Select(x => x.Value).Reverse());
 
             // >>>>>> Commit attributes.
             await scope.CommitAsync();
@@ -312,9 +299,11 @@ namespace Smartstore.Core.Catalog.Products
             foreach (var attribute in product.ProductVariantAttributes)
             {
                 var attributeClone = attributeMap[attribute.Id];
+
                 foreach (var value in attribute.ProductVariantAttributeValues)
                 {
-                    var pvavClone = new ProductVariantAttributeValue
+                    // Save associated value (used for combinations copying).
+                    valueMap.Add(value.Id, new ProductVariantAttributeValue
                     {
                         ProductVariantAttributeId = attributeClone.Id,
                         Name = value.Name,
@@ -327,20 +316,23 @@ namespace Smartstore.Core.Catalog.Products
                         LinkedProductId = value.LinkedProductId,
                         Quantity = value.Quantity,
                         MediaFileId = value.MediaFileId
-                    };
-
-                    _db.ProductVariantAttributeValues.Add(pvavClone);
-
-                    // Save associated value (used for combinations copying).
-                    valueMap.Add(value.Id, pvavClone);
+                    });
                 }
             }
+
+            // Reverse tracking order to have the clones in the same order in the database as the originals.
+            _db.ProductVariantAttributeValues.AddRange(valueMap.Select(x => x.Value).Reverse());
 
             // >>>>>> Commit attribute values.
             await scope.CommitAsync();
 
             // Attribute value localization.
-            foreach (var value in product.ProductVariantAttributes.SelectMany(x => x.ProductVariantAttributeValues).ToArray())
+            var allValues = product.ProductVariantAttributes
+                .Reverse()
+                .SelectMany(x => x.ProductVariantAttributeValues.Reverse())
+                .ToArray();
+
+            foreach (var value in allValues)
             {
                 foreach (var lang in languages)
                 {
@@ -392,7 +384,7 @@ namespace Smartstore.Core.Catalog.Products
                     }
                 }
 
-                var combinationClone = new ProductVariantAttributeCombination
+                newCombinations.Add(new ProductVariantAttributeCombination
                 {
                     ProductId = clone.Id,
                     RawAttributes = newSelection.AsJson(),
@@ -412,40 +404,68 @@ namespace Smartstore.Core.Catalog.Products
                     QuantityUnitId = combination.QuantityUnitId,
                     IsActive = combination.IsActive
                     //IsDefaultCombination = combination.IsDefaultCombination
-                };
-
-                _db.ProductVariantAttributeCombinations.Add(combinationClone);
+                });
             }
+
+            // Reverse tracking order to have the clones in the same order in the database as the originals.
+            _db.ProductVariantAttributeCombinations.AddRange(newCombinations.AsEnumerable().Reverse());
 
             // >>>>>> Commit combinations.
             await scope.CommitAsync();
         }
 
-        private async Task ProcessBundleItems(Product product, Product clone)
+        private async Task ProcessBundleItems(DbContextScope scope, Product product, Product clone, IEnumerable<Language> languages)
         {
+            var localizedKeySelectors = new List<Expression<Func<ProductBundleItem, string>>>
+            {
+                x => x.Name,
+                x => x.ShortDescription
+            };
+
             var bundledItems = await _db.ProductBundleItem
                 .AsNoTracking()
                 .Include(x => x.AttributeFilters)
                 .ApplyBundledProductsFilter(new[] { product.Id }, true)
                 .ToListAsync();
 
-            foreach (var bundleItem in bundledItems)
+            if (!bundledItems.Any())
             {
-                var newBundleItem = bundleItem.Clone();
+                return;
+            }
+
+            var itemMap = new Dictionary<int, ProductBundleItem>();
+
+            foreach (var bundledItem in bundledItems)
+            {
+                var newBundleItem = bundledItem.Clone();
                 newBundleItem.BundleProductId = clone.Id;
+                itemMap[bundledItem.Id] = newBundleItem;
+            }
 
-                _db.ProductBundleItem.Add(newBundleItem);
+            _db.ProductBundleItem.AddRange(itemMap.Select(x => x.Value).Reverse());
+            await scope.CommitAsync();
 
-                foreach (var itemFilter in bundleItem.AttributeFilters)
+            foreach (var bundledItem in bundledItems)
+            {
+                if (!itemMap.TryGetValue(bundledItem.Id, out var newBundleItem))
+                {
+                    continue;
+                }
+
+                foreach (var itemFilter in bundledItem.AttributeFilters)
                 {
                     var newItemFilter = itemFilter.Clone();
                     newItemFilter.BundleItemId = newBundleItem.Id;
 
                     _db.ProductBundleItemAttributeFilter.Add(newItemFilter);
                 }
+
+                await ProcessLocalizations(bundledItem, newBundleItem, localizedKeySelectors, languages);
             }
+
+            await scope.CommitAsync();
         }
-        
+
         private async Task ProcessDownloads(Product product, Product clone)
         {
             var downloads = await _db.Downloads
@@ -473,6 +493,26 @@ namespace Smartstore.Core.Catalog.Products
             {
                 var associatedProductClone = await CloneProductAsync(associatedProduct, T("Admin.Common.CopyOf", associatedProduct.Name), isPublished, false);
                 associatedProductClone.ParentGroupedProductId = clone.Id;
+            }
+        }
+
+        private async Task ProcessLocalizations<T>(
+            T source,
+            T target,
+            List<Expression<Func<T, string>>> keySelectors,
+            IEnumerable<Language> languages)
+            where T : BaseEntity, ILocalizedEntity
+        {
+            foreach (var lang in languages)
+            {
+                foreach (var keySelector in keySelectors)
+                {
+                    string value = source.GetLocalized(keySelector, lang, false, false);
+                    if (value.HasValue())
+                    {
+                        await _localizedEntityService.ApplyLocalizedValueAsync(target, keySelector, value, lang.Id);
+                    }
+                }
             }
         }
     }

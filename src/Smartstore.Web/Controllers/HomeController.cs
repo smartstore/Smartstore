@@ -691,74 +691,48 @@ namespace Smartstore.Web.Controllers
             return Content($"Slug matched >>> Entity: {e.EntityName} {e.EntityId}, Id: {e.Id}, Language: {e.LanguageId}, Slug: {e.Slug}, IsActive: {e.IsActive}");
         }
 
-        public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*/ProductVariantQuery query)
+        public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*//*ProductVariantQuery query*/)
         {
             var content = new StringBuilder();
 
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            //var product = await _db.Products.FindByIdAsync(4366);
-            //content.AppendLine($"Number of applied discounts {product.AppliedDiscounts.Count}. Ids {string.Join(", ", product.AppliedDiscounts.Select(x => x.Id))}. Has discounts applied {product.HasDiscountsApplied}.");
+            var productCloner = Services.Resolve<IProductCloner>();
+            var product = await _db.Products.FindByIdAsync(4258);
+            var clone = await productCloner.CloneProductAsync(product, "Kopie von Testprodukt", true);
 
-            //var product2 = await _db.Products.FindByIdAsync(1751);
-            //var pcs = Services.Resolve<IPriceCalculationService>();
-            //var price = await pcs.GetFinalPriceAsync(product2);
-            //content.AppendLine();
-            //content.AppendLine("Price for 1751: " + price.ToString());
+            //await _db.LoadCollectionAsync(product, x => x.ProductVariantAttributes);
+            //await _db.LoadCollectionAsync(product, x => x.ProductVariantAttributeCombinations);
 
-            //var qs = new MutableQueryCollection(Request.QueryString);
-            //content.AppendLine();
-            //content.AppendLine(qs.ToString());
-            //qs.Add("i", "3");
-            //content.AppendLine(qs.ToString());
-
-            //var searchService = Services.Resolve<ICatalogSearchService>();
-            //var sw = Stopwatch.StartNew();
-            //var searchResult = await searchService.SearchAsync(query.BuildFacetMap(true), true);
-            //var hits = await searchResult.GetHitsAsync();
-            //sw.Stop();
-
-            //content.AppendLine();
-            //content.AppendLine("Search query: " + query.ToString());
-            //content.AppendLine("Search time: " + sw.ElapsedMilliseconds + "ms");
-            //content.AppendLine("Search hits: " + searchResult.TotalHitsCount);
-            //foreach (var hit in hits)
+            //foreach (var pva in product.ProductVariantAttributes)
             //{
-            //    content.AppendLine($"{hit.Id} {hit.Name} ({hit.Sku.NaIfEmpty()})");
+            //    $"{pva.Id}".Dump();
             //}
 
+
+            //var urlService = Services.Resolve<IUrlService>();
+            //var urlHelper = Services.Resolve<ProductUrlHelper>();
+            //var languageService = Services.Resolve<ILanguageService>();
+            //var pcs = Services.Resolve<IPriceCalculationService>();
+            //var allLanguages = await languageService.GetAllLanguagesAsync();
+            //var enLanguage = allLanguages.FirstOrDefault(x => x.UniqueSeoCode.EqualsNoCase("en"));
+            //var product = await _db.Products.FindByIdAsync(1751);
+
             //var context = pcs.CreatePriceCalculationContext();
-            //var attributes = await context.Attributes.GetOrLoadAsync(1751);
-
+            //var attributes = await context.Attributes.GetOrLoadAsync(product.Id);
             //var attributeMaterializer = Services.Resolve<IProductAttributeMaterializer>();
-            //var (selection, warnings) = await attributeMaterializer.CreateAttributeSelectionAsync(query, attributes, 1751, 0);
+            //var (selection, warnings) = await attributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, 0);
+            //var slug = await product.GetActiveSlugAsync();
+
             //content.AppendLine();
-            //content.AppendLine("Variants JSON:" + selection.AsJson());
-            //content.AppendLine("Variants XML:" + selection.AsXml());
+            //content.AppendLine("Relative URL: " + urlHelper.GetProductUrl(slug, query));
+            ////content.AppendLine("Relative URL: " + await urlHelper.GetProductUrlAsync(product.Id, slug, selection));
+            //content.AppendLine("Absolute URL: " + await urlHelper.GetAbsoluteProductUrlAsync(product.Id, slug, selection));
 
-            var urlService = Services.Resolve<IUrlService>();
-            var urlHelper = Services.Resolve<ProductUrlHelper>();
-            var languageService = Services.Resolve<ILanguageService>();
-            var pcs = Services.Resolve<IPriceCalculationService>();
-            var allLanguages = await languageService.GetAllLanguagesAsync();
-            var enLanguage = allLanguages.FirstOrDefault(x => x.UniqueSeoCode.EqualsNoCase("en"));
-            var product = await _db.Products.FindByIdAsync(1751);
-
-            var context = pcs.CreatePriceCalculationContext();
-            var attributes = await context.Attributes.GetOrLoadAsync(product.Id);
-            var attributeMaterializer = Services.Resolve<IProductAttributeMaterializer>();
-            var (selection, warnings) = await attributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, 0);
-            var slug = await product.GetActiveSlugAsync();
-
-            content.AppendLine();
-            content.AppendLine("Relative URL: " + urlHelper.GetProductUrl(slug, query));
-            //content.AppendLine("Relative URL: " + await urlHelper.GetProductUrlAsync(product.Id, slug, selection));
-            content.AppendLine("Absolute URL: " + await urlHelper.GetAbsoluteProductUrlAsync(product.Id, slug, selection));
-
-            content.AppendLine();
-            content.AppendLine($"Relative URL {enLanguage.UniqueSeoCode}: " + urlHelper.GetProductUrl(slug, query));
-            //content.AppendLine($"Relative URL {enLanguage.UniqueSeoCode}: " + await urlHelper.GetProductUrlAsync(product.Id, slug, selection));
-            content.AppendLine($"Absolute URL {enLanguage.UniqueSeoCode}: " + await urlHelper.GetAbsoluteProductUrlAsync(product.Id, slug, selection, language: enLanguage));
+            //content.AppendLine();
+            //content.AppendLine($"Relative URL {enLanguage.UniqueSeoCode}: " + urlHelper.GetProductUrl(slug, query));
+            ////content.AppendLine($"Relative URL {enLanguage.UniqueSeoCode}: " + await urlHelper.GetProductUrlAsync(product.Id, slug, selection));
+            //content.AppendLine($"Absolute URL {enLanguage.UniqueSeoCode}: " + await urlHelper.GetAbsoluteProductUrlAsync(product.Id, slug, selection, language: enLanguage));
 
             return Content(content.ToString());
         }

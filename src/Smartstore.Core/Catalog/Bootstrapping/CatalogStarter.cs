@@ -41,6 +41,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<StockSubscriptionService>().As<IStockSubscriptionService>().InstancePerLifetimeScope();
             builder.RegisterType<RecentlyViewedProductsService>().As<IRecentlyViewedProductsService>().InstancePerLifetimeScope();
             builder.RegisterType<ProductCompareService>().As<IProductCompareService>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductCloner>().As<IProductCloner>().InstancePerLifetimeScope();
             builder.RegisterType<ProductVariantQueryFactory>().As<IProductVariantQueryFactory>().InstancePerLifetimeScope();
             builder.RegisterType<ProductUrlHelper>().InstancePerLifetimeScope();
 
