@@ -8,7 +8,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Menus.Hooks
 {
-    public class MenuHook : AsyncDbSaveHook<Menu>
+    public class MenuHook : AsyncDbSaveHook<MenuEntity>
     {
         private readonly SmartDbContext _db;
         private readonly IMenuStorage _menuStorage;
@@ -23,14 +23,14 @@ namespace Smartstore.Core.Content.Menus.Hooks
             _cache = cache;
         }
 
-        protected override Task<HookResult> OnInsertingAsync(Menu entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnInsertingAsync(MenuEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             // Ensure valid system name.
             entity.SystemName = entity.SystemName.ToValidPath();
             return Task.FromResult(HookResult.Ok);
         }
 
-        protected override Task<HookResult> OnUpdatingAsync(Menu entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnUpdatingAsync(MenuEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             // Ensure valid system name.
             entity.SystemName = entity.SystemName.ToValidPath();
@@ -57,7 +57,7 @@ namespace Smartstore.Core.Content.Menus.Hooks
             return Task.FromResult(HookResult.Ok);
         }
 
-        protected override Task<HookResult> OnInsertedAsync(Menu entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnInsertedAsync(MenuEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             if (entity.Published)
             {
@@ -66,7 +66,7 @@ namespace Smartstore.Core.Content.Menus.Hooks
             return Task.FromResult(HookResult.Ok);
         }
 
-        protected override Task<HookResult> OnDeletedAsync(Menu entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnDeletedAsync(MenuEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             _toRemove.Add(entity.SystemName);
             return Task.FromResult(HookResult.Ok);

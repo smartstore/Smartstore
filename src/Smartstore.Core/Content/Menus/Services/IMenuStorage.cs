@@ -18,7 +18,7 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// Checks whether the menu exists.
         /// </summary>
-        /// <param name="systemName">Menu system name <see cref="Menu.SystemName"/>.</param>
+        /// <param name="systemName">Menu system name <see cref="MenuEntity.SystemName"/>.</param>
         /// <returns><c>true</c> the menu exists, <c>false</c> the menu doesn't exist.</returns>
         Task<bool> MenuExistsAsync(string systemName);
 
@@ -33,6 +33,6 @@ namespace Smartstore.Core.Content.Menus
         /// </summary>
         /// <param name="item">Menu item entity.</param>
         /// <param name="deleteChilds">Specifies whether to delete all child items too.</param>
-        Task DeleteMenuItemAsync(MenuItem item, bool deleteChilds = true);
+        Task DeleteMenuItemAsync(MenuItemEntity item, bool deleteChilds = true);
     }
 }

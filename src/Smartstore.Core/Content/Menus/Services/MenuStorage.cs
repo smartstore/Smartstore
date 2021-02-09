@@ -52,6 +52,7 @@ namespace Smartstore.Core.Content.Menus
             var userMenusInfo = await _cache.GetAsync(cacheKey, async () =>
             {
                 var query = _db.Menus
+                    .Where(x => x.IsSystemMenu == false)
                     .ApplyStoreFilter(storeId)
                     .ApplyAclFilter(roleIds.ToArray())
                     .ApplyStandardFilter(false, true, true)
@@ -115,7 +116,7 @@ namespace Smartstore.Core.Content.Menus
             return null;
         }
 
-        public virtual async Task DeleteMenuItemAsync(MenuItem item, bool deleteChilds = true)
+        public virtual async Task DeleteMenuItemAsync(MenuItemEntity item, bool deleteChilds = true)
         {
             if (item == null)
             {

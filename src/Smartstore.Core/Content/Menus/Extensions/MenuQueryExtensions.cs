@@ -9,12 +9,12 @@ namespace Smartstore.Core.Content.Menus
     public static partial class MenuQueryExtensions
     {
         /// <summary>
-        /// Applies standard filter and optionally sorts by <see cref="Menu.DisplayOrder"/>, then by <see cref="Menu.SystemName"/>, then by <see cref="Menu.Title"/>.
+        /// Applies standard filter and optionally sorts by <see cref="MenuEntity.DisplayOrder"/>, then by <see cref="MenuEntity.SystemName"/>, then by <see cref="MenuEntity.Title"/>.
         /// </summary>
-        /// <param name="includeHidden">Applies filter by <see cref="Menu.Published"/>.</param>
-        /// <param name="groupBy">Groups by <see cref="Menu.Id"/> and applies filter to first result.</param>
-        /// <param name="sort">Sorts by <see cref="Menu.DisplayOrder"/>, then by <see cref="Menu.SystemName"/>, then by <see cref="Menu.Title"/>.</param>
-        public static IQueryable<Menu> ApplyStandardFilter(this IQueryable<Menu> query,
+        /// <param name="includeHidden">Applies filter by <see cref="MenuEntity.Published"/>.</param>
+        /// <param name="groupBy">Groups by <see cref="MenuEntity.Id"/> and applies filter to first result.</param>
+        /// <param name="sort">Sorts by <see cref="MenuEntity.DisplayOrder"/>, then by <see cref="MenuEntity.SystemName"/>, then by <see cref="MenuEntity.Title"/>.</param>
+        public static IQueryable<MenuEntity> ApplyStandardFilter(this IQueryable<MenuEntity> query,
             bool includeHidden,
             bool groupBy = true,
             bool sort = true)
@@ -25,11 +25,14 @@ namespace Smartstore.Core.Content.Menus
 
             if (groupBy)
             {
-                query =
-                    from x in query
-                    group x by x.Id into grp
-                    orderby grp.Key
-                    select grp.FirstOrDefault();
+                // TODO: (mh) (core) Grouping does not work with efcore5 anymore. Use distinct()?
+                query = query.Distinct();
+
+                //query =
+                //    from x in query
+                //    group x by x.Id into grp
+                //    orderby grp.Key
+                //    select grp.FirstOrDefault();
             }
 
             if (sort)
@@ -44,14 +47,14 @@ namespace Smartstore.Core.Content.Menus
         }
 
         /// <summary>
-        /// Applies filter by <see cref="Menu.Id"/> or <see cref="Menu.SystemName"/> and orders by <see cref="MenuItem.ParentItemId"/>, then by <see cref="MenuItem.DisplayOrder"/>.
+        /// Applies filter by <see cref="MenuEntity.Id"/> or <see cref="MenuEntity.SystemName"/> and orders by <see cref="MenuItemEntity.ParentItemId"/>, then by <see cref="MenuItemEntity.DisplayOrder"/>.
         /// </summary>
-        /// <param name="menuId">Applies filter by <see cref="Menu.Id"/>.</param>
-        /// <param name="systemName">Applies filter by <see cref="Menu.SystemName"/>.</param>
+        /// <param name="menuId">Applies filter by <see cref="MenuEntity.Id"/>.</param>
+        /// <param name="systemName">Applies filter by <see cref="MenuEntity.SystemName"/>.</param>
         /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
-        /// <param name="includeHidden">Applies filter by <see cref="MenuItem.Published"/>.</param>
+        /// <param name="includeHidden">Applies filter by <see cref="MenuItemEntity.Published"/>.</param>
         /// <param name="customerRolesIds">Customer roles identifiers to apply filter by ACL restriction.</param>
-        public static IQueryable<MenuItem> ApplyMenuFilter(this IQueryable<MenuItem> query,
+        public static IQueryable<MenuItemEntity> ApplyMenuFilter(this IQueryable<MenuItemEntity> query,
             int menuId,
             string systemName,
             int storeId = 0,
@@ -102,11 +105,14 @@ namespace Smartstore.Core.Content.Menus
 
             if (applied)
             {
-                query =
-                    from x in query
-                    group x by x.Id into grp
-                    orderby grp.Key
-                    select grp.FirstOrDefault();
+                // TODO: (mh) (core) Grouping does not work with efcore5 anymore. Use distinct()?
+                query = query.Distinct();
+
+                //query =
+                //    from x in query
+                //    group x by x.Id into grp
+                //    orderby grp.Key
+                //    select grp.FirstOrDefault();
             }
 
             return query;

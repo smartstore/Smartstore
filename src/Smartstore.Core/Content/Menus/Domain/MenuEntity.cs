@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -13,16 +12,6 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public class MenuMap : IEntityTypeConfiguration<Menu>
-    {
-        public void Configure(EntityTypeBuilder<Menu> builder)
-        {
-            builder.HasMany(x => x.Items)
-                .WithOne()
-                .OnDelete(DeleteBehavior.NoAction);
-        }
-    }
-
     /// <summary>
     /// Represents a menu.
     /// </summary>
@@ -31,15 +20,15 @@ namespace Smartstore.Core.Content.Menus
     [Index(nameof(Published), Name = "IX_Menu_Published")]
     [Index(nameof(LimitedToStores), Name = "IX_Menu_LimitedToStores")]
     [Index(nameof(SubjectToAcl), Name = "IX_Menu_SubjectToAcl")]
-    public class Menu : BaseEntity, ILocalizedEntity, IStoreRestricted, IAclRestricted
+    public class MenuEntity : BaseEntity, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
         private readonly ILazyLoader _lazyLoader;
 
-        public Menu()
+        public MenuEntity()
         {
         }
 
-        public Menu(ILazyLoader lazyLoader)
+        public MenuEntity(ILazyLoader lazyLoader)
         {
             _lazyLoader = lazyLoader;
         }
@@ -93,13 +82,14 @@ namespace Smartstore.Core.Content.Menus
         /// </summary>
         public bool SubjectToAcl { get; set; }
 
-        private ICollection<MenuItem> _items;
+        private ICollection<MenuItemEntity> _items;
         /// <summary>
         /// /// Gets or sets the menu items.
         /// </summary>
-        public ICollection<MenuItem> Items
+        [JsonIgnore]
+        public virtual ICollection<MenuItemEntity> Items
         {
-            get => _lazyLoader?.Load(this, ref _items) ?? (_items ??= new HashSet<MenuItem>());
+            get => _lazyLoader?.Load(this, ref _items) ?? (_items ??= new HashSet<MenuItemEntity>());
             protected set => _items = value;
         }
     }

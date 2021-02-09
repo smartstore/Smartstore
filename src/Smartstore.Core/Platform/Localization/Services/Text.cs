@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Smartstore.Core.Localization
 {
@@ -27,12 +26,12 @@ namespace Smartstore.Core.Localization
                 return new LocalizedString(key);
             }
 
-            if (args.Length == 0)
+            if (args?.Length == 0)
             {
                 return new LocalizedString(value);
             }
 
-            return new LocalizedString(value, key, args);
+            return new LocalizedString(string.Format(value, args), key, args);
         }
     }
 }

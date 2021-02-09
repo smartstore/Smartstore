@@ -85,7 +85,8 @@ namespace Smartstore.Core.Catalog.Attributes
                     .AsNoTracking()
                     .Include(x => x.ProductAttribute)
                     .Include(x => x.ProductVariantAttributeValues)
-                    .Where(x => ids.Contains(x.Id));
+                    .Where(x => ids.Contains(x.Id))
+                    .OrderBy(x => x.DisplayOrder);
 
                 var attributes = await query.ToListAsync();
 
