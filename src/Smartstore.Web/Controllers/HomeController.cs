@@ -698,16 +698,8 @@ namespace Smartstore.Web.Controllers
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
             var productCloner = Services.Resolve<IProductCloner>();
-            var product = await _db.Products.FindByIdAsync(4258);
+            var product = await _db.Products.FindByIdAsync(1751);
             var clone = await productCloner.CloneProductAsync(product, "Kopie von Testprodukt", true);
-
-            //await _db.LoadCollectionAsync(product, x => x.ProductVariantAttributes);
-            //await _db.LoadCollectionAsync(product, x => x.ProductVariantAttributeCombinations);
-
-            //foreach (var pva in product.ProductVariantAttributes)
-            //{
-            //    $"{pva.Id}".Dump();
-            //}
 
 
             //var urlService = Services.Resolve<IUrlService>();

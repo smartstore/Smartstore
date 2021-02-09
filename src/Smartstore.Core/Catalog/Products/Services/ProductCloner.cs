@@ -265,6 +265,12 @@ namespace Smartstore.Core.Catalog.Products
 
         private async Task ProcessAttributes(DbContextScope scope, Product product, Product clone, IEnumerable<Language> languages)
         {
+            var localizedKeySelectors = new List<Expression<Func<ProductVariantAttributeValue, string>>>
+            {
+                x => x.Name,
+                x => x.Alias
+            };
+
             await _db.LoadCollectionAsync(product, x => x.ProductVariantAttributes);
             await _db.LoadCollectionAsync(product, x => x.ProductVariantAttributeCombinations);
 
@@ -275,17 +281,17 @@ namespace Smartstore.Core.Catalog.Products
             var newCombinations = new List<ProductVariantAttributeCombination>();
 
             // Product attributes.
-            foreach (var pva in product.ProductVariantAttributes)
+            foreach (var attribute in product.ProductVariantAttributes)
             {
                 // Save associated value (used for combinations copying).
-                attributeMap[pva.Id] = new ProductVariantAttribute
+                attributeMap[attribute.Id] = new ProductVariantAttribute
                 {
                     ProductId = clone.Id,
-                    ProductAttributeId = pva.ProductAttributeId,
-                    TextPrompt = pva.TextPrompt,
-                    IsRequired = pva.IsRequired,
-                    AttributeControlTypeId = pva.AttributeControlTypeId,
-                    DisplayOrder = pva.DisplayOrder
+                    ProductAttributeId = attribute.ProductAttributeId,
+                    TextPrompt = attribute.TextPrompt,
+                    IsRequired = attribute.IsRequired,
+                    AttributeControlTypeId = attribute.AttributeControlTypeId,
+                    DisplayOrder = attribute.DisplayOrder
                 };
             }
 
@@ -334,17 +340,9 @@ namespace Smartstore.Core.Catalog.Products
 
             foreach (var value in allValues)
             {
-                foreach (var lang in languages)
+                if (valueMap.TryGetValue(value.Id, out var newValue))
                 {
-                    string name = value.GetLocalized(x => x.Name, lang, false, false);
-                    if (name.HasValue())
-                    {
-                        var pvavClone = valueMap.Get(value.Id);
-                        if (pvavClone != null)
-                        {
-                            await _localizedEntityService.ApplyLocalizedValueAsync(pvavClone, x => x.Name, name, lang.Id);
-                        }
-                    }
+                    await ProcessLocalizations(value, newValue, localizedKeySelectors, languages);
                 }
             }
 
@@ -496,11 +494,7 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        private async Task ProcessLocalizations<T>(
-            T source,
-            T target,
-            List<Expression<Func<T, string>>> keySelectors,
-            IEnumerable<Language> languages)
+        private async Task ProcessLocalizations<T>(T source, T target, List<Expression<Func<T, string>>> keySelectors, IEnumerable<Language> languages)
             where T : BaseEntity, ILocalizedEntity
         {
             foreach (var lang in languages)
