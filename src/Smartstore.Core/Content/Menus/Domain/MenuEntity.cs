@@ -86,8 +86,7 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// /// Gets or sets the menu items.
         /// </summary>
-        [JsonIgnore]
-        public virtual ICollection<MenuItemEntity> Items
+        public ICollection<MenuItemEntity> Items
         {
             get => _lazyLoader?.Load(this, ref _items) ?? (_items ??= new HashSet<MenuItemEntity>());
             protected set => _items = value;
