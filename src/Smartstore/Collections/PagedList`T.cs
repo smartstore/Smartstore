@@ -100,18 +100,7 @@ namespace Smartstore.Collections
 
 		public IQueryable<T> ApplyPaging(IQueryable<T> query)
 		{
-			if (PageIndex == 0 && PageSize == int.MaxValue)
-			{
-				// Paging unnecessary
-				return query;
-			}
-			else
-			{
-				var skip = PageIndex * PageSize;
-				return skip == 0
-					? query.Take(PageSize)
-					: query.Skip(skip).Take(PageSize);
-			}
+			return query.ApplyPaging(PageIndex, PageSize);
 		}
 
 		public IPagedList<T> Load(bool force = false)

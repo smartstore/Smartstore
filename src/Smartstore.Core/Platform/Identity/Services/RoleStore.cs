@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Smartstore.Core.Identity
         bool AutoSaveChanges { get; set; }
     }
 
-    public class RoleStore : IRoleStore
+    public class RoleStore : AsyncDbSaveHook<CustomerRole>, IRoleStore
     {
         private readonly SmartDbContext _db;
         private readonly DbSet<CustomerRole> _roles;
@@ -94,8 +95,6 @@ namespace Smartstore.Core.Identity
             }
 
             return IdentityResult.Success;
-
-            // TODO: (core) Invalidate PermissionService.PERMISSION_TREE_KEY by hook
         }
 
         public async Task<IdentityResult> DeleteAsync(CustomerRole role, CancellationToken cancellationToken = default)
@@ -120,8 +119,6 @@ namespace Smartstore.Core.Identity
             }
 
             return IdentityResult.Success;
-
-            // TODO: (core) Invalidate PermissionService.PERMISSION_TREE_KEY by hook
         }
 
         Task<string> IRoleStore<CustomerRole>.GetRoleIdAsync(CustomerRole role, CancellationToken cancellationToken)

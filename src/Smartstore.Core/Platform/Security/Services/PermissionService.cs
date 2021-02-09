@@ -13,10 +13,12 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
+using Smartstore.Data.Hooks;
+using System.Threading;
 
 namespace Smartstore.Core.Security
 {
-    public partial class PermissionService : IPermissionService
+    public partial class PermissionService : AsyncDbSaveHook<CustomerRole>, IPermissionService
     {
         // {0} = roleId
         internal const string PERMISSION_TREE_KEY = "permission:tree-{0}";
@@ -118,6 +120,31 @@ namespace Smartstore.Core.Security
             _localizationService = localizationService;
             _cache = cache;
         }
+
+        #region Hook
+
+        protected override Task<HookResult> OnUpdatedAsync(CustomerRole entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
+        protected override Task<HookResult> OnDeletedAsync(CustomerRole entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            var roleIds = entries
+                .Select(x => x.Entity)
+                .OfType<CustomerRole>()
+                .Select(x => x.Id)
+                .Distinct()
+                .ToArray();
+
+            foreach (var roleId in roleIds)
+            {
+                await _cache.RemoveByPatternAsync(PERMISSION_TREE_KEY.FormatInvariant(roleId));
+            }
+        }
+
+        #endregion
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
