@@ -154,7 +154,7 @@ namespace Smartstore.Core.Identity
         {
             Guard.NotNull(role, nameof(role));
             // TODO: (core) Add Customer.NormalizedUserName field or implement normalization somehow.
-            //role.Name = normalizedName;
+            role.Name = normalizedName;
             return Task.CompletedTask;
         }
     }

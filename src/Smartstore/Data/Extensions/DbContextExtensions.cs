@@ -343,6 +343,13 @@ namespace Smartstore
             return reference.IsLoaded;
         }
 
+        /// <summary>
+        /// Loads entities referenced by a collection navigation property from database, unless data is already loaded.
+        /// </summary>
+        /// <param name="entity">Entity instance to load data for.</param>
+        /// <param name="navigationProperty">The navigation property expression.</param>
+        /// <param name="force"><c>false:</c> do nothing if data is already loaded. <c>true:</c> Reload data event if loaded already.</param>
+        /// <param name="queryModifier">Modifier for the query that is about to be executed against the database.</param>
         public static async Task LoadCollectionAsync<TEntity, TCollection>(
             this HookingDbContext ctx,
             TEntity entity,
@@ -385,6 +392,13 @@ namespace Smartstore
             }
         }
 
+        /// <summary>
+        /// Loads an entity referenced by a navigation property from database, unless data is already loaded.
+        /// </summary>
+        /// <param name="entity">Entity instance to load data for.</param>
+        /// <param name="navigationProperty">The navigation property expression.</param>
+        /// <param name="force"><c>false:</c> do nothing if data is already loaded. <c>true:</c> Reload data event if loaded already.</param>
+        /// <param name="queryModifier">Modifier for the query that is about to be executed against the database.</param>
         public static async Task LoadReferenceAsync<TEntity, TProperty>(
             this HookingDbContext ctx,
             TEntity entity,
