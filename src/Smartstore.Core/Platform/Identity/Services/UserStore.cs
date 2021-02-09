@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Identity
 {
@@ -28,18 +29,20 @@ namespace Smartstore.Core.Identity
         bool AutoSaveChanges { get; set; }
     }
 
-    public class UserStore : IUserStore
+    public class UserStore : AsyncDbSaveHook<Customer>, IUserStore
     {
         private readonly SmartDbContext _db;
+        private readonly Lazy<IGdprTool> _gdprTool;
         private readonly CustomerSettings _customerSettings;
 
         private readonly DbSet<Customer> _users;
         private readonly DbSet<CustomerRole> _roles;
         private readonly DbSet<CustomerRoleMapping> _roleMappings;
 
-        public UserStore(SmartDbContext db, CustomerSettings customerSettings, IdentityErrorDescriber errorDescriber)
+        public UserStore(SmartDbContext db, Lazy<IGdprTool> gdprTool, CustomerSettings customerSettings, IdentityErrorDescriber errorDescriber)
         {
             _db = db;
+            _gdprTool = gdprTool;
             _customerSettings = customerSettings;
             
             ErrorDescriber = errorDescriber;
@@ -103,6 +106,45 @@ namespace Smartstore.Core.Identity
 
         #endregion
 
+        #region Hook
+
+        protected override Task<HookResult> OnUpdatedAsync(Customer entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            bool dirty = false;
+
+            foreach (var entry in entries)
+            {
+                if (entry.IsSoftDeleted == true && entry.Entity is Customer customer)
+                {
+                    _gdprTool.Value.AnonymizeData(customer, x => x.LastIpAddress, IdentifierDataType.IpAddress);
+
+                    // TODO: (core) Anonymize ForumPosts.IpAddress per external module.
+                    //foreach (var post in user.ForumPosts)
+                    //{
+                    //    _gdprTool.Value.AnonymizeData(post, x => x.IPAddress, IdentifierDataType.IpAddress);
+                    //}
+
+                    // Customer Content
+                    foreach (var item in customer.CustomerContent)
+                    {
+                        _gdprTool.Value.AnonymizeData(item, x => x.IpAddress, IdentifierDataType.IpAddress);
+                    }
+
+                    dirty = true;
+                }
+            }
+
+            if (dirty)
+            {
+                await _db.SaveChangesAsync(cancelToken);
+            }
+        }
+
+        #endregion
+
         #region IUserStore
 
         public IQueryable<Customer> Users => _users;
@@ -127,10 +169,7 @@ namespace Smartstore.Core.Identity
                 throw new SmartException(string.Format("System customer account ({0}) cannot be deleted.", user.SystemName));
             }
 
-            user.Deleted = true;
-            _db.TryUpdate(user);
-
-            // TODO: (core) Soft delete customer and anonymize data with IGdprTool
+            _db.Remove(user);
 
             try
             {

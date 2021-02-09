@@ -20,6 +20,8 @@ namespace Smartstore.Core.Identity
             _db = db;
         }
 
+        #region Customers
+
         public virtual Task<Customer> GetCustomerBySystemNameAsync(string systemName, bool tracked = true)
         {
             if (string.IsNullOrWhiteSpace(systemName))
@@ -33,5 +35,7 @@ namespace Smartstore.Core.Identity
 
             return query.FirstOrDefaultAsync();
         }
+
+        #endregion
     }
 }
