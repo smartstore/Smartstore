@@ -52,6 +52,7 @@ namespace Smartstore.Core.Content.Menus
             var userMenusInfo = await _cache.GetAsync(cacheKey, async () =>
             {
                 var query = _db.Menus
+                    .Where(x => x.IsSystemMenu == false)
                     .ApplyStoreFilter(storeId)
                     .ApplyAclFilter(roleIds.ToArray())
                     .ApplyStandardFilter(false, true, true)
