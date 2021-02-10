@@ -206,9 +206,6 @@ namespace Smartstore.Web
             {
                 // TODO: (core) Use Swagger
                 // TODO: (core) Use Response compression
-
-                // TODO: (core) Use media middleware
-                
             });
 
             builder.Configure(StarterOrdering.EarlyMiddleware, app =>
@@ -228,9 +225,6 @@ namespace Smartstore.Web
             {
                 // TODO: (core) Configure cookie policy
                 app.UseCookiePolicy();
-
-                // TODO: (core) Configure custom auth with Identity Server
-                app.UseAuthorization(); 
             });
         }
 

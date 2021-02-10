@@ -18,11 +18,5 @@ namespace Smartstore.Core.Identity
         /// <param name="tracked">Whether to load entity tracked. Non-tracking load will be cached.</param>
         /// <returns>Found customer</returns>
         Task<Customer> GetCustomerBySystemNameAsync(string systemName, bool tracked = true);
-
-        /// <summary>
-        /// Builds a customer query for all criteria specified by given <paramref name="q"/>.
-        /// </summary>
-        /// <param name="q">The filter query</param>
-        IQueryable<Customer> BuildSearchQuery(CustomerSearchQuery q);
     }
 }

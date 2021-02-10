@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -37,9 +38,10 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.AfterStaticFilesMiddleware, app =>
+            builder.Configure(StarterOrdering.RoutingMiddleware, app =>
             {
-                //app.UseIdentity();
+                app.UseAuthentication();
+                app.UseAuthorization();
             });
         }
     }
