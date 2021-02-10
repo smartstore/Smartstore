@@ -20,6 +20,7 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<ProductService>().As<IProductService>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductTagService>().As<IProductTagService>().InstancePerLifetimeScope();
 
             builder.RegisterType<CategoryService>()
                 .As<ICategoryService>()

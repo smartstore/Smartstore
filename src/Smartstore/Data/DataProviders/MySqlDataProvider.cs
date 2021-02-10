@@ -35,7 +35,7 @@ namespace Smartstore.Data.DataProviders
 
         public override DataProviderFeatures Features 
             => DataProviderFeatures.AccessIncrement | DataProviderFeatures.ReIndex | DataProviderFeatures.Shrink | DataProviderFeatures.ComputeSize
-            | DataProviderFeatures.ExecuteSqlScript | DataProviderFeatures.StreamBlob;
+            | DataProviderFeatures.ExecuteSqlScript | DataProviderFeatures.StreamBlob | DataProviderFeatures.ExecuteStoredProcedures;
 
         protected override int? GetTableIncrementCore(string tableName)
         {

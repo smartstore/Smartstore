@@ -703,9 +703,14 @@ namespace Smartstore.Web.Controllers
 
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var productCloner = Services.Resolve<IProductCloner>();
-            var product = await _db.Products.FindByIdAsync(1751);
-            var clone = await productCloner.CloneProductAsync(product, "Kopie von Testprodukt", true);
+            var productTagService = Services.Resolve<IProductTagService>();
+            var tagIds = await _db.ProductTags.Select(x => x.Id).ToListAsync();
+
+            foreach (var id in tagIds)
+            {
+                var count = await productTagService.CountProductsByTagIdAsync(id);
+                content.AppendLine($"{id}: {count}");
+            }
 
 
             //var urlService = Services.Resolve<IUrlService>();

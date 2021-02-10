@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
-using Dasync.Collections;
-using Smartstore.Domain;
-using System.IO;
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using Smartstore.Domain;
 
 namespace Smartstore.Data
 {
@@ -28,7 +27,8 @@ namespace Smartstore.Data
         ComputeSize = 1 << 4,
         AccessIncrement = 1 << 5,
         StreamBlob = 1 << 6,
-        ExecuteSqlScript = 1 << 7
+        ExecuteSqlScript = 1 << 7,
+        ExecuteStoredProcedures = 1 << 8
     }
 
     public abstract class DataProvider : Disposable
@@ -88,6 +88,11 @@ namespace Smartstore.Data
         public bool CanExecuteSqlScript
         {
             get => Features.HasFlag(DataProviderFeatures.ExecuteSqlScript);
+        }
+
+        public bool CanExecuteStoredProcedures
+        {
+            get => Features.HasFlag(DataProviderFeatures.ExecuteStoredProcedures);
         }
 
         #endregion
