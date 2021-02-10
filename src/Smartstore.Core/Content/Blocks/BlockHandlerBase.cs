@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
@@ -100,51 +105,34 @@ namespace Smartstore.Core.Content.Blocks
 			return sourceEntity.Model;
 		}
 
-		public void Render(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
+		public Task RenderAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
 		{
-			RenderCore(element, templates, htmlHelper, htmlHelper.ViewContext.Writer);
-			throw new NotImplementedException();
+			return RenderCoreAsync(element, templates, htmlHelper, htmlHelper.ViewContext.Writer);
 		}
 
-		public IHtmlContent ToHtmlContent(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
+		public async Task<IHtmlContent> ToHtmlContentAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
 		{
 			using (var writer = new StringWriter(CultureInfo.CurrentCulture))
 			{
-				RenderCore(element, templates, htmlHelper, writer);
+				await RenderCoreAsync(element, templates, htmlHelper, writer);
 				return new HtmlString(writer.ToString());
 			}
 		}
 
-		protected virtual void RenderCore(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
+		protected virtual Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
 		{
-			RenderByView(element, templates, htmlHelper, textWriter);
+			return RenderByViewAsync(element, templates, htmlHelper, textWriter);
 		}
 
-        protected void RenderByView(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
+        protected Task RenderByViewAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
         {
             Guard.NotNull(element, nameof(element));
             Guard.NotNull(templates, nameof(templates));
             Guard.NotNull(htmlHelper, nameof(htmlHelper));
             Guard.NotNull(textWriter, nameof(textWriter));
 
-            var viewContext = htmlHelper.ViewContext;
-
-            if (!element.Metadata.IsInbuilt)
-            {
-                // Change "area" token in RouteData in order to begin search in the plugin's view folder.
-                var originalRouteData = htmlHelper.ViewContext.RouteData;
-                var routeData = new RouteData(originalRouteData);
-                routeData.Values.Merge(originalRouteData.Values);
-                routeData.DataTokens["area"] = element.Metadata.AreaName;
-
-                viewContext = new ViewContext
-                {
-                    RouteData = routeData,
-                    HttpContext = htmlHelper.ViewContext.HttpContext
-                };
-            }
-
-            var viewResult = FindFirstView(element.Metadata, templates, viewContext, out var searchedLocations);
+            var actionContext = GetActionContextFor(element, htmlHelper.ViewContext);
+            var viewResult = FindFirstView(element.Metadata, templates, actionContext, out var searchedLocations);
 
             if (viewResult == null)
             {
@@ -153,30 +141,66 @@ namespace Smartstore.Core.Content.Blocks
                 throw new FileNotFoundException(msg);
             }
 
-            // TODO: (mh) (core) Test this.
-            var viewData = new ViewDataDictionary((ViewDataDictionary)element.Block);
+			var mvcViewOptions = actionContext.HttpContext.RequestServices.GetRequiredService<IOptions<MvcViewOptions>>();
+			var modelMetadataProvider = actionContext.HttpContext.RequestServices.GetRequiredService<IModelMetadataProvider>();
+			var viewData = new ViewDataDictionary(modelMetadataProvider, htmlHelper.ViewContext.ModelState)
+			{
+				Model = element.Block
+			};
             viewData.TemplateInfo.HtmlFieldPrefix = "Block";
 
-            viewContext = new ViewContext(
+            var viewContext = new ViewContext(
                 htmlHelper.ViewContext,
                 viewResult.View,
                 viewData,
                 htmlHelper.ViewContext.TempData,
                 textWriter,
-                new HtmlHelperOptions());
+				mvcViewOptions.Value.HtmlHelperOptions);
 
-            viewResult.View.RenderAsync(viewContext);
+            return viewResult.View.RenderAsync(viewContext);
         }
 
-		private ViewEngineResult FindFirstView(IBlockMetadata blockMetadata, IEnumerable<string> templates, ViewContext viewContext, out ICollection<string> searchedLocations)
+		protected virtual Task RenderByComponentAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
+        {
+			Guard.NotNull(element, nameof(element));
+			Guard.NotNull(templates, nameof(templates));
+			Guard.NotNull(htmlHelper, nameof(htmlHelper));
+			Guard.NotNull(textWriter, nameof(textWriter));
+
+			// TODO: (core) Implement BlockHandlerBase.RenderByComponentAsync()
+			throw new NotImplementedException();
+		}
+
+		private static ActionContext GetActionContextFor(IBlockContainer element, ActionContext originalContext)
+		{
+			if (element.Metadata.IsInbuilt)
+			{
+				return originalContext;
+			}
+
+			// Change "area" token in RouteData in order to begin search in the module's view folder.
+			var originalRouteData = originalContext.RouteData;
+			var routeData = new RouteData(originalRouteData);
+			routeData.Values.Merge(originalRouteData.Values);
+			routeData.DataTokens["area"] = element.Metadata.AreaName; // TODO: (core) Check whether DataTokens["area"] is still the right place for Area replacement in AspNetCore.
+
+			return new ActionContext
+			{
+				RouteData = routeData,
+				HttpContext = originalContext.HttpContext,
+				ActionDescriptor = originalContext.ActionDescriptor
+			};
+		}
+
+		private static ViewEngineResult FindFirstView(IBlockMetadata blockMetadata, IEnumerable<string> templates, ActionContext actionContext, out ICollection<string> searchedLocations)
 		{
 			searchedLocations = new List<string>();
 
-			var viewEngine = Services.Resolve<IRazorViewEngine>();
+			var viewEngine = actionContext.HttpContext.RequestServices.GetRequiredService<IRazorViewEngine>();
 			foreach (var template in templates)
 			{
 				var viewName = string.Concat("BlockTemplates/", blockMetadata.SystemName, "/", template);
-				var viewResult = viewEngine.FindView(viewContext, viewName, false);
+				var viewResult = viewEngine.FindView(actionContext, viewName, false);
 				searchedLocations.AddRange(viewResult.SearchedLocations);
 				if (viewResult.View != null)
 				{

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -29,7 +30,7 @@ namespace Smartstore.Core.Content.Blocks
         /// <param name="element">The block element to render.</param>
         /// <param name="templates">A list of template names. The first valid template will be used for rendering.</param>
         /// <param name="htmlHeper">Html helper instance.</param>
-        void Render(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHeper);
+        Task RenderAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHeper);
 
         /// <summary>
         /// Called after the entity has been saved to the database to perform operations which require an entity id (e.g. localization stuff).
@@ -55,7 +56,7 @@ namespace Smartstore.Core.Content.Blocks
         /// <param name="element">The block element to render.</param>
         /// <param name="templates">A list of valid template names. The first valid template will be used for rendering.</param>
         /// <param name="htmlHeper">Html helper instance.</param>
-        IHtmlContent ToHtmlContent(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper);
+        Task<IHtmlContent> ToHtmlContentAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper);
     }
 
     /// <summary>
