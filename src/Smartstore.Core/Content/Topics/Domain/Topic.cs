@@ -15,7 +15,7 @@ namespace Smartstore.Core.Content.Topics
     /// Represents a topic.
     /// </summary>
     [CacheableEntity]
-    public partial class Topic : BaseEntity, ILocalizedEntity, ISlugSupported, IStoreRestricted, IAclRestricted
+    public partial class Topic : EntityWithAttributes, ILocalizedEntity, ISlugSupported, IStoreRestricted, IAclRestricted
     {
         /// <summary>
         /// Gets or sets the name.

@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
+using Smartstore.Core.Web;
 using Smartstore.Data.Caching;
+using Smartstore.Diagnostics;
 
 namespace Smartstore.Core.Identity
 {
@@ -50,17 +53,159 @@ DELETE TOP(20000) [c]
 		#endregion
 
 		private readonly SmartDbContext _db;
+		private readonly IWebHelper _webHelper;
+		private readonly IHttpContextAccessor _httpContextAccessor;
+		private readonly IUserAgent _userAgent;
+		private readonly IChronometer _chronometer;
 		private readonly CustomerSettings _customerSettings;
 
 		public CustomerService(
 			SmartDbContext db,
+			IWebHelper webHelper,
+			IHttpContextAccessor httpContextAccessor,
+			IUserAgent userAgent,
+			IChronometer chronometer,
 			CustomerSettings customerSettings)
         {
             _db = db;
+			_webHelper = webHelper;
+			_httpContextAccessor = httpContextAccessor;
+			_userAgent = userAgent;
+			_chronometer = chronometer;
 			_customerSettings = customerSettings;
         }
 
 		public ILogger Logger { get; set; } = NullLogger.Instance;
+
+		#region Guest customers
+
+		public virtual async Task<Customer> CreateGuestCustomerAsync(Guid? customerGuid = null)
+		{
+			var customer = new Customer
+			{
+				CustomerGuid = customerGuid ?? Guid.NewGuid(),
+				Active = true,
+				CreatedOnUtc = DateTime.UtcNow,
+				LastActivityDateUtc = DateTime.UtcNow,
+			};
+
+			// Add to 'Guests' role
+			var guestRole = await GetRoleBySystemNameAsync(SystemCustomerRoleNames.Guests);
+			if (guestRole == null)
+			{
+				throw new SmartException("'Guests' role could not be loaded");
+			}
+
+
+			// Ensure that entities are saved to db in any case
+			customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
+			_db.Customers.Add(customer);
+
+			await _db.SaveChangesAsync();
+
+			var clientIdent = _webHelper.GetClientIdent();
+			if (clientIdent.HasValue())
+			{
+				customer.GenericAttributes.ClientIdent = clientIdent;
+				await _db.SaveChangesAsync();
+			}
+
+			//Logger.DebugFormat("Guest account created for anonymous visitor. Id: {0}, ClientIdent: {1}", customer.CustomerGuid, clientIdent ?? "n/a");
+
+			return customer;
+		}
+
+		public virtual Task<Customer> FindGuestCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60)
+		{
+			if (_httpContextAccessor.HttpContext == null || _userAgent.IsBot || _userAgent.IsPdfConverter)
+			{
+				return null;
+			}
+
+			using (_chronometer.Step("FindGuestCustomerByClientIdent"))
+			{
+				clientIdent = clientIdent.NullEmpty() ?? _webHelper.GetClientIdent();
+				if (clientIdent.IsEmpty())
+				{
+					return null;
+				}
+
+				var dateFrom = DateTime.UtcNow.AddSeconds(maxAgeSeconds * -1);
+
+				var query = from a in _db.GenericAttributes.AsNoTracking()
+						join c in _db.Customers on a.EntityId equals c.Id into Customers
+						from c in Customers.DefaultIfEmpty()
+						where c.LastActivityDateUtc >= dateFrom
+							&& c.Username == null
+							&& c.Email == null
+							&& a.KeyGroup == "Customer"
+							&& a.Key == "ClientIdent"
+							&& a.Value == clientIdent
+						select c;
+
+				return query.FirstOrDefaultAsync();
+			}
+		}
+
+		public virtual async Task<int> DeleteGuestCustomersAsync(
+			DateTime? registrationFrom,
+			DateTime? registrationTo,
+			bool onlyWithoutShoppingCart)
+		{
+			var paramClauses = new StringBuilder();
+			var parameters = new List<object>();
+			var numberOfDeletedCustomers = 0;
+			var numberOfDeletedAttributes = 0;
+			var pIndex = 0;
+
+			if (registrationFrom.HasValue)
+			{
+				paramClauses.AppendFormat(" AND @p{0} <= c.CreatedOnUtc", pIndex++);
+				parameters.Add(registrationFrom.Value);
+			}
+			if (registrationTo.HasValue)
+			{
+				paramClauses.AppendFormat(" AND @p{0} >= c.CreatedOnUtc", pIndex++);
+				parameters.Add(registrationTo.Value);
+			}
+			if (onlyWithoutShoppingCart)
+			{
+				paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[ShoppingCartItem] AS [sci] WHERE c.Id = sci.CustomerId ))");
+			}
+
+			var sqlGenericAttributes = SqlGenericAttributes.FormatInvariant(paramClauses.ToString());
+			var sqlGuestCustomers = SqlGuestCustomers.FormatInvariant(paramClauses.ToString());
+
+			// Delete generic attributes.
+			while (true)
+			{
+				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGenericAttributes, parameters.ToArray());
+				if (numDeleted <= 0)
+				{
+					break;
+				}
+
+				numberOfDeletedAttributes += numDeleted;
+			}
+
+			// Delete guest customers.
+			while (true)
+			{
+				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGuestCustomers, parameters.ToArray());
+				if (numDeleted <= 0)
+				{
+					break;
+				}
+
+				numberOfDeletedCustomers += numDeleted;
+			}
+
+			Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
+
+			return numberOfDeletedCustomers;
+		}
+
+		#endregion
 
 		#region Customers
 
@@ -235,64 +380,6 @@ DELETE TOP(20000) [c]
 			}
 
 			return query.ApplyPaging(q.PageIndex, q.PageSize);
-		}
-
-		public virtual async Task<int> DeleteGuestCustomersAsync(
-			DateTime? registrationFrom,
-			DateTime? registrationTo,
-			bool onlyWithoutShoppingCart)
-		{
-			var paramClauses = new StringBuilder();
-			var parameters = new List<object>();
-			var numberOfDeletedCustomers = 0;
-			var numberOfDeletedAttributes = 0;
-			var pIndex = 0;
-
-			if (registrationFrom.HasValue)
-			{
-				paramClauses.AppendFormat(" AND @p{0} <= c.CreatedOnUtc", pIndex++);
-				parameters.Add(registrationFrom.Value);
-			}
-			if (registrationTo.HasValue)
-			{
-				paramClauses.AppendFormat(" AND @p{0} >= c.CreatedOnUtc", pIndex++);
-				parameters.Add(registrationTo.Value);
-			}
-			if (onlyWithoutShoppingCart)
-			{
-				paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[ShoppingCartItem] AS [sci] WHERE c.Id = sci.CustomerId ))");
-			}
-
-			var sqlGenericAttributes = SqlGenericAttributes.FormatInvariant(paramClauses.ToString());
-			var sqlGuestCustomers = SqlGuestCustomers.FormatInvariant(paramClauses.ToString());
-
-			// Delete generic attributes.
-			while (true)
-			{
-				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGenericAttributes, parameters.ToArray());
-				if (numDeleted <= 0)
-				{
-					break;
-				}
-
-				numberOfDeletedAttributes += numDeleted;
-			}
-
-			// Delete guest customers.
-			while (true)
-			{
-				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGuestCustomers, parameters.ToArray());
-				if (numDeleted <= 0)
-				{
-					break;
-				}
-
-				numberOfDeletedCustomers += numDeleted;
-			}
-
-			Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
-
-			return numberOfDeletedCustomers;
 		}
 
 		#endregion

@@ -232,7 +232,7 @@ namespace Smartstore.Core.Identity
         public int? ShippingAddressId { get; set; }
 
         [NotMapped, JsonIgnore]
-        public override CustomerAttributeCollection GenericAttributes 
+        public override CustomerAttributeCollection GenericAttributes
             => new(base.GenericAttributes);
 
         #region Navigation properties

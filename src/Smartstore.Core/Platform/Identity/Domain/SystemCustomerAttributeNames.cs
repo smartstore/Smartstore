@@ -19,7 +19,7 @@
         public static string CheckoutAttributes => "CheckoutAttributes";
         public static string AvatarPictureId => "AvatarPictureId";
         public static string AvatarColor => "AvatarColor";
-        public static string ForumPostCount => "ForumPostCount";
+        public static string ForumPostCount => "ForumPostCount"; // TODO: (core) SystemCustomerAttributeNames.ForumPostCount belongs to external module
         public static string Signature => "Signature";
         public static string PasswordRecoveryToken => "PasswordRecoveryToken";
         public static string AccountActivationToken => "AccountActivationToken";
@@ -30,6 +30,7 @@
         public static string MostRecentlyUsedManufacturers => "MostRecentlyUsedManufacturers";
         public static string WalletEnabled => "WalletEnabled";
         public static string HasConsentedToGdpr => "HasConsentedToGdpr";
+        public static string ClientIdent => "ClientIdent";
 
         // Depends on store
         public static string CurrencyId => "CurrencyId";

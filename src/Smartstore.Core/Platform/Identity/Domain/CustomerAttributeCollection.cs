@@ -70,6 +70,60 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.VatNumber, value);
         }
 
+        // TODO: (mg) (core) WalletEnabled belongs to Wallet module (as extension method for CustomerAttributeCollection)
+
+        #endregion
+
+        #region Other attributes
+
+        public string DiscountCouponCode
+        {
+            get => Get<string>(SystemCustomerAttributeNames.DiscountCouponCode);
+            set => Set(SystemCustomerAttributeNames.DiscountCouponCode, value);
+        }
+
+        private IEnumerable<GiftCardCouponCode> _giftCardCouponCodes;
+        public IEnumerable<GiftCardCouponCode> GiftCardCouponCodes
+        {
+            get => _giftCardCouponCodes ??= (RawGiftCardCouponCodes.Convert<List<GiftCardCouponCode>>() ?? Enumerable.Empty<GiftCardCouponCode>());
+            set
+            {
+                Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value.Convert<string>());
+                _giftCardCouponCodes = null;
+            }
+        }
+
+        public string RawGiftCardCouponCodes
+        {
+            get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes);
+            set
+            {
+                Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value);
+                _giftCardCouponCodes = null;
+            }
+        }
+
+        private CheckoutAttributeSelection _checkoutAttributes;
+        public CheckoutAttributeSelection CheckoutAttributes
+        {
+            get => _checkoutAttributes ??= new(RawCheckoutAttributes);
+            set
+            {
+                Set(SystemCustomerAttributeNames.CheckoutAttributes, value.AsJson());
+                _checkoutAttributes = null;
+            }
+        }
+
+        public string RawCheckoutAttributes
+        {
+            get => Get<string>(SystemCustomerAttributeNames.CheckoutAttributes);
+            set
+            {
+                Set(SystemCustomerAttributeNames.CheckoutAttributes, value);
+                _checkoutAttributes = null;
+            }
+        }
+
         public int? AvatarPictureId
         {
             get => Get<int?>(SystemCustomerAttributeNames.AvatarPictureId);
@@ -142,50 +196,10 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.HasConsentedToGdpr, value);
         }
 
-        // TODO: (mg) (core) WalletEnabled belongs to Wallet module (as extension method for CustomerAttributeCollection)
-
-        #endregion
-
-        #region Other attributes
-
-        public string DiscountCouponCode
+        public string ClientIdent
         {
-            get => Get<string>(SystemCustomerAttributeNames.DiscountCouponCode);
-            set => Set(SystemCustomerAttributeNames.DiscountCouponCode, value);
-        }
-
-        private IEnumerable<GiftCardCouponCode> _giftCardCouponCodes;
-        public IEnumerable<GiftCardCouponCode> GiftCardCouponCodes
-        {
-            get => _giftCardCouponCodes ??= (RawGiftCardCouponCodes.Convert<List<GiftCardCouponCode>>() ?? Enumerable.Empty<GiftCardCouponCode>());
-            set
-            {
-                Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value.Convert<string>());
-                _giftCardCouponCodes = null;
-            }
-        }
-
-        public string RawGiftCardCouponCodes
-        {
-            get => Get<string>(SystemCustomerAttributeNames.GiftCardCouponCodes);
-            set => Set(SystemCustomerAttributeNames.GiftCardCouponCodes, value);
-        }
-
-        private CheckoutAttributeSelection _checkoutAttributes;
-        public CheckoutAttributeSelection CheckoutAttributes
-        {
-            get => _checkoutAttributes ??= new(RawCheckoutAttributes);
-            set
-            {
-                Set(SystemCustomerAttributeNames.CheckoutAttributes, value.AsJson());
-                _checkoutAttributes = null;
-            }
-        }
-
-        public string RawCheckoutAttributes
-        {
-            get => Get<string>(SystemCustomerAttributeNames.CheckoutAttributes);
-            set => Set(SystemCustomerAttributeNames.CheckoutAttributes, value);
+            get => Get<string>(SystemCustomerAttributeNames.ClientIdent);
+            set => Set(SystemCustomerAttributeNames.ClientIdent, value);
         }
 
         #endregion

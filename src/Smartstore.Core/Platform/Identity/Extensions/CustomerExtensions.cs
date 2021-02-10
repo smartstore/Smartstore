@@ -298,6 +298,64 @@ namespace Smartstore
             return null;
         }
 
+        /// <summary>
+        /// Resets data required for checkout. The caller is responsible for database commit.
+        /// </summary>
+        /// <param name="storeId">Store identifier</param>
+        /// <param name="clearCouponCodes">A value indicating whether to clear coupon code</param>
+        /// <param name="clearCheckoutAttributes">A value indicating whether to clear selected checkout attributes</param>
+        /// <param name="clearRewardPoints">A value indicating whether to clear "Use reward points" flag</param>
+        /// <param name="clearShippingMethod">A value indicating whether to clear selected shipping method</param>
+        /// <param name="clearPaymentMethod">A value indicating whether to clear selected payment method</param>
+        /// <param name="clearCreditBalance">A value indicating whether to clear credit balance.</param>
+        public static void ResetCheckoutData(this Customer customer, int storeId,
+            bool clearCouponCodes = false, bool clearCheckoutAttributes = false,
+            bool clearRewardPoints = false, bool clearShippingMethod = true,
+            bool clearPaymentMethod = true,
+            bool clearCreditBalance = false)
+        {
+            Guard.NotNull(customer, nameof(customer));
+
+            if (customer.IsTransientRecord())
+            {
+                return;
+            }
+
+            var ga = customer.GenericAttributes;
+
+            if (clearCouponCodes)
+            {
+                ga.DiscountCouponCode = null;
+                ga.RawGiftCardCouponCodes = null;
+            }
+
+            if (clearCheckoutAttributes)
+            {
+                ga.RawCheckoutAttributes = null;
+            }
+
+            if (clearRewardPoints)
+            {
+                ga.Set(SystemCustomerAttributeNames.UseRewardPointsDuringCheckout, false, storeId);
+            }
+
+            if (clearCreditBalance)
+            {
+                ga.Set(SystemCustomerAttributeNames.UseCreditBalanceDuringCheckout, decimal.Zero, storeId);
+            }
+
+            if (clearShippingMethod)
+            {
+                ga.Set(SystemCustomerAttributeNames.SelectedShippingOption, (string)null, storeId);
+                ga.Set(SystemCustomerAttributeNames.OfferedShippingOptions, (string)null, storeId);
+            }
+
+            if (clearPaymentMethod)
+            {
+                ga.Set(SystemCustomerAttributeNames.SelectedPaymentMethod, (string)null, storeId);
+            }
+        }
+
         // TODO: (mh) (core) > Evaluate & implement other relevant extension methods.
     }
 }

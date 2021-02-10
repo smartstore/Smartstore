@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using Smartstore.Engine.Modularity;
@@ -19,6 +20,13 @@ namespace Smartstore.Core.Common.Hooks
         protected override Task<HookResult> OnDeletingAsync(ISoftDeletable entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             // Suppress physical deletion of a soft deletable entity. Set "Deleted" property to True instead.
+
+            if (entity is Customer customer && customer.Email == null && customer.Username == null && !customer.IsSystemAccount)
+            {
+                // But it's an ordinary guest customer account entity that we don't want to soft delete.
+                return Task.FromResult(HookResult.Ok);
+            }
+
             entry.State = Smartstore.Data.EntityState.Modified;
             entity.Deleted = true;
 

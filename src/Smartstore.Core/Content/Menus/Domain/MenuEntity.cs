@@ -20,7 +20,7 @@ namespace Smartstore.Core.Content.Menus
     [Index(nameof(Published), Name = "IX_Menu_Published")]
     [Index(nameof(LimitedToStores), Name = "IX_Menu_LimitedToStores")]
     [Index(nameof(SubjectToAcl), Name = "IX_Menu_SubjectToAcl")]
-    public class MenuEntity : BaseEntity, ILocalizedEntity, IStoreRestricted, IAclRestricted
+    public class MenuEntity : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
         private readonly ILazyLoader _lazyLoader;
 

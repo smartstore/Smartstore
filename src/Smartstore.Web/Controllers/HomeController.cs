@@ -52,6 +52,7 @@ using Microsoft.AspNetCore.Identity;
 using Smartstore.Core.Identity;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Content.Menus;
+using Smartstore.Core.Web;
 
 namespace Smartstore.Web.Controllers
 {
@@ -90,7 +91,8 @@ namespace Smartstore.Web.Controllers
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly IGiftCardService _giftCardService;
         private readonly UserManager<Customer> _userManager;
-        
+        private readonly IUserAgent _userAgent;
+
         public HomeController(
             SmartDbContext db,
             ILogger<HomeController> logger1,
@@ -112,7 +114,8 @@ namespace Smartstore.Web.Controllers
             IShoppingCartService cartService,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
             IGiftCardService giftCardService,
-            UserManager<Customer> userManager)
+            UserManager<Customer> userManager,
+            IUserAgent userAgent)
         {
             _db = db;
             _eventPublisher = eventPublisher;
@@ -132,6 +135,7 @@ namespace Smartstore.Web.Controllers
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
             _giftCardService = giftCardService;
             _userManager = userManager;
+            _userAgent = userAgent;
             
             var currentStore = _storeContext.CurrentStore;
         }
@@ -254,6 +258,8 @@ namespace Smartstore.Web.Controllers
             //testSettings.Prop3 = CommonHelper.GenerateRandomDigitCode(10);
             //var numSaved = await Services.SettingFactory.SaveSettingsAsync(testSettings, 1);
             #endregion
+
+            var user = HttpContext.User;
 
             var menuStorage = Services.Resolve<IMenuStorage>();
             var userMenuInfos = await menuStorage.GetUserMenuInfosAsync();
