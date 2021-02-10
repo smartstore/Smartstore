@@ -25,6 +25,9 @@ namespace Smartstore.Engine.Builders
         public const int BeforeRoutingMiddleware = -605;
         public const int RoutingMiddleware = -600;
         public const int AfterRoutingMiddleware = -595;
+        public const int BeforeAuthorizationMiddleware = -555;
+        public const int AuthorizationMiddleware = -550;
+        public const int AfterAuthorizationMiddleware = -545;
         public const int EarlyMiddleware = -500;
         public const int DefaultMiddleware = 0;
         public const int LateMiddleware = 500;

@@ -38,7 +38,7 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.RoutingMiddleware, app =>
+            builder.Configure(StarterOrdering.AuthorizationMiddleware, app =>
             {
                 app.UseAuthentication();
                 app.UseAuthorization();
