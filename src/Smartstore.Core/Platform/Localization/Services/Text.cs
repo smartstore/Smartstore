@@ -43,7 +43,6 @@ namespace Smartstore.Core.Localization
                 return new LocalizedString(value);
             }
 
-            // TODO: (mg) (core) Don't know what went wrong here but formatting is the job of LocalizedString --> HtmlFormattableString.
             return new LocalizedString(value, key, args);
         }
     }
