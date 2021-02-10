@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
@@ -518,16 +519,16 @@ namespace Smartstore.Core.Checkout.Orders
         //    protected set => _walletHistory = value;
         //}
 
+        private ICollection<DiscountUsageHistory> _discountUsageHistory;
         /// <summary>
         /// Gets or sets discount usage history
         /// </summary>
-        // TODO: (ms) (core) needs DiscountUsageHistory of catalog
-        //[JsonIgnore]
-        //public ICollection<DiscountUsageHistory> DiscountUsageHistory
-        //{
-        //    get => _discountUsageHistory ?? (_discountUsageHistory = new HashSet<DiscountUsageHistory>());
-        //    protected set => _discountUsageHistory = value;
-        //}
+        [JsonIgnore]
+        public ICollection<DiscountUsageHistory> DiscountUsageHistory
+        {
+            get => _lazyLoader?.Load(this, ref _discountUsageHistory) ?? (_discountUsageHistory ??= new HashSet<DiscountUsageHistory>());
+            protected set => _discountUsageHistory = value;
+        }
 
         private ICollection<GiftCardUsageHistory> _giftCardUsageHistory;
         /// <summary>

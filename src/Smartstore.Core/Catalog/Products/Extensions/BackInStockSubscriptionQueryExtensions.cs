@@ -5,7 +5,7 @@ namespace Smartstore.Core.Catalog.Products
     public static partial class BackInStockSubscriptionQueryExtensions
     {
         /// <summary>
-        /// Applies a standard filter and sorts by <see cref="BackInStockSubscription.CreatedOnUtc"/> DESC.
+        /// Applies a standard filter and sorts by <see cref="BackInStockSubscription.CreatedOnUtc"/> descending.
         /// </summary>
         /// <param name="query">Back in stock subscription query.</param>
         /// <param name="customerId">Customer identifier.</param>
