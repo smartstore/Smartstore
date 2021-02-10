@@ -18,13 +18,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Authentication\**" />
     <Compile Remove="Caching\Redis\Common\**" />
+    <Compile Remove="Mocks\**" />
     <Compile Remove="Utilities\ObjectPools\**" />
     <Compile Remove="Web\**" />
+    <EmbeddedResource Remove="Authentication\**" />
     <EmbeddedResource Remove="Caching\Redis\Common\**" />
+    <EmbeddedResource Remove="Mocks\**" />
     <EmbeddedResource Remove="Utilities\ObjectPools\**" />
     <EmbeddedResource Remove="Web\**" />
+    <None Remove="Authentication\**" />
     <None Remove="Caching\Redis\Common\**" />
+    <None Remove="Mocks\**" />
     <None Remove="Utilities\ObjectPools\**" />
     <None Remove="Web\**" />
   </ItemGroup>
@@ -41,10 +47,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Authentication\" />
     <Folder Include="Engine\Packaging\" />
     <Folder Include="Linq\" />
-    <Folder Include="Mocks\" />
   </ItemGroup>
 
   <ItemGroup>

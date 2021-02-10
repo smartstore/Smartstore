@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Data.Caching;
@@ -12,9 +14,42 @@ namespace Smartstore.Core.Identity
 {
     public partial class CustomerService : ICustomerService
     {
-        // TODO: (core) finish CustomerService.
+		#region Raw SQL
+		const string SqlGenericAttributes = @"
+DELETE TOP(50000) [g]
+  FROM [dbo].[GenericAttribute] AS [g]
+  LEFT OUTER JOIN [dbo].[Customer] AS [c] ON c.Id = g.EntityId
+  LEFT OUTER JOIN [dbo].[Order] AS [o] ON c.Id = o.CustomerId
+  LEFT OUTER JOIN [dbo].[CustomerContent] AS [cc] ON c.Id = cc.CustomerId
+  LEFT OUTER JOIN [dbo].[Forums_PrivateMessage] AS [pm] ON c.Id = pm.ToCustomerId
+  LEFT OUTER JOIN [dbo].[Forums_Post] AS [fp] ON c.Id = fp.CustomerId
+  LEFT OUTER JOIN [dbo].[Forums_Topic] AS [ft] ON c.Id = ft.CustomerId
+  WHERE g.KeyGroup = 'Customer' AND c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{0}
+	AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[Order] AS [o1] WHERE c.Id = o1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[CustomerContent] AS [cc1] WHERE c.Id = cc1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[Forums_PrivateMessage] AS [pm1] WHERE c.Id = pm1.ToCustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[Forums_Post] AS [fp1] WHERE c.Id = fp1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[Forums_Topic] AS [ft1] WHERE c.Id = ft1.CustomerId ))
+";
 
-        private readonly SmartDbContext _db;
+		const string SqlGuestCustomers = @"
+DELETE TOP(20000) [c]
+  FROM [dbo].[Customer] AS [c]
+  LEFT OUTER JOIN [dbo].[Order] AS [o] ON c.Id = o.CustomerId
+  LEFT OUTER JOIN [dbo].[CustomerContent] AS [cc] ON c.Id = cc.CustomerId
+  LEFT OUTER JOIN [dbo].[Forums_PrivateMessage] AS [pm] ON c.Id = pm.ToCustomerId
+  LEFT OUTER JOIN [dbo].[Forums_Post] AS [fp] ON c.Id = fp.CustomerId
+  LEFT OUTER JOIN [dbo].[Forums_Topic] AS [ft] ON c.Id = ft.CustomerId
+  WHERE c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{0}
+	AND (NOT EXISTS (SELECT 1 AS x FROM [dbo].[Order] AS [o1] WHERE c.Id = o1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM [dbo].[CustomerContent] AS [cc1] WHERE c.Id = cc1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM [dbo].[Forums_PrivateMessage] AS [pm1] WHERE c.Id = pm1.ToCustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM [dbo].[Forums_Post] AS [fp1] WHERE c.Id = fp1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM [dbo].[Forums_Topic] AS [ft1] WHERE c.Id = ft1.CustomerId ))
+";
+		#endregion
+
+		private readonly SmartDbContext _db;
 		private readonly CustomerSettings _customerSettings;
 
 		public CustomerService(
@@ -24,6 +59,8 @@ namespace Smartstore.Core.Identity
             _db = db;
 			_customerSettings = customerSettings;
         }
+
+		public ILogger Logger { get; set; } = NullLogger.Instance;
 
 		#region Customers
 
@@ -200,6 +237,82 @@ namespace Smartstore.Core.Identity
 			return query.ApplyPaging(q.PageIndex, q.PageSize);
 		}
 
-        #endregion
-    }
+		public virtual async Task<int> DeleteGuestCustomersAsync(
+			DateTime? registrationFrom,
+			DateTime? registrationTo,
+			bool onlyWithoutShoppingCart)
+		{
+			var paramClauses = new StringBuilder();
+			var parameters = new List<object>();
+			var numberOfDeletedCustomers = 0;
+			var numberOfDeletedAttributes = 0;
+			var pIndex = 0;
+
+			if (registrationFrom.HasValue)
+			{
+				paramClauses.AppendFormat(" AND @p{0} <= c.CreatedOnUtc", pIndex++);
+				parameters.Add(registrationFrom.Value);
+			}
+			if (registrationTo.HasValue)
+			{
+				paramClauses.AppendFormat(" AND @p{0} >= c.CreatedOnUtc", pIndex++);
+				parameters.Add(registrationTo.Value);
+			}
+			if (onlyWithoutShoppingCart)
+			{
+				paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[ShoppingCartItem] AS [sci] WHERE c.Id = sci.CustomerId ))");
+			}
+
+			var sqlGenericAttributes = SqlGenericAttributes.FormatInvariant(paramClauses.ToString());
+			var sqlGuestCustomers = SqlGuestCustomers.FormatInvariant(paramClauses.ToString());
+
+			// Delete generic attributes.
+			while (true)
+			{
+				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGenericAttributes, parameters.ToArray());
+				if (numDeleted <= 0)
+				{
+					break;
+				}
+
+				numberOfDeletedAttributes += numDeleted;
+			}
+
+			// Delete guest customers.
+			while (true)
+			{
+				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGuestCustomers, parameters.ToArray());
+				if (numDeleted <= 0)
+				{
+					break;
+				}
+
+				numberOfDeletedCustomers += numDeleted;
+			}
+
+			Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
+
+			return numberOfDeletedCustomers;
+		}
+
+		#endregion
+
+		#region Roles
+
+		public virtual Task<CustomerRole> GetRoleBySystemNameAsync(string systemName, bool tracked = true)
+		{
+			if (string.IsNullOrWhiteSpace(systemName))
+				return Task.FromResult((CustomerRole)null);
+
+			var query = _db.CustomerRoles
+				.ApplyTracking(tracked)
+				.AsCaching()
+				.Where(x => x.SystemName == systemName)
+				.OrderBy(x => x.Id);
+
+			return query.FirstOrDefaultAsync();
+		}
+
+		#endregion
+	}
 }
