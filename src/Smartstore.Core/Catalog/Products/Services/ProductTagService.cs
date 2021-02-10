@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Data;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public partial class ProductTagService : IProductTagService
+    public partial class ProductTagService : AsyncDbSaveHook<ProductTag>, IProductTagService
     {
         // {0} : include hidden, {1} : store ID, {2} : customer roles IDs.
-        private const string PRODUCTTAG_COUNT_KEY = "producttag:count-{0}-{1}-{2}";
-        internal const string PRODUCTTAG_PATTERN_KEY = "producttag:*";
+        const string PRODUCTTAG_COUNT_KEY = "producttag:count-{0}-{1}-{2}";
+        const string PRODUCTTAG_PATTERN_KEY = "producttag:*";
 
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
@@ -26,6 +28,18 @@ namespace Smartstore.Core.Catalog.Products
             _workContext = workContext;
             _cache = cache;
         }
+
+        #region Hook
+
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
+        public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            return _cache.RemoveByPatternAsync(PRODUCTTAG_PATTERN_KEY);
+        }
+
+        #endregion
 
         public virtual async Task UpdateProductTagsAsync(Product product, IEnumerable<string> tagNames)
         {

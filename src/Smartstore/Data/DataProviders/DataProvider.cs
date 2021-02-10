@@ -28,7 +28,7 @@ namespace Smartstore.Data
         AccessIncrement = 1 << 5,
         StreamBlob = 1 << 6,
         ExecuteSqlScript = 1 << 7,
-        ExecuteStoredProcedures = 1 << 8
+        StoredProcedures = 1 << 8
     }
 
     public abstract class DataProvider : Disposable
@@ -92,7 +92,7 @@ namespace Smartstore.Data
 
         public bool CanExecuteStoredProcedures
         {
-            get => Features.HasFlag(DataProviderFeatures.ExecuteStoredProcedures);
+            get => Features.HasFlag(DataProviderFeatures.StoredProcedures);
         }
 
         #endregion

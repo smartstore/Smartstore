@@ -10,7 +10,7 @@ namespace Smartstore.Core.Catalog.Products
     public partial interface IProductTagService
     {
         /// <summary>
-        /// Updates product tags.
+        /// Updates product tags. This method commits to database.
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="tagNames">Tag names.</param>

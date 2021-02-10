@@ -55,7 +55,7 @@ namespace Smartstore.Data.DataProviders
         public override DataProviderFeatures Features 
             => DataProviderFeatures.Backup | DataProviderFeatures.ComputeSize | DataProviderFeatures.ReIndex | DataProviderFeatures.ExecuteSqlScript
             | DataProviderFeatures.Restore | DataProviderFeatures.AccessIncrement | DataProviderFeatures.Shrink | DataProviderFeatures.StreamBlob
-            | DataProviderFeatures.ExecuteStoredProcedures;
+            | DataProviderFeatures.StoredProcedures;
 
         public override int ShrinkDatabase()
         {
