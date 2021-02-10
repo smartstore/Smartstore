@@ -38,6 +38,7 @@ namespace Smartstore.Core.Data
         public DbSet<ProductSpecificationAttribute> ProductSpecificationAttributes { get; set; }
 
         public DbSet<Discount> Discounts { get; set; }
+        public DbSet<DiscountUsageHistory> DiscountUsageHistory { get; set; }
         public DbSet<TierPrice> TierPrices { get; set; }
     }
 }

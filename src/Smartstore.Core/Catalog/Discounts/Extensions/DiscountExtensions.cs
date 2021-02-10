@@ -2,7 +2,7 @@
 
 namespace Smartstore.Core.Catalog.Discounts
 {
-    public static class DiscountExtensions
+    public static partial class DiscountExtensions
     {
         /// <summary>
         /// Gets the discount amount for the specified value.

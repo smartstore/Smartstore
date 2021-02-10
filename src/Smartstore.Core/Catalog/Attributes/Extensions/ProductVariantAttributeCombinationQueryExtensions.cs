@@ -23,7 +23,7 @@ namespace Smartstore.Core.Catalog.Attributes
         }
 
         /// <summary>
-        /// Apply a filter to get the lowest attribute combination price.
+        /// Apply a filter to get the lowest attribute combination price and sorts by <see cref="ProductVariantAttributeCombination.Price"/>.
         /// </summary>
         /// <param name="query">Product attribute combinations query.</param>
         /// <param name="productId">Product identifier. Must not be zero.</param>
