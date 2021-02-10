@@ -489,7 +489,7 @@ namespace Smartstore.Core.Catalog.Products
 
             foreach (var associatedProduct in associatedProducts)
             {
-                var cloneName = T("Admin.Common.CopyOf").Value.FormatInvariant(associatedProduct.Name);
+                var cloneName = T("Admin.Common.CopyOf", associatedProduct.Name).ToString();
                 var associatedProductClone = await CloneProductAsync(associatedProduct, cloneName, isPublished, false);
                 associatedProductClone.ParentGroupedProductId = clone.Id;
             }

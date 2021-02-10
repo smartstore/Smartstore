@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Localization
 {
@@ -92,13 +94,23 @@ namespace Smartstore.Core.Localization
         /// <inheritdoc />
         public override string ToString()
         {
-            return Value ?? string.Empty;
+            if (string.IsNullOrEmpty(Value))
+            {
+                return string.Empty;
+            }
+
+            return Arguments.Length == 0
+                ? Value
+                : string.Format(Value, Arguments);
         }
 
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return Value?.GetHashCode() ?? 0;
+            return HashCodeCombiner.Start()
+                .Add(Value)
+                .Add(Arguments)
+                .CombinedHash;
         }
 
         /// <inheritdoc />
@@ -108,7 +120,7 @@ namespace Smartstore.Core.Localization
                 return false;
 
             var that = (LocalizedString)obj;
-            return string.Equals(Value, that.Value);
+            return string.Equals(Value, that.Value) && Arguments.SequenceEqual(that.Arguments);
         }
     }
 }

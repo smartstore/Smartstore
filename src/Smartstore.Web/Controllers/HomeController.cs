@@ -140,94 +140,6 @@ namespace Smartstore.Web.Controllers
             var currentStore = _storeContext.CurrentStore;
         }
 
-        [Route("imaging")]
-        public async Task<IActionResult> ImagingTest()
-        {
-            var tempPath = "D:\\_temp\\_ImageSharp";
-
-            //var urlHelper = HttpContext.RequestServices.GetRequiredService<IUrlHelper>();
-            //var yes = urlHelper.RouteUrl("Product", new { SeName = "yodele", culture = "de" }, "http");
-
-            //await Task.Delay(50);
-            //return Content(yes);
-
-            var files = await _db.MediaFiles
-                .AsNoTracking()
-                .Where(x => x.MediaType == "image" && x.Size > 0 /*&& x.Extension == "jpg" && x.Size < 10000*/)
-                .OrderByDescending(x => x.Size)
-                //.OrderBy(x => x.Size)
-                .Take(1)
-                .ToListAsync();
-
-            //Save originals
-            foreach (var file in files)
-            {
-                var outPath = System.IO.Path.Combine(tempPath, System.IO.Path.GetFileNameWithoutExtension(file.Name) + "-orig." + file.Extension);
-                using (var outFile = new FileStream(outPath, FileMode.Create))
-                {
-                    using (var inStream = await _mediaStorageProvider.OpenReadAsync(file))
-                    {
-                        await inStream.CopyToAsync(outFile);
-                    }
-                }
-            }
-
-            long len = 0;
-            var watch = new Stopwatch();
-            watch.Start();
-
-            foreach (var file in files)
-            {
-                using (var inStream = await _mediaStorageProvider.OpenReadAsync(file))
-                {
-                    var image = await _imageFactory.LoadAsync(inStream);
-
-                    image.Transform(x =>
-                    {
-                        x.Resize(new ResizeOptions
-                        {
-                            Size = new Size(800, 800),
-                            Mode = ResizeMode.Max,
-                            Resampling = ResamplingMode.Bicubic
-                        });
-
-                        //x.OilPaint(40, 30);
-                        //x.Pad(1200, 900, Color.Bisque);
-                        x.Sepia();
-                    });
-
-                    if (image.Format is IJpegFormat jpeg)
-                    {
-                        jpeg.Quality = 90;
-                        jpeg.Subsample = JpegSubsample.Ratio420;
-                    }
-                    else if (image.Format is IPngFormat png)
-                    {
-                        //png.ChunkFilter = PngChunkFilter.ExcludeAll;
-                        //png.ColorType = PngColorType.Grayscale;
-                        png.CompressionLevel = PngCompressionLevel.BestCompression;
-                        png.QuantizationMethod = QuantizationMethod.Wu;
-                        //png.BitDepth = PngBitDepth.Bit8;
-                        //png.ColorType = PngColorType.Palette;
-                    }
-
-                    var outPath = System.IO.Path.Combine(tempPath, file.Name);
-                    using (var outFile = new FileStream(outPath, FileMode.Create))
-                    {
-                        await image.SaveAsync(outFile);
-                        len += outFile.Length;
-                    }
-                }
-            }
-
-            watch.Stop();
-            var msg = $"Images: {files.Count}. Duration: {watch.ElapsedMilliseconds} ms., Size: {len.Bytes().Humanize()}, SIMD: {Vector.IsHardwareAccelerated}";
-
-            _imageFactory.ReleaseMemory();
-
-            return Content(msg);
-        }
-
         [LocalizedRoute("/", Name = "Homepage")]
         public async Task<IActionResult> Index()
         {
@@ -629,6 +541,94 @@ namespace Smartstore.Web.Controllers
             files.AddRange(images);
             
             return View(files);
+        }
+
+        [Route("imaging")]
+        public async Task<IActionResult> ImagingTest()
+        {
+            var tempPath = "D:\\_temp\\_ImageSharp";
+
+            //var urlHelper = HttpContext.RequestServices.GetRequiredService<IUrlHelper>();
+            //var yes = urlHelper.RouteUrl("Product", new { SeName = "yodele", culture = "de" }, "http");
+
+            //await Task.Delay(50);
+            //return Content(yes);
+
+            var files = await _db.MediaFiles
+                .AsNoTracking()
+                .Where(x => x.MediaType == "image" && x.Size > 0 /*&& x.Extension == "jpg" && x.Size < 10000*/)
+                .OrderByDescending(x => x.Size)
+                //.OrderBy(x => x.Size)
+                .Take(1)
+                .ToListAsync();
+
+            //Save originals
+            foreach (var file in files)
+            {
+                var outPath = System.IO.Path.Combine(tempPath, System.IO.Path.GetFileNameWithoutExtension(file.Name) + "-orig." + file.Extension);
+                using (var outFile = new FileStream(outPath, FileMode.Create))
+                {
+                    using (var inStream = await _mediaStorageProvider.OpenReadAsync(file))
+                    {
+                        await inStream.CopyToAsync(outFile);
+                    }
+                }
+            }
+
+            long len = 0;
+            var watch = new Stopwatch();
+            watch.Start();
+
+            foreach (var file in files)
+            {
+                using (var inStream = await _mediaStorageProvider.OpenReadAsync(file))
+                {
+                    var image = await _imageFactory.LoadAsync(inStream);
+
+                    image.Transform(x =>
+                    {
+                        x.Resize(new ResizeOptions
+                        {
+                            Size = new Size(800, 800),
+                            Mode = ResizeMode.Max,
+                            Resampling = ResamplingMode.Bicubic
+                        });
+
+                        //x.OilPaint(40, 30);
+                        //x.Pad(1200, 900, Color.Bisque);
+                        x.Sepia();
+                    });
+
+                    if (image.Format is IJpegFormat jpeg)
+                    {
+                        jpeg.Quality = 90;
+                        jpeg.Subsample = JpegSubsample.Ratio420;
+                    }
+                    else if (image.Format is IPngFormat png)
+                    {
+                        //png.ChunkFilter = PngChunkFilter.ExcludeAll;
+                        //png.ColorType = PngColorType.Grayscale;
+                        png.CompressionLevel = PngCompressionLevel.BestCompression;
+                        png.QuantizationMethod = QuantizationMethod.Wu;
+                        //png.BitDepth = PngBitDepth.Bit8;
+                        //png.ColorType = PngColorType.Palette;
+                    }
+
+                    var outPath = System.IO.Path.Combine(tempPath, file.Name);
+                    using (var outFile = new FileStream(outPath, FileMode.Create))
+                    {
+                        await image.SaveAsync(outFile);
+                        len += outFile.Length;
+                    }
+                }
+            }
+
+            watch.Stop();
+            var msg = $"Images: {files.Count}. Duration: {watch.ElapsedMilliseconds} ms., Size: {len.Bytes().Humanize()}, SIMD: {Vector.IsHardwareAccelerated}";
+
+            _imageFactory.ReleaseMemory();
+
+            return Content(msg);
         }
 
         private Task<List<Country>> GetCountries()
