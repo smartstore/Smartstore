@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -11,19 +10,23 @@ namespace Smartstore.Web.Components
 {
     public abstract class SmartViewComponent : ViewComponent
     {
+        private ILogger _logger;
+        private Localizer _localizer;
+        private ICommonServices _services;
+
         public ILogger Logger
         {
-            get => HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(GetType());
+            get => _logger ??= HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(GetType());
         }
 
         public Localizer T
         {
-            get => HttpContext.RequestServices.GetRequiredService<IText>().Get;
+            get => _localizer ??= HttpContext.RequestServices.GetRequiredService<IText>().Get;
         }
 
         public ICommonServices Services 
         {
-            get => HttpContext.RequestServices.GetRequiredService<ICommonServices>();
+            get => _services ??= HttpContext.RequestServices.GetRequiredService<ICommonServices>();
         }
 
         #region Notify
