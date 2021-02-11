@@ -704,38 +704,39 @@ namespace Smartstore.Web.Controllers
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
             var productTagService = Services.Resolve<IProductTagService>();
-            var tagIds = await _db.ProductTags.Select(x => x.Id).ToListAsync();
+            var tags = await _db.ProductTags.ToListAsync();
 
-            foreach (var id in tagIds)
+            foreach (var tag in tags)
             {
-                var count = await productTagService.CountProductsByTagIdAsync(id);
-                content.AppendLine($"{id}: {count}");
+                var count = await productTagService.CountProductsByTagIdAsync(tag.Id);
+                content.AppendLine($"{count}: {tag.Name} ({tag.Id})");
             }
 
+            // May serve duplicate products thus counts tags twice.
+            var query = _db.Products
+                .AsNoTracking()
+                .ApplyStoreFilter(1)
+                .Where(x => x.Visibility == ProductVisibility.Full && x.Published && !x.IsSystemProduct)
+                .SelectMany(x => x.ProductTags.Where(y => y.Published));
 
-            //var urlService = Services.Resolve<IUrlService>();
-            //var urlHelper = Services.Resolve<ProductUrlHelper>();
-            //var languageService = Services.Resolve<ILanguageService>();
-            //var pcs = Services.Resolve<IPriceCalculationService>();
-            //var allLanguages = await languageService.GetAllLanguagesAsync();
-            //var enLanguage = allLanguages.FirstOrDefault(x => x.UniqueSeoCode.EqualsNoCase("en"));
-            //var product = await _db.Products.FindByIdAsync(1751);
+            var groupQuery =
+                from x in query
+                group x by x.Id into grp
+                select new
+                {
+                    TagId = grp.Key,
+                    Count = grp.Count()
+                };
 
-            //var context = pcs.CreatePriceCalculationContext();
-            //var attributes = await context.Attributes.GetOrLoadAsync(product.Id);
-            //var attributeMaterializer = Services.Resolve<IProductAttributeMaterializer>();
-            //var (selection, warnings) = await attributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, 0);
-            //var slug = await product.GetActiveSlugAsync();
-
-            //content.AppendLine();
-            //content.AppendLine("Relative URL: " + urlHelper.GetProductUrl(slug, query));
-            ////content.AppendLine("Relative URL: " + await urlHelper.GetProductUrlAsync(product.Id, slug, selection));
-            //content.AppendLine("Absolute URL: " + await urlHelper.GetAbsoluteProductUrlAsync(product.Id, slug, selection));
-
-            //content.AppendLine();
-            //content.AppendLine($"Relative URL {enLanguage.UniqueSeoCode}: " + urlHelper.GetProductUrl(slug, query));
-            ////content.AppendLine($"Relative URL {enLanguage.UniqueSeoCode}: " + await urlHelper.GetProductUrlAsync(product.Id, slug, selection));
-            //content.AppendLine($"Absolute URL {enLanguage.UniqueSeoCode}: " + await urlHelper.GetAbsoluteProductUrlAsync(product.Id, slug, selection, language: enLanguage));
+            var counts = await groupQuery.ToListAsync();
+            content.AppendLine("---------------------------------------");
+            foreach (var item in counts)
+            {
+                content.AppendLine($"{item.Count}: {item.TagId}");
+            }
+            content.AppendLine("---------------------------------------");
+            content.AppendLine();
+            content.AppendLine(groupQuery.ToQueryString());
 
             return Content(content.ToString());
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
@@ -14,12 +15,17 @@ namespace Smartstore.Core.Catalog.Discounts
     public class DiscountHook : AsyncDbSaveHook<Discount>
     {
         private readonly SmartDbContext _db;
+        private readonly IRequestCache _requestCache;
         private Multimap<string, int> _relatedEntityIds = new(items => new HashSet<int>(items));
 
-        public DiscountHook(SmartDbContext db)
+        public DiscountHook(SmartDbContext db, IRequestCache requestCache)
         {
             _db = db;
+            _requestCache = requestCache;
         }
+
+        protected override Task<HookResult> OnInsertingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
 
         protected override Task<HookResult> OnUpdatingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
         {
@@ -63,6 +69,8 @@ namespace Smartstore.Core.Catalog.Discounts
 
                 _relatedEntityIds.Clear();
             }
+
+            _requestCache.RemoveByPattern(DiscountService.DISCOUNTS_PATTERN_KEY);
         }
 
         private void KeepRelatedEntityIds(Discount entity)
