@@ -440,6 +440,7 @@ namespace Smartstore.Core.Catalog.Search
         {
             var result = false;
 
+            // TODO: (mg) (core) The entity state is NEVER Detached in POST-Hooks, because detached entities never find their way to database.
             if (entry.State != EState.Detached)
             {
                 var prop = entry.Entry.Property(propertyName);
