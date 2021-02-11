@@ -57,6 +57,7 @@ namespace Smartstore.Core.Catalog.Search
 
         public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
+            // TODO: (mg) (core) This will never get called because all PRE-Hooks are void (none overridden). Is this necessary?
             if (_errorMessage.HasValue())
             {
                 var message = new string(_errorMessage);
@@ -85,6 +86,7 @@ namespace Smartstore.Core.Catalog.Search
                     return HookResult.Ok;
                 }
 
+                // TODO: (mg) (core) Modified properties cannot be determined in POST-Hooks. The original values are lost after commit.
                 if (IsPropertyModified(entry, "Alias"))
                 {
                     await _catalogSearchQueryAliasMapper.Value.ClearAttributeCacheAsync();
