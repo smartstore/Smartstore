@@ -53,13 +53,13 @@ namespace Smartstore.Core.Content.Menus
         /// <param name="systemName">Applies filter by <see cref="MenuEntity.SystemName"/>.</param>
         /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
         /// <param name="includeHidden">Applies filter by <see cref="MenuItemEntity.Published"/>.</param>
-        /// <param name="customerRolesIds">Customer roles identifiers to apply filter by ACL restriction.</param>
+        /// <param name="customerRoleIds">Customer roles identifiers to apply filter by ACL restriction.</param>
         public static IQueryable<MenuItemEntity> ApplyMenuFilter(this IQueryable<MenuItemEntity> query,
             int menuId,
             string systemName,
             int storeId = 0,
             bool includeHidden = false,
-            int[] customerRolesIds = null)
+            int[] customerRoleIds = null)
         {
             // TODO: (mh) (core) Revise this code THOROUGHLY!! It seems broken. The flow is not the same. Compare with source!
             
@@ -97,9 +97,9 @@ namespace Smartstore.Core.Content.Menus
                 applied = true;
             }
 
-            if (customerRolesIds != null)
+            if (customerRoleIds != null)
             {
-                query = query.ApplyAclFilter(customerRolesIds);
+                query = query.ApplyAclFilter(customerRoleIds);
                 applied = true;
             }
 

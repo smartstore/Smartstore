@@ -11,13 +11,13 @@ namespace Smartstore.Core.Catalog.Brands
         /// </summary>
         /// <param name="query">Manufacturer query.</param>
         /// <param name="includeHidden">Applies filter by <see cref="Manufacturer.Published"/>.</param>
-        /// <param name="customerRolesIds">Customer roles identifiers to apply filter by ACL restriction.</param>
+        /// <param name="customerRoleIds">Customer roles identifiers to apply filter by ACL restriction.</param>
         /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
         /// <returns>Manufacturer query.</returns>
         public static IOrderedQueryable<Manufacturer> ApplyStandardFilter(
             this IQueryable<Manufacturer> query, 
             bool includeHidden = false,
-            int[] customerRolesIds = null,
+            int[] customerRoleIds = null,
             int storeId = 0)
         {
             Guard.NotNull(query, nameof(query));
@@ -32,9 +32,9 @@ namespace Smartstore.Core.Catalog.Brands
                 query = query.ApplyStoreFilter(storeId);
             }
 
-            if (customerRolesIds != null)
+            if (customerRoleIds != null)
             {
-                query = query.ApplyAclFilter(customerRolesIds);
+                query = query.ApplyAclFilter(customerRoleIds);
             }
 
             return query

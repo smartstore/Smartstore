@@ -16,8 +16,11 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string BodyTagName = "body";
         const string TitleTagName = "title";
 
+        /// <summary>
+        /// A <see cref="Language"/> or <see cref="LocalizedValue"/> instance.
+        /// </summary>
         [HtmlAttributeName(LangForAttributeName)]
-        public Language LanguageAttributesFor { get; set; }
+        public object LanguageAttributesFor { get; set; }
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
@@ -35,10 +38,19 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.Attributes.Add(DirAttributeName, val);
             }
 
-            if (LanguageAttributesFor != null)
+            Language currentLanguage = null;
+
+            if (LanguageAttributesFor is LocalizedValue localizedValue && localizedValue.BidiOverride)
             {
-                var code = LanguageAttributesFor.GetTwoLetterISOLanguageName();
-                var rtl = LanguageAttributesFor.Rtl;
+                currentLanguage = localizedValue.CurrentLanguage;
+            }
+
+            currentLanguage ??= LanguageAttributesFor as Language;
+
+            if (currentLanguage != null)
+            {
+                var code = currentLanguage.GetTwoLetterISOLanguageName();
+                var rtl = currentLanguage.Rtl;
 
                 output.MergeAttribute(LangAttributeName, code);
                 output.MergeAttribute(DirAttributeName, rtl ? "rtl" : "ltr");

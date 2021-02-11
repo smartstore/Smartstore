@@ -145,7 +145,7 @@ namespace Smartstore.Core.Content.Topics
         /// Gets or sets a value indicating whether the topic set a cookie and the cookie type.
         /// </summary>
         //public CookieType? CookieType { get; set; }
-        public int CookieType { get; set; }
+        public int? CookieType { get; set; }
 
         /// <summary>
         /// Helper function which gets the comma-separated <c>WidgetZone</c> property as list of strings.

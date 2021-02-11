@@ -11,13 +11,12 @@ namespace Smartstore.Core.Content.Topics
         /// </summary>
         /// <param name="query">Topic query.</param>
         /// <param name="includeHidden">Applies filter by <see cref="Topic.IsPublished"/>.</param>
-        /// <param name="customerRolesIds">Customer roles identifiers to apply filter by ACL restriction.</param>
+        /// <param name="customerRoleIds">Customer roles identifiers to apply filter by ACL restriction.</param>
         /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
         /// <returns>Topic query.</returns>
-        public static IOrderedQueryable<Topic> ApplyStandardFilter(
-            this IQueryable<Topic> query,
+        public static IOrderedQueryable<Topic> ApplyStandardFilter(this IQueryable<Topic> query,
             bool includeHidden = false,
-            int[] customerRolesIds = null,
+            int[] customerRoleIds = null,
             int storeId = 0)
         {
             Guard.NotNull(query, nameof(query));
@@ -32,9 +31,9 @@ namespace Smartstore.Core.Content.Topics
                 query = query.ApplyStoreFilter(storeId);
             }
 
-            if (customerRolesIds != null)
+            if (customerRoleIds != null)
             {
-                query = query.ApplyAclFilter(customerRolesIds);
+                query = query.ApplyAclFilter(customerRoleIds);
             }
 
             return query.OrderBy(x => x.Priority).ThenBy(x => x.SystemName);

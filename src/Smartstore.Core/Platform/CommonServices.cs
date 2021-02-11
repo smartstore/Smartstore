@@ -7,6 +7,7 @@ using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
 using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
+using Smartstore.Caching.OutputCache;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
@@ -45,6 +46,7 @@ namespace Smartstore.Core
         private readonly IChronometer _chronometer;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IMediaService _mediaService;
+        private readonly Lazy<IDisplayControl> _displayControl;
 
         public CommonServices(
             IComponentContext container,
@@ -65,7 +67,8 @@ namespace Smartstore.Core
             IPermissionService permissions,
             IChronometer chronometer,
             IDateTimeHelper dateTimeHelper,
-            IMediaService mediaService)
+            IMediaService mediaService,
+            Lazy<IDisplayControl> displayControl)
         {
             _container = container;
             _appContext = appContext;
@@ -86,6 +89,7 @@ namespace Smartstore.Core
             _chronometer = chronometer;
             _dateTimeHelper = dateTimeHelper;
             _mediaService = mediaService;
+            _displayControl = displayControl;
         }
 
         public IComponentContext Container => _container;
@@ -107,6 +111,7 @@ namespace Smartstore.Core
         public IChronometer Chronometer => _chronometer;
         public IDateTimeHelper DateTimeHelper => _dateTimeHelper;
         public IMediaService MediaService => _mediaService;
+        public IDisplayControl DisplayControl => _displayControl.Value;
     }
 
     internal class CommonServicesModule : Autofac.Module

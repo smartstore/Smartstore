@@ -411,10 +411,10 @@ namespace Smartstore.Core.Catalog.Search
                 else if (kind == FacetGroupKind.Brand)
                 {
                     var names = await GetLocalizedNames(nameof(Manufacturer), languageId);
-                    var customerRolesIds = _services.WorkContext.CurrentCustomer.GetRoleIds();
+                    var customerRoleIds = _services.WorkContext.CurrentCustomer.GetRoleIds();
                     var manufacturersQuery = _db.Manufacturers
                         .AsNoTracking()
-                        .ApplyStandardFilter(false, customerRolesIds, storeId);
+                        .ApplyStandardFilter(false, customerRoleIds, storeId);
 
                     var manufacturers = descriptor.MaxChoicesCount > 0
                         ? await manufacturersQuery.Take(descriptor.MaxChoicesCount).ToListAsync()

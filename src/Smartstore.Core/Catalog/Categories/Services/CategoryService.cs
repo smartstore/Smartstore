@@ -133,7 +133,7 @@ namespace Smartstore.Core.Catalog.Categories
             var affectedCategories = 0;
             var affectedProducts = 0;
 
-            var allCustomerRolesIds = await _db.CustomerRoles
+            var allCustomerRoleIds = await _db.CustomerRoles
                 .AsQueryable()
                 .Select(x => x.Id)
                 .ToListAsync();
@@ -172,7 +172,7 @@ namespace Smartstore.Core.Catalog.Categories
 
                     var aclRecordsDic = aclRecords.ToDictionarySafe(x => x.CustomerRoleId);
 
-                    foreach (var roleId in allCustomerRolesIds)
+                    foreach (var roleId in allCustomerRoleIds)
                     {
                         if (referenceRoleIds.Contains(roleId))
                         {
@@ -214,7 +214,7 @@ namespace Smartstore.Core.Catalog.Categories
 
                         var aclRecordsDic = aclRecords.ToDictionarySafe(x => x.CustomerRoleId);
 
-                        foreach (var roleId in allCustomerRolesIds)
+                        foreach (var roleId in allCustomerRoleIds)
                         {
                             if (referenceRoleIds.Contains(roleId))
                             {
@@ -383,12 +383,12 @@ namespace Smartstore.Core.Catalog.Categories
 
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
-                var customerRolesIds = includeHidden ? null : _workContext.CurrentCustomer.GetRoleIds();
+                var customerRoleIds = includeHidden ? null : _workContext.CurrentCustomer.GetRoleIds();
 
                 var query = _db.Categories
                     .AsNoTracking()
                     .Where(x => x.ParentCategoryId == parentCategoryId)
-                    .ApplyStandardFilter(includeHidden, customerRolesIds, includeHidden ? 0 : storeId);
+                    .ApplyStandardFilter(includeHidden, customerRoleIds, includeHidden ? 0 : storeId);
 
                 var entities = await query.ToListAsync();
                 return entities;
@@ -411,12 +411,12 @@ namespace Smartstore.Core.Catalog.Categories
 
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
-                var customerRolesIds = includeHidden ? null : _workContext.CurrentCustomer.GetRoleIds();
+                var customerRoleIds = includeHidden ? null : _workContext.CurrentCustomer.GetRoleIds();
 
                 var categoriesQuery = _db.Categories
                     .AsNoTracking()
                     .Include(x => x.MediaFile)
-                    .ApplyStandardFilter(includeHidden, customerRolesIds, includeHidden ? 0 : storeId);
+                    .ApplyStandardFilter(includeHidden, customerRoleIds, includeHidden ? 0 : storeId);
 
                 var productCategoriesQuery = _db.ProductCategories
                     .AsNoTracking()
@@ -602,11 +602,11 @@ namespace Smartstore.Core.Catalog.Categories
                 return null;
             }
 
-            var customerRolesIds = _workContext.CurrentCustomer.GetRoleIds();
+            var customerRoleIds = _workContext.CurrentCustomer.GetRoleIds();
 
             var query = _db.Categories
                 .AsNoTracking()
-                .ApplyStandardFilter(false, customerRolesIds, context.RequestStoreId);
+                .ApplyStandardFilter(false, customerRoleIds, context.RequestStoreId);
 
             return new CategoryXmlSitemapResult { Query = query };
         }

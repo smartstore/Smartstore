@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Smartstore.Core.Configuration;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Security.Settings
+namespace Smartstore.Core.Security
 {
     public class SecuritySettings : ISettings
     {

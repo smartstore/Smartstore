@@ -1,0 +1,44 @@
+﻿@using Smartstore.Web.Models.Topics;
+
+@model TopicModel
+
+@if (!Model.Body.Value.HasValue())
+{
+    return;
+}
+
+@if (ViewBag.BodyOnly)
+{
+    <div class="topic-html-content-body@(ViewBag.IsLead == true ? " lead" : "") my-3 html-editor-content" id="ph-topic-body-@Model.Id" language-attributes-for="Model.Body">
+        @Html.Raw(Model.Body)
+    </div>
+}
+else
+{
+    <div id="ph-topic-@Model.Id" class="block topic-html-content my-3">
+        @if (Model.Title.HasValue())
+        {
+            <div class="block-title" id="ph-title-@Model.Id">
+				@if (ViewBag.IsLead == true)
+				{
+					<h1 class="h2" language-attributes-for="Model.Title">@Model.Title</h1>
+				}
+				else
+				{
+					<h4 language-attributes-for="Model.Title">@Model.Title</h4>
+				}
+            </div>
+        }
+
+        <div class="block-body html-editor-content topic-html-content-body@(ViewBag.IsLead == true ? " lead" : "")" language-attributes-for="Model.Body">
+			@if (Model.Intro.HasValue() && (ViewBag.IsLead == null || ViewBag.IsLead == false))
+			{
+				<p class="topic-intro lead">
+					@Html.Raw(Model.Intro)
+				</p>
+			}
+
+            @Html.Raw(Model.Body)
+        </div>
+    </div>
+}

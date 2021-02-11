@@ -2,6 +2,7 @@
 using Autofac;
 using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
+using Smartstore.Caching.OutputCache;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
@@ -38,6 +39,7 @@ namespace Smartstore.Core
         IChronometer Chronometer { get; }
         IDateTimeHelper DateTimeHelper { get; }
         IMediaService MediaService { get; }
+        IDisplayControl DisplayControl { get; }
 
         // TODO: (core) Add more props to ICommonServices once they drop in.
     }

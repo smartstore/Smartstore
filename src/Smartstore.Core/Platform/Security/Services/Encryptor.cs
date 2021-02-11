@@ -2,7 +2,6 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using Smartstore.Core.Security.Settings;
 
 namespace Smartstore.Core.Security
 {

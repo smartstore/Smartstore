@@ -49,11 +49,11 @@ namespace Smartstore.Core.Catalog.Brands
 
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
-                var customerRolesIds = includeHidden ? null : _workContext.CurrentCustomer.GetRoleIds();
+                var customerRoleIds = includeHidden ? null : _workContext.CurrentCustomer.GetRoleIds();
 
                 var manufacturersQuery = _db.Manufacturers
                     .AsNoTracking()
-                    .ApplyStandardFilter(includeHidden, customerRolesIds, includeHidden ? 0 : storeId);
+                    .ApplyStandardFilter(includeHidden, customerRoleIds, includeHidden ? 0 : storeId);
 
                 var query =
                     from pm in _db.ProductManufacturers.AsNoTracking()
@@ -76,11 +76,11 @@ namespace Smartstore.Core.Catalog.Brands
                 return null;
             }
 
-            var customerRolesIds = _workContext.CurrentCustomer.GetRoleIds();
+            var customerRoleIds = _workContext.CurrentCustomer.GetRoleIds();
 
             var query = _db.Manufacturers
                 .AsNoTracking()
-                .ApplyStandardFilter(false, customerRolesIds, context.RequestStoreId);
+                .ApplyStandardFilter(false, customerRoleIds, context.RequestStoreId);
 
             return new ManufacturerXmlSitemapResult { Query = query };
         }

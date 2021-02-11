@@ -47,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Engine\Packaging\" />
     <Folder Include="Linq\" />
   </ItemGroup>
 

@@ -23,6 +23,9 @@ namespace Smartstore.Web.Razor
         public IWorkContext WorkContext { get; set; }
 
         [RazorInject]
+        public IWebHelper WebHelper { get; set; }
+
+        [RazorInject]
         public IEventPublisher EventPublisher { get; set; }
 
         [RazorInject]

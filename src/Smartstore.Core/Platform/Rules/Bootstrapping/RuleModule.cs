@@ -3,7 +3,7 @@ using Autofac;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
     public class RuleModule : Autofac.Module
     {

@@ -1,0 +1,93 @@
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Content.Topics;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Content.Seo;
+using Smartstore.Web.Models.Topics;
+using Smartstore.Web.Infrastructure.Hooks;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using Smartstore.Data.Caching;
+
+namespace Smartstore.Web.Components
+{
+    public class TopicBlockViewComponent : SmartViewComponent
+    {
+        public async Task<IViewComponentResult> InvokeAsync(string systemName, bool bodyOnly = false, bool isLead = false)
+        {
+            var store = Services.StoreContext.CurrentStore;
+
+            var cacheKey = string.Format(ModelCacheInvalidator.TOPIC_BY_SYSTEMNAME_KEY, 
+                systemName.ToLower(), 
+                Services.WorkContext.WorkingLanguage.Id,
+                store.Id,
+                Services.WorkContext.CurrentCustomer.GetRolesIdent());
+
+            var cacheModel = await Services.Cache.GetAsync(cacheKey, async () =>
+            {
+                var topic = await Services.DbContext.Topics
+                    .AsNoTracking()
+                    .Where(x => x.SystemName == systemName)
+                    .ApplyStandardFilter(true, null, store.Id)
+                    .FirstOrDefaultAsync();
+
+                if (topic == null || !topic.IsPublished)
+                    return null;
+
+                return PrepareTopicModel(topic);
+            });
+
+            if (cacheModel == null)
+            {
+                return Content(string.Empty);
+            }    
+
+            ViewBag.BodyOnly = bodyOnly;
+            ViewBag.IsLead = isLead;
+
+            if (!cacheModel.RenderAsWidget)
+            {
+                Services.DisplayControl.Announce(new Topic { Id = cacheModel.Id });
+            }
+
+            return View(cacheModel);
+        }
+
+        private static TopicModel PrepareTopicModel(Topic topic)
+        {
+            Guard.NotNull(topic, nameof(topic));
+
+            var titleTag = "h3";
+            if (topic.TitleTag != null)
+            {
+                titleTag = topic.TitleTag;
+            }
+            else if (!topic.RenderAsWidget)
+            {
+                titleTag = "h1";
+            }
+
+            var model = new TopicModel
+            {
+                Id = topic.Id,
+                SystemName = topic.SystemName,
+                HtmlId = topic.HtmlId,
+                BodyCssClass = topic.BodyCssClass,
+                IsPasswordProtected = topic.IsPasswordProtected,
+                ShortTitle = topic.IsPasswordProtected ? null : topic.GetLocalized(x => x.ShortTitle),
+                Title = topic.IsPasswordProtected ? null : topic.GetLocalized(x => x.Title),
+                Intro = topic.IsPasswordProtected ? null : topic.GetLocalized(x => x.Intro),
+                Body = topic.IsPasswordProtected ? null : topic.GetLocalized(x => x.Body, detectEmptyHtml: true),
+                MetaKeywords = topic.GetLocalized(x => x.MetaKeywords),
+                MetaDescription = topic.GetLocalized(x => x.MetaDescription),
+                MetaTitle = topic.GetLocalized(x => x.MetaTitle),
+                SeName = topic.GetActiveSlug(),
+                TitleTag = titleTag,
+                RenderAsWidget = topic.RenderAsWidget
+            };
+
+            return model;
+        }
+    }
+}

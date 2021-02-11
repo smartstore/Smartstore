@@ -1,0 +1,164 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Smartstore.Core.Identity
+@using Smartstore.Web.Models.Identity
+
+@inject UserManager<Customer> UserManager
+@inject RoleManager<CustomerRole> RoleManager
+
+@model LoginModel
+
+@{
+    AssetBuilder.AppendTitleParts(T("PageTitle.Login"));
+    
+    var registerUrl = Url.RouteUrl("Register");
+    var returnUrl = Context.Request.Query["returnUrl"];
+    if (!string.IsNullOrEmpty(returnUrl))
+    {
+        registerUrl = WebHelper.ModifyQueryString(registerUrl, "returnUrl=" + returnUrl.ToString().UrlEncode(), null);
+    }
+
+    var currentUser = await UserManager.GetUserAsync(Context.User);
+}
+
+<meta name="robots" content="noindex" zone="head" />
+
+<div class="page login-page">
+	<div class="page-title">
+		<h1>@T("Account.Login.Welcome")</h1>
+	</div>
+
+    @if (currentUser != null)
+    {
+        <div>@currentUser.GetFullName()</div>
+    }
+    else
+    {
+        <div class="text-muted">Anonym</div>
+    }
+
+	<div class="row mt-4">
+		<div class="col-12 col-md-7 col-lg-6 col-xl-5 order-md-last">
+			<div class="card shadow-sm p-4 mb-5 mb-md-0 login-box">
+				<h3 class="h4 mb-0">
+					@T("Account.Login.ReturningCustomer")
+				</h3>
+				<hr />
+				@if (!ViewData.ModelState.IsValid)
+				{
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger">@T("Account.Login.Unsuccessful")</div>
+				}
+
+				<!-- SignIn Form -->
+                <form asp-route="Login" asp-route-returnurl="@returnUrl" method="post" autocomplete="off">
+                    @if (Model.CustomerLoginType == CustomerLoginType.Username)
+                    {
+                        <div class="form-group">
+                            <div class="input-group input-group-lg has-icon">
+                                <input asp-for="Username" class="username" autofocus="autofocus" />
+                                <span class="input-group-icon text-muted">
+                                    <i class="icm icm-user"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="Username"></span>
+                        </div>
+                    }
+                    else if (Model.CustomerLoginType == CustomerLoginType.Email)
+                    {
+                        <div class="form-group">
+                            <div class="input-group input-group-lg has-icon">
+                                <input asp-for="Email" class="email" autofocus="autofocus" />
+                                <span class="input-group-icon text-muted">
+                                    <i class="icm icm-envelope-open"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="Email"></span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <div class="input-group input-group-lg has-icon">
+                                <input asp-for="UsernameOrEmail" class="username" autofocus="autofocus" />
+                                <span class="input-group-icon text-muted">
+                                    <i class="icm icm-user"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="UsernameOrEmail"></span>
+                        </div>
+                    }
+
+                    <div class="form-group">
+                        <div class="input-group input-group-lg has-icon">
+                            <input asp-for="Password" class="password" autocomplete="off" />
+                            <span class="input-group-icon text-muted">
+                                <i class="icm icm-shield"></i>
+                            </span>
+                        </div>
+                        <span asp-validation-for="Password"></span>
+                    </div>
+
+                    <div class="form-group d-flex justify-content-between">
+                        <input asp-for="RememberMe" asp-switch="false" />
+                        <div class="forgot-password">
+                            <a asp-route="PasswordRecovery">@T("Account.Login.ForgotPassword")</a>
+                        </div>
+                    </div>
+
+                    @if (Model.DisplayCaptcha)
+                    {
+                        <div class="form-group captcha-box">
+                            @*@Html.Raw(Html.GenerateCaptcha())*@
+                            TODO: GenerateCaptcha()
+                        </div>
+                    }
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block btn-login">
+                            @T("Account.Login.LoginButton")
+                        </button>
+                    </div>
+
+                    @*@await Component.InvokeAsync("ExternalAuthentication")*@
+                </form>
+			</div>
+		</div>
+		<div class="col-12 col-md-5 col-lg-6 col-xl-7 order-md-first">
+			<div class="page-info">
+				@{
+					//Html.RenderPartial("_ExternalAuthentication.AssociateMessage");
+					@await Component.InvokeAsync("TopicBlock", new { systemName = "LoginRegistrationInfo", bodyOnly = true, isLead = true })
+				}
+			</div>
+
+			<div class="register-block">
+				@if (Model.CheckoutAsGuest)
+				{
+                    @await Component.InvokeAsync("TopicBlock", new { systemName = "CheckoutAsGuestOrRegister", bodyOnly = true })
+					<div class="row sm-gutters">
+						<div class="col-sm-6 col-md-12 col-lg-6 pb-2 pb-lg-0">
+							<a class="btn btn-warning btn-lg btn-block register-button" href="@registerUrl">
+								@T("Account.Register.Button")
+							</a>
+						</div>
+						<div class="col-sm-6 col-md-12 col-lg-6">
+							<a class="btn btn-secondary btn-lg btn-block checkout-as-guest-button" asp-route="Checkout">
+								<span>@T("Account.Login.CheckoutAsGuest")</span>
+								<i class="fa fa-angle-right"></i>
+							</a>
+						</div>
+					</div>
+				}
+				else
+				{
+					<div class="row">
+						<div class="col-12 col-lg-auto">
+							<a class="btn btn-warning btn-lg btn-block register-button" href="@registerUrl">
+								@T("Account.Register.Button")
+							</a>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+</div>

@@ -19,6 +19,7 @@ namespace Smartstore.Core.Bootstrapping
         {
             services.AddIdentity<Customer, CustomerRole>()
                 .AddDefaultTokenProviders()
+                .AddRoleManager<RoleManager<CustomerRole>>()
                 .AddSignInManager();
 
             services.AddSingleton<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>();

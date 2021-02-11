@@ -31,11 +31,11 @@ namespace Smartstore.Core.Content.Topics
                 return null;
             }
 
-            var customerRolesIds = _workContext.CurrentCustomer.GetRoleIds();
+            var customerRoleIds = _workContext.CurrentCustomer.GetRoleIds();
 
             var query = _db.Topics
                 .AsNoTracking()
-                .ApplyStandardFilter(false, customerRolesIds, context.RequestStoreId);
+                .ApplyStandardFilter(false, customerRoleIds, context.RequestStoreId);
 
             return new TopicXmlSitemapResult { Query = query };
         }

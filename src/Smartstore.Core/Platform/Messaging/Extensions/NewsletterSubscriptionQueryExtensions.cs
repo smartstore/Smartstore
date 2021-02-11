@@ -37,14 +37,14 @@ namespace Smartstore
         /// </summary>
         /// <param name="query">Newsletter subscription query.</param>
         /// <param name="includeHidden">Applies filter by <see cref="NewsletterSubscription.Active"/>.</param>
-        /// <param name="customerRolesIds">Customer roles identifiers to apply filter by customer role restrictions.</param>
+        /// <param name="customerRoleIds">Customer roles identifiers to apply filter by customer role restrictions.</param>
         /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
         /// <returns>NewsletterSubscriber query.</returns>
         public static IOrderedQueryable<NewsletterSubscriber> ApplyStandardFilter(this IQueryable<NewsletterSubscription> query,
             string email,
             bool includeHidden = false, 
             int[] storeIds = null,
-            int[] customerRolesIds = null)
+            int[] customerRoleIds = null)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -75,12 +75,12 @@ namespace Smartstore
                 joinedQuery = joinedQuery.Where(x => storeIds.Contains(x.Subscription.StoreId));
             }
 
-            if (customerRolesIds?.Any() ?? false)
+            if (customerRoleIds?.Any() ?? false)
             {
                 joinedQuery = joinedQuery.Where(x => x.Customer.CustomerRoleMappings
                     .Where(rm => rm.CustomerRole.Active)
                     .Select(rm => rm.CustomerRoleId)
-                    .Intersect(customerRolesIds).Any());
+                    .Intersect(customerRoleIds).Any());
             }
 
             return joinedQuery

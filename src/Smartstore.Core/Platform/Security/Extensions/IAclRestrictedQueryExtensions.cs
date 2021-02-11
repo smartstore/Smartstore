@@ -1,19 +1,29 @@
 ﻿using System.Linq;
+using System.Runtime.CompilerServices;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Security
 {
     public static partial class IAclRestrictedQueryExtensions
     {
-        public static IQueryable<T> ApplyAclFilter<T>(this IQueryable<T> query, int[] customerRolesIds)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IQueryable<T> ApplyAclFilter<T>(this IQueryable<T> query, Customer customer)
+            where T : BaseEntity, IAclRestricted
+        {
+            Guard.NotNull(customer, nameof(customer));
+            return ApplyAclFilter(query, customer.GetRoleIds());
+        }
+
+        public static IQueryable<T> ApplyAclFilter<T>(this IQueryable<T> query, int[] customerRoleIds)
             where T : BaseEntity, IAclRestricted
         {
             Guard.NotNull(query, nameof(query));
 
             // TODO: (core) Find a way to make ApplyAclFilter to work in cross-context scenarios.
 
-            if (customerRolesIds == null || !customerRolesIds.Any())
+            if (customerRoleIds == null || !customerRoleIds.Any())
             {
                 return query;
             }
@@ -31,7 +41,7 @@ namespace Smartstore.Core.Security
                 join a in db.AclRecords
                 on new { m1 = m.Id, m2 = entityName } equals new { m1 = a.EntityId, m2 = a.EntityName } into ma
                 from a in ma.DefaultIfEmpty()
-                where !m.SubjectToAcl || customerRolesIds.Contains(a.CustomerRoleId)
+                where !m.SubjectToAcl || customerRoleIds.Contains(a.CustomerRoleId)
                 select m;
 
             // TODO: (core) Does not work with efcore5 anymore 
