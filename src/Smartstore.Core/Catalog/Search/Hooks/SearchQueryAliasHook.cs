@@ -1,0 +1,489 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
+using Autofac;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Search.Modelling;
+using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Search;
+using Smartstore.Data.Batching;
+using Smartstore.Data.Hooks;
+using Smartstore.Domain;
+using EState = Smartstore.Data.EntityState;
+
+namespace Smartstore.Core.Catalog.Search
+{
+    [Important]
+    public class SearchQueryAliasHook : AsyncDbSaveHook<BaseEntity>
+    {
+        private static readonly HashSet<Type> _candidateTypes = new(new Type[]
+        {
+            typeof(LocalizedProperty),
+            typeof(SpecificationAttribute),
+            typeof(SpecificationAttributeOption),
+            typeof(ProductSpecificationAttribute),
+            typeof(ProductAttribute),
+            typeof(ProductAttributeOption),
+            typeof(ProductVariantAttribute),
+            typeof(ProductVariantAttributeValue)
+        });
+
+        private readonly SmartDbContext _db;
+        private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
+        private readonly Lazy<SeoSettings> _seoSettings;
+
+        private string _errorMessage;
+
+        public SearchQueryAliasHook(
+            SmartDbContext db,
+            Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
+            Lazy<SeoSettings> seoSettings)
+        {
+            _db = db;
+            _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
+            _seoSettings = seoSettings;
+        }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+        public ILogger Logger { get; set; } = NullLogger.Instance;
+
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            if (_errorMessage.HasValue())
+            {
+                var message = new string(_errorMessage);
+                _errorMessage = null;
+
+                throw new SmartException(message);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public override async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (!_candidateTypes.Contains(entry.EntityType))
+            {
+                return HookResult.Void;
+            }
+
+            var type = entry.EntityType;
+            var entity = entry.Entity;
+
+            if (type == typeof(SpecificationAttribute))
+            {
+                if (await HasAliasDuplicate<ProductAttribute, SpecificationAttribute>(entry, entity, cancelToken))
+                {
+                    return HookResult.Ok;
+                }
+
+                if (IsPropertyModified(entry, "Alias"))
+                {
+                    await _catalogSearchQueryAliasMapper.Value.ClearAttributeCacheAsync();
+                }
+            }
+            else if (entity is SpecificationAttributeOption specAttributeOption)
+            {
+                if (await HasEntityDuplicate<SpecificationAttributeOption>(
+                    entry,
+                    entity,
+                    x => x.Name,
+                    x => x.SpecificationAttributeId == specAttributeOption.SpecificationAttributeId && x.Name == specAttributeOption.Name,
+                    cancelToken))
+                {
+                    return HookResult.Ok;
+                }
+
+                if (await HasAliasDuplicate<SpecificationAttributeOption>(entry, entity, null, cancelToken))
+                {
+                    return HookResult.Ok;
+                }
+
+                if (IsPropertyModified(entry, "Alias"))
+                {
+                    await _catalogSearchQueryAliasMapper.Value.ClearAttributeCacheAsync();
+                }
+            }
+            else if (entity is ProductSpecificationAttribute specAttribute)
+            {
+                if (await HasEntityDuplicate<ProductSpecificationAttribute>(
+                    entry,
+                    entity,
+                    x => x.SpecificationAttributeOption?.Name,
+                    x => x.ProductId == specAttribute.ProductId && x.SpecificationAttributeOptionId == specAttribute.SpecificationAttributeOptionId,
+                    cancelToken))
+                {
+                    return HookResult.Ok;
+                }
+            }
+            else if (type == typeof(ProductAttribute))
+            {
+                if (await HasAliasDuplicate<ProductAttribute, SpecificationAttribute>(entry, entity, cancelToken))
+                {
+                    return HookResult.Ok;
+                }
+
+                if (IsPropertyModified(entry, "Alias"))
+                {
+                    await _catalogSearchQueryAliasMapper.Value.ClearAttributeCacheAsync();
+                }
+            }
+            else if (entity is ProductAttributeOption attributeOption)
+            {
+                if (await HasEntityDuplicate<ProductAttributeOption>(
+                    entry,
+                    entity,
+                    x => x.Name,
+                    x => x.ProductAttributeOptionsSetId == attributeOption.ProductAttributeOptionsSetId && x.Name == attributeOption.Name,
+                    cancelToken))
+                {
+                    return HookResult.Ok;
+                }
+
+                // ClearVariantCacheAsync() not necessary.
+                if (await HasAliasDuplicate<ProductAttributeOption>(entry, entity, null, cancelToken))
+                {
+                    return HookResult.Ok;
+                }
+            }
+            else if (entity is ProductVariantAttribute productAttribute)
+            {
+                if (await HasEntityDuplicate<ProductVariantAttribute>(
+                    entry,
+                    entity,
+                    x => x.ProductAttribute?.Name,
+                    x => x.ProductId == productAttribute.ProductId && x.ProductAttributeId == productAttribute.ProductAttributeId,
+                    cancelToken))
+                {
+                    return HookResult.Ok;
+                }
+            }
+            else if (entity is ProductVariantAttributeValue attributeValue)
+            {
+                if (await HasEntityDuplicate<ProductVariantAttributeValue>(
+                    entry,
+                    entity,
+                    x => x.Name,
+                    x => x.ProductVariantAttributeId == attributeValue.ProductVariantAttributeId && x.Name == attributeValue.Name,
+                    cancelToken))
+                {
+                    return HookResult.Ok;
+                }
+
+                if (await HasAliasDuplicate<ProductVariantAttributeValue>(
+                    entry,
+                    entity,
+                    (all, e) => all.AnyAsync(x => x.Id != e.Id && x.ProductVariantAttributeId == e.ProductVariantAttributeId && x.Alias == e.Alias),
+                    cancelToken))
+                {
+                    return HookResult.Ok;
+                }
+
+                if (IsPropertyModified(entry, "Alias"))
+                {
+                    await _catalogSearchQueryAliasMapper.Value.ClearAttributeCacheAsync();
+                }
+            }
+            else if (entity is LocalizedProperty prop)
+            {
+                // Note, not fired when SpecificationAttribute or SpecificationAttributeOption deleted.
+                // Not necessary anyway because cache cleared by above code.
+                var keyGroup = prop.LocaleKeyGroup;
+
+                if (!prop.LocaleKey.EqualsNoCase("Alias"))
+                {
+                    return HookResult.Ok;
+                }
+
+                // Validating ProductVariantAttributeValue goes too far here.
+                if (!keyGroup.EqualsNoCase(nameof(SpecificationAttribute)) &&
+                    !keyGroup.EqualsNoCase(nameof(SpecificationAttributeOption)) &&
+                    !keyGroup.EqualsNoCase(nameof(ProductAttribute)) &&
+                    !keyGroup.EqualsNoCase(nameof(ProductAttributeOption)))
+                {
+                    return HookResult.Ok;
+                }
+
+                // Check alias duplicate.
+                if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
+                {
+                    prop.LocaleValue = SeoHelper.BuildSlug(prop.LocaleValue, _seoSettings.Value);
+
+                    if (prop.LocaleValue.HasValue() && await HasAliasDuplicate(prop, cancelToken))
+                    {
+                        RevertChanges(entry, CreateValueExistsMessage("Common.Error.AliasAlreadyExists", prop.LocaleValue));
+                        return HookResult.Ok;
+                    }
+                }
+
+                if (IsPropertyModified(entry, "LocaleValue"))
+                {
+                    if (keyGroup.EqualsNoCase(nameof(SpecificationAttribute)) || keyGroup.EqualsNoCase(nameof(SpecificationAttributeOption)))
+                    {
+                        await _catalogSearchQueryAliasMapper.Value.ClearAttributeCacheAsync();
+                    }
+                    else if (keyGroup.EqualsNoCase(nameof(ProductAttribute)) || keyGroup.EqualsNoCase(nameof(ProductVariantAttributeValue)))
+                    {
+                        // Not necessary for ProductAttributeOption.
+                        await _catalogSearchQueryAliasMapper.Value.ClearVariantCacheAsync();
+                    }
+                }
+            }
+
+            return HookResult.Ok;
+        }
+
+        private async Task<bool> HasAliasDuplicate<TEntity>(
+            IHookedEntity entry,
+            BaseEntity baseEntity,
+            Func<IQueryable<TEntity>, TEntity, Task<bool>> hasDuplicate,
+            CancellationToken cancelToken)
+            where TEntity : BaseEntity
+        {
+            if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
+            {
+                if (baseEntity is ISearchAlias entity)
+                {
+                    entity.Alias = SeoHelper.BuildSlug(entity.Alias, _seoSettings.Value);
+                    if (entity.Alias.HasValue())
+                    {
+                        var dbSet = _db.Set<TEntity>().AsNoTracking();
+
+                        //if (allEntities != null && allEntities.Any(x => x.Id != entity.Id && x.Alias == entity.Alias))
+                        if (dbSet is IQueryable<ISearchAlias> allEntities)
+                        {
+                            var duplicateExists = hasDuplicate == null
+                                ? await allEntities.AnyAsync(x => x.Id != entity.Id && x.Alias == entity.Alias, cancelToken)
+                                : await hasDuplicate(dbSet, (TEntity)entity);
+
+                            if (duplicateExists)
+                            {
+                                RevertChanges(entry, CreateValueExistsMessage("Common.Error.AliasAlreadyExists", entity.Alias));
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private async Task<bool> HasAliasDuplicate<T1, T2>(IHookedEntity entry, BaseEntity baseEntity, CancellationToken cancelToken) 
+            where T1 : BaseEntity where T2 : BaseEntity
+        {
+            if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
+            {
+                if (baseEntity is ISearchAlias entity)
+                {
+                    entity.Alias = SeoHelper.BuildSlug(entity.Alias, _seoSettings.Value);
+                    if (entity.Alias.HasValue())
+                    {
+                        var entities1 = _db.Set<T1>().AsNoTracking() as IQueryable<ISearchAlias>;
+                        var entities2 = _db.Set<T2>().AsNoTracking() as IQueryable<ISearchAlias>;
+
+                        var duplicate1 = await entities1.FirstOrDefaultAsync(x => x.Alias == entity.Alias, cancelToken);
+                        var duplicate2 = await entities2.FirstOrDefaultAsync(x => x.Alias == entity.Alias, cancelToken);
+
+                        if (duplicate1 != null || duplicate2 != null)
+                        {
+                            var type = entry.EntityType;
+
+                            if (duplicate1 != null && duplicate1.Id == entity.Id && type == typeof(T1))
+                            {
+                                return false;
+                            }
+                            if (duplicate2 != null && duplicate2.Id == entity.Id && type == typeof(T2))
+                            {
+                                return false;
+                            }
+
+                            RevertChanges(entry, CreateValueExistsMessage("Common.Error.AliasAlreadyExists", entity.Alias));
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private async Task<bool> HasAliasDuplicate(LocalizedProperty property, CancellationToken cancelToken)
+        {
+            var existingProperties = await _db.LocalizedProperties.Where(x =>
+                x.Id != property.Id &&
+                x.LocaleKey == "Alias" &&
+                x.LocaleKeyGroup == property.LocaleKeyGroup &&
+                x.LanguageId == property.LanguageId &&
+                x.LocaleValue == property.LocaleValue)
+                .ToListAsync(cancelToken);
+
+            if (!existingProperties.Any())
+            {
+                // Check cases where alias has to be globally unique.
+                string otherKeyGroup = null;
+
+                if (property.LocaleKeyGroup.EqualsNoCase(nameof(SpecificationAttribute)))
+                {
+                    otherKeyGroup = nameof(ProductAttribute);
+                }
+                else if (property.LocaleKeyGroup.EqualsNoCase(nameof(ProductAttribute)))
+                {
+                    otherKeyGroup = nameof(SpecificationAttribute);
+                }
+
+                if (otherKeyGroup.HasValue())
+                {
+                    existingProperties = await _db.LocalizedProperties.Where(x =>
+                        x.LocaleKey == "Alias" &&
+                        x.LocaleKeyGroup == otherKeyGroup &&
+                        x.LanguageId == property.LanguageId &&
+                        x.LocaleValue == property.LocaleValue)
+                        .ToListAsync(cancelToken);
+                }
+
+                if (!existingProperties.Any())
+                {
+                    return false;
+                }
+            }
+
+            var toDeleteIds = new HashSet<int>();
+
+            foreach (var prop in existingProperties)
+            {
+                // Check if the related entity exists. The user would not be able to solve an invalidated alias when the related entity does not exist anymore.
+                var relatedEntityExists = true;
+
+                if (prop.LocaleKeyGroup.EqualsNoCase(nameof(SpecificationAttribute)))
+                {
+                    relatedEntityExists = await _db.SpecificationAttributes.AnyAsync(x => x.Id == prop.EntityId, cancelToken);
+                }
+                else if (prop.LocaleKeyGroup.EqualsNoCase(nameof(SpecificationAttributeOption)))
+                {
+                    relatedEntityExists = await _db.SpecificationAttributeOptions.AnyAsync(x => x.Id == prop.EntityId, cancelToken);
+                }
+                else if (prop.LocaleKeyGroup.EqualsNoCase(nameof(ProductAttribute)))
+                {
+                    relatedEntityExists = await _db.ProductAttributes.AnyAsync(x => x.Id == prop.EntityId, cancelToken);
+                }
+                else if (prop.LocaleKeyGroup.EqualsNoCase(nameof(ProductAttributeOption)))
+                {
+                    relatedEntityExists = await _db.ProductAttributeOptions.AnyAsync(x => x.Id == prop.EntityId, cancelToken);
+                }
+                //else if (prop.LocaleKeyGroup.EqualsNoCase(nameof(ProductVariantAttributeValue)))
+                //{
+                //}
+
+                if (relatedEntityExists)
+                {
+                    // We cannot delete any localized property because we are going to throw duplicate alias exception in OnBeforeSaveCompleted.
+                    return true;
+                }
+                else
+                {
+                    // Delete accidentally dead localized properties.
+                    toDeleteIds.Add(prop.Id);
+                }
+            }
+
+            if (toDeleteIds.Any())
+            {
+                try
+                {
+                    await _db.LocalizedProperties
+                        .Where(x => toDeleteIds.Contains(x.Id))
+                        .BatchDeleteAsync(cancelToken);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
+            }
+
+            return false;
+        }
+
+        private async Task<bool> HasEntityDuplicate<TEntity>(
+            IHookedEntity entry,
+            BaseEntity baseEntity,
+            Func<TEntity, string> getName,
+            Expression<Func<TEntity, bool>> getDuplicate,
+            CancellationToken cancelToken) where TEntity : BaseEntity
+        {
+            if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
+            {
+                var dbSet = _db.Set<TEntity>().AsNoTracking();
+                var existingEntity = await dbSet.FirstOrDefaultAsync(getDuplicate, cancelToken);
+
+                if (existingEntity != null && existingEntity.Id != baseEntity.Id)
+                {
+                    RevertChanges(entry, CreateValueExistsMessage("Common.Error.OptionAlreadyExists", getName(existingEntity)));
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsPropertyModified(IHookedEntity entry, string propertyName)
+        {
+            var result = false;
+
+            if (entry.State != EState.Detached)
+            {
+                var prop = entry.Entry.Property(propertyName);
+                if (prop != null)
+                {
+                    if (entry.State == EState.Added)
+                    {
+                        // OriginalValues cannot be used for entities in the Added state.
+                        result = prop.CurrentValue != null;
+                    }
+                    else if (entry.State == EState.Deleted)
+                    {
+                        // CurrentValues cannot be used for entities in the Deleted state.
+                        result = prop.OriginalValue != null;
+                    }
+                    else
+                    {
+                        result =
+                            (prop.CurrentValue != null && !prop.CurrentValue.Equals(prop.OriginalValue)) ||
+                            (prop.OriginalValue != null && !prop.OriginalValue.Equals(prop.CurrentValue));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private void RevertChanges(IHookedEntity entry, string errorMessage)
+        {
+            // Throw exception in OnBeforeSaveCompleted.
+            _errorMessage = errorMessage;
+
+            // Revert changes.
+            if (entry.State == EState.Modified)
+            {
+                entry.State = EState.Unchanged;
+            }
+            else if (entry.State == EState.Added)
+            {
+                entry.State = EState.Detached;
+            }
+        }
+
+        private string CreateValueExistsMessage(string resourceKey, string checkedValue)
+        {
+            return T(resourceKey).Value.FormatInvariant(checkedValue.NaIfEmpty()) + " " + T("Common.Error.ChooseDifferentValue");
+        }
+    }
+}
