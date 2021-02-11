@@ -38,7 +38,7 @@ namespace Smartstore.Core.Identity
 		private readonly IWorkContext _workContext;
 		private readonly IEventPublisher _eventPublisher;
 
-		public static DateTime MinDate = new DateTime(1900, 1, 1);
+		private static readonly DateTime MinDate = new(1900, 1, 1);
 
 		public GdprTool(
 			SmartDbContext db,
