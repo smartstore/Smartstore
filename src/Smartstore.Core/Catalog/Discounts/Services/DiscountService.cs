@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
+using Smartstore.Collections;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
+using Smartstore.Data.Hooks;
+using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
-    public partial class DiscountService : IDiscountService
+    public partial class DiscountService : AsyncDbSaveHook<Discount>, IDiscountService
     {
         // {0} = includeHidden, {1} = couponCode.
         private const string DISCOUNTS_ALL_KEY = "discount.all-{0}-{1}";
@@ -22,6 +26,7 @@ namespace Smartstore.Core.Catalog.Discounts
         private readonly IRequestCache _requestCache;
         //private readonly ICartRuleProvider _cartRuleProvider;
         private readonly Dictionary<DiscountKey, bool> _discountValidityCache = new();
+        private Multimap<string, int> _relatedEntityIds = new(items => new HashSet<int>(items));
 
         public DiscountService(
             SmartDbContext db,
@@ -33,6 +38,85 @@ namespace Smartstore.Core.Catalog.Discounts
             _requestCache = requestCache;
             //_cartRuleProvider = cartRuleProvider;
         }
+
+        #region Hook
+
+        protected override Task<HookResult> OnInsertingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
+        protected override Task<HookResult> OnUpdatingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (entry.IsPropertyModified(nameof(Discount.DiscountType)))
+            {
+                KeepRelatedEntityIds(entity);
+            }
+
+            return Task.FromResult(HookResult.Ok);
+        }
+
+        protected override Task<HookResult> OnDeletingAsync(Discount entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            KeepRelatedEntityIds(entity);
+            return Task.FromResult(HookResult.Ok);
+        }
+
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            // Update HasDiscountsApplied property.
+            if (_relatedEntityIds.Any())
+            {
+                await ProcessChunk(
+                    _db.Products,
+                    _relatedEntityIds["product"],
+                    x => x.HasDiscountsApplied = x.AppliedDiscounts.Any(),
+                    cancelToken);
+
+                await ProcessChunk(
+                    _db.Categories,
+                    _relatedEntityIds["category"],
+                    x => x.HasDiscountsApplied = x.AppliedDiscounts.Any(),
+                    cancelToken);
+
+                await ProcessChunk(
+                    _db.Manufacturers,
+                    _relatedEntityIds["manufactuter"],
+                    x => x.HasDiscountsApplied = x.AppliedDiscounts.Any(),
+                    cancelToken);
+
+                _relatedEntityIds.Clear();
+            }
+
+            _requestCache.RemoveByPattern(DISCOUNTS_PATTERN_KEY);
+        }
+
+        private void KeepRelatedEntityIds(Discount entity)
+        {
+            _relatedEntityIds.AddRange("product", entity.AppliedToProducts.Select(x => x.Id));
+            _relatedEntityIds.AddRange("category", entity.AppliedToCategories.Select(x => x.Id));
+            _relatedEntityIds.AddRange("manufacturer", entity.AppliedToManufacturers.Select(x => x.Id));
+        }
+
+        private async Task ProcessChunk<TEntity>(DbSet<TEntity> dbSet, IEnumerable<int> ids, Action<TEntity> process, CancellationToken cancelToken = default)
+            where TEntity : BaseEntity
+        {
+            var allIds = ids.ToArray();
+
+            foreach (var idsChunk in allIds.Slice(100))
+            {
+                var entities = await dbSet
+                    .Where(x => idsChunk.Contains(x.Id))
+                    .ToListAsync(cancelToken);
+
+                foreach (var entity in entities)
+                {
+                    process(entity);
+                }
+
+                await _db.SaveChangesAsync();
+            }
+        }
+
+        #endregion
 
         public virtual async Task<IEnumerable<Discount>> GetAllDiscountsAsync(DiscountType? discountType, string couponCode = null, bool includeHidden = false)
         {
