@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Discounts.Domain;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Rules;
 using Smartstore.Domain;
@@ -55,7 +56,7 @@ namespace Smartstore.Core.Catalog.Categories
     [Index(nameof(LimitedToStores), Name = "IX_Category_LimitedToStores")]
     [Index(nameof(ParentCategoryId), Name = "IX_Category_ParentCategoryId")]
     [Index(nameof(SubjectToAcl), Name = "IX_Category_SubjectToAcl")]
-    public partial class Category : EntityWithAttributes, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder, IRulesContainer
+    public partial class Category : EntityWithDiscounts, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder, IRulesContainer
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -216,15 +217,6 @@ namespace Smartstore.Core.Catalog.Categories
         [MaxLength]
         public string DefaultViewMode { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether this category has discounts applied.
-        /// </summary>
-        /// <remarks>
-        /// We use this property for performance optimization:
-        /// if this property is set to false, then we do not need to load AppliedDiscounts navigation property.
-        /// </remarks>
-        public bool HasDiscountsApplied { get; set; }
-
         private ICollection<RuleSetEntity> _ruleSets;
         /// <summary>
         /// Gets or sets assigned rule sets.
@@ -233,16 +225,6 @@ namespace Smartstore.Core.Catalog.Categories
         {
             get => _lazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
             protected set => _ruleSets = value;
-        }
-
-        private ICollection<Discount> _appliedDiscounts;
-        /// <summary>
-        /// Gets or sets the applied discounts.
-        /// </summary>
-        public ICollection<Discount> AppliedDiscounts
-        {
-            get => _lazyLoader?.Load(this, ref _appliedDiscounts) ?? (_appliedDiscounts ??= new HashSet<Discount>());
-            protected set => _appliedDiscounts = value;
         }
 
         /// <inheritdoc/>

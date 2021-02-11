@@ -299,6 +299,7 @@ namespace Smartstore
 
         #region Load collection / reference
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsCollectionLoaded<TEntity, TCollection>(
             this HookingDbContext ctx,
             TEntity entity,
@@ -306,11 +307,22 @@ namespace Smartstore
             where TEntity : BaseEntity
             where TCollection : BaseEntity
         {
+            return IsCollectionLoaded(ctx, entity, navigationProperty, out _);
+        }
+
+        public static bool IsCollectionLoaded<TEntity, TCollection>(
+            this HookingDbContext ctx,
+            TEntity entity,
+            Expression<Func<TEntity, IEnumerable<TCollection>>> navigationProperty,
+            out CollectionEntry<TEntity, TCollection> collectionEntry)
+            where TEntity : BaseEntity
+            where TCollection : BaseEntity
+        {
             Guard.NotNull(entity, nameof(entity));
             Guard.NotNull(navigationProperty, nameof(navigationProperty));
 
             var entry = ctx.Entry(entity);
-            var collection = entry.Collection(navigationProperty);
+            collectionEntry = entry.Collection(navigationProperty);
 
             // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
             if (entry.State == EfState.Detached || entry.State == EfState.Added)
@@ -318,9 +330,10 @@ namespace Smartstore
                 return false;
             }
 
-            return collection.IsLoaded;
+            return collectionEntry.IsLoaded;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsReferenceLoaded<TEntity, TProperty>(
             this HookingDbContext ctx,
             TEntity entity,
@@ -328,11 +341,22 @@ namespace Smartstore
             where TEntity : BaseEntity
             where TProperty : BaseEntity
         {
+            return IsReferenceLoaded(ctx, entity, navigationProperty, out _);
+        }
+
+        public static bool IsReferenceLoaded<TEntity, TProperty>(
+            this HookingDbContext ctx,
+            TEntity entity,
+            Expression<Func<TEntity, TProperty>> navigationProperty,
+            out ReferenceEntry<TEntity, TProperty> referenceEntry)
+            where TEntity : BaseEntity
+            where TProperty : BaseEntity
+        {
             Guard.NotNull(entity, nameof(entity));
             Guard.NotNull(navigationProperty, nameof(navigationProperty));
 
             var entry = ctx.Entry(entity);
-            var reference = entry.Reference(navigationProperty);
+            referenceEntry = entry.Reference(navigationProperty);
 
             // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
             if (entry.State == EfState.Detached || entry.State == EfState.Added)
@@ -340,7 +364,7 @@ namespace Smartstore
                 return false;
             }
 
-            return reference.IsLoaded;
+            return referenceEntry.IsLoaded;
         }
 
         /// <summary>

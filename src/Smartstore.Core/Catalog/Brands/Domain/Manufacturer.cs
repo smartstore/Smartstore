@@ -13,6 +13,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
+using Smartstore.Core.Catalog.Discounts.Domain;
 
 namespace Smartstore.Core.Catalog.Brands
 {
@@ -36,7 +37,7 @@ namespace Smartstore.Core.Catalog.Brands
     [Index(nameof(DisplayOrder), Name = "IX_Manufacturer_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_Manufacturer_LimitedToStores")]
     [Index(nameof(SubjectToAcl), Name = "IX_SubjectToAcl")]
-    public partial class Manufacturer : EntityWithAttributes, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IPagingOptions, IDisplayOrder
+    public partial class Manufacturer : EntityWithDiscounts, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IPagingOptions, IDisplayOrder
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -150,25 +151,6 @@ namespace Smartstore.Core.Catalog.Brands
 
         /// <inheritdoc/>
         public DateTime UpdatedOnUtc { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether this manufacturer has discounts applied.
-        /// </summary>
-        /// <remarks>
-        /// We use this property for performance optimization:
-        /// if this property is set to false, then we do not need to load AppliedDiscounts navigation property.
-        /// </remarks>
-        public bool HasDiscountsApplied { get; set; }
-
-        private ICollection<Discount> _appliedDiscounts;
-        /// <summary>
-        /// Gets or sets the applied discounts.
-        /// </summary>
-        public ICollection<Discount> AppliedDiscounts
-        {
-            get => _lazyLoader?.Load(this, ref _appliedDiscounts) ?? (_appliedDiscounts ??= new HashSet<Discount>());
-            protected set => _appliedDiscounts = value;
-        }
 
         /// <inheritdoc/>
         public string GetDisplayName()

@@ -26,7 +26,7 @@ namespace Smartstore.Core.Catalog.Discounts
         private readonly IRequestCache _requestCache;
         //private readonly ICartRuleProvider _cartRuleProvider;
         private readonly Dictionary<DiscountKey, bool> _discountValidityCache = new();
-        private Multimap<string, int> _relatedEntityIds = new(items => new HashSet<int>(items));
+        private readonly Multimap<string, int> _relatedEntityIds = new(items => new HashSet<int>(items));
 
         public DiscountService(
             SmartDbContext db,
@@ -97,7 +97,7 @@ namespace Smartstore.Core.Catalog.Discounts
         }
 
         private async Task ProcessChunk<TEntity>(DbSet<TEntity> dbSet, IEnumerable<int> ids, Action<TEntity> process, CancellationToken cancelToken = default)
-            where TEntity : BaseEntity
+            where TEntity : EntityWithDiscounts
         {
             var allIds = ids.ToArray();
 
@@ -107,9 +107,15 @@ namespace Smartstore.Core.Catalog.Discounts
                     .Where(x => idsChunk.Contains(x.Id))
                     .ToListAsync(cancelToken);
 
-                foreach (var entity in entities)
+                foreach (var entity in entities.OfType<EntityWithDiscounts>())
                 {
-                    process(entity);
+                    var isLoaded = _db.IsCollectionLoaded(entity, x => x.AppliedDiscounts, out var collectionEntry);
+                    var hasDiscounts = isLoaded
+                        ? entity.AppliedDiscounts.Any()
+                        : await collectionEntry.Query().AnyAsync(cancelToken);
+
+
+                    entity.HasDiscountsApplied = hasDiscounts;
                 }
 
                 await _db.SaveChangesAsync();

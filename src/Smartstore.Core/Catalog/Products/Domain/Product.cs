@@ -92,7 +92,7 @@ namespace Smartstore.Core.Catalog.Products
     [Index(nameof(SystemName), nameof(IsSystemProduct), Name = "IX_Product_SystemName_IsSystemProduct")]
     [Index(nameof(Published), nameof(Id), nameof(Visibility), nameof(Deleted), nameof(IsSystemProduct), nameof(AvailableStartDateTimeUtc), nameof(AvailableEndDateTimeUtc), Name = "IX_SeekExport1")]
     [Index(nameof(Visibility), Name = "IX_Visibility")]
-    public partial class Product : EntityWithAttributes, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
+    public partial class Product : EntityWithDiscounts, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
     {
         #region static
 
@@ -691,15 +691,6 @@ namespace Smartstore.Core.Catalog.Products
         public AttributeChoiceBehaviour AttributeChoiceBehaviour { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this product has discounts applied.
-        /// </summary>
-        /// <remarks>
-        /// We use this property for performance optimization:
-        /// if this property is set to false, then we do not need to load AppliedDiscounts navigation property.
-        /// </remarks>
-        public bool HasDiscountsApplied { get; set; }
-
-        /// <summary>
         /// Gets or sets the weight.
         /// </summary>
         public decimal Weight { get; set; }
@@ -1004,16 +995,6 @@ namespace Smartstore.Core.Catalog.Products
         {
             get => _lazyLoader?.Load(this, ref _tierPrices) ?? (_tierPrices ??= new HashSet<TierPrice>());
             protected set => _tierPrices = value;
-        }
-
-        private ICollection<Discount> _appliedDiscounts;
-        /// <summary>
-        /// Gets or sets the applied discounts.
-        /// </summary>
-        public ICollection<Discount> AppliedDiscounts
-        {
-            get => _lazyLoader?.Load(this, ref _appliedDiscounts) ?? (_appliedDiscounts ??= new HashSet<Discount>());
-            protected set => _appliedDiscounts = value;
         }
 
         private ICollection<ProductBundleItem> _productBundleItems;
