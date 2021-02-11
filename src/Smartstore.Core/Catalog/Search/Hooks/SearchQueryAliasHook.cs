@@ -38,14 +38,14 @@ namespace Smartstore.Core.Catalog.Search
 
         private readonly SmartDbContext _db;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
-        private readonly Lazy<SeoSettings> _seoSettings;
+        private readonly SeoSettings _seoSettings;
 
         private string _errorMessage;
 
         public SearchQueryAliasHook(
             SmartDbContext db,
             Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper,
-            Lazy<SeoSettings> seoSettings)
+            SeoSettings seoSettings)
         {
             _db = db;
             _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
@@ -215,7 +215,7 @@ namespace Smartstore.Core.Catalog.Search
                 // Check alias duplicate.
                 if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
                 {
-                    prop.LocaleValue = SeoHelper.BuildSlug(prop.LocaleValue, _seoSettings.Value);
+                    prop.LocaleValue = SeoHelper.BuildSlug(prop.LocaleValue, _seoSettings);
 
                     if (prop.LocaleValue.HasValue() && await HasAliasDuplicate(prop, cancelToken))
                     {
@@ -252,7 +252,7 @@ namespace Smartstore.Core.Catalog.Search
             {
                 if (baseEntity is ISearchAlias entity)
                 {
-                    entity.Alias = SeoHelper.BuildSlug(entity.Alias, _seoSettings.Value);
+                    entity.Alias = SeoHelper.BuildSlug(entity.Alias, _seoSettings);
                     if (entity.Alias.HasValue())
                     {
                         var dbSet = _db.Set<TEntity>().AsNoTracking();
@@ -284,7 +284,7 @@ namespace Smartstore.Core.Catalog.Search
             {
                 if (baseEntity is ISearchAlias entity)
                 {
-                    entity.Alias = SeoHelper.BuildSlug(entity.Alias, _seoSettings.Value);
+                    entity.Alias = SeoHelper.BuildSlug(entity.Alias, _seoSettings);
                     if (entity.Alias.HasValue())
                     {
                         var entities1 = _db.Set<T1>().AsNoTracking() as IQueryable<ISearchAlias>;
