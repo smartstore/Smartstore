@@ -33,6 +33,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+        private readonly IDiscountService _discountService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly CatalogSettings _catalogSettings;
 
@@ -45,6 +46,7 @@ namespace Smartstore.Core.Catalog.Pricing
             ITaxService taxService,
             ICurrencyService currencyService,
             IProductAttributeMaterializer productAttributeMaterializer,
+            IDiscountService discountService,
             IPriceFormatter priceFormatter,
             CatalogSettings catalogSettings)
         {
@@ -56,6 +58,7 @@ namespace Smartstore.Core.Catalog.Pricing
             _taxService = taxService;
             _currencyService = currencyService;
             _productAttributeMaterializer = productAttributeMaterializer;
+            _discountService = discountService;
             _priceFormatter = priceFormatter;
             _catalogSettings = catalogSettings;
         }
@@ -734,7 +737,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
         protected virtual async Task<ICollection<Discount>> GetAllowedDiscountsAsync(Product product, Customer customer, PriceCalculationContext context = null)
         {
-            // TODO: (mg) (core) Complete PriceCalculationService (IDiscountService required).
             var result = new HashSet<Discount>();
 
             if (_catalogSettings.IgnoreDiscounts)
@@ -764,17 +766,16 @@ namespace Smartstore.Core.Catalog.Pricing
                 {
                     foreach (var discount in appliedDiscounts)
                     {
-                        //if (discount.DiscountType == DiscountType.AssignedToSkus && !result.Contains(discount) && _discountService.IsDiscountValid(discount, customer))
-                        //{
-                        //    result.Add(discount);
-                        //}
+                        if (discount.DiscountType == DiscountType.AssignedToSkus && !result.Contains(discount) && await _discountService.IsDiscountValidAsync(discount, customer))
+                        {
+                            result.Add(discount);
+                        }
                     }
                 }
             }
 
             // Check discounts assigned to categories.
-            //var discountsAssignedToCategories = _discountService.GetAllDiscounts(DiscountType.AssignedToCategories);
-            var discountsAssignedToCategories = Enumerable.Empty<Discount>();
+            var discountsAssignedToCategories = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToCategories);
             if (discountsAssignedToCategories?.Any() ?? false)
             {
                 IEnumerable<ProductCategory> productCategories;
@@ -799,10 +800,10 @@ namespace Smartstore.Core.Catalog.Pricing
 
                             foreach (var discount in categoryDiscounts)
                             {
-                                //if (discount.DiscountType == DiscountType.AssignedToCategories && !result.Contains(discount) && _discountService.IsDiscountValid(discount, customer))
-                                //{
-                                //    result.Add(discount);
-                                //}
+                                if (discount.DiscountType == DiscountType.AssignedToCategories && !result.Contains(discount) && await _discountService.IsDiscountValidAsync(discount, customer))
+                                {
+                                    result.Add(discount);
+                                }
                             }
                         }
                     }
@@ -810,8 +811,7 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             // Check discounts assigned to manufacturers.
-            //var discountsAssignedToManufacturers = _discountService.GetAllDiscounts(DiscountType.AssignedToManufacturers);
-            var discountsAssignedToManufacturers = Enumerable.Empty<Discount>();
+            var discountsAssignedToManufacturers = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToManufacturers);
             if (discountsAssignedToManufacturers?.Any() ?? false)
             {
                 IEnumerable<ProductManufacturer> productManufacturers = null;
@@ -836,10 +836,10 @@ namespace Smartstore.Core.Catalog.Pricing
 
                             foreach (var discount in manuDiscounts)
                             {
-                                //if (discount.DiscountType == DiscountType.AssignedToManufacturers && !result.Contains(discount) && _discountService.IsDiscountValid(discount, customer))
-                                //{
-                                //    result.Add(discount);
-                                //}
+                                if (discount.DiscountType == DiscountType.AssignedToManufacturers && !result.Contains(discount) && await _discountService.IsDiscountValidAsync(discount, customer))
+                                {
+                                    result.Add(discount);
+                                }
                             }
                         }
                     }

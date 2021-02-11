@@ -3,6 +3,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Attributes.Modelling;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
@@ -39,6 +40,7 @@ namespace Smartstore.Core.Bootstrapping
 
             builder.RegisterType<PriceCalculationService>().As<IPriceCalculationService>().InstancePerLifetimeScope();
             builder.RegisterType<PriceFormatter>().As<IPriceFormatter>().InstancePerLifetimeScope();
+            builder.RegisterType<DiscountService>().As<IDiscountService>().InstancePerLifetimeScope();
             builder.RegisterType<StockSubscriptionService>().As<IStockSubscriptionService>().InstancePerLifetimeScope();
             builder.RegisterType<RecentlyViewedProductsService>().As<IRecentlyViewedProductsService>().InstancePerLifetimeScope();
             builder.RegisterType<ProductCompareService>().As<IProductCompareService>().InstancePerLifetimeScope();

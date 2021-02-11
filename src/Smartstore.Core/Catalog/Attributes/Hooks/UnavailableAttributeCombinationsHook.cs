@@ -17,7 +17,7 @@ namespace Smartstore.Core.Catalog.Attributes
     {
         private readonly ICacheManager _cache;
 
-        private static readonly HashSet<Type> _combinationsInvalidationTypes = new HashSet<Type>(new[]
+        private static readonly HashSet<Type> _combinationsInvalidationTypes = new(new[]
         {
             typeof(Setting),
             typeof(Product),

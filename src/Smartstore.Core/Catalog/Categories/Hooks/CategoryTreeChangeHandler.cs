@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Caching;
+using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
@@ -157,6 +158,39 @@ namespace Smartstore.Core.Catalog.Categories
                         // Don't nuke ACL agnostic trees.
                         await _cache.RemoveByPatternAsync(BuildCacheKeyPattern("*", "[^0]*", "*"));
                         await PublishEvent(CategoryTreeChangeReason.Acl);
+                    }
+                }
+                else if (modProps.Keys.Any(x => _d.Contains(x)))
+                {
+                    // Only data has changed. Don't nuke trees, update corresponding cache entries instead.
+                    var keys = _cache.Keys(CategoryService.CATEGORY_TREE_PATTERN_KEY).ToArray();
+                    foreach (var key in keys)
+                    {
+                        var tree = await _cache.GetAsync<TreeNode<ICategoryNode>>(key);
+                        if (tree != null)
+                        {
+                            var node = tree.SelectNodeById(entity.Id);
+                            if (node != null)
+                            {
+                                if (node.Value is CategoryNode value)
+                                {
+                                    value.Name = category.Name;
+                                    value.ExternalLink = category.ExternalLink;
+                                    value.Alias = category.Alias;
+                                    value.MediaFileId = category.MediaFileId;
+                                    value.BadgeText = category.BadgeText;
+                                    value.BadgeStyle = category.BadgeStyle;
+
+                                    // Persist to cache store.
+                                    await _cache.PutAsync(key, tree, new CacheEntryOptions().ExpiresIn(CategoryService.CategoryTreeCacheDuration));
+                                }
+                                else
+                                {
+                                    // Cannot update. Nuke tree.
+                                    await _cache.RemoveAsync(key);
+                                }
+                            }
+                        }
                     }
                 }
             }
