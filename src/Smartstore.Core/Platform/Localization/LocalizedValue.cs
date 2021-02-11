@@ -13,7 +13,7 @@ namespace Smartstore.Core.Localization
     public abstract class LocalizedValue
     {
         // Regex for all types of brackets which need to be "swapped": ({[]})
-        private readonly static Regex _rgBrackets = new Regex(@"\(|\{|\[|\]|\}|\)", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private readonly static Regex _rgBrackets = new(@"\(|\{|\[|\]|\}|\)", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private readonly Language _requestLanguage;
         private readonly Language _currentLanguage;

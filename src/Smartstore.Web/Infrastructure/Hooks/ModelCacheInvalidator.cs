@@ -243,7 +243,7 @@ namespace Smartstore.Web.Infrastructure.Hooks
 
 		#endregion
 
-		private static readonly HashSet<string> _candidateSettingKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		private static readonly HashSet<string> _candidateSettingKeys = new(StringComparer.OrdinalIgnoreCase)
 		{
 			TypeHelper.NameOf<CatalogSettings>(x => x.NumberOfProductTags, true),
 			TypeHelper.NameOf<CatalogSettings>(x => x.ManufacturerItemsToDisplayOnHomepage, true),

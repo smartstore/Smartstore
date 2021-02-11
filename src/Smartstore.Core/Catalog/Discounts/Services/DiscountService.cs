@@ -118,7 +118,7 @@ namespace Smartstore.Core.Catalog.Discounts
                     entity.HasDiscountsApplied = hasDiscounts;
                 }
 
-                await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync(cancelToken);
             }
         }
 

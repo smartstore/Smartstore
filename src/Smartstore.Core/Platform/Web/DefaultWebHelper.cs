@@ -245,7 +245,7 @@ namespace Smartstore.Core.Web
             var hsIndex = url.LastIndexOf('#');
             if (hsIndex >= 0)
             {
-                curAnchor = url.Substring(hsIndex);
+                curAnchor = url[hsIndex..];
                 url = url.Substring(0, hsIndex);
             }
 

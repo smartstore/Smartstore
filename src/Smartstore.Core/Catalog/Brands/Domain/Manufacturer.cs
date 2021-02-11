@@ -13,7 +13,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
-using Smartstore.Core.Catalog.Discounts.Domain;
 
 namespace Smartstore.Core.Catalog.Brands
 {

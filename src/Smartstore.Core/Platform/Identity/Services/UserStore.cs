@@ -77,7 +77,7 @@ namespace Smartstore.Core.Identity
             return _roles
                 .Where(x => x.Name == normalizedRoleName && (!activeOnly || x.Active))
                 .Select(x => (int?)x.Id)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
         }
 
         protected async Task<IEnumerable<CustomerRole>> GetOrLoadRolesAsync(Customer user, bool activeOnly = true)
@@ -201,7 +201,7 @@ namespace Smartstore.Core.Identity
             return _users
                 .Include(x => x.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole)
-                .FirstOrDefaultAsync(x => x.Username == normalizedUserName);
+                .FirstOrDefaultAsync(x => x.Username == normalizedUserName, cancellationToken);
         }
 
         Task<string> IUserStore<Customer>.GetNormalizedUserNameAsync(Customer user, CancellationToken cancellationToken)
@@ -270,7 +270,7 @@ namespace Smartstore.Core.Identity
             return _users
                 .Include(x => x.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole)
-                .FirstOrDefaultAsync(x => x.Email == normalizedEmail);
+                .FirstOrDefaultAsync(x => x.Email == normalizedEmail, cancellationToken);
         }
 
         Task IUserEmailStore<Customer>.SetEmailAsync(Customer user, string email, CancellationToken cancellationToken)
@@ -398,7 +398,7 @@ namespace Smartstore.Core.Identity
                 return await _roleMappings
                     .Where(x => x.CustomerRoleId == roleId.Value)
                     .Select(x => x.Customer)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
             }
 
             return new List<Customer>();

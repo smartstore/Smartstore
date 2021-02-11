@@ -112,12 +112,10 @@ namespace Smartstore.Core.Content.Blocks
 
 		public async Task<IHtmlContent> ToHtmlContentAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper)
 		{
-			using (var writer = new StringWriter(CultureInfo.CurrentCulture))
-			{
-				await RenderCoreAsync(element, templates, htmlHelper, writer);
-				return new HtmlString(writer.ToString());
-			}
-		}
+            using var writer = new StringWriter(CultureInfo.CurrentCulture);
+            await RenderCoreAsync(element, templates, htmlHelper, writer);
+            return new HtmlString(writer.ToString());
+        }
 
 		protected virtual Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
 		{

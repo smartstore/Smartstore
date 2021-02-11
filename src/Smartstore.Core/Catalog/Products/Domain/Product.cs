@@ -96,7 +96,7 @@ namespace Smartstore.Core.Catalog.Products
     {
         #region static
 
-        private static readonly HashSet<string> _visibilityAffectingProductProps = new HashSet<string>
+        private static readonly HashSet<string> _visibilityAffectingProductProps = new()
         {
             nameof(AvailableEndDateTimeUtc),
             nameof(AvailableStartDateTimeUtc),

@@ -192,8 +192,10 @@ namespace Smartstore.Core.Catalog.Categories
                 affectedCategories += subCategories.Count;
 
                 // Process products.
-                var categoryIds = new HashSet<int>(subCategories.Select(x => x.Id));
-                categoryIds.Add(c.Id);
+                var categoryIds = new HashSet<int>(subCategories.Select(x => x.Id))
+                {
+                    c.Id
+                };
 
                 var searchQuery = new CatalogSearchQuery().WithCategoryIds(null, categoryIds.ToArray());
                 var productsQuery = _catalogSearchService.PrepareQuery(searchQuery);
@@ -319,8 +321,10 @@ namespace Smartstore.Core.Catalog.Categories
                 affectedCategories += subCategories.Count;
 
                 // Process products.
-                var categoryIds = new HashSet<int>(subCategories.Select(x => x.Id));
-                categoryIds.Add(c.Id);
+                var categoryIds = new HashSet<int>(subCategories.Select(x => x.Id))
+                {
+                    c.Id
+                };
 
                 var searchQuery = new CatalogSearchQuery().WithCategoryIds(null, categoryIds.ToArray());
                 var productsQuery = _catalogSearchService.PrepareQuery(searchQuery);
