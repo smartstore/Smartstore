@@ -38,16 +38,14 @@ namespace Smartstore.Core.Catalog.Brands
     [Index(nameof(SubjectToAcl), Name = "IX_SubjectToAcl")]
     public partial class Manufacturer : EntityWithDiscounts, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IPagingOptions, IDisplayOrder
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public Manufacturer()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private Manufacturer(ILazyLoader lazyLoader)
+        private Manufacturer(ILazyLoader lazyLoader) 
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -102,7 +100,7 @@ namespace Smartstore.Core.Catalog.Brands
         /// </summary>
         public MediaFile MediaFile
         {
-            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+            get => LazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
             set => _mediaFile = value;
         }
 

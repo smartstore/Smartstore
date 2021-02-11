@@ -117,16 +117,14 @@ namespace Smartstore.Core.Catalog.Products
 
         #endregion
 
-        private readonly ILazyLoader _lazyLoader;
-
         public Product()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private Product(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <inheritdoc/>
@@ -406,7 +404,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public Download SampleDownload
         {
-            get => _lazyLoader?.Load(this, ref _sampleDownload) ?? _sampleDownload;
+            get => LazyLoader?.Load(this, ref _sampleDownload) ?? _sampleDownload;
             set => _sampleDownload = value;
         }
 
@@ -799,7 +797,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public DeliveryTime DeliveryTime
         {
-            get => _lazyLoader?.Load(this, ref _deliveryTime) ?? _deliveryTime;
+            get => LazyLoader?.Load(this, ref _deliveryTime) ?? _deliveryTime;
             set => _deliveryTime = value;
         }
 
@@ -809,7 +807,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public QuantityUnit QuantityUnit
         {
-            get => _lazyLoader?.Load(this, ref _quantityUnit) ?? _quantityUnit;
+            get => LazyLoader?.Load(this, ref _quantityUnit) ?? _quantityUnit;
             set => _quantityUnit = value;
         }
 
@@ -830,7 +828,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public Country CountryOfOrigin
         {
-            get => _lazyLoader?.Load(this, ref _countryOfOrigin) ?? _countryOfOrigin;
+            get => LazyLoader?.Load(this, ref _countryOfOrigin) ?? _countryOfOrigin;
             set => _countryOfOrigin = value;
         }
 
@@ -912,7 +910,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ICollection<ProductCategory> ProductCategories
         {
-            get => _lazyLoader?.Load(this, ref _productCategories) ?? (_productCategories ??= new HashSet<ProductCategory>());
+            get => LazyLoader?.Load(this, ref _productCategories) ?? (_productCategories ??= new HashSet<ProductCategory>());
             protected set => _productCategories = value;
         }
 
@@ -922,7 +920,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ICollection<ProductManufacturer> ProductManufacturers
         {
-            get => _lazyLoader?.Load(this, ref _productManufacturers) ?? (_productManufacturers ??= new HashSet<ProductManufacturer>());
+            get => LazyLoader?.Load(this, ref _productManufacturers) ?? (_productManufacturers ??= new HashSet<ProductManufacturer>());
             protected set => _productManufacturers = value;
         }
 
@@ -932,7 +930,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ICollection<ProductMediaFile> ProductPictures
         {
-            get => _lazyLoader?.Load(this, ref _productPictures) ?? (_productPictures ??= new HashSet<ProductMediaFile>());
+            get => LazyLoader?.Load(this, ref _productPictures) ?? (_productPictures ??= new HashSet<ProductMediaFile>());
             protected set => _productPictures = value;
         }
 
@@ -943,7 +941,7 @@ namespace Smartstore.Core.Catalog.Products
         [JsonIgnore]
         public ICollection<ProductReview> ProductReviews
         {
-            get => _lazyLoader?.Load(this, ref _productReviews) ?? (_productReviews ??= new HashSet<ProductReview>());
+            get => LazyLoader?.Load(this, ref _productReviews) ?? (_productReviews ??= new HashSet<ProductReview>());
             protected set => _productReviews = value;
         }
 
@@ -953,7 +951,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ICollection<ProductSpecificationAttribute> ProductSpecificationAttributes
         {
-            get => _lazyLoader?.Load(this, ref _productSpecificationAttributes) ?? (_productSpecificationAttributes ??= new HashSet<ProductSpecificationAttribute>());
+            get => LazyLoader?.Load(this, ref _productSpecificationAttributes) ?? (_productSpecificationAttributes ??= new HashSet<ProductSpecificationAttribute>());
             protected set => _productSpecificationAttributes = value;
         }
 
@@ -963,7 +961,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ICollection<ProductTag> ProductTags
         {
-            get => _lazyLoader?.Load(this, ref _productTags) ?? (_productTags ??= new HashSet<ProductTag>());
+            get => LazyLoader?.Load(this, ref _productTags) ?? (_productTags ??= new HashSet<ProductTag>());
             protected set => _productTags = value;
         }
 
@@ -973,7 +971,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ICollection<ProductVariantAttribute> ProductVariantAttributes
         {
-            get => _lazyLoader?.Load(this, ref _productVariantAttributes) ?? (_productVariantAttributes ??= new HashSet<ProductVariantAttribute>());
+            get => LazyLoader?.Load(this, ref _productVariantAttributes) ?? (_productVariantAttributes ??= new HashSet<ProductVariantAttribute>());
             protected set => _productVariantAttributes = value;
         }
 
@@ -983,7 +981,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ICollection<ProductVariantAttributeCombination> ProductVariantAttributeCombinations
         {
-            get => _lazyLoader?.Load(this, ref _productVariantAttributeCombinations) ?? (_productVariantAttributeCombinations ??= new HashSet<ProductVariantAttributeCombination>());
+            get => LazyLoader?.Load(this, ref _productVariantAttributeCombinations) ?? (_productVariantAttributeCombinations ??= new HashSet<ProductVariantAttributeCombination>());
             protected set => _productVariantAttributeCombinations = value;
         }
 
@@ -993,7 +991,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ICollection<TierPrice> TierPrices
         {
-            get => _lazyLoader?.Load(this, ref _tierPrices) ?? (_tierPrices ??= new HashSet<TierPrice>());
+            get => LazyLoader?.Load(this, ref _tierPrices) ?? (_tierPrices ??= new HashSet<TierPrice>());
             protected set => _tierPrices = value;
         }
 
@@ -1003,7 +1001,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ICollection<ProductBundleItem> ProductBundleItems
         {
-            get => _lazyLoader?.Load(this, ref _productBundleItems) ?? (_productBundleItems ??= new HashSet<ProductBundleItem>());
+            get => LazyLoader?.Load(this, ref _productBundleItems) ?? (_productBundleItems ??= new HashSet<ProductBundleItem>());
             protected set => _productBundleItems = value;
         }
 

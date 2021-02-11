@@ -57,16 +57,14 @@ namespace Smartstore.Core.Catalog.Categories
     [Index(nameof(SubjectToAcl), Name = "IX_Category_SubjectToAcl")]
     public partial class Category : EntityWithDiscounts, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder, IRulesContainer
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public Category()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private Category(ILazyLoader lazyLoader)
+        private Category(ILazyLoader lazyLoader) 
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -156,7 +154,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// </summary>
         public MediaFile MediaFile
         {
-            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+            get => LazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
             set => _mediaFile = value;
         }
 
@@ -222,7 +220,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// </summary>
         public ICollection<RuleSetEntity> RuleSets
         {
-            get => _lazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
+            get => LazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
             protected set => _ruleSets = value;
         }
 
