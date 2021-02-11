@@ -344,11 +344,9 @@ namespace Smartstore.Core.Catalog.Search
 
                 if (otherKeyGroup.HasValue())
                 {
-                    existingProperties = await _db.LocalizedProperties.Where(x =>
-                        x.LocaleKey == "Alias" &&
-                        x.LocaleKeyGroup == otherKeyGroup &&
-                        x.LanguageId == property.LanguageId &&
-                        x.LocaleValue == property.LocaleValue)
+                    existingProperties = await _db.LocalizedProperties
+                        .ApplyStandardFilter(property.LanguageId, 0, otherKeyGroup, "Alias")
+                        .Where(x => x.LocaleValue == property.LocaleValue)
                         .ToListAsync(cancelToken);
                 }
 
