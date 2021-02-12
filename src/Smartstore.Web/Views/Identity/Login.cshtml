@@ -22,19 +22,20 @@
 
 <meta name="robots" content="noindex" zone="head" />
 
+@if (currentUser != null)
+{
+	<div class="page-title">
+		<h3>@currentUser.GetFullName()</h3>
+    </div>
+    <p>Rollen: @string.Join(", ", currentUser.CustomerRoleMappings.Select(x => x.CustomerRole.Name))</p>
+    <a asp-route="Logout" class="btn btn-danger">Logout</a>
+    return;
+}
+
 <div class="page login-page">
 	<div class="page-title">
 		<h1>@T("Account.Login.Welcome")</h1>
 	</div>
-
-    @if (currentUser != null)
-    {
-        <div>@currentUser.GetFullName()</div>
-    }
-    else
-    {
-        <div class="text-muted">Anonym</div>
-    }
 
 	<div class="row mt-4">
 		<div class="col-12 col-md-7 col-lg-6 col-xl-5 order-md-last">
@@ -50,6 +51,7 @@
 
 				<!-- SignIn Form -->
                 <form asp-route="Login" asp-route-returnurl="@returnUrl" method="post" autocomplete="off">
+                    <input asp-for="CustomerLoginType" type="hidden" />
                     @if (Model.CustomerLoginType == CustomerLoginType.Username)
                     {
                         <div class="form-group">

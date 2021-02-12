@@ -8,6 +8,7 @@ using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Web;
+using Smartstore.Net;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -102,8 +103,7 @@ namespace Smartstore.Core.Catalog.Products
         {
             var request = _httpContextAccessor?.HttpContext?.Request;
 
-            // TODO: (core) Move all cookie names to a static util class.
-            if (request != null && request.Cookies.TryGetValue("Smartstore.CompareProducts", out var values) && values.HasValue())
+            if (request != null && request.Cookies.TryGetValue(CookieNames.ComparedProducts, out var values) && values.HasValue())
             {
                 return values.ToIntArray().Distinct();
             }
@@ -120,20 +120,23 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             var isSecured = _webHelper.IsCurrentConnectionSecured();
+            var cookieName = CookieNames.ComparedProducts;
+
             var options = new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(10.0),
                 HttpOnly = true,
                 // TODO: (core) Check whether CookieOptions.Secure and .SameSite can be set via global policy.
                 Secure = isSecured,
-                SameSite = isSecured ? (SameSiteMode)_privacySettings.SameSiteMode : SameSiteMode.Lax
+                SameSite = isSecured ? (SameSiteMode)_privacySettings.SameSiteMode : SameSiteMode.Lax,
+                IsEssential = true
             };
 
-            cookies.Delete("Smartstore.CompareProducts", options);
+            cookies.Delete(cookieName, options);
 
             if (productIds?.Any() ?? false)
             {
-                cookies.Append("Smartstore.CompareProducts", string.Join(",", productIds), options);
+                cookies.Append(cookieName, string.Join(',', productIds), options);
             }
         }
     }

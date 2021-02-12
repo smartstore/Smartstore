@@ -53,6 +53,7 @@ using Smartstore.Core.Identity;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Web;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Smartstore.Web.Controllers
 {
@@ -465,6 +466,7 @@ namespace Smartstore.Web.Controllers
             #endregion
         }
 
+        [Authorize(Roles = "Administratoren,Administrators")]
         [LocalizedRoute("/logs")]
         public async Task<IActionResult> Logs()
         {

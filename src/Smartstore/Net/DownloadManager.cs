@@ -60,7 +60,6 @@ namespace Smartstore.Net
             if (sendAuthCookie)
             {
                 req.SetAuthenticationCookie(_httpRequest);
-                req.SetAnonymousIdentCookie(_httpRequest);
                 req.SetVisitorCookie(_httpRequest);
             }
 

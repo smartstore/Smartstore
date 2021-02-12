@@ -14,14 +14,18 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging.Serilog;
+using Smartstore.Core.Web;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Net;
+using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web
@@ -39,16 +43,14 @@ namespace Smartstore.Web
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
 
             // Configure Cookie Policy Options
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                //// TODO: (core) Configure CookiePolicyOptions including GDPR consent stuff.
-                //options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-                options.Secure = CookieSecurePolicy.SameAsRequest;
-            });
+            services.AddSingleton<IConfigureOptions<CookiePolicyOptions>, CookiePolicyOptionsConfigurer>();
 
             // Add AntiForgery
-            services.AddAntiforgery(o => o.HeaderName = "X-XSRF-Token");
+            services.AddAntiforgery(o => 
+            {
+                o.Cookie.Name = CookieNames.Antiforgery;
+                o.HeaderName = "X-XSRF-Token";
+            });
 
             // Add HTTP client feature
             services.AddHttpClient();
@@ -56,11 +58,8 @@ namespace Smartstore.Web
             // Add session feature
             services.AddSession(o => 
             {
-                // TODO: (core) Configure session cookie
-                o.Cookie.Name = ".Smart.Session";
-                o.Cookie.HttpOnly = true;
-                o.Cookie.SameSite = SameSiteMode.Lax;
-                o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                o.Cookie.Name = CookieNames.Session;
+                o.Cookie.IsEssential = true;
             });
 
             // Detailed database related error notifications
@@ -128,13 +127,7 @@ namespace Smartstore.Web
             {
                 mvcBuilder.AddCookieTempDataProvider(o =>
                 {
-                    // TODO: (core) Make all cookie names global accessible and read it from there
-                    o.Cookie.Name = ".Smart.TempData";
-                    
-                    // Whether to allow the use of cookies from SSL protected page on the other store pages which are not protected
-                    // TODO: (core) true = If current store is SSL protected
-                    o.Cookie.SecurePolicy = true ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.None;
-                    o.Cookie.SecurePolicy = CookieSecurePolicy.None;
+                    o.Cookie.Name = CookieNames.TempData;
                     o.Cookie.IsEssential = true;
                 });
             }

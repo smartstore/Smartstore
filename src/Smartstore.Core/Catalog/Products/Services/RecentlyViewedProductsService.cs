@@ -10,6 +10,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
+using Smartstore.Net;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -82,6 +83,7 @@ namespace Smartstore.Core.Catalog.Products
             var skip = Math.Max(0, newProductIds.Count - maxProducts);
             var isSecured = _webHelper.IsCurrentConnectionSecured();
             var cookies = _httpContextAccessor.HttpContext.Response.Cookies;
+            var cookieName = CookieNames.RecentlyViewedProducts;
 
             var options = new CookieOptions
             {
@@ -89,12 +91,13 @@ namespace Smartstore.Core.Catalog.Products
                 HttpOnly = true,
                 // TODO: (core) Check whether CookieOptions.Secure and .SameSite can be set via global policy.
                 Secure = isSecured,
-                SameSite = isSecured ? (SameSiteMode)_privacySettings.SameSiteMode : SameSiteMode.Lax
+                SameSite = isSecured ? (SameSiteMode)_privacySettings.SameSiteMode : SameSiteMode.Lax,
+                IsEssential = true
             };
 
-            cookies.Delete("SmartStore.RecentlyViewedProducts", options);
+            cookies.Delete(cookieName, options);
 
-            cookies.Append("SmartStore.RecentlyViewedProducts", 
+            cookies.Append(cookieName, 
                 string.Join(",", newProductIds.Skip(skip).Take(maxProducts)),
                 options);
         }
@@ -103,8 +106,7 @@ namespace Smartstore.Core.Catalog.Products
         {
             var request = _httpContextAccessor?.HttpContext?.Request;
             
-            // TODO: (core) Move all cookie names to a static util class.
-            if (request != null && request.Cookies.TryGetValue("SmartStore.RecentlyViewedProducts", out var values) && values.HasValue())
+            if (request != null && request.Cookies.TryGetValue(CookieNames.RecentlyViewedProducts, out var values) && values.HasValue())
             {
                 var ids = values.ToIntArray();
 

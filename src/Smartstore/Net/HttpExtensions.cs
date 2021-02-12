@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Smartstore.IO;
+using Smartstore.Net;
 
 namespace Smartstore
 {
@@ -204,22 +205,13 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetAuthenticationCookie(this HttpWebRequest webRequest, HttpRequest httpRequest)
         {
-            // TODO: (core) Implement SetFormsAuthenticationCookie
-            //CopyCookie(webRequest, httpRequest, FormsAuthentication.FormsCookieName);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetAnonymousIdentCookie(this HttpWebRequest webRequest, HttpRequest httpRequest)
-        {
-            // TODO: (core) Implement SetAnonymousIdentCookie
-            //CopyCookie(webRequest, httpRequest, "SMARTSTORE.ANONYMOUS");
+            CopyCookie(webRequest, httpRequest, CookieNames.Identity);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetVisitorCookie(this HttpWebRequest webRequest, HttpRequest httpRequest)
         {
-            // TODO: (core) Implement SetVisitorCookie
-            //CopyCookie(webRequest, httpRequest, "SMARTSTORE.VISITOR");
+            CopyCookie(webRequest, httpRequest, CookieNames.Visitor);
         }
 
         private static void CopyCookie(HttpWebRequest webRequest, HttpRequest sourceHttpRequest, string cookieName)

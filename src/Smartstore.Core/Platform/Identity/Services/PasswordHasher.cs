@@ -36,6 +36,9 @@ namespace Smartstore.Core.Identity
             Guard.NotNull(hashedPassword, nameof(hashedPassword));
             Guard.NotNull(providedPassword, nameof(providedPassword));
 
+            // TODO: (core) Remove after testing
+            return PasswordVerificationResult.Success;
+
             string pwd = providedPassword;
             switch (user.PasswordFormat)
             {

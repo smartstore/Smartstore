@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Configuration;
 
 namespace Smartstore.Core.Identity
 {
@@ -17,7 +18,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets the global SameSiteMode for cookies.
         /// </summary>
-        public SameSiteType SameSiteMode { get; set; } = SameSiteType.Lax;
+        public SameSiteMode SameSiteMode { get; set; } = SameSiteMode.Lax;
 
         /// <summary>
         /// Gets or sets a value indicating whether to store last IP address for each customer.

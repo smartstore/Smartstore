@@ -39,7 +39,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/login", Name = "Login")]
         public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
         {
-            ViewBag.ReturnUrl = returnUrl;
+            ViewBag.ReturnUrl = returnUrl ?? Url.Content("~/");
 
             var model = new LoginModel
             {
@@ -47,6 +47,57 @@ namespace Smartstore.Web.Controllers
                 CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault(),
                 DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage
             };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        [LocalizedRoute("/login", Name = "Login")]
+        public async Task<IActionResult> Login(LoginModel model, string returnUrl)
+        {
+            ViewBag.ReturnUrl = returnUrl;
+
+            if (ModelState.IsValid)
+            {
+                string userNameOrEmail;
+
+                if (model.CustomerLoginType == CustomerLoginType.Username)
+                {
+                    userNameOrEmail = model.Username;
+                }
+                else if (model.CustomerLoginType == CustomerLoginType.Email)
+                {
+                    userNameOrEmail = model.Email;
+                }
+                else
+                {
+                    userNameOrEmail = model.UsernameOrEmail;
+                }
+
+                userNameOrEmail = userNameOrEmail.TrimSafe();
+
+                var result = await _signInManager.PasswordSignInAsync(userNameOrEmail, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+                if (result.Succeeded)
+                {
+                    if (returnUrl.IsEmpty() || !Url.IsLocalUrl(returnUrl))
+                    {
+                        return RedirectToRoute("Login");
+                    }
+
+                    return RedirectToReferrer(returnUrl);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, T("Account.Login.WrongCredentials"));
+                }
+            }
+
+            // If we got this far, something failed, redisplay form.
+            model.CustomerLoginType = _customerSettings.CustomerLoginType;
+            model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage;
 
             return View(model);
         }
@@ -80,17 +131,29 @@ namespace Smartstore.Web.Controllers
                 
                 // Redirect back to customer details page (admin area)
                 return RedirectToAction("Edit", "Customer", new { id = workContext.CurrentCustomer.Id, area = "Admin" });
-
             }
             else
             {
                 // Standard logout
                 Services.ActivityLogger.LogActivity("PublicStore.Logout", T("ActivityLog.PublicStore.Logout"));
+                
+                await _signInManager.SignOutAsync();
                 await db.SaveChangesAsync();
 
-                await _signInManager.SignOutAsync();
-                return RedirectToRoute("Homepage");
+                return RedirectToRoute("Login");
             }
+        }
+
+        #endregion
+
+        #region Access
+
+        [HttpGet]
+        [AllowAnonymous]
+        [LocalizedRoute("/access-denied", Name = "AccessDenied")]
+        public IActionResult AccessDenied(string returnUrl = null)
+        {
+            return Content("TODO: Make AccessDenied view");
         }
 
         #endregion

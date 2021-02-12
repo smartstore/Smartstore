@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Net;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -21,9 +22,26 @@ namespace Smartstore.Core.Bootstrapping
                 .AddDefaultTokenProviders()
                 .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
                 .AddRoleManager<RoleManager<CustomerRole>>()
-                .AddSignInManager();
+                .AddSignInManager<SmartSignInManager>();
 
             services.AddSingleton<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.Name = CookieNames.Identity;
+                options.LoginPath = "/login";
+                options.AccessDeniedPath = "/access-denied";
+                options.ReturnUrlParameter = "returnUrl";
+            });
+
+            services.ConfigureExternalCookie(options =>
+            {
+                options.Cookie.Name = CookieNames.ExternalAuthentication;
+                options.LoginPath = "/login";
+                options.AccessDeniedPath = "/access-denied";
+                options.ReturnUrlParameter = "returnUrl";
+            });
+
             // TODO: (core) // Add Identity IEmailSender and ISmsSender to service collection.
         }
 
