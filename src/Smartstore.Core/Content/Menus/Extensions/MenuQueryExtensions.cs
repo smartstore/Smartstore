@@ -86,7 +86,7 @@ namespace Smartstore.Core.Content.Menus
 
             query =
                 from m in menuQuery
-                join mi in db.MenuItems.AsNoTracking() on m.Id equals mi.MenuId
+                join mi in db.MenuItems.Include(x => x.Menu).AsNoTracking() on m.Id equals mi.MenuId
                 where includeHidden || mi.Published
                 orderby mi.ParentItemId, mi.DisplayOrder
                 select mi;
