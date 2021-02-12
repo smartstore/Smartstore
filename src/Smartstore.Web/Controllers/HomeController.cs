@@ -54,6 +54,7 @@ using Microsoft.Extensions.Options;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Web;
 using Microsoft.AspNetCore.Authorization;
+using StackExchange.Profiling.Internal;
 
 namespace Smartstore.Web.Controllers
 {
@@ -704,40 +705,52 @@ namespace Smartstore.Web.Controllers
 
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var productTagService = Services.Resolve<IProductTagService>();
-            var tags = await _db.ProductTags.ToListAsync();
-
-            foreach (var tag in tags)
+            try
             {
-                var count = await productTagService.CountProductsByTagIdAsync(tag.Id);
-                content.AppendLine($"{count}: {tag.Name} ({tag.Id})");
+                var attribute = await _db.ProductAttributes.OrderBy(x => x.Id).FirstOrDefaultAsync();
+                attribute.Alias = attribute.Alias.HasValue() ? "" : "test";
+                await _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                ex.Dump();
             }
 
-            // May serve duplicate products thus counts tags twice.
-            var query = _db.Products
-                .AsNoTracking()
-                .ApplyStoreFilter(1)
-                .Where(x => x.Visibility == ProductVisibility.Full && x.Published && !x.IsSystemProduct)
-                .SelectMany(x => x.ProductTags.Where(y => y.Published));
 
-            var groupQuery =
-                from x in query
-                group x by x.Id into grp
-                select new
-                {
-                    TagId = grp.Key,
-                    Count = grp.Count()
-                };
+            //var productTagService = Services.Resolve<IProductTagService>();
+            //var tags = await _db.ProductTags.ToListAsync();
 
-            var counts = await groupQuery.ToListAsync();
-            content.AppendLine("---------------------------------------");
-            foreach (var item in counts)
-            {
-                content.AppendLine($"{item.Count}: {item.TagId}");
-            }
-            content.AppendLine("---------------------------------------");
-            content.AppendLine();
-            content.AppendLine(groupQuery.ToQueryString());
+            //foreach (var tag in tags)
+            //{
+            //    var count = await productTagService.CountProductsByTagIdAsync(tag.Id);
+            //    content.AppendLine($"{count}: {tag.Name} ({tag.Id})");
+            //}
+
+            //// May serve duplicate products thus counts tags twice.
+            //var query = _db.Products
+            //    .AsNoTracking()
+            //    .ApplyStoreFilter(1)
+            //    .Where(x => x.Visibility == ProductVisibility.Full && x.Published && !x.IsSystemProduct)
+            //    .SelectMany(x => x.ProductTags.Where(y => y.Published));
+
+            //var groupQuery =
+            //    from x in query
+            //    group x by x.Id into grp
+            //    select new
+            //    {
+            //        TagId = grp.Key,
+            //        Count = grp.Count()
+            //    };
+
+            //var counts = await groupQuery.ToListAsync();
+            //content.AppendLine("---------------------------------------");
+            //foreach (var item in counts)
+            //{
+            //    content.AppendLine($"{item.Count}: {item.TagId}");
+            //}
+            //content.AppendLine("---------------------------------------");
+            //content.AppendLine();
+            //content.AppendLine(groupQuery.ToQueryString());
 
             return Content(content.ToString());
         }

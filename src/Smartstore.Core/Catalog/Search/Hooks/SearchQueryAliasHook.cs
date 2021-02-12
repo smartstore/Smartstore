@@ -55,21 +55,7 @@ namespace Smartstore.Core.Catalog.Search
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-        {
-            // TODO: (mg) (core) This will never get called because all PRE-Hooks are void (none overridden). Is this necessary?
-            if (_errorMessage.HasValue())
-            {
-                var message = new string(_errorMessage);
-                _errorMessage = null;
-
-                throw new SmartException(message);
-            }
-
-            return Task.CompletedTask;
-        }
-
-        public override async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
             if (!_candidateTypes.Contains(entry.EntityType))
             {
@@ -83,10 +69,9 @@ namespace Smartstore.Core.Catalog.Search
             {
                 if (await HasAliasDuplicate<ProductAttribute, SpecificationAttribute>(entry, entity, cancelToken))
                 {
-                    return HookResult.Ok;
+                    return RevertChanges(entry);
                 }
 
-                // TODO: (mg) (core) Modified properties cannot be determined in POST-Hooks. The original values are lost after commit.
                 if (IsPropertyModified(entry, "Alias"))
                 {
                     await _catalogSearchQueryAliasMapper.Value.ClearAttributeCacheAsync();
@@ -101,12 +86,12 @@ namespace Smartstore.Core.Catalog.Search
                     x => x.SpecificationAttributeId == specAttributeOption.SpecificationAttributeId && x.Name == specAttributeOption.Name,
                     cancelToken))
                 {
-                    return HookResult.Ok;
+                    return RevertChanges(entry);
                 }
 
                 if (await HasAliasDuplicate<SpecificationAttributeOption>(entry, entity, null, cancelToken))
                 {
-                    return HookResult.Ok;
+                    return RevertChanges(entry);
                 }
 
                 if (IsPropertyModified(entry, "Alias"))
@@ -123,14 +108,14 @@ namespace Smartstore.Core.Catalog.Search
                     x => x.ProductId == specAttribute.ProductId && x.SpecificationAttributeOptionId == specAttribute.SpecificationAttributeOptionId,
                     cancelToken))
                 {
-                    return HookResult.Ok;
+                    return RevertChanges(entry);
                 }
             }
             else if (type == typeof(ProductAttribute))
             {
                 if (await HasAliasDuplicate<ProductAttribute, SpecificationAttribute>(entry, entity, cancelToken))
                 {
-                    return HookResult.Ok;
+                    return RevertChanges(entry);
                 }
 
                 if (IsPropertyModified(entry, "Alias"))
@@ -147,13 +132,13 @@ namespace Smartstore.Core.Catalog.Search
                     x => x.ProductAttributeOptionsSetId == attributeOption.ProductAttributeOptionsSetId && x.Name == attributeOption.Name,
                     cancelToken))
                 {
-                    return HookResult.Ok;
+                    return RevertChanges(entry);
                 }
 
                 // ClearVariantCacheAsync() not necessary.
                 if (await HasAliasDuplicate<ProductAttributeOption>(entry, entity, null, cancelToken))
                 {
-                    return HookResult.Ok;
+                    return RevertChanges(entry);
                 }
             }
             else if (entity is ProductVariantAttribute productAttribute)
@@ -165,7 +150,7 @@ namespace Smartstore.Core.Catalog.Search
                     x => x.ProductId == productAttribute.ProductId && x.ProductAttributeId == productAttribute.ProductAttributeId,
                     cancelToken))
                 {
-                    return HookResult.Ok;
+                    return RevertChanges(entry);
                 }
             }
             else if (entity is ProductVariantAttributeValue attributeValue)
@@ -177,7 +162,7 @@ namespace Smartstore.Core.Catalog.Search
                     x => x.ProductVariantAttributeId == attributeValue.ProductVariantAttributeId && x.Name == attributeValue.Name,
                     cancelToken))
                 {
-                    return HookResult.Ok;
+                    return RevertChanges(entry);
                 }
 
                 if (await HasAliasDuplicate<ProductVariantAttributeValue>(
@@ -186,7 +171,7 @@ namespace Smartstore.Core.Catalog.Search
                     (all, e) => all.AnyAsync(x => x.Id != e.Id && x.ProductVariantAttributeId == e.ProductVariantAttributeId && x.Alias == e.Alias),
                     cancelToken))
                 {
-                    return HookResult.Ok;
+                    return RevertChanges(entry);
                 }
 
                 if (IsPropertyModified(entry, "Alias"))
@@ -221,8 +206,7 @@ namespace Smartstore.Core.Catalog.Search
 
                     if (prop.LocaleValue.HasValue() && await HasAliasDuplicate(prop, cancelToken))
                     {
-                        RevertChanges(entry, CreateValueExistsMessage("Common.Error.AliasAlreadyExists", prop.LocaleValue));
-                        return HookResult.Ok;
+                        return RevertChanges(entry);
                     }
                 }
 
@@ -241,6 +225,20 @@ namespace Smartstore.Core.Catalog.Search
             }
 
             return HookResult.Ok;
+        }
+
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            // The user must be informed that his changes were not saved due to a duplicate alias.
+            if (_errorMessage.HasValue())
+            {
+                var message = new string(_errorMessage);
+                _errorMessage = null;
+
+                throw new SmartException(message);
+            }
+
+            return Task.CompletedTask;
         }
 
         private async Task<bool> HasAliasDuplicate<TEntity>(
@@ -268,7 +266,7 @@ namespace Smartstore.Core.Catalog.Search
 
                             if (duplicateExists)
                             {
-                                RevertChanges(entry, CreateValueExistsMessage("Common.Error.AliasAlreadyExists", entity.Alias));
+                                _errorMessage = CreateValueExistsMessage("Common.Error.AliasAlreadyExists", entity.Alias);
                                 return true;
                             }
                         }
@@ -308,7 +306,7 @@ namespace Smartstore.Core.Catalog.Search
                                 return false;
                             }
 
-                            RevertChanges(entry, CreateValueExistsMessage("Common.Error.AliasAlreadyExists", entity.Alias));
+                            _errorMessage = CreateValueExistsMessage("Common.Error.AliasAlreadyExists", entity.Alias);
                             return true;
                         }
                     }
@@ -386,6 +384,7 @@ namespace Smartstore.Core.Catalog.Search
                 if (relatedEntityExists)
                 {
                     // We cannot delete any localized property because we are going to throw duplicate alias exception in OnBeforeSaveCompleted.
+                    _errorMessage = CreateValueExistsMessage("Common.Error.AliasAlreadyExists", property.LocaleValue);
                     return true;
                 }
                 else
@@ -426,7 +425,7 @@ namespace Smartstore.Core.Catalog.Search
 
                 if (existingEntity != null && existingEntity.Id != baseEntity.Id)
                 {
-                    RevertChanges(entry, CreateValueExistsMessage("Common.Error.OptionAlreadyExists", getName(existingEntity)));
+                    _errorMessage = CreateValueExistsMessage("Common.Error.OptionAlreadyExists", getName(existingEntity));
                     return true;
                 }
             }
@@ -438,7 +437,6 @@ namespace Smartstore.Core.Catalog.Search
         {
             var result = false;
 
-            // TODO: (mg) (core) The entity state is NEVER Detached in POST-Hooks, because detached entities never find their way to database.
             if (entry.State != EState.Detached)
             {
                 var prop = entry.Entry.Property(propertyName);
@@ -466,12 +464,8 @@ namespace Smartstore.Core.Catalog.Search
             return result;
         }
 
-        private void RevertChanges(IHookedEntity entry, string errorMessage)
+        private static HookResult RevertChanges(IHookedEntity entry)
         {
-            // Throw exception in OnBeforeSaveCompleted.
-            _errorMessage = errorMessage;
-
-            // Revert changes.
             if (entry.State == EState.Modified)
             {
                 entry.State = EState.Unchanged;
@@ -480,6 +474,9 @@ namespace Smartstore.Core.Catalog.Search
             {
                 entry.State = EState.Detached;
             }
+
+            // We need to return HookResult.Ok instead of HookResult.Failed to be able to output an error notification.
+            return HookResult.Ok;
         }
 
         private string CreateValueExistsMessage(string resourceKey, string checkedValue)
