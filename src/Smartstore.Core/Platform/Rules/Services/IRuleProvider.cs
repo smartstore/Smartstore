@@ -21,7 +21,7 @@ namespace Smartstore.Core.Rules
 
         public abstract IRuleExpression VisitRule(RuleEntity rule);
 
-        public abstract IRuleExpressionGroup VisitRuleSet(RuleSetEntity rule);
+        public abstract IRuleExpressionGroup VisitRuleSet(RuleSetEntity ruleSet);
 
         protected virtual void ConvertRule(RuleEntity entity, RuleExpression expression)
         {
