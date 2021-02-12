@@ -13,6 +13,8 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using System.Threading.Tasks;
+using Smartstore.Net;
 
 namespace Smartstore.Web
 {
@@ -22,6 +24,7 @@ namespace Smartstore.Web
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILanguageResolver _languageResolver;
         private readonly IStoreContext _storeContext;
+        private readonly ICustomerService _customerService;
         private readonly ICurrencyService _currencyService;
         private readonly IGenericAttributeService _attrService;
         private readonly TaxSettings _taxSettings;
@@ -45,6 +48,7 @@ namespace Smartstore.Web
             IHttpContextAccessor httpContextAccessor,
             ILanguageResolver languageResolver,
             IStoreContext storeContext,
+            ICustomerService customerService,
             ICurrencyService currencyService,
             IGenericAttributeService attrService,
             TaxSettings taxSettings,
@@ -60,6 +64,7 @@ namespace Smartstore.Web
             _httpContextAccessor = httpContextAccessor;
             _languageResolver = languageResolver;
             _storeContext = storeContext;
+            _customerService = customerService;
             _currencyService = currencyService;
             _attrService = attrService;
             _taxSettings = taxSettings;
@@ -81,11 +86,134 @@ namespace Smartstore.Web
                     return _customer;
                 }
 
-                _customer = _db.Customers.FirstOrDefault();
+                // Is system account?
+                if (TryGetSystemAccount(out var customer))
+                {
+                    // Get out quickly. Bots tend to overstress the shop.
+                    _customer = customer;
+                    return customer;
+                }
+
+                // Registered user?
+                customer = _customerService.GetAuthenticatedCustomerAsync().GetAwaiter().GetResult();
+
+                // impersonate user if required (currently used for 'phone order' support)
+                if (customer != null)
+                {
+                    var impersonatedCustomerId = customer.GenericAttributes.ImpersonatedCustomerId;
+                    if (impersonatedCustomerId > 0)
+                    {
+                        var impersonatedCustomer = _db.Customers.FindById(impersonatedCustomerId.Value);
+                        if (impersonatedCustomer != null && !impersonatedCustomer.Deleted && impersonatedCustomer.Active)
+                        {
+                            // set impersonated customer
+                            _impersonator = customer;
+                            customer = impersonatedCustomer;
+                        }
+                    }
+                }
+
+                // Load guest customer
+                if (customer == null || customer.Deleted || !customer.Active)
+                {
+                    customer = GetGuestCustomerAsync().GetAwaiter().GetResult();
+                }
+
+                _customer = customer;
 
                 return _customer;
             }
             set => _customer = value; 
+        }
+
+        protected bool TryGetSystemAccount(out Customer customer)
+        {
+            // Never check whether customer is deleted/inactive in this method.
+            // System accounts should neither be deletable nor activatable, they are mandatory.
+
+            customer = null;
+
+            //// check whether request is made by a background task
+            //// in this case return built-in customer record for background task
+            //if (_httpContext == null || _httpContext.IsFakeContext())
+            //{
+            //    customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
+            //}
+
+            //// check whether request is made by a search engine
+            //// in this case return built-in customer record for search engines 
+            //if (customer == null && _userAgent.IsBot)
+            //{
+            //    customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
+            //}
+
+            //// check whether request is made by the PDF converter
+            //// in this case return built-in customer record for the converter
+            //if (customer == null && _userAgent.IsPdfConverter)
+            //{
+            //    customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.PdfConverter);
+            //}
+
+            return customer != null;
+        }
+
+        protected virtual async Task<Customer> GetGuestCustomerAsync()
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null)
+            {
+                return null;
+            }
+            
+            Customer customer = null;
+
+            var visitorCookie = httpContext.Request.Cookies[CookieNames.Visitor];
+            if (visitorCookie == null)
+            {
+                // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent)
+                customer = await _customerService.FindGuestCustomerByClientIdentAsync(maxAgeSeconds: 180);
+            }
+            else if (Guid.TryParse(visitorCookie, out var customerGuid))
+            {
+                // Cookie present. Try to load guest customer by it's value.
+                customer = await _db.Customers
+                    .IncludeShoppingCart()
+                    .Where(c => c.CustomerGuid == customerGuid)
+                    .FirstOrDefaultAsync();
+            }
+
+            if (customer == null || customer.Deleted || !customer.Active || customer.IsRegistered())
+            {
+                // No record yet or account deleted/deactivated.
+                // Also dont' treat registered customers as guests.
+                // Create new record in these cases.
+                customer = await _customerService.CreateGuestCustomerAsync();
+            }
+
+            var cookieExpiry = customer.CustomerGuid == Guid.Empty
+                ? DateTime.Now.AddMonths(-1)
+                : DateTime.Now.AddHours(24 * 365); // TODO make configurable
+
+            // Set visitor cookie
+            var cookieOptions = new CookieOptions
+            {
+                Expires = cookieExpiry,
+                HttpOnly = true,
+                IsEssential = true
+            };
+
+            var cookies = httpContext.Response.Cookies;
+
+            try
+            {
+                cookies.Delete(CookieNames.Visitor, cookieOptions);
+            }
+            finally
+            {
+                cookies.Append(CookieNames.Visitor, customer.CustomerGuid.ToString(), cookieOptions);
+            }
+
+            return customer;
         }
 
         public Customer CurrentImpersonator => _impersonator;

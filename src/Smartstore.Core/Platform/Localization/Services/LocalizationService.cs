@@ -23,7 +23,7 @@ namespace Smartstore.Core.Localization
 
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
-        private readonly IWorkContext _workContext;
+        private readonly Lazy<IWorkContext> _workContext;
         private readonly ILanguageService _languageService;
 
         private int _notFoundLogCount = 0;
@@ -32,7 +32,7 @@ namespace Smartstore.Core.Localization
         public LocalizationService(
             SmartDbContext db, 
             ICacheManager cache,
-            IWorkContext workContext,
+            Lazy<IWorkContext> workContext,
             ILanguageService languageService)
         {
             _db = db;
@@ -144,7 +144,7 @@ namespace Smartstore.Core.Localization
             string defaultValue = "",
             bool returnEmptyIfNotFound = false)
         {
-            languageId = languageId > 0 ? languageId : _workContext.WorkingLanguage?.Id ?? 0;
+            languageId = languageId > 0 ? languageId : _workContext.Value.WorkingLanguage?.Id ?? 0;
             if (languageId == 0)
             {
                 return defaultValue;
@@ -198,7 +198,7 @@ namespace Smartstore.Core.Localization
             string defaultValue = "",
             bool returnEmptyIfNotFound = false)
         {
-            languageId = languageId > 0 ? languageId : _workContext.WorkingLanguage?.Id ?? 0;
+            languageId = languageId > 0 ? languageId : _workContext.Value.WorkingLanguage?.Id ?? 0;
             if (languageId == 0)
             {
                 return defaultValue;
@@ -262,9 +262,9 @@ namespace Smartstore.Core.Localization
 
         public virtual Task<LocaleStringResource> GetLocaleStringResourceByNameAsync(string resourceName)
         {
-            if (_workContext.WorkingLanguage != null)
+            if (_workContext.Value.WorkingLanguage != null)
             {
-                return GetLocaleStringResourceByNameAsync(resourceName, _workContext.WorkingLanguage.Id);
+                return GetLocaleStringResourceByNameAsync(resourceName, _workContext.Value.WorkingLanguage.Id);
             }
 
             return Task.FromResult((LocaleStringResource)null);

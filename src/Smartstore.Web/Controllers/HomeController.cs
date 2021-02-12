@@ -466,7 +466,6 @@ namespace Smartstore.Web.Controllers
             #endregion
         }
 
-        [Authorize(Roles = "Administratoren,Administrators")]
         [LocalizedRoute("/logs")]
         public async Task<IActionResult> Logs()
         {

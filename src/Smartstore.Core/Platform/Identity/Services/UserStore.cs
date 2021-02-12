@@ -54,7 +54,7 @@ namespace Smartstore.Core.Identity
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
-        public bool AutoSaveChanges { get; set; }
+        public bool AutoSaveChanges { get; set; } = true;
 
         public void Dispose()
         {

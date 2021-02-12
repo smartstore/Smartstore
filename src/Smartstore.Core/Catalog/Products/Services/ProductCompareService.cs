@@ -15,23 +15,18 @@ namespace Smartstore.Core.Catalog.Products
     public partial class ProductCompareService : IProductCompareService
     {
         private readonly SmartDbContext _db;
-        private readonly IWebHelper _webHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICatalogSearchService _catalogSearchService;
-        private readonly PrivacySettings _privacySettings;
 
         public ProductCompareService(
             SmartDbContext db,
-            IWebHelper webHelper,
             IHttpContextAccessor httpContextAccessor,
             ICatalogSearchService catalogSearchService,
             PrivacySettings privacySettings)
         {
             _db = db;
-            _webHelper = webHelper;
             _httpContextAccessor = httpContextAccessor;
             _catalogSearchService = catalogSearchService;
-            _privacySettings = privacySettings;
         }
 
         public virtual async Task<int> CountComparedProductsAsync()
@@ -119,16 +114,12 @@ namespace Smartstore.Core.Catalog.Products
                 return;
             }
 
-            var isSecured = _webHelper.IsCurrentConnectionSecured();
             var cookieName = CookieNames.ComparedProducts;
 
             var options = new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(10.0),
                 HttpOnly = true,
-                // TODO: (core) Check whether CookieOptions.Secure and .SameSite can be set via global policy.
-                Secure = isSecured,
-                SameSite = isSecured ? (SameSiteMode)_privacySettings.SameSiteMode : SameSiteMode.Lax,
                 IsEssential = true
             };
 

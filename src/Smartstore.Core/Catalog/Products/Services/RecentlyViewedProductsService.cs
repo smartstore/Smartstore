@@ -17,7 +17,6 @@ namespace Smartstore.Core.Catalog.Products
     public partial class RecentlyViewedProductsService : IRecentlyViewedProductsService
     {
         private readonly SmartDbContext _db;
-        private readonly IWebHelper _webHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAclService _aclService;
         private readonly CatalogSettings _catalogSettings;
@@ -25,14 +24,12 @@ namespace Smartstore.Core.Catalog.Products
 
         public RecentlyViewedProductsService(
             SmartDbContext db,
-            IWebHelper webHelper,
             IHttpContextAccessor httpContextAccessor,
             IAclService aclService,
             CatalogSettings catalogSettings,
             PrivacySettings privacySettings)
         {
             _db = db;
-            _webHelper = webHelper;
             _httpContextAccessor = httpContextAccessor;
             _aclService = aclService;
             _catalogSettings = catalogSettings;
@@ -81,7 +78,6 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             var skip = Math.Max(0, newProductIds.Count - maxProducts);
-            var isSecured = _webHelper.IsCurrentConnectionSecured();
             var cookies = _httpContextAccessor.HttpContext.Response.Cookies;
             var cookieName = CookieNames.RecentlyViewedProducts;
 
@@ -89,9 +85,6 @@ namespace Smartstore.Core.Catalog.Products
             {
                 Expires = DateTime.Now.AddDays(10.0),
                 HttpOnly = true,
-                // TODO: (core) Check whether CookieOptions.Secure and .SameSite can be set via global policy.
-                Secure = isSecured,
-                SameSite = isSecured ? (SameSiteMode)_privacySettings.SameSiteMode : SameSiteMode.Lax,
                 IsEssential = true
             };
 

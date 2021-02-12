@@ -17,15 +17,15 @@
         registerUrl = WebHelper.ModifyQueryString(registerUrl, "returnUrl=" + returnUrl.ToString().UrlEncode(), null);
     }
 
-    var currentUser = await UserManager.GetUserAsync(Context.User);
+    var currentUser = WorkContext.CurrentCustomer;
 }
 
 <meta name="robots" content="noindex" zone="head" />
 
-@if (currentUser != null)
+@if (currentUser.IsRegistered())
 {
 	<div class="page-title">
-		<h3>@currentUser.GetFullName()</h3>
+		<h3>@currentUser.GetDisplayName(T)</h3>
     </div>
     <p>Rollen: @string.Join(", ", currentUser.CustomerRoleMappings.Select(x => x.CustomerRole.Name))</p>
     <a asp-route="Logout" class="btn btn-danger">Logout</a>

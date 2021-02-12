@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Web;
 using Smartstore.Net;
 
 namespace Smartstore.Web.Bootstrapping
@@ -36,6 +38,13 @@ namespace Smartstore.Web.Bootstrapping
 
             options.OnAppendCookie = (e) =>
             {
+                var webHelper = e.Context.RequestServices.GetRequiredService<IWebHelper>();
+                var privacySettings = e.Context.RequestServices.GetRequiredService<PrivacySettings>();
+                var isSecured = webHelper.IsCurrentConnectionSecured();
+
+                e.CookieOptions.Secure = isSecured;
+                e.CookieOptions.SameSite = isSecured ? privacySettings.SameSiteMode : SameSiteMode.Lax;
+
                 if (e.Context.Request.PathBase.HasValue)
                 {
                     e.CookieOptions.Path = e.Context.Request.PathBase;

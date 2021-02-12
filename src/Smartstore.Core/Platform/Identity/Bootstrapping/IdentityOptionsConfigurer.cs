@@ -24,13 +24,17 @@ namespace Smartstore.Core.Bootstrapping
             pwd.RequiredLength = _customerSettings.PasswordMinLength;
             pwd.RequireDigit = _customerSettings.MinDigitsInPassword > 0;
             pwd.RequireUppercase = _customerSettings.MinUppercaseCharsInPassword > 0;
+            pwd.RequiredUniqueChars = 1;
+            pwd.RequireLowercase = true;
+            pwd.RequireNonAlphanumeric = false;
 
             var signIn = options.SignIn;
             signIn.RequireConfirmedAccount = false;
             signIn.RequireConfirmedPhoneNumber = false;
-            signIn.RequireConfirmedEmail = 
-                _customerSettings.UserRegistrationType == UserRegistrationType.EmailValidation || 
+            signIn.RequireConfirmedEmail =
+                _customerSettings.UserRegistrationType == UserRegistrationType.EmailValidation ||
                 _customerSettings.UserRegistrationType == UserRegistrationType.AdminApproval;
+            signIn.RequireConfirmedEmail = false;
 
             // TODO: (core) Read and apply more IdentityOptions from settings.
             // TODO: (core) Update IdentityOptions whenever settings change by calling this method from controller with current options.

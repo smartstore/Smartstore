@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -53,14 +55,18 @@ DELETE TOP(20000) [c]
 		#endregion
 
 		private readonly SmartDbContext _db;
+		private readonly UserManager<Customer> _userManager;
 		private readonly IWebHelper _webHelper;
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly IUserAgent _userAgent;
 		private readonly IChronometer _chronometer;
 		private readonly CustomerSettings _customerSettings;
 
+		private Customer _authCustomer;
+
 		public CustomerService(
 			SmartDbContext db,
+			UserManager<Customer> userManager,
 			IWebHelper webHelper,
 			IHttpContextAccessor httpContextAccessor,
 			IUserAgent userAgent,
@@ -68,6 +74,7 @@ DELETE TOP(20000) [c]
 			CustomerSettings customerSettings)
         {
             _db = db;
+			_userManager = userManager;
 			_webHelper = webHelper;
 			_httpContextAccessor = httpContextAccessor;
 			_userAgent = userAgent;
@@ -130,7 +137,7 @@ DELETE TOP(20000) [c]
 					return null;
 				}
 
-				var dateFrom = DateTime.UtcNow.AddSeconds(maxAgeSeconds * -1);
+				var dateFrom = DateTime.UtcNow.AddSeconds(-maxAgeSeconds);
 
 				var query = from a in _db.GenericAttributes.AsNoTracking()
 						join c in _db.Customers on a.EntityId equals c.Id into Customers
@@ -143,7 +150,7 @@ DELETE TOP(20000) [c]
 							&& a.Value == clientIdent
 						select c;
 
-				return query.FirstOrDefaultAsync();
+				return query.IncludeShoppingCart().FirstOrDefaultAsync();
 			}
 		}
 
@@ -221,6 +228,30 @@ DELETE TOP(20000) [c]
 				.OrderBy(x => x.Id);
 
 			return query.FirstOrDefaultAsync();
+		}
+
+		public virtual async Task<Customer> GetAuthenticatedCustomerAsync()
+        {
+			if (_authCustomer == null)
+            {
+				var httpContext = _httpContextAccessor.HttpContext;
+				if (httpContext == null)
+				{
+					return null;
+				}
+
+				if (httpContext.User.Identity.IsAuthenticated == true)
+				{
+					_authCustomer = await _userManager.GetUserAsync(httpContext.User);
+				}
+			}
+
+			if (_authCustomer == null || !_authCustomer.Active || _authCustomer.Deleted || !_authCustomer.IsRegistered())
+			{
+				return null;
+			}
+
+			return _authCustomer;
 		}
 
 		#endregion

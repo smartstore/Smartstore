@@ -16,9 +16,12 @@ namespace Smartstore.Core.Identity
         {
             Guard.NotNull(query, nameof(query));
 
-            return query
-                .Include(x => x.ShoppingCartItems.Select(y => y.BundleItem))
-                .Include(x => x.ShoppingCartItems.Select(y => y.Product.AppliedDiscounts.Select(z => z.RuleSets)));
+            // TODO: (core) IncludeShoppingCart makes problems.
+            return query;
+
+            //return query
+            //    .Include(x => x.ShoppingCartItems.Select(y => y.BundleItem))
+            //    .Include(x => x.ShoppingCartItems.Select(y => y.Product.AppliedDiscounts.Select(z => z.RuleSets)));
         }
 
         /// <summary>
