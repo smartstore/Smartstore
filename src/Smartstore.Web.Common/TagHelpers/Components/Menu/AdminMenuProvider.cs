@@ -15,6 +15,5 @@ namespace Smartstore.Web.TagHelpers
         public string MenuName => "admin";
 
         public virtual int Ordinal => 0;
-
     }
 }

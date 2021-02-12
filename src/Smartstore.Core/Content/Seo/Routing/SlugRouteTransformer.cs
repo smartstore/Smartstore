@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Net;
+using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Content.Seo.Routing
 {
@@ -16,13 +18,20 @@ namespace Smartstore.Core.Content.Seo.Routing
     {
         private readonly SmartDbContext _db;
         private readonly IUrlService _urlService;
+        private readonly IWebHelper _webHelper;
         private readonly LocalizationSettings _localizationSettings;
         private readonly ILanguageService _languageService;
 
-        public SlugRouteTransformer(SmartDbContext db, IUrlService urlService, LocalizationSettings localizationSettings, ILanguageService languageService)
+        public SlugRouteTransformer(
+            SmartDbContext db, 
+            IUrlService urlService, 
+            IWebHelper webHelper, 
+            LocalizationSettings localizationSettings, 
+            ILanguageService languageService)
         {
             _db = db;
             _urlService = urlService;
+            _webHelper = webHelper;
             _localizationSettings = localizationSettings;
             _languageService = languageService;
         }
@@ -107,6 +116,11 @@ namespace Smartstore.Core.Content.Seo.Routing
 
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
+            if (_webHelper.IsStaticResourceRequested())
+            {
+                return null;
+            }
+
             var policy = _urlService.GetUrlPolicy();
             var slug = policy.Path.ToString();
 

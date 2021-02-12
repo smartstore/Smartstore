@@ -24,6 +24,7 @@ using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Web;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.IO;
 using Smartstore.Net;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Modelling;
@@ -182,7 +183,13 @@ namespace Smartstore.Web
             builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
             {
                 //app.UseHttpsRedirection();
-                app.UseStaticFiles(new StaticFileOptions { FileProvider = appContext.WebRoot }); // TODO: (core) Set StaticFileOptions
+
+                // TODO: (core) Set StaticFileOptions
+                app.UseStaticFiles(new StaticFileOptions 
+                { 
+                    FileProvider = appContext.WebRoot,
+                    ContentTypeProvider = MimeTypes.ContentTypeProvider
+                }); 
             });
 
             builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app =>

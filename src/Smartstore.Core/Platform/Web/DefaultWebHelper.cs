@@ -11,6 +11,7 @@ using Smartstore.Collections;
 using Smartstore.Engine;
 using Smartstore.Utilities;
 using Smartstore.Core.Stores;
+using Smartstore.IO;
 
 namespace Smartstore.Core.Web
 {
@@ -206,10 +207,16 @@ namespace Smartstore.Core.Web
             return url;
         }
 
-        public virtual bool IsStaticResource(HttpRequest request)
+        public virtual bool IsStaticResourceRequested()
         {
-            // TODO: (core) Implement (Smart)FileExtensionContentTypeProvider with more extensions
-            throw new NotImplementedException();
+            var request = _httpContextAccessor.HttpContext?.Request;
+            if (request == null)
+            {
+                return false;
+            }
+
+            // Requests to .map files may end with a semicolon
+            return MimeTypes.TryMapNameToMimeType(request.Path.Value.TrimEnd(';'), out _);
         }
 
         public virtual string MapPath(string path)

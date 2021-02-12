@@ -7,7 +7,7 @@ namespace Smartstore.IO
     {
         const string DefaultMimeType = "application/octet-stream";
         
-        static FileExtensionContentTypeProvider _contentTypeProvider = new();
+        static FileExtensionContentTypeProvider _contentTypeProvider = new SmartFileExtensionContentTypeProvider();
 
         public static IContentTypeProvider ContentTypeProvider
         {

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Smartstore.Core.Web
 {
@@ -58,22 +59,14 @@ namespace Smartstore.Core.Web
         string GetStoreLocation(bool? secured = null);
 
         /// <summary>
-        /// Returns true if the requested resource is one of the typical resources that needn't be processed by the cms engine.
+        /// Returns true if the requested resource is one of the typical resources that don't need to be processed by the CMS engine.
         /// </summary>
         /// <param name="request">HTTP Request</param>
         /// <returns>True if the request targets a static resource file.</returns>
         /// <remarks>
-        /// These are the file extensions considered to be static resources:
-        /// .css
-        ///	.gif
-        /// .png 
-        /// .jpg
-        /// .jpeg
-        /// .js
-        /// .axd
-        /// .ashx
+        /// All known extensions provided by <see cref="FileExtensionContentTypeProvider"/> are considered to be static resources.
         /// </remarks>
-        bool IsStaticResource(HttpRequest request);
+        bool IsStaticResourceRequested();
 
         /// <summary>
         /// Maps a virtual path to a physical disk path.

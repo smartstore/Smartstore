@@ -173,8 +173,6 @@ namespace Smartstore.Web.Controllers
             //var numSaved = await Services.SettingFactory.SaveSettingsAsync(testSettings, 1);
             #endregion
 
-            var user = HttpContext.User;
-
             var menuStorage = Services.Resolve<IMenuStorage>();
             var userMenuInfos = await menuStorage.GetUserMenuInfosAsync();
 

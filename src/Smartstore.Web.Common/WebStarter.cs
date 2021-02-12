@@ -12,17 +12,14 @@ namespace Smartstore.Web
 {
     public class WebStarter : StarterBase
     {
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
-        {
-            services.AddScoped<IWorkContext, WebWorkContext>();
-            services.AddScoped<IPageAssetBuilder, PageAssetBuilder>();
-            services.AddSingleton<IIconExplorer, IconExplorer>();
-            services.AddScoped<IMenuPublisher, MenuPublisher>();
-            services.AddScoped<SlugRouteTransformer>();
-        }
-
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
+            builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
+            builder.RegisterType<PageAssetBuilder>().As<IPageAssetBuilder>().InstancePerLifetimeScope();
+            builder.RegisterType<MenuPublisher>().As<IMenuPublisher>().InstancePerLifetimeScope();
+            builder.RegisterType<IconExplorer>().As<IIconExplorer>().SingleInstance();
+            builder.RegisterType<SlugRouteTransformer>().InstancePerLifetimeScope();
+
             builder.RegisterType<MenuService>().As<IMenuService>().InstancePerLifetimeScope();
 
             var menuResolverTypes = appContext.TypeScanner.FindTypes<IMenuResolver>(ignoreInactiveModules: true);
@@ -51,7 +48,7 @@ namespace Smartstore.Web
                 });
             }
 
-            // TODO: (mh) (core) Uncomment when MenuActionFilter & MenuResultFilter are available.
+            // TODO: (mh) (core) Annotate SmartController with menu filters attribue(s) directly
             //if (DataSettings.DatabaseIsInstalled())
             //{
             //    // We have to register two classes, otherwise the filters would be called twice.
