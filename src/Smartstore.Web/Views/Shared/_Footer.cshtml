@@ -27,43 +27,44 @@
     <div class="footer-main-wrapper">
         <div class="container footer-main">
             <div class="row sm-gutters">
+
                 <div class="col-md-3">
                     <nav class="footer-links nav-collapsible">
                         <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-info" aria-controls="footer-info" aria-expanded="false">
                             @T("Footer.Info")
                         </h4>
                         <div class="collapse nav-collapse" id="footer-info">
-                            @{
-                                // TODO: (mh) (core) Remove test code.
-                                var db = Smartstore.Engine.EngineContext.Current.Scope.Resolve<SmartDbContext>();
-
-                                var menuItems = await db.MenuItems
-                                                        .AsNoTracking()
-                                                        .ApplyMenuFilter(0, "FooterInformation")
-                                                        .ToListAsync();
-                            }
-
-                            @foreach (var item in menuItems)
-                            {
-                                <a href="#" class="menu-link">
-                                    <span>@item.Title</span>
-                                </a>
-                            }
-
+                            <menu id="FooterInformation" template="LinkList"></menu>
                         </div>
                     </nav>
                 </div>
 
                 <div class="col-md-3">
                     <nav class="footer-links nav-collapsible">
-                        <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-info" aria-controls="footer-info" aria-expanded="false">
-                            @T("Footer.Info")
+                        <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-service" aria-controls="footer-service" aria-expanded="false">
+                            <span class="d-none d-md-block">@T("Footer.Service")</span>
+                            <span class="d-md-none">@T("Footer.Service.Mobile")</span>
                         </h4>
-                        <div class="collapse nav-collapse" id="footer-info">
-                            @*TODO: (mh) (core) Implement TagHelper*@
-                            @*<menu id="FooterInformation" template="LinkList"></menu>*@
+                        <div class="collapse nav-collapse" id="footer-service">
+                            <menu id="FooterService" template="LinkList"></menu>
                         </div>
                     </nav>
+                </div>
+
+                <div class="col-md-3">
+                    <nav class="footer-links company nav-collapsible">
+                        <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-company" aria-controls="footer-company" aria-expanded="false">
+                            <span class="d-none d-md-block">@T("Footer.Company")</span>
+                            <span class="d-md-none">@T("Footer.Company.Mobile")</span>
+                        </h4>
+                        <div class="collapse nav-collapse" id="footer-company">
+                            <menu id="FooterCompany" template="LinkList"></menu>
+                        </div>
+                    </nav>
+                </div>
+
+                <div class="col-md-3">
+                    <!-- Newsletter -->
                 </div>
             </div>
         </div>
