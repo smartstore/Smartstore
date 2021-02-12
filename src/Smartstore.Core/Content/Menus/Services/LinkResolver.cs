@@ -321,10 +321,10 @@ namespace Smartstore.Core.Content.Menus
             ResolverEntitySummary summary = null;
             string systemName = null;
 
-            if (data.Value is string)
+            if (data.Value is string @string)
             {
                 data.Id = 0;
-                systemName = (string)data.Value;
+                systemName = @string;
             }
             else
             {
