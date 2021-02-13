@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
@@ -10,18 +12,33 @@ namespace Smartstore.Core.Identity
     public static partial class CustomerQueryExtensions
     {
         /// <summary>
-        /// Includes the complete cart graph for eager loading (including bundle items, applied discounts and rule sets).
+        /// Includes the the customer roles graph for eager loading.
         /// </summary>
-        public static IQueryable<Customer> IncludeShoppingCart(this IQueryable<Customer> query)
+        public static IIncludableQueryable<Customer, CustomerRole> IncludeCustomerRoles(this IQueryable<Customer> query)
         {
             Guard.NotNull(query, nameof(query));
 
-            // TODO: (core) IncludeShoppingCart makes problems.
-            return query;
+            return query
+                .Include(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole);
+        }
 
-            //return query
-            //    .Include(x => x.ShoppingCartItems.Select(y => y.BundleItem))
-            //    .Include(x => x.ShoppingCartItems.Select(y => y.Product.AppliedDiscounts.Select(z => z.RuleSets)));
+        /// <summary>
+        /// Includes the complete cart graph for eager loading (including bundle items, applied discounts and rule sets).
+        /// </summary>
+        public static IIncludableQueryable<Customer, ProductBundleItem> IncludeShoppingCart(this IQueryable<Customer> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            var includableQuery = query
+                .Include(x => x.ShoppingCartItems)
+                    .ThenInclude(x => x.Product)
+                    .ThenInclude(x => x.AppliedDiscounts)
+                    .ThenInclude(x => x.RuleSets)
+                .Include(x => x.ShoppingCartItems)
+                    .ThenInclude(x => x.BundleItem);
+
+            return includableQuery;
         }
 
         /// <summary>

@@ -30,6 +30,7 @@ namespace Smartstore.Core.Bootstrapping
             {
                 options.Cookie.Name = CookieNames.Identity;
                 options.LoginPath = "/login";
+                options.LogoutPath = "/logout";
                 options.AccessDeniedPath = "/access-denied";
                 options.ReturnUrlParameter = "returnUrl";
             });
@@ -38,6 +39,7 @@ namespace Smartstore.Core.Bootstrapping
             {
                 options.Cookie.Name = CookieNames.ExternalAuthentication;
                 options.LoginPath = "/login";
+                options.LogoutPath = "/logout";
                 options.AccessDeniedPath = "/access-denied";
                 options.ReturnUrlParameter = "returnUrl";
             });
@@ -58,9 +60,14 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.AuthorizationMiddleware, app =>
+            builder.Configure(StarterOrdering.AuthenticationMiddleware, app =>
             {
+                // TODO: (core) Check whether it's ok to run authentication middleware before routing. We desperately need auth before any RouteValueTransformer.
                 app.UseAuthentication();
+            });
+
+            builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
+            {
                 app.UseAuthorization();
             });
         }

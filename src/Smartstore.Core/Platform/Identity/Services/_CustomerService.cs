@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +65,7 @@ DELETE TOP(20000) [c]
 		private readonly CustomerSettings _customerSettings;
 
 		private Customer _authCustomer;
+		private bool _authCustomerResolved;
 
 		public CustomerService(
 			SmartDbContext db,
@@ -103,7 +106,6 @@ DELETE TOP(20000) [c]
 				throw new SmartException("'Guests' role could not be loaded");
 			}
 
-
 			// Ensure that entities are saved to db in any case
 			customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
 			_db.Customers.Add(customer);
@@ -126,7 +128,7 @@ DELETE TOP(20000) [c]
 		{
 			if (_httpContextAccessor.HttpContext == null || _userAgent.IsBot || _userAgent.IsPdfConverter)
 			{
-				return null;
+				return Task.FromResult<Customer>(null);
 			}
 
 			using (_chronometer.Step("FindGuestCustomerByClientIdent"))
@@ -134,7 +136,7 @@ DELETE TOP(20000) [c]
 				clientIdent = clientIdent.NullEmpty() ?? _webHelper.GetClientIdent();
 				if (clientIdent.IsEmpty())
 				{
-					return null;
+					return Task.FromResult<Customer>(null);
 				}
 
 				var dateFrom = DateTime.UtcNow.AddSeconds(-maxAgeSeconds);
@@ -150,7 +152,10 @@ DELETE TOP(20000) [c]
 							&& a.Value == clientIdent
 						select c;
 
-				return query.IncludeShoppingCart().FirstOrDefaultAsync();
+				return query
+					.IncludeCustomerRoles()
+					.IncludeShoppingCart()
+					.FirstOrDefaultAsync();
 			}
 		}
 
@@ -216,12 +221,28 @@ DELETE TOP(20000) [c]
 
 		#region Customers
 
+		public virtual Customer GetCustomerBySystemName(string systemName, bool tracked = true)
+		{
+			if (string.IsNullOrWhiteSpace(systemName))
+				return null;
+
+			var query = _db.Customers
+				.IncludeCustomerRoles()
+				.ApplyTracking(tracked)
+				.AsCaching()
+				.Where(x => x.SystemName == systemName)
+				.OrderBy(x => x.Id);
+
+			return query.FirstOrDefault();
+		}
+
 		public virtual Task<Customer> GetCustomerBySystemNameAsync(string systemName, bool tracked = true)
 		{
 			if (string.IsNullOrWhiteSpace(systemName))
 				return Task.FromResult((Customer)null);
 
 			var query = _db.Customers
+				.IncludeCustomerRoles()
 				.ApplyTracking(tracked)
 				.AsCaching()
 				.Where(x => x.SystemName == systemName)
@@ -232,7 +253,7 @@ DELETE TOP(20000) [c]
 
 		public virtual async Task<Customer> GetAuthenticatedCustomerAsync()
         {
-			if (_authCustomer == null)
+			if (!_authCustomerResolved)
             {
 				var httpContext = _httpContextAccessor.HttpContext;
 				if (httpContext == null)
@@ -240,10 +261,14 @@ DELETE TOP(20000) [c]
 					return null;
 				}
 
-				if (httpContext.User.Identity.IsAuthenticated == true)
+				var principal = await EnsureAuthentication(httpContext);
+
+				if (principal?.Identity.IsAuthenticated == true)
 				{
-					_authCustomer = await _userManager.GetUserAsync(httpContext.User);
+					_authCustomer = await _userManager.GetUserAsync(principal);
 				}
+
+				_authCustomerResolved = true;
 			}
 
 			if (_authCustomer == null || !_authCustomer.Active || _authCustomer.Deleted || !_authCustomer.IsRegistered())
@@ -254,9 +279,44 @@ DELETE TOP(20000) [c]
 			return _authCustomer;
 		}
 
+		/// <summary>
+		/// Ensures that the authentication handler runs (even before the authentication middleware)
+		/// </summary>
+		/// <param name="context"></param>
+		/// <returns></returns>
+		private static async Task<ClaimsPrincipal> EnsureAuthentication(HttpContext context)
+        {
+			var authenticationFeature = context.Features.Get<IAuthenticationFeature>();
+			if (authenticationFeature == null)
+            {
+				// The middleware did not run yet
+				var result = await context.AuthenticateAsync();
+				if (result.Succeeded)
+                {
+					return result.Principal;
+                }
+            }
+
+			return context.User;
+		}
+
 		#endregion
 
 		#region Roles
+
+		public virtual CustomerRole GetRoleBySystemName(string systemName, bool tracked = true)
+		{
+			if (string.IsNullOrWhiteSpace(systemName))
+				return null;
+
+			var query = _db.CustomerRoles
+				.ApplyTracking(tracked)
+				.AsCaching()
+				.Where(x => x.SystemName == systemName)
+				.OrderBy(x => x.Id);
+
+			return query.FirstOrDefault();
+		}
 
 		public virtual Task<CustomerRole> GetRoleBySystemNameAsync(string systemName, bool tracked = true)
 		{

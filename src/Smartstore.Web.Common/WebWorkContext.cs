@@ -15,6 +15,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using System.Threading.Tasks;
 using Smartstore.Net;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Smartstore.Web
 {
@@ -32,7 +33,7 @@ namespace Smartstore.Web
         private readonly LocalizationSettings _localizationSettings;
         private readonly ICacheManager _cache;
         private readonly Lazy<ITaxService> _taxService;
-        //private readonly IUserAgent _userAgent;
+        private readonly IUserAgent _userAgent;
         private readonly IWebHelper _webHelper;
         private readonly IGeoCountryLookup _geoCountryLookup;
 
@@ -56,6 +57,7 @@ namespace Smartstore.Web
             LocalizationSettings localizationSettings,
             Lazy<ITaxService> taxService,
             ICacheManager cache,
+            IUserAgent userAgent,
             IWebHelper webHelper,
             IGeoCountryLookup geoCountryLookup)
         {
@@ -71,7 +73,7 @@ namespace Smartstore.Web
             _privacySettings = privacySettings;
             _taxService = taxService;
             _localizationSettings = localizationSettings;
-            //_userAgent = userAgent;
+            _userAgent = userAgent;
             _cache = cache;
             _webHelper = webHelper;
             _geoCountryLookup = geoCountryLookup;
@@ -86,16 +88,18 @@ namespace Smartstore.Web
                     return _customer;
                 }
 
+                var httpContext = _httpContextAccessor.HttpContext;
+
                 // Is system account?
-                if (TryGetSystemAccount(out var customer))
+                if (TryGetSystemAccount(httpContext, out var customer))
                 {
                     // Get out quickly. Bots tend to overstress the shop.
                     _customer = customer;
                     return customer;
                 }
 
-                // Registered user?
-                customer = _customerService.GetAuthenticatedCustomerAsync().GetAwaiter().GetResult();
+                // Registered/Authenticated customer?
+                customer = _customerService.GetAuthenticatedCustomerAsync().Await();
 
                 // impersonate user if required (currently used for 'phone order' support)
                 if (customer != null)
@@ -103,7 +107,10 @@ namespace Smartstore.Web
                     var impersonatedCustomerId = customer.GenericAttributes.ImpersonatedCustomerId;
                     if (impersonatedCustomerId > 0)
                     {
-                        var impersonatedCustomer = _db.Customers.FindById(impersonatedCustomerId.Value);
+                        var impersonatedCustomer = _db.Customers
+                            .IncludeCustomerRoles()
+                            .FindById(impersonatedCustomerId.Value);
+
                         if (impersonatedCustomer != null && !impersonatedCustomer.Deleted && impersonatedCustomer.Active)
                         {
                             // set impersonated customer
@@ -116,7 +123,7 @@ namespace Smartstore.Web
                 // Load guest customer
                 if (customer == null || customer.Deleted || !customer.Active)
                 {
-                    customer = GetGuestCustomerAsync().GetAwaiter().GetResult();
+                    customer = GetGuestCustomerAsync(httpContext).Await();
                 }
 
                 _customer = customer;
@@ -126,48 +133,43 @@ namespace Smartstore.Web
             set => _customer = value; 
         }
 
-        protected bool TryGetSystemAccount(out Customer customer)
+        protected bool TryGetSystemAccount(HttpContext context, out Customer customer)
         {
             // Never check whether customer is deleted/inactive in this method.
             // System accounts should neither be deletable nor activatable, they are mandatory.
 
             customer = null;
 
-            //// check whether request is made by a background task
-            //// in this case return built-in customer record for background task
-            //if (_httpContext == null || _httpContext.IsFakeContext())
-            //{
-            //    customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
-            //}
+            // check whether request is made by a background task
+            // in this case return built-in customer record for background task
+            if (context != null && context.Request.Path.StartsWithSegments("/taskscheduler"))
+            {
+                // TODO: (core) Make "/taskscheduler" url prefix a const, OR set a specific UserAgent from TaskScheduler polling service.
+                customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
+            }
 
-            //// check whether request is made by a search engine
-            //// in this case return built-in customer record for search engines 
-            //if (customer == null && _userAgent.IsBot)
-            //{
-            //    customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
-            //}
+            // check whether request is made by a search engine
+            // in this case return built-in customer record for search engines 
+            if (customer == null && _userAgent.IsBot)
+            {
+                customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
+            }
 
-            //// check whether request is made by the PDF converter
-            //// in this case return built-in customer record for the converter
-            //if (customer == null && _userAgent.IsPdfConverter)
-            //{
-            //    customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.PdfConverter);
-            //}
+            // check whether request is made by the PDF converter
+            // in this case return built-in customer record for the converter
+            if (customer == null && _userAgent.IsPdfConverter)
+            {
+                customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.PdfConverter);
+            }
 
             return customer != null;
         }
 
-        protected virtual async Task<Customer> GetGuestCustomerAsync()
+        protected virtual async Task<Customer> GetGuestCustomerAsync(HttpContext context)
         {
-            var httpContext = _httpContextAccessor.HttpContext;
-            if (httpContext == null)
-            {
-                return null;
-            }
-            
             Customer customer = null;
 
-            var visitorCookie = httpContext.Request.Cookies[CookieNames.Visitor];
+            var visitorCookie = context?.Request?.Cookies[CookieNames.Visitor];
             if (visitorCookie == null)
             {
                 // No anonymous visitor cookie yet. Try to identify anyway (by IP and UserAgent)
@@ -178,6 +180,7 @@ namespace Smartstore.Web
                 // Cookie present. Try to load guest customer by it's value.
                 customer = await _db.Customers
                     .IncludeShoppingCart()
+                    .IncludeCustomerRoles()
                     .Where(c => c.CustomerGuid == customerGuid)
                     .FirstOrDefaultAsync();
             }
@@ -190,27 +193,29 @@ namespace Smartstore.Web
                 customer = await _customerService.CreateGuestCustomerAsync();
             }
 
-            var cookieExpiry = customer.CustomerGuid == Guid.Empty
-                ? DateTime.Now.AddMonths(-1)
-                : DateTime.Now.AddHours(24 * 365); // TODO make configurable
-
-            // Set visitor cookie
-            var cookieOptions = new CookieOptions
+            if (context != null)
             {
-                Expires = cookieExpiry,
-                HttpOnly = true,
-                IsEssential = true
-            };
+                var cookieExpiry = customer.CustomerGuid == Guid.Empty
+                    ? DateTime.Now.AddMonths(-1)
+                    : DateTime.Now.AddHours(24 * 365); // TODO make configurable
 
-            var cookies = httpContext.Response.Cookies;
+                // Set visitor cookie
+                var cookieOptions = new CookieOptions
+                {
+                    Expires = cookieExpiry,
+                    HttpOnly = true,
+                    IsEssential = true
+                };
 
-            try
-            {
-                cookies.Delete(CookieNames.Visitor, cookieOptions);
-            }
-            finally
-            {
-                cookies.Append(CookieNames.Visitor, customer.CustomerGuid.ToString(), cookieOptions);
+                var cookies = context.Response.Cookies;
+                try
+                {
+                    cookies.Delete(CookieNames.Visitor, cookieOptions);
+                }
+                finally
+                {
+                    cookies.Append(CookieNames.Visitor, customer.CustomerGuid.ToString(), cookieOptions);
+                }
             }
 
             return customer;

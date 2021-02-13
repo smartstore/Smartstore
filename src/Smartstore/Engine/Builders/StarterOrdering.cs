@@ -22,12 +22,12 @@ namespace Smartstore.Engine.Builders
         public const int BeforeStaticFilesMiddleware = -705;
         public const int StaticFilesMiddleware = -700;
         public const int AfterStaticFilesMiddleware = -695;
+        public const int BeforeAuthenticationMiddleware = -655;
+        public const int AuthenticationMiddleware = -650;
+        public const int AfterAuthenticationMiddleware = -645;
         public const int BeforeRoutingMiddleware = -605;
         public const int RoutingMiddleware = -600;
         public const int AfterRoutingMiddleware = -595;
-        public const int BeforeAuthorizationMiddleware = -555;
-        public const int AuthorizationMiddleware = -550;
-        public const int AfterAuthorizationMiddleware = -545;
         public const int EarlyMiddleware = -500;
         public const int DefaultMiddleware = 0;
         public const int LateMiddleware = 500;

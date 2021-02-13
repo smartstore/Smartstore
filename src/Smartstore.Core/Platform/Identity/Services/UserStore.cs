@@ -18,7 +18,9 @@ namespace Smartstore.Core.Identity
         IUserEmailStore<Customer>,
         IUserRoleStore<Customer>,
         IUserPasswordStore<Customer>,
-        IUserLoginStore<Customer>
+        IUserLoginStore<Customer>,
+        IUserTwoFactorStore<Customer>,
+        IUserTwoFactorRecoveryCodeStore<Customer>
     {
         /// <summary>
         /// Gets or sets a flag indicating if changes should be persisted after CreateAsync, UpdateAsync and DeleteAsync are called.
@@ -188,8 +190,7 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             return _users
-                .Include(x => x.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole)
+                .IncludeCustomerRoles()
                 .FindByIdAsync(userId.Convert<int>(), cancellationToken: cancellationToken)
                 .AsTask();
         }
@@ -199,8 +200,7 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             return _users
-                .Include(x => x.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole)
+                .IncludeCustomerRoles()
                 .FirstOrDefaultAsync(x => x.Username == normalizedUserName, cancellationToken);
         }
 
@@ -268,8 +268,7 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             return _users
-                .Include(x => x.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole)
+                .IncludeCustomerRoles()
                 .FirstOrDefaultAsync(x => x.Email == normalizedEmail, cancellationToken);
         }
 
@@ -448,6 +447,39 @@ namespace Smartstore.Core.Identity
         }
 
         public Task<Customer> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region IUserTwoFactorStore
+
+        public Task SetTwoFactorEnabledAsync(Customer user, bool enabled, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> GetTwoFactorEnabledAsync(Customer user, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region IUserTwoFactorRecoveryCodeStore
+
+        public Task ReplaceCodesAsync(Customer user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> RedeemCodeAsync(Customer user, string code, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> CountCodesAsync(Customer user, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

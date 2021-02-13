@@ -45,6 +45,14 @@ namespace Smartstore.Core.Identity
         /// <param name="systemName">System name</param>
         /// <param name="tracked">Whether to load entity tracked. Non-tracking load will be cached.</param>
         /// <returns>Found customer</returns>
+        Customer GetCustomerBySystemName(string systemName, bool tracked = true);
+
+        /// <summary>
+        /// Gets customer by system name.
+        /// </summary>
+        /// <param name="systemName">System name</param>
+        /// <param name="tracked">Whether to load entity tracked. Non-tracking load will be cached.</param>
+        /// <returns>Found customer</returns>
         Task<Customer> GetCustomerBySystemNameAsync(string systemName, bool tracked = true);
 
         /// <summary>
@@ -52,6 +60,14 @@ namespace Smartstore.Core.Identity
         /// </summary>
         /// <returns>Authenticated customer.</returns>
         Task<Customer> GetAuthenticatedCustomerAsync();
+
+        /// <summary>
+        /// Gets a customer role by system name.
+        /// </summary>
+        /// <param name="systemName">System name</param>
+        /// <param name="tracked">Whether to load entity tracked. Non-tracking load will be cached.</param>
+        /// <returns>Found customer</returns>
+        CustomerRole GetRoleBySystemName(string systemName, bool tracked = true);
 
         /// <summary>
         /// Gets a customer role by system name.
