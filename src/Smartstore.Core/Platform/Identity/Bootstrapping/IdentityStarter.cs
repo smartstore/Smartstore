@@ -22,6 +22,8 @@ namespace Smartstore.Core.Bootstrapping
                 .AddDefaultTokenProviders()
                 .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
                 .AddRoleManager<RoleManager<CustomerRole>>()
+                .AddUserValidator<UserValidator>()
+                .AddPasswordValidator<UserValidator>()
                 .AddSignInManager<SmartSignInManager>();
 
             services.AddSingleton<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>();
@@ -54,7 +56,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<CustomerService>().As<ICustomerService>().InstancePerLifetimeScope();
             builder.RegisterType<VoidLookupNormalizer>().As<ILookupNormalizer>().InstancePerLifetimeScope();
             builder.RegisterType<PasswordHasher>().As<IPasswordHasher<Customer>>().InstancePerLifetimeScope();
-            builder.RegisterType<UserValidator>().As<IUserValidator<Customer>>().As<IPasswordValidator<Customer>>().InstancePerLifetimeScope();
+            //builder.RegisterType<UserValidator>().As<IUserValidator<Customer>>().As<IPasswordValidator<Customer>>().InstancePerLifetimeScope();
             builder.RegisterType<GdprTool>().As<IGdprTool>().InstancePerLifetimeScope();
         }
 

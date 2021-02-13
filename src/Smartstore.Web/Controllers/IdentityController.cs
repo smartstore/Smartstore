@@ -53,9 +53,9 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken, ValidateCaptcha]
         [LocalizedRoute("/login", Name = "Login")]
-        public async Task<IActionResult> Login(LoginModel model, string returnUrl)
+        public async Task<IActionResult> Login(LoginModel model, string returnUrl, string captchaError)
         {
             ViewBag.ReturnUrl = returnUrl;
 
@@ -119,6 +119,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [ValidateAntiForgeryToken, ValidateCaptcha]
         [LocalizedRoute("/register", Name = "Register")]
         public async Task<IActionResult> Register(RegisterModel model, string returnUrl = null)
         {

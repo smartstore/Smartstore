@@ -128,5 +128,14 @@ namespace Smartstore.Engine
         /// Default is False.
         /// </summary>
         public bool UseDeveloperExceptionPage { get; set; }
+
+        public GoogleConfiguration Google { get; set; } = new();
+
+        public class GoogleConfiguration
+        {
+            public string RecaptchaWidgetUrl { get; set; }
+            public string RecaptchaVerifyUrl { get; set; }
+            public string MapsUrl { get; set; }
+        }
     }
 }

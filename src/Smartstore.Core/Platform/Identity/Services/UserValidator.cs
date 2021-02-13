@@ -87,17 +87,10 @@ namespace Smartstore.Core.Identity
         }
 
         // Password validator
-        public override async Task<IdentityResult> ValidateAsync(UserManager<Customer> manager, Customer user, string password)
+        public override Task<IdentityResult> ValidateAsync(UserManager<Customer> manager, Customer user, string password)
         {
-            var result = await base.ValidateAsync(manager, user, password);
-            if (!result.Succeeded)
-            {
-                return result;
-            }
-
-            // TODO: (mg) (core) Perform more app specific password validation
-
-            return result;
+            // TODO: (mg) (core) Perform more app specific password validation (?)
+            return Task.FromResult(IdentityResult.Success);
         }
 
         private static IdentityResult Failed(string message)

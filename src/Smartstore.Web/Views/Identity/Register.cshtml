@@ -19,8 +19,8 @@
     <div class="form-group">
         <label asp-for="Email" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
+            <input asp-for="Email" />
+            <span asp-validation-for="Email"></span>
         </div>
     </div>
     @if (Model.UserNamesEnabled)
@@ -28,25 +28,28 @@
         <div class="form-group">
             <label asp-for="UserName" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="UserName" class="form-control" />
-                <span asp-validation-for="UserName" class="text-danger"></span>
+                <input asp-for="UserName" />
+                <span asp-validation-for="UserName"></span>
             </div>
         </div>        
     }
     <div class="form-group">
         <label asp-for="Password" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="Password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
+            <input asp-for="Password" />
+            <span asp-validation-for="Password"></span>
         </div>
     </div>
     <div class="form-group">
         <label asp-for="ConfirmPassword" class="col-md-2 control-label"></label>
         <div class="col-md-10">
-            <input asp-for="ConfirmPassword" class="form-control" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            <input asp-for="ConfirmPassword" />
+            <span asp-validation-for="ConfirmPassword"></span>
         </div>
     </div>
+    <div class="form-group row">
+        <sm-captcha sm-enabled="true" class="col-md-10 offset-md-2" />
+	</div>
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
             <button type="submit" class="btn btn-default">Register</button>
