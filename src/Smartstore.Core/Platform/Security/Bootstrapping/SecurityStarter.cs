@@ -11,6 +11,7 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<Encryptor>().As<IEncryptor>().InstancePerLifetimeScope();
+            builder.RegisterType<HoneypotProtector>().SingleInstance();
 
             if (appContext.IsInstalled)
             {

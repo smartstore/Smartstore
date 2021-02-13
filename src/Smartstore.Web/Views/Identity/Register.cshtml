@@ -12,6 +12,7 @@
 <h1>@T("Account.Register")</h1>
 
 <form asp-route="Register" asp-route-returnurl="@returnUrl" method="post" class="form-horizontal" role="form">
+    <sm-honeypot sm-enabled="true" />
     <input asp-for="UserNamesEnabled" type="hidden" />
     <h4>Create a new account.</h4>
     <hr />

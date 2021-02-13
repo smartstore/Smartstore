@@ -119,7 +119,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken, ValidateCaptcha]
+        [ValidateAntiForgeryToken, ValidateCaptcha, ValidateHoneypot]
         [LocalizedRoute("/register", Name = "Register")]
         public async Task<IActionResult> Register(RegisterModel model, string returnUrl = null)
         {
