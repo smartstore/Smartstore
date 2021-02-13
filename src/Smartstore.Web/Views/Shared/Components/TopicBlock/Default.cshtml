@@ -10,7 +10,9 @@
 @if (ViewBag.BodyOnly)
 {
     <div class="topic-html-content-body@(ViewBag.IsLead == true ? " lead" : "") my-3 html-editor-content" id="ph-topic-body-@Model.Id" language-attributes-for="Model.Body">
-        @Html.Raw(Model.Body)
+        <sm-collapsed-content>
+            @Html.Raw(Model.Body)
+        </sm-collapsed-content>
     </div>
 }
 else
@@ -38,7 +40,9 @@ else
 				</p>
 			}
 
-            @Html.Raw(Model.Body)
+            <sm-collapsed-content>
+                @Html.Raw(Model.Body)
+            </sm-collapsed-content>
         </div>
     </div>
 }
