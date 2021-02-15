@@ -10,6 +10,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Discounts
@@ -23,14 +24,23 @@ namespace Smartstore.Core.Catalog.Discounts
         private readonly SmartDbContext _db;
         private readonly IRequestCache _requestCache;
         private readonly ICartRuleProvider _cartRuleProvider;
+        private readonly IShoppingCartService _shoppingCartService;
+        private readonly IStoreContext _storeContext;
         private readonly Dictionary<DiscountKey, bool> _discountValidityCache = new();
         private readonly Multimap<string, int> _relatedEntityIds = new(items => new HashSet<int>(items));
 
-        public DiscountService(SmartDbContext db, IRequestCache requestCache, ICartRuleProvider cartRuleProvider)
+        public DiscountService(
+            SmartDbContext db,
+            IRequestCache requestCache,
+            ICartRuleProvider cartRuleProvider,
+            IShoppingCartService shoppingCartService,
+            IStoreContext storeContext)
         {
             _db = db;
             _requestCache = requestCache;
             _cartRuleProvider = cartRuleProvider;
+            _shoppingCartService = shoppingCartService;
+            _storeContext = storeContext;
         }
 
         #region Hook
@@ -208,9 +218,7 @@ namespace Smartstore.Core.Catalog.Discounts
             // Better not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
             if (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
             {
-                // TODO: (mg) (core) Complete DiscountService (customer extension method GetCartItemsAsync required).
-                //var cart = await customer.GetCartItemsAsync(ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
-                var cart = new List<OrganizedShoppingCartItem>();
+                var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
                 if (cart.Any(x => x.Item?.Product != null && x.Item.Product.IsGiftCard))
                 {
                     return Cached(false);

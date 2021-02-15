@@ -9,6 +9,8 @@ using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Messages;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -16,13 +18,19 @@ namespace Smartstore.Core.Catalog.Products
     {
         private readonly SmartDbContext _db;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+        private readonly IMessageFactory _messageFactory;
+        private readonly LocalizationSettings _localizationSettings;
 
         public ProductService(
             SmartDbContext db,
-            IProductAttributeMaterializer productAttributeMaterializer)
+            IProductAttributeMaterializer productAttributeMaterializer,
+            IMessageFactory messageFactory,
+            LocalizationSettings localizationSettings)
         {
             _db = db;
             _productAttributeMaterializer = productAttributeMaterializer;
+            _messageFactory = messageFactory;
+            _localizationSettings = localizationSettings;
         }
 
         public virtual async Task<(Product Product, ProductVariantAttributeCombination VariantCombination)> GetProductByIdentificationNumberAsync(
@@ -138,7 +146,7 @@ namespace Smartstore.Core.Catalog.Products
             return map;
         }
 
-        // // TODO: (mg) (core) Call GetAppliedDiscountsByProductIdsAsync with includeHidden (default was true).
+        // TODO: (mg) (core) Check caller of GetAppliedDiscountsByProductIdsAsync. Must now be called with includeHidden (default value was true).
         public virtual async Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(
             int[] productIds,
             bool includeHidden = false,
@@ -323,12 +331,13 @@ namespace Smartstore.Core.Catalog.Products
                         product.DisableWishlistButton = newDisableWishlistButton;
                         product.Published = newPublished;
 
-                        // TODO: (mg) (core) ProductService.AdjustInventoryAsync doesn't send SendQuantityBelowStoreOwnerNotification anymore. Must be sent by caller after (!) database commit.
-                        // TODO: (mg) (core) The caller should definitely NOT be responsible for figuring out, when and how to publish messages. That would be extremely bad API design.
-                        //if (decrease && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
-                        //{
-                        //    _services.MessageFactory.SendQuantityBelowStoreOwnerNotification(product, _localizationSettings.DefaultAdminLanguageId);
-                        //}
+                        // Commit required because of store owner notification.
+                        await _db.SaveChangesAsync();
+
+                        if (decrease && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
+                        {
+                            await _messageFactory.SendQuantityBelowStoreOwnerNotificationAsync(product, _localizationSettings.DefaultAdminLanguageId);
+                        }
                     }
                     break;
                 case ManageInventoryMethod.ManageStockByAttributes:
@@ -372,6 +381,8 @@ namespace Smartstore.Core.Catalog.Products
                     }
                 }
             }
+
+            await _db.SaveChangesAsync();
 
             return result;
         }

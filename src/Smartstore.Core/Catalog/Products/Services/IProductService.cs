@@ -80,7 +80,7 @@ namespace Smartstore.Core.Catalog.Products
         Task<AdjustInventoryResult> AdjustInventoryAsync(OrderItem orderItem, bool decrease, int quantity);
 
         /// <summary>
-        /// Adjusts product inventory. The caller is responsible for database commit.
+        /// Adjusts product inventory. Saves changes to database.
         /// </summary>
         /// <param name="product">Product entity.</param>
         /// <param name="selection">Selected attributes.</param>
