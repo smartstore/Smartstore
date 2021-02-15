@@ -34,7 +34,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<CartRuleProvider>()
                 .As<ICartRuleProvider>()
                 .Keyed<IRuleProvider>(RuleScope.Cart)
-                .InstancePerRequest();
+                .InstancePerLifetimeScope();
         }
     }
 }

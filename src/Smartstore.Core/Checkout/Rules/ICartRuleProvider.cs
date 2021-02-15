@@ -6,7 +6,7 @@ namespace Smartstore.Core.Checkout.Rules
     /// <summary>
     /// Cart rule provider.
     /// </summary>
-    public partial interface ICartRuleProvider
+    public partial interface ICartRuleProvider : IRuleProvider
     {
         /// <summary>
         /// Gets the rule processor.
@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Rules
         /// </summary>
         /// <param name="ruleSetId">Rule set identifier.</param>
         /// <returns>Expression group.</returns>
-        RuleExpressionGroup CreateExpressionGroup(int ruleSetId);
+        Task<RuleExpressionGroup> CreateExpressionGroupAsync(int ruleSetId);
 
         /// <summary>
         /// Checks whether a rule is met.

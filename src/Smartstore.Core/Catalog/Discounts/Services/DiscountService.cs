@@ -7,11 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
@@ -22,21 +21,16 @@ namespace Smartstore.Core.Catalog.Discounts
         internal const string DISCOUNTS_PATTERN_KEY = "discount.*";
 
         private readonly SmartDbContext _db;
-        private readonly IStoreContext _storeContext;
         private readonly IRequestCache _requestCache;
-        //private readonly ICartRuleProvider _cartRuleProvider;
+        private readonly ICartRuleProvider _cartRuleProvider;
         private readonly Dictionary<DiscountKey, bool> _discountValidityCache = new();
         private readonly Multimap<string, int> _relatedEntityIds = new(items => new HashSet<int>(items));
 
-        public DiscountService(
-            SmartDbContext db,
-            IStoreContext storeContext,
-            IRequestCache requestCache)
+        public DiscountService(SmartDbContext db, IRequestCache requestCache, ICartRuleProvider cartRuleProvider)
         {
             _db = db;
-            _storeContext = storeContext;
             _requestCache = requestCache;
-            //_cartRuleProvider = cartRuleProvider;
+            _cartRuleProvider = cartRuleProvider;
         }
 
         #region Hook
@@ -223,12 +217,11 @@ namespace Smartstore.Core.Catalog.Discounts
                 }
             }
 
-            // TODO: (mg) (core) Complete DiscountService (ICartRuleProvider required).
-            // Rule sets.
-            //if (!_cartRuleProvider.RuleMatches(discount))
-            //{
-            //    return Cached(false);
-            //}
+            // Rulesets.
+            if (!await _cartRuleProvider.RuleMatchesAsync(discount))
+            {
+                return Cached(false);
+            }
 
             return Cached(true);
 

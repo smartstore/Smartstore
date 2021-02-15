@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Autofac;
+using Dasync.Collections;
 using Smartstore.Core.Checkout.Rules.Impl;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
@@ -14,17 +15,19 @@ namespace Smartstore.Core.Checkout.Rules
     public class CartRuleProvider : RuleProviderBase, ICartRuleProvider
     {
         private readonly IComponentContext _componentContext;
-        //private readonly IRuleFactory _ruleFactory;
+        private readonly IRuleService _ruleService;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
 
         public CartRuleProvider(
             IComponentContext componentContext,
+            IRuleService ruleService,
             IWorkContext workContext,
             IStoreContext storeContext)
             : base(RuleScope.Cart)
         {
             _componentContext = componentContext;
+            _ruleService = ruleService;
             _workContext = workContext;
             _storeContext = storeContext;
         }
@@ -56,11 +59,9 @@ namespace Smartstore.Core.Checkout.Rules
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public RuleExpressionGroup CreateExpressionGroup(int ruleSetId)
+        public async Task<RuleExpressionGroup> CreateExpressionGroupAsync(int ruleSetId)
         {
-            // TODO: (mg) (core) Complete CartRuleProvider (IRuleFactory required).
-            //return _ruleFactory.CreateExpressionGroup(ruleSetId, this) as RuleExpressionGroup;
-            throw new NotImplementedException();
+            return await _ruleService.CreateExpressionGroupAsync(ruleSetId, this) as RuleExpressionGroup;
         }
 
         public override IRuleExpression VisitRule(RuleEntity rule)
@@ -99,12 +100,11 @@ namespace Smartstore.Core.Checkout.Rules
                 return true;
             }
 
-            // TODO: (mg) (core) Complete CartRuleProvider (IRuleFactory required).
-            var expressions = ruleSetIds
-                //.Select(id => _ruleFactory.CreateExpressionGroup(id, this))
-                //.Where(x => x != null)
+            var expressions = await ruleSetIds
+                .SelectAsync(id => _ruleService.CreateExpressionGroupAsync(id, this))
+                .Where(x => x != null)
                 .Cast<RuleExpression>()
-                .ToArray();
+                .ToArrayAsync();
 
             return await RuleMatchesAsync(expressions, logicalOperator);
         }
@@ -119,12 +119,11 @@ namespace Smartstore.Core.Checkout.Rules
                 return true;
             }
 
-            // TODO: (mg) (core) Complete CartRuleProvider (IRuleFactory required).
-            var expressions = ruleSets
-                //.Select(x => _ruleFactory.CreateExpressionGroup(x, this))
-                //.Where(x => x != null)
+            var expressions = await ruleSets
+                .SelectAsync(x => _ruleService.CreateExpressionGroupAsync(x, this))
+                .Where(x => x != null)
                 .Cast<RuleExpression>()
-                .ToArray();
+                .ToArrayAsync();
 
             return await RuleMatchesAsync(expressions, logicalOperator);
         }

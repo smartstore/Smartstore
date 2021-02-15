@@ -5,17 +5,18 @@ namespace Smartstore.Core.Checkout.Rules.Impl
 {
     public class RuleSetRule : IRule
     {
-        //private readonly IRuleFactory _ruleFactory;
+        private readonly IRuleService _ruleService;
         private readonly ICartRuleProvider _cartRuleProvider;
 
-        public RuleSetRule(ICartRuleProvider cartRuleProvider)
+        public RuleSetRule(IRuleService ruleService, ICartRuleProvider cartRuleProvider)
         {
+            _ruleService = ruleService;
             _cartRuleProvider = cartRuleProvider;
         }
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
-            var otherExpression = GetOtherExpression(expression);
+            var otherExpression = await GetOtherExpressionAsync(expression);
             if (otherExpression == null)
             {
                 // Skip\ignore expression.
@@ -39,12 +40,11 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             throw new InvalidRuleOperatorException(expression);
         }
 
-        protected RuleExpression GetOtherExpression(RuleExpression expression)
+        protected async Task<RuleExpression> GetOtherExpressionAsync(RuleExpression expression)
         {
             var ruleSetId = expression.Value.Convert<int>();
-            // TODO: (mg) (core) Complete RuleSetRule (IRuleFactory required).
-            //var otherExpression = _ruleFactory.CreateExpressionGroup(ruleSetId, _cartRuleProvider) as RuleExpression;
-            RuleExpression otherExpression = null;
+            var otherExpression = await _ruleService.CreateExpressionGroupAsync(ruleSetId, _cartRuleProvider) as RuleExpression;
+
             return otherExpression;
         }
     }
