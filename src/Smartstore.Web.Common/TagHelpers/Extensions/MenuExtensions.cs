@@ -38,6 +38,63 @@ namespace Smartstore.Web.TagHelpers
         }
 
         /// <summary>
+        /// Gets the state of <c>node</c> within the passed <c>currentPath</c>, which is the navigation breadcrumb.
+        /// </summary>
+        /// <param name="node">The node to get the state for</param>
+        /// <param name="currentPath">The current path/breadcrumb</param>
+        /// <returns>
+        ///		<see cref="NodePathState" /> enumeration indicating whether the node is in the current path (<c>Selected</c> or <c>Expanded</c>)
+        ///		and whether it has children (<c>Parent</c>)
+        ///	</returns>
+        public static NodePathState GetNodePathState(this TreeNode<MenuItem> node, IEnumerable<TreeNode<MenuItem>> currentPath)
+        {
+            return GetNodePathState(node, currentPath.Select(x => x.Value).ToList());
+        }
+
+        /// <summary>
+        /// Gets the state of <c>node</c> within the passed <c>currentPath</c>, which is the navigation breadcrumb.
+        /// </summary>
+        /// <param name="node">The node to get the state for</param>
+        /// <param name="currentPath">The current path/breadcrumb</param>
+        /// <returns>
+        ///		<see cref="NodePathState" /> enumeration indicating whether the node is in the current path (<c>Selected</c> or <c>Expanded</c>)
+        ///		and whether it has children (<c>Parent</c>)
+        ///	</returns>
+        public static NodePathState GetNodePathState(this TreeNode<MenuItem> node, IList<MenuItem> currentPath)
+        {
+            Guard.NotNull(currentPath, nameof(currentPath));
+
+            var state = NodePathState.Unknown;
+
+            if (node.HasChildren)
+            {
+                state = state | NodePathState.Parent;
+            }
+
+            var lastInPath = currentPath.LastOrDefault();
+
+            if (currentPath.Count > 0)
+            {
+                if (node.Value.Equals(lastInPath))
+                {
+                    state |= NodePathState.Selected;
+                }
+                else
+                {
+                    if (node.Depth - 1 < currentPath.Count)
+                    {
+                        if (currentPath[node.Depth - 1].Equals(node.Value))
+                        {
+                            state |= NodePathState.Expanded;
+                        }
+                    }
+                }
+            }
+
+            return state;
+        }
+
+        /// <summary>
         /// Applies serialized route informations to a tree node.
         /// </summary>
         /// <param name="node">Tree node.</param>
@@ -96,7 +153,7 @@ namespace Smartstore.Web.TagHelpers
         /// <param name="items">List of menu items.</param>
         /// <param name="itemProviders">Menu item providers.</param>
         /// <returns>Tree of menu items.</returns>
-        public static TreeNode<MenuItem> GetTree(
+        public static async System.Threading.Tasks.Task<TreeNode<MenuItem>> GetTreeAsync(
             this IEnumerable<MenuItemEntity> items,
             string origin,
             IDictionary<string, Lazy<IMenuItemProvider, MenuItemProviderMetadata>> itemProviders)
@@ -123,11 +180,11 @@ namespace Smartstore.Web.TagHelpers
                 Id = menu.SystemName
             };
 
-            AddChildItems(root, 0);
+            await AddChildItemsAsync(root, 0);
 
             return root;
 
-            void AddChildItems(TreeNode<MenuItem> parentNode, int parentItemId)
+            async System.Threading.Tasks.Task AddChildItemsAsync(TreeNode<MenuItem> parentNode, int parentItemId)
             {
                 if (parentNode == null)
                 {
@@ -142,14 +199,14 @@ namespace Smartstore.Web.TagHelpers
                 {
                     if (!string.IsNullOrEmpty(entity.ProviderName) && itemProviders.TryGetValue(entity.ProviderName, out var provider))
                     {
-                        var newNode = provider.Value.Append(new MenuItemProviderRequest
+                        var newNode = await provider.Value.AppendAsync(new MenuItemProviderRequest
                         {
                             Origin = origin,
                             Parent = parentNode,
                             Entity = entity
                         });
 
-                        AddChildItems(newNode, entity.Id);
+                        await AddChildItemsAsync(newNode, entity.Id);
                     }
                 }
             }

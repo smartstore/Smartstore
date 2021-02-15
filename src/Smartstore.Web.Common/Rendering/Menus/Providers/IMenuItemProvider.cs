@@ -1,4 +1,5 @@
-﻿using Smartstore.Collections;
+﻿using System.Threading.Tasks;
+using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Web.TagHelpers;
 
@@ -11,7 +12,7 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         /// <param name="request">Contains information about the request to the provider.</param>
         /// <returns>Appended node.</returns>
-		TreeNode<MenuItem> Append(MenuItemProviderRequest request);
+		Task<TreeNode<MenuItem>> AppendAsync(MenuItemProviderRequest request);
     }
 
     public class MenuItemProviderRequest

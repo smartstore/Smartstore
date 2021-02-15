@@ -1,0 +1,69 @@
+﻿@using Smartstore.Web.TagHelpers
+@model MenuModel
+@{
+    var root = Model.Root;
+    if (root == null)
+    {
+        return;
+    }
+
+    var isFirst = true;
+    var hasIcons = root.Children.Any(x => x.Value.Icon.HasValue());
+    var hasImages = root.Children.Any(x => x.Value.ImageUrl.HasValue());
+    var rtl = WorkContext.WorkingLanguage.Rtl;
+}
+
+<div class="cms-menu cms-menu-linklist" data-menu-name="@(Model.Name?.ToLower())">
+    <ul class="list-unstyled">
+        @foreach (var node in root.Children)
+        {
+            var item = node.Value;
+            if (!item.Visible)
+            {
+                continue;
+            }
+
+            var itemText = node.GetItemText(T);
+            var itemUrl = item.GenerateUrl(this.ViewContext);
+
+            if (item.IsGroupHeader)
+            {
+                if (!isFirst)
+                {
+                    <li><hr class="my-2" /></li>
+                }
+                if (itemText.HasValue() && item.Text != "[SKIP]")
+                {
+                    <li class="menu-header h5 mt-2">@itemText</li>
+                }
+                isFirst = false;
+                continue;
+            }
+
+            var attrs = item.GetCombinedAttributes().PrependCssClass("menu-link");
+
+            <li>
+                @*TODO (mh) (core) attrs*@
+                <a href="@itemUrl">
+                    @*<a href="@itemUrl" @Html.Attrs(attrs)>*@
+                    @if (hasIcons)
+                    {
+                        <i class="fa-fw@(item.Icon.HasValue() ? item.Icon.EnsureStartsWith(" ") : " fas")"></i>
+                    }
+                    else if (hasImages && item.ImageUrl.HasValue())
+                    {
+                        <img class="sm-icon" src="@Url.Content(item.ImageUrl)" alt="" />
+                    }
+                    else if (hasImages)
+                    {
+                        <i class="fa-fw fas"></i>
+                    }
+
+                    <span language-attributes-for="item">@itemText</span>
+                </a>
+            </li>
+
+            isFirst = false;
+        }
+    </ul>
+</div>

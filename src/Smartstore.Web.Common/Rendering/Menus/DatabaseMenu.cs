@@ -220,7 +220,7 @@ namespace Smartstore.Web.Rendering
                 .ApplyStoreFilter(Services.StoreContext.CurrentStore.Id)
                 .ToListAsync();
 
-            var tree = entities.GetTree("DatabaseMenu", _menuItemProviders);
+            var tree = await entities.GetTreeAsync("DatabaseMenu", _menuItemProviders);
 
             return tree;
         }

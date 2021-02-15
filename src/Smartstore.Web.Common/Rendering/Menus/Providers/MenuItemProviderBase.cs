@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Smartstore.Collections;
 using Smartstore.Core.Localization;
 using Smartstore.Web.TagHelpers;
@@ -9,7 +10,7 @@ namespace Smartstore.Web.Rendering
     {
         public IIconExplorer IconExplorer { get; set; }
 
-        public virtual TreeNode<MenuItem> Append(MenuItemProviderRequest request)
+        public virtual Task<TreeNode<MenuItem>> AppendAsync(MenuItemProviderRequest request)
         {
             Guard.NotNull(request, nameof(request));
             Guard.NotNull(request.Parent, nameof(request.Parent));
@@ -29,7 +30,7 @@ namespace Smartstore.Web.Rendering
 
             ApplyLink(request, node);
 
-            return node;
+            return Task.FromResult(node);
         }
 
         protected virtual TreeNode<MenuItem> AppendToParent(MenuItemProviderRequest request, MenuItem item)
