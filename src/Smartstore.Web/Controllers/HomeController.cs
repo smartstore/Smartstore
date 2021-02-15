@@ -703,17 +703,24 @@ namespace Smartstore.Web.Controllers
 
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            try
-            {
-                var attribute = await _db.ProductAttributes.OrderBy(x => x.Id).FirstOrDefaultAsync();
-                attribute.Alias = attribute.Alias.HasValue() ? "" : "test";
-                await _db.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                ex.Dump();
-            }
+            var reviewsCount = await _db.CustomerContent
+                .ApplyCustomerFilter(1426709, true)
+                .OfType<ProductReview>()
+                .CountAsync();
 
+            content.AppendLine($"reviewCount: {reviewsCount}");
+
+
+            //try
+            //{
+            //    var attribute = await _db.ProductAttributes.OrderBy(x => x.Id).FirstOrDefaultAsync();
+            //    attribute.Alias = attribute.Alias.HasValue() ? "" : "test";
+            //    await _db.SaveChangesAsync();
+            //}
+            //catch (Exception ex)
+            //{
+            //    ex.Dump();
+            //}
 
             //var productTagService = Services.Resolve<IProductTagService>();
             //var tags = await _db.ProductTags.ToListAsync();

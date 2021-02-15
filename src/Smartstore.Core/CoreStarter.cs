@@ -65,7 +65,6 @@ namespace Smartstore.Core
                 builder.RegisterModule(new DbHooksModule(appContext));
                 builder.RegisterModule(new StoresModule());
                 builder.RegisterModule(new RuleModule());
-                builder.RegisterModule(new CheckoutModule());
             }
         }
     }

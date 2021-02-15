@@ -14,7 +14,7 @@ namespace Smartstore.Core.Checkout.Rules
         /// <param name="value">Value.</param>
         /// <param name="comparer">Equality comparer.</param>
         /// <returns><c>true</c> value matches a list, otherwise <c>false</c>.</returns>
-        public static bool IsListMatch<T>(this RuleExpression expression, T value, IEqualityComparer<T> comparer = null)
+        public static bool HasListMatch<T>(this RuleExpression expression, T value, IEqualityComparer<T> comparer = null)
         {
             var right = expression.Value as List<T>;
             if (!(right?.Any() ?? false))
@@ -39,13 +39,13 @@ namespace Smartstore.Core.Checkout.Rules
         }
 
         /// <summary>
-        /// Checks whether values matches a list.
+        /// Checks whether a list of values matches a list.
         /// </summary>
         /// <param name="expression">Rule expression.</param>
         /// <param name="values">Values.</param>
         /// <param name="comparer">Equality comparer.</param>
         /// <returns><c>true</c> values matches a list, otherwise <c>false</c>.</returns>
-        public static bool IsListMatch<T>(this RuleExpression expression, IEnumerable<T> values, IEqualityComparer<T> comparer = null)
+        public static bool HasListsMatch<T>(this RuleExpression expression, IEnumerable<T> values, IEqualityComparer<T> comparer = null)
         {
             var right = expression.Value as List<T>;
             if (!(right?.Any() ?? false))

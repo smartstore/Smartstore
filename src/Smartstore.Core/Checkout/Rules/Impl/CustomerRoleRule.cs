@@ -3,11 +3,12 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class BillingCountryRule : IRule
+    public class CustomerRoleRule : IRule
     {
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
-            var match = expression.HasListMatch(context.Customer?.BillingAddress?.CountryId ?? 0);
+            var roleIds = context.Customer.GetRoleIds();
+            var match = expression.HasListsMatch(roleIds);
 
             return Task.FromResult(match);
         }

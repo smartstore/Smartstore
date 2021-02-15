@@ -5,7 +5,7 @@ namespace Smartstore.Core.Catalog.Products
     public static partial class ProductQueryExtensions
     {
         /// <summary>
-        /// Apply standard filter for a product query.
+        /// Applies standard filter for a product query.
         /// Filters out <see cref="Product.IsSystemProduct"/>.
         /// </summary>
         /// <param name="query">Product query.</param>
