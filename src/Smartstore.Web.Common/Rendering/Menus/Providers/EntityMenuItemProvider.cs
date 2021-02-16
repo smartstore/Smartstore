@@ -26,7 +26,7 @@ namespace Smartstore.Web.Rendering.Menus.Providers
 
         public Localizer T { get; set; }
 
-        protected override async void ApplyLink(MenuItemProviderRequest request, TreeNode<MenuItem> node)
+        protected override async Task ApplyLinkAsync(MenuItemProviderRequest request, TreeNode<MenuItem> node)
         {
             // Always resolve against current store, current customer and working language.
             var result = await _linkResolver.ResolveAsync(request.Entity.Model);

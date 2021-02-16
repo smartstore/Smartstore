@@ -73,10 +73,8 @@ namespace Smartstore.Web.Rendering.Menus.Providers
             // invalidate all containing menus also.
         }
 
-        protected override void ApplyLink(MenuItemProviderRequest request, TreeNode<MenuItem> node)
-        {
-            // Void, does nothing here.
-        }
+        protected override Task ApplyLinkAsync(MenuItemProviderRequest request, TreeNode<MenuItem> node)
+            => Task.CompletedTask;
 
         private async Task<Tuple<TreeNode<MenuItem>, int>> ConvertNodeAsync(
             MenuItemProviderRequest request,
@@ -119,7 +117,7 @@ namespace Smartstore.Web.Rendering.Menus.Providers
                 }
                 else
                 {
-                    menuItem.RouteName = "HomePage";
+                    menuItem.RouteName = "Homepage";
                 }
             }
 

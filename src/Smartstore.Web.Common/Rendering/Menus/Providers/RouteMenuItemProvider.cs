@@ -1,4 +1,5 @@
-﻿using Smartstore.Collections;
+﻿using System.Threading.Tasks;
+using Smartstore.Collections;
 using Smartstore.Core.Localization;
 using Smartstore.Web.TagHelpers;
 
@@ -14,7 +15,7 @@ namespace Smartstore.Web.Rendering
 
         public Localizer T { get; set; }
 
-        protected override void ApplyLink(MenuItemProviderRequest request, TreeNode<MenuItem> node)
+        protected override Task ApplyLinkAsync(MenuItemProviderRequest request, TreeNode<MenuItem> node)
         {
             try
             {
@@ -35,6 +36,8 @@ namespace Smartstore.Web.Rendering
                     item.ResKey = "Admin.ContentManagement.Menus.SpecifyLinkTarget";
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Smartstore.Web.Rendering
     {
         public IIconExplorer IconExplorer { get; set; }
 
-        public virtual Task<TreeNode<MenuItem>> AppendAsync(MenuItemProviderRequest request)
+        public virtual async Task<TreeNode<MenuItem>> AppendAsync(MenuItemProviderRequest request)
         {
             Guard.NotNull(request, nameof(request));
             Guard.NotNull(request.Parent, nameof(request.Parent));
@@ -28,9 +28,9 @@ namespace Smartstore.Web.Rendering
 
             var node = AppendToParent(request, ConvertToMenuItem(request));
 
-            ApplyLink(request, node);
+            await ApplyLinkAsync(request, node);
 
-            return Task.FromResult(node);
+            return node;
         }
 
         protected virtual TreeNode<MenuItem> AppendToParent(MenuItemProviderRequest request, MenuItem item)
@@ -117,7 +117,7 @@ namespace Smartstore.Web.Rendering
             // Icon
             if (entity.Icon.HasValue() && !request.IsEditMode)
             {
-                menuItem.Icon = IconExplorer.GetIconByName(entity.Icon).GetCssClass(entity.Style);
+                menuItem.Icon = IconExplorer.GetIconByName(entity.Icon)?.GetCssClass(entity.Style);
 
                 if (entity.IconColor.HasValue())
                 {
@@ -135,6 +135,6 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         /// <param name="request">Contains information about the request to the provider.</param>
         /// <param name="node">The newly created menu item node to apply the generated link to.</param>
-        protected abstract void ApplyLink(MenuItemProviderRequest request, TreeNode<MenuItem> node);
+        protected abstract Task ApplyLinkAsync(MenuItemProviderRequest request, TreeNode<MenuItem> node);
     }
 }
