@@ -72,7 +72,6 @@ namespace Smartstore.Web
             services.Configure<RazorViewEngineOptions>(o =>
             {
                 // TODO: (core) Register view location formats/expanders
-                o.ViewLocationFormats.Add("/Views/Shared/Menus/{0}.cshtml");
             });
 
             services.Configure<WebEncoderOptions>(o =>
