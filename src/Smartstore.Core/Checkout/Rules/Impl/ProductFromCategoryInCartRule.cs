@@ -21,6 +21,8 @@ namespace Smartstore.Core.Checkout.Rules.Impl
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
             var categoryIds = Enumerable.Empty<int>();
+
+            // TODO: (mg) (core) (perf) Customer.ShoppingCartItems is often eager-loaded already in many scenarios. Check if loaded first, THEN fetch from DB. Apply this to all other rules with cart access too.
             var cart = await _shoppingCartService.GetCartItemsAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
             var productIds = cart.Select(x => x.Item.ProductId).ToArray();
 
