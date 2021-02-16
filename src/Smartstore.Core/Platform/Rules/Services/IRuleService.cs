@@ -9,7 +9,6 @@ namespace Smartstore.Core.Rules
     public partial interface IRuleService
     {
         // TODO: (mg) (core) Port rule classes from SmartStore.Services.Rules > Smartstore.Core.Rules
-        // TODO: (mg) (core) Port rule classes from SmartStore.Services.Catalog.Rules > Smartstore.Core.Catalog.Rules
         // TODO: (mg) (core) Port rule classes from SmartStore.Services.Customers[.Rules] > Smartstore.Core.Customers.Rules
 
         /// <summary>

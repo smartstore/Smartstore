@@ -64,10 +64,10 @@ namespace Smartstore.Core.Checkout.Rules
             return await _ruleService.CreateExpressionGroupAsync(ruleSetId, this) as RuleExpressionGroup;
         }
 
-        public override IRuleExpression VisitRule(RuleEntity rule)
+        public override async Task<IRuleExpression> VisitRuleAsync(RuleEntity rule)
         {
             var expression = new RuleExpression();
-            base.ConvertRule(rule, expression);
+            await base.ConvertRuleAsync(rule, expression);
             return expression;
         }
 
@@ -162,7 +162,7 @@ namespace Smartstore.Core.Checkout.Rules
             return result;
         }
 
-        protected override IEnumerable<RuleDescriptor> LoadDescriptors()
+        protected override Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
         {
             var language = _workContext.WorkingLanguage;
             var currencyCode = _storeContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
@@ -460,7 +460,7 @@ namespace Smartstore.Core.Checkout.Rules
                 .Where(x => x.RuleType == RuleType.Money)
                 .Each(x => x.Metadata["postfix"] = currencyCode);
 
-            return descriptors;
+            return Task.FromResult(descriptors.Cast<RuleDescriptor>());
         }
     }
 }

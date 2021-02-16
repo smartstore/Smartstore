@@ -123,7 +123,7 @@ namespace Smartstore.Core.Rules
         {
             if (!ruleEntity.IsGroup)
             {
-                return visitor.VisitRule(ruleEntity);
+                return await visitor.VisitRuleAsync(ruleEntity);
             }
 
             // It's a group, do recursive call.

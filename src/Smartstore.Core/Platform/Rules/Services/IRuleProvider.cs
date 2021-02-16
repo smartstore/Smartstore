@@ -1,11 +1,18 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace Smartstore.Core.Rules
 {
+    /// <summary>
+    /// Rule provider interface.
+    /// </summary>
     public interface IRuleProvider : IRuleVisitor
     {
-        RuleDescriptorCollection RuleDescriptors { get; }
+        /// <summary>
+        /// Gets all rule descriptors for a rule scope.
+        /// </summary>
+        /// <returns></returns>
+        Task<RuleDescriptorCollection> GetRuleDescriptorsAsync();
     }
 
     public abstract class RuleProviderBase : IRuleProvider
@@ -19,16 +26,17 @@ namespace Smartstore.Core.Rules
 
         public RuleScope Scope { get; protected set; }
 
-        public abstract IRuleExpression VisitRule(RuleEntity rule);
+        public abstract Task<IRuleExpression> VisitRuleAsync(RuleEntity rule);
 
         public abstract IRuleExpressionGroup VisitRuleSet(RuleSetEntity ruleSet);
 
-        protected virtual void ConvertRule(RuleEntity entity, RuleExpression expression)
+        protected virtual async Task ConvertRuleAsync(RuleEntity entity, RuleExpression expression)
         {
             Guard.NotNull(entity, nameof(entity));
             Guard.NotNull(expression, nameof(expression));
 
-            var descriptor = RuleDescriptors.FindDescriptor(entity.RuleType);
+            var descriptors = await GetRuleDescriptorsAsync();
+            var descriptor = descriptors.FindDescriptor(entity.RuleType);
             if (descriptor == null)
             {
                 // A descriptor for this entity data does not exist. Allow deletion of it.
@@ -51,20 +59,17 @@ namespace Smartstore.Core.Rules
             expression.Value = entity.Value.Convert(descriptor.RuleType.ClrType);
         }
 
-        public virtual RuleDescriptorCollection RuleDescriptors
+        public virtual async Task<RuleDescriptorCollection> GetRuleDescriptorsAsync()
         {
-            get
+            if (_descriptors == null)
             {
-                if (_descriptors == null)
-                {
-                    var descriptors = LoadDescriptors().Cast<RuleDescriptor>();
-                    _descriptors = new RuleDescriptorCollection(descriptors);
-                }
-
-                return _descriptors;
+                var descriptors = await LoadDescriptorsAsync();
+                _descriptors = new RuleDescriptorCollection(descriptors);
             }
+
+            return _descriptors;
         }
 
-        protected abstract IEnumerable<RuleDescriptor> LoadDescriptors();
+        protected abstract Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync();
     }
 }

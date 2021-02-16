@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Smartstore.Core.Scheduling
@@ -11,6 +12,8 @@ namespace Smartstore.Core.Scheduling
     public class TaskExecutionContext
     {
         // TODO: (core) Implement TaskExecutionContext class
+
+        public IDictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
 
         /// <summary>
         /// Persists a task's progress information to the database

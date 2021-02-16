@@ -6,10 +6,12 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Platform.Search.Facets;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
@@ -32,6 +34,11 @@ namespace Smartstore.Core.Bootstrapping
                 .As<IManufacturerService>()
                 .As<IXmlSitemapPublisher>()
                 //.WithNullCache()  // TODO: (core) Do we really need Autofac registration "WithNullCache"?
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<ProductRuleProvider>()
+                .As<IProductRuleProvider>()
+                .Keyed<IRuleProvider>(RuleScope.Product)
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ProductAttributeMaterializer>().As<IProductAttributeMaterializer>().InstancePerLifetimeScope();
