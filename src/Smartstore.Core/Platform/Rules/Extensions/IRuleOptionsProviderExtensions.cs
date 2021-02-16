@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Smartstore.Core.Rules.Rendering
 {
@@ -14,6 +15,7 @@ namespace Smartstore.Core.Rules.Rendering
         /// <param name="pageSize">Page size if provided options are paged.</param>
         /// <param name="searchTerm">Optional search term entered by user in select control.</param>
         /// <returns>Rule options result.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static async Task<RuleOptionsResult> GetOptionsAsync(
             this IRuleOptionsProvider provider,
             RuleOptionsRequestReason reason, 

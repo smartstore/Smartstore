@@ -7,6 +7,8 @@ namespace Smartstore.Core.Rules.Rendering
     /// </summary>
     public partial interface IRuleOptionsProvider
     {
+        // TODO: (mg) (core) An ordinal is missing to sort all registered providers later in controller.
+        
         /// <summary>
         /// Indicates whether this provider can provide select list options for a rule expression.
         /// </summary>

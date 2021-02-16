@@ -42,6 +42,7 @@ namespace Smartstore.Core.Rules.Rendering
 
         public bool Matches(string dataSource)
         {
+            // TODO: (mg) (core) Make a static helper class for known data sources, e.g. "KnownRuleOptionDataSourceNames"
             switch (dataSource.EmptyNull())
             {
                 case "CartRule":
@@ -88,6 +89,8 @@ namespace Smartstore.Core.Rules.Rendering
             var byId = descriptor.RuleType == RuleType.Int || descriptor.RuleType == RuleType.IntArray;
             List<RuleValueSelectListOption> options = null;
 
+            // TODO: (mg) (core) This is (and always was) way too monolithic. Split this monter into many option provider classes:
+            // E.g.: CommonRuleOptionsProvider, Product..., Category... etc. Put classes to "OptionProviders" subfolder.
             switch (list.DataSource)
             {
                 case "Product":
