@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace Smartstore.Core.Rules
 {
-    public static class RuleQueryExtensions
+    public static partial class RuleQueryExtensions
     {
         /// <summary>
         /// Applies ruleset standard filter and sorts by <see cref="RuleSetEntity.IsActive"/> DESC, then by <see cref="RuleSetEntity.Scope"/>.

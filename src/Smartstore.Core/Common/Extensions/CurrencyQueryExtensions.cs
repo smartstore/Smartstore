@@ -7,8 +7,12 @@ namespace Smartstore
     public static class CurrencyQueryExtensions
     {
         /// <summary>
-        /// Applies store filter and sorts by <see cref="Currency.DisplayOrder"/>
+        /// Applies standard filter and sorts by <see cref="Currency.DisplayOrder"/>.
         /// </summary>
+        /// <param name="query">Currency query.</param>
+        /// <param name="includeHidden">Applies filter by <see cref="Currency.Published"/>.</param>
+        /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
+        /// <returns>Currency query.</returns>
         public static IOrderedQueryable<Currency> ApplyStandardFilter(this IQueryable<Currency> query, bool includeHidden = false, int storeId = 0)
         {
             Guard.NotNull(query, nameof(query));

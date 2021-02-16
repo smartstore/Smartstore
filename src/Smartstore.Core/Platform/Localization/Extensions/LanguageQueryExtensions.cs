@@ -1,11 +1,17 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Localization
 {
     public static partial class LanguageQueryExtensions
     {
+        /// <summary>
+        /// Applies standard filter and sorts by <see cref="Currency.DisplayOrder"/>.
+        /// </summary>
+        /// <param name="query">Language query.</param>
+        /// <param name="includeHidden">Applies filter by <see cref="Language.Published"/>.</param>
+        /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
+        /// <returns>Language query.</returns>
         public static IOrderedQueryable<Language> ApplyStandardFilter(this IQueryable<Language> query, bool includeHidden = false, int storeId = 0)
         {
             Guard.NotNull(query, nameof(query));
