@@ -320,7 +320,7 @@ namespace Smartstore.Core.Messages
                 }
             }
 
-            if (ctx.StoreId == 0)
+            if (ctx.StoreId.GetValueOrDefault() == 0)
             {
                 ctx.Store = _storeContext.CurrentStore;
                 ctx.StoreId = ctx.Store.Id;
@@ -335,7 +335,7 @@ namespace Smartstore.Core.Messages
                 ctx.BaseUri = new Uri(ctx.Store.GetHost(true));
             }
 
-            if (ctx.LanguageId == 0)
+            if (ctx.LanguageId.GetValueOrDefault() == 0)
             {
                 ctx.Language = _workContext.WorkingLanguage;
                 ctx.LanguageId = ctx.Language.Id;

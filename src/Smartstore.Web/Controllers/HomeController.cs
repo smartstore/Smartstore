@@ -55,6 +55,7 @@ using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Web;
 using Microsoft.AspNetCore.Authorization;
 using StackExchange.Profiling.Internal;
+using Smartstore.Core.Messages;
 
 namespace Smartstore.Web.Controllers
 {
@@ -629,6 +630,22 @@ namespace Smartstore.Web.Controllers
             _imageFactory.ReleaseMemory();
 
             return Content(msg);
+        }
+
+        [Route("messagemodel")]
+        public async Task<IActionResult> Messages()
+        {
+            var model = new TestModelMH();
+
+            model.CampaingCount = await _db.Campaigns.AsNoTracking().CountAsync();
+            
+            var campaignService = Services.Resolve<ICampaignService>();
+            var campaign = await _db.Campaigns.AsNoTracking().FirstOrDefaultAsync();
+
+            // TODO: (mh) (core) Test again when LiquidTemplateEngine is available.
+            //var test = await campaignService.PreviewAsync(campaign);
+
+            return View(model);
         }
 
         private Task<List<Country>> GetCountries()

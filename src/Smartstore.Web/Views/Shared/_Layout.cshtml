@@ -31,6 +31,9 @@
             <div class="megamenu-section d-none d-lg-block">
                 <nav class="navbar navbar-light">
                     <div class="container megamenu-container">
+
+                        @*<sm-menu menu-name="Main" menu-template="Main"></sm-menu>*@
+
                         <div class="mainmenu megamenu">
                             <div class="cms-menu cms-menu-navbar" data-menu-name="main">
                                 <div class="megamenu-nav megamenu-nav--prev alpha">
@@ -72,6 +75,11 @@
                                     <li class="nav-item">
                                         <a class="nav-link menu-link" asp-route="Login">
                                             <span>Identity</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link menu-link" asp-area="" asp-controller="Home" asp-action="Messages">
+                                            <span>Messages</span>
                                         </a>
                                     </li>
                                 </ul>
