@@ -10,6 +10,7 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<MenuStorage>().As<IMenuStorage>().InstancePerLifetimeScope();
+            builder.RegisterType<LinkResolver>().As<ILinkResolver>().InstancePerLifetimeScope();
         }
     }
 }

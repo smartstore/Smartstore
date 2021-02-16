@@ -7,8 +7,6 @@ namespace Smartstore.Core.Rules.Rendering
     /// </summary>
     public partial interface IRuleOptionsProvider
     {
-        // TODO: (mg) (core) Implement DefaultRuleOptionsProvider
-
         /// <summary>
         /// Indicates whether this provider can provide select list options for a rule expression.
         /// </summary>

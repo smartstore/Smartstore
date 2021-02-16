@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Autofac.Features.ResolveAnything;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Attributes
@@ -36,9 +37,11 @@ namespace Smartstore.Core.Catalog.Attributes
             bool listTypesOnly = true)
         {
             Guard.NotNull(query, nameof(query));
-            Guard.NotNull(ids, nameof(ids));
 
-            query = query.Where(x => ids.Contains(x.Id));
+            if (ids?.Any() ?? false)
+            {
+                query = query.Where(x => ids.Contains(x.Id));
+            }
 
             if (listTypesOnly)
             {

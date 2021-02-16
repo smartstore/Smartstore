@@ -5,10 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
+using Smartstore.Collections;
+using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
@@ -20,17 +23,20 @@ namespace Smartstore.Core.Rules.Rendering
         protected readonly ICommonServices _services;
         protected readonly Lazy<ICatalogSearchService> _catalogSearchService;
         protected readonly Lazy<ICategoryService> _categoryService;
+        protected readonly Lazy<IProviderManager> _providerManager;
         protected readonly SearchSettings _searchSettings;
 
         public DefaultRuleOptionsProvider(
             ICommonServices services,
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ICategoryService> categoryService,
+            Lazy<IProviderManager> providerManager,
             SearchSettings searchSettings)
         {
             _services = services;
             _catalogSearchService = catalogSearchService;
             _categoryService = categoryService;
+            _providerManager = providerManager;
             _searchSettings = searchSettings;
         }
 
@@ -72,7 +78,7 @@ namespace Smartstore.Core.Rules.Rendering
 
             var result = new RuleOptionsResult();
 
-            if (!(descriptor.SelectList is RemoteRuleValueSelectList list))
+            if (descriptor.SelectList is not RemoteRuleValueSelectList list)
             {
                 return result;
             }
@@ -196,8 +202,167 @@ namespace Smartstore.Core.Rules.Rendering
                     }
                     else
                     {
+                        var categories = await _categoryService.Value.GetCategoryTreeAsync(0, true);
+
+                        options = await categories
+                            .Flatten(false)
+                            .SelectAsync(async x => new RuleValueSelectListOption
+                            { 
+                                Value = x.Id.ToString(),
+                                Text = (await _categoryService.Value.GetCategoryPathAsync(x, language.Id)).NullEmpty() ?? x.Name
+                            })
+                            .ToListAsync();
                     }
                     break;
+                case "Manufacturer":
+                    var manufacturers = await db.Manufacturers
+                        .AsNoTracking()
+                        .ApplyStandardFilter(true)
+                        .ToListAsync();
+
+                    options = manufacturers
+                        .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(y => y.Name, language, true, false) })
+                        .ToList();
+                    break;
+                case "PaymentMethod":
+                    // TODO: (mg) (core) Complete DefaultRuleOptionsProvider (IPaymentMethod required).
+                    //options = await _providerManager.Value.GetAllProviders<IPaymentMethod>()
+                    //    .Select(x => x.Metadata)
+                    //    .SelectAsync(async x => new RuleValueSelectListOption
+                    //    {
+                    //        Value = x.SystemName,
+                    //        Text = await GetLocalizedAsync(x, "FriendlyName") ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
+                    //        Hint = x.SystemName
+                    //    })
+                    //    .ToListAsync();
+                    //options = options.OrderBy(x => x.Text).ToList();
+                    break;
+                case "ShippingRateComputationMethod":
+                    options = await _providerManager.Value.GetAllProviders<IShippingRateComputationMethod>()
+                        .Select(x => x.Metadata)
+                        .SelectAsync(async x => new RuleValueSelectListOption 
+                        {
+                            Value = x.SystemName, 
+                            Text = await GetLocalizedAsync(x, "FriendlyName") ?? x.FriendlyName.NullEmpty() ?? x.SystemName, 
+                            Hint = x.SystemName
+                        })
+                        .ToListAsync();
+                    options = options.OrderBy(x => x.Text).ToList();
+                    break;
+                case "ShippingMethod":
+                    var shippingMethods = await db.ShippingMethods
+                        .AsNoTracking()
+                        .OrderBy(x => x.DisplayOrder)
+                        .ToListAsync();
+
+                    options = shippingMethods
+                        .Select(x => new RuleValueSelectListOption { Value = byId ? x.Id.ToString() : x.Name, Text = byId ? x.GetLocalized(y => y.Name, language, true, false) : x.Name })
+                        .ToList();
+                    break;
+                case "ProductTag":
+                    var productTags = await db.ProductTags.AsNoTracking().ToListAsync();
+
+                    options = productTags
+                        .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(y => y.Name, language, true, false) })
+                        .OrderBy(x => x.Text)
+                        .ToList();
+                    break;
+                case "VariantValue":
+                    if (reason == RuleOptionsRequestReason.SelectedDisplayNames)
+                    {
+                        var variants = await db.ProductVariantAttributeValues.GetManyAsync(value.ToIntArray());
+
+                        options = variants
+                            .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(y => y.Name, language, true, false) })
+                            .ToList();
+                    }
+                    else if (descriptor.Metadata.TryGetValue("ParentId", out var objParentId))
+                    {
+                        options = new List<RuleValueSelectListOption>();
+                        var pIndex = -1;
+                        var existingValues = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+
+                        var query = db.ProductVariantAttributeValues
+                            .AsNoTracking()
+                            .Where(x => x.ProductVariantAttribute.ProductAttributeId == (int)objParentId &&
+                                x.ProductVariantAttribute.ProductAttribute.AllowFiltering &&
+                                x.ValueTypeId == (int)ProductVariantAttributeValueType.Simple)
+                            .ApplyValueFilter(null, true);
+
+                        while (true)
+                        {
+                            var variants = await PagedList.Create(query, ++pIndex, 1000).LoadAsync();
+                            foreach (var variant in variants)
+                            {
+                                var name = variant.GetLocalized(x => x.Name, language, true, false);
+                                if (!existingValues.Contains(name))
+                                {
+                                    existingValues.Add(name);
+                                    options.Add(new RuleValueSelectListOption { Value = variant.Id.ToString(), Text = name });
+                                }
+                            }
+                            if (!variants.HasNextPage)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                case "AttributeOption":
+                    if (reason == RuleOptionsRequestReason.SelectedDisplayNames)
+                    {
+                        var attributes = await db.SpecificationAttributeOptions.GetManyAsync(value.ToIntArray());
+
+                        options = attributes
+                            .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(y => y.Name, language, true, false) })
+                            .ToList();
+                    }
+                    else if (descriptor.Metadata.TryGetValue("ParentId", out var objParentId))
+                    {
+                        var attributes = await db.SpecificationAttributeOptions
+                            .AsNoTracking()
+                            .Where(x => x.SpecificationAttributeId == (int)objParentId)
+                            .OrderBy(x => x.DisplayOrder)
+                            .ToPagedList(pageIndex, pageSize)
+                            .LoadAsync();
+
+                        result.IsPaged = true;
+                        result.HasMoreData = attributes.HasNextPage;
+
+                        options = attributes
+                            .AsQueryable()
+                            .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.GetLocalized(y => y.Name, language, true, false, false) })
+                            .ToList();
+                    }
+                    break;
+                default:
+                    throw new SmartException($"Unknown data source '{list.DataSource.NaIfEmpty()}'.");
+            }
+
+            if (options != null)
+            {
+                if (reason == RuleOptionsRequestReason.SelectedDisplayNames)
+                {
+                    // Get display names of selected options.
+                    if (value.HasValue())
+                    {
+                        var selectedValues = value.SplitSafe(",");
+                        result.Options.AddRange(options.Where(x => selectedValues.Contains(x.Value)));
+                    }
+                }
+                else
+                {
+                    // Get select list options.
+                    if (!result.IsPaged && searchTerm.HasValue() && options.Any())
+                    {
+                        // Apply the search term if the options are not paged.
+                        result.Options.AddRange(options.Where(x => (x.Text?.IndexOf(searchTerm, 0, StringComparison.CurrentCultureIgnoreCase) ?? -1) != -1));
+                    }
+                    else
+                    {
+                        result.Options.AddRange(options);
+                    }
+                }
             }
 
             return result;
