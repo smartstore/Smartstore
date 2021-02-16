@@ -468,6 +468,7 @@ namespace Smartstore.Core.Checkout.Cart
                 }
                 else
                 {
+                    // TODO: (core) Re-apply data to Customer.ShoppingCartItems collection to prevent reloads.
                     cartItems = await _db.ShoppingCartItems
                          .Include(x => x.Product)
                              .ThenInclude(x => x.ProductVariantAttributes)
