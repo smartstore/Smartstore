@@ -150,31 +150,31 @@ namespace Smartstore.Core.Content.Menus
             }
         }
 
-        public override async Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ControllerContext context)
+        public override async Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionContext actionContext)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(actionContext, nameof(actionContext));
             
-            if (context == null || !ContainsProvider("catalog"))
+            if (actionContext == null || !ContainsProvider("catalog"))
             {
-                return await base.ResolveCurrentNodeAsync(context);
+                return await base.ResolveCurrentNodeAsync(actionContext);
             }
 
             TreeNode<MenuItem> currentNode = null;
 
             try
             {
-                int currentCategoryId = GetRequestValue<int?>(context, "currentCategoryId") ?? GetRequestValue<int>(context, "categoryId");
+                int currentCategoryId = GetRequestValue<int?>(actionContext, "currentCategoryId") ?? GetRequestValue<int>(actionContext, "categoryId");
                 int currentProductId = 0;
 
                 if (currentCategoryId == 0)
                 {
-                    currentProductId = GetRequestValue<int?>(context, "currentProductId") ?? GetRequestValue<int>(context, "productId");
+                    currentProductId = GetRequestValue<int?>(actionContext, "currentProductId") ?? GetRequestValue<int>(actionContext, "productId");
                 }
 
                 if (currentCategoryId == 0 && currentProductId == 0)
                 {
                     // Possibly not a category node of a menu where the category tree is attached to.
-                    return await base.ResolveCurrentNodeAsync(context);
+                    return await base.ResolveCurrentNodeAsync(actionContext);
                 }
 
                 var cacheKey = $"sm.temp.category.breadcrumb.{currentCategoryId}-{currentProductId}";

@@ -24,16 +24,16 @@ namespace Smartstore.Core.Content.Menus
                 || navigatable.Url.HasValue();
         }
 
-        public static bool IsCurrent(this INavigatable navigatable, ControllerContext controllerContext)
+        public static bool IsCurrent(this INavigatable navigatable, ActionContext actionContext)
         {
-            var url = navigatable.GenerateUrl(controllerContext)?.ToLower();
+            var url = navigatable.GenerateUrl(actionContext)?.ToLower();
 
             if (url.IsEmpty())
             {
                 return false;
             }
 
-            var compare = GetCurrentPathInfo(controllerContext);
+            var compare = GetCurrentPathInfo(actionContext);
 
             if (url == compare.RequestPath || url == compare.RoutePath)
             {

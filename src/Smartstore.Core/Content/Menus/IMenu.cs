@@ -35,9 +35,9 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// Resolves the current node.
         /// </summary>
-        /// <param name="context">Controller context.</param>
+        /// <param name="actionContext">Action context.</param>
         /// <returns>The current menu item node.</returns>
-        Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ControllerContext context);
+        Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionContext actionContext);
 
         /// <summary>
         /// Gets all cached trees from the underlying cache storage.

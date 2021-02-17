@@ -97,11 +97,11 @@ namespace Smartstore.Core.Content.Menus
             return Task.CompletedTask;
         }
 
-        public virtual Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ControllerContext context)
+        public virtual Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionContext actionContext)
         {
             if (!_currentNodeResolved)
             {
-                _currentNode = Root.SelectNode(x => x.Value.IsCurrent(context), true);
+                _currentNode = Root.SelectNode(x => x.Value.IsCurrent(actionContext), true);
                 _currentNodeResolved = true;
             }
 
@@ -146,31 +146,28 @@ namespace Smartstore.Core.Content.Menus
             return _providers.Contains(provider);
         }
 
-        protected virtual T GetRequestValue<T>(ControllerContext context, string name)
+        protected virtual T GetRequestValue<T>(ActionContext actionContext, string name)
         {
-            Guard.NotNull(context, nameof(context));
+            Guard.NotNull(actionContext, nameof(actionContext));
             Guard.NotEmpty(name, nameof(name));
 
-            var value = context.RouteData?.Values[name]?.ToString();
+            var value = actionContext.RouteData.Values[name]?.ToString();
             if (value.IsEmpty())
             {
-                StringValues stringValues = new();
-                context.HttpContext?.Request?.Form?.TryGetValue(name, out stringValues);
-                value = stringValues.FirstOrDefault();
-
-                if (value.IsEmpty())
+                if (!actionContext.HttpContext.Request.Form.TryGetValue(name, out var values))
                 {
-                    context.HttpContext?.Request?.Query?.TryGetValue(name, out stringValues);
-                    value = stringValues.FirstOrDefault();
+                    actionContext.HttpContext.Request.Query.TryGetValue(name, out values);
                 }
+                
+                value = values.ToString();
             }
 
-            if (CommonHelper.TryConvert<T>(value, out var result))
+            if (value.HasValue() && CommonHelper.TryConvert<T>(value, out var result))
             {
                 return result;
             }
 
-            return default(T);
+            return default;
         }
 
         private async Task<bool> MenuItemAccessPermittedAsync(MenuItem item)
