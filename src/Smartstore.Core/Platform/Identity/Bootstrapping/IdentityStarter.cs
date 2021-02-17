@@ -1,10 +1,10 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
@@ -58,6 +58,9 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<PasswordHasher>().As<IPasswordHasher<Customer>>().InstancePerLifetimeScope();
             //builder.RegisterType<UserValidator>().As<IUserValidator<Customer>>().As<IPasswordValidator<Customer>>().InstancePerLifetimeScope();
             builder.RegisterType<GdprTool>().As<IGdprTool>().InstancePerLifetimeScope();
+
+            // Rule options provider.
+            builder.RegisterType<CustomerRoleRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

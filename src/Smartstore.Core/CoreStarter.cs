@@ -54,7 +54,6 @@ namespace Smartstore.Core
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
-            builder.RegisterModule(new CommonModule());
             builder.RegisterModule(new LoggingModule());
             builder.RegisterModule(new ProvidersModule(appContext));
             builder.RegisterModule(new LocalizationModule());

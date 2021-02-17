@@ -7,8 +7,11 @@ namespace Smartstore.Core.Rules.Rendering
     /// </summary>
     public partial interface IRuleOptionsProvider
     {
-        // TODO: (mg) (core) An ordinal is missing to sort all registered providers later in controller.
-        
+        /// <summary>
+        /// Gets the ordinal number of the provider.
+        /// </summary>
+        int Ordinal { get; }
+
         /// <summary>
         /// Indicates whether this provider can provide select list options for a rule expression.
         /// </summary>
@@ -19,19 +22,8 @@ namespace Smartstore.Core.Rules.Rendering
         /// <summary>
         /// Gets options for a rule.
         /// </summary>
-        /// <param name="reason">The reason for the request.</param>
-        /// <param name="descriptor">Rule descriptor.</param>
-        /// <param name="value">Expression value.</param>
-        /// <param name="pageIndex">Page index if provided options are paged.</param>
-        /// <param name="pageSize">Page size if provided options are paged.</param>
-        /// <param name="searchTerm">Optional search term entered by user in select control.</param>
+        /// <param name="context">Rule options context.</param>
         /// <returns>Rule options result.</returns>
-        Task<RuleOptionsResult> GetOptionsAsync(
-            RuleOptionsRequestReason reason,
-            RuleDescriptor descriptor,
-            string value,
-            int pageIndex,
-            int pageSize,
-            string searchTerm);
+        Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context);
     }
 }

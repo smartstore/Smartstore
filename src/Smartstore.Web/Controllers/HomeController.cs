@@ -56,6 +56,9 @@ using Smartstore.Core.Web;
 using Microsoft.AspNetCore.Authorization;
 using StackExchange.Profiling.Internal;
 using Smartstore.Core.Messages;
+using Smartstore.Core.Rules.Rendering;
+using Smartstore.Core.Rules;
+using SixLabors.ImageSharp.ColorSpaces;
 
 namespace Smartstore.Web.Controllers
 {
@@ -717,16 +720,37 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*//*ProductVariantQuery query*/)
         {
             var content = new StringBuilder();
-
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var reviewsCount = await _db.CustomerContent
-                .ApplyCustomerFilter(1426709, true)
-                .OfType<ProductReview>()
-                .CountAsync();
 
-            content.AppendLine($"reviewCount: {reviewsCount}");
+            var ruleProvider = Services.Resolve<Func<RuleScope, IRuleProvider>>();
+            var optionsProviders = Services.Resolve<IEnumerable<IRuleOptionsProvider>>();
 
+            var rule = await _db.Rules.AsNoTracking().Include(x => x.RuleSet).Where(x => x.RuleType == "ProductInCart").FirstOrDefaultAsync();
+            var provider = ruleProvider(rule.RuleSet.Scope);
+            var expression = await provider.VisitRuleAsync(rule);
+            var descriptor = expression.Descriptor;
+            var rawValue = expression.RawValue;
+
+            if (descriptor.SelectList is RemoteRuleValueSelectList list)
+            {
+                var optionsProvider = optionsProviders.FirstOrDefault(x => x.Matches(list.DataSource));
+                if (optionsProvider != null)
+                {
+                    var options = await optionsProvider.GetOptionsAsync(new RuleOptionsContext(RuleOptionsRequestReason.SelectListOptions, expression));
+                    foreach (var option in options.Options)
+                    {
+                        content.AppendLine($"{option.Value}: {option.Text}");
+                    }
+                }
+            }
+
+            //var reviewsCount = await _db.CustomerContent
+            //    .ApplyCustomerFilter(1426709, true)
+            //    .OfType<ProductReview>()
+            //    .CountAsync();
+
+            //content.AppendLine($"reviewCount: {reviewsCount}");
 
             //try
             //{

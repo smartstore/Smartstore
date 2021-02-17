@@ -12,6 +12,7 @@ using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Platform.Search.Facets;
 using Smartstore.Core.Rules;
+using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
@@ -61,6 +62,14 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<CatalogSearchQueryFactory>().As<ICatalogSearchQueryFactory>().InstancePerLifetimeScope();
             builder.RegisterType<CatalogSearchQueryAliasMapper>().As<ICatalogSearchQueryAliasMapper>().InstancePerLifetimeScope();
             builder.RegisterType<CatalogFacetUrlHelper>().As<IFacetUrlHelper>().InstancePerLifetimeScope();
+
+            // Rule options provider.
+            builder.RegisterType<ProductVariantAttributeValueRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<SpecificationAttributeOptionRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<ManufacturerRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<CategoryRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<ProductTagRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
         }
     }
 }

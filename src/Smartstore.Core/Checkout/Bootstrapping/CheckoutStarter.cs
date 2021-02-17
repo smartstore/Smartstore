@@ -3,10 +3,12 @@ using Autofac;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Rules;
+using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
@@ -35,6 +37,11 @@ namespace Smartstore.Core.Bootstrapping
                 .As<ICartRuleProvider>()
                 .Keyed<IRuleProvider>(RuleScope.Cart)
                 .InstancePerLifetimeScope();
+
+            // Rule options provider.
+            builder.RegisterType<IPaymentMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<IShippingRateComputationMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<ShippingMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
         }
     }
 }

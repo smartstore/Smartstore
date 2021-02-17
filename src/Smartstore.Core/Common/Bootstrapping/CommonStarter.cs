@@ -1,12 +1,16 @@
 ﻿using Autofac;
+using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Web;
+using Smartstore.Engine;
+using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public sealed class CommonModule : Autofac.Module
+    public sealed class CommonStarter : StarterBase
     {
-        protected override void Load(ContainerBuilder builder)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<GeoCountryLookup>().As<IGeoCountryLookup>().SingleInstance();
             builder.RegisterType<CurrencyService>().As<ICurrencyService>().InstancePerLifetimeScope();
@@ -16,6 +20,9 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultWebHelper>().As<IWebHelper>().InstancePerLifetimeScope();
             builder.RegisterType<UAParserUserAgent>().As<IUserAgent>().InstancePerLifetimeScope();
+
+            // Rule options provider.
+            builder.RegisterType<CommonRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
         }
     }
 }

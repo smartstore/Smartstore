@@ -15,7 +15,6 @@ namespace Smartstore.Core.Bootstrapping
 
             // Rendering.
             builder.RegisterType<RuleTemplateSelector>().As<IRuleTemplateSelector>().InstancePerLifetimeScope();
-            builder.RegisterType<DefaultRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
 
             // Register provider resolver delegate.
             builder.Register<Func<RuleScope, IRuleProvider>>(c =>
@@ -24,6 +23,9 @@ namespace Smartstore.Core.Bootstrapping
                 var cc = c.Resolve<IComponentContext>();
                 return key => cc.ResolveKeyed<IRuleProvider>(key);
             });
+
+            // Rule options provider.
+            builder.RegisterType<RuleSetRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
         }
     }
 }

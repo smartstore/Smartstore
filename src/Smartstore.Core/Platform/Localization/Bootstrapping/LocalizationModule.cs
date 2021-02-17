@@ -6,6 +6,7 @@ using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Rendering;
 using Smartstore.Data;
 using Smartstore.Engine;
 
@@ -27,6 +28,9 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<Text>().As<IText>().InstancePerLifetimeScope();
             builder.Register<Localizer>(c => c.Resolve<IText>().Get).InstancePerLifetimeScope();
             builder.Register<LocalizerEx>(c => c.Resolve<IText>().GetEx).InstancePerLifetimeScope();
+
+            // Rule options provider.
+            builder.RegisterType<LanguageRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
         }
 
         protected override void AttachToComponentRegistration(IComponentRegistryBuilder componentRegistry, IComponentRegistration registration)
