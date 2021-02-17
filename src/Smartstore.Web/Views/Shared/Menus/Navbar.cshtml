@@ -1,6 +1,7 @@
 ﻿@using Smartstore.Web.Modelling
 @using Smartstore.Collections
 @using Smartstore.Core.Content.Menus
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
 
 @model MenuModel
 
@@ -83,18 +84,21 @@
                 continue;
             }
 
-            // TODO (mh) (core) Attrs
-            //var attrs = new RouteValueDictionary(item.HtmlAttributes).PrependCssClass(GetCssClassForNode(node, itemState));
-            //var linkAttrs = new RouteValueDictionary(item.LinkHtmlAttributes).PrependCssClass("nav-link menu-link" + (isDropDownActive ? " dropdown-toggle" : ""));
+            var attrs = new AttributeDictionary();
+            attrs.AddRange(item.HtmlAttributes);
+            attrs.PrependCssClass(GetCssClassForNode(node, itemState));
+            var linkAttrs = new AttributeDictionary();
+            linkAttrs.AddRange(item.LinkHtmlAttributes);
+            linkAttrs.PrependCssClass("nav-link menu-link" + (isDropDownActive ? " dropdown-toggle" : ""));
 
-            //if (isDropDownActive)
-            //{
-            //    linkAttrs["aria-expanded"] = "false";
-            //    linkAttrs["data-target"] = "#dropdown-menu-{0}".FormatInvariant(item.Id);
-            //}
+            if (isDropDownActive)
+            {
+                linkAttrs["aria-expanded"] = "false";
+                linkAttrs["data-target"] = "#dropdown-menu-{0}".FormatInvariant(item.Id);
+            }
 
-            <li id="main-nav-item-@item.Id" data-id="@item.Id" @*@Html.Attrs(attrs, "id")*@>
-                <a href="@itemUrl" @*@Html.Attrs(linkAttrs)*@>
+            <li id="main-nav-item-@item.Id" data-id="@item.Id" attributes="attrs">
+                <a href="@itemUrl" attributes="linkAttrs">
                     @if (item.Icon.HasValue())
                     {
                         <i class="@item.Icon"></i>

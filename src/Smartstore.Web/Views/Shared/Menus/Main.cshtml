@@ -25,20 +25,20 @@
     @foreach (var node in Model.Root.Children)
     {
         <div id="dropdown-menu-@node.Value.Id" data-id="@node.Value.Id">
-            @CreateDrilldownMenu(node.Children, true)
+            @{ await CreateDrilldownMenuAsync(node.Children, true); }
         </div>
     }
 
     @if (cutOffItems.Any())
     {
         <div id="dropdown-menu--1" data-id="-1">
-            @CreateDrilldownMenu(cutOffItems, true)
+            @{ await CreateDrilldownMenuAsync(cutOffItems, true); }
         </div>
     }
 </div>
 
 @{
-    async Task CreateDrilldownMenu(IEnumerable<TreeNode<MenuItem>> nodes, bool isRoot)
+    async Task CreateDrilldownMenuAsync(IEnumerable<TreeNode<MenuItem>> nodes, bool isRoot)
     {
         if (isRoot)
         {
@@ -52,10 +52,8 @@
             var itemState = node.GetNodePathState(Model.Path);
 
             var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " selected" : ""));
-
-            //TODO: (mh) (core) Attrs
-
-            <a href="@itemUrl" id="dropdown-item-@item.Id" data-id="@item.Id" @*@Html.Attrs(attrs, "id")*@>
+            
+            <a href="@itemUrl" id="dropdown-item-@item.Id" data-id="@item.Id" attributes="@attrs" >
                 <span language-attributes-for="item">@item.Text</span>
             </a>
         }

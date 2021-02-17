@@ -44,11 +44,9 @@
             }
 
             var attrs = item.GetCombinedAttributes().PrependCssClass("menu-link");
-
+        
             <li>
-                @*TODO (mh) (core) attrs*@
-                <a href="@itemUrl">
-                    @*<a href="@itemUrl" @Html.Attrs(attrs)>*@
+                <a href="@itemUrl" attributes="attrs">
                     @if (hasIcons)
                     {
                         <i class="fa-fw@(item.Icon.HasValue() ? item.Icon.EnsureStartsWith(" ") : " fas")"></i>
