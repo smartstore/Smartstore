@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering.Menus;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -24,11 +23,6 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         [HtmlAttributeName("menu-template")]
         public string Template { get; set; }
-
-        protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
-        {
-            ProcessCoreAsync(context, output).Await();
-        }
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {

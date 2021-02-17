@@ -10,7 +10,7 @@ namespace Smartstore.Web.Rendering.Menus
         /// Creates a menu model.
         /// </summary>
         /// <param name="menu">Menu.</param>
-        /// <param name="actionContext">Controller context to resolve current node. Can be <c>null</c>.</param>
+        /// <param name="actionContext">Action context to resolve current node. Can be <c>null</c>.</param>
         /// <returns>Menu model.</returns>
         public static async Task<MenuModel> CreateModelAsync(this IMenu menu, string template, ActionContext actionContext)
         {

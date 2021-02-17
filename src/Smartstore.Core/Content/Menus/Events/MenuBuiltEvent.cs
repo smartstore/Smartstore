@@ -10,7 +10,7 @@ namespace Smartstore.Core.Content.Menus
             Root = root;
         }
 
-        public string Name { get; private set; }
-        public TreeNode<MenuItem> Root { get; private set; }
+        public string Name { get; }
+        public TreeNode<MenuItem> Root { get; }
     }
 }

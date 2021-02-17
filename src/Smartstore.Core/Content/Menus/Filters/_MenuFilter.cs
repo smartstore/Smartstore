@@ -10,7 +10,7 @@ namespace Smartstore.Core.Content.Menus
 {
     public class MenuActionAttribute : ActionFilterAttribute
     {
-        // TODO: (mh) (core) Finish the job.
+        // TODO: (mh) (core) Finish the job and annotate SmartController.
 
     }
 }

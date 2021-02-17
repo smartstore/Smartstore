@@ -16,10 +16,8 @@ namespace Smartstore.Core.Content.Menus
 
         public int Order => 1;
 
-        public async Task<bool> ExistsAsync(string menuName)
-        {
-            return await _menuStorage.MenuExistsAsync(menuName);
-        }
+        public Task<bool> ExistsAsync(string menuName)
+            => _menuStorage.MenuExistsAsync(menuName);
 
         public IMenu Resolve(string name)
         {

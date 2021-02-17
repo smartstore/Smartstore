@@ -9,7 +9,7 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public static class NavigatableExtensions
+    public static class INavigatableExtensions
     {
         class PathInfo
         {
