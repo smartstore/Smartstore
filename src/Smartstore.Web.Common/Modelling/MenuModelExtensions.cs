@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Content.Menus;
 
 namespace Smartstore.Web.Modelling
@@ -11,7 +12,7 @@ namespace Smartstore.Web.Modelling
         /// <param name="menu">Menu.</param>
         /// <param name="context">Controller context to resolve current node. Can be <c>null</c>.</param>
         /// <returns>Menu model.</returns>
-        public static MenuModel CreateModel(this IMenu menu, string template, ControllerContext context)
+        public static async Task<MenuModel> CreateModelAsync(this IMenu menu, string template, ControllerContext context)
         {
             Guard.NotNull(menu, nameof(menu));
 
@@ -20,7 +21,7 @@ namespace Smartstore.Web.Modelling
                 Name = menu.Name,
                 Template = template ?? menu.Name,
                 Root = menu.Root,
-                SelectedNode = menu.ResolveCurrentNode(context)
+                SelectedNode = await menu.ResolveCurrentNodeAsync(context)
             };
 
             menu.ResolveElementCount(model.SelectedNode, false);

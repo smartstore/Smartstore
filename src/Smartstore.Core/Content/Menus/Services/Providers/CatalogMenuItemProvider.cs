@@ -10,7 +10,7 @@ using Smartstore.Utilities;
 namespace Smartstore.Core.Content.Menus
 {
     [MenuItemProvider("catalog", AppendsMultipleItems = true)]
-    class CatalogMenuItemProvider : MenuItemProviderBase
+    public class CatalogMenuItemProvider : MenuItemProviderBase
     {
         private readonly IStoreContext _storeContext;
         private readonly ICategoryService _categoryService;

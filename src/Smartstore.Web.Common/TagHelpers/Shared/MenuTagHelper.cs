@@ -44,21 +44,22 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
-            //await output.LoadAndSetChildContentAsync();
-
             if (!Name.HasValue() || !Template.HasValue())
             {
                 output.SuppressOutput();
             }
 
             var menu = await MenuService.GetMenuAsync(Name);            
-            var model = menu.CreateModel(Template, (ControllerContext)ActionContextAccessor.ActionContext);
+            var model = await menu.CreateModelAsync(Template, (ControllerContext)ActionContextAccessor.ActionContext);
 
             var root = model.Root;
             if (root == null)
             {
                 return;
             }
+            
+            // Never render <sm-menu> tag.
+            output.TagName = null;
 
             output.TagMode = TagMode.StartTagAndEndTag;
             var partial = await HtmlHelper.PartialAsync("Menus/" + Template, model);

@@ -149,57 +149,58 @@ namespace Smartstore.Core.Content.Menus
             }
         }
 
-        public override TreeNode<MenuItem> ResolveCurrentNode(ControllerContext context)
+        public override async Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ControllerContext context)
         {
             if (context == null || !ContainsProvider("catalog"))
             {
-                return base.ResolveCurrentNode(context);
+                return await base.ResolveCurrentNodeAsync(context);
             }
 
             TreeNode<MenuItem> currentNode = null;
 
             try
             {
-                // TODO: (mh) (core) Finish the job.
+                // TODO: (mh) (core) Get root controller context.
                 //var rootContext = context.GetRootControllerContext();
+                var rootContext = context;
 
-                //int currentCategoryId = GetRequestValue<int?>(rootContext, "currentCategoryId") ?? GetRequestValue<int>(rootContext, "categoryId");
-                //int currentProductId = 0;
+                int currentCategoryId = GetRequestValue<int?>(rootContext, "currentCategoryId") ?? GetRequestValue<int>(rootContext, "categoryId");
+                int currentProductId = 0;
 
-                //if (currentCategoryId == 0)
-                //{
-                //    currentProductId = GetRequestValue<int?>(rootContext, "currentProductId") ?? GetRequestValue<int>(rootContext, "productId");
-                //}
+                if (currentCategoryId == 0)
+                {
+                    currentProductId = GetRequestValue<int?>(rootContext, "currentProductId") ?? GetRequestValue<int>(rootContext, "productId");
+                }
 
-                //if (currentCategoryId == 0 && currentProductId == 0)
-                //{
-                //    // Possibly not a category node of a menu where the category tree is attached to.
-                //    return base.ResolveCurrentNode(rootContext);
-                //}
+                if (currentCategoryId == 0 && currentProductId == 0)
+                {
+                    // Possibly not a category node of a menu where the category tree is attached to.
+                    return await base.ResolveCurrentNodeAsync(rootContext);
+                }
 
-                //var cacheKey = $"sm.temp.category.breadcrumb.{currentCategoryId}-{currentProductId}";
-                //currentNode = Services.RequestCache.Get(cacheKey, () =>
-                //{
-                //    var root = Root;
-                //    TreeNode<MenuItem> node = null;
+                var cacheKey = $"sm.temp.category.breadcrumb.{currentCategoryId}-{currentProductId}";
+                currentNode = await Services.RequestCache.GetAsync(cacheKey, async () =>
+                {
+                    var root = Root;
+                    TreeNode<MenuItem> node = null;
 
-                //    if (currentCategoryId > 0)
-                //    {
-                //        node = root.SelectNodeById(currentCategoryId) ?? root.SelectNode(x => x.Value.EntityId == currentCategoryId);
-                //    }
+                    if (currentCategoryId > 0)
+                    {
+                        node = root.SelectNodeById(currentCategoryId) ?? root.SelectNode(x => x.Value.EntityId == currentCategoryId);
+                    }
 
-                //    if (node == null && currentProductId > 0)
-                //    {
-                //        var productCategories = _categoryService.Value.GetProductCategoriesByProductId(currentProductId);
-                //        if (productCategories.Any())
-                //        {
-                //            currentCategoryId = productCategories[0].Category.Id;
-                //            node = root.SelectNodeById(currentCategoryId) ?? root.SelectNode(x => x.Value.EntityId == currentCategoryId);
-                //        }
-                //    }
+                    if (node == null && currentProductId > 0)
+                    {
+                        var productCategories = await _categoryService.Value.GetProductCategoriesByProductIdsAsync(new int[currentProductId]);
+                        if (productCategories.Any())
+                        {
+                            currentCategoryId = productCategories[0].Category.Id;
+                            node = root.SelectNodeById(currentCategoryId) ?? root.SelectNode(x => x.Value.EntityId == currentCategoryId);
+                        }
+                    }
 
-                //    return node;
-                //});
+                    return node;
+                });
             }
             catch (Exception ex)
             {

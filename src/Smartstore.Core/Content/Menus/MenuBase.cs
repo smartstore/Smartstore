@@ -96,7 +96,7 @@ namespace Smartstore.Core.Content.Menus
         {
         }
 
-        public virtual TreeNode<MenuItem> ResolveCurrentNode(ControllerContext context)
+        public virtual Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ControllerContext context)
         {
             if (!_currentNodeResolved)
             {
@@ -104,7 +104,7 @@ namespace Smartstore.Core.Content.Menus
                 _currentNodeResolved = true;
             }
 
-            return _currentNode;
+            return Task.FromResult(_currentNode);
         }
 
         public IDictionary<string, TreeNode<MenuItem>> GetAllCachedMenus()

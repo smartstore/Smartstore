@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Collections;
 
@@ -36,7 +37,7 @@ namespace Smartstore.Core.Content.Menus
         /// </summary>
         /// <param name="context">Controller context.</param>
         /// <returns>The current menu item node.</returns>
-        TreeNode<MenuItem> ResolveCurrentNode(ControllerContext context);
+        Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ControllerContext context);
 
         /// <summary>
         /// Gets all cached trees from the underlying cache storage.
