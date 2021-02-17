@@ -11,7 +11,7 @@ namespace Smartstore.Threading
         // TODO: (core) Remove all lock files on app shutdown
         
         private readonly IFileSystem _root;
-        private readonly AsyncLock _asyncLock = new AsyncLock();
+        private readonly AsyncLock _asyncLock = new();
 
         static LockFileManager()
         {

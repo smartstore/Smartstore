@@ -30,7 +30,7 @@ namespace Smartstore.Core.Content.Menus
         /// </summary>
         /// <param name="curNode">The current node.</param>
         /// <param name="deep"><c>false</c> resolves counts for direct children of <paramref name="curNode"/> only, <c>true</c> traverses the whole sub-tree.</param>
-        void ResolveElementCount(TreeNode<MenuItem> curNode, bool deep = false);
+        Task ResolveElementCountAsync(TreeNode<MenuItem> curNode, bool deep = false);
 
         /// <summary>
         /// Resolves the current node.

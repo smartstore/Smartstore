@@ -15,6 +15,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
+using Smartstore.Threading;
 
 namespace Smartstore.Core.Content.Menus
 {
@@ -23,7 +24,7 @@ namespace Smartstore.Core.Content.Menus
     /// </summary>
     internal class DatabaseMenu : MenuBase 
     {
-        private static object s_lock = new object();
+        private readonly static AsyncLock _asyncLock = new();
 
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ICategoryService> _categoryService;
@@ -65,7 +66,7 @@ namespace Smartstore.Core.Content.Menus
 
         public override bool ApplyPermissions => true;
 
-        public override void ResolveElementCount(TreeNode<MenuItem> curNode, bool deep = false)
+        public override async Task ResolveElementCountAsync(TreeNode<MenuItem> curNode, bool deep = false)
         {
             if (curNode == null || !ContainsProvider("catalog") || !_catalogSettings.ShowCategoryProductNumber)
             {
@@ -74,14 +75,14 @@ namespace Smartstore.Core.Content.Menus
 
             try
             {
-                using (Services.Chronometer.Step($"DatabaseMenu.ResolveElementsCount() for {curNode.Value.Text.NaIfEmpty()}"))
+                using (Services.Chronometer.Step($"DatabaseMenu.ResolveElementCountAsync() for {curNode.Value.Text.NaIfEmpty()}"))
                 {
                     // Perf: only resolve counts for categories in the current path.
                     while (curNode != null)
                     {
                         if (curNode.Children.Any(x => !x.Value.ElementsCount.HasValue))
                         {
-                            lock (s_lock)
+                            using (await _asyncLock.LockAsync())
                             {
                                 if (curNode.Children.Any(x => !x.Value.ElementsCount.HasValue))
                                 {
@@ -131,7 +132,7 @@ namespace Smartstore.Core.Content.Menus
                                             }
 
                                             // TODO: (mh) (core) In the context of the lock statement cannot be waited.
-                                            var query = _catalogSearchService.Value.SearchAsync(context).Await();
+                                            var query = await _catalogSearchService.Value.SearchAsync(context);
                                             node.Value.ElementsCount = query.TotalHitsCount;
                                         }
                                     }

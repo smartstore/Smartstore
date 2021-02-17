@@ -24,7 +24,7 @@ namespace Smartstore.Web.Modelling
                 SelectedNode = await menu.ResolveCurrentNodeAsync(context)
             };
 
-            menu.ResolveElementCount(model.SelectedNode, false);
+            await menu.ResolveElementCountAsync(model.SelectedNode, false);
 
             return model;
         }

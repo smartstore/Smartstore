@@ -92,8 +92,9 @@ namespace Smartstore.Core.Content.Menus
 
         protected abstract Task<TreeNode<MenuItem>> BuildAsync();
 
-        public virtual void ResolveElementCount(TreeNode<MenuItem> curNode, bool deep = false)
+        public virtual Task ResolveElementCountAsync(TreeNode<MenuItem> curNode, bool deep = false)
         {
+            return Task.CompletedTask;
         }
 
         public virtual Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ControllerContext context)
