@@ -1,13 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Autofac;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Localization;
-using Smartstore.Core.Web;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -15,27 +11,18 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("sm-menu", TagStructure = TagStructure.NormalOrSelfClosing)]
     public class MenuTagHelper : SmartTagHelper 
     {
-        public override void Init(TagHelperContext context)
+        private readonly IMenuService _menuService;
+
+        public MenuTagHelper(IMenuService menuService)
         {
-            base.Init(context);
-
-            MenuService = ViewContext.HttpContext.GetServiceScope().Resolve<IMenuService>();
+            _menuService = menuService;
         }
-
-        public Localizer T { get; set; } = NullLocalizer.Instance;
-
-        [HtmlAttributeNotBound]
-        protected IMenuService MenuService { get; set; }
-
-        #region Properties
 
         [HtmlAttributeName("menu-name")]
         public string Name { get; set; }
 
         [HtmlAttributeName("menu-template")]
         public string Template { get; set; }
-
-        #endregion
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -44,22 +31,25 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
+            output.SuppressOutput();
+
             if (!Name.HasValue() || !Template.HasValue())
             {
-                output.SuppressOutput();
+                return;
             }
 
-            var menu = await MenuService.GetMenuAsync(Name);            
-            var model = await menu.CreateModelAsync(Template, (ControllerContext)ActionContextAccessor.ActionContext);
+            var menu = await _menuService.GetMenuAsync(Name);
+            if (menu == null)
+            {
+                return;
+            }
 
-            var root = model.Root;
+            var model = await menu.CreateModelAsync(Template, (ControllerContext)ActionContextAccessor.ActionContext);
+            var root = model?.Root;
             if (root == null)
             {
                 return;
             }
-            
-            // Never render <sm-menu> tag.
-            output.TagName = null;
 
             output.TagMode = TagMode.StartTagAndEndTag;
             var partial = await HtmlHelper.PartialAsync("Menus/" + Template, model);
