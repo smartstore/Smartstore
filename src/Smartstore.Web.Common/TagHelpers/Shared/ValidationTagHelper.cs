@@ -5,8 +5,8 @@ namespace Smartstore.Web.TagHelpers.Shared
     /// <summary>
     /// Adds applicable CSS classes to validation elements.
     /// </summary>
-    [HtmlTargetElement("*", Attributes = ValidationForAttribute)]
-    [HtmlTargetElement("*", Attributes = ValidationSummaryAttribute)]
+    [HtmlTargetElement("span", Attributes = ValidationForAttribute)]
+    [HtmlTargetElement("div", Attributes = ValidationSummaryAttribute)]
     public class ValidationTagHelper : TagHelper
     {
         const string ValidationForAttribute = "asp-validation-for";
