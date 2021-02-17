@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Rendering.Menus;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {

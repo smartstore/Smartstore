@@ -3,7 +3,7 @@ using System.Linq;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
 
-namespace Smartstore.Web.Modelling
+namespace Smartstore.Web.Rendering.Menus
 {
     public class MenuModel
     {

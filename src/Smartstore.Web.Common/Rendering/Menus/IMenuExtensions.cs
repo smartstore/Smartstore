@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Content.Menus;
 
-namespace Smartstore.Web.Modelling
+namespace Smartstore.Web.Rendering.Menus
 {
-    public static class MenuModelExtensions
+    public static class IMenuExtensions
     {
         /// <summary>
         /// Creates a menu model.
