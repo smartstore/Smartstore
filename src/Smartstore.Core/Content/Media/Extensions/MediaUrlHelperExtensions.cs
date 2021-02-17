@@ -7,7 +7,7 @@ using Smartstore.Core.Content.Media.Imaging;
 
 namespace Smartstore.Core.Content.Media
 {
-    public static class IUrlHelperExtensions
+    public static class MediaUrlHelperExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Media(this IUrlHelper urlHelper, MediaFileInfo file, int thumbnailSize = 0, string host = null, bool doFallback = true)
