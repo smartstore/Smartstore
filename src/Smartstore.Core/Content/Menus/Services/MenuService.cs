@@ -32,7 +32,13 @@ namespace Smartstore.Core.Content.Menus
 
         public virtual async Task<TreeNode<MenuItem>> GetRootNodeAsync(string menuName)
         {
-            return (await GetMenuAsync(menuName))?.Root;
+            var menu = await GetMenuAsync(menuName);
+            if (menu != null)
+            {
+                return await menu.GetRootNodeAsync();
+            }
+
+            return null;
         }
 
         public virtual async Task ResolveElementCountsAsync(string menuName, TreeNode<MenuItem> curNode, bool deep = false)
@@ -46,7 +52,7 @@ namespace Smartstore.Core.Content.Menus
 
         public virtual async Task ClearCacheAsync(string menuName)
         {
-            (await GetMenuAsync(menuName))?.ClearCache();
+            (await GetMenuAsync(menuName))?.ClearCacheAsync();
         }
     }
 }

@@ -68,7 +68,7 @@ namespace Smartstore.Core.Content.Menus
 
         public override async Task ResolveElementCountAsync(TreeNode<MenuItem> curNode, bool deep = false)
         {
-            if (curNode == null || !ContainsProvider("catalog") || !_catalogSettings.ShowCategoryProductNumber)
+            if (curNode == null || !await ContainsProviderAsync("catalog") || !_catalogSettings.ShowCategoryProductNumber)
             {
                 return;
             }
@@ -154,7 +154,7 @@ namespace Smartstore.Core.Content.Menus
         {
             Guard.NotNull(actionContext, nameof(actionContext));
             
-            if (actionContext == null || !ContainsProvider("catalog"))
+            if (actionContext == null || !await ContainsProviderAsync("catalog"))
             {
                 return await base.ResolveCurrentNodeAsync(actionContext);
             }
@@ -180,7 +180,7 @@ namespace Smartstore.Core.Content.Menus
                 var cacheKey = $"sm.temp.category.breadcrumb.{currentCategoryId}-{currentProductId}";
                 currentNode = await Services.RequestCache.GetAsync(cacheKey, async () =>
                 {
-                    var root = Root;
+                    var root = await GetRootNodeAsync();
                     TreeNode<MenuItem> node = null;
 
                     if (currentCategoryId > 0)
@@ -190,7 +190,7 @@ namespace Smartstore.Core.Content.Menus
 
                     if (node == null && currentProductId > 0)
                     {
-                        var productCategories = await _categoryService.Value.GetProductCategoriesByProductIdsAsync(new int[currentProductId]);
+                        var productCategories = await _categoryService.Value.GetProductCategoriesByProductIdsAsync(new[] { currentProductId });
                         if (productCategories.Any())
                         {
                             currentCategoryId = productCategories[0].Category.Id;

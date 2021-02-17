@@ -10,9 +10,9 @@ namespace Smartstore.Web.Modelling
         /// Creates a menu model.
         /// </summary>
         /// <param name="menu">Menu.</param>
-        /// <param name="context">Controller context to resolve current node. Can be <c>null</c>.</param>
+        /// <param name="actionContext">Controller context to resolve current node. Can be <c>null</c>.</param>
         /// <returns>Menu model.</returns>
-        public static async Task<MenuModel> CreateModelAsync(this IMenu menu, string template, ControllerContext context)
+        public static async Task<MenuModel> CreateModelAsync(this IMenu menu, string template, ActionContext actionContext)
         {
             Guard.NotNull(menu, nameof(menu));
 
@@ -20,8 +20,8 @@ namespace Smartstore.Web.Modelling
             {
                 Name = menu.Name,
                 Template = template ?? menu.Name,
-                Root = menu.Root,
-                SelectedNode = await menu.ResolveCurrentNodeAsync(context)
+                Root = await menu.GetRootNodeAsync(),
+                SelectedNode = await menu.ResolveCurrentNodeAsync(actionContext)
             };
 
             await menu.ResolveElementCountAsync(model.SelectedNode, false);

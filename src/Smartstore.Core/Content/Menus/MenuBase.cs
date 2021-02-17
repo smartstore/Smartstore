@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
 using Smartstore.Diagnostics;
@@ -34,36 +35,33 @@ namespace Smartstore.Core.Content.Menus
 
         public virtual bool ApplyPermissions => true;
 
-        public TreeNode<MenuItem> Root
+        public virtual async Task<TreeNode<MenuItem>> GetRootNodeAsync()
         {
-            get
+            var cacheKey = MENU_KEY.FormatInvariant(Name, GetCacheKey());
+
+            var rootNode = await Services.Cache.GetAsync(cacheKey, async () =>
             {
-                var cacheKey = MENU_KEY.FormatInvariant(Name, GetCacheKey());
-
-                var rootNode = Services.Cache.GetAsync(cacheKey, async () =>
+                using (Services.Chronometer.Step($"Build menu '{Name}'"))
                 {
-                    using (Services.Chronometer.Step($"Build menu '{Name}'"))
+                    var root = await BuildAsync();
+
+                    MenuPublisher.RegisterMenus(root, Name);
+
+                    if (ApplyPermissions)
                     {
-                        var root = await BuildAsync();
-
-                        MenuPublisher.RegisterMenus(root, Name);
-
-                        if (ApplyPermissions)
-                        {
-                            DoApplyPermissions(root);
-                        }
-
-                        await Services.EventPublisher.PublishAsync(new MenuBuiltEvent(Name, root));
-
-                        return root;
+                        await DoApplyPermissionsAsync(root);
                     }
-                });
 
-                return rootNode.Result;
-            }
+                    await Services.EventPublisher.PublishAsync(new MenuBuiltEvent(Name, root));
+
+                    return root;
+                }
+            });
+
+            return rootNode;
         }
 
-        protected virtual void DoApplyPermissions(TreeNode<MenuItem> root)
+        protected virtual Task DoApplyPermissionsAsync(TreeNode<MenuItem> root)
         {
             // Hide based on permissions
             root.Traverse(async x =>
@@ -86,6 +84,8 @@ namespace Smartstore.Core.Content.Menus
                     }
                 }
             });
+
+            return Task.CompletedTask;
         }
 
         protected abstract string GetCacheKey();
@@ -97,15 +97,15 @@ namespace Smartstore.Core.Content.Menus
             return Task.CompletedTask;
         }
 
-        public virtual Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionContext actionContext)
+        public virtual async Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionContext actionContext)
         {
             if (!_currentNodeResolved)
             {
-                _currentNode = Root.SelectNode(x => x.Value.IsCurrent(actionContext), true);
+                _currentNode = (await GetRootNodeAsync()).SelectNode(x => x.Value.IsCurrent(actionContext), true);
                 _currentNodeResolved = true;
             }
 
-            return Task.FromResult(_currentNode);
+            return _currentNode;
         }
 
         public IDictionary<string, TreeNode<MenuItem>> GetAllCachedMenus()
@@ -127,20 +127,20 @@ namespace Smartstore.Core.Content.Menus
             return trees;
         }
 
-        public void ClearCache()
+        public Task ClearCacheAsync()
         {
-            Services.Cache.RemoveByPattern(MENU_PATTERN_KEY.FormatInvariant(Name));
+            return Services.Cache.RemoveByPatternAsync(MENU_PATTERN_KEY.FormatInvariant(Name));
         }
 
         #region Utilities
 
-        protected virtual bool ContainsProvider(string provider)
+        protected virtual async Task<bool> ContainsProviderAsync(string provider)
         {
             Guard.NotEmpty(provider, nameof(provider));
 
             if (_providers == null)
             {
-                _providers = Root.GetMetadata<List<string>>("Providers") ?? new List<string>();
+                _providers = (await GetRootNodeAsync()).GetMetadata<List<string>>("Providers") ?? new List<string>();
             }
 
             return _providers.Contains(provider);

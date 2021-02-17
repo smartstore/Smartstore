@@ -18,7 +18,7 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// Gets the root node of the menu.
         /// </summary>
-        TreeNode<MenuItem> Root { get; }
+        Task<TreeNode<MenuItem>> GetRootNodeAsync();
 
         /// <summary>
         /// Whether menu items should be hidden based on permission names.
@@ -54,6 +54,6 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// Removes the menu from the application cache.
         /// </summary>
-        void ClearCache();
+        Task ClearCacheAsync();
     }
 }
