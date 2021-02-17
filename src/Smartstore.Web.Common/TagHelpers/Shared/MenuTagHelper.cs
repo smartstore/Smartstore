@@ -3,8 +3,10 @@ using Autofac;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
+using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -33,9 +35,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName("menu-template")]
         public string Template { get; set; }
 
-        [HtmlAttributeName("Route")]
-        public RouteInfo Route { get; set; }
-        
         #endregion
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
@@ -45,7 +44,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
-            await output.LoadAndSetChildContentAsync();
+            //await output.LoadAndSetChildContentAsync();
 
             if (!Name.HasValue() || !Template.HasValue())
             {
@@ -60,7 +59,8 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 return;
             }
-            
+
+            output.TagMode = TagMode.StartTagAndEndTag;
             var partial = await HtmlHelper.PartialAsync("Menus/" + Template, model);
             output.Content.AppendHtml(partial);
         }

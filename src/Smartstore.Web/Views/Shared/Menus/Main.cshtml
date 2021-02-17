@@ -1,19 +1,20 @@
-﻿@using Smartstore.Web.TagHelpers
+﻿@using Smartstore.Web.Modelling
 @using Smartstore.Collections
+@using Smartstore.Core.Content.Menus
 
 @model MenuModel
 
 @{
     Layout = "";
 
- if (Model.Root == null)
- {
-     return;
- }
+    if (Model.Root == null)
+    {
+        return;
+    }
 
- var cutOffItems = Model.Root.Children
-     .Where(x => x.Value.Id != "brand" && x.GetMetadata<bool>("spare", false))
-     .ToList();
+    var cutOffItems = Model.Root.Children
+        .Where(x => x.Value.Id != "brand" && x.GetMetadata<bool>("spare", false))
+        .ToList();
 }
 
 <div class="megamenu simple">

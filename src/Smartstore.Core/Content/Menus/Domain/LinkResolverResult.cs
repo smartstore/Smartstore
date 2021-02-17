@@ -96,7 +96,6 @@ namespace Smartstore.Core.Content.Menus
         }
     }
 
-
     public static class LinkResolverExtensions
     {
         public static (string Icon, string ResKey) GetLinkTypeInfo(this LinkType type)
