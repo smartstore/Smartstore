@@ -7,7 +7,7 @@ using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public class RulesStarter : StarterBase
+    public class RuleStarter : StarterBase
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
