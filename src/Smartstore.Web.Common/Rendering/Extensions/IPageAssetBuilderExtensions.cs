@@ -92,6 +92,21 @@ namespace Smartstore.Web.Rendering
         public static void PrependCssFileParts(this IPageAssetBuilder builder, params string[] parts) => AddCssFilePartsInternal(builder, true, parts);
 
         /// <summary>
+        /// Adds a meta robots tag to the head.
+        /// </summary>
+        public static void AddMetaRobots(this IPageAssetBuilder builder, string name = "robots", string content = "noindex")
+        {
+            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(content, nameof(content));
+
+            var key = "meta_" + name + '_' + content;
+            AddHtmlContent(builder, 
+                "head",
+                new HtmlString("<meta name=\"{0}\" content=\"{1}\" />".FormatInvariant(name, content)),
+                key);
+        }
+
+        /// <summary>
         /// Adds custom html content to a target zone.
         /// </summary>
         /// <param name="targetZone">The zone name to render <paramref name="content"/> in.</param>

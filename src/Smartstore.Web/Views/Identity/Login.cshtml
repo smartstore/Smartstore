@@ -9,6 +9,7 @@
 
 @{
     AssetBuilder.AppendTitleParts(T("PageTitle.Login"));
+    AssetBuilder.AddMetaRobots();
     
     var registerUrl = Url.RouteUrl("Register");
     var returnUrl = Context.Request.Query["returnUrl"];
@@ -19,8 +20,6 @@
 
     var currentUser = WorkContext.CurrentCustomer;
 }
-
-<meta name="robots" content="noindex" zone="head" />
 
 @if (currentUser.IsRegistered())
 {

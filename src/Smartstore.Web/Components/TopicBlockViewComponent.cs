@@ -8,7 +8,6 @@ using Smartstore.Web.Models.Topics;
 using Smartstore.Web.Infrastructure.Hooks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Smartstore.Data.Caching;
 
 namespace Smartstore.Web.Components
 {
