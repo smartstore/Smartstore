@@ -1,45 +1,45 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Identity
+namespace Smartstore.Core.Catalog.Brands.Rules
 {
-    public partial class CustomerRoleRuleOptionsProvider : IRuleOptionsProvider
+    public partial class ManufacturerRuleOptionsProvider : IRuleOptionsProvider
     {
         private readonly SmartDbContext _db;
 
-        public CustomerRoleRuleOptionsProvider(SmartDbContext db)
+        public ManufacturerRuleOptionsProvider(SmartDbContext db)
         {
             _db = db;
         }
 
-        public int Ordinal => 0;
+        public int Order => 0;
 
         public bool Matches(string dataSource)
         {
-            return dataSource == KnownRuleOptionDataSourceNames.CustomerRole;
+            return dataSource == KnownRuleOptionDataSourceNames.Manufacturer;
         }
 
         public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {
             var result = new RuleOptionsResult();
 
-            if (context.DataSource == KnownRuleOptionDataSourceNames.CustomerRole)
+            if (context.DataSource == KnownRuleOptionDataSourceNames.Manufacturer)
             {
-                var customerRoles = await _db.CustomerRoles
+                var manufacturers = await _db.Manufacturers
                     .AsNoTracking()
-                    .OrderBy(x => x.Name)
+                    .ApplyStandardFilter(true)
                     .ToListAsync();
 
-                result.AddOptions(context, customerRoles.Select(x => new RuleValueSelectListOption
+                result.AddOptions(context, manufacturers.Select(x => new RuleValueSelectListOption
                 {
                     Value = x.Id.ToString(),
-                    Text = x.Name
-                }));
+                    Text = x.GetLocalized(y => y.Name, context.Language, true, false)
+                }));                    
             }
             else
             {

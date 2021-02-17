@@ -9,7 +9,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Catalog.Products
+namespace Smartstore.Core.Catalog.Products.Rules
 {
     public partial class ProductRuleOptionsProvider : IRuleOptionsProvider
     {
@@ -27,7 +27,7 @@ namespace Smartstore.Core.Catalog.Products
             _searchSettings = searchSettings;
         }
 
-        public int Ordinal => 0;
+        public int Order => 0;
 
         public bool Matches(string dataSource)
         {

@@ -6,7 +6,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Common
+namespace Smartstore.Core.Common.Rules
 {
     public partial class CommonRuleOptionsProvider : IRuleOptionsProvider
     {
@@ -17,7 +17,7 @@ namespace Smartstore.Core.Common
             _db = db;
         }
 
-        public int Ordinal => 0;
+        public int Order => 0;
 
         public bool Matches(string dataSource)
         {

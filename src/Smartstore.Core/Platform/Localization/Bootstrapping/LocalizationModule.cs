@@ -6,6 +6,7 @@ using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Localization.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Data;
 using Smartstore.Engine;

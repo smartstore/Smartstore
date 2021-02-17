@@ -10,7 +10,7 @@ namespace Smartstore.Core.Rules.Rendering
         /// <summary>
         /// Gets the ordinal number of the provider.
         /// </summary>
-        int Ordinal { get; }
+        int Order { get; }
 
         /// <summary>
         /// Indicates whether this provider can provide select list options for a rule expression.

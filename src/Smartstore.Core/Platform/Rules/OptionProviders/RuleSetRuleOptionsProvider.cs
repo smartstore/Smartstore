@@ -15,7 +15,7 @@ namespace Smartstore.Core.Rules
             _db = db;
         }
 
-        public int Ordinal => 0;
+        public int Order => 0;
 
         public bool Matches(string dataSource)
         {

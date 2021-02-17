@@ -4,8 +4,10 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Payment.Rules;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Checkout.Shipping.Rules;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
@@ -39,8 +41,8 @@ namespace Smartstore.Core.Bootstrapping
                 .InstancePerLifetimeScope();
 
             // Rule options provider.
-            builder.RegisterType<IPaymentMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
-            builder.RegisterType<IShippingRateComputationMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<PaymentMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<ShippingRateComputationMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
             builder.RegisterType<ShippingMethodRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
         }
     }

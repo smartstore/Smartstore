@@ -1,45 +1,45 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Catalog.Brands
+namespace Smartstore.Core.Identity.Rules
 {
-    public partial class ManufacturerRuleOptionsProvider : IRuleOptionsProvider
+    public partial class CustomerRoleRuleOptionsProvider : IRuleOptionsProvider
     {
         private readonly SmartDbContext _db;
 
-        public ManufacturerRuleOptionsProvider(SmartDbContext db)
+        public CustomerRoleRuleOptionsProvider(SmartDbContext db)
         {
             _db = db;
         }
 
-        public int Ordinal => 0;
+        public int Order => 0;
 
         public bool Matches(string dataSource)
         {
-            return dataSource == KnownRuleOptionDataSourceNames.Manufacturer;
+            return dataSource == KnownRuleOptionDataSourceNames.CustomerRole;
         }
 
         public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {
             var result = new RuleOptionsResult();
 
-            if (context.DataSource == KnownRuleOptionDataSourceNames.Manufacturer)
+            if (context.DataSource == KnownRuleOptionDataSourceNames.CustomerRole)
             {
-                var manufacturers = await _db.Manufacturers
+                var customerRoles = await _db.CustomerRoles
                     .AsNoTracking()
-                    .ApplyStandardFilter(true)
+                    .OrderBy(x => x.Name)
                     .ToListAsync();
 
-                result.AddOptions(context, manufacturers.Select(x => new RuleValueSelectListOption
+                result.AddOptions(context, customerRoles.Select(x => new RuleValueSelectListOption
                 {
                     Value = x.Id.ToString(),
-                    Text = x.GetLocalized(y => y.Name, context.Language, true, false)
-                }));                    
+                    Text = x.Name
+                }));
             }
             else
             {

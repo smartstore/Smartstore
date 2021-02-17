@@ -3,20 +3,20 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Core.Checkout.Payment
+namespace Smartstore.Core.Checkout.Payment.Rules
 {
-    public partial class IPaymentMethodRuleOptionsProvider : IRuleOptionsProvider
+    public partial class PaymentMethodRuleOptionsProvider : IRuleOptionsProvider
     {
         private readonly IProviderManager _providerManager;
         private readonly ILocalizationService _localizationService;
 
-        public IPaymentMethodRuleOptionsProvider(IProviderManager providerManager, ILocalizationService localizationService)
+        public PaymentMethodRuleOptionsProvider(IProviderManager providerManager, ILocalizationService localizationService)
         {
             _providerManager = providerManager;
             _localizationService = localizationService;
         }
 
-        public int Ordinal => 0;
+        public int Order => 0;
 
         public bool Matches(string dataSource)
         {

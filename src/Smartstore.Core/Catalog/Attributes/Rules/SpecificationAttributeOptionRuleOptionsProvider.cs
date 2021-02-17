@@ -7,7 +7,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Catalog.Attributes
+namespace Smartstore.Core.Catalog.Attributes.Rules
 {
     public partial class SpecificationAttributeOptionRuleOptionsProvider : IRuleOptionsProvider
     {
@@ -18,7 +18,7 @@ namespace Smartstore.Core.Catalog.Attributes
             _db = db;
         }
 
-        public int Ordinal => 0;
+        public int Order => 0;
 
         public bool Matches(string dataSource)
         {

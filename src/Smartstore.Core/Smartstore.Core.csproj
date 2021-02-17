@@ -17,7 +17,6 @@
     <Folder Include="Catalog\Attributes\Api\" />
     <Folder Include="Catalog\Attributes\Exceptions\" />
     <Folder Include="Catalog\Attributes\Commands\" />
-    <Folder Include="Catalog\Attributes\Rules\" />
     <Folder Include="Catalog\Attributes\Search\" />
     <Folder Include="Catalog\Attributes\Providers\" />
     <Folder Include="Catalog\Attributes\Utils\" />

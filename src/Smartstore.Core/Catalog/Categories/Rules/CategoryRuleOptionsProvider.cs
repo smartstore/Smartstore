@@ -5,7 +5,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 
-namespace Smartstore.Core.Catalog.Categories
+namespace Smartstore.Core.Catalog.Categories.Rules
 {
     public partial class CategoryRuleOptionsProvider : IRuleOptionsProvider
     {
@@ -18,7 +18,7 @@ namespace Smartstore.Core.Catalog.Categories
             _categoryService = categoryService;
         }
 
-        public int Ordinal => 0;
+        public int Order => 0;
 
         public bool Matches(string dataSource)
         {

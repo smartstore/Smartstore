@@ -7,20 +7,20 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Core.Checkout.Shipping
+namespace Smartstore.Core.Checkout.Shipping.Rules
 {
-    public partial class IShippingRateComputationMethodRuleOptionsProvider : IRuleOptionsProvider
+    public partial class ShippingRateComputationMethodRuleOptionsProvider : IRuleOptionsProvider
     {
         private readonly IProviderManager _providerManager;
         private readonly ILocalizationService _localizationService;
 
-        public IShippingRateComputationMethodRuleOptionsProvider(IProviderManager providerManager, ILocalizationService localizationService)
+        public ShippingRateComputationMethodRuleOptionsProvider(IProviderManager providerManager, ILocalizationService localizationService)
         {
             _providerManager = providerManager;
             _localizationService = localizationService;
         }
 
-        public int Ordinal => 0;
+        public int Order => 0;
 
         public bool Matches(string dataSource)
         {

@@ -1,11 +1,15 @@
 ﻿using Autofac;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Attributes.Modelling;
+using Smartstore.Core.Catalog.Attributes.Rules;
 using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Brands.Rules;
 using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Categories.Rules;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Products.Rules;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;

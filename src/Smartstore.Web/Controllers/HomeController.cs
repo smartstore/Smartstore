@@ -724,7 +724,7 @@ namespace Smartstore.Web.Controllers
 
 
             var ruleProvider = Services.Resolve<Func<RuleScope, IRuleProvider>>();
-            var optionsProviders = Services.Resolve<IEnumerable<IRuleOptionsProvider>>();
+            var optionsProviders = Services.Resolve<IEnumerable<IRuleOptionsProvider>>().OrderBy(x => x.Order);
 
             var rule = await _db.Rules.AsNoTracking().Include(x => x.RuleSet).Where(x => x.RuleType == "ProductInCart").FirstOrDefaultAsync();
             var provider = ruleProvider(rule.RuleSet.Scope);
