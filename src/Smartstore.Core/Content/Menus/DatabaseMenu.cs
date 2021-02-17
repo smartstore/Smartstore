@@ -152,6 +152,8 @@ namespace Smartstore.Core.Content.Menus
 
         public override async Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ControllerContext context)
         {
+            Guard.NotNull(context, nameof(context));
+            
             if (context == null || !ContainsProvider("catalog"))
             {
                 return await base.ResolveCurrentNodeAsync(context);
@@ -161,22 +163,18 @@ namespace Smartstore.Core.Content.Menus
 
             try
             {
-                // TODO: (mh) (core) Get root controller context.
-                //var rootContext = context.GetRootControllerContext();
-                var rootContext = context;
-
-                int currentCategoryId = GetRequestValue<int?>(rootContext, "currentCategoryId") ?? GetRequestValue<int>(rootContext, "categoryId");
+                int currentCategoryId = GetRequestValue<int?>(context, "currentCategoryId") ?? GetRequestValue<int>(context, "categoryId");
                 int currentProductId = 0;
 
                 if (currentCategoryId == 0)
                 {
-                    currentProductId = GetRequestValue<int?>(rootContext, "currentProductId") ?? GetRequestValue<int>(rootContext, "productId");
+                    currentProductId = GetRequestValue<int?>(context, "currentProductId") ?? GetRequestValue<int>(context, "productId");
                 }
 
                 if (currentCategoryId == 0 && currentProductId == 0)
                 {
                     // Possibly not a category node of a menu where the category tree is attached to.
-                    return await base.ResolveCurrentNodeAsync(rootContext);
+                    return await base.ResolveCurrentNodeAsync(context);
                 }
 
                 var cacheKey = $"sm.temp.category.breadcrumb.{currentCategoryId}-{currentProductId}";
