@@ -1,7 +1,5 @@
 ﻿using System;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core;
-using Smartstore.Core.Localization;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
@@ -11,15 +9,6 @@ namespace Smartstore.Web.TagHelpers.Admin
     public class SmartLabelTagHelper : BaseFormTagHelper
     {
         const string LabelTagName = "smart-label";
-
-        private readonly IWorkContext _workContext;
-        private readonly ILocalizationService _localizationService;
-
-        public SmartLabelTagHelper(IWorkContext workContext, ILocalizationService localizationService)
-        {
-            _workContext = workContext;
-            _localizationService = localizationService;
-        }
 
         /// <summary>
         /// Whether to ignore display hint/description.
