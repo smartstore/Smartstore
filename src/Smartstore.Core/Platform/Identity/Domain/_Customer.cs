@@ -362,40 +362,49 @@ namespace Smartstore.Core.Identity
         //    }
         //}
 
-        //// TODO: (core) Implement Customer.AddRewardPointsHistoryEntry()
-        //public void AddRewardPointsHistoryEntry(
-        //    int points,
-        //    string message = "",
-        //    Order usedWithOrder = null,
-        //    decimal usedAmount = 0M)
-        //{
-        //    int newPointsBalance = this.GetRewardPointsBalance() + points;
+        /// <summary>
+        /// Adds a reward points history entry.
+        /// </summary>
+        /// <param name="points">Points to add.</param>
+        /// <param name="message">Optional message.</param>
+        /// <param name="usedWithOrder">Order for which the points were used.</param>
+        /// <param name="usedAmount">Used amount.</param>
+        public void AddRewardPointsHistoryEntry(
+            int points,
+            string message = "",
+            Order usedWithOrder = null,
+            decimal usedAmount = 0M)
+        {
+            var newPointsBalance = GetRewardPointsBalance() + points;
 
-        //    var rewardPointsHistory = new RewardPointsHistory()
-        //    {
-        //        Customer = this,
-        //        UsedWithOrder = usedWithOrder,
-        //        Points = points,
-        //        PointsBalance = newPointsBalance,
-        //        UsedAmount = usedAmount,
-        //        Message = message,
-        //        CreatedOnUtc = DateTime.UtcNow
-        //    };
+            RewardPointsHistory.Add(new RewardPointsHistory
+            {
+                Customer = this,
+                UsedWithOrder = usedWithOrder,
+                Points = points,
+                PointsBalance = newPointsBalance,
+                UsedAmount = usedAmount,
+                Message = message,
+                CreatedOnUtc = DateTime.UtcNow
+            });
+        }
 
-        //    this.RewardPointsHistory.Add(rewardPointsHistory);
-        //}
+        /// <summary>
+        /// Gets the reward points balance.
+        /// </summary>
+        public int GetRewardPointsBalance()
+        {
+            if (RewardPointsHistory.Any())
+            {
+                return RewardPointsHistory
+                    .OrderByDescending(x => x.CreatedOnUtc)
+                    .ThenByDescending(x => x.Id)
+                    .First()
+                    .PointsBalance;
+            }
 
-        //// TODO: (core) Implement Customer.GetRewardPointsBalance()
-        ///// <summary>
-        ///// Gets reward points balance
-        ///// </summary>
-        //public int GetRewardPointsBalance()
-        //{
-        //    int result = 0;
-        //    if (this.RewardPointsHistory.Count > 0)
-        //        result = this.RewardPointsHistory.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id).FirstOrDefault().PointsBalance;
-        //    return result;
-        //}
+            return 0;
+        }
 
         #endregion
     }

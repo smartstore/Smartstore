@@ -9,5 +9,6 @@ namespace Smartstore.Core.Data
         public DbSet<CustomerRole> CustomerRoles { get; set; }
         public DbSet<CustomerRoleMapping> CustomerRoleMappings { get; set; }
         public DbSet<CustomerContent> CustomerContent { get; set; }
+        public DbSet<RewardPointsHistory> RewardPointsHistory { get; set; }
     }
 }
