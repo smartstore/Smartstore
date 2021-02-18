@@ -15,8 +15,8 @@ namespace Smartstore.Core.Content.Seo.Routing
                 case "category":
                 case "manufacturer":
                 case "topic":
-                case "newsitem":
-                case "blogpost":
+                    //case "newsitem": // TODO: (core) Move newsitem and blogpost to external modules
+                    //case "blogpost":
                     return new RouteValueDictionary
                     {
                         { "area", "" },

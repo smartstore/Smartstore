@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Menus
@@ -7,11 +6,6 @@ namespace Smartstore.Core.Content.Menus
     public class MenuItem : NavigationItem, ICloneable<MenuItem>
     {
         private string _id;
-
-        public MenuItem()
-        {
-            this.Attributes = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-        }
 
         /// <summary>
         /// If this menu item refers to an entity, the id of the backed entity (like category, products e.g.)
@@ -49,8 +43,6 @@ namespace Smartstore.Core.Content.Menus
 
         public bool IsGroupHeader { get; set; }
 
-        public IDictionary<string, object> Attributes { get; set; }
-
         // TODO: (mh) (core) Implement MenuItemBuilder
         //public MenuItemBuilder ToBuilder()
         //{
@@ -63,13 +55,9 @@ namespace Smartstore.Core.Content.Menus
         //}
 
         public MenuItem Clone()
-        {
-            return (MenuItem)this.MemberwiseClone();
-        }
+            => (MenuItem)MemberwiseClone();
 
         object ICloneable.Clone()
-        {
-            return this.Clone();
-        }
+            => Clone();
     }
 }

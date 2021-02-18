@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
@@ -90,6 +91,16 @@ namespace Smartstore.Core.Content.Menus
         {
             get => _lazyLoader?.Load(this, ref _items) ?? (_items ??= new HashSet<MenuItemEntity>());
             protected set => _items = value;
+        }
+
+        public IEnumerable<string> GetWidgetZones()
+        {
+            if (WidgetZone.IsEmpty())
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return WidgetZone.EmptyNull().Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
         }
     }
 }

@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 
 namespace Smartstore.Core.Content.Menus
 {
-    [Serializable]
-    public abstract class NavigationItem : INavigatable, IHideObjectMembers
+    public abstract class NavigationItem : INavigatable
     {
         private bool _selected;
         private bool _enabled;
@@ -19,23 +16,22 @@ namespace Smartstore.Core.Content.Menus
 
         public NavigationItem()
         {
-            Visible = true;
-            Encoded = true;
-            Enabled = true;
-            HtmlAttributes = new AttributeDictionary();
-            LinkHtmlAttributes = new AttributeDictionary();
-            RouteValues = new RouteValueDictionary();
-            ModifiedParam = new ModifiedParameter();
+            _enabled = true;
         }
 
-        public AttributeDictionary HtmlAttributes { get; set; }
+        public AttributeDictionary HtmlAttributes { get; set; } = new();
 
-        public AttributeDictionary LinkHtmlAttributes { get; set; }
+        public AttributeDictionary LinkHtmlAttributes { get; set; } = new();
+
+        public RouteValueDictionary RouteValues { get; set; } = new();
+
+        [JsonIgnore]
+        public ModifiedParameter ModifiedParam { get; } = new();
 
         /// <summary>
         /// Merges attributes of <see cref="HtmlAttributes"/> and <see cref="LinkHtmlAttributes"/> into one combined dictionary.
         /// </summary>
-        /// <returns>New dictionary instance with combined attributes.</returns>
+        /// <returns>New attribute dictionary instance with combined attributes.</returns>
         public AttributeDictionary GetCombinedAttributes()
         {
             if (HtmlAttributes == null && LinkHtmlAttributes == null)
@@ -70,9 +66,9 @@ namespace Smartstore.Core.Content.Menus
 
         public int BadgeStyle { get; set; }
 
-        public bool Visible { get; set; }
+        public bool Visible { get; set; } = true;
 
-        public bool Encoded { get; set; }
+        public bool Encoded { get; set; } = true;
 
         public bool Selected
         {
@@ -110,7 +106,7 @@ namespace Smartstore.Core.Content.Menus
                 if (_actionName != value)
                 {
                     _actionName = value;
-                    _routeName = (string)(_url = null);
+                    _routeName = _url = null;
                 }
             }
         }
@@ -124,7 +120,7 @@ namespace Smartstore.Core.Content.Menus
                 if (_controllerName != value)
                 {
                     _controllerName = value;
-                    _routeName = (string)(_url = null);
+                    _routeName = _url = null;
                 }
             }
         }
@@ -138,12 +134,10 @@ namespace Smartstore.Core.Content.Menus
                 if (_routeName != value)
                 {
                     _routeName = value;
-                    _controllerName = _actionName = (string)(_url = null);
+                    _controllerName = _actionName = _url = null;
                 }
             }
         }
-
-        public RouteValueDictionary RouteValues { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Url
@@ -160,21 +154,12 @@ namespace Smartstore.Core.Content.Menus
             }
         }
 
-        [JsonIgnore]
-        public ModifiedParameter ModifiedParam
-        {
-            get;
-            private set;
-        }
-
         /// <summary>
         /// Checks whether action/controller or routeName or url has been specified.
         /// </summary>
 		public bool HasRoute()
         {
-            // TODO: (mh) (core) Investigate how to HasRoute()
-            //return _actionName != null || _routeName != null || _url != null;
-            return true;
+            return _actionName != null || _routeName != null || _url != null;
         }
 
         /// <summary>
@@ -192,21 +177,8 @@ namespace Smartstore.Core.Content.Menus
             {
                 return Text;
             }
+
             return base.ToString();
         }
-    }
-
-    public abstract class NavigationItemWithContent : NavigationItem, IHideObjectMembers
-    {
-        public NavigationItemWithContent()
-        {
-            ContentHtmlAttributes = new RouteValueDictionary();
-        }
-
-        public bool Ajax { get; set; }
-
-        public IDictionary<string, object> ContentHtmlAttributes { get; set; }
-
-        public HelperResult Content { get; set; }
     }
 }

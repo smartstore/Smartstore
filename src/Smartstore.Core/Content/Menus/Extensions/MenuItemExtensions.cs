@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -129,8 +128,7 @@ namespace Smartstore.Core.Content.Menus
         /// <param name="items">List of menu items.</param>
         /// <param name="itemProviders">Menu item providers.</param>
         /// <returns>Tree of menu items.</returns>
-        public static async Task<TreeNode<MenuItem>> GetTreeAsync(
-            this IEnumerable<MenuItemEntity> items,
+        public static async Task<TreeNode<MenuItem>> GetTreeAsync(this IEnumerable<MenuItemEntity> items,
             string origin,
             IDictionary<string, Lazy<IMenuItemProvider, MenuItemProviderMetadata>> itemProviders)
         {
@@ -160,7 +158,7 @@ namespace Smartstore.Core.Content.Menus
 
             return root;
 
-            async System.Threading.Tasks.Task AddChildItemsAsync(TreeNode<MenuItem> parentNode, int parentItemId)
+            async Task AddChildItemsAsync(TreeNode<MenuItem> parentNode, int parentItemId)
             {
                 if (parentNode == null)
                 {
