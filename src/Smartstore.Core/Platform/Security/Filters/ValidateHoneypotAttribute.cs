@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,7 @@ namespace Smartstore.Core.Security
         {
         }
 
-        class ValidateHoneypotFilter : IAuthorizationFilter
+        class ValidateHoneypotFilter : IAsyncResourceFilter
         {
             private readonly HoneypotProtector _honeypotProtector;
             private readonly SecuritySettings _securitySettings;
@@ -35,14 +36,14 @@ namespace Smartstore.Core.Security
                 _logger = logger;
             }
 
-            public void OnAuthorization(AuthorizationFilterContext context)
+            public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
             {
                 if (!_securitySettings.EnableHoneypotProtection)
-                    return;
+                    await next();
 
                 var isBot = _honeypotProtector.IsBot();
                 if (!isBot)
-                    return;
+                    await next();
 
                 _logger.Warn("Honeypot detected a bot and rejected the request.");
 
