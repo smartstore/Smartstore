@@ -35,7 +35,7 @@ namespace Smartstore.Core.Catalog.Rules
 
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
-            var count = 0;
+            //var count = 0;
             var numDeleted = 0;
             var numAdded = 0;
             var numCategories = 0;

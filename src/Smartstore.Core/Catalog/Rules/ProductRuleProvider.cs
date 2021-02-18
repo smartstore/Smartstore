@@ -24,6 +24,7 @@ namespace Smartstore.Core.Catalog.Rules
         private readonly IRuleService _ruleService;
         private readonly ICatalogSearchService _catalogSearchService;
         private readonly ICategoryService _categoryService;
+        private readonly LocalizedEntityHelper _localizedEntityHelper;
         private readonly CatalogSettings _catalogSettings;
 
         public ProductRuleProvider(
@@ -31,6 +32,7 @@ namespace Smartstore.Core.Catalog.Rules
             IRuleService ruleService,
             ICatalogSearchService catalogSearchService,
             ICategoryService categoryService,
+            LocalizedEntityHelper localizedEntityHelper,
             CatalogSettings catalogSettings)
             : base(RuleScope.Product)
         {
@@ -38,6 +40,7 @@ namespace Smartstore.Core.Catalog.Rules
             _ruleService = ruleService;
             _catalogSearchService = catalogSearchService;
             _categoryService = categoryService;
+            _localizedEntityHelper = localizedEntityHelper;
             _catalogSettings = catalogSettings;
         }
 
@@ -117,11 +120,11 @@ namespace Smartstore.Core.Catalog.Rules
                 .ToArray();
 
             var visibilities = ((ProductVisibility[])Enum.GetValues(typeof(ProductVisibility)))
-                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = x.GetLocalizedEnum() })
+                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizedEntityHelper.GetLocalizedEnum(x) })
                 .ToArray();
 
             var productTypes = ((ProductType[])Enum.GetValues(typeof(ProductType)))
-                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = x.GetLocalizedEnum() })
+                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizedEntityHelper.GetLocalizedEnum(x) })
                 .ToArray();
 
             var ratings = FacetUtility.GetRatings()

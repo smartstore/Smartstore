@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
@@ -60,7 +61,12 @@ namespace Smartstore.Core.Bootstrapping
             //builder.RegisterType<UserValidator>().As<IUserValidator<Customer>>().As<IPasswordValidator<Customer>>().InstancePerLifetimeScope();
             builder.RegisterType<GdprTool>().As<IGdprTool>().InstancePerLifetimeScope();
 
-            // Rule options provider.
+            // Rules.
+            builder.RegisterType<TargetGroupService>()
+                .As<ITargetGroupService>()
+                .Keyed<IRuleProvider>(RuleScope.Customer)
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<CustomerRoleRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
         }
 
