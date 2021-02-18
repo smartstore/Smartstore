@@ -502,11 +502,10 @@ namespace Smartstore.Core.Checkout.Orders
         }
 
         /// <summary>
-        /// Gets or sets the reward points history record
+        /// Gets or sets the reward points history record.
         /// </summary>
-        // TODO: (ms) (core) needs RewardPointsHistory of customer
-        //[JsonIgnore]
-        //public RewardPointsHistory RedeemedRewardPointsEntry { get; set; }
+        [JsonIgnore]
+        public RewardPointsHistory RedeemedRewardPointsEntry { get; set; }
 
         /// <summary>
         /// Gets or sets the wallet history.

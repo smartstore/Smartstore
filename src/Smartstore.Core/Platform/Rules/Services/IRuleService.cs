@@ -8,9 +8,6 @@ namespace Smartstore.Core.Rules
     /// </summary>
     public partial interface IRuleService
     {
-        // TODO: (mg) (core) Port rule classes from SmartStore.Services.Rules > Smartstore.Core.Rules
-        // TODO: (mg) (core) Port rule classes from SmartStore.Services.Customers[.Rules] > Smartstore.Core.Customers.Rules
-
         /// <summary>
         /// Applies given <paramref name="selectedRuleSetIds"/> to <paramref name="entity"/>.
         /// The caller is responsible for db commit.

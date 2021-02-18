@@ -273,6 +273,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets customer generated content.
         /// </summary>
+        [JsonIgnore]
         public ICollection<CustomerContent> CustomerContent
         {
             get => _lazyLoader?.Load(this, ref _customerContent) ?? (_customerContent ??= new HashSet<CustomerContent>());
@@ -308,6 +309,17 @@ namespace Smartstore.Core.Identity
         {
             get => _lazyLoader?.Load(this, ref _orders) ?? (_orders ??= new HashSet<Order>());
             protected set => _orders = value;
+        }
+
+        private ICollection<RewardPointsHistory> _rewardPointsHistory;
+        /// <summary>
+        /// Gets or sets the reward points history.
+        /// </summary>
+        [JsonIgnore]
+        public ICollection<RewardPointsHistory> RewardPointsHistory
+        {
+            get => _lazyLoader?.Load(this, ref _rewardPointsHistory) ?? (_rewardPointsHistory ??= new HashSet<RewardPointsHistory>());
+            protected set => _rewardPointsHistory = value;
         }
 
         #endregion
