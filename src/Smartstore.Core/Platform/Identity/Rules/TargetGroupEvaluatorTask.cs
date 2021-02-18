@@ -48,6 +48,7 @@ namespace Smartstore.Core.Identity.Rules
                 var roleIds = ctx.Parameters["CustomerRoleIds"].ToIntArray();
                 roleQuery = roleQuery.Where(x => roleIds.Contains(x.Id));
 
+                // TODO: (mg) (core) Why not BatchDelete()? 
                 numDeleted = await _db.Database.ExecuteSqlRawAsync(
                     "Delete From [dbo].[CustomerRoleMapping] Where [CustomerRoleId] In ({0}) And [IsSystemMapping] = 1",
                     new[] { string.Join(",", roleIds) },
