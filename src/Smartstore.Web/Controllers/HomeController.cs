@@ -59,6 +59,8 @@ using Smartstore.Core.Messages;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Rules;
 using SixLabors.ImageSharp.ColorSpaces;
+using Smartstore.Core.Identity.Rules;
+using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Web.Controllers
 {
@@ -722,28 +724,41 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-
+            var ruleService = Services.Resolve<IRuleService>();
             var ruleProvider = Services.Resolve<Func<RuleScope, IRuleProvider>>();
-            var optionsProviders = Services.Resolve<IEnumerable<IRuleOptionsProvider>>().OrderBy(x => x.Order);
+            var ruleSet = await _db.RuleSets.AsNoTracking().Include(x => x.Rules).FirstOrDefaultAsync(x => x.Id == 12);
+            var provider = ruleProvider(ruleSet.Scope) as ITargetGroupService;
+            var expression = await ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as FilterExpression;
+            var pagedList = provider.ProcessFilter(new[] { expression }, LogicalRuleOperator.And, 0, 1000);
+            var customers = await pagedList.LoadAsync();
 
-            var rule = await _db.Rules.AsNoTracking().Include(x => x.RuleSet).Where(x => x.RuleType == "ProductInCart").FirstOrDefaultAsync();
-            var provider = ruleProvider(rule.RuleSet.Scope);
-            var expression = await provider.VisitRuleAsync(rule);
-            var descriptor = expression.Descriptor;
-            var rawValue = expression.RawValue;
-
-            if (descriptor.SelectList is RemoteRuleValueSelectList list)
+            content.AppendLine($"Filtered customers: {customers.Count}");
+            foreach (var customer in customers)
             {
-                var optionsProvider = optionsProviders.FirstOrDefault(x => x.Matches(list.DataSource));
-                if (optionsProvider != null)
-                {
-                    var options = await optionsProvider.GetOptionsAsync(new RuleOptionsContext(RuleOptionsRequestReason.SelectListOptions, expression));
-                    foreach (var option in options.Options)
-                    {
-                        content.AppendLine($"{option.Value}: {option.Text}");
-                    }
-                }
+                content.AppendLine($"{customer.Id}: {customer.GetFullName()}");
             }
+
+
+            //var optionsProviders = Services.Resolve<IEnumerable<IRuleOptionsProvider>>().OrderBy(x => x.Order);
+
+            //var rule = await _db.Rules.AsNoTracking().Include(x => x.RuleSet).Where(x => x.RuleType == "ProductInCart").FirstOrDefaultAsync();
+            //var provider = ruleProvider(rule.RuleSet.Scope);
+            //var expression = await provider.VisitRuleAsync(rule);
+            //var descriptor = expression.Descriptor;
+            //var rawValue = expression.RawValue;
+
+            //if (descriptor.SelectList is RemoteRuleValueSelectList list)
+            //{
+            //    var optionsProvider = optionsProviders.FirstOrDefault(x => x.Matches(list.DataSource));
+            //    if (optionsProvider != null)
+            //    {
+            //        var options = await optionsProvider.GetOptionsAsync(new RuleOptionsContext(RuleOptionsRequestReason.SelectListOptions, expression));
+            //        foreach (var option in options.Options)
+            //        {
+            //            content.AppendLine($"{option.Value}: {option.Text}");
+            //        }
+            //    }
+            //}
 
             //var reviewsCount = await _db.CustomerContent
             //    .ApplyCustomerFilter(1426709, true)
