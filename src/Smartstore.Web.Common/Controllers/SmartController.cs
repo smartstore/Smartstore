@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 
 namespace Smartstore.Web.Controllers
 {
     // TODO: (core) Implement base filters for SmartController
+    [Menu]
     public abstract class SmartController : Controller
     {
         protected SmartController()
