@@ -24,7 +24,6 @@ namespace Smartstore.Core.Identity.Rules
             // Get other expression group.
             _ruleVisitor.TryGetTarget(out var visitor);
 
-            // TODO: (mg) (core) TargetGroupFilterDescriptor lacks async implementations. There is never an end to this.
             var otherGroup = _ruleService.CreateExpressionGroupAsync(ruleSetId, visitor).Await() as FilterExpressionGroup;
 
             var otherPredicate = otherGroup?.ToPredicate(liftToNull);
