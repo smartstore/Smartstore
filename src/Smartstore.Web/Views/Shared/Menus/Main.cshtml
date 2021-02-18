@@ -48,7 +48,7 @@
         foreach (var node in nodes.Where(x => x.Value.Visible))
         {
             var item = node.Value;
-            var itemUrl = item.GenerateUrl(this.ViewContext);
+            var itemUrl = item.GenerateUrl(this.Url);
             var itemState = node.GetNodePathState(Model.Path);
 
             var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " selected" : ""));
