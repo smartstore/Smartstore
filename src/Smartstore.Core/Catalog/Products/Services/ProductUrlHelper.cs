@@ -20,7 +20,7 @@ namespace Smartstore.Core.Catalog.Products
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
-        private readonly IUrlHelper _urlHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
 
@@ -28,7 +28,7 @@ namespace Smartstore.Core.Catalog.Products
             SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,
-            IUrlHelper urlHelper,
+            Lazy<IUrlHelper> urlHelper,
             IHttpContextAccessor httpContextAccessor,
             Lazy<ICatalogSearchQueryAliasMapper> catalogSearchQueryAliasMapper)
         {
@@ -202,7 +202,7 @@ namespace Smartstore.Core.Catalog.Products
                 return null;
             }
 
-            var url = Url ?? _urlHelper.RouteUrl("Product", new { SeName = productSlug });
+            var url = Url ?? _urlHelper.Value.RouteUrl("Product", new { SeName = productSlug });
             return url.TrimEnd('/') + ToQueryString(query);
         }
 
@@ -259,7 +259,7 @@ namespace Smartstore.Core.Catalog.Products
                 }
                 catch { }
 
-                url = _urlHelper.RouteUrl(
+                url = _urlHelper.Value.RouteUrl(
                     "Product",
                     new { SeName = productSlug, culture = language.UniqueSeoCode },
                     store.GetSecurityMode(true) == HttpSecurityMode.Ssl ? "https" : "http",

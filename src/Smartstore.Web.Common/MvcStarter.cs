@@ -151,6 +151,7 @@ namespace Smartstore.Web
             builder.Register<IUrlHelper>(c =>
             {
                 var actionContext = c.Resolve<IActionContextAccessor>().ActionContext;
+
                 if (actionContext == null)
                 {
                     return null;

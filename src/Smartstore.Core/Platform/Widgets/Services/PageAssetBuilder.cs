@@ -18,7 +18,7 @@ namespace Smartstore.Core.Widgets
     public partial class PageAssetBuilder : IPageAssetBuilder
     {
         private readonly IApplicationContext _appContext;
-        private readonly IUrlHelper _urlHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly SeoSettings _seoSettings;
 
         private List<string> _titleParts;
@@ -29,7 +29,7 @@ namespace Smartstore.Core.Widgets
 
         public PageAssetBuilder(
             IApplicationContext appContext,
-            IUrlHelper urlHelper,
+            Lazy<IUrlHelper> urlHelper,
             IWidgetProvider widgetProvider,
             SeoSettings seoSettings,
             IStoreContext storeContext)
@@ -196,7 +196,7 @@ namespace Smartstore.Core.Widgets
                 });
             }
 
-            return _urlHelper.Content(path);
+            return _urlHelper.Value.Content(path);
         }
 
         #region Utils
