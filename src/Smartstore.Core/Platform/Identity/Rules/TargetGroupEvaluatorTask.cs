@@ -12,6 +12,7 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Scheduling;
 using Smartstore.Core.Security;
 using Smartstore.Data;
+using Smartstore.Data.Batching;
 
 namespace Smartstore.Core.Identity.Rules
 {
@@ -39,32 +40,28 @@ namespace Smartstore.Core.Identity.Rules
             //var count = 0;
             var numDeleted = 0;
             var numAdded = 0;
-            var roleQuery = _db.CustomerRoles
-                .Include(x => x.RuleSets)
-                .AsNoTracking();
-
-            if (ctx.Parameters.ContainsKey("CustomerRoleIds"))
-            {
-                var roleIds = ctx.Parameters["CustomerRoleIds"].ToIntArray();
-                roleQuery = roleQuery.Where(x => roleIds.Contains(x.Id));
-
-                // TODO: (mg) (core) Why not BatchDelete()? 
-                numDeleted = await _db.Database.ExecuteSqlRawAsync(
-                    "Delete From [dbo].[CustomerRoleMapping] Where [CustomerRoleId] In ({0}) And [IsSystemMapping] = 1",
-                    new[] { string.Join(",", roleIds) },
-                    cancellationToken: cancelToken);
-            }
-            else
-            {
-                numDeleted = await _db.Database.ExecuteSqlRawAsync("Delete From [dbo].[CustomerRoleMapping] Where [IsSystemMapping] = 1", cancellationToken: cancelToken);
-            }
-
-            var roles = await roleQuery
-                .Where(x => x.Active && x.RuleSets.Any(y => y.IsActive))
-                .ToListAsync(cancelToken);
+            var rolesCount = 0;
 
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, hooksEnabled: false, deferCommit: true))
             {
+                // Delete existing system mappings.
+                var deleteQuery = _db.CustomerRoleMappings.Where(x => x.IsSystemMapping);
+                if (ctx.Parameters.ContainsKey("CustomerRoleIds"))
+                {
+                    var roleIds = ctx.Parameters["CustomerRoleIds"].ToIntArray();
+                    deleteQuery = deleteQuery.Where(x => roleIds.Contains(x.CustomerRoleId));
+                }
+
+                numDeleted = await deleteQuery.BatchDeleteAsync(cancelToken);
+
+                // Insert new customer role mappings.
+                var roles = await _db.CustomerRoles
+                    .Include(x => x.RuleSets)
+                    .AsNoTracking()
+                    .Where(x => x.Active && x.RuleSets.Any(y => y.IsActive))
+                    .ToListAsync(cancelToken);
+                rolesCount = roles.Count;
+
                 foreach (var role in roles)
                 {
                     var ruleSetCustomerIds = new HashSet<int>();
@@ -128,7 +125,7 @@ namespace Smartstore.Core.Identity.Rules
                 await _cache.RemoveByPatternAsync(AclService.ACL_SEGMENT_PATTERN);
             }
 
-            Debug.WriteLineIf(numDeleted > 0 || numAdded > 0, $"Deleted {numDeleted} and added {numAdded} customer assignments for {roles.Count} roles.");
+            Debug.WriteLineIf(numDeleted > 0 || numAdded > 0, $"Deleted {numDeleted} and added {numAdded} customer assignments for {rolesCount} roles.");
         }
     }
 }
