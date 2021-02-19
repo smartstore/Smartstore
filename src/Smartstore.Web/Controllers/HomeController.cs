@@ -724,29 +724,41 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var customer = await _db.Customers
-                .Include(x => x.RewardPointsHistory)
-                    .ThenInclude(x => x.UsedWithOrder)
-                        .ThenInclude(x => x.RedeemedRewardPointsEntry)  // Tricky. Causes InvalidOperationException "...results in a cycle" when AsNoTracking.
-                //.AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == 2666330);
-            content.AppendLine($"RewardPointsHistory: {customer.RewardPointsHistory.Count}");
+            var customer = await _db.Customers.Include(x => x.Addresses).FindByIdAsync(2666330);
+            content.AppendLine($"Addresses assigned: " + customer.Addresses.Count);
 
-            foreach (var item in customer.RewardPointsHistory)
+            var address = await _db.Addresses.FindByIdAsync(84228);
+            if (address != null)
             {
-                int? entryId = null;
-                decimal? orderTotal = null;
-                if (item.UsedWithOrderId.HasValue && item.UsedWithOrder != null)
-                {
-                    orderTotal = item.UsedWithOrder.OrderTotal;
-                    if (item.UsedWithOrder.RedeemedRewardPointsEntry != null)
-                    {
-                        entryId = item.UsedWithOrder.RedeemedRewardPointsEntry.Id;
-                    }
-                }
+                customer.RemoveAddress(address);
+                await _db.SaveChangesAsync();
 
-                content.AppendLine($"{item.Id}: {item.Points}, {item.PointsBalance}, {item.UsedWithOrderId} > {orderTotal} > {entryId}");    
+                content.AppendLine($"Removed assigned address. Addresses assigned: " + customer.Addresses.Count);
             }
+
+            //var customer = await _db.Customers
+            //    .Include(x => x.RewardPointsHistory)
+            //        .ThenInclude(x => x.UsedWithOrder)
+            //            .ThenInclude(x => x.RedeemedRewardPointsEntry)  // Tricky. Causes InvalidOperationException "...results in a cycle" when AsNoTracking.
+            //    //.AsNoTracking()
+            //    .FirstOrDefaultAsync(x => x.Id == 2666330);
+            //content.AppendLine($"RewardPointsHistory: {customer.RewardPointsHistory.Count}");
+
+            //foreach (var item in customer.RewardPointsHistory)
+            //{
+            //    int? entryId = null;
+            //    decimal? orderTotal = null;
+            //    if (item.UsedWithOrderId.HasValue && item.UsedWithOrder != null)
+            //    {
+            //        orderTotal = item.UsedWithOrder.OrderTotal;
+            //        if (item.UsedWithOrder.RedeemedRewardPointsEntry != null)
+            //        {
+            //            entryId = item.UsedWithOrder.RedeemedRewardPointsEntry.Id;
+            //        }
+            //    }
+
+            //    content.AppendLine($"{item.Id}: {item.Points}, {item.PointsBalance}, {item.UsedWithOrderId} > {orderTotal} > {entryId}");    
+            //}
 
 
             //var ruleService = Services.Resolve<IRuleService>();

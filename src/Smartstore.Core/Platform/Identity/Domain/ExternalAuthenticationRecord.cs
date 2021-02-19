@@ -1,45 +1,37 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Smartstore.Core.Checkout.Orders;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    public class RewardPointsHistoryMap : IEntityTypeConfiguration<RewardPointsHistory>
+    public class ExternalAuthenticationRecordMap : IEntityTypeConfiguration<ExternalAuthenticationRecord>
     {
-        public void Configure(EntityTypeBuilder<RewardPointsHistory> builder)
+        public void Configure(EntityTypeBuilder<ExternalAuthenticationRecord> builder)
         {
             builder.HasOne(c => c.Customer)
-                .WithMany(c => c.RewardPointsHistory)
+                .WithMany(c => c.ExternalAuthenticationRecords)
                 .HasForeignKey(c => c.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
-
-            builder.HasOne(c => c.UsedWithOrder)
-                .WithOne(c => c.RedeemedRewardPointsEntry)
-                .HasForeignKey<RewardPointsHistory>(c => c.UsedWithOrderId)
-                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
     /// <summary>
-    /// Represents a reward points history entry.
+    /// Represents an external authentication record.
     /// </summary>
-    public class RewardPointsHistory : BaseEntity
+    public partial class ExternalAuthenticationRecord : BaseEntity
     {
         private readonly ILazyLoader _lazyLoader;
 
-        public RewardPointsHistory()
+        public ExternalAuthenticationRecord()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private RewardPointsHistory(ILazyLoader lazyLoader)
+        private ExternalAuthenticationRecord(ILazyLoader lazyLoader)
         {
             _lazyLoader = lazyLoader;
         }
@@ -60,37 +52,39 @@ namespace Smartstore.Core.Identity
         }
 
         /// <summary>
-        /// Gets or sets the redeemed/added points.
-        /// </summary>
-        public int Points { get; set; }
-
-        /// <summary>
-        /// Gets or sets the points balance.
-        /// </summary>
-        public int PointsBalance { get; set; }
-
-        /// <summary>
-        /// Gets or sets the used amount.
-        /// </summary>
-        public decimal UsedAmount { get; set; }
-
-        /// <summary>
-        /// Gets or sets the message.
+        /// Gets or sets the external email.
         /// </summary>
         [StringLength(4000)]
-        public string Message { get; set; }
+        public string Email { get; set; }
 
         /// <summary>
-        /// Gets or sets the date of instance creation.
+        /// Gets or sets the external identifier.
         /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        [Column("UsedWithOrder_Id")]
-        public int? UsedWithOrderId { get; set; }
+        [StringLength(4000)]
+        public string ExternalIdentifier { get; set; }
 
         /// <summary>
-        /// Gets or sets the order for which points were redeemed as a payment.
+        /// Gets or sets the external display identifier.
         /// </summary>
-        public Order UsedWithOrder { get; set; }
+        [StringLength(4000)]
+        public string ExternalDisplayIdentifier { get; set; }
+
+        /// <summary>
+        /// Gets or sets the OAuthToken.
+        /// </summary>
+        [StringLength(4000)]
+        public string OAuthToken { get; set; }
+
+        /// <summary>
+        /// Gets or sets the OAuthAccessToken.
+        /// </summary>
+        [StringLength(4000)]
+        public string OAuthAccessToken { get; set; }
+
+        /// <summary>
+        /// Gets or sets the provider system name.
+        /// </summary>
+        [StringLength(4000)]
+        public string ProviderSystemName { get; set; }
     }
 }

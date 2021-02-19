@@ -105,17 +105,20 @@ namespace Smartstore.Core.Identity
         /// Gets or sets the password
         /// </summary>
         [StringLength(500)]
+        [JsonIgnore]
         public string Password { get; set; }
 
         /// <summary>
         /// Gets or sets the password format
         /// </summary>
+        [JsonIgnore]
         public int PasswordFormatId { get; set; }
 
         /// <summary>
         /// Gets or sets the password format
         /// </summary>
         [NotMapped]
+        [JsonIgnore]
         public PasswordFormat PasswordFormat
         {
             get => (PasswordFormat)PasswordFormatId;
@@ -126,11 +129,13 @@ namespace Smartstore.Core.Identity
         /// Gets or sets the password salt
         /// </summary>
         [StringLength(500)]
+        [JsonIgnore]
         public string PasswordSalt { get; set; }
 
         /// <summary>
         /// Gets or sets the admin comment
         /// </summary>
+        [StringLength(4000)]
         public string AdminComment { get; set; }
 
         /// <summary>
@@ -211,6 +216,8 @@ namespace Smartstore.Core.Identity
 
         public DateTime? BirthDate { get; set; }
 
+        // TODO: customer string properties Gender, TimeZoneId, LastUserAgent, LastUserDeviceType should not set to maximum length (migration required).
+
         public string Gender { get; set; }
 
         public int VatNumberStatusId { get; set; }
@@ -236,8 +243,6 @@ namespace Smartstore.Core.Identity
             => new(base.GenericAttributes);
 
         #region Navigation properties
-
-        // TODO: (core) Add all navigation properties for Customer entity
 
         private Address _billingAddress;
         /// <summary>
@@ -267,6 +272,17 @@ namespace Smartstore.Core.Identity
         {
             get => _lazyLoader?.Load(this, ref _addresses) ?? (_addresses ??= new HashSet<Address>());
             protected set => _addresses = value;
+        }
+
+        private ICollection<ExternalAuthenticationRecord> _externalAuthenticationRecords;
+        /// <summary>
+        /// Gets or sets external authentication records.
+        /// </summary>
+        [JsonIgnore]
+        public ICollection<ExternalAuthenticationRecord> ExternalAuthenticationRecords
+        {
+            get => _lazyLoader?.Load(this, ref _externalAuthenticationRecords) ?? (_externalAuthenticationRecords ??= new HashSet<ExternalAuthenticationRecord>());
+            protected set => _externalAuthenticationRecords = value;
         }
 
         private ICollection<CustomerContent> _customerContent;
@@ -322,6 +338,29 @@ namespace Smartstore.Core.Identity
             protected set => _rewardPointsHistory = value;
         }
 
+        private ICollection<WalletHistory> _walletHistory;
+        /// <summary>
+        /// Gets or sets the wallet history.
+        /// </summary>
+        [JsonIgnore]
+        public ICollection<WalletHistory> WalletHistory
+        {
+            get => _lazyLoader?.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());
+            protected set => _walletHistory = value;
+        }
+
+        private ICollection<ReturnRequest> _returnRequests;
+        /// <summary>
+        /// Gets or sets the return requests.
+        /// </summary>
+        public ICollection<ReturnRequest> ReturnRequests
+        {
+            get => _lazyLoader?.Load(this, ref _returnRequests) ?? (_returnRequests ??= new HashSet<ReturnRequest>());
+            protected set => _returnRequests = value;
+        }
+
+        // TODO: (mg) (core) Complete customer navigation properties (ForumTopic and ForumPost required).
+
         #endregion
 
         #region Utils
@@ -350,17 +389,26 @@ namespace Smartstore.Core.Identity
                 .ToArray();
         }
 
-        //// // TODO: (core) Implement Customer.RemoveAddress()
-        //public virtual void RemoveAddress(Address address)
-        //{
-        //    if (Addresses.Contains(address))
-        //    {
-        //        if (BillingAddress == address) BillingAddress = null;
-        //        if (ShippingAddress == address) ShippingAddress = null;
+        /// <summary>
+        /// Removes an address from the addresses assigned to this customer.
+        /// </summary>
+        /// <param name="address">Address to remove.</param>
+        public void RemoveAddress(Address address)
+        {
+            if (Addresses.Contains(address))
+            {
+                if (BillingAddress == address)
+                {
+                    BillingAddress = null;
+                }
+                if (ShippingAddress == address)
+                {
+                    ShippingAddress = null;
+                }
 
-        //        Addresses.Remove(address);
-        //    }
-        //}
+                Addresses.Remove(address);
+            }
+        }
 
         /// <summary>
         /// Adds a reward points history entry.

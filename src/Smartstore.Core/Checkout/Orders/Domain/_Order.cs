@@ -507,16 +507,16 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public RewardPointsHistory RedeemedRewardPointsEntry { get; set; }
 
+        private ICollection<WalletHistory> _walletHistory;
         /// <summary>
         /// Gets or sets the wallet history.
         /// </summary>
-        // TODO: (ms) (core) needs WalletHistory of customer
-        //[JsonIgnore]
-        //public ICollection<WalletHistory> WalletHistory
-        //{
-        //    get => _walletHistory ?? (_walletHistory = new HashSet<WalletHistory>());
-        //    protected set => _walletHistory = value;
-        //}
+        [JsonIgnore]
+        public ICollection<WalletHistory> WalletHistory
+        {
+            get => _lazyLoader?.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());
+            protected set => _walletHistory = value;
+        }
 
         private ICollection<DiscountUsageHistory> _discountUsageHistory;
         /// <summary>

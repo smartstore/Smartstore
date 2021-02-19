@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Identity;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
@@ -22,6 +22,17 @@ namespace Smartstore.Core.Logging
         Warning = 30,
         Error = 40,
         Fatal = 50
+    }
+
+    public class LogMap : IEntityTypeConfiguration<Log>
+    {
+        public void Configure(EntityTypeBuilder<Log> builder)
+        {
+            builder.HasOne(c => c.Customer)
+                .WithMany()
+                .HasForeignKey(c => c.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 
     /// <summary>
