@@ -28,11 +28,9 @@ namespace Smartstore
 
     public partial class DefaultDisplayHelper : IDisplayHelper
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
         public DefaultDisplayHelper(IHttpContextAccessor httpContextAccessor)
         {
-            HttpContext = _httpContextAccessor.HttpContext;
+            HttpContext = httpContextAccessor.HttpContext;
         }
 
         public HttpContext HttpContext { get; }
