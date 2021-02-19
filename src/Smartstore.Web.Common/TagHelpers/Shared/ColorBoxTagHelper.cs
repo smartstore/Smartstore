@@ -3,52 +3,34 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-    [HtmlTargetElement("sm-colorbox", TagStructure = TagStructure.WithoutEndTag)]
+    [OutputElementHint("div")]
+    [HtmlTargetElement("colorbox", Attributes = ForAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class ColorBoxTagHelper : BaseFormTagHelper
     {
-        [HtmlAttributeName("color")]
-        public string Color { get; set; }
+        const string DefaultColorAttributeName = "sm-default-color";
 
-        [HtmlAttributeName("default-color")]
+        [HtmlAttributeName(DefaultColorAttributeName)]
         public string DefaultColor { get; set; }
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
-            base.ProcessCore(context, output);
+            var defaultColor = DefaultColor.EmptyNull();
+            var color = For.Model.ToString();
+            var isDefault = color.EqualsNoCase(defaultColor);
 
-            if (!Color.HasValue() || !DefaultColor.HasValue())
-            {
-                return;
-            }
+            output.TagName = "div";
+            output.TagMode = TagMode.StartTagAndEndTag;
+            output.AppendCssClass("input-group colorpicker-component sm-colorbox");
+            output.Attributes.Add("data-fallback-color", defaultColor);
 
-            DefaultColor = DefaultColor.EmptyNull();
-            var isDefault = Color.EqualsNoCase(DefaultColor);
-
-            var cnt = new TagBuilder("div");
-            cnt.AddCssClass("input-group colorpicker-component sm-colorbox colorpicker-element");
-            cnt.Attributes.Add("data-fallback-color", DefaultColor);
-
-            // Move CCS classes from output to cnt and clear output classes.
-            var cssClasses = output.Attributes["class"]?.Value?.ToString();
-            cnt.AddCssClass(cssClasses);
-            output.MergeAttribute("class", "", true);
+            output.Content.AppendHtml(HtmlHelper.TextBox(For.Name, isDefault ? string.Empty : color, new { @class = "form-control colorval", placeholder = defaultColor }));
 
             var addon = new TagBuilder("div");
             addon.AddCssClass("input-group-append input-group-addon");
-            addon.InnerHtml.AppendHtml("<div class=\"input-group-text\"><i class=\"thecolor\" style=\"{0}\">&nbsp;</i></div>".FormatWith(DefaultColor.HasValue() ? "background-color: " + DefaultColor : ""));
+            addon.InnerHtml.AppendHtml(
+                "<div class=\"input-group-text\"><i class=\"thecolor\" style=\"{0}\">&nbsp;</i></div>".FormatWith(DefaultColor.HasValue() ? "background-color: " + DefaultColor : string.Empty));
 
-            output.WrapElementWith(cnt);
-            output.PostContent.AppendHtml(addon);
-
-            // Generate main <input/>
-            output.TagName = "input";
-            output.TagMode = TagMode.StartTagAndEndTag;
-            output.MergeAttribute("id", HtmlHelper.GenerateIdFromName(For.Name), true);
-            output.MergeAttribute("name", For.Name, true);                                  // TODO: (mh) (core) Test model binding.
-            output.AppendCssClass("form-control colorval");
-            output.Attributes.Add("placeholder", Color ?? DefaultColor);
-            output.Attributes.Add("type", "text");
-            output.Attributes.Add("value", isDefault ? "" : Color);
+            output.Content.AppendHtml(addon);
         }
     }
 }

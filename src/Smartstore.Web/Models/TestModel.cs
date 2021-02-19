@@ -23,6 +23,8 @@ namespace Smartstore.Web.Models
 
         [LocalizedDisplay("*AllowCustomerReviews")]
         public bool TestProp4 { get; set; }
+
+        public string TestColor { get; set; } = "#ff99cc";
     }
 
     [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
