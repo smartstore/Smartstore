@@ -7,6 +7,8 @@ namespace Smartstore.Core.Web
 {
     public partial interface IWebHelper
     {
+        HttpContext HttpContext { get; }
+
         /// <summary>
         /// Get URL referrer
         /// </summary>

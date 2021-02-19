@@ -48,6 +48,11 @@ namespace Smartstore.Core.Web
             _storeContext = storeContext;
         }
 
+        public HttpContext HttpContext 
+        {
+            get => _httpContextAccessor.HttpContext;
+        }
+
         public virtual IPAddress GetClientIpAddress()
         {
             if (_ipAddress != null)
@@ -55,8 +60,7 @@ namespace Smartstore.Core.Web
                 return _ipAddress;
             }
 
-            var context = _httpContextAccessor.HttpContext;
-            var request = context?.Request;
+            var request = HttpContext?.Request;
             if (request == null)
             {
                 return (_ipAddress = IPAddress.None);
@@ -107,9 +111,9 @@ namespace Smartstore.Core.Web
                 }
             }
 
-            if (result == null && context.Connection.RemoteIpAddress != null)
+            if (result == null && HttpContext.Connection.RemoteIpAddress != null)
             {
-                result = context.Connection.RemoteIpAddress;
+                result = HttpContext.Connection.RemoteIpAddress;
             }
 
             if (result != null && result.AddressFamily == AddressFamily.InterNetworkV6)
@@ -124,13 +128,13 @@ namespace Smartstore.Core.Web
 
         public virtual string GetUrlReferrer()
         {
-            return _httpContextAccessor.HttpContext?.Request?.Headers[HeaderNames.Referer] ?? string.Empty;
+            return HttpContext?.Request?.Headers[HeaderNames.Referer] ?? string.Empty;
         }
 
         public virtual string GetClientIdent()
         {
             var ipAddress = GetClientIpAddress();
-            var userAgent = _httpContextAccessor.HttpContext?.Request?.UserAgent().EmptyNull();
+            var userAgent = HttpContext?.Request?.UserAgent().EmptyNull();
 
             if (ipAddress != IPAddress.None && userAgent.HasValue())
             {
@@ -142,7 +146,7 @@ namespace Smartstore.Core.Web
 
         public virtual bool IsCurrentConnectionSecured()
         {
-            return _isCurrentConnectionSecured ??= _httpContextAccessor.HttpContext?.Request?.IsSecureConnection() == true;
+            return _isCurrentConnectionSecured ??= HttpContext?.Request?.IsSecureConnection() == true;
         }
 
         public virtual string GetStoreLocation(bool? secured = null)
@@ -153,7 +157,7 @@ namespace Smartstore.Core.Web
 
             if (TryGetHostFromHttpContext(secured.Value, out var host))
             {
-                location = host + _httpContextAccessor.HttpContext.Request.PathBase;
+                location = host + HttpContext.Request.PathBase;
             }
             else
             {
@@ -168,7 +172,7 @@ namespace Smartstore.Core.Web
         {
             host = null;
 
-            var hostHeader = _httpContextAccessor.HttpContext?.Request?.Headers?[HeaderNames.Host] ?? StringValues.Empty;
+            var hostHeader = HttpContext?.Request?.Headers?[HeaderNames.Host] ?? StringValues.Empty;
 
             if (!StringValues.IsNullOrEmpty(hostHeader))
             {
@@ -184,7 +188,7 @@ namespace Smartstore.Core.Web
 
         public virtual string GetCurrentPageUrl(bool withQueryString = false, bool? secured = null, bool lowercaseUrl = false)
         {
-            var httpRequest = _httpContextAccessor.HttpContext?.Request;
+            var httpRequest = HttpContext?.Request;
             if (httpRequest == null)
             {
                 return string.Empty;
@@ -209,7 +213,7 @@ namespace Smartstore.Core.Web
 
         public virtual bool IsStaticResourceRequested()
         {
-            var request = _httpContextAccessor.HttpContext?.Request;
+            var request = HttpContext?.Request;
             if (request == null)
             {
                 return false;
@@ -226,7 +230,7 @@ namespace Smartstore.Core.Web
 
         public virtual T QueryString<T>(string name)
         {
-            var queryParam = _httpContextAccessor.HttpContext?.Request?.Query["name"] ?? StringValues.Empty;
+            var queryParam = HttpContext?.Request?.Query["name"] ?? StringValues.Empty;
 
             if (!StringValues.IsNullOrEmpty(queryParam))
             {
@@ -301,7 +305,7 @@ namespace Smartstore.Core.Web
             Guard.NotEmpty(name, nameof(name));
 
             var values = StringValues.Empty;
-            if (_httpContextAccessor.HttpContext?.Request?.Headers?.TryGetValue(name, out values) == true)
+            if (HttpContext?.Request?.Headers?.TryGetValue(name, out values) == true)
             {
                 return values.ToString();
             }
