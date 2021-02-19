@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
@@ -16,6 +17,9 @@ namespace Smartstore.Web.Razor
 
     public abstract class SmartRazorPage<TModel> : RazorPage<TModel>
     {
+        [RazorInject]
+        protected IDisplayHelper Display { get; set; }
+
         [RazorInject]
         protected Localizer T { get; set; }
 
@@ -36,5 +40,14 @@ namespace Smartstore.Web.Razor
 
         [RazorInject]
         protected IUserAgent UserAgent { get; set; }
+
+        /// <summary>
+        /// Resolves a service from scoped service container.
+        /// </summary>
+        /// <typeparam name="T">Type to resolve</typeparam>
+        protected T Resolve<T>() where T : notnull
+        {
+            return Context.RequestServices.GetRequiredService<T>();
+        }
     }
 }

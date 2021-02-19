@@ -102,6 +102,7 @@ namespace Smartstore.Engine
                 services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
                 services.AddSingleton<IPdfConverter, NullPdfConverter>();
                 services.AddHttpContextAccessor();
+                services.AddScoped<IDisplayHelper, DefaultDisplayHelper>();
 
                 // TODO: (core) Configuration for MemoryCache?
                 services.AddMemoryCache();
