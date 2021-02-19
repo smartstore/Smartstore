@@ -239,13 +239,12 @@ namespace Smartstore.Core.Identity.Rules
                     RuleType = RuleType.IntArray,
                     SelectList = new RemoteRuleValueSelectList("Country") { Multiple = true }
                 },
-                // TODO: (mg) (core) Complete TargetGroupService (Customer.ReturnRequests required).
-                //new FilterDescriptor<Customer, int>(x => x.ReturnRequests.Count())
-                //{
-                //    Name = "ReturnRequestCount",
-                //    DisplayName = T("Admin.Rules.FilterDescriptor.ReturnRequestCount"),
-                //    RuleType = RuleType.Int
-                //},
+                new FilterDescriptor<Customer, int>(x => x.ReturnRequests.Count)
+                {
+                    Name = "ReturnRequestCount",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.ReturnRequestCount"),
+                    RuleType = RuleType.Int
+                },
 
                 new FilterDescriptor<Customer, int?>(x => EF.Functions.DateDiffDay(x.LastActivityDateUtc, DateTime.UtcNow))
                 {
