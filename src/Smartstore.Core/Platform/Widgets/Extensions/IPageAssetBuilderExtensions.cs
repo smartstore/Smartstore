@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Html;
 using Smartstore.Core.Widgets;
 
-namespace Smartstore.Web.Rendering
+namespace Smartstore.Core.Widgets
 {
     public static class IPageAssetBuilderExtensions
     {

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.Core.Content.Seo;
-using Smartstore.Core.Widgets;
 
-namespace Smartstore.Web.Rendering
+namespace Smartstore.Core.Widgets
 {
     public partial interface IPageAssetBuilder
     {

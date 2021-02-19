@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Hosting;
@@ -13,13 +12,11 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.Net;
-using Smartstore.Core.Widgets;
 
-namespace Smartstore.Web.Rendering
+namespace Smartstore.Core.Widgets
 {
     public partial class PageAssetBuilder : IPageAssetBuilder
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IApplicationContext _appContext;
         private readonly IUrlHelper _urlHelper;
         private readonly SeoSettings _seoSettings;
@@ -31,7 +28,6 @@ namespace Smartstore.Web.Rendering
         private static readonly ConcurrentDictionary<string, string> _minFiles = new(StringComparer.InvariantCultureIgnoreCase);
 
         public PageAssetBuilder(
-            IHttpContextAccessor httpContextAccessor,
             IApplicationContext appContext,
             IUrlHelper urlHelper,
             IWidgetProvider widgetProvider,
@@ -39,7 +35,6 @@ namespace Smartstore.Web.Rendering
             IStoreContext storeContext)
         {
             // TODO: (core) IApplicationContext.WebRoot > StaticFileOptions.FileProvider (?)
-            _httpContextAccessor = httpContextAccessor;
             _appContext = appContext;
             _urlHelper = urlHelper;
             _seoSettings = seoSettings;

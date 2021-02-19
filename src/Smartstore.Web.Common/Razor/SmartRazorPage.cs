@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Razor.Internal;
 using Smartstore.Core;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine;
 using Smartstore.Events;
 using Smartstore.Web.Rendering;

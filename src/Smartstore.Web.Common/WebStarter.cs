@@ -4,7 +4,6 @@ using Smartstore.Core;
 using Smartstore.Core.Content.Seo.Routing;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web
 {
@@ -13,7 +12,6 @@ namespace Smartstore.Web
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
-            builder.RegisterType<PageAssetBuilder>().As<IPageAssetBuilder>().InstancePerLifetimeScope();
             builder.RegisterType<SlugRouteTransformer>().InstancePerLifetimeScope();
         }
 

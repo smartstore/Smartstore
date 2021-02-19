@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Rendering
+﻿namespace Smartstore.Core.Widgets
 {
     public enum AssetLocation
     {
