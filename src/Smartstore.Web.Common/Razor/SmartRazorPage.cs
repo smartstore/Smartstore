@@ -7,7 +7,6 @@ using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine;
 using Smartstore.Events;
-using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Razor
 {
@@ -18,24 +17,24 @@ namespace Smartstore.Web.Razor
     public abstract class SmartRazorPage<TModel> : RazorPage<TModel>
     {
         [RazorInject]
-        public Localizer T { get; set; }
+        protected Localizer T { get; set; }
 
         [RazorInject]
-        public IWorkContext WorkContext { get; set; }
+        protected IWorkContext WorkContext { get; set; }
 
         [RazorInject]
-        public IWebHelper WebHelper { get; set; }
+        protected IWebHelper WebHelper { get; set; }
 
         [RazorInject]
-        public IEventPublisher EventPublisher { get; set; }
+        protected IEventPublisher EventPublisher { get; set; }
 
         [RazorInject]
-        public IApplicationContext ApplicationContext { get; set; }
+        protected IApplicationContext ApplicationContext { get; set; }
 
         [RazorInject]
-        public IPageAssetBuilder AssetBuilder { get; set; }
+        protected IPageAssetBuilder AssetBuilder { get; set; }
 
         [RazorInject]
-        public IUserAgent UserAgent { get; set; }
+        protected IUserAgent UserAgent { get; set; }
     }
 }
