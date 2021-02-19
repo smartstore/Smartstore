@@ -131,7 +131,6 @@ namespace Smartstore.Core.Content.Menus
                                                 context = context.AvailableOnly(true);
                                             }
 
-                                            // TODO: (mh) (core) In the context of the lock statement cannot be waited.
                                             var query = await _catalogSearchService.Value.SearchAsync(context);
                                             node.Value.ElementsCount = query.TotalHitsCount;
                                         }

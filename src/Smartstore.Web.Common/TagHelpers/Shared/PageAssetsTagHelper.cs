@@ -35,7 +35,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
             else if (output.TagName == "title")
             {
-                // Render meta robots right before the title tag
+                // Render meta robots right before the title tag.
                 if (_seoSettings.MetaRobotsContent.HasValue())
                 {
                     output.PreElement.AppendHtml(string.Format("<meta name=\"robots\" content=\"{0}\"/>", _seoSettings.MetaRobotsContent));

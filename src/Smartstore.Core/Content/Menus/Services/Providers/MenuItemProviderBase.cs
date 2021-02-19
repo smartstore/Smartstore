@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Collections;
+using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Content.Menus
 {
     public abstract class MenuItemProviderBase : IMenuItemProvider
     {
-        // TODO: (mh) (core) Move IconExplorer to core???
-        //public IIconExplorer IconExplorer { get; set; }
+        public IIconExplorer IconExplorer { get; set; }
 
         public virtual async Task<TreeNode<MenuItem>> AppendAsync(MenuItemProviderRequest request)
         {
@@ -117,8 +117,7 @@ namespace Smartstore.Core.Content.Menus
             // Icon
             if (entity.Icon.HasValue() && !request.IsEditMode)
             {
-                // TODO: (mh) (core) Move IconExplorer to core???
-                //menuItem.Icon = IconExplorer.GetIconByName(entity.Icon)?.GetCssClass(entity.Style);
+                menuItem.Icon = IconExplorer.GetIconByName(entity.Icon)?.GetCssClass(entity.Style);
 
                 if (entity.IconColor.HasValue())
                 {

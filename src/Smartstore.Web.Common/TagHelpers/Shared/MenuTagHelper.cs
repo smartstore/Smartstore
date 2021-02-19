@@ -8,7 +8,7 @@ using Smartstore.Web.Rendering.Menus;
 namespace Smartstore.Web.TagHelpers.Shared
 {
     [OutputElementHint("div")]
-    [HtmlTargetElement("sm-menu", TagStructure = TagStructure.NormalOrSelfClosing)]
+    [HtmlTargetElement("sm-menu", TagStructure = TagStructure.NormalOrSelfClosing)]     // TODO: (mh) (core) @mc Wouldn't WithoutEndTag be better?
     public class MenuTagHelper : SmartTagHelper 
     {
         private readonly IMenuService _menuService;

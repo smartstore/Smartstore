@@ -149,7 +149,7 @@ namespace Smartstore.Core.Content.Menus
 
                 foreach (var info in menusInfo)
                 {
-                    // TODO: (mh) (core) How to register action?
+                    // TODO: (mh) (core) How to register an action?
                     //_widgetProvider.RegisterAction(
                     //    info.WidgetZones,
                     //    "Menu",
