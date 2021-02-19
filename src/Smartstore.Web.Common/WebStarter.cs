@@ -14,7 +14,6 @@ namespace Smartstore.Web
         {
             builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
             builder.RegisterType<PageAssetBuilder>().As<IPageAssetBuilder>().InstancePerLifetimeScope();
-            builder.RegisterType<IconExplorer>().As<IIconExplorer>().SingleInstance();
             builder.RegisterType<SlugRouteTransformer>().InstancePerLifetimeScope();
         }
 

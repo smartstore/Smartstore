@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Rendering
+﻿namespace Smartstore.Core.Content.Media.Icons
 {
     public interface IIcon
     {

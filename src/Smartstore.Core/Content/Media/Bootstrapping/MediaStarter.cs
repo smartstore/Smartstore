@@ -2,6 +2,7 @@
 using Autofac;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Engine;
@@ -79,6 +80,9 @@ namespace Smartstore.Core.Bootstrapping
 
             // Handlers
             builder.RegisterType<ImageHandler>().As<IMediaHandler>().InstancePerLifetimeScope();
+
+            // Icons
+            builder.RegisterType<IconExplorer>().As<IIconExplorer>().SingleInstance();
         }
 
         private static Func<IMediaStorageProvider> MediaStorageProviderFactory(IComponentContext c)
