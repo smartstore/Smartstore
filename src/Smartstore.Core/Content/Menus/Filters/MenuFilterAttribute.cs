@@ -2,26 +2,17 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.Core.Widgets;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public class MenuAttribute : TypeFilterAttribute
+    public class MenuFilterAttribute : TypeFilterAttribute
     {
-        public MenuAttribute()
+        public MenuFilterAttribute()
             : base(typeof(MenuFilter))
         {
-        }
-
-        // TODO: (mh) (core): This is only a mock. Remove & replace once properties are available.
-        class WebViewPageHelper
-        {
-            public static string CurrentPageType => "";
-            public static object CurrentPageId => 0;
-            public static bool IsHomePage => false;
         }
 
         class MenuFilter : IAsyncActionFilter, IAsyncResultFilter
@@ -29,35 +20,43 @@ namespace Smartstore.Core.Content.Menus
             private readonly IMenuStorage _menuStorage;
             private readonly IMenuService _menuService;
             private readonly IWidgetProvider _widgetProvider;
-            private readonly IHtmlHelper _htmlHelper;
+            private readonly IPageAssetBuilder _assetBuilder;
+            private readonly IDisplayHelper _displayHelper;
 
             public MenuFilter(
                 IMenuStorage menuStorage,
                 IMenuService menuService,
                 IWidgetProvider widgetProvider,
-                IHtmlHelper htmlHelper)
+                IPageAssetBuilder assetBuilder,
+                IDisplayHelper displayHelper)
             {
                 _menuStorage = menuStorage;
                 _menuService = menuService;
                 _widgetProvider = widgetProvider;
-                _htmlHelper = htmlHelper;
+                _assetBuilder = assetBuilder;
+                _displayHelper = displayHelper;
             }
 
+            /// <summary>
+            /// Find the selected node in any registered menu
+            /// </summary>
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
+                var executedContext = await next();
+
                 if (context.HttpContext.Request.IsAjaxRequest())
                     return;
 
                 //if (filterContext.HttpContext.Request.HttpMethod != "GET")
                 //	return;
 
-                if (context.Result?.IsHtmlViewResult() == false)
+                if (!executedContext.Result.IsHtmlViewResult())
                     return;
 
-                if (context.RouteData.Values.GetAreaName().EqualsNoCase("admin"))
+                if (executedContext.RouteData.Values.GetAreaName().EqualsNoCase("admin"))
                     return;
 
-                var selectedNode = await ResolveCurrentNodeAsync(context);
+                var selectedNode = await ResolveCurrentNodeAsync(executedContext);
 
                 object nodeData;
 
@@ -65,8 +64,8 @@ namespace Smartstore.Core.Content.Menus
                 {
                     nodeData = new
                     {
-                        type = WebViewPageHelper.CurrentPageType,
-                        id = WebViewPageHelper.CurrentPageId
+                        type = _displayHelper.CurrentPageType(),
+                        id = _displayHelper.CurrentPageId()
                     };
                 }
                 else
@@ -77,15 +76,15 @@ namespace Smartstore.Core.Content.Menus
                     httpContext.Items["SelectedNode"] = selectedNode;
 
                     // Add custom meta head part (mainly for client scripts)
-                    var nodeType = (selectedNode.Value.EntityName ?? WebViewPageHelper.CurrentPageType).ToLowerInvariant();
+                    var nodeType = (selectedNode.Value.EntityName ?? _displayHelper.CurrentPageType()).ToLowerInvariant();
                     object nodeId = selectedNode.Id;
-                    if (WebViewPageHelper.IsHomePage)
+                    if (_displayHelper.IsHomePage())
                     {
                         nodeId = 0;
                     }
                     else if (nodeType == "system")
                     {
-                        nodeId = WebViewPageHelper.CurrentPageId;
+                        nodeId = _displayHelper.CurrentPageId();
                     }
 
                     nodeData = new
@@ -99,17 +98,14 @@ namespace Smartstore.Core.Content.Menus
                 }
 
                 // Add node data to head meta property as JSON.
-                _widgetProvider.RegisterWidget(
-                    "head",
-                    new HtmlWidgetInvoker(new HtmlString("<meta property='sm:pagedata' content='{0}' />".FormatInvariant(JsonConvert.SerializeObject(nodeData)))));
-
-                await next();
+                _assetBuilder.AddHtmlContent("head", new HtmlString("<meta property='sm:pagedata' content='{0}' />".FormatInvariant(JsonConvert.SerializeObject(nodeData))));
             }
 
             public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
             {
-                if (!context.Result?.IsHtmlViewResult() == false)
+                if (!context.Result.IsHtmlViewResult())
                 {
+                    await next();
                     return;
                 }
 
@@ -118,12 +114,9 @@ namespace Smartstore.Core.Content.Menus
                 await next();
             }
 
-            private async Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionExecutingContext filterContext)
+            private async Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionExecutedContext filterContext)
             {
-                // Ensure page helper is initialized
-                //_pageHelper.Initialize(filterContext);
-
-                if (WebViewPageHelper.IsHomePage)
+                if (_displayHelper.IsHomePage())
                 {
                     return await _menuService.GetRootNodeAsync("Main");
                 }
@@ -149,13 +142,16 @@ namespace Smartstore.Core.Content.Menus
 
                 foreach (var info in menusInfo)
                 {
-                    // TODO: (mh) (core) How to register an action?
-                    //_widgetProvider.RegisterAction(
-                    //    info.WidgetZones,
-                    //    "Menu",
-                    //    "Menu",
-                    //    new { area = "", name = info.SystemName, template = info.Template },
-                    //    info.DisplayOrder);
+                    var widget = new ComponentWidgetInvoker("Menu", new
+                    {
+                        name = info.SystemName,
+                        template = info.Template
+                    })
+                    {
+                        Order = info.DisplayOrder
+                    };
+
+                    _widgetProvider.RegisterWidget(info.WidgetZones, widget);
                 }
             }
         }

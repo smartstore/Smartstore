@@ -11,7 +11,7 @@ using Smartstore.Core.Logging;
 namespace Smartstore.Web.Controllers
 {
     // TODO: (core) Implement base filters for SmartController
-    [Menu]
+    [MenuFilter]
     public abstract class SmartController : Controller
     {
         protected SmartController()

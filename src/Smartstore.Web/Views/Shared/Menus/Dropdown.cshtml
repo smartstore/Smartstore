@@ -26,7 +26,7 @@
             <span language-attributes-for="item">@root.GetItemText(T)</span>
             <i class="fal fa-angle-down menubar-caret"></i>
         </a>
-        @CreateDropdown(root.Children)
+        @{ await CreateDropdown(root.Children); }
     </div>
 </div>
 

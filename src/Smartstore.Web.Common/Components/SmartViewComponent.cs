@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core;
@@ -13,6 +15,8 @@ namespace Smartstore.Web.Components
         private ILogger _logger;
         private Localizer _localizer;
         private ICommonServices _services;
+
+        private static readonly ContentViewComponentResult _emptyResult = new(string.Empty);
 
         public ILogger Logger
         {
@@ -28,6 +32,13 @@ namespace Smartstore.Web.Components
         {
             get => _services ??= HttpContext.RequestServices.GetRequiredService<ICommonServices>();
         }
+
+        #region Results
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected IViewComponentResult Empty() => _emptyResult;
+
+        #endregion
 
         #region Notify
 

@@ -6,13 +6,17 @@ namespace Smartstore
     {
         public static bool IsHtmlViewResult(this IActionResult result)
         {
-            var contentResult = result as ContentResult;
-            if (contentResult != null)
+            if (result is null)
+            {
+                return false;
+            }
+            
+            if (result is ContentResult contentResult)
             {
                 return contentResult.ContentType.EqualsNoCase("text/html");
             }
 
-            return false;
+            return result is (ViewResult or PartialViewResult);
         }
     }
 }

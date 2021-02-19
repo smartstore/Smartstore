@@ -32,21 +32,16 @@ namespace Smartstore.Core.Bootstrapping
             foreach (var type in menuItemProviderTypes)
             {
                 var attribute = type.GetAttribute<MenuItemProviderAttribute>(false);
-                var registration = builder.RegisterType(type).As<IMenuItemProvider>().PropertiesAutowired(PropertyWiringOptions.None).InstancePerLifetimeScope();
-                registration.WithMetadata<MenuItemProviderMetadata>(m =>
-                {
-                    m.For(em => em.ProviderName, attribute.ProviderName);
-                    m.For(em => em.AppendsMultipleItems, attribute.AppendsMultipleItems);
-                });
+                var registration = builder.RegisterType(type)
+                    .As<IMenuItemProvider>()
+                    .PropertiesAutowired(PropertyWiringOptions.None)
+                    .InstancePerLifetimeScope()
+                    .WithMetadata<MenuItemProviderMetadata>(m =>
+                    {
+                        m.For(em => em.ProviderName, attribute?.ProviderName);
+                        m.For(em => em.AppendsMultipleItems, attribute?.AppendsMultipleItems ?? false);
+                    });
             }
-
-            // TODO: (mh) (core) Annotate SmartController with menu filters attribue(s) directly
-            //if (DataSettings.DatabaseIsInstalled())
-            //{
-            //    // We have to register two classes, otherwise the filters would be called twice.
-            //    builder.RegisterType<MenuActionFilter>().AsActionFilterFor<SmartController>(0);
-            //    builder.RegisterType<MenuResultFilter>().AsResultFilterFor<SmartController>(0);
-            //}
         }
     }
 }

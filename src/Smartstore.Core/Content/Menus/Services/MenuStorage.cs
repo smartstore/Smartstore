@@ -47,12 +47,12 @@ namespace Smartstore.Core.Content.Menus
             }
 
             var roleIds = roles.Where(x => x.Active).Select(x => x.Id);
-            var cacheKey = MENU_USER_CACHE_KEY.FormatInvariant(storeId, string.Join(",", roleIds));
+            var cacheKey = MENU_USER_CACHE_KEY.FormatInvariant(storeId, string.Join(',', roleIds));
 
             var userMenusInfo = await _cache.GetAsync(cacheKey, async () =>
             {
                 var query = _db.Menus
-                    .Where(x => x.IsSystemMenu == false)
+                    .Where(x => !x.IsSystemMenu)
                     .ApplyStoreFilter(storeId)
                     .ApplyAclFilter(roleIds.ToArray())
                     .ApplyStandardFilter(false, true, true)

@@ -68,7 +68,7 @@
             var isMegaMenuActive = node.GetMetadata<bool?>("IsMegaMenuActive", false);
             var isDropDownActive = (isMegaMenuActive == null ? true : (bool)isMegaMenuActive) && node.HasChildren;
             var itemText = node.GetItemText(T);
-            var itemUrl = item.GenerateUrl(this.Url);
+            var itemUrl = item.GenerateUrl(this.ViewContext);
 
             if (item.IsGroupHeader)
             {

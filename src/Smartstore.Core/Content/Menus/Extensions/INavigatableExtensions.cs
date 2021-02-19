@@ -158,13 +158,10 @@ namespace Smartstore.Core.Content.Menus
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string GenerateUrl(this INavigatable navigatable, ActionContext actionContext)
+        public static string GenerateUrl(this INavigatable navigatable, ActionContext actionContext, RouteValueDictionary routeValues = null)
         {
             Guard.NotNull(actionContext, nameof(actionContext));
-
-            return navigatable.GenerateUrl(
-                actionContext.HttpContext.GetServiceScope().Resolve<IUrlHelper>(), 
-                actionContext.RouteData.Values);
+            return navigatable.GenerateUrl(actionContext.HttpContext.GetServiceScope().Resolve<IUrlHelper>(), routeValues);
         }
 
         public static string GenerateUrl(this INavigatable navigatable, IUrlHelper urlHelper, RouteValueDictionary routeValues = null)
@@ -180,7 +177,7 @@ namespace Smartstore.Core.Content.Menus
 
             routeValues = navigatable.RouteValues;
 
-            ////// TODO: (mh) (core) Check whether this is still needed in core.
+            ////// TODO: (mh) (core) Check whether ModifiedParam is still needed in NaigatableExtensions.GenerateUrl().
             //var hasParam = false;
             //var param = navigatable.ModifiedParam;
             //if (param != null && param.HasValue() && param.Value != null)
