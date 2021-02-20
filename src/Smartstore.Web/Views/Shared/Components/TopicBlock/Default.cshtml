@@ -61,10 +61,10 @@
 
 @if (ViewBag.BodyOnly)
 {
-    <div class="topic-html-content-body@(ViewBag.IsLead == true ? " lead" : "") my-3 html-editor-content" id="ph-topic-body-@Model.Id" language-attributes-for="Model.Body">
-        <sm-collapsed-content>
+    <div class="topic-html-content-body@(ViewBag.IsLead == true ? " lead" : "") my-3 html-editor-content" id="ph-topic-body-@Model.Id" sm-language-attributes-for="Model.Body">
+        <collapsed-content>
             @Html.Raw(Model.Body)
-        </sm-collapsed-content>
+        </collapsed-content>
     </div>
 }
 else
@@ -75,16 +75,16 @@ else
             <div class="block-title" id="ph-title-@Model.Id">
 				@if (ViewBag.IsLead == true)
 				{
-					<h1 class="h2" language-attributes-for="Model.Title">@Model.Title</h1>
+					<h1 class="h2" sm-language-attributes-for="Model.Title">@Model.Title</h1>
 				}
 				else
 				{
-					<h4 language-attributes-for="Model.Title">@Model.Title</h4>
+					<h4 sm-language-attributes-for="Model.Title">@Model.Title</h4>
 				}
             </div>
         }
 
-        <div class="block-body html-editor-content topic-html-content-body@(ViewBag.IsLead == true ? " lead" : "")" language-attributes-for="Model.Body">
+        <div class="block-body html-editor-content topic-html-content-body@(ViewBag.IsLead == true ? " lead" : "")" sm-language-attributes-for="Model.Body">
 			@if (Model.Intro.HasValue() && (ViewBag.IsLead == null || ViewBag.IsLead == false))
 			{
 				<p class="topic-intro lead">
@@ -92,9 +92,9 @@ else
 				</p>
 			}
 
-            <sm-collapsed-content>
+            <collapsed-content>
                 @Html.Raw(Model.Body)
-            </sm-collapsed-content>
+            </collapsed-content>
         </div>
     </div>
 }

@@ -35,7 +35,7 @@
                 var attrs = item.GetCombinedAttributes();
                 attrs.PrependCssClass("list-group-item list-group-item-action menu-link" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " active" : ""));
 
-                <a href="@item.Url" attributes="attrs">
+                <a href="@item.Url" sm-attrs="attrs">
                     @if (hasIcons)
                     {
                         <i class="fal fa-fw@(item.Icon.HasValue() ? item.Icon.EnsureStartsWith(" ") : " fas") list-group-item-icon"></i>
@@ -49,7 +49,7 @@
                         <i class="fa-fw fas"></i>
                     }
 
-                    <span language-attributes-for="item">@itemText</span>
+                    <span sm-language-attributes-for="item">@itemText</span>
 
                     @if (item.BadgeText.HasValue())
                     {

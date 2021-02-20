@@ -6,10 +6,10 @@ using Smartstore.Core.Domain.Catalog;
 
 namespace Smartstore.Web.TagHelpers.Public
 {
-    [HtmlTargetElement("sm-collapsed-content")]
+    [HtmlTargetElement("collapsed-content")]
     public class CollapsedContentTagHelper : TagHelper
     {
-        const string MaxHeightAttribute = "sm-max-height";
+        const string MaxHeightAttributeName = "sm-max-height";
         
         private readonly CatalogSettings _catalogSettings;
 
@@ -18,7 +18,7 @@ namespace Smartstore.Web.TagHelpers.Public
             _catalogSettings = catalogSettings;
         }
 
-        [HtmlAttributeName(MaxHeightAttribute)]
+        [HtmlAttributeName(MaxHeightAttributeName)]
         public int? MaxHeight { get; set; }
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)

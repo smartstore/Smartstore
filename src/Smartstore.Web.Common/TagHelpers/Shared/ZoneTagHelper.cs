@@ -17,7 +17,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 	[HtmlTargetElement("footer", Attributes = ZoneNameAttributeName)]
 	public class ZoneTagHelper : SmartTagHelper
 	{
-		const string ZoneNameAttributeName = "zone-name";
+		const string ZoneNameAttributeName = "sm-zone-name";
+		const string ReplaceContentAttributeName = "sm-replace-content";
+		const string RemoveIfEmptyAttributeName = "sm-remove-if-empty";
 
 		private readonly IWidgetSelector _widgetSelector;
 
@@ -33,6 +35,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 		/// Specifies whether any default zone content should be removed if at least one 
 		/// widget is rendered in the zone.
 		/// </summary>
+		[HtmlAttributeName(ReplaceContentAttributeName)]
 		public bool ReplaceContent { get; set; }
 
 		/// <summary>
@@ -40,6 +43,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 		/// Only applies to HTML tags like div, span, section etc..
 		/// <c>zone</c> tags are always removed.
 		/// </summary>
+		[HtmlAttributeName(RemoveIfEmptyAttributeName)]
 		public bool RemoveIfEmpty { get; set; }
 
 		protected override string GenerateTagId(TagHelperContext context) => null;

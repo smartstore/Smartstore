@@ -21,6 +21,16 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("modal", Attributes = "id")]
     public class ModalTagHelper : SmartTagHelper
     {
+        const string SizeAttributeName = "sm-size";
+        const string FadeAttributeName = "sm-fade";
+        const string FocusAttributeName = "sm-focus";
+        const string BackdropAttributeName = "sm-backdrop";
+        const string ShowAttributeName = "sm-show";
+        const string CloseOnEscapePressAttributeName = "sm-close-on-escape-press";
+        const string CloseOnBackdropClickAttributeName = "sm-close-on-backdrop-click";
+        const string CenterVerticallyAttributeName = "sm-center-vertically";
+        const string RenderAtPageEndAttributeName = "sm-render-at-page-end";
+
         private readonly IWidgetProvider _widgetProvider;
 
         public ModalTagHelper(IWidgetProvider widgetProvider)
@@ -37,46 +47,55 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <summary>
         /// Size of modal. Default = Medium.
         /// </summary>
+        [HtmlAttributeName(SizeAttributeName)]
         public ModalSize Size { get; set; } = ModalSize.Medium;
 
         /// <summary>
         /// Whether to activate fade animations. Default = true.
         /// </summary>
+        [HtmlAttributeName(FadeAttributeName)]
         public bool Fade { get; set; } = true;
 
         /// <summary>
         /// Whether to focus modal. Default = true.
         /// </summary>
+        [HtmlAttributeName(FocusAttributeName)]
         public bool Focus { get; set; } = true;
 
         /// <summary>
         /// Whether to render modal backdrop. Default = true.
         /// </summary>
+        [HtmlAttributeName(BackdropAttributeName)]
         public bool Backdrop { get; set; } = true;
 
         /// <summary>
         /// Whether to initially show modal. Default = true.
         /// </summary>
+        [HtmlAttributeName(ShowAttributeName)]
         public bool Show { get; set; } = true;
 
         /// <summary>
         /// Whether to close modal on ESC press. Default = true.
         /// </summary>
+        [HtmlAttributeName(CloseOnEscapePressAttributeName)]
         public bool CloseOnEscapePress { get; set; } = true;
 
         /// <summary>
         /// Whether to close modal on backdrop click. Default = true.
         /// </summary>
+        [HtmlAttributeName(CloseOnBackdropClickAttributeName)]
         public bool CloseOnBackdropClick { get; set; } = true;
 
         /// <summary>
         /// Whether to center modal vertically. Default = false.
         /// </summary>
+        [HtmlAttributeName(CenterVerticallyAttributeName)]
         public bool CenterVertically { get; set; }
 
         /// <summary>
         /// Whether to render modal at page end (right before closing body tag). Default = true.
         /// </summary>
+        [HtmlAttributeName(RenderAtPageEndAttributeName)]
         public bool RenderAtPageEnd { get; set; } = true;
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)

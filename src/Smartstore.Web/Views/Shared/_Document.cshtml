@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html language-attributes-for="@WorkContext.WorkingLanguage" data-pnotify-firstpos1="0">
+<html sm-language-attributes-for="@WorkContext.WorkingLanguage" data-pnotify-firstpos1="0">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -13,12 +13,12 @@
 
     <partial name="_HeadScripts" />
 
-    <zone zone-name="head_stylesheets">
+    <zone sm-zone-name="head_stylesheets">
         <link rel="stylesheet" href="~/bundles/css/common.css" />
         <link rel="stylesheet" href="~/bundles/css/theme.css" />
     </zone>
 
-    <zone zone-name="head_scripts">
+    <zone sm-zone-name="head_scripts">
         <script src="~/bundles/js/common.js"></script>
     </zone>
 
@@ -26,24 +26,24 @@
 
     <script src="~/js/smartstore.globalization.adapter.js"></script>
 
-    <zone zone-name="head_canonical"></zone>
-    <zone zone-name="head_links"></zone>
-    <zone zone-name="head"></zone>
+    <zone sm-zone-name="head_canonical"></zone>
+    <zone sm-zone-name="head_links"></zone>
+    <zone sm-zone-name="head"></zone>
 
     <mini-profiler />
 </head>
 
 <body class="lyt-cols-1">
-    <zone zone-name="start" />
-    <zone zone-name="body_start_html_tag_after" /> @* Legacy compat *@
+    <zone sm-zone-name="start" />
+    <zone sm-zone-name="body_start_html_tag_after" /> @* Legacy compat *@
     @RenderBody()
-    <zone zone-name="aftercontent" />
+    <zone sm-zone-name="aftercontent" />
 
-    <zone zone-name="scripts">
+    <zone sm-zone-name="scripts">
         <script src="~/bundles/js/site.js"></script>
-        <script src="~/lib/select2/js/i18n/{lang}.js" asp-locale-for="WorkContext.WorkingLanguage"></script>
-        <script src="~/lib/moment/locale/{lang}.js" asp-locale-for="WorkContext.WorkingLanguage"></script>
+        <script src="~/lib/select2/js/i18n/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+        <script src="~/lib/moment/locale/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
     </zone>
-    <zone zone-name="end" />
+    <zone sm-zone-name="end" />
 </body>
 </html>

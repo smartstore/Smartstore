@@ -12,7 +12,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string DirAttributeName = "dir";
         const string LangAttributeName = "lang";
-        const string LangForAttributeName = "language-attributes-for";
+        const string LangForAttributeName = "sm-language-attributes-for";
         const string BodyTagName = "body";
         const string TitleTagName = "title";
 

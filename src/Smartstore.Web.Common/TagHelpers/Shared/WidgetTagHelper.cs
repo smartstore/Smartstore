@@ -20,10 +20,10 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("a", Attributes = TargetZoneAttributeName)]
     public class WidgetTagHelper : SmartTagHelper
     {
-        const string TargetZoneAttributeName = "zone";
-        const string OrderAttributeName = "order";
-        const string PrependAttributeName = "prepend";
-        const string KeyAttributeName = "key";
+        const string TargetZoneAttributeName = "sm-zone";
+        const string OrderAttributeName = "sm-order";
+        const string PrependAttributeName = "sm-prepend";
+        const string KeyAttributeName = "sm-key";
 
         private readonly IWidgetProvider _widgetProvider;
 

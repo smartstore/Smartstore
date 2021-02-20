@@ -9,6 +9,9 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("modal-header", ParentTag = "modal")]
     public class ModalHeaderTagHelper : SmartTagHelper
     {
+        const string TitleAttributeName = "sm-title";
+        const string ShowCloseAttributeName = "sm-show-close";
+
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
@@ -25,11 +28,13 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <summary>
         /// Title in modal header.
         /// </summary>
+        [HtmlAttributeName(TitleAttributeName)]
         public string Title { get; set; }
 
         /// <summary>
         /// Whether to show close button in modal header. Default = true.
         /// </summary>
+        [HtmlAttributeName(ShowCloseAttributeName)]
         public bool ShowClose { get; set; } = true;
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)

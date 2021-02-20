@@ -3,33 +3,29 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core;
 using Smartstore.Core.Security;
-using Smartstore.Engine;
-using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Public
 {
     [OutputElementHint("div")]
-    [HtmlTargetElement("sm-honeypot", TagStructure = TagStructure.NormalOrSelfClosing)]
+    [HtmlTargetElement("honeypot", TagStructure = TagStructure.NormalOrSelfClosing)]
     public class HoneypotTagHelper : SmartTagHelper
     {
-        const string EnabledAttribute = "sm-enabled";
+        const string EnabledAttributeName = "sm-enabled";
 
         private readonly HoneypotProtector _protector;
         private readonly SecuritySettings _securitySettings;
-        private readonly IWorkContext _workContext;
 
-        public HoneypotTagHelper(HoneypotProtector protector, SecuritySettings securitySettings, IWorkContext workContext)
+        public HoneypotTagHelper(HoneypotProtector protector, SecuritySettings securitySettings)
         {
             _protector = protector;
             _securitySettings = securitySettings;
-            _workContext = workContext;
         }
 
         /// <summary>
         /// Whether the hidden honeypot field should be rendered. Defaults to <c>true</c>.
         /// NOTE: The honeypot field is never rendered if honeypot is disabled by global settings.
         /// </summary>
-        [HtmlAttributeName(EnabledAttribute)]
+        [HtmlAttributeName(EnabledAttributeName)]
         public bool Enabled { get; set; } = true;
 
         protected override string GenerateTagId(TagHelperContext context)

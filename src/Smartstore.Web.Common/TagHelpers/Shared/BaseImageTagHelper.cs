@@ -8,12 +8,12 @@ namespace Smartstore.Web.TagHelpers.Shared
 {
     public abstract class BaseImageTagHelper : BaseMediaTagHelper
     {
-        const string SizeAttributeName = "img-size";
-        const string WidthAttributeName = "img-width";
-        const string HeightAttributeName = "img-height";
-        const string ResizeModeAttributeName = "img-resize-mode";
-        const string AnchorPosAttributeName = "img-anchor-position";
-        const string NoFallbackAttributeName = "img-no-fallback";
+        const string SizeAttributeName = "sm-size";
+        const string WidthAttributeName = "sm-width";
+        const string HeightAttributeName = "sm-height";
+        const string ResizeModeAttributeName = "sm-resize-mode";
+        const string AnchorPosAttributeName = "sm-anchor-position";
+        const string NoFallbackAttributeName = "sm-no-fallback";
 
         /// <summary>
         /// The max physical size (either width or height) to resize the image to.

@@ -19,7 +19,7 @@
                             <div class="shopbar-col shop-logo">
                                 <a class="brand" asp-route="Homepage">
                                     @*<img src="~/images/logo.png" alt="Smartstore" title="Smartstore" class="img-fluid" width="560" height="100">*@
-                                    <img file-id="@StoreContext.CurrentStore.LogoMediaFileId" img-size="512" alt="Smartstore" title="Smartstore" class="img-fluid" />
+                                    <img sm-file-id="@StoreContext.CurrentStore.LogoMediaFileId" sm-size="512" alt="Smartstore" title="Smartstore" class="img-fluid" />
                                 </a>
                             </div>
                         </div>
@@ -32,7 +32,7 @@
                 <nav class="navbar navbar-light">
                     <div class="container megamenu-container">
 
-                        @*<sm-menu menu-name="Main" menu-template="Main"></sm-menu>*@
+                        @*<menu sm-name="Main" sm-template="Main"></menu>*@
 
                         <div class="mainmenu megamenu">
                             <div class="cms-menu cms-menu-navbar" data-menu-name="main">
@@ -94,7 +94,7 @@
             </div>
         </header>
 
-        <zone zone-name="content-before"></zone>
+        <zone sm-zone-name="content-before"></zone>
 
         <div id="content-wrapper">
             <section id="content" class="container">
@@ -102,23 +102,23 @@
                     <h5 class="text-muted">@Context.Request.PathBase.Value - @Context.Request.Path.Value</h5>
                 </div>
 
-                <zone zone-name="teaser"></zone>
+                <zone sm-zone-name="teaser"></zone>
 
                 <div id="content-body" class="row">
                     <div id="content-center" class="col-lg-12">
-                        <zone zone-name="main_column_before"></zone>
+                        <zone sm-zone-name="main_column_before"></zone>
                         <div class="page">
                             <div class="page-body">
                                 @RenderBody()
                             </div>
                         </div>
-                        <zone zone-name="main_column_after"></zone>
+                        <zone sm-zone-name="main_column_after"></zone>
                     </div>
                 </div>
             </section>
         </div>
 
-        <zone zone-name="content-after"></zone>
+        <zone sm-zone-name="content-after"></zone>
 
         <partial name="_Footer" />
     </div>

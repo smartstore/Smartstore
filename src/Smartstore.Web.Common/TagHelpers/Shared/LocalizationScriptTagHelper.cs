@@ -10,8 +10,8 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("script", Attributes = "src, " + LocaleForAttributeName)]
     public class LocalizationScriptTagHelper : TagHelper
     {
-        const string LocaleForAttributeName = "asp-locale-for";
-        const string LocaleFallbackAttributeName = "asp-locale-fallback";
+        const string LocaleForAttributeName = "sm-locale-for";
+        const string LocaleFallbackAttributeName = "sm-locale-fallback";
 
         private readonly ILocalizationFileResolver _fileResolver;
 

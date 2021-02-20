@@ -12,7 +12,7 @@
 
 <colorbox asp-for="TestColor" sm-default-color="#0000ff" class="mb-4" />
 
-<button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#cookie-manager-window">
+<button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#cookie-manager-window" sm-attr-data-test='(true, "yessssss")' sm-attr-data-test2='(true, "yoooo")'>
     Launch demo modal
 </button>
 
@@ -32,7 +32,7 @@
         <div class="form-group row">
             <label asp-for="Locales[item].TestProp2" class="col-lg-3 col-form-label text-right"></label>
             <div class="col-lg-9">
-                <input asp-for="Locales[item].TestProp2" asp-append-hint />
+                <input asp-for="Locales[item].TestProp2" sm-append-hint />
                 <span asp-validation-for="Locales[item].TestProp2"></span>
             </div>
         </div>
@@ -54,13 +54,13 @@
         <div class="form-group row">
             <label asp-for="TestProp2" class="col-lg-3 col-form-label text-right"></label>
             <div class="col-lg-9">
-                <input asp-for="TestProp2" asp-append-hint />
+                <input asp-for="TestProp2" sm-append-hint />
                 <span asp-validation-for="TestProp2"></span>
             </div>
         </div>
         <div class="form-group row">
             <div class="offset-lg-3 col-lg-9">
-                <input asp-for="TestProp3" asp-switch="false" asp-append-hint />
+                <input asp-for="TestProp3" sm-switch="false" sm-append-hint />
                 <span asp-validation-for="TestProp3"></span>
             </div>
         </div>
@@ -74,8 +74,8 @@
     </text>))
 </div>
 
-<modal id="cookie-manager-window" render-at-page-end="true" center-vertically="true">
-    <modal-header title="Modal Title" show-close="true"></modal-header>
+<modal id="cookie-manager-window" sm-render-at-page-end="true" sm-center-vertically="true">
+    <modal-header sm-title="Modal Title" sm-show-close="true"></modal-header>
     <modal-body>
         <div>
             Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit. Keytar helvetica VHS salvia yr, vero magna velit sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson 8-bit, sustainable jean shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park.
@@ -101,20 +101,20 @@
 
 
 
-<tabstrip id="yodele" class="mt-4 mb-6" nav-style="Material" nav-position="Top" hide-single-item="true" fade="true" responsive="true">
+<tabstrip id="yodele" class="mt-4 mb-6" sm-nav-style="Material" sm-nav-position="Top" sm-hide-single-item="true" sm-fade="true" sm-responsive="true">
     <tab-content-header>
         <a href="javascript:void()" class="btn btn-secondary btn-flat btn-no-border offcanvas-closer rounded-0" title="@T("Common.Close")">
             <i class="fa fa-chevron-left"></i>
             <span>@T("Common.Close")</span>
         </a>
     </tab-content-header>
-    <tab title="Raw Denim" visible="true" icon="far fa-fw fa-user">
+    <tab sm-title="Raw Denim" sm-visible="true" sm-icon="far fa-fw fa-user">
         <p class="mt-3">Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
     </tab>
-    <tab title="Food truck" summary="hjhjkhjkhjkhjkhjkhjk hhjkhjkjk" class="yodele2" icon="fa fa-fw fa-bullhorn" selected>
+    <tab sm-title="Food truck" summary="hjhjkhjkhjkhjkhjkhjk hhjkhjkjk" class="yodele2" sm-icon="fa fa-fw fa-bullhorn" sm-selected>
         <p class="mt-3">Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid. Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit. Keytar helvetica VHS salvia yr, vero magna velit sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson 8-bit, sustainable jean shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park.</p>
     </tab>
-    <tab title="Etsy Mixtape" image-url="~/images/flags/ad.png" x-icon="far fa-fw fa-heart" visible="true">
+    <tab sm-title="Etsy Mixtape" sm-image-url="~/images/flags/ad.png" x-sm-icon="far fa-fw fa-heart" sm-visible="true">
         <p class="mt-3">Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork. Williamsburg banh mi whatever gluten-free, carles pitchfork biodiesel fixie etsy retro mlkshk vice blog. Scenester cred you probably haven't heard of them, vinyl craft beer blog stumptown. Pitchfork sustainable tofu synth chambray yr.</p>
     </tab>
 </tabstrip>

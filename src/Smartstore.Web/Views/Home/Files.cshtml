@@ -16,14 +16,14 @@
         <article class="art">
             <div class="art-picture-block">
                 <a class="art-picture img-center-container" href="@(file.GetUrl(0, string.Empty))" target="_blank">
-                    <img file="file" img-size="256" />
+                    <img sm-file="file" sm-size="256" />
                 </a>
             </div>
         </article>
     }
 </div>
 
-<widget zone="end">
+<widget sm-zone="end">
     <script>
         $(function () {
             SmartStore.media.lazyLoadThumbnails($('#files'));

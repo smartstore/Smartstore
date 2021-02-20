@@ -9,9 +9,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 {
     public abstract class BaseMediaTagHelper : SmartTagHelper
     {
-        protected const string FileAttributeName = "file";
-        protected const string FileIdAttributeName = "file-id";
-        protected const string HostAttributeName = "url-host";
+        protected const string FileAttributeName = "sm-file";
+        protected const string FileIdAttributeName = "sm-file-id";
+        protected const string HostAttributeName = "sm-url-host";
 
         public override void Init(TagHelperContext context)
         {
@@ -36,11 +36,13 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <summary>
         /// The <see cref="MediaFileInfo"/> instance to render a tag for.
         /// </summary>
+        [HtmlAttributeName(FileAttributeName)]
         public MediaFileInfo File { get; set; }
 
         /// <summary>
         /// The unique identifier of the media file to render a tag for.
         /// </summary>
+        [HtmlAttributeName(FileIdAttributeName)]
         public int? FileId { get; set; }
 
         /// <summary>

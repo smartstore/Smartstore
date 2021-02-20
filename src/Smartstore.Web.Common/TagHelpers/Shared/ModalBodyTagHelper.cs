@@ -8,9 +8,12 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("modal-body", ParentTag = "modal")]
     public class ModalBodyTagHelper : SmartTagHelper
     {
+        const string ContentUrlAttributeName = "sm-content-url";
+
         /// <summary>
         /// The URL of the body's remote content. If set, an IFrame will replace the child content.
         /// </summary>
+        [HtmlAttributeName(ContentUrlAttributeName)]
         public string ContentUrl { get; set; }
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)

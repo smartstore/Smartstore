@@ -25,8 +25,4 @@
     <ProjectReference Include="..\Smartstore\Smartstore.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TagHelpers\Components\" />
-  </ItemGroup>
-
 </Project>

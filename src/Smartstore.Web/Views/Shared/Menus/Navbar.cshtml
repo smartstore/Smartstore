@@ -97,8 +97,8 @@
                 linkAttrs["data-target"] = "#dropdown-menu-{0}".FormatInvariant(item.Id);
             }
 
-            <li id="main-nav-item-@item.Id" data-id="@item.Id" attributes="attrs">
-                <a href="@itemUrl" attributes="linkAttrs">
+            <li id="main-nav-item-@item.Id" data-id="@item.Id" sm-attrs="attrs">
+                <a href="@itemUrl" sm-attrs="linkAttrs">
                     @if (item.Icon.HasValue())
                     {
                         <i class="@item.Icon"></i>
@@ -107,7 +107,7 @@
                     {
                         <img class="sm-icon" src="@Url.Content(item.ImageUrl)" alt="" />
                     }
-                    <span language-attributes-for="item">@itemText</span>
+                    <span sm-language-attributes-for="item">@itemText</span>
                 </a>
                 @if (item.BadgeText.HasValue())
                 {

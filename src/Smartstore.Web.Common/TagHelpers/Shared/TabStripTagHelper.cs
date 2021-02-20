@@ -37,6 +37,18 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("tabstrip", Attributes = "id")]
     public class TabStripTagHelper : SmartTagHelper
     {
+        const string HideSingleItemAttributeName = "sm-hide-single-item";
+        const string ResponsiveAttributeName = "sm-responsive";
+        const string BreakpointAttributeName = "sm-breakpoint";
+        const string PositionAttributeName = "sm-nav-position";
+        const string StyleAttributeName = "sm-nav-style";
+        const string FadeAttributeName = "sm-fade";
+        const string SmartTabSelectionAttributeName = "sm-smart-tab-selection";
+        const string OnAjaxBeginAttributeName = "sm-onajaxbegin";
+        const string OnAjaxSuccessAttributeName = "sm-onajaxsuccess";
+        const string OnAjaxFailureAttributeName = "sm-onajaxfailure";
+        const string OnAjaxCompleteAttributeName = "sm-onajaxcomplete";
+
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
@@ -54,11 +66,13 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <summary>
         /// Whether to hide tabstrip nav if there's only one tab item. Default = false.
         /// </summary>
+        [HtmlAttributeName(HideSingleItemAttributeName)]
         public bool HideSingleItem { get; set; }
 
         /// <summary>
         /// Whether to hide tabstrip if there's only one tab item. Default = false.
         /// </summary>
+        [HtmlAttributeName(ResponsiveAttributeName)]
         public bool Responsive { get; set; }
 
         /// <summary>
@@ -66,40 +80,43 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// but only when <see cref="Responsive"/> is True (e.g.: "&gt;md", "&lt;=lg" etc.).
         /// Default = &lt;=lg
         /// </summary>
+        [HtmlAttributeName(BreakpointAttributeName)]
         public string Breakpoint { get; set; }
 
         /// <summary>
         /// Tab nav position
         /// </summary>
-        [HtmlAttributeName("nav-position")]
+        [HtmlAttributeName(PositionAttributeName)]
         public TabsPosition Position { get; set; }
 
         /// <summary>
         /// Tab nav style
         /// </summary>
-        [HtmlAttributeName("nav-style")]
+        [HtmlAttributeName(StyleAttributeName)]
         public TabsStyle Style { get; set; }
 
         /// <summary>
         /// Whether to activate fade animations. Default = true.
         /// </summary>
+        [HtmlAttributeName(FadeAttributeName)]
         public bool Fade { get; set; } = true;
 
         /// <summary>
         /// Whether to reselect active tab on page reload. Default = true.
         /// </summary>
+        [HtmlAttributeName(SmartTabSelectionAttributeName)]
         public bool SmartTabSelection { get; set; } = true;
 
-        [HtmlAttributeName("onajaxbegin")]
+        [HtmlAttributeName(OnAjaxBeginAttributeName)]
         public string OnAjaxBegin { get; set; }
 
-        [HtmlAttributeName("onajaxsuccess")]
+        [HtmlAttributeName(OnAjaxSuccessAttributeName)]
         public string OnAjaxSuccess { get; set; }
 
-        [HtmlAttributeName("onajaxfailure")]
+        [HtmlAttributeName(OnAjaxFailureAttributeName)]
         public string OnAjaxFailure { get; set; }
 
-        [HtmlAttributeName("onajaxcomplete")]
+        [HtmlAttributeName(OnAjaxCompleteAttributeName)]
         public string OnAjaxComplete { get; set; }
 
         #endregion

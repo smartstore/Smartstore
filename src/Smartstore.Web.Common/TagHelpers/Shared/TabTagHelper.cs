@@ -6,9 +6,21 @@ using Smartstore.Web.Rendering;
 namespace Smartstore.Web.TagHelpers.Shared
 {
     [OutputElementHint("a")]
-    [HtmlTargetElement("tab", Attributes = "title", ParentTag = "tabstrip")]
+    [HtmlTargetElement("tab", Attributes = TitleAttributeName, ParentTag = "tabstrip")]
     public class TabTagHelper : SmartTagHelper
     {
+        const string NameAttributeName = "sm-name";
+        const string TitleAttributeName = "sm-title";
+        const string SelectedAttributeName = "sm-selected";
+        const string DisabledAttributeName = "sm-disabled";
+        const string VisibleAttributeName = "sm-visible";
+        const string AjaxAttributeName = "sm-ajax";
+        const string IconAttributeName = "sm-icon";
+        const string BadgeTextAttributeName = "sm-badge-text";
+        const string BadgeStyleAttributeName = "sm-badge-style";
+        const string SummaryAttributeName = "sm-summary";
+        const string ImageUrlAttributeName = "sm-image-url";
+
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
@@ -36,56 +48,67 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <summary>
         /// Unique name of tab item.
         /// </summary>
+        [HtmlAttributeName(NameAttributeName)]
         public string Name { get; set; }
 
         /// <summary>
         /// Title/Caption.
         /// </summary>
+        [HtmlAttributeName(TitleAttributeName)]
         public string Title { get; set; }
 
         /// <summary>
         /// Whether item is in selected state.
         /// </summary>
+        [HtmlAttributeName(SelectedAttributeName)]
         public bool Selected { get; set; }
 
         /// <summary>
         /// Whether item is in disabled state.
         /// </summary>
+        [HtmlAttributeName(DisabledAttributeName)]
         public bool Disabled { get; set; }
 
         /// <summary>
         /// Whether item is initially visible. Default = true.
         /// </summary>
+        [HtmlAttributeName(VisibleAttributeName)]
         public bool Visible { get; set; } = true;
 
         /// <summary>
         /// Whether to load content deferred per AJAX.
         /// </summary>
+        [HtmlAttributeName(AjaxAttributeName)]
         public bool Ajax { get; set; }
 
         /// <summary>
         /// Icon class name (e.g. "fa fa-user")
         /// </summary>
+        [HtmlAttributeName(IconAttributeName)]
         public string Icon { get; set; }
 
         /// <summary>
         /// Badge text.
         /// </summary>
+        [HtmlAttributeName(BadgeTextAttributeName)]
         public string BadgeText { get; set; }
 
         /// <summary>
         /// Badge style.
         /// </summary>
+        [HtmlAttributeName(BadgeStyleAttributeName)]
         public BadgeStyle BadgeStyle { get; set; }
 
         /// <summary>
         /// Summary to display when tab collapses on smaller devices.
         /// </summary>
+        [HtmlAttributeName(SummaryAttributeName)]
         public string Summary { get; set; }
 
         /// <summary>
         /// Image URL.
         /// </summary>
+        [HtmlAttributeName(ImageUrlAttributeName)]
         public string ImageUrl { get; set; }
 
         [HtmlAttributeNotBound]

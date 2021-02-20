@@ -46,7 +46,7 @@
             var attrs = item.GetCombinedAttributes().PrependCssClass("menu-link");
         
             <li>
-                <a href="@itemUrl" attributes="attrs">
+                <a href="@itemUrl" sm-attrs="attrs">
                     @if (hasIcons)
                     {
                         <i class="fa-fw@(item.Icon.HasValue() ? item.Icon.EnsureStartsWith(" ") : " fas")"></i>
@@ -60,7 +60,7 @@
                         <i class="fa-fw fas"></i>
                     }
 
-                    <span language-attributes-for="item">@itemText</span>
+                    <span sm-language-attributes-for="item">@itemText</span>
                 </a>
             </li>
 

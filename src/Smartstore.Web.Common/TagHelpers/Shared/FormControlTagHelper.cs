@@ -14,31 +14,26 @@ namespace Smartstore.Web.TagHelpers.Shared
     public class FormControlTagHelper : BaseFormTagHelper
     {
         const string SelectItemsAttributeName = "asp-items";
-        const string AppendHintAttributeName = "asp-append-hint";
+        const string AppendHintAttributeName = "sm-append-hint";
         //const string IgnoreLabelAttributeName = "asp-ignore-label";
-        const string SwitchAttributeName = "asp-switch";
-        protected const string RequiredAttributeName = "asp-required";
+        const string SwitchAttributeName = "sm-switch";
+        protected const string RequiredAttributeName = "sm-required";
 
-        private readonly IWorkContext _workContext;
         private readonly ILocalizationService _localizationService;
 
-        public FormControlTagHelper(IWorkContext workContext, ILocalizationService localizationService)
+        public FormControlTagHelper(ILocalizationService localizationService)
         {
-            _workContext = workContext;
             _localizationService = localizationService;
         }
-
-        [HtmlAttributeName(RequiredAttributeName)]
-        public bool? IsRequired { get; set; }
 
         // Must comer AFTER AspNetCore origin TagHelper (Input | Select | TextArea)
         public override int Order => 0;
 
+        [HtmlAttributeName(RequiredAttributeName)]
+        public bool? IsRequired { get; set; }
+
         [HtmlAttributeName(AppendHintAttributeName)]
         public bool AppendHint { get; set; }
-
-        //[HtmlAttributeName(IgnoreLabelAttributeName)]
-        //public bool IgnoreLabel { get; set; } = true;
 
         [HtmlAttributeName(SwitchAttributeName)]
         public bool AsSwitch { get; set; } = true;

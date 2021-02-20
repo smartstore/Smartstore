@@ -13,14 +13,14 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement(MediaTagName, Attributes = FileIdAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class MediaTagHelper : BaseImageTagHelper
     {
+        const string MediaTagName = "media";
+
         private readonly ITagHelperFactory _tagHelperFactory;
 
         public MediaTagHelper(ITagHelperFactory tagHelperFactory)
         {
             _tagHelperFactory = tagHelperFactory;
         }
-
-        const string MediaTagName = "media";
 
         protected override void ProcessMedia(TagHelperContext context, TagHelperOutput output)
         {

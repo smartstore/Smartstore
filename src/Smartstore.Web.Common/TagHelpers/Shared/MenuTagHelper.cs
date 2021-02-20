@@ -8,9 +8,12 @@ using Smartstore.Web.Rendering.Menus;
 namespace Smartstore.Web.TagHelpers.Shared
 {
     [OutputElementHint("div")]
-    [HtmlTargetElement("sm-menu", TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement("menu", Attributes = NameAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class MenuTagHelper : SmartTagHelper 
     {
+        const string NameAttributeName = "sm-name";
+        const string TemplateAttributeName = "sm-template";
+
         private readonly IMenuService _menuService;
 
         public MenuTagHelper(IMenuService menuService)
@@ -18,10 +21,10 @@ namespace Smartstore.Web.TagHelpers.Shared
             _menuService = menuService;
         }
 
-        [HtmlAttributeName("menu-name")]
+        [HtmlAttributeName(NameAttributeName)]
         public string Name { get; set; }
 
-        [HtmlAttributeName("menu-template")]
+        [HtmlAttributeName(TemplateAttributeName)]
         public string Template { get; set; }
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
@@ -48,7 +51,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             output.TagMode = TagMode.StartTagAndEndTag;
             var partial = await HtmlHelper.PartialAsync("Menus/" + Template, model);
-            output.Content.AppendHtml(partial);
+            output.Content.SetHtmlContent(partial);
         }
     }
 }

@@ -8,10 +8,10 @@ using Smartstore.Utilities;
 namespace Smartstore.Web.TagHelpers.Public
 {
     [OutputElementHint("div")]
-    [HtmlTargetElement("sm-captcha", TagStructure = TagStructure.NormalOrSelfClosing)]
+    [HtmlTargetElement("captcha", TagStructure = TagStructure.NormalOrSelfClosing)]
     public class CaptchaTagHelper : TagHelper
     {
-        const string EnabledAttribute = "sm-enabled";
+        const string EnabledAttributeName = "sm-enabled";
         
         private readonly CaptchaSettings _captchaSettings;
         private readonly IWorkContext _workContext;
@@ -29,7 +29,7 @@ namespace Smartstore.Web.TagHelpers.Public
         /// NOTE: The captcha box is never rendered if captchas are disabled by global settings
         /// or if given settings are invalid.
         /// </summary>
-        [HtmlAttributeName(EnabledAttribute)]
+        [HtmlAttributeName(EnabledAttributeName)]
         public bool Enabled { get; set; } = true;
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
