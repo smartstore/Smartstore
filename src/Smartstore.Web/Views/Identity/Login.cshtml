@@ -15,7 +15,7 @@
     var returnUrl = Context.Request.Query["returnUrl"];
     if (!string.IsNullOrEmpty(returnUrl))
     {
-        registerUrl = WebHelper.ModifyQueryString(registerUrl, "returnUrl=" + returnUrl.ToString().UrlEncode(), null);
+        registerUrl = Display.ModifyQueryString(registerUrl, "returnUrl=" + returnUrl.ToString().UrlEncode(), null);
     }
     
     var currentUser = WorkContext.CurrentCustomer;

@@ -1,10 +1,59 @@
 ﻿using System;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Core.Web;
 
 namespace Smartstore
 {
-    public static class RoutingDisplayHelperExtensions
+    public static class WebDisplayHelperExtensions
     {
+        /// <summary>
+        /// Modifies a URL (appends/updates a query string part and optionally removes another query string).
+        /// </summary>
+        /// <param name="url">The URL to modifiy. If <c>null</c>, the current page's URL is resolved.</param>
+        /// <param name="query">The new query string part.</param>
+        /// <param name="removeQueryName">A query string name to remove.</param>
+        /// <returns>The modified URL.</returns>
+        public static string ModifyUrl(this IDisplayHelper displayHelper, string url, string query, string removeQueryName = null)
+        {
+            var webHelper = displayHelper.Resolve<IWebHelper>();
+            if (webHelper == null)
+            {
+                return url;
+            }
+
+            url = url.NullEmpty() ?? webHelper.GetCurrentPageUrl(true);
+            var url2 = webHelper.ModifyQueryString(url, query, null);
+
+            if (removeQueryName.HasValue())
+            {
+                url2 = webHelper.RemoveQueryParam(url2, removeQueryName);
+            }
+
+            return url2;
+        }
+
+        /// <summary>
+        /// Modifies query string
+        /// </summary>
+        /// <param name="url">Url to modify</param>
+        /// <param name="queryStringModification">Query string modification</param>
+        /// <param name="anchor">Anchor</param>
+        /// <returns>New url</returns>
+        public static string ModifyQueryString(this IDisplayHelper displayHelper, string url, string query, string removeQueryName = null)
+        {
+            return displayHelper.Resolve<IWebHelper>().ModifyQueryString(url, query, removeQueryName);
+        }
+
+        public static bool IsMobileDevice(this IDisplayHelper displayHelper)
+        {
+            return displayHelper.HttpContext.GetItem(nameof(IsMobileDevice), () =>
+            {
+                var userAgent = displayHelper.Resolve<IUserAgent>();
+                return userAgent.IsMobileDevice && !userAgent.IsTablet;
+            });
+        }
+
         public static bool IsHomePage(this IDisplayHelper displayHelper)
         {
             return displayHelper.HttpContext.GetItem(nameof(IsHomePage), () =>

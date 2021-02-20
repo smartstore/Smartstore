@@ -27,9 +27,6 @@ namespace Smartstore.Web.Razor
         protected IWorkContext WorkContext { get; set; }
 
         [RazorInject]
-        protected IWebHelper WebHelper { get; set; }
-
-        [RazorInject]
         protected IEventPublisher EventPublisher { get; set; }
 
         [RazorInject]

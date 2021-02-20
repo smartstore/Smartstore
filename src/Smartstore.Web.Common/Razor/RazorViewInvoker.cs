@@ -22,7 +22,7 @@ namespace Smartstore.Web.Razor
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IRazorViewEngine _viewEngine;
-        private readonly ITempDataProvider _tempDataProvider;
+        private readonly ITempDataDictionaryFactory _tempDataFactory;
         private readonly IActionContextAccessor _actionContextAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IViewComponentHelper _viewComponentHelper;
@@ -32,7 +32,7 @@ namespace Smartstore.Web.Razor
         public RazorViewInvoker(
             IServiceProvider serviceProvider,
             IRazorViewEngine viewEngine,
-            ITempDataProvider tempDataProvider,
+            ITempDataDictionaryFactory tempDataFactory,
             IActionContextAccessor actionContextAccessor,
             IHttpContextAccessor httpContextAccessor,
             IViewComponentHelper viewComponentHelper,
@@ -41,7 +41,7 @@ namespace Smartstore.Web.Razor
         {
             _serviceProvider = serviceProvider;
             _viewEngine = viewEngine;
-            _tempDataProvider = tempDataProvider;
+            _tempDataFactory = tempDataFactory;
             _actionContextAccessor = actionContextAccessor;
             _httpContextAccessor = httpContextAccessor;
             _viewComponentHelper = viewComponentHelper;
@@ -68,7 +68,7 @@ namespace Smartstore.Web.Razor
                     actionContext,
                     view,
                     viewData,
-                    new TempDataDictionary(actionContext.HttpContext, _tempDataProvider),
+                    _tempDataFactory.GetTempData(actionContext.HttpContext),
                     output,
                     _mvcViewOptions.Value.HtmlHelperOptions
                 );
@@ -103,7 +103,7 @@ namespace Smartstore.Web.Razor
                     actionContext,
                     NullView.Instance,
                     viewData,
-                    new TempDataDictionary(actionContext.HttpContext, _tempDataProvider),
+                    _tempDataFactory.GetTempData(actionContext.HttpContext),
                     output,
                     _mvcViewOptions.Value.HtmlHelperOptions
                 );
