@@ -8,6 +8,9 @@ namespace Smartstore.Core.Checkout.Cart
     /// </summary>
     public partial class ShoppingCartSubTotal
     {
+        public static implicit operator decimal(ShoppingCartSubTotal obj)
+            => obj.SubTotalWithDiscount;
+
         /// <summary>
         /// Cart subtotal excluding discount.
         /// </summary>
@@ -32,6 +35,12 @@ namespace Smartstore.Core.Checkout.Cart
         /// Tax rates.
         /// </summary>
         public SortedDictionary<decimal, decimal> TaxRates { get; init; } = new();
+
+        /// <summary>
+        /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="SubTotalWithDiscount"/>.
+        /// </summary>
+        public override string ToString()
+            => SubTotalWithDiscount.FormatInvariant();
 
         /// <summary>
         /// Adds a tax rate and the related tax amount.

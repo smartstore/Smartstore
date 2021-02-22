@@ -13,6 +13,15 @@ namespace Smartstore.Core.Checkout.Orders
     public partial interface IOrderCalculationService
     {
         /// <summary>
+        /// Gets the shopping cart subtotal.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="includingTax">A value indicating whether the calculated price should include tax.
+        /// If <c>null</c>, will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.</param>
+        /// <returns>Shopping cart subtotal.</returns>
+        Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includingTax = null);
+
+        /// <summary>
         /// Gets a value indicating whether shipping is free.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>

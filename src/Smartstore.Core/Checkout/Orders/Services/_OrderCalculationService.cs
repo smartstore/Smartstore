@@ -57,8 +57,11 @@ namespace Smartstore.Core.Checkout.Orders
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public virtual async Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includingTax)
+        public virtual async Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includingTax = null)
         {
+            Guard.NotNull(cart, nameof(cart));
+
+            var includeTax = includingTax ?? (_workContext.TaxDisplayType == TaxDisplayType.IncludingTax);
             var result = new ShoppingCartSubTotal();
 
             if (!(cart?.Any() ?? false))
@@ -68,8 +71,8 @@ namespace Smartstore.Core.Checkout.Orders
 
             var subTotalExclTaxWithoutDiscount = decimal.Zero;
             var subTotalInclTaxWithoutDiscount = decimal.Zero;
-            var customer = cart.GetCustomer();
             var currency = _workContext.WorkingCurrency;
+            var customer = cart.GetCustomer();
 
             foreach (var cartItem in cart)
             {
@@ -79,34 +82,34 @@ namespace Smartstore.Core.Checkout.Orders
                 }
 
                 var item = cartItem.Item;
-                decimal sciSubTotal, sciExclTax, sciInclTax = decimal.Zero;
+                decimal itemSubTotal, itemExclTax, itemInclTax = decimal.Zero;
 
                 await _productAttributeMaterializer.MergeWithCombinationAsync(item.Product, item.AttributeSelection);
 
                 if (currency.RoundOrderItemsEnabled)
                 {
                     // Gross > Net RoundFix.
-                    sciSubTotal = await _priceCalculationService.GetUnitPriceAsync(cartItem, true);
+                    itemSubTotal = await _priceCalculationService.GetUnitPriceAsync(cartItem, true);
 
                     // Adaption to eliminate rounding issues.
-                    sciExclTax = await _taxService.GetProductPriceAsync(item.Product, sciSubTotal, false, customer: customer);
-                    sciExclTax = currency.RoundIfEnabledFor(sciExclTax) * item.Quantity;
-                    sciInclTax = await _taxService.GetProductPriceAsync(item.Product, sciSubTotal, true, customer: customer);
-                    sciInclTax = currency.RoundIfEnabledFor(sciInclTax) * item.Quantity;
+                    itemExclTax = await _taxService.GetProductPriceAsync(item.Product, itemSubTotal, false, customer: customer);
+                    itemExclTax = currency.RoundIfEnabledFor(itemExclTax) * item.Quantity;
+                    itemInclTax = await _taxService.GetProductPriceAsync(item.Product, itemSubTotal, true, customer: customer);
+                    itemInclTax = currency.RoundIfEnabledFor(itemInclTax) * item.Quantity;
                 }
                 else
                 {
-                    sciSubTotal = await _priceCalculationService.GetSubTotalAsync(cartItem, true);
-                    sciExclTax = await _taxService.GetProductPriceAsync(item.Product, sciSubTotal, false, customer: customer);
-                    sciInclTax = await _taxService.GetProductPriceAsync(item.Product, sciSubTotal, true, customer: customer);
+                    itemSubTotal = await _priceCalculationService.GetSubTotalAsync(cartItem, true);
+                    itemExclTax = await _taxService.GetProductPriceAsync(item.Product, itemSubTotal, false, customer: customer);
+                    itemInclTax = await _taxService.GetProductPriceAsync(item.Product, itemSubTotal, true, customer: customer);
                 }
 
-                subTotalExclTaxWithoutDiscount += sciExclTax;
-                subTotalInclTaxWithoutDiscount += sciInclTax;
+                subTotalExclTaxWithoutDiscount += itemExclTax;
+                subTotalInclTaxWithoutDiscount += itemInclTax;
 
                 // TODO: (mg) (core) TaxService.GetTaxRateAsync usage is wrong. Get from TaxService.GetProductPriceAsync.
                 var taxRate = decimal.Zero;
-                result.AddTaxRate(taxRate, sciInclTax - sciExclTax);
+                result.AddTaxRate(taxRate, itemInclTax - itemExclTax);
             }
 
             // Checkout attributes.
@@ -126,7 +129,53 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            // TODO: (mg) (core) Complete OrderTotalCalculationService.GetShoppingCartSubTotalAsync.
+            // Subtotal without discount.
+            result.SubTotalWithoutDiscount = Math.Max(includeTax ? subTotalInclTaxWithoutDiscount : subTotalExclTaxWithoutDiscount, decimal.Zero);
+            result.SubTotalWithoutDiscount = currency.RoundIfEnabledFor(result.SubTotalWithoutDiscount);
+
+            // We calculate discount amount on order subtotal excl tax (discount first).
+            var (discountAmountExclTax, appliedDiscount) = await this.GetOrderSubtotalDiscountAsync(subTotalExclTaxWithoutDiscount, customer);
+            result.AppliedDiscount = appliedDiscount;
+
+            if (subTotalExclTaxWithoutDiscount < discountAmountExclTax)
+            {
+                discountAmountExclTax = subTotalExclTaxWithoutDiscount;
+            }
+
+            var discountAmountInclTax = discountAmountExclTax;
+
+            // Subtotal with discount (excl tax).
+            var subTotalExclTaxWithDiscount = subTotalExclTaxWithoutDiscount - discountAmountExclTax;
+            var subTotalInclTaxWithDiscount = subTotalExclTaxWithDiscount;
+
+            // Add tax for shopping items & checkout attributes.
+            var tempTaxRates = new Dictionary<decimal, decimal>(result.TaxRates);
+            foreach (var kvp in tempTaxRates)
+            {
+                var taxRate = kvp.Key;
+                var taxValue = kvp.Value;
+
+                if (taxValue != decimal.Zero)
+                {
+                    // Discount the tax amount that applies to subtotal items.
+                    if (subTotalExclTaxWithoutDiscount > decimal.Zero)
+                    {
+                        var discountTax = result.TaxRates[taxRate] * (discountAmountExclTax / subTotalExclTaxWithoutDiscount);
+                        discountAmountInclTax += discountTax;
+                        taxValue = currency.RoundIfEnabledFor(result.TaxRates[taxRate] - discountTax);
+                        result.TaxRates[taxRate] = taxValue;
+                    }
+
+                    // Subtotal with discount (incl tax).
+                    subTotalInclTaxWithDiscount += taxValue;
+                }
+            }
+
+            discountAmountInclTax = currency.RoundIfEnabledFor(discountAmountInclTax);
+
+            result.DiscountAmount = includeTax ? discountAmountInclTax : discountAmountExclTax;
+            result.SubTotalWithDiscount = Math.Max(includeTax ? subTotalInclTaxWithDiscount : subTotalExclTaxWithDiscount, decimal.Zero);
+            result.SubTotalWithDiscount = currency.RoundIfEnabledFor(result.SubTotalWithDiscount);
 
             return result;
         }
