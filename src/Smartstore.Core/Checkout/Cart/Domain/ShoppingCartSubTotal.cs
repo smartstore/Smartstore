@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Cart
 {
@@ -8,23 +9,23 @@ namespace Smartstore.Core.Checkout.Cart
     /// </summary>
     public partial class ShoppingCartSubTotal
     {
-        public static implicit operator decimal(ShoppingCartSubTotal obj)
+        public static implicit operator Money(ShoppingCartSubTotal obj)
             => obj.SubTotalWithDiscount;
 
         /// <summary>
         /// Cart subtotal excluding discount.
         /// </summary>
-        public decimal SubTotalWithoutDiscount { get; set; }
+        public Money SubTotalWithoutDiscount { get; set; }
 
         /// <summary>
         /// Cart subtotal including discount.
         /// </summary>
-        public decimal SubTotalWithDiscount { get; set; }
+        public Money SubTotalWithDiscount { get; set; }
 
         /// <summary>
         /// Discount amount.
         /// </summary>
-        public decimal DiscountAmount { get; set; }
+        public Money DiscountAmount { get; set; }
 
         /// <summary>
         /// Applied discount.
@@ -40,7 +41,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="SubTotalWithDiscount"/>.
         /// </summary>
         public override string ToString()
-            => SubTotalWithDiscount.FormatInvariant();
+            => SubTotalWithDiscount.ToString();
 
         /// <summary>
         /// Adds a tax rate and the related tax amount.

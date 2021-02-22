@@ -116,6 +116,22 @@ namespace Smartstore.Core.Common
 
         #endregion
 
+        /// <summary>
+        /// Creates a <see cref="Money"/> struct with current currency and given <paramref name="amount"/>.
+        /// </summary>
+        /// <param name="amount">The money amount</param>
+        /// <param name="roundIfEnabled">Rounds amount according to <see cref="RoundNumDecimals"/> if <see cref="RoundOrderItemsEnabled"/> is <c>true</c>.</param>
+        /// <returns></returns>
+        public Money AsMoney(decimal amount, bool roundIfEnabled = true)
+        {
+            if (roundIfEnabled && RoundOrderItemsEnabled)
+            {
+                amount = Math.Round(amount, RoundNumDecimals);
+            }
+
+            return new Money(amount, this);
+        }
+
         public Currency Clone()
         {
             return (Currency)this.MemberwiseClone();
