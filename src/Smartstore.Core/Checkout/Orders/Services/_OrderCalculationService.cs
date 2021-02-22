@@ -130,8 +130,9 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Subtotal without discount.
-            result.SubTotalWithoutDiscount = Math.Max(includeTax ? subTotalInclTaxWithoutDiscount : subTotalExclTaxWithoutDiscount, decimal.Zero);
-            result.SubTotalWithoutDiscount = currency.RoundIfEnabledFor(result.SubTotalWithoutDiscount);
+            result.SubTotalWithoutDiscount = includeTax
+                ? currency.RoundIfEnabledFor(Math.Max(subTotalInclTaxWithoutDiscount, decimal.Zero))
+                : currency.RoundIfEnabledFor(Math.Max(subTotalExclTaxWithoutDiscount, decimal.Zero));
 
             // We calculate discount amount on order subtotal excl tax (discount first).
             var (discountAmountExclTax, appliedDiscount) = await this.GetOrderSubtotalDiscountAsync(subTotalExclTaxWithoutDiscount, customer);
@@ -174,8 +175,10 @@ namespace Smartstore.Core.Checkout.Orders
             discountAmountInclTax = currency.RoundIfEnabledFor(discountAmountInclTax);
 
             result.DiscountAmount = includeTax ? discountAmountInclTax : discountAmountExclTax;
-            result.SubTotalWithDiscount = Math.Max(includeTax ? subTotalInclTaxWithDiscount : subTotalExclTaxWithDiscount, decimal.Zero);
-            result.SubTotalWithDiscount = currency.RoundIfEnabledFor(result.SubTotalWithDiscount);
+
+            result.SubTotalWithDiscount = includeTax
+                ? currency.RoundIfEnabledFor(Math.Max(subTotalInclTaxWithDiscount, decimal.Zero))
+                : currency.RoundIfEnabledFor(Math.Max(subTotalExclTaxWithDiscount, decimal.Zero));
 
             return result;
         }
