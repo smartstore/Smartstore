@@ -11,6 +11,7 @@ namespace Smartstore
     /// </summary>
     public static class CheckoutAttributeExtensions
     {
+        // TODO: (ms) (core) Redundant. See CheckoutAttribute IsListTypeAttribute.
         /// <summary>
         /// Checks whether this checkout attribute should have values
         /// </summary>

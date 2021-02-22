@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -65,6 +66,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the (formatted) order number
         /// </summary>
+        [StringLength(4000)]
         public string OrderNumber { get; set; }
 
         /// <summary>
@@ -95,11 +97,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the payment method system name
         /// </summary>
+        [StringLength(4000)]
         public string PaymentMethodSystemName { get; set; }
 
         /// <summary>
         /// Gets or sets the customer currency code (at the moment of order placing)
         /// </summary>
+        [StringLength(4000)]
         public string CustomerCurrencyCode { get; set; }
 
         /// <summary>
@@ -110,6 +114,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the VAT number (the European Union Value Added Tax)
         /// </summary>
+        [StringLength(4000)]
         public string VatNumber { get; set; }
 
         /// <summary>
@@ -165,6 +170,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the tax rates
         /// </summary>
+        [StringLength(4000)]
         public string TaxRates { get; set; }
 
         /// <summary>
@@ -205,12 +211,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the checkout attribute description
         /// </summary>
+        [StringLength(4000)]
         public string CheckoutAttributeDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the checkout attributes in XML or JSON format
         /// </summary>
         [Column("CheckoutAttributesXml")]
+        [StringLength(4000)]
         public string RawAttributes { get; set; }
 
         /// <summary>
@@ -226,6 +234,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the customer IP address
         /// </summary>
+        [StringLength(4000)]
         public string CustomerIp { get; set; }
 
         /// <summary>
@@ -236,42 +245,49 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the card type
         /// </summary>
+        [StringLength(4000)]
         public string CardType { get; set; }
 
         /// <summary>
         /// Gets or sets the card name
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string CardName { get; set; }
 
         /// <summary>
         /// Gets or sets the card number
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string CardNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the masked credit card number
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string MaskedCreditCardNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the card CVV2
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string CardCvv2 { get; set; }
 
         /// <summary>
         /// Gets or sets the card expiration month
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string CardExpirationMonth { get; set; }
 
         /// <summary>
         /// Gets or sets the card expiration year
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string CardExpirationYear { get; set; }
 
         /// <summary>
@@ -284,82 +300,97 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets or sets the direct debit account holder
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string DirectDebitAccountHolder { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit account number
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string DirectDebitAccountNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit bank code
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string DirectDebitBankCode { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit bank name
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string DirectDebitBankName { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit bic
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string DirectDebitBIC { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit country
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string DirectDebitCountry { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit iban
         /// </summary>
         [JsonIgnore]
+        [StringLength(4000)]
         public string DirectDebitIban { get; set; }
 
         /// <summary>
         /// Gets or sets the customer order comment
         /// </summary>
+        [MaxLength]
         public string CustomerOrderComment { get; set; }
 
         /// <summary>
         /// Gets or sets the authorization transaction identifier
         /// </summary>
+        [StringLength(4000)]
         public string AuthorizationTransactionId { get; set; }
 
         /// <summary>
         /// Gets or sets the authorization transaction code
         /// </summary>
+        [StringLength(4000)]
         public string AuthorizationTransactionCode { get; set; }
 
         /// <summary>
         /// Gets or sets the authorization transaction result
         /// </summary>
+        [StringLength(4000)]
         public string AuthorizationTransactionResult { get; set; }
 
         /// <summary>
         /// Gets or sets the capture transaction identifier
         /// </summary>
+        [StringLength(4000)]
         public string CaptureTransactionId { get; set; }
 
         /// <summary>
         /// Gets or sets the capture transaction result
         /// </summary>
+        [StringLength(4000)]
         public string CaptureTransactionResult { get; set; }
 
         /// <summary>
         /// Gets or sets the subscription transaction identifier
         /// </summary>
+        [StringLength(4000)]
         public string SubscriptionTransactionId { get; set; }
 
         /// <summary>
         /// Gets or sets the purchase order number
         /// </summary>
+        [StringLength(4000)]
         public string PurchaseOrderNumber { get; set; }
 
         /// <summary>
@@ -370,11 +401,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the shipping method
         /// </summary>
+        [StringLength(4000)]
         public string ShippingMethod { get; set; }
 
         /// <summary>
         /// Gets or sets the shipping rate computation method identifier
         /// </summary>
+        [StringLength(4000)]
         public string ShippingRateComputationMethodSystemName { get; set; }
 
         /// <summary>
@@ -382,14 +415,10 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public bool Deleted { get; set; }
 
-        /// <summary>
-        /// Gets or sets the date and time of order creation
-        /// </summary>
+        /// <inheritdoc/>
         public DateTime CreatedOnUtc { get; set; }
 
-        /// <summary>
-        /// Gets or sets the date and time when order was updated
-        /// </summary>
+        /// <inheritdoc/>
         public DateTime UpdatedOnUtc { get; set; }
 
         /// <summary>
@@ -554,7 +583,6 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets order items
         /// </summary>
-        [JsonIgnore]
         public ICollection<OrderItem> OrderItems
         {
             get => _lazyLoader?.Load(this, ref _orderItems) ?? (_orderItems ??= new HashSet<OrderItem>());

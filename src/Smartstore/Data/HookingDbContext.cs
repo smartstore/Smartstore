@@ -236,7 +236,7 @@ namespace Smartstore.Data
         {
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                // TODO: (core) Add more proper conventions
+                // TODO: (core) Add more proper conventions (set StringLength to 4000 by default?)
                 // TODO: (core) Make provider for conventions
 
                 ApplySingularTableNameConvention(entityType);
@@ -266,7 +266,7 @@ namespace Smartstore.Data
             var conventionAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.TableName) as IConventionAnnotation;
             if (conventionAnnotation == null || conventionAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
             {
-                // Apply table name convention only when no convention exists or exising convention is "Conventional" (NOT Explicit or DataAnnotation)
+                // Apply table name convention only when no convention exists or existing convention is "Conventional" (NOT Explicit or DataAnnotation).
                 entityType.SetTableName(entityType.DisplayName());
             }
         }
@@ -279,14 +279,14 @@ namespace Smartstore.Data
                 var precisionAnnotation = property.FindAnnotation(CoreAnnotationNames.Precision) as IConventionAnnotation;
                 if (precisionAnnotation == null || precisionAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
                 {
-                    // Apply precision convention only when no convention exists or exising convention is "Conventional" (NOT Explicit or DataAnnotation)
+                    // Apply precision convention only when no convention exists or existing convention is "Conventional" (NOT Explicit or DataAnnotation).
                     property.SetPrecision(18);
                 }
 
                 var scaleAnnotation = property.FindAnnotation(CoreAnnotationNames.Scale) as IConventionAnnotation;
                 if (scaleAnnotation == null || scaleAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
                 {
-                    // Apply scale convention only when no convention exists or exising convention is "Conventional" (NOT Explicit or DataAnnotation)
+                    // Apply scale convention only when no convention exists or existing convention is "Conventional" (NOT Explicit or DataAnnotation).
                     property.SetScale(4);
                 }
             }
