@@ -43,16 +43,15 @@ namespace Smartstore.Core.Content.Menus
 
         public bool IsGroupHeader { get; set; }
 
-        // TODO: (mh) (core) Implement MenuItemBuilder
-        //public MenuItemBuilder ToBuilder()
-        //{
-        //    return new MenuItemBuilder(this);
-        //}
+        public MenuItemBuilder ToBuilder()
+        {
+            return new MenuItemBuilder(this);
+        }
 
-        //public static implicit operator MenuItemBuilder(MenuItem menuItem)
-        //{
-        //    return menuItem.ToBuilder();
-        //}
+        public static implicit operator MenuItemBuilder(MenuItem menuItem)
+        {
+            return menuItem.ToBuilder();
+        }
 
         public MenuItem Clone()
             => (MenuItem)MemberwiseClone();
