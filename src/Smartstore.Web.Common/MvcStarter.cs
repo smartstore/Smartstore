@@ -96,7 +96,6 @@ namespace Smartstore.Web
                     //o.EnableEndpointRouting = false;
                     // TODO: (core) AddModelBindingMessagesLocalizer
                     // TODO: (core) Add model binders
-                    //o.Filters.Add(typeof(DefaultViewDataAccessor), int.MinValue);
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
                 })
                 .AddRazorRuntimeCompilation(o =>

@@ -12,6 +12,7 @@ namespace Smartstore.Web.Controllers
 {
     // TODO: (core) Implement base filters for SmartController
     [MenuFilter]
+    [NotifyFilter(Order = 1000)] // Run last (OnResultExecuting)
     public abstract class SmartController : Controller
     {
         protected SmartController()

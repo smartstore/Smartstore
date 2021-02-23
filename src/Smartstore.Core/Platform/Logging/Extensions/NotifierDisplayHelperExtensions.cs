@@ -25,7 +25,7 @@ namespace Smartstore
             var allNotifications = displayHelper.HttpContext.GetItem("AllNotifications", () =>
             {
                 var result = Enumerable.Empty<NotifyEntry>();
-                string key = NotifyFilterAttribute.NotificationsKey;
+                string key = NotifyFilterAttribute.NotificationsAccessKey;
                 ICollection<NotifyEntry> entries;
 
                 var tempData = displayHelper.Resolve<ITempDataDictionaryFactory>().GetTempData(displayHelper.HttpContext);
