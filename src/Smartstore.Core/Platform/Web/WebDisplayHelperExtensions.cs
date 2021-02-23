@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Routing;
+using Smartstore.Core;
 using Smartstore.Core.Web;
 
 namespace Smartstore
@@ -44,6 +45,28 @@ namespace Smartstore
         public static string ModifyQueryString(this IDisplayHelper displayHelper, string url, string query, string removeQueryName = null)
         {
             return displayHelper.Resolve<IWebHelper>().ModifyQueryString(url, query, removeQueryName);
+        }
+
+        public static string GenerateHelpUrl(this IDisplayHelper displayHelper, HelpTopic topic)
+        {
+            var seoCode = displayHelper.Resolve<IWorkContext>()?.WorkingLanguage?.UniqueSeoCode;
+            if (seoCode.IsEmpty())
+            {
+                return topic?.EnPath;
+            }
+
+            return SmartstoreVersion.GenerateHelpUrl(seoCode, topic);
+        }
+
+        public static string GenerateHelpUrl(this IDisplayHelper displayHelper, string path)
+        {
+            var seoCode = displayHelper.Resolve<IWorkContext>()?.WorkingLanguage?.UniqueSeoCode;
+            if (seoCode.IsEmpty())
+            {
+                return path;
+            }
+
+            return SmartstoreVersion.GenerateHelpUrl(seoCode, path);
         }
 
         #endregion

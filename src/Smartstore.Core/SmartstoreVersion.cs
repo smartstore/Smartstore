@@ -88,8 +88,8 @@ namespace Smartstore.Core
         public static string GetUserGuideSpaceKey(string languageCode)
         {
             return languageCode.EqualsNoCase("de")
-                ? "SDDE40"
-                : "SMNET40";
+                ? "SDDE50"
+                : "SMNET50";
         }
 
         /// <summary>
