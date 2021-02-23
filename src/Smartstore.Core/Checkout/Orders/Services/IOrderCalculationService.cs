@@ -22,6 +22,15 @@ namespace Smartstore.Core.Checkout.Orders
         Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includingTax = null);
 
         /// <summary>
+        /// Gets the shopping cart shipping total.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="includingTax">A value indicating whether the calculated price should include tax.
+        /// If <c>null</c>, will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.</param>
+        /// <returns>Shopping cart shipping total.</returns>
+        Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includingTax = null);
+
+        /// <summary>
         /// Gets a value indicating whether shipping is free.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
