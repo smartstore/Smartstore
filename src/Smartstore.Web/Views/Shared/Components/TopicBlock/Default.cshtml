@@ -35,19 +35,20 @@
         }
     </script>
     <div id="ph-password-@Model.Id">
-        @* TODO: (core) Implement AjaxFormTagHelper *@
-        <form method="post"
-            data-ajax-url="@Url.RouteUrl("Authenticate")"
-            data-ajax-method="post"
-            data-ajax-success="OnAuthenticateSuccess@(Model.Id)"
-            data-ajax-loading="#authenticate-progress-@(Model.Id)">
+        <form sm-ajax method="post" asp-route="Authenticate"
+            sm-onsuccess="OnAuthenticateSuccess@(Model.Id)"
+            sm-loading-element-id="#authenticate-progress-@(Model.Id)">
                 <input type="hidden" asp-for="Id" />
-                <div class="enter-password-title">
+                <div class="enter-password-title mb-2">
                     @T("Topic.EnterPassword")
                 </div>
                 <div class="enter-password-form">
-                    <input type="password" name="password" id="password-@(Model.Id)" />
-                    <input type="submit" value="@T("Topic.Button")" class="button-1 topic-password-button"/>
+                    <div class="input-group">
+                        <input type="password" name="password" class="form-control" id="password-@(Model.Id)" />
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-secondary topic-password-button">@T("Topic.Button")</button>
+                        </div>
+                    </div>
                     <span id="authenticate-progress-@Model.Id" style="display: none;">@T("Common.Wait...")
                         <img src='@Url.Content("~/images/ajax_loader_small.gif")' alt="@T("Common.Wait...")" />
                     </span>
