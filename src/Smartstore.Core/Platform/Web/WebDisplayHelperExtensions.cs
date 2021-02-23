@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Web;
 
 namespace Smartstore
 {
     public static class WebDisplayHelperExtensions
     {
+        #region URL
+
         /// <summary>
         /// Modifies a URL (appends/updates a query string part and optionally removes another query string).
         /// </summary>
@@ -44,6 +45,10 @@ namespace Smartstore
         {
             return displayHelper.Resolve<IWebHelper>().ModifyQueryString(url, query, removeQueryName);
         }
+
+        #endregion
+
+        #region Page Identity
 
         public static bool IsMobileDevice(this IDisplayHelper displayHelper)
         {
@@ -141,5 +146,7 @@ namespace Smartstore
             public string CurrentPageType { get; set; }
             public object CurrentPageId { get; set; }
         }
+
+        #endregion
     }
 }
