@@ -27,9 +27,6 @@ namespace Smartstore.Core.Checkout.GiftCards
 
         public override object ConvertFrom(CultureInfo culture, object value)
         {
-            // TODO: (ms) (core) should GiftCardCouponCodeConverter really convert any string that starts with <, {, [ even if it's unclear that the value is GiftCardCouponCode?
-            // Example: catalogsettings.pagesharecode contains HTML, not XML: <!-- AddThis Button BEGIN --><div class=\"addthis_toolbox addthis_default_style addthis_32x32.....
-
             if (value is string str)
             {
                 object result = null;

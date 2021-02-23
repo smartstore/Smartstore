@@ -27,7 +27,6 @@ namespace Smartstore.Core.Checkout.Attributes
 
         public async Task<List<CheckoutAttributeValue>> MaterializeCheckoutAttributeValuesAsync(CheckoutAttributeSelection selection)
         {
-            // TODO: (ms) (core) This does not do the same as ParseCheckoutAttributeValues (CheckoutAttribute > IsListTypeAttribute > CheckoutAttributeValue).
             var valueIds = selection.GetAttributeValueIds();            
             return await _db.CheckoutAttributeValues.GetManyAsync(valueIds);
         }

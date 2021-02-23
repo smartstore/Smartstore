@@ -47,8 +47,10 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public ShoppingCartType CartType { get; set; }
 
-        // TODO: (ms) (core) implement this. Needs ProductVariantQuery
-        //public ProductVariantQuery VariantQuery { get; set; }
+        /// <summary>
+        /// Gets or sets the product variant query
+        /// </summary>
+        public ProductVariantQuery VariantQuery { get; set; }
 
         /// <summary>
         /// Gets or sets the product variant attributes in XML or JSON format

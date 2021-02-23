@@ -219,6 +219,10 @@ namespace Smartstore.Core.Checkout.Tax
 
         public virtual async Task<decimal> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null)
         {
+            // No need to calculate anything if price is 0
+            if (product?.Price is null or decimal.Zero)
+                return decimal.Zero;
+
             taxCategoryId ??= product?.TaxCategoryId ?? 0;
             customer ??= _workContext.CurrentCustomer;
 

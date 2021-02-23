@@ -11,6 +11,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
+using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
@@ -26,7 +27,7 @@ namespace Smartstore.Core.Checkout.Shipping
     public partial class ShippingService : IShippingService
     {
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        //private readonly ICartRuleProvider _cartRuleProvider;
+        private readonly ICartRuleProvider _cartRuleProvider;
         private readonly ShippingSettings _shippingSettings;
         private readonly IProviderManager _providerManager;
         private readonly ISettingFactory _settingFactory;
@@ -35,7 +36,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
         public ShippingService(
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
-            //ICartRuleProvider cartRuleProvider,
+            ICartRuleProvider cartRuleProvider,
             ShippingSettings shippingSettings,
             IProviderManager providerManager,
             ISettingFactory settingFactory,
@@ -43,7 +44,7 @@ namespace Smartstore.Core.Checkout.Shipping
             SmartDbContext db)
         {
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            //_cartRuleProvider = cartRuleProvider;
+            _cartRuleProvider = cartRuleProvider;
             _shippingSettings = shippingSettings;
             _providerManager = providerManager;
             _settingFactory = settingFactory;
@@ -145,18 +146,9 @@ namespace Smartstore.Core.Checkout.Shipping
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
-            return activeShippingMethods;
-            // TODO: (ms) (core) need cart rules to finish implementation
-            //return activeShippingMethods.Where(s =>
-            //{
-            //    // Rule sets.
-            //    if (!_cartRuleProvider.RuleMatches(s))
-            //    {
-            //        return false;
-            //    }
-
-            //    return true;
-            //});
+            return await activeShippingMethods
+                .WhereAsync(async x => await _cartRuleProvider.RuleMatchesAsync(x))
+                .ToListAsync();
         }
 
         public virtual async Task<decimal> GetCartItemWeightAsync(OrganizedShoppingCartItem cartItem, bool multipliedByQuantity = true)
@@ -221,13 +213,13 @@ namespace Smartstore.Core.Checkout.Shipping
         }
 
         public virtual ShippingOptionResponse GetShippingOptions(
-            ShippingOptionRequest shippingOptionRequest, 
+            ShippingOptionRequest shippingOptionRequest,
             string allowedShippingRateComputationMethodSystemName = "")
         {
             Guard.NotNull(shippingOptionRequest, nameof(shippingOptionRequest));
 
             var computationMethods = LoadActiveShippingRateComputationMethods(shippingOptionRequest.StoreId)
-                .Where(x => allowedShippingRateComputationMethodSystemName.IsEmpty() 
+                .Where(x => allowedShippingRateComputationMethodSystemName.IsEmpty()
                 || allowedShippingRateComputationMethodSystemName == x.Metadata.SystemName)
                 .ToList();
 

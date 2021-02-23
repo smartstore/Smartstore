@@ -237,7 +237,7 @@ namespace Smartstore.Core.Checkout.Cart
         }
 
         // was GetShoppingCartItemWarnings
-        // TODO (ms) (core) Have bundle item, and child item already added to context
+        // TODO: (ms) (core) Have bundle item, and child item already added to context
         public virtual async Task<IList<string>> ValidateCartItemAsync(AddToCartContext ctx, IEnumerable<OrganizedShoppingCartItem> shoppingCart)
         {
             Guard.NotNull(ctx, nameof(ctx));
@@ -561,8 +561,6 @@ namespace Smartstore.Core.Checkout.Cart
             return warnings;
         }
 
-        // TODO: (ms) (core) Have shopping cart service try adding required products first and then call this directly
-        // => apply this either on each item or once for whole shopping cart...
         public virtual async Task<IList<string>> ValidateRequiredProductsAsync(AddToCartContext ctx, IEnumerable<OrganizedShoppingCartItem> cartItems)
         {
             Guard.NotNull(cartItems, nameof(cartItems));
@@ -577,7 +575,7 @@ namespace Smartstore.Core.Checkout.Cart
             if (!requiredProductIds.Any())
                 return warnings;
 
-            var cartProductIds = cartItems.Select(x => x.Item.ProductId).ToList();
+            var cartProductIds = cartItems.Select(x => x.Item.ProductId);
 
             var missingRequiredProductIds = requiredProductIds.Except(cartProductIds);
             if (!missingRequiredProductIds.Any())

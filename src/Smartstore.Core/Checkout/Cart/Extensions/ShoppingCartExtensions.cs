@@ -44,12 +44,12 @@ namespace Smartstore
             // Filter non group items from correct cart type, with matching product id and product type id
             var filteredCart = cart
                 .Where(x => x.Item.ShoppingCartType == shoppingCartType
-                && x.Item.ParentItemId == null
-                && x.Item.Product.ProductTypeId == product.ProductTypeId
-                && x.Item.ProductId == product.Id);
+                    && x.Item.ParentItemId == null
+                    && x.Item.Product.ProductTypeId == product.ProductTypeId
+                    && x.Item.ProductId == product.Id);
 
             // There could be multiple matching products with the same identifier but different attributes/selections (etc).
-            // Ensure matching product infos are the same (attributes, gift card values (if it is one), customerEnteredPrice).
+            // Ensure matching product infos are the same (attributes, gift card values (if it is gift card), customerEnteredPrice).
             foreach (var cartItem in filteredCart)
             {
                 // Compare attribute selection
