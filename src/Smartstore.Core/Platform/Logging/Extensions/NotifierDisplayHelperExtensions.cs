@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Web;
 
 namespace Smartstore
 {
@@ -23,7 +20,7 @@ namespace Smartstore
             return ResolveNotifications(displayHelper, type).AsReadOnly();
         }
 
-        public static IEnumerable<LocalizedString> ResolveNotifications(IDisplayHelper displayHelper, NotifyType? type)
+        private static IEnumerable<LocalizedString> ResolveNotifications(IDisplayHelper displayHelper, NotifyType? type)
         {
             var allNotifications = displayHelper.HttpContext.GetItem("AllNotifications", () =>
             {
@@ -41,15 +38,15 @@ namespace Smartstore
                     }
                 }
 
-                //var viewData = new ViewDataDictionary(null); // TODO: (core) How to access current ViewDataDictionary? Was: _controllerContext.Controller.ViewData
-                //if (viewData.ContainsKey(key))
-                //{
-                //    entries = viewData[key] as ICollection<NotifyEntry>;
-                //    if (entries != null)
-                //    {
-                //        result = result.Concat(entries);
-                //    }
-                //}
+                var viewData = displayHelper.Resolve<IViewDataAccessor>().ViewData;
+                if (viewData != null && viewData.ContainsKey(key))
+                {
+                    entries = viewData[key] as ICollection<NotifyEntry>;
+                    if (entries != null)
+                    {
+                        result = result.Concat(entries);
+                    }
+                }
 
                 return new HashSet<NotifyEntry>(result);
             });

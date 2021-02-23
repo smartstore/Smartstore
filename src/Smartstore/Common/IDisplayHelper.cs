@@ -22,7 +22,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Resolve<T>(this IDisplayHelper displayHelper) where T : notnull
         {
-            return displayHelper.HttpContext.RequestServices.GetRequiredService<T>();
+            return displayHelper.HttpContext.RequestServices.GetService<T>();
         }
     }
 

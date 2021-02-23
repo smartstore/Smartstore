@@ -95,8 +95,9 @@ namespace Smartstore.Web
                 {
                     //o.EnableEndpointRouting = false;
                     // TODO: (core) AddModelBindingMessagesLocalizer
-                    // TODO: (core) Add custom display metadata provider
                     // TODO: (core) Add model binders
+                    //o.Filters.Add(typeof(DefaultViewDataAccessor), int.MinValue);
+                    o.Filters.AddService<IViewDataAccessor>(int.MinValue);
                 })
                 .AddRazorRuntimeCompilation(o =>
                 {
@@ -146,6 +147,7 @@ namespace Smartstore.Web
         {
             builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
             builder.RegisterDecorator<SmartRouteValuesAddressScheme, IEndpointAddressScheme<RouteValuesAddress>>();
+            builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
 
             // Convenience: Register IUrlHelper as transient dependency.
             builder.Register<IUrlHelper>(c =>
