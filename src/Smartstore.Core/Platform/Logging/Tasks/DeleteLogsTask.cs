@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Smartstore.Scheduling;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Scheduling;
 
 namespace Smartstore.Core.Logging.Tasks
 {

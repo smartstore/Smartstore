@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Smartstore.Scheduling;
 using Smartstore.Core.Data;
-using Smartstore.Core.Scheduling;
 using Microsoft.EntityFrameworkCore;
 
 namespace Smartstore.Core.Messages.Tasks

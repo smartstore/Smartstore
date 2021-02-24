@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Smartstore.Core.Scheduling
+namespace Smartstore.Scheduling
 {
     /// <summary>
     /// Represents a scheduled background task.

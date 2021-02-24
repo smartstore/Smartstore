@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Smartstore.Scheduling;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Scheduling;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Content.Seo

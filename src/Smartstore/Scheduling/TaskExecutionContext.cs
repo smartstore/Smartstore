@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Smartstore.Core.Scheduling
+namespace Smartstore.Scheduling
 {
     public delegate Task ProgressCallback(int value, int maximum, string message);
 

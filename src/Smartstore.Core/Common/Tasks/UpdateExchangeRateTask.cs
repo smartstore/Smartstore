@@ -3,10 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Scheduling;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
-using Smartstore.Core.Scheduling;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Common.Services
