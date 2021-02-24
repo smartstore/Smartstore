@@ -25,6 +25,7 @@ namespace Smartstore.Web
     public class Program
     {
         private static readonly Regex _rgSystemSource = new Regex("^File|^System|^Microsoft|^Serilog|^Autofac|^Castle|^MiniProfiler|^Newtonsoft|^Pipelines|^StackExchange|^Superpower", RegexOptions.Compiled);
+        private static IConfiguration _configuration;
 
         private static IConfiguration BuildConfiguration()
         {
@@ -44,7 +45,7 @@ namespace Smartstore.Web
             = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
 
         private readonly static IConfiguration Configuration 
-            = BuildConfiguration();
+            = _configuration ??= BuildConfiguration();
 
         public static async Task Main(string[] args)
         {

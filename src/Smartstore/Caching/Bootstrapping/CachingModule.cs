@@ -3,7 +3,7 @@ using Smartstore.Caching;
 using Smartstore.Caching.OutputCache;
 using Smartstore.Threading;
 
-namespace Smartstore.DependencyInjection
+namespace Smartstore.Bootstrapping
 {
     public class CachingModule : Autofac.Module
     {

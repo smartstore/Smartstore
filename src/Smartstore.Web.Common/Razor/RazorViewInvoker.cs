@@ -49,12 +49,12 @@ namespace Smartstore.Web.Razor
             _mvcViewOptions = mvcViewOptions;
         }
 
-        public async Task<string> InvokeViewAsync(string viewName, object model, bool isMainPage = false)
+        public async Task<string> InvokeViewAsync(string viewName, object model, bool isPartial = true)
         {
             Guard.NotNull(viewName, nameof(viewName));
             
             var actionContext = GetActionContext();
-            var view = FindView(actionContext, viewName, isMainPage);
+            var view = FindView(actionContext, viewName, isPartial);
 
             var viewData = new ViewDataDictionary(_metadataProvider, actionContext.ModelState)
             {
@@ -128,18 +128,18 @@ namespace Smartstore.Web.Razor
                 context = new ActionContext(httpContext, httpContext.GetRouteData() ?? new RouteData(), new ActionDescriptor());
             }
 
-            return context ?? throw new InvalidOperationException("Could not resolve a current ActionContext.");
+            return context;
         }
 
-        private IView FindView(ActionContext actionContext, string viewName, bool isMainPage)
+        private IView FindView(ActionContext actionContext, string viewName, bool isPartial)
         {
-            var getViewResult = _viewEngine.GetView(executingFilePath: null, viewPath: viewName, isMainPage);
+            var getViewResult = _viewEngine.GetView(executingFilePath: null, viewPath: viewName, !isPartial);
             if (getViewResult.Success)
             {
                 return getViewResult.View;
             }
 
-            var findViewResult = _viewEngine.FindView(actionContext, viewName, isMainPage);
+            var findViewResult = _viewEngine.FindView(actionContext, viewName, !isPartial);
             if (findViewResult.Success)
             {
                 return findViewResult.View;

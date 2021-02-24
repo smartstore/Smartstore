@@ -12,9 +12,9 @@ namespace Smartstore.Web.Razor
         /// </summary>
         /// <param name="viewName">View name</param>
         /// <param name="model">Model</param>
-        /// <param name="isMainPage"><c>false</c>: View is partial</param>
+        /// <param name="isPartial"><c>true</c>: View is partial, otherwise main page.</param>
         /// <returns>View rendering result</returns>
-        Task<string> InvokeViewAsync(string viewName, object model, bool isMainPage = false);
+        Task<string> InvokeViewAsync(string viewName, object model, bool isPartial = true);
 
         /// <summary>
         /// Invokes a view component and returns its html content.

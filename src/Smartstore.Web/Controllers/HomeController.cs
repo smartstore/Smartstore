@@ -61,6 +61,7 @@ using Smartstore.Core.Rules;
 using SixLabors.ImageSharp.ColorSpaces;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Rules.Filters;
+using Microsoft.Extensions.Configuration;
 
 namespace Smartstore.Web.Controllers
 {
@@ -651,6 +652,26 @@ namespace Smartstore.Web.Controllers
             //var test = await campaignService.PreviewAsync(campaign);
 
             return View(model);
+        }
+
+        [Route("env")]
+        public IActionResult Env()
+        {
+            var vars = Environment.GetEnvironmentVariables();
+            var dict = new Dictionary<string, string>();
+            var cfg = HttpContext.RequestServices.GetService<IApplicationContext>().Configuration.AsEnumerable();
+
+            foreach (var key in vars.Keys)
+            {
+                dict[key.ToString()] = vars[key].ToString();
+            }
+
+            foreach (var kvp in cfg)
+            {
+                dict[kvp.Key] = kvp.Value;
+            }
+
+            return View(dict);
         }
 
         private Task<List<Country>> GetCountries()
