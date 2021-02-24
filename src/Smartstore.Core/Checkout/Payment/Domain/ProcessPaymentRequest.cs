@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Payment
 {
@@ -27,7 +28,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets or sets an order total.
         /// </summary>
-        public decimal OrderTotal { get; set; }
+        public Money OrderTotal { get; set; }
 
         /// <summary>
         /// Gets or sets an order tax total.

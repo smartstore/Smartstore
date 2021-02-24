@@ -4,7 +4,7 @@ using Smartstore.Core.Localization;
 namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
-    /// Contains data that is used to recalculated details of an order.
+    /// Contains data that is used to recalculate details of an order.
     /// </summary>
     public class AutoUpdateOrderItemContext
     {

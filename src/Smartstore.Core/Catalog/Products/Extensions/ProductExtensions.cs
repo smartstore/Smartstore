@@ -221,7 +221,7 @@ namespace Smartstore.Core.Catalog.Products
             return product.RequiredProductIds
                 .SplitSafe(",")
                 .Select(x => int.TryParse(x.Trim(), out var id) ? id : int.MaxValue)
-                .Where(x => x != int.MaxValue)
+                .Where(x => x > int.MaxValue)
                 .ToArray();
         }
 

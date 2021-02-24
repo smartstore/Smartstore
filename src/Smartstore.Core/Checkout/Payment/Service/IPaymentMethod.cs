@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Routing;
+using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Common;
+using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Payment
@@ -15,88 +17,85 @@ namespace Smartstore.Core.Checkout.Payment
         #region Methods
 
         /// <summary>
-        /// Pre process payment.
+        /// Pre process a payment.
         /// </summary>
-        /// <param name="processPaymentRequest">Payment info required for an order processing.</param>
+        /// <param name="request">Payment info required for order processing.</param>
         /// <returns>Pre process payment result.</returns>
-        PreProcessPaymentResult PreProcessPayment(ProcessPaymentRequest processPaymentRequest);
+        Task<PreProcessPaymentResult> PreProcessPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
         /// Process a payment.
         /// </summary>
-        /// <param name="processPaymentRequest">Payment info required for an order processing.</param>
+        /// <param name="request">Payment info required for order processing.</param>
         /// <returns>Process payment result.</returns>
-        ProcessPaymentResult ProcessPayment(ProcessPaymentRequest processPaymentRequest);
+        Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
 		/// Post process payment (e.g. used by payment gateways to redirect to a third-party URL).
-		/// Called after an order has been placed or when customer re-post the payment.
+		/// Called after an order has been placed or when customer re-posted the payment.
         /// </summary>
-        /// <param name="postProcessPaymentRequest">Payment info required for an order processing.</param>
-        void PostProcessPayment(PostProcessPaymentRequest postProcessPaymentRequest);
+        /// <param name="request">Payment info required for order processing.</param>
+        Task PostProcessPaymentAsync(PostProcessPaymentRequest request);
 
         /// <summary>
         /// Gets additional handling fee.
         /// </summary>
         /// <param name="cart">Shoping cart.</param>
         /// <returns>Additional handling fee.</returns>
-		decimal GetAdditionalHandlingFee(IList<OrganizedShoppingCartItem> cart);
+		Task<Money?> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart);
 
         /// <summary>
         /// Captures payment.
         /// </summary>
-        /// <param name="capturePaymentRequest">Capture payment request.</param>
+        /// <param name="request">Capture payment request.</param>
         /// <returns>Capture payment result.</returns>
-        CapturePaymentResult Capture(CapturePaymentRequest capturePaymentRequest);
+        Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest request);
 
         /// <summary>
         /// Refunds a payment.
         /// </summary>
-        /// <param name="refundPaymentRequest">Refund payment request.</param>
+        /// <param name="request">Refund payment request.</param>
         /// <returns>Refund payment result.</returns>
-        RefundPaymentResult Refund(RefundPaymentRequest refundPaymentRequest);
+        Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request);
 
         /// <summary>
         /// Voids a payment.
         /// </summary>
-        /// <param name="voidPaymentRequest">Void payment request.</param>
+        /// <param name="request">Void payment request.</param>
         /// <returns>Void payment result.</returns>
-        VoidPaymentResult Void(VoidPaymentRequest voidPaymentRequest);
+        Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest request);
 
         /// <summary>
         /// Process recurring payment.
         /// </summary>
-        /// <param name="processPaymentRequest">Payment info required for an order processing.</param>
+        /// <param name="request">Payment info required for order processing.</param>
         /// <returns>Process payment result.</returns>
-        ProcessPaymentResult ProcessRecurringPayment(ProcessPaymentRequest processPaymentRequest);
+        Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest request);
 
         /// <summary>
         /// Cancels a recurring payment.
         /// </summary>
-        /// <param name="cancelPaymentRequest">Cancel recurring payment request.</param>
+        /// <param name="request">Cancel recurring payment request.</param>
         /// <returns>Cancel recurring payment result.</returns>
-        CancelRecurringPaymentResult CancelRecurringPayment(CancelRecurringPaymentRequest cancelPaymentRequest);
+        Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest request);
 
         /// <summary>
         /// Gets a value indicating whether customers can complete a payment after order is placed but not completed (for redirection payment methods).
         /// </summary>
         /// <param name="order">Order placed</param>
         /// <returns>Value indicating wheter it is possible to repost process payment.</returns>
-        bool CanRePostProcessPayment(Order order);
+        Task<bool> CanRePostProcessPaymentAsync(Order order);
 
         /// <summary>
-        /// Gets a route for payment info.
+        /// Gets the widget invoker for payment info. Return <c>null</c> when there's nothing to render.
         /// </summary>
-        /// <param name="actionName">Action name.</param>
-        /// <param name="controllerName">Controller name.</param>
-        /// <param name="routeValues">Route values.</param>
-        void GetPaymentInfoRoute(out string actionName, out string controllerName, out RouteValueDictionary routeValues);
+        WidgetInvoker GetPaymentInfoWidget();
 
         /// <summary>
         /// Gets the controller type.
         /// </summary>
         /// <returns>Type of controller.</returns>
-        Type GetControllerType();
+        Type GetControllerType(); // TODO: (mg) (core) Is IPaymentMethod.GetControllerType() really necessary?
 
         #endregion Methods
 
@@ -116,22 +115,22 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets a value indicating whether capture is supported.
         /// </summary>
-        bool SupportCapture { get; }
+        bool CanCapture { get; }
 
         /// <summary>
         /// Gets a value indicating whether partial refund is supported.
         /// </summary>
-        bool SupportPartiallyRefund { get; }
+        bool CanPartiallyRefund { get; }
 
         /// <summary>
         /// Gets a value indicating whether refund is supported.
         /// </summary>
-        bool SupportRefund { get; }
+        bool CanRefund { get; }
 
         /// <summary>
         /// Gets a value indicating whether void is supported.
         /// </summary>
-        bool SupportVoid { get; }
+        bool CanVoid { get; }
 
         /// <summary>
         /// Gets a recurring payment type of payment method.

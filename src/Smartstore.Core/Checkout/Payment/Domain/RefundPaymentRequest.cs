@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Checkout.Payment
+﻿using Smartstore.Core.Common;
+
+namespace Smartstore.Core.Checkout.Payment
 {
     /// <summary>
     /// Represents a refund payment request.
@@ -8,7 +10,7 @@
         /// <summary>
         /// Gets or sets an amount.
         /// </summary>
-        public decimal AmountToRefund { get; set; }
+        public Money AmountToRefund { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether it's a partial refund; otherwize, full refund.

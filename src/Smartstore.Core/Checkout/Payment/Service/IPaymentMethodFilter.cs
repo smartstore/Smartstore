@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Identity;
 using Smartstore.Engine.Modularity;
@@ -15,7 +16,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="request">Payment filter request.</param>
         /// <returns><c>True</c> filter out method, <c>False</c> do not filter out method.</returns>
-        bool IsExcluded(PaymentFilterRequest request);
+        Task<bool> IsExcludedAsync(PaymentFilterRequest request);
     }
 
     public partial class PaymentFilterRequest

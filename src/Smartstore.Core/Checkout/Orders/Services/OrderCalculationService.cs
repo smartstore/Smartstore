@@ -112,7 +112,7 @@ namespace Smartstore.Core.Checkout.Orders
             if (includePaymentAdditionalFee && paymentMethodSystemName.HasValue())
             {
                 var provider = _providerManager.GetProvider<IPaymentMethod>(paymentMethodSystemName);
-                var paymentMethodAdditionalFee = currency.RoundIfEnabledFor(provider?.Value?.GetAdditionalHandlingFee(cart) ?? decimal.Zero);
+                var paymentMethodAdditionalFee = currency.RoundIfEnabledFor(provider?.Value?.GetAdditionalHandlingFeeAsync(cart) ?? decimal.Zero);
 
                 paymentFeeWithoutTax = await _taxService.GetPaymentMethodAdditionalFeeAsync(paymentMethodAdditionalFee, false, customer: customer);
             }
@@ -516,7 +516,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (provider != null)
                 {
-                    var paymentFee = currency.RoundIfEnabledFor(provider.Value.GetAdditionalHandlingFee(cart));
+                    var paymentFee = currency.RoundIfEnabledFor(provider.Value.GetAdditionalHandlingFeeAsync(cart));
 
                     await PrepareAuxiliaryServicesTaxingInfosAsync(cart);
 
