@@ -42,7 +42,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="cart">Shoping cart.</param>
         /// <returns>Additional handling fee.</returns>
-		Task<Money?> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart);
+		Task<Money> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart);
 
         /// <summary>
         /// Captures payment.

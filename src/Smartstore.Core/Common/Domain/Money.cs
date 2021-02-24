@@ -55,7 +55,7 @@ namespace Smartstore.Core.Common
         /// </summary>
         public int DecimalDigits
         {
-            get => string.Equals(Currency?.CurrencyCode, "btc", StringComparison.OrdinalIgnoreCase) ? 8 : Currency.NumberFormat.CurrencyDecimalDigits;
+            get => string.Equals(Currency.CurrencyCode, "btc", StringComparison.OrdinalIgnoreCase) ? 8 : Currency.RoundNumDecimals;
         }
 
         /// <summary>

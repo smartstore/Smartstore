@@ -112,9 +112,10 @@ namespace Smartstore.Core.Checkout.Orders
             if (includePaymentAdditionalFee && paymentMethodSystemName.HasValue())
             {
                 var provider = _providerManager.GetProvider<IPaymentMethod>(paymentMethodSystemName);
-                var paymentMethodAdditionalFee = currency.RoundIfEnabledFor(provider?.Value?.GetAdditionalHandlingFeeAsync(cart) ?? decimal.Zero);
+                var paymentMethodAdditionalFee = await provider?.Value?.GetAdditionalHandlingFeeAsync(cart);
 
-                paymentFeeWithoutTax = await _taxService.GetPaymentMethodAdditionalFeeAsync(paymentMethodAdditionalFee, false, customer: customer);
+                // TODO: (ms) (core) Money struct
+                paymentFeeWithoutTax = await _taxService.GetPaymentMethodAdditionalFeeAsync(paymentMethodAdditionalFee.Amount, false, customer: customer);
             }
 
             // Tax
@@ -516,7 +517,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (provider != null)
                 {
-                    var paymentFee = currency.RoundIfEnabledFor(provider.Value.GetAdditionalHandlingFeeAsync(cart));
+                    var paymentFee = await provider.Value.GetAdditionalHandlingFeeAsync(cart);
 
                     await PrepareAuxiliaryServicesTaxingInfosAsync(cart);
 
@@ -535,7 +536,8 @@ namespace Smartstore.Core.Checkout.Orders
 
                     var taxCategoryId = GetTaxCategoryId(cart, _taxSettings.PaymentMethodAdditionalFeeTaxClassId);
 
-                    paymentFeeTax = await GetPaymentFeeTaxAmountAsync(paymentFee, customer, taxCategoryId, taxRates);
+                    // TODO: (ms) (core) Money struct
+                    paymentFeeTax = await GetPaymentFeeTaxAmountAsync(paymentFee.Amount, customer, taxCategoryId, taxRates);
                 }
             }
 
