@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
@@ -97,7 +98,7 @@ namespace Smartstore.Core.Content.Menus
             return HtmlAttributes(CommonHelper.ObjectToDictionary(attributes));
         }
 
-        public TBuilder HtmlAttributes(AttributeDictionary attributes)
+        public TBuilder HtmlAttributes(IDictionary<string, string> attributes)
         {
             Item.HtmlAttributes.Clear();
             Item.HtmlAttributes.Merge(attributes);
@@ -106,10 +107,18 @@ namespace Smartstore.Core.Content.Menus
 
         public TBuilder LinkHtmlAttributes(object attributes)
         {
-            return LinkHtmlAttributes(CommonHelper.ObjectToDictionary(attributes));
+            var obj = CommonHelper.ObjectToDictionary(attributes);
+            var dict = new AttributeDictionary();
+
+            foreach (var kvp in obj)
+            {
+                dict.Add(kvp.Key, kvp.Value.ToString());
+            }
+            
+            return LinkHtmlAttributes(dict);
         }
 
-        public TBuilder LinkHtmlAttributes(AttributeDictionary attributes)
+        public TBuilder LinkHtmlAttributes(IDictionary<string, string> attributes)
         {
             Item.LinkHtmlAttributes.Clear();
             Item.LinkHtmlAttributes.Merge(attributes);

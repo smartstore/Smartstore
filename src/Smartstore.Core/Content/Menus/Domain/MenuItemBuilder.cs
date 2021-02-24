@@ -4,12 +4,9 @@ namespace Smartstore.Core.Content.Menus
 {
     public class MenuItemBuilder : NavigationItemBuilder<MenuItem, MenuItemBuilder>
     {
-        private readonly IList<string> _permissionNames;
-
         public MenuItemBuilder(MenuItem item)
             : base(item)
         {
-            _permissionNames = new List<string>();
         }
 
         public MenuItemBuilder Id(string value)

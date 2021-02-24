@@ -129,7 +129,8 @@
         <label asp-for="DateOfBirthDay" class="col-form-label text-right required"></label>
     </div>
     <div class="col-lg-9">
-        <datepicker sm-day-for="DateOfBirthDay" sm-month-for="DateOfBirthMonth" sm-year-for="DateOfBirthYear"
-                    sm-begin-year="1970" sm-end-year="2020" sm-disabled="false" class="mb-3" />
+        <triple-date-picker 
+            day-name="DateOfBirthDay" month-name="DateOfBirthMonth" year-name="DateOfBirthYear"
+            begin-year="1970" end-year="2020" disabled="false" />
     </div>
 </div>
