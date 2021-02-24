@@ -61,13 +61,12 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="currency">Currency used for price calculation. Is <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c></param>
         /// <param name="customer">Customer to get tax rate. Is <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c></param>
         /// <returns>Price converted to desired currency</returns>
-        Task<decimal> GetProductPriceAsync(
+        Task<Money> GetProductPriceAsync(
             Product product,
-            decimal price,
+            Money price,
             bool? includingTax = null,
             bool? priceIncludesTax = null,
-            int? taxCategoryId = null,
-            Currency currency = null,
+            int? taxCategoryId = null,            
             Customer customer = null);
 
         /// <summary>
@@ -83,7 +82,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="customer">Customer to get tax rate. Is <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c></param>
         /// <param name="taxCategoryId">Tax category identifier. Is <see cref="TaxSettings.ShippingTaxClassId"/> if <c>null</c></param>
         /// <returns>Calculated shipping price converted to <see cref="IWorkContext.WorkingCurrency"/></returns>
-        Task<decimal> GetShippingPriceAsync(decimal price, bool? includingTax = null, Customer customer = null, int? taxCategoryId = null);
+        Task<Money> GetShippingPriceAsync(Money price, bool? includingTax = null, Customer customer = null, int? taxCategoryId = null);
 
         /// <summary>
         /// Gets the calculated additional payment method fee for <see cref="IWorkContext.WorkingCurrency"/> async
@@ -98,7 +97,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="customer">Customer to get tax rate. Is <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c></param>
         /// <param name="taxCategoryId">Tax category identifier. Is <see cref="TaxSettings.PaymentMethodAdditionalFeeTaxClassId"/> if <c>null</c></param>
         /// <returns>Calculated additional payment method fee converted to <see cref="IWorkContext.WorkingCurrency"/></returns>
-        Task<decimal> GetPaymentMethodAdditionalFeeAsync(decimal price, bool? includingTax = null, int? taxCategoryId = null, Customer customer = null);
+        Task<Money> GetPaymentMethodAdditionalFeeAsync(Money price, bool? includingTax = null, int? taxCategoryId = null, Customer customer = null);
 
         /// <summary>
         /// Gets the calculated checkout attribute value price for <see cref="IWorkContext.WorkingCurrency"/> async
@@ -112,7 +111,11 @@ namespace Smartstore.Core.Checkout.Tax
         /// </param>
         /// <param name="customer">Customer to get tax rate. Is <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c></param>
         /// <returns>Calculated checkout attribute value price converted to <see cref="IWorkContext.WorkingCurrency"/></returns>
-        Task<decimal> GetCheckoutAttributePriceAsync(CheckoutAttributeValue attributeValue, Customer customer = null, bool? includingTax = null);
+        Task<Money> GetCheckoutAttributePriceAsync(
+            CheckoutAttributeValue attributeValue, 
+            Customer customer = null, 
+            Currency currency = null, 
+            bool? includingTax = null);
 
         /// <summary>
         /// Gets VAT Number status

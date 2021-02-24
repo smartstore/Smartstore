@@ -117,6 +117,8 @@ namespace Smartstore.Core.Checkout.Orders
         [StringLength(4000)]
         public string VatNumber { get; set; }
 
+        // TODO: (ms) (core) Replace decimal currency values (prices...) with Money (except in entities)
+
         /// <summary>
         /// Gets or sets the order subtotal (incl tax)
         /// </summary>

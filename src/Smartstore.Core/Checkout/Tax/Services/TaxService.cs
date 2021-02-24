@@ -80,9 +80,9 @@ namespace Smartstore.Core.Checkout.Tax
         /// <returns>
         /// Price converted to currency
         /// </returns>
-        protected static decimal CalculatePrice(decimal price, decimal percent, bool increase, Currency currency)
+        protected static Money CalculatePrice(Money price, decimal percent, bool increase)
         {
-            Guard.NotNull(currency, nameof(currency));
+            Guard.NotNull(price, nameof(price));
 
             if (percent == decimal.Zero)
                 return price;
@@ -92,7 +92,7 @@ namespace Smartstore.Core.Checkout.Tax
                 ? price * percentageFactor
                 : price / percentageFactor;
 
-            return currency.RoundIfEnabledFor(result);
+            return result;
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace Smartstore.Core.Checkout.Tax
             var address = customer.BillingAddress;
             if (address != null && address.Company.IsEmpty())
                 return true;
-                        
+
             // Otherwise, check whether customer's IP country is in the EU
             var isInEu = _geoCountryLookup.LookupCountry(customer.LastIpAddress)?.IsInEu is true;
             if (!isInEu)
@@ -246,32 +246,30 @@ namespace Smartstore.Core.Checkout.Tax
             return taxRate;
         }
 
-        public virtual async Task<decimal> GetProductPriceAsync(
+        public virtual async Task<Money> GetProductPriceAsync(
             Product product,
-            decimal price,
+            Money price,
             bool? includingTax = null,
             bool? priceIncludesTax = null,
             int? taxCategoryId = null,
-            Currency currency = null,
             Customer customer = null)
         {
             // No need to calculate anything if price is 0
-            if (price == decimal.Zero)
+            if (price.Amount == decimal.Zero)
                 return price;
 
             customer ??= _workContext.CurrentCustomer;
-            currency ??= _workContext.WorkingCurrency;
             taxCategoryId ??= product?.TaxCategoryId;
             var taxRate = await GetTaxRateAsync(product, taxCategoryId, customer);
 
             var isPriceIncrease = (priceIncludesTax ?? _taxSettings.PricesIncludeTax)
                 && (includingTax ?? _workContext.TaxDisplayType == TaxDisplayType.IncludingTax);
 
-            return CalculatePrice(price, taxRate, isPriceIncrease, currency);
+            return CalculatePrice(price, taxRate, isPriceIncrease);
         }
 
-        public virtual Task<decimal> GetShippingPriceAsync(
-            decimal price,
+        public virtual Task<Money> GetShippingPriceAsync(
+            Money price,
             bool? includingTax = null,
             Customer customer = null,
             int? taxCategoryId = null)
@@ -287,12 +285,11 @@ namespace Smartstore.Core.Checkout.Tax
                 includingTax,
                 _taxSettings.ShippingPriceIncludesTax,
                 taxCategoryId,
-                _workContext.WorkingCurrency,
                 customer);
         }
 
-        public virtual Task<decimal> GetPaymentMethodAdditionalFeeAsync(
-            decimal price,
+        public virtual Task<Money> GetPaymentMethodAdditionalFeeAsync(           
+            Money price,
             bool? includingTax = null,
             int? taxCategoryId = null,
             Customer customer = null)
@@ -308,27 +305,34 @@ namespace Smartstore.Core.Checkout.Tax
                 includingTax,
                 _taxSettings.PaymentMethodAdditionalFeeIncludesTax,
                 taxCategoryId,
-                _workContext.WorkingCurrency,
                 customer);
         }
 
-        public virtual Task<decimal> GetCheckoutAttributePriceAsync(
+        public virtual async Task<Money> GetCheckoutAttributePriceAsync(
             CheckoutAttributeValue attributeValue,
             Customer customer = null,
+            Currency currency = null,
             bool? includingTax = null)
         {
             Guard.NotNull(attributeValue, nameof(attributeValue));
-            
-            if (attributeValue.CheckoutAttribute.IsTaxExempt)
-                return Task.FromResult(attributeValue.PriceAdjustment);
 
-            return GetProductPriceAsync(
+            var checkoutAttribute = !_db.IsReferenceLoaded(attributeValue, x => x.CheckoutAttribute)
+                ? await _db.CheckoutAttributes.FindByIdAsync(attributeValue.CheckoutAttributeId)
+                : attributeValue.CheckoutAttribute;
+                        
+            currency ??= _workContext.WorkingCurrency;
+
+            var money = currency.AsMoney(attributeValue.PriceAdjustment);
+
+            if (checkoutAttribute.IsTaxExempt)
+                return money;
+
+            return await GetProductPriceAsync(
                 null,
-                attributeValue.PriceAdjustment,
+                money,
                 includingTax,
                 _taxSettings.PricesIncludeTax,
-                attributeValue.CheckoutAttribute.TaxCategoryId,
-                _workContext.WorkingCurrency,
+                checkoutAttribute.TaxCategoryId,
                 customer);
         }
 

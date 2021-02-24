@@ -170,7 +170,7 @@ namespace Smartstore.Core.Checkout.Attributes
                                 if (renderPrices)
                                 {
                                     var priceAdjustment = await _taxService.GetCheckoutAttributePriceAsync(attributeValue, customer);
-                                    var priceAdjustmentConverted = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustment, _workContext.WorkingCurrency);
+                                    var priceAdjustmentConverted = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustment.Amount, _workContext.WorkingCurrency);
                                     if (priceAdjustment > 0)
                                     {
                                         attributeStr += string.Format(" [+{0}]", _priceFormatter.FormatPrice(priceAdjustmentConverted));

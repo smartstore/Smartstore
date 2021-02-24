@@ -608,7 +608,7 @@ namespace Smartstore.Core.Catalog.Pricing
             if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
             {
                 var currentPrice = await GetFinalPriceAsync(product, customer, includeDiscounts: true);
-                var price =  await _taxService.GetProductPriceAsync(product, decimal.Add(currentPrice, priceAdjustment), currency: currency, customer: customer);
+                var price =  (await _taxService.GetProductPriceAsync(product, currency.AsMoney(decimal.Add(currentPrice, priceAdjustment)), customer: customer)).Amount;
                 price = _currencyService.ConvertFromPrimaryStoreCurrency(price, currency);
 
                 return _priceFormatter.GetBasePriceInfo(product, price, currency);
@@ -960,9 +960,9 @@ namespace Smartstore.Core.Catalog.Pricing
                     if (!isBundlePricing && pvaValue.IsPreSelected)
                     {
                         var attributeValuePriceAdjustment = await GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, context, 1);
-                        var priceAdjustmentBase = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment, currency: currency, customer: customer );
+                        var priceAdjustmentBase = await _taxService.GetProductPriceAsync(product, currency.AsMoney(attributeValuePriceAdjustment), customer: customer );
 
-                        preSelectedPriceAdjustmentBase = decimal.Add(preSelectedPriceAdjustmentBase, priceAdjustmentBase);
+                        preSelectedPriceAdjustmentBase = decimal.Add(preSelectedPriceAdjustmentBase, priceAdjustmentBase.Amount);
                     }
                 }
 
