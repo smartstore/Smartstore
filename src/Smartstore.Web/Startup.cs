@@ -63,6 +63,13 @@ namespace Smartstore.Web
             // To use the default framework request logging instead, remove this line and set the "Microsoft"
             // level in appsettings.json to "Information".
             app.UseSerilogRequestLogging();
+
+            // Executes IApplicationInitializer implementations
+            // during the very first request.
+            if (_appContext.IsInstalled)
+            {
+                app.UseApplicationInitializer();
+            }
             
             appLifetime.ApplicationStarted.Register(OnStarted, app);
             _engineStarter.ConfigureApplication(app);

@@ -49,9 +49,7 @@ namespace Smartstore.Web
 
         public static async Task Main(string[] args)
         {
-            var host = CreateHostBuilder(args);
-            await host.InitAsync();
-            await host.RunAsync();
+            await CreateHostBuilder(args).RunAsync();
         }
 
         public static IHost CreateHostBuilder(string[] args) 

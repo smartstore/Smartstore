@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -29,8 +30,9 @@ namespace Smartstore.Core.Bootstrapping
 
         public int Order => 0;
         public bool ThrowOnError => true;
+        public int MaxAttempts => 1;
 
-        public async Task InitializeAsync()
+        public async Task InitializeAsync(HttpContext httpContext)
         {
             var removeUnusedPermissions = true;
             var providers = new List<IPermissionProvider>();
@@ -69,8 +71,7 @@ namespace Smartstore.Core.Bootstrapping
             await _permissionService.InstallPermissionsAsync(providers.ToArray(), removeUnusedPermissions);
         }
 
-        public void OnFail(Exception exception)
-        {
-        }
+        public Task OnFailAsync(Exception exception, bool willRetry)
+            => Task.CompletedTask;
     }
 }

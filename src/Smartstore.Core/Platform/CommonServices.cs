@@ -138,11 +138,6 @@ namespace Smartstore.Core
                 {
                     next(context);
 
-                    if (!context.Resolve<IEngine>().IsInitialized)
-                    {
-                        return;
-                    }
-
                     if (!DataSettings.DatabaseIsInstalled())
                     {
                         return;

@@ -55,11 +55,6 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     next(context);
 
-                    if (!context.Resolve<IEngine>().IsInitialized)
-                    {
-                        return;
-                    }
-
                     if (!context.NewInstanceActivated || context.Registration.Metadata.Get("Property.T") is not FastProperty prop)
                     {
                         return;

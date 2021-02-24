@@ -32,7 +32,7 @@ namespace Smartstore.Engine
             Application = application;
 
             // Set IsInitialized prop after init completes.
-            RootApplicationInitializer.Initialized += (s, e) => IsInitialized = true;
+            ApplicationInitializerMiddleware.Initialized += (s, e) => IsInitialized = true;
 
             // Assembly resolver event. View rendering in modules can throw exceptions otherwise.
             AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
@@ -94,8 +94,6 @@ namespace Smartstore.Engine
                 // Add Async/Threading stuff
                 services.AddAsyncRunner();
                 services.AddLockFileManager();
-
-                services.AddApplicationInitializer();
 
                 services.AddSingleton(x => NullChronometer.Instance);
                 services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
