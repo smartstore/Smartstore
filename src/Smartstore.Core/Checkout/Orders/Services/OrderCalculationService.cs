@@ -96,7 +96,7 @@ namespace Smartstore.Core.Checkout.Orders
             var customer = cart.GetCustomer();
 
             var paymentMethodSystemName = customer != null
-                ? customer.GenericAttributes.Get<string>(SystemCustomerAttributeNames.SelectedPaymentMethod, store.Id)
+                ? customer.GenericAttributes.SelectedPaymentMethod
                 : string.Empty;
 
             var subTotal = await GetShoppingCartSubTotalAsync(cart, false);
@@ -177,7 +177,7 @@ namespace Smartstore.Core.Checkout.Orders
             var redeemedRewardPointsAmount = decimal.Zero;
 
             if (includeRewardPoints && resultTemp > decimal.Zero && _rewardPointsSettings.Enabled && customer != null &&
-                customer.GenericAttributes.Get<bool>(SystemCustomerAttributeNames.UseRewardPointsDuringCheckout, store.Id))
+                customer.GenericAttributes.UseRewardPointsDuringCheckout)
             {
                 var rewardPointsBalance = customer.GetRewardPointsBalance();
                 var rewardPointsBalanceAmount = ConvertRewardPointsToAmount(rewardPointsBalance);
@@ -210,7 +210,7 @@ namespace Smartstore.Core.Checkout.Orders
                 // Credit balance.
                 if (includeCreditBalance && customer != null && orderTotal > decimal.Zero)
                 {
-                    var creditBalance = customer.GenericAttributes.Get<decimal>(SystemCustomerAttributeNames.UseCreditBalanceDuringCheckout, store.Id);
+                    var creditBalance = customer.GenericAttributes.UseCreditBalanceDuringCheckout;
                     if (creditBalance > decimal.Zero)
                     {
                         if (creditBalance > orderTotal)
@@ -218,7 +218,7 @@ namespace Smartstore.Core.Checkout.Orders
                             // Normalize used amount.
                             appliedCreditBalance = orderTotal.Value;
 
-                            customer.GenericAttributes.Set(SystemCustomerAttributeNames.UseCreditBalanceDuringCheckout, orderTotal.Value, store.Id);
+                            customer.GenericAttributes.UseCreditBalanceDuringCheckout = orderTotal.Value;
                             await _db.SaveChangesAsync();
                         }
                         else
@@ -512,7 +512,7 @@ namespace Smartstore.Core.Checkout.Orders
             // Payment fee tax amount.
             if (includePaymentAdditionalFee && _taxSettings.PaymentMethodAdditionalFeeIsTaxable && customer != null)
             {
-                var paymentMethodSystemName = customer.GenericAttributes.Get<string>(SystemCustomerAttributeNames.SelectedPaymentMethod, _storeContext.CurrentStore.Id);
+                var paymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
                 var provider = _providerManager.GetProvider<IPaymentMethod>(paymentMethodSystemName);
 
                 if (provider != null)
@@ -837,7 +837,7 @@ namespace Smartstore.Core.Checkout.Orders
             var storeId = _storeContext.CurrentStore.Id;
 
             var shippingOption = customer != null
-                ? customer.GenericAttributes.Get<ShippingOption>(SystemCustomerAttributeNames.SelectedShippingOption, storeId)
+                ? customer.GenericAttributes.SelectedShippingOption?.Convert<ShippingOption>()
                 : null;
 
             if (shippingOption != null)
