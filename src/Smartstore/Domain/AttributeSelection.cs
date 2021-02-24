@@ -336,22 +336,21 @@ namespace Smartstore.Domain
             return combiner.CombinedHash;
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is AttributeSelection selection)
-            {
-                return Equals(selection);
-            }
-
-            return false;
-        }
+        public override bool Equals(object obj) =>
+            ((IEquatable<AttributeSelection>)this).Equals(obj as AttributeSelection);
 
         bool IEquatable<AttributeSelection>.Equals(AttributeSelection other)
         {
-            var map1 = _map;
-            var map2 = other?._map;
+            if (other?._map == null)
+                return false;
 
-            if (map2 == null || map1.Count != map2.Count)
+            if (ReferenceEquals(this, other))
+                return true;
+
+            var map1 = _map;
+            var map2 = other._map;
+
+            if (map1.Count != map2.Count)
             {
                 return false;
             }
