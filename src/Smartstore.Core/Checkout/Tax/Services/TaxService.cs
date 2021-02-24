@@ -270,18 +270,18 @@ namespace Smartstore.Core.Checkout.Tax
             return CalculatePrice(price, taxRate, isPriceIncrease, currency);
         }
 
-        public virtual Task<decimal> GetShippingPriceAsync(
+        public virtual async Task<decimal> GetShippingPriceAsync(
             decimal price,
             bool? includingTax = null,
             Customer customer = null,
             int? taxCategoryId = null)
         {
             if (!_taxSettings.ShippingIsTaxable)
-                return Task.FromResult(price);
+                return price;
 
             taxCategoryId ??= _taxSettings.ShippingTaxClassId;
 
-            return GetProductPriceAsync(
+            return await GetProductPriceAsync(
                 null,
                 price,
                 includingTax,
@@ -291,18 +291,18 @@ namespace Smartstore.Core.Checkout.Tax
                 customer);
         }
 
-        public virtual Task<decimal> GetPaymentMethodAdditionalFeeAsync(
+        public virtual async Task<decimal> GetPaymentMethodAdditionalFeeAsync(
             decimal price,
             bool? includingTax = null,
             int? taxCategoryId = null,
             Customer customer = null)
         {
             if (!_taxSettings.PaymentMethodAdditionalFeeIsTaxable)
-                return Task.FromResult(price);
+                return price;
 
             taxCategoryId ??= _taxSettings.PaymentMethodAdditionalFeeTaxClassId;
 
-            return GetProductPriceAsync(
+            return await GetProductPriceAsync(
                 null,
                 price,
                 includingTax,
@@ -312,7 +312,7 @@ namespace Smartstore.Core.Checkout.Tax
                 customer);
         }
 
-        public virtual Task<decimal> GetCheckoutAttributePriceAsync(
+        public virtual async Task<decimal> GetCheckoutAttributePriceAsync(
             CheckoutAttributeValue attributeValue,
             Customer customer = null,
             bool? includingTax = null)
@@ -320,9 +320,9 @@ namespace Smartstore.Core.Checkout.Tax
             Guard.NotNull(attributeValue, nameof(attributeValue));
             
             if (attributeValue.CheckoutAttribute.IsTaxExempt)
-                return Task.FromResult(attributeValue.PriceAdjustment);
+                return attributeValue.PriceAdjustment;
 
-            return GetProductPriceAsync(
+            return await GetProductPriceAsync(
                 null,
                 attributeValue.PriceAdjustment,
                 includingTax,
