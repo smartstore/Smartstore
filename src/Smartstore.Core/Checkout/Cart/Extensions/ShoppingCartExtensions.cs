@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -83,7 +82,6 @@ namespace Smartstore
             return null;
         }
 
-
         /// <summary>
         /// Checks whether the shopping cart requires shipping.
         /// </summary>
@@ -120,6 +118,18 @@ namespace Smartstore
             Guard.NotNull(cart, nameof(cart));
 
             return cart.Where(x => x.Item.Product != null && matcher(x.Item.Product)).Any();
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether shopping cart is recurring.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <returns>A value indicating whether shopping cart is recurring.</returns>
+		public static bool IsRecurring(this IList<OrganizedShoppingCartItem> cart)
+        {
+            Guard.NotNull(cart, nameof(cart));
+
+            return cart.Where(x => x.Item?.Product?.IsRecurring ?? false).Any();
         }
 
         /// <summary>

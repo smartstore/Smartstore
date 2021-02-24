@@ -54,6 +54,14 @@ namespace Smartstore.Core.Checkout.GiftCards
             return giftCards;
         }
 
+        public virtual Task<IList<GiftCard>> GetActiveGiftCardsAppliedByCustomerAsync(Customer customer, int storeId)
+        {
+            // TODO: (ms) (core) Implement GiftCardService.GetActiveGiftCardsAppliedByCustomerAsync.
+            var result = new List<GiftCard>();
+
+            return Task.FromResult((IList<GiftCard>)result);
+        }
+
         //TODO: (ms) (core) have order item & order eager loaded
         public virtual bool ValidateGiftCard(GiftCard giftCard, int storeId = 0)
         {

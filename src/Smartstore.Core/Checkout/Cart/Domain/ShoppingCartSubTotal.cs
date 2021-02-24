@@ -35,30 +35,33 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Tax rates.
         /// </summary>
-        public SortedDictionary<decimal, decimal> TaxRates { get; init; } = new();
+        public TaxRatesDictionary TaxRates { get; init; } = new();
 
         /// <summary>
         /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="SubTotalWithDiscount"/>.
         /// </summary>
         public override string ToString()
             => SubTotalWithDiscount.ToString();
+    }
 
+    public partial class TaxRatesDictionary : SortedDictionary<decimal, decimal>
+    {
         /// <summary>
         /// Adds a tax rate and the related tax amount.
         /// </summary>
         /// <param name="taxRate">Tax rate.</param>
         /// <param name="taxAmount">Tax amount.</param>
-        public void AddTaxRate(decimal taxRate, decimal taxAmount)
+        public new void Add(decimal taxRate, decimal taxAmount)
         {
             if (taxRate > decimal.Zero && taxAmount > decimal.Zero)
             {
-                if (TaxRates.ContainsKey(taxRate))
+                if (ContainsKey(taxRate))
                 {
-                    TaxRates[taxRate] = TaxRates[taxRate] + taxAmount;
+                    this[taxRate] = this[taxRate] + taxAmount;
                 }
                 else
                 {
-                    TaxRates.Add(taxRate, taxAmount);
+                    Add(taxRate, taxAmount);
                 }
             }
         }

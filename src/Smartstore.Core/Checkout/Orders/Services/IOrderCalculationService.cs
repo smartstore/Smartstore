@@ -13,22 +13,44 @@ namespace Smartstore.Core.Checkout.Orders
     public partial interface IOrderCalculationService
     {
         /// <summary>
+        /// Gets the shopping cart total.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="includeRewardPoints">A value indicating whether to include reward points.</param>
+        /// <param name="includePaymentAdditionalFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
+        /// <param name="includeCreditBalance">A value indicating whether to include credit balance.</param>
+        /// <returns></returns>
+        Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
+            IList<OrganizedShoppingCartItem> cart,
+            bool includeRewardPoints = true,
+            bool includePaymentAdditionalFee = true,
+            bool includeCreditBalance = true);
+
+        /// <summary>
         /// Gets the shopping cart subtotal.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
-        /// <param name="includingTax">A value indicating whether the calculated price should include tax.
+        /// <param name="includeTax">A value indicating whether the calculated price should include tax.
         /// If <c>null</c>, will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.</param>
         /// <returns>Shopping cart subtotal.</returns>
-        Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includingTax = null);
+        Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null);
 
         /// <summary>
         /// Gets the shopping cart shipping total.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
-        /// <param name="includingTax">A value indicating whether the calculated price should include tax.
+        /// <param name="includeTax">A value indicating whether the calculated price should include tax.
         /// If <c>null</c>, will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.</param>
         /// <returns>Shopping cart shipping total.</returns>
-        Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includingTax = null);
+        Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null);
+
+        /// <summary>
+        /// Gets the shopping cart tax total.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="includePaymentAdditionalFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
+        /// <returns>The tax total amount and applied tax rates.</returns>
+        Task<(decimal Amount, TaxRatesDictionary taxRates)> GetTaxTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includePaymentAdditionalFee = true);
 
         /// <summary>
         /// Gets a value indicating whether shipping is free.

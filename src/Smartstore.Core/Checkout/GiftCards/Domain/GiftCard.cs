@@ -124,5 +124,49 @@ namespace Smartstore.Core.Checkout.GiftCards
             get => _lazyLoader?.Load(this, ref _purchasedWithOrderItem) ?? _purchasedWithOrderItem;
             protected set => _purchasedWithOrderItem = value;
         }
+
+        /// <summary>
+        /// Gets a gift card remaining amount.
+        /// </summary>
+        /// <returns>Gift card remaining amount.</returns>
+        public decimal GetGiftCardRemainingAmount()
+        {
+            var result = Amount;
+
+            foreach (var historyItem in GiftCardUsageHistory)
+            {
+                result -= historyItem.UsedValue;
+            }
+
+            return Math.Max(result, decimal.Zero);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the gift card is valid.
+        /// </summary>
+		/// <param name="storeId">Store identifier. 0 validates the gift card for all stores.</param>
+        /// <returns>A value indicating whether the gift card is valid.</returns>
+        public bool IsGiftCardValid(int storeId)
+        {
+            if (IsGiftCardActivated)
+            {
+                if (storeId != 0 &&
+                    PurchasedWithOrderItemId.HasValue && 
+                    PurchasedWithOrderItem != null &&
+                    PurchasedWithOrderItem.Order != null &&
+                    PurchasedWithOrderItem.Order.StoreId != storeId)
+                {
+                    return false;
+                }
+
+                var remainingAmount = GetGiftCardRemainingAmount();
+                if (remainingAmount > decimal.Zero)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

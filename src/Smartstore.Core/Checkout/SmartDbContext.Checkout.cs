@@ -4,6 +4,7 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 
@@ -23,5 +24,6 @@ namespace Smartstore.Core.Data
         public DbSet<ShipmentItem> ShipmentItems { get; set; }
         public DbSet<ShippingMethod> ShippingMethods { get; set; }
         public DbSet<ReturnRequest> ReturnRequests { get; set; }
+        public DbSet<PaymentMethod> PaymentMethods { get; set; }
     }
 }
