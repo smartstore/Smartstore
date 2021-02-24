@@ -121,18 +121,6 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets a value indicating whether shopping cart is recurring.
-        /// </summary>
-        /// <param name="cart">Shopping cart.</param>
-        /// <returns>A value indicating whether shopping cart is recurring.</returns>
-		public static bool IsRecurring(this IEnumerable<OrganizedShoppingCartItem> cart)
-        {
-            Guard.NotNull(cart, nameof(cart));
-
-            return cart.Where(x => x.Item?.Product?.IsRecurring ?? false).Any();
-        }
-
-        /// <summary>
         /// Gets the recurring cycle information.
         /// <param name="localizationService">The localization service.</param>
         /// </summary>

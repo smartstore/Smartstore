@@ -147,27 +147,23 @@ namespace Smartstore.Core.Checkout.Orders
 
             // Applied gift cards.
             var appliedGiftCards = new List<AppliedGiftCard>();
-            if (!cart.IsRecurring())
+            if (!cart.IncludesMatchingItems(x => x.IsRecurring))
             {
-                var giftCards = await _giftCardService.GetActiveGiftCardsAppliedByCustomerAsync(customer, store.Id);
-                if (giftCards?.Any() ?? false)
+                var giftCards = await _giftCardService.GetValidGiftCardsAsync(store.Id, customer);
+                foreach (var gc in giftCards)
                 {
-                    foreach (var gc in giftCards)
+                    if (resultTemp > decimal.Zero)
                     {
-                        if (resultTemp > decimal.Zero)
+                        var usableAmount = resultTemp > gc.UsableAmount ? gc.UsableAmount : resultTemp;
+
+                        // Reduce subtotal.
+                        resultTemp -= usableAmount;
+
+                        appliedGiftCards.Add(new()
                         {
-                            var remainingAmount = gc.GetGiftCardRemainingAmount();
-                            var usableAmount = resultTemp > remainingAmount ? remainingAmount : resultTemp;
-
-                            // Reduce subtotal.
-                            resultTemp -= usableAmount;
-
-                            appliedGiftCards.Add(new AppliedGiftCard
-                            {
-                                GiftCard = gc,
-                                UsableAmount = usableAmount
-                            });
-                        }
+                            GiftCard = gc.GiftCard,
+                            UsableAmount = usableAmount
+                        });
                     }
                 }
             }

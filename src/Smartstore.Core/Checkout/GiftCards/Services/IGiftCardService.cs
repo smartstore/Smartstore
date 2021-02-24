@@ -24,14 +24,6 @@ namespace Smartstore.Core.Checkout.GiftCards
         Task<List<AppliedGiftCard>> GetValidGiftCardsAsync(int storeId = 0, Customer customer = null);
 
         /// <summary>
-        /// Gets active gift cards that are applied by a customer.
-        /// </summary>
-        /// <param name="customer">Customer.</param>
-        /// <param name="storeId">Store identifier.</param>
-        /// <returns>Active gift cards.</returns>
-        Task<IList<GiftCard>> GetActiveGiftCardsAppliedByCustomerAsync(Customer customer, int storeId);
-
-        /// <summary>
         /// Checks whether the gift card is valid
         /// </summary>
         /// <remarks>
