@@ -122,7 +122,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     monthSelect.Attributes.Add("disabled", "disabled");
                 }
 
-                using var _ = StringBuilderPool.Instance.Get(out var months);
+                using var __ = StringBuilderPool.Instance.Get(out var months);
 
                 // Add initial option.
                 months.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Month"));
@@ -159,7 +159,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     yearSelect.Attributes.Add("disabled", "disabled");
                 }
 
-                using var _ = StringBuilderPool.Instance.Get(out var years);
+                using var ___ = StringBuilderPool.Instance.Get(out var years);
 
                 years.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Year"));
 
