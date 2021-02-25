@@ -11,7 +11,6 @@ namespace Smartstore.Web.Rendering.Builders
         where TItem : NavigationItem
         where TBuilder : NavigationItemBuilder<TItem, TBuilder>
     {
-
         protected NavigationItemBuilder(TItem item)
         {
             Guard.NotNull(item, nameof(item));
@@ -24,7 +23,6 @@ namespace Smartstore.Web.Rendering.Builders
             get;
             private set;
         }
-
 
         public TBuilder Action(RouteValueDictionary routeValues)
         {
@@ -95,7 +93,15 @@ namespace Smartstore.Web.Rendering.Builders
 
         public TBuilder HtmlAttributes(object attributes)
         {
-            return HtmlAttributes(CommonHelper.ObjectToDictionary(attributes));
+            var obj = CommonHelper.ObjectToDictionary(attributes);
+            var dict = new AttributeDictionary();
+
+            foreach (var kvp in obj)
+            {
+                dict.Add(kvp.Key, kvp.Value.ToString());
+            }
+
+            return HtmlAttributes(dict);
         }
 
         public TBuilder HtmlAttributes(IDictionary<string, string> attributes)
