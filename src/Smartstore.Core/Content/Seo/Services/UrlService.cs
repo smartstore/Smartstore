@@ -269,7 +269,29 @@ namespace Smartstore.Core.Content.Seo
                 return policy;
             }
 
-            // TODO: (core) Implement ApplyCanonicalUrlRulesPolicy
+            var rule = _seoSettings.CanonicalHostNameRule;
+            if (rule == CanonicalHostNameRule.NoRule)
+            {
+                return policy;
+            }
+
+            var context = _httpContextAccessor.HttpContext;
+            if (context.Connection.IsLocal())
+            {
+                // Allows testing of "localtest.me"
+                return policy;
+            }
+
+            var hasWww = policy.Host.Value.StartsWith("www.", StringComparison.OrdinalIgnoreCase);
+
+            if (rule == CanonicalHostNameRule.OmitWww && hasWww)
+            {
+                policy.Host.Modify(policy.Host.Value.Substring(4));
+            }
+            else if (rule == CanonicalHostNameRule.RequireWww && !hasWww)
+            {
+                policy.Host.Modify("www." + policy.Host.Value);
+            }
 
             return policy;
         }
