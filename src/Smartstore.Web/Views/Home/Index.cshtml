@@ -156,7 +156,7 @@
             <label asp-for="TestEmail" class="col-form-label text-right required"></label>
         </div>
         <div class="col-lg-9">
-            @Html.TextBoxFor(x => x.TestEmail, new { @class = "form-control" })
+            <input asp-for="TestEmail" class="form-control" />
         </div>
     </div>
     <div class="row">
@@ -179,7 +179,7 @@
         <div class="footer-newsletter nav-collapsible" data-subscription-url="@(Url.RouteUrl("SubscribeNewsletter"))" data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
             <div id="newsletter-subscribe-block">
                 <div class="input-group has-icon mb-2">
-                    @Html.TextBoxFor(x => x.TestEmail, new { id = "newsletter-email", @class = "form-control", placeholder = T("Newsletter.Email") })
+                    <input asp-for="TestEmail" id="newsletter-email" class="form-control" placeholder="@T("Newsletter.Email")"/>
                     <span class="input-group-icon text-muted">
                         <i class="fa fa-envelope"></i>
                     </span>
