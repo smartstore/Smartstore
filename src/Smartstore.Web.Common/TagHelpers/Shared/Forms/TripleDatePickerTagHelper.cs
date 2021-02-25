@@ -67,6 +67,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.TagMode = TagMode.StartTagAndEndTag;
             output.AppendCssClass("row xs-gutters");
 
+            if (DayName.HasValue())
+            {
+                // Refactor
+            }
+
             var daysCol = new TagBuilder("div");
             var monthsCol = new TagBuilder("div");
             var yearsCol = new TagBuilder("div");
@@ -74,25 +79,25 @@ namespace Smartstore.Web.TagHelpers.Shared
             monthsCol.AddCssClass("col");
             yearsCol.AddCssClass("col");
 
-            var daysList = new TagBuilder("select");
-            var monthsList = new TagBuilder("select");
-            var yearsList = new TagBuilder("select");
+            var daySelect = new TagBuilder("select");
+            var monthSelect = new TagBuilder("select");
+            var yearSelect = new TagBuilder("select");
 
-            daysList.Attributes.AddRange(new Dictionary<string, string> {
+            daySelect.Attributes.AddRange(new Dictionary<string, string> {
                 { "data-native-menu", "false" },
                 { "name", DayName },
                 { "id", DayName },
                 { "class", "date-part form-control noskin remember" },
                 { "data-minimum-results-for-search", "100" }
             });
-            monthsList.Attributes.AddRange(new Dictionary<string, string> {
+            monthSelect.Attributes.AddRange(new Dictionary<string, string> {
                 { "data-native-menu", "false" },
                 { "name", MonthName },
                 { "id", MonthName },
                 { "class", "date-part form-control noskin remember" },
                 { "data-minimum-results-for-search", "100" }
             });
-            yearsList.Attributes.AddRange(new Dictionary<string, string> {
+            yearSelect.Attributes.AddRange(new Dictionary<string, string> {
                 { "data-native-menu", "false" },
                 { "name", YearName },
                 { "id", YearName },
@@ -102,14 +107,14 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (Disabled)
             {
-                daysList.Attributes.Add("disabled", "disabled");
-                monthsList.Attributes.Add("disabled", "disabled");
-                yearsList.Attributes.Add("disabled", "disabled");
+                daySelect.Attributes.Add("disabled", "disabled");
+                monthSelect.Attributes.Add("disabled", "disabled");
+                yearSelect.Attributes.Add("disabled", "disabled");
             }
 
-            var days = StringBuilderPool.Instance.Get();
-            var months = StringBuilderPool.Instance.Get();
-            var years = StringBuilderPool.Instance.Get();
+            using var _ = StringBuilderPool.Instance.Get(out var days);
+            using var __ = StringBuilderPool.Instance.Get(out var months);
+            using var ___ = StringBuilderPool.Instance.Get(out var years);
 
             // Add initial options.
             days.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Day"));
@@ -143,13 +148,13 @@ namespace Smartstore.Web.TagHelpers.Shared
                     (Year != null && Convert.ToInt32(Year) == i) ? " selected=\"selected\"" : null);
             }
             
-            daysList.InnerHtml.AppendHtml(days.ToString());
-            monthsList.InnerHtml.AppendHtml(months.ToString());
-            yearsList.InnerHtml.AppendHtml(years.ToString());
+            daySelect.InnerHtml.AppendHtml(days.ToString());
+            monthSelect.InnerHtml.AppendHtml(months.ToString());
+            yearSelect.InnerHtml.AppendHtml(years.ToString());
 
-            daysCol.InnerHtml.AppendHtml(daysList);
-            monthsCol.InnerHtml.AppendHtml(monthsList);
-            yearsCol.InnerHtml.AppendHtml(yearsList);
+            daysCol.InnerHtml.AppendHtml(daySelect);
+            monthsCol.InnerHtml.AppendHtml(monthSelect);
+            yearsCol.InnerHtml.AppendHtml(yearSelect);
 
             output.Content
                 .AppendHtml(DayName.HasValue() ? daysCol : null)
