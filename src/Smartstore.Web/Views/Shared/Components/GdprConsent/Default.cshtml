@@ -5,8 +5,7 @@
 @{
     var id = "gdpr-consent-" + CommonHelper.GenerateRandomInteger();
 
-    // TODO: (mh) (core) Url.Topic("privacyinfo")
-    var privacyInfoUrl = "";
+    var privacyInfoUrl = await Url.TopicAsync("privacyinfo");
 }
 
 <div class="form-group row gdpr-consent @(Model.SmallDisplay ? "small" : "")">
