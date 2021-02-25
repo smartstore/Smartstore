@@ -14,6 +14,9 @@ namespace Smartstore.Core.Checkout.Payment
     {
         public void Configure(EntityTypeBuilder<RecurringPayment> builder)
         {
+            // Globally exclude soft-deleted entities from all queries.
+            builder.HasQueryFilter(c => !c.Deleted);
+
             builder.HasOne(x => x.InitialOrder)
                 .WithMany()
                 .HasForeignKey(x => x.InitialOrderId)

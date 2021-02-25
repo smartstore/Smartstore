@@ -28,6 +28,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<ShippingService>().As<IShippingService>().InstancePerLifetimeScope();
             builder.RegisterType<TaxService>().As<ITaxService>().InstancePerLifetimeScope();
             builder.RegisterType<OrderCalculationService>().As<IOrderCalculationService>().InstancePerLifetimeScope();
+            builder.RegisterType<OrderService>().As<IOrderService>().InstancePerLifetimeScope();
 
             // Cart rules.
             var cartRuleTypes = appContext.TypeScanner.FindTypes<IRule>(ignoreInactiveModules: true).ToList();
