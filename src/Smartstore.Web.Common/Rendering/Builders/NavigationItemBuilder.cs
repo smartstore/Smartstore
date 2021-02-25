@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Content.Menus
+namespace Smartstore.Web.Rendering.Builders
 {
     public abstract class NavigationItemBuilder<TItem, TBuilder> : IHideObjectMembers
         where TItem : NavigationItem
@@ -190,10 +190,7 @@ namespace Smartstore.Core.Content.Menus
             return (this as TBuilder);
         }
 
-        public TItem ToItem()
-        {
-            return Item;
-        }
+        public TItem AsItem() => Item;
     }
 
     // TODO: (mh) (core) If this will be used is TBD

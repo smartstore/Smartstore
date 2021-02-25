@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Smartstore.Core.Content.Menus;
 
-namespace Smartstore.Core.Content.Menus
+namespace Smartstore.Web.Rendering.Builders
 {
     public class MenuItemBuilder : NavigationItemBuilder<MenuItem, MenuItemBuilder>
     {
@@ -34,8 +36,15 @@ namespace Smartstore.Core.Content.Menus
         }
 
         public static implicit operator MenuItem(MenuItemBuilder builder)
+            => builder.AsItem();
+    }
+
+    public static class MenuItemExtensions
+    {
+        public static MenuItemBuilder AsBuilder(this MenuItem item)
         {
-            return builder.ToItem();
+            Guard.NotNull(item, nameof(item));
+            return new MenuItemBuilder(item);
         }
     }
 }

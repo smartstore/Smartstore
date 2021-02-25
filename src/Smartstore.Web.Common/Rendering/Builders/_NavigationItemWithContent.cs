@@ -3,7 +3,7 @@
 //using Microsoft.AspNetCore.Mvc.Razor;
 //using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
-//namespace Smartstore.Core.Content.Menus
+//namespace Smartstore.Web.Rendering.Builders
 //{
 //    public abstract class NavigationItemWithContent : NavigationItem, IHideObjectMembers
 //    {
