@@ -457,12 +457,14 @@ namespace Smartstore.Core.Identity
 
         public Task SetTwoFactorEnabledAsync(Customer user, bool enabled, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         public Task<bool> GetTwoFactorEnabledAsync(Customer user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return Task.FromResult(false);
         }
 
         #endregion
@@ -471,17 +473,20 @@ namespace Smartstore.Core.Identity
 
         public Task ReplaceCodesAsync(Customer user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         public Task<bool> RedeemCodeAsync(Customer user, string code, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return Task.FromResult(true);
         }
 
         public Task<int> CountCodesAsync(Customer user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return Task.FromResult(0);
         }
 
         #endregion
