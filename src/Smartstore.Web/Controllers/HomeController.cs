@@ -145,10 +145,11 @@ namespace Smartstore.Web.Controllers
             _giftCardService = giftCardService;
             _userManager = userManager;
             _userAgent = userAgent;
-            
+
             var currentStore = _storeContext.CurrentStore;
         }
 
+        [GdprConsent]
         [LocalizedRoute("/", Name = "Homepage")]
         public async Task<IActionResult> Index()
         {
@@ -287,6 +288,13 @@ namespace Smartstore.Web.Controllers
             testModel.Locales.Add(new LocalizedTestModel { LanguageId = 2, TestProp1 = "Hello 2", TestProp2 = "Word 2" });
 
             return View(testModel);
+        }
+
+        [GdprConsent]
+        [HttpPost]
+        public async Task<IActionResult> Index(TestModel model)
+        {
+            return View(model);
         }
 
         [LocalizedRoute("/privacy", Name = "Privacy")]

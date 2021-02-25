@@ -95,8 +95,6 @@
     </modal-footer>
 </modal>
 
-
-
 <tabstrip id="yodele" class="mt-4 mb-6" sm-nav-style="Material" sm-nav-position="Top" sm-hide-single-item="true" sm-fade="true" sm-responsive="true">
     <tab-content-header>
         <a href="javascript:void()" class="btn btn-secondary btn-flat btn-no-border offcanvas-closer rounded-0" title="@T("Common.Close")">
@@ -115,33 +113,109 @@
     </tab>
 </tabstrip>
 
-<div class="form-group row">
-    <div class="col-lg-3">
-        <label asp-for="TestColor" class="col-form-label text-right required"></label>
+@using (Html.BeginForm(FormMethod.Post, new { id = "test-post" }))
+{
+    @if (ViewContext.ViewData.ModelState.ContainsKey(""))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+    }
+
+    <div class="form-group row">
+        <div class="col-lg-3">
+            <label asp-for="TestColor" class="col-form-label text-right required"></label>
+        </div>
+        <div class="col-lg-9">
+            <colorbox asp-for="TestColor" sm-default-color="#0000ff" />
+        </div>
     </div>
-    <div class="col-lg-9">
-        <colorbox asp-for="TestColor" sm-default-color="#0000ff" />
+
+    <div class="form-group row">
+        <div class="col-lg-3">
+            <label asp-for="DateOfBirthDay" class="col-form-label text-right required"></label>
+        </div>
+        <div class="col-lg-9">
+            <triple-date-picker day-name="@Html.NameFor(x => x.DateOfBirthDay)" month-name="@Html.NameFor(x => x.DateOfBirthMonth)" year-name="@Html.NameFor(x => x.DateOfBirthYear)"
+                                day="@Model.DateOfBirthDay" month="@Model.DateOfBirthMonth" year="@Model.DateOfBirthYear"
+                                begin-year="1970" end-year="2020" disabled="false" />
+        </div>
     </div>
-</div>
+
+    <div class="form-group row">
+        <div class="col-lg-3">
+            <label asp-for="DateOfBirthDay" class="col-form-label text-right required"></label>
+        </div>
+        <div class="col-lg-9">
+            <triple-date-picker month-name="@Html.NameFor(x => x.DateOfBirthMonth)" year-name="@Html.NameFor(x => x.DateOfBirthYear)"
+                                month="@Model.DateOfBirthMonth" year="@Model.DateOfBirthYear"
+                                begin-year="1970" end-year="2020" disabled="false" />
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-lg-3">
+            <label asp-for="TestEmail" class="col-form-label text-right required"></label>
+        </div>
+        <div class="col-lg-9">
+            @Html.TextBoxFor(x => x.TestEmail, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="row">
+        <div class="col offset-3">
+            <zone sm-zone-name="gdpr_consent"></zone>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col offset-3">
+            <button type="submit">Submit</button>
+        </div>
+    </div>
+}
 
 <div class="form-group row">
     <div class="col-lg-3">
-        <label asp-for="DateOfBirthDay" class="col-form-label text-right required"></label>
+        GDPR (small)
     </div>
     <div class="col-lg-9">
-        <triple-date-picker day-name="@Html.NameFor(x => x.DateOfBirthDay)" month-name="@Html.NameFor(x => x.DateOfBirthMonth)" year-name="@Html.NameFor(x => x.DateOfBirthYear)"
-                            day="@Model.DateOfBirthDay" month="@Model.DateOfBirthMonth" year="@Model.DateOfBirthYear"
-                            begin-year="1970" end-year="2020" disabled="false" />
+        <div class="footer-newsletter nav-collapsible" data-subscription-url="@(Url.RouteUrl("SubscribeNewsletter"))" data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
+            <div id="newsletter-subscribe-block">
+                <div class="input-group has-icon mb-2">
+                    @Html.TextBoxFor(x => x.TestEmail, new { id = "newsletter-email", @class = "form-control", placeholder = T("Newsletter.Email") })
+                    <span class="input-group-icon text-muted">
+                        <i class="fa fa-envelope"></i>
+                    </span>
+                    <div class="input-group-append">
+                        <button id="newsletter-subscribe-button" class="btn btn-primary btn-icon" title="@T("Newsletter.Button")">
+                            <i class="fa fa-angle-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="d-none d-lg-block">
+                    <div class="form-inline">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="newsletter-subscribe" value="newsletter-subscribe" name="optionsRadios" checked="checked">
+                            <label class="form-check-label" for="newsletter-subscribe">
+                                <span>@T("Newsletter.Subscribe")</span>
+                            </label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" id="newsletter-unsubscribe" value="newsletter-unsubscribe" name="optionsRadios">
+                            <label class="form-check-label" for="newsletter-unsubscribe">
+                                <span>@T("Newsletter.Unsubscribe")</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <zone sm-zone-name="gdpr_consent_small"></zone>
+
+                @*TODO: (mh) (core) Uncomment when NewsLetterController is available*@
+                @*@Html.ValidationMessageFor(x => x.TestEmail)*@
+
+            </div>
+            <div id="newsletter-result-block" class="alert alert-success d-none"></div>
+        </div>
     </div>
 </div>
 
-<div class="form-group row">
-    <div class="col-lg-3">
-        <label asp-for="DateOfBirthDay" class="col-form-label text-right required"></label>
-    </div>
-    <div class="col-lg-9">
-        <triple-date-picker month-name="@Html.NameFor(x => x.DateOfBirthMonth)" year-name="@Html.NameFor(x => x.DateOfBirthYear)"
-                            month="@Model.DateOfBirthMonth" year="@Model.DateOfBirthYear"
-                            begin-year="1970" end-year="2020" disabled="false" />
-    </div>
-</div>
