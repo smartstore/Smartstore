@@ -287,7 +287,7 @@ namespace Smartstore.ComponentModel
 
 			if (value != null)
 			{
-				keySelector = keySelector ?? new Func<string, string>(key => key);
+				keySelector ??= new Func<string, string>(key => key);
 
 				foreach (var prop in GetProperties(value.GetType()).Values)
 				{

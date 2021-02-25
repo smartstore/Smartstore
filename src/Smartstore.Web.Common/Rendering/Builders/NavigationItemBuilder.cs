@@ -93,15 +93,7 @@ namespace Smartstore.Web.Rendering.Builders
 
         public TBuilder HtmlAttributes(object attributes)
         {
-            var obj = CommonHelper.ObjectToDictionary(attributes);
-            var dict = new AttributeDictionary();
-
-            foreach (var kvp in obj)
-            {
-                dict.Add(kvp.Key, kvp.Value.ToString());
-            }
-
-            return HtmlAttributes(dict);
+            return HtmlAttributes(CommonHelper.ObjectToStringDictionary(attributes));
         }
 
         public TBuilder HtmlAttributes(IDictionary<string, string> attributes)
@@ -113,15 +105,7 @@ namespace Smartstore.Web.Rendering.Builders
 
         public TBuilder LinkHtmlAttributes(object attributes)
         {
-            var obj = CommonHelper.ObjectToDictionary(attributes);
-            var dict = new AttributeDictionary();
-
-            foreach (var kvp in obj)
-            {
-                dict.Add(kvp.Key, kvp.Value.ToString());
-            }
-            
-            return LinkHtmlAttributes(dict);
+            return LinkHtmlAttributes(CommonHelper.ObjectToStringDictionary(attributes));
         }
 
         public TBuilder LinkHtmlAttributes(IDictionary<string, string> attributes)
@@ -161,16 +145,15 @@ namespace Smartstore.Web.Rendering.Builders
             return (this as TBuilder);
         }
 
-        // TODO: (mh) (core) Move BadgeStyle to core.
-        //public TBuilder Badge(string value, BadgeStyle style = BadgeStyle.Secondary, bool condition = true)
-        //{
-        //    if (condition)
-        //    {
-        //        this.Item.BadgeText = value;
-        //        this.Item.BadgeStyle = style;
-        //    }
-        //    return (this as TBuilder);
-        //}
+        public TBuilder Badge(string value, BadgeStyle style = BadgeStyle.Secondary, bool condition = true)
+        {
+            if (condition)
+            {
+                Item.BadgeText = value;
+                Item.BadgeStyle = (int)style;
+            }
+            return (this as TBuilder);
+        }
 
         public TBuilder Visible(bool value)
         {

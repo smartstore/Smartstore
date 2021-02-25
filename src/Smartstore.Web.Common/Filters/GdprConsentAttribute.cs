@@ -27,7 +27,8 @@ namespace Smartstore.Web.Filters
             private readonly PrivacySettings _privacySettings;
             private readonly INotifier _notifier;
 
-            public GdprConsentFilter(ICommonServices services, 
+            public GdprConsentFilter(
+                ICommonServices services, 
                 IWidgetProvider widgetProvider, 
                 PrivacySettings privacySettings,
                 INotifier notifier)

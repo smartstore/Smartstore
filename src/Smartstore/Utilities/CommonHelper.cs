@@ -274,31 +274,20 @@ namespace Smartstore.Utilities
 
         public static IDictionary<string, object> ObjectToDictionary(object obj)
         {
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj));
-
             return FastProperty.ObjectToDictionary(
                 obj,
-                key => key.Replace("_", "-").Replace("@", ""));
+                key => key.Replace('_', '-').Replace("@", ""));
+        }
+
+        public static IDictionary<string, string> ObjectToStringDictionary(object obj)
+        {
+            return ObjectToDictionary(obj)
+                .ToDictionary(key => key.Key, el => el.Value.ToString());
         }
 
         #endregion
 
         #region Misc
-
-        //public static bool HasConnectionString(string connectionStringName)
-        //{
-        //    //// TODO: (core) Remove!
-        //    return true;
-
-        //    //var conString = ConfigurationManager.ConnectionStrings[connectionStringName];
-        //    //if (conString != null && conString.ConnectionString.HasValue())
-        //    //{
-        //    //    return true;
-        //    //}
-
-        //    //return false;
-        //}
 
         public static bool IsTruthy(object value)
         {
