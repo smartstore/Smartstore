@@ -50,7 +50,7 @@ namespace Smartstore.Core.Security
 
             public Task OnAuthorizationAsync(AuthorizationFilterContext context)
             {
-                // TODO: (core) Implement PermissionFilter
+                // TODO: (mg) (core) Implement PermissionFilter
                 return Task.CompletedTask;
             }
         }

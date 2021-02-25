@@ -35,11 +35,18 @@ namespace Smartstore.Core.Content.Seo.Routing
                     return HandleRedirect(policy.GetModifiedUrl());
                 }
 
-                policy = urlService.ApplyCanonicalUrlRulesPolicy();
+                // Apply canonical URL rules
+                urlService.ApplyCanonicalUrlRulesPolicy();
 
                 var endpoint = context.GetEndpoint();
+
+                // Apply HTTPS rules
+                policy = urlService.ApplyHttpsUrlPolicy(endpoint);
+
                 if (endpoint != null)
                 {
+                    // Apply SEO culture rules
+                    // Endpoint is mandatory for Culture policy.
                     policy = urlService.ApplyCultureUrlPolicy(endpoint);
                 }
 

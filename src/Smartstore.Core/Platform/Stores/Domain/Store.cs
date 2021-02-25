@@ -158,18 +158,16 @@ namespace Smartstore.Core.Stores
 
 
         /// <summary>
-        /// Gets the security mode for the store
+        /// Checks whether the store supports HTTPS.
         /// </summary>
-        public virtual HttpSecurityMode GetSecurityMode(bool? useSsl = null)
+        public bool SupportsHttps()
         {
-            if (useSsl ?? SslEnabled)
+            if (SslEnabled)
             {
-                return Url.StartsWith("https") || (SecureUrl.HasValue() && SecureUrl.StartsWith("https"))
-                    ? HttpSecurityMode.Ssl
-                    : HttpSecurityMode.Unsecured;
+                return Url.StartsWith("https") || (SecureUrl.HasValue() && SecureUrl.StartsWith("https"));
             }
 
-            return HttpSecurityMode.Unsecured;
+            return false;
         }
 
         /// <summary>

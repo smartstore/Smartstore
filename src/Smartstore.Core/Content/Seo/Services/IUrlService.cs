@@ -60,7 +60,12 @@ namespace Smartstore.Core.Content.Seo
         UrlPolicy ApplyCanonicalUrlRulesPolicy();
 
         /// <summary>
-        /// Applies all configured rules for seo friendly URLs.
+        /// Applies the policy for HTTPS according to settings in current <see cref="Smartstore.Core.Stores.Store"/>
+        /// </summary>
+        UrlPolicy ApplyHttpsUrlPolicy(Endpoint endpoint);
+
+        /// <summary>
+        /// Applies all configured rules for SEO friendly URLs.
         /// </summary>
         UrlPolicy ApplyCultureUrlPolicy(Endpoint endpoint);
 

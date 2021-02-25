@@ -18,7 +18,7 @@ namespace Smartstore.Core.Bootstrapping
     {
         public override void MapRoutes(EndpointRoutingBuilder builder)
         {
-            builder.MapRoutes(StarterOrdering.FirstRoute, endpoints =>
+            builder.MapRoutes(StarterOrdering.AfterAuthenticationMiddleware, endpoints =>
             {
                 endpoints.MapMedia();
             });

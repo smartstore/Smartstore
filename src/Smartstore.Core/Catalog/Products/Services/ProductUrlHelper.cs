@@ -262,7 +262,7 @@ namespace Smartstore.Core.Catalog.Products
                 url = _urlHelper.Value.RouteUrl(
                     "Product",
                     new { SeName = productSlug, culture = language.UniqueSeoCode },
-                    store.GetSecurityMode(true) == HttpSecurityMode.Ssl ? "https" : "http",
+                    store.SupportsHttps() ? "https" : "http",
                     hostName);
             }
 

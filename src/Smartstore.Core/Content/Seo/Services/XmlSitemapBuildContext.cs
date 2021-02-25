@@ -19,7 +19,7 @@ namespace Smartstore.Core.Content.Seo
 
             Store = store;
             Languages = languages;
-            Protocol = Store.ForceSslForAllPages ? "https" : "http";
+            Protocol = store.SupportsHttps() && store.ForceSslForAllPages ? "https" : "http";
 
             _settingFactory = settingFactory;
             _isSingleStoreMode = isSingleStoreMode;

@@ -14,6 +14,9 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Content.Seo.Routing;
 using Smartstore.Data.Hooks;
+using Smartstore.Core.Stores;
+using Smartstore.Core.Web;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Core.Content.Seo
 {
@@ -30,10 +33,13 @@ namespace Smartstore.Core.Content.Seo
         private readonly ICacheManager _cache;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
+        private readonly IWebHelper _webHelper;
         private readonly ILanguageService _languageService;
         private readonly LocalizationSettings _localizationSettings;
         internal readonly SeoSettings _seoSettings;
         private readonly PerformanceSettings _performanceSettings;
+        private readonly SecuritySettings _securitySettings;
 
         private UrlPolicy _urlPolicy;
 
@@ -46,19 +52,25 @@ namespace Smartstore.Core.Content.Seo
             ICacheManager cache,
             IHttpContextAccessor httpContextAccessor,
             IWorkContext workContext,
+            IStoreContext storeContext,
+            IWebHelper webHelper,
             ILanguageService languageService,
             LocalizationSettings localizationSettings,
             SeoSettings seoSettings,
-            PerformanceSettings performanceSettings)
+            PerformanceSettings performanceSettings,
+            SecuritySettings securitySettings)
         {
             _db = db;
             _cache = cache;
             _httpContextAccessor = httpContextAccessor;
             _workContext = workContext;
+            _storeContext = storeContext;
+            _webHelper = webHelper;
             _languageService = languageService;
             _localizationSettings = localizationSettings;
             _seoSettings = seoSettings;
             _performanceSettings = performanceSettings;
+            _securitySettings = securitySettings;
 
             _prefetchedCollections = new Dictionary<string, UrlRecordCollection>(StringComparer.OrdinalIgnoreCase);
             _extraSlugLookup = new Dictionary<string, UrlRecord>();
@@ -77,10 +89,13 @@ namespace Smartstore.Core.Content.Seo
                 _cache,
                 _httpContextAccessor,
                 _workContext,
+                _storeContext,
+                _webHelper,
                 _languageService,
                 _localizationSettings,
                 _seoSettings,
-                _performanceSettings)
+                _performanceSettings,
+                _securitySettings)
             {
                 _urlPolicy = _urlPolicy,
                 _extraSlugLookup = _extraSlugLookup,
@@ -259,6 +274,55 @@ namespace Smartstore.Core.Content.Seo
             return policy;
         }
 
+        public virtual UrlPolicy ApplyHttpsUrlPolicy(Endpoint endpoint)
+        {
+            var policy = GetUrlPolicy();
+
+            if (policy.IsInvalidUrl)
+            {
+                return policy;
+            }
+
+            var context = _httpContextAccessor.HttpContext;
+
+            // Don't redirect on localhost if not allowed.
+            if (!_securitySettings.UseSslOnLocalhost && context.Connection.IsLocal())
+            {
+                return policy;
+            }
+
+            // Only redirect for GET requests, otherwise the browser might not propagate
+            // the verb and request body correctly.
+            if (!HttpMethods.IsGet(context.Request.Method))
+            {
+                return policy;
+            }
+
+            var currentConnectionSecured = _webHelper.IsCurrentConnectionSecured();
+            var currentStore = _storeContext.CurrentStore;
+            var supportsHttps = currentStore.SupportsHttps();
+            var requireHttps = currentStore.ForceSslForAllPages;
+
+            if (endpoint != null && supportsHttps && !requireHttps)
+            {
+                // Check if RequireSslAttribute is present in endpoint metadata
+                requireHttps = endpoint.Metadata.GetMetadata<RequireSslAttribute>() != null;
+            }
+
+            requireHttps = requireHttps && supportsHttps;
+
+            if (requireHttps && !currentConnectionSecured)
+            {
+                policy.Scheme.Modify(Uri.UriSchemeHttps);
+            }
+            else if (!requireHttps && currentConnectionSecured)
+            {
+                policy.Scheme.Modify(Uri.UriSchemeHttp);
+            }
+
+            return policy;
+        }
+
         public virtual UrlPolicy ApplyCultureUrlPolicy(Endpoint endpoint)
         {
             Guard.NotNull(endpoint, nameof(endpoint));
@@ -269,7 +333,7 @@ namespace Smartstore.Core.Content.Seo
             {
                 return policy;
             }
-
+            
             if (!_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled || policy.Method != HttpMethod.Get.Method)
             {
                 // Handle only GET requests and when config says so.
