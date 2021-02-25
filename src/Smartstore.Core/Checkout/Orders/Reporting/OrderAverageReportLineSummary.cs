@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Checkout.Orders
+﻿namespace Smartstore.Core.Checkout.Orders.Reporting
 {
     /// <summary>
     /// Represents an order average report line summary.
