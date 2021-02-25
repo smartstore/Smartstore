@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -15,6 +14,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string DayNameAttributeName = "day-name";
         const string MonthNameAttributeName = "month-name";
         const string YearNameAttributeName = "year-name";
+        const string DayAttributeName = "day";
+        const string MonthAttributeName = "month";
+        const string YearAttributeName = "year";
         const string BeginYearAttributeName = "begin-year";
         const string EndYearAttributeName = "end-year";
         const string DisabledAttributeName = "disabled";
@@ -27,13 +29,22 @@ namespace Smartstore.Web.TagHelpers.Shared
         }
 
         [HtmlAttributeName(DayNameAttributeName)]
-        public ModelExpression DayName { get; set; }
+        public string DayName { get; set; }
 
         [HtmlAttributeName(MonthNameAttributeName)]
-        public ModelExpression MonthName { get; set; }
+        public string MonthName { get; set; }
 
         [HtmlAttributeName(YearNameAttributeName)]
-        public ModelExpression YearName { get; set; }
+        public string YearName { get; set; }
+
+        [HtmlAttributeName(DayAttributeName)]
+        public int? Day { get; set; }
+
+        [HtmlAttributeName(MonthAttributeName)]
+        public int? Month { get; set; }
+
+        [HtmlAttributeName(YearAttributeName)]
+        public int? Year { get; set; }
 
         [HtmlAttributeName(BeginYearAttributeName)]
         public int? BeginYear { get; set; }
@@ -69,22 +80,22 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             daysList.Attributes.AddRange(new Dictionary<string, string> {
                 { "data-native-menu", "false" },
-                { "name", DayName.Name },
-                { "id", DayName.Name },
+                { "name", DayName },
+                { "id", DayName },
                 { "class", "date-part form-control noskin remember" },
                 { "data-minimum-results-for-search", "100" }
             });
             monthsList.Attributes.AddRange(new Dictionary<string, string> {
                 { "data-native-menu", "false" },
-                { "name", MonthName.Name },
-                { "id", MonthName.Name },
+                { "name", MonthName },
+                { "id", MonthName },
                 { "class", "date-part form-control noskin remember" },
                 { "data-minimum-results-for-search", "100" }
             });
             yearsList.Attributes.AddRange(new Dictionary<string, string> {
                 { "data-native-menu", "false" },
-                { "name", YearName.Name },
-                { "id", YearName.Name },
+                { "name", YearName },
+                { "id", YearName },
                 { "class", "date-part form-control noskin remember" },
                 //{ "data-minimum-results-for-search", "100" }
             });
@@ -96,9 +107,9 @@ namespace Smartstore.Web.TagHelpers.Shared
                 yearsList.Attributes.Add("disabled", "disabled");
             }
 
-            var days = new StringBuilder();
-            var months = new StringBuilder();
-            var years = new StringBuilder();
+            var days = StringBuilderPool.Instance.Get();
+            var months = StringBuilderPool.Instance.Get();
+            var years = StringBuilderPool.Instance.Get();
 
             // Add initial options.
             days.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Day"));
@@ -109,15 +120,14 @@ namespace Smartstore.Web.TagHelpers.Shared
             for (int i = 1; i <= 31; i++)
             {
                 days.AppendFormat("<option value='{0}'{1}>{0}</option>", i,
-                    (DayName.Model != null && (Convert.ToInt32(DayName.Model) == i)) ? " selected=\"selected\"" : null);
+                    (Day != null && (Convert.ToInt32(Day) == i)) ? " selected=\"selected\"" : null);
             }
-                
-
+            
             // Add options for months.
             for (int i = 1; i <= 12; i++)
             {
                 months.AppendFormat("<option value='{0}'{1}>{2}</option>", i,
-                                    (MonthName.Model != null && Convert.ToInt32(DayName.Model) == i) ? " selected=\"selected\"" : null,
+                                    (Month != null && Convert.ToInt32(Month) == i) ? " selected=\"selected\"" : null,
                                     CultureInfo.CurrentUICulture.DateTimeFormat.GetMonthName(i));
             }
 
@@ -130,7 +140,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             for (int i = BeginYear.Value; i <= EndYear.Value; i++)
             {
                 years.AppendFormat("<option value='{0}'{1}>{0}</option>", i,
-                    (YearName.Model != null && Convert.ToInt32(YearName.Model) == i) ? " selected=\"selected\"" : null);
+                    (Year != null && Convert.ToInt32(Year) == i) ? " selected=\"selected\"" : null);
             }
             
             daysList.InnerHtml.AppendHtml(days.ToString());
@@ -142,9 +152,9 @@ namespace Smartstore.Web.TagHelpers.Shared
             yearsCol.InnerHtml.AppendHtml(yearsList);
 
             output.Content
-                .AppendHtml(daysCol)
-                .AppendHtml(monthsCol)
-                .AppendHtml(yearsCol);
+                .AppendHtml(DayName.HasValue() ? daysCol : null)
+                .AppendHtml(MonthName.HasValue() ? monthsCol : null)
+                .AppendHtml(YearName.HasValue() ? yearsCol : null);
         }
     }
 }

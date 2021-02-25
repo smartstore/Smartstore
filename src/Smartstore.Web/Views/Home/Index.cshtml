@@ -129,8 +129,19 @@
         <label asp-for="DateOfBirthDay" class="col-form-label text-right required"></label>
     </div>
     <div class="col-lg-9">
-        <triple-date-picker 
-            day-name="DateOfBirthDay" month-name="DateOfBirthMonth" year-name="DateOfBirthYear"
-            begin-year="1970" end-year="2020" disabled="false" />
+        <triple-date-picker day-name="@Html.NameFor(x => x.DateOfBirthDay)" month-name="@Html.NameFor(x => x.DateOfBirthMonth)" year-name="@Html.NameFor(x => x.DateOfBirthYear)"
+                            day="@Model.DateOfBirthDay" month="@Model.DateOfBirthMonth" year="@Model.DateOfBirthYear"
+                            begin-year="1970" end-year="2020" disabled="false" />
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-3">
+        <label asp-for="DateOfBirthDay" class="col-form-label text-right required"></label>
+    </div>
+    <div class="col-lg-9">
+        <triple-date-picker month-name="@Html.NameFor(x => x.DateOfBirthMonth)" year-name="@Html.NameFor(x => x.DateOfBirthYear)"
+                            month="@Model.DateOfBirthMonth" year="@Model.DateOfBirthYear"
+                            begin-year="1970" end-year="2020" disabled="false" />
     </div>
 </div>
