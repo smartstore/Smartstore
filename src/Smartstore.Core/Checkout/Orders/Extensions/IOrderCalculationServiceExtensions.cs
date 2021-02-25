@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Orders
@@ -13,9 +14,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="shippingTotal">Shipping total amount.</param>
         /// <param name="customer">Customer.</param>
         /// <returns>The discount amount and applied discount.</returns>
-        public static async Task<(decimal Amount, Discount AppliedDiscount)> GetShippingDiscountAsync(
+        public static async Task<(Money Amount, Discount AppliedDiscount)> GetShippingDiscountAsync(
             this IOrderCalculationService orderCalculationService,
-            decimal shippingTotal,
+            Money shippingTotal,
             Customer customer)
         {
             Guard.NotNull(orderCalculationService, nameof(orderCalculationService));
@@ -30,9 +31,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="orderSubTotal">Order subtotal.</param>
         /// <param name="customer">Customer.</param>
         /// <returns>The discount amount and applied discount.</returns>
-        public static async Task<(decimal Amount, Discount AppliedDiscount)> GetOrderSubtotalDiscountAsync(
+        public static async Task<(Money Amount, Discount AppliedDiscount)> GetOrderSubtotalDiscountAsync(
             this IOrderCalculationService orderCalculationService, 
-            decimal orderSubTotal, 
+            Money orderSubTotal, 
             Customer customer)
         {
             Guard.NotNull(orderCalculationService, nameof(orderCalculationService));
@@ -47,9 +48,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="orderTotal">Order total.</param>
         /// <param name="customer">Customer.</param>
         /// <returns>The discount amount and applied discount.</returns>
-        public static async Task<(decimal Amount, Discount AppliedDiscount)> GetOrderTotalDiscountAsync(
+        public static async Task<(Money Amount, Discount AppliedDiscount)> GetOrderTotalDiscountAsync(
             this IOrderCalculationService orderCalculationService,
-            decimal orderTotal, 
+            Money orderTotal, 
             Customer customer)
         {
             Guard.NotNull(orderCalculationService, nameof(orderCalculationService));

@@ -107,7 +107,7 @@ namespace Smartstore.Core.Catalog.Attributes
                                 {
                                     // TODO: (ms) (core) Replace (price) decimals with money objects
                                     var attributeValuePriceAdjustment = await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, null, 1);
-                                    var priceAdjustmentBase = await _taxService.GetProductPriceAsync(product, _workContext.WorkingCurrency.AsMoney(attributeValuePriceAdjustment), customer: customer);
+                                    var (priceAdjustmentBase, _) = await _taxService.GetProductPriceAsync(product, _workContext.WorkingCurrency.AsMoney(attributeValuePriceAdjustment), customer: customer);
                                     var priceAdjustment = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase.Amount, _workContext.WorkingCurrency);
 
                                     if (_shoppingCartSettings.ShowLinkedAttributeValueQuantity &&

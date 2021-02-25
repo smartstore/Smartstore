@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
@@ -10,18 +11,13 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <param name="discount">Discount.</param>
         /// <param name="amount">Amount</param>
         /// <returns>The discount amount.</returns>
-        public static decimal GetDiscountAmount(this Discount discount, decimal amount)
+        public static decimal GetDiscountAmount(this Discount discount, Money amount)
         {
             Guard.NotNull(discount, nameof(discount));
 
-            if (discount.UsePercentage)
-            {
-                return (decimal)((((float)amount) * ((float)discount.DiscountPercentage)) / 100f);
-            }
-            else
-            {
-                return discount.DiscountAmount;
-            }
+            return discount.UsePercentage 
+                ? amount.Amount * discount.DiscountPercentage / 100m 
+                : discount.DiscountAmount;
         }
 
         /// <summary>
@@ -30,7 +26,7 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <param name="discounts">List of discounts.</param>
         /// <param name="amount">Amount without discount (for percentage discounts).</param>
         /// <returns>Discount that achieves the highest discount amount other than zero.</returns>
-        public static Discount GetPreferredDiscount(this ICollection<Discount> discounts, decimal amount)
+        public static Discount GetPreferredDiscount(this ICollection<Discount> discounts, Money amount)
         {
             Guard.NotNull(discounts, nameof(discounts));
 

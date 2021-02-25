@@ -7,6 +7,7 @@ using System.Text;
 using System.Xml.Serialization;
 using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Common;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
@@ -25,7 +26,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets the bundle item. Can be <c>null</c>.
         /// </summary>
         public ProductBundleItem Item { get; private set; }
-        public decimal AdditionalCharge { get; set; }
+        public Money AdditionalCharge { get; set; }
     }
 
     /// <summary>

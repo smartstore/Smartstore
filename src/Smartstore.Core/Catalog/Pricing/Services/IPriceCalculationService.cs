@@ -63,7 +63,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="customer">Customer.</param>
         /// <param name="context">Price calculation service. Will be created, if <c>null</c>.</param>
         /// <returns>Lowest price.</returns>
-        Task<(decimal LowestPrice, bool DisplayFromMessage)> GetLowestPriceAsync(Product product, Customer customer, PriceCalculationContext context);
+        Task<(Money LowestPrice, bool DisplayFromMessage)> GetLowestPriceAsync(Product product, Customer customer, PriceCalculationContext context);
 
         /// <summary>
         /// Gets the lowest price and lowest price product of a grouped product.
@@ -73,7 +73,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="context">Price calculation service. Will be created, if <c>null</c>.</param>
         /// <param name="associatedProducts">Associated products.</param>
         /// <returns>Lowest price and lowest price product.</returns>
-        Task<(decimal? LowestPrice, Product LowestPriceProduct)> GetLowestPriceAsync(
+        Task<(Money? LowestPrice, Product LowestPriceProduct)> GetLowestPriceAsync(
             Product product,
             Customer customer,
             PriceCalculationContext context,
@@ -91,10 +91,10 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="context">Price calculation context.</param>
         /// <param name="isTierPrice">A value indicating whether the price is calculated for a tier price.</param>
         /// <returns>Final product price.</returns>
-        Task<decimal> GetFinalPriceAsync(
+        Task<Money> GetFinalPriceAsync(
             Product product,
+            Money additionalCharge,
             Customer customer = null,
-            decimal additionalCharge = decimal.Zero,
             bool includeDiscounts = true,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
@@ -113,11 +113,11 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="bundleItem">A product bundle item.</param>
         /// <param name="context">Price calculation context.</param>
         /// <returns></returns>
-        Task<decimal> GetFinalPriceAsync(
+        Task<Money> GetFinalPriceAsync(
             Product product,
             IEnumerable<ProductBundleItemData> bundleItems,
+            Money additionalCharge,
             Customer customer = null,
-            decimal additionalCharge = decimal.Zero,
             bool includeDiscounts = true,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
@@ -136,12 +136,12 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <returns>The discount amount and the applied discount.</returns>
         Task<(decimal Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(
             Product product,
+            Money additionalCharge,
             Customer customer = null,
-            decimal additionalCharge = decimal.Zero,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
             PriceCalculationContext context = null,
-            decimal? finalPrice = null);
+            Money? finalPrice = null);
 
         /// <summary>
         /// Gets the price adjustment of a variant attribute value.
