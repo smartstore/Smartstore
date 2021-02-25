@@ -38,6 +38,28 @@ namespace Smartstore.Core.Localization
             bool returnEmptyIfNotFound = false);
 
         /// <summary>
+        /// Gets the localized value of an enum.
+        /// </summary>
+        /// <typeparam name="T">Enum type.</typeparam>
+        /// <param name="enumValue">Enum value.</param>
+        /// <param name="languageId">Language identifier. Auto-resolves to working language id if <c>0</c>.</param>
+        /// <param name="hint">A value indicating whether to load the hint.</param>
+        /// <returns>Localized value of an enum.</returns>
+        string GetLocalizedEnum<T>(T enumValue, int languageId = 0, bool hint = false) 
+            where T : struct;
+
+        /// <summary>
+        /// Gets the localized value of an enum.
+        /// </summary>
+        /// <typeparam name="T">Enum type.</typeparam>
+        /// <param name="enumValue">Enum value.</param>
+        /// <param name="languageId">Language identifier. Auto-resolves to working language id if <c>0</c>.</param>
+        /// <param name="hint">A value indicating whether to load the hint.</param>
+        /// <returns>Localized value of an enum.</returns>
+        Task<string> GetLocalizedEnumAsync<T>(T enumValue, int languageId = 0, bool hint = false)
+            where T : struct;
+
+        /// <summary>
         /// Gets a locale string resource from database.
         /// </summary>
         /// <param name="resourceName">A string representing a resource name.</param>

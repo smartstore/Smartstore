@@ -23,19 +23,19 @@ namespace Smartstore.Core.Identity.Rules
         private readonly SmartDbContext _db;
         private readonly IRuleService _ruleService;
         private readonly IStoreContext _storeContext;
-        private readonly LocalizedEntityHelper _localizedEntityHelper;
+        private readonly ILocalizationService _localizationService;
 
         public TargetGroupService(
             SmartDbContext db,
             IRuleService ruleService,
             IStoreContext storeContext,
-            LocalizedEntityHelper localizedEntityHelper)
+            ILocalizationService localizationService)
             : base(RuleScope.Customer)
         {
             _db = db;
             _ruleService = ruleService;
             _storeContext = storeContext;
-            _localizedEntityHelper = localizedEntityHelper;
+            _localizationService = localizationService;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -133,19 +133,19 @@ namespace Smartstore.Core.Identity.Rules
                 .ToArray();
 
             var vatNumberStatus = ((VatNumberStatus[])Enum.GetValues(typeof(VatNumberStatus)))
-                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizedEntityHelper.GetLocalizedEnum(x) })
+                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizationService.GetLocalizedEnum(x) })
                 .ToArray();
 
             var taxDisplayTypes = ((TaxDisplayType[])Enum.GetValues(typeof(TaxDisplayType)))
-                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizedEntityHelper.GetLocalizedEnum(x) })
+                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizationService.GetLocalizedEnum(x) })
                 .ToArray();
 
             var shippingStatus = ((ShippingStatus[])Enum.GetValues(typeof(ShippingStatus)))
-                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizedEntityHelper.GetLocalizedEnum(x) })
+                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizationService.GetLocalizedEnum(x) })
                 .ToArray();
 
             var paymentStatus = ((PaymentStatus[])Enum.GetValues(typeof(PaymentStatus)))
-                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizedEntityHelper.GetLocalizedEnum(x) })
+                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizationService.GetLocalizedEnum(x) })
                 .ToArray();
 
             var descriptors = new List<FilterDescriptor>

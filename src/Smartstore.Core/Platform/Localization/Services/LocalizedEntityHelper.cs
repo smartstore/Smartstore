@@ -3,11 +3,10 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Data;
 using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Data;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
-using Humanizer;
 
 namespace Smartstore.Core.Localization
 {
@@ -115,31 +114,6 @@ namespace Smartstore.Core.Localization
             }
 
             return new LocalizedValue<TProp>(result, requestLanguage, currentLanguage);
-        }
-
-        public string GetLocalizedEnum<T>(T enumValue, int languageId = 0, bool hint = false)
-            where T : struct
-        {
-            Guard.IsEnumType(typeof(T), nameof(enumValue));
-
-            var resourceName = string.Format("Enums.{0}.{1}",
-                typeof(T).ToString(),
-                enumValue.ToString());
-
-            if (hint)
-            {
-                resourceName += ".Hint";
-            }
-
-            var result = _localizationService.GetResource(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
-
-            // Set default value if required.
-            if (string.IsNullOrEmpty(result))
-            {
-                result = enumValue.ToString().Titleize();
-            }
-
-            return result;
         }
 
         public string GetLocalizedModuleProperty(ModuleDescriptor module, string propertyName, int languageId = 0, bool doFallback = true)

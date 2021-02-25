@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Categories;
@@ -24,7 +25,7 @@ namespace Smartstore.Core.Catalog.Rules
         private readonly IRuleService _ruleService;
         private readonly ICatalogSearchService _catalogSearchService;
         private readonly ICategoryService _categoryService;
-        private readonly LocalizedEntityHelper _localizedEntityHelper;
+        private readonly ILocalizationService _localizationService;
         private readonly CatalogSettings _catalogSettings;
 
         public ProductRuleProvider(
@@ -32,7 +33,7 @@ namespace Smartstore.Core.Catalog.Rules
             IRuleService ruleService,
             ICatalogSearchService catalogSearchService,
             ICategoryService categoryService,
-            LocalizedEntityHelper localizedEntityHelper,
+            ILocalizationService localizationService,
             CatalogSettings catalogSettings)
             : base(RuleScope.Product)
         {
@@ -40,7 +41,7 @@ namespace Smartstore.Core.Catalog.Rules
             _ruleService = ruleService;
             _catalogSearchService = catalogSearchService;
             _categoryService = categoryService;
-            _localizedEntityHelper = localizedEntityHelper;
+            _localizationService = localizationService;
             _catalogSettings = catalogSettings;
         }
 
@@ -119,13 +120,13 @@ namespace Smartstore.Core.Catalog.Rules
                 .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.Name })
                 .ToArray();
 
-            var visibilities = ((ProductVisibility[])Enum.GetValues(typeof(ProductVisibility)))
-                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizedEntityHelper.GetLocalizedEnum(x) })
-                .ToArray();
+            var visibilities = await ((ProductVisibility[])Enum.GetValues(typeof(ProductVisibility)))
+                .SelectAsync(async x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = await _localizationService.GetLocalizedEnumAsync(x) })
+                .ToArrayAsync();
 
-            var productTypes = ((ProductType[])Enum.GetValues(typeof(ProductType)))
-                .Select(x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = _localizedEntityHelper.GetLocalizedEnum(x) })
-                .ToArray();
+            var productTypes = await ((ProductType[])Enum.GetValues(typeof(ProductType)))
+                .SelectAsync(async x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = await _localizationService.GetLocalizedEnumAsync(x) })
+                .ToArrayAsync();
 
             var ratings = FacetUtility.GetRatings()
                 .Reverse()

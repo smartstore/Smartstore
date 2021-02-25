@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -241,6 +242,56 @@ namespace Smartstore.Core.Localization
                         result = resourceKey;
                     }
                 }
+            }
+
+            return result;
+        }
+
+        public virtual string GetLocalizedEnum<T>(T enumValue, int languageId = 0, bool hint = false)
+            where T : struct
+        {
+            Guard.IsEnumType(typeof(T), nameof(enumValue));
+
+            var resourceName = string.Format("Enums.{0}.{1}",
+                typeof(T).ToString(),
+                enumValue.ToString());
+
+            if (hint)
+            {
+                resourceName += ".Hint";
+            }
+
+            var result = GetResource(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
+
+            // Set default value if required.
+            if (string.IsNullOrEmpty(result))
+            {
+                result = enumValue.ToString().Titleize();
+            }
+
+            return result;
+        }
+
+        public virtual async Task<string> GetLocalizedEnumAsync<T>(T enumValue, int languageId = 0, bool hint = false)
+            where T : struct
+        {
+            Guard.IsEnumType(typeof(T), nameof(enumValue));
+
+            var resourceName = string.Format("Enums.{0}.{1}",
+                typeof(T).ToString(),
+                enumValue.ToString());
+
+            if (hint)
+            {
+                resourceName += ".Hint";
+            }
+
+            var result = await GetResourceAsync(resourceName, languageId, logIfNotFound: false, returnEmptyIfNotFound: true);
+
+            // Set default value if required.
+            if (string.IsNullOrEmpty(result))
+            {
+                result = enumValue.ToString().Titleize();
             }
 
             return result;

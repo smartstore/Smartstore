@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
@@ -338,18 +339,33 @@ namespace Smartstore.Core.Localization
         #region Enums
 
         /// <summary>
-        /// Get localized value of an enum.
+        /// Gets the localized value of an enum.
         /// </summary>
-        /// <typeparam name="T">Type of enum</typeparam>
-        /// <param name="enumValue">Enum value</param>
-        /// <param name="languageId">Language identifier</param>
-        /// <param name="hint">Whether to load the hint.</param>
-        /// <returns>Localized value</returns>
+        /// <typeparam name="T">Enum type.</typeparam>
+        /// <param name="enumValue">Enum value.</param>
+        /// <param name="languageId">Language identifier.</param>
+        /// <param name="hint">A value indicating whether to load the hint.</param>
+        /// <returns>Localized value of an enum.</returns>
         public static string GetLocalizedEnum<T>(this T enumValue, int languageId = 0, bool hint = false)
             where T : struct
         {
-            return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?
-                .GetLocalizedEnum<T>(enumValue, languageId, hint) ?? enumValue.ToString();
+            return EngineContext.Current.ResolveService<ILocalizationService>()
+                .GetLocalizedEnum(enumValue, languageId, hint) ?? enumValue.ToString();
+        }
+
+        /// <summary>
+        /// Gets the localized value of an enum.
+        /// </summary>
+        /// <typeparam name="T">Enum type.</typeparam>
+        /// <param name="enumValue">Enum value.</param>
+        /// <param name="languageId">Language identifier.</param>
+        /// <param name="hint">A value indicating whether to load the hint.</param>
+        /// <returns>Localized value of an enum.</returns>
+        public static async Task<string> GetLocalizedEnumAsync<T>(this T enumValue, int languageId = 0, bool hint = false)
+            where T : struct
+        {
+            return await EngineContext.Current.ResolveService<ILocalizationService>()
+                .GetLocalizedEnumAsync(enumValue, languageId, hint) ?? enumValue.ToString();
         }
 
         #endregion
