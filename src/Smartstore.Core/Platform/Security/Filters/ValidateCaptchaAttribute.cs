@@ -103,7 +103,7 @@ namespace Smartstore.Core.Security
                 context.ActionArguments["captchaValid"] = valid;
 
                 context.ActionArguments["captchaError"] = !valid && _captchaSettings.CanDisplayCaptcha
-                    ? T(_captchaSettings.UseInvisibleReCaptcha ? "Common.WrongInvisibleCaptcha" : "Common.WrongCaptcha")
+                    ? T(_captchaSettings.UseInvisibleReCaptcha ? "Common.WrongInvisibleCaptcha" : "Common.WrongCaptcha").Value
                     : null;
 
                 await next();
