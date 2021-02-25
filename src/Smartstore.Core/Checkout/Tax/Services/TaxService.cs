@@ -82,11 +82,8 @@ namespace Smartstore.Core.Checkout.Tax
         /// </returns>
         protected static Money CalculatePrice(Money price, decimal percent, bool increase, Currency currency)
         {
-<<<<<<< Updated upstream
-=======
             Guard.NotNull(currency, nameof(currency));
 
->>>>>>> Stashed changes
             if (percent == decimal.Zero)
                 return price;
 
@@ -260,11 +257,7 @@ namespace Smartstore.Core.Checkout.Tax
         {
             // No need to calculate anything if price is 0
             if (price == decimal.Zero)
-<<<<<<< Updated upstream
-                return price;
-=======
                 return (price, decimal.Zero);
->>>>>>> Stashed changes
 
             customer ??= _workContext.CurrentCustomer;
             taxCategoryId ??= product?.TaxCategoryId;
@@ -298,7 +291,7 @@ namespace Smartstore.Core.Checkout.Tax
                 customer);
         }
 
-        public virtual Task<(Money price, decimal taxRate)> GetPaymentMethodAdditionalFeeAsync(           
+        public virtual Task<(Money price, decimal taxRate)> GetPaymentMethodAdditionalFeeAsync(
             Money price,
             bool? includingTax = null,
             int? taxCategoryId = null,
