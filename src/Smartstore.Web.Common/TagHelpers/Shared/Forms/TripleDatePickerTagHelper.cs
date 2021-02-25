@@ -69,97 +69,116 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (DayName.HasValue())
             {
-                // Refactor
+                var daysCol = new TagBuilder("div");
+                daysCol.AddCssClass("col");
+
+                var daySelect = new TagBuilder("select");
+                daySelect.Attributes.AddRange(new Dictionary<string, string> {
+                    { "data-native-menu", "false" },
+                    { "name", DayName },
+                    { "id", DayName },
+                    { "class", "date-part form-control noskin remember" },
+                    { "data-minimum-results-for-search", "100" }
+                });
+
+                if (Disabled)
+                {
+                    daySelect.Attributes.Add("disabled", "disabled");
+                }
+
+                using var _ = StringBuilderPool.Instance.Get(out var days);
+
+                // Add initial option.
+                days.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Day"));
+
+                // Add options for days.
+                for (int i = 1; i <= 31; i++)
+                {
+                    days.AppendFormat("<option value='{0}'{1}>{0}</option>", i,
+                        (Day != null && (Convert.ToInt32(Day) == i)) ? " selected=\"selected\"" : null);
+                }
+
+                daySelect.InnerHtml.AppendHtml(days.ToString());
+                daysCol.InnerHtml.AppendHtml(daySelect);
+                output.Content.AppendHtml(daysCol);
             }
 
-            var daysCol = new TagBuilder("div");
-            var monthsCol = new TagBuilder("div");
-            var yearsCol = new TagBuilder("div");
-            daysCol.AddCssClass("col");
-            monthsCol.AddCssClass("col");
-            yearsCol.AddCssClass("col");
-
-            var daySelect = new TagBuilder("select");
-            var monthSelect = new TagBuilder("select");
-            var yearSelect = new TagBuilder("select");
-
-            daySelect.Attributes.AddRange(new Dictionary<string, string> {
-                { "data-native-menu", "false" },
-                { "name", DayName },
-                { "id", DayName },
-                { "class", "date-part form-control noskin remember" },
-                { "data-minimum-results-for-search", "100" }
-            });
-            monthSelect.Attributes.AddRange(new Dictionary<string, string> {
-                { "data-native-menu", "false" },
-                { "name", MonthName },
-                { "id", MonthName },
-                { "class", "date-part form-control noskin remember" },
-                { "data-minimum-results-for-search", "100" }
-            });
-            yearSelect.Attributes.AddRange(new Dictionary<string, string> {
-                { "data-native-menu", "false" },
-                { "name", YearName },
-                { "id", YearName },
-                { "class", "date-part form-control noskin remember" },
-                //{ "data-minimum-results-for-search", "100" }
-            });
-
-            if (Disabled)
+            if (MonthName.HasValue())
             {
-                daySelect.Attributes.Add("disabled", "disabled");
-                monthSelect.Attributes.Add("disabled", "disabled");
-                yearSelect.Attributes.Add("disabled", "disabled");
+                var monthsCol = new TagBuilder("div");
+                monthsCol.AddCssClass("col");
+
+                var monthSelect = new TagBuilder("select");
+                monthSelect.Attributes.AddRange(new Dictionary<string, string> {
+                    { "data-native-menu", "false" },
+                    { "name", MonthName },
+                    { "id", MonthName },
+                    { "class", "date-part form-control noskin remember" },
+                    { "data-minimum-results-for-search", "100" }
+                });
+
+                if (Disabled)
+                {
+                    monthSelect.Attributes.Add("disabled", "disabled");
+                }
+
+                using var _ = StringBuilderPool.Instance.Get(out var months);
+
+                // Add initial option.
+                months.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Month"));
+
+                // Add options for months.
+                for (int i = 1; i <= 12; i++)
+                {
+                    months.AppendFormat("<option value='{0}'{1}>{2}</option>", i,
+                                        (Month != null && Convert.ToInt32(Month) == i) ? " selected=\"selected\"" : null,
+                                        CultureInfo.CurrentUICulture.DateTimeFormat.GetMonthName(i));
+                }
+
+                monthSelect.InnerHtml.AppendHtml(months.ToString());
+                monthsCol.InnerHtml.AppendHtml(monthSelect);
+                output.Content.AppendHtml(monthsCol);
             }
 
-            using var _ = StringBuilderPool.Instance.Get(out var days);
-            using var __ = StringBuilderPool.Instance.Get(out var months);
-            using var ___ = StringBuilderPool.Instance.Get(out var years);
-
-            // Add initial options.
-            days.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Day"));
-            months.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Month"));
-            years.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Year"));
-
-            // Add options for days.
-            for (int i = 1; i <= 31; i++)
+            if (YearName.HasValue())
             {
-                days.AppendFormat("<option value='{0}'{1}>{0}</option>", i,
-                    (Day != null && (Convert.ToInt32(Day) == i)) ? " selected=\"selected\"" : null);
+                var yearsCol = new TagBuilder("div");
+                yearsCol.AddCssClass("col");
+
+                var yearSelect = new TagBuilder("select");
+                yearSelect.Attributes.AddRange(new Dictionary<string, string> {
+                    { "data-native-menu", "false" },
+                    { "name", YearName },
+                    { "id", YearName },
+                    { "class", "date-part form-control noskin remember" },
+                    //{ "data-minimum-results-for-search", "100" }
+                });
+
+                if (Disabled)
+                {
+                    yearSelect.Attributes.Add("disabled", "disabled");
+                }
+
+                using var _ = StringBuilderPool.Instance.Get(out var years);
+
+                years.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Year"));
+
+                // Add options for year.
+                if (BeginYear == null)
+                    BeginYear = DateTime.UtcNow.Year - 90;
+                if (EndYear == null)
+                    EndYear = DateTime.UtcNow.Year + 10;
+
+                for (int i = BeginYear.Value; i <= EndYear.Value; i++)
+                {
+                    years.AppendFormat("<option value='{0}'{1}>{0}</option>", i,
+                        (Year != null && Convert.ToInt32(Year) == i) ? " selected=\"selected\"" : null);
+                }
+
+                yearSelect.InnerHtml.AppendHtml(years.ToString());
+                yearsCol.InnerHtml.AppendHtml(yearSelect);
+                output.Content.AppendHtml(yearsCol);
             }
-            
-            // Add options for months.
-            for (int i = 1; i <= 12; i++)
-            {
-                months.AppendFormat("<option value='{0}'{1}>{2}</option>", i,
-                                    (Month != null && Convert.ToInt32(Month) == i) ? " selected=\"selected\"" : null,
-                                    CultureInfo.CurrentUICulture.DateTimeFormat.GetMonthName(i));
-            }
-
-            // Add options for year.
-            if (BeginYear == null)
-                BeginYear = DateTime.UtcNow.Year - 90;
-            if (EndYear == null)
-                EndYear = DateTime.UtcNow.Year + 10;
-
-            for (int i = BeginYear.Value; i <= EndYear.Value; i++)
-            {
-                years.AppendFormat("<option value='{0}'{1}>{0}</option>", i,
-                    (Year != null && Convert.ToInt32(Year) == i) ? " selected=\"selected\"" : null);
-            }
-            
-            daySelect.InnerHtml.AppendHtml(days.ToString());
-            monthSelect.InnerHtml.AppendHtml(months.ToString());
-            yearSelect.InnerHtml.AppendHtml(years.ToString());
-
-            daysCol.InnerHtml.AppendHtml(daySelect);
-            monthsCol.InnerHtml.AppendHtml(monthSelect);
-            yearsCol.InnerHtml.AppendHtml(yearSelect);
-
-            output.Content
-                .AppendHtml(DayName.HasValue() ? daysCol : null)
-                .AppendHtml(MonthName.HasValue() ? monthsCol : null)
-                .AppendHtml(YearName.HasValue() ? yearsCol : null);
         }
     }
 }
