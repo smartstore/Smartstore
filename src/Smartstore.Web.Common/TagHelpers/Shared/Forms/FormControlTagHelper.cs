@@ -15,7 +15,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string SelectItemsAttributeName = "asp-items";
         const string AppendHintAttributeName = "sm-append-hint";
-        //const string IgnoreLabelAttributeName = "asp-ignore-label";
+        const string IgnoreLabelAttributeName = "sm-ignore-label";
         const string SwitchAttributeName = "sm-switch";
         protected const string RequiredAttributeName = "sm-required";
 
@@ -27,7 +27,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         }
 
         // Must comer AFTER AspNetCore origin TagHelper (Input | Select | TextArea)
-        public override int Order => 0;
+        public override int Order => 100;
 
         [HtmlAttributeName(RequiredAttributeName)]
         public bool? IsRequired { get; set; }
@@ -37,6 +37,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         [HtmlAttributeName(SwitchAttributeName)]
         public bool AsSwitch { get; set; } = true;
+
+        [HtmlAttributeName(IgnoreLabelAttributeName)]
+        public bool IgnoreLabel { get; set; }
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -72,18 +75,21 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             output.AppendCssClass("form-check-input");
 
-            var id = output.Attributes["id"]?.Value?.ToString();
-            var label = For?.Metadata?.DisplayName;
-
-            if (label.HasValue())
+            if (!IgnoreLabel)
             {
-                output.PostElement.AppendHtml("<label class=\"form-check-label\" for=\"{0}\">{1}</label>".FormatInvariant(id, label));
-            }
-            
-            output.PreElement.AppendHtml("<div class=\"form-check\">");
-            output.PostElement.AppendHtml("</div>");
+                var id = output.Attributes["id"]?.Value?.ToString();
+                var label = For?.Metadata?.DisplayName;
 
-            ProcessHint(output);
+                if (label.HasValue())
+                {
+                    output.PostElement.AppendHtml("<label class=\"form-check-label\" for=\"{0}\">{1}</label>".FormatInvariant(id, label));
+                }
+
+                output.PreElement.AppendHtml("<div class=\"form-check\">");
+                output.PostElement.AppendHtml("</div>");
+
+                ProcessHint(output);
+            }
         }
 
         private void ProcessSwitch(TagHelperOutput output)

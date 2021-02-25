@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Web.Models.Common;
 
@@ -7,12 +6,10 @@ namespace Smartstore.Web.Components
 {
     public class GdprConsentViewComponent : SmartViewComponent
     {
-        private readonly IGenericAttributeService _genericAttributeService;
         private readonly PrivacySettings _privacySettings;
 
-        public GdprConsentViewComponent(IGenericAttributeService genericAttributeService, PrivacySettings privacySettings)
+        public GdprConsentViewComponent(PrivacySettings privacySettings)
         {
-            _genericAttributeService = genericAttributeService;
             _privacySettings = privacySettings;
         }
 
@@ -25,13 +22,7 @@ namespace Smartstore.Web.Components
 
             var customer = Services.WorkContext.CurrentCustomer;
 
-            // TODO: (mh) (core) remove test code
-            //var db = Services.DbContext;
-            //customer = db.Customers.FindById(1);
-
-            var attrs = _genericAttributeService.GetAttributesForEntity(customer);
-            var hasConsentedToGdpr = attrs.Get<bool>(SystemCustomerAttributeNames.HasConsentedToGdpr);
-
+            var hasConsentedToGdpr = customer.GenericAttributes.HasConsentedToGdpr;
             if (hasConsentedToGdpr)
             {
                 return Empty();
@@ -43,7 +34,7 @@ namespace Smartstore.Web.Components
                 SmallDisplay = isSmall
             };
 
-            return View("GdprConsent", model);
+            return View(model);
         }
     }
 }

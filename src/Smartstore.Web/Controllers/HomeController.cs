@@ -62,6 +62,7 @@ using SixLabors.ImageSharp.ColorSpaces;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Rules.Filters;
 using Microsoft.Extensions.Configuration;
+using Smartstore.Web.Filters;
 
 namespace Smartstore.Web.Controllers
 {
@@ -292,7 +293,7 @@ namespace Smartstore.Web.Controllers
 
         [GdprConsent]
         [HttpPost]
-        public async Task<IActionResult> Index(TestModel model)
+        public IActionResult Index(TestModel model)
         {
             return View(model);
         }
