@@ -6,8 +6,11 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Events;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
+using Smartstore.Web.Rendering.Events;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -36,7 +39,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     [RestrictChildren("tab", "tab-content-header")]
     [HtmlTargetElement("tabstrip", Attributes = "id")]
     public class TabStripTagHelper : SmartTagHelper
-    {
+    {   
         const string HideSingleItemAttributeName = "sm-hide-single-item";
         const string ResponsiveAttributeName = "sm-responsive";
         const string BreakpointAttributeName = "sm-breakpoint";
@@ -48,6 +51,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string OnAjaxSuccessAttributeName = "sm-onajaxsuccess";
         const string OnAjaxFailureAttributeName = "sm-onajaxfailure";
         const string OnAjaxCompleteAttributeName = "sm-onajaxcomplete";
+        const string PublishEventAttributeName = "sm-publish-event";
 
         public override void Init(TagHelperContext context)
         {
@@ -119,6 +123,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(OnAjaxCompleteAttributeName)]
         public string OnAjaxComplete { get; set; }
 
+        /// <summary>
+        /// Whether to publish the <see cref="TabStripCreated"/> event.
+        /// </summary>
+        [HtmlAttributeName(PublishEventAttributeName)]
+        public bool PublishEvent { get; set; } = true;
+
         #endregion
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
@@ -129,6 +139,14 @@ namespace Smartstore.Web.TagHelpers.Shared
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             await output.GetChildContentAsync();
+
+            // Give integrators the chance to add tabs.
+            // TODO: (core) Implement TabFactory class and pass it to TabStripCreated event
+            if (PublishEvent)
+            {
+                var eventPublisher = ViewContext.HttpContext.RequestServices.GetRequiredService<IEventPublisher>();
+                await  eventPublisher.PublishAsync(new TabStripCreated(this));
+            }
 
             if (Tabs.Count == 0)
             {
