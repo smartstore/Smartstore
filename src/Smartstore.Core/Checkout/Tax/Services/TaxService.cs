@@ -82,8 +82,6 @@ namespace Smartstore.Core.Checkout.Tax
         /// </returns>
         protected static Money CalculatePrice(Money price, decimal percent, bool increase)
         {
-            Guard.NotNull(price, nameof(price));
-
             if (percent == decimal.Zero)
                 return price;
 
@@ -255,7 +253,7 @@ namespace Smartstore.Core.Checkout.Tax
             Customer customer = null)
         {
             // No need to calculate anything if price is 0
-            if (price.Amount == decimal.Zero)
+            if (price == decimal.Zero)
                 return price;
 
             customer ??= _workContext.CurrentCustomer;

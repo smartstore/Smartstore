@@ -7,6 +7,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Content.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
+using Humanizer;
 
 namespace Smartstore.Core.Localization
 {
@@ -135,9 +136,7 @@ namespace Smartstore.Core.Localization
             // Set default value if required.
             if (string.IsNullOrEmpty(result))
             {
-                //result = Inflector.Titleize(enumValue.ToString());
-                // TODO: (core) Titleize with Humanizer
-                result = enumValue.ToString();
+                result = enumValue.ToString().Titleize();
             }
 
             return result;
