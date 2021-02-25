@@ -43,7 +43,7 @@ namespace Smartstore.Web.Theming
     /// <summary>
     /// Manages themes
     /// </summary>
-    public interface IThemeRegistry
+    public partial interface IThemeRegistry
     {
         /// <summary>
         /// Gets all registered theme manifests

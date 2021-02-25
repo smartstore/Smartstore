@@ -3,7 +3,7 @@
     /// <summary>
     /// Responsible for resolving info about inherited theme file assets.
     /// </summary>
-    public interface IThemeFileResolver
+    public partial interface IThemeFileResolver
     {
         /// <summary>
         /// Tries to resolve a file up in the current theme's hierarchy chain.

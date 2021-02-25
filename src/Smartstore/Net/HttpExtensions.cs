@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using Smartstore.Collections;
 using Smartstore.IO;
 using Smartstore.Net;
 
@@ -200,6 +201,60 @@ namespace Smartstore
                     return default;
                 }
             }
+        }
+
+        public static MutableQueryCollection GetPreviewModeFromCookie(this HttpContext context)
+        {
+            var request = context?.Request;
+
+            if (request != null)
+            {
+                var cookieValue = request.Cookies[CookieNames.PreviewModeOverride].NullEmpty();
+                if (cookieValue != null)
+                {
+                    return new MutableQueryCollection('?' + cookieValue);
+                }
+            }
+
+            return new MutableQueryCollection();
+        }
+
+        public static void SetPreviewModeValueInCookie(this HttpContext context, string name, string value)
+        {
+            Guard.NotEmpty(name, nameof(name));
+
+            if (context == null)
+            {
+                return;
+            }
+
+            var cookies = context.Response.Cookies;
+            var cookieName = CookieNames.PreviewModeOverride;
+            var cookie = GetPreviewModeFromCookie(context);
+
+            if (value.HasValue())
+            {
+                cookie.Add(name, value, true);
+            }
+            else
+            {
+                cookie.Remove(name);
+            }
+
+            cookies.Delete(CookieNames.PreviewModeOverride);
+
+            if (cookie.Count == 0)
+            {
+                // Nothing to append
+                return;
+            }
+
+            cookies.Append(cookieName, cookie.ToString().TrimStart('?'), new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddMinutes(20),
+                HttpOnly = true,
+                IsEssential = true
+            });
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

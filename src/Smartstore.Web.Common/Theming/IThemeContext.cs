@@ -3,7 +3,7 @@
     /// <summary>
     /// Provides access to the current working theme.
     /// </summary>
-    public interface IThemeContext
+    public partial interface IThemeContext
     {
         /// <summary>
         /// Gets or sets the name of the current theme (e.g. Flex)
@@ -16,18 +16,6 @@
         ThemeManifest CurrentTheme { get; }
 
         /// <summary>
-        /// Sets a theme override to be used for the current request
-        /// </summary>
-        /// <param name="theme">The theme override or <c>null</c> to remove the override</param>
-        void SetRequestTheme(string theme);
-
-        /// <summary>
-        /// Sets a theme override to be used for the current user's session (e.g. for preview mode)
-        /// </summary>
-        /// <param name="theme">The theme override or <c>null</c> to remove the override</param>
-        void SetPreviewTheme(string theme);
-
-        /// <summary>
         /// Gets the theme override for the current request
         /// </summary>
         /// <returns>The theme override or <c>null</c></returns>
@@ -38,5 +26,17 @@
         /// </summary>
         /// <returns>The theme override or <c>null</c></returns>
         string GetPreviewTheme();
+
+        /// <summary>
+        /// Sets a theme override to be used for the current request
+        /// </summary>
+        /// <param name="theme">The theme override or <c>null</c> to remove the override</param>
+        void SetRequestTheme(string theme);
+
+        /// <summary>
+        /// Sets a theme override to be used for the current user's session (e.g. for preview mode)
+        /// </summary>
+        /// <param name="theme">The theme override or <c>null</c> to remove the override</param>
+        void SetPreviewTheme(string theme);
     }
 }

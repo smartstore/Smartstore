@@ -7,7 +7,7 @@ using Smartstore.Threading;
 namespace Smartstore.Web.Theming
 {
     // TODO: (core): Refactor DefaultThemeFileResolver
-    public class DefaultThemeFileResolver : Disposable, IThemeFileResolver
+    public partial class DefaultThemeFileResolver : Disposable, IThemeFileResolver
     {
         private readonly Dictionary<FileKey, InheritedThemeFileResult> _files = new Dictionary<FileKey, InheritedThemeFileResult>();
         private readonly IThemeRegistry _themeRegistry;
@@ -300,6 +300,5 @@ namespace Smartstore.Web.Theming
 
             public string Query => base.Item3;
         }
-
     }
 }

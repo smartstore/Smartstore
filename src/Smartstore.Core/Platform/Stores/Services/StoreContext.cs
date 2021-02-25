@@ -178,24 +178,25 @@ namespace Smartstore.Core.Stores
 
         public int? GetPreviewStore()
         {
-            // TODO: (core) Implement GetPreviewModeCookie() extension
-            //var cookie = _httpContext.Value.GetPreviewModeCookie(false);
-            //if (cookie != null)
-            //{
-            //    var value = cookie.Values[OverriddenStoreIdKey];
-            //    if (value.HasValue())
-            //    {
-            //        return value.ToInt();
-            //    }
-            //}
+            try
+            {
+                var cookie = _httpContextAccessor.HttpContext.GetPreviewModeFromCookie();
+                if (cookie != null)
+                {
+                    return cookie[OverriddenStoreIdKey].ToString().Convert<int?>();
+                }
 
-            return null;
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public void SetPreviewStore(int? storeId)
         {
-            // TODO: (core) Implement GetPreviewModeCookie() extension
-            //_httpContext.Value.SetPreviewModeValue(OverriddenStoreIdKey, storeId.HasValue ? storeId.Value.ToString() : null);
+            _httpContextAccessor.HttpContext.SetPreviewModeValueInCookie(OverriddenStoreIdKey, storeId.HasValue ? storeId.Value.ToString() : null);
             _currentStore = null;
         }
     }

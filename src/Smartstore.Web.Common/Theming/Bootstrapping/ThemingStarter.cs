@@ -21,13 +21,9 @@ namespace Smartstore.Web.Bootstrapping
                 .As<IThemeRegistry>()
                 .SingleInstance();
             
-            builder.RegisterType<DefaultThemeFileResolver>()
-                .As<IThemeFileResolver>()
-                .SingleInstance();
-
-            builder.RegisterType<RazorViewInvoker>()
-                .As<IRazorViewInvoker>()
-                .InstancePerDependency();
+            builder.RegisterType<DefaultThemeFileResolver>().As<IThemeFileResolver>().SingleInstance();
+            builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();
+            builder.RegisterType<RazorViewInvoker>().As<IRazorViewInvoker>().InstancePerDependency();
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Smartstore.Web.Rendering.Builders
 
     public static class MenuItemExtensions
     {
-        public static MenuItemBuilder AsBuilder(this MenuItem item)
+        public static MenuItemBuilder ToBuilder(this MenuItem item)
         {
             Guard.NotNull(item, nameof(item));
             return new MenuItemBuilder(item);

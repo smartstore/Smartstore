@@ -141,8 +141,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             await output.GetChildContentAsync();
 
             // Give integrators the chance to add tabs.
-            // TODO: (core) Implement TabFactory class and pass it to TabStripCreated event
-            if (PublishEvent)
+            if (PublishEvent && Id.HasValue())
             {
                 var eventPublisher = ViewContext.HttpContext.RequestServices.GetRequiredService<IEventPublisher>();
                 await  eventPublisher.PublishAsync(new TabStripCreated(this));
