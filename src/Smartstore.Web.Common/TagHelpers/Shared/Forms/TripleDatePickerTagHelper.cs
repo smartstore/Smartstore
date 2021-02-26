@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -20,6 +21,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string BeginYearAttributeName = "begin-year";
         const string EndYearAttributeName = "end-year";
         const string DisabledAttributeName = "disabled";
+        const string ControlSizeAttributeName = "control-size";
 
         private readonly ILocalizationService _localizationService;
 
@@ -52,6 +54,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(EndYearAttributeName)]
         public int? EndYear { get; set; }
 
+        [HtmlAttributeName(ControlSizeAttributeName)]
+        public ControlSize ControlSize { get; set; } = ControlSize.Medium;
+
         [HtmlAttributeName(DisabledAttributeName)]
         public bool Disabled { get; set; }
 
@@ -67,6 +72,12 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.TagMode = TagMode.StartTagAndEndTag;
             output.AppendCssClass("row xs-gutters");
 
+            var selectClass = "date-part noskin remember form-control";
+            if (ControlSize != ControlSize.Medium)
+            {
+                selectClass += " form-control-" + (ControlSize == ControlSize.Small ? "sm" : "lg");
+            }
+
             if (DayName.HasValue())
             {
                 var daysCol = new TagBuilder("div");
@@ -77,7 +88,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     { "data-native-menu", "false" },
                     { "name", DayName },
                     { "id", DayName },
-                    { "class", "date-part form-control noskin remember" },
+                    { "class", selectClass },
                     { "data-minimum-results-for-search", "100" }
                 });
 
@@ -113,7 +124,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     { "data-native-menu", "false" },
                     { "name", MonthName },
                     { "id", MonthName },
-                    { "class", "date-part form-control noskin remember" },
+                    { "class", selectClass },
                     { "data-minimum-results-for-search", "100" }
                 });
 
@@ -150,7 +161,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     { "data-native-menu", "false" },
                     { "name", YearName },
                     { "id", YearName },
-                    { "class", "date-part form-control noskin remember" },
+                    { "class", selectClass },
                     //{ "data-minimum-results-for-search", "100" }
                 });
 
