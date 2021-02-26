@@ -1,12 +1,20 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Globalization;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Html;
 using Newtonsoft.Json;
 using Sys = System;
 
 namespace Smartstore.Core.Common
 {
-    public struct Money : IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
+    public struct Money : IHtmlContent, IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
     {
+        // Key: string = Currency.DisplayLocale, bool = useIsoCodeAsSymbol
+        private readonly static ConcurrentDictionary<(string, bool), NumberFormatInfo> _numberFormatClones = new();
+        
         public Money(Currency currency)
             : this(0m, currency)
         {
@@ -57,7 +65,7 @@ namespace Smartstore.Core.Common
         /// </summary>
         public int DecimalDigits
         {
-            get => string.Equals(Currency.CurrencyCode, "btc", StringComparison.OrdinalIgnoreCase) ? 8 : Currency.RoundNumDecimals;
+            get => Currency.RoundNumDecimals;
         }
 
         /// <summary>
@@ -228,56 +236,61 @@ namespace Smartstore.Core.Common
 
         #region Format
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void IHtmlContent.WriteTo(TextWriter writer, HtmlEncoder encoder)
+            => writer.Write(ToString());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         string IFormattable.ToString(string format, IFormatProvider formatProvider)
-        {
-            return ToString(!HideCurrency, false);
-        }
+            => ToString(!HideCurrency, false, ShowTax);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         string IConvertible.ToString(IFormatProvider provider)
-        {
-            return ToString(!HideCurrency, false);
-        }
+            => ToString(!HideCurrency, false, ShowTax);
 
+        /// <summary>
+        /// Creates the string representation of the rounded amount.
+        /// </summary>
+        /// <returns>The formatted rounded amount.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString()
-        {
-            return ToString(!HideCurrency, false, ShowTax);
-        }
+            => ToString(!HideCurrency, false, ShowTax);
 
-        public string ToString(bool showCurrency)
+        /// <summary>
+        /// Creates the string representation of the rounded amount.
+        /// </summary>
+        /// <param name="showCurrency">Whether to render currency symbol. If <c>null</c>, falls back to negated <see cref="HideCurrency"/>.</param>
+        /// <param name="useISOCodeAsSymbol">Whether to render currency symbol as ISO code. Only relevant if currency symbol should be rendered.</param>
+        /// <param name="showTax">Whether to render tax info suffix (e.g. "incl. tax"). Only relevant if <see cref="TaxSuffixFormatString"/> is not empty.</param>
+        /// <returns>The formatted rounded amount.</returns>
+        public string ToString(bool? showCurrency = null, bool useISOCodeAsSymbol = false, bool? showTax = null)
         {
-            return ToString(showCurrency, false);
-        }
+            showTax ??= ShowTax;
+            
+            var nf = Currency.NumberFormat;
+            var template = showTax == true ? TaxSuffixFormatString : "{0}";
 
-        public string ToString(bool showCurrency, bool useISOCodeAsSymbol)
-        {
-            var fmt = Currency.NumberFormat;
-
-            if (Currency.CustomFormatting.HasValue())
+            if (!string.IsNullOrEmpty(Currency.CustomFormatting))
             {
-                return RoundedAmount.ToString(Currency.CustomFormatting, fmt);
+                return string.Format(template, RoundedAmount.ToString(Currency.CustomFormatting, nf));
             }
             else
             {
-                if (!showCurrency || useISOCodeAsSymbol)
+                showCurrency ??= !HideCurrency;
+                if (showCurrency == false || useISOCodeAsSymbol)
                 {
-                    fmt = (NumberFormatInfo)Currency.NumberFormat.Clone();
-                    fmt.CurrencySymbol = !showCurrency ? "" : Currency.CurrencyCode;
+                    var currencyCode = Currency.CurrencyCode;
+                    nf = Currency.NumberFormat;
+                    nf = _numberFormatClones.GetOrAdd((Currency.DisplayLocale, useISOCodeAsSymbol), key => 
+                    {
+                        var clone = (NumberFormatInfo)nf.Clone();
+                        nf.CurrencySymbol = showCurrency == false ? string.Empty : currencyCode;
+                        return clone;
+                    });
                 }
 
-                return RoundedAmount.ToString("C", fmt);
+                return string.Format(template, RoundedAmount.ToString("C", nf));
             }
-        }
-
-        private string ToString(bool showCurrency, bool useISOCodeAsSymbol, bool showTax)
-        {
-            var formatted = ToString(showCurrency, useISOCodeAsSymbol);
-
-            if (showTax && TaxSuffixFormatString.HasValue())
-            {
-                return string.Format(TaxSuffixFormatString, formatted);
-            }
-
-            return formatted;
         }
 
         #endregion

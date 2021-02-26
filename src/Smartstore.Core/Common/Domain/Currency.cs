@@ -151,13 +151,15 @@ namespace Smartstore.Core.Common
         {
             get
             {
-                if (_numberFormat == null && DisplayLocale.HasValue())
+                if (_numberFormat == null && !string.IsNullOrEmpty(DisplayLocale))
                 {
                     try
                     {
                         _numberFormat = CultureInfo.CreateSpecificCulture(DisplayLocale).NumberFormat;
                     }
-                    catch { }
+                    catch 
+                    { 
+                    }
                 }
 
                 if (_numberFormat == null)

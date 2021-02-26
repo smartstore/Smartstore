@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Data;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;

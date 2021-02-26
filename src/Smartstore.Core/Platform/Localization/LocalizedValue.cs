@@ -87,17 +87,10 @@ namespace Smartstore.Core.Localization
         }
 
         public string ToHtmlString()
-        {
-            return ToString();
-        }
+            => ToString();
 
         public void WriteTo(TextWriter writer, HtmlEncoder encoder)
-        {
-            Guard.NotNull(writer, nameof(writer));
-            Guard.NotNull(encoder, nameof(encoder));
-
-            writer.Write(ToString());
-        }
+            => writer.Write(ToString());
 
         public override string ToString()
         {
