@@ -287,34 +287,34 @@ namespace Smartstore.Core.Common
         // For truthy checks in templating
         public static explicit operator bool(Money money) => money.Amount != 0;
         public static explicit operator string(Money money) => money.ToString(true, false);
-        public static explicit operator byte(Money money) => Sys.Convert.ToByte(money.Amount);
-        public static explicit operator decimal(Money money) => money.Amount;
-        public static explicit operator double(Money money) => Sys.Convert.ToDouble(money.Amount);
-        public static explicit operator float(Money money) => Sys.Convert.ToSingle(money.Amount);
-        public static explicit operator int(Money money) => Sys.Convert.ToInt32(money.Amount);
-        public static explicit operator long(Money money) => Sys.Convert.ToInt64(money.Amount);
-        public static explicit operator sbyte(Money money) => Sys.Convert.ToSByte(money.Amount);
-        public static explicit operator short(Money money) => Sys.Convert.ToInt16(money.Amount);
-        public static explicit operator ushort(Money money) => Sys.Convert.ToUInt16(money.Amount);
-        public static explicit operator uint(Money money) => Sys.Convert.ToUInt32(money.Amount);
-        public static explicit operator ulong(Money money) => Sys.Convert.ToUInt64(money.Amount);
+        public static explicit operator byte(Money money) => Sys.Convert.ToByte(money.RoundedAmount);
+        public static explicit operator decimal(Money money) => money.RoundedAmount;
+        public static explicit operator double(Money money) => Sys.Convert.ToDouble(money.RoundedAmount);
+        public static explicit operator float(Money money) => Sys.Convert.ToSingle(money.RoundedAmount);
+        public static explicit operator int(Money money) => Sys.Convert.ToInt32(money.RoundedAmount);
+        public static explicit operator long(Money money) => Sys.Convert.ToInt64(money.RoundedAmount);
+        public static explicit operator sbyte(Money money) => Sys.Convert.ToSByte(money.RoundedAmount);
+        public static explicit operator short(Money money) => Sys.Convert.ToInt16(money.RoundedAmount);
+        public static explicit operator ushort(Money money) => Sys.Convert.ToUInt16(money.RoundedAmount);
+        public static explicit operator uint(Money money) => Sys.Convert.ToUInt32(money.RoundedAmount);
+        public static explicit operator ulong(Money money) => Sys.Convert.ToUInt64(money.RoundedAmount);
 
         TypeCode IConvertible.GetTypeCode() => TypeCode.Decimal;
-        object IConvertible.ToType(Type conversionType, IFormatProvider provider) => Sys.Convert.ChangeType(this.Amount, conversionType, provider);
+        object IConvertible.ToType(Type conversionType, IFormatProvider provider) => Sys.Convert.ChangeType(this.RoundedAmount, conversionType, provider);
         bool IConvertible.ToBoolean(IFormatProvider provider) => Amount != 0;
         char IConvertible.ToChar(IFormatProvider provider) => throw Error.InvalidCast(typeof(Money), typeof(char));
         DateTime IConvertible.ToDateTime(IFormatProvider provider) => throw Error.InvalidCast(typeof(Money), typeof(DateTime));
-        byte IConvertible.ToByte(IFormatProvider provider) => (byte)this.Amount;
-        decimal IConvertible.ToDecimal(IFormatProvider provider) => this.Amount;
-        double IConvertible.ToDouble(IFormatProvider provider) => (double)this.Amount;
-        short IConvertible.ToInt16(IFormatProvider provider) => (short)this.Amount;
-        int IConvertible.ToInt32(IFormatProvider provider) => (int)this.Amount;
-        long IConvertible.ToInt64(IFormatProvider provider) => (long)this.Amount;
-        sbyte IConvertible.ToSByte(IFormatProvider provider) => (sbyte)this.Amount;
-        float IConvertible.ToSingle(IFormatProvider provider) => (float)this.Amount;
-        ushort IConvertible.ToUInt16(IFormatProvider provider) => (ushort)this.Amount;
-        uint IConvertible.ToUInt32(IFormatProvider provider) => (uint)this.Amount;
-        ulong IConvertible.ToUInt64(IFormatProvider provider) => (ulong)this.Amount;
+        byte IConvertible.ToByte(IFormatProvider provider) => (byte)RoundedAmount;
+        decimal IConvertible.ToDecimal(IFormatProvider provider) => RoundedAmount;
+        double IConvertible.ToDouble(IFormatProvider provider) => (double)RoundedAmount;
+        short IConvertible.ToInt16(IFormatProvider provider) => (short)RoundedAmount;
+        int IConvertible.ToInt32(IFormatProvider provider) => (int)RoundedAmount;
+        long IConvertible.ToInt64(IFormatProvider provider) => (long)RoundedAmount;
+        sbyte IConvertible.ToSByte(IFormatProvider provider) => (sbyte)RoundedAmount;
+        float IConvertible.ToSingle(IFormatProvider provider) => (float)RoundedAmount;
+        ushort IConvertible.ToUInt16(IFormatProvider provider) => (ushort)RoundedAmount;
+        uint IConvertible.ToUInt32(IFormatProvider provider) => (uint)RoundedAmount;
+        ulong IConvertible.ToUInt64(IFormatProvider provider) => (ulong)RoundedAmount;
 
         #endregion
 
@@ -335,7 +335,7 @@ namespace Smartstore.Core.Common
         public static Money operator +(Money a, int b) => a + (decimal)b;
         public static Money operator +(Money a, float b) => a + (decimal)b;
         public static Money operator +(Money a, double b) => a + (decimal)b;
-        public static Money operator +(Money a, decimal b) => new Money(a.Amount + b, a.Currency);
+        public static Money operator +(Money a, decimal b) => new(a.Amount + b, a.Currency);
 
         #endregion
 
@@ -356,7 +356,7 @@ namespace Smartstore.Core.Common
         public static Money operator -(Money a, int b) => a + (decimal)b;
         public static Money operator -(Money a, float b) => a + (decimal)b;
         public static Money operator -(Money a, double b) => a + (decimal)b;
-        public static Money operator -(Money a, decimal b) => new Money(a.Amount - b, a.Currency);
+        public static Money operator -(Money a, decimal b) => new(a.Amount - b, a.Currency);
 
         #endregion
 
@@ -371,7 +371,7 @@ namespace Smartstore.Core.Common
         public static Money operator *(Money a, int b) => a * (decimal)b;
         public static Money operator *(Money a, float b) => a * (decimal)b;
         public static Money operator *(Money a, double b) => a * (decimal)b;
-        public static Money operator *(Money a, decimal b) => new Money(a.Amount * b, a.Currency);
+        public static Money operator *(Money a, decimal b) => new(a.Amount * b, a.Currency);
 
         #endregion
 
@@ -386,7 +386,7 @@ namespace Smartstore.Core.Common
         public static Money operator /(Money a, int b) => a / (decimal)b;
         public static Money operator /(Money a, float b) => a / (decimal)b;
         public static Money operator /(Money a, double b) => a / (decimal)b;
-        public static Money operator /(Money a, decimal b) => new Money(a.Amount / b, a.Currency);
+        public static Money operator /(Money a, decimal b) => new(a.Amount / b, a.Currency);
 
         #endregion
 
