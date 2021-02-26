@@ -96,13 +96,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         /// <param name="rewardPoints">Reward points.</param>
         /// <returns>Converted currency amount.</returns>
-        Money ConvertRewardPointsToAmount(int rewardPoints);
+        Money ConvertRewardPointsToMoney(int rewardPoints);
 
         /// <summary>
         /// Converts a primary store currency amount to reward points.
         /// </summary>
         /// <param name="amount">Currency amount.</param>
         /// <returns>Converted points.</returns>
-        int ConvertAmountToRewardPoints(Money money);
+        int ConvertMoneyToRewardPoints(Money amount);
     }
 }

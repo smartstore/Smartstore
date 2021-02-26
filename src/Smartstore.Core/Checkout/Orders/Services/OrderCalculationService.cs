@@ -115,7 +115,7 @@ namespace Smartstore.Core.Checkout.Orders
                 var paymentMethodAdditionalFee = await provider?.Value?.GetAdditionalHandlingFeeAsync(cart);
 
                 // TODO: (ms) (core) Money struct
-                (paymentFeeWithoutTax, _) = await _taxService.GetPaymentMethodAdditionalFeeAsync(paymentMethodAdditionalFee, false, customer: customer);
+                (paymentFeeWithoutTax, _) = await _taxService.GetPaymentMethodAdditionalFeeAsync(currency.AsMoney(paymentMethodAdditionalFee, false), false, customer: customer);
             }
 
             // Tax
@@ -176,7 +176,7 @@ namespace Smartstore.Core.Checkout.Orders
                 customer.GenericAttributes.UseRewardPointsDuringCheckout)
             {
                 var rewardPointsBalance = customer.GetRewardPointsBalance();
-                var rewardPointsBalanceAmount = ConvertRewardPointsToAmount(rewardPointsBalance);
+                var rewardPointsBalanceAmount = ConvertRewardPointsToMoney(rewardPointsBalance);
 
                 if (resultTemp > rewardPointsBalanceAmount)
                 {
@@ -185,7 +185,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
                 else
                 {
-                    redeemedRewardPoints = ConvertAmountToRewardPoints(redeemedRewardPointsAmount);
+                    redeemedRewardPoints = ConvertMoneyToRewardPoints(redeemedRewardPointsAmount);
                     redeemedRewardPointsAmount = resultTemp;
                 }
             }
@@ -439,7 +439,6 @@ namespace Smartstore.Core.Checkout.Orders
 
             var taxCategoryId = GetTaxCategoryId(cart, _taxSettings.ShippingTaxClassId);
 
-            // TODO: (ms) (core) TaxService.Get<Product|Shipping|CheckoutAttribute|...><Price|Fee>Async must provide the applied tax rate.
             var (shippingTotalTaxed, taxRate) = await _taxService.GetShippingPriceAsync(currency.AsMoney((decimal)shippingTotal.Value), includingTax, customer, taxCategoryId);
 
             return new ShoppingCartShippingTotal(shippingTotalTaxed)
@@ -536,7 +535,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                     var taxCategoryId = GetTaxCategoryId(cart, _taxSettings.PaymentMethodAdditionalFeeTaxClassId);
 
-                    paymentFeeTax = await GetPaymentFeeTaxAmountAsync(paymentFee, customer, taxCategoryId, taxRates);
+                    paymentFeeTax = await GetPaymentFeeTaxAmountAsync(currency.AsMoney(paymentFee, false), customer, taxCategoryId, taxRates);
                 }
             }
 
@@ -716,10 +715,10 @@ namespace Smartstore.Core.Checkout.Orders
             return (discountAmount, appliedDiscount);
         }
 
-        public virtual Money ConvertRewardPointsToAmount(int rewardPoints)
+        public virtual Money ConvertRewardPointsToMoney(int rewardPoints)
             => rewardPoints <= 0 ? new() : _workContext.WorkingCurrency.AsMoney(rewardPoints * _rewardPointsSettings.ExchangeRate);
 
-        public virtual int ConvertAmountToRewardPoints(Money money)
+        public virtual int ConvertMoneyToRewardPoints(Money money)
         {
             if (money <= 0 || _rewardPointsSettings.ExchangeRate <= 0)
                 return 0;

@@ -14,14 +14,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="shippingTotal">Shipping total amount.</param>
         /// <param name="customer">Customer.</param>
         /// <returns>The discount amount and applied discount.</returns>
-        public static async Task<(Money Amount, Discount AppliedDiscount)> GetShippingDiscountAsync(
+        public static Task<(Money Amount, Discount AppliedDiscount)> GetShippingDiscountAsync(
             this IOrderCalculationService orderCalculationService,
             Money shippingTotal,
             Customer customer)
         {
             Guard.NotNull(orderCalculationService, nameof(orderCalculationService));
 
-            return await orderCalculationService.GetDiscountAmountAsync(shippingTotal, DiscountType.AssignedToShipping, customer);
+            return orderCalculationService.GetDiscountAmountAsync(shippingTotal, DiscountType.AssignedToShipping, customer);
         }
 
         /// <summary>
@@ -31,14 +31,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="orderSubTotal">Order subtotal.</param>
         /// <param name="customer">Customer.</param>
         /// <returns>The discount amount and applied discount.</returns>
-        public static async Task<(Money Amount, Discount AppliedDiscount)> GetOrderSubtotalDiscountAsync(
+        public static Task<(Money Amount, Discount AppliedDiscount)> GetOrderSubtotalDiscountAsync(
             this IOrderCalculationService orderCalculationService, 
             Money orderSubTotal, 
             Customer customer)
         {
             Guard.NotNull(orderCalculationService, nameof(orderCalculationService));
 
-            return await orderCalculationService.GetDiscountAmountAsync(orderSubTotal, DiscountType.AssignedToOrderSubTotal, customer, false);
+            return orderCalculationService.GetDiscountAmountAsync(orderSubTotal, DiscountType.AssignedToOrderSubTotal, customer, false);
         }
 
         /// <summary>
@@ -48,14 +48,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="orderTotal">Order total.</param>
         /// <param name="customer">Customer.</param>
         /// <returns>The discount amount and applied discount.</returns>
-        public static async Task<(Money Amount, Discount AppliedDiscount)> GetOrderTotalDiscountAsync(
+        public static Task<(Money Amount, Discount AppliedDiscount)> GetOrderTotalDiscountAsync(
             this IOrderCalculationService orderCalculationService,
             Money orderTotal, 
             Customer customer)
         {
             Guard.NotNull(orderCalculationService, nameof(orderCalculationService));
 
-            return await orderCalculationService.GetDiscountAmountAsync(orderTotal, DiscountType.AssignedToOrderTotal, customer);
+            return orderCalculationService.GetDiscountAmountAsync(orderTotal, DiscountType.AssignedToOrderTotal, customer);
         }
     }
 }
