@@ -178,7 +178,7 @@ namespace Smartstore.Web.Rendering
                         // Create TagHelperContext for tab passing it parent context's items dictionary (that's what Razor does)
                         var context = new TagHelperContext("tab", new TagHelperAttributeList(), stripContext.Items, CommonHelper.GenerateRandomDigitCode(10));
 
-                        // Must init tabstrip, otherwise "Tabs" list is empty inside tabstrip helper.
+                        // Must init tab, otherwise "Tabs" list is empty inside tabstrip helper.
                         tabs[i].Init(context);
 
                         var outputAttrList = new TagHelperAttributeList();

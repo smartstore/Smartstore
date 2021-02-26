@@ -29,7 +29,7 @@ namespace Smartstore.Core.Content.Menus
                 item.Summary = T("Providers.MenuItems.FriendlyName.Route");
                 item.Icon = "fas fa-directions";
 
-                if (!item.HasRoute())
+                if (!item.HasRoute)
                 {
                     item.Text = null;
                     item.ResKey = "Admin.ContentManagement.Menus.SpecifyLinkTarget";

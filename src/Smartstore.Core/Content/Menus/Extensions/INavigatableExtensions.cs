@@ -19,13 +19,6 @@ namespace Smartstore.Core.Content.Menus
             public string RoutePath { get; set; }
         }
 
-        public static bool HasValue(this INavigatable navigatable)
-        {
-            return (navigatable.ActionName.HasValue() && navigatable.ControllerName.HasValue()) || navigatable.ActionName.HasValue() 
-                || navigatable.RouteName.HasValue() 
-                || navigatable.Url.HasValue();
-        }
-
         public static bool IsCurrent(this INavigatable navigatable, ActionContext actionContext)
         {
             // TODO: (mh) (core) Test this thoroughly!

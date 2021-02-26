@@ -144,7 +144,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (PublishEvent && Id.HasValue())
             {
                 var eventPublisher = ViewContext.HttpContext.RequestServices.GetRequiredService<IEventPublisher>();
-                await  eventPublisher.PublishAsync(new TabStripCreated(this));
+                await  eventPublisher.PublishAsync(new TabStripCreated(this, context));
             }
 
             if (Tabs.Count == 0)
@@ -153,6 +153,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             MoveSpecialTabToEnd(Tabs);
+            //RecalculateTabIndexes(Tabs);
 
             var hasContent = Tabs.Any(x => x.HasContent || x.Ajax);
             var isTabbable = Position != TabsPosition.Top;
@@ -554,6 +555,15 @@ namespace Smartstore.Web.TagHelpers.Shared
                 var tab = tabs[idx];
                 tabs.RemoveAt(idx);
                 tabs.Add(tab);
+            }
+        }
+
+        private static void RecalculateTabIndexes(List<TabTagHelper> tabs)
+        {
+            for (int i = 0; i < tabs.Count; i++)
+            {
+                var tab = tabs[i];
+                tab.Index = i + 1;
             }
         }
 

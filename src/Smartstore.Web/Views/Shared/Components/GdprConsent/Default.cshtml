@@ -11,7 +11,7 @@
 <div class="form-group row gdpr-consent @(Model.SmallDisplay ? "small" : "")">
     <div class="col form-control-plaintext">
         <div class="form-check">
-            <input asp-for="GdprConsent" id="@id" class="gdpr-consent-check" sm-ignore-label="true" />
+            <input asp-for="GdprConsent" id="@id" class="gdpr-consent-check" sm-ignore-label="true" sm-switch="false" />
             <label class="form-check-label" for="@id">
                 @Html.Raw(T("Gdpr.Consent.DetailText" + (Model.SmallDisplay ? ".Small" : ""), privacyInfoUrl))
             </label>

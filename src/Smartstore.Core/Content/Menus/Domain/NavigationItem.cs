@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public abstract class NavigationItem : INavigatable
+    public abstract class NavigationItem : INavigatable, IHideObjectMembers
     {
         private bool _selected;
         private bool _enabled;
@@ -157,9 +157,9 @@ namespace Smartstore.Core.Content.Menus
         /// <summary>
         /// Checks whether action/controller or routeName or url has been specified.
         /// </summary>
-		public bool HasRoute()
+		public bool HasRoute
         {
-            return _actionName != null || _routeName != null || _url != null;
+            get => _actionName != null || _routeName != null || _url != null;
         }
 
         /// <summary>

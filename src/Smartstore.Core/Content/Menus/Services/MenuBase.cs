@@ -76,7 +76,7 @@ namespace Smartstore.Core.Content.Menus
             root.Traverse(x =>
             {
                 var item = x.Value;
-                if (!item.IsGroupHeader && !item.HasRoute())
+                if (!item.IsGroupHeader && !item.HasRoute)
                 {
                     if (!x.Children.Any(child => child.Value.Visible))
                     {
