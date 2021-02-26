@@ -6,66 +6,97 @@ using Smartstore.Core.Identity;
 namespace Smartstore.Core.Checkout.Cart
 {
     /// <summary>
-    /// Shopping cart service interface
+    /// Shopping cart service interface.
     /// </summary>
-    // TODO: (ms) (core) (wip) Revise dev docu of interface
     public interface IShoppingCartService
     {
+        /// <summary>
+        /// Adds an item to cart and updates database async.
+        /// </summary>
+        /// <param name="ctx">Context info about the product to added to the cart.</param>
+        /// <returns>List of error messages.</returns>
         Task<IList<string>> AddToCartAsync(AddToCartContext ctx);
 
+        /// <summary>
+        /// Copies an item and all its child items to another cart async.
+        /// </summary>
+        /// <param name="ctx">Context information about the item to be copied and the client to be received.</param>
+        /// <returns>List of error messages.</returns>
         Task<IList<string>> CopyAsync(AddToCartContext ctx);
 
+        /// <summary>
+        /// Gets the customers shopping cart items count async.
+        /// </summary>
+        /// <param name="customer">Customer of cart to be counted.</param>
+        /// <param name="cartType">Shopping cart type.</param>
+        /// <param name="storeId">Store identifier.</param>
+        /// <returns>Number of items.</returns>
         Task<int> CountCartItemsAsync(
             Customer customer = null, 
             ShoppingCartType cartType = ShoppingCartType.ShoppingCart, 
             int storeId = 0);
 
+        /// <summary>
+        /// Deletes shopping cart items async.
+        /// </summary>
+        /// <param name="cartItems">List of cart items to be removed.</param>
+        /// <param name="resetCheckoutData">Value indicating whether to reset checkout data.</param>
+        /// <param name="removeInvalidCheckoutAttributes">Value indicating whether to remove checkout attributes that become invalid.</param>
+        /// <param name="deleteChildCartItems">Value indicating whether to delete child items.</param>
+        /// <returns>Number of items deleted.</returns>
         Task<int> DeleteCartItemsAsync(
             IEnumerable<ShoppingCartItem> cartItems, 
             bool resetCheckoutData = true, 
             bool removeInvalidCheckoutAttributes = false, 
             bool deleteChildCartItems = true);
 
+        /// <summary>
+        /// Deletes expired shopping cart items async.
+        /// </summary>
+        /// <param name="olderThanUtc">Expiry threshold date time</param>
+        /// <param name="customer">Customer of cart.</param>
+        /// <returns>Number of items deleted.</returns>
         Task<int> DeleteExpiredCartItemsAsync(DateTime olderThanUtc, Customer customer);
 
+        /// <summary>
+        /// Gets the customers shopping cart items async.
+        /// </summary>
+        /// <param name="customer">Customer of cart.</param>
+        /// <param name="cartType">Shopping cart type.</param>
+        /// <param name="storeId">Store identifier.</param>
+        /// <returns>List of error messages.</returns>
         Task<IList<OrganizedShoppingCartItem>> GetCartItemsAsync(
             Customer customer = null, 
             ShoppingCartType cartType = ShoppingCartType.ShoppingCart, 
             int storeId = 0);
 
+        /// <summary>
+        /// Gets all open carts sub totals async.
+        /// </summary>
+        /// <returns>Sub total of all open carts.</returns>
         Task<decimal> GetOpenCartsSubTotalAsync();
 
+        /// <summary>
+        /// Gets all open wish lists sub totals async.
+        /// </summary>
+        /// <returns>Sub total of all open wish lists.</returns>
         Task<decimal> GetOpenWishlistsSubTotalAsync();
 
+        /// <summary>
+        /// Migrates all cart items from one to another customer async.
+        /// </summary>
+        /// <param name="fromCustomer">From this customer.</param>
+        /// <param name="toCustomer">To this customer.</param>        
         Task MigrateCartAsync(Customer fromCustomer, Customer toCustomer);
 
-        Task<IList<string>> UpdateCartItemAsync(Customer customer, int cartItemId, int newQuantity, bool resetCheckoutData);
-    }
-
-    public static class IShoppingCartServiceExtensions
-    {
         /// <summary>
-        /// Removes a single cart item from shopping cart of <see cref="ShoppingCartItem.Customer"/>.
-        /// </summary>        
-        /// <param name="cartItem">Cart item to remove from shopping cart.</param>
-        /// <param name="resetCheckoutData">A value indicating whether to reset checkout data.</param>
-        /// <param name="removeInvalidCheckoutAttributes">A value indicating whether to remove incalid checkout attributes.</param>
-        /// <param name="deleteChildCartItems">A value indicating whether to delete child cart items of <c>cartItem.</c></param>
-        /// <returns>Number of deleted entries.</returns>
-        public static Task<int> DeleteCartItemAsync(this IShoppingCartService cartService,
-            ShoppingCartItem cartItem,
-            bool resetCheckoutData = true,
-            bool removeInvalidCheckoutAttributes = false,
-            bool deleteChildCartItems = true)
-        {
-            Guard.NotNull(cartService, nameof(cartService));
-            Guard.NotNull(cartItem, nameof(cartItem));
-
-            return cartService.DeleteCartItemsAsync(
-                new[] { cartItem },
-                resetCheckoutData,
-                removeInvalidCheckoutAttributes,
-                deleteChildCartItems);
-        }
-    }
+        /// Updates the shopping cart item by item identifier of customer.
+        /// </summary>
+        /// <param name="customer">Customer of cart items.</param>
+        /// <param name="cartItemId">Cart item to update.</param>
+        /// <param name="newQuantity">New quantitiy.</param>
+        /// <param name="resetCheckoutData">Value indicating whether to reset checkout data.</param>
+        /// <returns>List of error messages.</returns>
+        Task<IList<string>> UpdateCartItemAsync(Customer customer, int cartItemId, int newQuantity, bool resetCheckoutData);
+    }    
 }

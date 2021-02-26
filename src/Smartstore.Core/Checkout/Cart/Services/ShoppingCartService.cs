@@ -15,6 +15,10 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Batching;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Common.Services;
+using Smartstore.Events;
+using Smartstore.Core.Checkout.Cart.Events;
 
 // TODO: (ms) (core) (wip) needs orderTotalCalculationService and TESTING!
 namespace Smartstore.Core.Checkout.Cart
@@ -32,33 +36,38 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly IRequestCache _requestCache;
+        private readonly IEventPublisher _eventPublisher;
         private readonly ICustomerService _customerService;
+        private readonly ICurrencyService _currencyService;
         private readonly IShoppingCartValidator _cartValidator;
+        private readonly IOrderCalculationService _orderCalculationService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        //private readonly IOrderTotalCalculationService _orderTotalCalculationService;
 
         public ShoppingCartService(
             SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,
             IRequestCache requestCache,
+            IEventPublisher eventPublisher,
             ICustomerService customerService,
+            ICurrencyService currencyService,
             IShoppingCartValidator cartValidator,
+            IOrderCalculationService orderCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
-            ICheckoutAttributeMaterializer checkoutAttributeMaterializer
-            //,IOrderTotalCalculationService orderTotalCalculationService,
-            )
+            ICheckoutAttributeMaterializer checkoutAttributeMaterializer)
         {
             _db = db;
             _workContext = workContext;
             _storeContext = storeContext;
             _requestCache = requestCache;
+            _eventPublisher = eventPublisher;
             _customerService = customerService;
+            _currencyService = currencyService;
             _cartValidator = cartValidator;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            //_orderTotalCalculationService = orderTotalCalculationService;
+            _orderCalculationService = orderCalculationService;
 
             T = NullLocalizer.Instance;
         }
@@ -475,7 +484,6 @@ namespace Smartstore.Core.Checkout.Cart
             var result = _requestCache.Get(cacheKey, async () =>
             {
                 var cartItems = new List<ShoppingCartItem>();
-                // TODO: (ms) (core) Do we need to check for ShoppingCartItems.Product.ProductVariantAttribute is loaded too? Would this direct access be even possible then?
                 if (_db.IsCollectionLoaded(customer, x => x.ShoppingCartItems))
                 {
                     var filteredCartItems = customer.ShoppingCartItems
@@ -490,12 +498,13 @@ namespace Smartstore.Core.Checkout.Cart
                 }
                 else
                 {
-                    // TODO: (core) Re-apply data to Customer.ShoppingCartItems collection to prevent reloads.
                     cartItems = await _db.ShoppingCartItems
                          .Include(x => x.Product)
                              .ThenInclude(x => x.ProductVariantAttributes)
                          .ApplyStandardFilter(cartType, storeId, customer)
                          .ToListAsync();
+                    
+                    customer.ShoppingCartItems = cartItems;
                 }
 
                 // Prefetch all product variant attributes
@@ -510,7 +519,6 @@ namespace Smartstore.Core.Checkout.Cart
                     allAttributes.AddAttribute(attribute.Key, attribute.Value);
                 }
 
-                // TODO: (ms) (core) Check if this is sufficient and good prefetch -> what about caching or skipping already loaded?
                 await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(allAttributes);
 
                 return await OrganizeCartItemsAsync(cartItems);
@@ -574,8 +582,10 @@ namespace Smartstore.Core.Checkout.Cart
                 );
             }
 
-            // TODO: (ms) (core) Implement publishMigrateShoppingCart
-            //_eventPublisher.PublishMigrateShoppingCart(fromCustomer, toCustomer, storeId);
+            if (fromCustomer != null && toCustomer != null)
+            {
+                _eventPublisher.Publish(new MigrateShoppingCartEvent(fromCustomer, toCustomer, storeId));
+            }
 
             await DeleteCartItemsAsync(cartItems.Select(x => x.Item));
         }
@@ -630,31 +640,16 @@ namespace Smartstore.Core.Checkout.Cart
             return warnings;
         }
 
-        // TODO: (ms) (core) Implement orderTotalCalculationService.GetShoppingCartSubTotal()
-        //public virtual async decimal GetCurrentCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart = null)
-        //{
-        //    cart ??= await GetCartItemsAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
+        public virtual async Task<decimal> GetCurrentCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart = null)
+        {
+            cart ??= await GetCartItemsAsync(storeId: _storeContext.CurrentStore.Id);
+            if (!cart.Any())
+            {
+                return decimal.Zero;
+            }
 
-        //    if (cart.Any())
-        //    {
-        //        _orderTotalCalculationService.GetShoppingCartSubTotal(cart, out _, out _, out var subTotalWithoutDiscountBase, out _);
-
-        //        return _currencyService.ConvertFromPrimaryStoreCurrency(subTotalWithoutDiscountBase, _workContext.WorkingCurrency);
-        //    }
-
-        //    return Task.FromResult(decimal.Zero);
-        //}
-
-        // TODO: (ms) (core) Implement GetCurrentCartSubTotalAsync() > orderTotalCalculationService.GetShoppingCartSubTotal()
-        //public virtual string GetFormattedCurrentCartSubTotal()
-        //{
-        //    return _priceFormatter.FormatPrice(GetCurrentCartSubTotalAsync());
-        //}
-
-        // TODO: (ms) (core) Implement GetCurrentCartSubTotalAsync() > orderTotalCalculationService.GetShoppingCartSubTotal()
-        //public virtual string GetFormattedCurrentCartSubTotal(IList<OrganizedShoppingCartItem> cart)
-        //{
-        //    return _priceFormatter.FormatPrice(GetCurrentCartSubTotal(cart));
-        //}
+            var subTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
+            return _currencyService.ConvertFromPrimaryStoreCurrency(subTotal.SubTotalWithoutDiscount.Amount, _workContext.WorkingCurrency);
+        }
     }
 }
