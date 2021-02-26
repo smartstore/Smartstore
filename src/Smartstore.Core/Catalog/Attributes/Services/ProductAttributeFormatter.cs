@@ -24,7 +24,6 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly IWorkContext _workContext;
         private readonly IWebHelper _webHelper;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IPriceFormatter _priceFormatter;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
         private readonly ILocalizationService _localizationService;
@@ -37,7 +36,6 @@ namespace Smartstore.Core.Catalog.Attributes
             IWorkContext workContext,
             IWebHelper webHelper,
             IProductAttributeMaterializer productAttributeMaterializer,
-            IPriceFormatter priceFormatter,
             ITaxService taxService,
             ICurrencyService currencyService,
             ILocalizationService localizationService,
@@ -49,7 +47,6 @@ namespace Smartstore.Core.Catalog.Attributes
             _workContext = workContext;
             _webHelper = webHelper;
             _productAttributeMaterializer = productAttributeMaterializer;
-            _priceFormatter = priceFormatter;
             _taxService = taxService;
             _currencyService = currencyService;
             _localizationService = localizationService;
@@ -78,6 +75,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (includeProductAttributes)
             {
+                var currency = _workContext.WorkingCurrency;
                 var languageId = _workContext.WorkingLanguage.Id;
                 var attributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(selection);
                 var attributesDic = attributes.ToDictionary(x => x.Id);
@@ -107,8 +105,8 @@ namespace Smartstore.Core.Catalog.Attributes
                                 {
                                     // TODO: (ms) (core) Replace (price) decimals with money objects
                                     var attributeValuePriceAdjustment = await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, null, 1);
-                                    var (priceAdjustmentBase, _) = await _taxService.GetProductPriceAsync(product, _workContext.WorkingCurrency.AsMoney(attributeValuePriceAdjustment), customer: customer);
-                                    var priceAdjustment = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase.Amount, _workContext.WorkingCurrency);
+                                    var (priceAdjustmentBase, _) = await _taxService.GetProductPriceAsync(product, currency.AsMoney(attributeValuePriceAdjustment), customer: customer);
+                                    var priceAdjustment = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase.Amount, currency);
 
                                     if (_shoppingCartSettings.ShowLinkedAttributeValueQuantity &&
                                         pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
@@ -121,11 +119,11 @@ namespace Smartstore.Core.Catalog.Attributes
                                     {
                                         if (priceAdjustmentBase > 0)
                                         {
-                                            pvaAttribute += " (+{0})".FormatInvariant(_priceFormatter.FormatPrice(priceAdjustment, true, displayTax: false));
+                                            pvaAttribute += " (+{0})".FormatInvariant(_currencyService.AsMoney(priceAdjustment, true, displayTax: false).ToString());
                                         }
                                         else if (priceAdjustmentBase < decimal.Zero)
                                         {
-                                            pvaAttribute += " (-{0})".FormatInvariant(_priceFormatter.FormatPrice(-priceAdjustment, true, displayTax: false));
+                                            pvaAttribute += " (-{0})".FormatInvariant(_currencyService.AsMoney(-priceAdjustment, true, displayTax: false).ToString());
                                         }
                                     }
                                 }

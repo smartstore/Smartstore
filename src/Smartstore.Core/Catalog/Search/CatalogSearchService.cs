@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -24,20 +24,20 @@ namespace Smartstore.Core.Catalog.Search
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly IIndexManager _indexManager;
-        private readonly IPriceFormatter _priceFormatter;
+        private readonly ICurrencyService _currencyService;
         private readonly IUrlHelper _urlHelper;
 
         public CatalogSearchService(
             SmartDbContext db,
             ICommonServices services,
             IIndexManager indexManager,
-            IPriceFormatter priceFormatter,
+            ICurrencyService currencyService,
             IUrlHelper urlHelper)
         {
             _db = db;
             _services = services;
             _indexManager = indexManager;
-            _priceFormatter = priceFormatter;
+            _currencyService = currencyService;
             _urlHelper = urlHelper;
         }
 
@@ -247,7 +247,7 @@ namespace Smartstore.Core.Catalog.Search
 
         protected virtual string FormatPrice(decimal price)
         {
-            return _priceFormatter.FormatPrice(price, true, displayTax: false);
+            return _currencyService.AsMoney(price, true, displayTax: false).ToString();
         }
 
         #region XML Sitemap

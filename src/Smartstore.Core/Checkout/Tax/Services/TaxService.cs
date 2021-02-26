@@ -217,6 +217,11 @@ namespace Smartstore.Core.Checkout.Tax
         public virtual IEnumerable<Provider<ITaxProvider>> LoadAllTaxProviders()
             => _providerManager.GetAllProviders<ITaxProvider>();
 
+        public virtual string FormatTaxRate(decimal taxRate)
+        {
+            return taxRate.ToString("G29");
+        }
+
         public virtual async Task<decimal> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null)
         {
             // No need to calculate anything if price is 0

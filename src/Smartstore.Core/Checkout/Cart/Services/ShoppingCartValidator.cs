@@ -17,7 +17,8 @@ using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.Cart
 {
-    // TODO: (ms) (core) Media load flags warnings
+    // TODO: (ms) (core) Media load flags warnings.
+    // TODO: (ms) (core) T(key, arg1, arg2, ....) doesn't work anymore. There is no string.Format by Localizer anymore.
     /// <summary>
     /// Shopping cart validation methods
     /// </summary>
@@ -27,7 +28,6 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IAclService _aclService;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
-        private readonly IPriceFormatter _priceFormatter;
         private readonly ICurrencyService _currencyService;
         private readonly ShoppingCartSettings _cartSettings;
         private readonly IPermissionService _permissionService;
@@ -41,7 +41,6 @@ namespace Smartstore.Core.Checkout.Cart
             IAclService aclService,
             IWorkContext workContext,
             IStoreContext storeContext,
-            IPriceFormatter priceFormatter,
             ICurrencyService currencyService,
             ShoppingCartSettings cartSettings,
             IPermissionService permissionService,
@@ -54,7 +53,6 @@ namespace Smartstore.Core.Checkout.Cart
             _aclService = aclService;
             _workContext = workContext;
             _storeContext = storeContext;
-            _priceFormatter = priceFormatter;
             _currencyService = currencyService;
             _cartSettings = cartSettings;
             _permissionService = permissionService;
@@ -62,11 +60,9 @@ namespace Smartstore.Core.Checkout.Cart
             _localizationService = localizationService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-
-            T = NullLocalizer.Instance;
         }
 
-        public Localizer T { get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public virtual async Task<IList<string>> ValidateAccessPermissionsAsync(AddToCartContext ctx)
         {
@@ -342,11 +338,10 @@ namespace Smartstore.Core.Checkout.Cart
                 var minimum = _currencyService.ConvertFromPrimaryStoreCurrency(product.MinimumCustomerEnteredPrice, _workContext.WorkingCurrency);
                 var maximum = _currencyService.ConvertFromPrimaryStoreCurrency(product.MaximumCustomerEnteredPrice, _workContext.WorkingCurrency);
 
-                warnings.Add(T(
-                    "ShoppingCart.CustomerEnteredPrice.RangeError",
-                    _priceFormatter.FormatPrice(minimum, true, displayTax: false),
-                    _priceFormatter.FormatPrice(maximum, true, displayTax: false))
-                    );
+                var moneyMin = _currencyService.AsMoney(minimum, true, displayTax: false);
+                var moneyMax = _currencyService.AsMoney(maximum, true, displayTax: false);
+
+                warnings.Add(string.Format(T("ShoppingCart.CustomerEnteredPrice.RangeError"), moneyMin.ToString(), moneyMax.ToString()));
             }
 
             // Quantity validation

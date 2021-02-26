@@ -26,7 +26,6 @@ namespace Smartstore.Web
         private readonly ILanguageResolver _languageResolver;
         private readonly IStoreContext _storeContext;
         private readonly ICustomerService _customerService;
-        private readonly ICurrencyService _currencyService;
         private readonly IGenericAttributeService _attrService;
         private readonly TaxSettings _taxSettings;
         private readonly PrivacySettings _privacySettings;
@@ -50,7 +49,6 @@ namespace Smartstore.Web
             ILanguageResolver languageResolver,
             IStoreContext storeContext,
             ICustomerService customerService,
-            ICurrencyService currencyService,
             IGenericAttributeService attrService,
             TaxSettings taxSettings,
             PrivacySettings privacySettings,
@@ -67,7 +65,6 @@ namespace Smartstore.Web
             _languageResolver = languageResolver;
             _storeContext = storeContext;
             _customerService = customerService;
-            _currencyService = currencyService;
             _attrService = attrService;
             _taxSettings = taxSettings;
             _privacySettings = privacySettings;

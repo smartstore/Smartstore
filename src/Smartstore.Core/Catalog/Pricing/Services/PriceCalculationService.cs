@@ -20,6 +20,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
@@ -34,7 +35,6 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly ICurrencyService _currencyService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IDiscountService _discountService;
-        private readonly IPriceFormatter _priceFormatter;
         private readonly CatalogSettings _catalogSettings;
 
         public PriceCalculationService(
@@ -47,7 +47,6 @@ namespace Smartstore.Core.Catalog.Pricing
             ICurrencyService currencyService,
             IProductAttributeMaterializer productAttributeMaterializer,
             IDiscountService discountService,
-            IPriceFormatter priceFormatter,
             CatalogSettings catalogSettings)
         {
             _db = db;
@@ -59,9 +58,10 @@ namespace Smartstore.Core.Catalog.Pricing
             _currencyService = currencyService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _discountService = discountService;
-            _priceFormatter = priceFormatter;
             _catalogSettings = catalogSettings;
         }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public virtual PriceCalculationContext CreatePriceCalculationContext(
             IEnumerable<Product> products = null,
@@ -598,6 +598,30 @@ namespace Smartstore.Core.Catalog.Pricing
             return decimal.Zero;
         }
 
+        public virtual string GetBasePriceInfo(Product product, decimal productPrice, Currency currency)
+        {
+            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(currency, nameof(currency));
+
+            if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
+            {
+                var value = Convert.ToDecimal((productPrice / product.BasePriceAmount) * product.BasePriceBaseAmount);
+                var valueFormatted = _currencyService.AsMoney(value, true, currency).ToString();
+                var amountFormatted = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
+                string infoTemplate = T("Products.BasePriceInfo");
+
+                var result = infoTemplate.FormatInvariant(
+                    amountFormatted,
+                    product.BasePriceMeasureUnit,
+                    valueFormatted,
+                    product.BasePriceBaseAmount);
+
+                return result;
+            }
+
+            return string.Empty;
+        }
+
         public virtual async Task<string> GetBasePriceInfoAsync(Product product, Customer customer = null, Currency currency = null, decimal priceAdjustment = decimal.Zero)
         {
             Guard.NotNull(product, nameof(product));
@@ -608,10 +632,11 @@ namespace Smartstore.Core.Catalog.Pricing
             if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
             {
                 var currentPrice = await GetFinalPriceAsync(product, new(), customer, includeDiscounts: true);
-                var (price, _) = await _taxService.GetProductPriceAsync(product, currency.AsMoney(decimal.Add(currentPrice.Amount, priceAdjustment)), customer: customer);
+                var priceInclAdjustment = currency.AsMoney(decimal.Add(currentPrice.Amount, priceAdjustment));
+                var (price, _) = await _taxService.GetProductPriceAsync(product, priceInclAdjustment, customer: customer);
                 price.Amount = _currencyService.ConvertFromPrimaryStoreCurrency(price.Amount, currency);
 
-                return _priceFormatter.GetBasePriceInfo(product, price.Amount, currency);
+                return GetBasePriceInfo(product, price.Amount, currency);
             }
 
             return string.Empty;

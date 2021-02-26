@@ -63,6 +63,7 @@ using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Rules.Filters;
 using Microsoft.Extensions.Configuration;
 using Smartstore.Web.Filters;
+using Smartstore.Core.Common.Services;
 
 namespace Smartstore.Web.Controllers
 {
@@ -754,17 +755,32 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var customer = await _db.Customers.Include(x => x.Addresses).FindByIdAsync(2666330);
-            content.AppendLine($"Addresses assigned: " + customer.Addresses.Count);
+            var price = 16.98M;
+            var currency = Services.WorkContext.WorkingCurrency;
+            var currencyService = Services.Resolve<ICurrencyService>();
+            var plainMoney = new Money(price, currency);
 
-            var address = await _db.Addresses.FindByIdAsync(84228);
-            if (address != null)
-            {
-                customer.RemoveAddress(address);
-                await _db.SaveChangesAsync();
+            content.AppendLine("plain money: " + plainMoney.ToString());
 
-                content.AppendLine($"Removed assigned address. Addresses assigned: " + customer.Addresses.Count);
-            }
+            var moneyWithTax = currencyService.AsMoney(price, true, currency);
+            content.AppendLine("Money with tax: " + moneyWithTax.ToString());
+
+            var moneyMin = currencyService.AsMoney(9.66M, true, displayTax: false);
+            var moneyMax = currencyService.AsMoney(12.14M, true, displayTax: false);
+            content.AppendLine("range error warning: " + string.Format(T("ShoppingCart.CustomerEnteredPrice.RangeError"), moneyMin.ToString(), moneyMax.ToString()));
+
+
+            //var customer = await _db.Customers.Include(x => x.Addresses).FindByIdAsync(2666330);
+            //content.AppendLine($"Addresses assigned: " + customer.Addresses.Count);
+
+            //var address = await _db.Addresses.FindByIdAsync(84228);
+            //if (address != null)
+            //{
+            //    customer.RemoveAddress(address);
+            //    await _db.SaveChangesAsync();
+
+            //    content.AppendLine($"Removed assigned address. Addresses assigned: " + customer.Addresses.Count);
+            //}
 
             //var customer = await _db.Customers
             //    .Include(x => x.RewardPointsHistory)

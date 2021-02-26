@@ -1,21 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Content.Media;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
-using System;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace Smartstore.Core.Checkout.Attributes
 {
@@ -23,7 +19,6 @@ namespace Smartstore.Core.Checkout.Attributes
     {
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ICurrencyService _currencyService;
-        private readonly IPriceFormatter _priceFormatter;
         private readonly IWorkContext _workContext;
         private readonly ITaxService _taxService;
         private readonly IWebHelper _webHelper;
@@ -32,7 +27,6 @@ namespace Smartstore.Core.Checkout.Attributes
         public CheckoutAttributeFormatter(
             ICheckoutAttributeMaterializer attributeMaterializer,
             ICurrencyService currencyService,
-            IPriceFormatter priceFormatter,
             IWorkContext workContext,
             ITaxService taxService,
             IWebHelper webHelper,
@@ -40,7 +34,6 @@ namespace Smartstore.Core.Checkout.Attributes
         {
             _checkoutAttributeMaterializer = attributeMaterializer;
             _currencyService = currencyService;
-            _priceFormatter = priceFormatter;
             _workContext = workContext;
             _taxService = taxService;
             _webHelper = webHelper;
@@ -173,7 +166,7 @@ namespace Smartstore.Core.Checkout.Attributes
                                     var priceAdjustmentConverted = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustment.Amount, _workContext.WorkingCurrency);
                                     if (priceAdjustment > 0)
                                     {
-                                        attributeStr += string.Format(" [+{0}]", _priceFormatter.FormatPrice(priceAdjustmentConverted));
+                                        attributeStr += string.Format(" [+{0}]", _currencyService.AsMoney(priceAdjustmentConverted).ToString());
                                     }
                                 }
                             }

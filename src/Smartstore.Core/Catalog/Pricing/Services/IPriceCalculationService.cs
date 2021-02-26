@@ -160,6 +160,15 @@ namespace Smartstore.Core.Catalog.Pricing
             int quantity = 1);
 
         /// <summary>
+        /// Gets the base price info for a product.
+        /// </summary>
+        /// <param name="product">Product entity.</param>
+        /// <param name="productPrice">The calculated product price.</param>
+        /// <param name="currency">Target currency.</param>
+        /// <returns>The base price info.</returns>
+        string GetBasePriceInfo(Product product, decimal productPrice, Currency currency);
+
+        /// <summary>
         /// /// Gets the base price info for a product.
         /// </summary>
         /// <param name="product">Product.</param>

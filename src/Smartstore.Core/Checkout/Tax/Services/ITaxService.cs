@@ -39,6 +39,13 @@ namespace Smartstore.Core.Checkout.Tax
         IEnumerable<Provider<ITaxProvider>> LoadAllTaxProviders();
 
         /// <summary>
+        /// Formats a tax rate.
+        /// </summary>
+        /// <param name="taxRate">Tax rate to format.</param>
+        /// <returns>Formatted tax rate.</returns>
+        string FormatTaxRate(decimal taxRate);
+
+        /// <summary>
         /// Gets tax rate for product async.
         /// </summary>
         /// <param name="product">Product to get tax rate. Can be <c>null</c>.</param>

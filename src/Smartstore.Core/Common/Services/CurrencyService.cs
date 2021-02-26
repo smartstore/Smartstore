@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 
@@ -12,20 +16,29 @@ namespace Smartstore.Core.Common.Services
     public partial class CurrencyService : ICurrencyService
     {
         private readonly SmartDbContext _db;
-        private readonly CurrencySettings _currencySettings;
-        private readonly IProviderManager _providerManager;  
+        private readonly ILocalizationService _localizationService;
+        private readonly IProviderManager _providerManager;
+        private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
+        private readonly CurrencySettings _currencySettings;
+        private readonly TaxSettings _taxSettings;
 
         public CurrencyService(
             SmartDbContext db,
-            CurrencySettings currencySettings,
+            ILocalizationService localizationService,
             IProviderManager providerManager,
-            IStoreContext storeContext)
+            IWorkContext workContext,
+            IStoreContext storeContext,
+            CurrencySettings currencySettings,
+            TaxSettings taxSettings)
         {
             _db = db;
-            _currencySettings = currencySettings;
+            _localizationService = localizationService;
             _providerManager = providerManager;
+            _workContext = workContext;
             _storeContext = storeContext;
+            _currencySettings = currencySettings;
+            _taxSettings = taxSettings;
         }
 
         public virtual async Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode)
@@ -145,6 +158,60 @@ namespace Smartstore.Core.Common.Services
         public virtual IEnumerable<Provider<IExchangeRateProvider>> LoadAllExchangeRateProviders()
         {
             return _providerManager.GetAllProviders<IExchangeRateProvider>();
+        }
+
+        public virtual Money AsMoney(
+            decimal price,
+            bool displayCurrency = true,
+            object currencyCodeOrObj = null,
+            Language language = null,
+            bool? priceIncludesTax = null,
+            bool? displayTax = null,
+            PricingTarget target = PricingTarget.Product)
+        {
+            Currency currency = null;
+            string taxSuffixFormatString = null;
+
+            if (currencyCodeOrObj is null)
+            {
+                currency = _workContext.WorkingCurrency;
+            }
+            else if (currencyCodeOrObj is string currencyCode)
+            {
+                Guard.NotEmpty(currencyCode, nameof(currencyCodeOrObj));
+                currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == currencyCode) ?? new Currency { CurrencyCode = currencyCode };
+            }
+            else if (currencyCodeOrObj is Currency)
+            {
+                currency = (Currency)currencyCodeOrObj;
+            }
+
+            if (currency == null)
+            {
+                throw new ArgumentException("Currency parameter must either be a valid currency code as string or an actual currency entity instance.", nameof(currencyCodeOrObj));
+            }
+
+            displayTax ??= target == PricingTarget.Product
+                ? _taxSettings.DisplayTaxSuffix
+                : (target == PricingTarget.ShippingCharge
+                    ? _taxSettings.DisplayTaxSuffix && _taxSettings.ShippingIsTaxable
+                    : _taxSettings.DisplayTaxSuffix && _taxSettings.PaymentMethodAdditionalFeeIsTaxable);
+
+            if (displayTax == true)
+            {
+                // Show tax suffix.
+                priceIncludesTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+                language ??= _workContext.WorkingLanguage;
+
+                string resource = _localizationService.GetResource(priceIncludesTax.Value ? "Products.InclTaxSuffix" : "Products.ExclTaxSuffix", language.Id, false);
+                taxSuffixFormatString = resource.NullEmpty() ?? (priceIncludesTax.Value ? "{0} incl. tax" : "{0} excl. tax");
+            }
+
+            return new Money(price, currency)
+            {
+                ShowTax = displayTax.Value,
+                TaxSuffixFormatString = taxSuffixFormatString
+            };
         }
     }
 }

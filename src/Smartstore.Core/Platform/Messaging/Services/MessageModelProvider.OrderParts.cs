@@ -117,7 +117,7 @@ namespace Smartstore.Core.Messages
             var currencyService = _services.Resolve<ICurrencyService>();
             var giftCardService = _services.Resolve<IGiftCardService>();
             //var paymentService = _services.Resolve<IPaymentService>();
-            var priceFormatter = _services.Resolve<IPriceFormatter>();
+            var taxService = _services.Resolve<ITaxService>();
             var taxSettings = await _services.SettingFactory.LoadSettingsAsync<TaxSettings>(messageContext.Store.Id);
 
             var taxRates = new SortedDictionary<decimal, decimal>();
@@ -207,7 +207,7 @@ namespace Smartstore.Core.Messages
             {
                 return new
                 {
-                    Rate = T("Order.TaxRateLine", language.Id, priceFormatter.FormatTaxRate(x.Key)).Value,
+                    Rate = T("Order.TaxRateLine", language.Id, taxService.FormatTaxRate(x.Key)).Value,
                     Value = FormatPrice(x.Value, order, messageContext)
                 };
             }).ToArray();

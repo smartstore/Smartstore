@@ -34,6 +34,8 @@ namespace Smartstore.Core.Common
             Amount = amount;
             Currency = currency;
             HideCurrency = hideCurrency;
+            ShowTax = false;
+            TaxSuffixFormatString = null;
         }
 
         [JsonIgnore]
@@ -86,11 +88,29 @@ namespace Smartstore.Core.Common
         }
 
         /// <summary>
-        /// The formatted amount
+        /// A value indicating whether to include tax information when formatting.
+        /// </summary>
+        public bool ShowTax
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// The format string including tax suffix.
+        /// </summary>
+        public string TaxSuffixFormatString
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// The formatted amount.
         /// </summary>
         public string Formatted
         {
-            get => ToString(true, false);
+            get => ToString(true, false, true);
         }
 
         private static void GuardCurrenciesAreEqual(Money a, Money b)
@@ -220,7 +240,7 @@ namespace Smartstore.Core.Common
 
         public override string ToString()
         {
-            return ToString(!HideCurrency, false);
+            return ToString(!HideCurrency, false, ShowTax);
         }
 
         public string ToString(bool showCurrency)
@@ -246,6 +266,18 @@ namespace Smartstore.Core.Common
 
                 return RoundedAmount.ToString("C", fmt);
             }
+        }
+
+        private string ToString(bool showCurrency, bool useISOCodeAsSymbol, bool showTax)
+        {
+            var formatted = ToString(showCurrency, useISOCodeAsSymbol);
+
+            if (showTax && TaxSuffixFormatString.HasValue())
+            {
+                return string.Format(TaxSuffixFormatString, formatted);
+            }
+
+            return formatted;
         }
 
         #endregion

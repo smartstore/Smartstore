@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Common.Services
 {
     /// <summary>
-    /// Currency service interface
+    /// Currency service interface.
     /// </summary>
     public partial interface ICurrencyService
     {
@@ -98,5 +100,43 @@ namespace Smartstore.Core.Common.Services
         /// </summary>
         /// <returns>Exchange rate providers</returns>
         IEnumerable<Provider<IExchangeRateProvider>> LoadAllExchangeRateProviders();
+
+        /// <summary>
+        /// Creates and returns a money struct, including tax infomation to format a price with tax suffix.
+        /// </summary>
+        /// <param name="price">Price.</param>
+        /// <param name="displayCurrency">
+        /// A value indicating whether to display the currency symbol/code.
+        /// </param>
+        /// <param name="currencyCodeOrObj">
+        /// Target currency as string code (e.g. USD) or an actual <see cref="Currency"/> instance. If <c>null</c>,
+        /// currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.
+        /// </param>
+        /// <param name="language">
+        /// Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
+        /// </param>
+        /// <param name="priceIncludesTax">
+        /// A value indicating whether given price includes tax already.
+        /// If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
+        /// </param>
+        /// <param name="displayTax">
+        /// A value indicating whether to display the tax suffix.
+        /// If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
+        /// additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
+        /// according to <paramref name="target"/>.
+        /// </param>
+        /// <param name="target">
+        /// The target object to format price for. This parameter affects how <paramref name="displayTax"/>
+        /// will be auto-resolved if it is <c>null</c>.
+        /// </param>
+        /// <returns>Money.</returns>
+        Money AsMoney(
+            decimal price,
+            bool displayCurrency = true,
+            object currencyCodeOrObj = null,
+            Language language = null,
+            bool? priceIncludesTax = null,
+            bool? displayTax = null,
+            PricingTarget target = PricingTarget.Product);
     }
 }
