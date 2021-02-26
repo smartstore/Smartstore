@@ -5,11 +5,11 @@ using Autofac.Core;
 using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Content.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Data;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -17,6 +17,7 @@ namespace Smartstore.Core.Bootstrapping
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<CultureUrlFilter>().As<IUrlFilter>().InstancePerLifetimeScope();
             builder.RegisterType<LocalizedEntityService>().As<ILocalizedEntityService>().InstancePerLifetimeScope();
             builder.RegisterType<LanguageService>().As<ILanguageService>().InstancePerLifetimeScope();
             builder.RegisterType<LocalizationService>().As<ILocalizationService>().InstancePerLifetimeScope();

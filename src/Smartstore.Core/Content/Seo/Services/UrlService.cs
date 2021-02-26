@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +10,6 @@ using Smartstore.Caching;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Content.Seo.Routing;
 using Smartstore.Data.Hooks;
 using Smartstore.Core.Stores;
@@ -236,7 +234,7 @@ namespace Smartstore.Core.Content.Seo
 
         #endregion
 
-        #region UrlPolicy
+        #region IUrlService
 
         public virtual UrlPolicy GetUrlPolicy()
         {
@@ -259,166 +257,6 @@ namespace Smartstore.Core.Content.Seo
 
             return _urlPolicy;
         }
-
-        public virtual UrlPolicy ApplyCanonicalUrlRulesPolicy()
-        {
-            var policy = GetUrlPolicy();
-
-            if (policy.IsInvalidUrl)
-            {
-                return policy;
-            }
-
-            var rule = _seoSettings.CanonicalHostNameRule;
-            if (rule == CanonicalHostNameRule.NoRule)
-            {
-                return policy;
-            }
-
-            var context = _httpContextAccessor.HttpContext;
-            if (context.Connection.IsLocal())
-            {
-                // Allows testing of "localtest.me"
-                return policy;
-            }
-
-            var hasWww = policy.Host.Value.StartsWith("www.", StringComparison.OrdinalIgnoreCase);
-
-            if (rule == CanonicalHostNameRule.OmitWww && hasWww)
-            {
-                policy.Host.Modify(policy.Host.Value.Substring(4));
-            }
-            else if (rule == CanonicalHostNameRule.RequireWww && !hasWww)
-            {
-                policy.Host.Modify("www." + policy.Host.Value);
-            }
-
-            return policy;
-        }
-
-        public virtual UrlPolicy ApplyHttpsUrlPolicy(Endpoint endpoint)
-        {
-            var policy = GetUrlPolicy();
-
-            if (policy.IsInvalidUrl)
-            {
-                return policy;
-            }
-
-            var context = _httpContextAccessor.HttpContext;
-
-            // Don't redirect on localhost if not allowed.
-            if (!_securitySettings.UseSslOnLocalhost && context.Connection.IsLocal())
-            {
-                return policy;
-            }
-
-            // Only redirect for GET requests, otherwise the browser might not propagate
-            // the verb and request body correctly.
-            if (!HttpMethods.IsGet(context.Request.Method))
-            {
-                return policy;
-            }
-
-            var currentConnectionSecured = _webHelper.IsCurrentConnectionSecured();
-            var currentStore = _storeContext.CurrentStore;
-            var supportsHttps = currentStore.SupportsHttps();
-            var requireHttps = currentStore.ForceSslForAllPages;
-
-            if (endpoint != null && supportsHttps && !requireHttps)
-            {
-                // Check if RequireSslAttribute is present in endpoint metadata
-                requireHttps = endpoint.Metadata.GetMetadata<RequireSslAttribute>() != null;
-            }
-
-            requireHttps = requireHttps && supportsHttps;
-
-            if (requireHttps && !currentConnectionSecured)
-            {
-                policy.Scheme.Modify(Uri.UriSchemeHttps);
-            }
-            else if (!requireHttps && currentConnectionSecured)
-            {
-                policy.Scheme.Modify(Uri.UriSchemeHttp);
-            }
-
-            return policy;
-        }
-
-        public virtual UrlPolicy ApplyCultureUrlPolicy(Endpoint endpoint)
-        {
-            Guard.NotNull(endpoint, nameof(endpoint));
-            
-            var policy = GetUrlPolicy();
-            
-            if (policy.IsInvalidUrl)
-            {
-                return policy;
-            }
-            
-            if (!_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled || policy.Method != HttpMethod.Get.Method)
-            {
-                // Handle only GET requests and when config says so.
-                return policy;
-            }
-
-            var localizedRouteMetadata = endpoint.Metadata.OfType<LocalizedRouteMetadata>().FirstOrDefault();
-            if (localizedRouteMetadata == null)
-            {
-                // Handle only localizable routes
-                return policy;
-            }
-
-            var workingLanguage = _workContext.WorkingLanguage;
-            var invalidBehavior = _localizationSettings.InvalidLanguageRedirectBehaviour;
-            var defaultBehavior = _localizationSettings.DefaultLanguageRedirectBehaviour;
-
-            if (policy.Culture.HasValue)
-            {
-                if (!_languageService.IsPublishedLanguage(policy.Culture))
-                {
-                    // Language is not defined in system or not assigned to store
-                    if (invalidBehavior == InvalidLanguageRedirectBehaviour.ReturnHttp404)
-                    {
-                        var cultureCodeReplacement = defaultBehavior == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect
-                            ? workingLanguage.GetTwoLetterISOLanguageName()
-                            : string.Empty;
-
-                        policy.Culture.Modify(cultureCodeReplacement);
-                        policy.IsInvalidUrl = true;
-                    }
-                    else if (invalidBehavior == InvalidLanguageRedirectBehaviour.FallbackToWorkingLanguage)
-                    {
-                        policy.Culture.Modify(defaultBehavior == DefaultLanguageRedirectBehaviour.StripSeoCode 
-                            ? string.Empty
-                            : workingLanguage.GetTwoLetterISOLanguageName());
-                    }
-                }
-                else // Not a published language
-                {
-                    // Redirect default language (if desired)
-                    if (policy.Culture == policy.DefaultCultureCode && defaultBehavior == DefaultLanguageRedirectBehaviour.StripSeoCode)
-                    {
-                        policy.Culture.Strip();
-                    }
-                }
-            }
-            else // No culture present
-            {
-                // Keep default language prefixless (if desired)
-                if (!(workingLanguage.UniqueSeoCode == policy.DefaultCultureCode && (int)(defaultBehavior) > 0))
-                {
-                    // Add language code to URL
-                    policy.Culture.Modify(workingLanguage.UniqueSeoCode);
-                }
-            }
-
-            return policy;
-        }
-
-        #endregion
-
-        #region IUrlService
 
         public virtual IUrlServiceBatchScope CreateBatchScope(SmartDbContext db = null)
         {

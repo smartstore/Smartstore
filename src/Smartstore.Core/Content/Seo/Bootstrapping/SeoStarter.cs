@@ -17,6 +17,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<UrlService>().As<IUrlService>().InstancePerLifetimeScope();
             builder.Register<UrlPolicy>(x => x.Resolve<IUrlService>().GetUrlPolicy()).InstancePerLifetimeScope();
             builder.RegisterType<XmlSitemapGenerator>().As<IXmlSitemapGenerator>().InstancePerLifetimeScope();
+            builder.RegisterType<CanonicalHostUrlFilter>().As<IUrlFilter>().InstancePerLifetimeScope();
         }
     }
 }

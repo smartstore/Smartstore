@@ -55,21 +55,6 @@ namespace Smartstore.Core.Content.Seo
         UrlPolicy GetUrlPolicy();
 
         /// <summary>
-        /// Applies all configured rules for canonical URLs.
-        /// </summary>
-        UrlPolicy ApplyCanonicalUrlRulesPolicy();
-
-        /// <summary>
-        /// Applies the policy for HTTPS according to settings in current <see cref="Smartstore.Core.Stores.Store"/>
-        /// </summary>
-        UrlPolicy ApplyHttpsUrlPolicy(Endpoint endpoint);
-
-        /// <summary>
-        /// Applies all configured rules for SEO friendly URLs.
-        /// </summary>
-        UrlPolicy ApplyCultureUrlPolicy(Endpoint endpoint);
-
-        /// <summary>
         /// Gets the active slug for an entity.
         /// </summary>
         /// <param name="entityId">Entity identifier</param>

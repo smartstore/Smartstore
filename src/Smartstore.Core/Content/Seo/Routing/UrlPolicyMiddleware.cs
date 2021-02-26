@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
@@ -19,7 +20,7 @@ namespace Smartstore.Core.Content.Seo.Routing
             _next = next;
         }
 
-        public Task Invoke(HttpContext context, IUrlService urlService, IWorkContext workContext)
+        public Task Invoke(HttpContext context, IUrlService urlService, IWorkContext workContext, IEnumerable<IUrlFilter> urlFilters)
         {
             if (context.Response.StatusCode is (>= 200 and < 300))
             {
@@ -35,19 +36,22 @@ namespace Smartstore.Core.Content.Seo.Routing
                     return HandleRedirect(policy.GetModifiedUrl());
                 }
 
-                // Apply canonical URL rules
-                urlService.ApplyCanonicalUrlRulesPolicy();
-
                 var endpoint = context.GetEndpoint();
-
-                // Apply HTTPS rules
-                policy = urlService.ApplyHttpsUrlPolicy(endpoint);
-
-                if (endpoint != null)
+                if (policy.Endpoint == null)
                 {
-                    // Apply SEO culture rules
-                    // Endpoint is mandatory for Culture policy.
-                    policy = urlService.ApplyCultureUrlPolicy(endpoint);
+                    // We may need the original endpoint for logging and error handling purposes later,
+                    // but the ExeptionHandler middleware sets endpoint to null in order to re-execute correctly.
+                    // Therefore we gonna save it here, but only if we're not in re-execution.
+                    policy.Endpoint = context.GetEndpoint();
+                }
+
+                // Apply all registered url filters
+                foreach (var urlFilter in urlFilters)
+                {
+                    if (!policy.IsInvalidUrl)
+                    {
+                        urlFilter.Apply(policy, context);
+                    }
                 }
 
                 // Check again after policies has been applied
@@ -62,14 +66,6 @@ namespace Smartstore.Core.Content.Seo.Routing
                 }
 
                 policy.WorkingLanguage = workContext.WorkingLanguage;
-
-                if (policy.Endpoint == null)
-                {
-                    // We may need the original endpoint for logging and error handling purposes later,
-                    // but the ExeptionHandler middleware sets endpoint to null in order to re-execute correctly.
-                    // Therefore we gonna save it here, but only if we're not in re-execution.
-                    policy.Endpoint = context.GetEndpoint();
-                }
             }
 
             // No redirection was requested. Continue.
