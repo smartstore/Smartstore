@@ -314,7 +314,7 @@ namespace Smartstore.Core.Identity
         public ICollection<ShoppingCartItem> ShoppingCartItems
         {
             get => _lazyLoader?.Load(this, ref _shoppingCartItems) ?? (_shoppingCartItems ??= new HashSet<ShoppingCartItem>());
-            protected set => _shoppingCartItems = value;
+            set => _shoppingCartItems = value;
         }
 
         private ICollection<Order> _orders;
