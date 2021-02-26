@@ -126,7 +126,7 @@ namespace Smartstore.Core.Common
         {
             if (roundIfEnabled && RoundOrderItemsEnabled)
             {
-                amount = Math.Round(amount, RoundNumDecimals);
+                amount = decimal.Round(amount, RoundNumDecimals);
             }
 
             return new Money(amount, this);
