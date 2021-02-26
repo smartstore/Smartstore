@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core;
 using Smartstore.Core.Localization;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -17,6 +17,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string AppendHintAttributeName = "sm-append-hint";
         const string IgnoreLabelAttributeName = "sm-ignore-label";
         const string SwitchAttributeName = "sm-switch";
+        const string ControlSizeAttributeName = "sm-control-size";
         protected const string RequiredAttributeName = "sm-required";
 
         private readonly ILocalizationService _localizationService;
@@ -40,6 +41,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         [HtmlAttributeName(IgnoreLabelAttributeName)]
         public bool IgnoreLabel { get; set; }
+
+        [HtmlAttributeName(ControlSizeAttributeName)]
+        public ControlSize ControlSize { get; set; } = ControlSize.Medium;
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -103,6 +107,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         private void ProcessFormControl(TagHelperOutput output)
         {
             output.AppendCssClass("form-control");
+
+            var selectClass = "date-part noskin remember form-control";
+            if (ControlSize != ControlSize.Medium)
+            {
+                output.AppendCssClass("form-control-" + (ControlSize == ControlSize.Small ? "sm" : "lg"));
+            }
 
             // Render "Optional" placeholder
             if (IsRequired == false && !output.Attributes.ContainsName("placeholder"))
