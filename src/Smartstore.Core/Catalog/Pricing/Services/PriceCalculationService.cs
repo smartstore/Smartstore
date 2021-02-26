@@ -607,6 +607,7 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 var value = Convert.ToDecimal((productPrice / product.BasePriceAmount) * product.BasePriceBaseAmount);
                 var valueFormatted = _currencyService.CreateMoney(value, true, currency).ToString();
+                // TODO: (mg) (core) Should formatting of amountFormatted be better handled by Money (?)
                 var amountFormatted = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
                 string infoTemplate = T("Products.BasePriceInfo");
 
