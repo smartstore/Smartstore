@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Utilities;
@@ -56,8 +55,6 @@ namespace Smartstore.Web.Rendering.Builders
                 Summary = item.Summary
             };
             
-            // Id, Attrs, Content, TabInnerContent
-
             // Create TagHelperContext for tab passing it parent context's items dictionary (that's what Razor does)
             var context = new TagHelperContext("tab", new TagHelperAttributeList(), Context.Items, CommonHelper.GenerateRandomDigitCode(10));
 
@@ -66,21 +63,27 @@ namespace Smartstore.Web.Rendering.Builders
 
             var outputAttrList = new TagHelperAttributeList();
 
+            item.HtmlAttributes.CopyTo(outputAttrList);
+            item.LinkHtmlAttributes.CopyTo(outputAttrList);
+
             if (!item.HasContent && item.HasRoute)
             {
                 outputAttrList.Add("href", item.GenerateUrl(tagHelper.UrlHelper));
             }
 
-            item.HtmlAttributes.CopyTo(outputAttrList);
-
             var output = new TagHelperOutput("tab", outputAttrList, async (_, _) =>
             {
-                TagHelperContent tabContent = new DefaultTagHelperContent();
+                var content = item.HasContent 
+                    ? await item.GetContentAsync(tagHelper.ViewContext) 
+                    : HtmlString.Empty;
 
-                if (item.HasContent)
-                {
-                    tabContent.SetHtmlContent(await item.GetContentAsync(tagHelper.ViewContext));
-                }
+                var contentTag = new TagBuilder("div");
+                contentTag.MergeAttributes(item.ContentHtmlAttributes, false);
+
+                TagHelperContent tabContent = new DefaultTagHelperContent()
+                    .AppendHtml(contentTag.Attributes.Count > 0 ? contentTag.RenderStartTag() : HtmlString.Empty)
+                    .AppendHtml(content)
+                    .AppendHtml(contentTag.Attributes.Count > 0 ? contentTag.RenderEndTag() : HtmlString.Empty);
 
                 return tabContent;
             });

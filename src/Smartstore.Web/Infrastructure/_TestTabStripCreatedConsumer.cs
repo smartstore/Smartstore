@@ -23,8 +23,9 @@ namespace Smartstore.Web.Infrastructure
                     .Name("tab-ContentSlider")
                     .Icon("far fa-images fa-lg fa-fw")
                     .LinkHtmlAttributes(new { data_tab_name = "ContentSlider" })
-                    //.Content("<h4>Content Slider</h4>")
-                    .Route("register")
+                    .ContentHtmlAttributes(new { data_yodele = true, @class = "gutgut" })
+                    .Content("<h4>Content Slider</h4>")
+                    //.Route("register")
                     .Ajax(false);
             });
         }
