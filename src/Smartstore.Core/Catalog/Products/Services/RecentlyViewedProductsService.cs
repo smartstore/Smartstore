@@ -77,7 +77,6 @@ namespace Smartstore.Core.Catalog.Products
                 maxProducts = 8;
             }
 
-            var skip = Math.Max(0, newProductIds.Count - maxProducts);
             var cookies = _httpContextAccessor.HttpContext.Response.Cookies;
             var cookieName = CookieNames.RecentlyViewedProducts;
 
@@ -91,7 +90,7 @@ namespace Smartstore.Core.Catalog.Products
             cookies.Delete(cookieName, options);
 
             cookies.Append(cookieName, 
-                string.Join(",", newProductIds.Skip(skip).Take(maxProducts)),
+                string.Join(",", newProductIds.Take(maxProducts)),
                 options);
         }
 
