@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Logging
 {
     public static class INotifierExtension
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Information(this INotifier notifier, LocalizedString message, bool durable = true)
+        public static void Information(this INotifier notifier, string message, bool durable = true)
         {
             notifier.Add(NotifyType.Info, message, durable);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Success(this INotifier notifier, LocalizedString message, bool durable = true)
+        public static void Success(this INotifier notifier, string message, bool durable = true)
         {
             notifier.Add(NotifyType.Success, message, durable);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Warning(this INotifier notifier, LocalizedString message, bool durable = true)
+        public static void Warning(this INotifier notifier, string message, bool durable = true)
         {
             notifier.Add(NotifyType.Warning, message, durable);
         }
@@ -38,7 +37,7 @@ namespace Smartstore.Core.Logging
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Error(this INotifier notifier, LocalizedString message, bool durable = true)
+        public static void Error(this INotifier notifier, string message, bool durable = true)
         {
             notifier.Add(NotifyType.Error, message, durable);
         }

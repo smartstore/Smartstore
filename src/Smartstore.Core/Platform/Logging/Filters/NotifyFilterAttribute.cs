@@ -58,7 +58,7 @@ namespace Smartstore.Core.Logging
 
                 source.Each(x =>
                 {
-                    if (x.Message.Value.HasValue())
+                    if (x.Message.HasValue())
                         existing.Add(x);
                 });
 

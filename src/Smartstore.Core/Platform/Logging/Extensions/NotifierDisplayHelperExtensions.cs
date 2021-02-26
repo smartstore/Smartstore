@@ -15,12 +15,12 @@ namespace Smartstore
             return ResolveNotifications(displayHelper, null).Any();
         }
 
-        public static ICollection<LocalizedString> GetMessages(this IDisplayHelper displayHelper, NotifyType type)
+        public static ICollection<string> GetMessages(this IDisplayHelper displayHelper, NotifyType type)
         {
             return ResolveNotifications(displayHelper, type).AsReadOnly();
         }
 
-        private static IEnumerable<LocalizedString> ResolveNotifications(IDisplayHelper displayHelper, NotifyType? type)
+        private static IEnumerable<string> ResolveNotifications(IDisplayHelper displayHelper, NotifyType? type)
         {
             var allNotifications = displayHelper.HttpContext.GetItem("AllNotifications", () =>
             {

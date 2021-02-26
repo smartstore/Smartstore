@@ -16,7 +16,7 @@ namespace Smartstore.Core.Logging
         public NotifyType Type { get; set; }
 
         [ObjectSignature]
-        public LocalizedString Message { get; set; }
+        public string Message { get; set; }
 
         public bool Durable { get; set; }
     }

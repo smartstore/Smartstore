@@ -59,12 +59,12 @@ namespace Smartstore.Core.Localization
 
         public static implicit operator string(LocalizedString obj)
         {
-            return obj.Value;
+            return obj.ToString();
         }
 
-        public static implicit operator LocalizedString(string obj)
+        public static implicit operator LocalizedString(string value)
         {
-            return new LocalizedString(obj);
+            return new LocalizedString(value);
         }
 
         /// <inheritdoc />
