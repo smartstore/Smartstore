@@ -7,7 +7,7 @@ using Smartstore.Core.Content.Topics;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public class TopicStarter : StarterBase
+    internal class TopicStarter : StarterBase
     {
         public override bool Matches(IApplicationContext appContext)
             => appContext.IsInstalled;

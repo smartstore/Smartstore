@@ -50,7 +50,7 @@ namespace Smartstore.Core.Content.Media
 
         #endregion
 
-        public MediaType Resolve(string extension, string mimeType = null)
+        public virtual MediaType Resolve(string extension, string mimeType = null)
         {
             if (extension.IsEmpty() && mimeType.HasValue())
             {
@@ -75,7 +75,7 @@ namespace Smartstore.Core.Content.Media
             return (MediaType)mediaType ?? MediaType.Binary;
         }
 
-        public IEnumerable<string> ParseTypeFilter(string typeFilter)
+        public virtual IEnumerable<string> ParseTypeFilter(string typeFilter)
         {
             if (typeFilter.IsEmpty() || typeFilter == "*")
             {
@@ -87,7 +87,7 @@ namespace Smartstore.Core.Content.Media
             }
         }
 
-        public IEnumerable<string> ParseTypeFilter(string[] typeFilter)
+        public virtual IEnumerable<string> ParseTypeFilter(string[] typeFilter)
         {
             if (typeFilter == null || typeFilter.Length == 0)
                 return Enumerable.Empty<string>();

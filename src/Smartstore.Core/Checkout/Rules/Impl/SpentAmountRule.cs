@@ -8,7 +8,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class SpentAmountRule : IRule
+    internal class SpentAmountRule : IRule
     {
         private readonly SmartDbContext _db;
 

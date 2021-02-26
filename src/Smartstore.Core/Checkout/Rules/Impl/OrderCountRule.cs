@@ -6,7 +6,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class OrderCountRule : IRule
+    internal class OrderCountRule : IRule
     {
         private readonly SmartDbContext _db;
 

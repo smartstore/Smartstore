@@ -10,7 +10,7 @@ using Smartstore.Events;
 
 namespace Smartstore.Web
 {
-    internal partial class WebCacheInvalidator : AsyncDbSaveHook<BaseEntity>, IConsumer
+    internal partial class WebCacheInvalidator //: AsyncDbSaveHook<BaseEntity>, IConsumer
     {
         // TODO: (core) Implement WebCacheInvalidator (formerly FrameworkCacheConsumer)
 

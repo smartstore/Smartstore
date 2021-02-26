@@ -31,7 +31,7 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web
 {
-    public class MvcStarter : StarterBase
+    internal class MvcStarter : StarterBase
     {
         public MvcStarter()
         {

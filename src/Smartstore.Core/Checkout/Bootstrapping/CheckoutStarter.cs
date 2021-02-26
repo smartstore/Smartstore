@@ -16,7 +16,7 @@ using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public sealed class CheckoutStarter : StarterBase
+    internal sealed class CheckoutStarter : StarterBase
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {

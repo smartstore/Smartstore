@@ -14,7 +14,7 @@ using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core
 {
-    public class CoreStarter : StarterBase
+    internal class CoreStarter : StarterBase
     {
         public override int Order => (int)StarterOrdering.Early;
 

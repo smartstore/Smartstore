@@ -13,7 +13,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public class UnavailableAttributeCombinationsHook : AsyncDbSaveHook<BaseEntity>
+    internal class UnavailableAttributeCombinationsHook : AsyncDbSaveHook<BaseEntity>
     {
         private readonly ICacheManager _cache;
 

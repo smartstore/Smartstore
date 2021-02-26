@@ -73,7 +73,7 @@ namespace Smartstore.Core.Stores
 
         #endregion
 
-        public Store CurrentStore
+        public virtual Store CurrentStore
         {
             get
             {

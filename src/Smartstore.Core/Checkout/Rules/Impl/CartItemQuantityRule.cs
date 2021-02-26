@@ -9,7 +9,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class CartItemQuantityRule : IRule
+    internal class CartItemQuantityRule : IRule
     {
         private readonly IShoppingCartService _shoppingCartService;
 

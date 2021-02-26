@@ -4,7 +4,7 @@ using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class BrowserMajorVersionRule : IRule
+    internal class BrowserMajorVersionRule : IRule
     {
         private readonly IUserAgent _userAgent;
 

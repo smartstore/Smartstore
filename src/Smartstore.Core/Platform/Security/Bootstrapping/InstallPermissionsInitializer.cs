@@ -13,7 +13,7 @@ using Smartstore.Engine.Initialization;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public class InstallPermissionsInitializer : IApplicationInitializer
+    internal class InstallPermissionsInitializer : IApplicationInitializer
     {
         private readonly SmartDbContext _db;
         private readonly IPermissionService _permissionService;

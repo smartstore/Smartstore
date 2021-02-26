@@ -11,7 +11,7 @@ using Smartstore.Domain;
 namespace Smartstore.Core.Content.Media
 {
     [Important]
-    public sealed class MediaTrackerHook : AsyncDbSaveHook<BaseEntity>
+    internal sealed class MediaTrackerHook : AsyncDbSaveHook<BaseEntity>
     {
         // Track items for the current (SaveChanges) unit.
         private readonly HashSet<MediaTrack> _actionsUnit = new();

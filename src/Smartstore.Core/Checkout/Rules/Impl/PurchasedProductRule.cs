@@ -9,7 +9,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class PurchasedProductRule : IRule
+    internal class PurchasedProductRule : IRule
     {
         private readonly SmartDbContext _db;
 

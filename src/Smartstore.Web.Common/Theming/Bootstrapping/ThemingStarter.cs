@@ -8,7 +8,7 @@ using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bootstrapping
 {
-    public sealed class ThemingStarter : StarterBase
+    internal sealed class ThemingStarter : StarterBase
     {
         public override bool Matches(IApplicationContext appContext)
         {

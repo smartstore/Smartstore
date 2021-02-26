@@ -9,7 +9,7 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Payment.Hooks
 {
-    public class RecurringPaymentHook : AsyncDbSaveHook<RecurringPayment>
+    internal class RecurringPaymentHook : AsyncDbSaveHook<RecurringPayment>
     {
         private readonly SmartDbContext _db;
         private readonly IEventPublisher _eventPublisher;

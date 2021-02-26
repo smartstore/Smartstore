@@ -7,7 +7,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
-    public class DiscountUsageHistoryHook : AsyncDbSaveHook<DiscountUsageHistory>
+    internal class DiscountUsageHistoryHook : AsyncDbSaveHook<DiscountUsageHistory>
     {
         private readonly IRequestCache _requestCache;
 

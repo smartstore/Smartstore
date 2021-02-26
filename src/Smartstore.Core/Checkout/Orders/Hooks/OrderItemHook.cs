@@ -9,7 +9,7 @@ using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public class OrderItemHook : AsyncDbSaveHook<OrderItem>
+    internal class OrderItemHook : AsyncDbSaveHook<OrderItem>
     {
         private readonly SmartDbContext _db;
         private readonly IEventPublisher _eventPublisher;

@@ -60,7 +60,7 @@ namespace Smartstore.Core.Security
 
         #endregion
 
-        public async Task<bool> HasActiveAclAsync()
+        public virtual async Task<bool> HasActiveAclAsync()
         {
             if (!_hasActiveAcl.HasValue)
             {

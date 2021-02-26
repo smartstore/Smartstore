@@ -12,7 +12,7 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Common.Hooks
 {
     [Important]
-    public class DeliveryTimeHook : AsyncDbSaveHook<DeliveryTime>
+    internal class DeliveryTimeHook : AsyncDbSaveHook<DeliveryTime>
     {
         private readonly SmartDbContext _db;
 

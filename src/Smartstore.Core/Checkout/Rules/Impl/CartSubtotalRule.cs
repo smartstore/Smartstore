@@ -6,7 +6,7 @@ using Smartstore.Threading;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class CartSubtotalRule : IRule
+    internal class CartSubtotalRule : IRule
     {
         private readonly IShoppingCartService _shoppingCartService;
 

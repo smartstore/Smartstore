@@ -63,7 +63,7 @@ namespace Smartstore.Core.Content.Media.Storage
         public bool IsCloudStorage 
             => _fileSystem.IsCloudStorage;
 
-        public async Task<long> GetLengthAsync(MediaFile mediaFile)
+        public virtual async Task<long> GetLengthAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -82,7 +82,7 @@ namespace Smartstore.Core.Content.Media.Storage
             return mediaFile.Size;
         }
 
-        public Stream OpenRead(MediaFile mediaFile)
+        public virtual Stream OpenRead(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -90,7 +90,7 @@ namespace Smartstore.Core.Content.Media.Storage
             return file.Exists ? file.OpenRead() : null;
         }
 
-        public async Task<Stream> OpenReadAsync(MediaFile mediaFile)
+        public virtual async Task<Stream> OpenReadAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -98,14 +98,14 @@ namespace Smartstore.Core.Content.Media.Storage
             return file.Exists ? file.OpenRead() : null;
         }
 
-        public async Task<byte[]> LoadAsync(MediaFile mediaFile)
+        public virtual async Task<byte[]> LoadAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
             return (await _fileSystem.ReadAllBytesAsync(GetPath(mediaFile))) ?? Array.Empty<byte>();
         }
 
-        public async Task SaveAsync(MediaFile mediaFile, MediaStorageItem item)
+        public virtual async Task SaveAsync(MediaFile mediaFile, MediaStorageItem item)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -132,7 +132,7 @@ namespace Smartstore.Core.Content.Media.Storage
             }
         }
 
-        public async Task RemoveAsync(params MediaFile[] mediaFiles)
+        public virtual async Task RemoveAsync(params MediaFile[] mediaFiles)
         {
             foreach (var media in mediaFiles)
             {
@@ -140,7 +140,7 @@ namespace Smartstore.Core.Content.Media.Storage
             }
         }
 
-        public Task ChangeExtensionAsync(MediaFile mediaFile, string extension)
+        public virtual Task ChangeExtensionAsync(MediaFile mediaFile, string extension)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
             Guard.NotEmpty(extension, nameof(extension));

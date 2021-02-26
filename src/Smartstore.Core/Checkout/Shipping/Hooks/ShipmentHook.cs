@@ -10,7 +10,7 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
     /// Shipment hook
     /// </summary>
     [Important]
-    public partial class ShipmentHook : AsyncDbSaveHook<Shipment>
+    internal partial class ShipmentHook : AsyncDbSaveHook<Shipment>
     {
         private readonly IEventPublisher _eventPublisher;
         private readonly SmartDbContext _db;
@@ -49,7 +49,7 @@ namespace Smartstore.Core.Checkout.Shipping.Hooks
     /// Shipment item hook
     /// </summary>
     [Important]
-    public partial class ShipmentItemHook : AsyncDbSaveHook<ShipmentItem>
+    internal partial class ShipmentItemHook : AsyncDbSaveHook<ShipmentItem>
     {
         private readonly IEventPublisher _eventPublisher;
         private readonly SmartDbContext _db;

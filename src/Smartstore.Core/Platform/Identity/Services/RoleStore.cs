@@ -22,7 +22,7 @@ namespace Smartstore.Core.Identity
         bool AutoSaveChanges { get; set; }
     }
 
-    public class RoleStore : AsyncDbSaveHook<CustomerRole>, IRoleStore
+    internal class RoleStore : AsyncDbSaveHook<CustomerRole>, IRoleStore
     {
         private readonly SmartDbContext _db;
         private readonly DbSet<CustomerRole> _roles;

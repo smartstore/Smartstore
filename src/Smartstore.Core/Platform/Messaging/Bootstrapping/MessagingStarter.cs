@@ -5,7 +5,7 @@ using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public sealed class MessagingStarter : StarterBase
+    internal sealed class MessagingStarter : StarterBase
     {
         public override bool Matches(IApplicationContext appContext)
             => appContext.IsInstalled;

@@ -7,7 +7,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public class MenuInvalidator : AsyncDbSaveHook<BaseEntity>
+    internal class MenuInvalidator : AsyncDbSaveHook<BaseEntity>
     {
         private readonly SmartDbContext _db;
         private readonly Lazy<IMenuService> _menuService;

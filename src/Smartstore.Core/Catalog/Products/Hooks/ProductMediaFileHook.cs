@@ -9,7 +9,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public class ProductMediaFileHook : AsyncDbSaveHook<ProductMediaFile>
+    internal class ProductMediaFileHook : AsyncDbSaveHook<ProductMediaFile>
     {
         private readonly SmartDbContext _db;
 

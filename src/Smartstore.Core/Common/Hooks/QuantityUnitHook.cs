@@ -9,7 +9,7 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Common.Hooks
 {
     [Important]
-    public class QuantityUnitHook : AsyncDbSaveHook<QuantityUnit>
+    internal class QuantityUnitHook : AsyncDbSaveHook<QuantityUnit>
     {
         private readonly SmartDbContext _db;
 

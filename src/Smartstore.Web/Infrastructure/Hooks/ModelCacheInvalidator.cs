@@ -20,7 +20,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Web.Infrastructure.Hooks
 {
-	public partial class ModelCacheInvalidator : IDbSaveHook
+	internal partial class ModelCacheInvalidator : IDbSaveHook
 	{
         // TODO: (core) Move Blog/News/Forum stuff to external modules.
 		

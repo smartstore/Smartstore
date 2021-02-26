@@ -7,7 +7,7 @@ using Smartstore.Engine;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public class SeoStarter : StarterBase
+    internal class SeoStarter : StarterBase
     {
         public override bool Matches(IApplicationContext appContext)
             => appContext.IsInstalled;

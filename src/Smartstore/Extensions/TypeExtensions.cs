@@ -201,6 +201,30 @@ namespace Smartstore
             return true;
         }
 
+        /// <summary>
+        /// Checks whether a type is compiler generated.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>True if the type is compiler generated; false otherwise.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsCompilerGenerated(this Type type)
+        {
+            return type.GetCustomAttributes<CompilerGeneratedAttribute>().Any();
+        }
+
+        /// <summary>
+        /// Checks whether a given type is a delegate type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>True if the type is a delegate; false otherwise.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsDelegate(this Type type)
+        {
+            return type.IsSubclassOf(typeof(Delegate));
+        }
+
         [DebuggerStepThrough]
         public static bool IsAnonymous(this Type type)
         {
@@ -209,16 +233,63 @@ namespace Smartstore
                 var d = type.GetGenericTypeDefinition();
                 if (d.IsClass && d.IsSealed && d.Attributes.HasFlag(TypeAttributes.NotPublic))
                 {
-                    var attributes = d.GetCustomAttributes(typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute), false);
+                    var attributes = d.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false);
                     if (attributes != null && attributes.Length > 0)
                     {
-                        //WOW! We have an anonymous type!!!
+                        // WOW! We have an anonymous type!!!
                         return true;
                     }
                 }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Checks whether this type is an open generic type of a given type.
+        /// </summary>
+        /// <param name="source">The type we are checking.</param>
+        /// <param name="type">The type to validate against.</param>
+        /// <returns>True if <paramref name="source"/> is a open generic type of <paramref name="type"/>. False otherwise.</returns>
+        public static bool IsOpenGenericTypeOf(this Type source, Type type)
+        {
+            if (source == null || type == null)
+            {
+                return false;
+            }
+
+            if (!source.IsGenericTypeDefinition)
+            {
+                return false;
+            }
+
+            if (source == type)
+            {
+                return true;
+            }
+
+            return source.CheckBaseTypeIsOpenGenericTypeOf(type)
+              || source.CheckInterfacesAreOpenGenericTypeOf(type);
+        }
+
+        private static bool CheckBaseTypeIsOpenGenericTypeOf(this Type source, Type type)
+        {
+            if (source.BaseType == null)
+            {
+                return false;
+            }
+
+            return source.BaseType.IsGenericType
+                ? source.BaseType.GetGenericTypeDefinition().IsOpenGenericTypeOf(type)
+                : type.IsAssignableFrom(source.BaseType);
+        }
+
+        private static bool CheckInterfacesAreOpenGenericTypeOf(this Type source, Type type)
+        {
+            return source.GetInterfaces()
+                .Any(it => it.IsGenericType
+                    ? it.GetGenericTypeDefinition().IsOpenGenericTypeOf(type)
+                    : type.IsAssignableFrom(it));
         }
 
         [DebuggerStepThrough]
@@ -530,7 +601,6 @@ namespace Smartstore
             return attributes.ToArray();
         }
 
-	    [SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 	    internal static IEnumerable<TAttribute> SortAttributesIfPossible<TAttribute>(IEnumerable<TAttribute> attributes)
             where TAttribute : Attribute
         {

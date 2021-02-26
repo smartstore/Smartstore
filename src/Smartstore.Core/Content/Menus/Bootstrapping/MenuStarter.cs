@@ -1,11 +1,12 @@
-﻿using Autofac;
+﻿using System.Linq;
+using Autofac;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public class MenuStarter : StarterBase
+    internal class MenuStarter : StarterBase
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
@@ -23,7 +24,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<DatabaseMenu>().Named<IMenu>("database").InstancePerDependency();
 
             var menuTypes = appContext.TypeScanner.FindTypes<IMenu>(ignoreInactiveModules: true);
-            foreach (var type in menuTypes)
+            foreach (var type in menuTypes.Where(x => x.IsVisible))
             {
                 builder.RegisterType(type).As<IMenu>().PropertiesAutowired(PropertyWiringOptions.None).InstancePerLifetimeScope();
             }

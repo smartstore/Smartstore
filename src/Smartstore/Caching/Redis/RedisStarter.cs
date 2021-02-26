@@ -12,7 +12,7 @@ using Smartstore.Threading;
 
 namespace Smartstore.Redis
 {
-    public sealed class RedisStarter : StarterBase
+    internal sealed class RedisStarter : StarterBase
     {
         public override int Order => (int)StarterOrdering.Default;
 

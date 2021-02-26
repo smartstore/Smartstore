@@ -3,7 +3,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class CustomerRoleRule : IRule
+    internal class CustomerRoleRule : IRule
     {
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {

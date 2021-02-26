@@ -4,7 +4,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class CartProductCountRule : IRule
+    internal class CartProductCountRule : IRule
     {
         private readonly IShoppingCartService _shoppingCartService;
 

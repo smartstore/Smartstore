@@ -13,7 +13,7 @@ using Smartstore.Net;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public sealed class IdentityStarter : StarterBase
+    internal sealed class IdentityStarter : StarterBase
     {
         public override bool Matches(IApplicationContext appContext)
             => appContext.IsInstalled;

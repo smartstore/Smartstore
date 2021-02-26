@@ -26,12 +26,9 @@ namespace Smartstore.Web
         private readonly ILanguageResolver _languageResolver;
         private readonly IStoreContext _storeContext;
         private readonly ICustomerService _customerService;
-        private readonly IGenericAttributeService _attrService;
+        private readonly Lazy<ITaxService> _taxService;
         private readonly TaxSettings _taxSettings;
-        private readonly PrivacySettings _privacySettings;
-        private readonly LocalizationSettings _localizationSettings;
         private readonly ICacheManager _cache;
-        private readonly ITaxService _taxService;
         private readonly IUserAgent _userAgent;
         private readonly IWebHelper _webHelper;
         private readonly IGeoCountryLookup _geoCountryLookup;
@@ -49,11 +46,8 @@ namespace Smartstore.Web
             ILanguageResolver languageResolver,
             IStoreContext storeContext,
             ICustomerService customerService,
-            IGenericAttributeService attrService,
+            Lazy<ITaxService> taxService,
             TaxSettings taxSettings,
-            PrivacySettings privacySettings,
-            LocalizationSettings localizationSettings,
-            ITaxService taxService,
             ICacheManager cache,
             IUserAgent userAgent,
             IWebHelper webHelper,
@@ -64,11 +58,8 @@ namespace Smartstore.Web
             _languageResolver = languageResolver;
             _storeContext = storeContext;
             _customerService = customerService;
-            _attrService = attrService;
             _taxSettings = taxSettings;
-            _privacySettings = privacySettings;
             _taxService = taxService;
-            _localizationSettings = localizationSettings;
             _userAgent = userAgent;
             _cache = cache;
             _webHelper = webHelper;
@@ -416,7 +407,7 @@ namespace Smartstore.Web
 
             if (!taxDisplayType.HasValue && _taxSettings.EuVatEnabled)
             {
-                if (customer != null &&  _taxService.IsVatExemptAsync(customer).Await())
+                if (customer != null &&  _taxService.Value.IsVatExemptAsync(customer).Await())
                 {
                     taxDisplayType = (int)TaxDisplayType.ExcludingTax;
                 }

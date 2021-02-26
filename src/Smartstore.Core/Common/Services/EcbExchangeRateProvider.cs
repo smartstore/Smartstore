@@ -12,7 +12,7 @@ namespace Smartstore.Core.Common.Services
     [SystemName("CurrencyExchange.ECB")]
     [FriendlyName("ECB currency exchange rate provider")]
     [Order(0)]
-    public class EcbExchangeRateProvider : IExchangeRateProvider
+    internal class EcbExchangeRateProvider : IExchangeRateProvider
     {
         /// <summary>
         /// Gets live currency exchange rates from ecb web service

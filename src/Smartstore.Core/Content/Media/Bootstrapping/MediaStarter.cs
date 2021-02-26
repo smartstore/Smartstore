@@ -14,7 +14,7 @@ using Smartstore.Threading;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public class MediaStarter : StarterBase
+    internal class MediaStarter : StarterBase
     {
         public override void MapRoutes(EndpointRoutingBuilder builder)
         {

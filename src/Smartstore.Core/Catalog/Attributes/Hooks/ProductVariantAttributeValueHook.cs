@@ -9,7 +9,7 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Catalog.Attributes
 {
     [Important]
-    public class ProductVariantAttributeValueHook : AsyncDbSaveHook<ProductVariantAttributeValue>
+    internal class ProductVariantAttributeValueHook : AsyncDbSaveHook<ProductVariantAttributeValue>
     {
         private readonly SmartDbContext _db;
 

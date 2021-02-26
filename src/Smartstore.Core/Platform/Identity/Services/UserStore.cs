@@ -31,7 +31,7 @@ namespace Smartstore.Core.Identity
         bool AutoSaveChanges { get; set; }
     }
 
-    public class UserStore : AsyncDbSaveHook<Customer>, IUserStore
+    internal class UserStore : AsyncDbSaveHook<Customer>, IUserStore
     {
         private readonly SmartDbContext _db;
         private readonly Lazy<IGdprTool> _gdprTool;

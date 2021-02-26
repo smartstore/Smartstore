@@ -5,7 +5,7 @@ using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public sealed class WidgetStarter : StarterBase
+    internal sealed class WidgetStarter : StarterBase
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {

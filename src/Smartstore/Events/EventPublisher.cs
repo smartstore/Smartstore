@@ -23,7 +23,7 @@ namespace Smartstore.Events
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public async Task PublishAsync<T>(T message, CancellationToken cancelToken = default) where T : class
+        public virtual async Task PublishAsync<T>(T message, CancellationToken cancelToken = default) where T : class
         {
             var descriptors = _registry.GetConsumers(message);
 

@@ -27,7 +27,7 @@ namespace Smartstore.Events
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public Task InvokeAsync<TMessage>(
+        public virtual Task InvokeAsync<TMessage>(
             ConsumerDescriptor descriptor, 
             IConsumer consumer, 
             ConsumeContext<TMessage> envelope,

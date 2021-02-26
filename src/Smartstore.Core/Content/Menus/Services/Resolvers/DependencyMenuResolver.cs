@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public class DependencyMenuResolver : IMenuResolver
+    internal class DependencyMenuResolver : IMenuResolver
     {
         private readonly IDictionary<string, IMenu> _menus;
 

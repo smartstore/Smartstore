@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Autofac.Util;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Engine.Modularity;
@@ -11,10 +12,9 @@ namespace Smartstore.Engine
     /// <inheritdoc/>
     public class DefaultTypeScanner : ITypeScanner
     {
-        private readonly bool _ignoreReflectionErrors = true;
         private readonly IModuleCatalog _moduleCatalog;
         private HashSet<Assembly> _activeAssemblies = new();
-        
+
         public DefaultTypeScanner(IModuleCatalog moduleCatalog, ILogger logger, params Assembly[] assemblies)
         {
             Guard.NotNull(moduleCatalog, nameof(moduleCatalog));
@@ -51,7 +51,7 @@ namespace Smartstore.Engine
         public IEnumerable<Type> FindTypes(Type baseType, bool concreteTypesOnly = true, bool ignoreInactiveModules = false)
         {
             Guard.NotNull(baseType, nameof(baseType));
-            
+
             var assemblies = ignoreInactiveModules ? _activeAssemblies : Assemblies;
             return FindTypes(baseType, assemblies, concreteTypesOnly);
         }
@@ -61,87 +61,25 @@ namespace Smartstore.Engine
         {
             Guard.NotNull(baseType, nameof(baseType));
 
-            var result = new List<Type>();
-
-            try
+            foreach (var t in assemblies.SelectMany(x => x.GetLoadableTypes()))
             {
-                foreach (var asm in assemblies)
+                if (t.IsInterface || t.IsDelegate() || t.IsCompilerGenerated())
+                    continue;
+
+                if (baseType.IsAssignableFrom(t) || t.IsOpenGenericTypeOf(baseType))
                 {
-                    Type[] types = null;
-                    try
+                    if (concreteTypesOnly)
                     {
-                        types = asm.GetExportedTypes();
-                    }
-                    catch
-                    {
-                        // Some assemblies don't allow getting types
-                        if (!_ignoreReflectionErrors)
+                        if (t.IsClass && !t.IsAbstract)
                         {
-                            throw;
+                            yield return t;
                         }
                     }
-
-                    if (types == null)
-                        continue;
-
-                    foreach (var t in types)
+                    else
                     {
-                        if (baseType.IsAssignableFrom(t) || (baseType.IsGenericTypeDefinition && DoesTypeImplementOpenGeneric(t, baseType)))
-                        {
-                            if (t.IsInterface)
-                                continue;
-
-                            if (concreteTypesOnly)
-                            {
-                                if (t.IsClass && !t.IsAbstract)
-                                {
-                                    result.Add(t);
-                                }
-                            }
-                            else
-                            {
-                                result.Add(t);
-                            }
-                        }
+                        yield return t;
                     }
                 }
-            }
-            catch (ReflectionTypeLoadException ex)
-            {
-                Logger.Error(ex);
-
-                var msg = string.Empty;
-                foreach (var e in ex.LoaderExceptions)
-                {
-                    msg += e.Message + Environment.NewLine;
-                }
-
-                var fail = new Exception(msg, ex);
-                throw fail;
-            }
-
-            return result;
-        }
-
-        protected virtual bool DoesTypeImplementOpenGeneric(Type type, Type openGeneric)
-        {
-            try
-            {
-                var genericTypeDefinition = openGeneric.GetGenericTypeDefinition();
-                foreach (var implementedInterface in type.FindInterfaces((objType, objCriteria) => true, null))
-                {
-                    if (!implementedInterface.IsGenericType)
-                        continue;
-
-                    var isMatch = genericTypeDefinition.IsAssignableFrom(implementedInterface.GetGenericTypeDefinition());
-                    return isMatch;
-                }
-
-                return false;
-            }
-            catch
-            {
-                return false;
             }
         }
     }

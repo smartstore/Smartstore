@@ -7,7 +7,7 @@ using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules.Impl
 {
-    public class ProductFromCategoryInCartRule : IRule
+    internal class ProductFromCategoryInCartRule : IRule
     {
         private readonly SmartDbContext _db;
         private readonly IShoppingCartService _shoppingCartService;

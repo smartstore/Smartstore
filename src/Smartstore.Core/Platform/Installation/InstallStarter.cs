@@ -6,7 +6,7 @@ using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Installation
 {
-    public sealed class InstallStarter : StarterBase
+    internal sealed class InstallStarter : StarterBase
     {
         const string InstallControllerName = "install";
 

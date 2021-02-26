@@ -7,7 +7,7 @@ using Smartstore.Engine.Builders;
 
 namespace Smartstore.Web
 {
-    public class WebStarter : StarterBase
+    internal class WebStarter : StarterBase
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
@@ -29,7 +29,7 @@ namespace Smartstore.Web
         }
     }
 
-    public class LastRoutes : StarterBase
+    internal class LastRoutes : StarterBase
     {
         public override bool Matches(IApplicationContext appContext) 
             => appContext.IsInstalled;

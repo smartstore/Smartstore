@@ -27,7 +27,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
         public static string SystemName => "MediaStorage.SmartStoreDatabase";
 
-        protected Stream OpenBlobStream(int mediaStorageId)
+        protected virtual Stream OpenBlobStream(int mediaStorageId)
         {
             return _db.DataProvider.OpenBlobStream<MediaStorage, byte[]>(x => x.Data, mediaStorageId);
         }
@@ -37,7 +37,7 @@ namespace Smartstore.Core.Content.Media.Storage
         public bool IsCloudStorage
             => false;
 
-        public Task<long> GetLengthAsync(MediaFile mediaFile)
+        public virtual Task<long> GetLengthAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -58,7 +58,7 @@ namespace Smartstore.Core.Content.Media.Storage
             }
         }
 
-        public Stream OpenRead(MediaFile mediaFile)
+        public virtual Stream OpenRead(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -77,10 +77,10 @@ namespace Smartstore.Core.Content.Media.Storage
             }
         }
 
-        public Task<Stream> OpenReadAsync(MediaFile mediaFile)
+        public virtual Task<Stream> OpenReadAsync(MediaFile mediaFile)
             => Task.FromResult<Stream>(OpenRead(mediaFile));
 
-        public async Task<byte[]> LoadAsync(MediaFile mediaFile)
+        public virtual async Task<byte[]> LoadAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -102,7 +102,7 @@ namespace Smartstore.Core.Content.Media.Storage
             }
         }
 
-        public async Task SaveAsync(MediaFile mediaFile, MediaStorageItem item)
+        public virtual async Task SaveAsync(MediaFile mediaFile, MediaStorageItem item)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
@@ -151,7 +151,7 @@ namespace Smartstore.Core.Content.Media.Storage
             return mediaFile.MediaStorageId.Value;
         }
 
-        public async Task RemoveAsync(params MediaFile[] mediaFiles)
+        public virtual async Task RemoveAsync(params MediaFile[] mediaFiles)
         {
             foreach (var media in mediaFiles)
             {

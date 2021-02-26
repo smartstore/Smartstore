@@ -8,7 +8,7 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Security
 {
     [Important]
-    public class PermissionRecordHook : AsyncDbSaveHook<PermissionRecord>
+    internal class PermissionRecordHook : AsyncDbSaveHook<PermissionRecord>
     {
         private readonly ICacheManager _cache;
 

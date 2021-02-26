@@ -22,7 +22,7 @@ using EState = Smartstore.Data.EntityState;
 namespace Smartstore.Core.Catalog.Search
 {
     [Important]
-    public class SearchQueryAliasHook : AsyncDbSaveHook<BaseEntity>
+    internal class SearchQueryAliasHook : AsyncDbSaveHook<BaseEntity>
     {
         private static readonly HashSet<Type> _candidateTypes = new(new Type[]
         {

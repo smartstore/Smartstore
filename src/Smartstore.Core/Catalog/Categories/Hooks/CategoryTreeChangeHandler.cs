@@ -39,7 +39,7 @@ namespace Smartstore.Core.Catalog.Categories
         public CategoryTreeChangeReason Reason { get; private set; }
     }
 
-    public class CategoryTreeChangeHook : AsyncDbSaveHook<BaseEntity>, IConsumer
+    internal class CategoryTreeChangeHook : AsyncDbSaveHook<BaseEntity>, IConsumer
     {
         #region static
 

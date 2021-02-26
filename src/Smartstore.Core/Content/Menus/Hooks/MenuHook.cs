@@ -8,7 +8,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Menus.Hooks
 {
-    public class MenuHook : AsyncDbSaveHook<MenuEntity>
+    internal class MenuHook : AsyncDbSaveHook<MenuEntity>
     {
         private readonly SmartDbContext _db;
         private readonly IMenuStorage _menuStorage;

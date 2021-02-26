@@ -3,7 +3,7 @@ using Autofac;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public class DatabaseMenuResolver : IMenuResolver
+    internal class DatabaseMenuResolver : IMenuResolver
     {
         protected readonly IComponentContext _ctx;
         protected readonly IMenuStorage _menuStorage;

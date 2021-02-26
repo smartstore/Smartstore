@@ -13,7 +13,7 @@ using Smartstore.Data.Hooks;
 namespace Smartstore.Core.Catalog.Attributes
 {
     [Important]
-    public class ProductVariantAttributeCombinationHook : AsyncDbSaveHook<ProductVariantAttributeCombination>
+    internal class ProductVariantAttributeCombinationHook : AsyncDbSaveHook<ProductVariantAttributeCombination>
     {
         private readonly SmartDbContext _db;
         private readonly IRequestCache _requestCache;

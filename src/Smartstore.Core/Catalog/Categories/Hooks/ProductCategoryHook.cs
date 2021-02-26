@@ -7,7 +7,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Categories
 {
-    public class ProductManufacturerHook : AsyncDbSaveHook<ProductCategory>
+    internal class ProductManufacturerHook : AsyncDbSaveHook<ProductCategory>
     {
         private readonly IRequestCache _requestCache;
 

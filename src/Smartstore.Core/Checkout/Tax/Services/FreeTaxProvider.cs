@@ -7,7 +7,7 @@ namespace Smartstore.Core.Checkout.Tax
     [SystemName("Tax.Free")]
     [FriendlyName("Free tax rate provider")]
     [Display(Order = 0)]
-    public class FreeTaxProvider : ITaxProvider
+    internal class FreeTaxProvider : ITaxProvider
     {
         public Task<CalculateTaxResult> GetTaxRateAsync(CalculateTaxRequest calculateTaxRequest) 
             => Task.FromResult(new CalculateTaxResult());
