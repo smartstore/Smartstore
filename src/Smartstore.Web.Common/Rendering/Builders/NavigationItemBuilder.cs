@@ -20,7 +20,7 @@ namespace Smartstore.Web.Rendering.Builders
         protected internal TItem Item
         {
             get;
-            private set;
+            internal set;
         }
 
         public TBuilder Action(RouteValueDictionary routeValues)
@@ -90,6 +90,12 @@ namespace Smartstore.Web.Rendering.Builders
             return (this as TBuilder);
         }
 
+        public TBuilder HtmlAttributes(string name, string value, bool condition = true)
+        {
+            if (condition) Item.HtmlAttributes.Merge(name, value);
+            return (this as TBuilder);
+        }
+
         public TBuilder HtmlAttributes(object attributes)
         {
             return HtmlAttributes(CommonHelper.ObjectToStringDictionary(attributes));
@@ -97,8 +103,13 @@ namespace Smartstore.Web.Rendering.Builders
 
         public TBuilder HtmlAttributes(IDictionary<string, string> attributes)
         {
-            Item.HtmlAttributes.Clear();
             Item.HtmlAttributes.Merge(attributes);
+            return (this as TBuilder);
+        }
+
+        public TBuilder LinkHtmlAttributes(string name, string value, bool condition = true)
+        {
+            if (condition) Item.LinkHtmlAttributes.Merge(name, value);
             return (this as TBuilder);
         }
 
@@ -109,7 +120,6 @@ namespace Smartstore.Web.Rendering.Builders
 
         public TBuilder LinkHtmlAttributes(IDictionary<string, string> attributes)
         {
-            Item.LinkHtmlAttributes.Clear();
             Item.LinkHtmlAttributes.Merge(attributes);
             return (this as TBuilder);
         }

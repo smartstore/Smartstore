@@ -59,6 +59,12 @@ namespace Smartstore.Web.Rendering.Builders
             return (this as TBuilder);
         }
 
+        public TBuilder ContentHtmlAttributes(string name, string value, bool condition = true)
+        {
+            if (condition) Item.ContentHtmlAttributes.Merge(name, value);
+            return (this as TBuilder);
+        }
+
         public TBuilder ContentHtmlAttributes(object attributes)
         {
             return ContentHtmlAttributes(CommonHelper.ObjectToStringDictionary(attributes));
@@ -66,7 +72,6 @@ namespace Smartstore.Web.Rendering.Builders
 
         public TBuilder ContentHtmlAttributes(IDictionary<string, string> attributes)
         {
-            Item.ContentHtmlAttributes.Clear();
             Item.ContentHtmlAttributes.Merge(attributes);
             return (this as TBuilder);
         }

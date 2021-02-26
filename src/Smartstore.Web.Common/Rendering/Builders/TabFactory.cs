@@ -32,9 +32,9 @@ namespace Smartstore.Web.Rendering.Builders
         {
             Guard.NotNull(buildAction, nameof(buildAction));
 
-            var item = new TabItem();
-            buildAction(new TabItemBuilder(item, TabStrip.HtmlHelper));
-            return ConvertToTagHelper(item);
+            var builder = new TabItemBuilder(new TabItem(), TabStrip.HtmlHelper);
+            buildAction(builder);
+            return ConvertToTagHelper(builder.AsItem());
         }
 
         private async Task<TabTagHelper> ConvertToTagHelper(TabItem item)

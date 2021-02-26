@@ -43,7 +43,7 @@ namespace Smartstore.Core.Content.Menus
 
         public bool HasContent
         {
-            get => Content != null || Widget != null;
+            get => _content != null || _widget != null;
         }
 
         public Task<IHtmlContent> GetContentAsync(ViewContext viewContext)
