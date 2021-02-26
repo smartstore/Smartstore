@@ -93,7 +93,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <returns>Final product price.</returns>
         Task<Money> GetFinalPriceAsync(
             Product product,
-            Money additionalCharge,
+            Money? additionalCharge,
             Customer customer = null,
             bool includeDiscounts = true,
             int quantity = 1,
@@ -116,7 +116,7 @@ namespace Smartstore.Core.Catalog.Pricing
         Task<Money> GetFinalPriceAsync(
             Product product,
             IEnumerable<ProductBundleItemData> bundleItems,
-            Money additionalCharge,
+            Money? additionalCharge,
             Customer customer = null,
             bool includeDiscounts = true,
             int quantity = 1,
@@ -136,12 +136,19 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <returns>The discount amount and the applied discount.</returns>
         Task<(decimal Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(
             Product product,
-            Money additionalCharge,
+            Money? additionalCharge,
             Customer customer = null,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
             PriceCalculationContext context = null,
             Money? finalPrice = null);
+
+        /// <summary>
+        /// Gets the discount amount.
+        /// </summary>
+        /// <param name="shoppingCartItem">Shopping cart item.</param>
+        /// <returns>The discount amount and the applied discount.</returns>
+        Task<(decimal Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(OrganizedShoppingCartItem shoppingCartItem);
 
         /// <summary>
         /// Gets the price adjustment of a variant attribute value.
@@ -193,12 +200,5 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="includeDiscounts">A value indicating whether to include discounts.</param>
         /// <returns>Shopping cart item sub total.</returns>
         Task<decimal> GetSubTotalAsync(OrganizedShoppingCartItem shoppingCartItem, bool includeDiscounts);
-
-        /// <summary>
-        /// Gets the discount amount.
-        /// </summary>
-        /// <param name="shoppingCartItem">Shopping cart item.</param>
-        /// <returns>The discount amount and the applied discount.</returns>
-        Task<(decimal Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(OrganizedShoppingCartItem shoppingCartItem);
     }
 }

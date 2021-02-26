@@ -15,7 +15,7 @@ using Smartstore.Engine.Modularity;
 namespace Smartstore.Core.Checkout.Tax
 {
     /// <summary>
-    /// Tax service
+    /// Tax service.
     /// </summary>
     public partial class TaxService : ITaxService
     {
@@ -80,9 +80,9 @@ namespace Smartstore.Core.Checkout.Tax
         /// <returns>
         /// Price converted to currency as <see cref="Money"/>.
         /// </returns>
-        protected static Money CalculatePrice(Money price, decimal percent, bool increase, Currency currency)
+        protected static Money CalculatePrice(Money price, decimal percent, bool increase)
         {
-            Guard.NotNull(currency, nameof(currency));
+            Guard.NotNull(price, nameof(price));
 
             if (percent == decimal.Zero)
                 return price;
@@ -92,7 +92,7 @@ namespace Smartstore.Core.Checkout.Tax
                 ? price * percentageFactor
                 : price / percentageFactor;
 
-            return currency.AsMoney(result.Amount);
+            return price.Currency.AsMoney(result.Amount);
         }
 
         /// <summary>
@@ -257,8 +257,7 @@ namespace Smartstore.Core.Checkout.Tax
             bool? includingTax = null,
             bool? priceIncludesTax = null,
             int? taxCategoryId = null,
-            Customer customer = null,
-            Currency currency = null)
+            Customer customer = null)
         {
             // No need to calculate anything if price is 0
             if (price == decimal.Zero)
@@ -266,14 +265,13 @@ namespace Smartstore.Core.Checkout.Tax
 
             customer ??= _workContext.CurrentCustomer;
             taxCategoryId ??= product?.TaxCategoryId;
-            currency ??= _workContext.WorkingCurrency;
 
             var taxRate = await GetTaxRateAsync(product, taxCategoryId, customer);
 
             var isPriceIncrease = (priceIncludesTax ?? _taxSettings.PricesIncludeTax)
                 && (includingTax ?? _workContext.TaxDisplayType == TaxDisplayType.IncludingTax);
 
-            return (CalculatePrice(price, taxRate, isPriceIncrease, currency), taxRate);
+            return (CalculatePrice(price, taxRate, isPriceIncrease), taxRate);
         }
 
         public virtual Task<(Money price, decimal taxRate)> GetShippingPriceAsync(
@@ -342,7 +340,8 @@ namespace Smartstore.Core.Checkout.Tax
                 customer);
         }
 
-        public virtual (VatNumberStatus status, string name, string address) GetVatNumberStatus(string fullVatNumber)
+        // TODO: (ms) (core) implement EuropeCheckVatService and check for async
+        public virtual async Task<(VatNumberStatus status, string name, string address)> GetVatNumberStatusAsync(string fullVatNumber)
         {
             var name = string.Empty;
             var address = string.Empty;
@@ -367,7 +366,6 @@ namespace Smartstore.Core.Checkout.Tax
             twoLetterIsoCode = twoLetterIsoCode.ToUpper();
 
             return (VatNumberStatus.Valid, name, address);
-            // TODO: (ms) (core) implement EuropeCheckVatService 
             //EuropeCheckVatService.checkVatService vatService = null;
             //try
             //{

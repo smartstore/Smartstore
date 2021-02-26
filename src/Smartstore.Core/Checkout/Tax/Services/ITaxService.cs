@@ -74,8 +74,7 @@ namespace Smartstore.Core.Checkout.Tax
             bool? includingTax = null,
             bool? priceIncludesTax = null,
             int? taxCategoryId = null,            
-            Customer customer = null,
-            Currency currency = null);
+            Customer customer = null);
 
         /// <summary>
         /// Gets the calculated shipping price for <see cref="IWorkContext.WorkingCurrency"/> async.
@@ -140,7 +139,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="name">Name (if received).</param>
         /// <param name="address">Address (if received).</param>
         /// <returns>VAT Number status.</returns>
-        (VatNumberStatus status, string name, string address) GetVatNumberStatus(string fullVatNumber);
+        Task<(VatNumberStatus status, string name, string address)> GetVatNumberStatusAsync(string fullVatNumber);
 
         /// <summary>
         /// Checks whether the product is tax exempt for the customer.
@@ -156,7 +155,7 @@ namespace Smartstore.Core.Checkout.Tax
         Task<bool> IsTaxExemptAsync(Product product, Customer customer);
 
         /// <summary>
-        /// Checks whether the customer has a VAT exemption.
+        /// Checks whether the customer has a EU VAT exemption (the European Union value added tax).
         /// </summary>
         /// <param name="customer">Customer for VAT exemption.</param>
         /// <param name="address">Address to check. Gets tax address of customer if <c>null</c>.</param>

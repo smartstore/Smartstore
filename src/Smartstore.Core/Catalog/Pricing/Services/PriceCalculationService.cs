@@ -303,7 +303,7 @@ namespace Smartstore.Core.Catalog.Pricing
             context ??= CreatePriceCalculationContext(customer: customer);
 
             var isBundlePerItemPricing = product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing;
-            var lowestPrice = await GetFinalPriceAsync(product, new(), customer, true, int.MaxValue, null, context);
+            var lowestPrice = await GetFinalPriceAsync(product, null, customer, true, int.MaxValue, null, context);
             var displayFromMessage = isBundlePerItemPricing;
 
             if (product.LowestAttributeCombinationPrice.HasValue)
@@ -358,7 +358,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             foreach (var associatedProduct in associatedProducts)
             {
-                var tmpPrice = await GetFinalPriceAsync(associatedProduct, new(), customer, true, int.MaxValue, null, context);
+                var tmpPrice = await GetFinalPriceAsync(associatedProduct, null, customer, true, int.MaxValue, null, context);
 
                 if (associatedProduct.LowestAttributeCombinationPrice.HasValue && associatedProduct.LowestAttributeCombinationPrice.Value < tmpPrice.Amount)
                 {
@@ -382,7 +382,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public virtual async Task<Money> GetFinalPriceAsync(
             Product product,
-            Money additionalCharge,
+            Money? additionalCharge,
             Customer customer = null,
             bool includeDiscounts = true,
             int quantity = 1,
@@ -417,11 +417,11 @@ namespace Smartstore.Core.Catalog.Pricing
                 {
                     if (_catalogSettings.ApplyPercentageDiscountOnTierPrice && !isTierPrice)
                     {
-                        var (discountOnTierPrice, appliedDiscount) = await GetDiscountAmountAsync(product, new(), customer, quantity, bundleItem, context, _workContext.WorkingCurrency.AsMoney(tierPrice.Value, false));
+                        var (discountOnTierPrice, appliedDiscount) = await GetDiscountAmountAsync(product, null, customer, quantity, bundleItem, context, _workContext.WorkingCurrency.AsMoney(tierPrice.Value, false));
 
                         if (appliedDiscount != null && appliedDiscount.UsePercentage)
                         {
-                            result = Math.Min(result, tierPrice.Value) + additionalCharge.Amount - discountOnTierPrice;
+                            result = Math.Min(result, tierPrice.Value) + (additionalCharge?.Amount ?? decimal.Zero) - discountOnTierPrice;
 
                             return _workContext.WorkingCurrency.AsMoney(Math.Max(result, decimal.Zero));
                         }
@@ -442,11 +442,11 @@ namespace Smartstore.Core.Catalog.Pricing
             if (includeDiscounts)
             {
                 var (discountAmount, _) = await GetDiscountAmountAsync(product, additionalCharge, customer, quantity, bundleItem, context);
-                result = result + additionalCharge.Amount - discountAmount;
+                result = result + (additionalCharge?.Amount ?? decimal.Zero) - discountAmount;
             }
             else
             {
-                result += additionalCharge.Amount;
+                result += (additionalCharge?.Amount ?? decimal.Zero);
             }
 
             return _workContext.WorkingCurrency.AsMoney(Math.Max(result, decimal.Zero), false);
@@ -455,7 +455,7 @@ namespace Smartstore.Core.Catalog.Pricing
         public virtual async Task<Money> GetFinalPriceAsync(
             Product product,
             IEnumerable<ProductBundleItemData> bundleItems,
-            Money additionalCharge,
+            Money? additionalCharge,
             Customer customer = null,
             bool includeDiscounts = true,
             int quantity = 1,
@@ -468,25 +468,18 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
             {
-                var result = new Money();
+                var result = decimal.Zero;
                 var items = bundleItems;
 
                 if (items == null)
                 {
-                    IEnumerable<ProductBundleItem> loadedBundleItems;
-
-                    if (context == null)
-                    {
-                        loadedBundleItems = await _db.ProductBundleItem
+                    var loadedBundleItems = context != null
+                        ? await context.ProductBundleItems.GetOrLoadAsync(product.Id)
+                        : await _db.ProductBundleItem
                             .AsNoTracking()
                             .Include(x => x.Product)
                             .ApplyBundledProductsFilter(new int[] { product.Id })
                             .ToListAsync();
-                    }
-                    else
-                    {
-                        loadedBundleItems = await context.ProductBundleItems.GetOrLoadAsync(product.Id);
-                    }
 
                     items = loadedBundleItems.Select(x => new ProductBundleItemData(x)).ToList();
                 }
@@ -495,10 +488,10 @@ namespace Smartstore.Core.Catalog.Pricing
                 {
                     var itemPrice = await GetFinalPriceAsync(itemData.Item.Product, itemData.AdditionalCharge, customer, includeDiscounts, 1, itemData, context);
 
-                    result += itemPrice * itemData.Item.Quantity;
+                    result += itemPrice.Amount * itemData.Item.Quantity;
                 }
 
-                return result < decimal.Zero ? new() : result;
+                return _workContext.WorkingCurrency.AsMoney(Math.Max(result, decimal.Zero), false);
             }
 
             return await GetFinalPriceAsync(product, additionalCharge, customer, includeDiscounts, quantity, bundleItem, context);
@@ -506,7 +499,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public virtual async Task<(decimal Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(
             Product product,
-            Money additionalCharge,
+            Money? additionalCharge,
             Customer customer = null,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
@@ -590,7 +583,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 var linkedProduct = await _db.Products.FindByIdAsync(attributeValue.LinkedProductId);
                 if (linkedProduct != null)
                 {
-                    var productPrice = await GetFinalPriceAsync(linkedProduct, new()) * attributeValue.Quantity;
+                    var productPrice = await GetFinalPriceAsync(linkedProduct, null) * attributeValue.Quantity;
                     return productPrice.Amount;
                 }
             }
@@ -632,7 +625,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
             {
-                var currentPrice = await GetFinalPriceAsync(product, new(), customer, includeDiscounts: true);
+                var currentPrice = await GetFinalPriceAsync(product, null, customer, includeDiscounts: true);
                 var priceInclAdjustment = currency.AsMoney(decimal.Add(currentPrice.Amount, priceAdjustment));
                 var (price, _) = await _taxService.GetProductPriceAsync(product, priceInclAdjustment, customer: customer);
                 price.Amount = _currencyService.ConvertFromPrimaryStoreCurrency(price.Amount, currency);
@@ -672,7 +665,7 @@ namespace Smartstore.Core.Catalog.Pricing
                             .Select(x => x.BundleItemData)
                             .FirstOrDefault();
 
-                        finalPrice = (await GetFinalPriceAsync(product, new(), customer, includeDiscounts, shoppingCartItem.Item.Quantity, bundleItems)).Amount;
+                        finalPrice = (await GetFinalPriceAsync(product, null, customer, includeDiscounts, shoppingCartItem.Item.Quantity, bundleItems)).Amount;
                     }
                 }
                 else
