@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 
 namespace Smartstore.Core.Widgets
 {

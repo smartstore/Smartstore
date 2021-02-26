@@ -2,8 +2,8 @@
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Content.Seo;
-using Smartstore.Core.Content.Seo.Routing;
+using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Localization.Routing;
 
 namespace Smartstore.Core.Localization

@@ -16,7 +16,7 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;

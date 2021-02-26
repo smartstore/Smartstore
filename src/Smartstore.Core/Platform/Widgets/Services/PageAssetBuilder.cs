@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Hosting;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;

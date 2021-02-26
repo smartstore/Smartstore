@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;

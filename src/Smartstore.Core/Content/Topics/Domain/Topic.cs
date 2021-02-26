@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;

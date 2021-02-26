@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Categories;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Utilities;

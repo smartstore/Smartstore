@@ -24,7 +24,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;

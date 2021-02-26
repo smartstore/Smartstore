@@ -13,7 +13,7 @@ using Smartstore.Core.Catalog.Products.Rules;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Platform.Search.Facets;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;

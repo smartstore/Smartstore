@@ -6,7 +6,7 @@
 //using System.Threading.Tasks;
 //using Dasync.Collections;
 //using Microsoft.EntityFrameworkCore;
-//using Smartstore.Core.Content.Seo;
+//using Smartstore.Core.Seo;
 //using Smartstore.Core.Data;
 
 //namespace Smartstore.Core.Content.Blogs

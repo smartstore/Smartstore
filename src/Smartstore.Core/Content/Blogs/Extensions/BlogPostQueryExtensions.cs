@@ -4,7 +4,7 @@
 //using System.Linq.Dynamic.Core;
 //using Autofac;
 //using Smartstore.Core.Content.Blogs;
-//using Smartstore.Core.Content.Seo;
+//using Smartstore.Core.Seo;
 //using Smartstore.Core.Stores;
 //using Smartstore.Engine;
 

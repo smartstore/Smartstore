@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Content.Seo;
-using Smartstore.Core.Content.Seo.Routing;
+using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 

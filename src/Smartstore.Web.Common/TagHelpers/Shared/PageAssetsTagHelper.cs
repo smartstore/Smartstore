@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Widgets;
 using Smartstore.Web.Rendering;
 

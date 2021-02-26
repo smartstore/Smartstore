@@ -10,7 +10,7 @@ using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Security;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 

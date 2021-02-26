@@ -1,6 +1,6 @@
 ﻿using System;
 using Autofac;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Security;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;

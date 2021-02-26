@@ -6,8 +6,8 @@ using Autofac;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Content.Seo;
-using Smartstore.Core.Content.Seo.Routing;
+using Smartstore.Core.Seo;
+using Smartstore.Core.Seo.Routing;
 
 namespace Smartstore.Core.Content.Menus
 {

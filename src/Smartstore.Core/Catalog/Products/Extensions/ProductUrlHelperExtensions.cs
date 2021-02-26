@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 
 namespace Smartstore.Core.Catalog.Products
 {

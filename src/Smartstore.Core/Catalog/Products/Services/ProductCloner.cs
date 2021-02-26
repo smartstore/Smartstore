@@ -10,7 +10,7 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;

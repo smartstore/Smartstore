@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Web.Models.Topics;
 using Smartstore.Web.Infrastructure.Hooks;
 using Microsoft.EntityFrameworkCore;

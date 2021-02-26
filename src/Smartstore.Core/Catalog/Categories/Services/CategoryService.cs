@@ -10,7 +10,7 @@ using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;

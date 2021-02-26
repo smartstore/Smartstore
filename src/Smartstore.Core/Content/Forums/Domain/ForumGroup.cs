@@ -5,7 +5,7 @@
 //using System.Diagnostics.CodeAnalysis;
 //using Microsoft.EntityFrameworkCore;
 //using Microsoft.EntityFrameworkCore.Infrastructure;
-//using Smartstore.Core.Content.Seo;
+//using Smartstore.Core.Seo;
 //using Smartstore.Core.Localization;
 //using Smartstore.Core.Security;
 //using Smartstore.Core.Stores;

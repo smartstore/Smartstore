@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Smartstore.Core.Content.Seo;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Products

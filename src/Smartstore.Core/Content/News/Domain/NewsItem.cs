@@ -7,7 +7,7 @@
 //using Microsoft.EntityFrameworkCore.Infrastructure;
 //using Microsoft.EntityFrameworkCore.Metadata.Builders;
 //using Smartstore.Core.Content.Media;
-//using Smartstore.Core.Content.Seo;
+//using Smartstore.Core.Seo;
 //using Smartstore.Core.Localization;
 //using Smartstore.Core.Stores;
 //using Smartstore.Domain;

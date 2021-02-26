@@ -6,7 +6,7 @@
 //using Microsoft.EntityFrameworkCore.Infrastructure;
 //using Microsoft.EntityFrameworkCore.Metadata.Builders;
 //using Smartstore.Core.Content.Forums.Domain;
-//using Smartstore.Core.Content.Seo;
+//using Smartstore.Core.Seo;
 //using Smartstore.Core.Localization;
 //using Smartstore.Domain;
 
