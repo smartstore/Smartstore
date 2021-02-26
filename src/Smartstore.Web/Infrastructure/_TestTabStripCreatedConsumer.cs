@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Smartstore.Core.Widgets;
 using Smartstore.Events;
 using Smartstore.Web.Rendering.Events;
 
@@ -25,6 +26,7 @@ namespace Smartstore.Web.Infrastructure
                     .LinkHtmlAttributes(new { data_tab_name = "ContentSlider" })
                     .ContentHtmlAttributes(new { data_yodele = true, @class = "gutgut" })
                     .Content("<h4>Content Slider</h4>")
+                    //.Content(new ComponentWidgetInvoker("GdprConsent", new { isSmall = false }))
                     //.Route("register")
                     .Ajax(false);
             });

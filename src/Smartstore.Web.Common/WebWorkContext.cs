@@ -31,7 +31,7 @@ namespace Smartstore.Web
         private readonly PrivacySettings _privacySettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly ICacheManager _cache;
-        private readonly Lazy<ITaxService> _taxService;
+        private readonly ITaxService _taxService;
         private readonly IUserAgent _userAgent;
         private readonly IWebHelper _webHelper;
         private readonly IGeoCountryLookup _geoCountryLookup;
@@ -53,13 +53,12 @@ namespace Smartstore.Web
             TaxSettings taxSettings,
             PrivacySettings privacySettings,
             LocalizationSettings localizationSettings,
-            Lazy<ITaxService> taxService,
+            ITaxService taxService,
             ICacheManager cache,
             IUserAgent userAgent,
             IWebHelper webHelper,
             IGeoCountryLookup geoCountryLookup)
         {
-            // TODO: (core) Implement WebWorkContext
             _db = db;
             _httpContextAccessor = httpContextAccessor;
             _languageResolver = languageResolver;
@@ -403,7 +402,50 @@ namespace Smartstore.Web
 
         public TaxDisplayType GetTaxDisplayTypeFor(Customer customer, int storeId)
         {
-            return TaxDisplayType.IncludingTax;
+            if (_taxDisplayType.HasValue)
+            {
+                return _taxDisplayType.Value;
+            }
+
+            int? taxDisplayType = null;
+
+            if (_taxSettings.AllowCustomersToSelectTaxDisplayType && customer != null)
+            {
+                taxDisplayType = customer.TaxDisplayTypeId;
+            }
+
+            if (!taxDisplayType.HasValue && _taxSettings.EuVatEnabled)
+            {
+                if (customer != null &&  _taxService.IsVatExemptAsync(customer).Await())
+                {
+                    taxDisplayType = (int)TaxDisplayType.ExcludingTax;
+                }
+            }
+            
+            if (!taxDisplayType.HasValue)
+            {
+                var customerRoles = customer.CustomerRoleMappings.Select(x => x.CustomerRole).ToList();
+                string key = string.Format(WebCacheInvalidator.CUSTOMERROLES_TAX_DISPLAY_TYPES_KEY, string.Join(",", customerRoles.Select(x => x.Id)), storeId);
+                var cacheResult = _cache.Get(key, () =>
+                {
+                    var roleTaxDisplayTypes = customerRoles
+                        .Where(x => x.TaxDisplayType.HasValue)
+                        .OrderByDescending(x => x.TaxDisplayType.Value)
+                        .Select(x => x.TaxDisplayType.Value);
+
+                    if (roleTaxDisplayTypes.Any())
+                    {
+                        return (TaxDisplayType)roleTaxDisplayTypes.FirstOrDefault();
+                    }
+
+                    return _taxSettings.TaxDisplayType;
+                });
+
+                taxDisplayType = (int)cacheResult;
+            }
+
+            _taxDisplayType = (TaxDisplayType)taxDisplayType.Value;
+            return _taxDisplayType.Value;
         }
 
         public bool IsAdminArea 

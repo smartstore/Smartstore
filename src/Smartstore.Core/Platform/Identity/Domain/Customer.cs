@@ -372,7 +372,7 @@ namespace Smartstore.Core.Identity
         /// <returns>The identifier</returns>
         public string GetRolesIdent(bool onlyActiveCustomerRoles = true)
         {
-            return string.Join(",", GetRoleIds(onlyActiveCustomerRoles));
+            return string.Join(',', GetRoleIds(onlyActiveCustomerRoles));
         }
 
         /// <summary>
