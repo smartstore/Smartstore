@@ -7,7 +7,7 @@ using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
 
-namespace Smartstore.Core.Checkout.Payment
+namespace Smartstore.Core.Checkout.Payment.Hooks
 {
     public class RecurringPaymentHook : AsyncDbSaveHook<RecurringPayment>
     {

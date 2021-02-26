@@ -14,6 +14,51 @@ namespace Smartstore.Core.Checkout.Payment
     /// </summary>
     public partial interface IPaymentMethod : IProvider, IUserEditable
     {
+        #region Properties
+
+        /// <summary>
+        /// Gets a value indicating whether the payment method is active and should be offered to customers
+        /// </summary>
+        bool IsActive { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the payment method requires user input
+        /// before proceeding (e.g. CreditCard, DirectDebit etc.)
+        /// </summary>
+        bool RequiresInteraction { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether capture is supported
+        /// </summary>
+        bool SupportCapture { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether partial refund is supported
+        /// </summary>
+        bool SupportPartiallyRefund { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether refund is supported
+        /// </summary>
+        bool SupportRefund { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether void is supported
+        /// </summary>
+        bool SupportVoid { get; }
+
+        /// <summary>
+        /// Gets a recurring payment type of payment method
+        /// </summary>
+        RecurringPaymentType RecurringPaymentType { get; }
+
+        /// <summary>
+        /// Gets a payment method type
+        /// </summary>
+        PaymentMethodType PaymentMethodType { get; }
+
+        #endregion
+
         #region Methods
 
         /// <summary>
@@ -42,7 +87,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         /// <param name="cart">Shoping cart.</param>
         /// <returns>Additional handling fee.</returns>
-		Task<Money> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart);
+		Task<decimal> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart);
 
         /// <summary>
         /// Captures payment.
@@ -98,50 +143,5 @@ namespace Smartstore.Core.Checkout.Payment
         Type GetControllerType(); // TODO: (mg) (core) Is IPaymentMethod.GetControllerType() really necessary?
 
         #endregion Methods
-
-        #region Properties
-
-        /// <summary>
-        /// Gets a value indicating whether the payment method is active and should be offered to customers.
-        /// </summary>
-        bool IsActive { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the payment method requires user input
-        /// before proceeding (e.g. CreditCard, DirectDebit etc.).
-        /// </summary>
-        bool RequiresInteraction { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether capture is supported.
-        /// </summary>
-        bool CanCapture { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether partial refund is supported.
-        /// </summary>
-        bool CanPartiallyRefund { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether refund is supported.
-        /// </summary>
-        bool CanRefund { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether void is supported.
-        /// </summary>
-        bool CanVoid { get; }
-
-        /// <summary>
-        /// Gets a recurring payment type of payment method.
-        /// </summary>
-        RecurringPaymentType RecurringPaymentType { get; }
-
-        /// <summary>
-        /// Gets a payment method type.
-        /// </summary>
-        PaymentMethodType PaymentMethodType { get; }
-
-        #endregion Properties
     }
 }
