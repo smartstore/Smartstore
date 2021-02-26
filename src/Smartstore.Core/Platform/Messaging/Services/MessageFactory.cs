@@ -151,7 +151,8 @@ namespace Smartstore.Core.Messages
             {
                 Priority = 5,
                 From = messageContext.SenderMailAddress ?? messageContext.EmailAccount.ToMailAddress(),
-                To = to.ToString(),
+                //To = to.ToString(),
+                To = "",                    // TODO: (mh) (core) Uncomment once template engine is available.
                 Bcc = bcc,
                 ReplyTo = replyTo?.ToString(),
                 Subject = subject,

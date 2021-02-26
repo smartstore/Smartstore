@@ -176,10 +176,10 @@
         GDPR (small)
     </div>
     <div class="col-lg-9">
-        <div class="footer-newsletter nav-collapsible" data-subscription-url="@(Url.RouteUrl("SubscribeNewsletter"))" data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
+        <div class="footer-newsletter nav-collapsible" data-subscription-url="@(Url.Action("Subscribe", "Newsletter"))" data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
             <div id="newsletter-subscribe-block">
                 <div class="input-group has-icon mb-2">
-                    <input asp-for="TestEmail" id="newsletter-email" class="form-control" placeholder="@T("Newsletter.Email")"/>
+                    <input asp-for="TestEmail" id="newsletter-email" class="form-control" placeholder="@T("Newsletter.Email")" />
                     <span class="input-group-icon text-muted">
                         <i class="fa fa-envelope"></i>
                     </span>
@@ -210,8 +210,7 @@
 
                 <zone sm-zone-name="gdpr_consent_small"></zone>
 
-                @*TODO: (mh) (core) Uncomment when NewsLetterController is available*@
-                @*@Html.ValidationMessageFor(x => x.TestEmail)*@
+                <span asp-validation-for="TestEmail"></span>
 
             </div>
             <div id="newsletter-result-block" class="alert alert-success d-none"></div>
