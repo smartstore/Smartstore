@@ -606,7 +606,7 @@ namespace Smartstore.Core.Catalog.Pricing
             if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
             {
                 var value = Convert.ToDecimal((productPrice / product.BasePriceAmount) * product.BasePriceBaseAmount);
-                var valueFormatted = _currencyService.AsMoney(value, true, currency).ToString();
+                var valueFormatted = _currencyService.CreateMoney(value, true, currency).ToString();
                 var amountFormatted = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
                 string infoTemplate = T("Products.BasePriceInfo");
 

@@ -119,11 +119,11 @@ namespace Smartstore.Core.Catalog.Attributes
                                     {
                                         if (priceAdjustmentBase > 0)
                                         {
-                                            pvaAttribute += " (+{0})".FormatInvariant(_currencyService.AsMoney(priceAdjustment, true, displayTax: false).ToString());
+                                            pvaAttribute += " (+{0})".FormatInvariant(_currencyService.CreateMoney(priceAdjustment, true, displayTax: false).ToString());
                                         }
                                         else if (priceAdjustmentBase < decimal.Zero)
                                         {
-                                            pvaAttribute += " (-{0})".FormatInvariant(_currencyService.AsMoney(-priceAdjustment, true, displayTax: false).ToString());
+                                            pvaAttribute += " (-{0})".FormatInvariant(_currencyService.CreateMoney(-priceAdjustment, true, displayTax: false).ToString());
                                         }
                                     }
                                 }

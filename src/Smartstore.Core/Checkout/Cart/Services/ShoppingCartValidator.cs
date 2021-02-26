@@ -338,8 +338,8 @@ namespace Smartstore.Core.Checkout.Cart
                 var minimum = _currencyService.ConvertFromPrimaryStoreCurrency(product.MinimumCustomerEnteredPrice, _workContext.WorkingCurrency);
                 var maximum = _currencyService.ConvertFromPrimaryStoreCurrency(product.MaximumCustomerEnteredPrice, _workContext.WorkingCurrency);
 
-                var moneyMin = _currencyService.AsMoney(minimum, true, displayTax: false);
-                var moneyMax = _currencyService.AsMoney(maximum, true, displayTax: false);
+                var moneyMin = _currencyService.CreateMoney(minimum, true, displayTax: false);
+                var moneyMax = _currencyService.CreateMoney(maximum, true, displayTax: false);
 
                 warnings.Add(string.Format(T("ShoppingCart.CustomerEnteredPrice.RangeError"), moneyMin.ToString(), moneyMax.ToString()));
             }

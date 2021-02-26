@@ -762,11 +762,11 @@ namespace Smartstore.Web.Controllers
 
             content.AppendLine("plain money: " + plainMoney.ToString());
 
-            var moneyWithTax = currencyService.AsMoney(price, true, currency);
+            var moneyWithTax = currencyService.CreateMoney(price, true, currency);
             content.AppendLine("Money with tax: " + moneyWithTax.ToString());
 
-            var moneyMin = currencyService.AsMoney(9.66M, true, displayTax: false);
-            var moneyMax = currencyService.AsMoney(12.14M, true, displayTax: false);
+            var moneyMin = currencyService.CreateMoney(9.66M, true, displayTax: false);
+            var moneyMax = currencyService.CreateMoney(12.14M, true, displayTax: false);
             content.AppendLine("range error warning: " + string.Format(T("ShoppingCart.CustomerEnteredPrice.RangeError"), moneyMin.ToString(), moneyMax.ToString()));
 
 

@@ -166,7 +166,7 @@ namespace Smartstore.Core.Checkout.Attributes
                                     var priceAdjustmentConverted = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustment.Amount, _workContext.WorkingCurrency);
                                     if (priceAdjustment > 0)
                                     {
-                                        attributeStr += string.Format(" [+{0}]", _currencyService.AsMoney(priceAdjustmentConverted).ToString());
+                                        attributeStr += string.Format(" [+{0}]", _currencyService.CreateMoney(priceAdjustmentConverted).ToString());
                                     }
                                 }
                             }

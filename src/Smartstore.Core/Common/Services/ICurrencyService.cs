@@ -130,7 +130,7 @@ namespace Smartstore.Core.Common.Services
         /// will be auto-resolved if it is <c>null</c>.
         /// </param>
         /// <returns>Money.</returns>
-        Money AsMoney(
+        Money CreateMoney(
             decimal price,
             bool displayCurrency = true,
             object currencyCodeOrObj = null,

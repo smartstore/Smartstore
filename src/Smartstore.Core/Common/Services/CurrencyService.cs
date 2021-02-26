@@ -160,7 +160,7 @@ namespace Smartstore.Core.Common.Services
             return _providerManager.GetAllProviders<IExchangeRateProvider>();
         }
 
-        public virtual Money AsMoney(
+        public virtual Money CreateMoney(
             decimal price,
             bool displayCurrency = true,
             object currencyCodeOrObj = null,
