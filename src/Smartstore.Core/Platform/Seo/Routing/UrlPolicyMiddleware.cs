@@ -14,13 +14,15 @@ namespace Smartstore.Core.Seo.Routing
     public class UrlPolicyMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly IEnumerable<IUrlFilter> _urlFilters;
 
-        public UrlPolicyMiddleware(RequestDelegate next)
+        public UrlPolicyMiddleware(RequestDelegate next, IEnumerable<IUrlFilter> urlFilters)
         {
             _next = next;
+            _urlFilters = urlFilters;
         }
 
-        public Task Invoke(HttpContext context, IUrlService urlService, IWorkContext workContext, IEnumerable<IUrlFilter> urlFilters)
+        public Task Invoke(HttpContext context, IUrlService urlService, IWorkContext workContext)
         {
             if (context.Response.StatusCode is (>= 200 and < 300))
             {
@@ -46,7 +48,7 @@ namespace Smartstore.Core.Seo.Routing
                 }
 
                 // Apply all registered url filters
-                foreach (var urlFilter in urlFilters)
+                foreach (var urlFilter in _urlFilters)
                 {
                     if (!policy.IsInvalidUrl)
                     {

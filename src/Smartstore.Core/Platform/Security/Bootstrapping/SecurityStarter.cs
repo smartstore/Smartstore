@@ -11,7 +11,7 @@ namespace Smartstore.Core.Bootstrapping
     {
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
-            builder.RegisterType<HttpsUrlFilter>().As<IUrlFilter>().InstancePerLifetimeScope();
+            builder.RegisterType<HttpsUrlFilter>().As<IUrlFilter>().SingleInstance();
             builder.RegisterType<Encryptor>().As<IEncryptor>().InstancePerLifetimeScope();
             builder.RegisterType<HoneypotProtector>().SingleInstance();
 
