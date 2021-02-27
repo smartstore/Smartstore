@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Content.Media;
-using Smartstore.Data;
 
 namespace Smartstore.Core.Bootstrapping
 {

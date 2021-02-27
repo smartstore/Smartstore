@@ -16,6 +16,11 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal class MediaStarter : StarterBase
     {
+        public MediaStarter()
+        {
+            RunAfter<TaskSchedulerStarter>();
+        }
+
         public override void MapRoutes(EndpointRoutingBuilder builder)
         {
             builder.MapRoutes(StarterOrdering.AfterAuthenticationMiddleware, endpoints =>

@@ -1,16 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Smartstore.Scheduling
 {
+    // TODO: (core) ITaskStore: implement mapping between old/legacy and new task types. 
+
     /// <summary>
     /// Storage for <see cref="ITaskDescriptor"/> implementations.
     /// </summary>
     public interface ITaskStore
     {
+        /// <summary>
+        /// Gets the task CLR type.
+        /// </summary>
+        /// <param name="task">The task to map a CLR type for.</param>
+        /// <returns>
+        /// A <see cref="Type"/> instance representing the task CLR type or <c>null</c>.
+        /// </returns>
+        Type GetTaskClrType(ITaskDescriptor task);
+
         /// <summary>
         /// Gets a task by identifier.
         /// </summary>
@@ -22,6 +31,12 @@ namespace Smartstore.Scheduling
         /// </summary>
         /// <param name="type">Task type</param>
         Task<ITaskDescriptor> GetTaskByTypeAsync(string type);
+
+        /// <summary>
+        /// Reloads a task from the store overwriting any property values with values from the store.
+        /// </summary>
+        /// <param name="task">Task</param>
+        Task ReloadTaskAsync(ITaskDescriptor task);
 
         /// <summary>
         /// Gets all tasks
@@ -79,7 +94,19 @@ namespace Smartstore.Scheduling
 
         #region History
 
-        // TODO: (core) Define task history contract.
+        ITaskExecutionInfo CreateExecutionInfo(ITaskDescriptor task);
+
+        Task InsertExecutionInfoAsync(ITaskExecutionInfo info);
+
+        Task UpdateExecutionInfoAsync(ITaskExecutionInfo info);
+
+        Task DeleteExecutionInfoAsync(ITaskExecutionInfo info);
+
+        Task LoadLastExecutionInfoAsync(ITaskDescriptor task);
+
+        Task<int> TrimExecutionInfosAsync();
+
+        // TODO: (core) Continue ...
 
         #endregion
     }
