@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
+using Smartstore.Core.Checkout.Orders;
 
-namespace Smartstore.Core.Checkout.Orders
+namespace Smartstore
 {
     public static class OrderQueryExtensions
     {

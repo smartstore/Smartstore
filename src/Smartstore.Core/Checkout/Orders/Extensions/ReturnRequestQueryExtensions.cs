@@ -1,6 +1,7 @@
 ﻿using System.Linq;
+using Smartstore.Core.Checkout.Orders;
 
-namespace Smartstore.Core.Checkout.Orders
+namespace Smartstore
 {
     public static partial class ReturnRequestQueryExtensions
     {

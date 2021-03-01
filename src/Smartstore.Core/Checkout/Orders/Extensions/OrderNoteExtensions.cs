@@ -1,6 +1,7 @@
-﻿using Smartstore.Utilities.Html;
+﻿using Smartstore.Core.Checkout.Orders;
+using Smartstore.Utilities.Html;
 
-namespace Smartstore.Core.Checkout.Orders
+namespace Smartstore
 {
     public static partial class OrderNoteExtensions
     {
