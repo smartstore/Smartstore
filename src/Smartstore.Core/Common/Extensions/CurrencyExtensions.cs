@@ -8,16 +8,36 @@ namespace Smartstore
     public static class CurrencyExtensions
     {
         /// <summary>
-        /// Round decimal up or down to the nearest multiple of denomination if activated for currency.
+        /// Round value up or down to the nearest multiple of denomination (cash rounding) if activated for currency.
+        /// </summary>
+        /// <param name="currency">Currency. Rounding must be activated for this currency.</param>
+        /// <param name="value">Value to round.</param>
+        /// <param name="toNearestRounding">Amount by which was rounded.</param>
+        /// <returns>Rounded amount.</returns>
+        /// <example>"Schweizer Rappenrundung" of 16.23 -> returned value is 16.25 and toNearestRounding is 0.02.</example>
+        public static Money RoundToNearest(this Currency currency, Money value, out Money toNearestRounding)
+        {
+            Guard.NotNull(currency, nameof(currency));
+
+            var newValue = currency.RoundToNearest(value.Amount, out var tmpToNearestRounding);
+
+            toNearestRounding = new Money(tmpToNearestRounding, currency);
+
+            return new Money(newValue, currency);
+        }
+
+        /// <summary>
+        /// Round value up or down to the nearest multiple of denomination (cash rounding) if activated for currency.
         /// </summary>
         /// <param name="value">Value to round.</param>
         /// <param name="currency">Currency. Rounding must be activated for this currency.</param>
-        /// <param name="roundingAmount">The rounding amount.</param>
+        /// <param name="toNearestRounding">Amount by which was rounded.</param>
         /// <returns>Rounded value</returns>
-        public static decimal RoundToNearest(this Currency currency, decimal value, out decimal roundingAmount)
+        /// <example>"Schweizer Rappenrundung" of 16.23 -> returned value is 16.25 and toNearestRounding is 0.02.</example>
+        public static decimal RoundToNearest(this Currency currency, decimal value, out decimal toNearestRounding)
         {
             Guard.NotNull(currency, nameof(currency));
-            
+
             var oldValue = value;
 
             switch (currency.RoundOrderTotalRule)
@@ -37,7 +57,7 @@ namespace Smartstore
                     break;
             }
 
-            roundingAmount = value - Math.Round(oldValue, 2);
+            toNearestRounding = value - decimal.Round(oldValue, currency.RoundNumDecimals);
 
             return value;
         }

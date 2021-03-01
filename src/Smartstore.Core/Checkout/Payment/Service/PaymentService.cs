@@ -324,11 +324,14 @@ namespace Smartstore.Core.Checkout.Payment.Service
         {
             var currency = _services.WorkContext.WorkingCurrency;
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
-            var paymentMethodAdditionalFee = paymentMethod != null
-                ? await paymentMethod.Value.GetAdditionalHandlingFeeAsync(cart)
-                : decimal.Zero;
+            if (paymentMethod == null)
+            {
+                return currency.AsMoney(decimal.Zero);
+            }
 
-            return currency.AsMoney(paymentMethodAdditionalFee);
+            var paymentFee = await paymentMethod.Value.GetAdditionalHandlingFeeAsync(cart);
+
+            return currency.AsMoney(paymentFee.Amount);
         }
 
         /// <summary>

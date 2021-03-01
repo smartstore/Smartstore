@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Common;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Rules;
 using Smartstore.Threading;
 
@@ -9,10 +9,12 @@ namespace Smartstore.Core.Checkout.Rules.Impl
     internal class CartTotalRule : IRule
     {
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly IOrderCalculationService _orderCalculationService;
 
-        public CartTotalRule(IShoppingCartService shoppingCartService)
+        public CartTotalRule(IShoppingCartService shoppingCartService, IOrderCalculationService orderCalculationService)
         {
             _shoppingCartService = shoppingCartService;
+            _orderCalculationService = orderCalculationService;
         }
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
@@ -29,14 +31,10 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             using (await AsyncLock.KeyedAsync(lockKey))
             {
                 var cart = await _shoppingCartService.GetCartItemsAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+                var cartTotalResult = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
-                // TODO: (mg) (core) Complete CartTotalRule (IOrderTotalCalculationService required).
-                //var cartTotal = ((decimal?)_orderTotalCalculationService.GetShoppingCartTotal(cart)) ?? decimal.Zero;
-                var cartTotal = decimal.Zero;
-
-                // Currency values must be rounded, otherwise unexpected results may occur.
-                var money = new Money(cartTotal, context.WorkContext.WorkingCurrency);
-                cartTotal = money.RoundedAmount;
+                // Currency values must be rounded here because otherwise unexpected results may occur.
+                var cartTotal = cartTotalResult.Total?.RoundedAmount ?? decimal.Zero;
 
                 var result = expression.Operator.Match(cartTotal, expression.Value);
                 return result;

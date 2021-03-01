@@ -1,39 +1,47 @@
 ﻿using System.Collections.Generic;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.GiftCards;
+using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Cart
 {
     /// <summary>
-    /// Represents calculated shopping cart totals
+    /// Represents a calculated shopping cart total.
     /// </summary>
     public partial class ShoppingCartTotal
     {
-        public ShoppingCartTotal(decimal? totalAmount)
+        public ShoppingCartTotal(Money? total)
         {
-            TotalAmount = totalAmount;
+            Total = total;
         }
 
-        public static implicit operator decimal?(ShoppingCartTotal obj)
-            => obj.TotalAmount;
+        public static implicit operator Money?(ShoppingCartTotal obj)
+            => obj.Total;
 
-        public static implicit operator ShoppingCartTotal(decimal? obj) 
+        public static implicit operator ShoppingCartTotal(Money? obj)
             => new(obj);
 
         /// <summary>
-        /// Total amount of the shopping cart. <c>null</c> if the cart total couldn't be calculated now
+        /// Total amount of the shopping cart. <c>null</c> if the cart total couldn't be calculated now.
         /// </summary>
-        public decimal? TotalAmount { get; init; }
+        public Money? Total { get; init; }
 
         /// <summary>
-        /// Rounding amount
+        /// The amount by which the total was rounded, if rounding to the nearest multiple of denomination 
+        /// (cash rounding) is activated for the currency.
         /// </summary>
-        public decimal RoundingAmount { get; set; }
+        /// <example>"Schweizer Rappenrundung" of 16.23 -> <see cref="Total"/> = 16.25 and <see cref="ToNearestRounding"/> = 0.02.</example>
+        public Money ToNearestRounding { get; set; }
 
         /// <summary>
-        /// Applied discount amount
+        /// Applied discount amount.
         /// </summary>
-        public decimal DiscountAmount { get; set; }
+        public Money DiscountAmount { get; set; }
+
+        /// <summary>
+        /// Applied discount.
+        /// </summary>
+        public Discount AppliedDiscount { get; set; }
 
         /// <summary>
         /// Reward points to redeem
@@ -41,53 +49,46 @@ namespace Smartstore.Core.Checkout.Cart
         public int RedeemedRewardPoints { get; set; }
 
         /// <summary>
-        /// Reward points amount to redeem (in primary store currency)
+        /// Reward points amount to redeem (in primary store currency).
         /// </summary>
-        public decimal RedeemedRewardPointsAmount { get; set; }
+        public Money RedeemedRewardPointsAmount { get; set; }
 
         /// <summary>
-        /// Credit balance
+        /// Credit balance.
         /// </summary>
-        public decimal CreditBalance { get; set; }
+        public Money CreditBalance { get; set; }
 
         /// <summary>
-        /// Applied discount
-        /// </summary>
-        public Discount AppliedDiscount { get; set; }
-
-        /// <summary>
-        /// Applied gift cards
+        /// Applied gift cards.
         /// </summary>
         public List<AppliedGiftCard> AppliedGiftCards { get; set; }
 
         /// <summary>
-        /// Shopping cart total and rounding amount. Converted from primary store currency
+        /// Total converted from primary store currency.
         /// </summary>
         public ConvertedAmounts ConvertedAmount { get; set; } = new();
-        
-        /// <summary>
-        /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="TotalAmount"/>
-        /// </summary>
-        public override string ToString() 
-            => (TotalAmount ?? decimal.Zero).FormatInvariant();
 
         /// <summary>
-        /// Represents converted amount of <see cref="ShoppingCartTotal.TotalAmount"/> and <see cref="ShoppingCartTotal.RoundingAmount"/>
+        /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="Total"/>.
+        /// </summary>
+        public override string ToString()
+            => Total?.ToString() ?? decimal.Zero.FormatInvariant();
+
+        /// <summary>
+        /// Represents converted amount of <see cref="ShoppingCartTotal.Total"/> and <see cref="ShoppingCartTotal.ToNearestRounding"/>.
         /// </summary>
         public class ConvertedAmounts
         {
             /// <summary>
-            /// Converted total amount of the shopping cart.
+            /// Converted shopping cart total amount. <c>null</c> if the cart total couldn't be calculated now.
             /// </summary>
-            /// <remarks>
-            /// <c>null</c> if the cart total couldn't be calculated now
-            /// </remarks>
-            public decimal? TotalAmount { get; set; }
+            public Money? Total { get; set; }
 
             /// <summary>
-            /// Converted rounding amount
+            /// Converted amount by which the total was rounded, if rounding to the nearest multiple of denomination 
+            /// (cash rounding) is activated for the currency.
             /// </summary>
-            public decimal RoundingAmount { get; set; }
+            public Money ToNearestRounding { get; set; }
         }
     }
 }

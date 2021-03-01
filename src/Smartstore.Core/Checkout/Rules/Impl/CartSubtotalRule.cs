@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Common;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Rules;
 using Smartstore.Threading;
 
@@ -9,10 +9,12 @@ namespace Smartstore.Core.Checkout.Rules.Impl
     internal class CartSubtotalRule : IRule
     {
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly IOrderCalculationService _orderCalculationService;
 
-        public CartSubtotalRule(IShoppingCartService shoppingCartService)
+        public CartSubtotalRule(IShoppingCartService shoppingCartService, IOrderCalculationService orderCalculationService)
         {
             _shoppingCartService = shoppingCartService;
+            _orderCalculationService = orderCalculationService;
         }
 
         public async Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
@@ -30,14 +32,11 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             using (await AsyncLock.KeyedAsync(lockKey))
             {
                 var cart = await _shoppingCartService.GetCartItemsAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+                var subtotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
 
-                // TODO: (mg) (core) Complete CartSubtotalRule (IOrderTotalCalculationService required).
-                //await _orderTotalCalculationService.GetShoppingCartSubTotalAsync(cart, out _, out _, out var cartSubtotal, out _);
-                var cartSubtotal = decimal.Zero;
-
-                // Currency values must be rounded, otherwise unexpected results may occur.
-                var money = new Money(cartSubtotal, context.WorkContext.WorkingCurrency);
-                cartSubtotal = money.RoundedAmount;
+                // Subtotal is always calculated for working currency. No new money struct required here.
+                // Currency values must be rounded here because otherwise unexpected results may occur.
+                var cartSubtotal = subtotal.SubTotalWithoutDiscount.RoundedAmount;
 
                 var result = expression.Operator.Match(cartSubtotal, expression.Value);
                 //$"unlocked expression {expression.Id}: {lockKey}".Dump();

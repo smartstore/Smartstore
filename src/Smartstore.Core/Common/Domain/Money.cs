@@ -77,6 +77,7 @@ namespace Smartstore.Core.Common
             set;
         }
 
+        // TODO: (mg) (core) UI. Always show Currency.RoundNumDecimals on currency edit page. It is no longer used only for order item rounding.
         /// <summary>
         /// Rounds the amount to the number of significant decimal digits
         /// of the associated currency using MidpointRounding.AwayFromZero.
@@ -265,6 +266,11 @@ namespace Smartstore.Core.Common
         /// <returns>The formatted rounded amount.</returns>
         public string ToString(bool? showCurrency = null, bool useISOCodeAsSymbol = false, bool? showTax = null)
         {
+            if (Currency == null)
+            {
+                return Amount.FormatInvariant();
+            }
+
             showTax ??= ShowTax;
             
             var nf = Currency.NumberFormat;

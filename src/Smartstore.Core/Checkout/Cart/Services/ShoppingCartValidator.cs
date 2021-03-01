@@ -18,7 +18,6 @@ using Smartstore.Core.Stores;
 namespace Smartstore.Core.Checkout.Cart
 {
     // TODO: (ms) (core) Media load flags warnings.
-    // TODO: (ms) (core) T(key, arg1, arg2, ....) doesn't work anymore. There is no string.Format by Localizer anymore.
     /// <summary>
     /// Shopping cart validation methods
     /// </summary>
@@ -331,9 +330,8 @@ namespace Smartstore.Core.Checkout.Cart
             }
 
             // Customer entered price
-            if (product.CustomerEntersPrice
-                && (ctx.CustomerEnteredPrice < product.MinimumCustomerEnteredPrice
-                || ctx.CustomerEnteredPrice > product.MaximumCustomerEnteredPrice))
+            if (product.CustomerEntersPrice &&
+                (ctx.CustomerEnteredPrice < product.MinimumCustomerEnteredPrice || ctx.CustomerEnteredPrice > product.MaximumCustomerEnteredPrice))
             {
                 var minimum = _currencyService.ConvertFromPrimaryStoreCurrency(product.MinimumCustomerEnteredPrice, _workContext.WorkingCurrency);
                 var maximum = _currencyService.ConvertFromPrimaryStoreCurrency(product.MaximumCustomerEnteredPrice, _workContext.WorkingCurrency);
@@ -341,7 +339,7 @@ namespace Smartstore.Core.Checkout.Cart
                 var moneyMin = _currencyService.CreateMoney(minimum, true, displayTax: false);
                 var moneyMax = _currencyService.CreateMoney(maximum, true, displayTax: false);
 
-                warnings.Add(string.Format(T("ShoppingCart.CustomerEnteredPrice.RangeError"), moneyMin.ToString(), moneyMax.ToString()));
+                warnings.Add(T("ShoppingCart.CustomerEnteredPrice.RangeError", moneyMin.ToString(), moneyMax.ToString()));
             }
 
             // Quantity validation

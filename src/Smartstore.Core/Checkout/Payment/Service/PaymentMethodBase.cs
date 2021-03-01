@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
@@ -101,8 +102,8 @@ namespace Smartstore.Core.Checkout.Payment.Service
         /// Gets additional handling fee.
         /// </summary>
         /// <returns>Additional handling fee.</returns>
-        public virtual Task<decimal> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart) 
-            => Task.FromResult(decimal.Zero);
+        public virtual Task<Money> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart)
+            => Task.FromResult(new Money());
 
         /// <summary>
         /// Captures payment.

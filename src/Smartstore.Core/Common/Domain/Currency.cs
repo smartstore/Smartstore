@@ -121,9 +121,15 @@ namespace Smartstore.Core.Common
         /// </summary>
         /// <param name="amount">The money amount</param>
         /// <param name="roundIfEnabled">Rounds amount according to <see cref="RoundNumDecimals"/> if <see cref="RoundOrderItemsEnabled"/> is <c>true</c>.</param>
-        /// <returns></returns>
-        public Money AsMoney(decimal amount, bool roundIfEnabled = true)
+        /// <param name="notNegative">Ensures that the amount is not negative if <c>true</c>.</param>
+        /// <returns>Money.</returns>
+        public Money AsMoney(decimal amount, bool roundIfEnabled = true, bool notNegative = false)
         {
+            if (notNegative && amount < decimal.Zero)
+            {
+                amount = decimal.Zero;
+            }
+
             if (roundIfEnabled && RoundOrderItemsEnabled)
             {
                 amount = decimal.Round(amount, RoundNumDecimals);
