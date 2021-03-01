@@ -11,7 +11,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
 
-namespace Smartstore.Core.Checkout.Payment.Service
+namespace Smartstore.Core.Checkout.Payment
 {
     /// <summary>
     /// Base class for payment methods.
@@ -173,7 +173,7 @@ namespace Smartstore.Core.Checkout.Payment.Service
         public virtual Task<bool> CanRePostProcessPaymentAsync(Order order) 
             => Task.FromResult(false);
 
-        // TODO: (ms) (core) Configuration route
+        // TODO: (ms) (core) Configuration route (out variables)
 
         /// <summary>
         /// Gets a route for provider configuration.

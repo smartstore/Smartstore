@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Shipping.Events;
 
-namespace Smartstore.Core.Checkout.Shipping.Services
+namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
     /// General shipment tracker (finds an appropriate tracker by tracking number).
