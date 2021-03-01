@@ -74,7 +74,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="fixedFeeOrPercentage">A fixed fee value or a percentage value.</param>
         /// <param name="usePercentage">A value indicating whether fixedFeeOrPercentage is a fixed or percentage value.</param>
         /// <returns>Additional payment method fee.</returns>
-        Task<Money> GetShoppingCartPaymentFee(IList<OrganizedShoppingCartItem> cart, decimal fixedFeeOrPercentage, bool usePercentage);
+        Task<Money> GetShoppingCartPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, decimal fixedFeeOrPercentage, bool usePercentage);
 
         /// <summary>
         /// Adjusts the shipping rate (free shipping, additional charges, discounts).
@@ -98,20 +98,20 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="customer">Customer</param>
         /// <param name="round">A value indicating whether to round the discount amount.</param>
         /// <returns>The discount amount and applied discount.</returns>
-        Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money money, DiscountType discountType, Customer customer, bool round = true);
+        Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money amount, DiscountType discountType, Customer customer, bool round = true);
 
         /// <summary>
         /// Converts reward points to a primary store currency amount.
         /// </summary>
         /// <param name="rewardPoints">Reward points.</param>
         /// <returns>Converted currency amount.</returns>
-        Money ConvertRewardPointsToMoney(int rewardPoints);
+        Money ConvertRewardPointsToAmount(int rewardPoints);
 
         /// <summary>
         /// Converts a primary store currency amount to reward points.
         /// </summary>
         /// <param name="amount">Currency amount.</param>
         /// <returns>Converted points.</returns>
-        int ConvertMoneyToRewardPoints(Money amount);
+        int ConvertAmountToRewardPoints(Money amount);
     }
 }
