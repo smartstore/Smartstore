@@ -64,6 +64,7 @@ using Smartstore.Core.Rules.Filters;
 using Microsoft.Extensions.Configuration;
 using Smartstore.Web.Filters;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Checkout.Orders;
 
 namespace Smartstore.Web.Controllers
 {
@@ -99,7 +100,9 @@ namespace Smartstore.Web.Controllers
         private readonly ISettingFactory _settingFactory;
         private readonly IShippingService _shippingService;
         private readonly IShoppingCartService _cartService;
+        private readonly ICustomerService _customerService;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
+        private readonly IOrderCalculationService _orderCalculationService;
         private readonly IGiftCardService _giftCardService;
         private readonly UserManager<Customer> _userManager;
         private readonly IUserAgent _userAgent;
@@ -124,6 +127,7 @@ namespace Smartstore.Web.Controllers
             IShippingService shippingService,
             IShoppingCartService cartService,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
+            IOrderCalculationService orderCalculationService,
             IGiftCardService giftCardService,
             UserManager<Customer> userManager,
             IUserAgent userAgent)
@@ -144,6 +148,7 @@ namespace Smartstore.Web.Controllers
             _shippingService = shippingService;
             _cartService = cartService;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
+            _orderCalculationService = orderCalculationService;
             _giftCardService = giftCardService;
             _userManager = userManager;
             _userAgent = userAgent;
@@ -272,7 +277,19 @@ namespace Smartstore.Web.Controllers
 
             #region MS test area
 
-            //var customerCart = await _cartService.GetCartItemsAsync(Services.WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart);
+            //var customer = await _db.Customers.Where(x => x.Email == "admin@meinstore.de").FirstOrDefaultAsync();
+
+            //var xxxxxx = await _giftCardService.GetValidGiftCardsAsync(customer: customer);
+            //var sdsdsd = (GiftCardCouponCode)xxxxxx.FirstOrDefault().GiftCard.GiftCardCouponCode;
+
+
+
+            //var customerCart = await _cartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart);
+
+            //var xxxx = await _shippingService.GetCartTotalWeightAsync(customerCart);
+
+            //var sddsds = await _orderCalculationService.GetShoppingCartSubTotalAsync(customerCart);
+            //var xxx = await _orderCalculationService.GetShoppingCartTotalAsync(customerCart);
             //var result = await _shippingService.GetCartTotalWeightAsync(customerCart);
 
             // GetAllProviders throws....

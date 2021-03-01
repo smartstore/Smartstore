@@ -659,13 +659,11 @@ namespace Smartstore.Core.Catalog.Pricing
                             await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Item.Product, bundleItem.Item.AttributeSelection);
                         }
 
-                        // TODO: (ms) (core) replaced list of bundle items with first one, test this
                         var bundleItems = shoppingCartItem.ChildItems
                             .Where(x => x.BundleItemData?.Item != null)
-                            .Select(x => x.BundleItemData)
-                            .FirstOrDefault();
+                            .Select(x => x.BundleItemData);
 
-                        finalPrice = (await GetFinalPriceAsync(product, null, customer, includeDiscounts, shoppingCartItem.Item.Quantity, bundleItems)).Amount;
+                        finalPrice = (await GetFinalPriceAsync(product, bundleItems, null, customer, includeDiscounts, shoppingCartItem.Item.Quantity)).Amount;
                     }
                 }
                 else

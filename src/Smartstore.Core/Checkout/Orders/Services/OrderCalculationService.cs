@@ -725,7 +725,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money amount, DiscountType discountType, Customer customer, bool round = true)
         {
-            var discountAmount = new Money();
+            var discountAmount = new Money(money.Currency);
             Discount appliedDiscount = null;
 
             if (!_catalogSettings.IgnoreDiscounts)

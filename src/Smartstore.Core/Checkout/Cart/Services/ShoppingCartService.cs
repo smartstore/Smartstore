@@ -9,22 +9,21 @@ using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
-using Smartstore.Core.Identity;
+using Smartstore.Core.Checkout.Cart.Events;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Batching;
-using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common.Services;
 using Smartstore.Events;
-using Smartstore.Core.Checkout.Cart.Events;
 
-// TODO: (ms) (core) (wip) needs orderTotalCalculationService and TESTING!
 namespace Smartstore.Core.Checkout.Cart
 {
     /// <summary>
-    /// Shopping cart service methods
+    /// Shopping cart service methods.
     /// </summary>
     public partial class ShoppingCartService : IShoppingCartService
     {
@@ -37,7 +36,6 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IStoreContext _storeContext;
         private readonly IRequestCache _requestCache;
         private readonly IEventPublisher _eventPublisher;
-        private readonly ICustomerService _customerService;
         private readonly ICurrencyService _currencyService;
         private readonly IShoppingCartValidator _cartValidator;
         private readonly IOrderCalculationService _orderCalculationService;
@@ -50,7 +48,6 @@ namespace Smartstore.Core.Checkout.Cart
             IStoreContext storeContext,
             IRequestCache requestCache,
             IEventPublisher eventPublisher,
-            ICustomerService customerService,
             ICurrencyService currencyService,
             IShoppingCartValidator cartValidator,
             IOrderCalculationService orderCalculationService,
@@ -62,7 +59,6 @@ namespace Smartstore.Core.Checkout.Cart
             _storeContext = storeContext;
             _requestCache = requestCache;
             _eventPublisher = eventPublisher;
-            _customerService = customerService;
             _currencyService = currencyService;
             _cartValidator = cartValidator;
             _productAttributeMaterializer = productAttributeMaterializer;
@@ -106,7 +102,6 @@ namespace Smartstore.Core.Checkout.Cart
             var parents = cart.Where(x => x.ParentItemId is null);
 
             // TODO: (ms) (core) to reduce db roundtrips -> load and filter children by parents (id and so on) into lists and try to get from db as batch request
-
             foreach (var parent in parents)
             {
                 var parentItem = new OrganizedShoppingCartItem(parent);
@@ -135,7 +130,14 @@ namespace Smartstore.Core.Checkout.Cart
 
                         if (!attributeValues.IsNullOrEmpty())
                         {
-                            childItem.BundleItemData.AdditionalCharge += attributeValues.Sum(x => x.PriceAdjustment);
+                            if (childItem.BundleItemData.AdditionalCharge.Currency == null)
+                            {
+                                childItem.BundleItemData.AdditionalCharge = new Money(attributeValues.Sum(x => x.PriceAdjustment), _workContext.WorkingCurrency);
+                            }
+                            else
+                            {
+                                childItem.BundleItemData.AdditionalCharge += new Money(attributeValues.Sum(x => x.PriceAdjustment), _workContext.WorkingCurrency);
+                            }
                         }
                     }
 
@@ -503,7 +505,7 @@ namespace Smartstore.Core.Checkout.Cart
                              .ThenInclude(x => x.ProductVariantAttributes)
                          .ApplyStandardFilter(cartType, storeId, customer)
                          .ToListAsync();
-                    
+
                     customer.ShoppingCartItems = cartItems;
                 }
 
