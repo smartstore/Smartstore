@@ -272,10 +272,10 @@ namespace Smartstore.Core.Checkout.Orders
                 return result;
             }
 
-            var subTotalExclTaxWithoutDiscount = new Money();
-            var subTotalInclTaxWithoutDiscount = new Money();
             var currency = _workContext.WorkingCurrency;
             var customer = cart.GetCustomer();
+            var subTotalExclTaxWithoutDiscount = new Money(currency);
+            var subTotalInclTaxWithoutDiscount = new Money(currency);
 
             foreach (var cartItem in cart)
             {
@@ -287,6 +287,7 @@ namespace Smartstore.Core.Checkout.Orders
                 var item = cartItem.Item;
                 decimal itemSubTotal, taxRate = decimal.Zero;
                 Money itemExclTax, itemInclTax;
+
                 await _productAttributeMaterializer.MergeWithCombinationAsync(item.Product, item.AttributeSelection);
 
                 if (currency.RoundOrderItemsEnabled)
@@ -295,14 +296,15 @@ namespace Smartstore.Core.Checkout.Orders
                     itemSubTotal = await _priceCalculationService.GetUnitPriceAsync(cartItem, true);
 
                     // Adaption to eliminate rounding issues.
-                    (itemExclTax, taxRate) = await _taxService.GetProductPriceAsync(item.Product, currency.AsMoney(itemSubTotal), false, customer: customer);
-                    itemExclTax = currency.AsMoney((decimal)itemExclTax) * item.Quantity;
-                    (itemInclTax, taxRate) = await _taxService.GetProductPriceAsync(item.Product, currency.AsMoney(itemSubTotal), true, customer: customer);
-                    itemInclTax = currency.AsMoney((decimal)itemInclTax) * item.Quantity;
+                    (itemExclTax, taxRate) = await _taxService.GetProductPriceAsync(item.Product, currency.AsMoney(itemSubTotal, false), false, customer: customer);
+                    itemExclTax = currency.AsMoney(itemExclTax.Amount) * item.Quantity;
+                    (itemInclTax, taxRate) = await _taxService.GetProductPriceAsync(item.Product, currency.AsMoney(itemSubTotal, false), true, customer: customer);
+                    itemInclTax = currency.AsMoney(itemInclTax.Amount) * item.Quantity;
                 }
                 else
                 {
                     itemSubTotal = await _priceCalculationService.GetSubTotalAsync(cartItem, true);
+
                     (itemExclTax, taxRate) = await _taxService.GetProductPriceAsync(item.Product, currency.AsMoney(itemSubTotal, false), false, customer: customer);
                     (itemInclTax, taxRate) = await _taxService.GetProductPriceAsync(item.Product, currency.AsMoney(itemSubTotal, false), true, customer: customer);
                 }
@@ -316,26 +318,21 @@ namespace Smartstore.Core.Checkout.Orders
             // Checkout attributes.
             if (customer != null)
             {
-                Money attributePriceInclTax, attributePriceExclTax;
-                decimal taxRate;
-
                 var values = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributeValuesAsync(customer.GenericAttributes.CheckoutAttributes);
                 foreach (var value in values)
                 {
-                    (attributePriceExclTax, taxRate) = await _taxService.GetCheckoutAttributePriceAsync(value, customer, currency, false);
-                    (attributePriceInclTax, taxRate) = await _taxService.GetCheckoutAttributePriceAsync(value, customer, currency, true);
+                    var (attributePriceExclTax, taxRateExclTax) = await _taxService.GetCheckoutAttributePriceAsync(value, customer, currency, false);
+                    var (attributePriceInclTax, taxRateInclTax) = await _taxService.GetCheckoutAttributePriceAsync(value, customer, currency, true);
                     subTotalExclTaxWithoutDiscount += attributePriceExclTax.Amount;
                     subTotalInclTaxWithoutDiscount += attributePriceInclTax.Amount;
 
-                    result.TaxRates.Add(taxRate, attributePriceInclTax.Amount - attributePriceExclTax.Amount);
+                    result.TaxRates.Add(taxRateInclTax, attributePriceInclTax.Amount - attributePriceExclTax.Amount);
                 }
             }
 
 
             // Subtotal without discount.
-            result.SubTotalWithoutDiscount = includingTax
-                ? currency.AsMoney(Math.Max(subTotalInclTaxWithoutDiscount.Amount, decimal.Zero))
-                : currency.AsMoney(Math.Max(subTotalExclTaxWithoutDiscount.Amount, decimal.Zero));
+            result.SubTotalWithoutDiscount = currency.AsMoney(includingTax ? subTotalInclTaxWithoutDiscount.Amount : subTotalExclTaxWithoutDiscount.Amount, true, true);
 
             // We calculate discount amount on order subtotal excl tax (discount first).
             var (discountAmountExclTax, appliedDiscount) = await this.GetOrderSubtotalDiscountAsync(subTotalExclTaxWithoutDiscount, customer);
@@ -377,9 +374,8 @@ namespace Smartstore.Core.Checkout.Orders
 
             discountAmountInclTax = currency.AsMoney(discountAmountInclTax.Amount);
 
-            result.DiscountAmount = currency.AsMoney(includingTax ? discountAmountInclTax.Amount : discountAmountExclTax.Amount);
-
-            result.SubTotalWithDiscount = currency.AsMoney(Math.Max(includingTax ? subTotalInclTaxWithDiscount.Amount : subTotalExclTaxWithDiscount.Amount, decimal.Zero));
+            result.DiscountAmount = currency.AsMoney(includingTax ? discountAmountInclTax.Amount : discountAmountExclTax.Amount, false);
+            result.SubTotalWithDiscount = currency.AsMoney(includingTax ? subTotalInclTaxWithDiscount.Amount : subTotalExclTaxWithDiscount.Amount, true, true);
 
             return result;
         }
