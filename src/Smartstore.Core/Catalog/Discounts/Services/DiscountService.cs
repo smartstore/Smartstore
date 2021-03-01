@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Collections;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -22,21 +23,24 @@ namespace Smartstore.Core.Catalog.Discounts
 
         private readonly SmartDbContext _db;
         private readonly IRequestCache _requestCache;
-        private readonly ICartRuleProvider _cartRuleProvider;
         private readonly IStoreContext _storeContext;
+        private readonly ICartRuleProvider _cartRuleProvider;
+        private readonly Lazy<IShoppingCartService> _cartService;
         private readonly Dictionary<DiscountKey, bool> _discountValidityCache = new();
         private readonly Multimap<string, int> _relatedEntityIds = new(items => new HashSet<int>(items));
 
         public DiscountService(
             SmartDbContext db,
             IRequestCache requestCache,
+            IStoreContext storeContext,
             ICartRuleProvider cartRuleProvider,
-            IStoreContext storeContext)
+            Lazy<IShoppingCartService> cartService)
         {
             _db = db;
             _requestCache = requestCache;
-            _cartRuleProvider = cartRuleProvider;
             _storeContext = storeContext;
+            _cartRuleProvider = cartRuleProvider;
+            _cartService = cartService;
         }
 
         #region Hook
@@ -214,12 +218,11 @@ namespace Smartstore.Core.Catalog.Discounts
             // Better not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
             if (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
             {
-                // TODO: (ms) (core) this caused a circulary reference exposure (getting customer cart by shopping cart service), needs a better solution
-                //var cart = customer.ShoppingCartItems _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
-                //if (cart.Any(x => x.Item?.Product != null && x.Item.Product.IsGiftCard))
-                //{
-                //    return Cached(false);
-                //}
+                var cart =  await _cartService.Value.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
+                if (cart.Any(x => x.Item?.Product != null && x.Item.Product.IsGiftCard))
+                {
+                    return Cached(false);
+                }
             }
 
             // Rulesets.
