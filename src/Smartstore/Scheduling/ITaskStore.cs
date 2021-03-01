@@ -35,7 +35,7 @@ namespace Smartstore.Scheduling
         /// <summary>
         /// Reloads a task from the store overwriting any property values with values from the store.
         /// </summary>
-        /// <param name="task">Task</param>
+        /// <param name="task">Task to reload</param>
         Task ReloadTaskAsync(ITaskDescriptor task);
 
         /// <summary>
