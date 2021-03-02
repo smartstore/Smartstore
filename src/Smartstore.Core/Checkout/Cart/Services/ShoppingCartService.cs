@@ -130,14 +130,7 @@ namespace Smartstore.Core.Checkout.Cart
 
                         if (!attributeValues.IsNullOrEmpty())
                         {
-                            if (childItem.BundleItemData.AdditionalCharge.Currency == null)
-                            {
-                                childItem.BundleItemData.AdditionalCharge = new Money(attributeValues.Sum(x => x.PriceAdjustment), _workContext.WorkingCurrency);
-                            }
-                            else
-                            {
-                                childItem.BundleItemData.AdditionalCharge += new Money(attributeValues.Sum(x => x.PriceAdjustment), _workContext.WorkingCurrency);
-                            }
+                            childItem.BundleItemData.AdditionalCharge = new Money(attributeValues.Sum(x => x.PriceAdjustment), _workContext.WorkingCurrency);
                         }
                     }
 
