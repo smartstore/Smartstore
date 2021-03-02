@@ -1,122 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using System.Threading;
-using Dasync.Collections;
 
 namespace Smartstore.Collections
 {
-	public class PagedList<T> : IPagedList<T>
+	public class PagedList<T> : Pageable<T>, IPagedList<T>
 	{
-		private bool _queryIsPagedAlready;
-		private int? _totalCount;
+        /// <param name="pageIndex">The 0-based page index</param>
+        public PagedList(IEnumerable<T> source, int pageIndex, int pageSize)
+            : base(source, pageIndex, pageSize)
+        {
+        }
 
-		private List<T> _list;
-
-		/// <param name="pageIndex">The 0-based page index</param>
-		public PagedList(IEnumerable<T> source, int pageIndex, int pageSize)
+        /// <param name="pageIndex">The 0-based page index</param>
+        public PagedList(IEnumerable<T> source, int pageIndex, int pageSize, int totalCount)
+            : base(source, pageIndex, pageSize, totalCount)
 		{
-			Guard.NotNull(source, "source");
-
-			Init(source.AsQueryable(), pageIndex, pageSize, null);
 		}
 
-		/// <param name="pageIndex">The 0-based page index</param>
-		public PagedList(IEnumerable<T> source, int pageIndex, int pageSize, int totalCount)
+		public IPagedList<T> ModifyQuery(Func<IQueryable<T>, IQueryable<T>> modifier)
 		{
-			Guard.NotNull(source, "source");
-
-			Init(source.AsQueryable(), pageIndex, pageSize, totalCount);
-		}
-
-		private void Init(IQueryable<T> source, int pageIndex, int pageSize, int? totalCount)
-		{
-			Guard.NotNull(source, nameof(source));
-			Guard.PagingArgsValid(pageIndex, pageSize, "pageIndex", "pageSize");
-
-			SourceQuery = source;
-			PageIndex = pageIndex;
-			PageSize = pageSize;
-
-			_totalCount = totalCount;
-			_queryIsPagedAlready = totalCount.HasValue;
-		}
-
-		private void EnsureIsLoaded()
-		{
-			if (_list == null)
-			{
-				if (_totalCount == null)
-				{
-					_totalCount = SourceQuery.Count();
-				}
-
-				if (_queryIsPagedAlready)
-				{
-					_list = SourceQuery.ToList();
-				}
-				else
-				{
-					_list = ApplyPaging(SourceQuery).ToList();
-				}
-			}
-		}
-
-		private async Task EnsureIsLoadedAsync(CancellationToken cancellationToken = default)
-		{
-			if (_list == null)
-			{
-				if (SourceQuery is not IAsyncEnumerable<T>)
-                {
-					// Don't call EF's async extension methods if query is not IAsyncEnumerable<T>
-					EnsureIsLoaded();
-					return;
-                }
-				
-				if (_totalCount == null)
-				{
-					_totalCount = await SourceQuery.CountAsync(cancellationToken);
-				}
-
-				if (_queryIsPagedAlready)
-				{
-					_list = await SourceQuery.ToListAsync(cancellationToken);
-				}
-				else
-				{
-					_list = await ApplyPaging(SourceQuery).ToListAsync(cancellationToken);
-				}
-			}
-		}
-
-		#region IPageable Members
-
-		public IQueryable<T> SourceQuery { get; private set; }
-
-		public IPagedList<T> ModifyQuery(Func<IQueryable<T>, IQueryable<T>> alterer)
-		{
-			var result = alterer?.Invoke(SourceQuery);
-			SourceQuery = result ?? throw new InvalidOperationException("The '{0}' delegate must not return NULL.".FormatInvariant(nameof(alterer)));
+			var result = modifier?.Invoke(SourceQuery);
+			SourceQuery = result ?? throw new InvalidOperationException("The '{0}' delegate must not return NULL.".FormatInvariant(nameof(modifier)));
 
 			return this;
-		}
-
-		public IQueryable<T> ApplyPaging(IQueryable<T> query)
-		{
-			return query.ApplyPaging(PageIndex, PageSize);
 		}
 
 		public IPagedList<T> Load(bool force = false)
 		{
 			// Returns instance for chaining.
-			if (force && _list != null)
+			if (force && List != null)
 			{
-				_list.Clear();
-				_list = null;
+				List.Clear();
+				List = null;
 			}
 
 			EnsureIsLoaded();
@@ -127,10 +45,10 @@ namespace Smartstore.Collections
 		public async Task<IPagedList<T>> LoadAsync(bool force = false)
 		{
 			// Returns instance for chaining.
-			if (force && _list != null)
+			if (force && List != null)
 			{
-				_list.Clear();
-				_list = null;
+				List.Clear();
+				List = null;
 			}
 
 			await EnsureIsLoadedAsync();
@@ -138,122 +56,40 @@ namespace Smartstore.Collections
 			return this;
 		}
 
-		public int PageIndex { get; set; }
-
-		public int PageSize { get; set; }
-
-		public async Task<int> GetTotalCountAsync()
-		{
-			if (!_totalCount.HasValue)
-			{
-				_totalCount = await SourceQuery.CountAsync();
-			}
-
-			return _totalCount.Value;
-		}
-
-		public int TotalCount
-		{
-			get
-			{
-				if (!_totalCount.HasValue)
-				{
-					_totalCount = SourceQuery.Count();
-				}
-
-				return _totalCount.Value;
-			}
-			set
-			{
-				_totalCount = value;
-			}
-		}
-
-		public int PageNumber
-		{
-			get => PageIndex + 1;
-			set => PageIndex = value - 1;
-		}
-
-		public int TotalPages
-		{
-			get
-			{
-				var total = TotalCount / PageSize;
-
-				if (TotalCount % PageSize > 0)
-					total++;
-
-				return total;
-			}
-		}
-
-		public bool HasPreviousPage
-		{
-			get => PageIndex > 0;
-		}
-
-		public bool HasNextPage
-		{
-			get => (PageIndex < (TotalPages - 1));
-		}
-
-		public int FirstItemIndex
-		{
-			get => (PageIndex * PageSize) + 1;
-		}
-
-		public int LastItemIndex
-		{
-			get => Math.Min(TotalCount, ((PageIndex * PageSize) + PageSize));
-		}
-
-		public bool IsFirstPage
-		{
-			get => (PageIndex <= 0);
-		}
-
-		public bool IsLastPage
-		{
-			get => (PageIndex >= (TotalPages - 1));
-		}
-
-		#endregion
-
 		#region IList<T> Members
 
 		public void Add(T item)
 		{
 			EnsureIsLoaded();
-			_list.Add(item);
+			List.Add(item);
 		}
 
 		public void Clear()
 		{
-			if (_list != null)
+			if (List != null)
 			{
-				_list.Clear();
-				_list = null;
+				List.Clear();
+				List = null;
 			}
 		}
 
 		public bool Contains(T item)
 		{
 			EnsureIsLoaded();
-			return _list.Contains(item);
+			return List.Contains(item);
 		}
 
 		public void CopyTo(T[] array, int arrayIndex)
 		{
 			EnsureIsLoaded();
-			_list.CopyTo(array, arrayIndex);
+			List.CopyTo(array, arrayIndex);
 		}
 
 		public bool Remove(T item)
 		{
-			if (_list != null)
+			if (List != null)
 			{
-				return _list.Remove(item);
+				return List.Remove(item);
 			}
 
 			return false;
@@ -264,7 +100,7 @@ namespace Smartstore.Collections
 			get
 			{
 				EnsureIsLoaded();
-				return _list.Count;
+				return List.Count;
 			}
 		}
 
@@ -276,20 +112,20 @@ namespace Smartstore.Collections
 		public int IndexOf(T item)
 		{
 			EnsureIsLoaded();
-			return _list.IndexOf(item);
+			return List.IndexOf(item);
 		}
 
 		public void Insert(int index, T item)
 		{
 			EnsureIsLoaded();
-			_list.Insert(index, item);
+			List.Insert(index, item);
 		}
 
 		public void RemoveAt(int index)
 		{
-			if (_list != null)
+			if (List != null)
 			{
-				_list.RemoveAt(index);
+				List.RemoveAt(index);
 			}
 		}
 
@@ -298,36 +134,13 @@ namespace Smartstore.Collections
 			get
 			{
 				EnsureIsLoaded();
-				return _list[index];
+				return List[index];
 			}
 			set
 			{
 				EnsureIsLoaded();
-				_list[index] = value;
+				List[index] = value;
 			}
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return this.GetEnumerator();
-		}
-
-		public IEnumerator<T> GetEnumerator()
-		{
-			EnsureIsLoaded();
-			return _list.GetEnumerator();
-		}
-
-		public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-		{
-			await EnsureIsLoadedAsync(cancellationToken);
-
-			var e = _list.GetAsyncEnumerator<T>();
-			try
-			{
-				while (await e.MoveNextAsync()) yield return e.Current;
-			}
-			finally { if (e != null) await e.DisposeAsync(); }
 		}
 
 		#endregion
@@ -337,13 +150,13 @@ namespace Smartstore.Collections
 		public void AddRange(IEnumerable<T> collection)
 		{
 			EnsureIsLoaded();
-			_list.AddRange(collection);
+			List.AddRange(collection);
 		}
 
 		public ReadOnlyCollection<T> AsReadOnly()
 		{
 			EnsureIsLoaded();
-			return _list.AsReadOnly();
+			return List.AsReadOnly();
 		}
 
         #endregion

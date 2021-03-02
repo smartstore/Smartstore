@@ -5,13 +5,6 @@ using System.Collections.Generic;
 namespace Smartstore.Collections
 {
     /// <summary>
-    /// A sequence of objects that has been split into pages.
-    /// </summary>
-    public interface IPageable<out T> : IPageable, IEnumerable<T>, IAsyncEnumerable<T>
-    {
-    }
-
-    /// <summary>
     /// A collection of objects that has been split into pages.
     /// </summary>
     public interface IPageable : IEnumerable
