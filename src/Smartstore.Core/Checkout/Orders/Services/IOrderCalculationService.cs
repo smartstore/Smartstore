@@ -86,7 +86,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <returns>Adjusted shipping rate.</returns>
         Task<(Money Amount, Discount AppliedDiscount)> AdjustShippingRateAsync(
             IList<OrganizedShoppingCartItem> cart,
-            decimal shippingRate,
+            Money shippingRate,
             ShippingOption shippingOption,
             IList<ShippingMethod> shippingMethods);
 
