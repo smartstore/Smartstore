@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Checkout.Orders.Reporting
+﻿using Smartstore.Core.Common;
+
+namespace Smartstore.Core.Checkout.Orders.Reporting
 {
     /// <summary>
     /// Represents a best customer report line.
@@ -13,7 +15,7 @@
         /// <summary>
         /// Gets or sets the order total.
         /// </summary>
-        public decimal OrderTotal { get; set; }
+        public Money OrderTotal { get; set; }
 
         /// <summary>
         /// Gets or sets the order count.

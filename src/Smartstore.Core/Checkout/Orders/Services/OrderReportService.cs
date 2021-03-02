@@ -9,7 +9,6 @@ using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
-using StackExchange.Profiling.Internal;
 
 namespace Smartstore.Core.Checkout.Orders
 {

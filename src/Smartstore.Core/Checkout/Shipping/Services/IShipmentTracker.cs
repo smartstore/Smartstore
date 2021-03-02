@@ -5,7 +5,7 @@ using Smartstore.Core.Checkout.Shipping.Events;
 namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
-    /// Shipment tracker
+    /// Shipment tracker interface
     /// </summary>
     public partial interface IShipmentTracker
     {
