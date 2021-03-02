@@ -1,11 +1,12 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Bootstrapping
 {
-    public static class SchedulerBuilderExtensions
+    public static class SchedulerBootstrappingExtensions
     {
         /// <summary>
         /// Maps task scheduler endpoints
@@ -19,9 +20,22 @@ namespace Smartstore.Bootstrapping
                .Build();
 
             // Match scheduler URL pattern: e.g. '/taskscheduler/poll/', '/taskscheduler/execute/99', '/taskscheduler/noop' (GET)
-            return endpoints.Map("taskscheduler/{action:regex(^poll|execute|noop$)}/{id:int?}", schedulerMiddleware)
+            return endpoints.Map("taskscheduler/{action:regex(^poll|run|noop$)}/{id:int?}", schedulerMiddleware)
                 .WithMetadata(new HttpMethodMetadata(new[] { "GET", "POST" }))
                 .WithDisplayName("Task scheduler");
+        }
+
+        /// <summary>
+        /// Add an <see cref="ITaskScheduler"/> registration as a hosted service.
+        /// </summary>
+        public static IServiceCollection AddTaskScheduler(this IServiceCollection services)
+        {
+            // TODO: (core) Pass ITaskStore impl type to AddTaskScheduler(). OR make TaskSchedulerOptions.
+            Guard.NotNull(services, nameof(services));
+
+            services.AddSingleton<ITaskScheduler, DefaultTaskScheduler>();
+            services.AddHostedService(services => (DefaultTaskScheduler)services.GetRequiredService<ITaskScheduler>());
+            return services;
         }
     }
 }

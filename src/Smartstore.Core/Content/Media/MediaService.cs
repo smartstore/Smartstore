@@ -141,7 +141,7 @@ namespace Smartstore.Core.Content.Media
             var files = _searcher.SearchFiles(query, flags);
             if (queryModifier != null)
             {
-                files.AlterQuery(queryModifier);
+                files.ModifyQuery(queryModifier);
             }
 
             return new MediaSearchResult(await files.LoadAsync(), ConvertMediaFile);

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Smartstore.Collections;
 
 namespace Smartstore.Scheduling
 {
@@ -94,19 +96,66 @@ namespace Smartstore.Scheduling
 
         #region History
 
+        /// <summary>
+        /// Creates and returns an <see cref="IQueryable{ITaskExecutionInfo}"/> query instance used query over <see cref="ITaskExecutionInfo"/> object instances.
+        /// </summary>
+        /// <returns>The queryable</returns>
+        IQueryable<ITaskExecutionInfo> GetExecutionInfoQuery();
+
+        /// <summary>
+        /// Creates a fresh store specific <see cref="ITaskExecutionInfo"/> instance.
+        /// </summary>
+        /// <param name="task">The task to create an <see cref="ITaskExecutionInfo"/> object instance for.</param>
+        /// <returns>The fresh <see cref="ITaskExecutionInfo"/> object instance.</returns>
         ITaskExecutionInfo CreateExecutionInfo(ITaskDescriptor task);
 
+        /// <summary>
+        /// Gets a <see cref="ITaskExecutionInfo"/> object instance by unique identifier, or <c>null</c> if entry does not exist.
+        /// </summary>
+        /// <param name="id">Unique identifier.</param>
+        Task<ITaskExecutionInfo> GetExecutionInfoByIdAsync(int id);
+
+        /// <summary>
+        /// Gets a task's last <see cref="ITaskExecutionInfo"/> object instance, or <c>null</c> if entry does not exist.
+        /// </summary>
+        /// <param name="taskId">Task identifier.</param>
+        /// <param name="runningOnly">Filter by running entries.</param>
+        Task<ITaskExecutionInfo> GetLastExecutionInfoByTaskIdAsync(int taskId, bool? runningOnly = null);
+
+        /// <summary>
+        /// Gets a task's last <see cref="ITaskExecutionInfo"/> object instance, or <c>null</c> if entry does not exist.
+        /// </summary>
+        /// <param name="task">Task instance.</param>
+        /// <param name="runningOnly">Filter by running entries.</param>
+        Task<ITaskExecutionInfo> GetLastExecutionInfoByTaskAsync(ITask task, bool? runningOnly = null);
+
+        /// <summary>
+        /// Loads - if not already loaded - the last <see cref="ITaskExecutionInfo"/> object instance for a task from the store
+        /// and assigns data to <see cref="ITaskDescriptor.LastExecution"/>.
+        /// </summary>
+        /// <param name="task">The task to load data for.</param>
+        /// <param name="force"><c>true</c> always enforces a reload, even if data is loaded already.</param>
+        Task LoadLastExecutionInfoAsync(ITaskDescriptor task, bool force = false);
+
+        /// <summary>
+        /// Inserts an <see cref="ITaskExecutionInfo"/> instance to the store.
+        /// </summary>
+        /// <param name="info">The entry to insert.</param>
         Task InsertExecutionInfoAsync(ITaskExecutionInfo info);
 
+        /// <summary>
+        /// Updates an <see cref="ITaskExecutionInfo"/> instance in the store.
+        /// </summary>
+        /// <param name="info">The entry to update.</param>
         Task UpdateExecutionInfoAsync(ITaskExecutionInfo info);
 
+        /// <summary>
+        /// Deletes an <see cref="ITaskExecutionInfo"/> instance from the store.
+        /// </summary>
+        /// <param name="info">The entry to delete.</param>
         Task DeleteExecutionInfoAsync(ITaskExecutionInfo info);
 
-        Task LoadLastExecutionInfoAsync(ITaskDescriptor task);
-
         Task<int> TrimExecutionInfosAsync();
-
-        // TODO: (core) Continue ...
 
         #endregion
     }

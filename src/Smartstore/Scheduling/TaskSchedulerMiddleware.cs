@@ -9,6 +9,11 @@ namespace Smartstore.Scheduling
 {
     public class TaskSchedulerMiddleware
     {
+        internal const string RootPath = "taskscheduler";
+        internal const string PollAction = "poll";
+        internal const string RunAction = "run";
+        internal const string NoopAction = "noop";
+
         private readonly RequestDelegate _next;
 
         public TaskSchedulerMiddleware(RequestDelegate next)

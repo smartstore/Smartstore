@@ -90,7 +90,7 @@ namespace Smartstore.Collections
 
 		public IQueryable<T> SourceQuery { get; private set; }
 
-		public IPagedList<T> AlterQuery(Func<IQueryable<T>, IQueryable<T>> alterer)
+		public IPagedList<T> ModifyQuery(Func<IQueryable<T>, IQueryable<T>> alterer)
 		{
 			var result = alterer?.Invoke(SourceQuery);
 			SourceQuery = result ?? throw new InvalidOperationException("The '{0}' delegate must not return NULL.".FormatInvariant(nameof(alterer)));

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Bootstrapping;
 using Smartstore.Engine;
@@ -25,7 +21,7 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
-            // TODO: (core) Implement TaskSchedulerStarter.ConfigureServices()
+            services.AddTaskScheduler();
         }
     }
 }
