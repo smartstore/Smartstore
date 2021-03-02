@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
@@ -173,23 +170,15 @@ namespace Smartstore.Core.Checkout.Payment
         public virtual Task<bool> CanRePostProcessPaymentAsync(Order order) 
             => Task.FromResult(false);
 
-        // TODO: (ms) (core) Configuration route (out variables)
+        /// <summary>
+        /// Gets the widget invoker for provider configuration. Returns <c>null</c> when there is nothing to render.
+        /// </summary>
+        public abstract WidgetInvoker GetConfigurationWidget();
 
         /// <summary>
-        /// Gets a route for provider configuration.
+        /// Gets the widget invoker for payment info. Returns <c>null</c> when there's nothing to render.
         /// </summary>
-        /// <param name="actionName">Action name</param>
-        /// <param name="controllerName">Controller name</param>
-        /// <param name="routeValues">Route values</param>
-        public abstract void GetConfigurationRoute(out string actionName, out string controllerName, out RouteValueDictionary routeValues);
-
-        /// <summary>
-        /// Gets a route for payment info
-        /// </summary>
-        /// <param name="actionName">Action name</param>
-        /// <param name="controllerName">Controller name</param>
-        /// <param name="routeValues">Route values</param>
-        public abstract void GetPaymentInfoRoute(out string actionName, out string controllerName, out RouteValueDictionary routeValues);
+        public abstract WidgetInvoker GetPaymentInfoWidget();
 
         /// <summary>
         /// Gets a route for the payment info handler controller action
@@ -202,11 +191,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// </remarks>
         public virtual RouteInfo GetPaymentInfoHandlerRoute() 
             => null;
-
-        /// <summary>
-        /// Gets the widget invoker for payment info. Return <c>null</c> when there's nothing to render.
-        /// </summary>
-        public abstract WidgetInvoker GetPaymentInfoWidget();
 
         /// <summary>
         /// Gets the controller type.
