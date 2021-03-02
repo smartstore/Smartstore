@@ -12,6 +12,8 @@ namespace Smartstore.Core.Common
 {
     public struct Money : IHtmlContent, IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
     {
+        public static Money Zero = new() { Amount = 0m };
+        
         // Key: string = Currency.DisplayLocale, bool = useIsoCodeAsSymbol
         private readonly static ConcurrentDictionary<(string, bool), NumberFormatInfo> _numberFormatClones = new();
         
@@ -122,6 +124,14 @@ namespace Smartstore.Core.Common
             get => ToString(true, false, true);
         }
 
+        /// <summary>
+        /// Checks whether the instance is uninitialized (<see cref="Amount"/> is <c>0</c> and <see cref="Currency"/> is <c>null</c>).
+        /// </summary>
+        public bool IsZero
+        {
+            get => Amount == 0 && Currency == null;
+        }
+
         private static void GuardCurrenciesAreEqual(Money a, Money b)
         {
             if (a.Currency != b.Currency)
@@ -135,7 +145,7 @@ namespace Smartstore.Core.Common
             if (Amount == 0)
                 return 0;
 
-            return Amount.GetHashCode() ^ Currency.GetHashCode();
+            return Amount.GetHashCode() ^ (Currency?.GetHashCode() ?? 0);
         }
 
         public int CompareTo(Money other)
