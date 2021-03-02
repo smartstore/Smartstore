@@ -8,15 +8,12 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Tax
 {
-    /// <summary>
-    /// Tax service.
-    /// </summary>
     public partial class TaxService : ITaxService
     {
         private class TaxAddressKey : Tuple<int, bool>
@@ -60,38 +57,33 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Creates tax rate cache key as tuple of <int, int, int>.
         /// </summary>
-        /// <param name="customer">Customer as identifier. Gets id of 0 if <c>null</c>.</param>
+        /// <param name="customer">Customer. Gets id or 0 if <c>null</c>.</param>
         /// <param name="taxCategoryId">Tax category identifier.</param>
-        /// <param name="product">Product as identifier. Gets id of 0 if <c>null</c>.</param>
+        /// <param name="product">Product. Gets id or 0 if <c>null</c>.</param>
         /// <returns><see cref="TaxRateCacheKey"/> as tuple of <see cref="Tuple{int, int, int}"/>.</returns>
         private static TaxRateCacheKey CreateTaxRateCacheKey(Customer customer, int taxCategoryId, Product product)
             => new(customer?.Id ?? 0, taxCategoryId, product?.Id ?? 0);
 
         /// <summary>
-        /// Gets recalculated price for currency.
+        /// Calculates a tax based price.
         /// </summary>
         /// <param name="price">Original price.</param>
         /// <param name="percent">Percentage to change.</param>
-        /// <param name="increase">Indicates whether it is an increase or not.</param>
-        /// <param name="currency">Currency to convert to.</param>
-        /// <remarks>
-        /// Rounds result if enabled for currency.
-        /// </remarks>
-        /// <returns>
-        /// Price converted to currency as <see cref="Money"/>.
-        /// </returns>
-        protected static Money CalculatePrice(Money price, decimal percent, bool increase)
+        /// <param name="increase"><c>true</c> to increase and <c>false</c> to decrease the price.</param>
+        /// <returns>Calculated price.</returns>
+        protected virtual Money CalculatePrice(Money price, decimal percent, bool increase)
         {
             Guard.NotNull(price, nameof(price));
+            Guard.NotNull(price.Currency, nameof(price.Currency));
 
             if (percent == decimal.Zero)
                 return price;
 
-            var percentageFactor = percent / 100 + 1;
             var result = increase
-                ? price * percentageFactor
-                : price / percentageFactor;
+                ? price * (1 + percent / 100)
+                : price - (price / (100 + percent) * percent);
 
+            // Gross > Net RoundFix.
             return price.Currency.AsMoney(result.Amount);
         }
 
@@ -99,7 +91,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// Creates a tax calculation request.
         /// </summary>
         /// <param name="customer">Customer used for tax calculation.</param>
-        /// <param name="taxCategoryId">Tax category identifier. If it is 0, the product can be used to determine the tax category identifier.</param>
+        /// <param name="taxCategoryId">Tax category identifier. Obtained from <see cref="Product.TaxCategoryId"/> if <c>null</c>.</param>
         /// <param name="product">Product used for tax calculation. Can be <c>null</c>.</param>
         /// <returns><see cref="CalculateTaxRequest"/> object.</returns>
         protected async Task<CalculateTaxRequest> CreateCalculateTaxRequestAsync(Customer customer, int taxCategoryId, Product product)
@@ -110,7 +102,7 @@ namespace Smartstore.Core.Checkout.Tax
                 ? taxCategoryId
                 : product?.TaxCategoryId ?? 0;
 
-            return new CalculateTaxRequest()
+            return new CalculateTaxRequest
             {
                 Customer = customer,
                 TaxCategoryId = taxCategoryId,
@@ -132,19 +124,26 @@ namespace Smartstore.Core.Checkout.Tax
         /// </returns>
         protected virtual bool IsEuConsumer(Customer customer)
         {
-            Guard.NotNull(customer, nameof(customer));
+            if (customer == null)
+            {
+                return false;
+            }
 
-            // If BillingAddress is explicitly set but no company is specified, we assume that it is a consumer
+            // If BillingAddress is explicitly set but no company is specified, we assume that it is a consumer.
             var address = customer.BillingAddress;
             if (address != null && address.Company.IsEmpty())
+            {
                 return true;
+            }
 
-            // Otherwise, check whether customer's IP country is in the EU
+            // Otherwise check whether customer's IP country is in the EU.
             var isInEu = _geoCountryLookup.LookupCountry(customer.LastIpAddress)?.IsInEu == true;
             if (!isInEu)
+            {
                 return false;
+            }
 
-            // Companies with an invalid VAT number are assumed to be consumers
+            // Companies with an invalid VAT number are assumed to be consumers.
             return customer.VatNumberStatusId != (int)VatNumberStatus.Valid;
         }
 
@@ -172,8 +171,8 @@ namespace Smartstore.Core.Checkout.Tax
             // According to the EU VAT regulations for electronic services from 2015,            
             // VAT must be charged in the EU country from which the customer originates (BILLING address).
             // In addition, the origin of the IP addresses should also be checked for verification.
-
             var basedOn = _taxSettings.TaxBasedOn;
+
             if (_taxSettings.EuVatEnabled && productIsEsd && IsEuConsumer(customer))
             {
                 basedOn = TaxBasedOn.BillingAddress;
@@ -224,10 +223,6 @@ namespace Smartstore.Core.Checkout.Tax
 
         public virtual async Task<decimal> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null)
         {
-            // No need to calculate anything if price is 0
-            if (product?.Price is null or decimal.Zero)
-                return decimal.Zero;
-
             taxCategoryId ??= product?.TaxCategoryId ?? 0;
             customer ??= _workContext.CurrentCustomer;
 
@@ -243,7 +238,7 @@ namespace Smartstore.Core.Checkout.Tax
             var result = await activeTaxProvider.Value.GetTaxRateAsync(request);
 
             taxRate = result.Success
-                ? Math.Max(0, result.TaxRate)
+                ? Math.Max(result.TaxRate, 0)
                 : decimal.Zero;
 
             _cachedTaxRates[cacheKey] = taxRate;
@@ -251,7 +246,7 @@ namespace Smartstore.Core.Checkout.Tax
             return taxRate;
         }
 
-        public virtual async Task<(Money price, decimal taxRate)> GetProductPriceAsync(
+        public virtual async Task<(Money Price, decimal TaxRate)> GetProductPriceAsync(
             Product product,
             Money price,
             bool? includingTax = null,
@@ -259,26 +254,41 @@ namespace Smartstore.Core.Checkout.Tax
             int? taxCategoryId = null,
             Customer customer = null)
         {
-            // No need to calculate anything if price is 0
+            // Don't calculate if price is 0.
             if (price == decimal.Zero)
+            {
                 return (price, decimal.Zero);
+            }
 
             customer ??= _workContext.CurrentCustomer;
             taxCategoryId ??= product?.TaxCategoryId;
+            includingTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
             var taxRate = await GetTaxRateAsync(product, taxCategoryId, customer);
 
-            var isPriceIncrease = (priceIncludesTax ?? _taxSettings.PricesIncludeTax)
-                && (includingTax ?? _workContext.TaxDisplayType == TaxDisplayType.IncludingTax);
+            if (priceIncludesTax ?? _taxSettings.PricesIncludeTax)
+            {
+                if (!includingTax.Value)
+                {
+                    return (CalculatePrice(price, taxRate, false), taxRate);
+                }
+            }
+            else
+            {
+                if (includingTax.Value)
+                {
+                    return (CalculatePrice(price, taxRate, true), taxRate);
+                }
+            }
 
-            return (CalculatePrice(price, taxRate, isPriceIncrease), taxRate);
+            return (price, taxRate);
         }
 
-        public virtual Task<(Money price, decimal taxRate)> GetShippingPriceAsync(
+        public virtual Task<(Money Price, decimal TaxRate)> GetShippingPriceAsync(
             Money price,
             bool? includingTax = null,
-            Customer customer = null,
-            int? taxCategoryId = null)
+            int? taxCategoryId = null,
+            Customer customer = null)
         {
             if (!_taxSettings.ShippingIsTaxable)
                 return Task.FromResult((price, decimal.Zero));
@@ -294,7 +304,7 @@ namespace Smartstore.Core.Checkout.Tax
                 customer);
         }
 
-        public virtual Task<(Money price, decimal taxRate)> GetPaymentMethodAdditionalFeeAsync(
+        public virtual Task<(Money Price, decimal TaxRate)> GetPaymentMethodAdditionalFeeAsync(
             Money price,
             bool? includingTax = null,
             int? taxCategoryId = null,
@@ -314,29 +324,26 @@ namespace Smartstore.Core.Checkout.Tax
                 customer);
         }
 
-        public virtual async Task<(Money price, decimal taxRate)> GetCheckoutAttributePriceAsync(
+        public virtual async Task<(Money Price, decimal TaxRate)> GetCheckoutAttributePriceAsync(
             CheckoutAttributeValue attributeValue,
-            Customer customer = null,
-            Currency currency = null,
-            bool? includingTax = null)
+            bool? includingTax = null,
+            Customer customer = null)
         {
             Guard.NotNull(attributeValue, nameof(attributeValue));
 
-            var checkoutAttribute = !_db.IsReferenceLoaded(attributeValue, x => x.CheckoutAttribute)
-                ? await _db.CheckoutAttributes.FindByIdAsync(attributeValue.CheckoutAttributeId)
-                : attributeValue.CheckoutAttribute;
+            await _db.LoadReferenceAsync(attributeValue, x => x.CheckoutAttribute);
 
-            var money = _workContext.WorkingCurrency.AsMoney(attributeValue.PriceAdjustment, false);
+            var price = _workContext.WorkingCurrency.AsMoney(attributeValue.PriceAdjustment, false);
 
-            if (checkoutAttribute.IsTaxExempt)
-                return (money, decimal.Zero);
+            if (attributeValue.CheckoutAttribute.IsTaxExempt)
+                return (price, decimal.Zero);
 
             return await GetProductPriceAsync(
                 null,
-                money,
+                price,
                 includingTax,
                 _taxSettings.PricesIncludeTax,
-                checkoutAttribute.TaxCategoryId,
+                attributeValue.CheckoutAttribute.TaxCategoryId,
                 customer);
         }
 
@@ -398,11 +405,9 @@ namespace Smartstore.Core.Checkout.Tax
                 if (customer.IsTaxExempt)
                     return true;
 
-                var hasTaxExemptRole = await _db.CustomerRoles
-                    .Where(x => x.Active && x.TaxExempt)
-                    .AnyAsync();
+                await _db.LoadCollectionAsync(customer, x => x.CustomerRoleMappings, false, q => q.Include(x => x.CustomerRole));
 
-                if (hasTaxExemptRole)
+                if (customer.CustomerRoleMappings.Select(x => x.CustomerRole).Where(x => x.Active).Any(x => x.TaxExempt))
                     return true;
             }
 
@@ -412,19 +417,31 @@ namespace Smartstore.Core.Checkout.Tax
         public virtual async Task<bool> IsVatExemptAsync(Customer customer, Address address = null)
         {
             if (!_taxSettings.EuVatEnabled || customer is null)
+            {
                 return false;
+            }
 
             address ??= await GetTaxAddressAsync(customer);
             if (address?.Country is null)
+            {
                 return false;
+            }
 
-            // VAT is not charged for shipping outside the VAT zone
-            if (!address.Country.SubjectToVat || address.CountryId != _taxSettings.EuVatShopCountryId)
+            if (!address.Country.SubjectToVat)
+            {
+                // VAT not chargeable if shipping outside VAT zone.
                 return true;
+            }
 
-            // VAT is not charged if customers VAT status is valid and shop configurations allow VAT exemptions
-            var vatStatusIsValid = (VatNumberStatus)customer.VatNumberStatusId is VatNumberStatus.Valid;
-            return vatStatusIsValid && _taxSettings.EuVatAllowVatExemption;
+            // VAT not chargeable if address, customer and config meet our VAT exemption requirements:
+            // returns true if this customer is VAT exempt because they are shipping within the EU but outside our shop country, 
+            // they have supplied a validated VAT number and the shop is configured to allow VAT exemption.
+            if (address.CountryId == _taxSettings.EuVatShopCountryId)
+            {
+                return false;
+            }
+
+            return customer.VatNumberStatusId == (int)VatNumberStatus.Valid && _taxSettings.EuVatAllowVatExemption;
         }
     }
 }

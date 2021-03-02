@@ -46,29 +46,25 @@ namespace Smartstore.Core.Checkout.Tax
         string FormatTaxRate(decimal taxRate);
 
         /// <summary>
-        /// Gets tax rate for product async.
+        /// Gets tax rate.
         /// </summary>
-        /// <param name="product">Product to get tax rate. Can be <c>null</c>.</param>
-        /// <param name="taxCategoryId">Tax category identifier. Is <see cref="Product.TaxCategoryId"/> if <c>null</c> and product <c>is not null</c>.</param>
-        /// <param name="customer">Customer to get tax rate. Is <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <param name="product">Product. Can be <c>null</c>.</param>
+        /// <param name="taxCategoryId">Tax category identifier. Obtained from <see cref="Product.TaxCategoryId"/> if <c>null</c>.</param>
+        /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
         /// <returns>Tax rate.</returns>
         Task<decimal> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null);
 
         /// <summary>
-        /// Gets the calculated price of the product for the currency async.
+        /// Gets the product price.
         /// </summary>
-        /// <param name="product">Product to get tax rate. Can be <c>null</c>.</param>
-        /// <param name="price">Products base unit price.</param>
-        /// <param name="includingTax">
-        /// Whether calculated price should include tax. 
-        /// Is the equality check result of <see cref="IWorkContext.TaxDisplayType"/> to <see cref="TaxDisplayType.IncludingTax"/> if <c>null</c>.
-        /// </param>
-        /// <param name="priceIncludesTax">Whether price already includes tax. Is <see cref="TaxSettings.PricesIncludeTax"/> if <c>null</c>.</param>
-        /// <param name="taxCategoryId">Tax category identifier. Is <see cref="Product.TaxCategoryId"/> if <c>null</c>.</param>
-        /// <param name="customer">Customer to get tax rate. Is <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
-        /// <param name="currency">Currency used for price calculation. Is <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c>.</param>
-        /// <returns>Price converted to desired currency as <see cref="Money"/> and tax rate.</returns>
-        Task<(Money price, decimal taxRate)> GetProductPriceAsync(
+        /// <param name="product">Product. Can be <c>null</c>.</param>
+        /// <param name="price">Product price.</param>
+        /// <param name="includingTax">A value indicating whether the calculated price should include tax. Obtained from <see cref="IWorkContext.TaxDisplayType"/> if <c>null</c>.</param>
+        /// <param name="priceIncludesTax">A value indicating whether price already includes tax. Obtained from <see cref="TaxSettings.PricesIncludeTax"/> if <c>null</c>.</param>
+        /// <param name="taxCategoryId">Tax category identifier. Obtained from <see cref="Product.TaxCategoryId"/> if <c>null</c>.</param>
+        /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <returns>Product price and tax rate.</returns>
+        Task<(Money Price, decimal TaxRate)> GetProductPriceAsync(
             Product product,
             Money price,
             bool? includingTax = null,
@@ -77,60 +73,44 @@ namespace Smartstore.Core.Checkout.Tax
             Customer customer = null);
 
         /// <summary>
-        /// Gets the calculated shipping price for <see cref="IWorkContext.WorkingCurrency"/> async.
+        /// Gets the shipping price.
         /// </summary>
-        /// <remarks>
-        /// Returns price directly if <see cref="TaxSettings.ShippingIsTaxable"/> is <c>false</c>.</remarks>
         /// <param name="price">Shipping price.</param>
-        /// <param name="includingTax">
-        /// Whether calculated price should include tax. 
-        /// Is the equality check result of <see cref="IWorkContext.TaxDisplayType"/> to <see cref="TaxDisplayType.IncludingTax"/> if <c>null</c>.
-        /// </param>
-        /// <param name="customer">Customer to get tax rate. Is <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
-        /// <param name="taxCategoryId">Tax category identifier. Is <see cref="TaxSettings.ShippingTaxClassId"/> if <c>null</c>.</param>
-        /// <returns>Calculated shipping price converted to <see cref="IWorkContext.WorkingCurrency"/> and tax rate.</returns>
-        Task<(Money price, decimal taxRate)> GetShippingPriceAsync(
+        /// <param name="includingTax">A value indicating whether calculated price should include tax. Obtained from <see cref="IWorkContext.TaxDisplayType"/> if <c>null</c>.</param>
+        /// <param name="taxCategoryId">Tax category identifier. Obtained from <see cref="Product.TaxCategoryId"/> if <c>null</c>.</param>
+        /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <returns>Shipping price and tax rate.</returns>
+        Task<(Money Price, decimal TaxRate)> GetShippingPriceAsync(
             Money price, 
             bool? includingTax = null, 
-            Customer customer = null, 
-            int? taxCategoryId = null);
+            int? taxCategoryId = null,
+            Customer customer = null);
 
         /// <summary>
-        /// Gets the calculated additional payment method fee for <see cref="IWorkContext.WorkingCurrency"/> async.
+        /// Gets additional payment method fee.
         /// </summary>
-        /// <remarks>
-        /// Returns price directly if <see cref="TaxSettings.PaymentMethodAdditionalFeeIsTaxable"/> is <c>false</c>.</remarks>
         /// <param name="price">Additional payment method fee.</param>
-        /// <param name="includingTax">
-        /// Whether calculated price should include tax. 
-        /// Is the equality check result of <see cref="IWorkContext.TaxDisplayType"/> to <see cref="TaxDisplayType.IncludingTax"/> if <c>null</c>.
-        /// </param>
-        /// <param name="customer">Customer to get tax rate. Is <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <param name="includingTax">A value indicating whether calculated price should include tax. Obtained from <see cref="IWorkContext.TaxDisplayType"/> if <c>null</c>.</param>
         /// <param name="taxCategoryId">Tax category identifier. Is <see cref="TaxSettings.PaymentMethodAdditionalFeeTaxClassId"/> if <c>null</c>.</param>
-        /// <returns>Calculated additional payment method fee converted to <see cref="IWorkContext.WorkingCurrency"/> and tax rate.</returns>
-        Task<(Money price, decimal taxRate)> GetPaymentMethodAdditionalFeeAsync(
+        /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <returns>Additional payment method fee and tax rate.</returns>
+        Task<(Money Price, decimal TaxRate)> GetPaymentMethodAdditionalFeeAsync(
             Money price, 
             bool? includingTax = null,
             int? taxCategoryId = null, 
             Customer customer = null);
 
         /// <summary>
-        /// Gets the calculated checkout attribute value price for <see cref="IWorkContext.WorkingCurrency"/> async.
+        /// Gets the checkout attribute value price.
         /// </summary>
-        /// <remarks>
-        /// Returns <see cref="CheckoutAttributeValue.PriceAdjustment"/> directly if <see cref="CheckoutAttribute.IsTaxExempt"/> is <c>false</c>.</remarks>
-        /// <param name="attributeValue">Checkout attribute value for price calculation.</param>
-        /// <param name="includingTax">
-        /// Whether calculated price should include tax. 
-        /// Is the equality check result of <see cref="IWorkContext.TaxDisplayType"/> to <see cref="TaxDisplayType.IncludingTax"/> if <c>null</c>.
-        /// </param>
-        /// <param name="customer">Customer to get tax rate. Is <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
-        /// <returns>Calculated checkout attribute value price converted to <see cref="IWorkContext.WorkingCurrency"/>.</returns>
-        Task<(Money price, decimal taxRate)> GetCheckoutAttributePriceAsync(
-            CheckoutAttributeValue attributeValue, 
-            Customer customer = null, 
-            Currency currency = null, 
-            bool? includingTax = null);
+        /// <param name="attributeValue">Checkout attribute value.</param>
+        /// <param name="includingTax">A value indicating whether calculated price should include tax. Obtained from <see cref="IWorkContext.TaxDisplayType"/> if <c>null</c>.</param>
+        /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <returns>Checkout attribute value price and tax rate.</returns>
+        Task<(Money Price, decimal TaxRate)> GetCheckoutAttributePriceAsync(
+            CheckoutAttributeValue attributeValue,
+            bool? includingTax = null,
+            Customer customer = null);
 
         /// <summary>
         /// Gets VAT Number status.

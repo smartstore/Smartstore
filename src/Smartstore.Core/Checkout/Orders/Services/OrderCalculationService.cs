@@ -321,8 +321,8 @@ namespace Smartstore.Core.Checkout.Orders
                 var values = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributeValuesAsync(customer.GenericAttributes.CheckoutAttributes);
                 foreach (var value in values)
                 {
-                    var (attributePriceExclTax, _) = await _taxService.GetCheckoutAttributePriceAsync(value, customer, currency, false);
-                    var (attributePriceInclTax, taxRate) = await _taxService.GetCheckoutAttributePriceAsync(value, customer, currency, true);
+                    var (attributePriceExclTax, _) = await _taxService.GetCheckoutAttributePriceAsync(value, false, customer);
+                    var (attributePriceInclTax, taxRate) = await _taxService.GetCheckoutAttributePriceAsync(value, true, customer);
                     subTotalExclTaxWithoutDiscount += attributePriceExclTax.Amount;
                     subTotalInclTaxWithoutDiscount += attributePriceInclTax.Amount;
 
@@ -430,7 +430,7 @@ namespace Smartstore.Core.Checkout.Orders
             //{
 
             var taxCategoryId = GetTaxCategoryId(cart, _taxSettings.ShippingTaxClassId);
-            var (shippingTotalTaxed, taxRate) = await _taxService.GetShippingPriceAsync(shippingTotal.Value, includingTax, customer, taxCategoryId);
+            var (shippingTotalTaxed, taxRate) = await _taxService.GetShippingPriceAsync(shippingTotal.Value, includingTax, taxCategoryId, customer);
 
             return new ShoppingCartShippingTotal(currency.AsMoney(shippingTotalTaxed.Amount))
             {
@@ -493,8 +493,8 @@ namespace Smartstore.Core.Checkout.Orders
                     //{
 
                     var taxCategoryId = GetTaxCategoryId(cart, _taxSettings.ShippingTaxClassId);
-                    var (shippingExclTax, _) = await _taxService.GetShippingPriceAsync(shippingTotal.Value, false, customer, taxCategoryId);
-                    var (shippingInclTax, taxRate) = await _taxService.GetShippingPriceAsync(shippingTotal.Value, true, customer, taxCategoryId);
+                    var (shippingExclTax, _) = await _taxService.GetShippingPriceAsync(shippingTotal.Value, false, taxCategoryId, customer);
+                    var (shippingInclTax, taxRate) = await _taxService.GetShippingPriceAsync(shippingTotal.Value, true, taxCategoryId, customer);
 
                     var tmpShippingTax = Math.Max(shippingInclTax.Amount - shippingExclTax.Amount, decimal.Zero);
                     taxRates.Add(taxRate, tmpShippingTax);
