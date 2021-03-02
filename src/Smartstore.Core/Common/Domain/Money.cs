@@ -12,7 +12,7 @@ namespace Smartstore.Core.Common
 {
     public struct Money : IHtmlContent, IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
     {
-        public static Money Zero = new() { Amount = 0m };
+        public readonly static Money Zero;
         
         // Key: string = Currency.DisplayLocale, bool = useIsoCodeAsSymbol
         private readonly static ConcurrentDictionary<(string, bool), NumberFormatInfo> _numberFormatClones = new();
@@ -67,7 +67,7 @@ namespace Smartstore.Core.Common
         /// </summary>
         public int DecimalDigits
         {
-            get => Currency.RoundNumDecimals;
+            get => Currency?.RoundNumDecimals ?? 2;
         }
 
         /// <summary>
@@ -124,14 +124,6 @@ namespace Smartstore.Core.Common
             get => ToString(true, false, true);
         }
 
-        /// <summary>
-        /// Checks whether the instance is uninitialized (<see cref="Amount"/> is <c>0</c> and <see cref="Currency"/> is <c>null</c>).
-        /// </summary>
-        public bool IsZero
-        {
-            get => Amount == 0 && Currency == null;
-        }
-
         private static void GuardCurrenciesAreEqual(Money a, Money b)
         {
             if (a.Currency != b.Currency)
@@ -172,7 +164,7 @@ namespace Smartstore.Core.Common
         {
             if (obj is Money money)
             {
-                return Equals(money);
+                return ((IEquatable<Money>)this).Equals(money);
             }
 
             return false;
@@ -278,7 +270,7 @@ namespace Smartstore.Core.Common
         {
             if (Currency == null)
             {
-                return Amount.FormatInvariant();
+                return RoundedAmount.FormatInvariant();
             }
 
             showTax ??= ShowTax;
@@ -429,7 +421,7 @@ namespace Smartstore.Core.Common
         /// <returns>A new instance with the rounded amount</returns>
         public Money Round(bool force = false)
         {
-            if (force || Currency.RoundOrderItemsEnabled)
+            if (Currency != null && (force || Currency.RoundOrderItemsEnabled))
             {
                 return new Money(RoundedAmount, Currency);
             }
