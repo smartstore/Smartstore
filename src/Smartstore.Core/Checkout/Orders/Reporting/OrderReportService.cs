@@ -4,15 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
-using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Checkout.Orders.Reporting;
-using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
 
-namespace Smartstore.Core.Checkout.Orders
+namespace Smartstore.Core.Checkout.Orders.Reporting
 {
-    public partial class OrderReportService : IOrderReportService
+    // TODO: (ms) (core) Change decimal to money
+    public partial class OrderReportService /*: IOrderReportService*/
     {
         private readonly SmartDbContext _db;
 
@@ -40,21 +37,10 @@ namespace Smartstore.Core.Checkout.Orders
 
         //}
 
-        public virtual async Task<OrderAverageReportLine> GetOrderAverageReportLineAsync(IQueryable<Order> orderQuery)
-        {
-            var item = await orderQuery.GroupBy(x => 1)
-                .Select(x => new OrderAverageReportLine
-                {
-                    CountOrders = x.Count(),
-                    SumTax = x.Sum(x => x.OrderTax),
-                    SumOrders = x.Sum(x => x.OrderTotal)
-                })
-                .FirstOrDefaultAsync();
-
-            return item ?? new();
-        }
-
-        // TODO: (ms) (core) refactor method parameters
+        // TODO: (ms) (core) refactor method parameters -> qury extensions - reutrns query 
+        // apply status filter
+        // apply shipping filer
+        // apply time filter
         public virtual Task<IPagedList<BestsellersReportLine>> BestSellersReportAsync(
             int storeId,
             DateTime? startTime,
@@ -164,76 +150,79 @@ namespace Smartstore.Core.Checkout.Orders
             return await query.Select(x => x.ProductId).ToArrayAsync();
         }
 
-        public virtual Task<IPagedList<Product>> ProductsNeverSoldAsync(DateTime? startTime, DateTime? endTime, int pageIndex, int pageSize, bool showHidden = false)
-        {
-            var groupedProductId = (int)ProductType.GroupedProduct;
+        // extensions
+        //public virtual Task<IPagedList<Product>> ProductsNeverSoldAsync(DateTime? startTime, DateTime? endTime, int pageIndex, int pageSize, bool showHidden = false)
+        //{
+        //    var groupedProductId = (int)ProductType.GroupedProduct;
 
-            var query1 = (from orderItem in _db.OrderItems.AsNoTracking()
-                          join o in _db.Orders.AsNoTracking() on orderItem.OrderId equals o.Id
-                          where (!startTime.HasValue || startTime.Value <= o.CreatedOnUtc)
-                            && (!endTime.HasValue || endTime.Value >= o.CreatedOnUtc)
-                          select orderItem.ProductId).Distinct();
+        //    var query1 = (from orderItem in _db.OrderItems.AsNoTracking()
+        //                  join o in _db.Orders.AsNoTracking() on orderItem.OrderId equals o.Id
+        //                  where (!startTime.HasValue || startTime.Value <= o.CreatedOnUtc)
+        //                    && (!endTime.HasValue || endTime.Value >= o.CreatedOnUtc)
+        //                  select orderItem.ProductId).Distinct();
 
-            var query2 = from p in _db.Products.AsNoTracking()
-                         where !query1.Contains(p.Id)
-                            && !p.IsSystemProduct
-                            && (showHidden || p.Published)
-                            && p.ProductTypeId != groupedProductId
-                         orderby p.Name
-                         select p;
+        //    var query2 = from p in _db.Products.AsNoTracking()
+        //                 where !query1.Contains(p.Id)
+        //                    && !p.IsSystemProduct
+        //                    && (showHidden || p.Published)
+        //                    && p.ProductTypeId != groupedProductId
+        //                 orderby p.Name
+        //                 select p;
 
-            return query2.ToPagedList(pageIndex, pageSize).LoadAsync();
-        }
+        //    return query2.ToPagedList(pageIndex, pageSize).LoadAsync();
+        //}
 
-        public virtual async Task<decimal> GetProfitAsync(IQueryable<Order> orderQuery)
-        {
-            var productCost = await _db.OrderItems
-                .Join(_db.Orders, orderItem => orderItem.OrderId, o => o.Id, (orderItem, o) => orderItem)
-                .SumAsync(x => ((decimal?)x.ProductCost ?? decimal.Zero) * x.Quantity) ;
+        // extneision
+        //public virtual async Task<decimal> GetProfitAsync(IQueryable<Order> orderQuery)
+        //{
+        //    var productCost = await _db.OrderItems
+        //        .Join(_db.Orders, orderItem => orderItem.OrderId, o => o.Id, (orderItem, o) => orderItem)
+        //        .SumAsync(x => ((decimal?)x.ProductCost ?? decimal.Zero) * x.Quantity) ;
 
-            var summary = await GetOrderAverageReportLineAsync(orderQuery);
-            var profit = summary.SumOrders - summary.SumTax - productCost;
+        //    var summary = await GetOrderAverageReportLineAsync(orderQuery);
+        //    var profit = summary.SumOrders - summary.SumTax - productCost;
 
-            return profit;
-        }
+        //    return profit;
+        //}
 
-        public virtual Task<IPagedList<OrderDataPoint>> GetIncompleteOrdersAsync(int storeId, DateTime? startTimeUtc, DateTime? endTimeUtc)
-        {
-            var query = _db.Orders
-                .ApplyStandardFilter(storeId: storeId)
-                .ApplyDateFilter(startTimeUtc, endTimeUtc)
-                .Where(x => x.OrderStatusId != (int)OrderStatus.Cancelled
-                    && (x.ShippingStatusId == (int)ShippingStatus.NotYetShipped
-                    || x.PaymentStatusId == (int)PaymentStatus.Pending))
-                .Select(x => new OrderDataPoint
-                {
-                    CreatedOn = x.CreatedOnUtc,
-                    OrderTotal = x.OrderTotal,
-                    OrderStatusId = x.OrderStatusId,
-                    PaymentStatusId = x.PaymentStatusId,
-                    ShippingStatusId = x.ShippingStatusId
-                });
+        //// apply incomplete orders filter extension -> extensions
+        //public virtual Task<IList<OrderDataPoint>> GetIncompleteOrdersAsync(int storeId, DateTime? startTimeUtc, DateTime? endTimeUtc)
+        //{
+        //    var query = _db.Orders
+        //        .ApplyStandardFilter(storeId: storeId)
+        //        .ApplyDateFilter(startTimeUtc, endTimeUtc)
+        //        .Where(x => x.OrderStatusId != (int)OrderStatus.Cancelled
+        //            && (x.ShippingStatusId == (int)ShippingStatus.NotYetShipped
+        //            || x.PaymentStatusId == (int)PaymentStatus.Pending))
+        //        .Select(x => new OrderDataPoint
+        //        {
+        //            CreatedOn = x.CreatedOnUtc,
+        //            OrderTotal = x.OrderTotal,
+        //            OrderStatusId = x.OrderStatusId,
+        //            PaymentStatusId = x.PaymentStatusId,
+        //            ShippingStatusId = x.ShippingStatusId
+        //        });
 
-            return query.ToPagedList(0, int.MaxValue).LoadAsync();
-        }
+        //    return query;
+        //}
 
-        // TODO: (ms) (core) Maybe capsule dashboard-reports in its own service?
-        public virtual Task<IPagedList<OrderDataPoint>> GetOrdersDashboardDataAsync(int storeId, DateTime? startTimeUtc, DateTime? endTimeUtc, int pageIndex, int pageSize)
-        {
-            var query = _db.Orders
-                .ApplyStandardFilter(storeId: storeId)
-                .ApplyDateFilter(startTimeUtc, endTimeUtc)
-                .Select(x => new OrderDataPoint
-                {
-                    CreatedOn = x.CreatedOnUtc,
-                    OrderTotal = x.OrderTotal,
-                    OrderStatusId = x.OrderStatusId
-                });
+        //// TODO: (ms) (core) Maybe capsule dashboard-reports in its own service? -> extensin
+        //public virtual Task<IPagedList<OrderDataPoint>> GetOrdersDashboardDataAsync(int storeId, DateTime? startTimeUtc, DateTime? endTimeUtc, int pageIndex, int pageSize)
+        //{
+        //    var query = _db.Orders
+        //        .ApplyStandardFilter(storeId: storeId)
+        //        .ApplyDateFilter(startTimeUtc, endTimeUtc)
+        //        .Select(x => new OrderDataPoint
+        //        {
+        //            CreatedOn = x.CreatedOnUtc,
+        //            OrderTotal = x.OrderTotal,
+        //            OrderStatusId = x.OrderStatusId
+        //        });
 
-            return query.ToPagedList(pageIndex, pageSize).LoadAsync();
-        }
+        //    return query.ToPagedList(pageIndex, pageSize).LoadAsync();
+        //}
 
-        // TODO: (ms) (core) This method seems to be not needed
+        //// TODO: (ms) (core) This method seems to be not needed
         //public virtual Task<decimal> GetOrdersTotalAsync(int storeId, DateTime? startTimeUtc, DateTime? endTimeUtc)
         //{
         //    return _db.Orders

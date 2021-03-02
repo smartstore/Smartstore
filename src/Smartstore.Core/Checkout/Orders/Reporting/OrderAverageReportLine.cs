@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Checkout.Orders.Reporting
+﻿using Smartstore.Core.Common;
+
+namespace Smartstore.Core.Checkout.Orders.Reporting
 {
     /// <summary>
     /// Represents an order average report line.
@@ -8,12 +10,12 @@
         /// <summary>
         /// Gets or sets the tax summary.
         /// </summary>
-        public decimal SumTax { get; set; }
+        public Money SumTax { get; set; }
 
         /// <summary>
         /// Gets or sets the order total summary.
         /// </summary>
-        public decimal SumOrders { get; set; }
+        public Money SumOrders { get; set; }
 
         /// <summary>
         /// Gets or sets the count.

@@ -1,6 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Collections;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Orders.Reporting;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Common;
+using Smartstore.Core.Data;
+using Smartstore.Domain;
 
 namespace Smartstore
 {
@@ -12,7 +24,7 @@ namespace Smartstore
         /// <param name="query">Order query.</param>
         /// <param name="customerId">Customer identifier.</param>
         /// <param name="storeId">Store identifier.</param>
-        /// <returns>Order query.</returns>
+        /// <returns>Ordered order query.</returns>
         public static IOrderedQueryable<Order> ApplyStandardFilter(this IQueryable<Order> query, int? customerId = null, int? storeId = null)
         {
             Guard.NotNull(query, nameof(query));
@@ -30,6 +42,28 @@ namespace Smartstore
             return query.OrderByDescending(o => o.CreatedOnUtc);
         }
 
+        /// <summary>
+        /// Applies a date time filter.
+        /// </summary>
+        /// <param name="fromUtc">Start date in UTC.</param>
+        /// <param name="toUtc">End date in UTC</param>
+        public static IQueryable<Order> ApplyDateFilter(this IQueryable<Order> query, DateTime? fromUtc = null, DateTime? toUtc = null)
+            
+        {
+            Guard.NotNull(query, nameof(query));
+
+            if (fromUtc.HasValue)
+            {
+                query = query.Where(x => fromUtc.Value <= x.CreatedOnUtc);
+            }
+
+            if (toUtc.HasValue)
+            {
+                query = query.Where(x => toUtc.Value >= x.CreatedOnUtc);
+            }
+
+            return query;
+        }
         /// <summary>
         /// Applies a status filter.
         /// </summary>
@@ -112,13 +146,165 @@ namespace Smartstore
 
             if (billingName.HasValue())
             {
-                query = query.Where(x => x.BillingAddress != null && (
-                    (!string.IsNullOrEmpty(x.BillingAddress.LastName) && x.BillingAddress.LastName.Contains(billingName)) ||
-                    (!string.IsNullOrEmpty(x.BillingAddress.FirstName) && x.BillingAddress.FirstName.Contains(billingName))
+                query = query.Where(x => x.BillingAddress != null
+                    && (!string.IsNullOrEmpty(x.BillingAddress.LastName) && x.BillingAddress.LastName.Contains(billingName)
+                    || !string.IsNullOrEmpty(x.BillingAddress.FirstName) && x.BillingAddress.FirstName.Contains(billingName)
                 ));
             }
 
             return query;
+        }
+
+        /// <summary>
+        /// Applies a filter for incomplete orders. 
+        /// Filters query for !<see cref="OrderStatus.Cancelled"/> and <see cref="ShippingStatus.NotYetShipped"/> or <see cref="PaymentStatus.Pending"/>.
+        /// </summary>
+        /// <param name="query">Order query.</param>
+        /// <param name="query">Order query.</param>
+        /// <returns>Query without completed orders.</returns>
+        public static IQueryable<Order> ApplyIncompleteOrdersFilter(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Where(x => x.OrderStatusId != (int)OrderStatus.Cancelled
+                && (x.ShippingStatusId == (int)ShippingStatus.NotYetShipped || x.PaymentStatusId == (int)PaymentStatus.Pending));
+        }
+
+        /// <summary>
+        /// Applies a never sold products filter to query.
+        /// </summary>
+        /// <param name="query">Orders query with date filter already applied.</param>
+        /// <param name="showHidden">A value indicating whether to include unpublished products.</param>
+        /// <returns>Query with products which have never been sold.</returns>
+        public static IQueryable<Product> ApplyNeverSoldProductsFilter(this IQueryable<Order> query, bool showHidden = false)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            var groupedProductId = (int)ProductType.GroupedProduct;
+
+            var db = query.GetDbContext<SmartDbContext>();
+
+            var orderItemProductIdsQuery = db.OrderItems
+                .AsNoTracking()
+                .Join(query.AsNoTracking(), orderItem => orderItem.OrderId, order => order.Id, (orderItem, order) => orderItem)
+                .Select(x => x.ProductId)
+                .Distinct();
+
+            return db.Products
+                .AsNoTracking()
+                .ApplyStandardFilter(showHidden)
+                .Where(x => !orderItemProductIdsQuery.Contains(x.Id) && x.ProductTypeId != groupedProductId)
+                .OrderBy(x => x.Name);
+        }
+
+        /// <summary>
+        /// Gets first <see cref="OrderAverageReportLine"/> async.
+        /// </summary>
+        /// <param name="query">Order query.</param>
+        /// <returns><see cref="OrderAverageReportLine"/> or <c>null</c> if none was found.</returns>
+        public static Task<OrderAverageReportLine> GetOrderAverageReportLineAsync(this IQueryable<Order> query, Currency currency)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query.GroupBy(x => 1)
+                .Select(x => new OrderAverageReportLine
+                {
+                    CountOrders = x.Count(),
+                    SumTax = new Money(x.Sum(x => x.OrderTax), currency),
+                    SumOrders = new Money(x.Sum(x => x.OrderTotal), currency)
+                })
+                .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// Gets a list of <see cref="OrderDataPoint"/> for orders async.
+        /// </summary>
+        /// <param name="query">Order query.</param>
+        /// <returns>List of <see cref="OrderDataPoint"/> for dashboard charts.</returns>
+        public static Task<List<OrderDataPoint>> GetOrdersDashboardDataAsync(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Select(x => new OrderDataPoint
+                {
+                    CreatedOn = x.CreatedOnUtc,
+                    OrderTotal = x.OrderTotal,
+                    OrderStatusId = x.OrderStatusId
+                })
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets a list of <see cref="OrderDataPoint"/> for incomplete order async.
+        /// </summary>
+        /// <param name="query">Orders query.</param>
+        /// <returns></returns>
+        public static Task<List<OrderDataPoint>> GetIncompleteOrdersAsync(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Select(x => new OrderDataPoint
+                {
+                    CreatedOn = x.CreatedOnUtc,
+                    OrderTotal = x.OrderTotal,
+                    OrderStatusId = x.OrderStatusId,
+                    PaymentStatusId = x.PaymentStatusId,
+                    ShippingStatusId = x.ShippingStatusId
+                })
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets orders product costs async.
+        /// </summary>
+        /// <param name="query">Order query.</param>
+        /// <param name="currency">Currency for <see cref="Money"/>.</param>
+        /// <returns>Product cost as <see cref="Money"/></returns>
+        public static async Task<Money> GetOrdersProductCostsAsync(this IQueryable<Order> query, Currency currency)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            var db = query.GetDbContext<SmartDbContext>();
+
+            var productCost = await db.OrderItems
+                .Join(query, orderItem => orderItem.OrderId, order => order.Id, (orderItem, order) => orderItem)
+                .SumAsync(x => ((decimal?)x.ProductCost ?? decimal.Zero) * x.Quantity);
+
+            return currency.AsMoney(productCost);
+        }
+
+        /// <summary>
+        /// Gets orders total async.
+        /// </summary>
+        /// <param name="query">Order query.</param>
+        /// <param name="currency">Currency for <see cref="Money"/>.</param>
+        /// <returns>Orders total money.</returns>
+        public static async Task<Money> GetOrdersTotalAsync(this IQueryable<Order> query, Currency currency)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            var sumTotal = await query.SumAsync(x => (decimal?)x.OrderTotal ?? decimal.Zero);
+            return currency.AsMoney(sumTotal);
+        }
+
+        /// <summary>
+        /// Gets orders profit (sum - tax - product cost) async.
+        /// </summary>
+        /// <param name="query">Order query.</param>
+        /// <param name="currency">Currency for <see cref="Money"/></param>
+        /// <returns>Orders profit.</returns>
+        public static async Task<Money> GetProfitAsync(this IQueryable<Order> query, Currency currency)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            var productCost = await GetOrdersProductCostsAsync(query, currency);
+            var summary = await GetOrderAverageReportLineAsync(query, currency);
+            var profit = summary.SumOrders - summary.SumTax - productCost;
+
+            return profit;
         }
     }
 }
