@@ -89,6 +89,9 @@ namespace Smartstore.Core.Checkout.Attributes
             set => AttributeControlTypeId = (int)value;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the attribute has a list of values.
+        /// </summary>
         public bool IsListTypeAttribute => AttributeControlType switch
         {
             AttributeControlType.Checkboxes

@@ -10,13 +10,13 @@ namespace Smartstore.Core.Checkout.Cart.Events
     public class ValidatingCartEvent
     {
         /// <summary>
-        /// Creates a new validating cart event
+        /// Creates a new <see cref="ValidatingCartEvent"/>.
         /// </summary>
-        /// <param name="cart">List of organized shopping cart items</param>
-        /// <param name="warnings">List of warnings</param>
-        /// <param name="customer">Current customer</param>
+        /// <param name="cart"><see cref="List{T}"/> of organized shopping cart items.</param>
+        /// <param name="warnings"><see cref="List{T}"/> of warnings as strings.</param>
+        /// <param name="customer">The current customer.</param>
         /// <remarks>
-        /// Assign an <see cref="ActionResult"/> to <see cref="Result"/>to redirect the user, after the event has been completed.
+        /// Assign an <see cref="ActionResult"/> to <see cref="Result"/> to redirect the user, after the event has been completed.
         /// </remarks>
         public ValidatingCartEvent(
             IList<OrganizedShoppingCartItem> cart,

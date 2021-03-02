@@ -26,7 +26,11 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets the bundle item. Can be <c>null</c>.
         /// </summary>
         public ProductBundleItem Item { get; private set; }
-        public Money AdditionalCharge { get; set; }
+
+        /// <summary>
+        /// Gets or sets the additional charge as money. Maybe <c>null</c> if no additional charge is set.
+        /// </summary>
+        public Money? AdditionalCharge { get; set; }
     }
 
     /// <summary>

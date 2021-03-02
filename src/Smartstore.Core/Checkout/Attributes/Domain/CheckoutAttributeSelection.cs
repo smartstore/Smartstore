@@ -17,7 +17,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// </summary>
         /// <remarks>
         /// Automatically differentiates between XML and JSON.
-        /// </remarks>        
+        /// </remarks>
         /// <param name="rawAttributes">XML or JSON attributes string.</param>  
         public CheckoutAttributeSelection(string rawAttributes)
             : base(rawAttributes, "CheckoutAttribute")

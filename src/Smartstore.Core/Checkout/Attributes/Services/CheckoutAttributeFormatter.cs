@@ -58,7 +58,7 @@ namespace Smartstore.Core.Checkout.Attributes
                 return null;
 
             var attributeValues = attributesList
-                .Where(x => x.ShouldHaveValues())
+                .Where(x => x.IsListTypeAttribute)
                 .SelectMany(x => x.CheckoutAttributeValues);
 
             var language = _workContext.WorkingLanguage;
@@ -71,7 +71,7 @@ namespace Smartstore.Core.Checkout.Attributes
                 {
                     var currentValue = currentAttributeValues[j].ToString();
                     var attributeStr = string.Empty;
-                    if (!currentAttribute.ShouldHaveValues())
+                    if (!currentAttribute.IsListTypeAttribute)
                     {
                         if (currentAttribute.AttributeControlType is AttributeControlType.MultilineTextbox)
                         {
@@ -99,7 +99,7 @@ namespace Smartstore.Core.Checkout.Attributes
                             if (download?.MediaFile != null)
                             {
                                 // TODO: (ms) (core) add a method for getting URL (use routing because it handles all SEO friendly URLs) ?
-                                //var genratedUrl = _mediaService.GetUrlAsync(download.MediaFileId, 0);
+                                //var genratedUrl = _mediaService.GenerateFileDownloadUrl(download.MediaFileId, 0);
                                 var attributeText = string.Empty;
                                 var fileName = download.MediaFile.Name;
                                 if (htmlEncode)

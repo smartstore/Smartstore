@@ -14,7 +14,7 @@ namespace Smartstore
         /// Applies store filter, shopping cart type and customer mapping filter.
         /// </summary>
         /// <returns>
-        /// Orders query by ID
+        /// Query ordered by ID
         /// </returns>
         public static IOrderedQueryable<ShoppingCartItem> ApplyStandardFilter(
             this IQueryable<ShoppingCartItem> query,
