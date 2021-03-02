@@ -59,7 +59,7 @@ namespace Smartstore.Core.Catalog.Attributes.Rules
 
                     while (true)
                     {
-                        var variants = await PagedList.Create(query, ++pIndex, 1000).LoadAsync();
+                        var variants = await query.ToPagedList(++pIndex, 1000).LoadAsync();
                         foreach (var variant in variants)
                         {
                             var name = variant.GetLocalized(x => x.Name, context.Language, true, false);

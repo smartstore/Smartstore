@@ -434,7 +434,7 @@ namespace Smartstore.Core.Catalog.Rules
 
                 while (true)
                 {
-                    var variants = await PagedList.Create(variantsQuery, ++pageIndex, 1000).LoadAsync();
+                    var variants = await variantsQuery.ToPagedList(++pageIndex, 1000).LoadAsync();
                     foreach (var variant in variants)
                     {
                         var descriptor = new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithFilter(SearchFilter.Combined(filters("variantvalueid", variant.Id, x))))
@@ -464,7 +464,7 @@ namespace Smartstore.Core.Catalog.Rules
 
                 while (true)
                 {
-                    var attributes = await PagedList.Create(attributesQuery, ++pageIndex, 1000).LoadAsync();
+                    var attributes = await attributesQuery.ToPagedList(++pageIndex, 1000).LoadAsync();
                     foreach (var attribute in attributes)
                     {
                         var descriptor = new SearchFilterDescriptor<int[]>((ctx, x) => ctx.Query.WithFilter(SearchFilter.Combined(filters("attrvalueid", attribute.Id, x))))
