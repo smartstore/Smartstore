@@ -44,7 +44,11 @@ namespace Smartstore.Scheduling
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public virtual async Task ExecuteAsync(ITaskDescriptor task, IDictionary<string, string> taskParameters = null, bool throwOnError = false)
+        public virtual async Task ExecuteAsync(
+            ITaskDescriptor task, 
+            IDictionary<string, string> taskParameters = null,
+            bool throwOnError = false,
+            CancellationToken cancelToken = default)
         {
             Guard.NotNull(task, nameof(task));
 
@@ -100,7 +104,7 @@ namespace Smartstore.Scheduling
                 stateName = task.Id.ToString();
 
                 // Create & set a composite CancellationTokenSource which also contains the global app shoutdown token.
-                var cts = CancellationTokenSource.CreateLinkedTokenSource(_asyncRunner.AppShutdownCancellationToken, new CancellationTokenSource().Token);
+                var cts = CancellationTokenSource.CreateLinkedTokenSource(_asyncRunner.AppShutdownCancellationToken, cancelToken);
                 await _asyncState.CreateAsync(task, stateName, false, cts);
 
                 // Run the task

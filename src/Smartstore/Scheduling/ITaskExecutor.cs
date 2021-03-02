@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Smartstore.Scheduling
@@ -18,6 +19,7 @@ namespace Smartstore.Scheduling
         Task ExecuteAsync(
             ITaskDescriptor task,
             IDictionary<string, string> taskParameters = null,
-            bool throwOnError = false);
+            bool throwOnError = false,
+            CancellationToken cancelToken = default);
     }
 }

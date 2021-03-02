@@ -70,6 +70,13 @@ namespace Smartstore.Collections
 		{
 			if (_list == null)
 			{
+				if (SourceQuery is not IAsyncEnumerable<T>)
+                {
+					// Don't call EF's async extension methods if query is not IAsyncEnumerable<T>
+					EnsureIsLoaded();
+					return;
+                }
+				
 				if (_totalCount == null)
 				{
 					_totalCount = await SourceQuery.CountAsync(cancellationToken);
