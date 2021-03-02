@@ -38,7 +38,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost]
         [GdprConsent]
-        public async Task<ActionResult> SubscribeAsync(bool subscribe, string email)
+        public async Task<ActionResult> Subscribe(bool subscribe, string email)
         {
             string result;
             var success = false;
@@ -123,8 +123,8 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpGet]
-        [LocalizedRoute("/newsletter/subscriptionactivation", Name = "SubscriptionActivation")]
-        public async Task<ActionResult> SubscriptionActivationAsync(Guid token, bool active)
+        [LocalizedRoute("/newsletter/subscriptionactivation")]
+        public async Task<ActionResult> SubscriptionActivation(Guid token, bool active)
         {
             var subscription = await _db.NewsletterSubscriptions
                 .FirstOrDefaultAsync(x => x.NewsletterSubscriptionGuid == token);
