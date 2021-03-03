@@ -28,6 +28,12 @@ namespace Smartstore.Core.Content.Media
             public void OnActionExecuting(ActionExecutingContext context)
             {
                 var request = context.HttpContext.Request;
+
+                if (!request.HasFormContentType)
+                {
+                    return;
+                }
+
                 var numFiles = request.Form.Files.Count;
                 if (numFiles <= 0)
                 {

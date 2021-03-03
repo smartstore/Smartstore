@@ -64,15 +64,7 @@ namespace Smartstore.Core.Search
 
             if (request != null && key.HasValue())
             {
-                var values = request.HasFormContentType
-                    ? request.Form[key]
-                    : request.Query[key];
-
-                var strValue = values.ToString();
-                if (strValue.HasValue())
-                {
-                    return CommonHelper.TryConvert(strValue, out value);
-                }
+                return request.TryGetValueAs(key, out value);
             }
 
             value = default;

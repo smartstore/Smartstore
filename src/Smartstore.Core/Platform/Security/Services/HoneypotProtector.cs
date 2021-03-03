@@ -72,20 +72,20 @@ namespace Smartstore.Core.Security
 
 		public bool IsBot()
 		{
-			var httpContext = _httpContextAccessor.HttpContext;
-			if (httpContext == null)
+			var request = _httpContextAccessor.HttpContext?.Request;
+			if (request == null || !request.HasFormContentType)
             {
 				return false;
             }
 
-			string tokenString = httpContext.Request.Form[TokenFieldName];
+			string tokenString = request.Form[TokenFieldName];
 			if (tokenString.IsEmpty())
 			{
 				throw new InvalidOperationException("The required honeypot form field is missing. Please render the field with the honeypot tag helper.");
 			}
 
 			var token = DeserializeToken(tokenString);
-			string trap = httpContext.Request.Form[token.Name];
+			string trap = request.Form[token.Name];
 			var isBot = trap == null || trap.Length > 0 || (DateTime.UtcNow - token.CreatedOnUtc).TotalMilliseconds < 2000;
 
 			return isBot;

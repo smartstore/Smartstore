@@ -12,6 +12,7 @@ using Microsoft.Net.Http.Headers;
 using Smartstore.Collections;
 using Smartstore.IO;
 using Smartstore.Net;
+using Smartstore.Utilities;
 
 namespace Smartstore
 {
@@ -45,7 +46,76 @@ namespace Smartstore
         /// <returns>The corresponding typed route value, or passed <paramref name="defaultValue"/>.</returns>
         public static T GetRouteValueAs<T>(this HttpContext httpContext, string key, T defaultValue = default)
         {
-            return httpContext.GetRouteValue(key).Convert<T>(defaultValue);
+            if (httpContext.TryGetRouteValueAs(key, out T value))
+            {
+                return value;
+            }
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// Tries to read a route value from <see cref="Microsoft.AspNetCore.Routing.RouteData.Values"/> associated
+        /// with the provided <paramref name="httpContext"/>, and converts it to <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">The type to convert the route value to.</typeparam>
+        /// <param name="key">The key of the route value.</param>
+        /// <param name="value">The found and converted value.</param>
+        /// <returns><c>true</c> if a value with passed <paramref name="key"/> was present and could be converted, <c>false</c> otherwise.</returns>
+        public static bool TryGetRouteValueAs<T>(this HttpContext httpContext, string key, out T value)
+        {
+            value = default;
+
+            var routeValue = httpContext.GetRouteValue(key);
+            if (routeValue != null)
+            {
+                return CommonHelper.TryConvert(routeValue, out value);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Tries to read a request value first from <see cref="HttpRequest.Form"/> (if method is POST), then from
+        /// <see cref="HttpRequest.Query"/>.
+        /// </summary>
+        /// <param name="key">The key to lookup.</param>
+        /// <param name="values">The found values if any</param>
+        /// <returns><c>true</c> if a value with passed <paramref name="key"/> was present, <c>false</c> otherwise.</returns>
+        public static bool TryGetValue(this HttpRequest request, string key, out StringValues values)
+        {
+            values = StringValues.Empty;
+
+            if (request.HasFormContentType)
+            {
+                values = request.Form[key];
+            }
+
+            if (values == StringValues.Empty)
+            {
+                values = request.Query[key];
+            }
+
+            return values != StringValues.Empty;
+        }
+
+        /// <summary>
+        /// Tries to read a request value first from <see cref="HttpRequest.Form"/> (if method is POST), then from
+        /// <see cref="HttpRequest.Query"/>, and converts value to <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="key">The key to lookup.</param>
+        /// <param name="value">The found and converted value</param>
+        /// <returns><c>true</c> if a value with passed <paramref name="key"/> was present and could be converted, <c>false</c> otherwise.</returns>
+        public static bool TryGetValueAs<T>(this HttpRequest request, string key, out T value)
+        {
+            value = default;
+
+            if (request.TryGetValue(key, out var values))
+            {
+                return CommonHelper.TryConvert(values.ToString(), out value);
+            }
+
+            return false;
         }
 
         public static string UserAgent(this HttpRequest httpRequest)

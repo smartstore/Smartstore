@@ -58,7 +58,7 @@ namespace Smartstore.Core.Security
 
                 try
                 {
-                    if (_captchaSettings.CanDisplayCaptcha)
+                    if (_captchaSettings.CanDisplayCaptcha && context.HttpContext.Request.HasFormContentType)
                     {
                         var verifyUrl = _appConfig.Google.RecaptchaVerifyUrl;
                         var recaptchaResponse = context.HttpContext.Request.Form["g-recaptcha-response"];

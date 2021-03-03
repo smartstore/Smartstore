@@ -149,28 +149,14 @@ namespace Smartstore.Core.Content.Menus
             Guard.NotNull(actionContext, nameof(actionContext));
             Guard.NotEmpty(name, nameof(name));
 
-            var request = actionContext.HttpContext.Request;
-            var value = actionContext.RouteData.Values[name]?.ToString();
-            if (value.IsEmpty())
+            var httpContext = actionContext.HttpContext;
+
+            if (!httpContext.TryGetRouteValueAs(name, out T value))
             {
-                if (request.HasFormContentType && request.Form != null && request.Form.Count > 0)
-                {
-                    request.Form.TryGetValue(name, out var values);
-                    value = values.ToString();
-                }
-                else
-                {
-                    request.Query.TryGetValue(name, out var values);
-                    value = values.ToString();
-                }    
+                httpContext.Request.TryGetValueAs(name, out value);
             }
 
-            if (value.HasValue() && CommonHelper.TryConvert<T>(value, out var result))
-            {
-                return result;
-            }
-
-            return default;
+            return value;
         }
 
         private async Task<bool> MenuItemAccessPermittedAsync(MenuItem item)
