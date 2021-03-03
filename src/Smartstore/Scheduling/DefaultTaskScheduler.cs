@@ -117,7 +117,7 @@ namespace Smartstore.Scheduling
             {
                 // Gets seconds to next poll minute
                 int seconds = (interval * 60) - DateTime.Now.Second;
-                return seconds * 1000;
+                return seconds;
             }
         }
 

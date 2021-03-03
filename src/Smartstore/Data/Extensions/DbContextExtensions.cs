@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -165,6 +166,17 @@ namespace Smartstore
         public static void ReloadEntity<TEntity>(this HookingDbContext ctx, TEntity entity) where TEntity : BaseEntity
         {
             ctx.Entry((object)entity).ReloadEntity();
+        }
+
+        /// <summary>
+        /// Reloads the entity from the database overwriting any property values with values from the database. 
+        /// The entity will be in the Unchanged state after calling this method. 
+        /// </summary>
+        /// <typeparam name="TEntity">Type of entity</typeparam>
+        /// <param name="entity">The entity instance</param>
+        public static Task ReloadEntityAsync<TEntity>(this HookingDbContext ctx, TEntity entity, CancellationToken cancelToken = default) where TEntity : BaseEntity
+        {
+            return ctx.Entry((object)entity).ReloadEntityAsync(cancelToken);
         }
 
         /// <summary>

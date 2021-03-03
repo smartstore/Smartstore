@@ -171,7 +171,7 @@ namespace Smartstore.Scheduling
 
                 if (task.Enabled)
                 {
-                    task.NextRunUtc = await _taskStore.GetNextScheduleAsync(task);
+                    task.NextRunUtc = _taskStore.GetNextSchedule(task);
                     updateTask = true;
                 }
 

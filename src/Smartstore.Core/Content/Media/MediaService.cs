@@ -456,7 +456,7 @@ namespace Smartstore.Core.Content.Media
                 }
                 catch (DbUpdateException ex)
                 {
-                    if (ex.IsUniquenessViolationException())
+                    if (_db.DataProvider.IsUniquenessViolationException(ex))
                     {
                         throw _exceptionFactory.DeleteTrackedFile(file, ex);
                     }

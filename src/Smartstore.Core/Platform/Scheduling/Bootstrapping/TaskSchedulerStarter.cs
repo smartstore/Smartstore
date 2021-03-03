@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Bootstrapping;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -21,7 +22,7 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
-            services.AddTaskScheduler();
+            services.AddTaskScheduler<DbTaskStore>();
         }
     }
 }

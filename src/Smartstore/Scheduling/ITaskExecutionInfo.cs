@@ -15,6 +15,11 @@ namespace Smartstore.Scheduling
         bool IsRunning { get; set; }
 
         /// <summary>
+        /// The server machine name that leased the task execution.
+        /// </summary>
+        string MachineName { get; }
+
+        /// <summary>
         /// The date when the task was started. It is also the date when this entry was created.
         /// </summary>
         DateTime StartedOnUtc { get; set; }

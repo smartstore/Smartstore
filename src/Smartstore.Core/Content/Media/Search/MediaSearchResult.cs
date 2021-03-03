@@ -5,18 +5,19 @@ using Smartstore.Collections;
 
 namespace Smartstore.Core.Content.Media
 {
-    public partial class MediaSearchResult : PagedListBase, IEnumerable<MediaFileInfo>
+    public partial class MediaSearchResult : Pageable<MediaFileInfo>
     {
-        private readonly IList<MediaFileInfo> _files;
-
-        public MediaSearchResult(IPagedList<MediaFile> pageable, Func<MediaFile, MediaFileInfo> converter) : base(pageable)
+        public MediaSearchResult(IPagedList<MediaFile> pageable, Func<MediaFile, MediaFileInfo> converter)
+            : base(ConvertPageable(pageable, converter))
         {
-            _files = pageable.Select(converter).ToList();
         }
 
-        IEnumerator<MediaFileInfo> IEnumerable<MediaFileInfo>.GetEnumerator()
+        private static IPageable<MediaFileInfo> ConvertPageable(IPageable<MediaFile> pageable, Func<MediaFile, MediaFileInfo> converter)
         {
-            return _files.GetEnumerator();
+            Guard.NotNull(pageable, nameof(pageable));
+            Guard.NotNull(converter, nameof(converter));
+
+            return pageable.Select(converter).AsQueryable().ToPagedList(pageable.PageIndex, pageable.PageSize, pageable.TotalCount);
         }
     }
 }

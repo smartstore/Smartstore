@@ -65,6 +65,7 @@ using Microsoft.Extensions.Configuration;
 using Smartstore.Web.Filters;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Domain;
 
 namespace Smartstore.Web.Controllers
 {

@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -14,6 +15,25 @@ namespace Smartstore.Data.DataProviders
 {
     public class SqlServerDataProvider : DataProvider
     {
+        private readonly static HashSet<int> _transientErrorCodes = new(new[] 
+        {
+            49920, // Cannot process request. Too many operations in progress for subscription "%ld".
+            49919, // Cannot process create or update request. Too many create or update operations in progress for subscription "%ld".
+            41305, // The current transaction failed to commit due to a repeatable read validation failure.
+            41302, // The current transaction attempted to update a record that has been updated since the transaction started.
+            41301, // Dependency failure: a dependency was taken on another transaction that later failed to commit.
+            10936, // Resource ID : %d. The request limit for the elastic pool is %d and has been reached.
+            1205,  // Deadlock
+            20     // This exception can be thrown even if the operation completed successfully, so it's safer to let the application fail.
+        });
+
+        private readonly static int[] _uniquenessViolationErrorCodes = new[]
+        {
+            2627, // Unique constraint error
+            547,  // Constraint check violation
+            2601  // Duplicated key row error
+        };
+
         public SqlServerDataProvider(DatabaseFacade database)
             : base(database)
         {
@@ -197,6 +217,41 @@ namespace Smartstore.Data.DataProviders
         public override Stream OpenBlobStream(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
             return new SqlBlobStream(Database.GetDbConnection(), tableName, blobColumnName, pkColumnName, pkColumnValue);
+        }
+
+        public override bool IsTransientException(Exception ex)
+        {
+            return DetectSqlError(ex, _transientErrorCodes);
+        }
+
+        public override bool IsUniquenessViolationException(DbUpdateException updateException)
+        {
+            return DetectSqlError(updateException?.InnerException, _uniquenessViolationErrorCodes);
+        }
+
+        private static bool DetectSqlError(Exception ex, ICollection<int> errorCodes)
+        {
+            // TODO: (core) Implement Sql error detection for other data providers.
+            while (ex != null)
+            {
+                if (ex is SqlException sqlException)
+                {
+                    foreach (SqlError err in sqlException.Errors)
+                    {
+                        if (errorCodes.Contains(err.Number))
+                        {
+                            return true;
+                        }
+                    }
+
+
+                    break;
+                }
+
+                ex = ex.InnerException;
+            }
+
+            return false;
         }
     }
 }

@@ -79,14 +79,17 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var appContext = p.GetRequiredService<IApplicationContext>();
             var appConfig = appContext.AppConfiguration;
-            
+
             //// TODO: (core) Fetch services which SmartDbContext depends on from IInfrastructure<IServiceProvider>
+            //// TODO: (core) Determine DB provider and call UseSqlServer, UseMySql etc.
             o.UseSqlServer(DataSettings.Instance.ConnectionString, sql =>
             {
                 if (appConfig.DbCommandTimeout.HasValue)
                 {
                     sql.CommandTimeout(appConfig.DbCommandTimeout.Value);
                 }
+
+                //sql.EnableRetryOnFailure(3, TimeSpan.FromMilliseconds(100), null);
             })
             .ConfigureWarnings(w =>
             {

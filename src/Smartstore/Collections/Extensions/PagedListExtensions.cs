@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Collections;
 
@@ -12,7 +13,7 @@ namespace Smartstore
         /// <param name="pageIndex">The 0-based page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Paged list</returns>
-        public static PagedList<T> ToPagedList<T>(this IQueryable<T> source, int pageIndex, int pageSize)
+        public static PagedList<T> ToPagedList<T>(this IEnumerable<T> source, int pageIndex, int pageSize)
         {
             return new PagedList<T>(source, pageIndex, pageSize);
         }
@@ -24,7 +25,7 @@ namespace Smartstore
         /// <param name="pageSize">Page size</param>
         /// <param name="totalCount">Total count</param>
         /// <returns>Paged list</returns>
-        public static PagedList<T> ToPagedList<T>(this IQueryable<T> source, int pageIndex, int pageSize, int totalCount)
+        public static PagedList<T> ToPagedList<T>(this IEnumerable<T> source, int pageIndex, int pageSize, int totalCount)
         {
             return new PagedList<T>(source, pageIndex, pageSize, totalCount);
         }

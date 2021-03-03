@@ -261,7 +261,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void IsTypeOf<TType>(object instance, string message)
         {
-            if (!(instance is TType))
+            if (instance is not TType)
                 throw new InvalidOperationException(message);
         }
 

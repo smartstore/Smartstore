@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
@@ -150,7 +151,7 @@ namespace Smartstore.Data
 
         #endregion
 
-        #region Sql
+        #region Sql / Execution strategy
 
         /// <summary>
         /// Executes the given INSERT INTO sql command and returns ident of the inserted row.
@@ -158,6 +159,28 @@ namespace Smartstore.Data
         /// <returns>The ident / primary key value of the newly inserted row.</returns>
         public virtual Task<int> InsertIntoAsync(string sql, params object[] parameters)
             => throw new NotSupportedException();
+
+        /// <summary>
+        /// Determines whether the specified exception represents a transient failure that can be
+        /// compensated by a retry.
+        /// </summary>
+        /// <param name="exception">The exception object to be verified.</param>
+        /// <returns>
+        /// <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
+        /// </returns>
+        public virtual bool IsTransientException(Exception ex)
+            => false;
+
+        /// <summary>
+        /// Checks whether the inner exception indicates uniqueness violation
+        /// (is 2627 = Unique constraint error, OR is 547 = Constraint check violation, OR is 2601 = Duplicated key row error)
+        /// </summary>
+        /// <param name="exception">The exception wrapper</param>
+        /// <returns>
+        /// <see langword="true" /> if the specified exception is indicates uniqueness violation, otherwise <see langword="false" />.
+        /// </returns>
+        public virtual bool IsUniquenessViolationException(DbUpdateException ex)
+            => false;
 
         #endregion
 

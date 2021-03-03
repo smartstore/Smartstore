@@ -21,10 +21,11 @@ namespace Smartstore.Scheduling
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context)
+        public Task Invoke(HttpContext context)
         {
             // TODO: (core) Implement TaskSchedulerMiddleware
-            await _next(context);
+            //await _next(context);
+            return Task.CompletedTask;
         }
     }
 }

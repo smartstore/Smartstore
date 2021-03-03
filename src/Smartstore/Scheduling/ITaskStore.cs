@@ -52,10 +52,10 @@ namespace Smartstore.Scheduling
         Task<IEnumerable<ITaskDescriptor>> GetPendingTasksAsync();
 
         /// <summary>
-        /// Adds a task to the store.
+        /// Inserts a task to the store.
         /// </summary>
         /// <param name="task">Task</param>
-        Task AddTaskAsync(ITaskDescriptor task);
+        Task InsertTaskAsync(ITaskDescriptor task);
 
         /// <summary>
         /// Updates a task.
@@ -73,12 +73,12 @@ namespace Smartstore.Scheduling
         /// Inserts a new task definition to the database or returns an existing one
         /// </summary>
         /// <typeparam name="T">The concrete implementation of the task</typeparam>
-        /// <param name="action">Wraps the newly created <see cref="ITaskDescriptor"/> instance</param>
+        /// <param name="createAction">Wraps the newly created <see cref="ITaskDescriptor"/> instance</param>
         /// <returns>A newly created or existing task instance</returns>
         /// <remarks>
         /// This method does NOT update an already exising task
         /// </remarks>
-        Task<ITaskDescriptor> GetOrAddTaskAsync<T>(Action<ITaskDescriptor> newAction) where T : ITask;
+        Task<ITaskDescriptor> GetOrAddTaskAsync<T>(Action<ITaskDescriptor> createAction) where T : ITask;
 
         /// <summary>
         /// Calculates - according to their cron expressions - all task future schedules
@@ -92,7 +92,7 @@ namespace Smartstore.Scheduling
         /// </summary>
         /// <param name="task">ScheduleTask</param>
         /// <returns>The next schedule or <c>null</c> if the task is disabled</returns>
-        Task<DateTime?> GetNextScheduleAsync(ITaskDescriptor task);
+        DateTime? GetNextSchedule(ITaskDescriptor task);
 
         #region History
 
@@ -155,6 +155,10 @@ namespace Smartstore.Scheduling
         /// <param name="info">The entry to delete.</param>
         Task DeleteExecutionInfoAsync(ITaskExecutionInfo info);
 
+        /// <summary>
+        /// Deletes old <see cref="ITaskExecutionInfo"/> instances from the store.
+        /// </summary>
+        /// <returns>Number of deleted entries.</returns>
         Task<int> TrimExecutionInfosAsync();
 
         #endregion

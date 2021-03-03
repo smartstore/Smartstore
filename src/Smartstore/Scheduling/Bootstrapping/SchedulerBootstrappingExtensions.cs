@@ -28,11 +28,13 @@ namespace Smartstore.Bootstrapping
         /// <summary>
         /// Add an <see cref="ITaskScheduler"/> registration as a hosted service.
         /// </summary>
-        public static IServiceCollection AddTaskScheduler(this IServiceCollection services)
+        public static IServiceCollection AddTaskScheduler<TStore>(this IServiceCollection services)
+            where TStore : class, ITaskStore
         {
             // TODO: (core) Pass ITaskStore impl type to AddTaskScheduler(). OR make TaskSchedulerOptions.
             Guard.NotNull(services, nameof(services));
 
+            services.AddTransient<ITaskStore, TStore>();
             services.AddSingleton<ITaskScheduler, DefaultTaskScheduler>();
             services.AddHostedService(services => (DefaultTaskScheduler)services.GetRequiredService<ITaskScheduler>());
             return services;

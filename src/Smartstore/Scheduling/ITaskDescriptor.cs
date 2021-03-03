@@ -10,7 +10,7 @@ namespace Smartstore.Scheduling
         High = 1
     }
 
-    public interface ITaskDescriptor
+    public interface ITaskDescriptor : ICloneable<ITaskDescriptor>
     {
         /// <summary>
         /// Unique task identifier.
@@ -70,11 +70,14 @@ namespace Smartstore.Scheduling
         /// <summary>
         /// Gets infos about all past executions.
         /// </summary>
-        ICollection<ITaskExecutionInfo> ExecutionHistory { get; }
+        IEnumerable<ITaskExecutionInfo> ExecutionHistory { get; }
     }
 
     public static class ITaskDescriptorExtensions
     {
+        /// <summary>
+        /// Gets a value indicating whether a task is scheduled for execution (Enabled = true and NextRunUtc &lt;= UtcNow and is not running).
+        /// </summary>
         public static bool IsPending(this ITaskDescriptor descriptor)
         {
             Guard.NotNull(descriptor, nameof(descriptor));

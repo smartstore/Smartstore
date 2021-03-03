@@ -20,10 +20,12 @@ namespace Smartstore.Collections
         ////{
         ////}
 
-        //protected Pageable(IPageable pageable)
-        //{
-        //    Init(pageable);
-        //}
+        protected Pageable(IPageable<T> pageable)
+        {
+            Guard.NotNull(pageable, "pageable");
+
+            Init(pageable.SourceQuery, pageable.PageIndex, pageable.PageSize, pageable.TotalCount);
+        }
 
         //protected Pageable(int pageIndex, int pageSize, int totalCount)
         //{
