@@ -10,12 +10,12 @@ namespace Smartstore.Core.Checkout.Orders.Reporting
         /// <summary>
         /// Gets or sets the tax summary.
         /// </summary>
-        public Money SumTax { get; set; }
+        public decimal SumTax { get; set; }
 
         /// <summary>
         /// Gets or sets the order total summary.
         /// </summary>
-        public Money SumOrders { get; set; }
+        public decimal SumOrders { get; set; }
 
         /// <summary>
         /// Gets or sets the count.

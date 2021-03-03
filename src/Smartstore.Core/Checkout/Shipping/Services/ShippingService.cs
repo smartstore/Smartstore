@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
@@ -18,7 +17,6 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Domain;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Shipping

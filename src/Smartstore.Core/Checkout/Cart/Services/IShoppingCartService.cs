@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
@@ -12,30 +11,18 @@ namespace Smartstore.Core.Checkout.Cart
     public interface IShoppingCartService
     {
         /// <summary>
-        /// Adds an item to cart and updates database async.
+        /// Adds an item to the cart and updates database async.
         /// </summary>
-        /// <param name="ctx">Context info about the product to added to the cart.</param>
-        /// <returns>List of error messages.</returns>
-        Task<IList<string>> AddToCartAsync(AddToCartContext ctx);
+        /// <param name="ctx">Context info about the product to be added to the cart.</param>
+        /// <returns><c>True</c> if the item was successfully added to the cart; otherwise <c>false</c></returns>
+        Task<bool> AddToCartAsync(AddToCartContext ctx);
 
         /// <summary>
         /// Copies an item and all its child items to another cart async.
         /// </summary>
         /// <param name="ctx">Context information about the item to be copied and the client to be received.</param>
-        /// <returns>List of error messages.</returns>
-        Task<IList<string>> CopyAsync(AddToCartContext ctx);
-
-        /// <summary>
-        /// Gets the customers shopping cart items count async.
-        /// </summary>
-        /// <param name="customer">Customer of cart to be counted.</param>
-        /// <param name="cartType">Shopping cart type.</param>
-        /// <param name="storeId">Store identifier.</param>
-        /// <returns>Number of items.</returns>
-        Task<int> CountCartItemsAsync(
-            Customer customer = null, 
-            ShoppingCartType cartType = ShoppingCartType.ShoppingCart, 
-            int storeId = 0);
+        /// <returns><c>True</c> if the item was successfully added to the cart; otherwise <c>false</c></returns>
+        Task<bool> CopyAsync(AddToCartContext ctx);
 
         /// <summary>
         /// Deletes shopping cart items async.
@@ -52,21 +39,13 @@ namespace Smartstore.Core.Checkout.Cart
             bool deleteChildCartItems = true);
 
         /// <summary>
-        /// Deletes expired shopping cart items async.
-        /// </summary>
-        /// <param name="olderThanUtc">Expiry threshold date time</param>
-        /// <param name="customer">Customer of cart.</param>
-        /// <returns>Number of items deleted.</returns>
-        Task<int> DeleteExpiredCartItemsAsync(DateTime olderThanUtc, Customer customer);
-
-        /// <summary>
         /// Gets the customers shopping cart items async.
         /// </summary>
         /// <param name="customer">Customer of cart.</param>
         /// <param name="cartType">Shopping cart type.</param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns>List of error messages.</returns>
-        Task<IList<OrganizedShoppingCartItem>> GetCartItemsAsync(
+        Task<List<OrganizedShoppingCartItem>> GetCartItemsAsync(
             Customer customer = null, 
             ShoppingCartType cartType = ShoppingCartType.ShoppingCart, 
             int storeId = 0);
@@ -74,9 +53,10 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Migrates all cart items from one to another customer async.
         /// </summary>
-        /// <param name="fromCustomer">From this customer.</param>
-        /// <param name="toCustomer">To this customer.</param>        
-        Task MigrateCartAsync(Customer fromCustomer, Customer toCustomer);
+        /// <param name="fromCustomer">From this customers cart.</param>
+        /// <param name="toCustomer">To this customers cart.</param>       
+        /// <returns><c>True</c> if all the cart items were successfully added to the (other) cart; otherwise <c>false</c></returns>
+        Task<bool> MigrateCartAsync(Customer fromCustomer, Customer toCustomer);
 
         /// <summary>
         /// Updates the shopping cart item by item identifier of customer.
@@ -89,17 +69,10 @@ namespace Smartstore.Core.Checkout.Cart
         Task<IList<string>> UpdateCartItemAsync(Customer customer, int cartItemId, int newQuantity, bool resetCheckoutData);
 
         /// <summary>
-        /// Gets all open carts sub totals.
-        /// </summary>
-        /// <param name="cartType">Shopping cart type.</param>
-        /// <returns>Sub total of all open carts.</returns>
-        Task<Money> GetOpenCartsSubTotalAsync(ShoppingCartType cartType);
-
-        /// <summary>
         /// Gets the cart subtotal converted into <see cref="IWorkContext.WorkingCurrency"/> for the current user.
         /// </summary>
-        /// <param name="cart">Shopping cart.</param>
-        /// <returns>Converted cart subtotal.</returns>
+        /// <param name="cart">Shopping cart. If null, cart items are getting retrieved from <see cref="IWorkContext.CurrentCustomer"/></param>
+        /// <returns>Converted cart sub total as <see cref="Money"/>.</returns>
         Task<Money> GetCurrentCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart = null);
     }
 }

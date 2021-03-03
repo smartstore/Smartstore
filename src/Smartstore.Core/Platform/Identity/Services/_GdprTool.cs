@@ -18,6 +18,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
 using Smartstore.Data;
+using Smartstore.Data.Batching;
 using Smartstore.Domain;
 using Smartstore.Events;
 using Smartstore.Utilities;
@@ -202,7 +203,7 @@ namespace Smartstore.Core.Identity
 			await _db.SaveChangesAsync();
 
 			// Now it is safe to delete shopping cart & wishlist
-			await _shoppingCartService.DeleteExpiredCartItemsAsync(DateTime.UtcNow, customer);
+			await _db.ShoppingCartItems.ApplyExpiredCartItemsFilter(DateTime.UtcNow, customer).BatchDeleteAsync();
 
 			// Log
 			Logger.Info(T("Gdpr.Anonymize.Success", language.Id, customerName));

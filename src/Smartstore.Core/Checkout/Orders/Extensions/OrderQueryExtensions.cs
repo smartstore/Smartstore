@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common;
 using Smartstore.Core.Data;
-using Smartstore.Domain;
 
 namespace Smartstore
 {
@@ -64,6 +60,7 @@ namespace Smartstore
 
             return query;
         }
+
         /// <summary>
         /// Applies a status filter.
         /// </summary>
@@ -199,49 +196,30 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets first <see cref="OrderAverageReportLine"/> async.
+        /// Selects <see cref="OrderAverageReportLine"/> from query.
         /// </summary>
-        /// <param name="query">Order query.</param>
-        /// <returns><see cref="OrderAverageReportLine"/> or <c>null</c> if none was found.</returns>
-        public static Task<OrderAverageReportLine> GetOrderAverageReportLineAsync(this IQueryable<Order> query, Currency currency)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            return query.GroupBy(x => 1)
-                .Select(x => new OrderAverageReportLine
-                {
-                    CountOrders = x.Count(),
-                    SumTax = new Money(x.Sum(x => x.OrderTax), currency),
-                    SumOrders = new Money(x.Sum(x => x.OrderTotal), currency)
-                })
-                .FirstOrDefaultAsync();
-        }
-
-        /// <summary>
-        /// Gets a list of <see cref="OrderDataPoint"/> for orders async.
-        /// </summary>
-        /// <param name="query">Order query.</param>
-        /// <returns>List of <see cref="OrderDataPoint"/> for dashboard charts.</returns>
-        public static Task<List<OrderDataPoint>> GetOrdersDashboardDataAsync(this IQueryable<Order> query)
+        /// <param name="query">Order query from which to select.</param>
+        /// <returns><see cref="IQueryable"/> of <see cref="OrderAverageReportLine"/>.</returns>
+        public static IQueryable<OrderAverageReportLine> SelectAsOrderAverageReportLine(this IQueryable<Order> query)
         {
             Guard.NotNull(query, nameof(query));
 
             return query
-                .Select(x => new OrderDataPoint
+                .GroupBy(x => 1)
+                .Select(x => new OrderAverageReportLine
                 {
-                    CreatedOn = x.CreatedOnUtc,
-                    OrderTotal = x.OrderTotal,
-                    OrderStatusId = x.OrderStatusId
-                })
-                .ToListAsync();
+                    CountOrders = x.Count(),
+                    SumTax = x.Sum(x => x.OrderTax),
+                    SumOrders = x.Sum(x => x.OrderTotal)
+                });
         }
 
         /// <summary>
-        /// Gets a list of <see cref="OrderDataPoint"/> for incomplete order async.
+        /// Selects <see cref="OrderDataPoint"/> from query.
         /// </summary>
-        /// <param name="query">Orders query.</param>
-        /// <returns></returns>
-        public static Task<List<OrderDataPoint>> GetIncompleteOrdersAsync(this IQueryable<Order> query)
+        /// <param name="query">Order query from which to select.</param>
+        /// <returns><see cref="IQueryable"/> of <see cref="OrderDataPoint"/>.</returns>
+        public static IQueryable<OrderDataPoint> SelectAsOrderDataPoints(this IQueryable<Order> query)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -253,55 +231,48 @@ namespace Smartstore
                     OrderStatusId = x.OrderStatusId,
                     PaymentStatusId = x.PaymentStatusId,
                     ShippingStatusId = x.ShippingStatusId
-                })
-                .ToListAsync();
+                });
         }
 
         /// <summary>
         /// Gets orders product costs async.
         /// </summary>
-        /// <param name="query">Order query.</param>
-        /// <param name="currency">Currency for <see cref="Money"/>.</param>
-        /// <returns>Product cost as <see cref="Money"/></returns>
-        public static async Task<Money> GetOrdersProductCostsAsync(this IQueryable<Order> query, Currency currency)
+        /// <param name="query">Orders query.</param>
+        /// <returns>Product costs</returns>
+        public static Task<decimal> GetOrdersProductCostsAsync(this IQueryable<Order> query)
         {
             Guard.NotNull(query, nameof(query));
 
             var db = query.GetDbContext<SmartDbContext>();
 
-            var productCost = await db.OrderItems
+            return db.OrderItems
                 .Join(query, orderItem => orderItem.OrderId, order => order.Id, (orderItem, order) => orderItem)
                 .SumAsync(x => ((decimal?)x.ProductCost ?? decimal.Zero) * x.Quantity);
-
-            return currency.AsMoney(productCost);
         }
 
         /// <summary>
         /// Gets orders total async.
         /// </summary>
         /// <param name="query">Order query.</param>
-        /// <param name="currency">Currency for <see cref="Money"/>.</param>
-        /// <returns>Orders total money.</returns>
-        public static async Task<Money> GetOrdersTotalAsync(this IQueryable<Order> query, Currency currency)
+        /// <returns>Orders totals.</returns>
+        public static Task<decimal> GetOrdersTotalAsync(this IQueryable<Order> query)
         {
             Guard.NotNull(query, nameof(query));
 
-            var sumTotal = await query.SumAsync(x => (decimal?)x.OrderTotal ?? decimal.Zero);
-            return currency.AsMoney(sumTotal);
+            return query.SumAsync(x => (decimal?)x.OrderTotal ?? decimal.Zero);            
         }
 
         /// <summary>
-        /// Gets orders profit (sum - tax - product cost) async.
+        /// Gets orders profit (sum - tax - product costs) async.
         /// </summary>
         /// <param name="query">Order query.</param>
-        /// <param name="currency">Currency for <see cref="Money"/></param>
         /// <returns>Orders profit.</returns>
-        public static async Task<Money> GetProfitAsync(this IQueryable<Order> query, Currency currency)
+        public static async Task<decimal> GetProfitAsync(this IQueryable<Order> query)
         {
             Guard.NotNull(query, nameof(query));
 
-            var productCost = await GetOrdersProductCostsAsync(query, currency);
-            var summary = await GetOrderAverageReportLineAsync(query, currency);
+            var productCost = await GetOrdersProductCostsAsync(query);
+            var summary = await SelectAsOrderAverageReportLine(query).FirstOrDefaultAsync() ?? new OrderAverageReportLine();
             var profit = summary.SumOrders - summary.SumTax - productCost;
 
             return profit;
