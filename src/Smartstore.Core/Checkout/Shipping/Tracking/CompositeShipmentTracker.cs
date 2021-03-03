@@ -1,38 +1,53 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Shipping.Events;
+using Smartstore.Engine;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
     /// General shipment tracker (finds an appropriate tracker by tracking number).
     /// </summary>
-    public partial class GeneralShipmentTracker : IShipmentTracker
+    internal partial class CompositeShipmentTracker : IShipmentTracker
     {
-        // TODO: (ms) (core) ItypeFinder & ContainerManager are missing
-        //private readonly ITypeFinder _typeFinder;
+        // TODO: (ms) (core) A caching functionality like this is also needed for DHL!
+        private static Type[] _trackerTypes = null;
+        private readonly static object _lock = new();
 
-        public GeneralShipmentTracker(/*ITypeFinder typeFinder*/)
+        private readonly ITypeScanner _typeScanner;
+
+        public CompositeShipmentTracker(ITypeScanner typeScanner)
         {
-            //_typeFinder = typeFinder;
+            _typeScanner = typeScanner;
         }
 
         /// <summary>
-        /// Gets all trackers.
+        /// Gets all trackers. The result gets cached.
         /// </summary>
         /// <returns>All available shipment trackers.</returns>
-        protected virtual IList<IShipmentTracker> GetAllTrackers()
+        protected virtual IEnumerable<IShipmentTracker> GetAllTrackers()
         {
-            return new List<IShipmentTracker>();
-                //_typeFinder.FindClassesOfType<IShipmentTracker>(ignoreInactivePlugins: true)
-                //.Where(x => x != typeof(GeneralShipmentTracker))
-                //.Select(x => EngineContext.Current.ContainerManager.ResolveUnregistered(x) as IShipmentTracker)
-                //.ToList();
+            if (_trackerTypes == null)
+            {
+                lock (_lock)
+                {
+                    if (_trackerTypes == null)
+                    {
+                        _trackerTypes = _typeScanner
+                            .FindTypes<IShipmentTracker>(ignoreInactiveModules: true)
+                            .Where(x => x.IsPublic)
+                            .ToArray();
+                    }
+                }
+            }
+
+            return _trackerTypes.Select(x => EngineContext.Current.Application.Services.ResolveUnregistered(x) as IShipmentTracker);
         }
 
-        protected virtual IShipmentTracker GetTrackerByTrackingNumber(string trackingNumber) 
-            => GetAllTrackers().FirstOrDefault(c => c.IsMatch(trackingNumber));
+        protected virtual IShipmentTracker GetTrackerByTrackingNumber(string trackingNumber)
+                    => GetAllTrackers().FirstOrDefault(c => c.IsMatch(trackingNumber));
 
         /// <summary>
         /// Gets if the current tracker can track the tracking number.
@@ -64,8 +79,8 @@ namespace Smartstore.Core.Checkout.Shipping
         public virtual Task<List<ShipmentStatusEvent>> GetShipmentEventsAsync(string trackingNumber)
         {
             var tracker = GetTrackerByTrackingNumber(trackingNumber);
-            return tracker != null 
-                ? tracker.GetShipmentEventsAsync(trackingNumber) 
+            return tracker != null
+                ? tracker.GetShipmentEventsAsync(trackingNumber)
                 : Task.FromResult(new List<ShipmentStatusEvent>());
         }
     }
