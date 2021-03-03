@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
-    public class MeasureDimensionMap : IEntityTypeConfiguration<MeasureDimension>
+    internal class MeasureDimensionMap : IEntityTypeConfiguration<MeasureDimension>
     {
         public void Configure(EntityTypeBuilder<MeasureDimension> builder)
         {

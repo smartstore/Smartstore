@@ -8,7 +8,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public class BackInStockSubscriptionMap : IEntityTypeConfiguration<BackInStockSubscription>
+    internal class BackInStockSubscriptionMap : IEntityTypeConfiguration<BackInStockSubscription>
     {
         public void Configure(EntityTypeBuilder<BackInStockSubscription> builder)
         {

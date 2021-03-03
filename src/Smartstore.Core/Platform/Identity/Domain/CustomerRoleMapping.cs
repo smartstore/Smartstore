@@ -7,7 +7,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    public class CustomerRoleMappingMap : IEntityTypeConfiguration<CustomerRoleMapping>
+    internal class CustomerRoleMappingMap : IEntityTypeConfiguration<CustomerRoleMapping>
     {
         public void Configure(EntityTypeBuilder<CustomerRoleMapping> builder)
         {

@@ -8,7 +8,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Localization
 {
-    public class LocaleStringResourceMap : IEntityTypeConfiguration<LocaleStringResource>
+    internal class LocaleStringResourceMap : IEntityTypeConfiguration<LocaleStringResource>
     {
         public void Configure(EntityTypeBuilder<LocaleStringResource> builder)
         {

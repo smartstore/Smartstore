@@ -14,7 +14,7 @@
 
 //namespace Smartstore.Core.Content.News
 //{
-//    public class NewsItemMap : IEntityTypeConfiguration<NewsItem>
+//    internal class NewsItemMap : IEntityTypeConfiguration<NewsItem>
 //    {
 //        public void Configure(EntityTypeBuilder<NewsItem> builder)
 //        {

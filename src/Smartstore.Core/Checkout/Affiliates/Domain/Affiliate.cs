@@ -7,7 +7,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Affiliates
 {
-    public class AffiliateMap : IEntityTypeConfiguration<Affiliate>
+    internal class AffiliateMap : IEntityTypeConfiguration<Affiliate>
     {
         public void Configure(EntityTypeBuilder<Affiliate> builder)
         {

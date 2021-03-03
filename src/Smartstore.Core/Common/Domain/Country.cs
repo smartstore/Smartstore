@@ -12,7 +12,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
-    public class CountryMap : IEntityTypeConfiguration<Country>
+    internal class CountryMap : IEntityTypeConfiguration<Country>
     {
         public void Configure(EntityTypeBuilder<Country> builder)
         {

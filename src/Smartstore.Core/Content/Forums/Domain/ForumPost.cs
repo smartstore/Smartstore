@@ -12,7 +12,7 @@
 
 //namespace Smartstore.Core.Content.Forums
 //{
-//    public class ForumPostMap : IEntityTypeConfiguration<ForumPost>
+//    internal class ForumPostMap : IEntityTypeConfiguration<ForumPost>
 //    {
 //        public void Configure(EntityTypeBuilder<ForumPost> builder)
 //        {

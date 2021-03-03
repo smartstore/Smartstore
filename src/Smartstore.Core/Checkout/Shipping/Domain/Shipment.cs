@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
-    public class ShipmentMap : IEntityTypeConfiguration<Shipment>
+    internal class ShipmentMap : IEntityTypeConfiguration<Shipment>
     {
         public void Configure(EntityTypeBuilder<Shipment> builder)
         {

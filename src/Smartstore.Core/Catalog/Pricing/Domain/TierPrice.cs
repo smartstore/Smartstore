@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
-    public class TierPriceMap : IEntityTypeConfiguration<TierPrice>
+    internal class TierPriceMap : IEntityTypeConfiguration<TierPrice>
     {
         public void Configure(EntityTypeBuilder<TierPrice> builder)
         {

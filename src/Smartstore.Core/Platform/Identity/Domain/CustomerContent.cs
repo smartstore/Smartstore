@@ -8,7 +8,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    public class CustomerContentMap : IEntityTypeConfiguration<CustomerContent>
+    internal class CustomerContentMap : IEntityTypeConfiguration<CustomerContent>
     {
         public void Configure(EntityTypeBuilder<CustomerContent> builder)
         {

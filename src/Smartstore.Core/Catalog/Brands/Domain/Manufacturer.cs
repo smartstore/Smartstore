@@ -16,7 +16,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Brands
 {
-    public class ManufacturerMap : IEntityTypeConfiguration<Manufacturer>
+    internal class ManufacturerMap : IEntityTypeConfiguration<Manufacturer>
     {
         public void Configure(EntityTypeBuilder<Manufacturer> builder)
         {

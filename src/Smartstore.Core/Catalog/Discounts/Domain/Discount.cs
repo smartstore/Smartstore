@@ -17,7 +17,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
-    public class DiscountMap : IEntityTypeConfiguration<Discount>
+    internal class DiscountMap : IEntityTypeConfiguration<Discount>
     {
         public void Configure(EntityTypeBuilder<Discount> builder)
         {

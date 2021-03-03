@@ -8,7 +8,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
-    public class GiftCardUsageHistoryMap : IEntityTypeConfiguration<GiftCardUsageHistory>
+    internal class GiftCardUsageHistoryMap : IEntityTypeConfiguration<GiftCardUsageHistory>
     {
         public void Configure(EntityTypeBuilder<GiftCardUsageHistory> builder)
         {

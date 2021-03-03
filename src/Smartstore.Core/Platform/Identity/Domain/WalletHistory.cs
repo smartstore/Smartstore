@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    public class WalletHistoryMap : IEntityTypeConfiguration<WalletHistory>
+    internal class WalletHistoryMap : IEntityTypeConfiguration<WalletHistory>
     {
         public void Configure(EntityTypeBuilder<WalletHistory> builder)
         {

@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public class ProductSpecificationAttributeMap : IEntityTypeConfiguration<ProductSpecificationAttribute>
+    internal class ProductSpecificationAttributeMap : IEntityTypeConfiguration<ProductSpecificationAttribute>
     {
         public void Configure(EntityTypeBuilder<ProductSpecificationAttribute> builder)
         {

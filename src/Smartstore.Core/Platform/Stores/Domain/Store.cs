@@ -6,11 +6,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Common;
 using Smartstore.Data.Caching;
 using Smartstore.Domain;
-using Smartstore.Net;
 
 namespace Smartstore.Core.Stores
 {
-    public class StoreMap : IEntityTypeConfiguration<Store>
+    internal class StoreMap : IEntityTypeConfiguration<Store>
     {
         public void Configure(EntityTypeBuilder<Store> builder)
         {

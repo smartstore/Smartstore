@@ -11,7 +11,7 @@
 
 //namespace Smartstore.Core.Content.Forums
 //{
-//    public class ForumTopicMap : IEntityTypeConfiguration<ForumTopic>
+//    internal class ForumTopicMap : IEntityTypeConfiguration<ForumTopic>
 //    {
 //        public void Configure(EntityTypeBuilder<ForumTopic> builder)
 //        {

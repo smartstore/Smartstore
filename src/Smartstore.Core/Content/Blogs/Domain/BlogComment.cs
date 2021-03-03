@@ -8,7 +8,7 @@
 
 //namespace Smartstore.Core.Content.Blogs
 //{
-//    public class BlogCommentMap : IEntityTypeConfiguration<BlogComment>
+//    internal class BlogCommentMap : IEntityTypeConfiguration<BlogComment>
 //    {
 //        public void Configure(EntityTypeBuilder<BlogComment> builder)
 //        {

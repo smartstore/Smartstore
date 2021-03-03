@@ -12,7 +12,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
-    public class CurrencyMap : IEntityTypeConfiguration<Currency>
+    internal class CurrencyMap : IEntityTypeConfiguration<Currency>
     {
         public void Configure(EntityTypeBuilder<Currency> builder)
         {

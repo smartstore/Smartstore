@@ -7,7 +7,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Localization
 {
-    public class LocalizedPropertyMap : IEntityTypeConfiguration<LocalizedProperty>
+    internal class LocalizedPropertyMap : IEntityTypeConfiguration<LocalizedProperty>
     {
         public void Configure(EntityTypeBuilder<LocalizedProperty> builder)
         {

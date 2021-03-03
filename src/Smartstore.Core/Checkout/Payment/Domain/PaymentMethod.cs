@@ -12,7 +12,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Payment
 {
-    public class PaymentMethodMap : IEntityTypeConfiguration<PaymentMethod>
+    internal class PaymentMethodMap : IEntityTypeConfiguration<PaymentMethod>
     {
         public void Configure(EntityTypeBuilder<PaymentMethod> builder)
         {

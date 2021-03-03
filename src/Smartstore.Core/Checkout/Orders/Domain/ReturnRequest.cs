@@ -10,7 +10,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public class ReturnRequestMap : IEntityTypeConfiguration<ReturnRequest>
+    internal class ReturnRequestMap : IEntityTypeConfiguration<ReturnRequest>
     {
         public void Configure(EntityTypeBuilder<ReturnRequest> builder)
         {

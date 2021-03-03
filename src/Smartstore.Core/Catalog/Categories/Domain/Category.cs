@@ -14,7 +14,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Categories
 {
-    public class CategoryMap : IEntityTypeConfiguration<Category>
+    internal class CategoryMap : IEntityTypeConfiguration<Category>
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {

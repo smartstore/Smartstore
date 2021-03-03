@@ -7,7 +7,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    public class ExternalAuthenticationRecordMap : IEntityTypeConfiguration<ExternalAuthenticationRecord>
+    internal class ExternalAuthenticationRecordMap : IEntityTypeConfiguration<ExternalAuthenticationRecord>
     {
         public void Configure(EntityTypeBuilder<ExternalAuthenticationRecord> builder)
         {

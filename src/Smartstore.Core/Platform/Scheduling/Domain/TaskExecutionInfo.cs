@@ -10,7 +10,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Scheduling
 {
-    public class TaskExecutionInfoMap : IEntityTypeConfiguration<TaskExecutionInfo>
+    internal class TaskExecutionInfoMap : IEntityTypeConfiguration<TaskExecutionInfo>
     {
         public void Configure(EntityTypeBuilder<TaskExecutionInfo> builder)
         {

@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
-    public class DiscountUsageHistoryMap : IEntityTypeConfiguration<DiscountUsageHistory>
+    internal class DiscountUsageHistoryMap : IEntityTypeConfiguration<DiscountUsageHistory>
     {
         public void Configure(EntityTypeBuilder<DiscountUsageHistory> builder)
         {

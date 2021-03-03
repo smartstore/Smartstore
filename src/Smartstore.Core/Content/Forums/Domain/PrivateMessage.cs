@@ -10,7 +10,7 @@
 
 //namespace Smartstore.Core.Content.Forums
 //{
-//    public class PrivateMessageMap : IEntityTypeConfiguration<PrivateMessage>
+//    internal class PrivateMessageMap : IEntityTypeConfiguration<PrivateMessage>
 //    {
 //        public void Configure(EntityTypeBuilder<PrivateMessage> builder)
 //        {

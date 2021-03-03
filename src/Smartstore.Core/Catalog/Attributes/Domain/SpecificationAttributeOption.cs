@@ -11,7 +11,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public class SpecificationAttributeOptionMap : IEntityTypeConfiguration<SpecificationAttributeOption>
+    internal class SpecificationAttributeOptionMap : IEntityTypeConfiguration<SpecificationAttributeOption>
     {
         public void Configure(EntityTypeBuilder<SpecificationAttributeOption> builder)
         {

@@ -24,7 +24,7 @@ namespace Smartstore.Core.Logging
         Fatal = 50
     }
 
-    public class LogMap : IEntityTypeConfiguration<Log>
+    internal class LogMap : IEntityTypeConfiguration<Log>
     {
         public void Configure(EntityTypeBuilder<Log> builder)
         {

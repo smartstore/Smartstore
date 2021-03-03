@@ -7,7 +7,7 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public class ProductReviewHelpfulnessMap : IEntityTypeConfiguration<ProductReviewHelpfulness>
+    internal class ProductReviewHelpfulnessMap : IEntityTypeConfiguration<ProductReviewHelpfulness>
     {
         public void Configure(EntityTypeBuilder<ProductReviewHelpfulness> builder)
         {

@@ -7,7 +7,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public class ProductBundleItemAttributeFilterMap : IEntityTypeConfiguration<ProductBundleItemAttributeFilter>
+    internal class ProductBundleItemAttributeFilterMap : IEntityTypeConfiguration<ProductBundleItemAttributeFilter>
     {
         public void Configure(EntityTypeBuilder<ProductBundleItemAttributeFilter> builder)
         {

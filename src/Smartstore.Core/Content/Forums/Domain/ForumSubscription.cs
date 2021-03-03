@@ -9,7 +9,7 @@
 
 //namespace Smartstore.Core.Content.Forums
 //{
-//    public class ForumSubscriptionMap : IEntityTypeConfiguration<ForumSubscription>
+//    internal class ForumSubscriptionMap : IEntityTypeConfiguration<ForumSubscription>
 //    {
 //        public void Configure(EntityTypeBuilder<ForumSubscription> builder)
 //        {

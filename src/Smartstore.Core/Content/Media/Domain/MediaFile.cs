@@ -12,7 +12,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Media
 {
-    public class MediaFileMap : IEntityTypeConfiguration<MediaFile>
+    internal class MediaFileMap : IEntityTypeConfiguration<MediaFile>
     {
         public void Configure(EntityTypeBuilder<MediaFile> builder)
         {

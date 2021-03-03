@@ -10,7 +10,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Common
 {
-    public class AddressMap : IEntityTypeConfiguration<Address>
+    internal class AddressMap : IEntityTypeConfiguration<Address>
     {
         public void Configure(EntityTypeBuilder<Address> builder)
         {

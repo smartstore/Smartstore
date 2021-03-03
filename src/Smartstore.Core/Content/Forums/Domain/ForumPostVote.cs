@@ -7,7 +7,7 @@
 
 //namespace Smartstore.Core.Content.Forums
 //{
-//    public class ForumPostVoteMap : IEntityTypeConfiguration<ForumPostVote>
+//    internal class ForumPostVoteMap : IEntityTypeConfiguration<ForumPostVote>
 //    {
 //        public void Configure(EntityTypeBuilder<ForumPostVote> builder)
 //        {

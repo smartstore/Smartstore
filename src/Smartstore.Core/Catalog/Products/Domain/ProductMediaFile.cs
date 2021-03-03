@@ -8,7 +8,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public class ProductMediaFileMap : IEntityTypeConfiguration<ProductMediaFile>
+    internal class ProductMediaFileMap : IEntityTypeConfiguration<ProductMediaFile>
     {
         public void Configure(EntityTypeBuilder<ProductMediaFile> builder)
         {

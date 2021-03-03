@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
-    public class StateProvinceMap : IEntityTypeConfiguration<StateProvince>
+    internal class StateProvinceMap : IEntityTypeConfiguration<StateProvince>
     {
         public void Configure(EntityTypeBuilder<StateProvince> builder)
         {

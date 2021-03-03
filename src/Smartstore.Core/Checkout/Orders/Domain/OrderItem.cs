@@ -13,7 +13,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public class OrderItemMap : IEntityTypeConfiguration<OrderItem>
+    internal class OrderItemMap : IEntityTypeConfiguration<OrderItem>
     {
         public void Configure(EntityTypeBuilder<OrderItem> builder)
         {

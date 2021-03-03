@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Security
 {
-    public class AclRecordMap : IEntityTypeConfiguration<AclRecord>
+    internal class AclRecordMap : IEntityTypeConfiguration<AclRecord>
     {
         public void Configure(EntityTypeBuilder<AclRecord> builder)
         {

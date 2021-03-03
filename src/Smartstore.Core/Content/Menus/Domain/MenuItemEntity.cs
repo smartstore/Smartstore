@@ -11,7 +11,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus
 {
-    public class MenuItemMap : IEntityTypeConfiguration<MenuItemEntity>
+    internal class MenuItemMap : IEntityTypeConfiguration<MenuItemEntity>
     {
         public void Configure(EntityTypeBuilder<MenuItemEntity> builder)
         {

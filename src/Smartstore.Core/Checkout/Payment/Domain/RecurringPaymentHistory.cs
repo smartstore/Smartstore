@@ -6,7 +6,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Payment
 {
-    public class RecurringPaymentHistoryMap : IEntityTypeConfiguration<RecurringPaymentHistory>
+    internal class RecurringPaymentHistoryMap : IEntityTypeConfiguration<RecurringPaymentHistory>
     {
         public void Configure(EntityTypeBuilder<RecurringPaymentHistory> builder)
         {

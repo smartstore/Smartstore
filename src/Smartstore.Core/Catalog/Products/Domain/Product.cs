@@ -25,7 +25,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public class ProductMap : IEntityTypeConfiguration<Product>
+    internal class ProductMap : IEntityTypeConfiguration<Product>
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {

@@ -10,7 +10,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Attributes
 {
-    public class CheckoutAttributeValueMap : IEntityTypeConfiguration<CheckoutAttributeValue>
+    internal class CheckoutAttributeValueMap : IEntityTypeConfiguration<CheckoutAttributeValue>
     {
         public void Configure(EntityTypeBuilder<CheckoutAttributeValue> builder)
         {

@@ -8,7 +8,7 @@
 
 //namespace Smartstore.Core.Content.News
 //{
-//    public class NewsCommentMap : IEntityTypeConfiguration<NewsComment>
+//    internal class NewsCommentMap : IEntityTypeConfiguration<NewsComment>
 //    {
 //        public void Configure(EntityTypeBuilder<NewsComment> builder)
 //        {

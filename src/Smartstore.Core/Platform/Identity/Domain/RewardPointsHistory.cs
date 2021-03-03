@@ -10,7 +10,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    public class RewardPointsHistoryMap : IEntityTypeConfiguration<RewardPointsHistory>
+    internal class RewardPointsHistoryMap : IEntityTypeConfiguration<RewardPointsHistory>
     {
         public void Configure(EntityTypeBuilder<RewardPointsHistory> builder)
         {

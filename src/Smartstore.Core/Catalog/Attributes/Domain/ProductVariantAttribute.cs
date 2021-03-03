@@ -13,7 +13,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
-    public class ProductVariantAttributeMap : IEntityTypeConfiguration<ProductVariantAttribute>
+    internal class ProductVariantAttributeMap : IEntityTypeConfiguration<ProductVariantAttribute>
     {
         public void Configure(EntityTypeBuilder<ProductVariantAttribute> builder)
         {

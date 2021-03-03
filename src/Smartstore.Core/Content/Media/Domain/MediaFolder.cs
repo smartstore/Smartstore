@@ -11,7 +11,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Media
 {
-    public class MediaFolderMap : IEntityTypeConfiguration<MediaFolder>
+    internal class MediaFolderMap : IEntityTypeConfiguration<MediaFolder>
     {
         public void Configure(EntityTypeBuilder<MediaFolder> builder)
         {

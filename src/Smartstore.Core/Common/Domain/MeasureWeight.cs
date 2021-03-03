@@ -7,7 +7,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
-    public class MeasureWeightMap : IEntityTypeConfiguration<MeasureWeight>
+    internal class MeasureWeightMap : IEntityTypeConfiguration<MeasureWeight>
     {
         public void Configure(EntityTypeBuilder<MeasureWeight> builder)
         {

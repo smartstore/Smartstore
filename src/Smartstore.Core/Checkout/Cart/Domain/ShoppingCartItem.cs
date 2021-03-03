@@ -11,7 +11,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Cart
 {
-    public class ShoppingCartItemMap : IEntityTypeConfiguration<ShoppingCartItem>
+    internal class ShoppingCartItemMap : IEntityTypeConfiguration<ShoppingCartItem>
     {
         public void Configure(EntityTypeBuilder<ShoppingCartItem> builder)
         {

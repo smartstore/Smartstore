@@ -8,7 +8,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Messages
 {
-    public class QueuedEmailMap : IEntityTypeConfiguration<QueuedEmail>
+    internal class QueuedEmailMap : IEntityTypeConfiguration<QueuedEmail>
     {
         public void Configure(EntityTypeBuilder<QueuedEmail> builder)
         {

@@ -5,7 +5,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
-    public class ShipmentItemMap : IEntityTypeConfiguration<ShipmentItem>
+    internal class ShipmentItemMap : IEntityTypeConfiguration<ShipmentItem>
     {
         public void Configure(EntityTypeBuilder<ShipmentItem> builder)
         {

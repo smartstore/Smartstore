@@ -11,7 +11,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public class ProductBundleItemMap : IEntityTypeConfiguration<ProductBundleItem>
+    internal class ProductBundleItemMap : IEntityTypeConfiguration<ProductBundleItem>
     {
         public void Configure(EntityTypeBuilder<ProductBundleItem> builder)
         {

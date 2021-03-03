@@ -8,7 +8,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public class OrderNoteMap : IEntityTypeConfiguration<OrderNote>
+    internal class OrderNoteMap : IEntityTypeConfiguration<OrderNote>
     {
         public void Configure(EntityTypeBuilder<OrderNote> builder)
         {

@@ -12,7 +12,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Localization
 {
-    public class LanguageMap : IEntityTypeConfiguration<Language>
+    internal class LanguageMap : IEntityTypeConfiguration<Language>
     {
         public void Configure(EntityTypeBuilder<Language> builder)
         {

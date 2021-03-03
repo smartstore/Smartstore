@@ -9,7 +9,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
-    public class GiftCardMap : IEntityTypeConfiguration<GiftCard>
+    internal class GiftCardMap : IEntityTypeConfiguration<GiftCard>
     {
         public void Configure(EntityTypeBuilder<GiftCard> builder)
         {   

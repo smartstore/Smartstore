@@ -14,7 +14,7 @@
 
 //namespace Smartstore.Core.Content.Blogs
 //{
-//    public class BlogPostMap : IEntityTypeConfiguration<BlogPost>
+//    internal class BlogPostMap : IEntityTypeConfiguration<BlogPost>
 //    {
 //        public void Configure(EntityTypeBuilder<BlogPost> builder)
 //        {

@@ -11,7 +11,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Logging
 {
-    public class ActivityLogMap : IEntityTypeConfiguration<ActivityLog>
+    internal class ActivityLogMap : IEntityTypeConfiguration<ActivityLog>
     {
         public void Configure(EntityTypeBuilder<ActivityLog> builder)
         {

@@ -8,7 +8,7 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Media
 {
-    public class DownloadMap : IEntityTypeConfiguration<Download>
+    internal class DownloadMap : IEntityTypeConfiguration<Download>
     {
         public void Configure(EntityTypeBuilder<Download> builder)
         {
