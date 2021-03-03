@@ -73,7 +73,6 @@ namespace Smartstore
                 // But a system product may only be placed once in the shopping cart.
                 if (currentProduct.CustomerEntersPrice 
                     && !currentProduct.IsSystemProduct
-                    && customerEnteredPrice != default(Money)
                     && customerEnteredPrice.RoundedAmount != decimal.Round(cartItem.Item.CustomerEnteredPrice, customerEnteredPrice.DecimalDigits))
                 {
                     continue;

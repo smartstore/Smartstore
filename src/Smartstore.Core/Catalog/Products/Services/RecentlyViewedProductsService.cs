@@ -5,11 +5,9 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Security;
-using Smartstore.Core.Web;
 using Smartstore.Net;
 
 namespace Smartstore.Core.Catalog.Products
@@ -20,20 +18,17 @@ namespace Smartstore.Core.Catalog.Products
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAclService _aclService;
         private readonly CatalogSettings _catalogSettings;
-        private readonly PrivacySettings _privacySettings;
 
         public RecentlyViewedProductsService(
             SmartDbContext db,
             IHttpContextAccessor httpContextAccessor,
             IAclService aclService,
-            CatalogSettings catalogSettings,
-            PrivacySettings privacySettings)
+            CatalogSettings catalogSettings)
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;
             _aclService = aclService;
             _catalogSettings = catalogSettings;
-            _privacySettings = privacySettings;
         }
 
         public virtual async Task<IList<Product>> GetRecentlyViewedProductsAsync(int number)

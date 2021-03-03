@@ -5,9 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Search;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
-using Smartstore.Core.Web;
 using Smartstore.Net;
 
 namespace Smartstore.Core.Catalog.Products
@@ -21,8 +19,7 @@ namespace Smartstore.Core.Catalog.Products
         public ProductCompareService(
             SmartDbContext db,
             IHttpContextAccessor httpContextAccessor,
-            ICatalogSearchService catalogSearchService,
-            PrivacySettings privacySettings)
+            ICatalogSearchService catalogSearchService)
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;

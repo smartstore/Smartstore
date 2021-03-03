@@ -11,7 +11,6 @@ using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
-using Smartstore.Net;
 
 namespace Smartstore.Core.Catalog.Products
 {
