@@ -10,7 +10,7 @@ namespace Smartstore.ComponentModel
     public static class MapperFactory
     {
         private static IDictionary<TypePair, Type> _mapperTypes = null;
-        private readonly static object _lock = new object();
+        private readonly static object _lock = new();
 
         private static void EnsureInitialized()
         {
