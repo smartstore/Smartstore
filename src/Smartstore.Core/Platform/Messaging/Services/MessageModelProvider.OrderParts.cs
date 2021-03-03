@@ -222,7 +222,7 @@ namespace Smartstore.Core.Messages
                 {
                     GiftCard = T("Order.GiftCardInfo", language.Id, x.GiftCard.GiftCardCouponCode).Value,
                     UsedAmount = FormatPrice(-x.UsedValue, order, messageContext),
-                    RemainingAmount = FormatPrice(remainingAmount, order, messageContext)
+                    RemainingAmount = FormatPrice(remainingAmount.Amount, order, messageContext)
                 };
             }).ToArray();
 

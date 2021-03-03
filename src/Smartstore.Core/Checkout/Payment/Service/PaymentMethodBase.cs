@@ -15,13 +15,7 @@ namespace Smartstore.Core.Checkout.Payment
     /// </summary>
     public abstract class PaymentMethodBase : IPaymentMethod
     {
-        protected PaymentMethodBase()
-        {
-            T = NullLocalizer.Instance;
-        }
-
-        public Localizer T { get; set; }
-
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         #region Properties
 

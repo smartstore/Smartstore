@@ -684,8 +684,8 @@ namespace Smartstore.Core.Messages
             var order = part?.PurchasedWithOrderItem?.Order;
             if (order != null)
             {
-                decimal remainingAmountBase = _services.Resolve<IGiftCardService>().GetRemainingAmount(part);
-                remainingAmount = FormatPrice(remainingAmountBase, order, messageContext);
+                var remainingAmountBase = _services.Resolve<IGiftCardService>().GetRemainingAmount(part);
+                remainingAmount = FormatPrice(remainingAmountBase.Amount, order, messageContext);
             }
             m["RemainingAmount"] = remainingAmount;
 

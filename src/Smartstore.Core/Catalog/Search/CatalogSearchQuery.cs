@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search.Modelling;
+using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Search;
 
@@ -359,8 +360,8 @@ namespace Smartstore.Core.Catalog.Search
         }
 
         public CatalogSearchQuery PriceBetween(
-            decimal? fromPrice,
-            decimal? toPrice,
+            Money? fromPrice,
+            Money? toPrice,
             bool? includeFrom = null,
             bool? includeTo = null)
         {
@@ -377,13 +378,17 @@ namespace Smartstore.Core.Catalog.Search
             {
                 var forbidden = includeFrom.HasValue && includeTo.HasValue && !includeFrom.Value && !includeTo.Value;
 
-                return WithFilter(SearchFilter.ByField(fieldName, decimal.ToDouble(fromPrice.Value)).Mandatory(!forbidden).ExactMatch().NotAnalyzed());
+                return WithFilter(SearchFilter
+                    .ByField(fieldName, decimal.ToDouble(fromPrice.Value.Amount))
+                    .Mandatory(!forbidden)
+                    .ExactMatch()
+                    .NotAnalyzed());
             }
             else
             {
                 var filter = SearchFilter.ByRange(fieldName,
-                    fromPrice.HasValue ? decimal.ToDouble(fromPrice.Value) : null,
-                    toPrice.HasValue ? decimal.ToDouble(toPrice.Value) : null,
+                    fromPrice.HasValue ? decimal.ToDouble(fromPrice.Value.Amount) : null,
+                    toPrice.HasValue ? decimal.ToDouble(toPrice.Value.Amount) : null,
                     includeFrom ?? fromPrice.HasValue,
                     includeTo ?? toPrice.HasValue);
 

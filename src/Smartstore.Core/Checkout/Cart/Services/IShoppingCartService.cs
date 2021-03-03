@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Cart
@@ -71,18 +72,6 @@ namespace Smartstore.Core.Checkout.Cart
             int storeId = 0);
 
         /// <summary>
-        /// Gets all open carts sub totals async.
-        /// </summary>
-        /// <returns>Sub total of all open carts.</returns>
-        Task<decimal> GetOpenCartsSubTotalAsync();
-
-        /// <summary>
-        /// Gets all open wish lists sub totals async.
-        /// </summary>
-        /// <returns>Sub total of all open wish lists.</returns>
-        Task<decimal> GetOpenWishlistsSubTotalAsync();
-
-        /// <summary>
         /// Migrates all cart items from one to another customer async.
         /// </summary>
         /// <param name="fromCustomer">From this customer.</param>
@@ -98,5 +87,19 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="resetCheckoutData">Value indicating whether to reset checkout data.</param>
         /// <returns>List of error messages.</returns>
         Task<IList<string>> UpdateCartItemAsync(Customer customer, int cartItemId, int newQuantity, bool resetCheckoutData);
-    }    
+
+        /// <summary>
+        /// Gets all open carts sub totals.
+        /// </summary>
+        /// <param name="cartType">Shopping cart type.</param>
+        /// <returns>Sub total of all open carts.</returns>
+        Task<Money> GetOpenCartsSubTotalAsync(ShoppingCartType cartType);
+
+        /// <summary>
+        /// Gets the cart subtotal converted into <see cref="IWorkContext.WorkingCurrency"/> for the current user.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <returns>Converted cart subtotal.</returns>
+        Task<Money> GetCurrentCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart = null);
+    }
 }

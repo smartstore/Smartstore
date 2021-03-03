@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Checkout.GiftCards
+﻿using Smartstore.Core.Common;
+
+namespace Smartstore.Core.Checkout.GiftCards
 {
     /// <summary>
     /// Represents an applied gift card
@@ -8,7 +10,7 @@
         /// <summary>
         /// Gets or sets the usable amount
         /// </summary>
-        public decimal UsableAmount { get; init; }
+        public Money UsableAmount { get; init; }
 
         /// <summary>
         /// Gets the gift card

@@ -4,26 +4,26 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Core.Identity;
+using Smartstore.Core.Common;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
     public partial class GiftCardService : IGiftCardService
     {
         private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
 
-        public GiftCardService(SmartDbContext db)
+        public GiftCardService(SmartDbContext db, IWorkContext workContext)
         {
             _db = db;
+            _workContext = workContext;
         }
-
-        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public virtual Task<List<AppliedGiftCard>> GetValidGiftCardsAsync(int storeId = 0, Customer customer = null)
         {
+            var currency = _workContext.WorkingCurrency;
             var query = _db.GiftCards
                 .Include(x => x.PurchasedWithOrderItem)
                     .ThenInclude(x => x.Order)
@@ -46,7 +46,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                 .Select(x => new AppliedGiftCard
                 {
                     GiftCard = x,
-                    UsableAmount = x.Amount - x.GiftCardUsageHistory.Where(y => y.GiftCardId == x.Id).Sum(x => x.UsedValue)
+                    UsableAmount = new(x.Amount - x.GiftCardUsageHistory.Where(y => y.GiftCardId == x.Id).Sum(x => x.UsedValue), currency)
                 })
                 .Where(x => x.UsableAmount > decimal.Zero)
                 .ToListAsync();
@@ -67,14 +67,13 @@ namespace Smartstore.Core.Checkout.GiftCards
         }
 
         //TODO: (ms) (core) have giftcard usage history eager loaded
-        public virtual decimal GetRemainingAmount(GiftCard giftCard)
+        public virtual Money GetRemainingAmount(GiftCard giftCard)
         {
             Guard.NotNull(giftCard, nameof(giftCard));
 
-            var result = giftCard.Amount - (giftCard.GiftCardUsageHistory?.Sum(x => x.UsedValue) ?? 0m);
-            return result < decimal.Zero
-                ? decimal.Zero
-                : result;
+            var usedValue = giftCard.GiftCardUsageHistory?.Sum(x => x.UsedValue) ?? decimal.Zero;
+
+            return _workContext.WorkingCurrency.AsMoney(giftCard.Amount - usedValue, false, true);
         }
 
         public virtual Task<string> GenerateGiftCardCodeAsync()

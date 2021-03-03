@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Cart
@@ -71,7 +72,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets the price entered by customer
         /// </summary>
-        public decimal CustomerEnteredPrice { get; set; }
+        public Money CustomerEnteredPrice { get; set; }
 
         /// <summary>
         /// Gets or sets the quantity

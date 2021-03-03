@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 
@@ -32,7 +33,7 @@ namespace Smartstore
             ShoppingCartType shoppingCartType,
             Product product,
             ProductVariantAttributeSelection selection,
-            decimal customerEnteredPrice = decimal.Zero)
+            Money customerEnteredPrice)
         {
             Guard.NotNull(cart, nameof(cart));
             Guard.NotNull(product, nameof(product));
@@ -70,8 +71,10 @@ namespace Smartstore
 
                 // Products with CustomerEntersPrice are equal if the price is the same.
                 // But a system product may only be placed once in the shopping cart.
-                if (currentProduct.CustomerEntersPrice && !currentProduct.IsSystemProduct
-                    && Math.Round(cartItem.Item.CustomerEnteredPrice, 2) != Math.Round(customerEnteredPrice, 2))
+                if (currentProduct.CustomerEntersPrice 
+                    && !currentProduct.IsSystemProduct
+                    && customerEnteredPrice != default(Money)
+                    && customerEnteredPrice.RoundedAmount != decimal.Round(cartItem.Item.CustomerEnteredPrice, customerEnteredPrice.DecimalDigits))
                 {
                     continue;
                 }

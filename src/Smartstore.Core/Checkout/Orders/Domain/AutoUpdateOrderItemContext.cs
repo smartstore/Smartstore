@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Checkout.Orders
@@ -48,12 +49,12 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// [IN] Old price incl. tax.
         /// </summary>
-        public decimal? PriceInclTaxOld { get; set; }
+        public Money? PriceInclTaxOld { get; set; }
 
         /// <summary>
         /// [IN] Old price excl. tax.
         /// </summary>
-        public decimal? PriceExclTaxOld { get; set; }
+        public Money? PriceExclTaxOld { get; set; }
 
         /// <summary>
         /// [OUT] Inventory changes

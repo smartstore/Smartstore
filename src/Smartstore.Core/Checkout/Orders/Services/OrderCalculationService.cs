@@ -156,7 +156,7 @@ namespace Smartstore.Core.Checkout.Orders
                 {
                     if (resultTemp > decimal.Zero)
                     {
-                        var usableAmount = resultTemp.Amount > gc.UsableAmount ? gc.UsableAmount : resultTemp.Amount;
+                        var usableAmount = resultTemp > gc.UsableAmount ? gc.UsableAmount : resultTemp;
 
                         // Reduce subtotal.
                         resultTemp -= usableAmount;
@@ -172,7 +172,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             // Reward points.
             var redeemedRewardPoints = 0;
-            var redeemedRewardPointsAmount = new Money();
+            var redeemedRewardPointsAmount = new Money(currency);
 
             if (_rewardPointsSettings.Enabled && includeRewardPoints && resultTemp > decimal.Zero &&
                 customer != null && customer.GenericAttributes.UseRewardPointsDuringCheckout)
@@ -875,17 +875,14 @@ namespace Smartstore.Core.Checkout.Orders
             var currency = _workContext.WorkingCurrency;
             var storeId = _storeContext.CurrentStore.Id;
             var customer = cart.GetCustomer();
-
-            var shippingOption = customer != null
-                ? customer.GenericAttributes.SelectedShippingOption?.Convert<ShippingOption>()
-                : null;
+            var shippingOption = customer?.GenericAttributes?.SelectedShippingOption?.Convert<ShippingOption>();
 
             if (shippingOption != null)
             {
                 // Use last shipping option (get from cache).
                 var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(false, storeId);
 
-                return await AdjustShippingRateAsync(cart, new Money(shippingOption.Rate, currency), shippingOption, shippingMethods);
+                return await AdjustShippingRateAsync(cart, new(shippingOption.Rate, currency), shippingOption, shippingMethods);
             }
             else
             {
@@ -906,7 +903,8 @@ namespace Smartstore.Core.Checkout.Orders
 
                     if (fixedRate.HasValue)
                     {
-                        return await AdjustShippingRateAsync(cart, new Money(fixedRate.Value, currency), null, null);
+                        // Ignore returned currency. The caller specifies it to avoid mixed currencies during calculation.
+                        return await AdjustShippingRateAsync(cart, new(fixedRate.Value.Amount, currency), null, null);
                     }
                 }
             }

@@ -10,6 +10,7 @@ using Smartstore.Collections;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Common;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
@@ -113,6 +114,7 @@ namespace Smartstore.Core.Catalog.Rules
         protected override async Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
         {
             var language = _services.WorkContext.WorkingLanguage;
+            var currency = _services.WorkContext.WorkingCurrency;
             var oneStarStr = T("Search.Facet.1StarAndMore").Value;
             var xStarsStr = T("Search.Facet.XStarsAndMore").Value;
 
@@ -188,17 +190,19 @@ namespace Smartstore.Core.Catalog.Rules
 
             CatalogSearchQuery priceFilter(SearchFilterContext ctx, decimal x)
             {
+                var price = new Money(x, currency);
+
                 if (ctx.Expression.Operator == RuleOperator.IsEqualTo || ctx.Expression.Operator == RuleOperator.IsNotEqualTo)
                 {
-                    return ctx.Query.PriceBetween(x, x, ctx.Expression.Operator == RuleOperator.IsEqualTo, ctx.Expression.Operator == RuleOperator.IsEqualTo);
+                    return ctx.Query.PriceBetween(price, price, ctx.Expression.Operator == RuleOperator.IsEqualTo, ctx.Expression.Operator == RuleOperator.IsEqualTo);
                 }
                 else if (ctx.Expression.Operator == RuleOperator.GreaterThanOrEqualTo || ctx.Expression.Operator == RuleOperator.GreaterThan)
                 {
-                    return ctx.Query.PriceBetween(x, null, ctx.Expression.Operator == RuleOperator.GreaterThanOrEqualTo, null);
+                    return ctx.Query.PriceBetween(price, null, ctx.Expression.Operator == RuleOperator.GreaterThanOrEqualTo, null);
                 }
                 else if (ctx.Expression.Operator == RuleOperator.LessThanOrEqualTo || ctx.Expression.Operator == RuleOperator.LessThan)
                 {
-                    return ctx.Query.PriceBetween(null, x, null, ctx.Expression.Operator == RuleOperator.LessThanOrEqualTo);
+                    return ctx.Query.PriceBetween(null, price, null, ctx.Expression.Operator == RuleOperator.LessThanOrEqualTo);
                 }
 
                 return ctx.Query;

@@ -453,6 +453,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                 //    maxPrice = _currencyService.ConvertToPrimaryStoreCurrency(maxPrice.Value, currency);
                 //}
 
+                // Normalization.
                 if (minPrice.HasValue && maxPrice.HasValue && minPrice > maxPrice)
                 {
                     var tmp = minPrice;
@@ -462,7 +463,11 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
                 if (minPrice.HasValue || maxPrice.HasValue)
                 {
-                    query.PriceBetween((decimal?)minPrice, (decimal?)maxPrice);
+                    var currency = _services.WorkContext.WorkingCurrency;
+
+                    query.PriceBetween(
+                        minPrice.HasValue ? new((decimal)minPrice.Value, currency) : null,
+                        maxPrice.HasValue ? new((decimal)maxPrice.Value, currency) : null);
                 }
             }
 

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
@@ -46,7 +47,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// <returns>
         /// Remaining usable gift card amount
         /// </returns>
-        decimal GetRemainingAmount(GiftCard giftCard);
+        Money GetRemainingAmount(GiftCard giftCard);
 
         /// <summary>
         /// Generates new gift card code async
