@@ -149,15 +149,20 @@ namespace Smartstore.Core.Content.Menus
             Guard.NotNull(actionContext, nameof(actionContext));
             Guard.NotEmpty(name, nameof(name));
 
+            var request = actionContext.HttpContext.Request;
             var value = actionContext.RouteData.Values[name]?.ToString();
             if (value.IsEmpty())
             {
-                if (!actionContext.HttpContext.Request.Form.TryGetValue(name, out var values))
+                if (request.HasFormContentType && request.Form != null && request.Form.Count > 0)
                 {
-                    actionContext.HttpContext.Request.Query.TryGetValue(name, out values);
+                    request.Form.TryGetValue(name, out var values);
+                    value = values.ToString();
                 }
-                
-                value = values.ToString();
+                else
+                {
+                    request.Query.TryGetValue(name, out var values);
+                    value = values.ToString();
+                }    
             }
 
             if (value.HasValue() && CommonHelper.TryConvert<T>(value, out var result))
