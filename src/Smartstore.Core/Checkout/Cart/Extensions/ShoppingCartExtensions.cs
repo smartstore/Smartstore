@@ -71,7 +71,7 @@ namespace Smartstore
 
                 // Products with CustomerEntersPrice are equal if the price is the same.
                 // But a system product may only be placed once in the shopping cart.
-                if (currentProduct.CustomerEntersPrice 
+                if (currentProduct.CustomerEntersPrice
                     && !currentProduct.IsSystemProduct
                     && customerEnteredPrice.RoundedAmount != decimal.Round(cartItem.Item.CustomerEnteredPrice, customerEnteredPrice.DecimalDigits))
                 {
@@ -177,30 +177,6 @@ namespace Smartstore
             Guard.NotNull(cart, nameof(cart));
 
             return cart.Count > 0 ? cart[0].Item.Customer : null;
-        }
-
-        /// <summary>
-        /// Removes a single cart item from shopping cart of <see cref="ShoppingCartItem.Customer"/>.
-        /// </summary>        
-        /// <param name="cartItem">Cart item to remove from shopping cart.</param>
-        /// <param name="resetCheckoutData">A value indicating whether to reset checkout data.</param>
-        /// <param name="removeInvalidCheckoutAttributes">A value indicating whether to remove incalid checkout attributes.</param>
-        /// <param name="deleteChildCartItems">A value indicating whether to delete child cart items of <c>cartItem.</c></param>
-        /// <returns>Number of deleted entries.</returns>
-        public static Task<int> DeleteCartItemAsync(this IShoppingCartService cartService,
-            ShoppingCartItem cartItem,
-            bool resetCheckoutData = true,
-            bool removeInvalidCheckoutAttributes = false,
-            bool deleteChildCartItems = true)
-        {
-            Guard.NotNull(cartService, nameof(cartService));
-            Guard.NotNull(cartItem, nameof(cartItem));
-
-            return cartService.DeleteCartItemsAsync(
-                new[] { cartItem },
-                resetCheckoutData,
-                removeInvalidCheckoutAttributes,
-                deleteChildCartItems);
         }
     }
 }

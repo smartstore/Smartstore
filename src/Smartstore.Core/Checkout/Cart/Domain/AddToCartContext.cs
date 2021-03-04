@@ -66,6 +66,9 @@ namespace Smartstore.Core.Checkout.Cart
             }
         }
 
+        /// <summary>
+        /// Gets the product variant attribute selection.
+        /// </summary>
         public ProductVariantAttributeSelection AttributeSelection
             => _attributeSelection ??= new(RawAttributes);
 
@@ -92,7 +95,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets bundle item id
         /// </summary>
-        public int BundleItemId 
+        public int BundleItemId
             => BundleItem is null ? 0 : BundleItem.Id;
     }
 }

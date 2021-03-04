@@ -171,10 +171,10 @@ namespace Smartstore.Core.Checkout.Cart
                 }
             }
 
-            //if (!await _cartValidator.ValidateAccessPermissionsAsync(ctx))
-            //{
-            //    return false;
-            //}
+            if (!await _cartValidator.ValidateAccessPermissionsAsync(ctx.Customer, ctx.CartType, ctx.Warnings))
+            {
+                return false;
+            }
 
             var cartItems = await GetCartItemsAsync(ctx.Customer, ctx.CartType, ctx.StoreId.Value);
 
@@ -213,8 +213,8 @@ namespace Smartstore.Core.Checkout.Cart
                 }
             }
 
-            //// Checks whether required products are still missing
-            //await _cartValidator.ValidateRequiredProductsAsync(ctx);
+            // Checks whether required products are still missing
+            await _cartValidator.ValidateRequiredProductsAsync(ctx.Product, cartItems, ctx.Warnings);
 
             OrganizedShoppingCartItem existingCartItem = null;
 
@@ -229,10 +229,10 @@ namespace Smartstore.Core.Checkout.Cart
                 // Product is already in cart, find existing item
                 ctx.Quantity += existingCartItem.Item.Quantity;
 
-                //if (!await _cartValidator.ValidateCartItemAsync(ctx, cartItems))
-                //{
-                //    return false;
-                //}
+                if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItems))
+                {
+                    return false;
+                }
 
                 // Update cart item
                 existingCartItem.Item.Quantity = ctx.Quantity;
@@ -243,15 +243,15 @@ namespace Smartstore.Core.Checkout.Cart
             }
             else
             {
-                //if (!await _cartValidator.ValidateCartItemAsync(ctx, cartItems))
-                //{
-                //    return false;
-                //}
+                if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItems))
+                {
+                    return false;
+                }
 
-                //if (!_cartValidator.ValidateCartItemsMaximum(ctx.CartType,cartItems.Count, ctx.Warnings))
-                //{
-                //    return false;
-                //}
+                if (!_cartValidator.ValidateItemsMaximumCartQuantity(ctx.CartType, cartItems.Count, ctx.Warnings))
+                {
+                    return false;
+                }
 
                 // Product is not in cart yet, create new item
                 var cartItem = new ShoppingCartItem
@@ -293,34 +293,29 @@ namespace Smartstore.Core.Checkout.Cart
 
                 foreach (var bundleItem in bundleItems)
                 {
-                    //var tmpCtx = ctx.Clone();
-                    //tmpCtx.BundleItem = bundleItem;
-                    //tmpCtx.Quantity = bundleItem.Quantity;
-                    //tmpCtx.Product = bundleItem.Product;
-
-                    //// Try add each bundleItem to the cart
-                    ////var success = await AddToCartAsync(
-                    ////    new AddToCartContext
-                    ////    {
-                    ////        Item = ctx.Item,
-                    ////        StoreId = ctx.StoreId,
-                    ////        Customer = ctx.Customer,
-                    ////        Warnings = ctx.Warnings,
-                    ////        CartType = ctx.CartType,
-                    ////        BundleItem = bundleItem,
-                    ////        ChildItems = ctx.ChildItems,
-                    ////        Product = bundleItem.Product,
-                    ////        Quantity = bundleItem.Quantity,
-                    ////        VariantQuery = ctx.VariantQuery,
-                    ////        AutomaticallyAddRequiredProductsIfEnabled = ctx.AutomaticallyAddRequiredProductsIfEnabled
-                    ////    });
+                    var tempCtx = new AddToCartContext
+                    {
+                        Warnings = new(),
+                        Item = ctx.Item,
+                        StoreId = ctx.StoreId,
+                        Customer = ctx.Customer,
+                        CartType = ctx.CartType,
+                        BundleItem = bundleItem,
+                        ChildItems = ctx.ChildItems,
+                        Product = bundleItem.Product,
+                        Quantity = bundleItem.Quantity,
+                        VariantQuery = ctx.VariantQuery,
+                        RawAttributes = ctx.AttributeSelection.AsJson(),
+                        CustomerEnteredPrice = ctx.CustomerEnteredPrice,
+                        AutomaticallyAddRequiredProductsIfEnabled = ctx.AutomaticallyAddRequiredProductsIfEnabled,
+                    };
 
                     // If bundleItem could not be added to the shopping cart, remove child items
-                    //if (!await AddToCartAsync(tmpCtx))
-                    //{
-                    //    ctx.ChildItems.Clear();
-                    //    break;
-                    //}
+                    if (!await AddToCartAsync(tempCtx))
+                    {
+                        ctx.ChildItems.Clear();
+                        break;
+                    }
                 }
             }
 
@@ -539,17 +534,17 @@ namespace Smartstore.Core.Checkout.Cart
 
                 var cartItems = await GetCartItemsAsync(customer, cartItem.ShoppingCartType, cartItem.StoreId);
 
-                //if (await _cartValidator.ValidateCartItemAsync(ctx, cartItems))
-                //{
-                //    cartItem.Quantity = newQuantity;
-                //    cartItem.UpdatedOnUtc = DateTime.UtcNow;
-                //    _db.TryUpdate(customer);
-                //    await _db.SaveChangesAsync();
-                //}
-                //else
-                //{
-                //    warnings.AddRange(ctx.Warnings);
-                //}
+                if (await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItems))
+                {
+                    cartItem.Quantity = newQuantity;
+                    cartItem.UpdatedOnUtc = DateTime.UtcNow;
+                    _db.TryUpdate(customer);
+                    await _db.SaveChangesAsync();
+                }
+                else
+                {
+                    warnings.AddRange(ctx.Warnings);
+                }
             }
             else
             {

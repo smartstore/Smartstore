@@ -1,5 +1,4 @@
 ﻿using System;
-using Smartstore.Core.Checkout.Payment;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
