@@ -12,7 +12,7 @@ namespace Smartstore.Core.Checkout.Shipping
     /// </summary>
     internal partial class CompositeShipmentTracker : IShipmentTracker
     {
-        // TODO: (ms) (core) A caching functionality like this is also needed for DHL!
+        // TODO: (ms) (core) Implement a shipment tracker for DHL!
         private static Type[] _trackerTypes = null;
         private readonly static object _lock = new();
 
@@ -47,7 +47,7 @@ namespace Smartstore.Core.Checkout.Shipping
         }
 
         protected virtual IShipmentTracker GetTrackerByTrackingNumber(string trackingNumber)
-                    => GetAllTrackers().FirstOrDefault(c => c.IsMatch(trackingNumber));
+            => GetAllTrackers().FirstOrDefault(c => c.IsMatch(trackingNumber));
 
         /// <summary>
         /// Gets if the current tracker can track the tracking number.
