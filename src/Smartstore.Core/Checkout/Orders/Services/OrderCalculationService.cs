@@ -613,7 +613,7 @@ namespace Smartstore.Core.Checkout.Orders
                     {
                         if (charge < item.Product.AdditionalShippingCharge)
                         {
-                            charge = charge.ChangeAmount(item.Product.AdditionalShippingCharge);
+                            charge = charge.Change(item.Product.AdditionalShippingCharge);
                         }
                     }
                     else

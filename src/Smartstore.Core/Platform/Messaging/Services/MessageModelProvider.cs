@@ -552,7 +552,6 @@ namespace Smartstore.Core.Messages
             var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(part.DeliveryTimeId ?? 0);
             var currency = _services.WorkContext.WorkingCurrency;
             var additionalShippingCharge = currencyService.ConvertFromPrimaryStoreCurrency(new(part.AdditionalShippingCharge, currency, true));
-            additionalShippingCharge.HideCurrency = true;
 
             var productUrl = await productUrlHelper.GetProductUrlAsync(part.Id, await part.GetActiveSlugAsync(messageContext.Language.Id), attrSelection);
             var url = BuildUrl(productUrl, messageContext);

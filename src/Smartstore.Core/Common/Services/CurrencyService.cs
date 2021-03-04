@@ -42,19 +42,16 @@ namespace Smartstore.Core.Common.Services
 
         public virtual Money ConvertCurrency(Money amount, decimal exchangeRate)
         {
-            Guard.NotNull(amount, nameof(amount));
-
             if (amount != decimal.Zero && exchangeRate != decimal.Zero)
             {
                 return amount * exchangeRate;
             }
 
-            return new(amount.Currency);
+            return amount.Change(0m, amount.Currency);
         }
 
         public virtual Money ConvertCurrency(Money amount, Currency targetCurrency, Store store = null)
         {
-            Guard.NotNull(amount, nameof(amount));
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
             Guard.NotNull(targetCurrency, nameof(targetCurrency));
 
@@ -73,18 +70,17 @@ namespace Smartstore.Core.Common.Services
                 return ConvertFromStoreCurrency(true, tmp, store);
             }
 
-            return new(amount.Amount, targetCurrency);
+            return amount.Change(amount.Amount, targetCurrency);
         }
 
         public virtual Money ConvertToStoreCurrency(bool toExchangeRateCurrency, Money amount, Store store = null)
         {
-            Guard.NotNull(amount, nameof(amount));
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
 
+            store ??= _storeContext.CurrentStore;
+
             var sourceCurrency = amount.Currency;
-            var targetCurrency = toExchangeRateCurrency
-                ? store?.PrimaryExchangeRateCurrency ?? _storeContext.CurrentStore.PrimaryExchangeRateCurrency
-                : store?.PrimaryStoreCurrency ?? _storeContext.CurrentStore.PrimaryStoreCurrency;
+            var targetCurrency = toExchangeRateCurrency ? store.PrimaryExchangeRateCurrency : store.PrimaryStoreCurrency;
 
             if (amount != decimal.Zero && sourceCurrency.Id != targetCurrency.Id)
             {
@@ -94,10 +90,10 @@ namespace Smartstore.Core.Common.Services
                     throw new SmartException($"Exchange rate not found for currency [{sourceCurrency.Name}].");
                 }
 
-                return new(amount.Amount / exchangeRate, targetCurrency);
+                return amount.Change(amount.Amount / exchangeRate, targetCurrency);
             }
 
-            return new(amount.Amount, targetCurrency);
+            return amount.Change(amount.Amount, targetCurrency);
         }
 
         public virtual Money ConvertFromStoreCurrency(bool fromExchangeRateCurrency, Money amount, Store store = null)
@@ -120,26 +116,28 @@ namespace Smartstore.Core.Common.Services
                         throw new SmartException($"Exchange rate not found for currency [{targetCurrency.Name}].");
                     }
 
-                    return new(amount.Amount * exchangeRate, targetCurrency);
+                    return amount.Change(amount.Amount * exchangeRate, targetCurrency);
                 }
 
-                return new(amount.Amount, targetCurrency);
+                return amount.Change(amount.Amount, targetCurrency);
             }
             else
             {
-                return ConvertCurrency(new(amount.Amount, sourceCurrency), targetCurrency, store);
+                return ConvertCurrency(amount.Change(amount.Amount, sourceCurrency), targetCurrency, store);
             }
         }
 
-        public virtual async Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode)
+        public virtual Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode)
         {
             var exchangeRateProvider = LoadActiveExchangeRateProvider();
             if (exchangeRateProvider != null)
             {
-                return await exchangeRateProvider.Value.GetCurrencyLiveRatesAsync(exchangeRateCurrencyCode);
+                return exchangeRateProvider.Value.GetCurrencyLiveRatesAsync(exchangeRateCurrencyCode);
             }
-
-            return new List<ExchangeRate>();
+            else
+            {
+                return Task.FromResult<IList<ExchangeRate>>(new List<ExchangeRate>());
+            }
         }
 
         public virtual Provider<IExchangeRateProvider> LoadActiveExchangeRateProvider()

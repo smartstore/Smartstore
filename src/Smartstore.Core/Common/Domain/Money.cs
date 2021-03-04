@@ -131,15 +131,15 @@ namespace Smartstore.Core.Common
 
         #region Assign
 
-        public Money ChangeAmount(float amount)
-            => ChangeAmount((decimal)amount);
+        public Money Change(float amount, Currency currency = null)
+            => Change((decimal)amount);
 
-        public Money ChangeAmount(double amount)
-            => ChangeAmount((decimal)amount);
+        public Money Change(double amount, Currency currency = null)
+            => Change((decimal)amount);
 
-        public Money ChangeAmount(decimal amount)
+        public Money Change(decimal amount, Currency currency = null)
         {
-            return new Money(amount, Currency, HideCurrency)
+            return new Money(amount, currency ?? Currency, HideCurrency)
             {
                 ShowTax = ShowTax,
                 TaxSuffixFormatString = TaxSuffixFormatString
@@ -362,19 +362,19 @@ namespace Smartstore.Core.Common
         public static Money operator ++(Money a)
         {
             var amount = a.Amount;
-            return a.ChangeAmount(amount++);
+            return a.Change(amount++);
         }
 
         public static Money operator +(Money a, Money b)
         {
             GuardCurrenciesAreEqual(a, b);
-            return a.ChangeAmount(a.Amount + b.Amount);
+            return a.Change(a.Amount + b.Amount);
         }
 
         public static Money operator +(Money a, int b) => a + (decimal)b;
         public static Money operator +(Money a, float b) => a + (decimal)b;
         public static Money operator +(Money a, double b) => a + (decimal)b;
-        public static Money operator +(Money a, decimal b) => a.ChangeAmount(a.Amount + b);
+        public static Money operator +(Money a, decimal b) => a.Change(a.Amount + b);
 
         #endregion
 
@@ -383,19 +383,19 @@ namespace Smartstore.Core.Common
         public static Money operator --(Money a)
         {
             var amount = a.Amount;
-            return a.ChangeAmount(amount--);
+            return a.Change(amount--);
         }
 
         public static Money operator -(Money a, Money b)
         {
             GuardCurrenciesAreEqual(a, b);
-            return a.ChangeAmount(a.Amount - b.Amount);
+            return a.Change(a.Amount - b.Amount);
         }
 
         public static Money operator -(Money a, int b) => a + (decimal)b;
         public static Money operator -(Money a, float b) => a + (decimal)b;
         public static Money operator -(Money a, double b) => a + (decimal)b;
-        public static Money operator -(Money a, decimal b) => a.ChangeAmount(a.Amount - b);
+        public static Money operator -(Money a, decimal b) => a.Change(a.Amount - b);
 
         #endregion
 
@@ -404,13 +404,13 @@ namespace Smartstore.Core.Common
         public static Money operator *(Money a, Money b)
         {
             GuardCurrenciesAreEqual(a, b);
-            return a.ChangeAmount(a.Amount * b.Amount);
+            return a.Change(a.Amount * b.Amount);
         }
 
         public static Money operator *(Money a, int b) => a * (decimal)b;
         public static Money operator *(Money a, float b) => a * (decimal)b;
         public static Money operator *(Money a, double b) => a * (decimal)b;
-        public static Money operator *(Money a, decimal b) => a.ChangeAmount(a.Amount * b);
+        public static Money operator *(Money a, decimal b) => a.Change(a.Amount * b);
 
         #endregion
 
@@ -419,13 +419,13 @@ namespace Smartstore.Core.Common
         public static Money operator /(Money a, Money b)
         {
             GuardCurrenciesAreEqual(a, b);
-            return a.ChangeAmount(a.Amount / b.Amount);
+            return a.Change(a.Amount / b.Amount);
         }
 
         public static Money operator /(Money a, int b) => a / (decimal)b;
         public static Money operator /(Money a, float b) => a / (decimal)b;
         public static Money operator /(Money a, double b) => a / (decimal)b;
-        public static Money operator /(Money a, decimal b) => a.ChangeAmount(a.Amount / b);
+        public static Money operator /(Money a, decimal b) => a.Change(a.Amount / b);
 
         #endregion
 
@@ -441,13 +441,13 @@ namespace Smartstore.Core.Common
         {
             if (Currency != null && (force || Currency.RoundOrderItemsEnabled))
             {
-                return ChangeAmount(RoundedAmount);
+                return Change(RoundedAmount);
             }
 
             return this;
         }
 
-        public Money ConvertTo(Currency toCurrency)
+        public Money Exchange(Currency toCurrency)
         {
             if (Currency == toCurrency)
                 return this;
@@ -475,10 +475,10 @@ namespace Smartstore.Core.Common
             var remainder = (int)(((double)Amount * cents) % n);
 
             for (var i = 0; i < remainder; i++)
-                results[i] = ChangeAmount(highResult);
+                results[i] = Change(highResult);
 
             for (var i = remainder; i < n; i++)
-                results[i] = ChangeAmount(lowResult);
+                results[i] = Change(lowResult);
 
             return results;
         }
@@ -545,7 +545,7 @@ namespace Smartstore.Core.Common
         /// <returns>The money value as an absolute value.</returns>
         public static Money Abs(Money value)
         {
-            return value.ChangeAmount(Math.Abs(value.Amount));
+            return value.Change(Math.Abs(value.Amount));
         }
 
         #endregion

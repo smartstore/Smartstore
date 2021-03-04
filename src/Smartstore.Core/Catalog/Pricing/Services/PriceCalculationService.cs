@@ -306,14 +306,14 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (product.LowestAttributeCombinationPrice.Value < lowestPrice.Amount)
                 {
-                    lowestPrice = lowestPrice.ChangeAmount(product.LowestAttributeCombinationPrice.Value);
+                    lowestPrice = lowestPrice.Change(product.LowestAttributeCombinationPrice.Value);
                 }
                 displayFromMessage = true;
             }
 
             if (lowestPrice == decimal.Zero && product.Price == decimal.Zero)
             {
-                lowestPrice = lowestPrice.ChangeAmount(product.LowestAttributeCombinationPrice ?? decimal.Zero);
+                lowestPrice = lowestPrice.Change(product.LowestAttributeCombinationPrice ?? decimal.Zero);
             }
 
             if (!displayFromMessage && product.ProductType != ProductType.BundledProduct)
@@ -588,7 +588,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public virtual string GetBasePriceInfo(Product product, Money productPrice, Currency currency)
         {
             Guard.NotNull(product, nameof(product));
-            Guard.NotNull(productPrice, nameof(productPrice));
             Guard.NotNull(currency, nameof(currency));
 
             if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
