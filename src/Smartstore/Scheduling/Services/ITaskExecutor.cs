@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.Scheduling
 {
@@ -14,11 +14,11 @@ namespace Smartstore.Scheduling
         /// Executes the task asynchronously.
         /// </summary>
         /// <param name="task">The task descriptor.</param>
-        /// <param name="taskParameters">Optional task parameters.</param>
+        /// <param name="httpContext">The current HTTP context.</param>
         /// <param name="throwOnError">Whether to re-throw any exception.</param>
         Task ExecuteAsync(
-            ITaskDescriptor task,
-            IDictionary<string, string> taskParameters = null,
+            TaskDescriptor task,
+            HttpContext httpContext,
             bool throwOnError = false,
             CancellationToken cancelToken = default);
     }

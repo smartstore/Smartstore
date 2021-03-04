@@ -45,8 +45,8 @@ namespace Smartstore.Scheduling
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public virtual async Task ExecuteAsync(
-            ITaskDescriptor task, 
-            IDictionary<string, string> taskParameters = null,
+            TaskDescriptor task,
+            HttpContext httpContext,
             bool throwOnError = false,
             CancellationToken cancelToken = default)
         {
@@ -59,18 +59,16 @@ namespace Smartstore.Scheduling
 
             await _taskStore.LoadLastExecutionInfoAsync(task);
 
-            if (task?.LastExecution?.IsRunning == true)
+            if (task.LastExecution?.IsRunning == true)
             {
                 return;
             }
 
-            bool faulted = false;
-            bool canceled = false;
-            string lastError = null;
             ITask job = null;
-            string stateName = null;
             Type taskType = null;
             Exception exception = null;
+            bool faulted = false, canceled = false;
+            string lastError = null, stateName = null;
 
             var executionInfo = _taskStore.CreateExecutionInfo(task);
 
@@ -109,8 +107,11 @@ namespace Smartstore.Scheduling
 
                 // Run the task
                 Logger.Debug("Executing scheduled task: {0}", task.Type);
-                var ctx = new TaskExecutionContext(_taskStore, _componentContext, executionInfo, taskParameters);
-                await job.Run(ctx, cts.Token);
+                var ctx = new TaskExecutionContext(_taskStore, httpContext, _componentContext, executionInfo);
+
+                //// TODO: (core) Uncomment job.Run and remove Task.Delay()
+                //await job.Run(ctx, cts.Token);
+                await Task.Delay(50, cts.Token);
             }
             catch (Exception ex)
             {
@@ -161,7 +162,7 @@ namespace Smartstore.Scheduling
                     {
                         // We don't just remove the cancellation token, but the whole state (along with the token)
                         // for the case that a state was registered during task execution.
-                        await _asyncState.RemoveAsync<ITaskDescriptor>(stateName);
+                        await _asyncState.RemoveAsync<TaskDescriptor>(stateName);
                     }
                 }
                 catch (Exception ex)
@@ -182,10 +183,13 @@ namespace Smartstore.Scheduling
                     await _taskStore.UpdateTaskAsync(task);
                 }
 
-                await Throttle.CheckAsync(
-                    "Delete old schedule task history entries",
-                    TimeSpan.FromDays(1),
-                    async () => await _taskStore.TrimExecutionInfosAsync() > 0);
+                if (!canceled)
+                {
+                    await Throttle.CheckAsync(
+                        "Delete old schedule task history entries",
+                        TimeSpan.FromHours(4),
+                        async () => await _taskStore.TrimExecutionInfosAsync(cancelToken) > 0);
+                }
             }
 
             if (throwOnError && exception != null)

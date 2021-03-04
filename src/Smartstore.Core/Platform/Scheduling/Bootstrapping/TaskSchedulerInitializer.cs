@@ -14,7 +14,7 @@ namespace Smartstore.Core.Bootstrapping
 {
     public class TaskSchedulerInitializedEvent
     {
-        public IEnumerable<ITaskDescriptor> Tasks { get; init; }
+        public IEnumerable<TaskDescriptor> Tasks { get; init; }
     }
 
     internal class TaskSchedulerInitializer : IApplicationInitializer

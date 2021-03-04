@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Autofac;
+using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.Scheduling
 {
@@ -12,33 +13,32 @@ namespace Smartstore.Scheduling
     /// </summary>
     public class TaskExecutionContext
     {
-        // TODO: (core) Implement TaskExecutionContext class
         private readonly IComponentContext _componentContext;
-        private readonly ITaskExecutionInfo _originalExecutionInfo;
+        private readonly TaskExecutionInfo _originalExecutionInfo;
 
         public TaskExecutionContext(
-            ITaskStore taskStore, 
-            IComponentContext componentContext, 
-            ITaskExecutionInfo originalExecutionInfo,
-            IDictionary<string, string> taskParameters = null)
+            ITaskStore taskStore,
+            HttpContext httpContext,
+            IComponentContext componentContext,
+            TaskExecutionInfo originalExecutionInfo)
         {
             Guard.NotNull(taskStore, nameof(taskStore));
+            Guard.NotNull(httpContext, nameof(httpContext));
             Guard.NotNull(componentContext, nameof(componentContext));
             Guard.NotNull(originalExecutionInfo, nameof(originalExecutionInfo));
 
             _componentContext = componentContext;
             _originalExecutionInfo = originalExecutionInfo;
 
-            if (taskParameters != null)
-            {
-                Parameters.Merge(taskParameters);
-            }
-
+            HttpContext = httpContext;
+            Parameters = httpContext.Request.Query;
             TaskStore = taskStore;
             ExecutionInfo = _originalExecutionInfo.Clone();
         }
 
-        public IDictionary<string, string> Parameters { get; } = new Dictionary<string, string>();
+        public HttpContext HttpContext { get; }
+
+        public IQueryCollection Parameters { get; set; }
 
         /// <summary>
         /// The task store.
@@ -48,7 +48,7 @@ namespace Smartstore.Scheduling
         /// <summary>
         /// The cloned execution info.
         /// </summary>
-        public ITaskExecutionInfo ExecutionInfo { get; }
+        public TaskExecutionInfo ExecutionInfo { get; }
 
         public T Resolve<T>(object key = null) where T : class
         {

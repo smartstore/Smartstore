@@ -7,12 +7,13 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messages.Events;
 using Smartstore.Events;
 using Smartstore.Net;
 
-namespace Smartstore.Core.Messages.Events
+namespace Smartstore.Core.Messages
 {
-    public class CreateAttachmentsConsumer : IConsumer
+    internal class CreateAttachmentsConsumer : IConsumer
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public Localizer T { get; set; } = NullLocalizer.Instance;

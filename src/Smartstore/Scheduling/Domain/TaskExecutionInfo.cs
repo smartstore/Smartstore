@@ -1,32 +1,14 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 
 namespace Smartstore.Scheduling
 {
-    internal class TaskExecutionInfoMap : IEntityTypeConfiguration<TaskExecutionInfo>
-    {
-        public void Configure(EntityTypeBuilder<TaskExecutionInfo> builder)
-        {
-            builder
-                .HasOne(x => x.Task)
-                .WithMany(x => x.ExecutionHistory)
-                .HasForeignKey(x => x.TaskDescriptorId);
-        }
-    }
-
     [Hookable(false)]
     [CacheableEntity(NeverCache = true)]
-    [Index(nameof(MachineName), nameof(IsRunning), Name = "IX_MachineName_IsRunning")]
-    [Index(nameof(StartedOnUtc), nameof(FinishedOnUtc), Name = "IX_Started_Finished")]
-    [Table("ScheduleTaskHistory")]
-    public class TaskExecutionInfo : BaseEntity, ITaskExecutionInfo
+    public class TaskExecutionInfo : BaseEntity, ICloneable<TaskExecutionInfo>
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -42,37 +24,48 @@ namespace Smartstore.Scheduling
         /// <summary>
         /// Gets or sets the schedule task identifier.
         /// </summary>
-        [Column("ScheduleTaskId")]
         public int TaskDescriptorId { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// A value indicating whether the task is currently running.
+        /// </summary>
         public bool IsRunning { get; set; }
 
-        /// <inheritdoc />
-        [Required, StringLength(400)]
+        /// <summary>
+        /// The server machine name that leased the task execution.
+        /// </summary>
         public string MachineName { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The date when the task was started. It is also the date when this entry was created.
+        /// </summary>
         public DateTime StartedOnUtc { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The date when the task has been finished.
+        /// </summary>
         public DateTime? FinishedOnUtc { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The date when the task succeeded.
+        /// </summary>
         public DateTime? SucceededOnUtc { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The last error message.
+        /// </summary>
         public string Error { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The current percentual progress for a running task.
+        /// </summary>
         public int? ProgressPercent { get; set; }
 
-        /// <inheritdoc />
-        [StringLength(1000)]
+        /// <summary>
+        /// The current progress message for a running task.
+        /// </summary>
         public string ProgressMessage { get; set; }
 
-        /// <inheritdoc />
-        ITaskDescriptor ITaskExecutionInfo.Task => Task;
 
         private TaskDescriptor _task;
         /// <summary>
@@ -87,10 +80,10 @@ namespace Smartstore.Scheduling
         object ICloneable.Clone()
             => this.Clone();
 
-        public ITaskExecutionInfo Clone()
+        public TaskExecutionInfo Clone()
         {
             var clone = (TaskExecutionInfo)MemberwiseClone();
-            clone.Task = (TaskDescriptor)Task.Clone();
+            clone.Task = Task.Clone();
             return clone;
         }
     }

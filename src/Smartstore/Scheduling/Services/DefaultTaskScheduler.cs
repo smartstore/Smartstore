@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,14 +8,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Net;
-using Smartstore.Collections;
 
 namespace Smartstore.Scheduling
 {
     internal class DefaultTaskScheduler : Disposable, ITaskScheduler
     {
-        const string RootPath = "taskscheduler";
-        
+        internal const string RootPath = "taskscheduler";
+        internal const string AuthTokenName = "X-SCHED-AUTH-TOKEN";
+
         private readonly ICacheManager _cache;
         private Timer _timer;
         private bool _shuttingDown;
@@ -154,7 +152,7 @@ namespace Smartstore.Scheduling
             req.Timeout = 10000; // 10 sec.
 
             string authToken = await CreateAuthToken();
-            req.Headers.Add("X-AUTH-TOKEN", authToken);
+            req.Headers.Add(AuthTokenName, authToken);
 
             try
             {

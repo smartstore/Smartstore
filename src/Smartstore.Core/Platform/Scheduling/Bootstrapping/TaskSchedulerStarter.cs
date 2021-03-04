@@ -1,4 +1,5 @@
 ﻿using System;
+using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Bootstrapping;
 using Smartstore.Engine;
@@ -20,9 +21,10 @@ namespace Smartstore.Core.Bootstrapping
             });
         }
 
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
-            services.AddTaskScheduler<DbTaskStore>();
+            builder.AddTaskScheduler<DbTaskStore>(appContext);
+            builder.RegisterType<TaskContextVirtualizer>().As<ITaskContextVirtualizer>().InstancePerLifetimeScope();
         }
     }
 }

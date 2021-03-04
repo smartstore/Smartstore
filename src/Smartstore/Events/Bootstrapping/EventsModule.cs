@@ -8,7 +8,7 @@ using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 using Smartstore.Events;
 
-namespace Smartstore.DependencyInjection
+namespace Smartstore.Bootstrapping
 {
     public class EventsModule : Autofac.Module
     {

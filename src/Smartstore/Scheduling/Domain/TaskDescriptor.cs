@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using Smartstore.Data.Caching;
@@ -12,13 +9,17 @@ using Smartstore.Domain;
 
 namespace Smartstore.Scheduling
 {
+    public enum TaskPriority
+    {
+        Low = -1,
+        Normal = 0,
+        High = 1
+    }
+
     [DebuggerDisplay("{Name} (Type: {Type})")]
     [Hookable(false)]
     [CacheableEntity(NeverCache = true)]
-    [Index(nameof(Type), Name = "IX_Type")]
-    [Index(nameof(NextRunUtc), nameof(Enabled), Name = "IX_NextRun_Enabled")]
-    [Table("ScheduleTask")]
-    public class TaskDescriptor : EntityWithAttributes, ITaskDescriptor
+    public class TaskDescriptor : BaseEntity, ICloneable<TaskDescriptor>
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -31,36 +32,48 @@ namespace Smartstore.Scheduling
             _lazyLoader = lazyLoader;
         }
 
-        /// <inheritdoc />
-        [Required, StringLength(500)]
+        /// <summary>
+        /// The task name.
+        /// </summary>
         public string Name { get; set; }
 
-        /// <inheritdoc />
-        [StringLength(500)]
+        /// <summary>
+        /// Gets or sets the task alias (an optional key for advanced customization)
+        /// </summary>
         public string Alias { get; set; }
 
-        /// <inheritdoc />
-        [StringLength(1000)]
+        /// <summary>
+        /// The CRON expression used to calculate future schedules.
+        /// </summary>
         public string CronExpression { get; set; }
 
-        /// <inheritdoc />
-        [Required, StringLength(800)]
+        /// <summary>
+        /// The type of corresponding <see cref="ITask"/> implementation class.
+        /// </summary>
         public string Type { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// A value indicating whether the task is enabled.
+        /// </summary>
         public bool Enabled { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The task priority. Tasks with higher priority run first when multiple tasks are pending.
+        /// </summary>
         public TaskPriority Priority { get; set; } = TaskPriority.Normal;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// A value indicating whether a task should be stopped on any error.
+        /// </summary>
         public bool StopOnError { get; set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The next schedule time for the task.
+        /// </summary>
         public DateTime? NextRunUtc { get; set; }
 
         /// <summary>
-        /// Gets or sets the value indicating whether the task is hidden/internal.
+        /// A value indicating whether the task is hidden.
         /// </summary>
         public bool IsHidden { get; set; }
 
@@ -69,15 +82,28 @@ namespace Smartstore.Scheduling
         /// </summary>
         public bool RunPerMachine { get; set; }
 
-        [NotMapped]
-        public ITaskExecutionInfo LastExecution { get; set; }
+        /// <summary>
+        /// Gets a value indicating whether a task is scheduled for execution (Enabled = true and NextRunUtc &lt;= UtcNow and is not running).
+        /// </summary>
+        public bool IsPending
+        {
+            get
+            {
+                return Enabled &&
+                    NextRunUtc.HasValue &&
+                    NextRunUtc <= DateTime.UtcNow &&
+                    (LastExecution == null || !LastExecution.IsRunning);
+            }
+        }
 
-        [NotMapped]
-        IEnumerable<ITaskExecutionInfo> ITaskDescriptor.ExecutionHistory => ExecutionHistory;
+        /// <summary>
+        /// Gets info about the last (or current) execution.
+        /// </summary>
+        public TaskExecutionInfo LastExecution { get; set; }
 
         private ICollection<TaskExecutionInfo> _executionHistory;
         /// <summary>
-        /// Gets or sets locale string resources
+        /// Gets infos about all past executions.
         /// </summary>
         [JsonIgnore]
         public ICollection<TaskExecutionInfo> ExecutionHistory
@@ -89,7 +115,7 @@ namespace Smartstore.Scheduling
         object ICloneable.Clone()
             => this.Clone();
 
-        public ITaskDescriptor Clone()
+        public TaskDescriptor Clone()
         {
             return new TaskDescriptor
             {

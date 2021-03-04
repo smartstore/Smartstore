@@ -129,9 +129,8 @@ namespace Smartstore.Web
 
             // check whether request is made by a background task
             // in this case return built-in customer record for background task
-            if (context != null && context.Request.Path.StartsWithSegments("/taskscheduler"))
+            if (context != null && context.Request.IsCalledByTaskScheduler())
             {
-                // TODO: (core) Make "/taskscheduler" url prefix a const, OR set a specific UserAgent from TaskScheduler polling service.
                 customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
             }
 

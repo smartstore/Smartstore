@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Engine;
@@ -224,6 +225,11 @@ namespace Smartstore.Utilities
             {
                 convertedValue = value;
                 return true;
+            }
+
+            if (value is StringValues stringValues)
+            {
+                value = stringValues.ToString();
             }
 
             Type from = value.GetType();

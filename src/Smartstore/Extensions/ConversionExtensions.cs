@@ -5,12 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Smartstore.ComponentModel;
 using Smartstore.Utilities;
 
 namespace Smartstore

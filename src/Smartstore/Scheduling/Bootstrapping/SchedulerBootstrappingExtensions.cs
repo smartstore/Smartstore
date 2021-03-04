@@ -1,7 +1,8 @@
 ﻿using System;
+using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Engine;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Bootstrapping
@@ -28,16 +29,15 @@ namespace Smartstore.Bootstrapping
         /// <summary>
         /// Add an <see cref="ITaskScheduler"/> registration as a hosted service.
         /// </summary>
-        public static IServiceCollection AddTaskScheduler<TStore>(this IServiceCollection services)
+        public static ContainerBuilder AddTaskScheduler<TStore>(this ContainerBuilder container, IApplicationContext appContext)
             where TStore : class, ITaskStore
         {
-            // TODO: (core) Pass ITaskStore impl type to AddTaskScheduler(). OR make TaskSchedulerOptions.
-            Guard.NotNull(services, nameof(services));
+            Guard.NotNull(container, nameof(container));
 
-            services.AddTransient<ITaskStore, TStore>();
-            services.AddSingleton<ITaskScheduler, DefaultTaskScheduler>();
-            services.AddHostedService(services => (DefaultTaskScheduler)services.GetRequiredService<ITaskScheduler>());
-            return services;
+            container.RegisterModule(new SchedulerModule(appContext));
+            container.RegisterType<TStore>().As<ITaskStore>().InstancePerLifetimeScope();
+
+            return container;
         }
     }
 }

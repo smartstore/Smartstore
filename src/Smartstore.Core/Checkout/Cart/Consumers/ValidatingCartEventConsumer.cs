@@ -2,9 +2,9 @@
 using Smartstore.Core.Localization;
 using Smartstore.Events;
 
-namespace Smartstore.Core.Checkout.Cart.Events
+namespace Smartstore.Core.Checkout.Cart
 {
-    public class ValidatingCartEventConsumer : IConsumer
+    internal class ValidatingCartEventConsumer : IConsumer
     {
         // TODO: (ms) (core) OrderProcessingService is missing
         //private readonly IOrderProcessingService _orderProcessingService;

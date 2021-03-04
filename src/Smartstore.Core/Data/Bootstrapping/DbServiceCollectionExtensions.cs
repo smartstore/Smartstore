@@ -1,11 +1,12 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Engine;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
     public static class DbServiceCollectionExtensions
     {

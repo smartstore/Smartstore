@@ -3,15 +3,15 @@ using System.Linq;
 using System.Reflection;
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Bootstrapping;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using Smartstore.Engine;
-using Smartstore.DependencyInjection;
 using Smartstore.Engine.Modularity;
 using Smartstore.Events;
 
-namespace Smartstore.Core.DependencyInjection
+namespace Smartstore.Core.Bootstrapping
 {
     internal class DbHooksModule : Autofac.Module
     {

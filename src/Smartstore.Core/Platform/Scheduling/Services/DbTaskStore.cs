@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Data;
+using Smartstore.Data.Batching;
 using Smartstore.Engine;
 using Smartstore.Utilities;
 
@@ -20,15 +23,18 @@ namespace Smartstore.Scheduling
         private readonly SmartDbContext _db;
         private readonly IApplicationContext _appContext;
         private readonly IDateTimeHelper _dtHelper;
+        private readonly Lazy<CommonSettings> _commonSettings;
 
         public DbTaskStore(
             SmartDbContext db, 
             IApplicationContext appContext, 
-            IDateTimeHelper dtHelper)
+            IDateTimeHelper dtHelper,
+            Lazy<CommonSettings> commonSettings)
         {
             _db = db;
             _appContext = appContext;
             _dtHelper = dtHelper;
+            _commonSettings = commonSettings;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -37,7 +43,26 @@ namespace Smartstore.Scheduling
 
         #region Task
 
-        public Type GetTaskClrType(ITaskDescriptor task)
+        public IQueryable<TaskDescriptor> GetDescriptorQuery()
+        {
+            return _db.TaskDescriptors;
+        }
+
+        public TaskDescriptor CreateDescriptor(string name, Type type)
+        {
+            Guard.NotEmpty(name, nameof(name));
+            Guard.NotNull(type, nameof(type));
+            Guard.Implements<ITask>(type);
+
+            return new TaskDescriptor
+            {
+                Name = name,
+                Type = type.AssemblyQualifiedNameWithoutVersion(),
+                Enabled = true
+            };
+        }
+
+        public Type GetTaskClrType(TaskDescriptor task)
         {
             try
             {
@@ -50,18 +75,18 @@ namespace Smartstore.Scheduling
             }
         }
 
-        public Task<ITaskDescriptor> GetTaskByIdAsync(int taskId)
+        public Task<TaskDescriptor> GetTaskByIdAsync(int taskId)
         {
             if (taskId == 0)
                 return null;
 
             return Retry.RunAsync(
-                async () => (await _db.TaskDescriptors.FindByIdAsync(taskId)) as ITaskDescriptor,
+                () => _db.TaskDescriptors.FindByIdAsync(taskId).AsTask(),
                 3, TimeSpan.FromMilliseconds(100),
                 RetryOnTransientException);
         }
 
-        public async Task<ITaskDescriptor> GetTaskByTypeAsync(string type)
+        public async Task<TaskDescriptor> GetTaskByTypeAsync(string type)
         {
             try
             {
@@ -85,13 +110,12 @@ namespace Smartstore.Scheduling
             return null;
         }
 
-        public Task ReloadTaskAsync(ITaskDescriptor task)
+        public Task ReloadTaskAsync(TaskDescriptor task)
         {
-            Guard.IsTypeOf<TaskDescriptor>(task);
-            return _db.ReloadEntityAsync((TaskDescriptor)task);
+            return _db.ReloadEntityAsync(task);
         }
 
-        public Task<IEnumerable<ITaskDescriptor>> GetAllTasksAsync(bool includeDisabled = false)
+        public Task<List<TaskDescriptor>> GetAllTasksAsync(bool includeDisabled = false)
         {
             var query = _db.TaskDescriptors.AsQueryable();
 
@@ -103,12 +127,12 @@ namespace Smartstore.Scheduling
             query = query.OrderByDescending(t => t.Enabled);
 
             return Retry.RunAsync(
-                async () => (await query.ToListAsync()).Cast<ITaskDescriptor>(),
+                async () => (await query.ToListAsync()),
                 3, TimeSpan.FromMilliseconds(100),
                 RetryOnTransientException);
         }
 
-        public async Task<IEnumerable<ITaskDescriptor>> GetPendingTasksAsync()
+        public async Task<List<TaskDescriptor>> GetPendingTasksAsync()
         {
             var now = DateTime.UtcNow;
             var machineName = _appContext.MachineName;
@@ -137,7 +161,7 @@ namespace Smartstore.Scheduling
                     x.Task.LastExecution = x.LastInfo;
                     return x.Task;
                 })
-                .Where(x => x.IsPending())
+                .Where(x => x.IsPending)
                 .OrderByDescending(x => x.Priority)
                 .ThenBy(x => x.NextRunUtc.Value)
                 .ToList();
@@ -145,21 +169,21 @@ namespace Smartstore.Scheduling
             return pendingTasks;
         }
 
-        public Task InsertTaskAsync(ITaskDescriptor task)
+        public Task InsertTaskAsync(TaskDescriptor task)
         {
-            Guard.IsTypeOf<TaskDescriptor>(task);
+            Guard.NotNull(task, nameof(task));
 
-            _db.TaskDescriptors.Add((TaskDescriptor)task);
+            _db.TaskDescriptors.Add(task);
             return _db.SaveChangesAsync();
         }
 
-        public Task UpdateTaskAsync(ITaskDescriptor task)
+        public Task UpdateTaskAsync(TaskDescriptor task)
         {
-            Guard.IsTypeOf<TaskDescriptor>(task);
+            Guard.NotNull(task, nameof(task));
 
             try
             {
-                _db.TryUpdate((TaskDescriptor)task);
+                _db.TryUpdate(task);
                 return _db.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -169,15 +193,15 @@ namespace Smartstore.Scheduling
             }
         }
 
-        public Task DeleteTaskAsync(ITaskDescriptor task)
+        public Task DeleteTaskAsync(TaskDescriptor task)
         {
-            Guard.IsTypeOf<TaskDescriptor>(task);
+            Guard.NotNull(task, nameof(task));
 
-            _db.TaskDescriptors.Remove((TaskDescriptor)task);
+            _db.TaskDescriptors.Remove(task);
             return _db.SaveChangesAsync();
         }
 
-        public async Task<ITaskDescriptor> GetOrAddTaskAsync<T>(Action<ITaskDescriptor> createAction) where T : ITask
+        public async Task<TaskDescriptor> GetOrAddTaskAsync<T>(Action<TaskDescriptor> createAction) where T : ITask
         {
             Guard.NotNull(createAction, nameof(createAction));
 
@@ -194,18 +218,18 @@ namespace Smartstore.Scheduling
             {
                 task = new TaskDescriptor { Type = type.AssemblyQualifiedNameWithoutVersion() };
                 createAction(task);
-                _db.TaskDescriptors.Add((TaskDescriptor)task);
+                _db.TaskDescriptors.Add(task);
                 await _db.SaveChangesAsync();
             }
 
             return task;
         }
 
-        public async Task CalculateFutureSchedulesAsync(IEnumerable<ITaskDescriptor> tasks, bool isAppStart = false)
+        public async Task CalculateFutureSchedulesAsync(IEnumerable<TaskDescriptor> tasks, bool isAppStart = false)
         {
             Guard.NotNull(tasks, nameof(tasks));
 
-            foreach (var task in tasks.OfType<TaskDescriptor>())
+            foreach (var task in tasks)
             {
                 task.NextRunUtc = GetNextSchedule(task);
                 if (isAppStart)
@@ -273,7 +297,7 @@ namespace Smartstore.Scheduling
             }
         }
 
-        public DateTime? GetNextSchedule(ITaskDescriptor task)
+        public DateTime? GetNextSchedule(TaskDescriptor task)
         {
             if (task.Enabled)
             {
@@ -308,12 +332,12 @@ namespace Smartstore.Scheduling
 
         #region History
 
-        public IQueryable<ITaskExecutionInfo> GetExecutionInfoQuery()
+        public IQueryable<TaskExecutionInfo> GetExecutionInfoQuery()
         {
             return _db.TaskExecutionInfos;
         }
 
-        public ITaskExecutionInfo CreateExecutionInfo(ITaskDescriptor task)
+        public TaskExecutionInfo CreateExecutionInfo(TaskDescriptor task)
         {
             Guard.NotNull(task, nameof(task));
 
@@ -326,44 +350,117 @@ namespace Smartstore.Scheduling
             };
         }
 
-        public Task<ITaskExecutionInfo> GetExecutionInfoByIdAsync(int id)
+        public Task<TaskExecutionInfo> GetExecutionInfoByIdAsync(int id)
+        {
+            return _db.TaskExecutionInfos.FindByIdAsync(id).AsTask();
+        }
+
+        public Task<TaskExecutionInfo> GetLastExecutionInfoByTaskIdAsync(int taskId, bool? runningOnly = null)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ITaskExecutionInfo> GetLastExecutionInfoByTaskIdAsync(int taskId, bool? runningOnly = null)
+        public Task<TaskExecutionInfo> GetLastExecutionInfoByTaskAsync(TaskDescriptor task, bool? runningOnly = null)
         {
             throw new NotImplementedException();
         }
 
-        public Task<ITaskExecutionInfo> GetLastExecutionInfoByTaskAsync(ITask task, bool? runningOnly = null)
+        public Task InsertExecutionInfoAsync(TaskExecutionInfo info)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(info, nameof(info));
+
+            _db.TaskExecutionInfos.Add(info);
+            return _db.SaveChangesAsync();
         }
 
-        public Task LoadLastExecutionInfoAsync(ITaskDescriptor task, bool force = false)
+        public Task UpdateExecutionInfoAsync(TaskExecutionInfo info)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(info, nameof(info));
+
+            try
+            {
+                _db.TryUpdate(info);
+                return _db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                // Do not throw.
+                return Task.CompletedTask;
+            }
         }
 
-        public Task InsertExecutionInfoAsync(ITaskExecutionInfo info)
+        public Task DeleteExecutionInfoAsync(TaskExecutionInfo info)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(info, nameof(info));
+            Guard.IsTrue(!info.IsRunning, nameof(info.IsRunning), "Cannot delete a running task execution info entry.");
+
+            _db.TaskExecutionInfos.Remove(info);
+            return _db.SaveChangesAsync();
         }
 
-        public Task UpdateExecutionInfoAsync(ITaskExecutionInfo info)
+        public async Task<int> TrimExecutionInfosAsync(CancellationToken cancelToken = default)
         {
-            throw new NotImplementedException();
-        }
+            var idsToDelete = new HashSet<int>();
 
-        public Task DeleteExecutionInfoAsync(ITaskExecutionInfo info)
-        {
-            throw new NotImplementedException();
-        }
+            if (_commonSettings.Value.MaxScheduleHistoryAgeInDays > 0)
+            {
+                var earliestDate = DateTime.UtcNow.AddDays(-1 * _commonSettings.Value.MaxScheduleHistoryAgeInDays);
+                var ids = await _db.TaskExecutionInfos
+                    .AsNoTracking()
+                    .Where(x => x.StartedOnUtc <= earliestDate && !x.IsRunning)
+                    .Select(x => x.Id)
+                    .ToListAsync(cancelToken);
 
-        public Task<int> TrimExecutionInfosAsync()
-        {
-            throw new NotImplementedException();
+                idsToDelete.AddRange(ids);
+            }
+
+            // We have to group by task otherwise we would only keep entries from very frequently executed tasks.
+            if (_commonSettings.Value.MaxNumberOfScheduleHistoryEntries > 0)
+            {
+                var query =
+                    from th in _db.TaskExecutionInfos.AsNoTracking()
+                    where !th.IsRunning
+                    group th by th.TaskDescriptorId into grp
+                    select grp
+                        .OrderByDescending(x => x.StartedOnUtc)
+                        .ThenByDescending(x => x.Id)
+                        .Skip(_commonSettings.Value.MaxNumberOfScheduleHistoryEntries)
+                        .Select(x => x.Id);
+
+                var ids = await query.SelectMany(x => x).ToListAsync(cancelToken);
+
+                idsToDelete.AddRange(ids);
+            }
+
+            if (!idsToDelete.Any())
+            {
+                return 0;
+            }
+
+            var numDeleted = 0;
+
+            try
+            {
+                using (var scope = new DbContextScope(_db, retainConnection: true))
+                {
+                    foreach (var batch in idsToDelete.Slice(128))
+                    {
+                        if (!cancelToken.IsCancellationRequested)
+                        {
+                            numDeleted += await _db.TaskExecutionInfos
+                                .Where(x => batch.Contains(x.Id))
+                                .BatchDeleteAsync(cancelToken);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            return numDeleted;
         }
 
         #endregion
