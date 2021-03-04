@@ -306,14 +306,14 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (product.LowestAttributeCombinationPrice.Value < lowestPrice.Amount)
                 {
-                    lowestPrice.Amount = product.LowestAttributeCombinationPrice.Value;
+                    lowestPrice = lowestPrice.ChangeAmount(product.LowestAttributeCombinationPrice.Value);
                 }
                 displayFromMessage = true;
             }
 
             if (lowestPrice == decimal.Zero && product.Price == decimal.Zero)
             {
-                lowestPrice.Amount = product.LowestAttributeCombinationPrice ?? decimal.Zero;
+                lowestPrice = lowestPrice.ChangeAmount(product.LowestAttributeCombinationPrice ?? decimal.Zero);
             }
 
             if (!displayFromMessage && product.ProductType != ProductType.BundledProduct)

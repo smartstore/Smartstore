@@ -40,8 +40,6 @@ namespace Smartstore.Core.Common.Services
             _taxSettings = taxSettings;
         }
 
-        // TODO: (mg) (core) add new Money constructor with Money parameter to clone all properties.
-
         public virtual Money ConvertCurrency(Money amount, decimal exchangeRate)
         {
             Guard.NotNull(amount, nameof(amount));
