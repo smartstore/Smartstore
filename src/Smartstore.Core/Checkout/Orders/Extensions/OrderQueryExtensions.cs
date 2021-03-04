@@ -219,7 +219,7 @@ namespace Smartstore
         /// </summary>
         /// <param name="query">Order query from which to select.</param>
         /// <returns><see cref="IQueryable"/> of <see cref="OrderDataPoint"/>.</returns>
-        public static IQueryable<OrderDataPoint> SelectAsOrderDataPoints(this IQueryable<Order> query)
+        public static IQueryable<OrderDataPoint> SelectAsOrderDataPoint(this IQueryable<Order> query)
         {
             Guard.NotNull(query, nameof(query));
 
