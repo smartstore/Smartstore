@@ -14,6 +14,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<LinkResolver>().As<ILinkResolver>().InstancePerLifetimeScope();
             builder.RegisterType<MenuPublisher>().As<IMenuPublisher>().InstancePerLifetimeScope();
             builder.RegisterType<MenuService>().As<IMenuService>().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultBreadcrumb>().As<IBreadcrumb>().InstancePerLifetimeScope();
 
             var menuResolverTypes = appContext.TypeScanner.FindTypes<IMenuResolver>(ignoreInactiveModules: true);
             foreach (var type in menuResolverTypes)
