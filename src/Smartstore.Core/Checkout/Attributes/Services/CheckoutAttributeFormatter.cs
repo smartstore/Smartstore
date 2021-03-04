@@ -163,10 +163,11 @@ namespace Smartstore.Core.Checkout.Attributes
                                 if (renderPrices)
                                 {
                                     var (priceAdjustment, _) = await _taxService.GetCheckoutAttributePriceAsync(attributeValue, customer: customer);
-                                    var priceAdjustmentConverted = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustment.Amount, _workContext.WorkingCurrency);
-                                    if (priceAdjustment > 0)
+                                    if (priceAdjustment > decimal.Zero)
                                     {
-                                        attributeStr += string.Format(" [+{0}]", _currencyService.CreateMoney(priceAdjustmentConverted).ToString());
+                                        var priceAdjustmentConverted = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustment);
+
+                                        attributeStr += " [+{0}]".FormatInvariant(_currencyService.CreateMoney(priceAdjustmentConverted.Amount).ToString());
                                     }
                                 }
                             }

@@ -773,19 +773,31 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var price = 16.98M;
+            //var price = 16.98M;
             var currency = Services.WorkContext.WorkingCurrency;
             var currencyService = Services.Resolve<ICurrencyService>();
-            var plainMoney = new Money(price, currency);
+            var orderService = Services.Resolve<IOrderService>();
+            var usd = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == "USD");
 
-            content.AppendLine("plain money: " + plainMoney.ToString());
+            //var resOld = currencyService.ConvertToPrimaryExchangeRateCurrency(price, usd);
+            //var resNew = currencyService.ConvertToPrimaryExchangeRateCurrency(new Money(price, usd));
+            //content.AppendLine($"{resOld}, {resNew.Amount} {resNew.Currency.CurrencyCode}. ConvertToPrimaryExchangeRateCurrency.");
 
-            var moneyWithTax = currencyService.CreateMoney(price, true, currency);
-            content.AppendLine("Money with tax: " + moneyWithTax.ToString());
+            //resOld = currencyService.ConvertToPrimaryStoreCurrency(price, usd);
+            //resNew = currencyService.ConvertToPrimaryStoreCurrency(new Money(price, usd));
+            //content.AppendLine($"{resOld}, {resNew.Amount} {resNew.Currency.CurrencyCode}. ConvertToPrimaryStoreCurrency.");
 
-            var moneyMin = currencyService.CreateMoney(9.66M, true, displayTax: false);
-            var moneyMax = currencyService.CreateMoney(12.14M, true, displayTax: false);
-            content.AppendLine("range error warning: " + string.Format(T("ShoppingCart.CustomerEnteredPrice.RangeError"), moneyMin.ToString(), moneyMax.ToString()));
+            //resOld = currencyService.ConvertFromPrimaryExchangeRateCurrency(price, usd);
+            //resNew = currencyService.ConvertFromPrimaryExchangeRateCurrency(new Money(price, usd));
+            //content.AppendLine($"{resOld}, {resNew.Amount} {resNew.Currency.CurrencyCode}. ConvertFromPrimaryExchangeRateCurrency.");
+
+            //resOld = currencyService.ConvertFromPrimaryStoreCurrency(price, usd);
+            //resNew = currencyService.ConvertFromPrimaryStoreCurrency(new Money(price, usd));
+            //content.AppendLine($"{resOld}, {resNew.Amount} {resNew.Currency.CurrencyCode}. ConvertFromPrimaryStoreCurrency.");
+
+            //var order = await _db.Orders.FindByIdAsync(32120);
+            //var (orderTotal, roundingAmount) = await orderService.GetOrderTotalInCustomerCurrencyAsync(order);
+            //content.AppendLine($"Order total {order.OrderTotal} in customer currency: total {orderTotal.Amount} {orderTotal.Currency.CurrencyCode}, roundingAmount {roundingAmount.Amount} {roundingAmount.Currency.CurrencyCode}");
 
 
             //var customer = await _db.Customers.Include(x => x.Addresses).FindByIdAsync(2666330);
@@ -878,41 +890,6 @@ namespace Smartstore.Web.Controllers
             //{
             //    ex.Dump();
             //}
-
-            //var productTagService = Services.Resolve<IProductTagService>();
-            //var tags = await _db.ProductTags.ToListAsync();
-
-            //foreach (var tag in tags)
-            //{
-            //    var count = await productTagService.CountProductsByTagIdAsync(tag.Id);
-            //    content.AppendLine($"{count}: {tag.Name} ({tag.Id})");
-            //}
-
-            //// May serve duplicate products thus counts tags twice.
-            //var query = _db.Products
-            //    .AsNoTracking()
-            //    .ApplyStoreFilter(1)
-            //    .Where(x => x.Visibility == ProductVisibility.Full && x.Published && !x.IsSystemProduct)
-            //    .SelectMany(x => x.ProductTags.Where(y => y.Published));
-
-            //var groupQuery =
-            //    from x in query
-            //    group x by x.Id into grp
-            //    select new
-            //    {
-            //        TagId = grp.Key,
-            //        Count = grp.Count()
-            //    };
-
-            //var counts = await groupQuery.ToListAsync();
-            //content.AppendLine("---------------------------------------");
-            //foreach (var item in counts)
-            //{
-            //    content.AppendLine($"{item.Count}: {item.TagId}");
-            //}
-            //content.AppendLine("---------------------------------------");
-            //content.AppendLine();
-            //content.AppendLine(groupQuery.ToQueryString());
 
             return Content(content.ToString());
         }

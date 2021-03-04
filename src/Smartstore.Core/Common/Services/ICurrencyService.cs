@@ -13,74 +13,46 @@ namespace Smartstore.Core.Common.Services
     public partial interface ICurrencyService
     {
         /// <summary>
+        /// Converts a currency amount.
+        /// </summary>
+        /// <param name="amount">Currency amount to be converted.</param>
+        /// <param name="exchangeRate">Exchange rate.</param>
+        /// <returns>Converted currency amount.</returns>
+        Money ConvertCurrency(Money amount, decimal exchangeRate);
+
+        /// <summary>
+        /// Converts a currency amount.
+        /// </summary>
+        /// <param name="amount">Currency amount to be converted.</param>
+        /// <param name="targetCurrency">The currency into which the conversion is made.</param>
+        /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
+        /// <returns>Converted currency amount where <see cref="Money.Currency"/> is <paramref name="targetCurrency"/>.</returns>
+        Money ConvertCurrency(Money amount, Currency targetCurrency, Store store = null);
+
+        /// <summary>
+        /// Converts a currency amount into the exchange rate or primary currency of a store.
+        /// </summary>
+        /// <param name="toExchangeRateCurrency"><c>true</c> convert to exchange rate currency. <c>false</c> convert to primary store currency.</param>
+        /// <param name="amount">Source currency and amount to be converted.</param>
+        /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
+        /// <returns>Converted currency amount where <see cref="Money.Currency"/> is the corresponding store currency.</returns>
+        Money ConvertToStoreCurrency(bool toExchangeRateCurrency, Money amount, Store store = null);
+
+        /// <summary>
+        /// Converts a currency amount from the exchange rate or primary currency of a store.
+        /// </summary>
+        /// <param name="fromExchangeRateCurrency"><c>true</c> convert from exchange rate currency. <c>false</c> convert from primary store currency.</param>
+        /// <param name="amount">Target currency and amount to be converted.</param>
+        /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
+        /// <returns>Converted currency amount where <see cref="Money.Currency"/> is the currency of <paramref name="amount"/>.</returns>
+        Money ConvertFromStoreCurrency(bool fromExchangeRateCurrency, Money amount, Store store = null);
+
+        /// <summary>
         /// Gets currency live rates
         /// </summary>
         /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
         /// <returns>Exchange rates</returns>
         Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode);
-
-        /// <summary>
-        /// Gets all currencies and orders by <see cref="Currency.DisplayOrder"/>
-        /// </summary>
-        /// <param name="showHidden">A value indicating whether to show hidden records</param>
-		/// <param name="storeId">Loads records only allowed in specified store. Pass 0 to load all records.</param>
-		/// <returns>Currencies</returns>
-		Task<List<Currency>> GetAllCurrenciesAsync(bool showHidden = false, int storeId = 0);
-
-
-        /// <summary>
-        /// Converts currency
-        /// </summary>
-        /// <param name="amount">Amount</param>
-        /// <param name="exchangeRate">Currency exchange rate</param>
-        /// <returns>Converted value</returns>
-        decimal ConvertCurrency(decimal amount, decimal exchangeRate);
-
-        /// <summary>
-        /// Converts currency
-        /// </summary>
-        /// <param name="amount">Amount</param>
-        /// <param name="sourceCurrency">Source currency code</param>
-        /// <param name="targetCurrency">Target currency code</param>
-		/// <param name="store">Store to get the primary currencies from</param>
-        /// <returns>Converted value</returns>
-		decimal ConvertCurrency(decimal amount, Currency sourceCurrency, Currency targetCurrency, Store store = null);
-
-        /// <summary>
-        /// Converts to primary exchange rate currency 
-        /// </summary>
-        /// <param name="amount">Amount</param>
-        /// <param name="sourceCurrencyCode">Source currency code</param>
-		/// <param name="store">Store to get the primary exchange rate currency from</param>
-        /// <returns>Converted value</returns>
-		decimal ConvertToPrimaryExchangeRateCurrency(decimal amount, Currency sourceCurrencyCode, Store store = null);
-
-        /// <summary>
-        /// Converts from primary exchange rate currency
-        /// </summary>
-        /// <param name="amount">Amount</param>
-        /// <param name="targetCurrency">Target currency code</param>
-		/// <param name="store">Store to get the primary exchange rate currency from</param>
-        /// <returns>Converted value</returns>
-		decimal ConvertFromPrimaryExchangeRateCurrency(decimal amount, Currency targetCurrency, Store store = null);
-
-        /// <summary>
-        /// Converts to primary store currency 
-        /// </summary>
-        /// <param name="amount">Amount</param>
-        /// <param name="sourceCurrency">Source currency code</param>
-		/// <param name="store">Store to get the primary store currency from</param>
-        /// <returns>Converted value</returns>
-		decimal ConvertToPrimaryStoreCurrency(decimal amount, Currency sourceCurrency, Store store = null);
-
-        /// <summary>
-        /// Converts from primary store currency
-        /// </summary>
-        /// <param name="amount">Amount</param>
-        /// <param name="targetCurrency">Target currency code</param>
-		/// <param name="store">Store to get the primary store currency from</param>
-        /// <returns>Converted value</returns>
-		decimal ConvertFromPrimaryStoreCurrency(decimal amount, Currency targetCurrency, Store store = null);
 
         /// <summary>
         /// Load active exchange rate provider

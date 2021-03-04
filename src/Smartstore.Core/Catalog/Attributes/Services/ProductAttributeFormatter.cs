@@ -8,9 +8,9 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
 using Smartstore.Utilities;
@@ -75,7 +75,6 @@ namespace Smartstore.Core.Catalog.Attributes
 
             if (includeProductAttributes)
             {
-                var currency = _workContext.WorkingCurrency;
                 var languageId = _workContext.WorkingLanguage.Id;
                 var attributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(selection);
                 var attributesDic = attributes.ToDictionary(x => x.Id);
@@ -105,7 +104,7 @@ namespace Smartstore.Core.Catalog.Attributes
                                 {
                                     var attributeValuePriceAdjustment = await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, null, 1);
                                     var (priceAdjustmentBase, _) = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment, customer: customer);
-                                    var priceAdjustment = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase.Amount, currency);
+                                    var priceAdjustment = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase);
 
                                     if (_shoppingCartSettings.ShowLinkedAttributeValueQuantity &&
                                         pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
@@ -116,13 +115,13 @@ namespace Smartstore.Core.Catalog.Attributes
 
                                     if (_catalogSettings.ShowVariantCombinationPriceAdjustment)
                                     {
-                                        if (priceAdjustmentBase > 0)
+                                        if (priceAdjustmentBase > decimal.Zero)
                                         {
-                                            pvaAttribute += " (+{0})".FormatInvariant(_currencyService.CreateMoney(priceAdjustment, true, displayTax: false).ToString());
+                                            pvaAttribute += " (+{0})".FormatInvariant(_currencyService.CreateMoney(priceAdjustment.Amount, true, displayTax: false).ToString());
                                         }
                                         else if (priceAdjustmentBase < decimal.Zero)
                                         {
-                                            pvaAttribute += " (-{0})".FormatInvariant(_currencyService.CreateMoney(-priceAdjustment, true, displayTax: false).ToString());
+                                            pvaAttribute += " (-{0})".FormatInvariant(_currencyService.CreateMoney(-priceAdjustment.Amount, true, displayTax: false).ToString());
                                         }
                                     }
                                 }

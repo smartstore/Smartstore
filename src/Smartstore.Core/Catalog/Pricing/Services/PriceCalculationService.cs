@@ -619,17 +619,16 @@ namespace Smartstore.Core.Catalog.Pricing
             if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
             {
                 var currentPrice = await GetFinalPriceAsync(product, null, customer, includeDiscounts: true);
-                var priceInclAdjustment = currentPrice;
-
+                
                 if (priceAdjustment.HasValue)
                 {
-                    priceInclAdjustment += priceAdjustment.Value;
+                    currentPrice += priceAdjustment.Value;
                 }
 
-                var (price, _) = await _taxService.GetProductPriceAsync(product, priceInclAdjustment, customer: customer);
-                price.Amount = _currencyService.ConvertFromPrimaryStoreCurrency(price.Amount, currency);
+                var (price, _) = await _taxService.GetProductPriceAsync(product, currentPrice, customer: customer);
+                var convertedPrice = _currencyService.ConvertFromPrimaryStoreCurrency(price);
 
-                return GetBasePriceInfo(product, price, currency);
+                return GetBasePriceInfo(product, convertedPrice, currency);
             }
 
             return string.Empty;

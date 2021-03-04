@@ -227,7 +227,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
 
                 orderTotal = currency.AsMoney(orderTotal.Value.Amount - appliedCreditBalance.Amount);
-                orderTotalConverted = currency.AsMoney(_currencyService.ConvertFromPrimaryStoreCurrency(orderTotal.Value.Amount, currency, store), false);
+                orderTotalConverted = _currencyService.ConvertFromPrimaryStoreCurrency(orderTotal.Value, store);
 
                 // Round order total to nearest (cash rounding).
                 if (currency.RoundOrderTotalEnabled && paymentMethodSystemName.HasValue())

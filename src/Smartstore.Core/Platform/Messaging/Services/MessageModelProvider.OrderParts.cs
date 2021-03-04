@@ -126,6 +126,11 @@ namespace Smartstore.Core.Messages
             Money cusRounding = new();
             Money cusTotal = new();
 
+            var customerCurrency = await _db.Currencies
+                .AsNoTracking()
+                .Where(x => x.CurrencyCode == order.CustomerCurrencyCode)
+                .FirstOrDefaultAsync() ?? new Currency { CurrencyCode = order.CustomerCurrencyCode };
+
             var subTotals = GetSubTotals(order, messageContext);
 
             // Shipping
@@ -158,7 +163,7 @@ namespace Smartstore.Core.Messages
                     taxRates = new SortedDictionary<decimal, decimal>();
                     foreach (var tr in order.TaxRatesDictionary)
                     {
-                        taxRates.Add(tr.Key, currencyService.ConvertCurrency(tr.Value, order.CurrencyRate));
+                        taxRates.Add(tr.Key, currencyService.ConvertCurrency(new(tr.Value, customerCurrency), order.CurrencyRate).Amount);
                     }
 
                     displayTaxRates = taxSettings.DisplayTaxRates && taxRates.Count > 0;
@@ -180,12 +185,12 @@ namespace Smartstore.Core.Messages
             // Total
             //var roundingAmount = decimal.Zero;
             //var orderTotal = order.GetOrderTotalInCustomerCurrency(currencyService, paymentService, out roundingAmount);
-            //cusTotal = FormatPrice(orderTotal, order.CustomerCurrencyCode, messageContext);
+            //cusTotal = FormatPrice(orderTotal, customerCurrency, messageContext);
 
             //// Rounding
             //if (roundingAmount != decimal.Zero)
             //{
-            //    cusRounding = FormatPrice(roundingAmount, order.CustomerCurrencyCode, messageContext);
+            //    cusRounding = FormatPrice(roundingAmount, customerCurrency, messageContext);
             //}
 
             //// Model

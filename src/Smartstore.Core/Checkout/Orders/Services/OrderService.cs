@@ -54,12 +54,16 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(order, nameof(order));
 
-            var orderTotal = _currencyService.ConvertCurrency(order.OrderTotal, order.CurrencyRate);
-            var roundingAmount = order.OrderTotalRounding;
-
             var customerCurrency = order.CustomerCurrencyCode.HasValue()
                 ? await _db.Currencies.AsNoTracking().FirstOrDefaultAsync(x => x.CurrencyCode == order.CustomerCurrencyCode)
                 : null;
+
+            // Get currency for output. Fallback to working currency if there's no one (we do not have anything better).
+            var currency = customerCurrency ??
+                (order.CustomerCurrencyCode.HasValue() ? new Currency { CurrencyCode = order.CustomerCurrencyCode } : _workContext.WorkingCurrency);
+
+            var orderTotal = _currencyService.ConvertCurrency(new(order.OrderTotal, currency), order.CurrencyRate).Amount;
+            var roundingAmount = order.OrderTotalRounding;
 
             // Avoid rounding a rounded value. It would zero roundingAmount.
             if (orderTotal != order.OrderTotal &&
@@ -68,18 +72,13 @@ namespace Smartstore.Core.Checkout.Orders
                 order.PaymentMethodSystemName.HasValue())
             {
                 var paymentMethod = await _db.PaymentMethods.AsNoTracking().FirstOrDefaultAsync(x => x.PaymentMethodSystemName == order.PaymentMethodSystemName);
-                if (paymentMethod != null && paymentMethod.RoundOrderTotalEnabled)
+                if (paymentMethod?.RoundOrderTotalEnabled ?? false)
                 {
                     orderTotal = customerCurrency.RoundToNearest(orderTotal, out roundingAmount);
                 }
             }
 
-            // Get currency for output. Fallback to working currency if there's no one (we do not have anything better).
-            var currency = customerCurrency ?? 
-                (order.CustomerCurrencyCode.HasValue() ? new Currency { CurrencyCode = order.CustomerCurrencyCode } : _workContext.WorkingCurrency);
-
-            // Do not round again!
-            return (currency.AsMoney(orderTotal, false), currency.AsMoney(roundingAmount, false));
+            return (new(orderTotal, currency), new(roundingAmount, currency));
         }
     }
 }

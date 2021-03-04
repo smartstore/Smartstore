@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Settings;
@@ -41,6 +40,99 @@ namespace Smartstore.Core.Common.Services
             _taxSettings = taxSettings;
         }
 
+        // TODO: (mg) (core) add new Money constructor with Money parameter to clone all properties.
+
+        public virtual Money ConvertCurrency(Money amount, decimal exchangeRate)
+        {
+            Guard.NotNull(amount, nameof(amount));
+
+            if (amount != decimal.Zero && exchangeRate != decimal.Zero)
+            {
+                return amount * exchangeRate;
+            }
+
+            return new(amount.Currency);
+        }
+
+        public virtual Money ConvertCurrency(Money amount, Currency targetCurrency, Store store = null)
+        {
+            Guard.NotNull(amount, nameof(amount));
+            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+            Guard.NotNull(targetCurrency, nameof(targetCurrency));
+
+            var sourceCurrency = amount.Currency;
+
+            if (sourceCurrency.Id == targetCurrency.Id)
+            {
+                return amount;
+            }
+
+            if (amount != decimal.Zero)
+            {
+                var tmp = ConvertToStoreCurrency(true, amount, store);
+                tmp.Currency = targetCurrency;
+
+                return ConvertFromStoreCurrency(true, tmp, store);
+            }
+
+            return new(amount.Amount, targetCurrency);
+        }
+
+        public virtual Money ConvertToStoreCurrency(bool toExchangeRateCurrency, Money amount, Store store = null)
+        {
+            Guard.NotNull(amount, nameof(amount));
+            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+
+            var sourceCurrency = amount.Currency;
+            var targetCurrency = toExchangeRateCurrency
+                ? store?.PrimaryExchangeRateCurrency ?? _storeContext.CurrentStore.PrimaryExchangeRateCurrency
+                : store?.PrimaryStoreCurrency ?? _storeContext.CurrentStore.PrimaryStoreCurrency;
+
+            if (amount != decimal.Zero && sourceCurrency.Id != targetCurrency.Id)
+            {
+                var exchangeRate = sourceCurrency.Rate;
+                if (exchangeRate == decimal.Zero)
+                {
+                    throw new SmartException($"Exchange rate not found for currency [{sourceCurrency.Name}].");
+                }
+
+                return new(amount.Amount / exchangeRate, targetCurrency);
+            }
+
+            return new(amount.Amount, targetCurrency);
+        }
+
+        public virtual Money ConvertFromStoreCurrency(bool fromExchangeRateCurrency, Money amount, Store store = null)
+        {
+            Guard.NotNull(amount, nameof(amount));
+            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+
+            var sourceCurrency = fromExchangeRateCurrency
+                ? store?.PrimaryExchangeRateCurrency ?? _storeContext.CurrentStore.PrimaryExchangeRateCurrency
+                : store?.PrimaryStoreCurrency ?? _storeContext.CurrentStore.PrimaryStoreCurrency;
+            var targetCurrency = amount.Currency;
+
+            if (fromExchangeRateCurrency)
+            {
+                if (amount != decimal.Zero && sourceCurrency.Id != targetCurrency.Id)
+                {
+                    var exchangeRate = targetCurrency.Rate;
+                    if (exchangeRate == decimal.Zero)
+                    {
+                        throw new SmartException($"Exchange rate not found for currency [{targetCurrency.Name}].");
+                    }
+
+                    return new(amount.Amount * exchangeRate, targetCurrency);
+                }
+
+                return new(amount.Amount, targetCurrency);
+            }
+            else
+            {
+                return ConvertCurrency(new(amount.Amount, sourceCurrency), targetCurrency, store);
+            }
+        }
+
         public virtual async Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode)
         {
             var exchangeRateProvider = LoadActiveExchangeRateProvider();
@@ -50,99 +142,6 @@ namespace Smartstore.Core.Common.Services
             }
 
             return new List<ExchangeRate>();
-        }
-
-        public virtual async Task<List<Currency>> GetAllCurrenciesAsync(bool includeHidden = false, int storeId = 0)
-        {
-            return await _db.Currencies.ApplyStandardFilter(includeHidden, storeId).ToListAsync();
-        }
-
-        public virtual decimal ConvertCurrency(decimal amount, decimal exchangeRate)
-        {
-            if (amount != decimal.Zero && exchangeRate != decimal.Zero)
-                return amount * exchangeRate;
-
-            return decimal.Zero;
-        }
-
-        public virtual decimal ConvertCurrency(decimal amount, Currency sourceCurrency, Currency targetCurrency, Store store = null)
-        {
-            Guard.NotNull(sourceCurrency, nameof(sourceCurrency));
-            Guard.NotNull(targetCurrency, nameof(targetCurrency));
-
-            decimal result = amount;
-            if (sourceCurrency.Id == targetCurrency.Id)
-                return result;
-
-            if (result != decimal.Zero && sourceCurrency.Id != targetCurrency.Id)
-            {
-                result = ConvertToPrimaryExchangeRateCurrency(result, sourceCurrency, store);
-                result = ConvertFromPrimaryExchangeRateCurrency(result, targetCurrency, store);
-            }
-
-            return result;
-        }
-
-        public virtual decimal ConvertToPrimaryExchangeRateCurrency(decimal amount, Currency sourceCurrency, Store store = null)
-        {
-            Guard.NotNull(sourceCurrency, nameof(sourceCurrency));
-
-            decimal result = amount;
-            var primaryExchangeRateCurrency = store == null ? _storeContext.CurrentStore.PrimaryExchangeRateCurrency : store.PrimaryExchangeRateCurrency;
-
-            if (result != decimal.Zero && sourceCurrency.Id != primaryExchangeRateCurrency.Id)
-            {
-                decimal exchangeRate = sourceCurrency.Rate;
-                if (exchangeRate == decimal.Zero)
-                    throw new SmartException(string.Format("Exchange rate not found for currency [{0}]", sourceCurrency.Name));
-
-                result /= exchangeRate;
-            }
-            return result;
-        }
-
-        public virtual decimal ConvertFromPrimaryExchangeRateCurrency(decimal amount, Currency targetCurrency, Store store = null)
-        {
-            Guard.NotNull(targetCurrency, nameof(targetCurrency));
-
-            decimal result = amount;
-            var primaryExchangeRateCurrency = store == null ? _storeContext.CurrentStore.PrimaryExchangeRateCurrency : store.PrimaryExchangeRateCurrency;
-
-            if (result != decimal.Zero && targetCurrency.Id != primaryExchangeRateCurrency.Id)
-            {
-                decimal exchangeRate = targetCurrency.Rate;
-                if (exchangeRate == decimal.Zero)
-                    throw new SmartException(string.Format("Exchange rate not found for currency [{0}]", targetCurrency.Name));
-
-                result *= exchangeRate;
-            }
-            return result;
-        }
-
-        public virtual decimal ConvertToPrimaryStoreCurrency(decimal amount, Currency sourceCurrency, Store store = null)
-        {
-            Guard.NotNull(sourceCurrency, nameof(sourceCurrency));
-
-            decimal result = amount;
-            var primaryStoreCurrency = store == null ? _storeContext.CurrentStore.PrimaryStoreCurrency : store.PrimaryStoreCurrency;
-
-            if (result != decimal.Zero && sourceCurrency.Id != primaryStoreCurrency.Id)
-            {
-                decimal exchangeRate = sourceCurrency.Rate;
-                if (exchangeRate == decimal.Zero)
-                    throw new SmartException(string.Format("Exchange rate not found for currency [{0}]", sourceCurrency.Name));
-
-                result /= exchangeRate;
-            }
-            return result;
-        }
-
-        public virtual decimal ConvertFromPrimaryStoreCurrency(decimal amount, Currency targetCurrency, Store store = null)
-        {
-            Guard.NotNull(targetCurrency, nameof(targetCurrency));
-
-            var primaryStoreCurrency = store == null ? _storeContext.CurrentStore.PrimaryStoreCurrency : store.PrimaryStoreCurrency;
-            return ConvertCurrency(amount, primaryStoreCurrency, targetCurrency, store);
         }
 
         public virtual Provider<IExchangeRateProvider> LoadActiveExchangeRateProvider()

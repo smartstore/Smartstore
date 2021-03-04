@@ -563,16 +563,14 @@ namespace Smartstore.Core.Checkout.Cart
 
         public virtual async Task<Money> GetCurrentCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart = null)
         {
-            var currency = _workContext.WorkingCurrency;
             cart ??= await GetCartItemsAsync(storeId: _storeContext.CurrentStore.Id);
             if (!cart.Any())
             {
-                return new(decimal.Zero, currency);
+                return new(decimal.Zero, _workContext.WorkingCurrency);
             }
 
             var subTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
-            var convertedSubTotal = _currencyService.ConvertFromPrimaryStoreCurrency(subTotal.SubTotalWithoutDiscount.Amount, currency);
-            return new(convertedSubTotal, currency);
+            return _currencyService.ConvertFromPrimaryStoreCurrency(subTotal.SubTotalWithoutDiscount);
         }
     }
 }

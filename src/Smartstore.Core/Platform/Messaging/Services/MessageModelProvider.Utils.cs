@@ -142,17 +142,14 @@ namespace Smartstore.Core.Messages
 
         private Money FormatPrice(decimal price, Currency currency, MessageContext messageContext, decimal exchangeRate = 1)
         {
+            currency ??= _services.Resolve<IWorkContext>().WorkingCurrency;
+
             if (exchangeRate != 1)
             {
-                price = _services.Resolve<ICurrencyService>().ConvertCurrency(price, exchangeRate);
+                return _services.Resolve<ICurrencyService>().ConvertCurrency(new(price, currency), exchangeRate);
             }
 
-            if (currency == null)
-            {
-                currency = _services.Resolve<IWorkContext>().WorkingCurrency;
-            }
-
-            return new Money(price, currency);
+            return new(price, currency);
         }
 
         private async Task<MediaFileInfo> GetMediaFileFor(Product product, ProductVariantAttributeSelection attrSelection = null)
