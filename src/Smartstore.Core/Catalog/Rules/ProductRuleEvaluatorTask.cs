@@ -35,7 +35,7 @@ namespace Smartstore.Core.Catalog.Rules
 
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
-            //var count = 0;
+            var count = 0;
             var numDeleted = 0;
             var numAdded = 0;
             var numCategories = 0;
@@ -78,8 +78,7 @@ namespace Smartstore.Core.Catalog.Rules
                 {
                     var ruleSetProductIds = new HashSet<int>();
 
-                    // TODO: (mg) (core) Complete ProductRuleEvaluatorTask (TaskExecutionContext required).
-                    //ctx.SetProgress(++count, categories.Count, $"Add product mappings for category \"{category.Name.NaIfEmpty()}\".");
+                    await ctx.SetProgressAsync(++count, categories.Count, $"Add product mappings for category \"{category.Name.NaIfEmpty()}\".");
 
                     // Execute active rule sets and collect product ids.
                     foreach (var ruleSet in category.RuleSets.Where(x => x.IsActive))

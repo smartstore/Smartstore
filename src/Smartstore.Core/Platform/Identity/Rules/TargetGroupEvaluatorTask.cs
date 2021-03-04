@@ -37,7 +37,7 @@ namespace Smartstore.Core.Identity.Rules
 
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
-            //var count = 0;
+            var count = 0;
             var numDeleted = 0;
             var numAdded = 0;
             var rolesCount = 0;
@@ -66,8 +66,7 @@ namespace Smartstore.Core.Identity.Rules
                 {
                     var ruleSetCustomerIds = new HashSet<int>();
 
-                    // TODO: (mg) (core) Complete TargetGroupEvaluatorTask (TaskExecutionContext required).
-                    //ctx.SetProgress(++count, roles.Count, $"Add customer assignments for role \"{role.SystemName.NaIfEmpty()}\".");
+                    await ctx.SetProgressAsync(++count, roles.Count, $"Add customer assignments for role \"{role.SystemName.NaIfEmpty()}\".");
 
                     // Execute active rule sets and collect customer ids.
                     foreach (var ruleSet in role.RuleSets.Where(x => x.IsActive))
