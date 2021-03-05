@@ -146,7 +146,6 @@ namespace Smartstore.Core.Catalog.Products
             return map;
         }
 
-        // TODO: (mg) (core) Check caller of GetAppliedDiscountsByProductIdsAsync. Must now be called with includeHidden (default value was true).
         public virtual async Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(
             int[] productIds,
             bool includeHidden = false,
@@ -515,10 +514,15 @@ namespace Smartstore.Core.Catalog.Products
 
             return added;
         }
-
-        // TODO: (mg) (core) Add fluent validations when inserting ProductBundleItem.
-        // if (bundleItem.BundleProductId == 0) throw new SmartException("BundleProductId of a bundle item cannot be 0.");
-        // if (bundleItem.ProductId == 0) throw new SmartException("ProductId of a bundle item cannot be 0.");
-        // if (bundleItem.ProductId == bundleItem.BundleProductId) throw new SmartException("A bundle item cannot be an element of itself.");
     }
+
+    // TODO: (mg) (core) Summary of various issues to be checked and done later:
+    // - Add fluent validations when inserting ProductBundleItem:
+    //      if (bundleItem.BundleProductId == 0) throw new SmartException("BundleProductId of a bundle item cannot be 0.");
+    //      if (bundleItem.ProductId == 0) throw new SmartException("ProductId of a bundle item cannot be 0.");
+    //      if (bundleItem.ProductId == bundleItem.BundleProductId) throw new SmartException("A bundle item cannot be an element of itself.");
+    // - Check callers of IProductService.GetAppliedDiscountsByProductIdsAsync. Must now be called with includeHidden (default value was previously 'true').
+    // - UI. Always show Currency.RoundNumDecimals on currency edit page. It is no longer used only for order item rounding.
+    // - SystemCustomerAttributeNames.WalletEnabled belongs to Wallet module (as extension method for CustomerAttributeCollection).
+    // - AccessDenied action method must process unauthorized message through query string parameter 'permission' (ITempDataDictionary doesn't work in PermissionAttribute).
 }

@@ -769,6 +769,17 @@ namespace Smartstore.Web.Controllers
             return Content($"Slug matched >>> Entity: {e.EntityName} {e.EntityId}, Id: {e.Id}, Language: {e.LanguageId}, Slug: {e.Slug}, IsActive: {e.IsActive}");
         }
 
+        //public async Task<IActionResult> AccessDenied(string permission, string pageUrl)
+        //{
+        //    var content = new StringBuilder();
+        //    var message = await Services.Permissions.GetUnauthorizedMessageAsync(permission);
+
+        //    content.AppendLine("pageUrl: " + pageUrl);
+        //    content.AppendLine("message :" + message);
+
+        //    return Content(content.ToString());
+        //}
+
         public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*//*ProductVariantQuery query*/)
         {
             var content = new StringBuilder();

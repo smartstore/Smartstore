@@ -78,7 +78,6 @@ namespace Smartstore.Core.Common
             get;
         }
 
-        // TODO: (mg) (core) UI. Always show Currency.RoundNumDecimals on currency edit page. It is no longer used only for order item rounding.
         /// <summary>
         /// Rounds the amount to the number of significant decimal digits
         /// of the associated currency using MidpointRounding.AwayFromZero.
