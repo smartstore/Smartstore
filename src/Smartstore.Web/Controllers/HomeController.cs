@@ -108,6 +108,7 @@ namespace Smartstore.Web.Controllers
         private readonly IGiftCardService _giftCardService;
         private readonly UserManager<Customer> _userManager;
         private readonly IUserAgent _userAgent;
+        private readonly IMediaService _mediaService;
 
         public HomeController(
             SmartDbContext db,
@@ -132,7 +133,8 @@ namespace Smartstore.Web.Controllers
             IOrderCalculationService orderCalculationService,
             IGiftCardService giftCardService,
             UserManager<Customer> userManager,
-            IUserAgent userAgent)
+            IUserAgent userAgent,
+            IMediaService mediaService)
         {
             _db = db;
             _eventPublisher = eventPublisher;
@@ -154,6 +156,7 @@ namespace Smartstore.Web.Controllers
             _giftCardService = giftCardService;
             _userManager = userManager;
             _userAgent = userAgent;
+            _mediaService = mediaService;
 
             var currentStore = _storeContext.CurrentStore;
         }
@@ -162,6 +165,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/", Name = "Homepage")]
         public async Task<IActionResult> Index()
         {
+
             #region Settings Test
             ////var xxx = await Services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
 
@@ -307,6 +311,21 @@ namespace Smartstore.Web.Controllers
             var testModel = new TestModel { TestProp1 = "Hello", TestProp2 = "World", TestProp4 = true };
             testModel.Locales.Add(new LocalizedTestModel { LanguageId = 1, TestProp1 = "Hello 1", TestProp2 = "Word 1" });
             testModel.Locales.Add(new LocalizedTestModel { LanguageId = 2, TestProp1 = "Hello 2", TestProp2 = "Word 2" });
+
+            var query = new MediaSearchQuery
+            {
+                FolderId = 3,
+                DeepSearch = true,
+                ExactMatch = true,
+                IncludeAltForTerm = false,
+                PageSize = 100
+            };
+
+            var matches = await _mediaService.SearchFilesAsync(query);
+            Request.Query.TryGetValue("pagenumber", out var pagenumber);
+            matches.PageNumber = Convert.ToInt32(pagenumber);
+
+            testModel.TestList = matches;
 
             return View(testModel);
         }

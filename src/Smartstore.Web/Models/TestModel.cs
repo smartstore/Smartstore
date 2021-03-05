@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Smartstore.Collections;
+using Smartstore.Core.Content.Media;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models
@@ -50,6 +51,8 @@ namespace Smartstore.Web.Models
 
         [LocalizedDisplay("Account.Fields.Newsletter")]
         public bool TestSubscribeToNewsletter { get; set; }
+
+        public IPageable<MediaFileInfo> TestList { get; set; }
     }
 
     [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
