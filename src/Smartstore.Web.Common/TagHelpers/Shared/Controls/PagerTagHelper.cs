@@ -8,11 +8,10 @@ using Smartstore.Web.Rendering.Pager;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-    [OutputElementHint("div")]
+    [OutputElementHint("nav")]
     [HtmlTargetElement("pager", TagStructure = TagStructure.WithoutEndTag)]
     public class PagerTagHelper : SmartTagHelper 
     {
-        #region Properties
         const string ListItemsAttributeName = "sm-list-items";
         const string AlignmentAttributeName = "sm-alignment";
         const string SizeAttributeName = "sm-size";
@@ -74,8 +73,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(ItemTitleFormatStringAttributeName)]
         public string ItemTitleFormatString { get; set; }
 
-        #endregion
-
+        [HtmlAttributeNotBound]
         public Pager Pager { get; set; }
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
