@@ -16,6 +16,7 @@ using Smartstore.Core.Web;
 using System.Threading.Tasks;
 using Smartstore.Net;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore.Web
 {
@@ -440,7 +441,29 @@ namespace Smartstore.Web
 
         public bool IsAdminArea 
         { 
-            get => false; 
+            get 
+            {
+                if (_isAdminArea.HasValue)
+                {
+                    return _isAdminArea.Value;
+                }
+
+                var httpContext = _httpContextAccessor.HttpContext;
+                if (httpContext == null)
+                {
+                    _isAdminArea = false;
+                }
+
+                if (httpContext.Request.IsAdminArea())
+                {
+                    _isAdminArea = true;
+                }
+
+                // TODO: (core) More checks for admin area?
+
+                _isAdminArea ??= false;
+                return _isAdminArea.Value;
+            } 
             set => _isAdminArea = value; 
         }
     }

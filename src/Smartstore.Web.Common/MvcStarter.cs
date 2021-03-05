@@ -28,6 +28,8 @@ using Smartstore.IO;
 using Smartstore.Net;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Razor;
+using Smartstore.Web.Theming;
 
 namespace Smartstore.Web
 {
@@ -66,12 +68,18 @@ namespace Smartstore.Web
             // Detailed database related error notifications
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            // Add RazorPages
-            services.AddRazorPages();
-
             services.Configure<RazorViewEngineOptions>(o =>
             {
-                // TODO: (core) Register view location formats/expanders
+                o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
+                o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
+                o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
+
+                if (appContext.AppConfiguration.EnableLocalizedViews)
+                {
+                    o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
+                }
+
+                // TODO: (core) Implement ModuleViewLocationExpander
             });
 
             services.Configure<WebEncoderOptions>(o =>
@@ -192,8 +200,9 @@ namespace Smartstore.Web
                 }); 
             });
 
-            builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app =>
+            builder.Configure(StarterOrdering.FirstMiddleware, app =>
             {
+                // TODO: (core) Find decent ordering for MiniProfiler
                 app.UseMiniProfiler();
             });
 

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Serilog.Context;
 using Smartstore.Core.Web;
@@ -14,6 +15,7 @@ namespace Smartstore.Core.Logging.Serilog
             _next = next;
         }
 
+        [DebuggerStepThrough]
         public async Task Invoke(HttpContext context, IWebHelper webHelper, IWorkContext workContext)
         {
             using (LogContext.PushProperty("CustomerId", workContext.CurrentCustomer?.Id))
