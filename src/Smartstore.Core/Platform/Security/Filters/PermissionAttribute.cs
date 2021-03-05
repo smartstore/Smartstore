@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Net.Http.Headers;
 
 namespace Smartstore.Core.Security
@@ -32,17 +33,20 @@ namespace Smartstore.Core.Security
         {
             private readonly IWorkContext _workContext;
             private readonly Lazy<IUrlHelper> _urlHelper;
+            private readonly Lazy<ITempDataDictionaryFactory> _tempDataDictionaryFactory;
             private readonly IPermissionService _permissionService;
             private readonly PermissionRequirement _requirement;
 
             public PermissionFilter(
                 IWorkContext workContext,
                 Lazy<IUrlHelper> urlHelper,
+                Lazy<ITempDataDictionaryFactory> tempDataDictionaryFactory,
                 IPermissionService permissionService, 
                 PermissionRequirement requirement)
             {
                 _workContext = workContext;
                 _urlHelper = urlHelper;
+                _tempDataDictionaryFactory = tempDataDictionaryFactory;
                 _permissionService = permissionService;
                 _requirement = requirement;
             }
@@ -68,18 +72,14 @@ namespace Smartstore.Core.Security
 
             protected virtual async Task HandleUnauthorizedRequestAsync(AuthorizationFilterContext context)
             {
-                var request = context?.HttpContext?.Request;
-                if (request == null)
-                {
-                    return;
-                }
+                var request = context.HttpContext.Request;
+
+                var message = _requirement.ShowUnauthorizedMessage
+                    ? await _permissionService.GetUnauthorizedMessageAsync(_requirement.SystemName)
+                    : string.Empty;
 
                 if (request.IsAjaxRequest())
                 {
-                    var message = _requirement.ShowUnauthorizedMessage
-                        ? await _permissionService.GetUnauthorizedMessageAsync(_requirement.SystemName)
-                        : string.Empty;
-
                     if (message.HasValue())
                     {
                         context.HttpContext.Response.Headers.Add("X-Message-Type", "error");
@@ -106,12 +106,18 @@ namespace Smartstore.Core.Security
                 }
                 else
                 {
+                    // TODO: (mg) (core) The redirection in PermissionAttribute is bound to admin area, which makes the attribute
+                    // usable in admin area only. Find a way to make this work for all areas.
+                    // E.g.: throw an exception and let error handling middleware handle it (?)
                     var url = _urlHelper.Value.Action("AccessDenied", "Security", new 
                     {
-                        permission = _requirement.SystemName, 
+                        permission = _requirement.SystemName,
                         pageUrl = request.RawUrl(), 
-                        area = "Admin"
+                        area = "admin"
                     });
+
+                    var tempData = _tempDataDictionaryFactory.Value.GetTempData(context.HttpContext);
+                    tempData["UnauthorizedMessage"] = message;
 
                     context.Result = new RedirectResult(url);
                 }
