@@ -28,21 +28,16 @@ namespace Smartstore.Web.Components
             _breadcrumb = breadcrumb;
         }
 
-        public IViewComponentResult Invoke(IEnumerable<MenuItem> trail)
+        public IViewComponentResult Invoke(IEnumerable<MenuItem> trail = null)
         {
             // TODO: (mh) (core) Remove test code when helper method is implemented and gets invoked.
             //await CreateProductTestCase();
 
+            trail ??= _breadcrumb.Trail;
+
             if (trail == null || !trail.Any())
             {
-                if (_breadcrumb.Trail == null || !_breadcrumb.Trail.Any())
-                {
-                    return Empty();
-                }
-                else
-                {
-                    trail = _breadcrumb.Trail;
-                }
+                return Empty();
             }
 
             return View(trail);
