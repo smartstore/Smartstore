@@ -248,10 +248,11 @@ namespace Smartstore.Core.Checkout.Cart
                 return true;
 
             var currentWarnings = new List<string>();
-            var recipientName = cartItem.AttributeSelection.GiftCardInfo?.RecipientName;
-            var recipientEmail = cartItem.AttributeSelection.GiftCardInfo?.RecipientEmail;
-            var senderName = cartItem.AttributeSelection.GiftCardInfo?.SenderName;
-            var senderEmail = cartItem.AttributeSelection.GiftCardInfo?.SenderEmail;
+            var giftCardInfo = cartItem.AttributeSelection.GiftCardInfo;
+            var recipientName = giftCardInfo?.RecipientName;
+            var recipientEmail = giftCardInfo?.RecipientEmail;
+            var senderName = giftCardInfo?.SenderName;
+            var senderEmail = giftCardInfo?.SenderEmail;
 
             if (recipientName.IsEmpty())
             {
