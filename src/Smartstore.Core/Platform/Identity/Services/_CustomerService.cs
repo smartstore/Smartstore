@@ -15,11 +15,12 @@ using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Web;
 using Smartstore.Data.Caching;
+using Smartstore.Data.Hooks;
 using Smartstore.Diagnostics;
 
 namespace Smartstore.Core.Identity
 {
-    public partial class CustomerService : ICustomerService
+    public partial class CustomerService : AsyncDbSaveHook<Customer>, ICustomerService
     {
 		#region Raw SQL
 		const string SqlGenericAttributes = @"
@@ -62,7 +63,6 @@ DELETE TOP(20000) [c]
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly IUserAgent _userAgent;
 		private readonly IChronometer _chronometer;
-		private readonly CustomerSettings _customerSettings;
 
 		private Customer _authCustomer;
 		private bool _authCustomerResolved;
@@ -73,8 +73,7 @@ DELETE TOP(20000) [c]
 			IWebHelper webHelper,
 			IHttpContextAccessor httpContextAccessor,
 			IUserAgent userAgent,
-			IChronometer chronometer,
-			CustomerSettings customerSettings)
+			IChronometer chronometer)
         {
             _db = db;
 			_userManager = userManager;
@@ -82,10 +81,37 @@ DELETE TOP(20000) [c]
 			_httpContextAccessor = httpContextAccessor;
 			_userAgent = userAgent;
 			_chronometer = chronometer;
-			_customerSettings = customerSettings;
         }
 
 		public ILogger Logger { get; set; } = NullLogger.Instance;
+
+        #region Hook
+
+        protected override Task<HookResult> OnUpdatingAsync(Customer entity, IHookedEntity entry, CancellationToken cancelToken)
+			=> Task.FromResult(HookResult.Ok);
+
+		protected override Task<HookResult> OnInsertingAsync(Customer entity, IHookedEntity entry, CancellationToken cancelToken)
+			=> Task.FromResult(HookResult.Ok);
+
+		public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+		{
+			var softDeletedCustomer = entries
+				.Where(x => x.IsSoftDeleted == true)
+				.Select(x => x.Entity)
+				.OfType<Customer>()
+				.FirstOrDefault();
+
+			if (softDeletedCustomer?.IsSystemAccount ?? false)
+			{
+				throw new NotSupportedException($"System customer account ({softDeletedCustomer.SystemName}) cannot not be deleted.");
+			}
+
+			// TODO: (mg) (core) Validate unique user when inserting customer.
+
+			return Task.FromResult(HookResult.Ok);
+		}
+
+		#endregion
 
 		#region Guest customers
 

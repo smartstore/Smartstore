@@ -810,6 +810,10 @@ namespace Smartstore.Web.Controllers
             var orderService = Services.Resolve<IOrderService>();
             var usd = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == "USD");
 
+            var customer = await _db.Customers.Where(x => x.IsSystemAccount && x.Email == "builtin@background-task-record.com").FirstOrDefaultAsync();
+            _db.Customers.Remove(customer);
+            await _db.SaveChangesAsync();
+
             //var resOld = currencyService.ConvertToPrimaryExchangeRateCurrency(price, usd);
             //var resNew = currencyService.ConvertToPrimaryExchangeRateCurrency(new Money(price, usd));
             //content.AppendLine($"{resOld}, {resNew.Amount} {resNew.Currency.CurrencyCode}. ConvertToPrimaryExchangeRateCurrency.");
