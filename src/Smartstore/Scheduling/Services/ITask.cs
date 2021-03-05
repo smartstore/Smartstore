@@ -4,6 +4,12 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Scheduling
 {
+    internal class TaskMetadata
+    {
+        public string Name { get; set; }
+        public Type Type { get; set; }
+    }
+    
     /// <summary>
     /// Represents a scheduled background task.
     /// </summary>

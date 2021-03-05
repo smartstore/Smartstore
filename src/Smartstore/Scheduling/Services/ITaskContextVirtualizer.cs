@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -12,6 +13,6 @@ namespace Smartstore.Scheduling
         /// <summary>
         /// Virtualized context data (like current user, current store etc.)
         /// </summary>
-        Task VirtualizeAsync(HttpContext httpContext);
+        Task VirtualizeAsync(HttpContext httpContext, IDictionary<string, string> taskParameters = null);
     }
 }

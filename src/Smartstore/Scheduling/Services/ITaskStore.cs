@@ -9,7 +9,7 @@ namespace Smartstore.Scheduling
     /// <summary>
     /// Storage for <see cref="TaskDescriptor"/> instances.
     /// </summary>
-    public interface ITaskStore
+    public partial interface ITaskStore
     {
         /// <summary>
         /// Creates and returns an <see cref="IQueryable{TaskDescriptor}"/> query instance used to query over <see cref="TaskDescriptor"/> object instances.
@@ -25,15 +25,6 @@ namespace Smartstore.Scheduling
         /// <param name="type">Impl type of runnable task. Must implement <see cref="ITask"/>.</param>
         /// <returns>The fresh <see cref="TaskDescriptor"/> object instance.</returns>
         TaskDescriptor CreateDescriptor(string name, Type type);
-
-        /// <summary>
-        /// Gets the task CLR type.
-        /// </summary>
-        /// <param name="task">The task to map a CLR type for.</param>
-        /// <returns>
-        /// A <see cref="Type"/> instance representing the task CLR type or <c>null</c>.
-        /// </returns>
-        Type GetTaskClrType(TaskDescriptor task);
 
         /// <summary>
         /// Gets a task by identifier.
@@ -132,14 +123,14 @@ namespace Smartstore.Scheduling
         /// Gets a task's last <see cref="TaskExecutionInfo"/> object instance, or <c>null</c> if entry does not exist.
         /// </summary>
         /// <param name="taskId">Task identifier.</param>
-        /// <param name="runningOnly">Filter by running entries.</param>
+        /// <param name="runningOnly">Filter by running entries. null = don't care, true = only running infos, false = history only.</param>
         Task<TaskExecutionInfo> GetLastExecutionInfoByTaskIdAsync(int taskId, bool? runningOnly = null);
 
         /// <summary>
         /// Gets a task's last <see cref="TaskExecutionInfo"/> object instance, or <c>null</c> if entry does not exist.
         /// </summary>
         /// <param name="task">Task descriptor instance.</param>
-        /// <param name="runningOnly">Filter by running entries.</param>
+        /// <param name="runningOnly">Filter by running entries. null = don't care, true = only running infos, false = history only.</param>
         Task<TaskExecutionInfo> GetLastExecutionInfoByTaskAsync(TaskDescriptor task, bool? runningOnly = null);
 
         /// <summary>

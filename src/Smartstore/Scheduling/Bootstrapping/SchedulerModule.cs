@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Engine;
 using Smartstore.Scheduling;
@@ -18,7 +19,8 @@ namespace Smartstore.Bootstrapping
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<DefaultTaskScheduler>().As<ITaskScheduler>().SingleInstance();
-            builder.RegisterType<DefaultTaskExecutor>().As<ITaskExecutor>().InstancePerLifetimeScope();
+            builder.RegisterType<TaskExecutor>().As<ITaskExecutor>().InstancePerLifetimeScope();
+            builder.RegisterType<TaskActivator>().As<ITaskActivator>().InstancePerLifetimeScope();
 
             // Register as hosted service
             builder.Register<IHostedService>(c => c.Resolve<ITaskScheduler>()).SingleInstance();
@@ -26,24 +28,33 @@ namespace Smartstore.Bootstrapping
             // Register all ITask impls
             var taskTypes = _appContext.TypeScanner.FindTypes<ITask>(ignoreInactiveModules: true);
 
-            foreach (var type in taskTypes)
+            foreach (var taskType in taskTypes)
             {
-                var typeName = type.FullName;
-                builder.RegisterType(type).Named<ITask>(typeName).Keyed<ITask>(type).InstancePerLifetimeScope();
+                var typeName = taskType.GetAttribute<TaskNameAttribute>(true)?.Name ?? taskType.Name;
+
+                var registration = builder.RegisterType(taskType)
+                    .Named<ITask>(typeName)
+                    .Keyed<ITask>(taskType)
+                    .WithMetadata<TaskMetadata>(m => 
+                    {
+                        m.For(em => em.Name, typeName);
+                        m.For(em => em.Type, taskType);
+                    });
+
+                var lifetime = taskType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
+                if (lifetime == ServiceLifetime.Singleton)
+                {
+                    registration.SingleInstance();
+                }
+                else if (lifetime == ServiceLifetime.Transient)
+                {
+                    registration.InstancePerDependency();
+                }
+                else
+                {
+                    registration.InstancePerLifetimeScope();
+                }
             }
-
-            // Register resolver delegates
-            builder.Register<Func<Type, ITask>>(c =>
-            {
-                var cc = c.Resolve<IComponentContext>();
-                return keyed => cc.ResolveKeyed<ITask>(keyed);
-            });
-
-            builder.Register<Func<string, ITask>>(c =>
-            {
-                var cc = c.Resolve<IComponentContext>();
-                return named => cc.ResolveNamed<ITask>(named);
-            });
         }
     }
 }

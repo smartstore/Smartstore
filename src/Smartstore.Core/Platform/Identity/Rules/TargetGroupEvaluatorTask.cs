@@ -48,7 +48,7 @@ namespace Smartstore.Core.Identity.Rules
                 var deleteQuery = _db.CustomerRoleMappings.Where(x => x.IsSystemMapping);
                 if (ctx.Parameters.ContainsKey("CustomerRoleIds"))
                 {
-                    var roleIds = ctx.Parameters["CustomerRoleIds"].ToString().ToIntArray();
+                    var roleIds = ctx.Parameters["CustomerRoleIds"].ToIntArray();
                     deleteQuery = deleteQuery.Where(x => roleIds.Contains(x.CustomerRoleId));
                 }
 

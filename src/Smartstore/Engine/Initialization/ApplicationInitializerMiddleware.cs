@@ -2,12 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Smartstore.Events;
 using Smartstore.Threading;
 
 namespace Smartstore.Engine.Initialization
 {
+    public sealed class ApplicationInitializedEvent
+    {
+        public HttpContext HttpContext { get; init; }
+    }
+    
     /// <summary>
     /// Middleware that executes <see cref="IApplicationInitializer"/> implementations during the very first request.
     /// </summary>
@@ -126,14 +133,17 @@ namespace Smartstore.Engine.Initialization
                         pendingModules.Remove(info);
                     }
                 }
+            }
 
-                if (pendingModules.Count == 0)
-                {
-                    // No more pending initializers anymore.
-                    // Don't run this middleware from now on.
-                    _initialized = true;
-                    RaiseInitialized(this);
-                }
+            if (pendingModules.Count == 0)
+            {
+                // No pending initializers anymore.
+                // Don't run this middleware from now on.
+                _initialized = true;
+                RaiseInitialized(this);
+
+                var eventPublisher = _appContext.Services.Resolve<IEventPublisher>();
+                await eventPublisher.PublishAsync(new ApplicationInitializedEvent { HttpContext = context });
             }
         }
 

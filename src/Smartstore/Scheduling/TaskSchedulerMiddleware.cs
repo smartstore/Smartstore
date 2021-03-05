@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -39,14 +41,16 @@ namespace Smartstore.Scheduling
                     return;
                 }
 
+                var taskParameters = context.Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString(), StringComparer.OrdinalIgnoreCase);
+
                 if (action == RunAction)
                 {
                     var taskId = context.GetRouteValueAs<int>("id", 0);
-                    await Run(taskId, context, taskStore, executor);
+                    await Run(taskId, context, taskStore, executor, taskParameters);
                 }
                 else
                 {
-                    await Poll(context, taskStore, executor);
+                    await Poll(context, taskStore, executor, taskParameters);
                 }
             }
             else
@@ -55,7 +59,7 @@ namespace Smartstore.Scheduling
             }
         }
 
-        private async Task Poll(HttpContext context, ITaskStore taskStore, ITaskExecutor executor)
+        private async Task Poll(HttpContext context, ITaskStore taskStore, ITaskExecutor executor, IDictionary<string, string> taskParameters)
         {
             var pendingTasks = await taskStore.GetPendingTasksAsync();
             var numTasks = pendingTasks.Count;
@@ -63,7 +67,7 @@ namespace Smartstore.Scheduling
 
             if (pendingTasks.Any())
             {
-                await Virtualize(context);
+                await Virtualize(context, taskParameters);
             }
 
             for (var i = 0; i < numTasks; i++)
@@ -82,7 +86,7 @@ namespace Smartstore.Scheduling
 
                 if (task.IsPending)
                 {
-                    await executor.ExecuteAsync(task, context);
+                    await executor.ExecuteAsync(task, context, taskParameters);
                     numExecuted++;
                 }
             }
@@ -91,7 +95,7 @@ namespace Smartstore.Scheduling
             await context.Response.WriteAsync($"{numExecuted} of {numTasks} pending tasks executed.");
         }
 
-        private async Task Run(int taskId, HttpContext context, ITaskStore taskStore, ITaskExecutor executor)
+        private async Task Run(int taskId, HttpContext context, ITaskStore taskStore, ITaskExecutor executor, IDictionary<string, string> taskParameters)
         {
             var task = await taskStore.GetTaskByIdAsync(taskId);
             if (task == null)
@@ -100,9 +104,9 @@ namespace Smartstore.Scheduling
                 return;
             }
 
-            await Virtualize(context);
+            await Virtualize(context, taskParameters);
 
-            await executor.ExecuteAsync(task, context);
+            await executor.ExecuteAsync(task, context, taskParameters);
 
             context.Response.StatusCode = StatusCodes.Status200OK;
             await context.Response.WriteAsync($"Task '{task.Name}' executed.");
@@ -110,16 +114,17 @@ namespace Smartstore.Scheduling
 
         private static Task Noop(HttpContext context)
         {
+            var ua = context.Request.UserAgent();
             context.Response.StatusCode = StatusCodes.Status200OK;
             return context.Response.WriteAsync("noop");
         }
 
-        private static Task Virtualize(HttpContext context)
+        private static Task Virtualize(HttpContext context, IDictionary<string, string> taskParameters)
         {
             var virtualizer = context.RequestServices.GetService<ITaskContextVirtualizer>();
             if (virtualizer != null)
             {
-                return virtualizer.VirtualizeAsync(context);
+                return virtualizer.VirtualizeAsync(context, taskParameters);
             }
 
             return Task.CompletedTask;

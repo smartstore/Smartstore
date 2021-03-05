@@ -16,34 +16,12 @@ namespace Smartstore.Collections
 
         private List<T> _list;
 
-        ////protected Pageable()
-        ////{
-        ////}
-
         protected Pageable(IPageable<T> pageable)
         {
-            Guard.NotNull(pageable, "pageable");
+            Guard.NotNull(pageable, nameof(pageable));
 
             Init(pageable.SourceQuery, pageable.PageIndex, pageable.PageSize, pageable.TotalCount);
         }
-
-        //protected Pageable(int pageIndex, int pageSize, int totalCount)
-        //{
-        //    Guard.PagingArgsValid(pageIndex, pageSize, "pageIndex", "pageSize");
-
-        //    PageIndex = pageIndex;
-        //    PageSize = pageSize;
-        //    TotalCount = totalCount;
-        //}
-
-        //protected void Init(IPageable pageable)
-        //{
-        //    Guard.NotNull(pageable, "pageable");
-
-        //    PageIndex = pageable.PageIndex;
-        //    PageSize = pageable.PageSize;
-        //    TotalCount = pageable.TotalCount;
-        //}
 
         /// <param name="pageIndex">The 0-based page index</param>
         public Pageable(IEnumerable<T> source, int pageIndex, int pageSize)

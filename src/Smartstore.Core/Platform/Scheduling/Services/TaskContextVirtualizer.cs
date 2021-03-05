@@ -15,12 +15,11 @@ namespace Smartstore.Scheduling
         public const string CurrentCustomerIdParamName = "CurrentCustomerId";
         public const string CurrentStoreIdParamName = "CurrentStoreId";
 
-        public async Task VirtualizeAsync(HttpContext httpContext)
+        public async Task VirtualizeAsync(HttpContext httpContext, IDictionary<string, string> taskParameters = null)
         {
             var db = httpContext.RequestServices.GetRequiredService<SmartDbContext>();
             var customerService = httpContext.RequestServices.GetRequiredService<ICustomerService>();
             var workContext = httpContext.RequestServices.GetRequiredService<IWorkContext>();
-            var taskParameters = httpContext.Request.Query;
 
             // Try virtualize current customer (which is necessary when user manually executes a task).
             Customer customer = null;

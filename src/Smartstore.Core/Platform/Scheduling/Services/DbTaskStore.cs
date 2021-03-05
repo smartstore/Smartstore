@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using SixLabors.ImageSharp.ColorSpaces;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
@@ -18,7 +18,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Scheduling
 {
-    public class DbTaskStore : ITaskStore
+    public partial class DbTaskStore : Disposable, ITaskStore
     {
         private readonly SmartDbContext _db;
         private readonly IApplicationContext _appContext;
@@ -26,29 +26,42 @@ namespace Smartstore.Scheduling
         private readonly Lazy<CommonSettings> _commonSettings;
 
         public DbTaskStore(
-            SmartDbContext db, 
+            IDbContextFactory<SmartDbContext> dbFactory, 
             IApplicationContext appContext, 
             IDateTimeHelper dtHelper,
             Lazy<CommonSettings> commonSettings)
         {
-            _db = db;
+            _db = dbFactory.CreateDbContext();
             _appContext = appContext;
             _dtHelper = dtHelper;
             _commonSettings = commonSettings;
+
+            _db.HooksEnabled = false;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        protected override void OnDispose(bool disposing)
+        {
+            if (disposing)
+                _db.Dispose();
+        }
+
+        protected virtual Task<T> ExecuteWithRetry<T>(Func<Task<T>> action)
+        {
+            return Retry.RunAsync(action, 3, TimeSpan.FromMilliseconds(100), RetryOnTransientException);
+        }
+
         #region Task
 
-        public IQueryable<TaskDescriptor> GetDescriptorQuery()
+        public virtual IQueryable<TaskDescriptor> GetDescriptorQuery()
         {
             return _db.TaskDescriptors;
         }
 
-        public TaskDescriptor CreateDescriptor(string name, Type type)
+        public virtual TaskDescriptor CreateDescriptor(string name, Type type)
         {
             Guard.NotEmpty(name, nameof(name));
             Guard.NotNull(type, nameof(type));
@@ -57,36 +70,20 @@ namespace Smartstore.Scheduling
             return new TaskDescriptor
             {
                 Name = name,
-                Type = type.AssemblyQualifiedNameWithoutVersion(),
+                Type = type.GetAttribute<TaskNameAttribute>(false)?.Name ?? type.Name,
                 Enabled = true
             };
         }
 
-        public Type GetTaskClrType(TaskDescriptor task)
-        {
-            try
-            {
-                return Type.GetType(task.Type);
-            }
-            catch
-            {
-                // TODO: (core) Map old task types to new types.
-                return null;
-            }
-        }
-
-        public Task<TaskDescriptor> GetTaskByIdAsync(int taskId)
+        public virtual Task<TaskDescriptor> GetTaskByIdAsync(int taskId)
         {
             if (taskId == 0)
                 return null;
 
-            return Retry.RunAsync(
-                () => _db.TaskDescriptors.FindByIdAsync(taskId).AsTask(),
-                3, TimeSpan.FromMilliseconds(100),
-                RetryOnTransientException);
+            return ExecuteWithRetry(() => _db.TaskDescriptors.FindByIdAsync(taskId).AsTask());
         }
 
-        public async Task<TaskDescriptor> GetTaskByTypeAsync(string type)
+        public virtual async Task<TaskDescriptor> GetTaskByTypeAsync(string type)
         {
             try
             {
@@ -110,12 +107,12 @@ namespace Smartstore.Scheduling
             return null;
         }
 
-        public Task ReloadTaskAsync(TaskDescriptor task)
+        public virtual Task ReloadTaskAsync(TaskDescriptor task)
         {
             return _db.ReloadEntityAsync(task);
         }
 
-        public Task<List<TaskDescriptor>> GetAllTasksAsync(bool includeDisabled = false)
+        public virtual Task<List<TaskDescriptor>> GetAllTasksAsync(bool includeDisabled = false)
         {
             var query = _db.TaskDescriptors.AsQueryable();
 
@@ -126,13 +123,10 @@ namespace Smartstore.Scheduling
 
             query = query.OrderByDescending(t => t.Enabled);
 
-            return Retry.RunAsync(
-                async () => (await query.ToListAsync()),
-                3, TimeSpan.FromMilliseconds(100),
-                RetryOnTransientException);
+            return ExecuteWithRetry(() => query.ToListAsync());
         }
 
-        public async Task<List<TaskDescriptor>> GetPendingTasksAsync()
+        public virtual async Task<List<TaskDescriptor>> GetPendingTasksAsync()
         {
             var now = DateTime.UtcNow;
             var machineName = _appContext.MachineName;
@@ -150,10 +144,7 @@ namespace Smartstore.Scheduling
                         .FirstOrDefault()
                 });
 
-            var tasks = await Retry.RunAsync(
-                () => query.ToListAsync(),
-                3, TimeSpan.FromMilliseconds(100),
-                RetryOnTransientException);
+            var tasks = await ExecuteWithRetry(() => query.ToListAsync());
 
             var pendingTasks = tasks
                 .Select(x =>
@@ -169,7 +160,7 @@ namespace Smartstore.Scheduling
             return pendingTasks;
         }
 
-        public Task InsertTaskAsync(TaskDescriptor task)
+        public virtual Task InsertTaskAsync(TaskDescriptor task)
         {
             Guard.NotNull(task, nameof(task));
 
@@ -177,7 +168,7 @@ namespace Smartstore.Scheduling
             return _db.SaveChangesAsync();
         }
 
-        public Task UpdateTaskAsync(TaskDescriptor task)
+        public virtual Task UpdateTaskAsync(TaskDescriptor task)
         {
             Guard.NotNull(task, nameof(task));
 
@@ -193,7 +184,7 @@ namespace Smartstore.Scheduling
             }
         }
 
-        public Task DeleteTaskAsync(TaskDescriptor task)
+        public virtual Task DeleteTaskAsync(TaskDescriptor task)
         {
             Guard.NotNull(task, nameof(task));
 
@@ -201,7 +192,7 @@ namespace Smartstore.Scheduling
             return _db.SaveChangesAsync();
         }
 
-        public async Task<TaskDescriptor> GetOrAddTaskAsync<T>(Action<TaskDescriptor> createAction) where T : ITask
+        public virtual async Task<TaskDescriptor> GetOrAddTaskAsync<T>(Action<TaskDescriptor> createAction) where T : ITask
         {
             Guard.NotNull(createAction, nameof(createAction));
 
@@ -216,7 +207,11 @@ namespace Smartstore.Scheduling
 
             if (task == null)
             {
-                task = new TaskDescriptor { Type = type.AssemblyQualifiedNameWithoutVersion() };
+                task = new TaskDescriptor 
+                { 
+                    Type = type.GetAttribute<TaskNameAttribute>(false)?.Name ?? type.Name
+                };
+
                 createAction(task);
                 _db.TaskDescriptors.Add(task);
                 await _db.SaveChangesAsync();
@@ -225,18 +220,14 @@ namespace Smartstore.Scheduling
             return task;
         }
 
-        public async Task CalculateFutureSchedulesAsync(IEnumerable<TaskDescriptor> tasks, bool isAppStart = false)
+        public virtual async Task CalculateFutureSchedulesAsync(IEnumerable<TaskDescriptor> tasks, bool isAppStart = false)
         {
             Guard.NotNull(tasks, nameof(tasks));
 
             foreach (var task in tasks)
             {
                 task.NextRunUtc = GetNextSchedule(task);
-                if (isAppStart)
-                {
-                    FixTypeName(task);
-                }
-                else
+                if (!isAppStart)
                 {
                     await UpdateTaskAsync(task);
                 }
@@ -247,10 +238,7 @@ namespace Smartstore.Scheduling
                 // On app start this method's execution is thread-safe, making it sufficient
                 // to commit all changes in one go.
                 await _db.SaveChangesAsync();
-            }
 
-            if (isAppStart)
-            {
                 // Normalize task history entries.
                 // That is, no task can run when the application starts and therefore no entry may be marked as running.
                 var history = await _db.TaskExecutionInfos
@@ -287,17 +275,7 @@ namespace Smartstore.Scheduling
             }
         }
 
-        private static void FixTypeName(TaskDescriptor task)
-        {
-            // TODO: (core) Map old task types to new types.
-            // In versions prior V3 a double space could exist in ScheduleTask type name.
-            if (task.Type.IndexOf(",  ") > 0)
-            {
-                task.Type = task.Type.Replace(",  ", ", ");
-            }
-        }
-
-        public DateTime? GetNextSchedule(TaskDescriptor task)
+        public virtual DateTime? GetNextSchedule(TaskDescriptor task)
         {
             if (task.Enabled)
             {
@@ -332,12 +310,12 @@ namespace Smartstore.Scheduling
 
         #region History
 
-        public IQueryable<TaskExecutionInfo> GetExecutionInfoQuery()
+        public virtual IQueryable<TaskExecutionInfo> GetExecutionInfoQuery()
         {
             return _db.TaskExecutionInfos;
         }
 
-        public TaskExecutionInfo CreateExecutionInfo(TaskDescriptor task)
+        public virtual TaskExecutionInfo CreateExecutionInfo(TaskDescriptor task)
         {
             Guard.NotNull(task, nameof(task));
 
@@ -350,22 +328,50 @@ namespace Smartstore.Scheduling
             };
         }
 
-        public Task<TaskExecutionInfo> GetExecutionInfoByIdAsync(int id)
+        public virtual Task<TaskExecutionInfo> GetExecutionInfoByIdAsync(int id)
         {
-            return _db.TaskExecutionInfos.FindByIdAsync(id).AsTask();
+            return _db.TaskExecutionInfos.Include(x => x.Task).FindByIdAsync(id).AsTask();
         }
 
-        public Task<TaskExecutionInfo> GetLastExecutionInfoByTaskIdAsync(int taskId, bool? runningOnly = null)
+        public virtual Task<TaskExecutionInfo> GetLastExecutionInfoByTaskIdAsync(int taskId, bool? runningOnly = null)
         {
-            throw new NotImplementedException();
+            if (taskId == 0)
+            {
+                return Task.FromResult<TaskExecutionInfo>(null);
+            }
+
+            var query = GetExecutionInfoQuery()
+                .Include(x => x.Task)
+                .ApplyTaskFilter(taskId, false)
+                .ApplyCurrentMachineNameFilter();
+
+            if (runningOnly.HasValue)
+            {
+                query = query.Where(x => x.IsRunning == runningOnly.Value);
+            }
+
+            return ExecuteWithRetry(() => query.FirstOrDefaultAsync());
         }
 
-        public Task<TaskExecutionInfo> GetLastExecutionInfoByTaskAsync(TaskDescriptor task, bool? runningOnly = null)
+        public virtual async Task<TaskExecutionInfo> GetLastExecutionInfoByTaskAsync(TaskDescriptor task, bool? runningOnly = null)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(task, nameof(task));
+
+            var query = _db.IsCollectionLoaded(task, x => x.ExecutionHistory) 
+                ? task.ExecutionHistory.AsQueryable()
+                : GetExecutionInfoQuery().Include(x => x.Task).ApplyTaskFilter(task.Id);
+
+            if (runningOnly.HasValue)
+            {
+                query = query.Where(x => x.IsRunning == runningOnly.Value);
+            }
+
+            query = query.ApplyCurrentMachineNameFilter();
+
+            return await ExecuteWithRetry(() => query.FirstOrDefaultAsync());
         }
 
-        public Task InsertExecutionInfoAsync(TaskExecutionInfo info)
+        public virtual Task InsertExecutionInfoAsync(TaskExecutionInfo info)
         {
             Guard.NotNull(info, nameof(info));
 
@@ -373,7 +379,7 @@ namespace Smartstore.Scheduling
             return _db.SaveChangesAsync();
         }
 
-        public Task UpdateExecutionInfoAsync(TaskExecutionInfo info)
+        public virtual Task UpdateExecutionInfoAsync(TaskExecutionInfo info)
         {
             Guard.NotNull(info, nameof(info));
 
@@ -390,7 +396,7 @@ namespace Smartstore.Scheduling
             }
         }
 
-        public Task DeleteExecutionInfoAsync(TaskExecutionInfo info)
+        public virtual Task DeleteExecutionInfoAsync(TaskExecutionInfo info)
         {
             Guard.NotNull(info, nameof(info));
             Guard.IsTrue(!info.IsRunning, nameof(info.IsRunning), "Cannot delete a running task execution info entry.");
@@ -399,7 +405,7 @@ namespace Smartstore.Scheduling
             return _db.SaveChangesAsync();
         }
 
-        public async Task<int> TrimExecutionInfosAsync(CancellationToken cancelToken = default)
+        public virtual async Task<int> TrimExecutionInfosAsync(CancellationToken cancelToken = default)
         {
             var idsToDelete = new HashSet<int>();
 
@@ -418,18 +424,21 @@ namespace Smartstore.Scheduling
             // We have to group by task otherwise we would only keep entries from very frequently executed tasks.
             if (_commonSettings.Value.MaxNumberOfScheduleHistoryEntries > 0)
             {
-                var query =
-                    from th in _db.TaskExecutionInfos.AsNoTracking()
-                    where !th.IsRunning
-                    group th by th.TaskDescriptorId into grp
-                    select grp
-                        .OrderByDescending(x => x.StartedOnUtc)
-                        .ThenByDescending(x => x.Id)
-                        .Skip(_commonSettings.Value.MaxNumberOfScheduleHistoryEntries)
-                        .Select(x => x.Id);
+                // INFO: GroupBy the way it was before throws exception!
+                var query = _db.TaskDescriptors
+                    .AsNoTracking()
+                    .Select(x => new
+                    {
+                        x.Id,
+                        DeletableInfoIds = x.ExecutionHistory
+                            .OrderByDescending(x => x.StartedOnUtc)
+                            .ThenByDescending(x => x.Id)
+                            .Skip(_commonSettings.Value.MaxNumberOfScheduleHistoryEntries)
+                            .Select(x => x.Id)
+                    })
+                    .Where(x => x.DeletableInfoIds.Any());
 
-                var ids = await query.SelectMany(x => x).ToListAsync(cancelToken);
-
+                var ids = (await query.ToListAsync(cancelToken)).SelectMany(x => x.DeletableInfoIds);
                 idsToDelete.AddRange(ids);
             }
 

@@ -15,7 +15,7 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void MapRoutes(EndpointRoutingBuilder builder)
         {
-            builder.MapRoutes(StarterOrdering.AfterAuthenticationMiddleware, endpoints =>
+            builder.MapRoutes(StarterOrdering.EarlyRoute, endpoints =>
             {
                 endpoints.MapTaskScheduler();
             });

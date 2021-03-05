@@ -43,7 +43,7 @@ namespace Smartstore.Core.Catalog.Rules
             var pageIndex = -1;
 
             var categoryIds = ctx.Parameters.ContainsKey("CategoryIds")
-                ? ctx.Parameters["CategoryIds"].ToString().ToIntArray()
+                ? ctx.Parameters["CategoryIds"].ToIntArray()
                 : null;
 
             // Hooks are enabled because search index needs to be updated.

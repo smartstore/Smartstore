@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
@@ -13,10 +12,10 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Scheduling
 {
-    public class DefaultTaskExecutor : ITaskExecutor
+    public class TaskExecutor : ITaskExecutor
     {
         private readonly ITaskStore _taskStore;
-        private readonly Func<Type, ITask> _taskResolver;
+        private readonly ITaskActivator _taskActivator;
         private readonly IComponentContext _componentContext;
         private readonly IAsyncState _asyncState;
         private readonly AsyncRunner _asyncRunner;
@@ -25,16 +24,16 @@ namespace Smartstore.Scheduling
         public const string CurrentCustomerIdParamName = "CurrentCustomerId";
         public const string CurrentStoreIdParamName = "CurrentStoreId";
 
-        public DefaultTaskExecutor(
+        public TaskExecutor(
             ITaskStore taskStore,
-            Func<Type, ITask> taskResolver,
+            ITaskActivator taskActivator,
             IComponentContext componentContext,
             IAsyncState asyncState,
             AsyncRunner asyncRunner,
             IApplicationContext appContext)
         {
             _taskStore = taskStore;
-            _taskResolver = taskResolver;
+            _taskActivator = taskActivator;
             _componentContext = componentContext;
             _asyncState = asyncState;
             _asyncRunner = asyncRunner;
@@ -48,6 +47,7 @@ namespace Smartstore.Scheduling
         public virtual async Task ExecuteAsync(
             TaskDescriptor task,
             HttpContext httpContext,
+            IDictionary<string, string> taskParameters = null,
             bool throwOnError = false,
             CancellationToken cancelToken = default)
         {
@@ -69,18 +69,14 @@ namespace Smartstore.Scheduling
             Type taskType = null;
             Exception exception = null;
             bool faulted = false, canceled = false;
-            string lastError = null, stateName = null;
+            string lastError = null, stateName = null, normalizedTypeName = null;
 
             var executionInfo = _taskStore.CreateExecutionInfo(task);
 
             try
             {
-                taskType = _taskStore.GetTaskClrType(task);
-                if (taskType == null)
-                {
-                    Logger.Debug($"Invalid scheduled task type: {task.Type.NaIfEmpty()}");
-                    return;
-                }
+                normalizedTypeName = _taskActivator.GetNormalizedTypeName(task);
+                taskType = _taskActivator.GetTaskClrType(normalizedTypeName);
 
                 if (!_appContext.ModuleCatalog.IsActiveModuleAssembly(taskType.Assembly))
                 {
@@ -89,9 +85,16 @@ namespace Smartstore.Scheduling
 
                 await _taskStore.InsertExecutionInfoAsync(executionInfo);
             }
-            catch
+            catch (TaskActivationException)
             {
-                // Get out on any initialization error.
+                // Disable task
+                task.Enabled = false;
+                await _taskStore.UpdateTaskAsync(task);
+                return;
+            }
+            catch (Exception)
+            {
+                // Get out on any other initialization error.
                 return;
             }
 
@@ -99,7 +102,7 @@ namespace Smartstore.Scheduling
             {
                 // Task history entry has been successfully added, now we execute the task.
                 // Create task instance.
-                job = _taskResolver(taskType);
+                job = _taskActivator.Activate(normalizedTypeName);
                 stateName = task.Id.ToString();
 
                 // Create & set a composite CancellationTokenSource which also contains the global app shoutdown token.
@@ -108,7 +111,7 @@ namespace Smartstore.Scheduling
 
                 // Run the task
                 Logger.Debug("Executing scheduled task: {0}", task.Type);
-                var ctx = new TaskExecutionContext(_taskStore, httpContext, _componentContext, executionInfo);
+                var ctx = new TaskExecutionContext(_taskStore, httpContext, _componentContext, executionInfo, taskParameters);
 
                 //// TODO: (core) Uncomment job.Run and remove Task.Delay()
                 //await job.Run(ctx, cts.Token);
@@ -143,7 +146,7 @@ namespace Smartstore.Scheduling
 
                 if (faulted)
                 {
-                    if ((!canceled && task.StopOnError) || task == null)
+                    if ((!canceled && task.StopOnError) || job == null)
                     {
                         task.Enabled = false;
                         updateTask = true;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,8 @@ namespace Smartstore.Scheduling
             ITaskStore taskStore,
             HttpContext httpContext,
             IComponentContext componentContext,
-            TaskExecutionInfo originalExecutionInfo)
+            TaskExecutionInfo originalExecutionInfo,
+            IDictionary<string, string> taskParameters = null)
         {
             Guard.NotNull(taskStore, nameof(taskStore));
             Guard.NotNull(httpContext, nameof(httpContext));
@@ -31,14 +33,14 @@ namespace Smartstore.Scheduling
             _originalExecutionInfo = originalExecutionInfo;
 
             HttpContext = httpContext;
-            Parameters = httpContext.Request.Query;
+            Parameters = taskParameters ?? new Dictionary<string, string>();
             TaskStore = taskStore;
             ExecutionInfo = _originalExecutionInfo.Clone();
         }
 
         public HttpContext HttpContext { get; }
 
-        public IQueryCollection Parameters { get; set; }
+        public IDictionary<string, string> Parameters { get; set; }
 
         /// <summary>
         /// The task store.

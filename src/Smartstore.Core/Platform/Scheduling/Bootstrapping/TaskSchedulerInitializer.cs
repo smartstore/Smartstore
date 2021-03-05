@@ -12,20 +12,13 @@ using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Bootstrapping
 {
-    public class TaskSchedulerInitializedEvent
-    {
-        public IEnumerable<TaskDescriptor> Tasks { get; init; }
-    }
-
     internal class TaskSchedulerInitializer : IApplicationInitializer
     {
         private readonly SmartConfiguration _appConfig;
-        private readonly IEventPublisher _eventPublisher;
 
-        public TaskSchedulerInitializer(SmartConfiguration appConfig, IEventPublisher eventPublisher)
+        public TaskSchedulerInitializer(SmartConfiguration appConfig)
         {
             _appConfig = appConfig;
-            _eventPublisher = eventPublisher;
         }
 
         public int Order => int.MinValue;
@@ -54,8 +47,6 @@ namespace Smartstore.Core.Bootstrapping
                 httpContext);
 
             Logger.Info("Initialized TaskScheduler with base url '{0}'".FormatInvariant(scheduler.BaseUrl));
-
-            await _eventPublisher.PublishAsync(new TaskSchedulerInitializedEvent { Tasks = tasks });
         }
 
         public Task OnFailAsync(Exception exception, bool willRetry)
