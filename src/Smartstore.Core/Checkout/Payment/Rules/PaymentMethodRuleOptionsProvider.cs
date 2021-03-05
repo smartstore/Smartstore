@@ -1,5 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Dasync.Collections;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine.Modularity;
 
@@ -19,34 +22,30 @@ namespace Smartstore.Core.Checkout.Payment.Rules
         public int Order => 0;
 
         public bool Matches(string dataSource)
-        {
-            return dataSource == KnownRuleOptionDataSourceNames.PaymentMethod;
-        }
+            => dataSource == KnownRuleOptionDataSourceNames.PaymentMethod;
 
-        public Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
+        public async Task<RuleOptionsResult> GetOptionsAsync(RuleOptionsContext context)
         {
-            var result = new RuleOptionsResult();
-
             if (context.DataSource == KnownRuleOptionDataSourceNames.PaymentMethod)
             {
-                // TODO: (mg) (core) Complete IPaymentMethodRuleOptionsProvider (IPaymentMethod required).
-                //var options = await _providerManager.Value.GetAllProviders<IPaymentMethod>()
-                //    .Select(x => x.Metadata)
-                //    .SelectAsync(async x => new RuleValueSelectListOption
-                //    {
-                //        Value = x.SystemName,
-                //        Text = await GetLocalized(x, "FriendlyName") ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
-                //        Hint = x.SystemName
-                //    })
-                //    .ToListAsync();
-                //result.AddOptions(context, options.OrderBy(x => x.Text).ToList();
-            }
-            else
-            {
-                return null;
+                var result = new RuleOptionsResult();
+
+                var options = await _providerManager.GetAllProviders<IPaymentMethod>()
+                    .Select(x => x.Metadata)
+                    .SelectAsync(async x => new RuleValueSelectListOption
+                    {
+                        Value = x.SystemName,
+                        Text = await GetLocalized(context, x, "FriendlyName") ?? x.FriendlyName.NullEmpty() ?? x.SystemName,
+                        Hint = x.SystemName
+                    })
+                    .ToListAsync();
+
+                result.AddOptions(context, options.OrderBy(x => x.Text).ToList());
+
+                return result;
             }
 
-            return Task.FromResult(result);
+            return null;
         }
 
         private async Task<string> GetLocalized(RuleOptionsContext context, ProviderMetadata metadata, string propertyName)

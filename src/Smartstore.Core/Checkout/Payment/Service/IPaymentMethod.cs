@@ -142,11 +142,11 @@ namespace Smartstore.Core.Checkout.Payment
         WidgetInvoker GetPaymentInfoWidget();
 
         /// <summary>
-        /// Gets the controller type.
+        /// Gets the controller type. It is required by checkout to validate payment forms and to get payment summary and info.
         /// </summary>
         /// <returns>Type of controller.</returns>
-        Type GetControllerType(); // TODO: (mg) (core) Is IPaymentMethod.GetControllerType() really necessary?
+        Type GetControllerType();
 
-        #endregion Methods
+        #endregion
     }
 }
