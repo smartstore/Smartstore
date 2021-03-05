@@ -5,13 +5,13 @@
     /// </summary>
     public partial class OrderAverageReportLine
     {
-        // (money) This remains as a decimal number to allow easy calculation (e.g. in OrderQueryExtensions) without currency dependency.
+        // INFO: This remains as decimal type to allow easy calculation (e.g. in OrderQueryExtensions) without currency dependency.
         /// <summary>
         /// Gets or sets the tax summary.
         /// </summary>
         public decimal SumTax { get; set; }
 
-        // (money) This remains as a decimal number to allow easy calculation (e.g. in OrderQueryExtensions) without currency dependency.
+        // INFO: This remains as decimal type to allow easy calculation (e.g. in OrderQueryExtensions) without currency dependency.
         /// <summary>
         /// Gets or sets the order total summary.
         /// </summary>

@@ -293,7 +293,7 @@ namespace Smartstore.Core.Checkout.Cart
 
                 foreach (var bundleItem in bundleItems)
                 {
-                    var tempCtx = new AddToCartContext
+                    var bundleItemContext = new AddToCartContext
                     {
                         Warnings = new(),
                         Item = ctx.Item,
@@ -311,7 +311,7 @@ namespace Smartstore.Core.Checkout.Cart
                     };
 
                     // If bundleItem could not be added to the shopping cart, remove child items
-                    if (!await AddToCartAsync(tempCtx))
+                    if (!await AddToCartAsync(bundleItemContext))
                     {
                         ctx.ChildItems.Clear();
                         break;
