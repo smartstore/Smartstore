@@ -2,17 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
     /// <summary>
-    /// Represents cargo data to reduce database round trips during price calculation.
+    /// Holds cargo data to reduce database roundtrips during price calculation.
     /// </summary>
     public class PriceCalculationContext
     {
@@ -21,6 +25,13 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly List<int> _productIdsAppliedDiscounts = new();
         private readonly List<int> _bundledProductIds = new();
         private readonly List<int> _groupedProductIds = new();
+
+        protected readonly SmartDbContext _db;
+        protected readonly ICategoryService _categoryService;
+        protected readonly IManufacturerService _manufacturerService;
+        protected readonly Store _store;
+        protected readonly Customer _customer;
+        protected readonly bool _includeHidden;
 
         private LazyMultimap<ProductVariantAttribute> _attributes;
         private LazyMultimap<ProductVariantAttributeCombination> _attributeCombinations;
@@ -31,8 +42,28 @@ namespace Smartstore.Core.Catalog.Pricing
         private LazyMultimap<ProductBundleItem> _productBundleItems;
         private LazyMultimap<Product> _associatedProducts;
 
-        public PriceCalculationContext(IEnumerable<Product> products)
+        public PriceCalculationContext(
+            IEnumerable<Product> products, 
+            SmartDbContext db,
+            ICategoryService categoryService,
+            IManufacturerService manufacturerService,
+            Store store,
+            Customer customer,
+            bool includeHidden)
         {
+            Guard.NotNull(db, nameof(db));
+            Guard.NotNull(categoryService, nameof(categoryService));
+            Guard.NotNull(manufacturerService, nameof(manufacturerService));
+            Guard.NotNull(store, nameof(store));
+            Guard.NotNull(customer, nameof(customer));
+
+            _db = db;
+            _categoryService = categoryService;
+            _manufacturerService = manufacturerService;
+            _store = store;
+            _customer = customer;
+            _includeHidden = includeHidden;
+
             if (products != null)
             {
                 _productIds.AddRange(products.Select(x => x.Id));
@@ -45,71 +76,55 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public IReadOnlyList<int> ProductIds => _productIds;
 
-        public Func<int[], Task<Multimap<int, ProductVariantAttribute>>> 
-            AttributesFactory { get; init; }
-
-        public Func<int[], Task<Multimap<int, ProductVariantAttributeCombination>>> 
-            AttributeCombinationsFactory { get; init; }
-
-        public Func<int[], Task<Multimap<int, TierPrice>>> 
-            TierPricesFactory { get; init; }
-
-        public Func<int[], Task<Multimap<int, ProductCategory>>> 
-            ProductCategoriesFactory { get; init; }
-
-        public Func<int[], Task<Multimap<int, ProductManufacturer>>> 
-            ProductManufacturersFactory { get; init; }
-
-        public Func<int[], Task<Multimap<int, Discount>>> 
-            AppliedDiscountsFactory { get; init; }
-
-        public Func<int[], Task<Multimap<int, ProductBundleItem>>> 
-            ProductBundleItemsFactory { get; init; }
-
-        public Func<int[], Task<Multimap<int, Product>>> 
-            AssociatedProductsFactory { get; init; }
-
         public LazyMultimap<ProductVariantAttribute> Attributes
         {
-            get => _attributes ??= new LazyMultimap<ProductVariantAttribute>(keys => AttributesFactory(keys), _productIds);
+            get => _attributes ??= 
+                new LazyMultimap<ProductVariantAttribute>(keys => LoadAttributes(keys), _productIds);
         }
 
         public LazyMultimap<ProductVariantAttributeCombination> AttributeCombinations
         {
-            get => _attributeCombinations ??= new LazyMultimap<ProductVariantAttributeCombination>(keys => AttributeCombinationsFactory(keys), _productIds);
+            get => _attributeCombinations ??= 
+                new LazyMultimap<ProductVariantAttributeCombination>(keys => LoadAttributeCombinations(keys), _productIds);
         }
 
         public LazyMultimap<TierPrice> TierPrices
         {
-            get => _tierPrices ??= new LazyMultimap<TierPrice>(keys => TierPricesFactory(keys), _productIdsTierPrices);
+            get => _tierPrices ??= 
+                new LazyMultimap<TierPrice>(keys => LoadTierPrices(keys), _productIdsTierPrices);
         }
 
         public LazyMultimap<ProductCategory> ProductCategories
         {
-            get => _productCategories ??= new LazyMultimap<ProductCategory>(keys => ProductCategoriesFactory(keys), _productIds);
+            get => _productCategories ??= 
+                new LazyMultimap<ProductCategory>(keys => LoadProductCategories(keys), _productIds);
         }
 
         public LazyMultimap<ProductManufacturer> ProductManufacturers
         {
-            get => _productManufacturers ??= new LazyMultimap<ProductManufacturer>(keys => ProductManufacturersFactory(keys), _productIds);
+            get => _productManufacturers ??= 
+                new LazyMultimap<ProductManufacturer>(keys => LoadProductManufacturers(keys), _productIds);
         }
 
         public LazyMultimap<Discount> AppliedDiscounts
         {
-            get => _appliedDiscounts ??= new LazyMultimap<Discount>(keys => AppliedDiscountsFactory(keys), _productIdsAppliedDiscounts);
+            get => _appliedDiscounts ??= 
+                new LazyMultimap<Discount>(keys => LoadAppliedDiscounts(keys), _productIdsAppliedDiscounts);
         }     
 
         public LazyMultimap<ProductBundleItem> ProductBundleItems
         {
-            get => _productBundleItems ??= new LazyMultimap<ProductBundleItem>(keys => ProductBundleItemsFactory(keys), _bundledProductIds);
+            get => _productBundleItems ??= 
+                new LazyMultimap<ProductBundleItem>(keys => LoadProductBundleItems(keys), _bundledProductIds);
         }
 
         public LazyMultimap<Product> AssociatedProducts
         {
-            get => _associatedProducts ??= new LazyMultimap<Product>(keys => AssociatedProductsFactory(keys), _groupedProductIds);
+            get => _associatedProducts ??= 
+                new LazyMultimap<Product>(keys => LoadAssociatedProducts(keys), _groupedProductIds);
         }
 
-        public void Collect(IEnumerable<int> productIds)
+        public virtual void Collect(IEnumerable<int> productIds)
         {
             Attributes.Collect(productIds);
             AttributeCombinations.Collect(productIds);
@@ -120,7 +135,7 @@ namespace Smartstore.Core.Catalog.Pricing
             AssociatedProducts.Collect(productIds);
         }
 
-        public void Clear()
+        public virtual void Clear()
         {
             _attributes?.Clear();
             _attributeCombinations?.Clear();
@@ -134,5 +149,111 @@ namespace Smartstore.Core.Catalog.Pricing
             _bundledProductIds?.Clear();
             _groupedProductIds?.Clear();
         }
+
+        #region Protected factories
+
+        protected virtual async Task<Multimap<int, ProductVariantAttribute>> LoadAttributes(int[] ids)
+        {
+            var attributes = await _db.ProductVariantAttributes
+                .AsNoTracking()
+                .Include(x => x.ProductAttribute)
+                .Include(x => x.ProductVariantAttributeValues)
+                .Where(x => ids.Contains(x.ProductId))
+                .OrderBy(x => x.ProductId)
+                .ThenBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            return attributes.ToMultimap(x => x.ProductId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, ProductVariantAttributeCombination>> LoadAttributeCombinations(int[] ids)
+        {
+            var attributeCombinations = await _db.ProductVariantAttributeCombinations
+                .AsNoTracking()
+                .Where(x => ids.Contains(x.ProductId))
+                .OrderBy(x => x.ProductId)
+                .ToListAsync();
+
+            return attributeCombinations.ToMultimap(x => x.ProductId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, TierPrice>> LoadTierPrices(int[] ids)
+        {
+            var tierPrices = await _db.TierPrices
+                .AsNoTracking()
+                .Include(x => x.CustomerRole)
+                .Where(x => ids.Contains(x.ProductId) && (x.StoreId == 0 || x.StoreId == _store.Id))
+                .ToListAsync();
+
+            return tierPrices
+                // Sorting locally is most likely faster.
+                .OrderBy(x => x.ProductId)
+                .ThenBy(x => x.Quantity)
+                .FilterForCustomer(_customer)
+                .ToMultimap(x => x.ProductId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, ProductCategory>> LoadProductCategories(int[] ids)
+        {
+            var productCategories = await _categoryService.GetProductCategoriesByProductIdsAsync(ids, _includeHidden);
+            return productCategories.ToMultimap(x => x.ProductId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, ProductManufacturer>> LoadProductManufacturers(int[] ids)
+        {
+            var productManufacturers = await _manufacturerService.GetProductManufacturersByProductIdsAsync(ids, _includeHidden);
+            return productManufacturers.ToMultimap(x => x.ProductId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, Discount>> LoadAppliedDiscounts(int[] ids)
+        {
+            var discounts = await _db.Products
+                .AsNoTracking()
+                .Include(x => x.AppliedDiscounts)
+                    .ThenInclude(x => x.RuleSets)
+                .Where(x => ids.Contains(x.Id))
+                .Select(x => new
+                {
+                    ProductId = x.Id,
+                    Discounts = x.AppliedDiscounts
+                })
+                .ToListAsync();
+
+            var map = new Multimap<int, Discount>();
+            discounts.Each(x => map.AddRange(x.ProductId, x.Discounts));
+
+            return map;
+        }
+
+        protected virtual async Task<Multimap<int, ProductBundleItem>> LoadProductBundleItems(int[] ids)
+        {
+            var bundleItemsQuery = _db.ProductBundleItem
+                .AsNoTracking()
+                .Include(x => x.Product)
+                .Include(x => x.BundleProduct);
+
+            var query =
+                from pbi in bundleItemsQuery
+                join p in _db.Products.AsNoTracking() on pbi.ProductId equals p.Id
+                where ids.Contains(pbi.BundleProductId) && (_includeHidden || (pbi.Published && p.Published))
+                orderby pbi.DisplayOrder
+                select pbi;
+
+            var bundleItems = await query.ToListAsync();
+
+            return bundleItems.ToMultimap(x => x.BundleProductId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, Product>> LoadAssociatedProducts(int[] ids)
+        {
+            var associatedProducts = await _db.Products
+                .AsNoTracking()
+                .ApplyAssociatedProductsFilter(ids, _includeHidden)
+                .ToListAsync();
+
+            return associatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
+        }
+
+        #endregion
     }
 }

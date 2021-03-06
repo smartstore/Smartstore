@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -66,127 +65,17 @@ namespace Smartstore.Core.Catalog.Pricing
         public virtual PriceCalculationContext CreatePriceCalculationContext(
             IEnumerable<Product> products = null,
             Customer customer = null,
-            int? storeId = null,
+            Store store = null,
             bool includeHidden = true)
         {
-            customer ??= _workContext.CurrentCustomer;
-            storeId ??= _storeContext.CurrentStore.Id;
-
-            async Task<Multimap<int, ProductVariantAttribute>> attributesFactory(int[] ids)
-            {
-                var attributes = await _db.ProductVariantAttributes
-                    .AsNoTracking()
-                    .Include(x => x.ProductAttribute)
-                    .Include(x => x.ProductVariantAttributeValues)
-                    .Where(x => ids.Contains(x.ProductId))
-                    .OrderBy(x => x.ProductId)
-                    .ThenBy(x => x.DisplayOrder)
-                    .ToListAsync();
-
-                return attributes.ToMultimap(x => x.ProductId, x => x);
-            }
-
-            async Task<Multimap<int, ProductVariantAttributeCombination>> attributeCombinationsFactory(int[] ids)
-            {
-                var attributeCombinations = await _db.ProductVariantAttributeCombinations
-                    .AsNoTracking()
-                    .Where(x => ids.Contains(x.ProductId))
-                    .OrderBy(x => x.ProductId)
-                    .ToListAsync();
-
-                return attributeCombinations.ToMultimap(x => x.ProductId, x => x);
-            }
-
-            async Task<Multimap<int, TierPrice>> tierPriceFactory(int[] ids)
-            {
-                var tierPrices = await _db.TierPrices
-                    .AsNoTracking()
-                    .Include(x => x.CustomerRole)
-                    .Where(x => ids.Contains(x.ProductId) && (x.StoreId == 0 || x.StoreId == storeId.Value))
-                    .ToListAsync();
-
-                return tierPrices
-                    // Sorting locally is most likely faster.
-                    .OrderBy(x => x.ProductId)
-                    .ThenBy(x => x.Quantity)
-                    .FilterForCustomer(customer)
-                    .ToMultimap(x => x.ProductId, x => x);
-            }
-
-            async Task<Multimap<int, ProductCategory>> productCategoriesFactory(int[] ids)
-            {
-                var productCategories = await _categoryService.GetProductCategoriesByProductIdsAsync(ids, includeHidden);
-                return productCategories.ToMultimap(x => x.ProductId, x => x);
-            }
-
-            async Task<Multimap<int, ProductManufacturer>> productManufacturersFactory(int[] ids)
-            {
-                var productManufacturers = await _manufacturerService.GetProductManufacturersByProductIdsAsync(ids, includeHidden);
-                return productManufacturers.ToMultimap(x => x.ProductId, x => x);
-            }
-
-            async Task<Multimap<int, Discount>> appliedDiscountsFactory(int[] ids)
-            {
-                var discounts = await _db.Products
-                    .AsNoTracking()
-                    .Include(x => x.AppliedDiscounts)
-                        .ThenInclude(x => x.RuleSets)
-                    .Where(x => ids.Contains(x.Id))
-                    .Select(x => new
-                    {
-                        ProductId = x.Id,
-                        Discounts = x.AppliedDiscounts
-                    })
-                    .ToListAsync();
-
-                var map = new Multimap<int, Discount>();
-                discounts.Each(x => map.AddRange(x.ProductId, x.Discounts));
-
-                return map;
-            }
-
-            async Task<Multimap<int, ProductBundleItem>> productBundleItemsFactory(int[] ids)
-            {
-                var bundleItemsQuery = _db.ProductBundleItem
-                    .AsNoTracking()
-                    .Include(x => x.Product)
-                    .Include(x => x.BundleProduct);
-
-                var query =
-                    from pbi in bundleItemsQuery
-                    join p in _db.Products.AsNoTracking() on pbi.ProductId equals p.Id
-                    where ids.Contains(pbi.BundleProductId) && (includeHidden || (pbi.Published && p.Published))
-                    orderby pbi.DisplayOrder
-                    select pbi;
-
-                var bundleItems = await query.ToListAsync();
-
-                return bundleItems.ToMultimap(x => x.BundleProductId, x => x);
-            }
-
-            async Task<Multimap<int, Product>> associatedProductsFactory(int[] ids)
-            {
-                var associatedProducts = await _db.Products
-                    .AsNoTracking()
-                    .ApplyAssociatedProductsFilter(ids, includeHidden)
-                    .ToListAsync();
-
-                return associatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
-            }
-
-            var context = new PriceCalculationContext(products)
-            {
-                AttributesFactory = attributesFactory,
-                AttributeCombinationsFactory = attributeCombinationsFactory,
-                TierPricesFactory = tierPriceFactory,
-                ProductCategoriesFactory = productCategoriesFactory,
-                ProductManufacturersFactory = productManufacturersFactory,
-                AppliedDiscountsFactory = appliedDiscountsFactory,
-                ProductBundleItemsFactory = productBundleItemsFactory,
-                AssociatedProductsFactory = associatedProductsFactory
-            };
-
-            return context;
+            return new PriceCalculationContext(
+                products, 
+                _db, 
+                _categoryService, 
+                _manufacturerService, 
+                store ?? _storeContext.CurrentStore, 
+                customer ?? _workContext.CurrentCustomer, 
+                includeHidden);
         }
 
         public virtual Money? GetSpecialPrice(Product product)

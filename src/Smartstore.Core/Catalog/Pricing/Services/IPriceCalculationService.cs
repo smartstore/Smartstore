@@ -22,13 +22,13 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         /// <param name="products">Products. <c>null</c> to lazy load data if required.</param>
         /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
-        /// <param name="storeId">Store identifier. If <c>null</c>, store identifier will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
+        /// <param name="storeId">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
         /// <param name="includeHidden">A value indicating whether to include hidden records.</param>
         /// <returns>Price calculation context.</returns>
         PriceCalculationContext CreatePriceCalculationContext(
             IEnumerable<Product> products = null,
             Customer customer = null,
-            int? storeId = null,
+            Store store = null,
             bool includeHidden = true);
 
         /// <summary>
