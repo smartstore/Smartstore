@@ -60,6 +60,16 @@ namespace Smartstore.Core.Security
 
         #endregion
 
+        public virtual bool HasActiveAcl()
+        {
+            if (!_hasActiveAcl.HasValue)
+            {
+                _hasActiveAcl = _db.AclRecords.Any(x => !x.IsIdle);
+            }
+
+            return _hasActiveAcl.Value;
+        }
+
         public virtual async Task<bool> HasActiveAclAsync()
         {
             if (!_hasActiveAcl.HasValue)

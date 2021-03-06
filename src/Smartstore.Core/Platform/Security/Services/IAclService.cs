@@ -13,6 +13,11 @@ namespace Smartstore.Core.Security
         /// <summary>
         /// Gets a value indicating whether at least one ACL record is in active state system-wide.
         /// </summary>
+        bool HasActiveAcl();
+
+        /// <summary>
+        /// Gets a value indicating whether at least one ACL record is in active state system-wide.
+        /// </summary>
         Task<bool> HasActiveAclAsync();
 
         /// <summary>

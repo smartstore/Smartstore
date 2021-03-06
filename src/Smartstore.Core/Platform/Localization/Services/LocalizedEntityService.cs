@@ -143,7 +143,7 @@ namespace Smartstore.Core.Localization
             return false;
         }
 
-        public virtual async Task PrefetchLocalizedProperties(string localeKeyGroup, int languageId, int[] entityIds, bool isRange = false, bool isSorted = false)
+        public virtual async Task PrefetchLocalizedPropertiesAsync(string localeKeyGroup, int languageId, int[] entityIds, bool isRange = false, bool isSorted = false)
         {
             if (languageId == 0)
                 return;

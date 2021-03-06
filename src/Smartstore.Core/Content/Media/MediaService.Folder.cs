@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -8,17 +7,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Collections;
-using Smartstore.Core.Content.Media.Imaging;
-using Smartstore.Core.Content.Media.Storage;
-using Smartstore.Core.Data;
-using Smartstore.Core.Localization;
 using Smartstore.Data;
-using Smartstore.Events;
-using Smartstore.Imaging;
-using Smartstore.Threading;
 
 namespace Smartstore.Core.Content.Media
 {

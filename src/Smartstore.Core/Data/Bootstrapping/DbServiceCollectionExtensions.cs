@@ -2,6 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Smartstore.Core.Data;
+using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Engine;
@@ -10,6 +14,24 @@ namespace Smartstore.Core.Bootstrapping
 {
     public static class DbServiceCollectionExtensions
     {
+        /// <summary>
+        /// Registers a scoped <see cref="DbQuerySettings" /> factory.
+        /// </summary>
+        public static IServiceCollection AddDbQuerySettings(this IServiceCollection services)
+        {
+            services.TryAddScoped<DbQuerySettings>(c => 
+            {
+                var storeContext = c.GetService<IStoreContext>();
+                var aclService = c.GetService<IAclService>();
+
+                return new DbQuerySettings(
+                    aclService != null && !aclService.HasActiveAcl(),
+                    storeContext?.IsSingleStoreMode() ?? false);
+            });
+
+            return services;
+        }
+
         /// <summary>
         /// Registers a scoped <typeparamref name="TContext"/>
         /// and configures <see cref="DbContextOptions"/> according to application setting.

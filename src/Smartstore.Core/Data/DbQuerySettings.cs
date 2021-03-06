@@ -2,8 +2,6 @@
 {
     public class DbQuerySettings
     {
-        // TODO: (core) Register DbQuerySettings
-
         public DbQuerySettings(bool ignoreAcl, bool ignoreMultiStore)
         {
             IgnoreAcl = ignoreAcl;

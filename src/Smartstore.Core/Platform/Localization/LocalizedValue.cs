@@ -4,12 +4,13 @@ using System.IO;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
-using System.Web;
 using Microsoft.AspNetCore.Html;
 using Newtonsoft.Json;
 
 namespace Smartstore.Core.Localization
 {
+    // TODO: (core) Make LocalizedValue cacheable/serializable somehow.
+
     public abstract class LocalizedValue
     {
         // Regex for all types of brackets which need to be "swapped": ({[]})

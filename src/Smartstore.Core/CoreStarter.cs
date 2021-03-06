@@ -2,17 +2,15 @@
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.DependencyInjection;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
-namespace Smartstore.Core
+namespace Smartstore.Core.Bootstrapping
 {
     internal class CoreStarter : StarterBase
     {
@@ -23,6 +21,8 @@ namespace Smartstore.Core
             var appConfig = appContext.AppConfiguration;
 
             RegisterTypeConverters();
+
+            services.AddDbQuerySettings();
 
             // Application DbContext as pooled factory
             services.AddPooledApplicationDbContextFactory<SmartDbContext>(appContext);

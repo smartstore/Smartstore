@@ -45,7 +45,7 @@ namespace Smartstore.Core.Localization
         /// <remarks>
         /// Be careful not to load large amounts of data at once (e.g. for "Product" scope with large range).
         /// </remarks>
-        Task PrefetchLocalizedProperties(string localeKeyGroup, int languageId, int[] entityIds, bool isRange = false, bool isSorted = false);
+        Task PrefetchLocalizedPropertiesAsync(string localeKeyGroup, int languageId, int[] entityIds, bool isRange = false, bool isSorted = false);
 
         /// <summary>
         /// Gets a collection of localized properties for a range of entities in one go.
