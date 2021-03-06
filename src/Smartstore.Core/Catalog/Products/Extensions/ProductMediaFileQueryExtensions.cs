@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -17,14 +18,22 @@ namespace Smartstore.Core.Catalog.Products
             Guard.NotNull(query, nameof(query));
             Guard.NotNull(productIds, nameof(productIds));
 
+            query = query.Where(x => productIds.Contains(x.ProductId));
+
+            if (maxFilesPerProduct == null || maxFilesPerProduct > 999999)
+            {
+                // Don't group on client
+                return query.OrderBy(x => x.ProductId).ThenBy(x => x.DisplayOrder);
+            }
+
             var take = maxFilesPerProduct ?? int.MaxValue;
 
-            query = query
-                .Where(pf => productIds.Contains(pf.ProductId))
-                .GroupBy(pf => pf.ProductId, x => x)
-                .SelectMany(pf => pf.OrderBy(x => x.DisplayOrder).Take(take));
-
-            return query;
+            // TODO: (mg) (core) This query is slow. Find a better way to group-sort product pictures.
+            return query
+                .AsEnumerable() // Will throw otherwise
+                .GroupBy(x => x.ProductId)
+                .SelectMany(pf => pf.OrderBy(x => x.DisplayOrder).Take(take))
+                .AsQueryable();
         }
     }
 }

@@ -43,23 +43,19 @@ namespace Smartstore.Core.Catalog.Pricing
         private LazyMultimap<Product> _associatedProducts;
 
         public PriceCalculationContext(
-            IEnumerable<Product> products, 
-            SmartDbContext db,
-            ICategoryService categoryService,
-            IManufacturerService manufacturerService,
+            IEnumerable<Product> products,
+            ICommonServices services,
             Store store,
             Customer customer,
             bool includeHidden)
         {
-            Guard.NotNull(db, nameof(db));
-            Guard.NotNull(categoryService, nameof(categoryService));
-            Guard.NotNull(manufacturerService, nameof(manufacturerService));
+            Guard.NotNull(services, nameof(services));
             Guard.NotNull(store, nameof(store));
             Guard.NotNull(customer, nameof(customer));
 
-            _db = db;
-            _categoryService = categoryService;
-            _manufacturerService = manufacturerService;
+            _db = services.DbContext;
+            _categoryService = services.Resolve<ICategoryService>();
+            _manufacturerService = services.Resolve<IManufacturerService>();
             _store = store;
             _customer = customer;
             _includeHidden = includeHidden;

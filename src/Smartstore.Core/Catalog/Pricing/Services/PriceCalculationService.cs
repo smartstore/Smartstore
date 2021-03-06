@@ -28,6 +28,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
+        private readonly ICommonServices _services;
         private readonly ICategoryService _categoryService;
         private readonly IManufacturerService _manufacturerService;
         private readonly ITaxService _taxService;
@@ -40,6 +41,7 @@ namespace Smartstore.Core.Catalog.Pricing
             SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,
+            ICommonServices services,
             ICategoryService categoryService,
             IManufacturerService manufacturerService,
             ITaxService taxService,
@@ -51,6 +53,7 @@ namespace Smartstore.Core.Catalog.Pricing
             _db = db;
             _workContext = workContext;
             _storeContext = storeContext;
+            _services = services;
             _categoryService = categoryService;
             _manufacturerService = manufacturerService;
             _taxService = taxService;
@@ -70,9 +73,7 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             return new PriceCalculationContext(
                 products, 
-                _db, 
-                _categoryService, 
-                _manufacturerService, 
+                _services, 
                 store ?? _storeContext.CurrentStore, 
                 customer ?? _workContext.CurrentCustomer, 
                 includeHidden);
