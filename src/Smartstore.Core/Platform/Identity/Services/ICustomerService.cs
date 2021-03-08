@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Identity
@@ -76,5 +74,13 @@ namespace Smartstore.Core.Identity
         /// <param name="tracked">Whether to load entity tracked. Non-tracking load will be cached.</param>
         /// <returns>Found customer</returns>
         Task<CustomerRole> GetRoleBySystemNameAsync(string systemName, bool tracked = true);
+
+        /// <summary>
+        /// Applies reward points for a product review. The caller is responsible for database commit.
+        /// </summary>
+        /// <param name="customer">Customer.</param>
+        /// <param name="product">Product.</param>
+        /// <param name="add"><c>True</c> to add reward points. <c>False</c> to remove reward points.</param>
+        void ApplyRewardPointsForProductReview(Customer customer, Product product, bool add);
     }
 }

@@ -810,9 +810,20 @@ namespace Smartstore.Web.Controllers
             var orderService = Services.Resolve<IOrderService>();
             var usd = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == "USD");
 
-            var customer = await _db.Customers.Where(x => x.IsSystemAccount && x.Email == "builtin@background-task-record.com").FirstOrDefaultAsync();
-            _db.Customers.Remove(customer);
+            //var customer = await _db.Customers.Where(x => x.IsSystemAccount && x.Email == "builtin@background-task-record.com").FirstOrDefaultAsync();
+            //_db.Customers.Remove(customer);
+            var role = await _db.CustomerRoles.Where(x => x.IsSystemRole).FirstOrDefaultAsync();
+            _db.CustomerRoles.Remove(role);
             await _db.SaveChangesAsync();
+
+            //_db.Customers.Add(new Customer
+            //{
+            //    CustomerGuid = Guid.NewGuid(),
+            //    Email = "builtin@background-task-record.com",
+            //    LastActivityDateUtc = DateTime.UtcNow
+            //});
+            //await _db.SaveChangesAsync();
+
 
             //var resOld = currencyService.ConvertToPrimaryExchangeRateCurrency(price, usd);
             //var resNew = currencyService.ConvertToPrimaryExchangeRateCurrency(new Money(price, usd));

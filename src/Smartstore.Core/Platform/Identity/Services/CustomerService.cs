@@ -11,16 +11,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Collections;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Diagnostics;
+using EState = Smartstore.Data.EntityState;
 
 namespace Smartstore.Core.Identity
 {
-    public partial class CustomerService : AsyncDbSaveHook<Customer>, ICustomerService
+	public partial class CustomerService : AsyncDbSaveHook<Customer>, ICustomerService
     {
 		#region Raw SQL
 		const string SqlGenericAttributes = @"
@@ -63,9 +65,12 @@ DELETE TOP(20000) [c]
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly IUserAgent _userAgent;
 		private readonly IChronometer _chronometer;
+		private readonly CustomerSettings _customerSettings;
+		private readonly RewardPointsSettings _rewardPointsSettings;
 
 		private Customer _authCustomer;
 		private bool _authCustomerResolved;
+		private string _hookErrorMessage;
 
 		public CustomerService(
 			SmartDbContext db,
@@ -73,7 +78,9 @@ DELETE TOP(20000) [c]
 			IWebHelper webHelper,
 			IHttpContextAccessor httpContextAccessor,
 			IUserAgent userAgent,
-			IChronometer chronometer)
+			IChronometer chronometer,
+			CustomerSettings customerSettings,
+			RewardPointsSettings rewardPointsSettings)
         {
             _db = db;
 			_userManager = userManager;
@@ -81,34 +88,72 @@ DELETE TOP(20000) [c]
 			_httpContextAccessor = httpContextAccessor;
 			_userAgent = userAgent;
 			_chronometer = chronometer;
+			_customerSettings = customerSettings;
+			_rewardPointsSettings = rewardPointsSettings;
         }
 
+		public Localizer T { get; set; } = NullLocalizer.Instance;
 		public ILogger Logger { get; set; } = NullLogger.Instance;
 
         #region Hook
 
-        protected override Task<HookResult> OnUpdatingAsync(Customer entity, IHookedEntity entry, CancellationToken cancelToken)
-			=> Task.FromResult(HookResult.Ok);
-
-		protected override Task<HookResult> OnInsertingAsync(Customer entity, IHookedEntity entry, CancellationToken cancelToken)
-			=> Task.FromResult(HookResult.Ok);
-
-		public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+		public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
 		{
-			var softDeletedCustomer = entries
-				.Where(x => x.IsSoftDeleted == true)
-				.Select(x => x.Entity)
-				.OfType<Customer>()
-				.FirstOrDefault();
-
-			if (softDeletedCustomer?.IsSystemAccount ?? false)
+			if (entry.Entity is Customer customer)
 			{
-				throw new NotSupportedException($"System customer account ({softDeletedCustomer.SystemName}) cannot not be deleted.");
+				if (customer.Deleted && customer.IsSystemAccount)
+				{
+					_hookErrorMessage = $"System customer account '{customer.SystemName}' cannot not be deleted.";
+				}
+				else if (entry.InitialState == EState.Added)
+				{
+					if (customer.Email.HasValue() && await _db.Customers.AnyAsync(x => x.Email == customer.Email, cancelToken))
+					{
+						_hookErrorMessage = T("Account.Register.Errors.EmailAlreadyExists");
+					}
+					else if (customer.Username.HasValue() && 
+						_customerSettings.CustomerLoginType != CustomerLoginType.Email &&
+						await _db.Customers.AnyAsync(x => x.Username == customer.Username, cancelToken))
+					{
+						_hookErrorMessage = T("Account.Register.Errors.UsernameAlreadyExists");
+					}
+				}
+
+				if (_hookErrorMessage.HasValue())
+				{
+					return RevertChanges(entry);
+				}
 			}
 
-			// TODO: (mg) (core) Validate unique user when inserting customer.
+			return HookResult.Ok;
+		}
 
-			return Task.FromResult(HookResult.Ok);
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+			if (_hookErrorMessage.HasValue())
+			{
+				var message = new string(_hookErrorMessage);
+				_hookErrorMessage = null;
+
+				throw new SmartException(message);
+			}
+
+			return Task.CompletedTask;
+		}
+
+		private static HookResult RevertChanges(IHookedEntity entry)
+		{
+			if (entry.State == EState.Modified)
+			{
+				entry.State = EState.Unchanged;
+			}
+			else if (entry.State == EState.Added)
+			{
+				entry.State = EState.Detached;
+			}
+
+			// We need to return HookResult.Ok instead of HookResult.Failed to be able to output an error notification.
+			return HookResult.Ok;
 		}
 
 		#endregion
@@ -356,6 +401,22 @@ DELETE TOP(20000) [c]
 				.OrderBy(x => x.Id);
 
 			return query.FirstOrDefaultAsync();
+		}
+
+		#endregion
+
+		#region Reward points
+
+		public virtual void ApplyRewardPointsForProductReview(Customer customer, Product product, bool add)
+		{
+			Guard.NotNull(customer, nameof(customer));
+
+			if (_rewardPointsSettings.Enabled && _rewardPointsSettings.PointsForProductReview > 0)
+			{
+				var message = T(add ? "RewardPoints.Message.EarnedForProductReview" : "RewardPoints.Message.ReducedForProductReview", product.GetLocalized(x => x.Name)).ToString();
+
+				customer.AddRewardPointsHistoryEntry(_rewardPointsSettings.PointsForProductReview * (add ? 1 : -1), message);
+			}
 		}
 
 		#endregion

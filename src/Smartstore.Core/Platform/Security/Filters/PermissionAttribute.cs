@@ -116,6 +116,7 @@ namespace Smartstore.Core.Security
                         area = "admin"
                     });
 
+                    // TODO: (core) ITempDataDictionaryFactory doesn't work in PermissionAttribute. Nothing arrives in an action method.
                     var tempData = _tempDataDictionaryFactory.Value.GetTempData(context.HttpContext);
                     tempData["UnauthorizedMessage"] = message;
 

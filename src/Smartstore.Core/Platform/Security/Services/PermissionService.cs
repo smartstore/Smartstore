@@ -15,6 +15,7 @@ using Smartstore.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 using System.Threading;
+using EState = Smartstore.Data.EntityState;
 
 namespace Smartstore.Core.Security
 {
@@ -109,6 +110,8 @@ namespace Smartstore.Core.Security
         private readonly ILocalizationService _localizationService;
         private readonly ICacheManager _cache;
 
+        private string _hookErrorMessage;
+
         public PermissionService(
             SmartDbContext db,
             IWorkContext workContext,
@@ -128,6 +131,30 @@ namespace Smartstore.Core.Security
 
         protected override Task<HookResult> OnDeletedAsync(CustomerRole entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
+
+        public override Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (entry.Entity is CustomerRole role && role.IsSystemRole && entry.InitialState == EState.Deleted)
+            {
+                _hookErrorMessage = $"System customer role '{role.SystemName ?? role.Name}' cannot not be deleted.";
+                entry.State = EState.Unchanged;
+            }
+
+            return Task.FromResult(HookResult.Ok);
+        }
+
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            if (_hookErrorMessage.HasValue())
+            {
+                var message = new string(_hookErrorMessage);
+                _hookErrorMessage = null;
+
+                throw new SmartException(message);
+            }
+
+            return Task.CompletedTask;
+        }
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
