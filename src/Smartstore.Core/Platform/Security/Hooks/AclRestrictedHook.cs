@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Smartstore.Core.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
+using Smartstore.Domain;
 
 namespace Smartstore.Core.Security
 {
@@ -22,15 +23,18 @@ namespace Smartstore.Core.Security
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            var deletedEntries = entries
-                .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted && x.Entity is IAclRestricted)
+            var deletedEntities = entries
+                .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted)
+                .Select(x => x.Entity)
+                .OfType<IAclRestricted>()
+                .Select(x => x as BaseEntity)
                 .ToList();
 
-            if (deletedEntries.Any())
+            if (deletedEntities.Any())
             {
-                foreach (var group in deletedEntries.GroupBy(x => x.EntityType.Name))
+                foreach (var group in deletedEntities.GroupBy(x => x.GetEntityName()))
                 {
-                    var entityIds = group.Select(x => x.Entity.Id).ToArray();
+                    var entityIds = group.Select(x => x.Id).ToArray();
                     var entityName = group.Key;
 
                     await _db.AclRecords
