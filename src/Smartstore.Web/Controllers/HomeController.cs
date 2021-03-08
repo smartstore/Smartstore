@@ -810,11 +810,15 @@ namespace Smartstore.Web.Controllers
             var orderService = Services.Resolve<IOrderService>();
             var usd = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == "USD");
 
+            var menus = await _db.Menus.GetManyAsync(new[] { 13,14 }, true);
+            _db.Menus.RemoveRange(menus);
+            await _db.SaveChangesAsync();
+
             //var customer = await _db.Customers.Where(x => x.IsSystemAccount && x.Email == "builtin@background-task-record.com").FirstOrDefaultAsync();
             //_db.Customers.Remove(customer);
-            var role = await _db.CustomerRoles.Where(x => x.IsSystemRole).FirstOrDefaultAsync();
-            _db.CustomerRoles.Remove(role);
-            await _db.SaveChangesAsync();
+            //var role = await _db.CustomerRoles.Where(x => x.IsSystemRole).FirstOrDefaultAsync();
+            //_db.CustomerRoles.Remove(role);
+            //await _db.SaveChangesAsync();
 
             //_db.Customers.Add(new Customer
             //{
@@ -895,46 +899,6 @@ namespace Smartstore.Web.Controllers
             //foreach (var customer in customers)
             //{
             //    content.AppendLine($"{customer.Id}: {customer.GetFullName()}");
-            //}
-
-
-            //var optionsProviders = Services.Resolve<IEnumerable<IRuleOptionsProvider>>().OrderBy(x => x.Order);
-
-            //var rule = await _db.Rules.AsNoTracking().Include(x => x.RuleSet).Where(x => x.RuleType == "ProductInCart").FirstOrDefaultAsync();
-            //var provider = ruleProvider(rule.RuleSet.Scope);
-            //var expression = await provider.VisitRuleAsync(rule);
-            //var descriptor = expression.Descriptor;
-            //var rawValue = expression.RawValue;
-
-            //if (descriptor.SelectList is RemoteRuleValueSelectList list)
-            //{
-            //    var optionsProvider = optionsProviders.FirstOrDefault(x => x.Matches(list.DataSource));
-            //    if (optionsProvider != null)
-            //    {
-            //        var options = await optionsProvider.GetOptionsAsync(new RuleOptionsContext(RuleOptionsRequestReason.SelectListOptions, expression));
-            //        foreach (var option in options.Options)
-            //        {
-            //            content.AppendLine($"{option.Value}: {option.Text}");
-            //        }
-            //    }
-            //}
-
-            //var reviewsCount = await _db.CustomerContent
-            //    .ApplyCustomerFilter(1426709, true)
-            //    .OfType<ProductReview>()
-            //    .CountAsync();
-
-            //content.AppendLine($"reviewCount: {reviewsCount}");
-
-            //try
-            //{
-            //    var attribute = await _db.ProductAttributes.OrderBy(x => x.Id).FirstOrDefaultAsync();
-            //    attribute.Alias = attribute.Alias.HasValue() ? "" : "test";
-            //    await _db.SaveChangesAsync();
-            //}
-            //catch (Exception ex)
-            //{
-            //    ex.Dump();
             //}
 
             return Content(content.ToString());
