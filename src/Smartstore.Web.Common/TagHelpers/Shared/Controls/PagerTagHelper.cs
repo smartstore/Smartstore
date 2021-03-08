@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.AspNetCore.Routing;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Web.Rendering;
@@ -9,7 +11,7 @@ using Smartstore.Web.Rendering.Pager;
 namespace Smartstore.Web.TagHelpers.Shared
 {
     [OutputElementHint("nav")]
-    [HtmlTargetElement("pager", TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement("pager", Attributes = ListItemsAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class PagerTagHelper : SmartTagHelper 
     {
         const string ListItemsAttributeName = "sm-list-items";
@@ -101,10 +103,10 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (ShowSummary && ListItems.TotalPages > 1)
             {
-                var summarDiv = new TagBuilder("div");
-                summarDiv.AppendCssClass("pagination-summary float-left");
-                summarDiv.InnerHtml.AppendHtml(Pager.CurrentPageText.FormatInvariant(ListItems.PageNumber, ListItems.TotalPages, ListItems.TotalCount));
-                output.Content.AppendHtml(summarDiv);
+                var summaryDiv = new TagBuilder("div");
+                summaryDiv.AppendCssClass("pagination-summary float-left");
+                summaryDiv.InnerHtml.AppendHtml(Pager.CurrentPageText.FormatInvariant(ListItems.PageNumber, ListItems.TotalPages, ListItems.TotalCount));
+                output.Content.AppendHtml(summaryDiv);
             }
 
             var itemsUl = new TagBuilder("ul");
