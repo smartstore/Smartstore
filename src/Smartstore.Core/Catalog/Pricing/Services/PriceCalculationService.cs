@@ -65,20 +65,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public virtual PriceCalculationContext CreatePriceCalculationContext(
-            IEnumerable<Product> products = null,
-            Customer customer = null,
-            Store store = null,
-            bool includeHidden = true)
-        {
-            return new PriceCalculationContext(
-                products, 
-                _services, 
-                store ?? _storeContext.CurrentStore, 
-                customer ?? _workContext.CurrentCustomer, 
-                includeHidden);
-        }
-
         public virtual Money? GetSpecialPrice(Product product)
         {
             Guard.NotNull(product, nameof(product));
@@ -151,7 +137,7 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(product, nameof(product));
 
-            context ??= CreatePriceCalculationContext(customer: customer);
+            context ??= new PriceCalculationContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
 
             if (product.ProductType == ProductType.BundledProduct)
             {
@@ -186,7 +172,7 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             // Note, attribute price adjustments will not be taken into account here.
-            context ??= CreatePriceCalculationContext(customer: customer);
+            context ??= new PriceCalculationContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
 
             var isBundlePerItemPricing = product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing;
             var lowestPrice = await GetFinalPriceAsync(product, null, customer, true, int.MaxValue, null, context);
@@ -240,7 +226,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Money? lowestPrice = null;
             Product lowestPriceProduct = null;
 
-            context ??= CreatePriceCalculationContext(customer: customer);
+            context ??= new PriceCalculationContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
 
             foreach (var associatedProduct in associatedProducts)
             {

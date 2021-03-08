@@ -6,7 +6,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
@@ -16,20 +15,6 @@ namespace Smartstore.Core.Catalog.Pricing
     public partial interface IPriceCalculationService
     {
         //Task<PriceCalculationResult> Calculate(PriceCalculationRequest request, IEnumerable<IPriceCalculator> pipeline);
-
-        /// <summary>
-        /// Creates a price calculation context.
-        /// </summary>
-        /// <param name="products">Products. <c>null</c> to lazy load data if required.</param>
-        /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
-        /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
-        /// <param name="includeHidden">A value indicating whether to include hidden records.</param>
-        /// <returns>Price calculation context.</returns>
-        PriceCalculationContext CreatePriceCalculationContext(
-            IEnumerable<Product> products = null,
-            Customer customer = null,
-            Store store = null,
-            bool includeHidden = true);
 
         /// <summary>
         /// Gets the special price, if any.
