@@ -36,6 +36,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IDiscountService _discountService;
         private readonly CatalogSettings _catalogSettings;
+        private readonly Currency _primaryCurrency;
 
         public PriceCalculationService(
             SmartDbContext db,
@@ -61,6 +62,8 @@ namespace Smartstore.Core.Catalog.Pricing
             _productAttributeMaterializer = productAttributeMaterializer;
             _discountService = discountService;
             _catalogSettings = catalogSettings;
+
+            _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -93,7 +96,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
             }
 
-            return new Money(product.SpecialPrice.Value, _workContext.WorkingCurrency);
+            return new Money(product.SpecialPrice.Value, _primaryCurrency);
         }
 
         public virtual async Task<Money> GetProductCostAsync(Product product, ProductVariantAttributeSelection selection)
@@ -101,7 +104,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Guard.NotNull(product, nameof(product));
             Guard.NotNull(selection, nameof(selection));
 
-            var result = new Money(product.ProductCost, _workContext.WorkingCurrency);
+            var result = new Money(product.ProductCost, _primaryCurrency);
             var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
 
             var productLinkageValues = attributeValues
@@ -133,7 +136,7 @@ namespace Smartstore.Core.Catalog.Pricing
             return result;
         }
 
-        public virtual async Task<Money> GetPreselectedPriceAsync(Product product, Customer customer, Currency currency, PriceCalculationContext context)
+        public virtual async Task<Money> GetPreselectedPriceAsync(Product product, Customer customer, PriceCalculationContext context)
         {
             Guard.NotNull(product, nameof(product));
 
@@ -151,14 +154,14 @@ namespace Smartstore.Core.Catalog.Pricing
                 // Fetch bundleItemsData.AdditionalCharge for all bundle items.
                 foreach (var bundleItem in bundleItemsData.Where(x => x.Item.Product.CanBeBundleItem()))
                 {
-                    var _ = await GetPreselectedPriceAsync(bundleItem.Item.Product, customer, currency, context, bundleItem, bundleItemsData);
+                    var _ = await GetPreselectedPriceAsync(bundleItem.Item.Product, customer, context, bundleItem, bundleItemsData);
                 }
 
-                return await GetPreselectedPriceAsync(product, customer, currency, context, null, bundleItemsData);
+                return await GetPreselectedPriceAsync(product, customer, context, null, bundleItemsData);
             }
             else
             {
-                return await GetPreselectedPriceAsync(product, customer, currency, context, null, null);
+                return await GetPreselectedPriceAsync(product, customer, context, null, null);
             }
         }
 
@@ -234,7 +237,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
                 if (associatedProduct.LowestAttributeCombinationPrice.HasValue && associatedProduct.LowestAttributeCombinationPrice.Value < tmpPrice.Amount)
                 {
-                    tmpPrice = new Money(associatedProduct.LowestAttributeCombinationPrice.Value, _workContext.WorkingCurrency);
+                    tmpPrice = new Money(associatedProduct.LowestAttributeCombinationPrice.Value, _primaryCurrency);
                 }
 
                 if (!lowestPrice.HasValue || tmpPrice < lowestPrice.Value)
@@ -271,9 +274,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 includeDiscounts = true;
             }
 
-            var currency = _workContext.WorkingCurrency;
             var specialPrice = GetSpecialPrice(product);
-
             var result = specialPrice.HasValue
                 ? specialPrice.Value.Amount
                 : product.Price;
@@ -292,7 +293,7 @@ namespace Smartstore.Core.Catalog.Pricing
                         {
                             result = Math.Min(result, tierPrice.Value.Amount) + (additionalCharge?.Amount ?? decimal.Zero) - discountOnTierPrice.Amount;
 
-                            return currency.AsMoney(result, false, true);
+                            return _primaryCurrency.AsMoney(result, false, true);
                         }
                     }
 
@@ -316,7 +317,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 result -= discountAmount.Amount;
             }
 
-            return currency.AsMoney(result, false, true);
+            return _primaryCurrency.AsMoney(result, false, true);
         }
 
         public virtual async Task<Money> GetFinalPriceAsync(
@@ -358,7 +359,7 @@ namespace Smartstore.Core.Catalog.Pricing
                     result += itemPrice.Amount * itemData.Item.Quantity;
                 }
 
-                return _workContext.WorkingCurrency.AsMoney(result, false, true);
+                return _primaryCurrency.AsMoney(result, false, true);
             }
 
             return await GetFinalPriceAsync(product, additionalCharge, customer, includeDiscounts, quantity, bundleItem, context);
@@ -377,8 +378,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             customer ??= _workContext.CurrentCustomer;
 
-            var currency = finalPrice?.Currency ?? _workContext.WorkingCurrency;
-            var discountAmount = new Money(currency);
+            var discountAmount = new Money(_primaryCurrency);
             Discount appliedDiscount = null;
 
             if (bundleItem != null && bundleItem.Item != null)
@@ -432,8 +432,6 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(attributeValue, nameof(attributeValue));
 
-            var currency = _workContext.WorkingCurrency;
-
             if (attributeValue.ValueType == ProductVariantAttributeValueType.Simple)
             {
                 if (quantity > 1 && attributeValue.PriceAdjustment > 0)
@@ -445,7 +443,7 @@ namespace Smartstore.Core.Catalog.Pricing
                     }
                 }
 
-                return new Money(attributeValue.PriceAdjustment, currency);
+                return new(attributeValue.PriceAdjustment, _primaryCurrency);
             }
 
             if (attributeValue.ValueType == ProductVariantAttributeValueType.ProductLinkage)
@@ -458,7 +456,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
             }
 
-            return new Money(currency);
+            return new(_primaryCurrency);
         }
 
         public virtual string GetBasePriceInfo(Product product, Money productPrice, Currency currency)
@@ -488,8 +486,9 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(product, nameof(product));
 
-            customer ??= _workContext.CurrentCustomer;
+            // Currency is only used for formatting, not for calculation.
             currency ??= _workContext.WorkingCurrency;
+            customer ??= _workContext.CurrentCustomer;
 
             if (product.BasePriceHasValue && product.BasePriceAmount != decimal.Zero)
             {
@@ -501,7 +500,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
 
                 var (price, _) = await _taxService.GetProductPriceAsync(product, currentPrice, customer: customer);
-                var convertedPrice = _currencyService.ConvertFromPrimaryStoreCurrency(price);
+                var convertedPrice = _currencyService.ConvertCurrency(price, currency);
 
                 return GetBasePriceInfo(product, convertedPrice, currency);
             }
@@ -513,7 +512,6 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(shoppingCartItem, nameof(shoppingCartItem));
 
-            var currency = _workContext.WorkingCurrency;
             var cartItem = shoppingCartItem.Item;
             var customer = cartItem.Customer;
             var product = cartItem.Product;
@@ -522,7 +520,7 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (product.CustomerEntersPrice)
                 {
-                    return currency.AsMoney(cartItem.CustomerEnteredPrice);
+                    return _primaryCurrency.AsMoney(cartItem.CustomerEnteredPrice);
                 }
                 else if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
                 {
@@ -538,7 +536,7 @@ namespace Smartstore.Core.Catalog.Pricing
                             .Select(x => x.BundleItemData);
 
                         var finalPrice = await GetFinalPriceAsync(product, bundleItems, null, customer, includeDiscounts, cartItem.Quantity);
-                        return currency.AsMoney(finalPrice.Amount);
+                        return _primaryCurrency.AsMoney(finalPrice.Amount);
                     }
                 }
                 else
@@ -546,7 +544,7 @@ namespace Smartstore.Core.Catalog.Pricing
                     await _productAttributeMaterializer.MergeWithCombinationAsync(product, cartItem.AttributeSelection);
 
                     var pvaValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(cartItem.AttributeSelection);
-                    var attributesTotalPrice = new Money(currency);
+                    var attributesTotalPrice = new Money(_primaryCurrency);
 
                     foreach (var pvaValue in pvaValues)
                     {
@@ -554,11 +552,11 @@ namespace Smartstore.Core.Catalog.Pricing
                     }
 
                     var finalPrice = await GetFinalPriceAsync(product, attributesTotalPrice, customer, includeDiscounts, cartItem.Quantity, shoppingCartItem.BundleItemData);
-                    return currency.AsMoney(finalPrice.Amount);
+                    return _primaryCurrency.AsMoney(finalPrice.Amount);
                 }
             }
 
-            return new Money(currency);
+            return new(_primaryCurrency);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -571,14 +569,13 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(shoppingCartItem, nameof(shoppingCartItem));
 
-            var currency = _workContext.WorkingCurrency;
             var customer = shoppingCartItem.Item.Customer;
             var product = shoppingCartItem.Item.Product;
             var quantity = shoppingCartItem.Item.Quantity;
 
             if (product != null)
             {
-                var attributesTotalPrice = new Money(currency);
+                var attributesTotalPrice = new Money(_primaryCurrency);
                 var pvaValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(shoppingCartItem.Item.AttributeSelection);
 
                 foreach (var pvaValue in pvaValues)
@@ -588,10 +585,10 @@ namespace Smartstore.Core.Catalog.Pricing
 
                 var (discountAmount, appliedDiscount) = await GetDiscountAmountAsync(product, attributesTotalPrice, customer, quantity);
 
-                return (currency.AsMoney(discountAmount.Amount * quantity), appliedDiscount);
+                return (_primaryCurrency.AsMoney(discountAmount.Amount * quantity), appliedDiscount);
             }
 
-            return (new Money(currency), null);
+            return (new(_primaryCurrency), null);
         }
 
         #region Utilities
@@ -742,7 +739,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var tierPrices = await LoadTierPrices(product, customer, context);
             if (!tierPrices.Any())
             {
-                return new Money(_workContext.WorkingCurrency);
+                return new(_primaryCurrency);
             }
 
             var previousQty = 1;
@@ -771,7 +768,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 previousQty = tierPrice.Quantity;
             }
 
-            return previousPrice.HasValue ? new Money(previousPrice.Value, _workContext.WorkingCurrency) : null;
+            return previousPrice.HasValue ? new(previousPrice.Value, _primaryCurrency) : null;
         }
 
         protected virtual async Task<Money> GetTierPriceAttributeAdjustmentAsync(Product product, Customer customer, int quantity, PriceCalculationContext context = null, decimal adjustment = 0)
@@ -799,19 +796,18 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
             }
 
-            return new Money(previousPrice, _workContext.WorkingCurrency);
+            return new(previousPrice, _primaryCurrency);
         }
 
         protected virtual async Task<Money> GetPreselectedPriceAsync(
             Product product,
             Customer customer,
-            Currency currency,
             PriceCalculationContext context,
             ProductBundleItemData bundleItem,
             IEnumerable<ProductBundleItemData> bundleItems)
         {
-            var attributesTotalPriceBase = new Money(currency);
-            var preSelectedPriceAdjustmentBase = new Money(currency);
+            var attributesTotalPriceBase = new Money(_primaryCurrency);
+            var preSelectedPriceAdjustmentBase = new Money(_primaryCurrency);
             var isBundle = product.ProductType == ProductType.BundledProduct;
             var isBundleItemPricing = bundleItem?.Item?.BundleProduct?.BundlePerItemPricing ?? false;
             var isBundlePricing = bundleItem != null && !bundleItem.Item.BundleProduct.BundlePerItemPricing;

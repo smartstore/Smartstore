@@ -36,10 +36,9 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="customer">Customer.</param>
-        /// <param name="currency">Currency.</param>
         /// <param name="context">Price calculation service. Will be created, if <c>null</c>.</param>
         /// <returns></returns>
-        Task<Money> GetPreselectedPriceAsync(Product product, Customer customer, Currency currency, PriceCalculationContext context);
+        Task<Money> GetPreselectedPriceAsync(Product product, Customer customer, PriceCalculationContext context);
 
         /// <summary>
         /// Gets the lowest possible price for a product.
@@ -156,7 +155,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         /// <param name="product">Product entity.</param>
         /// <param name="productPrice">The calculated product price.</param>
-        /// <param name="currency">Target currency.</param>
+        /// <param name="currency">The currency to be used for the formatting. In general, this is always the <see cref="IWorkContext.WorkingCurrency"/>.</param>
         /// <returns>The base price info.</returns>
         string GetBasePriceInfo(Product product, Money productPrice, Currency currency);
 
@@ -165,7 +164,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
-        /// <param name="customer">Currency. If <c>null</c>, currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.</param>
+        /// <param name="currency">The currency to be used for the formatting. In general, this is always the <see cref="IWorkContext.WorkingCurrency"/>.</param>
         /// <param name="priceAdjustment">Price adjustment.</param>
         /// <returns>Base price info.</returns>
         Task<string> GetBasePriceInfoAsync(Product product, Customer customer = null, Currency currency = null, Money? priceAdjustment = null);

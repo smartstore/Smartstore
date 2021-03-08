@@ -808,11 +808,17 @@ namespace Smartstore.Web.Controllers
             var currency = Services.WorkContext.WorkingCurrency;
             var currencyService = Services.Resolve<ICurrencyService>();
             var orderService = Services.Resolve<IOrderService>();
+            var priceCalculationService = Services.Resolve<IPriceCalculationService>();
             var usd = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == "USD");
 
-            var menus = await _db.Menus.GetManyAsync(new[] { 13,14 }, true);
-            _db.Menus.RemoveRange(menus);
-            await _db.SaveChangesAsync();
+            var product = await _db.Products.FindByIdAsync(1751);
+            var basePriceEur = await priceCalculationService.GetBasePriceInfoAsync(product, null, null);
+            var basePriceUsd = await priceCalculationService.GetBasePriceInfoAsync(product, null, usd);
+            content.AppendLine($"EUR: {basePriceEur}. USD: {basePriceUsd}");
+
+            //var menus = await _db.Menus.GetManyAsync(new[] { 13,14 }, true);
+            //_db.Menus.RemoveRange(menus);
+            //await _db.SaveChangesAsync();
 
             //var customer = await _db.Customers.Where(x => x.IsSystemAccount && x.Email == "builtin@background-task-record.com").FirstOrDefaultAsync();
             //_db.Customers.Remove(customer);
