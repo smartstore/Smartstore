@@ -6,24 +6,24 @@ using Smartstore.Core.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 
-namespace Smartstore.Core.Security
+namespace Smartstore.Core.Localization
 {
-    internal class AclRestrictedHook : AsyncDbSaveHook<IAclRestricted>
+    internal class LocalizedEntityHook : AsyncDbSaveHook<ILocalizedEntity>
     {
         private readonly SmartDbContext _db;
 
-        public AclRestrictedHook(SmartDbContext db)
+        public LocalizedEntityHook(SmartDbContext db)
         {
             _db = db;
         }
 
-        protected override Task<HookResult> OnDeletedAsync(IAclRestricted entity, IHookedEntity entry, CancellationToken cancelToken)
+        protected override Task<HookResult> OnDeletedAsync(ILocalizedEntity entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
             var deletedEntries = entries
-                .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted && x.Entity is IAclRestricted)
+                .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted && x.Entity is ILocalizedEntity)
                 .ToList();
 
             if (deletedEntries.Any())
@@ -33,8 +33,8 @@ namespace Smartstore.Core.Security
                     var entityIds = group.Select(x => x.Entity.Id).ToArray();
                     var entityName = group.Key;
 
-                    await _db.AclRecords
-                        .Where(x => entityIds.Contains(x.EntityId) && x.EntityName == entityName)
+                    await _db.LocalizedProperties
+                        .Where(x => entityIds.Contains(x.EntityId) && x.LocaleKeyGroup == entityName)
                         .BatchDeleteAsync(cancelToken);
                 }
             }
