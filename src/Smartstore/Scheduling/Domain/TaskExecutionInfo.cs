@@ -21,6 +21,9 @@ namespace Smartstore.Scheduling
             _lazyLoader = lazyLoader;
         }
 
+        // Legacy compat
+        public override string GetEntityName() => "ScheduleTaskHistory";
+
         /// <summary>
         /// Gets or sets the schedule task identifier.
         /// </summary>
