@@ -22,6 +22,7 @@ namespace Smartstore.Core
     {
         IComponentContext Container { get; }
         IApplicationContext ApplicationContext { get; }
+        ICacheFactory CacheFactory { get; }
         ICacheManager Cache { get; }
         IRequestCache RequestCache { get; }
         SmartDbContext DbContext { get; }

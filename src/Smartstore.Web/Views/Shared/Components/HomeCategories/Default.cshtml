@@ -1,0 +1,34 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model List<CategorySummaryModel>
+
+@{
+    if (Model.Count == 0)
+    {
+        return; 
+    }
+}
+
+<div class="artlist artlist-grid artlist-6-cols artlist-boxed artlist-homepage-categories">
+    @foreach (var item in Model)
+    {
+        var picture = item.PictureModel;
+        var linkTitle = T("Media.Category.ImageLinkTitleFormat", item.Name);
+
+        <article class="art" data-id="@item.Id">
+            <div class="art-picture-block">
+                @if (picture != null && picture.HasPicture)
+                {
+                    <a class="art-picture img-center-container" href="@item.Url" title="@linkTitle">
+                        <img sm-file="picture.File" sm-size="picture.ThumbSize" sm-no-fallback="picture.NoFallback" sm-url-host="@picture.Host" alt="@picture.Alt" title="@picture.Title" loading="lazy" />
+                    </a>
+                }
+            </div>
+            <div class="art-genericname">
+                <a href="@item.Url" title="@linkTitle">
+                    <span sm-language-attributes-for="@item.Name">@item.Name</span>
+                </a>
+            </div>
+        </article>
+    }
+</div>

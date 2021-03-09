@@ -459,29 +459,24 @@ namespace Smartstore.Web.Controllers
 
                 item.Picture = new PictureModel
                 {
-                    PictureId = file?.Id ?? 0,
-                    Size = thumbSize,
-                    ImageUrl = _mediaService.GetUrl(file, thumbSize, null, !_catalogSettings.HideProductDefaultPictures),
-                    FullSizeImageUrl = _mediaService.GetUrl(file, 0, null, !_catalogSettings.HideProductDefaultPictures),
-                    FullSizeImageWidth = file?.Size.Width,
-                    FullSizeImageHeight = file?.Size.Height,
+                    File = file,
+                    ThumbSize = thumbSize,
                     Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? string.Format(ctx.Resources["Media.Product.ImageLinkTitleFormat"], item.Name),
-                    AlternateText = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? string.Format(ctx.Resources["Media.Product.ImageAlternateTextFormat"], item.Name),
-                    File = file
+                    Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? string.Format(ctx.Resources["Media.Product.ImageAlternateTextFormat"], item.Name),
+                    NoFallback = _catalogSettings.HideProductDefaultPictures
                 };
 
                 _services.DisplayControl.Announce(file?.File);
             }
 
-            //// TODO: (core) Uncomment
-            //// Manufacturers
-            //if (settings.MapManufacturers)
-            //{
-            //    item.Brand = PrepareManufacturersOverviewModel(
-            //        ctx.BatchContext.ProductManufacturers.GetOrLoad(product.Id),
-            //        ctx.CachedBrandModels,
-            //        _catalogSettings.ShowManufacturerLogoInLists && settings.ViewMode == ProductSummaryViewMode.List).FirstOrDefault();
-            //}
+            // Brands
+            if (settings.MapManufacturers)
+            {
+                item.Brand = (await PrepareBrandOverviewModelAsync(
+                    await ctx.BatchContext.ProductManufacturers.GetOrLoadAsync(product.Id),
+                    ctx.CachedBrandModels,
+                    _catalogSettings.ShowManufacturerLogoInLists && settings.ViewMode == ProductSummaryViewMode.List)).FirstOrDefault();
+            }
 
             // Spec Attributes
             if (settings.MapSpecificationAttributes)
@@ -575,7 +570,7 @@ namespace Smartstore.Web.Controllers
                 //// TODO: (core) Uncomment
                 //// TODO: (core) ConvertCurrency does things wrong! Check!
                 var addShippingPrice = _currencyService.ConvertCurrency(ctx.PrimaryCurrency.AsMoney(contextProduct.AdditionalShippingCharge), ctx.StoreCurrency);
-                addShippingPrice = ctx.PrimaryCurrency.AsMoney(contextProduct.AdditionalShippingCharge).Exchange(ctx.StoreCurrency); // This may be right
+                addShippingPrice = ctx.PrimaryCurrency.AsMoney(contextProduct.AdditionalShippingCharge).ExchangeTo(ctx.StoreCurrency); // This may be right
 
                 //if (addShippingPrice > 0)
                 //{

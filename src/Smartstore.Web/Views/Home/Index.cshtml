@@ -4,8 +4,22 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-left">
-    <h1 class="display-3">Welcome</h1>
+<div class="page home-page">
+    <div class="page-body">
+        <zone sm-zone-name="home_page_top" />
+
+        @await Component.InvokeAsync("TopicBlock", new { systemName = "HomePageText", isLead = true })
+        <zone sm-zone-name="home_page_after_intro" />
+
+        @await Component.InvokeAsync("HomeCategories")
+        <zone sm-zone-name="home_page_after_categories" />
+
+         @await Component.InvokeAsync("HomeProducts")
+        <zone sm-zone-name="home_page_after_products" />
+
+        @await Component.InvokeAsync("HomeBrands")
+        <zone sm-zone-name="home_page_after_manufacturers" />
+    </div>
 </div>
 
 <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#cookie-manager-window">

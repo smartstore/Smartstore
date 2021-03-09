@@ -185,14 +185,14 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (product.LowestAttributeCombinationPrice.Value < lowestPrice.Amount)
                 {
-                    lowestPrice = lowestPrice.Change(product.LowestAttributeCombinationPrice.Value);
+                    lowestPrice = lowestPrice.WithAmount(product.LowestAttributeCombinationPrice.Value);
                 }
                 displayFromMessage = true;
             }
 
             if (lowestPrice == decimal.Zero && product.Price == decimal.Zero)
             {
-                lowestPrice = lowestPrice.Change(product.LowestAttributeCombinationPrice ?? decimal.Zero);
+                lowestPrice = lowestPrice.WithAmount(product.LowestAttributeCombinationPrice ?? decimal.Zero);
             }
 
             if (!displayFromMessage && product.ProductType != ProductType.BundledProduct)

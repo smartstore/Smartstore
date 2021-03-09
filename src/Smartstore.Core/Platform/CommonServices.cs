@@ -29,6 +29,7 @@ namespace Smartstore.Core
     {
         private readonly IComponentContext _container;
         private readonly IApplicationContext _appContext;
+        private readonly ICacheFactory _cacheFactory;
         private readonly ICacheManager _cacheManager;
         private readonly IRequestCache _requestCache;
         private readonly SmartDbContext _dbContext;
@@ -51,6 +52,7 @@ namespace Smartstore.Core
         public CommonServices(
             IComponentContext container,
             IApplicationContext appContext,
+            ICacheFactory cacheFactory,
             ICacheManager cacheManager,
             IRequestCache requestCache,
             SmartDbContext dbContext,
@@ -72,6 +74,7 @@ namespace Smartstore.Core
         {
             _container = container;
             _appContext = appContext;
+            _cacheFactory = cacheFactory;
             _cacheManager = cacheManager;
             _requestCache = requestCache;
             _dbContext = dbContext;
@@ -94,6 +97,7 @@ namespace Smartstore.Core
 
         public IComponentContext Container => _container;
         public IApplicationContext ApplicationContext => _appContext;
+        public ICacheFactory CacheFactory => _cacheFactory;
         public ICacheManager Cache => _cacheManager;
         public IRequestCache RequestCache => _requestCache;
         public SmartDbContext DbContext => _dbContext;

@@ -1,0 +1,16 @@
+﻿@using System.Globalization;
+@using Smartstore.Core.Content.Media;
+@using Smartstore.Utilities;
+@using Smartstore.Web.Models.Catalog;
+
+@model ProductSummaryModel.SummaryItem
+
+@{
+    var picture = Model.Picture;
+}
+
+<article class="art" data-id="@Model.Id">
+    <div class="art-picture-block img-center-container">
+        <img sm-file="picture.File" sm-size="picture.ThumbSize" sm-no-fallback="picture.NoFallback" sm-url-host="@picture.Host" alt="@picture.Alt" title="@picture.Title" loading="lazy" />
+    </div>
+</article> 

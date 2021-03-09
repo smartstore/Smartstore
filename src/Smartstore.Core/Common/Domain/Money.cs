@@ -22,44 +22,33 @@ namespace Smartstore.Core.Common
         {
         }
 
-        public Money(float amount, Currency currency)
-            : this((decimal)amount, currency, false)
-        {
-        }
-
-        public Money(double amount, Currency currency)
-            : this((decimal)amount, currency, false)
-        {
-        }
-
         public Money(decimal amount, Currency currency)
             : this(amount, currency, false)
         {
         }
 
-        public Money(decimal amount, Currency currency, bool hideCurrency)
+        public Money(decimal amount, Currency currency, bool hideCurrency, string postFormat = null)
         {
             Guard.NotNull(currency, nameof(currency));
 
             Amount = amount;
             Currency = currency;
             HideCurrency = hideCurrency;
-            ShowTax = false;
-            TaxSuffixFormatString = null;
+            PostFormat = postFormat;
         }
 
         [JsonIgnore]
         public bool HideCurrency
         {
             get;
-            internal set;
+            init;
         }
 
         [JsonIgnore]
         public Currency Currency
         {
             get;
-            internal set;
+            init;
         }
 
         /// <summary>
@@ -97,52 +86,53 @@ namespace Smartstore.Core.Common
         }
 
         /// <summary>
-        /// A value indicating whether to include tax information when formatting.
+        /// The format string to apply AFTER amount has been formatted (amount + currency symbol), 
+        /// e.g. "{0} incl. tax" (where {0} is replaced by currency formatted amount).
         /// </summary>
-        public bool ShowTax
+        public string PostFormat
         {
             get;
             init;
         }
 
-        /// <summary>
-        /// The format string including tax suffix.
-        /// </summary>
-        public string TaxSuffixFormatString
-        {
-            get;
-            init;
-        }
-
-        /// <summary>
-        /// The formatted amount.
-        /// </summary>
-        public string Formatted
-        {
-            get => ToString(true, false, true);
-        }
-
-        private static void GuardCurrenciesAreEqual(Money a, Money b)
+        private static void GuardCurrencyEquality(Money a, Money b)
         {
             if (a.Currency != b.Currency)
+            {
                 throw new InvalidOperationException("Cannot operate on money values with different currencies.");
+            }   
         }
 
-        #region Assign
+        #region Change & Assign
 
-        public Money Change(float amount, Currency currency = null)
-            => Change((decimal)amount);
+        public Money WithAmount(float amount, Currency currency = null)
+            => WithAmount((decimal)amount, currency);
 
-        public Money Change(double amount, Currency currency = null)
-            => Change((decimal)amount);
+        public Money WithAmount(double amount, Currency currency = null)
+            => WithAmount((decimal)amount, currency);
 
-        public Money Change(decimal amount, Currency currency = null)
+        public Money WithAmount(decimal amount, Currency currency = null)
         {
-            return new Money(amount, currency ?? Currency, HideCurrency)
-            {
-                ShowTax = ShowTax,
-                TaxSuffixFormatString = TaxSuffixFormatString
-            };
+            return new Money(amount, currency ?? Currency, HideCurrency, PostFormat);
+        }
+
+        /// <summary>
+        /// Changes the underlying currency.
+        /// </summary>
+        /// <param name="currency">The currency to switch to.</param>
+        public Money WithCurrency(Currency currency)
+        {
+            return new Money(Amount, currency, HideCurrency, PostFormat);
+        }
+
+        /// <summary>
+        /// Applies a second format string AFTER amount has been formatted (amount + currency symbol), 
+        /// e.g. "{0} incl. tax" (where {0} is replaced by currency formatted amount).
+        /// </summary>
+        /// <param name="format">The post format string.</param>
+        public Money WithPostFormat(string format)
+        {
+            return new Money(Amount, Currency, HideCurrency, format);
         }
 
         #endregion
@@ -151,30 +141,28 @@ namespace Smartstore.Core.Common
 
         public override int GetHashCode()
         {
-            if (Amount == 0)
-                return 0;
-
-            return Amount.GetHashCode() ^ (Currency?.GetHashCode() ?? 0);
-        }
-
-        public int CompareTo(Money other)
-        {
-            return ((IComparable)this).CompareTo(other);
+            return HashCode.Combine(Amount, Currency);
         }
 
         int IComparable.CompareTo(object obj)
         {
-            if (obj == null || !(obj is Money))
+            if (obj == null || obj is not Money other)
                 return 1;
 
-            Money other = (Money)obj;
+            return CompareTo(other);
+        }
 
-            if (this.Amount == other.Amount)
-                return 0;
-            if (this.Amount < other.Amount)
-                return -1;
+        public int CompareTo(Money other)
+        {
+            if (Currency == null)
+                return 0m.CompareTo(other.Amount);
+            
+            if (other.Currency == null)
+                return Amount.CompareTo(0m);
 
-            return 1;
+            GuardCurrencyEquality(this, other);
+
+            return Amount.CompareTo(other.Amount);
         }
 
         public override bool Equals(object obj)
@@ -197,32 +185,10 @@ namespace Smartstore.Core.Common
 
         public static bool operator ==(Money a, Money b) => a.Equals(b);
         public static bool operator !=(Money a, Money b) => !a.Equals(b);
-
-        public static bool operator >(Money a, Money b)
-        {
-            GuardCurrenciesAreEqual(a, b);
-            return a.Amount > b.Amount;
-        }
-
-        public static bool operator <(Money a, Money b)
-        {
-            GuardCurrenciesAreEqual(a, b);
-            return a.Amount < b.Amount;
-        }
-
-        public static bool operator <=(Money a, Money b)
-        {
-            GuardCurrenciesAreEqual(a, b);
-            return a.Amount <= b.Amount;
-
-        }
-
-        public static bool operator >=(Money a, Money b)
-        {
-            GuardCurrenciesAreEqual(a, b);
-            return a.Amount >= b.Amount;
-
-        }
+        public static bool operator >(Money a, Money b) => a.CompareTo(b) > 0;
+        public static bool operator <(Money a, Money b) => a.CompareTo(b) < 0;
+        public static bool operator <=(Money a, Money b) => a.CompareTo(b) <= 0;
+        public static bool operator >=(Money a, Money b) => a.CompareTo(b) >= 0;
 
         public static bool operator ==(Money a, int b) => a.Amount == b;
         public static bool operator !=(Money a, int b) => a.Amount != b;
@@ -262,11 +228,11 @@ namespace Smartstore.Core.Common
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         string IFormattable.ToString(string format, IFormatProvider formatProvider)
-            => ToString(!HideCurrency, false, ShowTax);
+            => ToString(!HideCurrency, false, PostFormat);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         string IConvertible.ToString(IFormatProvider provider)
-            => ToString(!HideCurrency, false, ShowTax);
+            => ToString(!HideCurrency, false, PostFormat);
 
         /// <summary>
         /// Creates the string representation of the rounded amount.
@@ -274,30 +240,30 @@ namespace Smartstore.Core.Common
         /// <returns>The formatted rounded amount.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString()
-            => ToString(!HideCurrency, false, ShowTax);
+            => ToString(!HideCurrency, false, PostFormat);
 
         /// <summary>
         /// Creates the string representation of the rounded amount.
         /// </summary>
         /// <param name="showCurrency">Whether to render currency symbol. If <c>null</c>, falls back to negated <see cref="HideCurrency"/>.</param>
         /// <param name="useISOCodeAsSymbol">Whether to render currency symbol as ISO code. Only relevant if currency symbol should be rendered.</param>
-        /// <param name="showTax">Whether to render tax info suffix (e.g. "incl. tax"). Only relevant if <see cref="TaxSuffixFormatString"/> is not empty.</param>
+        /// <param name="postFormat">Applies a second format string AFTER amount has been formatted (amount + currency symbol), e.g. "{0} incl. tax" (where {0} is replaced by currency formatted amount).</param>
         /// <returns>The formatted rounded amount.</returns>
-        public string ToString(bool? showCurrency = null, bool useISOCodeAsSymbol = false, bool? showTax = null)
+        public string ToString(bool? showCurrency = null, bool useISOCodeAsSymbol = false, string postFormat = null)
         {
             if (Currency == null)
             {
-                return RoundedAmount.FormatInvariant();
+                return postFormat == null ? RoundedAmount.FormatInvariant() : string.Format(postFormat, RoundedAmount.FormatInvariant());
             }
 
-            showTax ??= ShowTax;
+            postFormat ??= PostFormat;
             
             var nf = Currency.NumberFormat;
-            var template = showTax == true ? TaxSuffixFormatString : "{0}";
+            string formatted = null;
 
             if (!string.IsNullOrEmpty(Currency.CustomFormatting))
             {
-                return string.Format(template, RoundedAmount.ToString(Currency.CustomFormatting, nf));
+                formatted = RoundedAmount.ToString(Currency.CustomFormatting, nf);
             }
             else
             {
@@ -314,8 +280,10 @@ namespace Smartstore.Core.Common
                     });
                 }
 
-                return string.Format(template, RoundedAmount.ToString("C", nf));
+                formatted = RoundedAmount.ToString("C", nf);
             }
+
+            return postFormat == null ? formatted : string.Format(postFormat, formatted);
         }
 
         #endregion
@@ -361,19 +329,25 @@ namespace Smartstore.Core.Common
         public static Money operator ++(Money a)
         {
             var amount = a.Amount;
-            return a.Change(amount++);
+            return a.WithAmount(amount++);
         }
 
         public static Money operator +(Money a, Money b)
         {
-            GuardCurrenciesAreEqual(a, b);
-            return a.Change(a.Amount + b.Amount);
+            if (a.Currency == null)
+                return b;
+
+            if (b.Currency == null)
+                return a;
+
+            GuardCurrencyEquality(a, b);
+            return a.WithAmount(a.Amount + b.Amount);
         }
 
         public static Money operator +(Money a, int b) => a + (decimal)b;
         public static Money operator +(Money a, float b) => a + (decimal)b;
         public static Money operator +(Money a, double b) => a + (decimal)b;
-        public static Money operator +(Money a, decimal b) => a.Change(a.Amount + b);
+        public static Money operator +(Money a, decimal b) => a.WithAmount(a.Amount + b);
 
         #endregion
 
@@ -382,19 +356,25 @@ namespace Smartstore.Core.Common
         public static Money operator --(Money a)
         {
             var amount = a.Amount;
-            return a.Change(amount--);
+            return a.WithAmount(amount--);
         }
 
         public static Money operator -(Money a, Money b)
         {
-            GuardCurrenciesAreEqual(a, b);
-            return a.Change(a.Amount - b.Amount);
+            if (b.Currency == null)
+                return a;
+
+            if (a.Currency == null)
+                return b.WithAmount(b.Amount * -1);
+
+            GuardCurrencyEquality(a, b);
+            return a.WithAmount(a.Amount - b.Amount);
         }
 
         public static Money operator -(Money a, int b) => a + (decimal)b;
         public static Money operator -(Money a, float b) => a + (decimal)b;
         public static Money operator -(Money a, double b) => a + (decimal)b;
-        public static Money operator -(Money a, decimal b) => a.Change(a.Amount - b);
+        public static Money operator -(Money a, decimal b) => a.WithAmount(a.Amount - b);
 
         #endregion
 
@@ -402,14 +382,14 @@ namespace Smartstore.Core.Common
 
         public static Money operator *(Money a, Money b)
         {
-            GuardCurrenciesAreEqual(a, b);
-            return a.Change(a.Amount * b.Amount);
+            GuardCurrencyEquality(a, b);
+            return a.WithAmount(a.Amount * b.Amount);
         }
 
         public static Money operator *(Money a, int b) => a * (decimal)b;
         public static Money operator *(Money a, float b) => a * (decimal)b;
         public static Money operator *(Money a, double b) => a * (decimal)b;
-        public static Money operator *(Money a, decimal b) => a.Change(a.Amount * b);
+        public static Money operator *(Money a, decimal b) => a.WithAmount(a.Amount * b);
 
         #endregion
 
@@ -417,14 +397,14 @@ namespace Smartstore.Core.Common
 
         public static Money operator /(Money a, Money b)
         {
-            GuardCurrenciesAreEqual(a, b);
-            return a.Change(a.Amount / b.Amount);
+            GuardCurrencyEquality(a, b);
+            return a.WithAmount(a.Amount / b.Amount);
         }
 
         public static Money operator /(Money a, int b) => a / (decimal)b;
         public static Money operator /(Money a, float b) => a / (decimal)b;
         public static Money operator /(Money a, double b) => a / (decimal)b;
-        public static Money operator /(Money a, decimal b) => a.Change(a.Amount / b);
+        public static Money operator /(Money a, decimal b) => a.WithAmount(a.Amount / b);
 
         #endregion
 
@@ -440,22 +420,18 @@ namespace Smartstore.Core.Common
         {
             if (Currency != null && (force || Currency.RoundOrderItemsEnabled))
             {
-                return Change(RoundedAmount);
+                return WithAmount(RoundedAmount);
             }
 
             return this;
         }
 
-        public Money Exchange(Currency toCurrency)
+        public Money ExchangeTo(Currency toCurrency)
         {
             if (Currency == toCurrency)
                 return this;
 
-            return new Money((Amount * Currency.Rate) / toCurrency.Rate, toCurrency, HideCurrency)
-            {
-                ShowTax = ShowTax,
-                TaxSuffixFormatString = TaxSuffixFormatString
-            };
+            return new Money((Amount * Currency.Rate) / toCurrency.Rate, toCurrency, HideCurrency, PostFormat);
         }
 
         /// <summary>
@@ -474,10 +450,10 @@ namespace Smartstore.Core.Common
             var remainder = (int)(((double)Amount * cents) % n);
 
             for (var i = 0; i < remainder; i++)
-                results[i] = Change(highResult);
+                results[i] = WithAmount(highResult);
 
             for (var i = remainder; i < n; i++)
-                results[i] = Change(lowResult);
+                results[i] = WithAmount(lowResult);
 
             return results;
         }
@@ -496,7 +472,7 @@ namespace Smartstore.Core.Common
             if (denominator == 0)
                 throw new DivideByZeroException("Attempted to divide by zero!");
 
-            GuardCurrenciesAreEqual(numerator, denominator);
+            GuardCurrencyEquality(numerator, denominator);
 
             return numerator.Amount / denominator.Amount;
         }
@@ -509,7 +485,7 @@ namespace Smartstore.Core.Common
         /// <returns>The smallest money value of the arguments.</returns>
         public static Money Min(Money a, Money b)
         {
-            GuardCurrenciesAreEqual(a, b);
+            GuardCurrencyEquality(a, b);
 
             if (a == b)
                 return a;
@@ -527,7 +503,7 @@ namespace Smartstore.Core.Common
         /// <returns>The largest money value of the arguments.</returns>
         public static Money Max(Money a, Money b)
         {
-            GuardCurrenciesAreEqual(a, b);
+            GuardCurrencyEquality(a, b);
 
             if (a == b)
                 return a;
@@ -544,7 +520,7 @@ namespace Smartstore.Core.Common
         /// <returns>The money value as an absolute value.</returns>
         public static Money Abs(Money value)
         {
-            return value.Change(Math.Abs(value.Amount));
+            return value.WithAmount(Math.Abs(value.Amount));
         }
 
         #endregion

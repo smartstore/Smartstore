@@ -23,8 +23,9 @@ namespace Smartstore.Web.Components
                 store.Id,
                 Services.WorkContext.CurrentCustomer.GetRolesIdent());
 
-            var cacheModel = await Services.Cache.GetAsync(cacheKey, async () =>
+            var cacheModel = await Services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
+                // INFO: TopicModel contains unserializable properties.
                 var topic = await Services.DbContext.Topics
                     .AsNoTracking()
                     .Where(x => x.SystemName == systemName)

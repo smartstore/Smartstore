@@ -56,7 +56,9 @@ namespace Smartstore.Core.Catalog.Brands
                     .ApplyStandardFilter(includeHidden, customerRoleIds, includeHidden ? 0 : storeId);
 
                 var query =
-                    from pm in _db.ProductManufacturers.AsNoTracking()
+                    from pm in _db.ProductManufacturers
+                        .AsNoTracking()
+                        .Include(x => x.Manufacturer)
                     join m in manufacturersQuery on pm.ManufacturerId equals m.Id
                     where productIds.Contains(pm.ProductId)
                     orderby pm.DisplayOrder

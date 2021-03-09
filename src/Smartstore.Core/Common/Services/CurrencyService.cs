@@ -47,7 +47,7 @@ namespace Smartstore.Core.Common.Services
                 return amount * exchangeRate;
             }
 
-            return amount.Change(0m, amount.Currency);
+            return amount.WithAmount(0m, amount.Currency);
         }
 
         public virtual Money ConvertCurrency(Money amount, Currency targetCurrency, Store store = null)
@@ -64,13 +64,12 @@ namespace Smartstore.Core.Common.Services
 
             if (amount != decimal.Zero)
             {
-                var tmp = ConvertToStoreCurrency(true, amount, store);
-                tmp.Currency = targetCurrency;
+                var tmp = ConvertToStoreCurrency(true, amount, store).WithCurrency(targetCurrency);
 
                 return ConvertFromStoreCurrency(true, tmp, store);
             }
 
-            return amount.Change(amount.Amount, targetCurrency);
+            return amount.WithAmount(amount.Amount, targetCurrency);
         }
 
         public virtual Money ConvertToStoreCurrency(bool toExchangeRateCurrency, Money amount, Store store = null)
@@ -90,10 +89,10 @@ namespace Smartstore.Core.Common.Services
                     throw new SmartException($"Exchange rate not found for currency [{sourceCurrency.Name}].");
                 }
 
-                return amount.Change(amount.Amount / exchangeRate, targetCurrency);
+                return amount.WithAmount(amount.Amount / exchangeRate, targetCurrency);
             }
 
-            return amount.Change(amount.Amount, targetCurrency);
+            return amount.WithAmount(amount.Amount, targetCurrency);
         }
 
         public virtual Money ConvertFromStoreCurrency(bool fromExchangeRateCurrency, Money amount, Store store = null)
@@ -116,14 +115,14 @@ namespace Smartstore.Core.Common.Services
                         throw new SmartException($"Exchange rate not found for currency [{targetCurrency.Name}].");
                     }
 
-                    return amount.Change(amount.Amount * exchangeRate, targetCurrency);
+                    return amount.WithAmount(amount.Amount * exchangeRate, targetCurrency);
                 }
 
-                return amount.Change(amount.Amount, targetCurrency);
+                return amount.WithAmount(amount.Amount, targetCurrency);
             }
             else
             {
-                return ConvertCurrency(amount.Change(amount.Amount, sourceCurrency), targetCurrency, store);
+                return ConvertCurrency(amount.WithAmount(amount.Amount, sourceCurrency), targetCurrency, store);
             }
         }
 
@@ -165,7 +164,7 @@ namespace Smartstore.Core.Common.Services
             PricingTarget target = PricingTarget.Product)
         {
             Currency currency = null;
-            string taxSuffixFormatString = null;
+            string postFormat = null;
 
             if (currencyCodeOrObj is null)
             {
@@ -199,13 +198,12 @@ namespace Smartstore.Core.Common.Services
                 language ??= _workContext.WorkingLanguage;
 
                 string resource = _localizationService.GetResource(priceIncludesTax.Value ? "Products.InclTaxSuffix" : "Products.ExclTaxSuffix", language.Id, false);
-                taxSuffixFormatString = resource.NullEmpty() ?? (priceIncludesTax.Value ? "{0} incl. tax" : "{0} excl. tax");
+                postFormat = resource.NullEmpty() ?? (priceIncludesTax.Value ? "{0} incl. tax" : "{0} excl. tax");
             }
 
             return new Money(price, currency)
             {
-                ShowTax = displayTax.Value,
-                TaxSuffixFormatString = taxSuffixFormatString
+                PostFormat = postFormat
             };
         }
     }
