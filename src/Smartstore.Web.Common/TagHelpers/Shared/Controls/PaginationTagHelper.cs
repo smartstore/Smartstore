@@ -43,19 +43,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string ShowLastAttributeName = "sm-show-last";
         const string ShowNextAttributeName = "sm-show-next";
         const string ShowPreviousAttributeName = "sm-show-previous";
-        const string ShowSummaryAttributeName = "sm-show-summary";
         const string ShowPaginatorAttributeName = "sm-show-paginator";
         const string MaxPagesToDisplayAttributeName = "sm-max-pages";
         const string SkipActiveStateAttributeName = "sm-skip-active-state";
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
 
         // TODO: (mh) (core) Make ModifiedParamName attribute?
-        private ILocalizationService _localizationService;
-
-        public PaginationTagHelper(ILocalizationService localizationService)
-        {
-            _localizationService = localizationService;
-        }
 
         [HtmlAttributeName(ListItemsAttributeName)]
         public IPageable ListItems { get; set; }
@@ -81,9 +74,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(ShowPreviousAttributeName)]
         public bool ShowPrevious { get; set; } = true;
 
-        [HtmlAttributeName(ShowSummaryAttributeName)]
-        public bool ShowSummary { get; set; } = false;
-
         [HtmlAttributeName(ShowPaginatorAttributeName)]
         public bool ShowPaginator { get; set; } = true;
 
@@ -107,14 +97,6 @@ namespace Smartstore.Web.TagHelpers.Shared
             var items = CreateItemList();
 
             output.Attributes.Add("aria-label", "Page navigation");
-
-            if (ShowSummary && ListItems.TotalPages > 1)
-            {
-                var summaryDiv = new TagBuilder("div");
-                summaryDiv.AppendCssClass("pagination-summary p-2");
-                summaryDiv.InnerHtml.AppendHtml(_localizationService.GetResource("Pager.CurrentPage").FormatInvariant(ListItems.PageNumber, ListItems.TotalPages, ListItems.TotalCount));
-                output.Content.AppendHtml(summaryDiv);
-            }
 
             var itemsUl = new TagBuilder("ul");
             itemsUl.AppendCssClass("pagination");
@@ -175,7 +157,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // First link.
             if (ShowFirst && pageNumber > 1)
             {
-                item = new PagerItem(_localizationService.GetResource("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
+                item = new PagerItem(T("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
                 {
                     State = (pageNumber > 1) ? PagerItemState.Normal : PagerItemState.Disabled
                 };
@@ -185,7 +167,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Previous link.
             if (ShowPrevious && pageNumber > 1)
             {
-                item = new PagerItem(_localizationService.GetResource("Pager.Previous"), GenerateUrl(pageNumber - 1), PagerItemType.PreviousPage)
+                item = new PagerItem(T("Pager.Previous"), GenerateUrl(pageNumber - 1), PagerItemType.PreviousPage)
                 {
                     State = (pageNumber > 1) ? PagerItemState.Normal : PagerItemState.Disabled
                 };
@@ -202,7 +184,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var hasNext = false;
             if (ShowNext && pageNumber < pageCount)
             {
-                item = new PagerItem(_localizationService.GetResource("Pager.Next"), GenerateUrl(pageNumber + 1), PagerItemType.NextPage)
+                item = new PagerItem(T("Pager.Next"), GenerateUrl(pageNumber + 1), PagerItemType.NextPage)
                 {
                     State = (pageNumber == pageCount) ? PagerItemState.Disabled : PagerItemState.Normal
                 };
@@ -213,7 +195,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Last link.
             if (ShowLast && pageNumber < pageCount)
             {
-                item = new PagerItem(_localizationService.GetResource("Pager.Last"), GenerateUrl(pageCount), PagerItemType.LastPage)
+                item = new PagerItem(T("Pager.Last"), GenerateUrl(pageCount), PagerItemType.LastPage)
                 {
                     State = (pageNumber == pageCount) ? PagerItemState.Disabled : PagerItemState.Normal
                 };

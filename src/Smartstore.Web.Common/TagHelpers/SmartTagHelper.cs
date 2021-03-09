@@ -8,6 +8,7 @@ using Smartstore.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Autofac;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.TagHelpers
 {
@@ -17,6 +18,7 @@ namespace Smartstore.Web.TagHelpers
         private IHtmlHelper _htmlHelper;
         private IUrlHelper _urlHelper;
         private IHtmlGenerator _htmlGenerator;
+        private Localizer _localizer;
 
         [HtmlAttributeNotBound]
 		[ViewContext]
@@ -57,6 +59,12 @@ namespace Smartstore.Web.TagHelpers
         protected internal IHtmlGenerator HtmlGenerator
         {
             get => _htmlGenerator ??= ViewContext.HttpContext.GetServiceScope().Resolve<IHtmlGenerator>();
+        }
+
+        [HtmlAttributeNotBound]
+        protected internal Localizer T
+        {
+            get => _localizer ??= ViewContext.HttpContext.GetServiceScope().Resolve<Localizer>();
         }
 
         [HtmlAttributeNotBound]
