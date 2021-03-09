@@ -119,7 +119,6 @@ namespace Smartstore.Core.Checkout.Tax
             int? taxCategoryId = null,
             Customer customer = null)
         {
-            Guard.NotNull(price, nameof(price));
             Guard.NotNull(price.Currency, nameof(price.Currency));
 
             var (amount, taxRate) = await GetProductPriceAmountAsync(product, price.Amount, includingTax, priceIncludesTax, taxCategoryId, customer);
