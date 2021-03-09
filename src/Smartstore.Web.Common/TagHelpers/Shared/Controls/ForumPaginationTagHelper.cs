@@ -9,7 +9,8 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("forum-pagination", TagStructure = TagStructure.WithoutEndTag)]
     public class ForumPaginationTagHelper : PaginationTagHelper
     {
-        public ForumPaginationTagHelper(ILocalizationService localizationService) : base(localizationService)
+        public ForumPaginationTagHelper() 
+            : base()
         {
         }
 
