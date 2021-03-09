@@ -1,5 +1,23 @@
 ﻿namespace Smartstore.Web.Rendering.Pager
 {
+    public enum PagerItemState
+    {
+        Normal,
+        Disabled,
+        Selected
+    }
+
+    public enum PagerItemType
+    {
+        FirstPage,
+        PreviousPage,
+        Page,
+        Text,
+        NextPage,
+        LastPage,
+        Misc
+    }
+
     public class PagerItem
     {
         public PagerItem(string text)

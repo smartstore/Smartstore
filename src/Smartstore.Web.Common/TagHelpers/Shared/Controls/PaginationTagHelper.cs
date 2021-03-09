@@ -4,15 +4,36 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Collections;
-using Smartstore.Core.Content.Menus;
+using Smartstore.Core.Localization;
 using Smartstore.Web.Rendering;
 using Smartstore.Web.Rendering.Pager;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    public enum PagerAlignment
+    {
+        Left,
+        Centered,
+        Right
+    }
+
+    public enum PagerSize
+    {
+        Mini,
+        Small,
+        Medium,
+        Large
+    }
+
+    public enum PagerStyle
+    {
+        Pagination,
+        Blog
+    }
+
     [OutputElementHint("nav")]
-    [HtmlTargetElement("pager", Attributes = ListItemsAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-    public class PagerTagHelper : SmartTagHelper 
+    [HtmlTargetElement("pagination", Attributes = ListItemsAttributeName, TagStructure = TagStructure.WithoutEndTag)]
+    public class PaginationTagHelper : SmartTagHelper 
     {
         const string ListItemsAttributeName = "sm-list-items";
         const string AlignmentAttributeName = "sm-alignment";
@@ -28,12 +49,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string SkipActiveStateAttributeName = "sm-skip-active-state";
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
 
-        // TODO: (mh) (core) Make ModifiedParam attribute?
+        // TODO: (mh) (core) Make ModifiedParamName attribute?
+        private ILocalizationService _localizationService;
 
-        public PagerTagHelper()
+        public PaginationTagHelper(ILocalizationService localizationService)
         {
-            Pager = new Pager();
-            Pager.ModifiedParam.Name = "pagenumber";
+            _localizationService = localizationService;
         }
 
         [HtmlAttributeName(ListItemsAttributeName)]
@@ -75,43 +96,28 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(ItemTitleFormatStringAttributeName)]
         public string ItemTitleFormatString { get; set; }
 
-        [HtmlAttributeNotBound]
-        public Pager Pager { get; set; }
-
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
-            output.SuppressOutput();
-
             if (!ShowPaginator || ListItems == null || ListItems.TotalCount == 0 || ListItems.TotalPages <= 1)
             {
+                output.SuppressOutput();
                 return;
             }
 
             var items = CreateItemList();
-
-            // Alignment
-            if (Alignment == PagerAlignment.Right)
-            {
-                output.AppendCssClass("text-right");
-            }
-            else if (Alignment == PagerAlignment.Centered)
-            {
-                output.AppendCssClass("text-center");
-            }
 
             output.Attributes.Add("aria-label", "Page navigation");
 
             if (ShowSummary && ListItems.TotalPages > 1)
             {
                 var summaryDiv = new TagBuilder("div");
-                summaryDiv.AppendCssClass("pagination-summary float-left");
-                summaryDiv.InnerHtml.AppendHtml(Pager.CurrentPageText.FormatInvariant(ListItems.PageNumber, ListItems.TotalPages, ListItems.TotalCount));
+                summaryDiv.AppendCssClass("pagination-summary p-2");
+                summaryDiv.InnerHtml.AppendHtml(_localizationService.GetResource("Pager.CurrentPage").FormatInvariant(ListItems.PageNumber, ListItems.TotalPages, ListItems.TotalCount));
                 output.Content.AppendHtml(summaryDiv);
             }
 
             var itemsUl = new TagBuilder("ul");
-
-            itemsUl.AppendCssClass(Style == PagerStyle.Pagination ? "pagination" : "pagination");
+            itemsUl.AppendCssClass("pagination");
 
             // Size
             if (Size == PagerSize.Large)
@@ -127,14 +133,16 @@ namespace Smartstore.Web.TagHelpers.Shared
                 itemsUl.AppendCssClass("pagination-xs");
             }
 
-            // BS 4 alignment
+            // Alignment
             if (Alignment == PagerAlignment.Centered)
             {
                 itemsUl.AppendCssClass("justify-content-center");
+                output.AppendCssClass("text-center");
             }
             else if (Alignment == PagerAlignment.Right)
             {
                 itemsUl.AppendCssClass("justify-content-end");
+                output.AppendCssClass("text-right");
             }
 
             foreach (var item in items)
@@ -167,7 +175,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // First link.
             if (ShowFirst && pageNumber > 1)
             {
-                item = new PagerItem(Pager.FirstButtonText, GenerateUrl(1), PagerItemType.FirstPage)
+                item = new PagerItem(_localizationService.GetResource("Pager.First"), GenerateUrl(1), PagerItemType.FirstPage)
                 {
                     State = (pageNumber > 1) ? PagerItemState.Normal : PagerItemState.Disabled
                 };
@@ -177,7 +185,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Previous link.
             if (ShowPrevious && pageNumber > 1)
             {
-                item = new PagerItem(Pager.PreviousButtonText, GenerateUrl(pageNumber - 1), PagerItemType.PreviousPage)
+                item = new PagerItem(_localizationService.GetResource("Pager.Previous"), GenerateUrl(pageNumber - 1), PagerItemType.PreviousPage)
                 {
                     State = (pageNumber > 1) ? PagerItemState.Normal : PagerItemState.Disabled
                 };
@@ -194,7 +202,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var hasNext = false;
             if (ShowNext && pageNumber < pageCount)
             {
-                item = new PagerItem(Pager.NextButtonText, GenerateUrl(pageNumber + 1), PagerItemType.NextPage)
+                item = new PagerItem(_localizationService.GetResource("Pager.Next"), GenerateUrl(pageNumber + 1), PagerItemType.NextPage)
                 {
                     State = (pageNumber == pageCount) ? PagerItemState.Disabled : PagerItemState.Normal
                 };
@@ -205,7 +213,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Last link.
             if (ShowLast && pageNumber < pageCount)
             {
-                item = new PagerItem(Pager.LastButtonText, GenerateUrl(pageCount), PagerItemType.LastPage)
+                item = new PagerItem(_localizationService.GetResource("Pager.Last"), GenerateUrl(pageCount), PagerItemType.LastPage)
                 {
                     State = (pageNumber == pageCount) ? PagerItemState.Disabled : PagerItemState.Normal
                 };
@@ -265,26 +273,32 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             var itemLi = new TagBuilder("li");
 
+            using var classList = itemLi.GetClassList();
+
             if (item.State == PagerItemState.Disabled)
             {
-                itemLi.AddCssClass("disabled");
+                classList.Add("disabled");
             }
             else if (item.State == PagerItemState.Selected)
             {
-                itemLi.AddCssClass("active");
+                classList.Add("active");
             }
 
             if (item.Type == PagerItemType.Text)
             {
-                itemLi.AddCssClass("shrinked");
+                classList.Add("shrinked");
             }
 
             if (Style == PagerStyle.Blog && item.IsNavButton)
             {
-                itemLi.AddCssClass((item.Type == PagerItemType.PreviousPage || item.Type == PagerItemType.FirstPage) ? "previous" : "next");
+                classList.Add((item.Type == PagerItemType.PreviousPage || item.Type == PagerItemType.FirstPage) ? "previous" : "next");
             }
 
-            itemLi.AddCssClass("page-item");
+            classList.Add("page-item");
+
+            // Dispose here to write all collected classes into tag.
+            classList.Dispose();
+
             var innerAOrSpan = new TagBuilder(item.Type == PagerItemType.Page || item.IsNavButton ? "a" : "span");
 
             if (item.Type == PagerItemType.Page || item.IsNavButton)
@@ -398,10 +412,13 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         protected virtual string GenerateUrl(int pageNumber)
         {
-            //// paramName is "page" by default, but could also be "pagenumber".
-            Pager.ModifyParam(pageNumber);
+            var routeValues = ActionContextAccessor.ActionContext.RouteData.Values;
+            var newValues = new RouteValueDictionary(routeValues)
+            {
+                ["pagenumber"] = pageNumber
+            };
 
-            return Pager.GenerateUrl(ActionContextAccessor.ActionContext);
+            return UrlHelper.RouteUrl(newValues);
         }
     }
 }

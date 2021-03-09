@@ -1,13 +1,18 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Core.Localization;
 using Smartstore.Web.Rendering.Pager;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
     [OutputElementHint("div")]
-    [HtmlTargetElement("forum-pager", TagStructure = TagStructure.WithoutEndTag)]
-    public class ForumPagerTagHelper : PagerTagHelper 
+    [HtmlTargetElement("forum-pagination", TagStructure = TagStructure.WithoutEndTag)]
+    public class ForumPaginationTagHelper : PaginationTagHelper
     {
+        public ForumPaginationTagHelper(ILocalizationService localizationService) : base(localizationService)
+        {
+        }
+
         protected override void AddPageItemsList(List<PagerItem> items)
         {
             var maxPages = MaxPagesToDisplay;
