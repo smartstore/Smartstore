@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
@@ -28,17 +27,16 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <param name="discounts">List of discounts.</param>
         /// <param name="amount">Amount without discount (for percentage discounts).</param>
         /// <returns>Discount that achieves the highest discount amount other than zero.</returns>
-        public static Discount GetPreferredDiscount(this ICollection<Discount> discounts, Money amount)
+        public static Discount GetPreferredDiscount(this ICollection<Discount> discounts, decimal amount)
         {
             Guard.NotNull(discounts, nameof(discounts));
-            Guard.NotNull(amount, nameof(amount));
 
             Discount preferredDiscount = null;
             decimal? maximumDiscountValue = null;
 
             foreach (var discount in discounts)
             {
-                var currentDiscountValue = discount.GetDiscountAmount(amount.Amount);
+                var currentDiscountValue = discount.GetDiscountAmount(amount);
                 if (currentDiscountValue != decimal.Zero)
                 {
                     if (!maximumDiscountValue.HasValue || currentDiscountValue > maximumDiscountValue)

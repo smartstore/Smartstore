@@ -746,7 +746,7 @@ namespace Smartstore.Core.Checkout.Orders
                     }
                 }
 
-                appliedDiscount = allowedDiscounts.GetPreferredDiscount(amount);
+                appliedDiscount = allowedDiscounts.GetPreferredDiscount(amount.Amount);
                 if (appliedDiscount != null)
                 {
                     var discountAmount = amount.Currency.AsMoney(appliedDiscount.GetDiscountAmount(amount.Amount), round, true);
