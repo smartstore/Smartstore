@@ -80,7 +80,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Guard.NotNull(product, nameof(product));
             Guard.NotNull(selection, nameof(selection));
 
-            var result = new Money(product.ProductCost, _primaryCurrency);
+            var result = product.ProductCost;
             var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
 
             var productLinkageValues = attributeValues
@@ -109,7 +109,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
             }
 
-            return result;
+            return new Money(result, _primaryCurrency);
         }
 
         public virtual async Task<Money> GetPreselectedPriceAsync(Product product, Customer customer, PriceCalculationContext context)

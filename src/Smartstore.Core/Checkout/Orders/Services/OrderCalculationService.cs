@@ -298,9 +298,9 @@ namespace Smartstore.Core.Checkout.Orders
 
                     // Adaption to eliminate rounding issues.
                     (itemExclTax, taxRate) = await _taxService.GetProductPriceAsync(item.Product, unitPrice, false, customer: customer);
-                    itemExclTax = _primaryCurrency.AsMoney(itemExclTax.Amount) * item.Quantity;
+                    itemExclTax = _primaryCurrency.AsMoney(itemExclTax.Amount * item.Quantity);
                     (itemInclTax, taxRate) = await _taxService.GetProductPriceAsync(item.Product, unitPrice, true, customer: customer);
-                    itemInclTax = _primaryCurrency.AsMoney(itemInclTax.Amount) * item.Quantity;
+                    itemInclTax = _primaryCurrency.AsMoney(itemInclTax.Amount * item.Quantity);
                 }
                 else
                 {
