@@ -10,9 +10,7 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart.Events;
-using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -36,9 +34,7 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IStoreContext _storeContext;
         private readonly IRequestCache _requestCache;
         private readonly IEventPublisher _eventPublisher;
-        private readonly ICurrencyService _currencyService;
         private readonly IShoppingCartValidator _cartValidator;
-        private readonly IOrderCalculationService _orderCalculationService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly Currency _primaryCurrency;
@@ -49,9 +45,7 @@ namespace Smartstore.Core.Checkout.Cart
             IStoreContext storeContext,
             IRequestCache requestCache,
             IEventPublisher eventPublisher,
-            ICurrencyService currencyService,
             IShoppingCartValidator cartValidator,
-            IOrderCalculationService orderCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer)
         {
@@ -60,11 +54,9 @@ namespace Smartstore.Core.Checkout.Cart
             _storeContext = storeContext;
             _requestCache = requestCache;
             _eventPublisher = eventPublisher;
-            _currencyService = currencyService;
             _cartValidator = cartValidator;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            _orderCalculationService = orderCalculationService;
 
             _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
         }
@@ -555,18 +547,6 @@ namespace Smartstore.Core.Checkout.Cart
             _requestCache.RemoveByPattern(CartItemsPatternKey);
 
             return warnings;
-        }
-
-        public virtual async Task<Money> GetCurrentCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart = null)
-        {
-            cart ??= await GetCartItemsAsync(storeId: _storeContext.CurrentStore.Id);
-            if (!cart.Any())
-            {
-                return new(decimal.Zero, _primaryCurrency);
-            }
-
-            var subTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
-            return _currencyService.ConvertFromPrimaryStoreCurrency(subTotal.SubTotalWithoutDiscount);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Catalog.Discounts
@@ -9,19 +10,16 @@ namespace Smartstore.Core.Catalog.Discounts
         /// Gets the discount amount for the specified value.
         /// </summary>
         /// <param name="discount">Discount.</param>
-        /// <param name="amount">Amount</param>
+        /// <param name="value">Amount value.</param>
         /// <returns>The discount amount.</returns>
-        public static Money GetDiscountAmount(this Discount discount, Money amount)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal GetDiscountAmount(this Discount discount, decimal value)
         {
             Guard.NotNull(discount, nameof(discount));
-            Guard.NotNull(amount, nameof(amount));
 
-            if (discount.UsePercentage)
-            {
-                return new Money(amount.Amount * discount.DiscountPercentage / 100m, amount.Currency);
-            }
-
-            return new Money(discount.DiscountAmount, amount.Currency);
+            return discount.UsePercentage
+                ? value * discount.DiscountPercentage / 100m
+                : discount.DiscountAmount;
         }
 
         /// <summary>
@@ -36,11 +34,11 @@ namespace Smartstore.Core.Catalog.Discounts
             Guard.NotNull(amount, nameof(amount));
 
             Discount preferredDiscount = null;
-            Money? maximumDiscountValue = null;
+            decimal? maximumDiscountValue = null;
 
             foreach (var discount in discounts)
             {
-                var currentDiscountValue = discount.GetDiscountAmount(amount);
+                var currentDiscountValue = discount.GetDiscountAmount(amount.Amount);
                 if (currentDiscountValue != decimal.Zero)
                 {
                     if (!maximumDiscountValue.HasValue || currentDiscountValue > maximumDiscountValue)

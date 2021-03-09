@@ -14,13 +14,11 @@ namespace Smartstore.Core.Checkout.GiftCards
     public partial class GiftCardService : IGiftCardService
     {
         private readonly SmartDbContext _db;
-        private readonly IStoreContext _storeContext;
         private readonly Currency _primaryCurrency;
 
         public GiftCardService(SmartDbContext db, IStoreContext storeContext)
         {
             _db = db;
-            _storeContext = storeContext;
 
             _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
         }

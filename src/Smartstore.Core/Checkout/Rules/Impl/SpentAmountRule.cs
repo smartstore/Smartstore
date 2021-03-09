@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 
@@ -24,9 +23,9 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 .ApplyStatusFilter(new[] { (int)OrderStatus.Complete });
 
             var spentAmount = await query.SumAsync(x => (decimal?)x.OrderTotal);
-            var money = new Money(spentAmount ?? decimal.Zero, context.Store.PrimaryStoreCurrency);
+            var roundedAmount = decimal.Round(spentAmount ?? decimal.Zero, context.Store.PrimaryStoreCurrency.RoundNumDecimals);
 
-            return expression.Operator.Match(money.RoundedAmount, expression.Value);
+            return expression.Operator.Match(roundedAmount, expression.Value);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Cart
@@ -67,12 +66,5 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="resetCheckoutData">Value indicating whether to reset checkout data.</param>
         /// <returns>List of error messages.</returns>
         Task<IList<string>> UpdateCartItemAsync(Customer customer, int cartItemId, int newQuantity, bool resetCheckoutData);
-
-        /// <summary>
-        /// Gets the cart subtotal converted into <see cref="IWorkContext.WorkingCurrency"/> for the current user.
-        /// </summary>
-        /// <param name="cart">Shopping cart. If null, cart items are getting retrieved from <see cref="IWorkContext.CurrentCustomer"/></param>
-        /// <returns>Converted cart sub total as <see cref="Money"/>.</returns>
-        Task<Money> GetCurrentCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart = null);
     }
 }

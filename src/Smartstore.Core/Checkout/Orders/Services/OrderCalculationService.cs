@@ -749,8 +749,7 @@ namespace Smartstore.Core.Checkout.Orders
                 appliedDiscount = allowedDiscounts.GetPreferredDiscount(amount);
                 if (appliedDiscount != null)
                 {
-                    var tmpDiscountAmount = appliedDiscount.GetDiscountAmount(amount);
-                    var discountAmount = amount.Currency.AsMoney(tmpDiscountAmount.Amount, round, true);
+                    var discountAmount = amount.Currency.AsMoney(appliedDiscount.GetDiscountAmount(amount.Amount), round, true);
 
                     return (discountAmount, appliedDiscount);
                 }
