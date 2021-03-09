@@ -7,23 +7,26 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
     public partial class GiftCardService : IGiftCardService
     {
         private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
+        private readonly Currency _primaryCurrency;
 
-        public GiftCardService(SmartDbContext db, IWorkContext workContext)
+        public GiftCardService(SmartDbContext db, IStoreContext storeContext)
         {
             _db = db;
-            _workContext = workContext;
+            _storeContext = storeContext;
+
+            _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
         }
 
         public virtual Task<List<AppliedGiftCard>> GetValidGiftCardsAsync(int storeId = 0, Customer customer = null)
         {
-            var currency = _workContext.WorkingCurrency;
             var query = _db.GiftCards
                 .Include(x => x.PurchasedWithOrderItem)
                     .ThenInclude(x => x.Order)
@@ -46,7 +49,9 @@ namespace Smartstore.Core.Checkout.GiftCards
                 .Select(x => new AppliedGiftCard
                 {
                     GiftCard = x,
-                    UsableAmount = new(x.Amount - x.GiftCardUsageHistory.Where(y => y.GiftCardId == x.Id).Sum(x => x.UsedValue), currency)
+                    // Actually the primary currency of the store where the order was purchased should be used here.
+                    // But for the sake of simplicity we use the current store's primary currency.
+                    UsableAmount = new(x.Amount - x.GiftCardUsageHistory.Where(y => y.GiftCardId == x.Id).Sum(x => x.UsedValue), _primaryCurrency)
                 })
                 .Where(x => x.UsableAmount > decimal.Zero)
                 .ToListAsync();
@@ -60,10 +65,21 @@ namespace Smartstore.Core.Checkout.GiftCards
             Guard.NotNull(giftCard, nameof(giftCard));
 
             if (!giftCard.IsGiftCardActivated)
+            {
                 return false;
+            }
 
-            var orderStoreId = giftCard.PurchasedWithOrderItem?.Order?.StoreId ?? null;
-            return (storeId == 0 || orderStoreId is null || orderStoreId == storeId) && GetRemainingAmount(giftCard) > decimal.Zero;
+            if (storeId != 0 &&
+                giftCard.PurchasedWithOrderItemId.HasValue &&
+                giftCard.PurchasedWithOrderItem?.Order?.StoreId != storeId)
+            {
+                return false;
+            }
+
+            return GetRemainingAmountCore(giftCard) > decimal.Zero;
+
+            //var orderStoreId = giftCard.PurchasedWithOrderItem?.Order?.StoreId ?? null;
+            //return (storeId == 0 || orderStoreId is null || orderStoreId == storeId) && GetRemainingAmount(giftCard) > decimal.Zero;
         }
 
         //TODO: (ms) (core) have giftcard usage history eager loaded
@@ -71,9 +87,10 @@ namespace Smartstore.Core.Checkout.GiftCards
         {
             Guard.NotNull(giftCard, nameof(giftCard));
 
-            var usedValue = giftCard.GiftCardUsageHistory?.Sum(x => x.UsedValue) ?? decimal.Zero;
+            // Actually the primary currency of the store where the order was purchased should be used here.
+            // But for the sake of simplicity we use the current store's primary currency.
 
-            return _workContext.WorkingCurrency.AsMoney(giftCard.Amount - usedValue, false, true);
+            return _primaryCurrency.AsMoney(GetRemainingAmountCore(giftCard), false, true);
         }
 
         public virtual Task<string> GenerateGiftCardCodeAsync()
@@ -86,6 +103,15 @@ namespace Smartstore.Core.Checkout.GiftCards
             }
 
             return Task.FromResult(result);
+        }
+
+        protected virtual decimal GetRemainingAmountCore(GiftCard giftCard)
+        {
+            Guard.NotNull(giftCard, nameof(giftCard));
+
+            var usedValue = giftCard.GiftCardUsageHistory?.Sum(x => x.UsedValue) ?? decimal.Zero;
+
+            return giftCard.Amount - usedValue;
         }
     }
 }

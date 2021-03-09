@@ -45,7 +45,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// The caller is responsible for eager loading
         /// </remarks>
         /// <returns>
-        /// Remaining usable gift card amount
+        /// Remaining usable gift card amount, including the current store's primary currency.
         /// </returns>
         Money GetRemainingAmount(GiftCard giftCard);
 

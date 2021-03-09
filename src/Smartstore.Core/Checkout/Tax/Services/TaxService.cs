@@ -10,6 +10,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Tax
@@ -37,6 +38,7 @@ namespace Smartstore.Core.Checkout.Tax
         private readonly IGeoCountryLookup _geoCountryLookup;
         private readonly IProviderManager _providerManager;
         private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
         private readonly TaxSettings _taxSettings;
         private readonly SmartDbContext _db;
 
@@ -44,12 +46,14 @@ namespace Smartstore.Core.Checkout.Tax
             IGeoCountryLookup geoCountryLookup,
             IProviderManager providerManager,
             IWorkContext workContext,
+            IStoreContext storeContext,
             TaxSettings taxSettings,
             SmartDbContext db)
         {
             _geoCountryLookup = geoCountryLookup;
             _providerManager = providerManager;
             _workContext = workContext;
+            _storeContext = storeContext;
             _taxSettings = taxSettings;
             _db = db;
         }
@@ -333,7 +337,7 @@ namespace Smartstore.Core.Checkout.Tax
 
             await _db.LoadReferenceAsync(attributeValue, x => x.CheckoutAttribute);
 
-            var price = _workContext.WorkingCurrency.AsMoney(attributeValue.PriceAdjustment, false);
+            var price = _storeContext.CurrentStore.PrimaryStoreCurrency.AsMoney(attributeValue.PriceAdjustment, false);
 
             if (attributeValue.CheckoutAttribute.IsTaxExempt)
                 return (price, decimal.Zero);

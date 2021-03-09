@@ -41,6 +41,7 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
+        private readonly Currency _primaryCurrency;
 
         public ShoppingCartService(
             SmartDbContext db,
@@ -65,10 +66,10 @@ namespace Smartstore.Core.Checkout.Cart
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _orderCalculationService = orderCalculationService;
 
-            T = NullLocalizer.Instance;
+            _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
         }
 
-        public Localizer T { get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         protected virtual async Task AddItemToCartAsync(AddToCartContext ctx)
         {
@@ -130,7 +131,7 @@ namespace Smartstore.Core.Checkout.Cart
 
                         if (!attributeValues.IsNullOrEmpty())
                         {
-                            childItem.BundleItemData.AdditionalCharge = new Money(attributeValues.Sum(x => x.PriceAdjustment), _workContext.WorkingCurrency);
+                            childItem.BundleItemData.AdditionalCharge = new Money(attributeValues.Sum(x => x.PriceAdjustment), _primaryCurrency);
                         }
                     }
 
@@ -478,7 +479,7 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     Product = cartItem.Item.Product,
                     RawAttributes = cartItem.Item.AttributeSelection.AsJson(),
-                    CustomerEnteredPrice = new Money(cartItem.Item.CustomerEnteredPrice, _workContext.WorkingCurrency),
+                    CustomerEnteredPrice = new Money(cartItem.Item.CustomerEnteredPrice, _primaryCurrency),
                     Quantity = cartItem.Item.Quantity,
                     ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList(),
                     Customer = toCustomer,
@@ -527,7 +528,7 @@ namespace Smartstore.Core.Checkout.Cart
                     Product = cartItem.Product,
                     StoreId = cartItem.StoreId,
                     RawAttributes = cartItem.AttributeSelection.AsJson(),
-                    CustomerEnteredPrice = new Money(cartItem.CustomerEnteredPrice, _workContext.WorkingCurrency),
+                    CustomerEnteredPrice = new Money(cartItem.CustomerEnteredPrice, _primaryCurrency),
                     Quantity = newQuantity,
                     AutomaticallyAddRequiredProductsIfEnabled = false,
                 };
@@ -561,7 +562,7 @@ namespace Smartstore.Core.Checkout.Cart
             cart ??= await GetCartItemsAsync(storeId: _storeContext.CurrentStore.Id);
             if (!cart.Any())
             {
-                return new(decimal.Zero, _workContext.WorkingCurrency);
+                return new(decimal.Zero, _primaryCurrency);
             }
 
             var subTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);

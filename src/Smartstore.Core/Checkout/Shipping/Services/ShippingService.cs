@@ -29,7 +29,7 @@ namespace Smartstore.Core.Checkout.Shipping
         private readonly ShippingSettings _shippingSettings;
         private readonly IProviderManager _providerManager;
         private readonly ISettingFactory _settingFactory;
-        private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
         private readonly SmartDbContext _db;
 
         public ShippingService(
@@ -38,7 +38,7 @@ namespace Smartstore.Core.Checkout.Shipping
             ShippingSettings shippingSettings,
             IProviderManager providerManager,
             ISettingFactory settingFactory,
-            IWorkContext workContext,
+            IStoreContext storeContext,
             SmartDbContext db)
         {
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
@@ -46,7 +46,7 @@ namespace Smartstore.Core.Checkout.Shipping
             _shippingSettings = shippingSettings;
             _providerManager = providerManager;
             _settingFactory = settingFactory;
-            _workContext = workContext;
+            _storeContext = storeContext;
             _db = db;
         }
 
@@ -217,22 +217,23 @@ namespace Smartstore.Core.Checkout.Shipping
             Guard.NotNull(shippingOptionRequest, nameof(shippingOptionRequest));
 
             var computationMethods = LoadActiveShippingRateComputationMethods(shippingOptionRequest.StoreId)
-                .Where(x => allowedShippingRateComputationMethodSystemName.IsEmpty()
-                || allowedShippingRateComputationMethodSystemName == x.Metadata.SystemName)
+                .Where(x => allowedShippingRateComputationMethodSystemName.IsEmpty() || allowedShippingRateComputationMethodSystemName == x.Metadata.SystemName)
                 .ToList();
 
             if (computationMethods.IsNullOrEmpty())
                 throw new SmartException(T("Shipping.CouldNotLoadMethod"));
 
-            // Get shipping options
+            // Get shipping options.
+            var currency = _storeContext.CurrentStore.PrimaryStoreCurrency;
             var result = new ShippingOptionResponse();
+
             foreach (var method in computationMethods)
             {
                 var response = method.Value.GetShippingOptions(shippingOptionRequest);
                 foreach (var option in response.ShippingOptions)
                 {
                     option.ShippingRateComputationMethodSystemName = method.Metadata.SystemName;
-                    option.Rate = _workContext.WorkingCurrency.RoundIfEnabledFor(option.Rate);
+                    option.Rate = currency.RoundIfEnabledFor(option.Rate);
 
                     result.ShippingOptions.Add(option);
                 }

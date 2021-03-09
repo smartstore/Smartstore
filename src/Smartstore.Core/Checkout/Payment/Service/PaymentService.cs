@@ -322,16 +322,16 @@ namespace Smartstore.Core.Checkout.Payment.Service
         /// <returns>Additional handling fee</returns>
         public virtual async Task<Money> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart, string paymentMethodSystemName)
         {
-            var currency = _services.WorkContext.WorkingCurrency;
+            var currency = _services.StoreContext.CurrentStore.PrimaryStoreCurrency;
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
             {
-                return currency.AsMoney(decimal.Zero);
+                return new(decimal.Zero, currency);
             }
 
             var paymentFee = await paymentMethod.Value.GetAdditionalHandlingFeeAsync(cart);
 
-            return currency.AsMoney(paymentFee.Amount);
+            return new(paymentFee.Amount, currency);
         }
 
         /// <summary>
