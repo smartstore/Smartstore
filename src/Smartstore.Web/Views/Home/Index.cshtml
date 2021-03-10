@@ -6,22 +6,22 @@
 
 <div class="page home-page">
     <div class="page-body">
-        <zone sm-zone-name="home_page_top" />
+        <zone name="home_page_top" />
 
         @await Component.InvokeAsync("TopicBlock", new { systemName = "HomePageText", isLead = true })
-        <zone sm-zone-name="home_page_after_intro" />
+        <zone name="home_page_after_intro" />
 
         @await Component.InvokeAsync("HomeCategories")
-        <zone sm-zone-name="home_page_after_categories" />
+        <zone name="home_page_after_categories" />
 
         @await Component.InvokeAsync("HomeProducts")
-        <zone sm-zone-name="home_page_after_products" />
+        <zone name="home_page_after_products" />
 
         @await Component.InvokeAsync("HomeBestSellers")
-        <zone sm-zone-name="home_page_after_bestsellers" />
+        <zone name="home_page_after_bestsellers" />
 
         @await Component.InvokeAsync("HomeBrands")
-        <zone sm-zone-name="home_page_after_manufacturers" />
+        <zone name="home_page_after_manufacturers" />
     </div>
 </div>
 
@@ -188,7 +188,7 @@
     </div>
     <div class="row">
         <div class="col offset-3">
-            <zone sm-zone-name="gdpr_consent"></zone>
+            <zone name="gdpr_consent"></zone>
         </div>
     </div>
     <div class="row mb-4">

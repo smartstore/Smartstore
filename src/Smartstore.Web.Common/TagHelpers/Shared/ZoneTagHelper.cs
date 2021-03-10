@@ -7,19 +7,12 @@ using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-	[HtmlTargetElement("zone", Attributes = ZoneNameAttributeName)]
-	[HtmlTargetElement("div", Attributes = ZoneNameAttributeName)]
-	[HtmlTargetElement("span", Attributes = ZoneNameAttributeName)]
-	[HtmlTargetElement("p", Attributes = ZoneNameAttributeName)]
-	[HtmlTargetElement("section", Attributes = ZoneNameAttributeName)]
-	[HtmlTargetElement("aside", Attributes = ZoneNameAttributeName)]
-	[HtmlTargetElement("header", Attributes = ZoneNameAttributeName)]
-	[HtmlTargetElement("footer", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("zone", Attributes = NameAttributeName)]
 	public class ZoneTagHelper : SmartTagHelper
 	{
-		const string ZoneNameAttributeName = "sm-zone-name";
-		const string ReplaceContentAttributeName = "sm-replace-content";
-		const string RemoveIfEmptyAttributeName = "sm-remove-if-empty";
+		const string NameAttributeName = "name";
+		const string ReplaceContentAttributeName = "replace-content";
+		const string RemoveIfEmptyAttributeName = "remove-if-empty";
 
 		private readonly IWidgetSelector _widgetSelector;
 
@@ -28,8 +21,8 @@ namespace Smartstore.Web.TagHelpers.Shared
 			_widgetSelector = widgetSelector;
 		}
 
-		[HtmlAttributeName(ZoneNameAttributeName)]
-		public string ZoneName { get; set; }
+		[HtmlAttributeName(NameAttributeName)]
+		public virtual string ZoneName { get; set; }
 
 		/// <summary>
 		/// Specifies whether any default zone content should be removed if at least one 
@@ -87,4 +80,28 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 		}
     }
+
+	[HtmlTargetElement("div", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("span", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("p", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("section", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("aside", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("header", Attributes = ZoneNameAttributeName)]
+	[HtmlTargetElement("footer", Attributes = ZoneNameAttributeName)]
+	public class ZoneHtmlTagHelper : ZoneTagHelper
+	{
+		const string ZoneNameAttributeName = "zone-name";
+
+		public ZoneHtmlTagHelper(IWidgetSelector widgetSelector)
+			: base(widgetSelector)
+		{
+		}
+
+		[HtmlAttributeName(ZoneNameAttributeName)]
+		public override string ZoneName
+		{
+			get => base.ZoneName;
+			set => base.ZoneName = value;
+		}
+	}
 }

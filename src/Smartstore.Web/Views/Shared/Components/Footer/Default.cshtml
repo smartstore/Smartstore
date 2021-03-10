@@ -45,7 +45,7 @@
 
 <footer id="footer" class="@(invserseFooter ? "footer-inverse" : "footer-light")">
 
-    <zone sm-zone-name="footer_top"></zone>
+    <zone name="footer_top"></zone>
 
     @if (Model.ShowSocialLinks && socialLinks.Any())
     {
@@ -105,7 +105,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <zone sm-zone-name="footer_col_4_before"></zone>
+                    <zone name="footer_col_4_before"></zone>
 
                     @if (!Model.HideNewsletterBlock)
                     {
@@ -141,7 +141,7 @@
                                     </div>
                                 </div>
 
-                                <zone sm-zone-name="gdpr_consent_small"></zone>
+                                <zone name="gdpr_consent_small"></zone>
 
                                 <span asp-validation-for="NewsletterEmail"></span>
 
@@ -163,13 +163,13 @@
                         </div>
                     }
 
-                    <zone sm-zone-name="footer_col_4_after"></zone>
+                    <zone name="footer_col_4_after"></zone>
                 </div>
             </div>
         </div>
     </div>
 
-    <zone sm-zone-name="footer_bottom"></zone>
+    <zone name="footer_bottom"></zone>
 
     <div class="footer-bottom-wrapper">
         <div class="container footer-bottom">
