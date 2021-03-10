@@ -31,22 +31,25 @@
     /// <summary>
     /// Represents the customer name fortatting enumeration.
     /// </summary>
+    /// <remarks>
+    /// Backward compat: don't singularize enum values.
+    /// </remarks>
     public enum CustomerNameFormat
     {
         /// <summary>
         /// Show emails
         /// </summary>
-        ShowEmail = 1,
+        ShowEmails = 1,
 
         /// <summary>
         /// Show usernames
         /// </summary>
-        ShowUsername = 2,
+        ShowUsernames = 2,
 
         /// <summary>
         /// Show full names
         /// </summary>
-        ShowFullName = 3,
+        ShowFullNames = 3,
 
         /// <summary>
         /// Show first name

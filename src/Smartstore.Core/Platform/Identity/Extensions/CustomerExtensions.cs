@@ -228,13 +228,13 @@ namespace Smartstore
 
             switch (customerSettings.CustomerNameFormat)
             {
-                case CustomerNameFormat.ShowEmail:
+                case CustomerNameFormat.ShowEmails:
                     result = customer.Email;
                     break;
-                case CustomerNameFormat.ShowFullName:
+                case CustomerNameFormat.ShowFullNames:
                     result = customer.GetFullName();
                     break;
-                case CustomerNameFormat.ShowUsername:
+                case CustomerNameFormat.ShowUsernames:
                     result = customer.Username;
                     break;
                 case CustomerNameFormat.ShowFirstName:
