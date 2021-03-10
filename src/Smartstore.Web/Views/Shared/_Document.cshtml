@@ -13,12 +13,12 @@
 
     <partial name="_HeadScripts" />
 
-    <zone sm-zone-name="head_stylesheets">
+    <zone name="head_stylesheets">
         <link rel="stylesheet" href="~/bundles/css/common.css" />
         <link rel="stylesheet" href="~/bundles/css/theme.css" />
     </zone>
 
-    <zone sm-zone-name="head_scripts">
+    <zone name="head_scripts">
         <script src="~/bundles/js/common.js"></script>
     </zone>
 
@@ -26,24 +26,24 @@
 
     <script src="~/js/smartstore.globalization.adapter.js"></script>
 
-    <zone sm-zone-name="head_canonical"></zone>
-    <zone sm-zone-name="head_links"></zone>
-    <zone sm-zone-name="head"></zone>
+    <zone name="head_canonical"></zone>
+    <zone name="head_links"></zone>
+    <zone name="head"></zone>
 
     <mini-profiler />
 </head>
 
 <body class="lyt-cols-1">
-    <zone sm-zone-name="start" />
-    <zone sm-zone-name="body_start_html_tag_after" /> @* Legacy compat *@
+    <zone name="start" />
+    <zone name="body_start_html_tag_after" /> @* Legacy compat *@
     @RenderBody()
-    <zone sm-zone-name="aftercontent" />
+    <zone name="aftercontent" />
 
-    <zone sm-zone-name="scripts">
+    <zone name="scripts">
         <script src="~/bundles/js/site.js"></script>
         <script src="~/lib/select2/js/i18n/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
         <script src="~/lib/moment/locale/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
     </zone>
-    <zone sm-zone-name="end" />
+    <zone name="end" />
 </body>
 </html>

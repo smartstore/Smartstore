@@ -27,7 +27,7 @@
         @if (image.Title.HasValue())
         {
             var linkTitle = T("Media.Product.ImageLinkTitleFormat", Model.Name);
-            <a class="art-picture img-center-container@(addImageClass)" href="@artDetailUrl" title="@linkTitle" sm-attr-data-content='(!hasImage, T("Common.NoImageAvail"))'>
+            <a class="art-picture img-center-container@(addImageClass)" href="@artDetailUrl" title="@linkTitle" attr-data-content='(!hasImage, T("Common.NoImageAvail"))'>
                 <img sm-model="image" loading="lazy" />
             </a>
         }

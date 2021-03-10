@@ -53,7 +53,7 @@
 
             var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item" + ((itemState & NodePathState.Selected) == NodePathState.Selected ? " selected" : ""));
             
-            <a href="@itemUrl" id="dropdown-item-@item.Id" data-id="@item.Id" sm-attrs="@attrs" >
+            <a href="@itemUrl" id="dropdown-item-@item.Id" data-id="@item.Id" attrs="@attrs" >
                 <span sm-language-attributes-for="item">@item.Text</span>
             </a>
         }

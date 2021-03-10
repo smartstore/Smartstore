@@ -36,7 +36,7 @@
             </div>
         </header>
 
-        <zone sm-zone-name="content-before"></zone>
+        <zone name="content-before"></zone>
 
         <div id="content-wrapper">
             <section id="content" class="container">
@@ -44,25 +44,25 @@
                     <h5 class="text-muted">@Context.Request.PathBase.Value - @Context.Request.Path.Value</h5>
                 </div>
 
-                <zone sm-zone-name="teaser"></zone>
+                <zone name="teaser"></zone>
 
                 @await Component.InvokeAsync("Breadcrumb")
 
                 <div id="content-body" class="row">
                     <div id="content-center" class="col-lg-12">
-                        <zone sm-zone-name="main_column_before"></zone>
+                        <zone name="main_column_before"></zone>
                         <div class="page">
                             <div class="page-body">
                                 @RenderBody()
                             </div>
                         </div>
-                        <zone sm-zone-name="main_column_after"></zone>
+                        <zone name="main_column_after"></zone>
                     </div>
                 </div>
             </section>
         </div>
 
-        <zone sm-zone-name="content-after"></zone>
+        <zone name="content-after"></zone>
 
         @await Component.InvokeAsync("Footer")
     </div>

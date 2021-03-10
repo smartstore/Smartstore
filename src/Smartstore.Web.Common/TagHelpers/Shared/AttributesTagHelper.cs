@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -10,12 +9,12 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("*", Attributes = ConditionalAttributePrefix + "*")]
     public class AttributesTagHelper : TagHelper
     {
-        const string AttributesName = "sm-attrs";
-        const string ConditionalAttributePrefix = "sm-attr-";
+        const string AttributesName = "attrs";
+        const string ConditionalAttributePrefix = "attr-";
 
         private IDictionary<string, (bool Condition, string Value)> _conditionalAttributes;
 
-        public override int Order => 100;
+        public override int Order => -100;
 
         /// <summary>
         /// An <see cref="AttributeDictionary"/> instance whose content should be merged with local attributes.
@@ -24,7 +23,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public AttributeDictionary Attributes { get; set; }
 
         /// <summary>
-        /// Additional conditional attributes.
+        /// Additional conditional attributes. The value of conditional <c>class</c> attribute will be appended to existing <c>class</c> attribute.
         /// </summary>
         [HtmlAttributeName("sm-all-conditional-attrs", DictionaryAttributePrefix = ConditionalAttributePrefix)]
         public IDictionary<string, (bool Condition, string Value)> ConditionalAttributes
@@ -55,7 +54,14 @@ namespace Smartstore.Web.TagHelpers.Shared
                 {
                     if (kvp.Value.Condition)
                     {
-                        output.MergeAttribute(kvp.Key, kvp.Value.Value, false);
+                        if (kvp.Key == "class")
+                        {
+                            output.AppendCssClass(kvp.Value.Value);
+                        }
+                        else
+                        {
+                            output.MergeAttribute(kvp.Key, kvp.Value.Value, false);
+                        }
                     }
                 }
             }
