@@ -1,16 +1,173 @@
-﻿@using System.Globalization;
-@using Smartstore.Core.Content.Media;
-@using Smartstore.Utilities;
-@using Smartstore.Web.Models.Catalog;
+﻿@using Smartstore.Web.Models.Catalog;
 
 @model ProductSummaryModel.SummaryItem
 
 @{
-    var picture = Model.Picture;
+    var list = Model.Parent;
+    var image = Model.Image;
+    var hasImage = image?.HasImage() == true;
+
+    var showButtons = list.ShowButtons && (!Model.Price.DisableWishlistButton || list.CompareEnabled || (!Model.Price.DisableBuyButton && list.BuyEnabled));
+    var showVariants = (Model.ColorAttributes != null && Model.ColorAttributes.Any()) || (Model.Attributes != null && Model.Attributes.Any());
+    var showDrop = showButtons || showVariants;
+    var showAttrs = list.ViewMode == ProductSummaryViewMode.List && (list.ShowSku || list.ShowWeight || list.ShowDimensions);
+    var addImageClass = image.File == null ? " no-picture" : "";
+    if (!hasImage)
+    {
+        addImageClass += " no-default-picture";
+    }
+
+    var artDetailUrl = Url.RouteUrl("Product", new { SeName = Model.SeName });
+    ViewBag.ArtDetailUrl = artDetailUrl;
 }
 
 <article class="art" data-id="@Model.Id">
-    <div class="art-picture-block img-center-container">
-        <img sm-file="picture.File" sm-size="picture.ThumbSize" sm-no-fallback="picture.NoFallback" sm-url-host="@picture.Host" alt="@picture.Alt" title="@picture.Title" loading="lazy" />
+
+    <div class="art-picture-block">
+        @if (image.Title.HasValue())
+        {
+            var linkTitle = T("Media.Product.ImageLinkTitleFormat", Model.Name);
+            <a class="art-picture img-center-container@(addImageClass)" href="@artDetailUrl" title="@linkTitle" sm-attr-data-content='(!hasImage, T("Common.NoImageAvail"))'>
+                <img sm-model="image" loading="lazy" />
+            </a>
+        }
     </div>
+
+    @if (Model.Badges.Any())
+    {
+        @* TODO: (mc) Let user define one free badge per product in backend *@
+        <div class="art-badges">
+            @foreach (var badge in Model.Badges.OrderBy(x => x.DisplayOrder))
+            {
+                @* TODO: (mc) Move BS4 label/tag class definitions to art-badge.art-badge-[style] (?)  *@
+                <span class="badge badge-@badge.Style.ToString().ToLowerInvariant() art-badge">@Html.Raw(badge.Label)</span>
+            }
+        </div>
+    }
+
+    @if (list.ViewMode == ProductSummaryViewMode.List)
+    {
+        @Html.Raw("<div class='art-data-block'><div class='art-info-block'>")
+    }
+
+    @if (list.ShowRatings || list.ShowBrand)
+    {
+        if (list.ViewMode == ProductSummaryViewMode.List)
+        {
+            <div class="art-info-group@(list.ShowRatings && list.ShowBrand ? " floating" : "")">
+                @if (list.ShowBrand)
+                {
+                    @*<partial name="Product.List.Item.Brand" model="Model" />*@
+                }
+                @if (list.ShowRatings)
+                {
+                    @*<partial name="Product.List.Item.Rating" model="Model" />*@
+                }
+            </div>
+        }
+        else
+        {
+            if (list.ShowRatings)
+            {
+                @*<partial name="Product.List.Item.Rating" model="Model" />*@
+            }
+            if (list.ShowBrand)
+            {
+                @*<partial name="Product.List.Item.Brand" model="Model" />*@
+            }
+        }
+    }
+
+    <h3 class="art-name" sm-language-attributes-for="@Model.Name">
+        <a href="@artDetailUrl" title="@Model.Name.ToString()">
+            <span>@Model.Name</span>
+        </a>
+    </h3>
+
+    @if (list.ShowDescription)
+    {
+        <div class="art-description" title="@Model.ShortDescription.ToString()" sm-language-attributes-for="@Model.ShortDescription">
+            @Html.Raw(Model.ShortDescription.Truncate(160, "..."))
+        </div>
+    }
+
+    @if (showAttrs)
+    {
+        <table class="art-attrs">
+            @if (list.ShowSku && Model.Sku.HasValue())
+            {
+                <tr>
+                    <td>@T("Products.Sku")</td>
+                    <td>@Model.Sku</td>
+                </tr>
+            }
+            @if (list.ShowWeight && Model.Weight.HasValue())
+            {
+                <tr>
+                    <td>@T("Products.Weight")</td>
+                    <td>@Model.Weight</td>
+                </tr>
+            }
+            @if (list.ShowDimensions && Model.Dimensions.HasValue())
+            {
+                <tr>
+                    <td>@T("Products.Dimensions") <span class="lrm">(@Model.DimensionMeasureUnit)</span></td>
+                    <td>@Model.Dimensions</td>
+                </tr>
+            }
+        </table>
+    }
+
+    @if (list.ViewMode != ProductSummaryViewMode.List)
+    {
+        <partial name="Product.List.Item.Price" model="Model" />
+    }
+
+    @if (list.ViewMode == ProductSummaryViewMode.List && showVariants)
+    {
+        @*<partial name="Product.List.Item.Variants" model="Model" />*@
+    }
+
+    @if (list.ShowLegalInfo)
+    {
+        <div class="art-legalinfo">
+            <span>*</span> <span>@Html.Raw(Model.LegalInfo)</span>
+        </div>
+    }
+
+    @if (list.ViewMode == ProductSummaryViewMode.List)
+    {
+        // close div.art-info-block
+        @Html.Raw("</div>")
+
+        <div class="art-actions-block">
+            <partial name="Product.List.Item.Price" model="Model" />
+            @if (showButtons)
+            {
+                <partial name="Product.List.Item.Buttons" model="Model" />
+            }
+        </div>
+
+        // close div.art-data-block
+        @Html.Raw("</div>")
+    }
+
+    @{
+        if (list.ViewMode != ProductSummaryViewMode.List)
+        {
+            if (showDrop)
+            {
+                <div class="art-drop">
+                    @if (showVariants)
+                    {
+                        @*<partial name="Product.List.Item.Variants" model="Model" />*@
+                    }
+                    @if (showButtons)
+                    {
+                        <partial name="Product.List.Item.Buttons" model="Model" />
+                    }
+                </div>
+            }
+        }
+    }
 </article> 

@@ -115,7 +115,7 @@ namespace Smartstore.Scheduling
 
                 //// TODO: (core) Uncomment job.Run and remove Task.Delay()
                 //await job.Run(ctx, cts.Token);
-                await Task.Delay(50, cts.Token);
+                await Task.Delay(1, cts.Token);
             }
             catch (Exception ex)
             {

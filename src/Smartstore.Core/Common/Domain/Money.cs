@@ -426,12 +426,51 @@ namespace Smartstore.Core.Common
             return this;
         }
 
+        //public Money ExchangeTo(Currency toCurrency)
+        //{
+        //    if (Currency == toCurrency || Amount == 0)
+        //        return this;
+
+        //    return new Money(Amount * Currency.Rate / toCurrency.Rate, toCurrency, HideCurrency, PostFormat);
+        //}
+
+        /// <summary>
+        /// Exchanges <see cref="Amount"/> to <paramref name="toCurrency"/> using <paramref name="toCurrency"/> as primary exchange currency.
+        /// </summary>
+        /// <param name="toCurrency">The target currency</param>
         public Money ExchangeTo(Currency toCurrency)
         {
-            if (Currency == toCurrency)
+            return ExchangeTo(toCurrency, toCurrency);
+        }
+
+        /// <summary>
+        /// Exchanges <see cref="Amount"/> to <paramref name="toCurrency"/> using <paramref name="exchangeCurrency"/> as primary exchange currency.
+        /// </summary>
+        /// <param name="toCurrency">The target currency</param>
+        /// <param name="exchangeCurrency">Primary exchange currency.</param>
+        public Money ExchangeTo(Currency toCurrency, Currency exchangeCurrency)
+        {
+            Guard.NotNull(toCurrency, nameof(toCurrency));
+            Guard.NotNull(exchangeCurrency, nameof(exchangeCurrency));
+
+            if (Currency == toCurrency || Amount == 0)
                 return this;
 
-            return new Money((Amount * Currency.Rate) / toCurrency.Rate, toCurrency, HideCurrency, PostFormat);
+            var amount = Amount;
+
+            // Source --> Exchange
+            if (Currency != exchangeCurrency)
+            {
+                amount /= Currency.Rate;
+            }
+
+            // Exchange --> Target
+            if (toCurrency != exchangeCurrency)
+            {
+                amount *= toCurrency.Rate;
+            }
+
+            return new Money(amount, toCurrency, HideCurrency, PostFormat);
         }
 
         /// <summary>

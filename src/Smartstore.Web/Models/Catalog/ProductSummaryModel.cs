@@ -86,9 +86,8 @@ namespace Smartstore.Web.Models.Catalog
                 _parent = new WeakReference<ProductSummaryModel>(parent);
 
                 Weight = string.Empty;
-                TransportSurcharge = string.Empty;
                 Price = new PriceModel();
-                Picture = new PictureModel();
+                Image = new ImageModel();
                 Attributes = new List<Attribute>();
                 SpecificationAttributes = new List<ProductSpecificationModel>();
                 Badges = new List<Badge>();
@@ -112,7 +111,7 @@ namespace Smartstore.Web.Models.Catalog
             public string Dimensions { get; set; }
             public string DimensionMeasureUnit { get; set; }
             public string LegalInfo { get; set; }
-            public string TransportSurcharge { get; set; }
+            public Money? TransportSurcharge { get; set; }
             public int RatingSum { get; set; }
             public int TotalReviews { get; set; }
             public string BasePriceInfo { get; set; }
@@ -131,7 +130,7 @@ namespace Smartstore.Web.Models.Catalog
 
             public BrandOverviewModel Brand { get; set; }
             public PriceModel Price { get; set; }
-            public PictureModel Picture { get; set; }
+            public ImageModel Image { get; set; }
             public IList<Attribute> Attributes { get; set; }
             // TODO: (mc) Let the user specify in attribute manager which spec attributes are
             // important. According to it's importance, show attribute value in grid or list mode.
@@ -148,7 +147,7 @@ namespace Smartstore.Web.Models.Catalog
 
             public bool HasDiscount { get; set; }
             public float SavingPercent { get; set; }
-            public Money SavingAmount { get; set; }
+            public Money? SavingAmount { get; set; }
 
             public bool DisableBuyButton { get; set; }
             public bool DisableWishlistButton { get; set; }

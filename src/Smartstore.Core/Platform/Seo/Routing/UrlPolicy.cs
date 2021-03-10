@@ -62,7 +62,7 @@ namespace Smartstore.Core.Seo.Routing
             Host = new UrlSegment(request.Host.Value);
             PathBase = new UrlSegment(request.PathBase.Value?.Trim('/'));
             Culture = new UrlSegment(cultureCode);
-            Path = new UrlSegment(path);
+            Path = new UrlSegment(path.Trim('/'));
             QueryString = new UrlSegment(request.QueryString.Value);
             Method = request.Method;
         }

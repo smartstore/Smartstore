@@ -1,0 +1,122 @@
+﻿@using Smartstore.Core.Common;
+@using Smartstore.Core.Catalog.Pricing;
+@using Smartstore.Web.Models.Catalog;
+
+@model ProductSummaryModel.SummaryItem
+
+@{
+    var list = Model.Parent;
+    var artPriceClasses = "art-price";
+    var deliveryPresentation = list.DeliveryTimesPresentation;
+    if (Model.PriceDisplayStyle == PriceDisplayStyle.BadgeAll || (Model.PriceDisplayStyle == PriceDisplayStyle.BadgeFreeProductsOnly && Model.Price.Price == 0))
+    {
+        if (Model.Price.SavingAmount.HasValue)
+        {
+            artPriceClasses += " badge badge-danger";
+        }
+        else
+        {
+            artPriceClasses += " badge badge-success";
+        }
+    }
+
+    if (Model.DisplayTextForZeroPrices && Model.Price.Price == 0 && !Model.Price.CallForPrice)
+    {
+        Model.Price.Price = Model.Price.Price.WithPostFormat(T("Products.Free"));
+    }
+
+    if (Model.Price.RegularPrice.HasValue)
+    {
+        artPriceClasses += " art-price--offer";
+    }
+
+    if (Model.Price.CallForPrice)
+    {
+        artPriceClasses += " art-price--call";
+    }
+}
+
+@if (deliveryPresentation != DeliveryTimesPresentation.None)
+{
+    <div class="art-delivery-info">
+        @if (Model.IsShippingEnabled && !Model.HideDeliveryTime)
+        {
+            var showStatusLabel =
+                deliveryPresentation == DeliveryTimesPresentation.LabelOnly ||
+                deliveryPresentation == DeliveryTimesPresentation.LabelAndDate ||
+                !Model.DeliveryTimeDate.HasValue();
+
+            var showDeliveryDate =
+                (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) &&
+                Model.DeliveryTimeDate.HasValue();
+
+            var statusLabel = Model.DisplayDeliveryTimeAccordingToStock ? Model.DeliveryTimeName : Model.StockAvailablity;
+
+            if (showStatusLabel)
+            {
+                <span class="delivery-time" title="@T("Products.DeliveryTime") @statusLabel" sm-attr-style='(Model.DisplayDeliveryTimeAccordingToStock, "color:" + Model.DeliveryTimeHexValue)'>
+                    <i class="fa fa-circle delivery-time-status"></i>
+                    <span dir="auto">@statusLabel</span>
+                </span>
+            }
+            if (showDeliveryDate)
+            {
+                <span class="delivery-date-block" title="@T("Products.DeliveryDate") @Model.DeliveryTimeDate.RemoveHtml()">
+                    @if (!showStatusLabel)
+                    {
+                        <span>@T("Products.DeliveryDate")</span>
+                    }
+                    <span class="delivery-date" dir="auto">@Html.Raw(Model.DeliveryTimeDate)</span>
+                </span>
+            }
+        }
+    </div>
+}
+
+@if (list.ShowPrice)
+{
+    <div class="art-price-block">
+        <span class="@artPriceClasses">
+            @(Model.Price.SavingAmount.HasValue ? "% " : "")@Model.Price.Price
+        </span>
+        @if (Model.Price.RegularPrice.HasValue)
+        {
+            if (list.ViewMode == ProductSummaryViewMode.List)
+            {
+                <div class="art-info-group">
+                    <div>
+                        <span>@T("Products.Price.OldPrice"):</span>
+                        <span class="art-oldprice">@Model.Price.RegularPrice.Value</span>
+                    </div>
+                    @if (Model.Price.SavingAmount.HasValue)
+                    {
+                        <div class="d-flex">
+                            <span>@T("ShoppingCart.ItemYouSave"):</span>
+                            <span class="pl-2">@Model.Price.SavingAmount <span class="lrm">(@Model.Price.SavingPercent.ToString("N0") %)</span></span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <span class="art-oldprice">@Model.Price.RegularPrice</span>
+            }
+        }
+
+        @if (list.ShowShippingSurcharge && Model.TransportSurcharge.HasValue)
+        {
+            <div class="art-shipsurcharge">
+                @Model.TransportSurcharge.Value
+            </div>
+        }
+
+        @if (list.ShowBasePrice && Model.BasePriceInfo.HasValue())
+        {
+            <div class="art-pangv" sm-attr-title='(Model.BasePriceInfo.HasValue(), Model.BasePriceInfo)'>
+                @Html.Raw(LocalizedValue.FixBrackets(Model.BasePriceInfo, WorkContext.WorkingLanguage) ?? "&nbsp;")
+            </div>
+        }
+    </div>
+
+    <zone sm-zone-name="productbox_add_info" />
+}

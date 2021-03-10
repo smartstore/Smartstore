@@ -21,6 +21,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Diagnostics;
 using Smartstore.Domain;
+using Smartstore.Events;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Media;
@@ -457,7 +458,7 @@ namespace Smartstore.Web.Controllers
 
                 ctx.MediaFiles.TryGetValue(product.MainPictureId ?? 0, out var file);
 
-                item.Picture = new PictureModel
+                item.Image = new ImageModel
                 {
                     File = file,
                     ThumbSize = thumbSize,
@@ -567,24 +568,19 @@ namespace Smartstore.Web.Controllers
 
             if (settings.MapPrices)
             {
-                //// TODO: (core) Uncomment
-                //// TODO: (core) ConvertCurrency does things wrong! Check!
-                var addShippingPrice = _currencyService.ConvertCurrency(ctx.PrimaryCurrency.AsMoney(contextProduct.AdditionalShippingCharge), ctx.StoreCurrency);
-                addShippingPrice = ctx.PrimaryCurrency.AsMoney(contextProduct.AdditionalShippingCharge).ExchangeTo(ctx.StoreCurrency); // This may be right
+                var addShippingPrice = ctx.PrimaryCurrency.AsMoney(contextProduct.AdditionalShippingCharge).ExchangeTo(ctx.StoreCurrency);
+                if (addShippingPrice > 0)
+                {
+                    item.TransportSurcharge = addShippingPrice.WithPostFormat(ctx.Resources["Common.AdditionalShippingSurcharge"]);
+                }
 
-                //if (addShippingPrice > 0)
-                //{
-                //    item.TransportSurcharge = ctx.Resources["Common.AdditionalShippingSurcharge"].Value.FormatCurrent(_priceFormatter.FormatPrice(addShippingPrice, true, false));
-                //}
-
-                //item.PriceDisplayStyle = _catalogSettings.PriceDisplayStyle;
-                //item.DisplayTextForZeroPrices = _catalogSettings.DisplayTextForZeroPrices;
+                item.PriceDisplayStyle = _catalogSettings.PriceDisplayStyle;
+                item.DisplayTextForZeroPrices = _catalogSettings.DisplayTextForZeroPrices;
             }
 
             if (model.ShowWeight && contextProduct.Weight > 0)
             {
                 var measureWeightName = (await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false))?.GetLocalized(x => x.Name) ?? string.Empty;
-                
                 item.Weight = "{0} {1}".FormatCurrent(contextProduct.Weight.ToString("N2"), measureWeightName);
             }
 
@@ -603,171 +599,166 @@ namespace Smartstore.Web.Controllers
 
         /// <param name="contextProduct">The product or the first associated product of a group.</param>
         /// <returns>The final price</returns>
-        private Task<(Money FinalPrice, Product ContextProduct)> MapSummaryItemPrice(Product product, ProductSummaryModel.SummaryItem item, MapProductSummaryItemContext ctx)
+        private async Task<(Money FinalPrice, Product ContextProduct)> MapSummaryItemPrice(Product product, ProductSummaryModel.SummaryItem item, MapProductSummaryItemContext ctx)
         {
-            var result = (ctx.StoreCurrency.AsMoney(100m), product);
-            return Task.FromResult(result);
+            var contextProduct = product;
+            var displayFromMessage = false;
+            var taxRate = decimal.Zero;
+            var oldPriceBase = default(Money);
+            var oldPrice = default(Money);
+            var finalPriceBase = default(Money);
+            var finalPrice = new Money(ctx.PrimaryCurrency);
+            var displayPrice = (Money?)null;
             
-            //var displayFromMessage = false;
-            //var taxRate = decimal.Zero;
-            //var oldPriceBase = default(Money);
-            //var oldPrice = default(Money);
-            //var finalPriceBase = default(Money);
-            //var finalPrice = decimal.Zero;
-            //var displayPrice = default(Money);
-            //ICollection<Product> associatedProducts = null;
+            ICollection<Product> associatedProducts = null;
 
-            //var priceModel = new ProductSummaryModel.PriceModel();
-            //item.Price = priceModel;
-            
-            //if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing && !ctx.BatchContext.ProductBundleItems.FullyLoaded)
-            //{
-            //    await ctx.BatchContext.ProductBundleItems.LoadAllAsync();
-            //}
+            var priceModel = new ProductSummaryModel.PriceModel();
+            item.Price = priceModel;
 
-            //if (product.ProductType == ProductType.GroupedProduct)
-            //{
-            //    priceModel.DisableBuyButton = true;
-            //    priceModel.DisableWishlistButton = true;
-            //    priceModel.AvailableForPreOrder = false;
+            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing && !ctx.BatchContext.ProductBundleItems.FullyLoaded)
+            {
+                await ctx.BatchContext.ProductBundleItems.LoadAllAsync();
+            }
 
-            //    if (ctx.GroupedProducts == null)
-            //    {
-            //        // One-time batched retrieval of all associated products.
-            //        var searchQuery = new CatalogSearchQuery()
-            //            .PublishedOnly(true)
-            //            .HasStoreId(ctx.Store.Id)
-            //            .HasParentGroupedProduct(ctx.BatchContext.ProductIds.ToArray());
+            if (product.ProductType == ProductType.GroupedProduct)
+            {
+                priceModel.DisableBuyButton = true;
+                priceModel.DisableWishlistButton = true;
+                priceModel.AvailableForPreOrder = false;
 
-            //        // Get all associated products for this batch grouped by ParentGroupedProductId.
-            //        var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
-            //        var allAssociatedProducts = (await searchResult.GetHitsAsync())
-            //            .OrderBy(x => x.ParentGroupedProductId)
-            //            .ThenBy(x => x.DisplayOrder);
+                if (ctx.GroupedProducts == null)
+                {
+                    // One-time batched retrieval of all associated products.
+                    var searchQuery = new CatalogSearchQuery()
+                        .PublishedOnly(true)
+                        .HasStoreId(ctx.Store.Id)
+                        .HasParentGroupedProduct(ctx.BatchContext.ProductIds.ToArray());
 
-            //        ctx.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
-            //        ctx.AssociatedProductBatchContext = _dataExporter.Value.CreateProductExportContext(allAssociatedProducts, ctx.Customer, null, null, false);
-            //    }
+                    // Get all associated products for this batch grouped by ParentGroupedProductId.
+                    var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
+                    var allAssociatedProducts = (await searchResult.GetHitsAsync())
+                        .OrderBy(x => x.ParentGroupedProductId)
+                        .ThenBy(x => x.DisplayOrder);
 
-            //    associatedProducts = ctx.GroupedProducts[product.Id];
-            //    if (associatedProducts.Any())
-            //    {
-            //        contextProduct = associatedProducts.OrderBy(x => x.DisplayOrder).First();
+                    ctx.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
+                    ctx.AssociatedProductBatchContext = _dataExporter.Value.CreateProductExportContext(allAssociatedProducts, ctx.Customer, null, null, false);
+                }
 
-            //        _services.DisplayControl.Announce(contextProduct);
-            //    }
-            //}
-            //else
-            //{
-            //    priceModel.DisableBuyButton = product.DisableBuyButton || !ctx.AllowShoppingCart || !ctx.AllowPrices;
-            //    priceModel.DisableWishlistButton = product.DisableWishlistButton || !ctx.AllowWishlist || !ctx.AllowPrices;
-            //    priceModel.AvailableForPreOrder = product.AvailableForPreOrder;
-            //}
+                associatedProducts = ctx.GroupedProducts[product.Id];
+                if (associatedProducts.Any())
+                {
+                    contextProduct = associatedProducts.OrderBy(x => x.DisplayOrder).First();
+                    _services.DisplayControl.Announce(contextProduct);
+                }
+            }
+            else
+            {
+                priceModel.DisableBuyButton = product.DisableBuyButton || !ctx.AllowShoppingCart || !ctx.AllowPrices;
+                priceModel.DisableWishlistButton = product.DisableWishlistButton || !ctx.AllowWishlist || !ctx.AllowPrices;
+                priceModel.AvailableForPreOrder = product.AvailableForPreOrder;
+            }
 
-            //// Return if there's no pricing at all.
-            //if (contextProduct == null || contextProduct.CustomerEntersPrice || !ctx.AllowPrices || _catalogSettings.PriceDisplayType == PriceDisplayType.Hide)
-            //{
-            //    return ctx.Currency.AsMoney(finalPrice);
-            //}
+            // Return if there's no pricing at all.
+            if (contextProduct == null || contextProduct.CustomerEntersPrice || !ctx.AllowPrices || _catalogSettings.PriceDisplayType == PriceDisplayType.Hide)
+            {
+                return (new Money(ctx.StoreCurrency), contextProduct);
+            }
 
-            //// Return if group has no associated products.
-            //if (product.ProductType == ProductType.GroupedProduct && !associatedProducts.Any())
-            //{
-            //    return ctx.Currency.AsMoney(finalPrice);
-            //}
+            // Return if group has no associated products.
+            if (product.ProductType == ProductType.GroupedProduct && !associatedProducts.Any())
+            {
+                return (new Money(ctx.StoreCurrency), contextProduct);
+            }
 
-            //// Call for price.
-            //priceModel.CallForPrice = contextProduct.CallForPrice;
-            //if (contextProduct.CallForPrice)
-            //{
-            //    priceModel.Price = ctx.Resources["Products.CallForPrice"];
-            //    return ctx.Currency.AsMoney(finalPrice);
-            //}
+            // Call for price.
+            priceModel.CallForPrice = contextProduct.CallForPrice;
+            if (contextProduct.CallForPrice)
+            {
+                return (new Money(ctx.StoreCurrency).WithPostFormat(ctx.Resources["Products.CallForPrice"]), contextProduct);
+            }
 
-            //// Calculate prices.
-            //var batchContext = product.ProductType == ProductType.GroupedProduct ? ctx.AssociatedProductBatchContext : ctx.BatchContext;
+            // Calculate prices.
+            var batchContext = product.ProductType == ProductType.GroupedProduct ? ctx.AssociatedProductBatchContext : ctx.BatchContext;
 
-            //if (_catalogSettings.PriceDisplayType == PriceDisplayType.PreSelectedPrice)
-            //{
-            //    displayPrice = await _priceCalculationService.GetPreselectedPriceAsync(contextProduct, ctx.Customer, ctx.Currency, batchContext);
-            //}
-            //else if (_catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes)
-            //{
-            //    displayPrice = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, ctx.Customer, false, 1, null, batchContext);
-            //}
-            //else
-            //{
-            //    // Display lowest price.
-            //    if (product.ProductType == ProductType.GroupedProduct)
-            //    {
-            //        displayFromMessage = true;
-            //        (displayPrice, contextProduct) = await _priceCalculationService.GetLowestPriceAsync(product, ctx.Customer, batchContext, associatedProducts);
-            //    }
-            //    else
-            //    {
-            //        (displayPrice, displayFromMessage) = await _priceCalculationService.GetLowestPriceAsync(product, ctx.Customer, batchContext);
-            //    }
-            //}
+            if (_catalogSettings.PriceDisplayType == PriceDisplayType.PreSelectedPrice)
+            {
+                displayPrice = await _priceCalculationService.GetPreselectedPriceAsync(contextProduct, ctx.Customer, batchContext);
+            }
+            else if (_catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes)
+            {
+                displayPrice = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, ctx.Customer, false, 1, null, batchContext);
+            }
+            else
+            {
+                // Display lowest price.
+                if (product.ProductType == ProductType.GroupedProduct)
+                {
+                    displayFromMessage = true;
+                    (displayPrice, contextProduct) = await _priceCalculationService.GetLowestPriceAsync(product, ctx.Customer, batchContext, associatedProducts);
+                }
+                else
+                {
+                    (displayPrice, displayFromMessage) = await _priceCalculationService.GetLowestPriceAsync(product, ctx.Customer, batchContext);
+                }
+            }
 
-            //(oldPriceBase, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, contextProduct.OldPrice);
-            //(finalPriceBase, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, displayPrice);
+            (oldPriceBase, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, new Money(contextProduct.OldPrice, ctx.PrimaryCurrency));
+            (finalPriceBase, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, displayPrice ?? new Money(ctx.PrimaryCurrency));
 
-            //oldPrice = _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase, ctx.Currency);
-            //finalPrice = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceBase, ctx.Currency);
+            oldPrice = oldPriceBase.ExchangeTo(ctx.StoreCurrency);
+            finalPrice = finalPriceBase.ExchangeTo(ctx.StoreCurrency);
 
-            //priceModel.PriceValue = finalPrice;
-            //priceModel.Price = displayFromMessage
-            //    ? string.Format(ctx.Resources["Products.PriceRangeFrom"], _priceFormatter.FormatPrice(finalPrice))
-            //    : _priceFormatter.FormatPrice(finalPrice);
+            // TODO: (mg) (core) ICurrencyService.CreateMoney() does not take Money, only decimal. Fix that.
+            priceModel.Price = displayFromMessage
+                ? finalPrice.WithPostFormat(ctx.Resources["Products.PriceRangeFrom"])
+                : finalPrice;
 
-            //priceModel.HasDiscount = oldPriceBase > decimal.Zero && oldPriceBase > finalPriceBase;
-            //if (priceModel.HasDiscount)
-            //{
-            //    priceModel.RegularPriceValue = oldPrice;
-            //    priceModel.RegularPrice = _priceFormatter.FormatPrice(oldPrice);
-            //}
+            priceModel.HasDiscount = oldPriceBase > decimal.Zero && oldPriceBase > finalPriceBase;
+            if (priceModel.HasDiscount)
+            {
+                priceModel.RegularPrice = oldPrice; // TODO: (core) FormatPrice
+            }
 
-            //// Calculate saving.
-            //var finalPriceWithDiscount = _priceCalculationService.GetFinalPrice(contextProduct, null, ctx.Customer, decimal.Zero, true, 1, null, batchContext);
-            //finalPriceWithDiscount = _taxService.GetProductPrice(contextProduct, finalPriceWithDiscount, out taxRate);
-            //finalPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithDiscount, ctx.Currency);
+            // Calculate saving.
+            var finalPriceWithDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, ctx.Customer, false, 1, null, batchContext);
+            (finalPriceWithDiscount, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, finalPriceWithDiscount);
+            finalPriceWithDiscount = finalPriceWithDiscount.ExchangeTo(ctx.StoreCurrency);
 
-            //var finalPriceWithoutDiscount = finalPrice;
-            //if (_catalogSettings.PriceDisplayType != PriceDisplayType.PriceWithoutDiscountsAndAttributes)
-            //{
-            //    finalPriceWithoutDiscount = _priceCalculationService.GetFinalPrice(contextProduct, null, ctx.Customer, decimal.Zero, false, 1, null, batchContext);
-            //    finalPriceWithoutDiscount = _taxService.GetProductPrice(contextProduct, finalPriceWithoutDiscount, out taxRate);
-            //    finalPriceWithoutDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithoutDiscount, ctx.Currency);
-            //}
+            var finalPriceWithoutDiscount = finalPrice;
+            if (_catalogSettings.PriceDisplayType != PriceDisplayType.PriceWithoutDiscountsAndAttributes)
+            {
+                finalPriceWithoutDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, ctx.Customer, false, 1, null, batchContext);
+                (finalPriceWithoutDiscount, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, finalPriceWithoutDiscount);
+                finalPriceWithoutDiscount = finalPriceWithoutDiscount.ExchangeTo(ctx.StoreCurrency);
+            }
 
-            //// Discounted price has priority over the old price (avoids differing percentage discount in product lists and detail page).
-            //var regularPrice = finalPriceWithDiscount < finalPriceWithoutDiscount
-            //    ? finalPriceWithoutDiscount
-            //    : oldPrice;
+            // Discounted price has priority over the old price (avoids differing percentage discount in product lists and detail page).
+            var regularPrice = finalPriceWithDiscount < finalPriceWithoutDiscount
+                ? finalPriceWithoutDiscount
+                : oldPrice;
 
-            //if (regularPrice > 0 && regularPrice > finalPriceWithDiscount)
-            //{
-            //    priceModel.HasDiscount = true;
-            //    priceModel.SavingPercent = (float)((regularPrice - finalPriceWithDiscount) / regularPrice) * 100;
-            //    priceModel.SavingAmount = _priceFormatter.FormatPrice(regularPrice - finalPriceWithDiscount, true, false);
+            if (regularPrice > 0 && regularPrice > finalPriceWithDiscount)
+            {
+                priceModel.HasDiscount = true;
+                priceModel.SavingPercent = (float)((regularPrice - finalPriceWithDiscount) / regularPrice) * 100;
+                priceModel.SavingAmount = regularPrice - finalPriceWithDiscount; // TODO: (core) FormatPrice
 
-            //    if (!priceModel.RegularPriceValue.HasValue)
-            //    {
-            //        priceModel.RegularPriceValue = regularPrice;
-            //        priceModel.RegularPrice = _priceFormatter.FormatPrice(regularPrice);
-            //    }
+                if (priceModel.RegularPrice == null)
+                {
+                    priceModel.RegularPrice = regularPrice; // TODO: (core) FormatPrice
+                }
 
-            //    if (ctx.Model.ShowDiscountBadge)
-            //    {
-            //        item.Badges.Add(new ProductSummaryModel.Badge
-            //        {
-            //            Label = T("Products.SavingBadgeLabel", priceModel.SavingPercent.ToString("N0")),
-            //            Style = BadgeStyle.Danger
-            //        });
-            //    }
-            //}
+                if (ctx.Model.ShowDiscountBadge)
+                {
+                    item.Badges.Add(new ProductSummaryModel.Badge
+                    {
+                        Label = T("Products.SavingBadgeLabel", priceModel.SavingPercent.ToString("N0")),
+                        Style = BadgeStyle.Danger
+                    });
+                }
+            }
 
-            //return finalPrice;
+            return (finalPrice, contextProduct);
         }
 
         private IEnumerable<ProductSpecificationModel> MapProductSpecificationModels(IEnumerable<ProductSpecificationAttribute> attributes)

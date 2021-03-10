@@ -50,7 +50,7 @@
 
 @if (Model.ViewMode == ProductSummaryViewMode.List)
 {
-    var maxPictureSize = Model.ThumbSize ?? Model.Items.Select(x => x.Picture)
+    var maxPictureSize = Model.ThumbSize ?? Model.Items.Select(x => x.Image)
         .Where(x => x != null)
         .Max(x => x.ThumbSize);
 

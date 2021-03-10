@@ -14,8 +14,11 @@
         @await Component.InvokeAsync("HomeCategories")
         <zone sm-zone-name="home_page_after_categories" />
 
-         @await Component.InvokeAsync("HomeProducts")
+        @await Component.InvokeAsync("HomeProducts")
         <zone sm-zone-name="home_page_after_products" />
+
+        @await Component.InvokeAsync("HomeBestSellers")
+        <zone sm-zone-name="home_page_after_bestsellers" />
 
         @await Component.InvokeAsync("HomeBrands")
         <zone sm-zone-name="home_page_after_manufacturers" />

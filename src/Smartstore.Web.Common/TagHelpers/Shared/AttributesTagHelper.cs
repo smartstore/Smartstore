@@ -15,6 +15,8 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         private IDictionary<string, (bool Condition, string Value)> _conditionalAttributes;
 
+        public override int Order => 100;
+
         /// <summary>
         /// An <see cref="AttributeDictionary"/> instance whose content should be merged with local attributes.
         /// </summary>

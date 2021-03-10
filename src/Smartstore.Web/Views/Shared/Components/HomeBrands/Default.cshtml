@@ -12,12 +12,12 @@
         {
             var url = Url.RouteUrl("Manufacturer", new { SeName = item.SeName });
             <article class="art" data-id="@item.Id">
-                @if (Model.DisplayImages && item.Picture != null && item.Picture.HasPicture)
+                @if (Model.DisplayImages && item.Image != null && item.Image.HasImage())
                 {
-                    var picture = item.Picture;
+                    var image = item.Image;
                     <div class="art-picture-block">
                         <a href="@url" class="art-picture img-center-container">
-                            <img sm-file="picture.File" sm-size="picture.ThumbSize" sm-no-fallback="picture.NoFallback" sm-url-host="@picture.Host" alt="@picture.Alt" title="@picture.Title" loading="lazy" />
+                            <img sm-model="image" loading="lazy" />
                         </a>
                     </div>
                 }

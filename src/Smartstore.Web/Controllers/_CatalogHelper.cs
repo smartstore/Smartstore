@@ -203,7 +203,7 @@ namespace Smartstore.Web.Controllers
 
                     if (withPicture)
                     {
-                        item.Picture = await PrepareBrandPictureModelAsync(manufacturer, item.Name, mediaFileLookup);
+                        item.Image = await PrepareBrandPictureModelAsync(manufacturer, item.Name, mediaFileLookup);
                     }
 
                     cachedModels.Add(item.Id, item);
@@ -215,7 +215,7 @@ namespace Smartstore.Web.Controllers
             return model;
         }
 
-        public async Task<PictureModel> PrepareBrandPictureModelAsync(Manufacturer brand, string localizedName, IDictionary<int, MediaFileInfo> fileLookup = null)
+        public async Task<ImageModel> PrepareBrandPictureModelAsync(Manufacturer brand, string localizedName, IDictionary<int, MediaFileInfo> fileLookup = null)
         {
             MediaFileInfo file;
 
@@ -228,7 +228,7 @@ namespace Smartstore.Web.Controllers
                 file = await _mediaService.GetFileByIdAsync(brand.MediaFileId ?? 0, MediaLoadFlags.AsNoTracking);
             }
 
-            var model = new PictureModel
+            var model = new ImageModel
             {
                 File = file,
                 ThumbSize = _mediaSettings.ManufacturerThumbPictureSize,
@@ -289,7 +289,7 @@ namespace Smartstore.Web.Controllers
                     DisplayImages = _catalogSettings.ShowManufacturerPictures,
                     DisplayAllBrandsLink = manufacturers.Count > brandItemsToDisplay,
                     HideBrandDefaultPictures = _catalogSettings.HideManufacturerDefaultPictures,
-                    BrandThumbPictureSize = _mediaSettings.ManufacturerThumbPictureSize
+                    BrandThumbImageSize = _mediaSettings.ManufacturerThumbPictureSize
                 };
 
                 if (model.DisplayAllBrandsLink)
@@ -309,7 +309,7 @@ namespace Smartstore.Web.Controllers
                         Name = name,
                         SeName = manufacturer.GetActiveSlug(),
                         DisplayOrder = manufacturer.DisplayOrder,
-                        Picture = new PictureModel
+                        Image = new ImageModel
                         {
                             File = file,
                             ThumbSize = _mediaSettings.ManufacturerThumbPictureSize,
@@ -370,7 +370,7 @@ namespace Smartstore.Web.Controllers
 
                     files.TryGetValue(c.MediaFileId ?? 0, out var file);
 
-                    model.PictureModel = new PictureModel
+                    model.Image = new ImageModel
                     {
                         File = file,
                         ThumbSize = thumbSize,
