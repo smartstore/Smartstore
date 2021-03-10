@@ -12,14 +12,38 @@ namespace Smartstore.Core.Seo.Routing
             switch (urlRecord.EntityName.ToLowerInvariant())
             {
                 case "product":
+                    return new RouteValueDictionary
+                    {
+                        { "area", string.Empty },
+                        { "controller", "Product" },
+                        { "action", "ProductDetails" },
+                        { "productId", urlRecord.EntityId },
+                        { "entity", urlRecord }
+                    };
                 case "category":
+                    return new RouteValueDictionary
+                    {
+                        { "area", string.Empty },
+                        { "controller", "Catalog" },
+                        { "action", "Category" },
+                        { "categoryId", urlRecord.EntityId },
+                        { "entity", urlRecord }
+                    };
                 case "manufacturer":
+                    return new RouteValueDictionary
+                    {
+                        { "area", string.Empty },
+                        { "controller", "Catalog" },
+                        { "action", "Manufacturer" },
+                        { "manufacturerId", urlRecord.EntityId },
+                        { "entity", urlRecord }
+                    };
                 case "topic":
                     //case "newsitem": // TODO: (core) Move newsitem and blogpost to external modules
                     //case "blogpost":
                     return new RouteValueDictionary
                     {
-                        { "area", "" },
+                        { "area", string.Empty },
                         { "controller", "Home" },
                         { "action", "Slug" },
                         { "entity", urlRecord }
