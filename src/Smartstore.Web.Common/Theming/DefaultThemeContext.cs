@@ -110,6 +110,7 @@ namespace Smartstore.Web.Theming
                 if (_workContext.CurrentCustomer != null)
                 {
                     _workContext.CurrentCustomer.GenericAttributes.WorkingThemeName = null;
+                    _workContext.CurrentCustomer.GenericAttributes.SaveChanges();
                 }
 
                 // clear cache
