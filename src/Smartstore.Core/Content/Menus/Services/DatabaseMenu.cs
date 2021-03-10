@@ -80,60 +80,67 @@ namespace Smartstore.Core.Content.Menus
                     // Perf: only resolve counts for categories in the current path.
                     while (curNode != null)
                     {
-                        if (curNode.Children.Any(x => !x.Value.ElementsCount.HasValue))
+                        if (curNode.Children.Any(x => !x.Value.ElementsCountResolved))
                         {
                             using (await _asyncLock.LockAsync())
                             {
-                                if (curNode.Children.Any(x => !x.Value.ElementsCount.HasValue))
+                                if (curNode.Children.Any(x => !x.Value.ElementsCountResolved))
                                 {
                                     var nodes = deep ? curNode.SelectNodes(x => true, false) : curNode.Children.AsEnumerable();
-                                    nodes = nodes.Where(x => x.Value.EntityId != 0);
 
                                     foreach (var node in nodes)
                                     {
-                                        var isCategory = node.Value.EntityName.EqualsNoCase(nameof(Category));
-                                        var isManufacturer = node.Value.EntityName.EqualsNoCase(nameof(Manufacturer));
-
-                                        if (isCategory || isManufacturer)
+                                        var item = node.Value;
+                                        if (item.EntityId <= 0)
                                         {
-                                            var entityIds = new HashSet<int>();
-                                            if (isCategory && _catalogSettings.ShowCategoryProductNumberIncludingSubcategories)
-                                            {
-                                                // Include sub-categories.
-                                                node.Traverse(x =>
-                                                {
-                                                    entityIds.Add(x.Value.EntityId);
-                                                }, true);
-                                            }
-                                            else
-                                            {
-                                                entityIds.Add(node.Value.EntityId);
-                                            }
-
-                                            var context = new CatalogSearchQuery()
-                                                .VisibleOnly()
-                                                .WithVisibility(ProductVisibility.Full)
-                                                .HasStoreId(Services.StoreContext.CurrentStoreIdIfMultiStoreMode)
-                                                .BuildFacetMap(false)
-                                                .BuildHits(false);
-
-                                            if (isCategory)
-                                            {
-                                                context = context.WithCategoryIds(null, entityIds.ToArray());
-                                            }
-                                            else
-                                            {
-                                                context = context.WithManufacturerIds(null, entityIds.ToArray());
-                                            }
-
-                                            if (!_searchSettings.IncludeNotAvailable)
-                                            {
-                                                context = context.AvailableOnly(true);
-                                            }
-
-                                            var query = await _catalogSearchService.Value.SearchAsync(context);
-                                            node.Value.ElementsCount = query.TotalHitsCount;
+                                            item.ElementsCountResolved = true;
+                                            continue;
                                         }
+                                        
+                                        var isCategory = item.EntityName.EqualsNoCase(nameof(Category));
+                                        var isManufacturer = item.EntityName.EqualsNoCase(nameof(Manufacturer));
+
+                                        if (!isCategory && !isManufacturer)
+                                        {
+                                            item.ElementsCountResolved = true;
+                                            continue;
+                                        }
+
+                                        var entityIds = new HashSet<int>();
+                                        if (isCategory && _catalogSettings.ShowCategoryProductNumberIncludingSubcategories)
+                                        {
+                                            // Include sub-categories.
+                                            node.Traverse(x => entityIds.Add(x.Value.EntityId), true);
+                                        }
+                                        else
+                                        {
+                                            entityIds.Add(item.EntityId);
+                                        }
+
+                                        var context = new CatalogSearchQuery()
+                                            .VisibleOnly()
+                                            .WithVisibility(ProductVisibility.Full)
+                                            .HasStoreId(Services.StoreContext.CurrentStoreIdIfMultiStoreMode)
+                                            .BuildFacetMap(false)
+                                            .BuildHits(false);
+
+                                        if (isCategory)
+                                        {
+                                            context = context.WithCategoryIds(null, entityIds.ToArray());
+                                        }
+                                        else
+                                        {
+                                            context = context.WithManufacturerIds(null, entityIds.ToArray());
+                                        }
+
+                                        if (!_searchSettings.IncludeNotAvailable)
+                                        {
+                                            context = context.AvailableOnly(true);
+                                        }
+
+                                        var searchResult = await _catalogSearchService.Value.SearchAsync(context);
+                                        item.ElementsCount = searchResult.TotalHitsCount;
+                                        item.ElementsCountResolved = true;
                                     }
                                 }
                             }
