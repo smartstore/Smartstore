@@ -12,7 +12,6 @@ namespace Smartstore.Web.Infrastructure
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<CatalogHelper>().InstancePerLifetimeScope();
-            builder.RegisterType<LinkResolver>().InstancePerLifetimeScope();
             
             // TODO: (core) Continue PublicStarter
         }

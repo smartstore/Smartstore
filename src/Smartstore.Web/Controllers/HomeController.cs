@@ -194,9 +194,6 @@ namespace Smartstore.Web.Controllers
             //var numSaved = await Services.SettingFactory.SaveSettingsAsync(testSettings, 1);
             #endregion
 
-            var menuStorage = Services.Resolve<IMenuStorage>();
-            var userMenuInfos = await menuStorage.GetUserMenuInfosAsync();
-
             //var menuItems = await _db.MenuItems
             //    .AsNoTracking()
             //    .ApplyMenuFilter(6, "")
@@ -226,12 +223,12 @@ namespace Smartstore.Web.Controllers
             //        .ToListAsync();
             //}
 
-            var anon = await _db.Countries
-                .AsNoTracking()
-                .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)
-                .AsCaching()
-                .Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
-                .ToListAsync();
+            //var anon = await _db.Countries
+            //    .AsNoTracking()
+            //    .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)
+            //    .AsCaching()
+            //    .Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+            //    .ToListAsync();
 
             //var anon2 = _db.Countries
             //    .AsNoTracking()
@@ -312,20 +309,22 @@ namespace Smartstore.Web.Controllers
             testModel.Locales.Add(new LocalizedTestModel { LanguageId = 1, TestProp1 = "Hello 1", TestProp2 = "Word 1" });
             testModel.Locales.Add(new LocalizedTestModel { LanguageId = 2, TestProp1 = "Hello 2", TestProp2 = "Word 2" });
 
-            var query = new MediaSearchQuery
-            {
-                FolderId = 3,
-                DeepSearch = true,
-                ExactMatch = true,
-                IncludeAltForTerm = false,
-                PageSize = 100
-            };
+            //var query = new MediaSearchQuery
+            //{
+            //    FolderId = 3,
+            //    DeepSearch = true,
+            //    ExactMatch = true,
+            //    IncludeAltForTerm = false,
+            //    PageSize = 100
+            //};
 
-            var matches = await _mediaService.SearchFilesAsync(query);
-            Request.Query.TryGetValue("page", out var pagenumber);
-            matches.PageNumber = Convert.ToInt32(pagenumber);
+            //var matches = await _mediaService.SearchFilesAsync(query);
+            //Request.Query.TryGetValue("page", out var pagenumber);
+            //matches.PageNumber = Convert.ToInt32(pagenumber);
 
-            testModel.TestList = matches;
+            //testModel.TestList = matches;
+
+            await Task.Delay(1);
 
             return View(testModel);
         }

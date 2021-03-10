@@ -239,7 +239,7 @@ namespace Smartstore.Net
                     : path;
             }
 
-            path = (request.PathBase + path).EnsureStartsWith('/');
+            path = request.PathBase + path.EnsureStartsWith('/');
             path = string.Format("{0}://{1}{2}", protocol, request.Host.Value, path);
 
             return path;

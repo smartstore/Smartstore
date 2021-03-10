@@ -5,12 +5,7 @@ namespace Smartstore.Web.Models.Common
 {
     public partial class StoreThemeSelectorModel : ModelBase
     {
-        public StoreThemeSelectorModel()
-        {
-            AvailableStoreThemes = new List<StoreThemeModel>();
-        }
-
-        public IList<StoreThemeModel> AvailableStoreThemes { get; set; }
+        public List<StoreThemeModel> AvailableStoreThemes { get; set; } = new();
 
         public StoreThemeModel CurrentStoreTheme { get; set; }
     }

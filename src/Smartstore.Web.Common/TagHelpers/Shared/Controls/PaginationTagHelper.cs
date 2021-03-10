@@ -401,7 +401,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var routeValues = ActionContextAccessor.ActionContext.RouteData.Values;
             var newValues = new RouteValueDictionary(routeValues)
             {
-                [ModifiedParamName.HasValue() ? ModifiedParamName : "pagenumber"] = pageNumber
+                [ModifiedParamName.NullEmpty() ?? "page"] = pageNumber
             };
 
             return UrlHelper.RouteUrl(newValues);

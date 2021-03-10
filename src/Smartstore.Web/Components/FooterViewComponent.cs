@@ -17,20 +17,20 @@ namespace Smartstore.Web.Components
 {
     public class FooterViewComponent : SmartViewComponent
     {
-        private readonly static string[] s_hints = new string[] { "Shopsystem", "Onlineshop Software", "Shopsoftware", "E-Commerce Solution" };
+        private readonly static string[] _hints = new string[] { "Shopsystem", "Onlineshop Software", "Shopsoftware", "E-Commerce Solution" };
 
         private readonly Lazy<IThemeRegistry> _themeRegistry;
         private readonly ThemeSettings _themeSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
-        private readonly Lazy<SocialSettings> _socialSettings;
+        private readonly SocialSettings _socialSettings;
 
         public FooterViewComponent(
             Lazy<IThemeRegistry> themeRegistry, 
             ThemeSettings themeSettings,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
-            Lazy<SocialSettings> socialSettings)
+            SocialSettings socialSettings)
         {
             _themeRegistry = themeRegistry;
             _themeSettings = themeSettings;
@@ -79,21 +79,20 @@ namespace Smartstore.Web.Components
             var hint = Services.Settings.GetSettingByKey("Rnd_SmCopyrightHint", string.Empty, store.Id);
             if (hint.IsEmpty())
             {
-                hint = s_hints[CommonHelper.GenerateRandomInteger(0, s_hints.Length - 1)];
+                hint = _hints[CommonHelper.GenerateRandomInteger(0, _hints.Length - 1)];
 
                 await Services.Settings.ApplySettingAsync("Rnd_SmCopyrightHint", hint, store.Id);
                 await Services.DbContext.SaveChangesAsync();
             }
 
-            model.ShowSocialLinks = _socialSettings.Value.ShowSocialLinksInFooter;
-            model.FacebookLink = _socialSettings.Value.FacebookLink;
-            model.TwitterLink = _socialSettings.Value.TwitterLink;
-            model.PinterestLink = _socialSettings.Value.PinterestLink;
-            model.YoutubeLink = _socialSettings.Value.YoutubeLink;
-            model.InstagramLink = _socialSettings.Value.InstagramLink;
+            model.ShowSocialLinks = _socialSettings.ShowSocialLinksInFooter;
+            model.FacebookLink = _socialSettings.FacebookLink;
+            model.TwitterLink = _socialSettings.TwitterLink;
+            model.PinterestLink = _socialSettings.PinterestLink;
+            model.YoutubeLink = _socialSettings.YoutubeLink;
+            model.InstagramLink = _socialSettings.InstagramLink;
 
-            model.SmartStoreHint = "<a href='https://www.smartstore.com/' class='sm-hint' target='_blank'><strong>{0}</strong></a> by SmartStore AG &copy; {1}"
-                .FormatCurrent(hint, DateTime.Now.Year);
+            model.SmartStoreHint = $"<a href='https://www.smartstore.com/' class='sm-hint' target='_blank'><strong>{hint}</strong></a> by SmartStore AG &copy; {DateTime.Now.Year}";
 
             return View(model);
         }

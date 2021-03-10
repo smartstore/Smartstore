@@ -1,48 +1,46 @@
-﻿@model FooterModel
+﻿@using Smartstore.Core.Content.Menus;
+@using Smartstore.Web.Models.Common;
 
-@using Smartstore.Core.Content.Menus;
-@using Smartstore.Engine;
-@using Smartstore.Web.Models.Common
+@model FooterModel
+@inject ILinkResolver LinkResolver
 
 @{
-    var linkResolver = EngineContext.Current.ResolveService<LinkResolver>();
-
     var footerLinks = new List<LinkResolverResult>
 {
-        await linkResolver.ResolveAsync("topic:aboutus"),
-        await linkResolver.ResolveAsync("topic:imprint"),
-        await linkResolver.ResolveAsync("topic:disclaimer"),
-        await linkResolver.ResolveAsync("topic:privacyinfo"),
-        await linkResolver.ResolveAsync("topic:conditionsofuse")
+        await LinkResolver.ResolveAsync("topic:aboutus"),
+        await LinkResolver.ResolveAsync("topic:imprint"),
+        await LinkResolver.ResolveAsync("topic:disclaimer"),
+        await LinkResolver.ResolveAsync("topic:privacyinfo"),
+        await LinkResolver.ResolveAsync("topic:conditionsofuse")
     };
 
-    var socialLinks = new List<Tuple<string, string>>();
+    var socialLinks = new List<(string link, string cssClass)>();
     if (Model.FacebookLink.HasValue())
     {
-        socialLinks.Add(new Tuple<string, string>(Model.FacebookLink, "facebook-f"));
+        socialLinks.Add((Model.FacebookLink, "facebook-f"));
     }
 
     if (Model.TwitterLink.HasValue())
     {
-        socialLinks.Add(new Tuple<string, string>(Model.TwitterLink, "twitter"));
+        socialLinks.Add((Model.TwitterLink, "twitter"));
     }
 
     if (Model.PinterestLink.HasValue())
     {
-        socialLinks.Add(new Tuple<string, string>(Model.PinterestLink, "pinterest-p"));
+        socialLinks.Add((Model.PinterestLink, "pinterest-p"));
     }
 
     if (Model.YoutubeLink.HasValue())
     {
-        socialLinks.Add(new Tuple<string, string>(Model.YoutubeLink, "youtube"));
+        socialLinks.Add((Model.YoutubeLink, "youtube"));
     }
 
     if (Model.InstagramLink.HasValue())
     {
-        socialLinks.Add(new Tuple<string, string>(Model.InstagramLink, "instagram"));
+        socialLinks.Add((Model.InstagramLink, "instagram"));
     }
 
-    var invserseFooter = Display.GetThemeVariable<bool>("inverse-footer");    
+    var invserseFooter = Display.GetThemeVariable<bool>("inverse-footer");
 }
 
 <footer id="footer" class="@(invserseFooter ? "footer-inverse" : "footer-light")">
@@ -114,7 +112,7 @@
                         <div class="footer-newsletter nav-collapsible" data-subscription-url="@(Url.Action("Subscribe", "Newsletter"))" data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
                             <div id="newsletter-subscribe-block">
                                 <div class="input-group has-icon mb-2">
-                                    <input asp-for="NewsletterEmail" id="newsletter-email" class="form-control" placeholder="@T("Newsletter.Email")" />
+                                    <input asp-for="NewsletterEmail" id="newsletter-email" placeholder="@T("Newsletter.Email")" />
                                     <span class="input-group-icon text-muted">
                                         <i class="fa fa-envelope"></i>
                                     </span>
@@ -158,13 +156,14 @@
                             <h4>@T("Footer.Themes")</h4>
                             <div class="content">
                                 @{
-                                    // TODO: (mh) (core) 
+                                    // TODO: (mh) (core)
                                     //Html.RenderAction("StoreThemeSelector", "Common");
                                 }
                             </div>
                         </div>
                     }
 
+                    <zone sm-zone-name="footer_col_4_after"></zone>
                 </div>
             </div>
         </div>
