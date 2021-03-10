@@ -18,7 +18,7 @@ using Smartstore.Data;
 using Smartstore.Engine.Modularity;
 using StackExchange.Profiling.Internal;
 
-namespace Smartstore.Core.Checkout.Payment.Service
+namespace Smartstore.Core.Checkout.Payment
 {
     public partial class PaymentService //: IPaymentService
     {
@@ -326,12 +326,12 @@ namespace Smartstore.Core.Checkout.Payment.Service
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
             {
-                return new(decimal.Zero, currency);
+                return new(currency);
             }
 
             var paymentFee = await paymentMethod.Value.GetAdditionalHandlingFeeAsync(cart);
 
-            return new(paymentFee.Amount, currency);
+            return currency.AsMoney(paymentFee.Amount);
         }
 
         /// <summary>

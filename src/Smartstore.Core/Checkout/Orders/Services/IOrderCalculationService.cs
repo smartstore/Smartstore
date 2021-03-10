@@ -18,13 +18,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <param name="includeRewardPoints">A value indicating whether to include reward points.</param>
-        /// <param name="includePaymentAdditionalFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
+        /// <param name="includePaymentFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
         /// <param name="includeCreditBalance">A value indicating whether to include credit balance.</param>
         /// <returns></returns>
         Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
             IList<OrganizedShoppingCartItem> cart,
             bool includeRewardPoints = true,
-            bool includePaymentAdditionalFee = true,
+            bool includePaymentFee = true,
             bool includeCreditBalance = true);
 
         /// <summary>
@@ -49,9 +49,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets the shopping cart tax total.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
-        /// <param name="includePaymentAdditionalFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
+        /// <param name="includePaymentFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
         /// <returns>The tax total amount and applied tax rates.</returns>
-        Task<(Money Amount, TaxRatesDictionary taxRates)> GetTaxTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includePaymentAdditionalFee = true);
+        Task<(Money Amount, TaxRatesDictionary taxRates)> GetTaxTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includePaymentFee = true);
 
         /// <summary>
         /// Gets a value indicating whether shipping is free.
@@ -65,7 +65,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <returns>Additional shipping charge.</returns>
-        Task<Money> GetShoppingCartAdditionalShippingChargeAsync(IList<OrganizedShoppingCartItem> cart);
+        Task<Money> GetShoppingCartShippingChargeAsync(IList<OrganizedShoppingCartItem> cart);
 
         /// <summary>
         /// Gets the payment fee for a cart.
@@ -96,9 +96,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="amount">Amount.</param>
         /// <param name="discountType">Discount type.</param>
         /// <param name="customer">Customer</param>
-        /// <param name="round">A value indicating whether to round the discount amount.</param>
         /// <returns>The discount amount and applied discount.</returns>
-        Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money amount, DiscountType discountType, Customer customer, bool round = true);
+        Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money amount, DiscountType discountType, Customer customer);
 
         /// <summary>
         /// Converts reward points to a primary store currency amount.

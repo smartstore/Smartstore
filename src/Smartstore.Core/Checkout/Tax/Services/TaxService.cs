@@ -147,7 +147,7 @@ namespace Smartstore.Core.Checkout.Tax
                 customer);
         }
 
-        public virtual Task<(Money Price, decimal TaxRate)> GetPaymentMethodAdditionalFeeAsync(
+        public virtual Task<(Money Price, decimal TaxRate)> GetPaymentMethodFeeAsync(
             Money price,
             bool? includingTax = null,
             int? taxCategoryId = null,

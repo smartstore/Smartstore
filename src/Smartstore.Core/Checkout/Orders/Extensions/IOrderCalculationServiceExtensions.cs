@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
@@ -15,6 +16,7 @@ namespace Smartstore
         /// <param name="shippingTotal">Shipping total amount.</param>
         /// <param name="customer">Customer.</param>
         /// <returns>The discount amount and applied discount.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<(Money Amount, Discount AppliedDiscount)> GetShippingDiscountAsync(
             this IOrderCalculationService orderCalculationService,
             Money shippingTotal,
@@ -32,6 +34,7 @@ namespace Smartstore
         /// <param name="orderSubTotal">Order subtotal.</param>
         /// <param name="customer">Customer.</param>
         /// <returns>The discount amount and applied discount.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<(Money Amount, Discount AppliedDiscount)> GetOrderSubtotalDiscountAsync(
             this IOrderCalculationService orderCalculationService, 
             Money orderSubTotal, 
@@ -39,7 +42,7 @@ namespace Smartstore
         {
             Guard.NotNull(orderCalculationService, nameof(orderCalculationService));
 
-            return orderCalculationService.GetDiscountAmountAsync(orderSubTotal, DiscountType.AssignedToOrderSubTotal, customer, false);
+            return orderCalculationService.GetDiscountAmountAsync(orderSubTotal, DiscountType.AssignedToOrderSubTotal, customer);
         }
 
         /// <summary>
@@ -49,6 +52,7 @@ namespace Smartstore
         /// <param name="orderTotal">Order total.</param>
         /// <param name="customer">Customer.</param>
         /// <returns>The discount amount and applied discount.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<(Money Amount, Discount AppliedDiscount)> GetOrderTotalDiscountAsync(
             this IOrderCalculationService orderCalculationService,
             Money orderTotal, 

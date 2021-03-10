@@ -94,7 +94,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="taxCategoryId">Tax category identifier. Is <see cref="TaxSettings.PaymentMethodAdditionalFeeTaxClassId"/> if <c>null</c>.</param>
         /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
         /// <returns>Additional payment method fee and tax rate.</returns>
-        Task<(Money Price, decimal TaxRate)> GetPaymentMethodAdditionalFeeAsync(
+        Task<(Money Price, decimal TaxRate)> GetPaymentMethodFeeAsync(
             Money price, 
             bool? includingTax = null,
             int? taxCategoryId = null, 
