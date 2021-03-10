@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
@@ -37,6 +38,9 @@ namespace Smartstore.Web.Razor
 
         [RazorInject]
         protected IUserAgent UserAgent { get; set; }
+
+        [RazorInject]
+        protected ILinkResolver LinkResolver { get; set; }
 
         /// <summary>
         /// Resolves a service from scoped service container.
