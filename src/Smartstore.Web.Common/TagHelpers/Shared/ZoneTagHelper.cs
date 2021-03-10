@@ -88,15 +88,16 @@ namespace Smartstore.Web.TagHelpers.Shared
 	[HtmlTargetElement("aside", Attributes = ZoneNameAttributeName)]
 	[HtmlTargetElement("header", Attributes = ZoneNameAttributeName)]
 	[HtmlTargetElement("footer", Attributes = ZoneNameAttributeName)]
-	public class ZoneHtmlTagHelper : ZoneTagHelper
+	public class HtmlZoneTagHelper : ZoneTagHelper
 	{
 		const string ZoneNameAttributeName = "zone-name";
 
-		public ZoneHtmlTagHelper(IWidgetSelector widgetSelector)
+		public HtmlZoneTagHelper(IWidgetSelector widgetSelector)
 			: base(widgetSelector)
 		{
 		}
 
+		/// <inheritdoc/>
 		[HtmlAttributeName(ZoneNameAttributeName)]
 		public override string ZoneName
 		{

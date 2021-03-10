@@ -6,24 +6,12 @@ using Smartstore.Core.Widgets;
 namespace Smartstore.Web.TagHelpers.Shared
 {
     [HtmlTargetElement("widget", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("script", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("link", Attributes = TargetZoneAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-    [HtmlTargetElement("meta", Attributes = TargetZoneAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-    [HtmlTargetElement("div", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("span", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("section", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("form", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("ul", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("ol", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("svg", Attributes = TargetZoneAttributeName)]
-    [HtmlTargetElement("img", Attributes = TargetZoneAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-    [HtmlTargetElement("a", Attributes = TargetZoneAttributeName)]
     public class WidgetTagHelper : SmartTagHelper
     {
-        const string TargetZoneAttributeName = "sm-zone";
-        const string OrderAttributeName = "sm-order";
-        const string PrependAttributeName = "sm-prepend";
-        const string KeyAttributeName = "sm-key";
+        const string TargetZoneAttributeName = "target-zone";
+        const string OrderAttributeName = "order";
+        const string PrependAttributeName = "prepend";
+        const string KeyAttributeName = "key";
 
         private readonly IWidgetProvider _widgetProvider;
 
@@ -36,26 +24,26 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// The target zone name to inject this widget to.
         /// </summary>
         [HtmlAttributeName(TargetZoneAttributeName)]
-        public string TargetZone { get; set; }
+        public virtual string TargetZone { get; set; }
 
         /// <summary>
         /// The order within the target zone.
         /// </summary>
         [HtmlAttributeName(OrderAttributeName)]
-        public int Ordinal { get; set; }
+        public virtual int Ordinal { get; set; }
 
         /// <summary>
         /// Whether the widget output should be inserted BEFORE target zone's existing content. 
         /// Omitting this attribute renders widget output AFTER any existing content.
         /// </summary>
         [HtmlAttributeName(PrependAttributeName)]
-        public bool Prepend { get; set; }
+        public virtual bool Prepend { get; set; }
 
         /// <summary>
         /// When set, ensures uniqueness within a particular zone.
         /// </summary>
         [HtmlAttributeName(KeyAttributeName)]
-        public string Key { get; set; }
+        public virtual string Key { get; set; }
 
         protected override string GenerateTagId(TagHelperContext context) 
             => null;
@@ -97,6 +85,63 @@ namespace Smartstore.Web.TagHelpers.Shared
                 var widget = new HtmlWidgetInvoker(content) { Order = Ordinal, Prepend = Prepend, Key = Key };
                 _widgetProvider.RegisterWidget(TargetZone, widget);
             }
+        }
+    }
+
+    [HtmlTargetElement("script", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("link", Attributes = TargetZoneAttributeName, TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement("meta", Attributes = TargetZoneAttributeName, TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement("div", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("span", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("section", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("form", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("ul", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("ol", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("svg", Attributes = TargetZoneAttributeName)]
+    [HtmlTargetElement("img", Attributes = TargetZoneAttributeName, TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement("a", Attributes = TargetZoneAttributeName)]
+    public class HtmlWidgetTagHelper : WidgetTagHelper
+    {
+        const string TargetZoneAttributeName = "sm-target-zone";
+        const string OrderAttributeName = "sm-order";
+        const string PrependAttributeName = "sm-prepend";
+        const string KeyAttributeName = "sm-key";
+
+        public HtmlWidgetTagHelper(IWidgetProvider widgetProvider)
+            : base(widgetProvider)
+        {
+        }
+
+        /// <inheritdoc/>
+        [HtmlAttributeName(TargetZoneAttributeName)]
+        public override string TargetZone
+        {
+            get => base.TargetZone;
+            set => base.TargetZone = value;
+        }
+
+        /// <inheritdoc/>
+        [HtmlAttributeName(OrderAttributeName)]
+        public override int Ordinal
+        {
+            get => base.Ordinal;
+            set => base.Ordinal = value;
+        }
+
+        /// <inheritdoc/>
+        [HtmlAttributeName(PrependAttributeName)]
+        public override bool Prepend
+        {
+            get => base.Prepend;
+            set => base.Prepend = value;
+        }
+
+        /// <inheritdoc/>
+        [HtmlAttributeName(KeyAttributeName)]
+        public override string Key
+        {
+            get => base.Key;
+            set => base.Key = value;
         }
     }
 }
