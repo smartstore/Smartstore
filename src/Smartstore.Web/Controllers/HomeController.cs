@@ -322,7 +322,7 @@ namespace Smartstore.Web.Controllers
             };
 
             var matches = await _mediaService.SearchFilesAsync(query);
-            Request.Query.TryGetValue("pagenumber", out var pagenumber);
+            Request.Query.TryGetValue("page", out var pagenumber);
             matches.PageNumber = Convert.ToInt32(pagenumber);
 
             testModel.TestList = matches;

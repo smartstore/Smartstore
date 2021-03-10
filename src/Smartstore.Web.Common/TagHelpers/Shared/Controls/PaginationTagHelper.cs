@@ -47,7 +47,8 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string MaxPagesToDisplayAttributeName = "sm-max-pages";
         const string SkipActiveStateAttributeName = "sm-skip-active-state";
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
-
+        const string ModifiedParamNameAttributeName = "sm-modified-param";
+        
         // TODO: (mh) (core) Make ModifiedParamName attribute?
 
         [HtmlAttributeName(ListItemsAttributeName)]
@@ -85,6 +86,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         [HtmlAttributeName(ItemTitleFormatStringAttributeName)]
         public string ItemTitleFormatString { get; set; }
+
+        [HtmlAttributeName(ModifiedParamNameAttributeName)]
+        public string ModifiedParamName { get; set; } = "page";
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -397,7 +401,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var routeValues = ActionContextAccessor.ActionContext.RouteData.Values;
             var newValues = new RouteValueDictionary(routeValues)
             {
-                ["pagenumber"] = pageNumber
+                [ModifiedParamName.HasValue() ? ModifiedParamName : "pagenumber"] = pageNumber
             };
 
             return UrlHelper.RouteUrl(newValues);
