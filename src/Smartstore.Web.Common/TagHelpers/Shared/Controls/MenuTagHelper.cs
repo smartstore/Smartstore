@@ -7,12 +7,11 @@ using Smartstore.Web.Rendering.Menus;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-    [OutputElementHint("div")]
     [HtmlTargetElement("menu", Attributes = NameAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class MenuTagHelper : SmartTagHelper 
     {
-        const string NameAttributeName = "sm-name";
-        const string TemplateAttributeName = "sm-template";
+        const string NameAttributeName = "name";
+        const string TemplateAttributeName = "template";
 
         private readonly IMenuService _menuService;
 
