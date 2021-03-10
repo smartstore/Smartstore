@@ -1,19 +1,29 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Imaging;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
     public abstract class BaseImageTagHelper : BaseMediaTagHelper
     {
+        protected const string ModelAttributeName = "sm-model";
         const string SizeAttributeName = "sm-size";
         const string WidthAttributeName = "sm-width";
         const string HeightAttributeName = "sm-height";
         const string ResizeModeAttributeName = "sm-resize-mode";
         const string AnchorPosAttributeName = "sm-anchor-position";
         const string NoFallbackAttributeName = "sm-no-fallback";
+
+        /// <summary>
+        /// The composite image model that summarizes all image attributes.
+        /// </summary>
+        [HtmlAttributeName(ModelAttributeName)]
+        public IImageModel Model { get; set; }
 
         /// <summary>
         /// The max physical size (either width or height) to resize the image to.
@@ -51,8 +61,21 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(NoFallbackAttributeName)]
         public bool NoFallback { get; set; }
 
-        [HtmlAttributeName(NoFallbackAttributeName)]
+        [HtmlAttributeNotBound]
         internal ProcessImageQuery ImageQuery { get; set; }
+
+        protected override Task PrepareModelAsync()
+        {
+            if (Model != null)
+            {
+                File ??= Model.File;
+                Size ??= Model.ThumbSize;
+                Host ??= Model.Host;
+                NoFallback = Model.NoFallback;
+            }
+            
+            return base.PrepareModelAsync();
+        }
 
         protected override string GenerateMediaUrl()
         {

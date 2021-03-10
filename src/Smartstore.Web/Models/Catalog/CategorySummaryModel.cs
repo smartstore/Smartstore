@@ -9,7 +9,7 @@ namespace Smartstore.Web.Models.Catalog
     {
         public LocalizedValue<string> Name { get; set; }
         public string Url { get; set; }
-        public PictureModel PictureModel { get; set; } = new PictureModel();
+        public ImageModel Image { get; set; } = new ImageModel();
 
         // TODO: Badges
     }

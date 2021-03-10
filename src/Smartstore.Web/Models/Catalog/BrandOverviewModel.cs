@@ -10,6 +10,6 @@ namespace Smartstore.Web.Models.Catalog
         public LocalizedValue<string> Name { get; set; }
         public LocalizedValue<string> Description { get; set; }
         public string SeName { get; set; }
-        public PictureModel Picture { get; set; }
+        public ImageModel Image { get; set; }
     }
 }

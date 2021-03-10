@@ -11,6 +11,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     [OutputElementHint("figure")]
     [HtmlTargetElement(MediaTagName, Attributes = FileAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     [HtmlTargetElement(MediaTagName, Attributes = FileIdAttributeName, TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement(MediaTagName, Attributes = ModelAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class MediaTagHelper : BaseImageTagHelper
     {
         const string MediaTagName = "media";
@@ -78,6 +79,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
                 if (tagHelper is BaseImageTagHelper imgTagHelper)
                 {
+                    imgTagHelper.Model = Model;
                     imgTagHelper.ImageQuery = ImageQuery;
                     imgTagHelper.AnchorPosition = AnchorPosition;
                     imgTagHelper.Height = Height;

@@ -15,6 +15,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     [OutputElementHint("figure")]
     [HtmlTargetElement(ThumbnailTagName, Attributes = FileAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     [HtmlTargetElement(ThumbnailTagName, Attributes = FileIdAttributeName, TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement(ThumbnailTagName, Attributes = ModelAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class ThumbnailTagHelper : BaseImageTagHelper
     {
         const string ThumbnailTagName = "media-thumbnail";
@@ -48,13 +49,13 @@ namespace Smartstore.Web.TagHelpers.Shared
             picture.Attributes["class"] = "file-thumb";
             picture.Attributes["data-type"] = mediaType;
             output.Attributes.MoveAttribute(picture, "title");
-            picture.MergeAttribute("title", () => File?.File?.GetLocalized(x => x.Title).Value.NullEmpty(), false, true);
+            picture.MergeAttribute("title", () => Model?.Title ?? File?.File?.GetLocalized(x => x.Title).Value.NullEmpty(), false, true);
 
             // Build <img/>
             var img = new TagBuilder("img") { TagRenderMode = TagRenderMode.SelfClosing };
             img.Attributes["class"] = "file-img";
             img.Attributes["data-src"] = Src;
-            img.MergeAttribute("alt", () => File?.File?.GetLocalized(x => x.Alt).Value.NullEmpty(), false, true);
+            img.MergeAttribute("alt", () => Model?.Alt ?? File?.File?.GetLocalized(x => x.Alt).Value.NullEmpty(), false, true);
 
             // picture > img
             picture.InnerHtml.SetHtmlContent(img);

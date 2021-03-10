@@ -58,7 +58,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             if (!Initialized)
             {
-                File ??= await MediaService.GetFileByIdAsync(FileId ?? 0, MediaLoadFlags.AsNoTracking);
+                await PrepareModelAsync();
                 Src = GenerateMediaUrl();
                 Initialized = true;
             }
@@ -70,12 +70,17 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             if (!Initialized)
             {
-                File ??= MediaService.GetFileByIdAsync(FileId ?? 0, MediaLoadFlags.AsNoTracking).Await();
+                PrepareModelAsync().GetAwaiter().GetResult();
                 Src = GenerateMediaUrl();
                 Initialized = true;
             }
 
             ProcessMedia(context, output);
+        }
+
+        protected virtual async Task PrepareModelAsync()
+        {
+            File ??= await MediaService.GetFileByIdAsync(FileId ?? 0, MediaLoadFlags.AsNoTracking);
         }
 
         protected virtual Task ProcessMediaAsync(TagHelperContext context, TagHelperOutput output)

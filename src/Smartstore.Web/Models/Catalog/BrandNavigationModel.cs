@@ -13,7 +13,7 @@ namespace Smartstore.Web.Models.Catalog
         public bool DisplayBrands { get; set; }
         public bool DisplayImages { get; set; }
         public bool HideBrandDefaultPictures { get; set; }
-        public int BrandThumbPictureSize { get; set; }
+        public int BrandThumbImageSize { get; set; }
     }
 
     public partial class BrandBriefInfoModel : EntityModelBase
@@ -21,6 +21,6 @@ namespace Smartstore.Web.Models.Catalog
         public LocalizedValue<string> Name { get; set; }
         public string SeName { get; set; }
         public int DisplayOrder { get; set; }
-        public PictureModel Picture { get; set; }
+        public ImageModel Image { get; set; }
     }
 }

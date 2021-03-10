@@ -21,6 +21,11 @@ namespace Smartstore.Core.Content.Menus
         public int? ElementsCount { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether <see cref="ElementsCount"/> has been resolved already.
+        /// </summary>
+        public bool ElementsCountResolved { get; set; }
+
+        /// <summary>
         /// Unique identifier.
         /// </summary>
         public string Id

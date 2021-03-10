@@ -6,6 +6,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 {
     [HtmlTargetElement(ImageTagName, Attributes = FileAttributeName)]
     [HtmlTargetElement(ImageTagName, Attributes = FileIdAttributeName)]
+    [HtmlTargetElement(ImageTagName, Attributes = ModelAttributeName)]
     public class ImageTagHelper : BaseImageTagHelper
     {
         const string ImageTagName = "img";
@@ -21,8 +22,8 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.AppendCssClass("file-img");
             output.Attributes.SetAttribute("src", Src);
 
-            output.Attributes.SetAttributeNoReplace("alt", () => File?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty());
-            output.Attributes.SetAttributeNoReplace("title", () => File?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty());
+            output.Attributes.SetAttributeNoReplace("alt", () => Model?.Alt ?? File?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty());
+            output.Attributes.SetAttributeNoReplace("title", () => Model?.Title ?? File?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty());
         }
     }
 }
