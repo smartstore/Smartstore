@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Web.Controllers;
@@ -11,7 +12,8 @@ namespace Smartstore.Web.Infrastructure
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
             builder.RegisterType<CatalogHelper>().InstancePerLifetimeScope();
-
+            builder.RegisterType<LinkResolver>().InstancePerLifetimeScope();
+            
             // TODO: (core) Continue PublicStarter
         }
     }

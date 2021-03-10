@@ -45,7 +45,7 @@
                 </div>
 
                 <zone sm-zone-name="teaser"></zone>
-                <breadcrumb />
+
                 @await Component.InvokeAsync("Breadcrumb")
 
                 <div id="content-body" class="row">
@@ -64,7 +64,7 @@
 
         <zone sm-zone-name="content-after"></zone>
 
-        <partial name="_Footer" />
+        @await Component.InvokeAsync("Footer")
     </div>
 
     <a href="#" id="scroll-top" class="scrollto d-flex align-items-center justify-content-center shadow-sm">
