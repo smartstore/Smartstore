@@ -12,10 +12,18 @@ namespace Smartstore.Core.Catalog.Attributes
     internal class ProductVariantAttributeHook : AsyncDbSaveHook<ProductVariantAttribute>
     {
         private readonly SmartDbContext _db;
+        private readonly HashSet<int> _deletedAttributeValueIds = new();
 
         public ProductVariantAttributeHook(SmartDbContext db)
         {
             _db = db;
+        }
+
+        protected override Task<HookResult> OnDeletingAsync(ProductVariantAttribute entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            _deletedAttributeValueIds.AddRange(entity.ProductVariantAttributeValues.Select(x => x.Id));
+            
+            return Task.FromResult(HookResult.Ok);
         }
 
         protected override Task<HookResult> OnDeletedAsync(ProductVariantAttribute entity, IHookedEntity entry, CancellationToken cancelToken)
@@ -35,6 +43,17 @@ namespace Smartstore.Core.Catalog.Attributes
                 await _db.ProductBundleItemAttributeFilter
                     .Where(x => deletedAttributeIds.Contains(x.AttributeId))
                     .BatchDeleteAsync(cancelToken);
+            }
+
+            // Delete localized properties of attribute values that were deleted by referential integrity.
+            // Cannot be done by ProductVariantAttributeValueHook.
+            if (_deletedAttributeValueIds.Any())
+            {
+                await _db.LocalizedProperties
+                    .Where(x => _deletedAttributeValueIds.Contains(x.EntityId) && x.LocaleKeyGroup == nameof(ProductVariantAttributeValue))
+                    .BatchDeleteAsync(cancelToken);
+
+                _deletedAttributeValueIds.Clear();
             }
         }
     }

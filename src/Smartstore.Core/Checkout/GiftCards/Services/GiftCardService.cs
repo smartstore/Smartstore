@@ -83,9 +83,6 @@ namespace Smartstore.Core.Checkout.GiftCards
         {
             Guard.NotNull(giftCard, nameof(giftCard));
 
-            // Actually the primary currency of the store where the order was purchased should be used here.
-            // But for the sake of simplicity we use the current store's primary currency.
-
             return _primaryCurrency.AsMoney(GetRemainingAmountCore(giftCard), false, true);
         }
 
