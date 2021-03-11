@@ -149,8 +149,8 @@ namespace Smartstore.Web.Infrastructure.Hooks
 		/// <remarks>
 		/// {0} : current store id
 		/// </remarks>
-		public const string HOMEPAGE_BESTSELLERS_IDS_KEY = "pres:bestsellers:homepage-{0}";
-		public const string HOMEPAGE_BESTSELLERS_IDS_PATTERN_KEY = "pres:bestsellers:homepage*";
+		public const string HOMEPAGE_BESTSELLERS_REPORT_KEY = "pres:bestsellers:homepage-{0}";
+		public const string HOMEPAGE_BESTSELLERS_REPORT_PATTERN_KEY = "pres:bestsellers:homepage*";
 
 		/// <summary>
 		/// Key for "also purchased" product identifiers displayed on the product details page
@@ -273,12 +273,12 @@ namespace Smartstore.Web.Infrastructure.Hooks
 				var deleted = ((Product)entity).Deleted;
 				if (deleted)
 				{
-					await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_IDS_PATTERN_KEY);
+					await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_REPORT_PATTERN_KEY);
 					await _cache.RemoveByPatternAsync(PRODUCTS_ALSO_PURCHASED_IDS_PATTERN_KEY);
 				}
 				else
 				{
-					await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_IDS_PATTERN_KEY);
+					await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_REPORT_PATTERN_KEY);
 					await _cache.RemoveByPatternAsync(PRODUCTS_ALSO_PURCHASED_IDS_PATTERN_KEY);
 					await _cache.RemoveByPatternAsync(PRODUCTTAG_POPULAR_PATTERN_KEY);
 					await _cache.RemoveByPatternAsync(PRODUCTTAG_BY_PRODUCT_PATTERN_KEY);
@@ -347,24 +347,24 @@ namespace Smartstore.Web.Infrastructure.Hooks
 				await _cache.RemoveByPatternAsync(AVAILABLE_LANGUAGES_PATTERN_KEY);
 				await _cache.RemoveByPatternAsync(AVAILABLE_CURRENCIES_PATTERN_KEY);
 			}
-			else if (entity is Order || entity is OrderItem)
-			{
-				await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_IDS_PATTERN_KEY);
+            else if (entity is Order || entity is OrderItem)
+            {
+				//await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_REPORT_PATTERN_KEY); // Don't make bestsellers report volatile.
 				await _cache.RemoveByPatternAsync(PRODUCTS_ALSO_PURCHASED_IDS_PATTERN_KEY);
-			}
-			//else if (entity is Poll)
-			//{
-			//	_cache.RemoveByPatternAsync(POLLS_PATTERN_KEY);
-			//}
-			//else if (entity is BlogPost)
-			//{
-			//	_cache.RemoveByPatternAsync(BLOG_PATTERN_KEY);
-			//}
-			//else if (entity is NewsItem)
-			//{
-			//	_cache.RemoveByPatternAsync(NEWS_PATTERN_KEY);
-			//}
-			else if (entity is StateProvince)
+            }
+            //else if (entity is Poll)
+            //{
+            //	_cache.RemoveByPatternAsync(POLLS_PATTERN_KEY);
+            //}
+            //else if (entity is BlogPost)
+            //{
+            //	_cache.RemoveByPatternAsync(BLOG_PATTERN_KEY);
+            //}
+            //else if (entity is NewsItem)
+            //{
+            //	_cache.RemoveByPatternAsync(NEWS_PATTERN_KEY);
+            //}
+            else if (entity is StateProvince)
 			{
 				await _cache.RemoveByPatternAsync(STATEPROVINCES_PATTERN_KEY);
 			}
@@ -387,9 +387,11 @@ namespace Smartstore.Web.Infrastructure.Hooks
 					// Clear models which depend on settings
 					await _cache.RemoveByPatternAsync(PRODUCTTAG_POPULAR_PATTERN_KEY); // depends on CatalogSettings.NumberOfProductTags
 					await _cache.RemoveByPatternAsync(MANUFACTURER_NAVIGATION_PATTERN_KEY); // depends on CatalogSettings.ManufacturerItemsToDisplayOnHomepage
-					await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_IDS_PATTERN_KEY); // depends on CatalogSettings.NumberOfBestsellersOnHomepage
-					await _cache.RemoveByPatternAsync(BLOG_PATTERN_KEY); // depends on BlogSettings.NumberOfTags
-					await _cache.RemoveByPatternAsync(NEWS_PATTERN_KEY); // depends on NewsSettings.MainPageNewsCount
+					await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_REPORT_PATTERN_KEY); // depends on CatalogSettings.NumberOfBestsellersOnHomepage
+
+					//// TODO: (core) Move to external module
+					//await _cache.RemoveByPatternAsync(BLOG_PATTERN_KEY); // depends on BlogSettings.NumberOfTags
+					//await _cache.RemoveByPatternAsync(NEWS_PATTERN_KEY); // depends on NewsSettings.MainPageNewsCount
 				}
 			}
 			else

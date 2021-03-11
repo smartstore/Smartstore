@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Categories;
@@ -10,6 +12,7 @@ using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.Web.Components
@@ -43,21 +46,41 @@ namespace Smartstore.Web.Components
                 return Empty();
             }
 
-            // TODO: (mh) (core) This query is only for testing purposes. Use bestsellers from IOrderReportService once ready.
+            var storeId = Services.StoreContext.CurrentStore.Id;
+
+            // Load report from cache
+            var report = await Services.Cache.GetAsync(ModelCacheInvalidator.HOMEPAGE_BESTSELLERS_REPORT_KEY.FormatInvariant(storeId), async (o) =>
+            {
+                o.ExpiresIn(TimeSpan.FromHours(1));
+
+                // TODO: (ms) (core) Publish event for BestSellers resolution so that modules can jump in with custom resolvers.
+
+                var query = _db.OrderItems
+                    .AsNoTracking()
+                    .ApplyOrderFilter(storeId)
+                    .ApplyProductFilter()
+                    .SelectAsBestSellersReportLine()
+                    // INFO: some products may be excluded by ACL or store mapping later, so take more.
+                    .Take(Convert.ToInt32(_catalogSettings.NumberOfBestsellersOnHomepage * 1.5));
+
+                var sql = query.ToQueryString();
+
+                var bestSellers = await query.ToListAsync();
+                return bestSellers;
+            });
+
+            if (report.Count == 0)
+            {
+                return Empty();
+            }
 
             // Load products
-            var products = await _db.Products
-                .AsNoTracking()
-                .ApplyStandardFilter(false)
-                .Where(x => !x.ShowOnHomePage && x.MainPictureId > 0)
-                .OrderByDescending(x => x.Id)
-                .Skip(100)
-                .Take(_catalogSettings.NumberOfBestsellersOnHomepage)
-                .ToListAsync();
+            var products = await _db.Products.GetManyAsync(report.Select(x => x.ProductId));
 
             // ACL and store mapping
             products = await products
                 .WhereAsync(async c => (await _aclService.AuthorizeAsync(c)) && (await _storeMappingService.AuthorizeAsync(c)))
+                .Take(_catalogSettings.NumberOfBestsellersOnHomepage)
                 .AsyncToList();
 
             var viewMode = _catalogSettings.UseSmallProductBoxOnHomePage ? ProductSummaryViewMode.Mini : ProductSummaryViewMode.Grid;

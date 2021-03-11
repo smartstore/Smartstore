@@ -23,6 +23,12 @@ namespace Smartstore.Web.Infrastructure
 
             cheatsheet.Append(new MenuItem()
                 .ToBuilder()
+                .Text("Controls")
+                .Action("Controls", "Home")
+                .AsItem());
+
+            cheatsheet.Append(new MenuItem()
+                .ToBuilder()
                 .Text("Privacy")
                 .Route("Privacy")
                 .AsItem());
@@ -67,12 +73,6 @@ namespace Smartstore.Web.Infrastructure
                 .ToBuilder()
                 .Text("Messages")
                 .Action("Messages", "Home")
-                .AsItem());
-
-            cheatsheet.Append(new MenuItem()
-                .ToBuilder()
-                .Text("Controls")
-                .Action("Controls", "Home")
                 .AsItem());
         }
     }

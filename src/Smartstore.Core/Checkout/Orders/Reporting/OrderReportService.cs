@@ -41,7 +41,7 @@ namespace Smartstore.Core.Checkout.Orders.Reporting
         // apply status filter
         // apply shipping filer
         // apply time filter
-        public virtual Task<IPagedList<BestsellersReportLine>> BestSellersReportAsync(
+        public virtual Task<IPagedList<BestSellersReportLine>> BestSellersReportAsync(
             int storeId,
             DateTime? startTime,
             DateTime? endTime,
@@ -73,7 +73,7 @@ namespace Smartstore.Core.Checkout.Orders.Reporting
             var groupedQuery =
                 from orderItem in query
                 group orderItem by orderItem.ProductId into g
-                select new BestsellersReportLine
+                select new BestSellersReportLine
                 {
                     ProductId = g.Key,
                     TotalAmount = g.Sum(x => x.PriceExclTax),
