@@ -47,8 +47,6 @@ namespace Smartstore.Core.Checkout.GiftCards
                 .Select(x => new AppliedGiftCard
                 {
                     GiftCard = x,
-                    // Actually the primary currency of the store where the order was purchased should be used here.
-                    // But for the sake of simplicity we use the current store's primary currency.
                     UsableAmount = new(x.Amount - x.GiftCardUsageHistory.Where(y => y.GiftCardId == x.Id).Sum(x => x.UsedValue), _primaryCurrency)
                 })
                 .Where(x => x.UsableAmount > decimal.Zero)

@@ -15,27 +15,27 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Cart subtotal excluding discount.
         /// </summary>
-        public Money SubTotalWithoutDiscount { get; set; }
+        public Money SubTotalWithoutDiscount { get; init; }
 
         /// <summary>
         /// Cart subtotal including discount.
         /// </summary>
-        public Money SubTotalWithDiscount { get; set; }
+        public Money SubTotalWithDiscount { get; init; }
 
         /// <summary>
         /// Discount amount.
         /// </summary>
-        public Money DiscountAmount { get; set; }
+        public Money DiscountAmount { get; init; }
 
         /// <summary>
         /// Applied discount.
         /// </summary>
-        public Discount AppliedDiscount { get; set; }
+        public Discount AppliedDiscount { get; init; }
 
         /// <summary>
         /// Tax rates.
         /// </summary>
-        public TaxRatesDictionary TaxRates { get; init; } = new();
+        public TaxRatesDictionary TaxRates { get; init; }
 
         /// <summary>
         /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="SubTotalWithDiscount"/>.

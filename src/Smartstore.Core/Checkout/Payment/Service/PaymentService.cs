@@ -20,7 +20,7 @@ using StackExchange.Profiling.Internal;
 
 namespace Smartstore.Core.Checkout.Payment
 {
-    public partial class PaymentService //: IPaymentService
+    public partial class PaymentService : IPaymentService
     {
         private const string PAYMENT_METHODS_ALL_KEY = "SmartStore.paymentmethod.all-{0}-";
 
@@ -320,7 +320,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <param name="cart">Shopping cart.</param>
         /// <param name="paymentMethodSystemName">Payment method system name.</param>
         /// <returns>Additional handling fee</returns>
-        public virtual async Task<Money> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart, string paymentMethodSystemName)
+        public virtual async Task<Money> GetPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, string paymentMethodSystemName)
         {
             var currency = _services.StoreContext.CurrentStore.PrimaryStoreCurrency;
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);

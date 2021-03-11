@@ -8,31 +8,23 @@ namespace Smartstore.Core.Checkout.Cart
     /// </summary>
     public partial class ShoppingCartShippingTotal
     {
-        public ShoppingCartShippingTotal(Money? shippingTotal)
-        {
-            ShippingTotal = shippingTotal;
-        }
-
         public static implicit operator Money?(ShoppingCartShippingTotal obj)
             => obj.ShippingTotal;
-
-        public static implicit operator ShoppingCartShippingTotal(Money? obj)
-            => new(obj);
 
         /// <summary>
         /// Cart shipping total.
         /// </summary>
-        public Money? ShippingTotal { get; private set; }
+        public Money? ShippingTotal { get; init; }
 
         /// <summary>
         /// Applied discount.
         /// </summary>
-        public Discount AppliedDiscount { get; set; }
+        public Discount AppliedDiscount { get; init; }
 
         /// <summary>
         /// Tax rate.
         /// </summary>
-        public decimal TaxRate { get; set; }
+        public decimal TaxRate { get; init; }
 
         /// <summary>
         /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="SubTotalWithDiscount"/>.
