@@ -220,6 +220,8 @@ namespace Smartstore.Core.Checkout.Tax
             vatNumber = vatNumber.Replace(" ", string.Empty);
             twoLetterIsoCode = twoLetterIsoCode.ToUpper();
 
+            await Task.Delay(0); // TODO: (ms) (core) Remove after VAT check was implemented properly.
+
             return (VatNumberStatus.Valid, name, address);
             //EuropeCheckVatService.checkVatService vatService = null;
             //try

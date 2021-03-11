@@ -13,39 +13,50 @@ namespace Smartstore.Core.Common.Services
     public partial interface ICurrencyService
     {
         /// <summary>
-        /// Converts a currency amount.
+        /// Exchanges given <see cref="Money"/> amount to <see cref="Store.PrimaryStoreCurrency"/>
+        /// of passed <paramref name="store"/>, or of <see cref="IStoreContext.CurrentStore"/> if <paramref name="store"/> is <c>null</c>.
         /// </summary>
-        /// <param name="amount">Currency amount to be converted.</param>
-        /// <param name="exchangeRate">Exchange rate.</param>
-        /// <returns>Converted currency amount.</returns>
-        Money ConvertCurrency(Money amount, decimal exchangeRate);
+        /// <param name="amount">The source amount to exchange</param>
+        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store.</param>
+        /// <returns>The exchanged amount.</returns>
+        Money ConvertToPrimaryCurrency(Money amount, Store store = null);
 
         /// <summary>
-        /// Converts a currency amount.
+        /// Exchanges given <see cref="Money"/> amount to <see cref="Store.PrimaryExchangeRateCurrency"/>
+        /// of passed <paramref name="store"/>, or of <see cref="IStoreContext.CurrentStore"/> if <paramref name="store"/> is <c>null</c>.
         /// </summary>
-        /// <param name="amount">Currency amount to be converted.</param>
-        /// <param name="targetCurrency">The currency into which the conversion is made.</param>
-        /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
-        /// <returns>Converted currency amount where <see cref="Money.Currency"/> is <paramref name="targetCurrency"/>.</returns>
-        Money ConvertCurrency(Money amount, Currency targetCurrency, Store store = null);
+        /// <param name="amount">The source amount to exchange</param>
+        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store.</param>
+        /// <returns>The exchanged amount.</returns>
+        Money ConvertToExchangeRateCurrency(Money amount, Store store = null);
 
         /// <summary>
-        /// Converts a currency amount into the exchange rate or primary currency of a store.
+        /// Exchanges given <see cref="Money"/> amount to <see cref="IWorkContext.WorkingCurrency"/>,
+        /// using <see cref="Store.PrimaryExchangeRateCurrency"/> as exchange rate currency.
         /// </summary>
-        /// <param name="toExchangeRateCurrency"><c>true</c> convert to exchange rate currency. <c>false</c> convert to primary store currency.</param>
-        /// <param name="amount">Source currency and amount to be converted.</param>
-        /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
-        /// <returns>Converted currency amount where <see cref="Money.Currency"/> is the corresponding store currency.</returns>
-        Money ConvertToStoreCurrency(bool toExchangeRateCurrency, Money amount, Store store = null);
+        /// <param name="amount">The source amount to exchange</param>
+        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store's <see cref="Store.PrimaryExchangeRateCurrency"/>.</param>
+        /// <returns>The exchanged amount.</returns>
+        Money ConvertToWorkingCurrency(Money amount, Store store = null);
 
         /// <summary>
-        /// Converts a currency amount from the exchange rate or primary currency of a store.
+        /// Exchanges given money amount (which is assumed to be in <see cref="Store.PrimaryStoreCurrency"/>) to <see cref="IWorkContext.WorkingCurrency"/>,
+        /// using <see cref="Store.PrimaryExchangeRateCurrency"/> as exchange rate currency.
         /// </summary>
-        /// <param name="fromExchangeRateCurrency"><c>true</c> convert from exchange rate currency. <c>false</c> convert from primary store currency.</param>
-        /// <param name="amount">Target currency and amount to be converted.</param>
-        /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
-        /// <returns>Converted currency amount where <see cref="Money.Currency"/> is the currency of <paramref name="amount"/>.</returns>
-        Money ConvertFromStoreCurrency(bool fromExchangeRateCurrency, Money amount, Store store = null);
+        /// <param name="amount">The source amount to exchange (should be in <see cref="Store.PrimaryStoreCurrency"/>).</param>
+        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store's <see cref="Store.PrimaryExchangeRateCurrency"/>.</param>
+        /// <returns>The exchanged amount.</returns>
+        Money ConvertToWorkingCurrency(decimal amount, Store store = null);
+
+        /// <summary>
+        /// Exchanges given <see cref="Money"/> amount to <paramref name="targetCurrency"/>,
+        /// using <see cref="Store.PrimaryExchangeRateCurrency"/> as exchange rate currency.
+        /// </summary>
+        /// <param name="amount">The source amount to exchange.</param>
+        /// <param name="targetCurrency">The target currency to exchange amount to.</param>
+        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store's <see cref="Store.PrimaryExchangeRateCurrency"/>.</param>
+        /// <returns>The exchanged amount.</returns>
+        Money ConvertToCurrency(Money amount, Currency targetCurrency, Store store = null);
 
         /// <summary>
         /// Gets currency live rates
@@ -74,41 +85,51 @@ namespace Smartstore.Core.Common.Services
         IEnumerable<Provider<IExchangeRateProvider>> LoadAllExchangeRateProviders();
 
         /// <summary>
-        /// Creates and returns a money struct, including tax infomation to format a price with tax suffix.
+        ///     Creates and returns a <see cref="Money"/> struct.
         /// </summary>
-        /// <param name="price">Price.</param>
+        /// <param name="price">
+        ///     The money amount.
+        /// </param>
         /// <param name="displayCurrency">
-        /// A value indicating whether to display the currency symbol/code.
+        ///     A value indicating whether to display the currency symbol/code.
         /// </param>
         /// <param name="currencyCodeOrObj">
-        /// Target currency as string code (e.g. USD) or an actual <see cref="Currency"/> instance. If <c>null</c>,
-        /// currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.
+        ///     Target currency as string code (e.g. USD) or an actual <see cref="Currency"/> instance. If <c>null</c>,
+        ///     currency will be obtained via <see cref="IWorkContext.WorkingCurrency"/>.
         /// </param>
-        /// <param name="language">
-        /// Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
+        /// <returns>Money</returns>
+        Money CreateMoney(decimal price, bool displayCurrency = true, object currencyCodeOrObj = null);
+
+        /// <summary>
+        ///     Applies a tax formatting pattern to given money <paramref name="source"/>,
+        ///     e.g. "{0} *", "{0} incl. tax"
+        /// </summary>
+        /// <param name="source">
+        ///     The source <see cref="Money"/> to apply formatting to.
+        /// </param>
+        /// <param name="displayTaxSuffix">
+        ///     A value indicating whether to display the tax suffix.
+        ///     If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
+        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
+        ///     according to <paramref name="target"/>.
         /// </param>
         /// <param name="priceIncludesTax">
-        /// A value indicating whether given price includes tax already.
-        /// If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
-        /// </param>
-        /// <param name="displayTax">
-        /// A value indicating whether to display the tax suffix.
-        /// If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
-        /// additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
-        /// according to <paramref name="target"/>.
+        ///     A value indicating whether given price includes tax already.
+        ///     If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
         /// </param>
         /// <param name="target">
-        /// The target object to format price for. This parameter affects how <paramref name="displayTax"/>
-        /// will be auto-resolved if it is <c>null</c>.
+        ///     The target object to format price for. This parameter affects how <paramref name="displayTax"/>
+        ///     will be auto-resolved if it is <c>null</c>.
         /// </param>
-        /// <returns>Money.</returns>
-        Money CreateMoney(
-            decimal price,
-            bool displayCurrency = true,
-            object currencyCodeOrObj = null,
-            Language language = null,
+        /// <param name="language">
+        ///     Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
+        /// </param>
+        /// <returns>Money</returns>
+        Money ApplyTaxFormat(
+            Money source,
+            bool? displayTaxSuffix = null,
             bool? priceIncludesTax = null,
-            bool? displayTax = null,
-            PricingTarget target = PricingTarget.Product);
+            PricingTarget target = PricingTarget.Product,
+            Language language = null);
     }
 }

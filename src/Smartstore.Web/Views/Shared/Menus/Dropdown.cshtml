@@ -22,7 +22,7 @@
 
 <div class="cms-menu cms-menu-dropdown" data-menu-name="@(Model.Name?.ToLower())">
     <div class="dropdown">
-        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#" rel="nofollow" sm-attrs="@item.GetCombinedAttributes().PrependCssClass("menubar-link")">
+        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#" rel="nofollow" attrs="@item.GetCombinedAttributes().PrependCssClass("menubar-link")">
             <span sm-language-attributes-for="item">@root.GetItemText(T)</span>
             <i class="fal fa-angle-down menubar-caret"></i>
         </a>
@@ -71,7 +71,7 @@
 
                 var attrs = item.GetCombinedAttributes().PrependCssClass("dropdown-item menu-link");
 
-                <a href="@itemUrl" sm-attrs="attrs">
+                <a href="@itemUrl" attrs="attrs">
                     @if (hasIcons)
                     {
                         <i class="fa-fw@(item.Icon.HasValue() ? item.Icon.EnsureStartsWith(" ") : " fas")"></i>

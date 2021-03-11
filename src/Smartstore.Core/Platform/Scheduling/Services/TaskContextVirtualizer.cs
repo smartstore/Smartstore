@@ -30,14 +30,17 @@ namespace Smartstore.Scheduling
                     .FindByIdAsync(taskParameters[CurrentCustomerIdParamName].Convert<int>());
             }
 
-            if (customer == null)
+            if (customer == null && !workContext.CurrentCustomer.IsBackgroundTaskAccount())
             {
                 // No virtualization: set background task system customer as current customer.
                 customer = await customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.BackgroundTask);
             }
 
             // Set virtual customer.
-            workContext.CurrentCustomer = customer;
+            if (customer != null)
+            {
+                workContext.CurrentCustomer = customer;
+            }
 
             // Try virtualize current store.
             if (taskParameters != null && taskParameters.ContainsKey(CurrentStoreIdParamName))

@@ -68,7 +68,7 @@ namespace Smartstore.Core.Content.Menus
 
         public override async Task ResolveElementCountAsync(TreeNode<MenuItem> curNode, bool deep = false)
         {
-            if (curNode == null || !await ContainsProviderAsync("catalog") || !_catalogSettings.ShowCategoryProductNumber)
+            if (curNode == null || !_catalogSettings.ShowCategoryProductNumber ||!await ContainsProviderAsync("catalog"))
             {
                 return;
             }

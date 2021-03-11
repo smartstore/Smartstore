@@ -163,7 +163,7 @@ namespace Smartstore.Core.Messages
                     taxRates = new SortedDictionary<decimal, decimal>();
                     foreach (var tr in order.TaxRatesDictionary)
                     {
-                        taxRates.Add(tr.Key, currencyService.ConvertCurrency(new(tr.Value, customerCurrency), order.CurrencyRate).Amount);
+                        taxRates.Add(tr.Key, tr.Value * order.CurrencyRate);
                     }
 
                     displayTaxRates = taxSettings.DisplayTaxRates && taxRates.Count > 0;

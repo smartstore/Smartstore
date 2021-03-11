@@ -40,91 +40,50 @@ namespace Smartstore.Core.Common.Services
             _taxSettings = taxSettings;
         }
 
-        public virtual Money ConvertCurrency(Money amount, decimal exchangeRate)
-        {
-            if (amount != decimal.Zero && exchangeRate != decimal.Zero)
-            {
-                return amount * exchangeRate;
-            }
+        #region Currency conversion
 
-            return amount.WithAmount(0m, amount.Currency);
-        }
-
-        public virtual Money ConvertCurrency(Money amount, Currency targetCurrency, Store store = null)
-        {
-            Guard.NotNull(amount.Currency, nameof(amount.Currency));
-            Guard.NotNull(targetCurrency, nameof(targetCurrency));
-
-            var sourceCurrency = amount.Currency;
-
-            if (sourceCurrency.Id == targetCurrency.Id)
-            {
-                return amount;
-            }
-
-            if (amount != decimal.Zero)
-            {
-                var tmp = ConvertToStoreCurrency(true, amount, store).WithCurrency(targetCurrency);
-
-                return ConvertFromStoreCurrency(true, tmp, store);
-            }
-
-            return amount.WithAmount(amount.Amount, targetCurrency);
-        }
-
-        public virtual Money ConvertToStoreCurrency(bool toExchangeRateCurrency, Money amount, Store store = null)
+        public virtual Money ConvertToPrimaryCurrency(Money amount, Store store = null)
         {
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
 
             store ??= _storeContext.CurrentStore;
-
-            var sourceCurrency = amount.Currency;
-            var targetCurrency = toExchangeRateCurrency ? store.PrimaryExchangeRateCurrency : store.PrimaryStoreCurrency;
-
-            if (amount != decimal.Zero && sourceCurrency.Id != targetCurrency.Id)
-            {
-                var exchangeRate = sourceCurrency.Rate;
-                if (exchangeRate == decimal.Zero)
-                {
-                    throw new SmartException($"Exchange rate not found for currency [{sourceCurrency.Name}].");
-                }
-
-                return amount.WithAmount(amount.Amount / exchangeRate, targetCurrency);
-            }
-
-            return amount.WithAmount(amount.Amount, targetCurrency);
+            return amount.ExchangeTo(store.PrimaryStoreCurrency, store.PrimaryExchangeRateCurrency);
         }
 
-        public virtual Money ConvertFromStoreCurrency(bool fromExchangeRateCurrency, Money amount, Store store = null)
+        public virtual Money ConvertToExchangeRateCurrency(Money amount, Store store = null)
         {
-            Guard.NotNull(amount, nameof(amount));
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
 
-            var sourceCurrency = fromExchangeRateCurrency
-                ? store?.PrimaryExchangeRateCurrency ?? _storeContext.CurrentStore.PrimaryExchangeRateCurrency
-                : store?.PrimaryStoreCurrency ?? _storeContext.CurrentStore.PrimaryStoreCurrency;
-            var targetCurrency = amount.Currency;
-
-            if (fromExchangeRateCurrency)
-            {
-                if (amount != decimal.Zero && sourceCurrency.Id != targetCurrency.Id)
-                {
-                    var exchangeRate = targetCurrency.Rate;
-                    if (exchangeRate == decimal.Zero)
-                    {
-                        throw new SmartException($"Exchange rate not found for currency [{targetCurrency.Name}].");
-                    }
-
-                    return amount.WithAmount(amount.Amount * exchangeRate, targetCurrency);
-                }
-
-                return amount.WithAmount(amount.Amount, targetCurrency);
-            }
-            else
-            {
-                return ConvertCurrency(amount.WithAmount(amount.Amount, sourceCurrency), targetCurrency, store);
-            }
+            store ??= _storeContext.CurrentStore;
+            return amount.ExchangeTo(store.PrimaryExchangeRateCurrency);
         }
+
+        public virtual Money ConvertToWorkingCurrency(Money amount, Store store = null)
+        {
+            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+
+            store ??= _storeContext.CurrentStore;
+            return amount.ExchangeTo(_workContext.WorkingCurrency, store.PrimaryExchangeRateCurrency);
+        }
+
+        public virtual Money ConvertToWorkingCurrency(decimal amount, Store store = null)
+        {
+            store ??= _storeContext.CurrentStore;
+            return new Money(amount, store.PrimaryStoreCurrency).ExchangeTo(_workContext.WorkingCurrency, store.PrimaryExchangeRateCurrency);
+        }
+
+        public virtual Money ConvertToCurrency(Money amount, Currency targetCurrency, Store store = null)
+        {
+            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+            Guard.NotNull(targetCurrency, nameof(targetCurrency));
+
+            store ??= _storeContext.CurrentStore;
+            return amount.ExchangeTo(targetCurrency, store.PrimaryExchangeRateCurrency);
+        }
+
+        #endregion
+
+        #region Exchange rate provider
 
         public virtual Task<IList<ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode)
         {
@@ -154,17 +113,11 @@ namespace Smartstore.Core.Common.Services
             return _providerManager.GetAllProviders<IExchangeRateProvider>();
         }
 
-        public virtual Money CreateMoney(
-            decimal price,
-            bool displayCurrency = true,
-            object currencyCodeOrObj = null,
-            Language language = null,
-            bool? priceIncludesTax = null,
-            bool? displayTax = null,
-            PricingTarget target = PricingTarget.Product)
+        #endregion
+
+        public virtual Money CreateMoney(decimal price, bool displayCurrency = true, object currencyCodeOrObj = null)
         {
             Currency currency = null;
-            string postFormat = null;
 
             if (currencyCodeOrObj is null)
             {
@@ -185,26 +138,42 @@ namespace Smartstore.Core.Common.Services
                 throw new ArgumentException("Currency parameter must either be a valid currency code as string or an actual currency entity instance.", nameof(currencyCodeOrObj));
             }
 
-            displayTax ??= target == PricingTarget.Product
+            return new Money(price, currency, !displayCurrency);
+        }
+
+        public virtual Money ApplyTaxFormat(
+            Money source,
+            bool? displayTaxSuffix = null, 
+            bool ? priceIncludesTax = null, 
+            PricingTarget target = PricingTarget.Product, 
+            Language language = null)
+        {
+            // TODO: (core) Does ApplyTaxFormat belong to ITaxService? Hmmm... (?)
+
+            if (source == 0)
+                return source;
+
+            displayTaxSuffix ??= target == PricingTarget.Product
                 ? _taxSettings.DisplayTaxSuffix
                 : (target == PricingTarget.ShippingCharge
                     ? _taxSettings.DisplayTaxSuffix && _taxSettings.ShippingIsTaxable
                     : _taxSettings.DisplayTaxSuffix && _taxSettings.PaymentMethodAdditionalFeeIsTaxable);
 
-            if (displayTax == true)
+            if (displayTaxSuffix == true)
             {
                 // Show tax suffix.
                 priceIncludesTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
                 language ??= _workContext.WorkingLanguage;
 
                 string resource = _localizationService.GetResource(priceIncludesTax.Value ? "Products.InclTaxSuffix" : "Products.ExclTaxSuffix", language.Id, false);
-                postFormat = resource.NullEmpty() ?? (priceIncludesTax.Value ? "{0} incl. tax" : "{0} excl. tax");
-            }
+                var postFormat = resource.NullEmpty() ?? (priceIncludesTax.Value ? "{0} incl. tax" : "{0} excl. tax");
 
-            return new Money(price, currency)
+                return source.WithPostFormat(postFormat);
+            }
+            else
             {
-                PostFormat = postFormat
-            };
+                return source;
+            }
         }
     }
 }

@@ -53,7 +53,7 @@ namespace Smartstore.Core.Content.Menus
                 if (!executedContext.Result.IsHtmlViewResult())
                     return;
 
-                if (executedContext.RouteData.Values.GetAreaName().EqualsNoCase("admin"))
+                if (context.HttpContext.Request.IsAdminArea())
                     return;
 
                 var selectedNode = await ResolveCurrentNodeAsync(executedContext);

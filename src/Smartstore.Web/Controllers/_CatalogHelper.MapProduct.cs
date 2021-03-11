@@ -306,7 +306,7 @@ namespace Smartstore.Web.Controllers
                     BatchContext = batchContext,
                     CachedBrandModels = cachedBrandModels,
                     PrimaryCurrency = store.PrimaryStoreCurrency,
-                    StoreCurrency = currency,
+                    WorkingCurrency = currency,
                     LegalInfo = legalInfo,
                     Model = model,
                     Resources = res,
@@ -563,12 +563,12 @@ namespace Smartstore.Web.Controllers
 
             if (finalPrice != decimal.Zero && model.ShowBasePrice)
             {
-                item.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(contextProduct, null, ctx.StoreCurrency);
+                item.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(contextProduct, null, ctx.WorkingCurrency);
             }
 
             if (settings.MapPrices)
             {
-                var addShippingPrice = ctx.PrimaryCurrency.AsMoney(contextProduct.AdditionalShippingCharge).ExchangeTo(ctx.StoreCurrency);
+                var addShippingPrice = ToWorkingCurrency(contextProduct.AdditionalShippingCharge, ctx);
                 if (addShippingPrice > 0)
                 {
                     item.TransportSurcharge = addShippingPrice.WithPostFormat(ctx.Resources["Common.AdditionalShippingSurcharge"]);
@@ -601,6 +601,7 @@ namespace Smartstore.Web.Controllers
         /// <returns>The final price</returns>
         private async Task<(Money FinalPrice, Product ContextProduct)> MapSummaryItemPrice(Product product, ProductSummaryModel.SummaryItem item, MapProductSummaryItemContext ctx)
         {
+            //return (new Money(0, ctx.WorkingCurrency), product);
             var contextProduct = product;
             var displayFromMessage = false;
             var taxRate = decimal.Zero;
@@ -661,20 +662,20 @@ namespace Smartstore.Web.Controllers
             // Return if there's no pricing at all.
             if (contextProduct == null || contextProduct.CustomerEntersPrice || !ctx.AllowPrices || _catalogSettings.PriceDisplayType == PriceDisplayType.Hide)
             {
-                return (new Money(ctx.StoreCurrency), contextProduct);
+                return (new Money(ctx.WorkingCurrency), contextProduct);
             }
 
             // Return if group has no associated products.
             if (product.ProductType == ProductType.GroupedProduct && !associatedProducts.Any())
             {
-                return (new Money(ctx.StoreCurrency), contextProduct);
+                return (new Money(ctx.WorkingCurrency), contextProduct);
             }
 
             // Call for price.
             priceModel.CallForPrice = contextProduct.CallForPrice;
             if (contextProduct.CallForPrice)
             {
-                return (new Money(ctx.StoreCurrency).WithPostFormat(ctx.Resources["Products.CallForPrice"]), contextProduct);
+                return (new Money(ctx.WorkingCurrency).WithPostFormat(ctx.Resources["Products.CallForPrice"]), contextProduct);
             }
 
             // Calculate prices.
@@ -705,31 +706,36 @@ namespace Smartstore.Web.Controllers
             (oldPriceBase, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, new Money(contextProduct.OldPrice, ctx.PrimaryCurrency));
             (finalPriceBase, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, displayPrice ?? new Money(ctx.PrimaryCurrency));
 
-            oldPrice = oldPriceBase.ExchangeTo(ctx.StoreCurrency);
-            finalPrice = finalPriceBase.ExchangeTo(ctx.StoreCurrency);
+            oldPrice = ToWorkingCurrency(oldPriceBase, ctx);
+            finalPrice = _currencyService.ApplyTaxFormat(ToWorkingCurrency(finalPriceBase, ctx));
 
-            // TODO: (mg) (core) ICurrencyService.CreateMoney() does not take Money, only decimal. Fix that.
-            priceModel.Price = displayFromMessage
-                ? finalPrice.WithPostFormat(ctx.Resources["Products.PriceRangeFrom"])
-                : finalPrice;
+            string finalPricePostFormat = finalPrice.PostFormat;
+            if (displayFromMessage)
+            {
+                finalPricePostFormat = finalPricePostFormat == null
+                    ? ctx.Resources["Products.PriceRangeFrom"]
+                    : string.Format(ctx.Resources["Products.PriceRangeFrom"], finalPricePostFormat);
+            }
+
+            priceModel.Price = finalPrice.WithPostFormat(finalPricePostFormat);
 
             priceModel.HasDiscount = oldPriceBase > decimal.Zero && oldPriceBase > finalPriceBase;
             if (priceModel.HasDiscount)
             {
-                priceModel.RegularPrice = oldPrice; // TODO: (core) FormatPrice
+                priceModel.RegularPrice = _currencyService.ApplyTaxFormat(oldPrice);
             }
 
             // Calculate saving.
             var finalPriceWithDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, ctx.Customer, false, 1, null, batchContext);
             (finalPriceWithDiscount, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, finalPriceWithDiscount);
-            finalPriceWithDiscount = finalPriceWithDiscount.ExchangeTo(ctx.StoreCurrency);
+            finalPriceWithDiscount = ToWorkingCurrency(finalPriceWithDiscount, ctx);
 
             var finalPriceWithoutDiscount = finalPrice;
             if (_catalogSettings.PriceDisplayType != PriceDisplayType.PriceWithoutDiscountsAndAttributes)
             {
                 finalPriceWithoutDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, ctx.Customer, false, 1, null, batchContext);
                 (finalPriceWithoutDiscount, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, finalPriceWithoutDiscount);
-                finalPriceWithoutDiscount = finalPriceWithoutDiscount.ExchangeTo(ctx.StoreCurrency);
+                finalPriceWithoutDiscount = ToWorkingCurrency(finalPriceWithoutDiscount, ctx);
             }
 
             // Discounted price has priority over the old price (avoids differing percentage discount in product lists and detail page).
@@ -741,11 +747,11 @@ namespace Smartstore.Web.Controllers
             {
                 priceModel.HasDiscount = true;
                 priceModel.SavingPercent = (float)((regularPrice - finalPriceWithDiscount) / regularPrice) * 100;
-                priceModel.SavingAmount = regularPrice - finalPriceWithDiscount; // TODO: (core) FormatPrice
+                priceModel.SavingAmount = (regularPrice - finalPriceWithDiscount).WithPostFormat(null);
 
                 if (priceModel.RegularPrice == null)
                 {
-                    priceModel.RegularPrice = regularPrice; // TODO: (core) FormatPrice
+                    priceModel.RegularPrice = _currencyService.ApplyTaxFormat(regularPrice);
                 }
 
                 if (ctx.Model.ShowDiscountBadge)
@@ -787,6 +793,20 @@ namespace Smartstore.Web.Controllers
             });
         }
 
+        #region Utils
+
+        private Money ToWorkingCurrency(decimal amount, MapProductSummaryItemContext ctx, bool showCurrency = true)
+        {
+            return _currencyService.ConvertToCurrency(new Money(amount, ctx.PrimaryCurrency, !showCurrency), ctx.WorkingCurrency, ctx.Store);
+        }
+
+        private Money ToWorkingCurrency(Money amount, MapProductSummaryItemContext ctx)
+        {
+            return _currencyService.ConvertToCurrency(amount, ctx.WorkingCurrency, ctx.Store);
+        }
+
+        #endregion
+
         private class MapProductSummaryItemContext
         {
             public MapProductSummaryItemContext()
@@ -806,7 +826,7 @@ namespace Smartstore.Web.Controllers
             public Customer Customer { get; set; }
             public Store Store { get; set; }
             public Currency PrimaryCurrency { get; set; }
-            public Currency StoreCurrency { get; set; }
+            public Currency WorkingCurrency { get; set; }
 
             public bool AllowPrices { get; set; }
             public bool AllowShoppingCart { get; set; }

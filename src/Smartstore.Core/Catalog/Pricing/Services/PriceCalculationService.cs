@@ -320,12 +320,12 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 var packageContentPerUnit = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
                 var basePrice = Convert.ToDecimal((productPrice / product.BasePriceAmount) * product.BasePriceBaseAmount);
-                var basePriceFormatted = _currencyService.CreateMoney(basePrice, true, currency).ToString();
+                var basePriceAmount = _currencyService.ApplyTaxFormat(new Money(basePrice, currency));
 
                 var result = T("Products.BasePriceInfo").Value.FormatInvariant(
                     packageContentPerUnit,
                     product.BasePriceMeasureUnit,
-                    basePriceFormatted,
+                    basePriceAmount,
                     product.BasePriceBaseAmount);
 
                 return result;
@@ -352,7 +352,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
 
                 var (price, _) = await _taxService.GetProductPriceAsync(product, new(currentPrice, _primaryCurrency), customer: customer);
-                var convertedPrice = _currencyService.ConvertCurrency(price, currency);
+                var convertedPrice = _currencyService.ConvertToCurrency(price, currency);
 
                 return GetBasePriceInfo(product, convertedPrice, currency);
             }

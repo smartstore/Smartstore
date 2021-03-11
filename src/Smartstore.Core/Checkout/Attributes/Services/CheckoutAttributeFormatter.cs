@@ -159,15 +159,14 @@ namespace Smartstore.Core.Checkout.Attributes
                                     "{0}: {1}",
                                     currentAttribute.GetLocalized(x => x.Name, language),
                                     attributeValue.GetLocalized(x => x.Name, language));
-
+                                
                                 if (renderPrices)
                                 {
                                     var (priceAdjustment, _) = await _taxService.GetCheckoutAttributePriceAsync(attributeValue, customer: customer);
                                     if (priceAdjustment > decimal.Zero)
                                     {
-                                        var priceAdjustmentConverted = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustment);
-
-                                        attributeStr += " [+{0}]".FormatInvariant(_currencyService.CreateMoney(priceAdjustmentConverted.Amount).ToString());
+                                        var priceAdjustmentConverted = _currencyService.ConvertToWorkingCurrency(priceAdjustment);
+                                        attributeStr += " [+{0}]".FormatInvariant(_currencyService.ApplyTaxFormat(priceAdjustmentConverted).ToString());
                                     }
                                 }
                             }

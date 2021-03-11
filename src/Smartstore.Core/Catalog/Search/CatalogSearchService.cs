@@ -247,7 +247,7 @@ namespace Smartstore.Core.Catalog.Search
 
         protected virtual string FormatPrice(decimal price)
         {
-            return _currencyService.CreateMoney(price, true, displayTax: false).ToString();
+            return _currencyService.ConvertToWorkingCurrency(price).ToString();
         }
 
         #region XML Sitemap

@@ -63,7 +63,7 @@ namespace Smartstore.Core.Checkout.Orders
                 (order.CustomerCurrencyCode.HasValue() ? new Currency { CurrencyCode = order.CustomerCurrencyCode } : _workContext.WorkingCurrency);
 
             var roundingAmount = order.OrderTotalRounding;
-            var orderTotal = _currencyService.ConvertCurrency(new(order.OrderTotal, currency), order.CurrencyRate).Amount;
+            var orderTotal = order.OrderTotal * order.CurrencyRate;
 
             // Avoid rounding a rounded value. It would zero roundingAmount.
             if (orderTotal != order.OrderTotal &&

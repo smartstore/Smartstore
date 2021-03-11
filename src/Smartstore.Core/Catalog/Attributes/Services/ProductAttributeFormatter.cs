@@ -104,7 +104,7 @@ namespace Smartstore.Core.Catalog.Attributes
                                 {
                                     var attributeValuePriceAdjustment = await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, null, 1);
                                     var (priceAdjustmentBase, _) = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment, customer: customer);
-                                    var priceAdjustment = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase);
+                                    var priceAdjustment = _currencyService.ConvertToWorkingCurrency(priceAdjustmentBase);
 
                                     if (_shoppingCartSettings.ShowLinkedAttributeValueQuantity &&
                                         pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
@@ -117,11 +117,11 @@ namespace Smartstore.Core.Catalog.Attributes
                                     {
                                         if (priceAdjustmentBase > decimal.Zero)
                                         {
-                                            pvaAttribute += " (+{0})".FormatInvariant(_currencyService.CreateMoney(priceAdjustment.Amount, true, displayTax: false).ToString());
+                                            pvaAttribute += $" (+{priceAdjustment})";
                                         }
                                         else if (priceAdjustmentBase < decimal.Zero)
                                         {
-                                            pvaAttribute += " (-{0})".FormatInvariant(_currencyService.CreateMoney(-priceAdjustment.Amount, true, displayTax: false).ToString());
+                                            pvaAttribute += $" (+{priceAdjustment * -1})";
                                         }
                                     }
                                 }

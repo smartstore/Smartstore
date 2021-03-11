@@ -105,12 +105,28 @@ namespace Smartstore.Core.Common
 
         #region Change & Assign
 
+        /// <summary>
+        /// Changes the underlying amount.
+        /// </summary>
+        /// <param name="amount">The new amount.</param>
+        /// <param name="currency">New optional currency.</param>
         public Money WithAmount(float amount, Currency currency = null)
             => WithAmount((decimal)amount, currency);
 
+        /// <summary>
+        /// Changes the underlying amount.
+        /// </summary>
+        /// <param name="amount">The new amount.</param>
+        /// <param name="currency">New optional currency.</param>
         public Money WithAmount(double amount, Currency currency = null)
             => WithAmount((decimal)amount, currency);
 
+
+        /// <summary>
+        /// Changes the underlying amount.
+        /// </summary>
+        /// <param name="amount">The new amount.</param>
+        /// <param name="currency">New optional currency.</param>
         public Money WithAmount(decimal amount, Currency currency = null)
         {
             return new Money(amount, currency ?? Currency, HideCurrency, PostFormat);
@@ -133,6 +149,15 @@ namespace Smartstore.Core.Common
         public Money WithPostFormat(string format)
         {
             return new Money(Amount, Currency, HideCurrency, format);
+        }
+
+        /// <summary>
+        /// Sets a value specifying whether the currency symbol should be displayed during formatting.
+        /// </summary>
+        /// <param name="showSymbol"><c>true</c> = render symbol, <c>false</c> = hide symbol.</param>
+        public Money WithSymbol(bool showSymbol)
+        {
+            return new Money(Amount, Currency, !showSymbol, PostFormat);
         }
 
         #endregion
@@ -435,13 +460,18 @@ namespace Smartstore.Core.Common
         //}
 
         /// <summary>
+        /// Exchanges <see cref="Amount"/> by multiplying with given <paramref name="exchangeRate"/>.
+        /// </summary>
+        /// <param name="exchangeRate">Exchange rate.</param>
+        public Money Exchange(decimal exchangeRate)
+            => WithAmount(Amount * exchangeRate);
+
+        /// <summary>
         /// Exchanges <see cref="Amount"/> to <paramref name="toCurrency"/> using <paramref name="toCurrency"/> as primary exchange currency.
         /// </summary>
         /// <param name="toCurrency">The target currency</param>
         public Money ExchangeTo(Currency toCurrency)
-        {
-            return ExchangeTo(toCurrency, toCurrency);
-        }
+            => ExchangeTo(toCurrency, toCurrency);
 
         /// <summary>
         /// Exchanges <see cref="Amount"/> to <paramref name="toCurrency"/> using <paramref name="exchangeCurrency"/> as primary exchange currency.
@@ -453,8 +483,11 @@ namespace Smartstore.Core.Common
             Guard.NotNull(toCurrency, nameof(toCurrency));
             Guard.NotNull(exchangeCurrency, nameof(exchangeCurrency));
 
-            if (Currency == toCurrency || Amount == 0)
+            if (Currency == toCurrency)
                 return this;
+
+            if (Amount == 0)
+                return WithCurrency(toCurrency);
 
             var amount = Amount;
 

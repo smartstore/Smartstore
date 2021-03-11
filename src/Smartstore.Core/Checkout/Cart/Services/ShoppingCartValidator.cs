@@ -340,13 +340,10 @@ namespace Smartstore.Core.Checkout.Cart
                 (cartItem.CustomerEnteredPrice < product.MinimumCustomerEnteredPrice
                 || cartItem.CustomerEnteredPrice > product.MaximumCustomerEnteredPrice))
             {
-                var min = _currencyService.ConvertFromPrimaryStoreCurrency(new(product.MinimumCustomerEnteredPrice, _workContext.WorkingCurrency));
-                var max = _currencyService.ConvertFromPrimaryStoreCurrency(new(product.MaximumCustomerEnteredPrice, _workContext.WorkingCurrency));
+                var min = _currencyService.ConvertToWorkingCurrency(product.MinimumCustomerEnteredPrice);
+                var max = _currencyService.ConvertToWorkingCurrency(product.MaximumCustomerEnteredPrice);
 
-                var minFormatted = _currencyService.CreateMoney(min.Amount, true, displayTax: false).ToString();
-                var maxFormatted = _currencyService.CreateMoney(max.Amount, true, displayTax: false).ToString();
-
-                currentWarnings.Add(T("ShoppingCart.CustomerEnteredPrice.RangeError", minFormatted, maxFormatted));
+                currentWarnings.Add(T("ShoppingCart.CustomerEnteredPrice.RangeError", min, max));
             }
 
             // Quantity validation

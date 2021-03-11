@@ -127,7 +127,7 @@ namespace Smartstore.Core.Messages
 
         private Money FormatPrice(decimal price, string currencyCode, MessageContext messageContext, decimal exchangeRate = 1)
         {
-            // Currency is cached, so no need for async in this simple case.
+            // Currencies are cached, so no need for async in this simple case.
             var currency = _db.Currencies
                 .AsNoTracking()
                 .Where(x => x.CurrencyCode == currencyCode)
@@ -146,7 +146,7 @@ namespace Smartstore.Core.Messages
 
             if (exchangeRate != 1)
             {
-                return _services.Resolve<ICurrencyService>().ConvertCurrency(new(price, currency), exchangeRate);
+                return new(price * exchangeRate, currency);
             }
 
             return new(price, currency);
