@@ -1,0 +1,35 @@
+﻿@{
+    var currentTheme = ViewBag.CurrentStoreTheme as StoreThemeModel;
+    var themes = ViewBag.AvailableStoreThemes as List<StoreThemeModel>;
+
+    if (themes.Count <= 1)
+    {
+        return;
+    }
+
+    var items = themes.Select(x => new SelectListItem
+    {
+        Text = x.Title,
+        Value = x.Name,
+        Selected = x.Name.EqualsNoCase(currentTheme.Name)
+    });
+}
+
+<form id="store-theme-selector" sm-ajax method="post" asp-action="ChangeTheme" asp-controller="Common" sm-oncomplete="onStoreThemeChangedRequestCompleted">
+    <select id="themeName" name="themeName" class="store-theme-list noskin" asp-items="items">
+    </select>
+</form>
+
+<script>
+    $(function () {
+        $("#themeName").change(onStoreThemeChanged);
+    });
+
+    function onStoreThemeChanged() {
+        $("#store-theme-selector").submit();
+    }
+
+    function onStoreThemeChangedRequestCompleted() {
+        location.reload();
+    }
+</script>

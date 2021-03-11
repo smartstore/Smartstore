@@ -146,18 +146,17 @@
                                 <span asp-validation-for="NewsletterEmail"></span>
 
                             </div>
-                            <div id="newsletter-result-block" class="alert alert-success d-none"></div>
+                            <div id="newsletter-result-block" class="alert alert-success d-none mt-2"></div>
                         </div>
                     }
 
                     @if (Model.ShowThemeSelector)
                     {
-                        <div class="theme-selector d-none d-md-block">
+                        <div class="theme-selector d-none d-md-block@(!Model.HideNewsletterBlock ? " mt-3" : "")">
                             <h4>@T("Footer.Themes")</h4>
                             <div class="content">
                                 @{
-                                    // TODO: (mh) (core)
-                                    //Html.RenderAction("StoreThemeSelector", "Common");
+                                    @await Component.InvokeAsync("StoreThemeSelector")
                                 }
                             </div>
                         </div>
