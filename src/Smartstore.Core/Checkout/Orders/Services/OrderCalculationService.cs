@@ -21,6 +21,7 @@ using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -34,7 +35,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IShippingService _shippingService;
         private readonly IGiftCardService _giftCardService;
         private readonly ICurrencyService _currencyService;
-        private readonly IPaymentService _paymentService;
+        private readonly IProviderManager _providerManager;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly IWorkContext _workContext;
@@ -53,7 +54,7 @@ namespace Smartstore.Core.Checkout.Orders
             IShippingService shippingService,
             IGiftCardService giftCardService,
             ICurrencyService currencyService,
-            IPaymentService paymentService,
+            IProviderManager providerManager,
             IProductAttributeMaterializer productAttributeMaterializer,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             IWorkContext workContext,
@@ -70,7 +71,7 @@ namespace Smartstore.Core.Checkout.Orders
             _shippingService = shippingService;
             _giftCardService = giftCardService;
             _currencyService = currencyService;
-            _paymentService = paymentService;
+            _providerManager = providerManager;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _workContext = workContext;
@@ -113,7 +114,7 @@ namespace Smartstore.Core.Checkout.Orders
             var paymentFeeWithoutTax = decimal.Zero;
             if (includePaymentFee && paymentMethodSystemName.HasValue())
             {
-                var paymentFee = await _paymentService.GetPaymentFeeAsync(cart, paymentMethodSystemName);
+                var paymentFee = await GetShoppingCartPaymentFeeAsync(cart, paymentMethodSystemName);
                 if (paymentFee != decimal.Zero)
                 {
                     var (paymentFeeExclTax, _) = await _taxService.GetPaymentMethodFeeAsync(paymentFee, false, customer: customer);
@@ -350,34 +351,9 @@ namespace Smartstore.Core.Checkout.Orders
         public virtual async Task<Money> GetShoppingCartShippingChargeAsync(IList<OrganizedShoppingCartItem> cart)
             => new(await GetShippingChargeAsync(cart), _primaryCurrency);
 
-        // TODO: (mg) (core) Should payment infrastructure be changed with regard to this payment fee calculation?
-        // Provider serves fixedFeeOrPercentage and usePercentage but not the actual fee anymore.
-        public virtual async Task<Money> GetShoppingCartPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, decimal fixedFeeOrPercentage, bool usePercentage)
-        {
-            Guard.NotNull(cart, nameof(cart));
-
-            var paymentFee = decimal.Zero;
-
-            if (fixedFeeOrPercentage != decimal.Zero)
-            {
-                if (usePercentage)
-                {
-                    // Percentage.
-                    Money? orderTotalWithoutPaymentFee = await GetShoppingCartTotalAsync(cart, includePaymentFee: false);
-                    if (orderTotalWithoutPaymentFee.HasValue)
-                    {
-                        paymentFee = orderTotalWithoutPaymentFee.Value.Amount * fixedFeeOrPercentage / 100m;
-                    }
-                }
-                else
-                {
-                    // Fixed fee value.
-                    paymentFee = fixedFeeOrPercentage;
-                }
-            }
-
-            return new(paymentFee, _primaryCurrency);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual async Task<Money> GetShoppingCartPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, string paymentMethodSystemName)
+            => new(await GetCartPaymentFeeAsync(cart, paymentMethodSystemName), _primaryCurrency);
 
         public virtual async Task<(Money Amount, Discount AppliedDiscount)> AdjustShippingRateAsync(
             IList<OrganizedShoppingCartItem> cart,
@@ -672,7 +648,7 @@ namespace Smartstore.Core.Checkout.Orders
             // Payment fee tax amount.
             if (includePaymentFee && _taxSettings.PaymentMethodAdditionalFeeIsTaxable && customer != null)
             {
-                var paymentFee = await _paymentService.GetPaymentFeeAsync(cart, customer.GenericAttributes.SelectedPaymentMethod);
+                var paymentFee = await GetShoppingCartPaymentFeeAsync(cart, customer.GenericAttributes.SelectedPaymentMethod);
                 if (paymentFee != decimal.Zero)
                 {
                     await PrepareAuxiliaryServicesTaxingInfosAsync(cart);
@@ -972,6 +948,38 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             return (null, null);
+        }
+
+        protected virtual async Task<decimal> GetCartPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, string paymentMethodSystemName)
+        {
+            Guard.NotNull(cart, nameof(cart));
+
+            var paymentFee = decimal.Zero;
+            var provider = _providerManager.GetProvider<IPaymentMethod>(paymentMethodSystemName);
+            if (provider != null)
+            {
+                var (fixedFeeOrPercentage, usePercentage) = await provider.Value.GetPaymentFeeInfoAsync(cart);
+                if (fixedFeeOrPercentage != decimal.Zero)
+                {
+                    if (usePercentage)
+                    {
+                        // Percentage.
+                        // TODO: (mg) (core) Avoid Money struct in GetShoppingCartPaymentFeeAsync.
+                        Money? orderTotalWithoutPaymentFee = await GetShoppingCartTotalAsync(cart, includePaymentFee: false);
+                        if (orderTotalWithoutPaymentFee.HasValue)
+                        {
+                            paymentFee = orderTotalWithoutPaymentFee.Value.Amount * fixedFeeOrPercentage / 100m;
+                        }
+                    }
+                    else
+                    {
+                        // Fixed fee value.
+                        paymentFee = fixedFeeOrPercentage;
+                    }
+                }
+            }
+
+            return _primaryCurrency.RoundIfEnabledFor(paymentFee);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

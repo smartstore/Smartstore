@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
@@ -89,12 +88,9 @@ namespace Smartstore.Core.Checkout.Payment
             return null;
         }
 
-        /// <summary>
-        /// Gets additional handling fee.
-        /// </summary>
-        /// <returns>Additional handling fee.</returns>
-        public virtual Task<Money> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart)
-            => Task.FromResult(new Money());
+        /// <inheritdoc/>
+        public virtual Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(IList<OrganizedShoppingCartItem> cart)
+            => Task.FromResult((decimal.Zero, false));
 
         /// <summary>
         /// Captures payment.

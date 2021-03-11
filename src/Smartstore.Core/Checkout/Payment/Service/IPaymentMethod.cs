@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 
@@ -83,11 +82,11 @@ namespace Smartstore.Core.Checkout.Payment
         Task PostProcessPaymentAsync(PostProcessPaymentRequest request);
 
         /// <summary>
-        /// Gets additional handling fee.
+        /// Gets information about additional handling fee.
         /// </summary>
-        /// <param name="cart">Shoping cart.</param>
-        /// <returns>Additional handling fee.</returns>
-		Task<Money> GetAdditionalHandlingFeeAsync(IList<OrganizedShoppingCartItem> cart);
+        /// <param name="cart">Shopping cart.</param>
+        /// <returns>The fixed fee or a percentage value. If UsePercentage is <c>true</c>, the fee is calculated as a percentage of the order total.</returns>
+        Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(IList<OrganizedShoppingCartItem> cart);
 
         /// <summary>
         /// Captures payment.

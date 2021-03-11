@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Rules;
-using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -312,26 +311,6 @@ namespace Smartstore.Core.Checkout.Payment
             }
 
             return await paymentMethod.Value.CanRePostProcessPaymentAsync(order);
-        }
-
-        /// <summary>
-        /// Gets an additional handling fee of a payment method.
-        /// </summary>
-        /// <param name="cart">Shopping cart.</param>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>Additional handling fee</returns>
-        public virtual async Task<Money> GetPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, string paymentMethodSystemName)
-        {
-            var currency = _services.StoreContext.CurrentStore.PrimaryStoreCurrency;
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
-            if (paymentMethod == null)
-            {
-                return new(currency);
-            }
-
-            var paymentFee = await paymentMethod.Value.GetAdditionalHandlingFeeAsync(cart);
-
-            return currency.AsMoney(paymentFee.Amount);
         }
 
         /// <summary>

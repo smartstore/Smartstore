@@ -1,18 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Common;
+﻿using System.Threading.Tasks;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Payment
 {
     public partial interface IPaymentService
     {
         /// <summary>
-        /// Gets an additional handling fee of a payment method.
+        /// Loads a payment provider by system name.
         /// </summary>
-        /// <param name="cart">Shopping cart.</param>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>Additional handling fee of a payment method.</returns>
-        Task<Money> GetPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, string paymentMethodSystemName);
+        /// <param name="systemName">System name of the payment provider.</param>
+        /// <param name="onlyWhenActive"><c>true</c> to only load an active provider.</param>
+        /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
+        /// <returns>Payment provider.</returns>
+        Task<Provider<IPaymentMethod>> LoadPaymentMethodBySystemNameAsync(string systemName, bool onlyWhenActive = false, int storeId = 0);
     }
 }

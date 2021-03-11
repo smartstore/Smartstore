@@ -71,10 +71,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets the payment fee for a cart.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
-        /// <param name="fixedFeeOrPercentage">A fixed fee value or a percentage value.</param>
-        /// <param name="usePercentage">A value indicating whether fixedFeeOrPercentage is a fixed or percentage value.</param>
+        /// <param name="paymentMethodSystemName">Payment method system name.</param>
         /// <returns>Additional payment method fee.</returns>
-        Task<Money> GetShoppingCartPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, decimal fixedFeeOrPercentage, bool usePercentage);
+        Task<Money> GetShoppingCartPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, string paymentMethodSystemName);
 
         /// <summary>
         /// Adjusts the shipping rate (free shipping, additional charges, discounts).
