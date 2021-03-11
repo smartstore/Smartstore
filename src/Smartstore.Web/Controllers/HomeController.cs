@@ -163,7 +163,6 @@ namespace Smartstore.Web.Controllers
             var currentStore = _storeContext.CurrentStore;
         }
 
-        [GdprConsent]
         [LocalizedRoute("/", Name = "Homepage")]
         public async Task<IActionResult> Index()
         {
@@ -195,11 +194,6 @@ namespace Smartstore.Web.Controllers
             //testSettings.Prop3 = CommonHelper.GenerateRandomDigitCode(10);
             //var numSaved = await Services.SettingFactory.SaveSettingsAsync(testSettings, 1);
             #endregion
-
-            //var menuItems = await _db.MenuItems
-            //    .AsNoTracking()
-            //    .ApplyMenuFilter(6, "")
-            //    .ToListAsync();
 
             //_cancelTokenSource = new CancellationTokenSource();
             //await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
@@ -246,67 +240,22 @@ namespace Smartstore.Web.Controllers
             //    //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
             //    .FirstOrDefault();
 
-            #region MH test area
+            await Task.Delay(1);
 
-            //// QuantityUnit
-            //// Get QuantityUnit by Id
-            //var qu = _db.QuantityUnits.ApplyQuantityUnitFilter(1).FirstOrDefault();
+            return View();
+        }
 
-            //// Save hook > TODO: BROKEN > Why?
-            //qu.IsDefault = true;
-            //_db.SaveChanges();
-            //// TODO Test: Assert.OnlyOne has Default = true, 
+        [GdprConsent]
+        [HttpPost]
+        public IActionResult Index(TestModel model)
+        {
+            return View(model);
+        }
 
-            //// Delete hook
-            //var qu2 = _db.QuantityUnits.ApplyQuantityUnitFilter(22).FirstOrDefault();
-
-            //if (qu2 != null)
-            //{
-            //    _db.QuantityUnits.Remove(qu2);
-            //    await _db.SaveChangesAsync();
-            //}
-
-            //// StateProvince
-            //var sp = _db.StateProvinces
-            //    .ApplyCountryFilter(1)
-            //    .ApplyAbbreviationFilter("BE")
-            //    .FirstOrDefault();
-            //// TODO Test: Assert name of entity is Berlin
-
-            //// DeliveryTime
-            ////var dt = _db.DeliveryTimes.GetDeliveryTimeFilter(1);
-
-            //var test = "";
-
-            #endregion
-
-            #region MS test area
-
-            //var customer = await _db.Customers.Where(x => x.Email == "admin@meinstore.de").FirstOrDefaultAsync();
-
-            //var xxxxxx = await _giftCardService.GetValidGiftCardsAsync(customer: customer);
-            //var sdsdsd = (GiftCardCouponCode)xxxxxx.FirstOrDefault().GiftCard.GiftCardCouponCode;
-
-
-
-            //var customerCart = await _cartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart);
-
-            //var xxxx = await _shippingService.GetCartTotalWeightAsync(customerCart);
-
-            //var sddsds = await _orderCalculationService.GetShoppingCartSubTotalAsync(customerCart);
-            //var xxx = await _orderCalculationService.GetShoppingCartTotalAsync(customerCart);
-            //var result = await _shippingService.GetCartTotalWeightAsync(customerCart);
-
-            // GetAllProviders throws....
-            //var shippingOptions = _shippingService.GetShippingOptions(customerCart, Services.WorkContext.CurrentCustomer.ShippingAddress);
-
-            //var rawCheckoutAttributes = Services.WorkContext.CurrentCustomer.GenericAttributes.CheckoutAttributes;
-            //var formatted = _checkoutAttributeFormatter.FormatAttributesAsync(new(rawCheckoutAttributes));
-
-            //var giftCards = await _giftCardService.GetValidGiftCardsAsync();
-
-            #endregion
-
+        [GdprConsent]
+        [LocalizedRoute("/controls", Name = "Controls")]
+        public async Task<IActionResult> Controls()
+        {
             var testModel = new TestModel { TestProp1 = "Hello", TestProp2 = "World", TestProp4 = true };
             testModel.Locales.Add(new LocalizedTestModel { LanguageId = 1, TestProp1 = "Hello 1", TestProp2 = "Word 1" });
             testModel.Locales.Add(new LocalizedTestModel { LanguageId = 2, TestProp1 = "Hello 2", TestProp2 = "Word 2" });
@@ -326,16 +275,7 @@ namespace Smartstore.Web.Controllers
 
             //testModel.TestList = matches;
 
-            await Task.Delay(1);
-
             return View(testModel);
-        }
-
-        [GdprConsent]
-        [HttpPost]
-        public IActionResult Index(TestModel model)
-        {
-            return View(model);
         }
 
         [LocalizedRoute("/privacy", Name = "Privacy")]
@@ -799,6 +739,69 @@ namespace Smartstore.Web.Controllers
 
         //    return Content(content.ToString());
         //}
+
+        public async Task<IActionResult> MhTest()
+        {
+            //// QuantityUnit
+            //// Get QuantityUnit by Id
+            //var qu = _db.QuantityUnits.ApplyQuantityUnitFilter(1).FirstOrDefault();
+
+            //// Save hook > TODO: BROKEN > Why?
+            //qu.IsDefault = true;
+            //_db.SaveChanges();
+            //// TODO Test: Assert.OnlyOne has Default = true, 
+
+            //// Delete hook
+            //var qu2 = _db.QuantityUnits.ApplyQuantityUnitFilter(22).FirstOrDefault();
+
+            //if (qu2 != null)
+            //{
+            //    _db.QuantityUnits.Remove(qu2);
+            //    await _db.SaveChangesAsync();
+            //}
+
+            //// StateProvince
+            //var sp = _db.StateProvinces
+            //    .ApplyCountryFilter(1)
+            //    .ApplyAbbreviationFilter("BE")
+            //    .FirstOrDefault();
+            //// TODO Test: Assert name of entity is Berlin
+
+            //// DeliveryTime
+            ////var dt = _db.DeliveryTimes.GetDeliveryTimeFilter(1);
+
+            //var menuItems = await _db.MenuItems
+            //    .AsNoTracking()
+            //    .ApplyMenuFilter(6, "")
+            //    .ToListAsync();
+
+            return Content("");
+        }
+
+        public async Task<IActionResult> MsTest()
+        {
+            //var customer = await _db.Customers.Where(x => x.Email == "admin@meinstore.de").FirstOrDefaultAsync();
+
+            //var xxxxxx = await _giftCardService.GetValidGiftCardsAsync(customer: customer);
+            //var sdsdsd = (GiftCardCouponCode)xxxxxx.FirstOrDefault().GiftCard.GiftCardCouponCode;
+            //var customerCart = await _cartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart);
+
+            //var xxxx = await _shippingService.GetCartTotalWeightAsync(customerCart);
+
+            //var sddsds = await _orderCalculationService.GetShoppingCartSubTotalAsync(customerCart);
+            //var xxx = await _orderCalculationService.GetShoppingCartTotalAsync(customerCart);
+            //var result = await _shippingService.GetCartTotalWeightAsync(customerCart);
+
+            // GetAllProviders throws....
+            //var shippingOptions = _shippingService.GetShippingOptions(customerCart, Services.WorkContext.CurrentCustomer.ShippingAddress);
+
+            //var rawCheckoutAttributes = Services.WorkContext.CurrentCustomer.GenericAttributes.CheckoutAttributes;
+            //var formatted = _checkoutAttributeFormatter.FormatAttributesAsync(new(rawCheckoutAttributes));
+
+            //var giftCards = await _giftCardService.GetValidGiftCardsAsync();
+
+            return Content("");
+        }
 
         public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*//*ProductVariantQuery query*/)
         {

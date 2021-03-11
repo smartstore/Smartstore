@@ -68,6 +68,12 @@ namespace Smartstore.Web.Infrastructure
                 .Text("Messages")
                 .Action("Messages", "Home")
                 .AsItem());
+
+            cheatsheet.Append(new MenuItem()
+                .ToBuilder()
+                .Text("Controls")
+                .Action("Controls", "Home")
+                .AsItem());
         }
     }
 }
