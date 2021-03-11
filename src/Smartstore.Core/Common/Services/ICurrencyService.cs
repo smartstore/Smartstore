@@ -101,12 +101,9 @@ namespace Smartstore.Core.Common.Services
         Money CreateMoney(decimal price, bool displayCurrency = true, object currencyCodeOrObj = null);
 
         /// <summary>
-        ///     Applies a tax formatting pattern to given money <paramref name="source"/>,
-        ///     e.g. "{0} *", "{0} incl. tax"
+        ///     Gets a tax formatting pattern that can be applied to
+        ///     <see cref="Money"/> values by calling <see cref="Money.WithPostFormat(string)"/>.
         /// </summary>
-        /// <param name="source">
-        ///     The source <see cref="Money"/> to apply formatting to.
-        /// </param>
         /// <param name="displayTaxSuffix">
         ///     A value indicating whether to display the tax suffix.
         ///     If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
@@ -125,8 +122,7 @@ namespace Smartstore.Core.Common.Services
         ///     Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
         /// </param>
         /// <returns>Money</returns>
-        Money ApplyTaxFormat(
-            Money source,
+        string GetTaxFormat(
             bool? displayTaxSuffix = null,
             bool? priceIncludesTax = null,
             PricingTarget target = PricingTarget.Product,

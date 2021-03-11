@@ -316,7 +316,9 @@ namespace Smartstore.Web.Controllers
                     AllowPrices = allowPrices,
                     AllowShoppingCart = allowShoppingCart,
                     AllowWishlist = allowWishlist,
-                    TaxDisplayType = taxDisplayType
+                    TaxDisplayType = taxDisplayType,
+                    TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: taxDisplayType == TaxDisplayType.IncludingTax, target: PricingTarget.Product, language: language),
+                    ShippingChargeTaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: taxDisplayType == TaxDisplayType.IncludingTax, target: PricingTarget.ShippingCharge, language: language)
                 };
 
                 if (settings.MapPictures)
@@ -707,7 +709,7 @@ namespace Smartstore.Web.Controllers
             (finalPriceBase, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, displayPrice ?? new Money(ctx.PrimaryCurrency));
 
             oldPrice = ToWorkingCurrency(oldPriceBase, ctx);
-            finalPrice = _currencyService.ApplyTaxFormat(ToWorkingCurrency(finalPriceBase, ctx));
+            finalPrice = ToWorkingCurrency(finalPriceBase, ctx).WithPostFormat(ctx.TaxFormat);
 
             string finalPricePostFormat = finalPrice.PostFormat;
             if (displayFromMessage)
@@ -722,7 +724,7 @@ namespace Smartstore.Web.Controllers
             priceModel.HasDiscount = oldPriceBase > decimal.Zero && oldPriceBase > finalPriceBase;
             if (priceModel.HasDiscount)
             {
-                priceModel.RegularPrice = _currencyService.ApplyTaxFormat(oldPrice);
+                priceModel.RegularPrice = oldPrice.WithPostFormat(ctx.TaxFormat);
             }
 
             // Calculate saving.
@@ -751,7 +753,7 @@ namespace Smartstore.Web.Controllers
 
                 if (priceModel.RegularPrice == null)
                 {
-                    priceModel.RegularPrice = _currencyService.ApplyTaxFormat(regularPrice);
+                    priceModel.RegularPrice = regularPrice.WithPostFormat(ctx.TaxFormat);
                 }
 
                 if (ctx.Model.ShowDiscountBadge)
@@ -809,18 +811,13 @@ namespace Smartstore.Web.Controllers
 
         private class MapProductSummaryItemContext
         {
-            public MapProductSummaryItemContext()
-            {
-                MediaFiles = new Dictionary<int, MediaFileInfo>();
-            }
-
             public ProductSummaryModel Model { get; set; }
             public ProductSummaryMappingSettings Settings { get; set; }
             public ProductExportContext BatchContext { get; set; }
             public ProductExportContext AssociatedProductBatchContext { get; set; }
             public Multimap<int, Product> GroupedProducts { get; set; }
             public Dictionary<int, BrandOverviewModel> CachedBrandModels { get; set; }
-            public Dictionary<int, MediaFileInfo> MediaFiles { get; set; }
+            public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = new Dictionary<int, MediaFileInfo>();
             public Dictionary<string, LocalizedString> Resources { get; set; }
             public string LegalInfo { get; set; }
             public Customer Customer { get; set; }
@@ -832,6 +829,8 @@ namespace Smartstore.Web.Controllers
             public bool AllowShoppingCart { get; set; }
             public bool AllowWishlist { get; set; }
             public TaxDisplayType TaxDisplayType { get; set; }
+            public string TaxFormat { get; set; }
+            public string ShippingChargeTaxFormat { get; set; }
         }
     }
 
