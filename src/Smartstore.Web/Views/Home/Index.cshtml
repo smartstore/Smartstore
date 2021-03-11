@@ -2,6 +2,11 @@
 
 @{
     ViewData["Title"] = "Home Page";
+
+    Assets.BodyAttributes.AppendCssClass("home");
+    Assets.AppendTitleParts((string)ViewBag.MetaTitle);
+    Assets.AppendMetaDescriptionParts((string)ViewBag.MetaTitle);
+    Assets.AppendMetaKeywordsParts((string)ViewBag.MetaTitle);
 }
 
 <div class="page home-page">
@@ -22,6 +27,9 @@
 
         @await Component.InvokeAsync("HomeBrands")
         <zone name="home_page_after_manufacturers" />
+
+        @await Component.InvokeAsync("PopularProductTags")
+        <zone name="home_page_after_tags" />
     </div>
 </div>
 

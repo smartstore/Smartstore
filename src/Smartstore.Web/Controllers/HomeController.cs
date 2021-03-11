@@ -159,7 +159,7 @@ namespace Smartstore.Web.Controllers
             _userManager = userManager;
             _userAgent = userAgent;
             _mediaService = mediaService;
-
+            
             var currentStore = _storeContext.CurrentStore;
         }
 
@@ -241,6 +241,17 @@ namespace Smartstore.Web.Controllers
             //    .FirstOrDefault();
 
             await Task.Delay(1);
+
+            var storeId = _storeContext.CurrentStore.Id;
+
+            // TODO: (mh) (core) Implement HomePageSettings and uncomment.
+            //ViewBag.MetaTitle = _homePageSettings.Value.GetLocalizedSetting(x => x.MetaTitle, storeId);
+            //ViewBag.MetaDescription = _homePageSettings.Value.GetLocalizedSetting(x => x.MetaDescription, storeId);
+            //ViewBag.MetaKeywords = _homePageSettings.Value.GetLocalizedSetting(x => x.MetaKeywords, storeId);
+
+            ViewBag.MetaTitle = "HP MetaTitle";
+            ViewBag.MetaDescription = "HP MetaDescription";
+            ViewBag.MetaKeywords = "HP MetaKeywords";
 
             return View();
         }

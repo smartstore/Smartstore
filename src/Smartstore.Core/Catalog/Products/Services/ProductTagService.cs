@@ -129,20 +129,18 @@ namespace Smartstore.Core.Catalog.Products
 
         public virtual async Task<int> CountProductsByTagIdAsync(int productTagId, Customer customer = null, int storeId = 0, bool includeHidden = false)
         {
-            if (productTagId != 0)
-            {
-                var countsDic = await GetProductsPerTagCountsAsync(customer ?? _workContext.CurrentCustomer, storeId, includeHidden);
-
-                if (countsDic.TryGetValue(productTagId, out var count))
-                {
-                    return count;
-                }
-            }
-
-            return 0;
+            if (productTagId <= 0)
+                return 0;
+            
+            var countsDic = await GetTagProductCountsMapAsync(customer ?? _workContext.CurrentCustomer, storeId, includeHidden);
+            countsDic.TryGetValue(productTagId, out var count);
+            return count;
         }
 
-        protected virtual async Task<Dictionary<int, int>> GetProductsPerTagCountsAsync(Customer customer, int storeId, bool includeHidden)
+        /// <summary>
+        /// Key = TagId, Value = Number of products assigned to tag.
+        /// </summary>
+        protected virtual async Task<Dictionary<int, int>> GetTagProductCountsMapAsync(Customer customer, int storeId, bool includeHidden)
         {
             Guard.NotNull(customer, nameof(customer));
 

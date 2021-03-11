@@ -34,7 +34,7 @@ namespace Smartstore.Web.Razor
         protected IApplicationContext ApplicationContext { get; set; }
 
         [RazorInject]
-        protected IPageAssetBuilder AssetBuilder { get; set; }
+        protected IPageAssetBuilder Assets { get; set; }
 
         [RazorInject]
         protected IUserAgent UserAgent { get; set; }

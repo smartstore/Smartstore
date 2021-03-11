@@ -15,7 +15,7 @@ namespace Smartstore.Core.Catalog.Products
     /// </summary>
     [Index(nameof(Name), Name = "IX_ProductTag_Name")]
     [Index(nameof(Published), Name = "IX_ProductTag_Published")]
-    public partial class ProductTag : BaseEntity, ILocalizedEntity
+    public partial class ProductTag : BaseEntity, ILocalizedEntity, IDisplayedEntity
     {
         private readonly ILazyLoader _lazyLoader;
 
@@ -28,6 +28,9 @@ namespace Smartstore.Core.Catalog.Products
         {
             _lazyLoader = lazyLoader;
         }
+
+        public string GetDisplayNameMemberName() => nameof(Name);
+        public string GetDisplayName() => Name;
 
         /// <summary>
         /// Gets or sets the name.

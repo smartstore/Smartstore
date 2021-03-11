@@ -8,8 +8,8 @@
 @model LoginModel
 
 @{
-    AssetBuilder.AppendTitleParts(T("PageTitle.Login"));
-    AssetBuilder.AddMetaRobots();
+    Assets.AppendTitleParts(T("PageTitle.Login"));
+    Assets.AddMetaRobots();
     
     var registerUrl = Url.RouteUrl("Register");
     var returnUrl = Context.Request.Query["returnUrl"];
