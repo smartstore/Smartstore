@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -17,30 +18,14 @@ namespace Smartstore.Core.Checkout.Tax
 {
     public partial class TaxService : ITaxService
     {
-        private class TaxAddressKey : Tuple<int, bool>
-        {
-            public TaxAddressKey(int customerId, bool productIsEsd)
-                : base(customerId, productIsEsd)
-            {
-            }
-        }
-
-        private class TaxRateCacheKey : Tuple<int, int, int>
-        {
-            public TaxRateCacheKey(int customerId, int taxCategoryId, int variantId)
-                : base(customerId, taxCategoryId, variantId)
-            {
-            }
-        }
-
         private readonly Dictionary<TaxRateCacheKey, decimal> _cachedTaxRates = new();
         private readonly Dictionary<TaxAddressKey, Address> _cachedTaxAddresses = new();
         private readonly IGeoCountryLookup _geoCountryLookup;
         private readonly IProviderManager _providerManager;
         private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
         private readonly TaxSettings _taxSettings;
         private readonly SmartDbContext _db;
+        private readonly Currency _primaryCurrency;
 
         public TaxService(
             IGeoCountryLookup geoCountryLookup,
@@ -53,32 +38,27 @@ namespace Smartstore.Core.Checkout.Tax
             _geoCountryLookup = geoCountryLookup;
             _providerManager = providerManager;
             _workContext = workContext;
-            _storeContext = storeContext;
             _taxSettings = taxSettings;
             _db = db;
+
+            _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual Provider<ITaxProvider> LoadActiveTaxProvider()
-        {
-            var taxProvider = LoadTaxProviderBySystemName(_taxSettings.ActiveTaxProviderSystemName);
-            if (taxProvider == null)
-            {
-                taxProvider = LoadAllTaxProviders().FirstOrDefault();
-            }
+            => LoadTaxProviderBySystemName(_taxSettings.ActiveTaxProviderSystemName) ?? LoadAllTaxProviders().FirstOrDefault();
 
-            return taxProvider;
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual Provider<ITaxProvider> LoadTaxProviderBySystemName(string systemName)
             => _providerManager.GetProvider<ITaxProvider>(systemName);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual IEnumerable<Provider<ITaxProvider>> LoadAllTaxProviders()
             => _providerManager.GetAllProviders<ITaxProvider>();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual string FormatTaxRate(decimal taxRate)
-        {
-            return taxRate.ToString("G29");
-        }
+            => taxRate.ToString("G29");
 
         public virtual async Task<decimal> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null)
         {
@@ -119,12 +99,9 @@ namespace Smartstore.Core.Checkout.Tax
             int? taxCategoryId = null,
             Customer customer = null)
         {
-            Guard.NotNull(price.Currency, nameof(price.Currency));
-
             var (amount, taxRate) = await GetProductPriceAmountAsync(product, price.Amount, includingTax, priceIncludesTax, taxCategoryId, customer);
 
-            // Gross > Net RoundFix.
-            return (price.Currency.AsMoney(amount), taxRate);
+            return (new(amount, _primaryCurrency), taxRate);
         }
 
         public virtual Task<(Money Price, decimal TaxRate)> GetShippingPriceAsync(
@@ -176,11 +153,9 @@ namespace Smartstore.Core.Checkout.Tax
 
             await _db.LoadReferenceAsync(attributeValue, x => x.CheckoutAttribute);
 
-            var currency = _storeContext.CurrentStore.PrimaryStoreCurrency;
-
             if (attributeValue.CheckoutAttribute.IsTaxExempt)
             {
-                return (new(attributeValue.PriceAdjustment, currency), decimal.Zero);
+                return (new(attributeValue.PriceAdjustment, _primaryCurrency), decimal.Zero);
             }
 
             var (amount, taxRate) = await GetProductPriceAmountAsync(
@@ -191,8 +166,7 @@ namespace Smartstore.Core.Checkout.Tax
                 attributeValue.CheckoutAttribute.TaxCategoryId, 
                 customer);
 
-            // Gross > Net RoundFix.
-            return (currency.AsMoney(amount), taxRate);
+            return (new(amount, _primaryCurrency), taxRate);
         }
 
         // TODO: (ms) (core) implement EuropeCheckVatService and check for async
@@ -362,6 +336,9 @@ namespace Smartstore.Core.Checkout.Tax
                 }
             }
 
+            // Gross > Net RoundFix
+            price = _primaryCurrency.RoundIfEnabledFor(price);
+
             return (price, taxRate);
         }
 
@@ -455,5 +432,21 @@ namespace Smartstore.Core.Checkout.Tax
         }
 
         #endregion
+
+        private class TaxAddressKey : Tuple<int, bool>
+        {
+            public TaxAddressKey(int customerId, bool productIsEsd)
+                : base(customerId, productIsEsd)
+            {
+            }
+        }
+
+        private class TaxRateCacheKey : Tuple<int, int, int>
+        {
+            public TaxRateCacheKey(int customerId, int taxCategoryId, int variantId)
+                : base(customerId, taxCategoryId, variantId)
+            {
+            }
+        }
     }
 }
