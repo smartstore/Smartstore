@@ -10,7 +10,6 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Theming;
 using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
-using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Theming;
 
@@ -69,7 +68,13 @@ namespace Smartstore.Web.Components
                 StoreName = store.Name,
                 ShowLegalInfo = _taxSettings.ShowLegalHintsInFooter,
                 ShowThemeSelector = availableStoreThemes.Count > 1,
-                HideNewsletterBlock = _customerSettings.HideNewsletterBlock
+                HideNewsletterBlock = _customerSettings.HideNewsletterBlock,
+                ShowSocialLinks = _socialSettings.ShowSocialLinksInFooter,
+                FacebookLink = _socialSettings.FacebookLink,
+                TwitterLink = _socialSettings.TwitterLink,
+                PinterestLink = _socialSettings.PinterestLink,
+                YoutubeLink = _socialSettings.YoutubeLink,
+                InstagramLink = _socialSettings.InstagramLink,
             };
 
             var shippingInfoUrl = await Url.TopicAsync("shippinginfo");
@@ -90,13 +95,6 @@ namespace Smartstore.Web.Components
                 await Services.Settings.ApplySettingAsync("Rnd_SmCopyrightHint", hint, store.Id);
                 await Services.DbContext.SaveChangesAsync();
             }
-
-            model.ShowSocialLinks = _socialSettings.ShowSocialLinksInFooter;
-            model.FacebookLink = _socialSettings.FacebookLink;
-            model.TwitterLink = _socialSettings.TwitterLink;
-            model.PinterestLink = _socialSettings.PinterestLink;
-            model.YoutubeLink = _socialSettings.YoutubeLink;
-            model.InstagramLink = _socialSettings.InstagramLink;
 
             model.SmartStoreHint = $"<a href='https://www.smartstore.com/' class='sm-hint' target='_blank'><strong>{hint}</strong></a> by SmartStore AG &copy; {DateTime.Now.Year}";
 

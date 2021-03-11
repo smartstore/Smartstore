@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Collections;
-using Smartstore.Core.Localization;
 using Smartstore.Web.Rendering;
 using Smartstore.Web.Rendering.Pager;
 
@@ -49,8 +48,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
         const string ModifiedParamNameAttributeName = "sm-modified-param";
         
-        // TODO: (mh) (core) Make ModifiedParamName attribute?
-
         [HtmlAttributeName(ListItemsAttributeName)]
         public IPageable ListItems { get; set; }
 
