@@ -50,6 +50,14 @@ namespace Smartstore.Core.Common.Services
             return amount.ExchangeTo(store.PrimaryStoreCurrency, store.PrimaryExchangeRateCurrency);
         }
 
+        public virtual Money ConvertFromPrimaryCurrency(decimal amount, Currency toCurrency, Store store = null)
+        {
+            Guard.NotNull(toCurrency, nameof(toCurrency));
+
+            store ??= _storeContext.CurrentStore;
+            return new Money(amount, store.PrimaryStoreCurrency).ExchangeTo(toCurrency, store.PrimaryExchangeRateCurrency);
+        }
+
         public virtual Money ConvertToExchangeRateCurrency(Money amount, Store store = null)
         {
             Guard.NotNull(amount.Currency, nameof(amount.Currency));

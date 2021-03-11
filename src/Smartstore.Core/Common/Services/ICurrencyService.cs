@@ -22,6 +22,15 @@ namespace Smartstore.Core.Common.Services
         Money ConvertToPrimaryCurrency(Money amount, Store store = null);
 
         /// <summary>
+        /// Exchanges given money amount (which is assumed to be in <see cref="Store.PrimaryStoreCurrency"/>) to <paramref name="toCurrency"/>,
+        /// using <see cref="Store.PrimaryExchangeRateCurrency"/> as exchange rate currency.
+        /// </summary>
+        /// <param name="amount">The source amount to exchange (should be in <see cref="Store.PrimaryStoreCurrency"/>).</param>
+        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store's <see cref="Store.PrimaryExchangeRateCurrency"/>.</param>
+        /// <returns>The exchanged amount in <paramref name="toCurrency"/>.</returns>
+        Money ConvertFromPrimaryCurrency(decimal amount, Currency toCurrency, Store store = null);
+
+        /// <summary>
         /// Exchanges given <see cref="Money"/> amount to <see cref="Store.PrimaryExchangeRateCurrency"/>
         /// of passed <paramref name="store"/>, or of <see cref="IStoreContext.CurrentStore"/> if <paramref name="store"/> is <c>null</c>.
         /// </summary>
