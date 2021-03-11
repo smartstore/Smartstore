@@ -31,7 +31,8 @@ namespace Smartstore.Web.Components
             var viewName = (model.Template ?? model.Name);
             if (viewName[0] != '~' && !viewName.StartsWith("Menus/", StringComparison.OrdinalIgnoreCase))
             {
-                viewName = "Menus/" + viewName;
+                //viewName = "Menus/" + viewName;
+                //viewName = "~/Views/Shared/Menus/" + viewName + ".cshtml";
             }
 
             return View(viewName, model);

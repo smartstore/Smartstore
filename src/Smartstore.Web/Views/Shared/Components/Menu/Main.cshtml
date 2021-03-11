@@ -18,7 +18,10 @@
 }
 
 <div class="megamenu simple">
-    @{ await Html.RenderPartialAsync("Menus/Navbar"); }
+
+    @*TODO: (core) (mc) Find a better solution, maybe by extending ViewExpander *@
+
+    @{ await Html.RenderPartialAsync("Components/Menu/Navbar", Model); }
 </div>
 
 <div class="megamenu-dropdown-container simple">

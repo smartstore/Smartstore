@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Menus;
+using Smartstore.Core.Widgets;
 using Smartstore.Web.Rendering.Menus;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -35,21 +36,24 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            var menu = await _menuService.GetMenuAsync(Name);
-            if (menu == null)
-            {
-                return;
-            }
+            var widget = new ComponentWidgetInvoker("Menu", new { name = Name, template = Template });
 
-            var model = await menu.CreateModelAsync(Template, (ControllerContext)ActionContextAccessor.ActionContext);
-            var root = model?.Root;
-            if (root == null)
-            {
-                return;
-            }
+            //var menu = await _menuService.GetMenuAsync(Name);
+            //if (menu == null)
+            //{
+            //    return;
+            //}
+
+            //var model = await menu.CreateModelAsync(Template, (ControllerContext)ActionContextAccessor.ActionContext);
+            //var root = model?.Root;
+            //if (root == null)
+            //{
+            //    return;
+            //}
 
             output.TagMode = TagMode.StartTagAndEndTag;
-            var partial = await HtmlHelper.PartialAsync("Menus/" + Template, model);
+            //var partial = await HtmlHelper.PartialAsync("Menus/" + Template, model);
+            var partial = await widget.InvokeAsync(ViewContext);
             output.Content.SetHtmlContent(partial);
         }
     }
