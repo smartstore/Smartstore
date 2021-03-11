@@ -17,6 +17,7 @@ namespace Smartstore.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            // TODO: (core) Find a way to cache FaviconModel.
             var store = Services.StoreContext.CurrentStore;
 
             var model = new FaviconModel

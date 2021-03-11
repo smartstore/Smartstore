@@ -275,6 +275,8 @@ namespace Smartstore.Web.Controllers
 
             //testModel.TestList = matches;
 
+            await Task.Delay(1);
+
             return View(testModel);
         }
 

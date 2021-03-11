@@ -28,7 +28,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [Route("browserconfig.xml")]
-        public async Task<IActionResult> BrowserConfigXmlFileAsync()
+        public async Task<IActionResult> BrowserConfigXmlFile()
         {
             var store = Services.StoreContext.CurrentStore;
 
