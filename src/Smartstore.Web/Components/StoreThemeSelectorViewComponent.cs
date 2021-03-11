@@ -27,7 +27,7 @@ namespace Smartstore.Web.Components
 
             var currentTheme = _themeRegistry.Value.GetThemeManifest(_themeContext.WorkingThemeName);
 
-            ViewBag.CurrentStoreTheme = new StoreThemeModel()
+            ViewBag.CurrentStoreTheme = new StoreThemeModel
             {
                 Name = currentTheme.ThemeName,
                 Title = currentTheme.ThemeTitle

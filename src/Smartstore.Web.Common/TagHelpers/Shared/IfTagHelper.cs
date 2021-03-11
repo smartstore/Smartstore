@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+
+namespace Smartstore.Web.TagHelpers.Shared
+{
+    [HtmlTargetElement("*", Attributes = IfAttributeName)]
+    public class IfTagHelper : TagHelper
+    {
+        const string IfAttributeName = "sm-if";
+
+        /// <summary>
+        /// A condition to check before outputting the tag.
+        /// <c>false</c> will suppress the output completely.
+        /// </summary>
+        [HtmlAttributeName(IfAttributeName)]
+        public bool Condition { get; set; } = true;
+
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            if (!Condition)
+            {
+                output.SuppressOutput();
+            }
+        }
+    }
+}

@@ -47,23 +47,20 @@
 
     <zone name="footer_top"></zone>
 
-    @if (Model.ShowSocialLinks && socialLinks.Any())
-    {
-        <div class="footer-social-wrapper">
-            <div class="container footer-social">
-                <div class="row">
-                    <div class="col text-center">
-                        @foreach (var link in socialLinks)
-                        {
-                            <a href="@link.Item1" target="_blank" class="btn x-btn-@(invserseFooter ? "clear" : "secondary") btn-circle btn-social btn-brand-@link.Item2">
-                                <i class="fab fa-@link.Item2"></i>
-                            </a>
-                        }
-                    </div>
+    <div sm-if="Model.ShowSocialLinks && socialLinks.Any()" class="footer-social-wrapper">
+        <div class="container footer-social">
+            <div class="row">
+                <div class="col text-center">
+                    @foreach (var link in socialLinks)
+                    {
+                        <a href="@link.Item1" target="_blank" class="btn x-btn-@(invserseFooter ? "clear" : "secondary") btn-circle btn-social btn-brand-@link.Item2">
+                            <i class="fab fa-@link.Item2"></i>
+                        </a>
+                    }
                 </div>
             </div>
         </div>
-    }
+    </div>
 
     <div class="footer-main-wrapper">
         <div class="container footer-main">
@@ -150,17 +147,14 @@
                         </div>
                     }
 
-                    @if (Model.ShowThemeSelector)
-                    {
-                        <div class="theme-selector d-none d-md-block@(!Model.HideNewsletterBlock ? " mt-3" : "")">
-                            <h4>@T("Footer.Themes")</h4>
-                            <div class="content">
-                                @{
-                                    @await Component.InvokeAsync("StoreThemeSelector")
-                                }
-                            </div>
+                    <div sm-if="Model.ShowThemeSelector" class="theme-selector d-none d-md-block@(!Model.HideNewsletterBlock ? " mt-3" : "")">
+                        <h4>@T("Footer.Themes")</h4>
+                        <div class="content">
+                            @{
+                                @await Component.InvokeAsync("StoreThemeSelector")
+                            }
                         </div>
-                    }
+                    </div>
 
                     <zone name="footer_col_4_after"></zone>
                 </div>
@@ -173,20 +167,13 @@
     <div class="footer-bottom-wrapper">
         <div class="container footer-bottom">
             <div class="row sm-gutters">
+                <div sm-if="Model.ShowLegalInfo" class="col pb-1 pb-sm-0">
+                    @Html.Raw(Model.LegalInfo)
+                </div>
 
-                @if (Model.ShowLegalInfo)
-                {
-                    <div class="col pb-1 pb-sm-0">
-                        @Html.Raw(Model.LegalInfo)
-                    </div>
-                }
-
-                @if (Model.SmartStoreHint.HasValue())
-                {
-                    <div class="col-12 col-sm-auto pb-1 pb-sm-0 text-sm-center">
-                        @Html.Raw(Model.SmartStoreHint)
-                    </div>
-                }
+                <div sm-if="Model.SmartStoreHint.HasValue()" class="col-12 col-sm-auto pb-1 pb-sm-0 text-sm-center">
+                    @Html.Raw(Model.SmartStoreHint)
+                </div>
 
                 <div class="col text-sm-right">
                     @Html.Raw(T("Content.CopyrightNotice", DateTime.Now.Year.ToString(), Model.StoreName))
