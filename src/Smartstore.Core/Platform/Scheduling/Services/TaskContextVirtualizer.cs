@@ -43,11 +43,22 @@ namespace Smartstore.Scheduling
             }
 
             // Try virtualize current store.
-            if (taskParameters != null && taskParameters.ContainsKey(CurrentStoreIdParamName))
-            {
-                var storeContext = httpContext.RequestServices.GetRequiredService<IStoreContext>();
+            var storeContext = httpContext.RequestServices.GetRequiredService<IStoreContext>();
 
-                var store = storeContext.GetStoreById(taskParameters[CurrentStoreIdParamName].Convert<int>());
+            if (!storeContext.IsSingleStoreMode())
+            {
+                Store store = null;
+                if (taskParameters != null && taskParameters.ContainsKey(CurrentStoreIdParamName))
+                {
+                    store = storeContext.GetStoreById(taskParameters[CurrentStoreIdParamName].Convert<int>());
+                }
+
+                if (store == null)
+                {
+                    // No store virtualization requested: always set primary store in this case.
+                    store = storeContext.GetCachedStores().GetPrimaryStore();
+                }
+
                 if (store != null)
                 {
                     // Set virtual store.

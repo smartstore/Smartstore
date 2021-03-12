@@ -27,8 +27,6 @@ namespace Smartstore.Core.Stores
             var deletedEntities = entries
                 .Where(x => x.InitialState == Smartstore.Data.EntityState.Deleted)
                 .Select(x => x.Entity)
-                .OfType<IStoreRestricted>()
-                .Select(x => x as BaseEntity)
                 .ToList();
 
             if (deletedEntities.Any())
