@@ -7,8 +7,8 @@ namespace Smartstore.Redis
 {
     public static class RedisDatabaseExtensions
     {
-        public static T ObjectGet<T>(this IDatabase database, 
-            IJsonSerializer serializer, 
+        public static T ObjectGet<T>(this IDatabase database,
+            IJsonSerializer serializer,
             string key,
             bool uncompress = true,
             CommandFlags flags = CommandFlags.None)
@@ -28,8 +28,8 @@ namespace Smartstore.Redis
             return (T)result;
         }
 
-        public static async Task<T> ObjectGetAsync<T>(this IDatabase database, 
-            IJsonSerializer serializer, 
+        public static async Task<T> ObjectGetAsync<T>(this IDatabase database,
+            IJsonSerializer serializer,
             string key,
             bool uncompress = true,
             CommandFlags flags = CommandFlags.None)

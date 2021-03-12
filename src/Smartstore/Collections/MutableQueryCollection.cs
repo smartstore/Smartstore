@@ -30,7 +30,7 @@ namespace Smartstore.Collections
             : base(store)
         {
             Guard.NotNull(store, nameof(store));
-            
+
             _store = store;
         }
 
@@ -48,7 +48,7 @@ namespace Smartstore.Collections
         public virtual MutableQueryCollection Add(string name, string value, bool isUnique = false)
         {
             Guard.NotEmpty(name, nameof(name));
-            
+
             if (_store.TryGetValue(name, out var existingValues))
             {
                 var passedValues = new StringValues(value.SplitSafe(",").Select(x => x.ToString()).ToArray());

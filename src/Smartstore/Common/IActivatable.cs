@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace Smartstore
+﻿namespace Smartstore
 {
-	public interface IActivatable
-	{
-		bool IsActive { get; }
-	}
+    public interface IActivatable
+    {
+        bool IsActive { get; }
+    }
 }

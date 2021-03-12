@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Smartstore.Caching
 {
@@ -8,7 +8,7 @@ namespace Smartstore.Caching
     {
         private TimeSpan? _duration;
         private HashSet<string> _dependencies;
-        
+
         public CacheEntryOptions ExpiresIn(TimeSpan duration)
         {
             _duration = duration;
@@ -34,15 +34,15 @@ namespace Smartstore.Caching
                     _dependencies.AddRange(keys);
                 }
             }
-            
+
             return this;
         }
 
         public CacheEntry AsEntry(string key, object value)
         {
-            var entry = new CacheEntry 
-            { 
-                Key = key, 
+            var entry = new CacheEntry
+            {
+                Key = key,
                 Value = value,
                 ValueType = value?.GetType(),
                 Duration = _duration

@@ -85,7 +85,7 @@ namespace Smartstore.Net.Mail
             {
                 if (cancelToken.IsCancellationRequested)
                     break;
-                
+
                 _client.Send(mimeMessage, cancelToken);
             }
         }
@@ -114,7 +114,7 @@ namespace Smartstore.Net.Mail
                     _client.Disconnect(true);
                 }
                 _client.Dispose();
-            } 
+            }
         }
 
         protected override async ValueTask OnDisposeAsync(bool disposing)

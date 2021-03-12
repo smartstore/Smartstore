@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Domain
+﻿namespace Smartstore.Domain
 {
-	public interface ISoftDeletable
-	{
-		bool Deleted { get; set; }
-	}
+    public interface ISoftDeletable
+    {
+        bool Deleted { get; set; }
+    }
 }

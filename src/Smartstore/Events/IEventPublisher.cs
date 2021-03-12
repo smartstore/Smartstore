@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Smartstore.Threading;
 
 namespace Smartstore.Events
 {

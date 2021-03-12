@@ -4,7 +4,6 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
@@ -397,9 +396,9 @@ namespace Smartstore.Data
             var storeIdent = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table).Value;
 
             return OpenBlobStream(
-                entityType.GetTableName(), 
+                entityType.GetTableName(),
                 entityProperty.GetColumnName(storeIdent),
-                nameof(BaseEntity.Id), 
+                nameof(BaseEntity.Id),
                 id);
         }
 
@@ -415,7 +414,7 @@ namespace Smartstore.Data
         public DbParameter CreateParameter(string name, object value)
         {
             Guard.NotEmpty(name, nameof(name));
-            
+
             var p = CreateParameter();
             p.ParameterName = name;
             p.Value = value;

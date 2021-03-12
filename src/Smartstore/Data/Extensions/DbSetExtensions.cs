@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Data;
 using Smartstore.Domain;
-using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
 namespace Smartstore
 {
@@ -163,7 +162,7 @@ namespace Smartstore
         /// Loads many entities from database sorted by the given id sequence.
         /// Sort is applied in-memory.
         /// </summary>
-        public static IList<TEntity> GetMany<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids, bool tracked = false) 
+        public static IList<TEntity> GetMany<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids, bool tracked = false)
             where TEntity : BaseEntity
         {
             Guard.NotNull(dbSet, nameof(dbSet));
@@ -184,7 +183,7 @@ namespace Smartstore
         /// Loads many entities from database sorted by the given id sequence.
         /// Sort is applied in-memory.
         /// </summary>
-        public static async Task<List<TEntity>> GetManyAsync<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids, bool tracked = false) 
+        public static async Task<List<TEntity>> GetManyAsync<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids, bool tracked = false)
             where TEntity : BaseEntity
         {
             Guard.NotNull(dbSet, nameof(dbSet));

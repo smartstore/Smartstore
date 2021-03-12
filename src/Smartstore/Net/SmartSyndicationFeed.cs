@@ -71,10 +71,10 @@ namespace Smartstore.Net
                     // 0 omits the length attribute but that invalidates the feed!
                     fileLength = 10000;
                 }
-                
+
                 var enclosure = SyndicationLink.CreateMediaEnclosureLink(
                     new Uri(fileUrl),
-                    MimeTypes.MapNameToMimeType(file.Name).EmptyNull(), 
+                    MimeTypes.MapNameToMimeType(file.Name).EmptyNull(),
                     fileLength);
 
                 item.Links.Add(enclosure);

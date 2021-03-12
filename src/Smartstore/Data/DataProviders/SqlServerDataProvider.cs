@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -15,7 +14,7 @@ namespace Smartstore.Data.DataProviders
 {
     public class SqlServerDataProvider : DataProvider
     {
-        private readonly static HashSet<int> _transientErrorCodes = new(new[] 
+        private readonly static HashSet<int> _transientErrorCodes = new(new[]
         {
             49920, // Cannot process request. Too many operations in progress for subscription "%ld".
             49919, // Cannot process create or update request. Too many create or update operations in progress for subscription "%ld".
@@ -72,7 +71,7 @@ namespace Smartstore.Data.DataProviders
 
         public override DataProviderType ProviderType => DataProviderType.SqlServer;
 
-        public override DataProviderFeatures Features 
+        public override DataProviderFeatures Features
             => DataProviderFeatures.Backup | DataProviderFeatures.ComputeSize | DataProviderFeatures.ReIndex | DataProviderFeatures.ExecuteSqlScript
             | DataProviderFeatures.Restore | DataProviderFeatures.AccessIncrement | DataProviderFeatures.Shrink | DataProviderFeatures.StreamBlob
             | DataProviderFeatures.StoredProcedures;
@@ -164,7 +163,7 @@ namespace Smartstore.Data.DataProviders
             Guard.NotEmpty(backupFullPath, nameof(backupFullPath));
 
             return Database.ExecuteSqlRaw(
-                RestoreDatabaseSql(Database.GetDbConnection().Database), 
+                RestoreDatabaseSql(Database.GetDbConnection().Database),
                 backupFullPath);
         }
 

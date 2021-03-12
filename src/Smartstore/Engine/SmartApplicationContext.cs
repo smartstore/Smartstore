@@ -18,13 +18,13 @@ namespace Smartstore.Engine
     public class SmartApplicationContext : IApplicationContext, IServiceProviderContainer
     {
         const string TempDirName = "_temp";
-        
+
         private bool _freezed;
         private IDirectory _tempDirectory;
         private IDirectory _tempDirectoryTenant;
 
         public SmartApplicationContext(
-            IHostEnvironment hostEnvironment, 
+            IHostEnvironment hostEnvironment,
             IConfiguration configuration,
             ILogger logger,
             params Assembly[] coreAssemblies)
@@ -95,7 +95,7 @@ namespace Smartstore.Engine
 
         public ILifetimeScope Services
         {
-            get 
+            get
             {
                 var provider = ((IServiceProviderContainer)this).ApplicationServices;
                 return provider?.AsLifetimeScope();

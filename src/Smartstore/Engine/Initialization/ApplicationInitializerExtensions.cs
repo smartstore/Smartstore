@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Smartstore.Engine.Initialization;
 
 namespace Smartstore.Bootstrapping

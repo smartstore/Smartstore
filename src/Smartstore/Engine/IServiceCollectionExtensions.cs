@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.Engine
@@ -11,7 +10,7 @@ namespace Smartstore.Engine
         /// </summary>
         /// <typeparam name="TConfig">Type of configuration class.</typeparam>
         /// <param name="configuration">Configuration to bind from.</param>
-        public static TConfig ConfigureAppConfig<TConfig>(this IServiceCollection services, IConfiguration configuration) 
+        public static TConfig ConfigureAppConfig<TConfig>(this IServiceCollection services, IConfiguration configuration)
             where TConfig : class, new()
         {
             Guard.NotNull(services, nameof(services));

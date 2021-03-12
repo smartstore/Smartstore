@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Pdf
+﻿namespace Smartstore.Pdf
 {
     public enum PdfPageSize
     {

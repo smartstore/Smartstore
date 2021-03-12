@@ -207,8 +207,8 @@ namespace Smartstore.Caching
                     }
                 }
 
-                Removed?.Invoke(this, new CacheEntryRemovedEventArgs 
-                { 
+                Removed?.Invoke(this, new CacheEntryRemovedEventArgs
+                {
                     Key = (string)key,
                     Reason = (CacheEntryRemovedReason)reason,
                     Entry = entry
@@ -328,7 +328,7 @@ namespace Smartstore.Caching
             {
                 _keys.Clear();
                 _cache.Dispose();
-            }    
+            }
         }
     }
 }

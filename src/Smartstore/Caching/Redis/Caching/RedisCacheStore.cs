@@ -68,7 +68,7 @@ namespace Smartstore.Redis.Caching
         public bool IsDistributed
             => true;
 
-        public IDatabase Database 
+        public IDatabase Database
             => _multiplexer.GetDatabase();
 
         public IJsonSerializer Serializer
@@ -312,7 +312,7 @@ namespace Smartstore.Redis.Caching
         {
             if (dependencies == null || !dependencies.Any())
                 return;
-            
+
             // INFO: we must evict "key" when ANY of the "dependencies" change,
             // therefore we create a hashset lookup for each dependency and add "key" to the set.
 

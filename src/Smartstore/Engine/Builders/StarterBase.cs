@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +10,7 @@ namespace Smartstore.Engine.Builders
     public abstract class StarterBase : IStarter, IContainerConfigurer
     {
         private HashSet<string> _runAfter = new();
-        
+
         /// <inheritdoc />
         public virtual int Order { get; } = (int)StarterOrdering.Default;
 
@@ -57,7 +56,7 @@ namespace Smartstore.Engine.Builders
         string ITopologicSortable<string>.Key
             => GetType().FullName;
 
-        string[] ITopologicSortable<string>.DependsOn 
+        string[] ITopologicSortable<string>.DependsOn
             => _runAfter.ToArray();
     }
 }

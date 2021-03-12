@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Events
+﻿namespace Smartstore.Events
 {
     /// <summary>
     /// Marker interface for classes that contain one or more

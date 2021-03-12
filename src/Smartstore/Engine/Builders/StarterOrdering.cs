@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Engine.Builders
+﻿namespace Smartstore.Engine.Builders
 {
     /// <summary>
     /// Some predefined defaults for the numerical ordering of starters, middleware and route registrations.

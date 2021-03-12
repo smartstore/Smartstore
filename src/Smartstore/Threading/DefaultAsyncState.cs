@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Caching;
-using Smartstore.Events;
 
 namespace Smartstore.Threading
 {
@@ -207,7 +206,7 @@ namespace Smartstore.Threading
         protected virtual CacheEntry GetStateInfo<T>(string name = null)
         {
             var key = BuildKey<T>(name);
-            
+
             if (Store.GetTimeToLive(key) != null)
             {
                 // Mimic sliding expiration behavior. Extend expiry by 15 min.,

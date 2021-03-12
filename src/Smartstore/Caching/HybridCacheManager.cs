@@ -121,7 +121,7 @@ namespace Smartstore.Caching
             {
                 return (T)entry.Value;
             }
-            
+
             return default;
         }
 
@@ -435,7 +435,7 @@ namespace Smartstore.Caching
 
                 index++;
             }
-            
+
             return (null, null, -1);
         }
 

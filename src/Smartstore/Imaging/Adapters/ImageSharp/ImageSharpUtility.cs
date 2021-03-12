@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
@@ -29,7 +27,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             [ResamplingMode.Triangle] = () => KnownResamplers.Triangle,
             [ResamplingMode.Welch] = () => KnownResamplers.Welch
         };
-        
+
         public static SharpImageFormat CreateFormat(SharpFormat sharpFormat)
         {
             return sharpFormat.Name switch
@@ -40,14 +38,14 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
                 _ => new SharpImageFormat(sharpFormat),
             };
         }
-        
+
         public static IQuantizer CreateQuantizer(QuantizationMethod? method)
         {
             if (method == null)
             {
                 return null;
             }
-            
+
             return method.Value switch
             {
                 QuantizationMethod.Octree => new OctreeQuantizer(),
@@ -59,7 +57,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
         public static IResampler GetResampler(ResamplingMode mode)
         {
-            if  (_samplerMap.TryGetValue(mode, out var sampler))
+            if (_samplerMap.TryGetValue(mode, out var sampler))
             {
                 return sampler();
             }

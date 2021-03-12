@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +29,7 @@ namespace Smartstore.Data.Hooks
         /// </summary>
         Ok
     }
-    
+
     /// <summary>
     /// A hook that is executed before and after a database save operation.
     /// Raising <see cref="NotSupportedException"/> or

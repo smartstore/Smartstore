@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -22,7 +21,7 @@ namespace Smartstore
         public static IFileEntry GetEntry(this IFileSystem fs, string subpath)
         {
             Guard.NotEmpty(subpath, nameof(subpath));
-            
+
             var entry = fs.GetDirectory(subpath);
             if (entry.Exists || entry is NotFoundDirectory)
             {
@@ -388,10 +387,10 @@ namespace Smartstore
         /// <param name="deleteIfEmpfy">Delete dir too if it doesn't contain any entries after deletion anymore</param>
         /// <param name="olderThan">Delete only files older than this TimeSpan</param>
         /// <param name="exceptFileNames">Name of files not to be deleted</param>
-        public static void ClearDirectory(this IFileSystem fs, 
-            IDirectory directory, 
-            bool deleteIfEmpfy, 
-            TimeSpan olderThan, 
+        public static void ClearDirectory(this IFileSystem fs,
+            IDirectory directory,
+            bool deleteIfEmpfy,
+            TimeSpan olderThan,
             params string[] exceptFileNames)
         {
             Guard.NotNull(directory, nameof(directory));
@@ -541,7 +540,7 @@ namespace Smartstore
             if (subpath.IsEmpty() || !fs.DirectoryExists(subpath))
             {
                 return defaultName;
-            } 
+            }
 
             var newName = defaultName;
 
@@ -549,7 +548,7 @@ namespace Smartstore
             {
                 if (!fs.DirectoryExists(fs.PathCombine(subpath, newName)))
                     break;
-                
+
                 newName = defaultName + i.ToString();
             }
 

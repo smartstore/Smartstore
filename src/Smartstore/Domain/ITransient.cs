@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace Smartstore.Domain
+﻿namespace Smartstore.Domain
 {
-	public interface ITransient
-	{
-		bool IsTransient { get; set; }
-	}
+    public interface ITransient
+    {
+        bool IsTransient { get; set; }
+    }
 }

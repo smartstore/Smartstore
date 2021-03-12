@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Threading;
 using Smartstore.ComponentModel;
 using Smartstore.Engine;
+using Smartstore.Threading;
 
 namespace Smartstore.Events
 {
@@ -28,8 +28,8 @@ namespace Smartstore.Events
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public virtual Task InvokeAsync<TMessage>(
-            ConsumerDescriptor descriptor, 
-            IConsumer consumer, 
+            ConsumerDescriptor descriptor,
+            IConsumer consumer,
             ConsumeContext<TMessage> envelope,
             CancellationToken cancelToken = default) where TMessage : class
         {
@@ -45,7 +45,7 @@ namespace Smartstore.Events
                 // The all async case.
                 ct = _asyncRunner.CreateCompositeCancellationToken(cancelToken);
                 task = ((Task)InvokeCore(null, ct));
-                task.ContinueWith(t => 
+                task.ContinueWith(t =>
                 {
                     if (t.IsFaulted) HandleException(t.Exception, d);
                 }, TaskContinuationOptions.None);

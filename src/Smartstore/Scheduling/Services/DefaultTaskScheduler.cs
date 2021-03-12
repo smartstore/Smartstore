@@ -107,7 +107,7 @@ namespace Smartstore.Scheduling
             PollInterval = pollInterval;
 
             _timer?.Dispose();
-            _timer = new Timer(DoPoll, new Uri(BaseUrl + "poll"), 
+            _timer = new Timer(DoPoll, new Uri(BaseUrl + "poll"),
                 TimeSpan.FromSeconds(GetFixedInterval(pollInterval)), // Next poll (must be whole minute)
                 TimeSpan.FromMinutes(PollInterval)); // continous interval
 

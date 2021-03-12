@@ -29,7 +29,7 @@ namespace Smartstore.Linq
             if (typeof(T) == typeof(TTarget))
             {
                 _expands.Add(visitor.Path);
-            }  
+            }
             else
             {
                 // The path represents a collection association. Find the property on the target type that

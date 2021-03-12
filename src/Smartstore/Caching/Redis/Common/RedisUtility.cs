@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Smartstore.Data;
+﻿using Smartstore.Data;
 
 namespace Smartstore.Redis
 {

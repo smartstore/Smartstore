@@ -87,7 +87,7 @@ namespace Smartstore.ComponentModel
         public virtual bool TryDeserialize(Type objectType, byte[] value, bool uncompress, out object result)
         {
             Guard.NotNull(objectType, nameof(objectType));
-            
+
             result = null;
 
             if (!CanDeserialize(objectType))

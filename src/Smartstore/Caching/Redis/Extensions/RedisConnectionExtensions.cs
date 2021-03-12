@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using StackExchange.Redis;
 using Dasync.Collections;
+using StackExchange.Redis;
 
 namespace Smartstore.Redis
 {

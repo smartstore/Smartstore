@@ -99,7 +99,7 @@ namespace Smartstore.Data
             {
                 DeferCommit = false;
             }
-            
+
             var op = _currentSaveOperation;
 
             if (op != null)

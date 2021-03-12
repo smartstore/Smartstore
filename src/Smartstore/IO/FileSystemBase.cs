@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.Extensions.FileProviders;
@@ -41,7 +40,7 @@ namespace Smartstore.IO
             if (paths[0].StartsWith('/') || (Environment.OSVersion.Platform == PlatformID.Unix && !paths[0].StartsWith('~')))
             {
                 combined = '/' + combined;
-            }    
+            }
 
             return combined;
         }

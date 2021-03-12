@@ -30,7 +30,7 @@ namespace Smartstore.Net
         private static readonly Regex _cssPathPattern = new(@"url\('(?<url>.+)'\)", RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly ConcurrentDictionary<int, string> _safeLocalHostNames = new();
 
-        private static IHttpContextAccessor HttpContextAccessor 
+        private static IHttpContextAccessor HttpContextAccessor
             => _httpContextAccessor ??= EngineContext.Current.Application.Services.ResolveOptional<IHttpContextAccessor>();
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace Smartstore.Net
             {
                 return '~' + relativePath.Value;
             }
-            
+
             return path.EnsureStartsWith("~/");
         }
 

@@ -8,9 +8,9 @@ namespace Smartstore.Scheduling
     public class TaskActivator : ITaskActivator
     {
         private readonly static ConcurrentDictionary<string, string> _normalizedTypeNames = new(StringComparer.OrdinalIgnoreCase);
-        
+
         private readonly IComponentContext _componentContext;
-        
+
         public TaskActivator(IComponentContext componentContext)
         {
             _componentContext = componentContext;
@@ -25,9 +25,9 @@ namespace Smartstore.Scheduling
                 return null;
             }
 
-            return _normalizedTypeNames.GetOrAdd(task.Type, name => 
+            return _normalizedTypeNames.GetOrAdd(task.Type, name =>
             {
-                if (name.IndexOf(',') > - 1)
+                if (name.IndexOf(',') > -1)
                 {
                     // Type name is legacy and fully qualified, e.g.: "SmartStore.Services.Customers.DeleteGuestsTask, SmartStore.Services".
                     // We need to extract "DeleteGuestsTask".

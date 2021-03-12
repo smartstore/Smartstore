@@ -7,56 +7,56 @@ using Smartstore.Collections.JsonConverters;
 
 namespace Smartstore.Collections
 {
-	/// <summary>
-	/// A data structure that contains multiple values for each key.
-	/// </summary>
-	/// <typeparam name="TKey">The type of key.</typeparam>
-	/// <typeparam name="TValue">The type of value.</typeparam>
-	[JsonConverter(typeof(MultiMapJsonConverter))]
-	public class Multimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, ICollection<TValue>>>
+    /// <summary>
+    /// A data structure that contains multiple values for each key.
+    /// </summary>
+    /// <typeparam name="TKey">The type of key.</typeparam>
+    /// <typeparam name="TValue">The type of value.</typeparam>
+    [JsonConverter(typeof(MultiMapJsonConverter))]
+    public class Multimap<TKey, TValue> : IEnumerable<KeyValuePair<TKey, ICollection<TValue>>>
     {
-		private readonly IDictionary<TKey, ICollection<TValue>> _dict;
-		private readonly Func<IEnumerable<TValue>, ICollection<TValue>> _collectionCreator;
+        private readonly IDictionary<TKey, ICollection<TValue>> _dict;
+        private readonly Func<IEnumerable<TValue>, ICollection<TValue>> _collectionCreator;
         private readonly bool _isReadonly = false;
 
-		internal readonly static Func<IEnumerable<TValue>, ICollection<TValue>> DefaultCollectionCreator = 
-			x => new List<TValue>(x ?? Enumerable.Empty<TValue>());
+        internal readonly static Func<IEnumerable<TValue>, ICollection<TValue>> DefaultCollectionCreator =
+            x => new List<TValue>(x ?? Enumerable.Empty<TValue>());
 
-		public Multimap()
+        public Multimap()
             : this(EqualityComparer<TKey>.Default)
         {
         }
 
-		public Multimap(IEqualityComparer<TKey> comparer)
+        public Multimap(IEqualityComparer<TKey> comparer)
         {
-			_dict = new Dictionary<TKey, ICollection<TValue>>(comparer ?? EqualityComparer<TKey>.Default);
+            _dict = new Dictionary<TKey, ICollection<TValue>>(comparer ?? EqualityComparer<TKey>.Default);
             _collectionCreator = DefaultCollectionCreator;
         }
 
-		public Multimap(Func<IEnumerable<TValue>, ICollection<TValue>> collectionCreator)
-			: this(new Dictionary<TKey, ICollection<TValue>>(), collectionCreator)
+        public Multimap(Func<IEnumerable<TValue>, ICollection<TValue>> collectionCreator)
+            : this(new Dictionary<TKey, ICollection<TValue>>(), collectionCreator)
         {
         }
 
-		public Multimap(IEqualityComparer<TKey> comparer, Func<IEnumerable<TValue>, ICollection<TValue>> collectionCreator)
-			: this(new Dictionary<TKey, ICollection<TValue>>(comparer ?? EqualityComparer<TKey>.Default), collectionCreator)
-		{
-		}
-
-		internal Multimap(IDictionary<TKey, ICollection<TValue>> dictionary, Func<IEnumerable<TValue>, ICollection<TValue>> collectionCreator)
+        public Multimap(IEqualityComparer<TKey> comparer, Func<IEnumerable<TValue>, ICollection<TValue>> collectionCreator)
+            : this(new Dictionary<TKey, ICollection<TValue>>(comparer ?? EqualityComparer<TKey>.Default), collectionCreator)
         {
-			Guard.NotNull(dictionary, nameof(dictionary));
-			Guard.NotNull(collectionCreator, nameof(collectionCreator));
+        }
 
-			_dict = dictionary;
+        internal Multimap(IDictionary<TKey, ICollection<TValue>> dictionary, Func<IEnumerable<TValue>, ICollection<TValue>> collectionCreator)
+        {
+            Guard.NotNull(dictionary, nameof(dictionary));
+            Guard.NotNull(collectionCreator, nameof(collectionCreator));
+
+            _dict = dictionary;
             _collectionCreator = collectionCreator;
         }
 
-		protected Multimap(IDictionary<TKey, ICollection<TValue>> dictionary, bool isReadonly)
+        protected Multimap(IDictionary<TKey, ICollection<TValue>> dictionary, bool isReadonly)
         {
-			Guard.NotNull(dictionary, nameof(dictionary));
+            Guard.NotNull(dictionary, nameof(dictionary));
 
-			_dict = dictionary;
+            _dict = dictionary;
 
             if (isReadonly && dictionary != null)
             {
@@ -69,37 +69,37 @@ namespace Smartstore.Collections
             _isReadonly = isReadonly;
         }
 
-		public Multimap(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items)
-			: this(items, null)
-		{
-			// for serialization
-		}
+        public Multimap(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items)
+            : this(items, null)
+        {
+            // for serialization
+        }
 
-		public Multimap(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items, IEqualityComparer<TKey> comparer)
-		{
-			// for serialization
-			Guard.NotNull(items, nameof(items));
+        public Multimap(IEnumerable<KeyValuePair<TKey, IEnumerable<TValue>>> items, IEqualityComparer<TKey> comparer)
+        {
+            // for serialization
+            Guard.NotNull(items, nameof(items));
 
-			_dict = new Dictionary<TKey, ICollection<TValue>>(comparer ?? EqualityComparer<TKey>.Default);
+            _dict = new Dictionary<TKey, ICollection<TValue>>(comparer ?? EqualityComparer<TKey>.Default);
 
-			if (items != null)
-			{
-				foreach (var kvp in items)
-				{
-					_dict[kvp.Key] = CreateCollection(kvp.Value);
-				}
-			}
-		}
+            if (items != null)
+            {
+                foreach (var kvp in items)
+                {
+                    _dict[kvp.Key] = CreateCollection(kvp.Value);
+                }
+            }
+        }
 
-		protected virtual ICollection<TValue> CreateCollection(IEnumerable<TValue> values)
-		{
-			return (_collectionCreator ?? DefaultCollectionCreator)(values ?? Enumerable.Empty<TValue>());
-		}
+        protected virtual ICollection<TValue> CreateCollection(IEnumerable<TValue> values)
+        {
+            return (_collectionCreator ?? DefaultCollectionCreator)(values ?? Enumerable.Empty<TValue>());
+        }
 
-		/// <summary>
-		/// Gets the count of groups/keys.
-		/// </summary>
-		public int Count
+        /// <summary>
+        /// Gets the count of groups/keys.
+        /// </summary>
+        public int Count
         {
             get
             {
@@ -146,20 +146,20 @@ namespace Smartstore.Collections
             get { return _dict.Keys; }
         }
 
-		/// <summary>
-		/// Gets all value collections.
-		/// </summary>
-		public virtual ICollection<ICollection<TValue>> Values
+        /// <summary>
+        /// Gets all value collections.
+        /// </summary>
+        public virtual ICollection<ICollection<TValue>> Values
         {
             get { return _dict.Values; }
         }
 
         public IEnumerable<TValue> Find(TKey key, Func<TValue, bool> predicate)
         {
-			Guard.NotNull(key, nameof(key));
-			Guard.NotNull(predicate, nameof(predicate));
+            Guard.NotNull(key, nameof(key));
+            Guard.NotNull(predicate, nameof(predicate));
 
-			if (_dict.ContainsKey(key))
+            if (_dict.ContainsKey(key))
             {
                 return _dict[key].Where(predicate);
             }
@@ -186,12 +186,12 @@ namespace Smartstore.Collections
         /// <param name="values">The values.</param>
         public virtual void AddRange(TKey key, IEnumerable<TValue> values)
         {
-			if (values == null || !values.Any())
-				return;
+            if (values == null || !values.Any())
+                return;
 
-			CheckNotReadonly();
+            CheckNotReadonly();
 
-			this[key].AddRange(values);
+            this[key].AddRange(values);
         }
 
         /// <summary>
@@ -280,7 +280,7 @@ namespace Smartstore.Collections
         /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the multimap.</returns>
 		public virtual IEnumerator<KeyValuePair<TKey, ICollection<TValue>>> GetEnumerator()
         {
-			foreach (KeyValuePair<TKey, ICollection<TValue>> pair in _dict)
+            foreach (KeyValuePair<TKey, ICollection<TValue>> pair in _dict)
                 yield return pair;
         }
 
@@ -294,9 +294,9 @@ namespace Smartstore.Collections
 
         public static Multimap<TKey, TValue> CreateFromLookup(ILookup<TKey, TValue> source)
         {
-			Guard.NotNull(source, nameof(source));
+            Guard.NotNull(source, nameof(source));
 
-			var map = new Multimap<TKey, TValue>();
+            var map = new Multimap<TKey, TValue>();
 
             foreach (IGrouping<TKey, TValue> group in source)
             {
@@ -306,6 +306,6 @@ namespace Smartstore.Collections
             return map;
         }
 
-		#endregion
-	}
+        #endregion
+    }
 }

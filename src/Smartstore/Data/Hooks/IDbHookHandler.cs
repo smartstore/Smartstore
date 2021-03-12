@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,7 +30,7 @@ namespace Smartstore.Data.Hooks
 
         public IEnumerable<IDbSaveHook> ProcessedHooks { get; }
     }
-    
+
     /// <summary>
     /// Responsible for executing all discovered hooks on data commit.
     /// </summary>

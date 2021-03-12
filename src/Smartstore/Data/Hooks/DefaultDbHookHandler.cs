@@ -91,7 +91,7 @@ namespace Smartstore.Data.Hooks
                     {
                         Logger.Debug("PRE save hook: {0}, State: {1}, Entity: {2}", hook.GetType().Name, e.InitialState, e.Entity.GetType().Name);
                         var result = await hook.OnBeforeSaveAsync(e, cancelToken);
-                        
+
                         if (result == HookResult.Ok)
                         {
                             processedHooks.Add(hook, e);

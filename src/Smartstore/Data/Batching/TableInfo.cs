@@ -141,7 +141,7 @@ namespace Smartstore.Data.Batching
             OwnedTypesDict = ownedTypes.ToDictionary(a => a.Name, a => a);
 
             IdentityColumnName = allProperties.SingleOrDefault(a => a.IsPrimaryKey() && a.ClrType.Name.StartsWith("Int") && a.ValueGenerated == ValueGenerated.OnAdd)?.GetColumnName(storeObjectIdent); // ValueGenerated equals OnAdd even for nonIdentity column like Guid so we only type int as second condition
-            
+
             // timestamp/row version properties are only set by the Db, the property has a [Timestamp] Attribute or is configured in FluentAPI with .IsRowVersion()
             // They can be identified by the columne type "timestamp" or .IsConcurrencyToken in combination with .ValueGenerated == ValueGenerated.OnAddOrUpdate
             string timestampDbTypeName = nameof(TimestampAttribute).Replace("Attribute", "").ToLower(); // = "timestamp";

@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.FileProviders;
+﻿using Microsoft.Extensions.FileProviders;
 
 namespace Smartstore.IO
 {
@@ -10,7 +9,7 @@ namespace Smartstore.IO
         /// Gets the file system provider this entry was resolved from.
         /// </summary>
         IFileSystem FileSystem { get; }
-        
+
         /// <summary>
         /// The path relative to the storage root
         /// </summary>

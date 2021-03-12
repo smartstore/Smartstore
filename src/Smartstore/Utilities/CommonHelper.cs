@@ -28,7 +28,7 @@ namespace Smartstore.Utilities
         /// <summary>
         /// Gets or sets the file system provider pointing at the path that contains application content files.
         /// </summary>
-        public static IFileSystem ContentRoot 
+        public static IFileSystem ContentRoot
         {
             get => _contentRoot ??= EngineContext.Current.Application.ContentRoot;
             set => _contentRoot = value;

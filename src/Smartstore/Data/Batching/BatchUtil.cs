@@ -43,7 +43,7 @@ namespace Smartstore.Data.Batching
         // WHERE [a].[Columns] = FilterValues
         public static (string, List<object>) GetSqlDelete(IQueryable query, HookingDbContext context)
         {
-            (string sql, string tableAlias, string tableAliasSufixAs, string topStatement, string leadingComments, IEnumerable<object> parameters) 
+            (string sql, string tableAlias, string tableAliasSufixAs, string topStatement, string leadingComments, IEnumerable<object> parameters)
                 = GetBatchSql(query, context, isUpdate: false);
 
             tableAlias = context.DataProvider.ProviderType == DataProviderType.Sqlite ? tableAlias : $"[{tableAlias}]";
@@ -61,7 +61,7 @@ namespace Smartstore.Data.Batching
         // WHERE [a].[Columns] = FilterValues
         public static (string, List<object>) GetSqlUpdate(IQueryable query, HookingDbContext context, object updateValues, List<string> updateColumns)
         {
-            (string sql, string tableAlias, string tableAliasSufixAs, string topStatement, string leadingComments, IEnumerable<object> parameters) 
+            (string sql, string tableAlias, string tableAliasSufixAs, string topStatement, string leadingComments, IEnumerable<object> parameters)
                 = GetBatchSql(query, context, isUpdate: true);
 
             var sqlParameters = new List<object>(parameters);
@@ -83,7 +83,7 @@ namespace Smartstore.Data.Batching
 
         private static (string, List<object>) GetSqlUpdate<T>(IQueryable query, HookingDbContext context, Type type, Expression<Func<T, T>> expression) where T : class
         {
-            (string sql, string tableAlias, string tableAliasSufixAs, string topStatement, string leadingComments, IEnumerable<object> parameters) 
+            (string sql, string tableAlias, string tableAliasSufixAs, string topStatement, string leadingComments, IEnumerable<object> parameters)
                 = GetBatchSql(query, context, isUpdate: true);
 
             var sqlColumns = new StringBuilder();
@@ -141,12 +141,12 @@ namespace Smartstore.Data.Batching
         }
 
         private static string GetSqlSetSegment(
-            HookingDbContext context, 
-            TableInfo tableInfo, 
-            Type updateValuesType, 
-            object updateValues, 
-            object defaultValues, 
-            List<string> updateColumns, 
+            HookingDbContext context,
+            TableInfo tableInfo,
+            Type updateValuesType,
+            object updateValues,
+            object defaultValues,
+            List<string> updateColumns,
             List<object> parameters)
         {
             string sql = string.Empty;
@@ -196,15 +196,15 @@ namespace Smartstore.Data.Batching
         /// Recursive analytic expression 
         /// </summary>
         public static void CreateUpdateBody(
-            Dictionary<string, string> columnNameValueDict, 
-            string tableAlias, 
-            Expression expression, 
-            DataProvider dataProvider, 
-            ref StringBuilder sqlColumns, 
+            Dictionary<string, string> columnNameValueDict,
+            string tableAlias,
+            Expression expression,
+            DataProvider dataProvider,
+            ref StringBuilder sqlColumns,
             ref List<object> sqlParameters)
         {
             var dbType = dataProvider.ProviderType;
-            
+
             if (expression is MemberInitExpression memberInitExpression)
             {
                 foreach (var item in memberInitExpression.Bindings)

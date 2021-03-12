@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Redis.Configuration
+﻿namespace Smartstore.Redis.Configuration
 {
     public class RedisConfiguration
     {

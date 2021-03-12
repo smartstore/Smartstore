@@ -21,7 +21,7 @@ namespace Smartstore.Redis.Caching
             _database = cache.Database;
         }
 
-        public int Count 
+        public int Count
             => (int)_database.SetLength(_redisKey);
 
         public bool Add(string item)

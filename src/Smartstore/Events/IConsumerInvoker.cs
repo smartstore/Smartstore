@@ -9,9 +9,9 @@ namespace Smartstore.Events
     public interface IConsumerInvoker
     {
         Task InvokeAsync<TMessage>(
-            ConsumerDescriptor descriptor, 
-            IConsumer consumer, 
-            ConsumeContext<TMessage> envelope, 
+            ConsumerDescriptor descriptor,
+            IConsumer consumer,
+            ConsumeContext<TMessage> envelope,
             CancellationToken cancelToken = default) where TMessage : class;
     }
 }

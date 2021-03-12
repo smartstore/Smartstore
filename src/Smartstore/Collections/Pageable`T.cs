@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Collections;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using System.Threading;
+using System.Threading.Tasks;
 using Dasync.Collections;
+using Microsoft.EntityFrameworkCore;
 
 namespace Smartstore.Collections
 {
@@ -193,8 +193,8 @@ namespace Smartstore.Collections
         {
             if (!_totalCount.HasValue)
             {
-                _totalCount = SourceQuery is IAsyncEnumerable<T> 
-                    ? await SourceQuery.CountAsync() 
+                _totalCount = SourceQuery is IAsyncEnumerable<T>
+                    ? await SourceQuery.CountAsync()
                     : SourceQuery.Count();
             }
 

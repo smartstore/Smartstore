@@ -19,7 +19,7 @@ namespace Smartstore.Scheduling
         {
         }
     }
-    
+
     /// <summary>
     /// Responsible for activating <see cref="ITask"/> implementation instances.
     /// </summary>

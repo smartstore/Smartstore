@@ -10,7 +10,7 @@ namespace Smartstore
             {
                 return false;
             }
-            
+
             if (result is ContentResult contentResult)
             {
                 return contentResult.ContentType.EqualsNoCase("text/html");

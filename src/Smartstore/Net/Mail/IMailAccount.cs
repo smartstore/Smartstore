@@ -15,7 +15,7 @@
         /// <summary>
         /// Gets or sets an email port
         /// </summary>
-        int Port { get;}
+        int Port { get; }
 
         /// <summary>
         /// Gets or sets an email user name

@@ -25,7 +25,7 @@ namespace Smartstore.Engine
         }
 
         public ILifetimeScope LifetimeScope
-        { 
+        {
             get
             {
                 var scope = _contextState.Get();
@@ -90,7 +90,7 @@ namespace Smartstore.Engine
         }
 
         public ILifetimeScope CreateLifetimeScope(Action<ContainerBuilder> configurationAction = null)
-        {   
+        {
             var scope = (configurationAction == null)
                 ? _rootContainer.BeginLifetimeScope(ScopeTag)
                 : _rootContainer.BeginLifetimeScope(ScopeTag, configurationAction);

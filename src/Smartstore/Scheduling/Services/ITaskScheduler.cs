@@ -22,7 +22,7 @@ namespace Smartstore.Scheduling
         /// <summary>
         /// The fully qualified base url. Without this being set to a valid url, the scheduler cannot poll for pending tasks.
         /// </summary>
-        string BaseUrl { get;}
+        string BaseUrl { get; }
 
         /// <summary>
         ///  Gets a value indicating whether the scheduler is active and periodically polls all pending tasks.

@@ -9,7 +9,7 @@ namespace Smartstore.Scheduling
         public string Name { get; set; }
         public Type Type { get; set; }
     }
-    
+
     /// <summary>
     /// Represents a scheduled background task.
     /// </summary>

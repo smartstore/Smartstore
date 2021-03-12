@@ -7,14 +7,14 @@ using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Smartstore.Collections;
-using Smartstore.Diagnostics;
-using Smartstore.Engine.Initialization;
-using Smartstore.DependencyInjection;
-using Smartstore.Engine.Builders;
-using Smartstore.Pdf;
-using Smartstore.ComponentModel;
 using Smartstore.Bootstrapping;
+using Smartstore.Collections;
+using Smartstore.ComponentModel;
+using Smartstore.DependencyInjection;
+using Smartstore.Diagnostics;
+using Smartstore.Engine.Builders;
+using Smartstore.Engine.Initialization;
+using Smartstore.Pdf;
 
 namespace Smartstore.Engine
 {

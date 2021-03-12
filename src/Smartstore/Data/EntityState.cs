@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Data
+﻿namespace Smartstore.Data
 {
     public enum EntityState
     {

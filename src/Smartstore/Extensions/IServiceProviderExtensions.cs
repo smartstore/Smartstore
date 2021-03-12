@@ -29,7 +29,7 @@ namespace Smartstore
 
             object[] parameterInstances = null;
 
-            var activator = _cachedActivators.GetOrAdd(type, (key) => 
+            var activator = _cachedActivators.GetOrAdd(type, (key) =>
             {
                 var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
                 foreach (var constructor in constructors)

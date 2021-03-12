@@ -14,10 +14,10 @@ namespace Smartstore.Caching
 
         public event EventHandler<CacheEntryExpiredEventArgs> Expired;
 
-        public T Get<T>(string key, bool independent = false) 
+        public T Get<T>(string key, bool independent = false)
             => default;
 
-        public Task<T> GetAsync<T>(string key, bool independent = false) 
+        public Task<T> GetAsync<T>(string key, bool independent = false)
             => Task.FromResult<T>(default);
 
         public bool TryGet<T>(string key, out T value)
@@ -29,7 +29,7 @@ namespace Smartstore.Caching
         public Task<AsyncOut<T>> TryGetAsync<T>(string key)
             => Task.FromResult(AsyncOut<T>.Empty);
 
-        public T Get<T>(string key, Func<CacheEntryOptions, T> acquirer, bool independent = false, bool allowRecursion = false) 
+        public T Get<T>(string key, Func<CacheEntryOptions, T> acquirer, bool independent = false, bool allowRecursion = false)
             => acquirer == null ? default : acquirer(new CacheEntryOptions());
 
         public Task<T> GetAsync<T>(string key, Func<CacheEntryOptions, Task<T>> acquirer, bool independent = false, bool allowRecursion = false)
@@ -42,7 +42,7 @@ namespace Smartstore.Caching
             => Task.FromResult<ISet>(new MemorySet(null));
 
         public void Put(string key, object value, CacheEntryOptions options = null)
-            { }
+        { }
 
         public Task PutAsync(string key, object value, CacheEntryOptions options = null)
             => Task.CompletedTask;
@@ -54,7 +54,7 @@ namespace Smartstore.Caching
             => Task.FromResult(false);
 
         public void Remove(string key)
-            { }
+        { }
 
         public Task RemoveAsync(string key)
             => Task.CompletedTask;
@@ -78,7 +78,7 @@ namespace Smartstore.Caching
             => Task.FromResult(AcquireKeyLock(key));
 
         public void Clear()
-            { }
+        { }
 
         public Task ClearAsync()
             => Task.CompletedTask;
@@ -90,7 +90,7 @@ namespace Smartstore.Caching
             => Task.FromResult((TimeSpan?)null);
 
         public void SetTimeToLive(string key, TimeSpan? duration)
-            { }
+        { }
 
         public Task SetTimeToLiveAsync(string key, TimeSpan? duration)
             => Task.CompletedTask;

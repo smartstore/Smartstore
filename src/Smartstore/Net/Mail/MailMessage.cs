@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Smartstore.Net.Mail
@@ -84,7 +84,7 @@ namespace Smartstore.Net.Mail
         public async Task BodyFromFile(string filePathOrUrl)
         {
             Guard.NotEmpty(filePathOrUrl, nameof(filePathOrUrl));
-            
+
             StreamReader sr;
 
             if (filePathOrUrl.ToLower().StartsWith("http"))

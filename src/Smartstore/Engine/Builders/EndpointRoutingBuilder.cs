@@ -32,7 +32,7 @@ namespace Smartstore.Engine.Builders
         internal void Build(IEndpointRouteBuilder builder)
         {
             Guard.NotNull(builder, nameof(builder));
-            
+
             foreach (var buildAction in _buildActions.OrderBy(x => x.Order))
             {
                 buildAction.Action(builder);

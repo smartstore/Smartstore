@@ -76,7 +76,7 @@ namespace Smartstore.Caching
         public static IRequestCache Instance => new NullRequestCache();
 
         public void Clear()
-            { }
+        { }
 
         public bool Contains(string key)
             => false;
@@ -91,12 +91,12 @@ namespace Smartstore.Caching
             => acquirer == null ? default : acquirer();
 
         public void Remove(string key)
-            { }
+        { }
 
         public void RemoveByPattern(string pattern)
-            { }
+        { }
 
         public void Put(string key, object value)
-            { }
+        { }
     }
 }

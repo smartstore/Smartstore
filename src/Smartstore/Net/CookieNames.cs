@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Net
+﻿namespace Smartstore.Net
 {
     /// <summary>
     /// Cookie default names

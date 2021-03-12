@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Smartstore.ComponentModel.JsonConverters
 {
-    public class ObjectContainerJsonConverter : JsonConverter 
+    public class ObjectContainerJsonConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
             => typeof(IObjectContainer).IsAssignableFrom(objectType);

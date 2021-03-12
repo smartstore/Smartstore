@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Dynamic;
-using Smartstore.Utilities;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using Smartstore.Utilities;
 
 namespace Smartstore
 {
@@ -34,7 +34,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IDictionary<string, object> Merge(this IDictionary<string, object> instance, object values, bool replaceExisting = true)
         {
-			return instance.Merge(CommonHelper.ObjectToDictionary(values), replaceExisting);
+            return instance.Merge(CommonHelper.ObjectToDictionary(values), replaceExisting);
         }
 
         public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IDictionary<TKey, TValue> from, bool replaceExisting = true)
@@ -83,50 +83,50 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IDictionary<string, string> AppendInValue(this IDictionary<string, string> instance, string key, char separator, string value)
         {
-			return AddInValue(instance, key, separator, value, false);
-		}
+            return AddInValue(instance, key, separator, value, false);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IDictionary<string, string> PrependInValue(this IDictionary<string, string> instance, string key, char separator, string value)
         {
-			return AddInValue(instance, key, separator, value, true);
+            return AddInValue(instance, key, separator, value, true);
         }
 
-		private static IDictionary<string, string> AddInValue(IDictionary<string, string> instance, string key, char separator, string value, bool prepend = false)
-		{
-			if (!instance.TryGetValue(key, out var currentValue))
-			{
-				instance[key] = value;
-			}
-			else
-			{
-				var arr = currentValue.Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
-				var arrValue = value.Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+        private static IDictionary<string, string> AddInValue(IDictionary<string, string> instance, string key, char separator, string value, bool prepend = false)
+        {
+            if (!instance.TryGetValue(key, out var currentValue))
+            {
+                instance[key] = value;
+            }
+            else
+            {
+                var arr = currentValue.Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+                var arrValue = value.Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
 
-				arr = prepend ? arrValue.Union(arr) : arr.Union(arrValue);
+                arr = prepend ? arrValue.Union(arr) : arr.Union(arrValue);
 
-				instance[key] = string.Join(separator, arr);
-			}
+                instance[key] = string.Join(separator, arr);
+            }
 
             return instance;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key)
-		{
-			if (instance == null)
-				throw new ArgumentNullException(nameof(instance));
-
-			instance.TryGetValue(key, out var val);
-			return val;
-		}
-
-		public static ExpandoObject ToExpandoObject(this IDictionary<string, object> source, bool castIfPossible = false)
         {
-			if (source == null)
-				throw new ArgumentNullException(nameof(source));
+            if (instance == null)
+                throw new ArgumentNullException(nameof(instance));
 
-			if (castIfPossible && source is ExpandoObject)
+            instance.TryGetValue(key, out var val);
+            return val;
+        }
+
+        public static ExpandoObject ToExpandoObject(this IDictionary<string, object> source, bool castIfPossible = false)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if (castIfPossible && source is ExpandoObject)
             {
                 return source as ExpandoObject;
             }
@@ -138,29 +138,29 @@ namespace Smartstore
         }
 
 
-		public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, TValue value, bool updateIfExists = false)
-		{
-			if (source == null || key == null)
-			{
-				return false;
-			}
+        public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, TValue value, bool updateIfExists = false)
+        {
+            if (source == null || key == null)
+            {
+                return false;
+            }
 
-			if (source.ContainsKey(key))
-			{
-				if (updateIfExists)
-				{
-					source[key] = value;
-					return true;
-				}
-			}
-			else
-			{
-				source.Add(key, value);
-				return true;
-			}
+            if (source.ContainsKey(key))
+            {
+                if (updateIfExists)
+                {
+                    source[key] = value;
+                    return true;
+                }
+            }
+            else
+            {
+                source.Add(key, value);
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 
         public static bool TryRemove<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, out TValue value)
         {

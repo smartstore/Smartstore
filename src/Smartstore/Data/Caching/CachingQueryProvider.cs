@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Logging;
 using Smartstore.ComponentModel;
 using Smartstore.Data.Caching.Internal;
-using Smartstore.Threading;
 
 namespace Smartstore.Data.Caching
 {
@@ -118,7 +117,7 @@ namespace Smartstore.Data.Caching
             {
                 return queryResult;
             }
-            
+
             using (var scope = new DbContextScope((HookingDbContext)_currentContext.Context, lazyLoading: false))
             {
                 var cacheValue = cachingResult.ConvertQueryResult(queryResult);
@@ -174,8 +173,8 @@ namespace Smartstore.Data.Caching
 
             if (cachingResult.CacheEntry != null)
             {
-                Log(DbCachingEventId.CacheHit, 
-                    "Has read query result from cache. Key: {0}, Type: {1}, Policy: {2}.", 
+                Log(DbCachingEventId.CacheHit,
+                    "Has read query result from cache. Key: {0}, Type: {1}, Policy: {2}.",
                     cachingResult.CacheKey.Key,
                     typeof(TResult),
                     policy);

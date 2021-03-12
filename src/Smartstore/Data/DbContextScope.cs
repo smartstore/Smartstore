@@ -156,7 +156,7 @@ namespace Smartstore.Data
                 // Must come before ResetState()
                 if (_ctx.SuppressCommit && _ctx.DeferCommit)
                     Commit();
-                
+
                 ResetState();
 
                 if (_retainConnection && _ctx.Database.GetDbConnection().State == ConnectionState.Open)

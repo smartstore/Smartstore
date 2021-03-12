@@ -77,7 +77,7 @@ namespace Smartstore.Redis
                     await Database.LockReleaseAsync(Key, Token);
                     break;
                 }
-                
+
                 acquired = await Database.LockTakeAsync(Key, Token, expiration);
                 if (acquired)
                 {

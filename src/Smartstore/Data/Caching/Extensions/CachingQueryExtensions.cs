@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Smartstore.Domain;
 
 namespace Smartstore.Data.Caching
@@ -147,7 +145,7 @@ namespace Smartstore.Data.Caching
                 return source;
             }
 
-            return 
+            return
                 source.Provider.CreateQuery<T>(
                     Expression.Call(
                         instance: null,

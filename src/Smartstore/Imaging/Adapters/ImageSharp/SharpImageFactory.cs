@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Memory;
-using SharpConfiguration = SixLabors.ImageSharp.Configuration;
 using Smartstore.Engine;
+using SharpConfiguration = SixLabors.ImageSharp.Configuration;
 
 namespace Smartstore.Imaging.Adapters.ImageSharp
 {
@@ -13,7 +13,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
     {
         private readonly MemoryAllocator _memAllocator;
         private readonly Timer _releaseMemTimer;
-        
+
         public SharpImageFactory(SmartConfiguration appConfig)
         {
             switch (appConfig.ImagingMemoryAllocation)
@@ -31,7 +31,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
                     _memAllocator = ArrayPoolMemoryAllocator.CreateWithAggressivePooling();
                     break;
             }
-            
+
             SharpConfiguration.Default.MemoryAllocator = _memAllocator;
 
             // Release memory pool every 10 minutes

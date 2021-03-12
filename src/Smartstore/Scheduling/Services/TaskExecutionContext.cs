@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Http;
@@ -54,7 +53,7 @@ namespace Smartstore.Scheduling
 
         public T Resolve<T>(object key = null) where T : class
         {
-            return key == null 
+            return key == null
                 ? _componentContext.Resolve<T>()
                 : _componentContext.ResolveKeyed<T>(key);
         }
@@ -114,8 +113,8 @@ namespace Smartstore.Scheduling
                 {
                     await TaskStore.UpdateExecutionInfoAsync(_originalExecutionInfo);
                 }
-                catch 
-                { 
+                catch
+                {
                 }
             }
         }

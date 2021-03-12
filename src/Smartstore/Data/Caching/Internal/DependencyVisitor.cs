@@ -11,8 +11,8 @@ namespace Smartstore.Data.Caching.Internal
     /// </summary>
     internal class DependencyVisitor : ExpressionVisitor
     {
-        public HashSet<Type> Types { get; set; } = new HashSet<Type>(); 
-        
+        public HashSet<Type> Types { get; set; } = new HashSet<Type>();
+
         public Expression ExtractDependencies(Expression expression)
         {
             Types.Clear();

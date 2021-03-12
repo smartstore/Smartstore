@@ -38,7 +38,7 @@ namespace Smartstore.Data.Caching
 
         #region IDbContextOptionsExtension
 
-        public DbContextOptionsExtensionInfo Info 
+        public DbContextOptionsExtensionInfo Info
             => _info ??= new ExtensionInfo(this);
 
         public void ApplyServices(IServiceCollection services)

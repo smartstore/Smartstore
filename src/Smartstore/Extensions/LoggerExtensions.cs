@@ -155,7 +155,7 @@ namespace Microsoft.Extensions.Logging
             {
                 return;
             }
-            
+
             while (exception != null)
             {
                 l.LogError(exception, exception.Message);

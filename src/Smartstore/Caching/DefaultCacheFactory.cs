@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Engine;
 
@@ -17,8 +16,8 @@ namespace Smartstore.Caching
             _hybridCache = cacheManager;
 
             var memStores = stores.OfType<IMemoryCacheStore>();
-            _memoryCache = memStores.Any() 
-                ? new HybridCacheManager(memStores, scopeAccessor) 
+            _memoryCache = memStores.Any()
+                ? new HybridCacheManager(memStores, scopeAccessor)
                 : NullCache.Instance;
 
             var distributedStores = stores.OfType<IDistributedCacheStore>();

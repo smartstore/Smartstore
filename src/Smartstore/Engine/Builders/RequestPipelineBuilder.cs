@@ -29,7 +29,7 @@ namespace Smartstore.Engine
         internal void Build(IApplicationBuilder builder)
         {
             Guard.NotNull(builder, nameof(builder));
-            
+
             foreach (var buildAction in _buildActions.OrderBy(x => x.Order))
             {
                 buildAction.Action(builder);

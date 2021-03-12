@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Smartstore.Utilities;
 using Smartstore.Data.Caching.Internal;
+using Smartstore.Utilities;
 
 namespace Smartstore.Data.Caching
 {
@@ -33,7 +33,7 @@ namespace Smartstore.Data.Caching
         private readonly QueryCompiler _queryCompiler;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
-        private readonly static ConcurrentDictionary<int, DbCacheKey> _keysCache 
+        private readonly static ConcurrentDictionary<int, DbCacheKey> _keysCache
             = new ConcurrentDictionary<int, DbCacheKey>();
 
         public QueryKeyGenerator(IQueryContextFactory queryContextFactory, IQueryCompiler queryCompiler, IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -62,11 +62,11 @@ namespace Smartstore.Data.Caching
         {
             var hash = GetExpressionHash(expression);
 
-            var key = _keysCache.GetOrAdd(hash.CombinedHash, key => 
+            var key = _keysCache.GetOrAdd(hash.CombinedHash, key =>
             {
                 var visitor = new DependencyVisitor();
                 visitor.ExtractDependencies(expression);
-                
+
                 return new DbCacheKey
                 {
                     Key = hash.CombinedHashString,

@@ -173,7 +173,7 @@ namespace Smartstore.Domain
             var root = new XElement("Attributes");
             foreach (var attribute in _map)
             {
-                if (attribute.Key <= 0) 
+                if (attribute.Key <= 0)
                     continue;
 
                 var attributeElement = new XElement(_xmlAttributeName, new XAttribute("ID", attribute.Key));

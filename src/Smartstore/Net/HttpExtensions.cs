@@ -197,7 +197,7 @@ namespace Smartstore
         /// <param name="httpRequest"></param>
         public static bool IsAjaxRequest(this HttpRequest httpRequest)
         {
-            return 
+            return
                 string.Equals(httpRequest.Headers[HeaderNames.XRequestedWith], "XMLHttpRequest", StringComparison.Ordinal) ||
                 string.Equals(httpRequest.Query[HeaderNames.XRequestedWith], "XMLHttpRequest", StringComparison.Ordinal);
         }

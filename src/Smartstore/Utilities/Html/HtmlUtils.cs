@@ -5,10 +5,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using AngleSharp;
+using AngleSharp.Css.Dom;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using Ganss.XSS;
-using AngleSharp.Css.Dom;
 
 namespace Smartstore.Utilities.Html
 {

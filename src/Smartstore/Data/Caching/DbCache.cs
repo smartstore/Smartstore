@@ -75,12 +75,12 @@ namespace Smartstore.Data.Caching
         {
             if (entityTypes.Length == 0)
                 return;
-            
+
             var sets = entityTypes
                 .Distinct()
                 .Select(x => QueryKeyGenerator.GenerateDependencyKey(x))
                 .ToArray();
-            
+
             using (_lock.Lock())
             {
                 var itemsToInvalidate = new HashSet<string>();

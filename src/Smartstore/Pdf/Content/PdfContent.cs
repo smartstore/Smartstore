@@ -1,8 +1,8 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http;
 using Autofac;
-using Smartstore.Engine;
 using DinkToPdf;
+using Microsoft.AspNetCore.Http;
+using Smartstore.Engine;
 
 namespace Smartstore.Pdf
 {

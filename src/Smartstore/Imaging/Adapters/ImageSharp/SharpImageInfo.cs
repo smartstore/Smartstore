@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Imaging.Adapters.ImageSharp
+﻿namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     internal sealed class SharpImageInfo : IImageInfo
     {
@@ -13,16 +11,16 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             _format = ImageSharpUtility.CreateFormat(format);
         }
 
-        public int Width 
+        public int Width
             => _info.Width;
 
-        public int Height 
+        public int Height
             => _info.Height;
 
-        public byte BitDepth 
+        public byte BitDepth
             => (byte)(_info.PixelType?.BitsPerPixel);
 
-        public IImageFormat Format 
+        public IImageFormat Format
             => _format;
     }
 }

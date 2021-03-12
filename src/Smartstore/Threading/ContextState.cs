@@ -23,7 +23,7 @@ namespace Smartstore.Threading
             protected set
             {
                 Guard.NotNull(value, nameof(value));
-                
+
                 var holder = _asyncLocalState.Value;
                 if (holder != null)
                 {
@@ -43,7 +43,7 @@ namespace Smartstore.Threading
             public IDictionary<string, object> Items;
         }
     }
-    
+
     /// <summary>
     /// Holds some state for the current local call context
     /// </summary>
@@ -117,7 +117,7 @@ namespace Smartstore.Threading
             return state;
         }
     }
-    
+
     ///// <summary>
     ///// Holds some state for the current local call context
     ///// </summary>
@@ -136,7 +136,7 @@ namespace Smartstore.Threading
     //    public ContextState(string name, Func<T> defaultValue)
     //    {
     //        Guard.NotEmpty(name, nameof(name));
-            
+
     //        _name = name;
     //        _defaultValue = defaultValue;
     //    }

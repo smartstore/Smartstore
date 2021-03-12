@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Globalization;
-using Smartstore.Utilities;
+using System.Linq;
 using Smartstore.Domain;
+using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel
 {

@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using EfState = Microsoft.EntityFrameworkCore.EntityState;
 using Smartstore.Domain;
+using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
 namespace Smartstore.Data.Hooks
 {
@@ -71,7 +71,7 @@ namespace Smartstore.Data.Hooks
                 {
                     return _isSoftDeleted;
                 }
-                
+
                 if (Entry.Entity is ISoftDeletable entity)
                 {
                     return Entry.State == EfState.Modified

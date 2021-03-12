@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -139,9 +137,9 @@ namespace Smartstore
             => ExecuteReaderRawAsync(databaseFacade, sql, parameters.AsEnumerable());
 
         public static async Task<RelationalDataReader> ExecuteReaderRawAsync(
-            this DatabaseFacade databaseFacade, 
-            string sql, 
-            IEnumerable<object> parameters, 
+            this DatabaseFacade databaseFacade,
+            string sql,
+            IEnumerable<object> parameters,
             CancellationToken cancelToken = default)
         {
             Guard.NotNull(databaseFacade, nameof(databaseFacade));
@@ -196,7 +194,7 @@ namespace Smartstore
             {
                 if (reader.DbDataReader.FieldCount > 0)
                 {
-                    yield return isComplexType 
+                    yield return isComplexType
                         ? MapReaderToObject<T>(reader.DbDataReader)
                         : reader.DbDataReader.GetValue(0).Convert<T>();
                 }
@@ -210,8 +208,8 @@ namespace Smartstore
             => ExecuteQueryRawAsync<T>(databaseFacade, sql, parameters.AsEnumerable());
 
         public static async IAsyncEnumerable<T> ExecuteQueryRawAsync<T>(
-            this DatabaseFacade databaseFacade, 
-            string sql, 
+            this DatabaseFacade databaseFacade,
+            string sql,
             IEnumerable<object> parameters,
             [EnumeratorCancellation] CancellationToken cancelToken = default)
         {

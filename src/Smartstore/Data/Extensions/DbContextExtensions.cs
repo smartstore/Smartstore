@@ -37,7 +37,7 @@ namespace Smartstore
                 wasOpened = true;
             }
 
-            return new ActionDisposable(() => 
+            return new ActionDisposable(() =>
             {
                 if (wasOpened)
                     db.CloseConnection();

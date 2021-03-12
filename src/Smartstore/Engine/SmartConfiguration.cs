@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Engine
+﻿namespace Smartstore.Engine
 {
     /// <summary>
     /// Memory managers are used to allocate memory for image processing operations.
@@ -31,7 +28,7 @@ namespace Smartstore.Engine
         /// </summary>
         Aggressive
     }
-    
+
     public partial class SmartConfiguration
     {
         public string ApplicationName { get; set; } = "Smartstore";

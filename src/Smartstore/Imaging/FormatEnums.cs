@@ -12,7 +12,7 @@ namespace Smartstore.Imaging
         WernerPalette,
         Wu
     }
-    
+
     /// <summary>
     /// Enumerates the chroma subsampling method applied to the image.
     /// </summary>

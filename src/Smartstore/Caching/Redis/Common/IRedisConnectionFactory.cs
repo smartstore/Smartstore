@@ -1,5 +1,4 @@
 ﻿using Smartstore.Redis.Caching;
-using Smartstore.Redis.Configuration;
 using StackExchange.Redis;
 
 namespace Smartstore.Redis

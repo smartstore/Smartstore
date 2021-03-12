@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore
 {
@@ -62,8 +61,8 @@ namespace Smartstore
             if (values == null)
                 return false;
 
-            return area.EqualsNoCase(values.GetAreaName()) 
-                && controller.EqualsNoCase(values.GetControllerName()) 
+            return area.EqualsNoCase(values.GetAreaName())
+                && controller.EqualsNoCase(values.GetControllerName())
                 && action.EqualsNoCase(values.GetActionName());
         }
 

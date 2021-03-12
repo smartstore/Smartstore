@@ -3,16 +3,16 @@ using System.Linq;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
-using SharpJpegSubsample = SixLabors.ImageSharp.Formats.Jpeg.JpegSubsample;
 using SharpGifColorTableMode = SixLabors.ImageSharp.Formats.Gif.GifColorTableMode;
+using SharpJpegSubsample = SixLabors.ImageSharp.Formats.Jpeg.JpegSubsample;
 using SharpPngBitDepth = SixLabors.ImageSharp.Formats.Png.PngBitDepth;
+using SharpPngChunkFilter = SixLabors.ImageSharp.Formats.Png.PngChunkFilter;
 using SharpPngColorType = SixLabors.ImageSharp.Formats.Png.PngColorType;
 using SharpPngCompressionLevel = SixLabors.ImageSharp.Formats.Png.PngCompressionLevel;
 using SharpPngInterlaceMode = SixLabors.ImageSharp.Formats.Png.PngInterlaceMode;
 using SharpPngTransparentColorMode = SixLabors.ImageSharp.Formats.Png.PngTransparentColorMode;
-using SharpPngChunkFilter = SixLabors.ImageSharp.Formats.Png.PngChunkFilter;
-using SixLabors.ImageSharp.Formats.Png;
 
 namespace Smartstore.Imaging.Adapters.ImageSharp
 {
@@ -26,22 +26,22 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             _sharpFormat = sharpFormat;
         }
 
-        public SharpFormat WrappedFormat 
+        public SharpFormat WrappedFormat
             => _sharpFormat;
 
-        public string Name 
+        public string Name
             => _sharpFormat.Name;
 
-        public string DefaultExtension 
+        public string DefaultExtension
             => _sharpFormat.FileExtensions.First();
 
-        public string DefaultMimeType 
+        public string DefaultMimeType
             => _sharpFormat.DefaultMimeType;
 
-        public IEnumerable<string> FileExtensions 
+        public IEnumerable<string> FileExtensions
             => _sharpFormat.FileExtensions;
 
-        public IEnumerable<string> MimeTypes 
+        public IEnumerable<string> MimeTypes
             => _sharpFormat.MimeTypes;
 
         public virtual IImageEncoder CreateEncoder()
@@ -83,8 +83,8 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         {
             if (QuantizationMethod != null || ColorTableMode != null)
             {
-                return new GifEncoder 
-                { 
+                return new GifEncoder
+                {
                     ColorTableMode = (SharpGifColorTableMode?)ColorTableMode,
                     Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod)
                 };
@@ -153,7 +153,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
                 return encoder;
             }
-            
+
             return base.CreateEncoder();
         }
     }

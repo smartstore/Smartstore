@@ -14,8 +14,8 @@ namespace Smartstore.Utilities
 
         public AsyncActionDisposable(Func<ValueTask> action)
         {
-			Guard.NotNull(action, nameof(action));
-            
+            Guard.NotNull(action, nameof(action));
+
             _action = action;
         }
 

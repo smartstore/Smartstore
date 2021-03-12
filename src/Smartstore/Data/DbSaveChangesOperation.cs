@@ -2,17 +2,15 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Smartstore.Threading;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Utilities;
 using EfState = Microsoft.EntityFrameworkCore.EntityState;
-using Smartstore.Data.Caching;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.Data
 {
@@ -25,7 +23,7 @@ namespace Smartstore.Data
     internal class DbSaveChangesOperation : IDisposable
     {
         private readonly static ConcurrentDictionary<Type, bool> _hookableEntities = new();
-        
+
         private IEnumerable<EntityEntry> _changedEntries;
         private HookingDbContext _ctx;
         private IDbHookHandler _hookHandler;
@@ -45,7 +43,7 @@ namespace Smartstore.Data
         public int Execute(bool acceptAllChangesOnSuccess)
         {
             Exception exception = null;
-            
+
             using (DoExecute())
             {
                 try
@@ -116,7 +114,7 @@ namespace Smartstore.Data
         public async Task<int> ExecuteAsync(bool acceptAllChangesOnSuccess, CancellationToken cancelToken)
         {
             Exception exception = null;
-            
+
             await using (await DoExecuteAsync())
             {
                 try
@@ -190,7 +188,7 @@ namespace Smartstore.Data
             var result = DbSavingChangesResult.Empty;
 
             // hooking is meaningless without hookable entries
-            var enableHooks = _changedEntries.Any(); 
+            var enableHooks = _changedEntries.Any();
 
             if (enableHooks)
             {

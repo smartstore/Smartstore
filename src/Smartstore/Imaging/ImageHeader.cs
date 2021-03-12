@@ -20,7 +20,7 @@ namespace Smartstore.Imaging
     {
         // TODO: (core) Investigate huge performance diff between debug and release.
         // Maybe removing this class in favor of ImageFactory.Detect* (in release mode) is the better choice (?)
-        
+
         internal class UnknownImageFormatException : ArgumentException
         {
             public UnknownImageFormatException(string paramName = "", Exception e = null)

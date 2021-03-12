@@ -16,7 +16,7 @@ namespace Smartstore.Net.Mail
     public class MailAddress
     {
         private readonly MailboxAddress _inner;
-        
+
         public MailAddress(string address)
         {
             Guard.NotEmpty(address, nameof(address));
@@ -38,7 +38,7 @@ namespace Smartstore.Net.Mail
             _inner = new MailboxAddress(displayNameEncoding, displayName, address);
         }
 
-        public string Address 
+        public string Address
         {
             get => _inner.Address;
         }

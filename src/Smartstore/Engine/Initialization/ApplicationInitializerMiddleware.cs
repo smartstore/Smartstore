@@ -14,7 +14,7 @@ namespace Smartstore.Engine.Initialization
     {
         public HttpContext HttpContext { get; init; }
     }
-    
+
     /// <summary>
     /// Middleware that executes <see cref="IApplicationInitializer"/> implementations during the very first request.
     /// </summary>
@@ -40,8 +40,8 @@ namespace Smartstore.Engine.Initialization
         private List<InitModuleInfo> _initModuleInfos;
 
         public ApplicationInitializerMiddleware(
-            RequestDelegate next, 
-            IApplicationContext appContext, 
+            RequestDelegate next,
+            IApplicationContext appContext,
             AsyncRunner asyncRunner,
             ILogger<ApplicationInitializerMiddleware> logger)
         {
@@ -69,7 +69,7 @@ namespace Smartstore.Engine.Initialization
                     }
                 }
             }
-            
+
             await _next(context);
         }
 

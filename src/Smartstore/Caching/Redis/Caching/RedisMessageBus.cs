@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -35,7 +35,7 @@ namespace Smartstore.Redis.Caching
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public IDatabase Database 
+        public IDatabase Database
             => _multiplexer.GetDatabase();
 
         public long Publish(string channel, string message)

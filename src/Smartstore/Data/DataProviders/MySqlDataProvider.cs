@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Dasync.Collections;
-using System.Text.RegularExpressions;
-using System.IO;
 
 namespace Smartstore.Data.DataProviders
 {
@@ -19,7 +17,7 @@ namespace Smartstore.Data.DataProviders
             public string Database { get; set; }
             public decimal SizeMB { get; set; }
         }
-        
+
         public MySqlDataProvider(DatabaseFacade database)
             : base(database)
         {
@@ -33,7 +31,7 @@ namespace Smartstore.Data.DataProviders
 
         public override DataProviderType ProviderType => DataProviderType.MySql;
 
-        public override DataProviderFeatures Features 
+        public override DataProviderFeatures Features
             => DataProviderFeatures.AccessIncrement | DataProviderFeatures.ReIndex | DataProviderFeatures.Shrink | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.ExecuteSqlScript | DataProviderFeatures.StreamBlob | DataProviderFeatures.StoredProcedures;
 

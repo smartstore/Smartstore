@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Caching
+﻿namespace Smartstore.Caching
 {
     /// <summary>
     /// Responsible for resolving cache manager instances.

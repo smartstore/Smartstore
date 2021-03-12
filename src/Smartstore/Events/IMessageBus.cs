@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 namespace Smartstore.Events
-{   
+{
     /// <summary>
     /// Represents a pub/sub message bus provider for inter-server communication between nodes in a web farm.
     /// </summary>
@@ -51,7 +51,7 @@ namespace Smartstore.Events
             => Task.FromResult((long)0);
 
         public void Subscribe(string channel, Action<string, string> handler, bool ignoreLoopback = true)
-            { }
+        { }
 
         public Task SubscribeAsync(string channel, Action<string, string> handler, bool ignoreLoopback = true)
             => Task.CompletedTask;

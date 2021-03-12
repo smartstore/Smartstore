@@ -15,7 +15,7 @@ namespace Smartstore.Scheduling
             {
                 CrontabSchedule.Parse(expression);
             }
-            catch 
+            catch
             {
                 return false;
             }
@@ -62,8 +62,8 @@ namespace Smartstore.Scheduling
                 {
                     return ExpressionDescriptor.GetDescription(expression, options);
                 }
-                catch 
-                { 
+                catch
+                {
                 }
             }
 

@@ -26,8 +26,8 @@ namespace Smartstore.IO
         public string SubPath { get; }
 
         /// <inheritdoc />
-        public bool Exists 
-        { 
+        public bool Exists
+        {
             get => _di.Exists;
         }
 
@@ -51,7 +51,7 @@ namespace Smartstore.IO
         {
             get => _di.Name;
         }
-        
+
         /// <inheritdoc />
         public DateTimeOffset LastModified
         {

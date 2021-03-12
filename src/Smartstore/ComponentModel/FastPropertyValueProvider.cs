@@ -28,7 +28,7 @@ namespace Smartstore.ComponentModel
             {
                 return _inner.GetValue(target);
             }
-                
+
             if (_getter == null)
             {
                 try

@@ -1,5 +1,4 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Engine;
@@ -35,7 +34,7 @@ namespace Smartstore.Bootstrapping
                 var registration = builder.RegisterType(taskType)
                     .Named<ITask>(typeName)
                     .Keyed<ITask>(taskType)
-                    .WithMetadata<TaskMetadata>(m => 
+                    .WithMetadata<TaskMetadata>(m =>
                     {
                         m.For(em => em.Name, typeName);
                         m.For(em => em.Type, taskType);

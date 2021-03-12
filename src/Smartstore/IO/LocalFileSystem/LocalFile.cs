@@ -2,9 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
-using Autofac;
 using Microsoft.Extensions.FileProviders;
-using Smartstore.Engine;
 using Smartstore.Imaging;
 using Smartstore.IO.SymLinks;
 
@@ -36,8 +34,8 @@ namespace Smartstore.IO
         public string SubPath { get; }
 
         /// <inheritdoc />
-        public bool Exists 
-        { 
+        public bool Exists
+        {
             get => _fi.Exists;
         }
 
@@ -58,7 +56,7 @@ namespace Smartstore.IO
         {
             get => _fi.Name;
         }
-        
+
         /// <inheritdoc />
         public DateTimeOffset LastModified
         {
@@ -103,7 +101,7 @@ namespace Smartstore.IO
                         _size = Size.Empty;
                         return _size.Value;
                     }
-                    
+
                     try
                     {
                         var mime = MimeTypes.MapNameToMimeType(Name);
@@ -143,7 +141,7 @@ namespace Smartstore.IO
             {
                 throw new FileNotFoundException(PhysicalPath ?? SubPath);
             }
-            
+
             // We are setting buffer size to 1 to prevent FileStream from allocating it's internal buffer
             // 0 causes constructor to throw
             int bufferSize = 1;
@@ -169,18 +167,18 @@ namespace Smartstore.IO
             {
                 throw new FileSystemException($"Cannot create directory for file path '{SubPath}'.");
             }
-            
+
             if (!di.Exists)
             {
                 System.IO.Directory.CreateDirectory(di.FullName);
             }
 
             return new FileStream(
-                PhysicalPath, 
-                FileMode.OpenOrCreate, 
-                FileAccess.Write, 
-                FileShare.None, 
-                bufferSize: 4096, 
+                PhysicalPath,
+                FileMode.OpenOrCreate,
+                FileAccess.Write,
+                FileShare.None,
+                bufferSize: 4096,
                 useAsync: true);
         }
     }

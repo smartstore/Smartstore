@@ -39,7 +39,7 @@ namespace Smartstore.Data.Caching.Internal
         public override async Task<(object Value, int Count)> ConvertQueryAsyncResult(TResult queryResult)
         {
             object result = queryResult;
-            
+
             if (!Visitor.IsSequenceType)
             {
                 return (await ((Task<TEntity>)result), 1);
@@ -67,13 +67,13 @@ namespace Smartstore.Data.Caching.Internal
         /// Wraps the cached result for async EF call.
         /// </summary>
         /// <returns>Result for EF.</returns>
-        public virtual TResult WrapAsyncResult(object cachedValue) 
+        public virtual TResult WrapAsyncResult(object cachedValue)
             => throw new NotImplementedException();
 
         /// <summary>
         /// Converts the EF query result to be cacheable.
         /// </summary>
-        public virtual (object Value, int Count) ConvertQueryResult(TResult queryResult) 
+        public virtual (object Value, int Count) ConvertQueryResult(TResult queryResult)
             => throw new NotImplementedException();
 
         /// <summary>

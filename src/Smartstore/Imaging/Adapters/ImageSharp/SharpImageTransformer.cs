@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.Processing.Processors.Dithering;
 #region Gdi vs. ImageSharp
 using Size = System.Drawing.Size;
@@ -17,7 +11,6 @@ using Rectangle = System.Drawing.Rectangle;
 using SharpRectangle = SixLabors.ImageSharp.Rectangle;
 using Point = System.Drawing.Point;
 using SharpPoint = SixLabors.ImageSharp.Point;
-using PointF = System.Drawing.PointF;
 using SharpPointF = SixLabors.ImageSharp.PointF;
 using SharpResizeMode = SixLabors.ImageSharp.Processing.ResizeMode;
 using SharpAnchorPositionMode = SixLabors.ImageSharp.Processing.AnchorPositionMode;
@@ -58,7 +51,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         /// <summary>
         /// Gets the image dimensions at the current point in the processing pipeline.
         /// </summary>
-        public Size CurrentSize 
+        public Size CurrentSize
         {
             get
             {
@@ -234,7 +227,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             return this;
         }
 
-        public IImageTransformer DrawImage(IImage image, 
+        public IImageTransformer DrawImage(IImage image,
             Point position,
             PixelColorBlendingMode colorBlending,
             PixelAlphaCompositionMode alphaComposition,
@@ -286,15 +279,15 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             {
                 _context.Vignette(SharpColor.FromRgba(color.Value.R, color.Value.G, color.Value.B, color.Value.A));
             }
-            
+
             return this;
         }
 
         public IImageTransformer Vignette(Color color, float radiusX, float radiusY, Rectangle rect)
         {
             _context.Vignette(
-                SharpColor.FromRgba(color.R, color.G, color.B, color.A), 
-                radiusX, 
+                SharpColor.FromRgba(color.R, color.G, color.B, color.A),
+                radiusX,
                 radiusY,
                 new SharpRectangle(rect.X, rect.Y, rect.Width, rect.Height));
 

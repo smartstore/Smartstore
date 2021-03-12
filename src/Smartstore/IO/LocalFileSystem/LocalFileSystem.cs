@@ -61,7 +61,7 @@ namespace Smartstore.IO
 
         #endregion
 
-        public override string Root 
+        public override string Root
         {
             get => _provider.Root;
         }
@@ -149,7 +149,7 @@ namespace Smartstore.IO
 
             return directoryInfo
                 .EnumerateFileSystemInfos(pattern, deep ? _deepEnumerationOptions : _flatEnumerationOptions)
-                .Select(x => 
+                .Select(x =>
                 {
                     if (x is FileInfo fi)
                     {

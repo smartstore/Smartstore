@@ -29,7 +29,7 @@ namespace Smartstore.ComponentModel
                         {
                             RegisterMappers(mapperTypes.ToArray());
                         }
-                        
+
                     }
                 }
             }
