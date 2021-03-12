@@ -9,11 +9,11 @@ namespace Smartstore.Web.Components
 {
     public class StoreThemeSelectorViewComponent : SmartViewComponent
     {
-        private readonly Lazy<IThemeRegistry> _themeRegistry;
+        private readonly IThemeRegistry _themeRegistry;
         private readonly ThemeSettings _themeSettings;
         private readonly IThemeContext _themeContext;
 
-        public StoreThemeSelectorViewComponent(Lazy<IThemeRegistry> themeRegistry, ThemeSettings themeSettings, IThemeContext themeContext)
+        public StoreThemeSelectorViewComponent(IThemeRegistry themeRegistry, ThemeSettings themeSettings, IThemeContext themeContext)
         {
             _themeRegistry = themeRegistry;
             _themeSettings = themeSettings;
@@ -25,7 +25,7 @@ namespace Smartstore.Web.Components
             if (!_themeSettings.AllowCustomerToSelectTheme)
                 return Empty();
 
-            var currentTheme = _themeRegistry.Value.GetThemeManifest(_themeContext.WorkingThemeName);
+            var currentTheme = _themeRegistry.GetThemeManifest(_themeContext.WorkingThemeName);
 
             ViewBag.CurrentStoreTheme = new StoreThemeModel
             {
@@ -33,7 +33,7 @@ namespace Smartstore.Web.Components
                 Title = currentTheme.ThemeTitle
             };
 
-            ViewBag.AvailableStoreThemes = _themeRegistry.Value
+            ViewBag.AvailableStoreThemes = _themeRegistry
                 .GetThemeManifests()
                 .Select(x =>
                 {

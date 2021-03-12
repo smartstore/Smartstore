@@ -12,13 +12,13 @@ namespace Smartstore.Web.Controllers
     {
         private readonly Lazy<IMediaService> _mediaService;
         private readonly IThemeContext _themeContext;
-        private readonly Lazy<IThemeRegistry> _themeRegistry;
+        private readonly IThemeRegistry _themeRegistry;
         private readonly ThemeSettings _themeSettings;
 
         public CommonController(
             Lazy<IMediaService> mediaService,
             IThemeContext themeContext, 
-            Lazy<IThemeRegistry> themeRegistry, 
+            IThemeRegistry themeRegistry, 
             ThemeSettings themeSettings)
         {
             _mediaService = mediaService;
@@ -65,7 +65,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public IActionResult ChangeTheme(string themeName, string returnUrl = null)
         {
-            if (!_themeSettings.AllowCustomerToSelectTheme || (themeName.HasValue() && !_themeRegistry.Value.ThemeManifestExists(themeName)))
+            if (!_themeSettings.AllowCustomerToSelectTheme || (themeName.HasValue() && !_themeRegistry.ThemeManifestExists(themeName)))
             {
                 return NotFound();
             }

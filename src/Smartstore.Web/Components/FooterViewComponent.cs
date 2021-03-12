@@ -19,7 +19,7 @@ namespace Smartstore.Web.Components
     {
         private readonly static string[] _hints = new string[] { "Shopsystem", "Onlineshop Software", "Shopsoftware", "E-Commerce Solution" };
 
-        private readonly Lazy<IThemeRegistry> _themeRegistry;
+        private readonly IThemeRegistry _themeRegistry;
         private readonly IWidgetProvider _widgetProvider;
         private readonly ThemeSettings _themeSettings;
         private readonly CustomerSettings _customerSettings;
