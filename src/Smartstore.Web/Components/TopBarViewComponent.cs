@@ -26,7 +26,7 @@ namespace Smartstore.Web.Components
             var model = new TopBarModel
             {
                 RecentlyAddedProductsEnabled = _catalogSettings.RecentlyAddedProductsEnabled,
-                CustomerEmailUsername = customer.IsRegistered() ? (_customerSettings.CustomerLoginType != CustomerLoginType.Email ? customer.Username : customer.Email) : "",
+                CustomerEmailUsername = customer.IsRegistered() ? (_customerSettings.CustomerLoginType != CustomerLoginType.Email ? customer.Username : customer.Email) : string.Empty,
                 IsCustomerImpersonated = Services.WorkContext.CurrentImpersonator != null,
                 IsAuthenticated = customer.IsRegistered(),
                 DisplayAdminLink = Services.Permissions.Authorize(Permissions.System.AccessBackend),
