@@ -318,7 +318,7 @@ namespace Smartstore
 			int i = 0;
 			foreach (T t in source)
 			{
-				await action(t, i++).ConfigureAwait(false);
+				await action(t, i++);
 			}
 		}
 

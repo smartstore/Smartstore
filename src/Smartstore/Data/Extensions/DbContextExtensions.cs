@@ -404,7 +404,14 @@ namespace Smartstore
             // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
             if (entry.State == EfState.Detached)
             {
-                ctx.Attach(entity);
+                try
+                {
+                    ctx.Attach(entity);
+                }
+                catch
+                {
+                    // Attach may throw!
+                }
             }
 
             if (force)

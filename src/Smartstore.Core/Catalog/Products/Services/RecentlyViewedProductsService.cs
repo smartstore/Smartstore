@@ -48,7 +48,7 @@ namespace Smartstore.Core.Catalog.Products
 
             var authorizedProducts = await _aclService
                 .SelectAuthorizedAsync(recentlyViewedProducts)
-                .ToListAsync();
+                .AsyncToList();
 
             return authorizedProducts;
         }

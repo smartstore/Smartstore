@@ -82,6 +82,13 @@ namespace Smartstore.Web.Controllers
             if (!await _storeMappingService.AuthorizeAsync(product))
                 return NotFound();
 
+            // Save as recently viewed
+            _recentlyViewedProductsService.AddProductToRecentlyViewedList(product.Id);
+
+            // Activity log
+            Services.ActivityLogger.LogActivity("PublicStore.ViewProduct", T("ActivityLog.PublicStore.ViewProduct"), product.Name);
+            await _db.SaveChangesAsync();
+
             // TODO: (mh) (core) Continue CatalogController.Category()
 
             var store = Services.StoreContext.CurrentStore;
