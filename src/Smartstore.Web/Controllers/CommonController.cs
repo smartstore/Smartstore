@@ -2,7 +2,10 @@
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Data;
+using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Theming;
 
@@ -10,17 +13,20 @@ namespace Smartstore.Web.Controllers
 {
     public class CommonController : SmartController
     {
+        private readonly SmartDbContext _db;
         private readonly Lazy<IMediaService> _mediaService;
         private readonly IThemeContext _themeContext;
         private readonly IThemeRegistry _themeRegistry;
         private readonly ThemeSettings _themeSettings;
 
         public CommonController(
+            SmartDbContext db,
             Lazy<IMediaService> mediaService,
             IThemeContext themeContext, 
             IThemeRegistry themeRegistry, 
             ThemeSettings themeSettings)
         {
+            _db = db;
             _mediaService = mediaService;
             _themeContext = themeContext;
             _themeRegistry = themeRegistry;
@@ -75,6 +81,18 @@ namespace Smartstore.Web.Controllers
             if (HttpContext.Request.IsAjaxRequest())
             {
                 return Json(new { Success = true });
+            }
+
+            return RedirectToReferrer(returnUrl);
+        }
+
+        [LocalizedRoute("/currency-selected", Name = "ChangeCurrency")]
+        public async Task<IActionResult> CurrencySelected(int customerCurrency, string returnUrl = "")
+        {
+            var currency = await _db.Currencies.FindByIdAsync(customerCurrency);
+            if (currency != null)
+            {
+                Services.WorkContext.WorkingCurrency = currency;
             }
 
             return RedirectToReferrer(returnUrl);

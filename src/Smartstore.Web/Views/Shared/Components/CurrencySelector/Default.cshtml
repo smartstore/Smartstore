@@ -1,0 +1,41 @@
+﻿@{
+    var currencies = ViewBag.AvailableCurrencies as IList<CurrencyModel>;
+
+    if (currencies.Count <= 1)
+    {
+        return;
+    }
+
+    var activeCurr = currencies.Where(x => x.Id == WorkContext.WorkingCurrency.Id).FirstOrDefault();
+}
+
+<div class="dropdown currency-selector">
+    <a class="menubar-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#">
+        <span class="pr-1">@activeCurr.ISOCode</span>
+        <span class="lrm">(@activeCurr.Symbol)</span>
+        <i class="fa fa-angle-down"></i>
+    </a>
+
+    <div class="dropdown-menu">
+        @foreach (var curr in currencies)
+        {
+            var returnUrl = Context.Request.Query["returnUrl"].ToString().UrlEncode();
+            var changeCurrencyUrl = Url.RouteUrl("ChangeCurrency", new { customerCurrency = curr.Id });
+            var href = Display.ModifyQueryString(changeCurrencyUrl, "returnUrl=" + returnUrl, null);
+
+            <a href="@href" class="dropdown-item@(curr.Id == activeCurr.Id ? " disabled" : "")" title="@curr.Name" rel="nofollow"
+               data-selected="@(curr.Equals(activeCurr) ? "true" : "false")" data-abbreviation="@($"{curr.ISOCode} ({curr.Symbol})")">
+                <span>@curr.Name</span>
+                <span class="abbreviation"> - @curr.ISOCode <span class="lrm">(@curr.Symbol)</span></span>
+            </a>
+        }
+    </div>
+</div>
+
+<script>
+	$(function () {
+		$(".currency-selector .dropdown-item.disabled").on('click', function (e) {
+			e.preventDefault();
+        });
+    });
+</script>
