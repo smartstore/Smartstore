@@ -14,6 +14,14 @@ namespace Smartstore.Core.Identity
     [Important]
     internal class CustomerHook : AsyncDbSaveHook<Customer>
     {
+		private static readonly HashSet<string> _candidateProps = new(new[]
+		{
+			nameof(Customer.Title),
+			nameof(Customer.Salutation),
+			nameof(Customer.FirstName),
+			nameof(Customer.LastName)
+		});
+
 		private readonly SmartDbContext _db;
 		private readonly IWorkContext _workContext;
 		private readonly Lazy<IGdprTool> _gdprTool;
@@ -57,6 +65,14 @@ namespace Smartstore.Core.Identity
 					{
 						_hookErrorMessage = T("Account.Register.Errors.UsernameAlreadyExists");
 					}
+					else
+					{
+						UpdateFullName(customer);
+					}
+				}
+				else if (entry.InitialState == EState.Modified)
+				{
+					UpdateFullName(customer);
 				}
 
 				if (_hookErrorMessage.HasValue())
@@ -135,6 +151,35 @@ namespace Smartstore.Core.Identity
 
 			// We need to return HookResult.Ok instead of HookResult.Failed to be able to output an error notification.
 			return HookResult.Ok;
+		}
+
+		private void UpdateFullName(Customer entity)
+		{
+			var shouldUpdate = entity.IsTransientRecord();
+
+			if (!shouldUpdate)
+			{
+				shouldUpdate = entity.FullName.IsEmpty() && (entity.FirstName.HasValue() || entity.LastName.HasValue());
+			}
+
+			if (!shouldUpdate)
+			{
+				var modProps = _db.GetModifiedProperties(entity);
+				shouldUpdate = _candidateProps.Any(x => modProps.ContainsKey(x));
+			}
+
+			if (shouldUpdate)
+			{
+				var parts = new[]
+				{
+					entity.Salutation,
+					entity.Title,
+					entity.FirstName,
+					entity.LastName
+				};
+
+				entity.FullName = string.Join(" ", parts.Where(x => x.HasValue())).NullEmpty();
+			}
 		}
 	}
 }

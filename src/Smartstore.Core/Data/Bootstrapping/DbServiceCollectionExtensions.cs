@@ -118,6 +118,10 @@ namespace Smartstore.Core.Bootstrapping
             {
                 // EF throws when query is untracked otherwise
                 w.Ignore(CoreEventId.DetachedLazyLoadingWarning);
+
+                // To identify the query that's triggering MultipleCollectionIncludeWarning.
+                //w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
+                //w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
             });
 
             if (enableCaching)
