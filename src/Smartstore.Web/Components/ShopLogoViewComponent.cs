@@ -30,7 +30,7 @@ namespace Smartstore.Web.Components
 
             if (logo != null)
             {
-                model.LogoUrl = await _mediaService.Value.GetUrlAsync(logo.Id, 0, null, false);
+                model.LogoUrl = _mediaService.Value.GetUrl(logo, 0, null, false);
                 model.LogoWidth = logo.Size.Width;
                 model.LogoHeight = logo.Size.Height;
             }
