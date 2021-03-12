@@ -5,15 +5,15 @@
     {
         var logoUrl = Model.LogoUrl.EmptyNull();
 
-        // "Above the fold" image: preload logo to render it fast.
-        Assets.AddHtmlContent("head_links", new HtmlString($"<link as='image' href='{logoUrl}' rel='preload'>"));
+        @* "Above the fold" image: preload logo to render it fast. *@
+        <link sm-target-zone="head_links" as="image" rel="preload" href="@logoUrl" />
 
         <img src='@logoUrl'
              alt="@Model.LogoTitle"
              title="@Model.LogoTitle"
              class="img-fluid"
              attr-width="(Model.LogoWidth > 0, Model.LogoWidth.ToString())"
-             attr-height="(Model.LogoHeight > 0, Model.LogoHeight.ToString())"/>
+             attr-height="(Model.LogoHeight > 0, Model.LogoHeight.ToString())" />
     }
     else
     {
