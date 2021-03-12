@@ -28,7 +28,7 @@ namespace Smartstore.Web.Components
         private readonly PrivacySettings _privacySettings;
 
         public FooterViewComponent(
-            Lazy<IThemeRegistry> themeRegistry,
+            IThemeRegistry themeRegistry,
             IWidgetProvider widgetProvider,
             ThemeSettings themeSettings,
             CustomerSettings customerSettings,
@@ -52,7 +52,7 @@ namespace Smartstore.Web.Components
             var taxInfo = T(taxDisplayType == TaxDisplayType.IncludingTax ? "Tax.InclVAT" : "Tax.ExclVAT");
             var availableStoreThemes = !_themeSettings.AllowCustomerToSelectTheme
                 ? new List<StoreThemeModel>()
-                : _themeRegistry.Value.GetThemeManifests()
+                : _themeRegistry.GetThemeManifests()
                     .Select(x =>
                     {
                         return new StoreThemeModel
