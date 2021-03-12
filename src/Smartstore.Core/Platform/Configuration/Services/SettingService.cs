@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Configuration
@@ -35,14 +36,17 @@ namespace Smartstore.Core.Configuration
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
         private readonly DbSet<Setting> _setSettings;
+        private readonly IActivityLogger _activityLogger;
 
-        public SettingService(ICacheManager cache, SmartDbContext db)
+        public SettingService(ICacheManager cache, SmartDbContext db, IActivityLogger activityLogger)
         {
             _cache = cache;
             _db = db;
             _setSettings = _db.Settings;
+            _activityLogger = activityLogger;
         }
 
+        public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         #region Hook
@@ -72,6 +76,21 @@ namespace Smartstore.Core.Configuration
             {
                 var numClasses = await _cache.RemoveByPatternAsync(BuildCacheKeyForClassAccess(prefix, "*"));
                 var numRaw = await _cache.RemoveByPatternAsync(BuildCacheKeyForRawAccess(prefix, "*"));
+            }
+
+            // Log activity.
+            var updatedEntities = entries
+                .Where(x => x.InitialState == Smartstore.Data.EntityState.Modified)
+                .Select(x => x.Entity)
+                .OfType<Setting>()
+                .ToList();
+
+            if (updatedEntities.Any())
+            {
+                string comment = T("ActivityLog.EditSettings");
+
+                updatedEntities.Each(x => _activityLogger.LogActivity("EditSettings", comment, x.Name, x.Value));
+                await _db.SaveChangesAsync(cancelToken);
             }
         }
 

@@ -821,8 +821,8 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var productAttribute = await _db.ProductVariantAttributes.FindByIdAsync(1027);
-            _db.ProductVariantAttributes.Remove(productAttribute);
+            var entity = await _db.Topics.FindByIdAsync(121);
+            _db.Topics.Remove(entity);
             await _db.SaveChangesAsync();
 
             //var price = 16.98M;
