@@ -124,6 +124,23 @@ namespace Smartstore.Web.Rendering.Builders
             return (this as TBuilder);
         }
 
+        public TBuilder BadgeHtmlAttributes(string name, string value, bool condition = true)
+        {
+            if (condition) Item.BadgeHtmlAttributes.Merge(name, value);
+            return (this as TBuilder);
+        }
+
+        public TBuilder BadgeHtmlAttributes(object attributes)
+        {
+            return BadgeHtmlAttributes(CommonHelper.ObjectToStringDictionary(attributes));
+        }
+
+        public TBuilder BadgeHtmlAttributes(IDictionary<string, string> attributes)
+        {
+            Item.BadgeHtmlAttributes.Merge(attributes);
+            return (this as TBuilder);
+        }
+
         public TBuilder ImageUrl(string value)
         {
             Item.ImageUrl = value;

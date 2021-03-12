@@ -21,7 +21,7 @@ namespace Smartstore.Web.Components
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        public async Task<IViewComponentResult> Invoke()
+        public async Task<IViewComponentResult> InvokeAsync()
         {
             var customer = Services.WorkContext.CurrentCustomer;
             var isAdmin = customer.IsAdmin();

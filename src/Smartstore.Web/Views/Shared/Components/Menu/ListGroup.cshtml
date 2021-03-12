@@ -53,7 +53,9 @@
 
                     @if (item.BadgeText.HasValue())
                     {
-                        <span class="badge badge-pill badge-@item.BadgeStyle.ToString().ToLower() ml-auto">@Html.Raw(item.BadgeText)</span>
+                        <span class="badge badge-pill badge-@item.BadgeStyle.ToString().ToLower() ml-auto" attrs="item.BadgeHtmlAttributes">
+                            @Html.Raw(item.BadgeText)
+                        </span>
                     }
                 </a>
             }

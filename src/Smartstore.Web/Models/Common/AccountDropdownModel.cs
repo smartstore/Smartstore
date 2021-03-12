@@ -1,4 +1,6 @@
-﻿using Smartstore.Web.Modelling;
+﻿using System.Collections.Generic;
+using Smartstore.Core.Content.Menus;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Common
 {
@@ -11,6 +13,8 @@ namespace Smartstore.Web.Models.Common
         public int ShoppingCartItems { get; set; }
         public bool WishlistEnabled { get; set; }
         public int WishlistItems { get; set; }
+
+        public List<MenuItem> MenuItems { get; } = new();
 
         // TODO: (mh) (core) Remove obsolete properties.
         // INFO: PMs will be prepared in Forum Module.

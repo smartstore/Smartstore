@@ -44,7 +44,14 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 foreach (var attr in Attributes)
                 {
-                    output.MergeAttribute(attr.Key, attr.Value, false);
+                    if (attr.Key == "class")
+                    {
+                        output.AppendCssClass(attr.Value);
+                    }
+                    else
+                    {
+                        output.MergeAttribute(attr.Key, attr.Value, false);
+                    }
                 }
             }
 

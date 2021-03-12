@@ -20,8 +20,8 @@ namespace Smartstore.Core.Content.Menus
         }
 
         public AttributeDictionary HtmlAttributes { get; set; } = new();
-
         public AttributeDictionary LinkHtmlAttributes { get; set; } = new();
+        public AttributeDictionary BadgeHtmlAttributes { get; set; } = new();
 
         public RouteValueDictionary RouteValues { get; set; } = new();
 

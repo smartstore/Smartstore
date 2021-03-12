@@ -18,7 +18,7 @@ namespace Smartstore.Web.Components
             _searchSettings = searchSettings;
         }
 
-        public async Task<IViewComponentResult> Invoke()
+        public async Task<IViewComponentResult> InvokeAsync()
         {
             var model = new SearchBoxModel
             {
