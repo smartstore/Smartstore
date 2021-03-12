@@ -9,26 +9,18 @@
 
     <div class="page-main canvas-slidable">
         <header id="header">
-
-            <!-- Shopbar -->
-            <div class="shopbar-section shopbar-light">
-                <div class="container shopbar-container">
-                    <div class="shopbar">
-                        <div class="shopbar-col-group shopbar-col-group-brand">
-                            <div class="shopbar-col shop-logo">
-                                <a class="brand" asp-route="Homepage">
-                                    @*<img src="~/images/logo.png" alt="Smartstore" title="Smartstore" class="img-fluid" width="560" height="100">*@
-                                    <img sm-file-id="@StoreContext.CurrentStore.LogoMediaFileId" sm-size="512" alt="Smartstore" title="Smartstore" class="img-fluid" />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+            <div class="menubar-section d-none d-lg-block @(Display.GetThemeVariable<bool>("inverse-menubar") ? "menubar-inverse" : "menubar-light")">
+                <div class="container menubar-container">
+                    @await Component.InvokeAsync("TopBar")
                 </div>
             </div>
-
-            <!-- Megamenu -->
+            <div class="shopbar-section @(Display.GetThemeVariable<bool>("inverse-shopbar") ? "shopbar-inverse" : "shopbar-light")">
+                <div class="container shopbar-container">
+                    @await Component.InvokeAsync("ShopBar")
+                </div>
+            </div>
             <div class="megamenu-section d-none d-lg-block">
-                <nav class="navbar navbar-light">
+                <nav class="navbar @(Display.GetThemeVariable<bool>("inverse-navbar") ? "navbar-inverse" : "navbar-light")">
                     <div class="container megamenu-container">
                         <menu name="Main" template="Main" />
                     </div>

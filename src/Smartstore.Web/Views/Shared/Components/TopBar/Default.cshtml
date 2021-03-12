@@ -1,0 +1,71 @@
+﻿@model TopBarModel
+
+@{
+    string accountUrl = Model.IsAuthenticated ? Url.Action("Info", "Customer") : Url.RouteUrl("Login", new { returnUrl = Context.Request.Query["returnUrl"] });
+}
+
+<zone name="header_menu_top"></zone>
+
+<nav class="menubar navbar navbar-slide">
+    <nav class="menubar-group ml-0">
+        @{
+            @*@await Component.InvokeAsync("LanguageSelector")*@
+            @await Component.InvokeAsync("CurrencySelector")
+        }
+    </nav>
+
+    <nav class="menubar-group ml-auto">
+        <zone name="header_menu_before"></zone>
+
+        <a sm-if="Model.HasContactUsPage" asp-route="ContactUs" class="menubar-link">@T("ContactUs")</a>
+
+        <menu name="HelpAndService" template="Dropdown"></menu>
+
+        <a sm-if="Model.IsCustomerImpersonated" asp-route="Logout" class="menubar-link" title="@T("Account.ImpersonatedAs.Finish.Hint")" rel="nofollow">
+            <i class="fal fa-sign-out-alt menubar-icon"></i>
+            <span>@Model.CustomerEmailUsername</span>
+        </a>
+    </nav>
+
+    <nav class="menubar-group menubar-group--special">
+        @* INFO: (mh) (core) header_menu_special will be used to render News, Blog, etc.
+            ..._after is legacy. Normally one widget zone would be enough but ..._after without content doesn't feel right *@
+
+        <zone name="header_menu_special"></zone>
+        <zone name="header_menu_special_after"></zone>
+    </nav>
+
+    <nav sm-if="Model.DisplayLoginLink" id="menubar-my-account" class="menubar-group">
+        <div class="dropdown">
+            <a class="menubar-link" @(Model.IsAuthenticated ? "data-toggle=dropdown" : "") aria-haspopup="true" aria-expanded="false" href="@accountUrl" rel="nofollow">
+                <i class="@(Model.IsAuthenticated ? "fas" : "fal") fa-user-circle menubar-icon"></i>
+
+                @if (Model.IsAuthenticated)
+                {
+                    <span title="@Model.CustomerEmailUsername">@Model.CustomerEmailUsername.Truncate(25, "...")</span>
+                    <i class="fal fa-angle-down menubar-caret"></i>
+                }
+                else
+                {
+                    <span>@T("Account.Login")</span>
+                }
+            </a>
+
+            @if (Model.IsAuthenticated)
+            {
+                @await Component.InvokeAsync("AccountDropdown")
+            }
+        </div>
+        <zone name="header_menu_after"></zone>
+    </nav>
+
+    @*TODO: (mh) (core) Is @Url.Content("~/admin") OK? *@
+    <nav sm-if="Model.DisplayAdminLink" class="menubar-group menubar-group--special d-none d-xl-block">
+        <a class="menubar-link" href="@Url.Content("~/admin")" target="_admin" rel="nofollow">
+            <i class="fal fa-cog menubar-icon"></i>
+            <span>@T("Account.Administration")</span>
+        </a>
+    </nav>
+</nav>
+
+<zone name="header_menu_bottom"></zone>
