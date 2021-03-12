@@ -8,7 +8,6 @@ namespace Smartstore.Core.Seo.Routing
     {
         public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values)
         {
-            // TODO: (core) Implement DefaultSlugRouter once all affected entity types are ported.
             switch (urlRecord.EntityName.ToLowerInvariant())
             {
                 case "product":
@@ -39,6 +38,15 @@ namespace Smartstore.Core.Seo.Routing
                         { "entity", urlRecord }
                     };
                 case "topic":
+                    return new RouteValueDictionary
+                    {
+                        { "area", string.Empty },
+                        { "controller", "Topic" },
+                        { "action", "TopicDetails" },
+                        { "topicId", urlRecord.EntityId },
+                        { "entity", urlRecord }
+                    };
+                default:
                     //case "newsitem": // TODO: (core) Move newsitem and blogpost to external modules
                     //case "blogpost":
                     return new RouteValueDictionary
@@ -48,8 +56,6 @@ namespace Smartstore.Core.Seo.Routing
                         { "action", "Slug" },
                         { "entity", urlRecord }
                     };
-                default:
-                    break;
             }
 
             return null;

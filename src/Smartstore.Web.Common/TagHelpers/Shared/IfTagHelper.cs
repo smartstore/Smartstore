@@ -12,6 +12,8 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string IfAttributeName = "sm-if";
 
+        public override int Order => int.MinValue;
+
         /// <summary>
         /// A condition to check before outputting the tag.
         /// <c>false</c> will suppress the output completely.

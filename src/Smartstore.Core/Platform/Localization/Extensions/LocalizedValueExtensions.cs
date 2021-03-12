@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Localization
+﻿using System.Runtime.CompilerServices;
+
+namespace Smartstore.Core.Localization
 {
 	/// <summary>
 	/// Wrapper for the most common string extension helpers used in views.
@@ -6,19 +8,13 @@
 	/// </summary>
 	public static class LocalizedValueExtensions
 	{
-		public static bool HasValue(this LocalizedValue<string> value)
-		{
-			return value?.Value?.HasValue() == true;
-		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool HasValue(this LocalizedValue<string> value) => value?.Value?.HasValue() == true;
 
-		public static bool IsEmpty(this LocalizedValue<string> value)
-		{
-			return value?.Value?.IsEmpty() == false;
-		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static bool IsEmpty(this LocalizedValue<string> value) => value?.Value?.IsEmpty() == false;
 
-		public static string Truncate(this LocalizedValue<string> value, int maxLength, string suffix = "")
-		{
-			return value?.Value?.Truncate(maxLength, suffix);
-		}
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static string Truncate(this LocalizedValue<string> value, int maxLength, string suffix = "") => value?.Value?.Truncate(maxLength, suffix);
 	}
 }

@@ -9,7 +9,7 @@
 
 @if (Model.IsPasswordProtected)
 {
-    <script>
+    <script sm-target-zone="scripts">
         $(function () {
             $('#ph-topic-@Model.Id').hide();            
             $('#ph-password-@Model.Id #password-@Model.Id').select().focus();
@@ -35,7 +35,7 @@
         }
     </script>
     <div id="ph-password-@Model.Id">
-        <form sm-ajax method="post" asp-route="Authenticate"
+        <form sm-ajax method="post" asp-area="" asp-action="Authenticate" asp-controller="Topic"
             sm-onsuccess="OnAuthenticateSuccess@(Model.Id)"
             sm-loading-element-id="#authenticate-progress-@(Model.Id)">
                 <input type="hidden" asp-for="Id" />

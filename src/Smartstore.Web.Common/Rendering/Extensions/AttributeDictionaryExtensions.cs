@@ -7,6 +7,18 @@ namespace Smartstore.Web.Rendering
 {
     public static class AttributeDictionaryExtensions
     {
+        public static AttributeDictionary Merge(this AttributeDictionary attributes, string name, string value, bool replaceExisting = false)
+        {
+            Guard.NotEmpty(name, nameof(name));
+
+            if (replaceExisting || !attributes.ContainsKey(name))
+            {
+                attributes[name] = value;
+            }
+
+            return attributes;
+        }
+
         /// <summary>
         /// Copies all attributes from <paramref name="attributes"/> to <paramref name="target"/>
         /// overriding any existing attribute.

@@ -1,0 +1,108 @@
+﻿@using Smartstore.Web.Models.Topics;
+
+@model TopicModel
+
+@{
+    var isPopup = ViewBag.IsPopup;
+    if (isPopup == null || isPopup == false)
+    {
+        Layout = "_Layout";
+    }
+    else
+    {
+        Layout = "_Layout.Popup.cshtml";
+    }
+
+    if (!Model.IsPasswordProtected)
+    {
+        Assets.AppendTitleParts(Model.MetaTitle.NullEmpty() ?? Model.Title);
+        Assets.AppendMetaDescriptionParts(Model.MetaDescription);
+        Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
+    }
+
+    if (Model.HtmlId.HasValue())
+    {
+        Assets.RootAttributes.Merge("id", Model.HtmlId);
+    }
+
+    if (Model.BodyCssClass.HasValue())
+    {
+        Assets.BodyAttributes.AppendCssClass(Model.BodyCssClass);
+    }
+}
+
+@if (Model.IsPasswordProtected)
+{
+    <script sm-target-zone="scripts">
+        $(function () {
+            $('#ph-topic').hide();
+            $('#ph-password #password').select().focus();
+        });
+
+        function OnAuthenticateSuccess(context) {
+            if (context.Authenticated)
+            {
+                $('#ph-title .page-title > *').html(context.Title);
+                if ($('#ph-title .page-title > *').text().length == 0)
+                {
+                    $('#ph-title').hide();
+                }
+                $('#ph-topic .page-body').html(context.Body);
+                $('#ph-password').hide();
+                $('#ph-topic').show();
+            }
+            else
+            {
+                $('#password-error').text(context.Error);
+                $('#ph-password #password').select().focus();
+            }
+        }
+    </script>
+    <div id="ph-password">
+        <form sm-ajax method="post" asp-area="" asp-action="Authenticate" asp-controller="Topic"
+              sm-onsuccess="OnAuthenticateSuccess"
+              sm-loading-element-id="#authenticate-progress">
+            <input type="hidden" asp-for="Id" />
+            <div class="enter-password-title mb-2">
+                @T("Topic.EnterPassword")
+            </div>
+            <div class="enter-password-form">
+                <div class="input-group">
+                    <input type="password" name="password" class="form-control" id="password" />
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-secondary topic-password-button">@T("Topic.Button")</button>
+                    </div>
+                </div>
+                <span id="authenticate-progress" style="display: none;">
+                    @T("Common.Wait...")
+                    <img src='@Url.Content("~/images/ajax_loader_small.gif")' alt="@T("Common.Wait...")" />
+                </span>
+            </div>
+            <div class="password-error">
+                <span id="password-error"></span>
+            </div>
+        </form>
+    </div>
+}
+
+<div sm-if="Model.Title.HasValue() || Model.Intro.HasValue() || Model.Body.HasValue()" class="page topic-page" id="ph-topic">
+    <div sm-if="Model.Title.HasValue()" id="ph-title">
+        <div class="page-title">
+            <h3 sm-tagname="@Model.TitleTag" class="block-title" sm-language-attributes-for="Model.Title">
+                @Html.Raw(Model.Title)
+            </h3>
+        </div>
+    </div>
+
+    <p sm-if="Model.Intro.HasValue()" class="ph-intro lead" sm-language-attributes-for="Model.Intro">
+        @Html.Raw(Model.Intro)
+    </p>
+
+    <zone name="topic_body_before"></zone>
+
+    <div sm-if="Model.Body.HasValue()" class="page-body html-editor-content" sm-language-attributes-for="Model.Body">
+        @Html.Raw(Model.Body)
+    </div>
+
+    <zone name="topic_body_after"></zone>
+</div>
