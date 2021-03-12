@@ -17,14 +17,20 @@
     <nav class="menubar-group ml-auto">
         <zone name="header_menu_before"></zone>
 
-        <a sm-if="Model.HasContactUsPage" asp-route="ContactUs" class="menubar-link">@T("ContactUs")</a>
+        @if (Model.HasContactUsPage)
+        {
+            <a asp-route="ContactUs" class="menubar-link">@T("ContactUs")</a>
+        }
 
         <menu name="HelpAndService" template="Dropdown"></menu>
 
-        <a sm-if="Model.IsCustomerImpersonated" asp-route="Logout" class="menubar-link" title="@T("Account.ImpersonatedAs.Finish.Hint")" rel="nofollow">
-            <i class="fal fa-sign-out-alt menubar-icon"></i>
-            <span>@Model.CustomerEmailUsername</span>
-        </a>
+        @if (Model.IsCustomerImpersonated)
+        {
+            <a asp-route="Logout" class="menubar-link" title="@T("Account.ImpersonatedAs.Finish.Hint")" rel="nofollow">
+                <i class="fal fa-sign-out-alt menubar-icon"></i>
+                <span>@Model.CustomerEmailUsername</span>
+            </a>
+        }
     </nav>
 
     <nav class="menubar-group menubar-group--special">
