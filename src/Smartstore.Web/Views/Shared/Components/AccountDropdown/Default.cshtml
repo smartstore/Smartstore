@@ -1,0 +1,52 @@
+﻿@model AccountDropdownModel
+
+@{
+    // Build register URL with return URL (if specified).
+    var registerUrl = Url.RouteUrl("Register");
+    var returnUrl = Context.Request.Query["returnUrl"].ToString();
+
+    if (returnUrl.HasValue())
+    {
+        registerUrl = Display.ModifyQueryString(registerUrl, "returnUrl=" + returnUrl.UrlEncode());
+    }
+
+    var isRtl = this.WorkContext.WorkingLanguage.Rtl;
+}
+
+<div sm-if="Model.IsAuthenticated" class="dropdown-menu @(isRtl ? "dropdown-menu-left" : "dropdown-menu-right")">
+    <zone name="account_dropdown_before"></zone>
+
+    <a asp-action="Info" asp-controller="Customer" class="dropdown-item" rel="nofollow">
+        <i class="fal fa-user fa-fw"></i>
+        <span>@T("Account.MyAccount")</span>
+    </a>
+
+    @*TODO: (mh) (core) @Url.Content("~/admin") OK? *@
+    <a sm-if="Model.DisplayAdminLink" class="dropdown-item" href="@Url.Content("~/admin")" target="_admin" rel="nofollow">
+        <i class="fal fa-cog fa-fw"></i>
+        <span>@T("Account.Administration")</span>
+    </a>
+
+    <a sm-if="Model.WishlistEnabled" asp-route="Wishlist" class="dropdown-item">
+        <i class="fal fa-heart fa-fw"></i>
+        <span>@T("Wishlist")</span>
+        <span class="wishlist-qty badge badge-success @(Model.WishlistItems > 0 ? "label-success" : "d-none")">@Model.WishlistItems</span>
+    </a>
+
+    <a sm-if="Model.ShoppingCartEnabled" asp-route="ShoppingCart" id="topcartlink" class="dropdown-item">
+        <i class="fal fa-shopping-bag fa-fw"></i>
+        <span>@T("ShoppingCart")</span>
+        <span class="cart-qty badge badge-success @(Model.ShoppingCartItems > 0 ? "label-success" : "d-none")">@Model.ShoppingCartItems</span>
+    </a>
+
+    <div class="dropdown-divider"></div>
+
+    @*TODO: (mh) (core) Working with asp-action & asp-controller might be better *@
+    <a asp-route="Logout" class="dropdown-item" rel="nofollow">
+        <i class="fal fa-sign-out-alt fa-fw"></i>
+        <span>@T("Account.Logout")</span>
+    </a>
+
+    @*TODO: (mh) (core) PMs can also be rendered at the end of the menu? *@
+    <zone name="account_dropdown_after"></zone>
+</div>
