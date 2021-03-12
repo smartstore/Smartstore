@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Security;
@@ -17,14 +18,15 @@ namespace Smartstore.Web.Components
             _searchSettings = searchSettings;
         }
 
-        public IViewComponentResult Invoke()
+        public async Task<IViewComponentResult> Invoke()
         {
             var model = new SearchBoxModel
             {
                 Origin = "Search/Search",
+                SearchUrl = Url.RouteUrl("Search"),
                 InstantSearchUrl = Url.RouteUrl("InstantSearch"),
                 InputPlaceholder = T("Search.SearchBox.Tooltip"),
-                InstantSearchEnabled = _searchSettings.InstantSearchEnabled && Services.Permissions.Authorize(Permissions.System.AccessShop),
+                InstantSearchEnabled = _searchSettings.InstantSearchEnabled && await Services.Permissions.AuthorizeAsync(Permissions.System.AccessShop),
                 ShowThumbsInInstantSearch = _searchSettings.ShowProductImagesInInstantSearch,
                 SearchTermMinimumLength = _searchSettings.InstantSearchTermMinLength,
                 CurrentQuery = _queryFactory.Current?.Term

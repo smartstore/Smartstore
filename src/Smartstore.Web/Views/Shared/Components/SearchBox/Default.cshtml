@@ -15,7 +15,7 @@
     }
 }
 
-<form asp-action="Search" asp-controller="Search" class="instasearch-form" method="get">
+<form action="@Model.SearchUrl" class="instasearch-form" method="get">
     <input type="text"
            class="instasearch-term form-control"
            name="q"
@@ -26,7 +26,7 @@
            data-showthumbs="@(Model.ShowThumbsInInstantSearch.ToString().ToLower())"
            data-url="@Model.InstantSearchUrl"
            data-origin="@Model.Origin"
-           @(Model.InstantSearchEnabled ? Html.Raw(" autocomplete=\"off\"") : null) />
+           attr-autocomplete='(Model.InstantSearchEnabled, "off")' />
 
     <button type="submit" class="btn btn-@labelStyle btn-icon instasearch-button" title="@T("Search")">
         <i class="icm icm-magnifier instasearch-icon"></i>
