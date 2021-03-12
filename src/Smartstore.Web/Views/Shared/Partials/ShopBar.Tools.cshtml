@@ -6,7 +6,7 @@
         return;
     }
 
-    string accountUrl = Model.IsAuthenticated ? Url.Action("Info", "Customer") : Url.RouteUrl("Login", new { returnUrl = Context.Request.Query["returnUrl"] });
+    string accountUrl = Model.IsAuthenticated ? Url.Action("Info", "Customer") : Url.RouteUrl("Login", new { returnUrl = Context.Request.Query["returnUrl"].ToString() });
     var labelStyle = Display.GetThemeVariable<string>("shopbar-label", "warning");
     var isRtl = this.WorkContext.WorkingLanguage.Rtl;
 }
@@ -40,12 +40,14 @@
     </div>
 
     <div sm-if="Model.CompareProductsEnabled" class="shopbar-tool" id="shopbar-compare" data-target="#compare-tab">
-        <a asp-action="CompareProducts" asp-controller="Catalog" class="shopbar-button navbar-toggler"
+        <a asp-action="CompareProducts" asp-controller="Catalog" asp-area="" class="shopbar-button navbar-toggler"
            data-toggle="offcanvas" data-summary-href="@Url.Action("CartSummary", "ShoppingCart", new { compare = true })"
            data-autohide="true" data-placement="@(isRtl ? "left" : "right")" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
             <span class="shopbar-button-icon">
                 <i class="icm icm-repeat"></i>
-                <span class='badge badge-pill label-cart-amount badge-@labelStyle' style="@(Model.CompareItemsCount == 0 ? "display:none" : "")" data-bind-to="CompareItemsCount">@Model.CompareItemsCount</span>
+                <span class='badge badge-pill label-cart-amount badge-@labelStyle' attr-style='(Model.CompareItemsCount == 0, "display: none")' data-bind-to="CompareItemsCount">
+                    @Model.CompareItemsCount
+                </span>
             </span>
             <span class="shopbar-button-label">
                 <span>@T("Common.Shopbar.CompareProductsPartOne")</span><br />
@@ -62,7 +64,9 @@
            data-autohide="true" data-placement="@(isRtl ? "left" : "right")" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
             <span class="shopbar-button-icon">
                 <i class="icm icm-heart"></i>
-                <span class='badge badge-pill label-cart-amount badge-@labelStyle' style="@(Model.WishlistItemsCount == 0 ? "display:none" : "")" data-bind-to="WishlistItemsCount">@Model.WishlistItemsCount</span>
+                <span class='badge badge-pill label-cart-amount badge-@labelStyle' attr-style='(Model.WishlistItemsCount == 0, "display: none")' data-bind-to="WishlistItemsCount">
+                    @Model.WishlistItemsCount
+                </span>
             </span>
             <span class="shopbar-button-label">
                 <span>@T("Common.Shopbar.WishlistPartOne")</span><br />
@@ -79,7 +83,7 @@
            data-autohide="true" data-placement="@(isRtl ? "left" : "right")" data-fullscreen="false" data-disablescrolling="true" data-target="#offcanvas-cart">
             <span class="shopbar-button-icon">
                 <i class="icm icm-bag"></i>
-                <span class='badge badge-pill label-cart-amount badge-@(labelStyle)' style="@(Model.CartItemsCount == 0 ? "display:none" : "")" data-bind-to="CartItemsCount">
+                <span class='badge badge-pill label-cart-amount badge-@(labelStyle)' attr-style='(Model.CartItemsCount == 0, "display: none")' data-bind-to="CartItemsCount">
                     @Model.CartItemsCount
                 </span>
             </span>
@@ -109,8 +113,8 @@
 <widget target-zone="end" key="offcanvas-cart">
     <aside id="offcanvas-cart" class="offcanvas offcanvas-lg offcanvas-overlay offcanvas-@(isRtl ? "left" : "right") offcanvas-shadow" data-lg="true" data-blocker="true" data-overlay="true">
         <div class="offcanvas-content">
-            @*TODO (mh) (core)*@
-            @*@Html.Action("OffCanvasCart", "ShoppingCart", new { area = "" })*@
+            @*TODO (mh) (core) Implement OffCanvasCart*@
+            @*@await Component.InvokeAsync("OffCanvasCart")*@
         </div>
     </aside>
 </widget>

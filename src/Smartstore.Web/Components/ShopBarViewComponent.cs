@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Identity;
@@ -20,7 +21,7 @@ namespace Smartstore.Web.Components
             _shoppingCartSettings = shoppingCartSettings;
         }
 
-        public IViewComponentResult Invoke()
+        public async Task<IViewComponentResult> Invoke()
         {
             var customer = Services.WorkContext.CurrentCustomer;
             var isAdmin = customer.IsAdmin();
@@ -29,13 +30,13 @@ namespace Smartstore.Web.Components
             var model = new ShopBarModel
             {
                 IsAuthenticated = isRegistered,
-                CustomerEmailUsername = isRegistered ? (_customerSettings.CustomerLoginType != CustomerLoginType.Email ? customer.Username : customer.Email) : "",
+                CustomerEmailUsername = isRegistered ? (_customerSettings.CustomerLoginType != CustomerLoginType.Email ? customer.Username : customer.Email) : string.Empty,
                 IsCustomerImpersonated = Services.WorkContext.CurrentImpersonator != null,
-                DisplayAdminLink = Services.Permissions.Authorize(Permissions.System.AccessBackend),
-                ShoppingCartEnabled = Services.Permissions.Authorize(Permissions.Cart.AccessShoppingCart) && _shoppingCartSettings.MiniShoppingCartEnabled,
-                WishlistEnabled = Services.Permissions.Authorize(Permissions.Cart.AccessWishlist),
+                DisplayAdminLink = await Services.Permissions.AuthorizeAsync(Permissions.System.AccessBackend),
+                ShoppingCartEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart) && _shoppingCartSettings.MiniShoppingCartEnabled,
+                WishlistEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist),
                 CompareProductsEnabled = _catalogSettings.CompareProductsEnabled,
-                PublicStoreNavigationAllowed = Services.Permissions.Authorize(Permissions.System.AccessShop)
+                PublicStoreNavigationAllowed = await Services.Permissions.AuthorizeAsync(Permissions.System.AccessShop)
             };
 
             return View(model);
