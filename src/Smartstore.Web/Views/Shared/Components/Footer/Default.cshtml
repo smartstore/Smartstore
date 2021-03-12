@@ -2,11 +2,10 @@
 @using Smartstore.Web.Models.Common;
 
 @model FooterModel
-@inject ILinkResolver LinkResolver
 
 @{
     var footerLinks = new List<LinkResolverResult>
-{
+    {
         await LinkResolver.ResolveAsync("topic:aboutus"),
         await LinkResolver.ResolveAsync("topic:imprint"),
         await LinkResolver.ResolveAsync("topic:disclaimer"),
