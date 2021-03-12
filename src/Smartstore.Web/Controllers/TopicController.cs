@@ -76,7 +76,7 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> TopicDetails(int topicId, bool popup = false)
         {
-            //_helper.GetBreadcrumb(_breadcrumb, ControllerContext);
+            await _helper.GetBreadcrumbAsync(_breadcrumb, ControllerContext);
 
             var cacheKey = string.Format(ModelCacheInvalidator.TOPIC_BY_ID_KEY, 
                 topicId, 

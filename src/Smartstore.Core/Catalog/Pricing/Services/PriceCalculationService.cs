@@ -20,6 +20,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Localization;
+using System.Diagnostics.Contracts;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
@@ -485,6 +486,10 @@ namespace Smartstore.Core.Catalog.Pricing
                     foreach (var productCategory in productCategories)
                     {
                         var category = productCategory.Category;
+
+                        if (category == null)
+                            continue;
+
                         if (category.HasDiscountsApplied)
                         {
                             await _db.LoadCollectionAsync(category, x => x.AppliedDiscounts);

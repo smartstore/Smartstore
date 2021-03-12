@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -387,9 +388,63 @@ namespace Smartstore.Web.Controllers
                 .AsyncToList();
         }
 
+        public async Task<IEnumerable<int>> GetChildCategoryIdsAsync(int parentCategoryId, bool deep = true)
+        {
+            var root = await _menuService.GetRootNodeAsync("Main");
+            var node = root.SelectNodeById(parentCategoryId) ?? root.SelectNode(x => x.Value.EntityId == parentCategoryId);
+            if (node != null)
+            {
+                var children = deep ? node.Flatten(false) : node.Children.Select(x => x.Value);
+                var ids = children.Select(x => x.EntityId);
+                return ids;
+            }
+
+            return Enumerable.Empty<int>();
+        }
+
+        public async Task GetBreadcrumbAsync(IBreadcrumb breadcrumb, ActionContext context, Product product = null)
+        {
+            var menu = await _menuService.GetMenuAsync("Main");
+            var currentNode = await menu.ResolveCurrentNodeAsync(context);
+
+            if (currentNode != null)
+            {
+                currentNode.Trail.Where(x => !x.IsRoot).Each(x => breadcrumb.Track(x.Value));
+            }
+
+            // Add trail of parent product if product has no category assigned.
+            if (product != null && !(breadcrumb.Trail?.Any() ?? false))
+            {
+                var parentProduct = await _db.Products.FindByIdAsync(product.ParentGroupedProductId, false);
+                if (parentProduct != null)
+                {
+                    var routeData = new RouteData();
+                    routeData.Values.Add("currentProductId", parentProduct.Id);
+                    var actionContext = new ActionContext(context);
+
+                    currentNode = await menu.ResolveCurrentNodeAsync(actionContext);
+                    if (currentNode != null)
+                    {
+                        currentNode.Trail.Where(x => !x.IsRoot).Each(x => breadcrumb.Track(x.Value));
+                        var parentName = parentProduct.GetLocalized(x => x.Name);
+
+                        breadcrumb.Track(new MenuItem
+                        {
+                            Text = parentName,
+                            Rtl = parentName.CurrentLanguage.Rtl,
+                            EntityId = parentProduct.Id,
+                            Url = _urlHelper.RouteUrl("Product", new { SeName = await parentProduct.GetActiveSlugAsync() })
+                        });
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Product
+
+        // ...
 
         #endregion
     }

@@ -430,6 +430,7 @@ namespace Smartstore.Core.Catalog.Categories
                     from pc in productCategoriesQuery
                         .AsNoTracking()
                         .Include(x => x.Category)
+                        .ThenInclude(x => x.AppliedDiscounts)
                     join c in categoriesQuery on pc.CategoryId equals c.Id
                     where productIds.Contains(pc.ProductId)
                     orderby pc.DisplayOrder
