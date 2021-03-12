@@ -86,7 +86,7 @@ namespace Smartstore.Web.Controllers
             return RedirectToReferrer(returnUrl);
         }
 
-        [LocalizedRoute("/currency-selected", Name = "ChangeCurrency")]
+        [LocalizedRoute("/currency-selected/{customerCurrency:int}", Name = "ChangeCurrency")]
         public async Task<IActionResult> CurrencySelected(int customerCurrency, string returnUrl = "")
         {
             var currency = await _db.Currencies.FindByIdAsync(customerCurrency);

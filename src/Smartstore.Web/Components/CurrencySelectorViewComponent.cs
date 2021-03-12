@@ -22,11 +22,10 @@ namespace Smartstore.Web.Components
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var key = ModelCacheInvalidator.AVAILABLE_CURRENCIES_MODEL_KEY.FormatInvariant(Services.WorkContext.WorkingLanguage.Id, Services.StoreContext.CurrentStore.Id);
-            var availableCurrencies = await Services.Cache.GetAsync(key, async (o) =>
+            var availableCurrencies = await Services.CacheFactory.GetMemoryCache().GetAsync(key, async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromHours(24));
 
-                // TODO: (mh) (core) is this correct? Doesn't feel so :-)
                 var currencies = await _db.Currencies
                     .AsNoTracking()
                     .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
@@ -44,6 +43,11 @@ namespace Smartstore.Web.Components
 
                 return result;
             });
+
+            if (availableCurrencies.Count < 2)
+            {
+                return Empty();
+            }
 
             ViewBag.AvailableCurrencies = availableCurrencies;
 
