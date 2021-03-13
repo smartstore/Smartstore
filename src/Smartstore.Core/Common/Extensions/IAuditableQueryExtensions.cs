@@ -11,7 +11,7 @@ namespace Smartstore
         /// </summary>
         /// <param name="fromUtc">Start date in UTC.</param>
         /// <param name="toUtc">End date in UTC</param>
-        public static IQueryable<T> ApplyDateFilter<T>(this IQueryable<T> query, DateTime? fromUtc = null, DateTime? toUtc = null)
+        public static IQueryable<T> ApplyAuditDateFilter<T>(this IQueryable<T> query, DateTime? fromUtc = null, DateTime? toUtc = null)
             where T : BaseEntity, IAuditable
         {
             Guard.NotNull(query, nameof(query));

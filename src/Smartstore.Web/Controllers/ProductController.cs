@@ -90,9 +90,9 @@ namespace Smartstore.Web.Controllers
             await _db.SaveChangesAsync();
 
             // TODO: (mh) (core) Continue CatalogController.Category()
-
+            
             var store = Services.StoreContext.CurrentStore;
-            var price = store.PrimaryStoreCurrency.AsMoney(product.Price).ExchangeTo(Services.WorkContext.WorkingCurrency);
+            var price = Services.CurrencyService.ConvertToWorkingCurrency(product.Price);
 
             return Content($"Product --> Id: {product.Id}, Name: {product.Name}, Price: {price}");
         }

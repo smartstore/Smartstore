@@ -48,6 +48,7 @@ namespace Smartstore.Core
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IMediaService _mediaService;
         private readonly Lazy<IDisplayControl> _displayControl;
+        private readonly ICurrencyService _currencyService;
 
         public CommonServices(
             IComponentContext container,
@@ -70,7 +71,8 @@ namespace Smartstore.Core
             IChronometer chronometer,
             IDateTimeHelper dateTimeHelper,
             IMediaService mediaService,
-            Lazy<IDisplayControl> displayControl)
+            Lazy<IDisplayControl> displayControl,
+            ICurrencyService currencyService)
         {
             _container = container;
             _appContext = appContext;
@@ -93,6 +95,7 @@ namespace Smartstore.Core
             _dateTimeHelper = dateTimeHelper;
             _mediaService = mediaService;
             _displayControl = displayControl;
+            _currencyService = currencyService;
         }
 
         public IComponentContext Container => _container;
@@ -116,6 +119,7 @@ namespace Smartstore.Core
         public IDateTimeHelper DateTimeHelper => _dateTimeHelper;
         public IMediaService MediaService => _mediaService;
         public IDisplayControl DisplayControl => _displayControl.Value;
+        public ICurrencyService CurrencyService => _currencyService;
     }
 
     internal class CommonServicesModule : Autofac.Module

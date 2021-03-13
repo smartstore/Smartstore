@@ -15,8 +15,6 @@ using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using System.Threading.Tasks;
 using Smartstore.Net;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore.Web
 {
@@ -28,6 +26,7 @@ namespace Smartstore.Web
         private readonly IStoreContext _storeContext;
         private readonly ICustomerService _customerService;
         private readonly Lazy<ITaxService> _taxService;
+        private readonly Lazy<ICurrencyService> _currencyService;
         private readonly TaxSettings _taxSettings;
         private readonly ICacheManager _cache;
         private readonly IUserAgent _userAgent;
@@ -48,6 +47,7 @@ namespace Smartstore.Web
             IStoreContext storeContext,
             ICustomerService customerService,
             Lazy<ITaxService> taxService,
+            Lazy<ICurrencyService> currencyService,
             TaxSettings taxSettings,
             ICacheManager cache,
             IUserAgent userAgent,
@@ -61,6 +61,7 @@ namespace Smartstore.Web
             _customerService = customerService;
             _taxSettings = taxSettings;
             _taxService = taxService;
+            _currencyService = currencyService;
             _userAgent = userAgent;
             _cache = cache;
             _webHelper = webHelper;
@@ -265,12 +266,12 @@ namespace Smartstore.Web
                 // Return primary store currency when we're in admin area/mode
                 if (IsAdminArea)
                 {
-                    currency = _storeContext.CurrentStore.PrimaryStoreCurrency;
+                    currency = _currencyService.Value.PrimaryCurrency;
                 }
-
+                
                 if (currency == null)
                 {
-                    // Find current customer language
+                    // Find current customer currency
                     var customer = CurrentCustomer;
                     var storeCurrenciesMap = query.ApplyStandardFilter(storeId: _storeContext.CurrentStore.Id).ToDictionary(x => x.Id);
 
@@ -330,7 +331,7 @@ namespace Smartstore.Web
                     // Get PrimaryStoreCurrency
                     if (currency == null)
                     {
-                        currency = VerifyCurrency(_storeContext.CurrentStore.PrimaryStoreCurrency);
+                        currency = VerifyCurrency(_currencyService.Value.PrimaryCurrency);
                     }
 
                     // Get the first published currency for current store

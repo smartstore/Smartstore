@@ -82,7 +82,7 @@ namespace Smartstore.Core.Checkout.Orders
             _catalogSettings = catalogSettings;
             _shippingSettings = shippingSettings;
 
-            _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
+            _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -231,7 +231,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
 
                 orderTotal = _primaryCurrency.RoundIfEnabledFor(orderTotal.Value - appliedCreditBalance);
-                orderTotalConverted = _currencyService.ConvertToWorkingCurrency(orderTotal.Value, store).Amount;
+                orderTotalConverted = _currencyService.ConvertToWorkingCurrency(orderTotal.Value).Amount;
 
                 // Round order total to nearest (cash rounding).
                 if (_primaryCurrency.RoundOrderTotalEnabled && paymentMethodSystemName.HasValue())

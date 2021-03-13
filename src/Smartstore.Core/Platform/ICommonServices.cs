@@ -41,6 +41,7 @@ namespace Smartstore.Core
         IDateTimeHelper DateTimeHelper { get; }
         IMediaService MediaService { get; }
         IDisplayControl DisplayControl { get; }
+        ICurrencyService CurrencyService { get; }
 
         // TODO: (core) Add more props to ICommonServices once they drop in.
     }

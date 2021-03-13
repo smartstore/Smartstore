@@ -64,7 +64,7 @@ namespace Smartstore.Core.Catalog.Pricing
             _discountService = discountService;
             _catalogSettings = catalogSettings;
 
-            _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
+            _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;

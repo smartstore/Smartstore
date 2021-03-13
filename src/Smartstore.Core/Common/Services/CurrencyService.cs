@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
@@ -21,6 +23,10 @@ namespace Smartstore.Core.Common.Services
         private readonly IStoreContext _storeContext;
         private readonly CurrencySettings _currencySettings;
         private readonly TaxSettings _taxSettings;
+        private readonly ISettingFactory _settingFactory;
+
+        private Currency _primaryCurrency;
+        private Currency _primaryExchangeCurrency;
 
         public CurrencyService(
             SmartDbContext db,
@@ -29,7 +35,8 @@ namespace Smartstore.Core.Common.Services
             IWorkContext workContext,
             IStoreContext storeContext,
             CurrencySettings currencySettings,
-            TaxSettings taxSettings)
+            TaxSettings taxSettings,
+            ISettingFactory settingFactory)
         {
             _db = db;
             _localizationService = localizationService;
@@ -38,55 +45,60 @@ namespace Smartstore.Core.Common.Services
             _storeContext = storeContext;
             _currencySettings = currencySettings;
             _taxSettings = taxSettings;
+            _settingFactory = settingFactory;
+        }
+
+        public virtual Currency PrimaryCurrency
+        {
+            get => _primaryCurrency ??= GetPrimaryCurrency(false);
+            set => _primaryCurrency = value;
+        }
+
+        public virtual Currency PrimaryExchangeCurrency
+        {
+            get => _primaryExchangeCurrency ??= GetPrimaryCurrency(true);
+            set => _primaryExchangeCurrency = value;
+        }
+
+        private Currency GetPrimaryCurrency(bool forExchange)
+        {
+            var currencyId = forExchange ? _currencySettings.PrimaryExchangeCurrencyId : _currencySettings.PrimaryCurrencyId;
+            var currency = _db.Currencies.FindById(currencyId, false);
+
+            if (currency == null)
+            {
+                var allCurrencies = _db.Currencies.AsNoTracking().ToList();
+                currency = 
+                    allCurrencies.FirstOrDefault(x => x.Published) ??
+                    allCurrencies.FirstOrDefault() ??
+                    throw new InvalidOperationException("Unable to load primary currency.");
+
+                if (forExchange)
+                {
+                    _currencySettings.PrimaryExchangeCurrencyId = currency.Id;
+                }
+                else
+                {
+                    _currencySettings.PrimaryCurrencyId = currency.Id;
+                }
+
+                _settingFactory.SaveSettingsAsync(_currencySettings).Await();
+            }
+
+            return currency;
         }
 
         #region Currency conversion
 
-        public virtual Money ConvertToPrimaryCurrency(Money amount, Store store = null)
+        public virtual Money ConvertToWorkingCurrency(Money amount)
         {
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
-
-            store ??= _storeContext.CurrentStore;
-            return amount.ExchangeTo(store.PrimaryStoreCurrency, store.PrimaryExchangeRateCurrency);
+            return amount.ExchangeTo(_workContext.WorkingCurrency, PrimaryExchangeCurrency);
         }
 
-        public virtual Money ConvertFromPrimaryCurrency(decimal amount, Currency toCurrency, Store store = null)
+        public virtual Money ConvertToWorkingCurrency(decimal amount)
         {
-            Guard.NotNull(toCurrency, nameof(toCurrency));
-
-            store ??= _storeContext.CurrentStore;
-            return new Money(amount, store.PrimaryStoreCurrency).ExchangeTo(toCurrency, store.PrimaryExchangeRateCurrency);
-        }
-
-        public virtual Money ConvertToExchangeRateCurrency(Money amount, Store store = null)
-        {
-            Guard.NotNull(amount.Currency, nameof(amount.Currency));
-
-            store ??= _storeContext.CurrentStore;
-            return amount.ExchangeTo(store.PrimaryExchangeRateCurrency);
-        }
-
-        public virtual Money ConvertToWorkingCurrency(Money amount, Store store = null)
-        {
-            Guard.NotNull(amount.Currency, nameof(amount.Currency));
-
-            store ??= _storeContext.CurrentStore;
-            return amount.ExchangeTo(_workContext.WorkingCurrency, store.PrimaryExchangeRateCurrency);
-        }
-
-        public virtual Money ConvertToWorkingCurrency(decimal amount, Store store = null)
-        {
-            store ??= _storeContext.CurrentStore;
-            return new Money(amount, store.PrimaryStoreCurrency).ExchangeTo(_workContext.WorkingCurrency, store.PrimaryExchangeRateCurrency);
-        }
-
-        public virtual Money ConvertToCurrency(Money amount, Currency targetCurrency, Store store = null)
-        {
-            Guard.NotNull(amount.Currency, nameof(amount.Currency));
-            Guard.NotNull(targetCurrency, nameof(targetCurrency));
-
-            store ??= _storeContext.CurrentStore;
-            return amount.ExchangeTo(targetCurrency, store.PrimaryExchangeRateCurrency);
+            return new Money(amount, PrimaryCurrency).ExchangeTo(_workContext.WorkingCurrency, PrimaryExchangeCurrency);
         }
 
         #endregion
@@ -134,7 +146,11 @@ namespace Smartstore.Core.Common.Services
             else if (currencyCodeOrObj is string currencyCode)
             {
                 Guard.NotEmpty(currencyCode, nameof(currencyCodeOrObj));
-                currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == currencyCode) ?? new Currency { CurrencyCode = currencyCode };
+                currency =
+                    (currencyCode == PrimaryCurrency.CurrencyCode ? PrimaryCurrency : null) ??
+                    (currencyCode == PrimaryExchangeCurrency.CurrencyCode ? PrimaryExchangeCurrency : null) ??
+                    _db.Currencies.FirstOrDefault(x => x.CurrencyCode == currencyCode) ?? 
+                    new Currency { CurrencyCode = currencyCode };
             }
             else if (currencyCodeOrObj is Currency)
             {

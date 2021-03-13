@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Common.Services
@@ -13,59 +12,32 @@ namespace Smartstore.Core.Common.Services
     public partial interface ICurrencyService
     {
         /// <summary>
-        /// Exchanges given <see cref="Money"/> amount to <see cref="Store.PrimaryStoreCurrency"/>
-        /// of passed <paramref name="store"/>, or of <see cref="IStoreContext.CurrentStore"/> if <paramref name="store"/> is <c>null</c>.
+        /// Gets the primary currency (in which all money amounts are entered in backend).
         /// </summary>
-        /// <param name="amount">The source amount to exchange</param>
-        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store.</param>
-        /// <returns>The exchanged amount.</returns>
-        Money ConvertToPrimaryCurrency(Money amount, Store store = null);
+        /// <remarks>The setter is for testing purposes only.</remarks>
+        Currency PrimaryCurrency { get; set; }
 
         /// <summary>
-        /// Exchanges given money amount (which is assumed to be in <see cref="Store.PrimaryStoreCurrency"/>) to <paramref name="toCurrency"/>,
-        /// using <see cref="Store.PrimaryExchangeRateCurrency"/> as exchange rate currency.
+        /// Gets the primary exchange currency which is used to calculate money conversions.
         /// </summary>
-        /// <param name="amount">The source amount to exchange (should be in <see cref="Store.PrimaryStoreCurrency"/>).</param>
-        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store's <see cref="Store.PrimaryExchangeRateCurrency"/>.</param>
-        /// <returns>The exchanged amount in <paramref name="toCurrency"/>.</returns>
-        Money ConvertFromPrimaryCurrency(decimal amount, Currency toCurrency, Store store = null);
-
-        /// <summary>
-        /// Exchanges given <see cref="Money"/> amount to <see cref="Store.PrimaryExchangeRateCurrency"/>
-        /// of passed <paramref name="store"/>, or of <see cref="IStoreContext.CurrentStore"/> if <paramref name="store"/> is <c>null</c>.
-        /// </summary>
-        /// <param name="amount">The source amount to exchange</param>
-        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store.</param>
-        /// <returns>The exchanged amount.</returns>
-        Money ConvertToExchangeRateCurrency(Money amount, Store store = null);
+        /// <remarks>The setter is for testing purposes only.</remarks>
+        Currency PrimaryExchangeCurrency { get; }
 
         /// <summary>
         /// Exchanges given <see cref="Money"/> amount to <see cref="IWorkContext.WorkingCurrency"/>,
-        /// using <see cref="Store.PrimaryExchangeRateCurrency"/> as exchange rate currency.
+        /// using <see cref="PrimaryExchangeCurrency"/> as exchange rate currency.
         /// </summary>
         /// <param name="amount">The source amount to exchange</param>
-        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store's <see cref="Store.PrimaryExchangeRateCurrency"/>.</param>
         /// <returns>The exchanged amount.</returns>
-        Money ConvertToWorkingCurrency(Money amount, Store store = null);
+        Money ConvertToWorkingCurrency(Money amount);
 
         /// <summary>
-        /// Exchanges given money amount (which is assumed to be in <see cref="Store.PrimaryStoreCurrency"/>) to <see cref="IWorkContext.WorkingCurrency"/>,
-        /// using <see cref="Store.PrimaryExchangeRateCurrency"/> as exchange rate currency.
+        /// Exchanges given money amount (which is assumed to be in <see cref="PrimaryCurrency"/>) to <see cref="IWorkContext.WorkingCurrency"/>,
+        /// using <see cref="PrimaryExchangeCurrency"/> as exchange rate currency.
         /// </summary>
-        /// <param name="amount">The source amount to exchange (should be in <see cref="Store.PrimaryStoreCurrency"/>).</param>
-        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store's <see cref="Store.PrimaryExchangeRateCurrency"/>.</param>
+        /// <param name="amount">The source amount to exchange (should be in <see cref="PrimaryCurrency"/>).</param>
         /// <returns>The exchanged amount.</returns>
-        Money ConvertToWorkingCurrency(decimal amount, Store store = null);
-
-        /// <summary>
-        /// Exchanges given <see cref="Money"/> amount to <paramref name="targetCurrency"/>,
-        /// using <see cref="Store.PrimaryExchangeRateCurrency"/> as exchange rate currency.
-        /// </summary>
-        /// <param name="amount">The source amount to exchange.</param>
-        /// <param name="targetCurrency">The target currency to exchange amount to.</param>
-        /// <param name="store">Store instance or <c>null</c> to auto-resolve current store's <see cref="Store.PrimaryExchangeRateCurrency"/>.</param>
-        /// <returns>The exchanged amount.</returns>
-        Money ConvertToCurrency(Money amount, Currency targetCurrency, Store store = null);
+        Money ConvertToWorkingCurrency(decimal amount);
 
         /// <summary>
         /// Gets currency live rates

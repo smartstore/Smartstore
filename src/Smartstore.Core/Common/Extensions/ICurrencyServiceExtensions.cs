@@ -8,6 +8,61 @@ namespace Smartstore
 {
     public static class ICurrencyServiceExtensions
     {
+        #region Conversion
+
+        /// <summary>
+        /// Exchanges given <see cref="Money"/> amount to <see cref="ICurrencyService.PrimaryCurrency"/>.
+        /// </summary>
+        /// <param name="amount">The source amount to exchange</param>
+        /// <returns>The exchanged amount.</returns>
+        public static Money ConvertToPrimaryCurrency(this ICurrencyService service, Money amount)
+        {
+            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+            return amount.ExchangeTo(service.PrimaryCurrency, service.PrimaryExchangeCurrency);
+        }
+
+        /// <summary>
+        /// Exchanges given money amount (which is assumed to be in <see cref="ICurrencyService.PrimaryCurrency"/>) to <paramref name="toCurrency"/>,
+        /// using <see cref="ICurrencyService.PrimaryExchangeCurrency"/> as exchange rate currency.
+        /// </summary>
+        /// <param name="amount">The source amount to exchange (should be in <see cref="ICurrencyService.PrimaryCurrency"/>).</param>
+        /// <returns>The exchanged amount in <paramref name="toCurrency"/>.</returns>
+        public static Money ConvertFromPrimaryCurrency(this ICurrencyService service, decimal amount, Currency toCurrency)
+        {
+            Guard.NotNull(toCurrency, nameof(toCurrency));
+            return new Money(amount, service.PrimaryCurrency).ExchangeTo(toCurrency, service.PrimaryExchangeCurrency);
+        }
+
+        /// <summary>
+        /// Exchanges given <see cref="Money"/> amount to <see cref="ICurrencyService.PrimaryExchangeCurrency"/>.
+        /// </summary>
+        /// <param name="amount">The source amount to exchange</param>
+        /// <returns>The exchanged amount.</returns>
+        public static Money ConvertToExchangeRateCurrency(this ICurrencyService service, Money amount)
+        {
+            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+            return amount.ExchangeTo(service.PrimaryExchangeCurrency);
+        }
+
+        /// <summary>
+        /// Exchanges given <see cref="Money"/> amount to <paramref name="targetCurrency"/>,
+        /// using <see cref="ICurrencyService.PrimaryExchangeCurrency"/> as exchange rate currency.
+        /// </summary>
+        /// <param name="amount">The source amount to exchange.</param>
+        /// <param name="targetCurrency">The target currency to exchange amount to.</param>
+        /// <returns>The exchanged amount.</returns>
+        public static Money ConvertToCurrency(this ICurrencyService service, Money amount, Currency targetCurrency)
+        {
+            Guard.NotNull(amount.Currency, nameof(amount.Currency));
+            Guard.NotNull(targetCurrency, nameof(targetCurrency));
+
+            return amount.ExchangeTo(targetCurrency, service.PrimaryExchangeCurrency);
+        }
+
+        #endregion
+
+        #region Tax
+
         /// <summary>
         ///     Applies a tax formatting pattern to given <c>product</c> money <paramref name="source"/>,
         ///     e.g. "{0} *", "{0} incl. tax"
@@ -121,5 +176,7 @@ namespace Smartstore
             var format = currencyService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, PricingTarget.ShippingCharge, language);
             return source.WithPostFormat(format);
         }
+
+        #endregion
     }
 }
