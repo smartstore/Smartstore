@@ -8,17 +8,19 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 
-namespace Smartstore.Core.Catalog.Pricing
+namespace Smartstore.Core.Catalog.Products
 {
     /// <summary>
-    /// Holds cargo data to reduce database roundtrips during price calculation.
+    /// Holds cargo data to reduce database roundtrips during price calculation or long running operations (like export etc.).
     /// </summary>
-    public class PriceCalculationContext
+    public class ProductBatchContext
     {
         protected readonly List<int> _productIds = new();
         private readonly List<int> _productIdsTierPrices = new();
@@ -27,11 +29,13 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly List<int> _groupedProductIds = new();
 
         protected readonly SmartDbContext _db;
+        protected readonly IProductService _productService;
         protected readonly ICategoryService _categoryService;
         protected readonly IManufacturerService _manufacturerService;
         protected readonly Store _store;
         protected readonly Customer _customer;
         protected readonly bool _includeHidden;
+        protected readonly int? _maxMediaPerProduct;
 
         private LazyMultimap<ProductVariantAttribute> _attributes;
         private LazyMultimap<ProductVariantAttributeCombination> _attributeCombinations;
@@ -41,24 +45,31 @@ namespace Smartstore.Core.Catalog.Pricing
         private LazyMultimap<Discount> _appliedDiscounts;
         private LazyMultimap<ProductBundleItem> _productBundleItems;
         private LazyMultimap<Product> _associatedProducts;
+        private LazyMultimap<ProductMediaFile> _productMediaFiles;
+        private LazyMultimap<ProductTag> _productTags;
+        private LazyMultimap<ProductSpecificationAttribute> _specificationAttributes;
+        private LazyMultimap<Download> _downloads;
 
-        public PriceCalculationContext(
+        public ProductBatchContext(
             IEnumerable<Product> products,
             ICommonServices services,
             Store store,
             Customer customer,
-            bool includeHidden)
+            bool includeHidden,
+            int? maxMediaPerProduct = null)
         {
             Guard.NotNull(services, nameof(services));
             Guard.NotNull(store, nameof(store));
             Guard.NotNull(customer, nameof(customer));
 
             _db = services.DbContext;
+            _productService = services.Resolve<IProductService>();
             _categoryService = services.Resolve<ICategoryService>();
             _manufacturerService = services.Resolve<IManufacturerService>();
             _store = store;
             _customer = customer;
             _includeHidden = includeHidden;
+            _maxMediaPerProduct = maxMediaPerProduct;
 
             if (products != null)
             {
@@ -120,6 +131,30 @@ namespace Smartstore.Core.Catalog.Pricing
                 new LazyMultimap<Product>(keys => LoadAssociatedProducts(keys), _groupedProductIds);
         }
 
+        public LazyMultimap<ProductMediaFile> ProductMediaFiles
+        {
+            get => _productMediaFiles ??=
+                new LazyMultimap<ProductMediaFile>(keys => LoadProductMediaFiles(keys), _productIds);
+        }
+
+        public LazyMultimap<ProductTag> ProductTags
+        {
+            get => _productTags ??=
+                new LazyMultimap<ProductTag>(keys => LoadProductTags(keys), _productIds);
+        }
+
+        public LazyMultimap<ProductSpecificationAttribute> SpecificationAttributes
+        {
+            get => _specificationAttributes ??=
+                new LazyMultimap<ProductSpecificationAttribute>(keys => LoadSpecificationAttributes(keys), _productIds);
+        }
+
+        public LazyMultimap<Download> Downloads
+        {
+            get => _downloads ??=
+                new LazyMultimap<Download>(keys => LoadDownloads(keys), _productIds);
+        }
+
         public virtual void Collect(IEnumerable<int> productIds)
         {
             Attributes.Collect(productIds);
@@ -141,9 +176,12 @@ namespace Smartstore.Core.Catalog.Pricing
             _appliedDiscounts?.Clear();
             _productBundleItems?.Clear();
             _associatedProducts?.Clear();
-
             _bundledProductIds?.Clear();
             _groupedProductIds?.Clear();
+            _productMediaFiles?.Clear();
+            _productTags?.Clear();
+            _specificationAttributes?.Clear();
+            _downloads?.Clear();
         }
 
         #region Protected factories
@@ -248,6 +286,45 @@ namespace Smartstore.Core.Catalog.Pricing
                 .ToListAsync();
 
             return associatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, ProductMediaFile>> LoadProductMediaFiles(int[] ids)
+        {
+            var files = await _db.ProductMediaFiles
+                .AsNoTracking()
+                .ApplyProductFilter(ids, _maxMediaPerProduct)
+                .ToListAsync();
+
+            return files.ToMultimap(x => x.ProductId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, ProductTag>> LoadProductTags(int[] ids)
+        {
+            return await _productService.GetProductTagsByProductIdsAsync(ids, _includeHidden);
+        }
+
+        protected virtual async Task<Multimap<int, ProductSpecificationAttribute>> LoadSpecificationAttributes(int[] ids)
+        {
+            var attributes = await _db.ProductSpecificationAttributes
+                .AsNoTracking()
+                .Include(x => x.SpecificationAttributeOption)
+                .ThenInclude(x => x.SpecificationAttribute)
+                .ApplyProductsFilter(ids)
+                .ToListAsync();
+
+            return attributes.ToMultimap(x => x.ProductId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, Download>> LoadDownloads(int[] ids)
+        {
+            var downloads = await _db.Downloads
+                .AsNoTracking()
+                .Include(x => x.MediaFile)
+                .ApplyEntityFilter(nameof(Product), ids)
+                .OrderBy(x => x.FileVersion)
+                .ToListAsync();
+
+            return downloads.ToMultimap(x => x.EntityId, x => x);
         }
 
         #endregion

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
@@ -23,7 +24,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// <param name="maxMediaPerProduct">Media files per product, <c>null</c> to load all files per product.</param>
         /// <param name="includeHidden">A value indicating whether to include hidden records.</param>
         /// <returns>Product export context</returns>
-        ProductExportContext CreateProductExportContext(
+        ProductBatchContext CreateProductBatchContext(
             IEnumerable<Product> products = null,
             Customer customer = null,
             Store store = null,

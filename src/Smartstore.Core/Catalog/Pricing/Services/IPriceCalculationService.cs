@@ -38,7 +38,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="customer">Customer.</param>
         /// <param name="context">Price calculation service. Will be created, if <c>null</c>.</param>
         /// <returns></returns>
-        Task<Money> GetPreselectedPriceAsync(Product product, Customer customer, PriceCalculationContext context);
+        Task<Money> GetPreselectedPriceAsync(Product product, Customer customer, ProductBatchContext context);
 
         /// <summary>
         /// Gets the lowest possible price for a product.
@@ -47,7 +47,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="customer">Customer.</param>
         /// <param name="context">Price calculation service. Will be created, if <c>null</c>.</param>
         /// <returns>Lowest price.</returns>
-        Task<(Money LowestPrice, bool DisplayFromMessage)> GetLowestPriceAsync(Product product, Customer customer, PriceCalculationContext context);
+        Task<(Money LowestPrice, bool DisplayFromMessage)> GetLowestPriceAsync(Product product, Customer customer, ProductBatchContext context);
 
         /// <summary>
         /// Gets the lowest price and lowest price product of a grouped product.
@@ -60,7 +60,7 @@ namespace Smartstore.Core.Catalog.Pricing
         Task<(Money? LowestPrice, Product LowestPriceProduct)> GetLowestPriceAsync(
             Product product,
             Customer customer,
-            PriceCalculationContext context,
+            ProductBatchContext context,
             IEnumerable<Product> associatedProducts);
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Smartstore.Core.Catalog.Pricing
             bool includeDiscounts = true,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
-            PriceCalculationContext context = null,
+            ProductBatchContext context = null,
             bool isTierPrice = false);
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace Smartstore.Core.Catalog.Pricing
             bool includeDiscounts = true,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
-            PriceCalculationContext context = null);
+            ProductBatchContext context = null);
 
         /// <summary>
         /// Gets the discount amount.
@@ -124,7 +124,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Customer customer = null,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
-            PriceCalculationContext context = null,
+            ProductBatchContext context = null,
             Money? finalPrice = null);
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Smartstore.Core.Catalog.Pricing
             ProductVariantAttributeValue attributeValue,
             Product product,
             Customer customer,
-            PriceCalculationContext context,
+            ProductBatchContext context,
             int quantity = 1);
 
         /// <summary>

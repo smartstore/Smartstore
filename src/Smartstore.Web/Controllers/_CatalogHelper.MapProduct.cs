@@ -13,7 +13,6 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -22,7 +21,6 @@ using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Diagnostics;
 using Smartstore.Domain;
-using Smartstore.Events;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Media;
@@ -246,7 +244,7 @@ namespace Smartstore.Web.Controllers
                 }
 
                 // Run in uncommitting scope, because pictures could be updated (IsNew property) 
-                var batchContext = _dataExporter.Value.CreateProductExportContext(products, customer, null, 1, false);
+                var batchContext = _dataExporter.Value.CreateProductBatchContext(products, customer, null, 1, false);
 
                 if (settings.MapPrices)
                 {
@@ -644,7 +642,7 @@ namespace Smartstore.Web.Controllers
                         .ThenBy(x => x.DisplayOrder);
 
                     ctx.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
-                    ctx.AssociatedProductBatchContext = _dataExporter.Value.CreateProductExportContext(allAssociatedProducts, ctx.Customer, null, null, false);
+                    ctx.AssociatedProductBatchContext = _dataExporter.Value.CreateProductBatchContext(allAssociatedProducts, ctx.Customer, null, null, false);
                 }
 
                 associatedProducts = ctx.GroupedProducts[product.Id];
@@ -815,8 +813,8 @@ namespace Smartstore.Web.Controllers
         {
             public ProductSummaryModel Model { get; set; }
             public ProductSummaryMappingSettings Settings { get; set; }
-            public ProductExportContext BatchContext { get; set; }
-            public ProductExportContext AssociatedProductBatchContext { get; set; }
+            public ProductBatchContext BatchContext { get; set; }
+            public ProductBatchContext AssociatedProductBatchContext { get; set; }
             public Multimap<int, Product> GroupedProducts { get; set; }
             public Dictionary<int, BrandOverviewModel> CachedBrandModels { get; set; }
             public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = new Dictionary<int, MediaFileInfo>();

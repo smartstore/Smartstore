@@ -113,13 +113,13 @@ namespace Smartstore.Core.Catalog.Pricing
             return new(productCost, _primaryCurrency);
         }
 
-        public virtual async Task<Money> GetPreselectedPriceAsync(Product product, Customer customer, PriceCalculationContext context)
+        public virtual async Task<Money> GetPreselectedPriceAsync(Product product, Customer customer, ProductBatchContext context)
         {
             Guard.NotNull(product, nameof(product));
 
             var result = decimal.Zero;
 
-            context ??= new PriceCalculationContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
+            context ??= new ProductBatchContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
 
             if (product.ProductType == ProductType.BundledProduct)
             {
@@ -146,7 +146,7 @@ namespace Smartstore.Core.Catalog.Pricing
             return new(result, _primaryCurrency);
         }
 
-        public virtual async Task<(Money LowestPrice, bool DisplayFromMessage)> GetLowestPriceAsync(Product product, Customer customer, PriceCalculationContext context)
+        public virtual async Task<(Money LowestPrice, bool DisplayFromMessage)> GetLowestPriceAsync(Product product, Customer customer, ProductBatchContext context)
         {
             Guard.NotNull(product, nameof(product));
 
@@ -156,7 +156,7 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             // Note, attribute price adjustments will not be taken into account here.
-            context ??= new PriceCalculationContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
+            context ??= new ProductBatchContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
 
             var isBundlePerItemPricing = product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing;
             var lowestPrice = await GetFinalPriceAmountAsync(product, null, decimal.Zero, customer, true, int.MaxValue, null, context);
@@ -196,7 +196,7 @@ namespace Smartstore.Core.Catalog.Pricing
         public virtual async Task<(Money? LowestPrice, Product LowestPriceProduct)> GetLowestPriceAsync(
             Product product,
             Customer customer,
-            PriceCalculationContext context,
+            ProductBatchContext context,
             IEnumerable<Product> associatedProducts)
         {
             Guard.NotNull(product, nameof(product));
@@ -210,7 +210,7 @@ namespace Smartstore.Core.Catalog.Pricing
             decimal? lowestPrice = null;
             Product lowestPriceProduct = null;
 
-            context ??= new PriceCalculationContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
+            context ??= new ProductBatchContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
 
             foreach (var associatedProduct in associatedProducts)
             {
@@ -244,7 +244,7 @@ namespace Smartstore.Core.Catalog.Pricing
             bool includeDiscounts = true,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
-            PriceCalculationContext context = null,
+            ProductBatchContext context = null,
             bool isTierPrice = false)
         {
             return new(await GetFinalPriceAmountAsync(
@@ -267,7 +267,7 @@ namespace Smartstore.Core.Catalog.Pricing
             bool includeDiscounts = true,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
-            PriceCalculationContext context = null)
+            ProductBatchContext context = null)
         {
             return new(await GetFinalPriceAmountAsync(
                 product,
@@ -286,7 +286,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Customer customer = null,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
-            PriceCalculationContext context = null,
+            ProductBatchContext context = null,
             Money? finalPrice = null)
         {
             var (discountAmount, appliedDiscount) = await GetDiscountAmountAsync(
@@ -306,7 +306,7 @@ namespace Smartstore.Core.Catalog.Pricing
             ProductVariantAttributeValue attributeValue,
             Product product,
             Customer customer,
-            PriceCalculationContext context,
+            ProductBatchContext context,
             int quantity = 1)
         {
             return new(await GetVariantPriceAdjustmentAsync(attributeValue, product, customer, context, quantity), _primaryCurrency);
@@ -401,7 +401,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         #region Utilities
 
-        private async Task<IEnumerable<TierPrice>> LoadTierPrices(Product product, Customer customer, PriceCalculationContext context = null)
+        private async Task<IEnumerable<TierPrice>> LoadTierPrices(Product product, Customer customer, ProductBatchContext context = null)
         {
             IEnumerable<TierPrice> result = null;
 
@@ -428,7 +428,7 @@ namespace Smartstore.Core.Catalog.Pricing
             return result ?? Enumerable.Empty<TierPrice>();
         }
 
-        protected virtual async Task<ICollection<Discount>> GetAllowedDiscountsAsync(Product product, Customer customer, PriceCalculationContext context = null)
+        protected virtual async Task<ICollection<Discount>> GetAllowedDiscountsAsync(Product product, Customer customer, ProductBatchContext context = null)
         {
             var result = new HashSet<Discount>();
 
@@ -546,7 +546,7 @@ namespace Smartstore.Core.Catalog.Pricing
             return result;
         }
 
-        protected virtual async Task<decimal?> GetMinimumTierPriceAsync(Product product, Customer customer, int quantity, PriceCalculationContext context = null)
+        protected virtual async Task<decimal?> GetMinimumTierPriceAsync(Product product, Customer customer, int quantity, ProductBatchContext context = null)
         {
             if (!product.HasTierPrices)
             {
@@ -583,7 +583,7 @@ namespace Smartstore.Core.Catalog.Pricing
             return result;
         }
 
-        protected virtual async Task<decimal> GetTierPriceAttributeAdjustmentAsync(Product product, Customer customer, int quantity, PriceCalculationContext context = null, decimal adjustment = 0)
+        protected virtual async Task<decimal> GetTierPriceAttributeAdjustmentAsync(Product product, Customer customer, int quantity, ProductBatchContext context = null, decimal adjustment = 0)
         {
             var result = decimal.Zero;
             var tierPrices = await LoadTierPrices(product, customer, context);
@@ -614,7 +614,7 @@ namespace Smartstore.Core.Catalog.Pricing
         protected virtual async Task<decimal> GetPreselectedPriceAmountAsync(
             Product product,
             Customer customer,
-            PriceCalculationContext context,
+            ProductBatchContext context,
             ProductBundleItemData bundleItem,
             IEnumerable<ProductBundleItemData> bundleItems)
         {
@@ -775,7 +775,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Customer customer = null,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
-            PriceCalculationContext context = null,
+            ProductBatchContext context = null,
             decimal? finalPrice = null)
         {
             Guard.NotNull(product, nameof(product));
@@ -827,7 +827,7 @@ namespace Smartstore.Core.Catalog.Pricing
             ProductVariantAttributeValue attributeValue,
             Product product,
             Customer customer,
-            PriceCalculationContext context,
+            ProductBatchContext context,
             int quantity = 1)
         {
             Guard.NotNull(attributeValue, nameof(attributeValue));
@@ -865,7 +865,7 @@ namespace Smartstore.Core.Catalog.Pricing
             bool includeDiscounts = true,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
-            PriceCalculationContext context = null,
+            ProductBatchContext context = null,
             bool isTierPrice = false)
         {
             Guard.NotNull(product, nameof(product));
@@ -927,7 +927,7 @@ namespace Smartstore.Core.Catalog.Pricing
             bool includeDiscounts = true,
             int quantity = 1,
             ProductBundleItemData bundleItem = null,
-            PriceCalculationContext context = null)
+            ProductBatchContext context = null)
         {
             Guard.NotNull(product, nameof(product));
 

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
@@ -53,14 +54,14 @@ namespace Smartstore.Core.DataExchange.Export
             _catalogSettings = catalogSettings;
         }
 
-        public virtual ProductExportContext CreateProductExportContext(
+        public virtual ProductBatchContext CreateProductBatchContext(
             IEnumerable<Product> products = null,
             Customer customer = null,
             Store store = null,
             int? maxMediaPerProduct = null,
             bool includeHidden = true)
         {
-            return new ProductExportContext(
+            return new ProductBatchContext(
                 products,
                 _services,
                 store ?? _storeContext.CurrentStore,
