@@ -20,7 +20,6 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Localization;
-using System.Diagnostics.Contracts;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
