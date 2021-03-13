@@ -493,7 +493,7 @@ namespace Smartstore.Core.Catalog.Rules
 
             descriptors
                 .Where(x => x.RuleType == RuleType.Money)
-                .Each(x => x.Metadata["postfix"] = _services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode);
+                .Each(x => x.Metadata["postfix"] = _services.CurrencyService.PrimaryCurrency.CurrencyCode);
 
             return descriptors.Cast<RuleDescriptor>();
         }

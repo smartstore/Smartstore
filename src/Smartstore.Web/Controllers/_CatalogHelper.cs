@@ -187,8 +187,6 @@ namespace Smartstore.Web.Controllers
                     .ToDictionarySafe(x => x.Id);
             }
 
-            //var files = _mediaService.GetFilesByIds(fileIds).ToDictionarySafe(x => x.Id);
-
             foreach (var pm in brands)
             {
                 var manufacturer = pm.Manufacturer;
@@ -205,7 +203,7 @@ namespace Smartstore.Web.Controllers
 
                     if (withPicture)
                     {
-                        item.Image = await PrepareBrandPictureModelAsync(manufacturer, item.Name, mediaFileLookup);
+                        item.Image = await PrepareBrandImageModelAsync(manufacturer, item.Name, mediaFileLookup);
                     }
 
                     cachedModels.Add(item.Id, item);
@@ -217,7 +215,7 @@ namespace Smartstore.Web.Controllers
             return model;
         }
 
-        public async Task<ImageModel> PrepareBrandPictureModelAsync(Manufacturer brand, string localizedName, IDictionary<int, MediaFileInfo> fileLookup = null)
+        public async Task<ImageModel> PrepareBrandImageModelAsync(Manufacturer brand, string localizedName, IDictionary<int, MediaFileInfo> fileLookup = null)
         {
             MediaFileInfo file;
 
@@ -440,11 +438,164 @@ namespace Smartstore.Web.Controllers
             }
         }
 
+        public async Task<ImageModel> PrepareCategoryImageModelAsync(Category category, string localizedName, IDictionary<int, MediaFileInfo> fileLookup = null)
+        {
+            MediaFileInfo file;
+
+            if (fileLookup != null)
+            {
+                fileLookup.TryGetValue(category.MediaFileId ?? 0, out file);
+            }
+            else
+            {
+                file = await _mediaService.GetFileByIdAsync(category.MediaFileId ?? 0, MediaLoadFlags.AsNoTracking);
+            }
+
+            var model = new ImageModel
+            {
+                File = file,
+                ThumbSize = _mediaSettings.CategoryThumbPictureSize,
+                Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? string.Format(T("Media.Category.ImageLinkTitleFormat"), localizedName),
+                Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? string.Format(T("Media.Category.ImageAlternateTextFormat"), localizedName),
+                NoFallback = _catalogSettings.HideCategoryDefaultPictures
+            };
+
+            _services.DisplayControl.Announce(file?.File);
+
+            return model;
+        }
+
         #endregion
 
         #region Product
 
-        // ...
+        public async Task<List<ProductSpecificationModel>> PrepareProductSpecificationModelAsync(Product product)
+        {
+            Guard.NotNull(product, nameof(product));
+
+            string cacheKey = string.Format(ModelCacheInvalidator.PRODUCT_SPECS_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id);
+            return await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
+            {
+                var attrs = await _db.ProductSpecificationAttributes
+                    .AsNoTracking()
+                    .ApplyProductsFilter(new[] { product.Id }, null, true)
+                    .Include(x => x.SpecificationAttributeOption)
+                    .ThenInclude(x => x.SpecificationAttribute)
+                    .ToListAsync();
+
+                return attrs
+                    .Select(x => new ProductSpecificationModel
+                    {
+                        SpecificationAttributeId = x.SpecificationAttributeOption.SpecificationAttributeId,
+                        SpecificationAttributeName = x.SpecificationAttributeOption.SpecificationAttribute.GetLocalized(x => x.Name),
+                        SpecificationAttributeOption = x.SpecificationAttributeOption.GetLocalized(x => x.Name)
+                    })
+                    .ToList();
+            });
+        }
+
+        public async Task<List<ProductDetailsModel.TierPriceModel>> CreateTierPriceModelAsync(Product product, decimal adjustment = decimal.Zero)
+        {
+            var model = await product.TierPrices
+                .OrderBy(x => x.Quantity)
+                .FilterByStore(_services.StoreContext.CurrentStore.Id)
+                .FilterForCustomer(_services.WorkContext.CurrentCustomer)
+                .ToList()
+                .RemoveDuplicatedQuantities()
+                .SelectAsync(async (tierPrice) =>
+                {
+                    var m = new ProductDetailsModel.TierPriceModel
+                    {
+                        Quantity = tierPrice.Quantity,
+                    };
+
+                    if (adjustment != 0 && tierPrice.CalculationMethod == TierPriceCalculationMethod.Percental && _catalogSettings.ApplyTierPricePercentageToAttributePriceAdjustments)
+                    {
+                        adjustment -= (adjustment / 100 * tierPrice.Price);
+                    }
+                    else
+                    {
+                        adjustment = decimal.Zero;
+                    }
+                    
+                    var adjustmentAmount = adjustment == 0 ? (Money?)null : new Money(adjustment, _currencyService.PrimaryCurrency);
+                    var priceBase = default(Money);
+                    var taxRate = decimal.Zero;
+                    var finalPriceBase = await _priceCalculationService.GetFinalPriceAsync(product,
+                        adjustmentAmount, 
+                        _services.WorkContext.CurrentCustomer, 
+                        _catalogSettings.DisplayTierPricesWithDiscounts, 
+                        tierPrice.Quantity, null, null, true);
+
+                    (priceBase, taxRate) = await _taxService.GetProductPriceAsync(product, finalPriceBase);
+                    m.Price = _currencyService.ConvertToWorkingCurrency(priceBase);
+
+                    return m;
+                })
+                .AsyncToList();
+
+            return model;
+        }
+
+        public async Task PrepareProductReviewsModelAsync(ProductReviewsModel model, Product product, int take = int.MaxValue)
+        {
+            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(model, nameof(model));
+
+            model.ProductId = product.Id;
+            model.ProductName = product.GetLocalized(x => x.Name);
+            model.ProductSeName = await product.GetActiveSlugAsync();
+
+            var query = _db.Entry(product).Collection(x => x.ProductReviews).Query()
+                .Where(x => x.IsApproved)
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.CustomerContent)
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings.Select(c => c.Customer));
+
+            model.TotalReviewsCount = await query.CountAsync();
+
+            var reviews = await query
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .Take(take)
+                .ToListAsync();
+
+            foreach (var review in reviews)
+            {
+                model.Items.Add(new ProductReviewModel
+                {
+                    Id = review.Id,
+                    CustomerId = review.CustomerId,
+                    CustomerName = review.Customer.FormatUserName(),
+                    AllowViewingProfiles = _customerSettings.AllowViewingProfiles && review.Customer != null && !review.Customer.IsGuest(),
+                    Title = review.Title,
+                    ReviewText = review.ReviewText,
+                    Rating = review.Rating,
+                    Helpfulness = new ProductReviewHelpfulnessModel
+                    {
+                        ProductReviewId = review.Id,
+                        HelpfulYesTotal = review.HelpfulYesTotal,
+                        HelpfulNoTotal = review.HelpfulNoTotal,
+                    },
+                    WrittenOnStr = _dateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc).ToString("D"),
+                    WrittenOn = review.CreatedOnUtc
+                });
+            }
+
+            model.CanCurrentCustomerLeaveReview = _catalogSettings.AllowAnonymousUsersToReviewProduct || !_services.WorkContext.CurrentCustomer.IsGuest();
+            model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnProductReviewPage;
+        }
+
+        private MediaFileInfo PrepareMediaFileInfo(MediaFileInfo file, MediaGalleryModel model)
+        {
+            file.Alt = file.File.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? model.DefaultAlt;
+            file.TitleAttribute = file.File.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? model.ModelName;
+
+            _services.DisplayControl.Announce(file.File);
+
+            // Return for chaining
+            return file;
+        }
 
         #endregion
     }

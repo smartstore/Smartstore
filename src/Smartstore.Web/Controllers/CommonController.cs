@@ -87,7 +87,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [LocalizedRoute("/currency-selected/{customerCurrency:int}", Name = "ChangeCurrency")]
-        public async Task<IActionResult> CurrencySelected(int customerCurrency, string returnUrl = "")
+        public async Task<IActionResult> CurrencySelected(int customerCurrency, string returnUrl = null)
         {
             var currency = await _db.Currencies.FindByIdAsync(customerCurrency);
             if (currency != null)

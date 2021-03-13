@@ -13,6 +13,7 @@ namespace Smartstore.Core.Stores
     {
         public void Configure(EntityTypeBuilder<Store> builder)
         {
+            // TODO: (mg) (core) Refactor. A currency on store level should just act working currency preselection.
             builder
                 .HasOne(x => x.PrimaryStoreCurrency)
                 .WithMany()

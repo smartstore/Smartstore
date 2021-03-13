@@ -29,10 +29,15 @@ namespace Smartstore.Web.Components
             get => _localizer ??= HttpContext.RequestServices.GetRequiredService<IText>().Get;
         }
 
-        public ICommonServices Services 
+        public ICommonServices Services
         {
             get => _services ??= HttpContext.RequestServices.GetRequiredService<ICommonServices>();
         }
+
+        /// <summary>
+        /// Gets a value indicating whether view rendering events should be published.
+        /// </summary>
+        protected virtual bool PublishEvents { get; } = true;
 
         #region Results
 
@@ -65,8 +70,11 @@ namespace Smartstore.Web.Components
 
         private void PublishResultExecutingEvent(ViewViewComponentResult result) 
         {
-            // Give integrators the chance to react component rendering.
-            Services.EventPublisher.Publish(new ViewComponentResultExecutingEvent(ViewComponentContext, result));
+            // Give integrators the chance to react to component rendering.
+            if (PublishEvents)
+            {
+                Services.EventPublisher.Publish(new ViewComponentResultExecutingEvent(ViewComponentContext, result));
+            }
         }
 
         #endregion

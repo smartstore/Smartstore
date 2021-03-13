@@ -5,9 +5,9 @@ using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
@@ -16,11 +16,10 @@ namespace Smartstore.Core.Checkout.GiftCards
         private readonly SmartDbContext _db;
         private readonly Currency _primaryCurrency;
 
-        public GiftCardService(SmartDbContext db, IStoreContext storeContext)
+        public GiftCardService(SmartDbContext db, ICurrencyService currencyService)
         {
             _db = db;
-
-            _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
+            _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
         public virtual Task<List<AppliedGiftCard>> GetValidGiftCardsAsync(int storeId = 0, Customer customer = null)

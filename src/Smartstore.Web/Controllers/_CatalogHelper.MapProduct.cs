@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Smartstore.Caching.OutputCache;
 using Smartstore.Collections;
@@ -305,7 +306,7 @@ namespace Smartstore.Web.Controllers
                 {
                     BatchContext = batchContext,
                     CachedBrandModels = cachedBrandModels,
-                    PrimaryCurrency = store.PrimaryStoreCurrency,
+                    PrimaryCurrency = _currencyService.PrimaryCurrency,
                     WorkingCurrency = currency,
                     LegalInfo = legalInfo,
                     Model = model,
@@ -420,8 +421,7 @@ namespace Smartstore.Web.Controllers
                                 AttributeId = x.ProductVariantAttributeId,
                                 AttributeName = attrName,
                                 ProductAttributeId = attr.Id,
-                                //// TODO: (core) Uncomment
-                                //ProductUrl = await _productUrlHelper.GetProductUrlAsync(product.Id, item.SeName, 0, x)
+                                ProductUrl = _productUrlHelper.GetProductUrl(product.Id, item.SeName, 0, x)
                             };
                         })
                         .ToList();
@@ -797,14 +797,16 @@ namespace Smartstore.Web.Controllers
 
         #region Utils
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Money ToWorkingCurrency(decimal amount, MapProductSummaryItemContext ctx, bool showCurrency = true)
         {
-            return _currencyService.ConvertToCurrency(new Money(amount, ctx.PrimaryCurrency, !showCurrency), ctx.WorkingCurrency, ctx.Store);
+            return _currencyService.ConvertToCurrency(new Money(amount, ctx.PrimaryCurrency, !showCurrency), ctx.WorkingCurrency);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Money ToWorkingCurrency(Money amount, MapProductSummaryItemContext ctx)
         {
-            return _currencyService.ConvertToCurrency(amount, ctx.WorkingCurrency, ctx.Store);
+            return _currencyService.ConvertToCurrency(amount, ctx.WorkingCurrency);
         }
 
         #endregion
