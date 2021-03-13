@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Core;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Events;
 
 namespace Smartstore.Web.Components
 {
@@ -35,8 +36,38 @@ namespace Smartstore.Web.Components
 
         #region Results
 
+        /// <inheritdoc/>
+        public new ViewViewComponentResult View<TModel>(string viewName, TModel model)
+        {
+            var result = base.View<TModel>(viewName, model);
+            PublishResultExecutingEvent(result);
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public new ViewViewComponentResult View<TModel>(TModel model)
+        {
+            var result = base.View<TModel>(model);
+            PublishResultExecutingEvent(result);
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public new ViewViewComponentResult View(string viewName)
+        {
+            var result = base.View(viewName);
+            PublishResultExecutingEvent(result);
+            return result;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected IViewComponentResult Empty() => _emptyResult;
+
+        private void PublishResultExecutingEvent(ViewViewComponentResult result) 
+        {
+            // Give integrators the chance to react component rendering.
+            Services.EventPublisher.Publish(new ViewComponentResultExecutingEvent(ViewComponentContext, result));
+        }
 
         #endregion
 
