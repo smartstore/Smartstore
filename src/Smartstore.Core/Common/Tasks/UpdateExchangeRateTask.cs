@@ -41,35 +41,23 @@ namespace Smartstore.Core.Common.Services
             if (!_currencySettings.AutoUpdateEnabled)
                 return;
 
-            long lastUpdateTimeTicks = _currencySettings.LastUpdateTime;
-            DateTime lastUpdateTime = DateTime.FromBinary(lastUpdateTimeTicks);
-            lastUpdateTime = DateTime.SpecifyKind(lastUpdateTime, DateTimeKind.Utc);
+            var exchangeRates = await _currencyService
+                .GetCurrencyLiveRatesAsync(_storeContext.CurrentStore.PrimaryExchangeRateCurrency.CurrencyCode);
 
-            // Don't update currencies if last execution time is less then an hour in the past.
-            if (lastUpdateTime.AddHours(1) < DateTime.UtcNow)
+            var currencyCodes = exchangeRates.Select(x => x.CurrencyCode).Distinct().ToArray();
+            var currencies = await _db.Currencies
+                .Where(x => currencyCodes.Contains(x.CurrencyCode))
+                .ToDictionaryAsync(x => x.CurrencyCode, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var exchageRate in exchangeRates)
             {
-                var exchangeRates = await _currencyService
-                    .GetCurrencyLiveRatesAsync(_storeContext.CurrentStore.PrimaryExchangeRateCurrency.CurrencyCode);
-
-                var currencyCodes = exchangeRates.Select(x => x.CurrencyCode).Distinct().ToArray();
-                var currencies = await _db.Currencies
-                    .Where(x => currencyCodes.Contains(x.CurrencyCode))
-                    .ToDictionaryAsync(x => x.CurrencyCode, StringComparer.OrdinalIgnoreCase);
-
-                foreach (var exchageRate in exchangeRates)
+                if (currencies.TryGetValue(exchageRate.CurrencyCode, out var currency) && currency.Rate != exchageRate.Rate)
                 {
-                    if (currencies.TryGetValue(exchageRate.CurrencyCode, out var currency) && currency.Rate != exchageRate.Rate)
-                    {
-                        currency.Rate = exchageRate.Rate;
-                    }
+                    currency.Rate = exchageRate.Rate;
                 }
-
-                // Save new current date as last execution time.
-                _currencySettings.LastUpdateTime = DateTime.UtcNow.ToBinary();
-                await _settingService.ApplySettingAsync(_currencySettings, x => x.LastUpdateTime);
-
-                await _db.SaveChangesAsync(cancelToken);
             }
+
+            await _db.SaveChangesAsync(cancelToken);
         }
     }
 }
