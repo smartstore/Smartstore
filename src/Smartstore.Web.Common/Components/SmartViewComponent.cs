@@ -41,15 +41,34 @@ namespace Smartstore.Web.Components
 
         #region Results
 
-        /// <inheritdoc/>
-        public new ViewViewComponentResult View<TModel>(string viewName, TModel model)
+        /// <summary>
+        /// Returns a result which will render the partial view with name <c>&quot;Default&quot;</c>.
+        /// </summary>
+        /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
+        public new ViewViewComponentResult View()
         {
-            var result = base.View<TModel>(viewName, model);
+            var result = base.View();
             PublishResultExecutingEvent(result);
             return result;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Returns a result which will render the partial view with name <paramref name="viewName"/>.
+        /// </summary>
+        /// <param name="viewName">The name of the partial view to render.</param>
+        /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
+        public new ViewViewComponentResult View(string viewName)
+        {
+            var result = base.View(viewName);
+            PublishResultExecutingEvent(result);
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a result which will render the partial view with name <c>&quot;Default&quot;</c>.
+        /// </summary>
+        /// <param name="model">The model object for the view.</param>
+        /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
         public new ViewViewComponentResult View<TModel>(TModel model)
         {
             var result = base.View<TModel>(model);
@@ -57,10 +76,15 @@ namespace Smartstore.Web.Components
             return result;
         }
 
-        /// <inheritdoc/>
-        public new ViewViewComponentResult View(string viewName)
+        /// <summary>
+        /// Returns a result which will render the partial view with name <paramref name="viewName"/>.
+        /// </summary>
+        /// <param name="viewName">The name of the partial view to render.</param>
+        /// <param name="model">The model object for the view.</param>
+        /// <returns>A <see cref="ViewViewComponentResult"/>.</returns>
+        public new ViewViewComponentResult View<TModel>(string viewName, TModel model)
         {
-            var result = base.View(viewName);
+            var result = base.View<TModel>(viewName, model);
             PublishResultExecutingEvent(result);
             return result;
         }
