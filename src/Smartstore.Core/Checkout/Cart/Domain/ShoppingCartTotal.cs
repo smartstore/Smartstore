@@ -14,19 +14,19 @@ namespace Smartstore.Core.Checkout.Cart
             => obj.Total;
 
         /// <summary>
-        /// Total amount of the shopping cart. <c>null</c> if the cart total couldn't be calculated now.
+        /// Total amount of the shopping cart in the primary currency. <c>null</c> if the cart total couldn't be calculated now.
         /// </summary>
         public Money? Total { get; init; }
 
         /// <summary>
-        /// The amount by which the total was rounded, if rounding to the nearest multiple of denomination 
+        /// The amount by which the total was rounded in the primary currency, if rounding to the nearest multiple of denomination 
         /// (cash rounding) is activated for the currency.
         /// </summary>
         /// <example>"Schweizer Rappenrundung" of 16.23 -> <see cref="Total"/> = 16.25 and <see cref="ToNearestRounding"/> = 0.02.</example>
         public Money ToNearestRounding { get; init; }
 
         /// <summary>
-        /// Applied discount amount.
+        /// Applied discount amount in the primary currency.
         /// </summary>
         public Money DiscountAmount { get; init; }
 
@@ -41,12 +41,12 @@ namespace Smartstore.Core.Checkout.Cart
         public int RedeemedRewardPoints { get; init; }
 
         /// <summary>
-        /// Reward points amount to redeem (in primary store currency).
+        /// Reward points amount to redeem in the primary currency.
         /// </summary>
         public Money RedeemedRewardPointsAmount { get; init; }
 
         /// <summary>
-        /// Credit balance.
+        /// Credit balance in the primary currency.
         /// </summary>
         public Money CreditBalance { get; init; }
 
@@ -56,7 +56,7 @@ namespace Smartstore.Core.Checkout.Cart
         public List<AppliedGiftCard> AppliedGiftCards { get; init; }
 
         /// <summary>
-        /// Total converted from primary store currency.
+        /// Total converted from the primary currency.
         /// </summary>
         public ConvertedAmounts ConvertedAmount { get; init; }
 
@@ -67,17 +67,17 @@ namespace Smartstore.Core.Checkout.Cart
             => Total?.ToString() ?? decimal.Zero.FormatInvariant();
 
         /// <summary>
-        /// Represents converted amount of <see cref="ShoppingCartTotal.Total"/> and <see cref="ShoppingCartTotal.ToNearestRounding"/>.
+        /// Represents amount of <see cref="ShoppingCartTotal.Total"/> and <see cref="ShoppingCartTotal.ToNearestRounding"/> converted to <see cref="IWorkContext.WorkingCurrency"/>.
         /// </summary>
         public class ConvertedAmounts
         {
             /// <summary>
-            /// Converted shopping cart total amount. <c>null</c> if the cart total couldn't be calculated now.
+            /// Shopping cart total amount converted to <see cref="IWorkContext.WorkingCurrency"/>. <c>null</c> if the cart total couldn't be calculated now.
             /// </summary>
             public Money? Total { get; init; }
 
             /// <summary>
-            /// Converted amount by which the total was rounded, if rounding to the nearest multiple of denomination 
+            /// Amount by which the total was rounded converted to <see cref="IWorkContext.WorkingCurrency"/>, if rounding to the nearest multiple of denomination 
             /// (cash rounding) is activated for the currency.
             /// </summary>
             public Money ToNearestRounding { get; init; }

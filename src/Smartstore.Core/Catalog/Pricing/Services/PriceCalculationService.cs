@@ -37,6 +37,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly IDiscountService _discountService;
         private readonly CatalogSettings _catalogSettings;
         private readonly Currency _primaryCurrency;
+        private readonly Currency _workingCurrency;
 
         public PriceCalculationService(
             SmartDbContext db,
@@ -64,6 +65,7 @@ namespace Smartstore.Core.Catalog.Pricing
             _catalogSettings = catalogSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
+            _workingCurrency = workContext.WorkingCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -363,13 +365,13 @@ namespace Smartstore.Core.Catalog.Pricing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual async Task<Money> GetUnitPriceAsync(OrganizedShoppingCartItem shoppingCartItem, bool includeDiscounts)
         {
-            return _primaryCurrency.AsMoney(await GetUnitPriceAmountAsync(shoppingCartItem, includeDiscounts));
+            return new(await GetUnitPriceAmountAsync(shoppingCartItem, includeDiscounts), _primaryCurrency);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual async Task<Money> GetSubTotalAsync(OrganizedShoppingCartItem shoppingCartItem, bool includeDiscounts)
         {
-            return _primaryCurrency.AsMoney(await GetUnitPriceAmountAsync(shoppingCartItem, includeDiscounts) * shoppingCartItem.Item.Quantity);
+            return new(await GetUnitPriceAmountAsync(shoppingCartItem, includeDiscounts) * shoppingCartItem.Item.Quantity, _primaryCurrency);
         }
 
         public virtual async Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(OrganizedShoppingCartItem shoppingCartItem)
@@ -394,8 +396,9 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             var (discountAmount, appliedDiscount) = await GetDiscountAmountAsync(product, attributesTotalPrice, customer, quantity);
+            discountAmount = _workingCurrency.RoundIfEnabledFor(discountAmount * quantity);
 
-            return (_primaryCurrency.AsMoney(discountAmount * quantity), appliedDiscount);
+            return (new(discountAmount, _primaryCurrency), appliedDiscount);
         }
 
         #region Utilities
@@ -967,6 +970,7 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(shoppingCartItem, nameof(shoppingCartItem));
 
+            var finalPrice = decimal.Zero;
             var cartItem = shoppingCartItem.Item;
             var customer = cartItem.Customer;
             var product = cartItem.Product;
@@ -975,7 +979,7 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 if (product.CustomerEntersPrice)
                 {
-                    return cartItem.CustomerEnteredPrice;
+                    finalPrice = cartItem.CustomerEnteredPrice;
                 }
                 else if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
                 {
@@ -990,7 +994,7 @@ namespace Smartstore.Core.Catalog.Pricing
                             .Where(x => x.BundleItemData?.Item != null)
                             .Select(x => x.BundleItemData);
 
-                        return await GetFinalPriceAmountAsync(product, bundleItems, decimal.Zero, customer, includeDiscounts, cartItem.Quantity);
+                        finalPrice = await GetFinalPriceAmountAsync(product, bundleItems, decimal.Zero, customer, includeDiscounts, cartItem.Quantity);
                     }
                 }
                 else
@@ -1005,11 +1009,11 @@ namespace Smartstore.Core.Catalog.Pricing
                         attributesTotalPrice += await GetVariantPriceAdjustmentAsync(pvaValue, product, customer, null, cartItem.Quantity);
                     }
 
-                    return await GetFinalPriceAmountAsync(product, attributesTotalPrice, customer, includeDiscounts, cartItem.Quantity, shoppingCartItem.BundleItemData);
+                    finalPrice = await GetFinalPriceAmountAsync(product, attributesTotalPrice, customer, includeDiscounts, cartItem.Quantity, shoppingCartItem.BundleItemData);
                 }
             }
 
-            return decimal.Zero;
+            return _workingCurrency.RoundIfEnabledFor(finalPrice);
         }
 
         #endregion

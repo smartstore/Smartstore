@@ -12,7 +12,7 @@ namespace Smartstore.Core.Checkout.Cart
             => obj.ShippingTotal;
 
         /// <summary>
-        /// Cart shipping total.
+        /// Cart shipping total in the primary currency.
         /// </summary>
         public Money? ShippingTotal { get; init; }
 

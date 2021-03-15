@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="includeRewardPoints">A value indicating whether to include reward points.</param>
         /// <param name="includePaymentFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
         /// <param name="includeCreditBalance">A value indicating whether to include credit balance.</param>
-        /// <returns></returns>
+        /// <returns>Shopping cart total.</returns>
         Task<ShoppingCartTotal> GetShoppingCartTotalAsync(
             IList<OrganizedShoppingCartItem> cart,
             bool includeRewardPoints = true,
@@ -46,11 +46,11 @@ namespace Smartstore.Core.Checkout.Orders
         Task<ShoppingCartShippingTotal> GetShoppingCartShippingTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null);
 
         /// <summary>
-        /// Gets the shopping cart tax total.
+        /// Gets the shopping cart tax total in the primary currency.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <param name="includePaymentFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
-        /// <returns>The tax total amount and applied tax rates.</returns>
+        /// <returns>The tax total amount in the primary currency and applied tax rates.</returns>
         Task<(Money Amount, TaxRatesDictionary TaxRates)> GetShoppingCartTaxTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includePaymentFee = true);
 
         /// <summary>
@@ -61,18 +61,18 @@ namespace Smartstore.Core.Checkout.Orders
         Task<bool> IsFreeShippingAsync(IList<OrganizedShoppingCartItem> cart);
 
         /// <summary>
-        /// Gets the additional shipping charge for a cart.
+        /// Gets the cart's additional shipping charge in the primary currency.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
-        /// <returns>Additional shipping charge.</returns>
+        /// <returns>Additional shipping charge in the primary currency.</returns>
         Task<Money> GetShoppingCartShippingChargeAsync(IList<OrganizedShoppingCartItem> cart);
 
         /// <summary>
-        /// Gets the payment fee for a cart.
+        /// Gets the cart's payment fee for in the primary currency.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>Additional payment method fee.</returns>
+        /// <returns>Additional payment method fee in the primary currency.</returns>
         Task<Money> GetShoppingCartPaymentFeeAsync(IList<OrganizedShoppingCartItem> cart, string paymentMethodSystemName);
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="shippingRate">Shipping rate.</param>
         /// <param name="shippingOption">Shipping option.</param>
         /// <param name="shippingMethods">Shipping methods.</param>
-        /// <returns>Adjusted shipping rate.</returns>
+        /// <returns>Adjusted shipping rate in the primary currency.</returns>
         Task<(Money Amount, Discount AppliedDiscount)> AdjustShippingRateAsync(
             IList<OrganizedShoppingCartItem> cart,
             Money shippingRate,
@@ -90,23 +90,23 @@ namespace Smartstore.Core.Checkout.Orders
             IList<ShippingMethod> shippingMethods);
 
         /// <summary>
-        /// Gets the discount amount and applied discount for a given amount.
+        /// Gets the discount amount in the primary currency and applied discount for a given amount.
         /// </summary>
         /// <param name="amount">Amount.</param>
         /// <param name="discountType">Discount type.</param>
         /// <param name="customer">Customer</param>
-        /// <returns>The discount amount and applied discount.</returns>
+        /// <returns>The discount amount in the primary currency and applied discount.</returns>
         Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money amount, DiscountType discountType, Customer customer);
 
         /// <summary>
-        /// Converts reward points to a primary store currency amount.
+        /// Converts reward points to an amount in the primary currency.
         /// </summary>
         /// <param name="rewardPoints">Reward points.</param>
-        /// <returns>Converted currency amount.</returns>
+        /// <returns>Converted amount in the primary currency.</returns>
         Money ConvertRewardPointsToAmount(int rewardPoints);
 
         /// <summary>
-        /// Converts a primary store currency amount to reward points.
+        /// Converts a primary currency amount to reward points.
         /// </summary>
         /// <param name="amount">Currency amount.</param>
         /// <returns>Converted points.</returns>

@@ -13,17 +13,17 @@ namespace Smartstore.Core.Checkout.Cart
             => obj.SubTotalWithDiscount;
 
         /// <summary>
-        /// Cart subtotal excluding discount.
+        /// Cart subtotal excluding discount in the primary currency.
         /// </summary>
         public Money SubTotalWithoutDiscount { get; init; }
 
         /// <summary>
-        /// Cart subtotal including discount.
+        /// Cart subtotal including discount in the primary currency.
         /// </summary>
         public Money SubTotalWithDiscount { get; init; }
 
         /// <summary>
-        /// Discount amount.
+        /// Discount amount in the primary currency.
         /// </summary>
         public Money DiscountAmount { get; init; }
 

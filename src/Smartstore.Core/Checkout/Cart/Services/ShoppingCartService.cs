@@ -334,7 +334,7 @@ namespace Smartstore.Core.Checkout.Cart
                 ctx.Product = childItem.Product;
                 ctx.Quantity = childItem.Quantity;
                 ctx.RawAttributes = childItem.AttributeSelection.AsJson();
-                ctx.CustomerEnteredPrice = ctx.CustomerEnteredPrice.Currency.AsMoney(childItem.CustomerEnteredPrice);
+                ctx.CustomerEnteredPrice = new(childItem.CustomerEnteredPrice, ctx.CustomerEnteredPrice.Currency);
                 ctx.AutomaticallyAddRequiredProductsIfEnabled = false;
 
                 await AddToCartAsync(ctx);

@@ -17,46 +17,46 @@ namespace Smartstore.Core.Catalog.Pricing
         //Task<PriceCalculationResult> Calculate(PriceCalculationRequest request, IEnumerable<IPriceCalculator> pipeline);
 
         /// <summary>
-        /// Gets the special price, if any.
+        /// Gets the special price in the primary currency. <c>null</c> if not available.
         /// </summary>
         /// <param name="product">Product.</param>
-        /// <returns>Special price or <c>null</c> if not available.</returns>
+        /// <returns>Special price in the primary currency. <c>null</c> if not available.</returns>
         Money? GetSpecialPrice(Product product);
 
         /// <summary>
-        /// Gets the product cost.
+        /// Gets the product cost in the primary currency.
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="selection">Attribute selection.</param>
-        /// <returns>Product cost.</returns>
+        /// <returns>Product cost in the primary currency.</returns>
         Task<Money> GetProductCostAsync(Product product, ProductVariantAttributeSelection selection);
 
         /// <summary>
-        /// Gets the initial price including preselected attributes.
+        /// Gets the product price in the primary currency that is initially displayed on the product page (including preselected attributes).
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="customer">Customer.</param>
         /// <param name="context">Price calculation service. Will be created, if <c>null</c>.</param>
-        /// <returns></returns>
+        /// <returns>The product price in the primary currency that is initially displayed on the product page.</returns>
         Task<Money> GetPreselectedPriceAsync(Product product, Customer customer, ProductBatchContext context);
 
         /// <summary>
-        /// Gets the lowest possible price for a product.
+        /// Gets the lowest possible product price in the primary currency.
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="customer">Customer.</param>
         /// <param name="context">Price calculation service. Will be created, if <c>null</c>.</param>
-        /// <returns>Lowest price.</returns>
+        /// <returns>Lowest product price in the primary currency.</returns>
         Task<(Money LowestPrice, bool DisplayFromMessage)> GetLowestPriceAsync(Product product, Customer customer, ProductBatchContext context);
 
         /// <summary>
-        /// Gets the lowest price and lowest price product of a grouped product.
+        /// Gets the lowest price in the primary currency and the related associated product of a grouped product.
         /// </summary>
         /// <param name="product">Grouped product.</param>
         /// <param name="customer">Customer.</param>
         /// <param name="context">Price calculation service. Will be created, if <c>null</c>.</param>
         /// <param name="associatedProducts">Associated products.</param>
-        /// <returns>Lowest price and lowest price product.</returns>
+        /// <returns>Lowest price in the primary currency and the related associated product.</returns>
         Task<(Money? LowestPrice, Product LowestPriceProduct)> GetLowestPriceAsync(
             Product product,
             Customer customer,
@@ -64,7 +64,7 @@ namespace Smartstore.Core.Catalog.Pricing
             IEnumerable<Product> associatedProducts);
 
         /// <summary>
-        /// Gets the final price.
+        /// Gets the final price in the primary currency.
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
@@ -74,7 +74,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="bundleItem">Product bundle item.</param>
         /// <param name="context">Price calculation context.</param>
         /// <param name="isTierPrice">A value indicating whether the price is calculated for a tier price.</param>
-        /// <returns>Final product price.</returns>
+        /// <returns>Final product price in the primary currency.</returns>
         Task<Money> GetFinalPriceAsync(
             Product product,
             Money? additionalCharge,
@@ -86,7 +86,7 @@ namespace Smartstore.Core.Catalog.Pricing
             bool isTierPrice = false);
 
         /// <summary>
-        /// Gets the final price including bundle per-item pricing.
+        /// Gets the final price in the primary currency including bundle per-item pricing.
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="bundleItems">Bundle items.</param>
@@ -96,7 +96,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="quantity">Product quantity.</param>
         /// <param name="bundleItem">A product bundle item.</param>
         /// <param name="context">Price calculation context.</param>
-        /// <returns></returns>
+        /// <returns>Final product price in the primary currency.</returns>
         Task<Money> GetFinalPriceAsync(
             Product product,
             IEnumerable<ProductBundleItemData> bundleItems,
@@ -108,7 +108,7 @@ namespace Smartstore.Core.Catalog.Pricing
             ProductBatchContext context = null);
 
         /// <summary>
-        /// Gets the discount amount.
+        /// Gets the discount amount in the primary currency.
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
@@ -117,7 +117,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="bundleItem">Product bundle item.</param>
         /// <param name="context">Price calculation context.</param>
         /// <param name="finalPrice">Final product price without discount.</param>
-        /// <returns>The discount amount and the applied discount.</returns>
+        /// <returns>The discount amount in the primary currency and the applied discount.</returns>
         Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(
             Product product,
             Money? additionalCharge,
@@ -128,21 +128,21 @@ namespace Smartstore.Core.Catalog.Pricing
             Money? finalPrice = null);
 
         /// <summary>
-        /// Gets the discount amount.
+        /// Gets the discount amount in the primary currency.
         /// </summary>
         /// <param name="shoppingCartItem">Shopping cart item.</param>
-        /// <returns>The discount amount and the applied discount.</returns>
+        /// <returns>The discount amount in the primary currency and the applied discount.</returns>
         Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(OrganizedShoppingCartItem shoppingCartItem);
 
         /// <summary>
-        /// Gets the price adjustment of a variant attribute value.
+        /// Gets the price adjustment of a variant attribute value in the primary currency.
         /// </summary>
         /// <param name="attributeValue">Product variant attribute value.</param>
         /// <param name="product">Product.</param>
         /// <param name="customer">Customer.</param>
         /// <param name="context">Price calculation context. Will be created, if <c>null</c>.</param>
         /// <param name="quantity">Product quantity.</param>
-        /// <returns>Price adjustment of a variant attribute value.</returns>
+        /// <returns>Price adjustment of a variant attribute value in the primary currency.</returns>
         Task<Money> GetProductVariantAttributeValuePriceAdjustmentAsync(
             ProductVariantAttributeValue attributeValue,
             Product product,
@@ -170,19 +170,19 @@ namespace Smartstore.Core.Catalog.Pricing
         Task<string> GetBasePriceInfoAsync(Product product, Customer customer = null, Currency currency = null, Money? priceAdjustment = null);
 
         /// <summary>
-        /// Gets the shopping cart unit price.
+        /// Gets the shopping cart unit price in the primary currency.
         /// </summary>
         /// <param name="shoppingCartItem">Shopping cart item.</param>
         /// <param name="includeDiscounts">A value indicating whether to include discounts.</param>
-        /// <returns>Shopping cart unit price.</returns>
+        /// <returns>Shopping cart unit price in the primary currency.</returns>
         Task<Money> GetUnitPriceAsync(OrganizedShoppingCartItem shoppingCartItem, bool includeDiscounts);
 
         /// <summary>
-        /// Gets the shopping cart item sub total.
+        /// Gets the shopping cart item sub total in the primary currency.
         /// </summary>
         /// <param name="shoppingCartItem">Shopping cart item.</param>
         /// <param name="includeDiscounts">A value indicating whether to include discounts.</param>
-        /// <returns>Shopping cart item sub total.</returns>
+        /// <returns>Shopping cart item sub total in the primary currency.</returns>
         Task<Money> GetSubTotalAsync(OrganizedShoppingCartItem shoppingCartItem, bool includeDiscounts);
     }
 }
