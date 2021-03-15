@@ -14,13 +14,13 @@ namespace Smartstore.Core.Identity
     [Important]
     internal class CustomerHook : AsyncDbSaveHook<Customer>
     {
-		private static readonly HashSet<string> _candidateProps = new(new[]
+		private static readonly string[] _candidateProps = new[]
 		{
 			nameof(Customer.Title),
 			nameof(Customer.Salutation),
 			nameof(Customer.FirstName),
 			nameof(Customer.LastName)
-		});
+		};
 
 		private readonly SmartDbContext _db;
 		private readonly IWorkContext _workContext;

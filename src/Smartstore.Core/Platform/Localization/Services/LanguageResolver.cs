@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
@@ -47,7 +46,6 @@ namespace Smartstore.Core.Localization
                 return await GetDefaultLanguage(customerLangId, storeId);
             }
 
-            // TODO: (mc) (core) Customer should be 1.
             return
                 // 1: Try resolve from route values or from request path
                 await ResolveFromRouteAsync(httpContext, storeId) ??
