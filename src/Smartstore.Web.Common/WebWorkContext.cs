@@ -237,7 +237,7 @@ namespace Smartstore.Web
                 if (value?.Id != _language?.Id)
                 {
                     SetCustomerLanguage(value?.Id);
-                    _language = null;
+                    _language = value;
                 }
             }
         }
@@ -370,7 +370,7 @@ namespace Smartstore.Web
                 if (value?.Id != _currency?.Id)
                 {
                     SetCustomerCurrency(value?.Id);
-                    _currency = null;
+                    _currency = value;
                 }
             }
         }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Seo;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Common;
 
@@ -15,25 +16,25 @@ namespace Smartstore.Web.Components
     {
         private readonly SmartDbContext _db;
         private readonly Lazy<ILanguageService> _languageService;
-        private readonly LocalizedEntityHelper _localizedEntityHelper;
+        private readonly IUrlService _urlService;
         private readonly LocalizationSettings _localizationSettings;
         
         public LanguageSelectorViewComponent(
             SmartDbContext db, 
             Lazy<ILanguageService> languageService,
-            LocalizedEntityHelper localizedEntityHelper,
+            IUrlService urlService,
             LocalizationSettings localizationSettings)
         {
             _db = db;
             _languageService = languageService;
-            _localizedEntityHelper = localizedEntityHelper;
+            _urlService = urlService;
             _localizationSettings = localizationSettings;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var key = ModelCacheInvalidator.AVAILABLE_LANGUAGES_MODEL_KEY.FormatInvariant(Services.StoreContext.CurrentStore.Id);
-            var availableLanguages = await Services.CacheFactory.GetMemoryCache().GetAsync(key, async (o) =>
+            var availableLanguages = await Services.Cache.GetAsync(key, async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromHours(24));
 
@@ -99,12 +100,12 @@ namespace Smartstore.Web.Components
             if (currentLanguageId != model.Id)
             {
                 var routeValues = Request.RouteValues;
-                var controller = routeValues["controller"].ToString();
+                var controllerName = routeValues.GetControllerName();
 
-                if (!routeValues.TryGetValue(controller + "id", out var val))
+                if (!routeValues.TryGetValue(controllerName + "id", out var val))
                 {
-                    controller = routeValues["action"].ToString();
-                    routeValues.TryGetValue(controller + "id", out val);
+                    controllerName = routeValues.GetActionName();
+                    routeValues.TryGetValue(controllerName + "id", out val);
                 }
 
                 int entityId = 0;
@@ -115,11 +116,11 @@ namespace Smartstore.Web.Components
 
                 if (entityId > 0)
                 {
-                    var activeSlug = await _localizedEntityHelper.GetActiveSlugAsync(controller, entityId, model.Id);
+                    var activeSlug = await _urlService.GetActiveSlugAsync(entityId, controllerName, model.Id);
                     if (activeSlug.IsEmpty())
                     {
                         // Fallback to default value.
-                        activeSlug = await _localizedEntityHelper.GetActiveSlugAsync(controller, entityId, 0);
+                        activeSlug = await _urlService.GetActiveSlugAsync(entityId, controllerName, 0);
                     }
 
                     if (activeSlug.HasValue())

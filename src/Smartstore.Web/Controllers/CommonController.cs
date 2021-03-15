@@ -111,10 +111,11 @@ namespace Smartstore.Web.Controllers
                 Services.WorkContext.WorkingLanguage = language;
             }
 
-            var helper = new LocalizedUrlHelper(Request.PathBase, returnUrl ?? "");
+            var helper = new LocalizedUrlHelper(Request.PathBase, returnUrl ?? string.Empty);
 
             if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
+                // TODO: (mh) (core) Don't prepend code if it is master language and master is prefixless by configuration.
                 helper.PrependCultureCode(Services.WorkContext.WorkingLanguage.UniqueSeoCode, true);
             }
 
