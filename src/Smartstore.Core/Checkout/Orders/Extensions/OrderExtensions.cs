@@ -1,11 +1,22 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Smartstore.Core.Checkout.Orders;
 
 namespace Smartstore
 {
     public static partial class OrderExtensions
     {
+        /// <summary>
+        /// Gets <see cref="Order.OrderNumber"/> or <see cref="Order.Id"/> if empty.
+        /// </summary>
+        /// <returns><see cref="Order.OrderNumber"/> or <see cref="Order.Id"/> if empty.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetOrderNumber(this Order order)
+        {
+            return order.OrderNumber.IsEmpty() ? order.Id.ToString() : order.OrderNumber;
+        }
+
         /// <summary>
         /// Adds an order note. The caller is responsible for database commit.
         /// </summary>
@@ -92,6 +103,5 @@ namespace Smartstore
 
             return false;
         }
-
     }
 }

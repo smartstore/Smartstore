@@ -82,7 +82,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         {
             Guard.NotNull(giftCard, nameof(giftCard));
 
-            return _primaryCurrency.AsMoney(GetRemainingAmountCore(giftCard), false, true);
+            return new(Math.Max(GetRemainingAmountCore(giftCard), decimal.Zero), _primaryCurrency);
         }
 
         public virtual Task<string> GenerateGiftCardCodeAsync()

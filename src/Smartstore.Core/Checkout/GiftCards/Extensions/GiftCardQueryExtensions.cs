@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Smartstore.Core.Checkout.GiftCards;
-using Smartstore.Core.Checkout.Orders;
 
 namespace Smartstore
 {
@@ -10,6 +9,29 @@ namespace Smartstore
     /// </summary>
     public static class GiftCardQueryExtensions
     {
+        /// <summary>
+        /// Applies standard filter to gift cards query and sorts by <see cref="GiftCard.CreatedOnUtc"/> descending.
+        /// </summary>
+        /// <param name="isActivated">Filter by <see cref="GiftCard.IsGiftCardActivated"/>.</param>
+        /// <remarks>Accesses <see cref="GiftCard.PurchasedWithOrderItem"/>. The caller is responsible for eager loading.</remarks>
+        /// <returns>Gift cards query.</returns>
+        public static IOrderedQueryable<GiftCard> ApplyStandardFilter(this IQueryable<GiftCard> query, int? orderId = null, bool? isActivated = null)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            if (orderId.HasValue)
+            {
+                query = query.Where(x => x.PurchasedWithOrderItem != null && x.PurchasedWithOrderItem.OrderId == orderId.Value);
+            }
+
+            if (isActivated.HasValue)
+            {
+                query = query.Where(x => x.IsGiftCardActivated == isActivated.Value);
+            }
+
+            return query.OrderByDescending(x => x.CreatedOnUtc);
+        }
+
         /// <summary>
         /// Applies date time filter to gift cards query.
         /// </summary>
@@ -39,50 +61,6 @@ namespace Smartstore
             Guard.NotNull(couponCodes, nameof(couponCodes));
 
             return query.Where(x => couponCodes.Contains(x.GiftCardCouponCode));
-        }
-
-        /// <summary>
-        /// Applies standard filter to gift cards query.
-        /// Store filter is applied based on <see cref="GiftCard.PurchasedWithOrderItem"/> store identifier.
-        /// May exclude not activated gift cards.
-        /// </summary>        
-        /// <remarks>
-        /// Accesses <see cref="GiftCard.PurchasedWithOrderItem"/> and <see cref="OrderItem.Order"/>. 
-        /// The caller is responsible for eager loading.
-        /// </remarks>
-        /// <returns>
-        /// Valid gift cards for store with <see cref="storeId"/> ordered descending by <see cref="GiftCard.CreatedOnUtc"/>.
-        /// </returns>
-        public static IOrderedQueryable<GiftCard> ApplyStandardFilter(this IQueryable<GiftCard> query, int storeId = 0, bool includeInactive = false)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            if (!includeInactive)
-            {
-                query = query.Where(x => x.IsGiftCardActivated);
-            }
-
-            query = query.Where(x => storeId == 0
-                || x.PurchasedWithOrderItem.Order.StoreId == 0
-                || x.PurchasedWithOrderItem.Order.StoreId == storeId);
-
-            return query.OrderByDescending(x => x.CreatedOnUtc);
-        }
-
-        /// <summary>
-        /// Applies order filter to gift cards query.
-        /// </summary>
-        /// <returns>
-        /// Gift cards filtered by <see cref="orderIds"/> and ordered by identifiers.
-        /// </returns>
-        public static IOrderedQueryable<GiftCard> ApplyOrderFilter(this IQueryable<GiftCard> query, int[] orderIds)
-        {
-            Guard.NotNull(query, nameof(query));
-            Guard.NotNull(orderIds, nameof(orderIds));
-
-            return query
-                .Where(x => x.PurchasedWithOrderItemId.HasValue && orderIds.Contains(x.PurchasedWithOrderItemId.Value))
-                .OrderBy(x => x.Id);
         }
     }
 }

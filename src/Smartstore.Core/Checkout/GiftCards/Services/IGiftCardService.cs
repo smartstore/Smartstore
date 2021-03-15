@@ -38,7 +38,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         bool ValidateGiftCard(GiftCard giftCard, int storeId = 0);
 
         /// <summary>
-        /// Gets the gift cards remaining value
+        /// Gets the gift cards remaining amount in primary currency.
         /// </summary>
         /// <remarks>
         /// Accesses <see cref="GiftCard.GiftCardUsageHistory"/>. 
