@@ -105,7 +105,6 @@ namespace Smartstore.Web.Controllers
         private readonly ISettingFactory _settingFactory;
         private readonly IShippingService _shippingService;
         private readonly IShoppingCartService _cartService;
-        private readonly ICustomerService _customerService;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IGiftCardService _giftCardService;
@@ -820,9 +819,22 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var entity = await _db.Customers.FindByIdAsync(2666330);
-            entity.AdminComment = "Test";
+            var entity = await _db.Products.FindByIdAsync(4370);
+            content.AppendLine("Product.MainPictureId before: " + entity.MainPictureId);
+
+            _db.ProductMediaFiles.Add(new ProductMediaFile
+            {
+                ProductId = 4370,
+                MediaFileId = 9
+            });
+
+            //_db.ProductMediaFiles.Remove(await _db.ProductMediaFiles.FirstOrDefaultAsync(x => x.ProductId == 4370 && x.MediaFileId == 9));
+
             await _db.SaveChangesAsync();
+
+            entity = await _db.Products.FindByIdAsync(4370);
+            content.AppendLine("Product.MainPictureId after: " + entity.MainPictureId);
+
 
             //var price = 16.98M;
             //var currency = Services.WorkContext.WorkingCurrency;
