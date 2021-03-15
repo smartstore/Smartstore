@@ -47,6 +47,7 @@ namespace Smartstore.Core.Localization
                 return await GetDefaultLanguage(customerLangId, storeId);
             }
 
+            // TODO: (mc) (core) Customer should be 1.
             return
                 // 1: Try resolve from route values or from request path
                 await ResolveFromRouteAsync(httpContext, storeId) ??
