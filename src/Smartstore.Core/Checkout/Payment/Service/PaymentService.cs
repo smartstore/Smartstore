@@ -210,6 +210,7 @@ namespace Smartstore.Core.Checkout.Payment
             {
                 return await _db.PaymentMethods
                     .AsNoTracking()
+                    .Include(x => x.RuleSets)
                     .ApplyStoreFilter(storeId)
                     .ToDictionaryAsync(x => x.PaymentMethodSystemName.EmptyNull(), x => x, StringComparer.OrdinalIgnoreCase);
             });
@@ -295,6 +296,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<bool> SupportCaptureAsync(string paymentMethodSystemName)
         {
+            // TODO: (mg) (core) Remove SupportCaptureAsync from interface and make extension method
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
                 return false;
@@ -326,6 +328,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<bool> SupportPartiallyRefundAsync(string paymentMethodSystemName)
         {
+            // TODO: (mg) (core) Remove SupportPartiallyRefundAsync from interface and make extension method
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
                 return false;
@@ -335,6 +338,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<bool> SupportRefundAsync(string paymentMethodSystemName)
         {
+            // TODO: (mg) (core) Remove SupportRefundAsync from interface and make extension method
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
                 return false;
@@ -366,6 +370,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<bool> SupportVoidAsync(string paymentMethodSystemName)
         {
+            // TODO: (mg) (core) Remove SupportVoidAsync from interface and make extension method
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
                 return false;
