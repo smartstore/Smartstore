@@ -3,7 +3,7 @@
 namespace Smartstore.Core.Checkout.Payment
 {
     /// <summary>
-    /// Represents a default payment request
+    /// Represents a default payment request.
     /// </summary>
     public partial class PaymentRequest
     {
@@ -14,21 +14,21 @@ namespace Smartstore.Core.Checkout.Payment
     }
 
     /// <summary>
-    /// Represents a CancelRecurringPaymentResult.
+    /// Represents a recurring payment cancellation request.
     /// </summary>
     public partial class CancelRecurringPaymentRequest : PaymentRequest
     {
     }
 
     /// <summary>
-    /// Represents a capture payment request.
+    /// Represents a request to capture a payment.
     /// </summary>
     public partial class CapturePaymentRequest : PaymentRequest
     {
     }
 
     /// <summary>
-    /// Represents a void payment request.
+    /// Represents a request to void a payment.
     /// </summary>
     public partial class VoidPaymentRequest : PaymentRequest
     {

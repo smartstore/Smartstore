@@ -49,5 +49,10 @@
         /// Gets or sets a value indicating whether storing of credit card number, CVV2 is allowed.
         /// </summary>
         public bool AllowStoringDirectDebit { get; set; }
+
+        /// <summary>
+        /// Gets or sets a payment status after processing.
+        /// </summary>
+        public PaymentStatus NewPaymentStatus { get; set; } = PaymentStatus.Pending;
     }
 }

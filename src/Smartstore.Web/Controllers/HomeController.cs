@@ -69,6 +69,7 @@ using Smartstore.Domain;
 using Smartstore.Scheduling;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Data;
+using Smartstore.Core.Common.Settings;
 
 namespace Smartstore.Web.Controllers
 {
@@ -111,6 +112,7 @@ namespace Smartstore.Web.Controllers
         private readonly UserManager<Customer> _userManager;
         private readonly IUserAgent _userAgent;
         private readonly IMediaService _mediaService;
+        private readonly HomePageSettings _homePageSettings;
 
         public HomeController(
             SmartDbContext db,
@@ -136,7 +138,8 @@ namespace Smartstore.Web.Controllers
             IGiftCardService giftCardService,
             UserManager<Customer> userManager,
             IUserAgent userAgent,
-            IMediaService mediaService)
+            IMediaService mediaService,
+            HomePageSettings homePageSettings)
         {
             _db = db;
             _eventPublisher = eventPublisher;
@@ -159,6 +162,7 @@ namespace Smartstore.Web.Controllers
             _userManager = userManager;
             _userAgent = userAgent;
             _mediaService = mediaService;
+            _homePageSettings = homePageSettings;
             
             var currentStore = _storeContext.CurrentStore;
         }
@@ -244,14 +248,9 @@ namespace Smartstore.Web.Controllers
 
             var storeId = _storeContext.CurrentStore.Id;
 
-            // TODO: (mh) (core) Implement HomePageSettings and uncomment.
-            //ViewBag.MetaTitle = _homePageSettings.Value.GetLocalizedSetting(x => x.MetaTitle, storeId);
-            //ViewBag.MetaDescription = _homePageSettings.Value.GetLocalizedSetting(x => x.MetaDescription, storeId);
-            //ViewBag.MetaKeywords = _homePageSettings.Value.GetLocalizedSetting(x => x.MetaKeywords, storeId);
-
-            ViewBag.MetaTitle = "HP MetaTitle";
-            ViewBag.MetaDescription = "HP MetaDescription";
-            ViewBag.MetaKeywords = "HP MetaKeywords";
+            ViewBag.MetaTitle = _homePageSettings.GetLocalizedSetting(x => x.MetaTitle, storeId);
+            ViewBag.MetaDescription = _homePageSettings.GetLocalizedSetting(x => x.MetaDescription, storeId);
+            ViewBag.MetaKeywords = _homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, storeId);
 
             return View();
         }

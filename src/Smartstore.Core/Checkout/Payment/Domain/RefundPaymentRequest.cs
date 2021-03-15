@@ -3,7 +3,7 @@
 namespace Smartstore.Core.Checkout.Payment
 {
     /// <summary>
-    /// Represents a refund payment request.
+    /// Represents a request to refund a payment.
     /// </summary>
     public partial class RefundPaymentRequest : PaymentRequest
     {
@@ -13,7 +13,7 @@ namespace Smartstore.Core.Checkout.Payment
         public Money AmountToRefund { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether it's a partial refund; otherwize, full refund.
+        /// Gets or sets a value indicating whether it's a partial or a full refund.
         /// </summary>
         public bool IsPartialRefund { get; set; }
     }

@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
@@ -15,18 +14,15 @@ namespace Smartstore.Core.Checkout.Orders
     {
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
-        private readonly ICurrencyService _currencyService;
         private readonly IEventPublisher _eventPublisher;
 
         public OrderService(
             SmartDbContext db, 
             IWorkContext workContext, 
-            ICurrencyService currencyService,
             IEventPublisher eventPublisher)
         {
             _db = db;
             _workContext = workContext;
-            _currencyService = currencyService;
             _eventPublisher = eventPublisher;
         }
 

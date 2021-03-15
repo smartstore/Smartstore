@@ -6,6 +6,7 @@ using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Caching;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Rules;
@@ -19,9 +20,10 @@ using StackExchange.Profiling.Internal;
 
 namespace Smartstore.Core.Checkout.Payment
 {
+    // TODO: (ms) (core) Porting of CapturePaymentHook.
     public partial class PaymentService : IPaymentService
     {
-        private const string PAYMENT_METHODS_ALL_KEY = "SmartStore.paymentmethod.all-{0}-";
+        private const string PAYMENT_METHODS_ALL_KEY = "paymentmethod.all-{0}-";
 
         private readonly static object _lock = new();
         private static IList<Type> _paymentMethodFilterTypes = null;
@@ -31,7 +33,7 @@ namespace Smartstore.Core.Checkout.Payment
         private readonly PaymentSettings _paymentSettings;
         private readonly ICartRuleProvider _cartRuleProvider;
         private readonly IProviderManager _providerManager;
-        private readonly ICommonServices _services;
+        private readonly IRequestCache _requestCache;
         //private readonly ITypeFinder _typeFinder;
 
         public PaymentService(
@@ -40,7 +42,7 @@ namespace Smartstore.Core.Checkout.Payment
             PaymentSettings paymentSettings,
             ICartRuleProvider cartRuleProvider,
             IProviderManager providerManager,
-            ICommonServices services
+            IRequestCache requestCache
             //ITypeFinder typeFinder
             )
         {
@@ -49,15 +51,13 @@ namespace Smartstore.Core.Checkout.Payment
             _paymentSettings = paymentSettings;
             _cartRuleProvider = cartRuleProvider;
             _providerManager = providerManager;
-            _services = services;
+            _requestCache = requestCache;
             //_typeFinder = typeFinder;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public DbQuerySettings QuerySettings { get; set; } = DbQuerySettings.Default;
-
-        #region Methods
 
         public virtual async Task<bool> IsPaymentMethodActiveAsync(string systemName, int storeId = 0)
         {
@@ -206,7 +206,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual Task<Dictionary<string, PaymentMethod>> GetAllPaymentMethodsAsync(int storeId = 0)
         {
-            return _services.RequestCache.GetAsync(PAYMENT_METHODS_ALL_KEY.FormatInvariant(storeId), async () =>
+            return _requestCache.GetAsync(PAYMENT_METHODS_ALL_KEY.FormatInvariant(storeId), async () =>
             {
                 return await _db.PaymentMethods
                     .AsNoTracking()
@@ -215,11 +215,6 @@ namespace Smartstore.Core.Checkout.Payment
             });
         }
 
-        /// <summary>
-        /// Pre process a payment.
-        /// </summary>
-        /// <param name="processPaymentRequest">Payment info required for an order processing.</param>
-        /// <returns>Pre process payment result.</returns>
         public virtual async Task<PreProcessPaymentResult> PreProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
             if (processPaymentRequest.OrderTotal == decimal.Zero)
@@ -232,11 +227,6 @@ namespace Smartstore.Core.Checkout.Payment
             return await paymentMethod.Value.PreProcessPaymentAsync(processPaymentRequest);
         }
 
-        /// <summary>
-        /// Process a payment.
-        /// </summary>
-        /// <param name="processPaymentRequest">Payment info required for an order processing.</param>
-        /// <returns>Process payment result.</returns>
         public virtual async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
             if (processPaymentRequest.OrderTotal == decimal.Zero)
@@ -261,11 +251,6 @@ namespace Smartstore.Core.Checkout.Payment
             return await paymentMethod.Value.ProcessPaymentAsync(processPaymentRequest);
         }
 
-        /// <summary>
-        /// Post process payment (e.g. used by payment gateways to redirect to a third-party URL).
-        /// Called after an order has been placed or when customer re-post the payment.
-        /// </summary>
-        /// <param name="postProcessPaymentRequest">Payment info required for an order processing.</param>
         public virtual async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
             if (!postProcessPaymentRequest.Order.PaymentMethodSystemName.HasValue())
@@ -278,11 +263,6 @@ namespace Smartstore.Core.Checkout.Payment
             await paymentMethod.Value.PostProcessPaymentAsync(postProcessPaymentRequest);
         }
 
-        /// <summary>
-        /// Gets a value indicating whether customers can complete a payment after order is placed but not completed (for redirection payment methods).
-        /// </summary>
-        /// <param name="order">Order.</param>
-        /// <returns><c>True</c> if order can re post process payment, otherwise <c>false</c></returns>
         public virtual async Task<bool> CanRePostProcessPaymentAsync(Order order)
         {
             if (order == null)
@@ -313,11 +293,6 @@ namespace Smartstore.Core.Checkout.Payment
             return await paymentMethod.Value.CanRePostProcessPaymentAsync(order);
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the payment method supports capture.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A value indicating whether capture is supported.</returns>
         public virtual async Task<bool> SupportCaptureAsync(string paymentMethodSystemName)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
@@ -327,11 +302,6 @@ namespace Smartstore.Core.Checkout.Payment
             return paymentMethod.Value.SupportCapture;
         }
 
-        /// <summary>
-        /// Captures payment.
-        /// </summary>
-        /// <param name="capturePaymentRequest">Capture payment request.</param>
-        /// <returns>Capture payment result.</returns>
         public virtual async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(capturePaymentRequest.Order.PaymentMethodSystemName);
@@ -354,11 +324,6 @@ namespace Smartstore.Core.Checkout.Payment
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether partial refund is supported by payment method.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A value indicating whether partial refund is supported.</returns>
         public virtual async Task<bool> SupportPartiallyRefundAsync(string paymentMethodSystemName)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
@@ -368,11 +333,6 @@ namespace Smartstore.Core.Checkout.Payment
             return paymentMethod.Value.SupportPartiallyRefund;
         }
 
-        /// <summary>
-        /// Gets a value indicating whether refund is supported by payment method.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A value indicating whether refund is supported.</returns>
         public virtual async Task<bool> SupportRefundAsync(string paymentMethodSystemName)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
@@ -382,11 +342,6 @@ namespace Smartstore.Core.Checkout.Payment
             return paymentMethod.Value.SupportRefund;
         }
 
-        /// <summary>
-        /// Refunds a payment.
-        /// </summary>
-        /// <param name="refundPaymentRequest">Refund payment request.</param>
-        /// <returns>Refund payment result.</returns>
         public virtual async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(refundPaymentRequest.Order.PaymentMethodSystemName);
@@ -409,11 +364,6 @@ namespace Smartstore.Core.Checkout.Payment
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether void is supported by payment method.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A value indicating whether void is supported.</returns>
         public virtual async Task<bool> SupportVoidAsync(string paymentMethodSystemName)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
@@ -423,11 +373,6 @@ namespace Smartstore.Core.Checkout.Payment
             return paymentMethod.Value.SupportVoid;
         }
 
-        /// <summary>
-        /// Voids a payment.
-        /// </summary>
-        /// <param name="voidPaymentRequest">Void payment request.</param>
-        /// <returns>Void payment result.</returns>
         public virtual async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(voidPaymentRequest.Order.PaymentMethodSystemName);
@@ -450,11 +395,6 @@ namespace Smartstore.Core.Checkout.Payment
             }
         }
 
-        /// <summary>
-        /// Gets a recurring payment type of payment method.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A recurring payment type of payment method.</returns>
         public virtual async Task<RecurringPaymentType> GetRecurringPaymentTypeAsync(string paymentMethodSystemName)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
@@ -464,11 +404,6 @@ namespace Smartstore.Core.Checkout.Payment
             return paymentMethod.Value.RecurringPaymentType;
         }
 
-        /// <summary>
-        /// Process recurring payment.
-        /// </summary>
-        /// <param name="processPaymentRequest">Payment info required for an order processing.</param>
-        /// <returns>Process payment result.</returns>
         public virtual async Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
             if (processPaymentRequest.OrderTotal == decimal.Zero)
@@ -499,11 +434,6 @@ namespace Smartstore.Core.Checkout.Payment
             }
         }
 
-        /// <summary>
-        /// Cancels a recurring payment.
-        /// </summary>
-        /// <param name="cancelPaymentRequest">Cancel recurring payment request.</param>
-        /// <returns>Cancel recurring payment result.</returns>
         public virtual async Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
         {
             if (cancelPaymentRequest.Order.OrderTotal == decimal.Zero)
@@ -529,11 +459,6 @@ namespace Smartstore.Core.Checkout.Payment
             }
         }
 
-        /// <summary>
-        /// Gets a payment method type.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A payment method type.</returns>
         public virtual async Task<PaymentMethodType> GetPaymentMethodTypeAsync(string paymentMethodSystemName)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
@@ -543,11 +468,6 @@ namespace Smartstore.Core.Checkout.Payment
             return paymentMethod.Value.PaymentMethodType;
         }
 
-        /// <summary>
-        /// Gets masked credit card number.
-        /// </summary>
-        /// <param name="creditCardNumber">Credit card number.</param>
-        /// <returns>Masked credit card number.</returns>
         public virtual string GetMaskedCreditCardNumber(string creditCardNumber)
         {
             if (creditCardNumber.IsNullOrWhiteSpace())
@@ -565,7 +485,7 @@ namespace Smartstore.Core.Checkout.Payment
             return maskedChars + last4;
         }
 
-        public virtual IList<IPaymentMethodFilter> GetAllPaymentMethodFilters()
+        protected virtual IList<IPaymentMethodFilter> GetAllPaymentMethodFilters()
         {
             if (_paymentMethodFilterTypes == null)
             {
@@ -587,6 +507,5 @@ namespace Smartstore.Core.Checkout.Payment
 
             return paymentMethodFilters;
         }
-        #endregion
     }
 }

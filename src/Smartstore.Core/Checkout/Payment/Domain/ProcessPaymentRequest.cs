@@ -202,7 +202,7 @@ namespace Smartstore.Core.Checkout.Payment
         public object Value { get; set; }
 
         /// <summary>
-        /// Indicates whether to automatically create a generic attribute if an order has been placed.
+        /// A value indicating whether to automatically create a generic attribute if an order has been placed.
         /// </summary>
         public bool AutoCreateGenericAttribute { get; set; }
     }
