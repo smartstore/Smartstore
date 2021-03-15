@@ -153,6 +153,8 @@ namespace Smartstore.Core.Checkout.Tax
 
             await _db.LoadReferenceAsync(attributeValue, x => x.CheckoutAttribute);
 
+            // TODO: (ms) (core) Check this for NULLReferenceException.....
+
             if (attributeValue.CheckoutAttribute.IsTaxExempt)
             {
                 return (new(attributeValue.PriceAdjustment, _primaryCurrency), decimal.Zero);

@@ -47,6 +47,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                 {
                     GiftCard = x,
                     UsableAmount = new(x.Amount - x.GiftCardUsageHistory.Where(y => y.GiftCardId == x.Id).Sum(x => x.UsedValue), _primaryCurrency)
+                    // This causes some kind of linq exeption, prob since appliedgiftcard.usableAmount is now a money struct, worked before
                 })
                 .Where(x => x.UsableAmount > decimal.Zero)
                 .ToListAsync();
