@@ -1,0 +1,47 @@
+﻿@{
+    var languages = ViewBag.AvailableLanguages as IList<LanguageModel>;
+    
+    if (languages.Count <= 1)
+    {
+        return;
+    }
+
+    var activeLang = languages.Where(x => x.Id == WorkContext.WorkingLanguage.Id).FirstOrDefault();
+}
+
+<div class="dropdown language-selector">
+    <a class="menubar-link" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#">
+        <span>@activeLang.CultureCode.ToUpper()</span>
+        <i class="fa fa-angle-down"></i>
+    </a>
+    <div class="dropdown-menu" aria-labelledby="dLabel">
+        @foreach (var lang in languages)
+        {
+            var returnUrl = ViewBag.ReturnUrls[lang.CultureCode] as string;
+            var href = Display.ModifyQueryString(Url.RouteUrl("ChangeLanguage", new { langid = lang.Id }), "returnUrl=" + returnUrl.UrlEncode(), null);
+
+            <a href="@href" title="@lang.NativeName" rel="nofollow" class="dropdown-item@(lang.Id == activeLang.Id ? " disabled" : "")"
+               data-selected="@(lang.Equals(activeLang) ? "true" : "false")" data-abbreviation="@lang.Name">
+
+                @if (ViewBag.UseImages)
+                {
+                    <span class="mr-1 align-text-bottom">
+                        <img src="@Url.Content("~/images/flags/" + lang.FlagImageFileName)" />
+                    </span>
+                }
+
+                <span>@lang.Name</span>
+
+                <span class="abbreviation lrm">(@lang.CultureCode.ToUpper())</span>
+            </a>
+        }
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="language-selector">
+    $(function () {
+        $(".language-selector .dropdown-item.disabled").on('click', function (e) {
+            e.preventDefault();
+        });
+    });
+</script>

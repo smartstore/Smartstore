@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Theming;
@@ -18,19 +19,22 @@ namespace Smartstore.Web.Controllers
         private readonly IThemeContext _themeContext;
         private readonly IThemeRegistry _themeRegistry;
         private readonly ThemeSettings _themeSettings;
+        private readonly LocalizationSettings _localizationSettings;
 
         public CommonController(
             SmartDbContext db,
             Lazy<IMediaService> mediaService,
             IThemeContext themeContext, 
             IThemeRegistry themeRegistry, 
-            ThemeSettings themeSettings)
+            ThemeSettings themeSettings,
+            LocalizationSettings localizationSettings)
         {
             _db = db;
             _mediaService = mediaService;
             _themeContext = themeContext;
             _themeRegistry = themeRegistry;
             _themeSettings = themeSettings;
+            _localizationSettings = localizationSettings;
         }
 
         [Route("browserconfig.xml")]
@@ -94,6 +98,27 @@ namespace Smartstore.Web.Controllers
             {
                 Services.WorkContext.WorkingCurrency = currency;
             }
+
+            return RedirectToReferrer(returnUrl);
+        }
+
+        [LocalizedRoute("/set-language/{langid:int}", Name = "ChangeLanguage")]
+        public async Task<IActionResult> SetLanguage(int langid, string returnUrl = "")
+        {
+            var language = await _db.Languages.FindByIdAsync(langid);
+            if (language != null && language.Published)
+            {
+                Services.WorkContext.WorkingLanguage = language;
+            }
+
+            var helper = new LocalizedUrlHelper(Request.PathBase, returnUrl ?? "");
+
+            if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
+            {
+                helper.PrependCultureCode(Services.WorkContext.WorkingLanguage.UniqueSeoCode, true);
+            }
+
+            returnUrl = helper.FullPath;
 
             return RedirectToReferrer(returnUrl);
         }
