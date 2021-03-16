@@ -1,0 +1,109 @@
+﻿@using Smartstore.Web.Models.Catalog;
+@using Smartstore.Collections;
+
+@model IListActions
+
+@{
+    var pageable = Model.PagedList;
+}
+
+@functions
+{
+    private int GetFirstPageIndex(IPageable list)
+    {
+        int maxPagesToDisplay = 100;
+        if ((list.TotalPages < maxPagesToDisplay) ||
+            ((list.PageIndex - (maxPagesToDisplay / 2)) < 0))
+        {
+            return 0;
+        }
+        if ((list.PageIndex + (maxPagesToDisplay / 2)) >= list.TotalPages)
+        {
+            return (list.TotalPages - maxPagesToDisplay);
+        }
+        return (list.PageIndex - (maxPagesToDisplay / 2));
+    }
+
+    private int GetLastPageIndex(IPageable list)
+    {
+        int maxPagesToDisplay = 100;
+        int num = maxPagesToDisplay / 2;
+        if ((maxPagesToDisplay % 2) == 0)
+        {
+            num--;
+        }
+        if ((list.TotalPages < maxPagesToDisplay) ||
+            ((list.PageIndex + num) >= list.TotalPages))
+        {
+            return (list.TotalPages - 1);
+        }
+        if ((list.PageIndex - (maxPagesToDisplay / 2)) < 0)
+        {
+            return (maxPagesToDisplay - 1);
+        }
+        return (list.PageIndex + num);
+    }
+}
+
+<div sm-if="Model.AvailablePageSizes != null && Model.AvailablePageSizes.Count() > 1" class="artlist-action artlist-action--pagesize ml-auto">
+    <div class="mf-dropdown">
+        <button class="btn btn-secondary btn-artlist-action">
+            <em>@T("Pager.XPerPage", $"<span>{pageable.PageSize}</span>")</em>
+            <i class="fas fa-caret-down"></i>
+        </button>
+        <select class="artlist-action-select form-control noskin"
+                name="artlist-action-pagesize"
+                id="artlist-action-pagesize"
+                data-qname="s"
+                data-url='@Display.ModifyUrl(null, null, "i")'
+                title="@T("Pager.XPerPage", pageable.PageSize)">
+            @foreach (var size in Model.AvailablePageSizes)
+            {
+                <option value="@size" attr-selected='(size == pageable.PageSize, "selected")'>@size</option>
+            }
+        </select>
+    </div>
+</div>
+
+<div sm-if="pageable.TotalPages > 1" class="artlist-action artlist-action--pager d-flex flex-nowrap">
+    
+    <a sm-if="pageable.PageNumber > 1" href='@Display.ModifyUrl(null, "i=" + (pageable.PageNumber - 1))' title="@T("Pager.PageX", pageable.PageNumber - 1)"
+       rel="prev" class="btn btn-secondary btn-pager-prev pull-xs-left" data-toggle="tooltip">
+        <i class="fa fa-chevron-left"></i>
+    </a>
+    
+    <div class="mf-dropdown">
+        <button class="btn btn-secondary btn-artlist-action">
+            <em class="d-sm-none"><span>@pageable.PageNumber</span>/<span>@pageable.TotalPages</span></em>
+            <em class="d-none d-sm-inline d-md-none">@T("Pager.PageXOfYShort", $"<span>{pageable.PageNumber}</span>", $"<span>{pageable.TotalPages}</span>")</em>
+            <em class="d-none d-md-inline">@T("Pager.PageXOfY", $"<span>{pageable.PageNumber}</span>", $"<span>{pageable.TotalPages}</span>")</em>
+            <i class="fas fa-caret-down"></i>
+        </button>
+        <select class="artlist-action-select form-control noskin" name="artlist-action-page" id="artlist-action-page" data-qname="i" title="@T("Pager.PageXOfY", pageable.PageNumber, pageable.TotalPages)">
+            @{
+                int pageCount = pageable.TotalPages;
+                int start = GetFirstPageIndex(pageable) + 1;
+                int end = GetLastPageIndex(pageable) + 1;
+            }
+            @if (start > 3)
+            {
+                <option value="1" attr-selected='(1 == pageable.PageNumber, "selected")'>@T("Pager.PageXOfY", 1, pageCount)</option>
+                <option disabled="disabled">...</option>
+            }
+            @for (var i = start; i <= end; i++)
+            {
+                <option value="@i" attr-selected='(i == pageable.PageNumber, "selected")'>@T("Pager.PageXOfY", i, pageCount)</option>
+            }
+            @if (end < (pageCount - 3))
+            {
+                <option disabled="disabled">...</option>
+                <option value="@pageCount" attr-selected='(pageCount == pageable.PageNumber, "selected")'>@T("Pager.PageXOfY", pageCount, pageCount)</option>
+            }
+        </select>
+    </div>
+
+    <a sm-if="pageable.PageNumber < pageable.TotalPages" href='@Display.ModifyUrl(null, "i=" + (pageable.PageNumber + 1))' title="@T("Pager.PageX", pageable.PageNumber + 1)"
+       rel="next" class="btn btn-secondary btn-pager-next" data-toggle="tooltip">
+        <i class="fa fa-chevron-right"></i>
+    </a>
+</div>
