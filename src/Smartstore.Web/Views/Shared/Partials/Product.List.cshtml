@@ -67,29 +67,20 @@
 @if (Model.PagedList.TotalCount > 0 && hasActions)
 {
     <div class="artlist-actions artlist-actions--top d-flex flex-wrap" attr-style='(imgRatio.HasValue(), "--img-aspect-ratio: " + imgRatio)'>
-        @if (Model.AllowSorting || Model.AllowFiltering)
-        {
-            <div class="artlist-action-group artlist-action-group--filtersort">
-                @*<partial name="Product.List.FilterSort" model="Model" />*@
-            </div>
-        }
-
-        @if (hasPager || Model.AllowViewModeChanging)
-        {
-            <div class="artlist-action-group artlist-action-group--page">
-                @* ViewMode *@
-                @if (Model.AllowViewModeChanging && Model.ViewMode == ProductSummaryViewMode.Grid || Model.ViewMode == ProductSummaryViewMode.List)
-                {
-                    <partial name="Product.List.ViewMode" model="Model" />
-                }
-
-                @* Pager *@
-                @if (hasPager)
-                {
-                    @Html.Raw(pagerHtml)
-                }
-            </div>
-        }
+        <div sm-if="Model.AllowSorting || Model.AllowFiltering" class="artlist-action-group artlist-action-group--filtersort">
+            <partial name="Product.List.FilterSort" model="Model" />
+        </div>
+        <div sm-if="hasPager || Model.AllowViewModeChanging" class="artlist-action-group artlist-action-group--page">
+            @* ViewMode *@
+            <partial sm-if="Model.AllowViewModeChanging && Model.ViewMode == ProductSummaryViewMode.Grid || Model.ViewMode == ProductSummaryViewMode.List" 
+                     name="Product.List.ViewMode" model="Model" />
+            
+            @* Pager *@
+            @if (hasPager)
+            {
+                @Html.Raw(pagerHtml)
+            }
+        </div>
     </div>
 }
 
@@ -100,21 +91,16 @@
     @*await Component.InvokeAsync("ActiveFilters");*@
 }
 
-@if (Model.PagedList.TotalCount > 0)
-{
-    <div id="@id" class='@string.Join(" ", listCssClasses)'>
-        @foreach (var product in Model.Items)
-        {
-            <partial name="Product.List.Item" model="product" />
-        }
-    </div>
-}
+<div sm-if="Model.PagedList.TotalCount > 0" id="@id" class='@string.Join(" ", listCssClasses)'>
+    @foreach (var product in Model.Items)
+    {
+        <partial name="Product.List.Item" model="product" />
+    }
+</div>
 
-@if (Model.PagedList.TotalPages > 1 && hasPager)
-{
-    <div class="artlist-actions artlist-actions--bottom">
-        <div class="artlist-action-group artlist-action-group--page">
-            @Html.Raw(pagerHtml)
-        </div>
+<div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-actions artlist-actions--bottom">
+    <div class="artlist-action-group artlist-action-group--page">
+        @Html.Raw(pagerHtml)
     </div>
-}
+</div>
+

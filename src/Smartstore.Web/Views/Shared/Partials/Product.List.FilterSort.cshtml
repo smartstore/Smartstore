@@ -1,0 +1,35 @@
+﻿@using Smartstore.Web.Models.Catalog;
+@using Smartstore.Core.Catalog.Products;
+
+@model IListActions
+
+<div sm-if="Model.AllowFiltering" class="artlist-action artlist-action--filter d-lg-none">
+    <div class="mf-dropdown">
+        <button class="btn btn-warning btn-labeled icon-right btn-no-border btn-block btn-toggle-filter-widget">
+            <span>@T("Products.ToFilter")</span>
+            <b><i class="fa fa-fw fa-sliders-h"></i></b>
+        </button>
+    </div>
+</div>
+
+<div sm-if="Model.AllowSorting" class="artlist-action artlist-action--sort">
+    <div class="mf-dropdown">
+        <button class="btn btn-secondary btn-artlist-action d-none d-lg-block" title="@T("Products.SortByX", Model.CurrentSortOrderName)">
+            <i class="fa fa-sort d-xl-none"></i>
+            <span class="d-xl-none">@Model.CurrentSortOrderName</span>
+            <em class="d-none d-xl-inline">@Html.Raw(T("Products.SortByX", $"<span>{Model.CurrentSortOrderName}</span>"))</em>
+            <i class="fas fa-caret-down"></i>
+        </button>
+        <button class="btn btn-light btn-no-border btn-labeled icon-right btn-block d-lg-none">
+            <span>@T("Products.ToSort")</span>
+            <b><i class="fa fa-fw fa-sort"></i></b>
+        </button>
+        <select class="artlist-action-select form-control noskin" name="artlist-action-sort" id="artlist-action-sort" data-qname="o" title="@T("Products.SortByX", Model.CurrentSortOrderName)">
+            @foreach (var sort in Model.AvailableSortOptions)
+            {
+                var sortName = (Model is ProductSummaryModel && sort.Key == (int)ProductSortingEnum.Relevance) ? Model.RelevanceSortOrderName : null;
+                <option value="@sort.Key" attr-selected='(sort.Key == Model.CurrentSortOrder, "selected")'>@(sortName ?? sort.Value)</option>
+            }
+        </select>
+    </div>
+</div>
