@@ -125,7 +125,7 @@
 
     @if (list.ViewMode == ProductSummaryViewMode.List && showVariants)
     {
-        @*<partial name="Product.List.Item.Variants" model="Model" />*@
+        <partial name="Product.List.Item.Variants" model="Model" />
     }
 
     @if (list.ShowLegalInfo)
@@ -160,7 +160,7 @@
                 <div class="art-drop">
                     @if (showVariants)
                     {
-                        @*<partial name="Product.List.Item.Variants" model="Model" />*@
+                        <partial name="Product.List.Item.Variants" model="Model" />
                     }
                     @if (showButtons)
                     {
