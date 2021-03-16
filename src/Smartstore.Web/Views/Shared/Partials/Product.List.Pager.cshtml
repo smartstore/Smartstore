@@ -66,12 +66,12 @@
 </div>
 
 <div sm-if="pageable.TotalPages > 1" class="artlist-action artlist-action--pager d-flex flex-nowrap">
-    
+
     <a sm-if="pageable.PageNumber > 1" href='@Display.ModifyUrl(null, "i=" + (pageable.PageNumber - 1))' title="@T("Pager.PageX", pageable.PageNumber - 1)"
        rel="prev" class="btn btn-secondary btn-pager-prev pull-xs-left" data-toggle="tooltip">
         <i class="fa fa-chevron-left"></i>
     </a>
-    
+
     <div class="mf-dropdown">
         <button class="btn btn-secondary btn-artlist-action">
             <em class="d-sm-none"><span>@pageable.PageNumber</span>/<span>@pageable.TotalPages</span></em>
@@ -102,8 +102,11 @@
         </select>
     </div>
 
-    <a sm-if="pageable.PageNumber < pageable.TotalPages" href='@Display.ModifyUrl(null, "i=" + (pageable.PageNumber + 1))' title="@T("Pager.PageX", pageable.PageNumber + 1)"
-       rel="next" class="btn btn-secondary btn-pager-next" data-toggle="tooltip">
-        <i class="fa fa-chevron-right"></i>
-    </a>
+    @if (pageable.PageNumber < pageable.TotalPages)
+    {
+        <a href='@Display.ModifyUrl(null, "i=" + (pageable.PageNumber + 1))' title="@T("Pager.PageX", pageable.PageNumber + 1)"
+           rel="next" class="btn btn-secondary btn-pager-next" data-toggle="tooltip">
+            <i class="fa fa-chevron-right"></i>
+        </a>
+    }
 </div>

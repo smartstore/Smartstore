@@ -23,7 +23,8 @@ namespace Smartstore.Web.TagHelpers.Shared
         public AttributeDictionary Attributes { get; set; }
 
         /// <summary>
-        /// Additional conditional attributes. The value of conditional <c>class</c> attribute will be appended to existing <c>class</c> attribute.
+        /// Conditional attribute. Output will be suppressed if condition (first value tuple item) evaluates to <c>false</c>.
+        /// NOTE: the value of conditional <c>class</c> attribute (sm-class) will be appended to existing <c>class</c> attribute.
         /// </summary>
         [HtmlAttributeName("sm-all-conditional-attrs", DictionaryAttributePrefix = ConditionalAttributePrefix)]
         public IDictionary<string, (bool Condition, string Value)> ConditionalAttributes
