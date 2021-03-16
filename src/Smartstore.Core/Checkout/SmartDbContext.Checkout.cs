@@ -26,5 +26,7 @@ namespace Smartstore.Core.Data
         public DbSet<ShippingMethod> ShippingMethods { get; set; }
         public DbSet<ReturnRequest> ReturnRequests { get; set; }
         public DbSet<PaymentMethod> PaymentMethods { get; set; }
+        public DbSet<RecurringPayment> RecurringPayments { get; set; }
+        public DbSet<RecurringPaymentHistory> RecurringPaymentHistory { get; set; }
     }
 }

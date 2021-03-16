@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Dasync.Collections;
+using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -18,6 +19,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -27,11 +29,14 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly ILocalizationService _localizationService;
         private readonly ICurrencyService _currencyService;
         private readonly IPaymentService _paymentService;
+        private readonly IProductService _productService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IMessageFactory _messageFactory;
+        private readonly IEventPublisher _eventPublisher;
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly OrderSettings _orderSettings;
+        private readonly LocalizationSettings _localizationSettings;
         private readonly Currency _primaryCurrency;
 
         public OrderProcessingService(
@@ -39,27 +44,441 @@ namespace Smartstore.Core.Checkout.Orders
             ILocalizationService localizationService,
             ICurrencyService currencyService,
             IPaymentService paymentService,
+            IProductService productService,
             IOrderCalculationService orderCalculationService,
             IShoppingCartService shoppingCartService,
             IMessageFactory messageFactory,
+            IEventPublisher eventPublisher,
             RewardPointsSettings rewardPointsSettings,
-            OrderSettings orderSettings)
+            OrderSettings orderSettings,
+            LocalizationSettings localizationSettings)
         {
             _db = db;
             _localizationService = localizationService;
             _currencyService = currencyService;
             _paymentService = paymentService;
+            _productService = productService;
             _orderCalculationService = orderCalculationService;
             _shoppingCartService = shoppingCartService;
             _messageFactory = messageFactory;
+            _eventPublisher = eventPublisher;
             _rewardPointsSettings = rewardPointsSettings;
             _orderSettings = orderSettings;
+            _localizationSettings = localizationSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
+
+        public virtual Task<PlaceOrderResult> PlaceOrderAsync(ProcessPaymentRequest processPaymentRequest, Dictionary<string, string> extraData)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public virtual async Task ShipAsync(Shipment shipment, bool notifyCustomer)
+        {
+            Guard.NotNull(shipment, nameof(shipment));
+
+            var order = await _db.Orders.FindByIdAsync(shipment.OrderId);
+            if (order == null)
+                throw new SmartException(T("Order.NotFound", shipment.OrderId));
+
+            if (shipment.ShippedDateUtc.HasValue)
+                throw new SmartException(T("Shipment.AlreadyShipped"));
+
+            shipment.ShippedDateUtc = DateTime.UtcNow;
+
+            // Check whether we have more items to ship.
+            order.ShippingStatusId = order.CanAddItemsToShipment() || order.HasItemsToDispatch()
+                ? (int)ShippingStatus.PartiallyShipped
+                : (int)ShippingStatus.Shipped;
+
+            order.AddOrderNote(T("Admin.OrderNotice.ShipmentSent", shipment.Id));
+
+            await _db.SaveChangesAsync();
+
+            if (notifyCustomer)
+            {
+                var msg = await _messageFactory.SendShipmentSentCustomerNotificationAsync(shipment, order.CustomerLanguageId);
+                if (msg?.Email?.Id != null)
+                {
+                    order.AddOrderNote(T("Admin.OrderNotice.CustomerShippedEmailQueued", msg.Email.Id));
+                    await _db.SaveChangesAsync();
+                }
+            }
+
+            await CheckOrderStatusAsync(order);
+        }
+
+        public virtual async Task DeliverAsync(Shipment shipment, bool notifyCustomer)
+        {
+            Guard.NotNull(shipment, nameof(shipment));
+
+            var order = shipment.Order;
+            if (order == null)
+                throw new SmartException(T("Order.NotFound", shipment.OrderId));
+
+            if (shipment.DeliveryDateUtc.HasValue)
+                throw new SmartException(T("Shipment.AlreadyDelivered"));
+
+            shipment.DeliveryDateUtc = DateTime.UtcNow;
+
+            if (!order.CanAddItemsToShipment() && !order.HasItemsToDispatch() && !order.HasItemsToDeliver())
+            {
+                order.ShippingStatusId = (int)ShippingStatus.Delivered;
+            }
+
+            order.AddOrderNote(T("Admin.OrderNotice.ShipmentDelivered", shipment.Id));
+
+            await _db.SaveChangesAsync();
+
+            if (notifyCustomer)
+            {
+                var msg = await _messageFactory.SendShipmentDeliveredCustomerNotificationAsync(shipment, order.CustomerLanguageId);
+                if (msg?.Email?.Id != null)
+                {
+                    order.AddOrderNote(T("Admin.OrderNotice.CustomerDeliveredEmailQueued", msg.Email.Id));
+                    await _db.SaveChangesAsync();
+                }
+            }
+
+            await CheckOrderStatusAsync(order);
+        }
+
+        public virtual bool CanCancelOrder(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (order.OrderStatus == OrderStatus.Cancelled)
+                return false;
+
+            return true;
+        }
+
+        public virtual async Task CancelOrderAsync(Order order, bool notifyCustomer)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (!CanCancelOrder(order))
+            {
+                throw new SmartException(T("Order.CannotCancel"));
+            }
+
+            await SetOrderStatusAsync(order, OrderStatus.Cancelled, notifyCustomer);
+
+            order.AddOrderNote(T("Admin.OrderNotice.OrderCancelled"));
+
+            // Cancel recurring payments.
+            var recurringPayments = await _db.RecurringPayments
+                .AsNoTracking()
+                .ApplyStandardFilter(order.Id)
+                .ToListAsync();
+
+            foreach (var rp in recurringPayments)
+            {
+                await CancelRecurringPaymentAsync(rp);
+            }
+
+            // Adjust inventory.
+            foreach (var orderItem in order.OrderItems)
+            {
+                await _productService.AdjustInventoryAsync(orderItem, false, orderItem.Quantity);
+            }
+
+            await _db.SaveChangesAsync();
+        }
+
+        public virtual bool CanCancelRecurringPayment(Customer customerToValidate, RecurringPayment recurringPayment)
+        {
+            if (customerToValidate == null || recurringPayment == null)
+                return false;
+
+            var initialOrder = recurringPayment.InitialOrder;
+            if (initialOrder == null)
+                return false;
+
+            var customer = recurringPayment.InitialOrder.Customer;
+            if (customer == null)
+                return false;
+
+            if (initialOrder.OrderStatus == OrderStatus.Cancelled)
+                return false;
+
+            if (!customerToValidate.IsAdmin())
+            {
+                if (customer.Id != customerToValidate.Id)
+                    return false;
+            }
+
+            if (!recurringPayment.NextPaymentDate.HasValue)
+                return false;
+
+            return true;
+        }
+
+        public virtual async Task<IList<string>> CancelRecurringPaymentAsync(RecurringPayment recurringPayment)
+        {
+            Guard.NotNull(recurringPayment, nameof(recurringPayment));
+
+            var initialOrder = recurringPayment.InitialOrder;
+            if (initialOrder == null)
+            {
+                return new List<string> { T("Order.InitialOrderDoesNotExistForRecurringPayment") };
+            }
+
+            var request = new CancelRecurringPaymentRequest();
+            CancelRecurringPaymentResult result = null;
+
+            try
+            {
+                request.Order = initialOrder;
+                result = await _paymentService.CancelRecurringPaymentAsync(request);
+
+                if (result.Success)
+                {
+                    recurringPayment.IsActive = false;
+
+                    initialOrder.AddOrderNote(T("Admin.OrderNotice.RecurringPaymentCancelled"));
+                    await _db.SaveChangesAsync();
+
+                    await _messageFactory.SendRecurringPaymentCancelledStoreOwnerNotificationAsync(recurringPayment, _localizationSettings.DefaultAdminLanguageId);
+                }
+            }
+            catch (Exception ex)
+            {
+                result ??= new();
+                result.Errors.Add(ex.ToAllMessages());
+            }
+
+            if (result.Errors.Any())
+            {
+                ProcessErrors(initialOrder, result.Errors, "Admin.OrderNotice.RecurringPaymentCancellationError");
+                await _db.SaveChangesAsync();
+            }
+
+            return result.Errors;
+        }
+
+        public virtual async Task ProcessNextRecurringPaymentAsync(RecurringPayment recurringPayment)
+        {
+            Guard.NotNull(recurringPayment, nameof(recurringPayment));
+
+            try
+            {
+                if (!recurringPayment.IsActive)
+                    throw new SmartException(T("Payment.RecurringPaymentNotActive"));
+
+                var initialOrder = recurringPayment.InitialOrder;
+                if (initialOrder == null)
+                    throw new SmartException(T("Order.InitialOrderDoesNotExistForRecurringPayment"));
+
+                var customer = initialOrder.Customer;
+                if (customer == null)
+                    throw new SmartException(T("Customer.DoesNotExist"));
+
+                var nextPaymentDate = recurringPayment.NextPaymentDate;
+                if (!nextPaymentDate.HasValue)
+                    throw new SmartException(T("Payment.CannotCalculateNextPaymentDate"));
+
+                var paymentInfo = new ProcessPaymentRequest
+                {
+                    StoreId = initialOrder.StoreId,
+                    CustomerId = customer.Id,
+                    OrderGuid = Guid.NewGuid(),
+                    IsRecurringPayment = true,
+                    InitialOrderId = initialOrder.Id,
+                    RecurringCycleLength = recurringPayment.CycleLength,
+                    RecurringCyclePeriod = recurringPayment.CyclePeriod,
+                    RecurringTotalCycles = recurringPayment.TotalCycles,
+                };
+
+                var result = await PlaceOrderAsync(paymentInfo, new());
+
+                if (result.Success)
+                {
+                    if (result.PlacedOrder == null)
+                        throw new SmartException(T("Order.NotFound", "".NaIfEmpty()));
+
+                    recurringPayment.RecurringPaymentHistory.Add(new RecurringPaymentHistory
+                    {
+                        RecurringPayment = recurringPayment,
+                        CreatedOnUtc = DateTime.UtcNow,
+                        OrderId = result.PlacedOrder.Id
+                    });
+                    
+                    await _db.SaveChangesAsync();
+                }
+                else if (result.Errors.Count > 0)
+                {
+                    throw new SmartException(string.Join(" ", result.Errors));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.ErrorsAll(ex);
+                throw;
+            }
+        }
+
+        public virtual bool CanMarkOrderAsAuthorized(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (order.OrderStatus == OrderStatus.Cancelled)
+                return false;
+
+            if (order.PaymentStatus == PaymentStatus.Pending)
+                return true;
+
+            return false;
+        }
+
+        public virtual async Task MarkAsAuthorizedAsync(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            order.PaymentStatusId = (int)PaymentStatus.Authorized;
+
+            order.AddOrderNote(T("Admin.OrderNotice.OrderMarkedAsAuthorized"));
+            await _db.SaveChangesAsync();
+
+            await CheckOrderStatusAsync(order);
+        }
+
+        public virtual bool CanCompleteOrder(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            return order.OrderStatus != OrderStatus.Complete && order.OrderStatus != OrderStatus.Cancelled;
+        }
+
+        public virtual async Task CompleteOrderAsync(Order order)
+        {
+            if (!CanCompleteOrder(order))
+            {
+                throw new SmartException(T("Order.CannotMarkCompleted"));
+            }
+
+            if (CanMarkOrderAsPaid(order))
+            {
+                await MarkOrderAsPaidAsync(order);
+            }
+
+            if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
+            {
+                order.ShippingStatusId = (int)ShippingStatus.Delivered;
+            }
+
+            await _db.SaveChangesAsync();
+
+            await CheckOrderStatusAsync(order);
+        }
+
+        public virtual async Task<bool> CanCaptureAsync(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (order.OrderStatus == OrderStatus.Cancelled || order.OrderStatus == OrderStatus.Pending)
+                return false;
+
+            if (order.PaymentStatus == PaymentStatus.Authorized && await _paymentService.SupportCaptureAsync(order.PaymentMethodSystemName))
+                return true;
+
+            return false;
+        }
+
+        public virtual async Task<IList<string>> CaptureAsync(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (!await CanCaptureAsync(order))
+            {
+                throw new SmartException(T("Order.CannotCapture"));
+            }
+
+            var request = new CapturePaymentRequest();
+            CapturePaymentResult result = null;
+
+            try
+            {
+                request.Order = order;
+                result = await _paymentService.CaptureAsync(request);
+
+                if (result.Success)
+                {
+                    var paidDate = result.NewPaymentStatus == PaymentStatus.Paid ? DateTime.UtcNow : order.PaidDateUtc;
+
+                    order.CaptureTransactionId = result.CaptureTransactionId;
+                    order.CaptureTransactionResult = result.CaptureTransactionResult;
+                    order.PaymentStatus = result.NewPaymentStatus;
+                    order.PaidDateUtc = paidDate;
+
+                    order.AddOrderNote(T("Admin.OrderNotice.OrderCaptured"));
+                    await _db.SaveChangesAsync();
+
+                    await CheckOrderStatusAsync(order);
+
+                    if (order.PaymentStatus == PaymentStatus.Paid)
+                    {
+                        await _eventPublisher.PublishOrderPaidAsync(order);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result ??= new();
+                result.Errors.Add(ex.ToAllMessages());
+            }
+
+            if (result.Errors.Any())
+            {
+                ProcessErrors(order, result.Errors, "Admin.OrderNotice.OrderCaptureError");
+                await _db.SaveChangesAsync();
+            }
+
+            return result.Errors;
+        }
+
+        public virtual bool CanMarkOrderAsPaid(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (order.OrderStatus == OrderStatus.Cancelled)
+                return false;
+
+            if (order.PaymentStatus == PaymentStatus.Paid ||
+                order.PaymentStatus == PaymentStatus.Refunded ||
+                order.PaymentStatus == PaymentStatus.Voided)
+                return false;
+
+            return true;
+        }
+
+        public virtual async Task MarkOrderAsPaidAsync(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (!CanMarkOrderAsPaid(order))
+            {
+                throw new SmartException(T("Order.CannotMarkPaid"));
+            }
+
+            order.PaymentStatusId = (int)PaymentStatus.Paid;
+            order.PaidDateUtc = DateTime.UtcNow;
+
+            order.AddOrderNote(T("Admin.OrderNotice.OrderMarkedAsPaid"));
+            await _db.SaveChangesAsync();
+
+            await CheckOrderStatusAsync(order);
+
+            if (order.PaymentStatus == PaymentStatus.Paid)
+            {
+                await _eventPublisher.PublishOrderPaidAsync(order);
+            }
+        }
 
         public virtual async Task<bool> CanRefundAsync(Order order)
         {
@@ -589,6 +1008,89 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             return null;
+        }
+
+        public virtual async Task AutoUpdateOrderDetailsAsync(AutoUpdateOrderItemContext context)
+        {
+            var oi = context.OrderItem;
+
+            context.RewardPointsOld = context.RewardPointsNew = oi.Order.Customer.GetRewardPointsBalance();
+
+            if (context.UpdateTotals && oi.Order.OrderStatusId <= (int)OrderStatus.Pending)
+            {
+                var currency = await _db.Currencies.AsNoTracking().FirstOrDefaultAsync(x => x.CurrencyCode == oi.Order.CustomerCurrencyCode);
+
+                decimal priceInclTax = currency.RoundIfEnabledFor(context.QuantityNew * oi.UnitPriceInclTax);
+                decimal priceExclTax = currency.RoundIfEnabledFor(context.QuantityNew * oi.UnitPriceExclTax);
+
+                decimal deltaPriceInclTax = context.IsNewOrderItem
+                    ? priceInclTax
+                    : priceInclTax - (context.PriceInclTaxOld?.Amount ?? oi.PriceInclTax);
+
+                decimal deltaPriceExclTax = context.IsNewOrderItem
+                    ? priceExclTax
+                    : priceExclTax - (context.PriceExclTaxOld?.Amount ?? oi.PriceExclTax);
+
+                oi.Quantity = context.QuantityNew;
+                oi.PriceInclTax = currency.RoundIfEnabledFor(priceInclTax);
+                oi.PriceExclTax = currency.RoundIfEnabledFor(priceExclTax);
+
+                decimal subtotalInclTax = oi.Order.OrderSubtotalInclTax + deltaPriceInclTax;
+                decimal subtotalExclTax = oi.Order.OrderSubtotalExclTax + deltaPriceExclTax;
+
+                oi.Order.OrderSubtotalInclTax = currency.RoundIfEnabledFor(subtotalInclTax);
+                oi.Order.OrderSubtotalExclTax = currency.RoundIfEnabledFor(subtotalExclTax);
+
+                decimal discountInclTax = oi.DiscountAmountInclTax * context.QuantityChangeFactor;
+                decimal discountExclTax = oi.DiscountAmountExclTax * context.QuantityChangeFactor;
+
+                //decimal deltaDiscountInclTax = discountInclTax - oi.DiscountAmountInclTax;
+                //decimal deltaDiscountExclTax = discountExclTax - oi.DiscountAmountExclTax;
+
+                oi.DiscountAmountInclTax = currency.RoundIfEnabledFor(discountInclTax);
+                oi.DiscountAmountExclTax = currency.RoundIfEnabledFor(discountExclTax);
+
+                decimal total = Math.Max(oi.Order.OrderTotal + deltaPriceInclTax, 0);
+                decimal tax = Math.Max(oi.Order.OrderTax + (deltaPriceInclTax - deltaPriceExclTax), 0);
+
+                oi.Order.OrderTotal = currency.RoundIfEnabledFor(total);
+                oi.Order.OrderTax = currency.RoundIfEnabledFor(tax);
+
+                // Update tax rate value.
+                var deltaTax = deltaPriceInclTax - deltaPriceExclTax;
+                if (deltaTax != decimal.Zero)
+                {
+                    var taxRates = oi.Order.TaxRatesDictionary;
+
+                    taxRates[oi.TaxRate] = taxRates.ContainsKey(oi.TaxRate)
+                        ? Math.Max(taxRates[oi.TaxRate] + deltaTax, 0)
+                        : Math.Max(deltaTax, 0);
+
+                    oi.Order.TaxRates = FormatTaxRates(taxRates);
+                }
+
+                await _db.SaveChangesAsync();
+            }
+
+            if (context.AdjustInventory && context.QuantityDelta != 0)
+            {
+                context.Inventory = await _productService.AdjustInventoryAsync(oi, context.QuantityDelta > 0, Math.Abs(context.QuantityDelta));
+
+                await _db.SaveChangesAsync();
+            }
+
+            if (context.UpdateRewardPoints && context.QuantityDelta < 0)
+            {
+                // We reduce but we do not award points subsequently. They can be awarded once per order anyway (see Order.RewardPointsWereAdded).
+                // UpdateRewardPoints only visible for unpending orders (see RewardPointsSettingsValidator).
+                // Note: reducing can of course only work if oi.UnitPriceExclTax has not been changed!
+                decimal reduceAmount = Math.Abs(context.QuantityDelta) * oi.UnitPriceInclTax;
+                ApplyRewardPoints(oi.Order, true, reduceAmount);
+
+                await _db.SaveChangesAsync();
+
+                context.RewardPointsNew = oi.Order.Customer.GetRewardPointsBalance();
+            }
         }
 
         #region Utilities
