@@ -50,6 +50,7 @@ namespace Smartstore
         /// <returns>Total number of items which can be added to new shipments.</returns>
         public static int GetItemsCanBeAddedToShipmentCount(this OrderItem orderItem)
         {
+            // TODO: (ms) (core) Change really SHITTY name!!
             Guard.NotNull(orderItem, nameof(orderItem));
 
             var itemsCount = orderItem.GetShipmentItemsCount();

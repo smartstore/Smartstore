@@ -20,6 +20,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
 using Smartstore.Events;
+using Smartstore.Data;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -516,6 +517,8 @@ namespace Smartstore.Core.Checkout.Orders
             try
             {
                 request.Order = order;
+
+                // TODO: (mg) (core) _primaryCurrency is NOT CORRECT!!!! See "Order.CustomerCurrencyCode".
                 request.AmountToRefund = new Money(order.OrderTotal, _primaryCurrency);
                 request.IsPartialRefund = false;
 
@@ -585,8 +588,8 @@ namespace Smartstore.Core.Checkout.Orders
             order.PaymentStatus = PaymentStatus.Refunded;
 
             order.AddOrderNote(T("Admin.OrderNotice.OrderMarkedAsRefunded", amountToRefund.ToString(true)));
-            await _db.SaveChangesAsync();
 
+            // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
         }
 
@@ -617,6 +620,8 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<IList<string>> PartiallyRefundAsync(Order order, Money amountToRefund)
         {
+            // TODO: (mg) (core) Ensure that Money input represents the correct currency and amount (money exchange problem!)
+
             Guard.NotNull(order, nameof(order));
 
             if (!await CanPartiallyRefundAsync(order, amountToRefund))
@@ -642,8 +647,8 @@ namespace Smartstore.Core.Checkout.Orders
                     order.PaymentStatus = result.NewPaymentStatus;
 
                     order.AddOrderNote(T("Admin.OrderNotice.OrderPartiallyRefunded", amountToRefund.ToString(true)));
-                    await _db.SaveChangesAsync();
 
+                    // INFO: CheckOrderStatus performs commit.
                     await CheckOrderStatusAsync(order);
                 }
             }
@@ -701,8 +706,8 @@ namespace Smartstore.Core.Checkout.Orders
             order.PaymentStatus = PaymentStatus.PartiallyRefunded;
 
             order.AddOrderNote(T("Admin.OrderNotice.OrderMarkedAsPartiallyRefunded", amountToRefund.ToString(true)));
-            await _db.SaveChangesAsync();
 
+            // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
         }
 
@@ -744,8 +749,8 @@ namespace Smartstore.Core.Checkout.Orders
                 {
                     order.PaymentStatus = result.NewPaymentStatus;
                     order.AddOrderNote(T("Admin.OrderNotice.OrderVoided"));
-                    await _db.SaveChangesAsync();
 
+                    // INFO: CheckOrderStatus performs commit.
                     await CheckOrderStatusAsync(order);
                 }
             }
@@ -792,8 +797,8 @@ namespace Smartstore.Core.Checkout.Orders
 
             order.PaymentStatusId = (int)PaymentStatus.Voided;
             order.AddOrderNote(T("Admin.OrderNotice.OrderMarkedAsVoided"));
-            await _db.SaveChangesAsync();
 
+            // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
         }
 
@@ -879,6 +884,8 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task<(bool Valid, Money OrderTotalMinimum)> IsAboveOrderTotalMinimumAsync(IList<OrganizedShoppingCartItem> cart, int[] customerRoleIds)
         {
+            // TODO: (mg) (core) PERF! Make a combined method for IsAboveOrderTotalMinimumAsync & IsBelowOrderTotalMaximumAsync. They are alway called in tandem but do redundant checks.
+
             Guard.NotNull(cart, nameof(cart));
             Guard.NotNull(customerRoleIds, nameof(customerRoleIds));
 
@@ -1188,8 +1195,7 @@ namespace Smartstore.Core.Checkout.Orders
                 return;
             }
 
-            var allLanguages = await _db.Languages.AsNoTracking().ToListAsync();
-            var allLanguagesDic = allLanguages.ToDictionary(x => x.Id);
+            var allLanguages = await _db.Languages.AsNoTracking().ToDictionaryAsync(x => x.Id);
 
             foreach (var gc in giftCards)
             {
@@ -1202,9 +1208,9 @@ namespace Smartstore.Core.Checkout.Orders
                         // Send email for virtual gift card.
                         if (gc.RecipientEmail.HasValue() && gc.SenderEmail.HasValue())
                         {
-                            if (!allLanguagesDic.TryGetValue(order.CustomerLanguageId, out var customerLang))
+                            if (!allLanguages.TryGetValue(order.CustomerLanguageId, out var customerLang))
                             {
-                                customerLang = allLanguages.FirstOrDefault();
+                                customerLang = allLanguages.Values.FirstOrDefault();
                             }
 
                             var msgResult = await _messageFactory.SendGiftCardNotificationAsync(gc, customerLang.Id);
@@ -1278,10 +1284,11 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(order, nameof(order));
 
+            using var scope = new DbContextScope(_db, deferCommit: true);
+
             if (order.PaymentStatus == PaymentStatus.Paid && !order.PaidDateUtc.HasValue)
             {
                 order.PaidDateUtc = DateTime.UtcNow;
-                await _db.SaveChangesAsync();
             }
 
             if (order.OrderStatus == OrderStatus.Pending && 
@@ -1303,6 +1310,8 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 await SetOrderStatusAsync(order, OrderStatus.Complete, true);
             }
+
+            await scope.CommitAsync();
         }
 
         #endregion

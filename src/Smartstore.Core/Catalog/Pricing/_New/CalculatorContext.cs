@@ -29,14 +29,5 @@ namespace Smartstore.Core.Catalog.Pricing
         public decimal? SelectionPrice { get; set; }
         public decimal? LowestPrice { get; set; }
         public decimal FinalPrice { get; set; }
-
-        public void SetFinalPrice(decimal price)
-        {
-            // ?????
-            if (price < FinalPrice)
-            {
-                FinalPrice = price;
-            }
-        }
     }
 }
