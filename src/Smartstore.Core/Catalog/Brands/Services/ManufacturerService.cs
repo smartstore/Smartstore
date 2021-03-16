@@ -59,6 +59,8 @@ namespace Smartstore.Core.Catalog.Brands
                     from pm in _db.ProductManufacturers
                         .AsNoTracking()
                         .Include(x => x.Manufacturer)
+                        .ThenInclude(x => x.MediaFile)
+                        .Include(x => x.Manufacturer)
                         .ThenInclude(x => x.AppliedDiscounts)
                     join m in manufacturersQuery on pm.ManufacturerId equals m.Id
                     where productIds.Contains(pm.ProductId)
