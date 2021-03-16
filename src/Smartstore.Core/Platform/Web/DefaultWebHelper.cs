@@ -266,7 +266,7 @@ namespace Smartstore.Core.Web
 
             foreach (var nv in modify.Keys)
             {
-                current.Add(nv, modify[nv], false);
+                current.Add(nv, modify[nv], true);
             }
 
             var result = string.Concat(
