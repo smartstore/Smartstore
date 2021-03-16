@@ -57,7 +57,7 @@
             <div class="art-info-group@(list.ShowRatings && list.ShowBrand ? " floating" : "")">
                 @if (list.ShowBrand)
                 {
-                    @*<partial name="Product.List.Item.Brand" model="Model" />*@
+                    <partial name="Product.List.Item.Brand" model="Model" />
                 }
                 @if (list.ShowRatings)
                 {
@@ -73,7 +73,7 @@
             }
             if (list.ShowBrand)
             {
-                @*<partial name="Product.List.Item.Brand" model="Model" />*@
+                <partial name="Product.List.Item.Brand" model="Model" />
             }
         }
     }
