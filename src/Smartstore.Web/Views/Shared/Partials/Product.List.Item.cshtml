@@ -61,7 +61,7 @@
                 }
                 @if (list.ShowRatings)
                 {
-                    @*<partial name="Product.List.Item.Rating" model="Model" />*@
+                    <partial name="Product.List.Item.Rating" model="Model" />
                 }
             </div>
         }
@@ -69,7 +69,7 @@
         {
             if (list.ShowRatings)
             {
-                @*<partial name="Product.List.Item.Rating" model="Model" />*@
+                <partial name="Product.List.Item.Rating" model="Model" />
             }
             if (list.ShowBrand)
             {
