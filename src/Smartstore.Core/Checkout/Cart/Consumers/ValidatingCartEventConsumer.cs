@@ -1,57 +1,59 @@
-﻿using Smartstore.Core.Common.Services;
+﻿using System.Threading.Tasks;
+using Smartstore.Core.Checkout.Cart.Events;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Cart
 {
     internal class ValidatingCartEventConsumer : IConsumer
-    {
-        // TODO: (ms) (core) OrderProcessingService is missing
-        //private readonly IOrderProcessingService _orderProcessingService;
+    {        
+        private readonly IOrderProcessingService _orderProcessingService;
         private readonly ILocalizationService _localizationService;
         private readonly ICurrencyService _currencyService;        
         private readonly IWorkContext _workContext;
 
         public ValidatingCartEventConsumer(
-          //  IOrderProcessingService orderProcessingService,
+            IOrderProcessingService orderProcessingService,
             ILocalizationService localizationService,
             ICurrencyService currencyService,
             IWorkContext workContext)
         {
-            //_orderProcessingService = orderProcessingService;
+            _orderProcessingService = orderProcessingService;
             _localizationService = localizationService;
             _currencyService = currencyService;
             _workContext = workContext;
         }
 
-        //public void HandleEvent(ValidatingCartEvent message)
-        //{
-        //    // Default Order Totals restriction
-        //    var roleIds = _workContext.CurrentImpersonator?.GetRoleIds() ?? message.Customer.GetRoleIds();
+        public async Task HandleEventAsync(ValidatingCartEvent message)
+        {
+            // Default Order Totals restriction
+            var roleIds = _workContext.CurrentImpersonator?.GetRoleIds() ?? message.Customer.GetRoleIds();
 
-        //    // Minimum order totals validation
-        //    var (isAboveMin, min) = _orderProcessingService.IsAboveOrderTotalMinimum(message.Cart, roleIds);
-        //    if (!isAboveMin)
-        //    {
-        //        min = _currencyService.ConvertFromPrimaryStoreCurrency(min, _workContext.WorkingCurrency);
-        //        message.Warnings.Add(string.Format(
-        //            _localizationService.GetResource("Checkout.MinOrderSubtotalAmount"),
-        //            _currencyService.AsMoney(min, true, displayTax: false))
-        //            );
+            // Minimum order totals validation
+            var (isAboveMin, min) =  await _orderProcessingService.IsAboveOrderTotalMinimumAsync(message.Cart, roleIds);
+            if (!isAboveMin)
+            {
+                min = _currencyService.ConvertFromPrimaryCurrency(min.Amount, _workContext.WorkingCurrency);
+                message.Warnings.Add(string.Format(
+                    _localizationService.GetResource("Checkout.MinOrderSubtotalAmount"),
+                    min.ToString(true))
+                    );
 
-        //        return;
-        //    }
+                return;
+            }
 
-        //    // Maximum order totals validation
-        //    var (isBelowMax, max) = _orderProcessingService.IsBelowOrderTotalMaximum(message.Cart, roleIds);
-        //    if (!isBelowMax)
-        //    {
-        //        max = _currencyService.ConvertFromPrimaryStoreCurrency(max, _workContext.WorkingCurrency);
-        //        message.Warnings.Add(string.Format(
-        //           _localizationService.GetResource("Checkout.MaxOrderSubtotalAmount"),
-        //           _priceFormatter.FormatPrice(max, true, false))
-        //            );
-        //    }
-        //}
+            // Maximum order totals validation
+            var (isBelowMax, max) = await _orderProcessingService.IsBelowOrderTotalMaximumAsync(message.Cart, roleIds);
+            if (!isBelowMax)
+            {
+                max = _currencyService.ConvertFromPrimaryCurrency(max.Amount, _workContext.WorkingCurrency);
+                message.Warnings.Add(string.Format(
+                    _localizationService.GetResource("Checkout.MaxOrderSubtotalAmount"),
+                    max.ToString(true))
+                    );
+            }
+        }
     }
 }
