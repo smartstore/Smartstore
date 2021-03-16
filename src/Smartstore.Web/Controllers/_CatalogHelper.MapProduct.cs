@@ -678,6 +678,33 @@ namespace Smartstore.Web.Controllers
                 return (new Money(ctx.WorkingCurrency).WithPostFormat(ctx.Resources["Products.CallForPrice"]), contextProduct);
             }
 
+            #region Test NEW
+
+            //var calculationContext = new PriceCalculationContext(product) 
+            //{
+            //    BatchContext = ctx.BatchContext,
+            //    Options = new PriceCalculationOptions
+            //    {
+            //        TargetCurrency = ctx.WorkingCurrency,
+            //        Language = _workContext.WorkingLanguage
+            //    }
+            //};
+
+            //var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+
+            //priceModel.Price = calculatedPrice.FinalPrice;
+            //priceModel.HasDiscount = calculatedPrice.HasDiscount;
+            //if (calculatedPrice.HasDiscount)
+            //{
+            //    priceModel.RegularPrice = calculatedPrice.RegularPrice;
+            //    priceModel.SavingAmount = calculatedPrice.SavingAmount;
+            //    priceModel.SavingPercent = calculatedPrice.SavingPercent;
+            //}
+
+            //return (calculatedPrice.FinalPrice, contextProduct);
+
+            #endregion
+
             // Calculate prices.
             var batchContext = product.ProductType == ProductType.GroupedProduct ? ctx.AssociatedProductBatchContext : ctx.BatchContext;
 

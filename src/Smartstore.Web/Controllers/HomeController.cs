@@ -166,6 +166,13 @@ namespace Smartstore.Web.Controllers
             var currentStore = _storeContext.CurrentStore;
         }
 
+        public async Task<IActionResult> ClearCache()
+        {
+            // TODO: (core) Remove HomeController.ClearCache() later.
+            await _cache.ClearAsync();
+            return RedirectToReferrer();
+        }
+
         [LocalizedRoute("/", Name = "Homepage")]
         public async Task<IActionResult> Index()
         {

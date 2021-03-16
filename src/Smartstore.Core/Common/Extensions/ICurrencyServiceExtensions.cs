@@ -17,6 +17,12 @@ namespace Smartstore
         /// <returns>The exchanged amount.</returns>
         public static Money ConvertToPrimaryCurrency(this ICurrencyService service, Money amount)
         {
+            if (amount.Currency == service.PrimaryCurrency)
+            {
+                // Perf
+                return amount;
+            }
+
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
             return amount.ExchangeTo(service.PrimaryCurrency, service.PrimaryExchangeCurrency);
         }
@@ -40,6 +46,12 @@ namespace Smartstore
         /// <returns>The exchanged amount.</returns>
         public static Money ConvertToExchangeRateCurrency(this ICurrencyService service, Money amount)
         {
+            if (amount.Currency == service.PrimaryExchangeCurrency)
+            {
+                // Perf
+                return amount;
+            }
+
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
             return amount.ExchangeTo(service.PrimaryExchangeCurrency);
         }
@@ -53,6 +65,12 @@ namespace Smartstore
         /// <returns>The exchanged amount.</returns>
         public static Money ConvertToCurrency(this ICurrencyService service, Money amount, Currency targetCurrency)
         {
+            if (amount.Currency == targetCurrency)
+            {
+                // Perf
+                return amount;
+            }
+
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
             Guard.NotNull(targetCurrency, nameof(targetCurrency));
 

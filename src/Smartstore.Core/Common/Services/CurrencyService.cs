@@ -92,6 +92,12 @@ namespace Smartstore.Core.Common.Services
 
         public virtual Money ConvertToWorkingCurrency(Money amount)
         {
+            if (amount.Currency == _workContext.WorkingCurrency)
+            {
+                // Perf
+                return amount;
+            }
+            
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
             return amount.ExchangeTo(_workContext.WorkingCurrency, PrimaryExchangeCurrency);
         }

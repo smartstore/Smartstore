@@ -308,7 +308,7 @@ namespace Smartstore.Core.Common
                 formatted = RoundedAmount.ToString("C", nf);
             }
 
-            return postFormat == null ? formatted : string.Format(postFormat, formatted);
+            return postFormat == null || postFormat == "{0}" ? formatted : string.Format(postFormat, formatted);
         }
 
         #endregion

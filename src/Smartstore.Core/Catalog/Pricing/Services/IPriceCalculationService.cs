@@ -14,7 +14,11 @@ namespace Smartstore.Core.Catalog.Pricing
     /// </summary>
     public partial interface IPriceCalculationService
     {
-        //Task<PriceCalculationResult> Calculate(PriceCalculationRequest request, IEnumerable<IPriceCalculator> pipeline);
+        #region NEW
+
+        Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context);
+
+        #endregion
 
         /// <summary>
         /// Gets the special price in the primary currency. <c>null</c> if not available.

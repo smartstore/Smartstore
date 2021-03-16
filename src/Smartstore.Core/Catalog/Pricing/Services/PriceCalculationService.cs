@@ -29,6 +29,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ICommonServices _services;
+        private readonly IPriceCalculatorFactory _calculatorFactory;
         private readonly ICategoryService _categoryService;
         private readonly IManufacturerService _manufacturerService;
         private readonly ITaxService _taxService;
@@ -44,6 +45,7 @@ namespace Smartstore.Core.Catalog.Pricing
             IWorkContext workContext,
             IStoreContext storeContext,
             ICommonServices services,
+            IPriceCalculatorFactory calculatorFactory,
             ICategoryService categoryService,
             IManufacturerService manufacturerService,
             ITaxService taxService,
@@ -56,6 +58,7 @@ namespace Smartstore.Core.Catalog.Pricing
             _workContext = workContext;
             _storeContext = storeContext;
             _services = services;
+            _calculatorFactory = calculatorFactory;
             _categoryService = categoryService;
             _manufacturerService = manufacturerService;
             _taxService = taxService;
@@ -69,6 +72,67 @@ namespace Smartstore.Core.Catalog.Pricing
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
+
+
+        #region New
+
+        public async Task<CalculatedPrice> CalculatePriceLegacyAsync(PriceCalculationContext context)
+        {
+            Guard.NotNull(context, nameof(context));
+
+            //var product = context.Product;
+            //var batchContext = context.BatchContext;
+
+            //if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing && !batchContext.ProductBundleItems.FullyLoaded)
+            //{
+            //    await batchContext.ProductBundleItems.LoadAllAsync();
+            //}
+
+            await Task.Delay(1);
+            var result = new CalculatedPrice(null);
+            return result;
+        }
+
+        public async Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context)
+        {
+            Guard.NotNull(context, nameof(context));
+
+            VerifyContext(context);
+
+            var calculators = _calculatorFactory.GetCalculators(context);
+            var calculatorContext = new CalculatorContext(context, await context.Product.GetRegularPriceAsync());
+
+            await _calculatorFactory.RunCalculators(calculators, calculatorContext);
+
+            var result = new CalculatedPrice(calculatorContext)
+            {
+                RegularPrice = ConvertAmount(calculatorContext.RegularPrice).Value,
+                OfferPrice = ConvertAmount(calculatorContext.OfferPrice),
+                SelectionPrice = ConvertAmount(calculatorContext.SelectionPrice),
+                LowestPrice = ConvertAmount(calculatorContext.LowestPrice),
+                FinalPrice = ConvertAmount(calculatorContext.FinalPrice).Value
+            };
+
+            return result;
+
+            Money? ConvertAmount(decimal? amount)
+            {
+                if (amount.HasValue)
+                {
+                    var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, context.Options.TargetCurrency);
+                    return _currencyService.ApplyTaxFormat(money, null, null, null);
+                }
+
+                return null;
+            }
+        }
+
+        private void VerifyContext(PriceCalculationContext context)
+        {
+            //
+        }
+
+        #endregion
 
         public virtual Money? GetSpecialPrice(Product product)
         {
