@@ -21,6 +21,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
 using Smartstore.Events;
 using Smartstore.Data;
+using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Orders
 {
