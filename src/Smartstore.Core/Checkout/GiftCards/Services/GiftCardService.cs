@@ -22,13 +22,13 @@ namespace Smartstore.Core.Checkout.GiftCards
             _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
-        public virtual Task<List<AppliedGiftCard>> GetValidGiftCardsAsync(int storeId = 0, Customer customer = null)
+        public virtual async Task<List<AppliedGiftCard>> GetValidGiftCardsAsync(int storeId = 0, Customer customer = null)
         {
             var query = _db.GiftCards
                 .Include(x => x.PurchasedWithOrderItem)
                     .ThenInclude(x => x.Order)
                 .Include(x => x.GiftCardUsageHistory)
-                .ApplyStandardFilter(storeId)                
+                .ApplyStandardFilter(storeId)
                 .AsQueryable();
 
             if (customer != null)
@@ -36,23 +36,29 @@ namespace Smartstore.Core.Checkout.GiftCards
                 // Get gift card codes applied by customer
                 var couponCodes = customer.GenericAttributes.GiftCardCouponCodes;
                 if (!couponCodes.Any())
-                    return Task.FromResult(new List<AppliedGiftCard>());
+                {
+                    return new List<AppliedGiftCard>();
+                }
 
                 query = query.ApplyCouponFilter(couponCodes.Select(x => x.Value).ToArray());
             }
 
             // Get valid gift cards (remaining useable amount > 0)
-            var giftCards = query
-                .Select(x => new AppliedGiftCard
+            var giftCards = await query
+                .Select(x => new
                 {
                     GiftCard = x,
-                    UsableAmount = new(x.Amount - x.GiftCardUsageHistory.Where(y => y.GiftCardId == x.Id).Sum(x => x.UsedValue), _primaryCurrency)
-                    // This causes some kind of linq exeption, prob since appliedgiftcard.usableAmount is now a money struct, worked before
+                    UsableAmount = x.Amount - x.GiftCardUsageHistory.Where(y => y.GiftCardId == x.Id).Sum(x => x.UsedValue)
                 })
                 .Where(x => x.UsableAmount > decimal.Zero)
                 .ToListAsync();
 
-            return giftCards;
+            return giftCards.Select(x => new AppliedGiftCard
+            {
+                GiftCard = x.GiftCard,
+                UsableAmount = new(x.UsableAmount, _primaryCurrency)
+            })
+            .ToList();
         }
 
         //TODO: (ms) (core) have order item & order eager loaded

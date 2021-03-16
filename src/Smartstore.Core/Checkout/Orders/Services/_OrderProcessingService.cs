@@ -123,47 +123,51 @@ namespace Smartstore.Core.Checkout.Orders
             var activateGiftCards = _orderSettings.GiftCards_Activated_OrderStatusId > 0 && _orderSettings.GiftCards_Activated_OrderStatusId == (int)order.OrderStatus;
             var deactivateGiftCards = _orderSettings.GiftCards_Deactivated_OrderStatusId > 0 && _orderSettings.GiftCards_Deactivated_OrderStatusId == (int)order.OrderStatus;
 
-            if (activateGiftCards || deactivateGiftCards)
+            if (!activateGiftCards && !deactivateGiftCards)
             {
-                var giftCards = await _db.GiftCards
-                    .ApplyStandardFilter(order.Id)
-                    .ToListAsync();
+                return;
+            }
 
-                if (giftCards.Any())
+            var giftCards = await _db.GiftCards
+                .Include(x => x.PurchasedWithOrderItem)
+                .ApplyOrderFilter(new[] { order.Id })
+                .ToListAsync();
+
+            if (!giftCards.Any())
+            {
+                return;
+            }
+
+            var allLanguages = await _db.Languages.AsNoTracking().ToListAsync();
+            var allLanguagesDic = allLanguages.ToDictionary(x => x.Id);
+
+            foreach (var gc in giftCards)
+            {
+                if (activateGiftCards && !gc.IsGiftCardActivated)
                 {
-                    if (activateGiftCards)
+                    var isRecipientNotified = gc.IsRecipientNotified;
+
+                    if (gc.GiftCardType == GiftCardType.Virtual)
                     {
-                        var allLanguages = await _db.Languages.AsNoTracking().ToListAsync();
-                        var allLanguagesDic = allLanguages.ToDictionary(x => x.Id);
-
-                        foreach (var gc in giftCards.Where(x => !x.IsGiftCardActivated))
+                        // Send email for virtual gift card.
+                        if (gc.RecipientEmail.HasValue() && gc.SenderEmail.HasValue())
                         {
-                            var isRecipientNotified = gc.IsRecipientNotified;
-
-                            if (gc.GiftCardType == GiftCardType.Virtual)
+                            if (!allLanguagesDic.TryGetValue(order.CustomerLanguageId, out var customerLang))
                             {
-                                // Send email for virtual gift card.
-                                if (gc.RecipientEmail.HasValue() && gc.SenderEmail.HasValue())
-                                {
-                                    if (!allLanguagesDic.TryGetValue(order.CustomerLanguageId, out var customerLang))
-                                    {
-                                        customerLang = allLanguages.FirstOrDefault();
-                                    }
-
-                                    var msgResult = await _messageFactory.SendGiftCardNotificationAsync(gc, customerLang.Id);
-                                    isRecipientNotified = msgResult?.Email.Id != null;
-                                }
+                                customerLang = allLanguages.FirstOrDefault();
                             }
 
-                            gc.IsGiftCardActivated = true;
-                            gc.IsRecipientNotified = isRecipientNotified;
+                            var msgResult = await _messageFactory.SendGiftCardNotificationAsync(gc, customerLang.Id);
+                            isRecipientNotified = msgResult?.Email.Id != null;
                         }
                     }
 
-                    if (deactivateGiftCards)
-                    {
-                        giftCards.Where(x => x.IsGiftCardActivated).Each(x => x.IsGiftCardActivated = false);
-                    }
+                    gc.IsGiftCardActivated = true;
+                    gc.IsRecipientNotified = isRecipientNotified;
+                }
+                else if (deactivateGiftCards && gc.IsGiftCardActivated)
+                {
+                    gc.IsGiftCardActivated = false;
                 }
             }
         }

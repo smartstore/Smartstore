@@ -826,23 +826,24 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var entity = await _db.Products.FindByIdAsync(4370);
-            content.AppendLine("Product.MainPictureId before: " + entity.MainPictureId);
+            var gcService = Services.Resolve<IGiftCardService>();
+            var customer = await _db.Customers.Include(x => x.Addresses).FindByIdAsync(2666330);
 
-            _db.ProductMediaFiles.Add(new ProductMediaFile
+            //customer.GenericAttributes.GiftCardCouponCodes = new List<GiftCardCouponCode>
+            //{
+            //    new GiftCardCouponCode("027be3c3-7a9f")
+            //};
+
+            //await _db.SaveChangesAsync();
+
+            var giftCards = await gcService.GetValidGiftCardsAsync(1, customer);
+
+            foreach (var gc in giftCards)
             {
-                ProductId = 4370,
-                MediaFileId = 9
-            });
-
-            //_db.ProductMediaFiles.Remove(await _db.ProductMediaFiles.FirstOrDefaultAsync(x => x.ProductId == 4370 && x.MediaFileId == 9));
-
-            await _db.SaveChangesAsync();
-
-            entity = await _db.Products.FindByIdAsync(4370);
-            content.AppendLine("Product.MainPictureId after: " + entity.MainPictureId);
-
-
+                content.AppendLine($"gift card: {gc.UsableAmount.ToString()}. {gc.GiftCard.GiftCardCouponCode}");
+            }
+            
+            
             //var price = 16.98M;
             //var currency = Services.WorkContext.WorkingCurrency;
             //var currencyService = Services.Resolve<ICurrencyService>();
