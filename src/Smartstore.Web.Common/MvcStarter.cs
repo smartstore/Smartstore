@@ -159,14 +159,20 @@ namespace Smartstore.Web
             // Convenience: Register IUrlHelper as transient dependency.
             builder.Register<IUrlHelper>(c =>
             {
-                var actionContext = c.Resolve<IActionContextAccessor>().ActionContext;
-
-                if (actionContext == null)
+                var httpContext = c.Resolve<IHttpContextAccessor>().HttpContext;
+                if (httpContext?.Items != null && httpContext.Items.TryGetValue(typeof(IUrlHelper), out var value) && value is IUrlHelper)
                 {
-                    return null;
+                    // We know for sure that IUrlHelper is saved in HttpContext.Items
+                    return (IUrlHelper)value;
                 }
 
-                return c.Resolve<IUrlHelperFactory>().GetUrlHelper(actionContext);
+                var actionContext = c.Resolve<IActionContextAccessor>().ActionContext;
+                if (actionContext != null)
+                {
+                    return c.Resolve<IUrlHelperFactory>().GetUrlHelper(actionContext);
+                }
+
+                return null;
             }).InstancePerDependency();
         }
 
