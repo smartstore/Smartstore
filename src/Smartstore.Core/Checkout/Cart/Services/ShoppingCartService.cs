@@ -277,6 +277,10 @@ namespace Smartstore.Core.Checkout.Cart
             // If ctx.Product is a bundle product, try adding all corresponding bundleItems
             if (ctx.Product.ProductType == ProductType.BundledProduct && ctx.BundleItem == null && ctx.Warnings.Count == 0)
             {
+                // TODO: (ms) (core) AddToCartAsync: bundle items are handled incorrectly in case of an re-order.
+                // Data comes from an existing order (e.g. OrderItem.BundleData, OrderItem.RawAttributes, OrderItem.Quantity), not from parent AddToCartContext.
+                // See https://github.com/smartstore/SmartStoreNET/blob/4.x/src/Libraries/SmartStore.Services/Orders/OrderProcessingService.cs#L2634-L2641
+
                 // Get all bundle items and add each to the cart
                 var bundleItems = _db.IsCollectionLoaded(ctx.Product, x => x.ProductBundleItems)
                     ? ctx.Product.ProductBundleItems
