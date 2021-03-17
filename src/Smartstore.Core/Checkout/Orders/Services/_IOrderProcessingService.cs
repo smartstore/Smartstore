@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -13,20 +13,6 @@ namespace Smartstore.Core.Checkout.Orders
     /// </summary>
     public partial interface IOrderProcessingService
     {
-        /// <summary>
-        /// Marks a shipment as shipped.
-        /// </summary>
-        /// <param name="shipment">Shipment.</param>
-        /// <param name="notifyCustomer"><c>true</c> to notify customer.</param>
-        Task ShipAsync(Shipment shipment, bool notifyCustomer);
-
-        /// <summary>
-        /// Marks a shipment as delivered.
-        /// </summary>
-        /// <param name="shipment">Shipment.</param>
-        /// <param name="notifyCustomer"><c>true</c> to notify customer.</param>
-        Task DeliverAsync(Shipment shipment, bool notifyCustomer);
-
         /// <summary>
         /// Gets a value indicating whether an order can be cancelled.
         /// </summary>
@@ -42,25 +28,102 @@ namespace Smartstore.Core.Checkout.Orders
         Task CancelOrderAsync(Order order, bool notifyCustomer);
 
         /// <summary>
-        /// Gets a value indicating whether a customer can cancel recurring payment.
+        /// Gets a value indicating whether an order can be marked as completed.
         /// </summary>
-        /// <param name="customerToValidate">Customer.</param>
-        /// <param name="recurringPayment">Recurring payment.</param>
-        /// <returns>A value indicating whether a customer can cancel recurring payment.</returns>
-        bool CanCancelRecurringPayment(Customer customerToValidate, RecurringPayment recurringPayment);
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order can be marked as completed.</returns>
+        bool CanCompleteOrder(Order order);
 
         /// <summary>
-        /// Cancels a recurring payment.
+        /// Marks an order as completed.
         /// </summary>
-        /// <param name="recurringPayment">Recurring payment.</param>
-        /// <returns>List of errors if any.</returns>
-        Task<IList<string>> CancelRecurringPaymentAsync(RecurringPayment recurringPayment);
+        /// <param name="order">Order.</param>
+        Task CompleteOrderAsync(Order order);
 
         /// <summary>
-        /// Processes the next recurring psayment.
+        /// Deletes an order.
         /// </summary>
-        /// <param name="recurringPayment">Recurring payment.</param>
-        Task ProcessNextRecurringPaymentAsync(RecurringPayment recurringPayment);
+        /// <param name="order">Order.</param>
+        Task DeleteOrderAsync(Order order);
+
+        /// <summary>
+        /// Place order items in shopping cart of the user who placed the order.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        Task ReOrderAsync(Order order);
+
+        /// <summary>
+        /// Marks a shipment as shipped.
+        /// </summary>
+        /// <param name="shipment">Shipment.</param>
+        /// <param name="notifyCustomer"><c>true</c> to notify customer.</param>
+        Task ShipAsync(Shipment shipment, bool notifyCustomer);
+
+        /// <summary>
+        /// Marks a shipment as delivered.
+        /// </summary>
+        /// <param name="shipment">Shipment.</param>
+        /// <param name="notifyCustomer"><c>true</c> to notify customer.</param>
+        Task DeliverAsync(Shipment shipment, bool notifyCustomer);
+
+        /// <summary>
+        /// Check whether a return request is allowed.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether a return request is allowed.</returns>
+        bool IsReturnRequestAllowed(Order order);
+
+        /// <summary>
+        /// Validates the order total (excluding discounts).
+        /// Gets the mininmum and maximum allowed order amount from <see cref="CustomerRole.OrderTotalMinimum"/> and <see cref="CustomerRole.OrderTotalMaximum"/>
+        /// or from <see cref="OrderSettings.OrderTotalMinimum"/> and <see cref="OrderSettings.OrderTotalMaximum"/> if none is specified.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="customerRoleIds">Customer role identifiers.</param>
+        /// <returns>Validated order total.</returns>
+        Task<OrderTotalValidationResult> ValidateOrderTotal(IList<OrganizedShoppingCartItem> cart, int[] customerRoleIds);
+
+        /// <summary>
+        /// Adds a shipment to an order.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <param name="trackingNumber">Tracking number.</param>
+        /// <param name="trackingUrl">Tracking URL.</param>
+        /// <param name="quantities">Quantities by order item identifiers. <c>null</c> to use the remaining total number of products for each order item.</param>
+        /// <returns>New shipment, <c>null</c> if no shipment was added.</returns>
+        Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, int> quantities);
+
+        /// <summary>
+        /// Auto update order details, e.g. when the user has manually edited order items.
+        /// </summary>
+        /// <param name="context">Auto update context.</param>
+        Task AutoUpdateOrderDetailsAsync(AutoUpdateOrderItemContext context);
+
+        #region Place order
+
+        /// <summary>
+        /// Checks whether an order can be placed.
+        /// </summary>
+        /// <param name="paymentRequest">Payment processing request.</param>
+        /// <param name="initialOrder">Initial order for recurring payment, if any.</param>
+        /// <param name="customer">Customer placing the order.</param>
+        /// <returns>Warnings and validated card. Warnings are empty if the order can be placed.</returns>
+        Task<(IList<string> Warnings, IList<OrganizedShoppingCartItem> Cart)> ValidateOrderPlacement(
+            ProcessPaymentRequest paymentRequest,
+            Order initialOrder = null,
+            Customer customer = null);
+
+        /// <summary>
+        /// Checks whether orders are placed in too short time interval.
+        /// </summary>
+        /// <param name="customer">Customer.</param>
+        /// <param name="store">Store.</param>
+        /// <returns><c>true</c> valid interval, <c>false</c> invalid interval.</returns>
+        Task<bool> IsMinimumOrderPlacementIntervalValidAsync(Customer customer, Store store);
+
+        #endregion
+
+        #region Payment
 
         /// <summary>
         /// Gets a value indicating whether an order can be marked as authorized.
@@ -76,17 +139,17 @@ namespace Smartstore.Core.Checkout.Orders
         Task MarkAsAuthorizedAsync(Order order);
 
         /// <summary>
-        /// Gets a value indicating whether an order can be marked as completed.
+        /// Gets a value indicating whether an order can be marked as paid.
         /// </summary>
         /// <param name="order">Order.</param>
-        /// <returns>A value indicating whether an order can be marked as completed.</returns>
-        bool CanCompleteOrder(Order order);
+        /// <returns>A value indicating whether an order can be marked as paid.</returns>
+        bool CanMarkOrderAsPaid(Order order);
 
         /// <summary>
-        /// Marks an order as completed.
+        /// Marks an order as paid.
         /// </summary>
         /// <param name="order">Order.</param>
-        Task CompleteOrderAsync(Order order);
+        Task MarkOrderAsPaidAsync(Order order);
 
         /// <summary>
         /// Gets a value indicating whether an order can be marked as paid.
@@ -101,19 +164,6 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="order">Order.</param>
         /// <returns>List of errors if any.</returns>
         Task<IList<string>> CaptureAsync(Order order);
-
-        /// <summary>
-        /// Gets a value indicating whether an order can be marked as paid.
-        /// </summary>
-        /// <param name="order">Order.</param>
-        /// <returns>A value indicating whether an order can be marked as paid.</returns>
-        bool CanMarkOrderAsPaid(Order order);
-
-        /// <summary>
-        /// Marks an order as paid.
-        /// </summary>
-        /// <param name="order">Order.</param>
-        Task MarkOrderAsPaidAsync(Order order);
 
         /// <summary>
         /// Gets a value indicating whether an order can be refunded. Also checks if the payment provider supports to refund the payment.
@@ -148,7 +198,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="order">Order.</param>
         /// <param name="amountToRefund">The amount to refund.</param>
         /// <returns>A value indicating whether an order can be partially refunded.</returns>
-        Task<bool> CanPartiallyRefundAsync(Order order, Money amountToRefund);
+        Task<bool> CanPartiallyRefundAsync(Order order, decimal amountToRefund);
 
         /// <summary>
         /// Partially refunds an order. The payment is partially refunded at the payment provider if he supports this.
@@ -156,7 +206,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="order">Order.</param>
         /// <param name="amountToRefund">The amount to refund.</param>
         /// <returns>List of errors if any.</returns>
-        Task<IList<string>> PartiallyRefundAsync(Order order, Money amountToRefund);
+        Task<IList<string>> PartiallyRefundAsync(Order order, decimal amountToRefund);
 
         /// <summary>
         /// Gets a value indicating whether an order can be partially refunded "offline" (without calling any payment provider).
@@ -164,14 +214,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="order">Order.</param>
         /// <param name="amountToRefund">The amount to refund.</param>
         /// <returns>A value indicating whether an order can be partially refunded "offline".</returns>
-        bool CanPartiallyRefundOffline(Order order, Money amountToRefund);
+        bool CanPartiallyRefundOffline(Order order, decimal amountToRefund);
 
         /// <summary>
         /// Partially refunds an order "offline" (without calling any payment provider).
         /// </summary>
         /// <param name="order">Order.</param>
         /// <param name="amountToRefund">The amount to refund.</param>
-        Task PartiallyRefundOfflineAsync(Order order, Money amountToRefund);
+        Task PartiallyRefundOfflineAsync(Order order, decimal amountToRefund);
 
         /// <summary>
         /// Gets a value indicating whether an order can be voided. Also checks if the payment provider supports to void the payment.
@@ -200,52 +250,26 @@ namespace Smartstore.Core.Checkout.Orders
         Task VoidOfflineAsync(Order order);
 
         /// <summary>
-        /// Place order items in shopping cart of the user who placed the order.
+        /// Gets a value indicating whether a customer can cancel recurring payment.
         /// </summary>
-        /// <param name="order">Order.</param>
-        Task ReOrderAsync(Order order);
+        /// <param name="customerToValidate">Customer.</param>
+        /// <param name="recurringPayment">Recurring payment.</param>
+        /// <returns>A value indicating whether a customer can cancel recurring payment.</returns>
+        bool CanCancelRecurringPayment(Customer customerToValidate, RecurringPayment recurringPayment);
 
         /// <summary>
-        /// Check whether a return request is allowed.
+        /// Cancels a recurring payment.
         /// </summary>
-        /// <param name="order">Order.</param>
-        /// <returns>A value indicating whether a return request is allowed.</returns>
-        bool IsReturnRequestAllowed(Order order);
+        /// <param name="recurringPayment">Recurring payment.</param>
+        /// <returns>List of errors if any.</returns>
+        Task<IList<string>> CancelRecurringPaymentAsync(RecurringPayment recurringPayment);
 
         /// <summary>
-        /// Valdiate minimum order amount.
-        /// Gets min order amount from customer role.
-        /// When no minimum order amount is defined in customer role, default order settings are used as fallback if present.
+        /// Processes the next recurring psayment.
         /// </summary>
-        /// <param name="cart">Shopping cart.</param>
-        /// <param name="customerRoleIds">Customer role identifiers.</param>
-        /// <returns><c>true</c>: OK. <c>false</c>: minimum order amount not reached.</returns>
-        Task<(bool Valid, Money OrderTotalMinimum)> IsAboveOrderTotalMinimumAsync(IList<OrganizedShoppingCartItem> cart, int[] customerRoleIds);
+        /// <param name="recurringPayment">Recurring payment.</param>
+        Task ProcessNextRecurringPaymentAsync(RecurringPayment recurringPayment);
 
-        /// <summary>
-        /// Valdiate maximum order amount.
-        /// Gets max order amount from customer role.
-        /// When no maximum order amount is defined in customer role, default order settings are used as fallback if present.
-        /// </summary>
-        /// <param name="cart">Shopping cart.</param>
-        /// <param name="customerRoleIds">Customer role identifiers.</param>
-        /// <returns><c>true</c>: OK. <c>false</c>: maximum order amount exceeded.</returns>
-        Task<(bool Valid, Money OrderTotalMaximum)> IsBelowOrderTotalMaximumAsync(IList<OrganizedShoppingCartItem> cart, int[] customerRoleIds);
-
-        /// <summary>
-        /// Adds a shipment to an order.
-        /// </summary>
-        /// <param name="order">Order.</param>
-        /// <param name="trackingNumber">Tracking number.</param>
-        /// <param name="trackingUrl">Tracking URL.</param>
-        /// <param name="quantities">Quantities by order item identifiers. <c>null</c> to use the remaining total number of products for each order item.</param>
-        /// <returns>New shipment, <c>null</c> if no shipment was added.</returns>
-        Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, int> quantities);
-
-        /// <summary>
-        /// Auto update order details, e.g. when the user has manually edited order items.
-        /// </summary>
-        /// <param name="context">Auto update context.</param>
-        Task AutoUpdateOrderDetailsAsync(AutoUpdateOrderItemContext context);
+        #endregion
     }
 }

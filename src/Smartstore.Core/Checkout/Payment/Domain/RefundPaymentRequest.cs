@@ -8,13 +8,13 @@ namespace Smartstore.Core.Checkout.Payment
     public partial class RefundPaymentRequest : PaymentRequest
     {
         /// <summary>
-        /// Gets or sets an amount.
+        /// Gets or sets the refund amount.
         /// </summary>
-        public Money AmountToRefund { get; set; }
+        public Money AmountToRefund { get; init; }
 
         /// <summary>
         /// Gets or sets a value indicating whether it's a partial or a full refund.
         /// </summary>
-        public bool IsPartialRefund { get; set; }
+        public bool IsPartialRefund { get; init; }
     }
 }

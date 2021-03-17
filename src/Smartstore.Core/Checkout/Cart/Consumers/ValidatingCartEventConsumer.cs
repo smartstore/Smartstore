@@ -28,31 +28,22 @@ namespace Smartstore.Core.Checkout.Cart
 
         public async Task HandleEventAsync(ValidatingCartEvent message)
         {
-            // Default Order Totals restriction
+            // Order total validation.
             var roleIds = _workContext.CurrentImpersonator?.GetRoleIds() ?? message.Customer.GetRoleIds();
+            var result = await _orderProcessingService.ValidateOrderTotal(message.Cart, roleIds);
 
-            // Minimum order totals validation
-            var (isAboveMin, min) =  await _orderProcessingService.IsAboveOrderTotalMinimumAsync(message.Cart, roleIds);
-            if (!isAboveMin)
+            if (!result.IsAboveMinimum)
             {
-                min = _currencyService.ConvertFromPrimaryCurrency(min.Amount, _workContext.WorkingCurrency);
-                message.Warnings.Add(string.Format(
-                    _localizationService.GetResource("Checkout.MinOrderSubtotalAmount"),
-                    min.ToString(true))
-                    );
+                var convertedMin = _currencyService.ConvertFromPrimaryCurrency(result.OrderTotalMinimum, _workContext.WorkingCurrency);
 
-                return;
+                message.Warnings.Add(_localizationService.GetResource("Checkout.MinOrderSubtotalAmount").FormatInvariant(convertedMin.ToString(true)));
             }
 
-            // Maximum order totals validation
-            var (isBelowMax, max) = await _orderProcessingService.IsBelowOrderTotalMaximumAsync(message.Cart, roleIds);
-            if (!isBelowMax)
+            if (!result.IsBelowMaximum)
             {
-                max = _currencyService.ConvertFromPrimaryCurrency(max.Amount, _workContext.WorkingCurrency);
-                message.Warnings.Add(string.Format(
-                    _localizationService.GetResource("Checkout.MaxOrderSubtotalAmount"),
-                    max.ToString(true))
-                    );
+                var convertedMax = _currencyService.ConvertFromPrimaryCurrency(result.OrderTotalMaximum, _workContext.WorkingCurrency);
+
+                message.Warnings.Add(_localizationService.GetResource("Checkout.MaxOrderSubtotalAmount").FormatInvariant(convertedMax.ToString(true)));
             }
         }
     }

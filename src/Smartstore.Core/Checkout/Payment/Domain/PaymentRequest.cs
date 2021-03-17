@@ -10,7 +10,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets or sets an order.
         /// </summary>
-        public Order Order { get; set; }
+        public Order Order { get; init; }
     }
 
     /// <summary>
