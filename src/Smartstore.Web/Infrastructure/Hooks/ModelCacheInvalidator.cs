@@ -14,6 +14,7 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Utilities;
@@ -241,6 +242,15 @@ namespace Smartstore.Web.Infrastructure.Hooks
 		public const string AVAILABLE_CURRENCIES_MODEL_KEY = "pres:currencies:all-{0}-{1}";
 		public const string AVAILABLE_CURRENCIES_PATTERN_KEY = "pres:currencies:*";
 
+		/// <summary>
+		/// Key for favicon
+		/// </summary>
+		/// <remarks>
+		/// {0} : current store ID
+		/// </remarks>
+		public const string STORE_FAVICON_MODEL_KEY = "pres:favicon-{0}";
+		public const string STORE_FAVICON_PATTERN_KEY = "pres:favicon*";
+
 		#endregion
 
 		private static readonly HashSet<string> _candidateSettingKeys = new(StringComparer.OrdinalIgnoreCase)
@@ -352,19 +362,23 @@ namespace Smartstore.Web.Infrastructure.Hooks
 				//await _cache.RemoveByPatternAsync(HOMEPAGE_BESTSELLERS_REPORT_PATTERN_KEY); // Don't make bestsellers report volatile.
 				await _cache.RemoveByPatternAsync(PRODUCTS_ALSO_PURCHASED_IDS_PATTERN_KEY);
             }
-            //else if (entity is Poll)
-            //{
-            //	_cache.RemoveByPatternAsync(POLLS_PATTERN_KEY);
-            //}
-            //else if (entity is BlogPost)
-            //{
-            //	_cache.RemoveByPatternAsync(BLOG_PATTERN_KEY);
-            //}
-            //else if (entity is NewsItem)
-            //{
-            //	_cache.RemoveByPatternAsync(NEWS_PATTERN_KEY);
-            //}
-            else if (entity is StateProvince)
+			else if (entity is Store)
+			{
+				await _cache.RemoveByPatternAsync(STORE_FAVICON_PATTERN_KEY);
+			}
+			//else if (entity is Poll)
+			//{
+			//	_cache.RemoveByPatternAsync(POLLS_PATTERN_KEY);
+			//}
+			//else if (entity is BlogPost)
+			//{
+			//	_cache.RemoveByPatternAsync(BLOG_PATTERN_KEY);
+			//}
+			//else if (entity is NewsItem)
+			//{
+			//	_cache.RemoveByPatternAsync(NEWS_PATTERN_KEY);
+			//}
+			else if (entity is StateProvince)
 			{
 				await _cache.RemoveByPatternAsync(STATEPROVINCES_PATTERN_KEY);
 			}
