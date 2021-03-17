@@ -2,36 +2,36 @@
 
 @model FaviconModel
 
-@if (Model.FavIconThumbnail.HasValue())
+@if (Model.FavIconUrl.HasValue())
 {
-    <link rel="shortcut icon" href='@($"{Model.FavIconThumbnail}?v={ SmartstoreVersion.CurrentVersion}")' />
+    <link rel="shortcut icon" href='@($"{Model.FavIconUrl}?v={ SmartstoreVersion.CurrentVersion}")' />
 }
 
-@if (Model.PngIconThumbnails.Count > 0)
+@if (Model.PngIcons.Count > 0)
 {
     <!-- png icons -->
-    foreach (var thumbnail in Model.PngIconThumbnails)
+    foreach (var icon in Model.PngIcons)
     {
-        <link sm-if="thumbnail.Url.HasValue()" rel="icon" type="image/png" sizes="@thumbnail.Size" href="@thumbnail.Url" />
+        <link rel="icon" type="image/png" sizes="@icon.Size" href="@icon.Url" />
     }
 }
 
-@if (Model.AppleTouchIconThumbnails.Count > 0)
+@if (Model.AppleTouchIcons.Count > 0)
 {
     <!-- Apple touch icons -->
-    foreach (var thumbnail in Model.AppleTouchIconThumbnails)
+    foreach (var icon in Model.AppleTouchIcons)
     {
-        <link sm-if="thumbnail.Url.HasValue()" rel="icon" type="image/png" sizes="@thumbnail.Size" href="@thumbnail.Url" />
+        <link rel="icon" type="image/png" sizes="@icon.Size" href="@icon.Url" />
     }
 }
 
-@if (Model.MsTileIconThumbnail.HasValue())
+@if (Model.MsTileIconUrl.HasValue())
 {
     <!-- Microsoft tiles -->
     if (Model.MsTileColor.HasValue())
     {
         <meta name="msapplication-TileColor" content="@Model.MsTileColor">
     }
-    <meta name="msapplication-TileImage" content="@Model.MsTileIconThumbnail">
+    <meta name="msapplication-TileImage" content="@Model.MsTileIconUrl">
     <meta name="msapplication-config" content="@Url.Content("~/browserconfig.xml")" />
 }

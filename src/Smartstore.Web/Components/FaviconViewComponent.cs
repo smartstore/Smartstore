@@ -25,29 +25,30 @@ namespace Smartstore.Web.Components
             {
                 o.ExpiresIn(TimeSpan.FromDays(1));
 
-                var model = new FaviconModel();
-
-                // Favicon
-                model.FavIconThumbnail = await _mediaService.GetUrlAsync(store.FavIconMediaFileId, 0, null, false);
+                var model = new FaviconModel
+                {
+                    // Favicon
+                    FavIconUrl = await _mediaService.GetUrlAsync(store.FavIconMediaFileId, 0, null, false)
+                };
 
                 // PngIcon 16x16(browser tabs), 32x32(Taskbar), 96x96(Desktop), 196x196(Android Chrome) 
-                var pngIcon = await _mediaService.GetFileByIdAsync(Convert.ToInt32(store.PngIconMediaFileId), MediaLoadFlags.AsNoTracking);
+                var pngIcon = await _mediaService.GetFileByIdAsync(store.PngIconMediaFileId ?? 0, MediaLoadFlags.AsNoTracking);
                 if (pngIcon != null)
                 {
                     var pngSizes = new[] { 16, 32, 96, 196 };
-                    AddThumbnails(pngIcon, pngSizes, model.PngIconThumbnails);
+                    AddThumbnails(pngIcon, pngSizes, model.PngIcons);
                 }
 
                 // AppleTouchIcon
-                var appleTouchIcon = await _mediaService.GetFileByIdAsync(Convert.ToInt32(store.AppleTouchIconMediaFileId), MediaLoadFlags.AsNoTracking);
+                var appleTouchIcon = await _mediaService.GetFileByIdAsync(store.AppleTouchIconMediaFileId ?? 0, MediaLoadFlags.AsNoTracking);
                 if (appleTouchIcon != null)
                 {
                     var appleTouchSizes = new[] { 57, 60, 72, 76, 114, 120, 144, 152, 180 };
-                    AddThumbnails(appleTouchIcon, appleTouchSizes, model.AppleTouchIconThumbnails);
+                    AddThumbnails(appleTouchIcon, appleTouchSizes, model.AppleTouchIcons);
                 }
 
                 // MS Tiles
-                model.MsTileIconThumbnail = await _mediaService.GetUrlAsync(store.MsTileImageMediaFileId, 144, null, false);
+                model.MsTileIconUrl = await _mediaService.GetUrlAsync(store.MsTileImageMediaFileId, 144, null, false);
                 model.MsTileColor = store.MsTileColor;
 
                 return model;
@@ -56,11 +57,11 @@ namespace Smartstore.Web.Components
             return View(model);
         }
 
-        private void AddThumbnails(MediaFileInfo file, int[] sizes, List<FaviconThumbnail> urls)
+        private void AddThumbnails(MediaFileInfo file, int[] sizes, List<FaviconModel.Favicon> urls)
         {
             foreach (var size in sizes)
             {
-                urls.Add(new FaviconThumbnail
+                urls.Add(new FaviconModel.Favicon
                 {
                     Size = $"{size}x{size}",
                     Url = _mediaService.GetUrl(file, size, null, false)
