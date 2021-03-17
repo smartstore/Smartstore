@@ -196,14 +196,12 @@ namespace Smartstore.Web.Controllers
                 using var scope = new DbContextScope(_db, retainConnection: true, deferCommit: true);
 
                 // PERF!!
-                var store = _services.StoreContext.CurrentStore;
-                var customer = _services.WorkContext.CurrentCustomer;
-                var currency = _services.WorkContext.WorkingCurrency;
-                var language = _services.WorkContext.WorkingLanguage;
+                var calculationOptions = _priceCalculationService.CreateDefaultOptions();
+                var language = calculationOptions.Language;
+                var customer = calculationOptions.Customer;
                 var allowPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
                 var allowShoppingCart = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);
                 var allowWishlist = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
-                var taxDisplayType = _workContext.GetTaxDisplayTypeFor(customer, store.Id);
                 var cachedBrandModels = new Dictionary<int, BrandOverviewModel>();
                 var prefetchTranslations = settings.PrefetchTranslations == true || (settings.PrefetchTranslations == null && _performanceSettings.AlwaysPrefetchTranslations);
                 var prefetchSlugs = settings.PrefetchUrlSlugs == true || (settings.PrefetchUrlSlugs == null && _performanceSettings.AlwaysPrefetchUrlSlugs);
@@ -211,7 +209,7 @@ namespace Smartstore.Web.Controllers
 
                 //var productIds = products.Select(x => x.Id).ToArray();
 
-                string taxInfo = T(taxDisplayType == TaxDisplayType.IncludingTax ? "Tax.InclVAT" : "Tax.ExclVAT");
+                string taxInfo = T(calculationOptions.GrossPrices ? "Tax.InclVAT" : "Tax.ExclVAT");
                 var legalInfo = string.Empty;
 
                 var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
@@ -300,44 +298,23 @@ namespace Smartstore.Web.Controllers
                 // If a size has been set in the view, we use it in priority
                 int thumbSize = model.ThumbSize ?? _mediaSettings.ProductThumbPictureSize;
 
+                calculationOptions.BatchContext = batchContext;
+                calculationOptions.TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: calculationOptions.GrossPrices, target: PricingTarget.Product, language: language);
+
                 var mapItemContext = new MapProductSummaryItemContext
                 {
                     BatchContext = batchContext,
+                    CalculationOptions = calculationOptions,
                     CachedBrandModels = cachedBrandModels,
                     PrimaryCurrency = _currencyService.PrimaryCurrency,
-                    WorkingCurrency = currency,
                     LegalInfo = legalInfo,
                     Model = model,
                     Resources = res,
-                    Settings = settings,
-                    Customer = customer,
-                    Store = store,
+                    MappingSettings = settings,
                     AllowPrices = allowPrices,
                     AllowShoppingCart = allowShoppingCart,
                     AllowWishlist = allowWishlist,
-                    TaxDisplayType = taxDisplayType,
-                    TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: taxDisplayType == TaxDisplayType.IncludingTax, target: PricingTarget.Product, language: language),
-                    ShippingChargeTaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: taxDisplayType == TaxDisplayType.IncludingTax, target: PricingTarget.ShippingCharge, language: language)
-                };
-
-                mapItemContext.PriceCalculationContext = new PriceCalculationContext
-                {
-                    BatchContext = batchContext,
-                    IsGrossPrice = _taxSettings.PricesIncludeTax,
-                    Customer = customer,
-                    Store = store,
-                    Options = new PriceCalculationOptions 
-                    { 
-                        TargetCurrency = currency,
-                        Language = language,
-                        GrossPrices = taxDisplayType == TaxDisplayType.IncludingTax,
-                        CalculateTax = true,
-                        TaxFormat = mapItemContext.TaxFormat,
-                        DetermineSelectionPrice = _catalogSettings.PriceDisplayType == PriceDisplayType.PreSelectedPrice,
-                        IgnoreDiscounts = _catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
-                        IgnoreAttributes = _catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
-                        DetermineLowestPrice = _catalogSettings.PriceDisplayType == PriceDisplayType.LowestPrice
-                    }
+                    ShippingChargeTaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: calculationOptions.GrossPrices, target: PricingTarget.ShippingCharge, language: language),
                 };
 
                 if (settings.MapPictures)
@@ -385,7 +362,8 @@ namespace Smartstore.Web.Controllers
             var contextProduct = product;
             var finalPrice = default(Money);
             var model = ctx.Model;
-            var settings = ctx.Settings;
+            var settings = ctx.MappingSettings;
+            var options = ctx.CalculationOptions;
 
             var item = new ProductSummaryModel.SummaryItem(ctx.Model)
             {
@@ -583,7 +561,7 @@ namespace Smartstore.Web.Controllers
 
             if (finalPrice != decimal.Zero && model.ShowBasePrice)
             {
-                item.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(contextProduct, null, ctx.WorkingCurrency);
+                item.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(contextProduct, null, options.TargetCurrency);
             }
 
             if (settings.MapPrices)
@@ -622,6 +600,8 @@ namespace Smartstore.Web.Controllers
         private async Task<(Money FinalPrice, Product ContextProduct)> MapSummaryItemPrice(Product product, ProductSummaryModel.SummaryItem item, MapProductSummaryItemContext ctx)
         {
             //return (new Money(0, ctx.WorkingCurrency), product);
+            var options = ctx.CalculationOptions;
+            var batchContext = ctx.BatchContext;
             var contextProduct = product;
             var displayFromMessage = false;
             var taxRate = decimal.Zero;
@@ -636,9 +616,9 @@ namespace Smartstore.Web.Controllers
             var priceModel = new ProductSummaryModel.PriceModel();
             item.Price = priceModel;
 
-            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing && !ctx.BatchContext.ProductBundleItems.FullyLoaded)
+            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing && !batchContext.ProductBundleItems.FullyLoaded)
             {
-                await ctx.BatchContext.ProductBundleItems.LoadAllAsync();
+                await batchContext.ProductBundleItems.LoadAllAsync();
             }
 
             if (product.ProductType == ProductType.GroupedProduct)
@@ -652,8 +632,8 @@ namespace Smartstore.Web.Controllers
                     // One-time batched retrieval of all associated products.
                     var searchQuery = new CatalogSearchQuery()
                         .PublishedOnly(true)
-                        .HasStoreId(ctx.Store.Id)
-                        .HasParentGroupedProduct(ctx.BatchContext.ProductIds.ToArray());
+                        .HasStoreId(options.Store.Id)
+                        .HasParentGroupedProduct(batchContext.ProductIds.ToArray());
 
                     // Get all associated products for this batch grouped by ParentGroupedProductId.
                     var searchResult = await _catalogSearchService.SearchAsync(searchQuery);
@@ -662,7 +642,7 @@ namespace Smartstore.Web.Controllers
                         .ThenBy(x => x.DisplayOrder);
 
                     ctx.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
-                    ctx.AssociatedProductBatchContext = _dataExporter.Value.CreateProductBatchContext(allAssociatedProducts, ctx.Customer, null, null, false);
+                    ctx.AssociatedProductBatchContext = _dataExporter.Value.CreateProductBatchContext(allAssociatedProducts, options.Customer, null, null, false);
                 }
 
                 associatedProducts = ctx.GroupedProducts[product.Id];
@@ -682,30 +662,39 @@ namespace Smartstore.Web.Controllers
             // Return if there's no pricing at all.
             if (contextProduct == null || contextProduct.CustomerEntersPrice || !ctx.AllowPrices || _catalogSettings.PriceDisplayType == PriceDisplayType.Hide)
             {
-                return (new Money(ctx.WorkingCurrency), contextProduct);
+                return (new Money(options.TargetCurrency), contextProduct);
             }
 
             // Return if group has no associated products.
             if (product.ProductType == ProductType.GroupedProduct && !associatedProducts.Any())
             {
-                return (new Money(ctx.WorkingCurrency), contextProduct);
+                return (new Money(options.TargetCurrency), contextProduct);
             }
 
             // Call for price.
             priceModel.CallForPrice = contextProduct.CallForPrice;
             if (contextProduct.CallForPrice)
             {
-                return (new Money(ctx.WorkingCurrency).WithPostFormat(ctx.Resources["Products.CallForPrice"]), contextProduct);
+                return (new Money(options.TargetCurrency).WithPostFormat(ctx.Resources["Products.CallForPrice"]), contextProduct);
             }
 
             #region Test NEW
 
-            var calculationContext = ctx.PriceCalculationContext;
-            calculationContext.Product = product;
-            calculationContext.BatchContext = product.ProductType == ProductType.GroupedProduct ? ctx.AssociatedProductBatchContext : ctx.BatchContext;
-            calculationContext.Options.DetermineLowestPrice = _catalogSettings.PriceDisplayType == PriceDisplayType.LowestPrice || product.ProductType == ProductType.GroupedProduct;
+            var originalDetermineLowestPrice = options.DetermineLowestPrice;
+            var calculationContext = new PriceCalculationContext(product, options);
 
+            if (product.ProductType == ProductType.GroupedProduct)
+            {
+                options.BatchContext = ctx.AssociatedProductBatchContext;
+                options.DetermineLowestPrice = true;
+            }
+
+            // -----> Perform calculation <-------
             var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+
+            // Restore original options
+            options.BatchContext = ctx.BatchContext;
+            options.DetermineLowestPrice = originalDetermineLowestPrice;
 
             priceModel.Price = calculatedPrice.FinalPrice;
             priceModel.HasDiscount = calculatedPrice.HasDiscount;
@@ -721,15 +710,15 @@ namespace Smartstore.Web.Controllers
             #endregion
 
             // Calculate prices.
-            var batchContext = product.ProductType == ProductType.GroupedProduct ? ctx.AssociatedProductBatchContext : ctx.BatchContext;
+            batchContext = product.ProductType == ProductType.GroupedProduct ? ctx.AssociatedProductBatchContext : ctx.BatchContext;
 
             if (_catalogSettings.PriceDisplayType == PriceDisplayType.PreSelectedPrice)
             {
-                displayPrice = await _priceCalculationService.GetPreselectedPriceAsync(contextProduct, ctx.Customer, batchContext);
+                displayPrice = await _priceCalculationService.GetPreselectedPriceAsync(contextProduct, options.Customer, batchContext);
             }
             else if (_catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes)
             {
-                displayPrice = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, ctx.Customer, false, 1, null, batchContext);
+                displayPrice = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, options.Customer, false, 1, null, batchContext);
             }
             else
             {
@@ -737,11 +726,11 @@ namespace Smartstore.Web.Controllers
                 if (product.ProductType == ProductType.GroupedProduct)
                 {
                     displayFromMessage = true;
-                    (displayPrice, contextProduct) = await _priceCalculationService.GetLowestPriceAsync(product, ctx.Customer, batchContext, associatedProducts);
+                    (displayPrice, contextProduct) = await _priceCalculationService.GetLowestPriceAsync(product, options.Customer, batchContext, associatedProducts);
                 }
                 else
                 {
-                    (displayPrice, displayFromMessage) = await _priceCalculationService.GetLowestPriceAsync(product, ctx.Customer, batchContext);
+                    (displayPrice, displayFromMessage) = await _priceCalculationService.GetLowestPriceAsync(product, options.Customer, batchContext);
                 }
             }
 
@@ -749,7 +738,7 @@ namespace Smartstore.Web.Controllers
             (finalPriceBase, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, displayPrice ?? new Money(ctx.PrimaryCurrency));
 
             oldPrice = ToWorkingCurrency(oldPriceBase, ctx);
-            finalPrice = ToWorkingCurrency(finalPriceBase, ctx).WithPostFormat(ctx.TaxFormat);
+            finalPrice = ToWorkingCurrency(finalPriceBase, ctx).WithPostFormat(options.TaxFormat);
 
             string finalPricePostFormat = finalPrice.PostFormat;
             if (displayFromMessage)
@@ -764,18 +753,18 @@ namespace Smartstore.Web.Controllers
             priceModel.HasDiscount = oldPriceBase > decimal.Zero && oldPriceBase > finalPriceBase;
             if (priceModel.HasDiscount)
             {
-                priceModel.RegularPrice = oldPrice.WithPostFormat(ctx.TaxFormat);
+                priceModel.RegularPrice = oldPrice.WithPostFormat(options.TaxFormat);
             }
 
             // Calculate saving.
-            var finalPriceWithDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, ctx.Customer, false, 1, null, batchContext);
+            var finalPriceWithDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, options.Customer, false, 1, null, batchContext);
             (finalPriceWithDiscount, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, finalPriceWithDiscount);
             finalPriceWithDiscount = ToWorkingCurrency(finalPriceWithDiscount, ctx);
 
             var finalPriceWithoutDiscount = finalPrice;
             if (_catalogSettings.PriceDisplayType != PriceDisplayType.PriceWithoutDiscountsAndAttributes)
             {
-                finalPriceWithoutDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, ctx.Customer, false, 1, null, batchContext);
+                finalPriceWithoutDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, options.Customer, false, 1, null, batchContext);
                 (finalPriceWithoutDiscount, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, finalPriceWithoutDiscount);
                 finalPriceWithoutDiscount = ToWorkingCurrency(finalPriceWithoutDiscount, ctx);
             }
@@ -793,7 +782,7 @@ namespace Smartstore.Web.Controllers
 
                 if (priceModel.RegularPrice == null)
                 {
-                    priceModel.RegularPrice = regularPrice.WithPostFormat(ctx.TaxFormat);
+                    priceModel.RegularPrice = regularPrice.WithPostFormat(options.TaxFormat);
                 }
 
                 if (ctx.Model.ShowDiscountBadge)
@@ -840,13 +829,13 @@ namespace Smartstore.Web.Controllers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Money ToWorkingCurrency(decimal amount, MapProductSummaryItemContext ctx, bool showCurrency = true)
         {
-            return _currencyService.ConvertToCurrency(new Money(amount, ctx.PrimaryCurrency, !showCurrency), ctx.WorkingCurrency);
+            return _currencyService.ConvertToCurrency(new Money(amount, ctx.PrimaryCurrency, !showCurrency), ctx.CalculationOptions.TargetCurrency);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Money ToWorkingCurrency(Money amount, MapProductSummaryItemContext ctx)
         {
-            return _currencyService.ConvertToCurrency(amount, ctx.WorkingCurrency);
+            return _currencyService.ConvertToCurrency(amount, ctx.CalculationOptions.TargetCurrency);
         }
 
         #endregion
@@ -854,25 +843,20 @@ namespace Smartstore.Web.Controllers
         private class MapProductSummaryItemContext
         {
             public ProductSummaryModel Model { get; set; }
-            public ProductSummaryMappingSettings Settings { get; set; }
+            public ProductSummaryMappingSettings MappingSettings { get; set; }
             public ProductBatchContext BatchContext { get; set; }
+            public PriceCalculationOptions CalculationOptions { get; set; }
             public ProductBatchContext AssociatedProductBatchContext { get; set; }
-            public PriceCalculationContext PriceCalculationContext { get; set; }
             public Multimap<int, Product> GroupedProducts { get; set; }
             public Dictionary<int, BrandOverviewModel> CachedBrandModels { get; set; }
             public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = new Dictionary<int, MediaFileInfo>();
             public Dictionary<string, LocalizedString> Resources { get; set; }
             public string LegalInfo { get; set; }
-            public Customer Customer { get; set; }
-            public Store Store { get; set; }
             public Currency PrimaryCurrency { get; set; }
-            public Currency WorkingCurrency { get; set; }
 
             public bool AllowPrices { get; set; }
             public bool AllowShoppingCart { get; set; }
             public bool AllowWishlist { get; set; }
-            public TaxDisplayType TaxDisplayType { get; set; }
-            public string TaxFormat { get; set; }
             public string ShippingChargeTaxFormat { get; set; }
         }
     }

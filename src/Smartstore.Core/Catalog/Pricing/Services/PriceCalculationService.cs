@@ -82,6 +82,25 @@ namespace Smartstore.Core.Catalog.Pricing
 
         #region New
 
+        public PriceCalculationOptions CreateDefaultOptions(ProductBatchContext batchContext = null)
+        {
+            var store = _storeContext.CurrentStore;
+            var customer = _workContext.CurrentCustomer;
+            var language = _workContext.WorkingLanguage;
+            var targetCurrency = _workContext.WorkingCurrency;
+
+            batchContext ??= new ProductBatchContext(null, _services, store, customer, true);
+
+            return new PriceCalculationOptions(batchContext, customer, store, language, targetCurrency)
+            {
+                GrossPrices = _workContext.GetTaxDisplayTypeFor(customer, store.Id) == TaxDisplayType.IncludingTax,
+                DetermineSelectionPrice = _catalogSettings.PriceDisplayType == PriceDisplayType.PreSelectedPrice,
+                IgnoreDiscounts = _catalogSettings.IgnoreDiscounts || _catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
+                IgnoreAttributes = _catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
+                DetermineLowestPrice = _catalogSettings.PriceDisplayType == PriceDisplayType.LowestPrice
+            };
+        }
+
         public async Task<CalculatedPrice> CalculatePriceLegacyAsync(PriceCalculationContext context)
         {
             Guard.NotNull(context, nameof(context));
@@ -132,7 +151,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 return null;
             }
 
-            if (amount != 0 && context.Options.CalculateTax)
+            if (amount != 0)
             {
                 tax = context.IsGrossPrice == true
                      ? _taxCalculator.CalculateTaxFromGross(amount.Value, 19) // TODO: (core) TaxRate
@@ -143,7 +162,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, context.Options.TargetCurrency);
 
-            if (amount != 0 && context.Options.CalculateTax && context.Options.TaxFormat != null)
+            if (amount != 0 && context.Options.TaxFormat != null)
             {
                 money = money.WithPostFormat(context.Options.TaxFormat);
             }
@@ -153,21 +172,8 @@ namespace Smartstore.Core.Catalog.Pricing
 
         private void VerifyContext(PriceCalculationContext context)
         {
-            if (context.Product == null)
-            {
-                throw new InvalidOperationException($"{nameof(PriceCalculationContext)}.{nameof(PriceCalculationContext.Product)} must not be null.");
-            }
-            
-            context.Customer ??= _workContext.CurrentCustomer;
-            context.Store ??= _storeContext.CurrentStore;
-            context.BatchContext ??= new ProductBatchContext(null, _services, context.Store, context.Customer, true);
+            // TODO: (core) More verification for PriceCalculationContext (?)
             context.IsGrossPrice ??= _taxSettings.PricesIncludeTax;
-            
-            context.Options ??= new PriceCalculationOptions();
-            context.Options.CashRounding ??= new CashRoundingOptions();
-            context.Options.TargetCurrency ??= _workingCurrency;
-            context.Options.Language ??= _workContext.WorkingLanguage;
-            context.Options.GrossPrices ??= _workContext.GetTaxDisplayTypeFor(context.Customer, context.Store.Id) == TaxDisplayType.IncludingTax;
         }
 
         #endregion
