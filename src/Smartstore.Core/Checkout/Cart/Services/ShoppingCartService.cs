@@ -70,6 +70,8 @@ namespace Smartstore.Core.Checkout.Cart
 
             var customer = ctx.Customer ?? _workContext.CurrentCustomer;
             customer.ShoppingCartItems.Add(ctx.Item);
+            _db.TryUpdate(customer);
+            await _db.SaveChangesAsync();
 
             if (ctx.ChildItems.Any())
             {
@@ -79,10 +81,9 @@ namespace Smartstore.Core.Checkout.Cart
                 }
 
                 customer.ShoppingCartItems.AddRange(ctx.ChildItems);
+                _db.TryUpdate(customer);
+                await _db.SaveChangesAsync();
             }
-
-            _db.TryUpdate(customer);
-            await _db.SaveChangesAsync();
         }
 
         protected virtual async Task<List<OrganizedShoppingCartItem>> OrganizeCartItemsAsync(ICollection<ShoppingCartItem> cart)
@@ -220,7 +221,7 @@ namespace Smartstore.Core.Checkout.Cart
             if (existingCartItem != null)
             {
                 // Product is already in cart, find existing item
-                ctx.Quantity += existingCartItem.Item.Quantity;
+                var newQuantity = ctx.Quantity + existingCartItem.Item.Quantity;
 
                 if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItems))
                 {
@@ -228,7 +229,7 @@ namespace Smartstore.Core.Checkout.Cart
                 }
 
                 // Update cart item
-                existingCartItem.Item.Quantity = ctx.Quantity;
+                existingCartItem.Item.Quantity = newQuantity;
                 existingCartItem.Item.UpdatedOnUtc = DateTime.UtcNow;
                 existingCartItem.Item.RawAttributes = ctx.AttributeSelection.AsJson();
                 _db.TryUpdate(ctx.Customer);
@@ -236,11 +237,6 @@ namespace Smartstore.Core.Checkout.Cart
             }
             else
             {
-                if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItems))
-                {
-                    return false;
-                }
-
                 if (!_cartValidator.ValidateItemsMaximumCartQuantity(ctx.CartType, cartItems.Count, ctx.Warnings))
                 {
                     return false;
@@ -256,6 +252,7 @@ namespace Smartstore.Core.Checkout.Cart
                     Quantity = ctx.Quantity,
                     Customer = ctx.Customer,
                     Product = ctx.Product,
+                    ProductId = ctx.Product.Id,
                     ParentItemId = null,
                     BundleItemId = ctx.BundleItem?.Id
                 };
@@ -270,10 +267,14 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     ctx.ChildItems.Add(cartItem);
                 }
+
+                if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItems))
+                {
+                    return false;
+                }
             }
 
             _requestCache.RemoveByPattern(CartItemsPatternKey);
-
             // If ctx.Product is a bundle product, try adding all corresponding bundleItems
             if (ctx.Product.ProductType == ProductType.BundledProduct && ctx.BundleItem == null && ctx.Warnings.Count == 0)
             {
@@ -282,11 +283,22 @@ namespace Smartstore.Core.Checkout.Cart
                 // See https://github.com/smartstore/SmartStoreNET/blob/4.x/src/Libraries/SmartStore.Services/Orders/OrderProcessingService.cs#L2634-L2641
 
                 // Get all bundle items and add each to the cart
-                var bundleItems = _db.IsCollectionLoaded(ctx.Product, x => x.ProductBundleItems)
-                    ? ctx.Product.ProductBundleItems
-                    : await _db.ProductBundleItem
-                        .ApplyBundledProductsFilter(new[] { ctx.Product.Id })
-                        .ToListAsync();
+                //var bundleItems = _db.IsCollectionLoaded(ctx.Product, x => x.ProductBundleItems)
+                //    ? ctx.Product.ProductBundleItems
+                //    : await _db.ProductBundleItem
+                //        .ApplyBundledProductsFilter(new[] { ctx.Product.Id })
+                //        .ToListAsync();
+
+                //await _db.LoadCollectionAsync(ctx.Product, x => x.ProductBundleItems);
+
+                //var bundleItems = ctx.Product.ProductBundleItems;
+                //var products = await _db.Products.GetManyAsync(bundleItems.Select(x => x.ProductId));
+
+                var bundleItems = await _db.ProductBundleItem
+                    .Include(x => x.Product)
+                    .Include(x => x.BundleProduct)
+                    .ApplyBundledProductsFilter(new[] { ctx.Product.Id }, true)
+                    .ToListAsync();
 
                 foreach (var bundleItem in bundleItems)
                 {
@@ -306,7 +318,7 @@ namespace Smartstore.Core.Checkout.Cart
                         CustomerEnteredPrice = ctx.CustomerEnteredPrice,
                         AutomaticallyAddRequiredProductsIfEnabled = ctx.AutomaticallyAddRequiredProductsIfEnabled,
                     };
-
+                    
                     // If bundleItem could not be added to the shopping cart, remove child items
                     if (!await AddToCartAsync(bundleItemContext))
                     {

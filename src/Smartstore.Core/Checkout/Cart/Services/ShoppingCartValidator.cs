@@ -69,13 +69,13 @@ namespace Smartstore.Core.Checkout.Cart
             var isValid = true;
 
             // Validate access permissions
-            if (cartType == ShoppingCartType.ShoppingCart 
+            if (cartType == ShoppingCartType.ShoppingCart
                 && !await _permissionService.AuthorizeAsync(Permissions.Cart.AccessShoppingCart, customer))
             {
                 isValid = false;
                 warnings.Add(T("ShoppingCart.IsDisabled"));
             }
-            else if (cartType == ShoppingCartType.Wishlist 
+            else if (cartType == ShoppingCartType.Wishlist
                 && !await _permissionService.AuthorizeAsync(Permissions.Cart.AccessWishlist, customer))
             {
                 isValid = false;
@@ -91,7 +91,6 @@ namespace Smartstore.Core.Checkout.Cart
             Guard.NotNull(warnings, nameof(warnings));
 
             var currentWarnings = new List<string>();
-
             foreach (var bundleItem in bundleItems)
             {
                 var name = bundleItem.GetLocalizedName();
@@ -210,11 +209,17 @@ namespace Smartstore.Core.Checkout.Cart
                 ValidateBundleItems(new[] { ctx.BundleItem }, warnings);
             }
 
-            if (ctx.ChildItems != null)
+            if (!ctx.ChildItems.IsNullOrEmpty())
             {
+                foreach (var item in ctx.ChildItems)
+                {
+                    await _db.LoadReferenceAsync(item, x => x.BundleItem);
+                }
+
                 var bundleItems = ctx.ChildItems.Select(x => x.BundleItem);
                 ValidateBundleItems(bundleItems, warnings);
             }
+
             ctx.Warnings.AddRange(warnings);
             return !warnings.Any();
         }
@@ -287,6 +292,12 @@ namespace Smartstore.Core.Checkout.Cart
             Guard.NotNull(warnings, nameof(warnings));
 
             var product = cartItem.Product;
+            if (product == null)
+            {
+                warnings.Add(T("Products.NotFound", cartItem.ProductId));
+                return false;
+            }
+
             if (product.Deleted)
             {
                 warnings.Add(T("ShoppingCart.ProductDeleted"));
@@ -309,13 +320,15 @@ namespace Smartstore.Core.Checkout.Cart
                 currentWarnings.Add(T("ShoppingCart.Bundle.NoCustomerEnteredPrice"));
             }
 
+            // TODO: (ms) (core) returns warning even on published products!
+
             // Not published or no permissions for customer or store
-            if (!product.Published
-                || !await _aclService.AuthorizeAsync(product, cartItem.Customer)
-                || !await _storeMappingService.AuthorizeAsync(product.Name, product.Id, storeId ?? _storeContext.CurrentStore.Id))
-            {
-                currentWarnings.Add(T("ShoppingCart.ProductUnpublished"));
-            }
+            //if (!product.Published
+            //    || !await _aclService.AuthorizeAsync(product, cartItem.Customer)
+            //    || !await _storeMappingService.AuthorizeAsync(product.Name, product.Id, storeId ?? _storeContext.CurrentStore.Id))
+            //{
+            //    currentWarnings.Add(T("ShoppingCart.ProductUnpublished"));
+            //}
 
             // Disabled buy button
             if (cartItem.ShoppingCartType == ShoppingCartType.ShoppingCart && product.DisableBuyButton)
@@ -438,7 +451,11 @@ namespace Smartstore.Core.Checkout.Cart
             if (cartItem.Product.ProductType == ProductType.BundledProduct
                 || cartItem.BundleItem != null && !cartItem.BundleItem.BundleProduct.BundlePerItemPricing)
             {
-                warnings.Add(T("ShoppingCart.Bundle.NoAttributes"));
+                if (cartItem.RawAttributes.HasValue())
+                {
+                    warnings.Add(T("ShoppingCart.Bundle.NoAttributes"));
+                }
+
                 return false;
             }
 
