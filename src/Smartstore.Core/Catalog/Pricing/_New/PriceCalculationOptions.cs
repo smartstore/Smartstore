@@ -11,16 +11,16 @@ namespace Smartstore.Core.Catalog.Pricing
 {
     public class PriceCalculationOptions
     {
-        public bool? TaxInclusive { get; set; }
+        public bool? GrossPrices { get; set; }
         public Currency TargetCurrency { get; set; }
-        public Language Language { get; init; }
-        public CashRoundingOptions CashRounding { get; set; }
+        public Language Language { get; set; }
+        public CashRoundingOptions CashRounding { get; set; } = new();
 
         public bool IgnoreDiscounts { get; set; }
         public bool IgnoreTierPrices { get; set; }
         public bool IgnoreAttributes { get; set; }
-        public bool CalculateTax { get; set; }
-        public bool ApplyTaxFormat { get; set; }
+        public bool CalculateTax { get; set; } = true;
+        public string TaxFormat { get; set; }
 
         public bool DetermineSelectionPrice { get; set; }
         public bool DetermineLowestPrice { get; set; }

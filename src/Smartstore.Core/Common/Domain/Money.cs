@@ -10,7 +10,7 @@ using Sys = System;
 
 namespace Smartstore.Core.Common
 {
-    public struct Money : IHtmlContent, IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
+    public readonly struct Money : IHtmlContent, IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
     {
         public readonly static Money Zero;
         
@@ -128,18 +128,14 @@ namespace Smartstore.Core.Common
         /// <param name="amount">The new amount.</param>
         /// <param name="currency">New optional currency.</param>
         public Money WithAmount(decimal amount, Currency currency = null)
-        {
-            return new Money(amount, currency ?? Currency, HideCurrency, PostFormat);
-        }
+            => new(amount, currency ?? Currency, HideCurrency, PostFormat);
 
         /// <summary>
         /// Changes the underlying currency.
         /// </summary>
         /// <param name="currency">The currency to switch to.</param>
         public Money WithCurrency(Currency currency)
-        {
-            return new Money(Amount, currency, HideCurrency, PostFormat);
-        }
+            => new(Amount, currency, HideCurrency, PostFormat);
 
         /// <summary>
         /// Applies a second format string AFTER amount has been formatted (amount + currency symbol), 
@@ -147,18 +143,14 @@ namespace Smartstore.Core.Common
         /// </summary>
         /// <param name="format">The post format string.</param>
         public Money WithPostFormat(string format)
-        {
-            return new Money(Amount, Currency, HideCurrency, format);
-        }
+            => new(Amount, Currency, HideCurrency, format);
 
         /// <summary>
         /// Sets a value specifying whether the currency symbol should be displayed during formatting.
         /// </summary>
         /// <param name="showSymbol"><c>true</c> = render symbol, <c>false</c> = hide symbol.</param>
         public Money WithSymbol(bool showSymbol)
-        {
-            return new Money(Amount, Currency, !showSymbol, PostFormat);
-        }
+            => new(Amount, Currency, !showSymbol, PostFormat);
 
         #endregion
 
@@ -315,20 +307,19 @@ namespace Smartstore.Core.Common
 
         #region Convert
 
-        // For truthy checks in templating
-        public static explicit operator bool(Money money) => money.Amount != 0;
+        public static explicit operator bool(Money money) => money.Amount != 0; // For truthy checks in templating
         public static explicit operator string(Money money) => money.ToString(true, false);
-        public static explicit operator byte(Money money) => Sys.Convert.ToByte(money.RoundedAmount);
+        public static explicit operator byte(Money money) => Convert.ToByte(money.RoundedAmount);
         public static explicit operator decimal(Money money) => money.RoundedAmount;
-        public static explicit operator double(Money money) => Sys.Convert.ToDouble(money.RoundedAmount);
-        public static explicit operator float(Money money) => Sys.Convert.ToSingle(money.RoundedAmount);
-        public static explicit operator int(Money money) => Sys.Convert.ToInt32(money.RoundedAmount);
-        public static explicit operator long(Money money) => Sys.Convert.ToInt64(money.RoundedAmount);
-        public static explicit operator sbyte(Money money) => Sys.Convert.ToSByte(money.RoundedAmount);
-        public static explicit operator short(Money money) => Sys.Convert.ToInt16(money.RoundedAmount);
-        public static explicit operator ushort(Money money) => Sys.Convert.ToUInt16(money.RoundedAmount);
-        public static explicit operator uint(Money money) => Sys.Convert.ToUInt32(money.RoundedAmount);
-        public static explicit operator ulong(Money money) => Sys.Convert.ToUInt64(money.RoundedAmount);
+        public static explicit operator double(Money money) => Convert.ToDouble(money.RoundedAmount);
+        public static explicit operator float(Money money) => Convert.ToSingle(money.RoundedAmount);
+        public static explicit operator int(Money money) => Convert.ToInt32(money.RoundedAmount);
+        public static explicit operator long(Money money) => Convert.ToInt64(money.RoundedAmount);
+        public static explicit operator sbyte(Money money) => Convert.ToSByte(money.RoundedAmount);
+        public static explicit operator short(Money money) => Convert.ToInt16(money.RoundedAmount);
+        public static explicit operator ushort(Money money) => Convert.ToUInt16(money.RoundedAmount);
+        public static explicit operator uint(Money money) => Convert.ToUInt32(money.RoundedAmount);
+        public static explicit operator ulong(Money money) => Convert.ToUInt64(money.RoundedAmount);
 
         TypeCode IConvertible.GetTypeCode() => TypeCode.Decimal;
         object IConvertible.ToType(Type conversionType, IFormatProvider provider) => Sys.Convert.ChangeType(this.RoundedAmount, conversionType, provider);

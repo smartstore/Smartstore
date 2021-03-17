@@ -20,6 +20,7 @@ using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -58,10 +59,6 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<ProductVariantQueryFactory>().As<IProductVariantQueryFactory>().InstancePerLifetimeScope();
             builder.RegisterType<ProductUrlHelper>().InstancePerLifetimeScope();
 
-            // Calculation
-            builder.RegisterType<PriceCalculationService>().As<IPriceCalculationService>().InstancePerLifetimeScope();
-            builder.RegisterType<PriceCalculatorFactory>().As<IPriceCalculatorFactory>().InstancePerLifetimeScope();
-
             // Search.
             builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().As<IXmlSitemapPublisher>().InstancePerLifetimeScope();
             builder.RegisterType<LinqCatalogSearchService>().Named<ICatalogSearchService>("linq").InstancePerLifetimeScope();
@@ -76,6 +73,40 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<CategoryRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
             builder.RegisterType<ProductRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
             builder.RegisterType<ProductTagRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+
+            // Calculation
+            builder.RegisterType<PriceCalculationService>().As<IPriceCalculationService>().InstancePerLifetimeScope();
+            builder.RegisterType<PriceCalculatorFactory>().As<IPriceCalculatorFactory>().InstancePerLifetimeScope();
+
+            DiscoverCalculators(builder, appContext);
+        }
+
+        private void DiscoverCalculators(ContainerBuilder builder, IApplicationContext appContext)
+        {
+            var calculatorTypes = appContext.TypeScanner.FindTypes<IPriceCalculator>(ignoreInactiveModules: true);
+
+            foreach (var calculatorType in calculatorTypes)
+            {
+                var registration = builder
+                    .RegisterType(calculatorType)
+                    .As<IPriceCalculator>()
+                    .Keyed<IPriceCalculator>(calculatorType);
+
+                var lifetime = calculatorType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
+
+                if (lifetime == ServiceLifetime.Singleton)
+                {
+                    registration.SingleInstance();
+                }
+                else if (lifetime == ServiceLifetime.Transient)
+                {
+                    registration.InstancePerDependency();
+                }
+                else
+                {
+                    registration.InstancePerLifetimeScope();
+                }
+            }
         }
     }
 }

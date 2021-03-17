@@ -13,10 +13,13 @@ namespace Smartstore.Core.Catalog.Pricing
 {
     public class PriceCalculationContext
     {
+        public PriceCalculationContext()
+        {
+        }
+
         public PriceCalculationContext(IPricable product)
         {
             Guard.NotNull(product, nameof(product));
-
             Product = product;
         }
 
@@ -34,20 +37,21 @@ namespace Smartstore.Core.Catalog.Pricing
             // [...]
         }
 
-        public IPricable Product { get; init; }
-        public int Quantity { get; init; } = 1;
+        public IPricable Product { get; set; }
+        public int Quantity { get; set; } = 1;
+        public bool? IsGrossPrice { get; set; }
 
-        public PriceCalculationOptions Options { get; set; }
+        public PriceCalculationOptions Options { get; set; } = new();
         public ProductBatchContext BatchContext { get; set; }
 
-        public Customer Customer { get; init; }
-        public Store Store { get; init; }
+        public Customer Customer { get; set; }
+        public Store Store { get; set; }
         public Dictionary<string, object> Metadata { get; } = new();
         
-        public ProductBundleItemData BundleItem { get; init; }
-        public decimal? AdditionalCharge { get; init; }
-        public IList<Product> AssociatedProducts { get; init; }
-        public IList<object> Attributes { get; init; }
-        public IList<object> BundleItems { get; init; }
+        public ProductBundleItemData BundleItem { get; set; }
+        public decimal? AdditionalCharge { get; set; }
+        public IList<Product> AssociatedProducts { get; set; }
+        public IList<object> Attributes { get; set; }
+        public IList<object> BundleItems { get; set; }
     }
 }

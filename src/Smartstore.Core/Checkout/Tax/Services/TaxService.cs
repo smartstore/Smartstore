@@ -20,6 +20,7 @@ namespace Smartstore.Core.Checkout.Tax
     {
         private readonly Dictionary<TaxRateCacheKey, decimal> _cachedTaxRates = new();
         private readonly Dictionary<TaxAddressKey, Address> _cachedTaxAddresses = new();
+        private readonly ITaxCalculator _taxCalculator;
         private readonly IGeoCountryLookup _geoCountryLookup;
         private readonly IProviderManager _providerManager;
         private readonly IWorkContext _workContext;
@@ -28,6 +29,7 @@ namespace Smartstore.Core.Checkout.Tax
         private readonly Currency _primaryCurrency;
 
         public TaxService(
+            ITaxCalculator taxCalculator,
             IGeoCountryLookup geoCountryLookup,
             IProviderManager providerManager,
             IWorkContext workContext,
@@ -35,6 +37,7 @@ namespace Smartstore.Core.Checkout.Tax
             TaxSettings taxSettings,
             SmartDbContext db)
         {
+            _taxCalculator = taxCalculator;
             _geoCountryLookup = geoCountryLookup;
             _providerManager = providerManager;
             _workContext = workContext;
@@ -303,11 +306,11 @@ namespace Smartstore.Core.Checkout.Tax
             return result;
         }
 
-        protected virtual async Task<(decimal Amount, decimal TaxRate)> GetProductPriceAmountAsync(
+        protected virtual async Task<(decimal Amount, decimal TaxRate)> GetProductPriceAmountAsync2(
             Product product,
             decimal price,
-            bool? includingTax = null,
-            bool? priceIncludesTax = null,
+            bool? inclusive = null,
+            bool? isGrossPrice = null,
             int? taxCategoryId = null,
             Customer customer = null)
         {
@@ -319,20 +322,62 @@ namespace Smartstore.Core.Checkout.Tax
 
             customer ??= _workContext.CurrentCustomer;
             taxCategoryId ??= product?.TaxCategoryId;
-            includingTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+            inclusive ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+            isGrossPrice ??= _taxSettings.PricesIncludeTax;
 
             var taxRate = await GetTaxRateAsync(product, taxCategoryId, customer);
 
-            if (priceIncludesTax ?? _taxSettings.PricesIncludeTax)
+            if (isGrossPrice.Value)
             {
-                if (!includingTax.Value)
+                if (!inclusive.Value)
                 {
                     return (CalculateAmount(price, taxRate, false), taxRate);
                 }
             }
             else
             {
-                if (includingTax.Value)
+                if (inclusive.Value)
+                {
+                    return (CalculateAmount(price, taxRate, true), taxRate);
+                }
+            }
+
+            // Gross > Net RoundFix
+            price = _workContext.WorkingCurrency.RoundIfEnabledFor(price);
+
+            return (price, taxRate);
+        }
+
+        protected virtual async Task<(decimal Amount, decimal TaxRate)> GetProductPriceAmountAsync(
+            Product product,
+            decimal price,
+            bool? inclusive = null,
+            bool? isGrossPrice = null,
+            int? taxCategoryId = null,
+            Customer customer = null)
+        {
+            // Don't calculate if price is 0.
+            if (price == decimal.Zero)
+            {
+                return (price, decimal.Zero);
+            }
+
+            customer ??= _workContext.CurrentCustomer;
+            taxCategoryId ??= product?.TaxCategoryId;
+            inclusive ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+
+            var taxRate = await GetTaxRateAsync(product, taxCategoryId, customer);
+
+            if (isGrossPrice ?? _taxSettings.PricesIncludeTax)
+            {
+                if (!inclusive.Value)
+                {
+                    return (CalculateAmount(price, taxRate, false), taxRate);
+                }
+            }
+            else
+            {
+                if (inclusive.Value)
                 {
                     return (CalculateAmount(price, taxRate, true), taxRate);
                 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Catalog.Pricing
@@ -41,6 +42,11 @@ namespace Smartstore.Core.Catalog.Pricing
         public Money? MinAttributeCombinationPrice { get; set; }
 
         public Money FinalPrice { get; set; }
+
+        /// <summary>
+        /// Tax for <see cref="FinalPrice"/>.
+        /// </summary>
+        public Tax? Tax { get; set; }
 
         public bool HasDiscount 
         {

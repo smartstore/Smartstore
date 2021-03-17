@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Smartstore.Core.Catalog.Pricing.Calculators;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
     public partial class PriceCalculatorFactory : IPriceCalculatorFactory
     {
+        private readonly IEnumerable<Lazy<IPriceCalculator>> _lazyCalculators;
+
+        public PriceCalculatorFactory(IEnumerable<Lazy<IPriceCalculator>> calculators)
+        {
+            _lazyCalculators = calculators;
+        }
+
         public IPriceCalculator[] GetCalculators(PriceCalculationContext context)
         {
             Guard.NotNull(context, nameof(context));
@@ -18,10 +23,9 @@ namespace Smartstore.Core.Catalog.Pricing
 
         protected virtual List<IPriceCalculator> GetCalculatorsCore(PriceCalculationContext context)
         {
-            return new List<IPriceCalculator> 
-            {
-                new OfferPriceCalculator()
-            };
+            return _lazyCalculators
+                .Select(x => x.Value)
+                .ToList();
         }
 
         public async Task RunCalculators(IPriceCalculator[] calculators, CalculatorContext context)

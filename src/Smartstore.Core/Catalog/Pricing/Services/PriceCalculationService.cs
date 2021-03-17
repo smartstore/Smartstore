@@ -32,11 +32,13 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly IPriceCalculatorFactory _calculatorFactory;
         private readonly ICategoryService _categoryService;
         private readonly IManufacturerService _manufacturerService;
+        private readonly ITaxCalculator _taxCalculator;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IDiscountService _discountService;
         private readonly CatalogSettings _catalogSettings;
+        private readonly TaxSettings _taxSettings;
         private readonly Currency _primaryCurrency;
         private readonly Currency _workingCurrency;
 
@@ -48,11 +50,13 @@ namespace Smartstore.Core.Catalog.Pricing
             IPriceCalculatorFactory calculatorFactory,
             ICategoryService categoryService,
             IManufacturerService manufacturerService,
+            ITaxCalculator taxCalculator,
             ITaxService taxService,
             ICurrencyService currencyService,
             IProductAttributeMaterializer productAttributeMaterializer,
             IDiscountService discountService,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            TaxSettings taxSettings)
         {
             _db = db;
             _workContext = workContext;
@@ -61,11 +65,13 @@ namespace Smartstore.Core.Catalog.Pricing
             _calculatorFactory = calculatorFactory;
             _categoryService = categoryService;
             _manufacturerService = manufacturerService;
+            _taxCalculator = taxCalculator;
             _taxService = taxService;
             _currencyService = currencyService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _discountService = discountService;
             _catalogSettings = catalogSettings;
+            _taxSettings = taxSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
             _workingCurrency = workContext.WorkingCurrency;
@@ -106,30 +112,62 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var result = new CalculatedPrice(calculatorContext)
             {
-                RegularPrice = ConvertAmount(calculatorContext.RegularPrice).Value,
-                OfferPrice = ConvertAmount(calculatorContext.OfferPrice),
-                SelectionPrice = ConvertAmount(calculatorContext.SelectionPrice),
-                LowestPrice = ConvertAmount(calculatorContext.LowestPrice),
-                FinalPrice = ConvertAmount(calculatorContext.FinalPrice).Value
+                RegularPrice = ConvertAmount(calculatorContext.RegularPrice, context, out _).Value,
+                OfferPrice = ConvertAmount(calculatorContext.OfferPrice, context, out _),
+                SelectionPrice = ConvertAmount(calculatorContext.SelectionPrice, context, out _),
+                LowestPrice = ConvertAmount(calculatorContext.LowestPrice, context, out _),
+                FinalPrice = ConvertAmount(calculatorContext.FinalPrice, context, out var tax).Value,
+                Tax = tax
             };
 
             return result;
+        }
 
-            Money? ConvertAmount(decimal? amount)
+        private Money? ConvertAmount(decimal? amount, PriceCalculationContext context, out Tax? tax)
+        {
+            tax = null;
+            
+            if (amount == null)
             {
-                if (amount.HasValue)
-                {
-                    var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, context.Options.TargetCurrency);
-                    return _currencyService.ApplyTaxFormat(money, null, null, null);
-                }
-
                 return null;
             }
+
+            if (amount != 0 && context.Options.CalculateTax)
+            {
+                tax = context.IsGrossPrice == true
+                     ? _taxCalculator.CalculateTaxFromGross(amount.Value, 19) // TODO: (core) TaxRate
+                     : _taxCalculator.CalculateTaxFromNet(amount.Value, 19);
+
+                amount = context.Options.GrossPrices == true ? tax.Value.PriceGross : tax.Value.PriceNet;
+            }
+
+            var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, context.Options.TargetCurrency);
+
+            if (amount != 0 && context.Options.CalculateTax && context.Options.TaxFormat != null)
+            {
+                money = money.WithPostFormat(context.Options.TaxFormat);
+            }
+
+            return money;
         }
 
         private void VerifyContext(PriceCalculationContext context)
         {
-            //
+            if (context.Product == null)
+            {
+                throw new InvalidOperationException($"{nameof(PriceCalculationContext)}.{nameof(PriceCalculationContext.Product)} must not be null.");
+            }
+            
+            context.Customer ??= _workContext.CurrentCustomer;
+            context.Store ??= _storeContext.CurrentStore;
+            context.BatchContext ??= new ProductBatchContext(null, _services, context.Store, context.Customer, true);
+            context.IsGrossPrice ??= _taxSettings.PricesIncludeTax;
+            
+            context.Options ??= new PriceCalculationOptions();
+            context.Options.CashRounding ??= new CashRoundingOptions();
+            context.Options.TargetCurrency ??= _workingCurrency;
+            context.Options.Language ??= _workContext.WorkingLanguage;
+            context.Options.GrossPrices ??= _workContext.GetTaxDisplayTypeFor(context.Customer, context.Store.Id) == TaxDisplayType.IncludingTax;
         }
 
         #endregion

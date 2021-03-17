@@ -320,6 +320,26 @@ namespace Smartstore.Web.Controllers
                     ShippingChargeTaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: taxDisplayType == TaxDisplayType.IncludingTax, target: PricingTarget.ShippingCharge, language: language)
                 };
 
+                mapItemContext.PriceCalculationContext = new PriceCalculationContext
+                {
+                    BatchContext = batchContext,
+                    IsGrossPrice = _taxSettings.PricesIncludeTax,
+                    Customer = customer,
+                    Store = store,
+                    Options = new PriceCalculationOptions 
+                    { 
+                        TargetCurrency = currency,
+                        Language = language,
+                        GrossPrices = taxDisplayType == TaxDisplayType.IncludingTax,
+                        CalculateTax = true,
+                        TaxFormat = mapItemContext.TaxFormat,
+                        DetermineSelectionPrice = _catalogSettings.PriceDisplayType == PriceDisplayType.PreSelectedPrice,
+                        IgnoreDiscounts = _catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
+                        IgnoreAttributes = _catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
+                        DetermineLowestPrice = _catalogSettings.PriceDisplayType == PriceDisplayType.LowestPrice
+                    }
+                };
+
                 if (settings.MapPictures)
                 {
                     var fileIds = products
@@ -680,28 +700,23 @@ namespace Smartstore.Web.Controllers
 
             #region Test NEW
 
-            //var calculationContext = new PriceCalculationContext(product) 
-            //{
-            //    BatchContext = ctx.BatchContext,
-            //    Options = new PriceCalculationOptions
-            //    {
-            //        TargetCurrency = ctx.WorkingCurrency,
-            //        Language = _workContext.WorkingLanguage
-            //    }
-            //};
+            var calculationContext = ctx.PriceCalculationContext;
+            calculationContext.Product = product;
+            calculationContext.BatchContext = product.ProductType == ProductType.GroupedProduct ? ctx.AssociatedProductBatchContext : ctx.BatchContext;
+            calculationContext.Options.DetermineLowestPrice = _catalogSettings.PriceDisplayType == PriceDisplayType.LowestPrice || product.ProductType == ProductType.GroupedProduct;
 
-            //var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+            var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
-            //priceModel.Price = calculatedPrice.FinalPrice;
-            //priceModel.HasDiscount = calculatedPrice.HasDiscount;
-            //if (calculatedPrice.HasDiscount)
-            //{
-            //    priceModel.RegularPrice = calculatedPrice.RegularPrice;
-            //    priceModel.SavingAmount = calculatedPrice.SavingAmount;
-            //    priceModel.SavingPercent = calculatedPrice.SavingPercent;
-            //}
+            priceModel.Price = calculatedPrice.FinalPrice;
+            priceModel.HasDiscount = calculatedPrice.HasDiscount;
+            if (calculatedPrice.HasDiscount)
+            {
+                priceModel.RegularPrice = calculatedPrice.RegularPrice;
+                priceModel.SavingAmount = calculatedPrice.SavingAmount;
+                priceModel.SavingPercent = calculatedPrice.SavingPercent;
+            }
 
-            //return (calculatedPrice.FinalPrice, contextProduct);
+            return (calculatedPrice.FinalPrice, contextProduct);
 
             #endregion
 
@@ -842,6 +857,7 @@ namespace Smartstore.Web.Controllers
             public ProductSummaryMappingSettings Settings { get; set; }
             public ProductBatchContext BatchContext { get; set; }
             public ProductBatchContext AssociatedProductBatchContext { get; set; }
+            public PriceCalculationContext PriceCalculationContext { get; set; }
             public Multimap<int, Product> GroupedProducts { get; set; }
             public Dictionary<int, BrandOverviewModel> CachedBrandModels { get; set; }
             public Dictionary<int, MediaFileInfo> MediaFiles { get; set; } = new Dictionary<int, MediaFileInfo>();
