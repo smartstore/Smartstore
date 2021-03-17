@@ -328,23 +328,20 @@ namespace Smartstore.Core.Checkout.Orders
             }
         }
 
-        public virtual async Task<OrderTotalValidationResult> ValidateOrderTotal(IList<OrganizedShoppingCartItem> cart, int[] customerRoleIds)
+        public virtual async Task<OrderTotalValidationResult> ValidateOrderTotalAsync(IList<OrganizedShoppingCartItem> cart, params CustomerRole[] customerRoles)
         {
             Guard.NotNull(cart, nameof(cart));
-            Guard.NotNull(customerRoleIds, nameof(customerRoleIds));
 
-            var rolesQuery = _db.CustomerRoles.AsNoTracking().Where(x => customerRoleIds.Contains(x.Id));
-            
             var minRolesQuery = _orderSettings.MultipleOrderTotalRestrictionsExpandRange
-                ? rolesQuery.Where(x => x.OrderTotalMinimum > decimal.Zero).OrderBy(x => x.OrderTotalMinimum)
-                : rolesQuery.Where(x => x.OrderTotalMinimum > decimal.Zero).OrderByDescending(x => x.OrderTotalMinimum);
+                ? customerRoles.Where(x => x.OrderTotalMinimum > decimal.Zero).OrderBy(x => x.OrderTotalMinimum)
+                : customerRoles.Where(x => x.OrderTotalMinimum > decimal.Zero).OrderByDescending(x => x.OrderTotalMinimum);
 
             var maxRolesQuery = _orderSettings.MultipleOrderTotalRestrictionsExpandRange
-                ? rolesQuery.Where(x => x.OrderTotalMaximum > decimal.Zero).OrderByDescending(x => x.OrderTotalMaximum)
-                : rolesQuery.Where(x => x.OrderTotalMaximum > decimal.Zero).OrderBy(x => x.OrderTotalMaximum);
+                ? customerRoles.Where(x => x.OrderTotalMaximum > decimal.Zero).OrderByDescending(x => x.OrderTotalMaximum)
+                : customerRoles.Where(x => x.OrderTotalMaximum > decimal.Zero).OrderBy(x => x.OrderTotalMaximum);
 
-            var minRole = await minRolesQuery.FirstOrDefaultAsync();
-            var maxRole = await maxRolesQuery.FirstOrDefaultAsync();
+            var minRole = minRolesQuery.FirstOrDefault();
+            var maxRole = maxRolesQuery.FirstOrDefault();
 
             var orderTotalMin = (minRole == null ? _orderSettings.OrderTotalMinimum : minRole.OrderTotalMinimum) ?? decimal.Zero;
             var orderTotalMax = (maxRole == null ? _orderSettings.OrderTotalMaximum : maxRole.OrderTotalMaximum) ?? decimal.Zero;

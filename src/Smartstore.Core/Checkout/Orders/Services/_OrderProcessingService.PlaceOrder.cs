@@ -155,7 +155,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
 
                 // Order total validation.
-                var totalValidation = await ValidateOrderTotal(cart, customer.GetRoleIds());
+                var totalValidation = await ValidateOrderTotalAsync(cart, customer.CustomerRoleMappings.Select(x => x.CustomerRole).ToArray());
                 if (!totalValidation.IsAboveMinimum)
                 {
                     var convertedMin = _currencyService.ConvertFromPrimaryCurrency(totalValidation.OrderTotalMinimum, _workingCurrency);

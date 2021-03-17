@@ -79,9 +79,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// or from <see cref="OrderSettings.OrderTotalMinimum"/> and <see cref="OrderSettings.OrderTotalMaximum"/> if none is specified.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
-        /// <param name="customerRoleIds">Customer role identifiers.</param>
+        /// <param name="customerRoles">Customer roles to check against.</param>
         /// <returns>Validated order total.</returns>
-        Task<OrderTotalValidationResult> ValidateOrderTotal(IList<OrganizedShoppingCartItem> cart, int[] customerRoleIds);
+        Task<OrderTotalValidationResult> ValidateOrderTotalAsync(IList<OrganizedShoppingCartItem> cart, params CustomerRole[] customerRoles);
 
         /// <summary>
         /// Adds a shipment to an order.
