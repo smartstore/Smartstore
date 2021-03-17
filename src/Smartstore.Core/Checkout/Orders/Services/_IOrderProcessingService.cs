@@ -108,7 +108,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="initialOrder">Initial order for recurring payment, if any.</param>
         /// <param name="customer">Customer placing the order.</param>
         /// <returns>Warnings and validated card. Warnings are empty if the order can be placed.</returns>
-        Task<(IList<string> Warnings, IList<OrganizedShoppingCartItem> Cart)> ValidateOrderPlacement(
+        Task<(IList<string> Warnings, IList<OrganizedShoppingCartItem> Cart)> ValidateOrderPlacementAsync(
             ProcessPaymentRequest paymentRequest,
             Order initialOrder = null,
             Customer customer = null);

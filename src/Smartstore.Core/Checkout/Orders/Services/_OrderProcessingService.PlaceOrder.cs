@@ -42,7 +42,7 @@ namespace Smartstore.Core.Checkout.Orders
                 var initialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
                 var customer = await _db.Customers.FindByIdAsync(paymentRequest.CustomerId);
 
-                var (warnings, cart) = await ValidateOrderPlacement(paymentRequest, initialOrder, customer);
+                var (warnings, cart) = await ValidateOrderPlacementAsync(paymentRequest, initialOrder, customer);
                 if (warnings.Any())
                 {
                     result.Errors.AddRange(warnings);
@@ -80,7 +80,7 @@ namespace Smartstore.Core.Checkout.Orders
             return result;
         }
 
-        public virtual async Task<(IList<string> Warnings, IList<OrganizedShoppingCartItem> Cart)> ValidateOrderPlacement(
+        public virtual async Task<(IList<string> Warnings, IList<OrganizedShoppingCartItem> Cart)> ValidateOrderPlacementAsync(
             ProcessPaymentRequest paymentRequest,
             Order initialOrder = null,
             Customer customer = null)
@@ -275,7 +275,7 @@ namespace Smartstore.Core.Checkout.Orders
             // Recurring or standard shopping cart?
             if (!warnings.Any() && !paymentRequest.IsRecurringPayment)
             {
-                isRecurringCart = cart.IsRecurring();
+                isRecurringCart = cart.ContainsRecurringItem();
                 if (isRecurringCart)
                 {
                     var recurringCycleInfo = cart.GetRecurringCycleInfo(_localizationService);

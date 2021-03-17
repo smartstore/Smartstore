@@ -82,6 +82,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual bool CanCancelOrder(Order order)
         {
+            // TODO: (mg) (core) Make extension method for Order.
             Guard.NotNull(order, nameof(order));
 
             if (order.OrderStatus == OrderStatus.Cancelled)
@@ -124,6 +125,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual bool CanCompleteOrder(Order order)
         {
+            // TODO: (mg) (core) Make extension method for Order.
             Guard.NotNull(order, nameof(order));
 
             return order.OrderStatus != OrderStatus.Complete && order.OrderStatus != OrderStatus.Cancelled;
@@ -387,7 +389,7 @@ namespace Smartstore.Core.Checkout.Orders
                     continue;
 
                 // Ensure that this product can be shipped (have at least one item to ship).
-                var maxQtyToAdd = orderItem.GetItemsCanBeAddedToShipmentCount();
+                var maxQtyToAdd = orderItem.GetShippableItemsCount();
                 if (maxQtyToAdd <= 0)
                     continue;
 

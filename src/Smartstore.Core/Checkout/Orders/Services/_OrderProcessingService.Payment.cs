@@ -13,6 +13,7 @@ namespace Smartstore.Core.Checkout.Orders
     {
         public virtual bool CanMarkOrderAsAuthorized(Order order)
         {
+            // TODO: (mg) (core) Make extension method for Order.
             Guard.NotNull(order, nameof(order));
 
             if (order.OrderStatus == OrderStatus.Cancelled)
@@ -38,6 +39,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual bool CanMarkOrderAsPaid(Order order)
         {
+            // TODO: (mg) (core) Make extension method for Order.
             Guard.NotNull(order, nameof(order));
 
             if (order.OrderStatus == OrderStatus.Cancelled)
@@ -214,6 +216,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual bool CanRefundOffline(Order order)
         {
+            // TODO: (mg) (core) Make extension method for Order.
             Guard.NotNull(order, nameof(order));
 
             if (order.OrderTotal == decimal.Zero)
@@ -330,6 +333,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual bool CanPartiallyRefundOffline(Order order, decimal amountToRefund)
         {
+            // TODO: (mg) (core) Make extension method for Order.
             Guard.NotNull(order, nameof(order));
 
             if (order.OrderTotal == decimal.Zero)
@@ -436,6 +440,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual bool CanVoidOffline(Order order)
         {
+            // TODO: (mg) (core) Make extension method for Order.
             Guard.NotNull(order, nameof(order));
 
             if (order.OrderTotal == decimal.Zero)
@@ -469,6 +474,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual bool CanCancelRecurringPayment(Customer customerToValidate, RecurringPayment recurringPayment)
         {
+            // TODO: (mg) (core) Make extension method for RecurringPayment.
             if (customerToValidate == null || recurringPayment == null)
                 return false;
 

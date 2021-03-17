@@ -93,7 +93,7 @@ namespace Smartstore
 
             foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
             {
-                var canBeAddedToShipment = orderItem.GetItemsCanBeAddedToShipmentCount();
+                var canBeAddedToShipment = orderItem.GetShippableItemsCount();
                 if (canBeAddedToShipment <= 0)
                     continue;
 

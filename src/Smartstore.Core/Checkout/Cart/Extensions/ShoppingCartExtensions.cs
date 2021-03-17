@@ -124,11 +124,11 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets a value indicating whether the shopping cart is recurring.
+        /// Gets a value indicating whether the shopping cart contains a recurring item.
         /// </summary>
         /// <param name="shoppingCart">Shopping cart.</param>
-        /// <returns>A value indicating whether the shopping cart is recurring.</returns>
-		public static bool IsRecurring(this IList<OrganizedShoppingCartItem> cart)
+        /// <returns>A value indicating whether the shopping cart contains a recurring item.</returns>
+		public static bool ContainsRecurringItem(this IList<OrganizedShoppingCartItem> cart)
         {
             Guard.NotNull(cart, nameof(cart));
 
