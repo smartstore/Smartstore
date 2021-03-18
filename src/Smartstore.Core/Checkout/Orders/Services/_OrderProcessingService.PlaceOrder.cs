@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Crypto.Signers;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -78,6 +80,12 @@ namespace Smartstore.Core.Checkout.Orders
 
                     // Saves changes to database.
                     await CheckOrderStatusAsync(context.Order);
+
+                    // Reset checkout data.
+                    if (!paymentRequest.IsRecurringPayment && !paymentRequest.IsMultiOrder)
+                    {
+                        customer.ResetCheckoutData(paymentRequest.StoreId, true, true, true, true, true, true);
+                    }
 
                 }
             }
@@ -693,6 +701,7 @@ namespace Smartstore.Core.Checkout.Orders
             _db.Orders.Add(ctx.Order);
 
             // Save, we need the primary key.
+            // Payment has been made. Order MUST be saved immediately!
             await _db.SaveChangesAsync();
 
             ctx.Result.PlacedOrder = ctx.Order;
@@ -716,38 +725,81 @@ namespace Smartstore.Core.Checkout.Orders
 
         private async Task AddAssociatedData(PlaceOrderContext ctx)
         {
+            var order = ctx.Order;
+
             if (!ctx.PaymentRequest.IsRecurringPayment)
             {
+                // Discount usage history.
                 foreach (var discount in ctx.AppliedDiscounts)
                 {
                     _db.DiscountUsageHistory.Add(new DiscountUsageHistory
                     {
                         Discount = discount,
-                        Order = ctx.Order,
+                        Order = order,
                         CreatedOnUtc = ctx.Now
                     });
                 }
 
+                // Gift card usage history.
                 foreach (var giftCard in ctx.CartTotal.AppliedGiftCards)
                 {
                     giftCard.GiftCard.GiftCardUsageHistory.Add(new GiftCardUsageHistory
                     {
                         GiftCardId = giftCard.GiftCard.Id,
-                        UsedWithOrder = ctx.Order,
+                        UsedWithOrder = order,
                         UsedValue = giftCard.UsableAmount.Amount,
                         CreatedOnUtc = ctx.Now
                     });
                 }
+
+                try
+                {
+                    // Handle transiancy of uploaded files for checkout attributes.
+                    var attributesSelection = ctx.Customer.GenericAttributes.CheckoutAttributes;
+                    if (attributesSelection.AttributesMap.Any())
+                    {
+                        var fileUploadAttributeIds = await _db.CheckoutAttributes
+                            .AsQueryable()
+                            .Where(x => x.AttributeControlTypeId == (int)AttributeControlType.FileUpload)
+                            .Select(x => x.Id)
+                            .ToListAsync();
+
+                        if (fileUploadAttributeIds.Any())
+                        {
+                            var fileGuids = attributesSelection.AttributesMap
+                                .Where(x => fileUploadAttributeIds.Contains(x.Key))
+                                .SelectMany(x => x.Value)
+                                .Select(x => Guid.TryParse(x as string, out Guid guid) ? guid : Guid.Empty)
+                                .Where(x => x != Guid.Empty)
+                                .ToArray();
+
+                            if (fileGuids.Any())
+                            {
+                                var downloads = await _db.Downloads
+                                    .AsQueryable()
+                                    .Where(x => fileGuids.Contains(x.DownloadGuid) && x.IsTransient)
+                                    .ToListAsync();
+
+                                downloads.Each(x => x.IsTransient = false);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
             }
 
+            // Reward points history.
             if (ctx.CartTotal.RedeemedRewardPointsAmount > decimal.Zero)
             {
-                var msg = await _localizationService.GetResourceAsync("RewardPoints.Message.RedeemedForOrder", ctx.Order.CustomerLanguageId);
+                var str = await _localizationService.GetResourceAsync("RewardPoints.Message.RedeemedForOrder", order.CustomerLanguageId);
 
                 ctx.Customer.AddRewardPointsHistoryEntry(
                     -ctx.CartTotal.RedeemedRewardPoints,
-                    msg.FormatInvariant(ctx.Order.GetOrderNumber()), 
-                    ctx.Order, 
+                    str.FormatInvariant(order.GetOrderNumber()), 
+                    order, 
                     ctx.CartTotal.RedeemedRewardPointsAmount.Amount);
             }
 
@@ -763,33 +815,52 @@ namespace Smartstore.Core.Checkout.Orders
                     StartDateUtc = ctx.Now,
                     IsActive = true,
                     CreatedOnUtc = ctx.Now,
-                    InitialOrderId = ctx.Order.Id
+                    InitialOrderId = order.Id
                 };
 
-                _db.RecurringPayments.Add(rp);
-
-                var recurringPaymentType = await _paymentService.GetRecurringPaymentTypeAsync(ctx.PaymentRequest.PaymentMethodSystemName);
-                switch (recurringPaymentType)
+                // For RecurringPaymentType.Automatic the history entry will be created later (process is automated).
+                if (RecurringPaymentType.Manual == await _paymentService.GetRecurringPaymentTypeAsync(ctx.PaymentRequest.PaymentMethodSystemName))
                 {
-                    case RecurringPaymentType.Manual:
-                        {
-                            // First payment.
-                            rp.RecurringPaymentHistory.Add(new RecurringPaymentHistory
-                            {
-                                RecurringPaymentId = rp.Id,
-                                CreatedOnUtc = ctx.Now,
-                                OrderId = ctx.Order.Id
-                            });
-                        }
-                        break;
-                    case RecurringPaymentType.Automatic:
-                        // Will be created later (process is automated).
-                        break;
-                    case RecurringPaymentType.NotSupported:
-                    default:
-                        break;
+                    // First payment.
+                    rp.RecurringPaymentHistory.Add(new RecurringPaymentHistory
+                    {
+                        CreatedOnUtc = ctx.Now,
+                        OrderId = order.Id
+                    });
                 }
+
+                _db.RecurringPayments.Add(rp);
             }
+
+            // Notifications and order notes.
+            order.AddOrderNote(T("Admin.OrderNotice.OrderPlaced"));
+
+            var msg = await _messageFactory.SendOrderPlacedStoreOwnerNotificationAsync(order, _localizationSettings.DefaultAdminLanguageId);
+            if (msg?.Email?.Id != null)
+            {
+                order.AddOrderNote(T("Admin.OrderNotice.MerchantEmailQueued", msg.Email.Id));
+            }
+
+            msg = await _messageFactory.SendOrderPlacedCustomerNotificationAsync(order, order.CustomerLanguageId);
+            if (msg?.Email?.Id != null)
+            {
+                order.AddOrderNote(T("Admin.OrderNotice.CustomerEmailQueued", msg.Email.Id));
+            }
+
+            // Check for generic attributes to be inserted automatically.
+            var customAttributes = ctx.PaymentRequest.CustomProperties
+                .Where(x => x.Key.HasValue() && x.Value.AutoCreateGenericAttribute)
+                .Select(x => new GenericAttribute
+                {
+                    EntityId = order.Id,
+                    KeyGroup = nameof(Order),
+                    Key = x.Key,
+                    Value = x.Value.Value.Convert<string>(),
+                    StoreId = order.StoreId
+                })
+                .ToList();
+
+            _db.GenericAttributes.AddRange(customAttributes);
 
             // INFO: CheckOrderStatus performs commit.
         }

@@ -27,8 +27,15 @@ namespace Smartstore.Core.Checkout.Attributes
 
         public async Task<List<CheckoutAttributeValue>> MaterializeCheckoutAttributeValuesAsync(CheckoutAttributeSelection selection)
         {
-            var valueIds = selection.GetAttributeValueIds();            
-            return await _db.CheckoutAttributeValues.GetManyAsync(valueIds);
+            var valueIds = selection.GetAttributeValueIds();
+
+            var values = await _db.CheckoutAttributeValues
+                .AsNoTracking()
+                .Include(x => x.CheckoutAttribute)
+                .Where(x => valueIds.Contains(x.Id))
+                .ToListAsync();
+
+            return values;
         }
     }
 }

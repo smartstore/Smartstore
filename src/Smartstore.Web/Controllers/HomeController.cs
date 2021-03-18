@@ -826,24 +826,48 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var gcService = Services.Resolve<IGiftCardService>();
-            var customer = await _db.Customers.Include(x => x.Addresses).FindByIdAsync(2666330);
+            var checkoutAtributes = "<Attributes><CheckoutAttribute ID=\"2\"><CheckoutAttributeValue><Value>30ccd4a0-8e60-46be-8740-7c9f9d08dd26</Value></CheckoutAttributeValue></CheckoutAttribute><CheckoutAttribute ID=\"1\"><CheckoutAttributeValue><Value>2</Value></CheckoutAttributeValue></CheckoutAttribute></Attributes>";
+            var selection = new CheckoutAttributeSelection(checkoutAtributes);
 
-            //customer.GenericAttributes.GiftCardCouponCodes = new List<GiftCardCouponCode>
+            var fileUploadAttributeIds = await _db.CheckoutAttributes
+                .Where(x => x.AttributeControlTypeId == (int)AttributeControlType.FileUpload)
+                .Select(x => x.Id)
+                .ToListAsync();
+
+            var fileGuids = selection.AttributesMap
+                .Where(x => fileUploadAttributeIds.Contains(x.Key))
+                .SelectMany(x => x.Value)
+                .Select(x => Guid.TryParse(x as string, out Guid guid) ? guid : Guid.Empty)
+                .Where(x => x != Guid.Empty)
+                .ToArray();
+
+            content.AppendLine("GUIDs " + string.Join(", ", fileGuids.Select(x => x.ToString())));
+
+            var downloads = await _db.Downloads
+                .Where(x => fileGuids.Contains(x.DownloadGuid) && x.IsTransient)
+                .ToListAsync();
+
+            content.AppendLine("downloads: " + string.Join(", ", downloads.Select(x => $"{x.Id}:{x.IsTransient}")));
+
+
+            //var gcService = Services.Resolve<IGiftCardService>();
+            //var customer = await _db.Customers.Include(x => x.Addresses).FindByIdAsync(2666330);
+
+            ////customer.GenericAttributes.GiftCardCouponCodes = new List<GiftCardCouponCode>
+            ////{
+            ////    new GiftCardCouponCode("027be3c3-7a9f")
+            ////};
+
+            ////await _db.SaveChangesAsync();
+
+            //var giftCards = await gcService.GetValidGiftCardsAsync(1, customer);
+
+            //foreach (var gc in giftCards)
             //{
-            //    new GiftCardCouponCode("027be3c3-7a9f")
-            //};
+            //    content.AppendLine($"gift card: {gc.UsableAmount.ToString()}. {gc.GiftCard.GiftCardCouponCode}");
+            //}
 
-            //await _db.SaveChangesAsync();
 
-            var giftCards = await gcService.GetValidGiftCardsAsync(1, customer);
-
-            foreach (var gc in giftCards)
-            {
-                content.AppendLine($"gift card: {gc.UsableAmount.ToString()}. {gc.GiftCard.GiftCardCouponCode}");
-            }
-            
-            
             //var price = 16.98M;
             //var currency = Services.WorkContext.WorkingCurrency;
             //var currencyService = Services.Resolve<ICurrencyService>();
