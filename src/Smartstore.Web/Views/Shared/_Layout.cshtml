@@ -5,8 +5,8 @@
 
     <zone name="body_start_html_tag_after"></zone>
 
-    var hasLeftCol = IsSectionDefined("left");
-    var hasRightCol = IsSectionDefined("right");
+    var hasLeftCol = Display.ZoneHasContent("left");
+    var hasRightCol = Display.ZoneHasContent("right");
     var hideLeftCol = ViewBag.HideLeftCol == true;
     var hideRightCol = ViewBag.HideRightCol == true;
 
@@ -36,43 +36,33 @@
 
     <div class="page-main canvas-slidable">
 
-        @if (IsSectionDefined("header"))
-        {
-            @RenderSection("header")
-        }
-        else
-        {
-            <header id="header">
-                <div class="menubar-section d-none d-lg-block @(Display.GetThemeVariable<bool>("inverse-menubar") ? "menubar-inverse" : "menubar-light")">
-                    <div class="container menubar-container">
-                        @await Component.InvokeAsync("TopBar")
+        <header id="header" zone-name="header" replace-content="true">
+            <div class="menubar-section d-none d-lg-block @(Display.GetThemeVariable<bool>("inverse-menubar") ? "menubar-inverse" : "menubar-light")">
+                <div class="container menubar-container">
+                    @await Component.InvokeAsync("TopBar")
+                </div>
+            </div>
+            <div class="shopbar-section @(Display.GetThemeVariable<bool>("inverse-shopbar") ? "shopbar-inverse" : "shopbar-light")">
+                <div class="container shopbar-container">
+                    @await Component.InvokeAsync("ShopBar")
+                </div>
+            </div>
+            <div class="megamenu-section d-none d-lg-block">
+                <nav class="navbar @(Display.GetThemeVariable<bool>("inverse-navbar") ? "navbar-inverse" : "navbar-light")">
+                    <div class="container megamenu-container">
+                        <menu name="Main" template="Main" />
                     </div>
-                </div>
-                <div class="shopbar-section @(Display.GetThemeVariable<bool>("inverse-shopbar") ? "shopbar-inverse" : "shopbar-light")">
-                    <div class="container shopbar-container">
-                        @await Component.InvokeAsync("ShopBar")
-                    </div>
-                </div>
-                <div class="megamenu-section d-none d-lg-block">
-                    <nav class="navbar @(Display.GetThemeVariable<bool>("inverse-navbar") ? "navbar-inverse" : "navbar-light")">
-                        <div class="container megamenu-container">
-                            <menu name="Main" template="Main" />
-                        </div>
-                    </nav>
-                </div>
-            </header>
-        }
+                </nav>
+            </div>
+        </header>
 
         <div id="content-wrapper">
-            
+
             <partial name="JavaScriptDisabledWarning" />
 
             <zone name="content-before"></zone>
 
             <section id="content" class="container">
-
-                @RenderSection("teaser", required: false)
-
                 <zone name="teaser"></zone>
 
                 <partial name="Breadcrumb" model="null" />
@@ -83,7 +73,7 @@
                     {
                         <aside id="content-left" class="col-lg-3 mb-4 mb-lg-0@(hideLeftCol ? " d-none d-lg-block" : "")">
                             <zone name="aside_left_before"></zone>
-                            @RenderSection("left")
+                            <zone name="left"></zone>
                             <zone name="aside_left_after"></zone>
                         </aside>
                     }
@@ -98,7 +88,7 @@
                     {
                         <aside id="content-right" class="col-lg-3 mt-4 mt-lg-0@(hideRightCol ? " d-none d-lg-block" : "")">
                             <zone name="aside_right_before"></zone>
-                            @RenderSection("right")
+                            <zone name="right"></zone>
                             <zone name="aside_right_after"></zone>
                         </aside>
                     }
@@ -110,14 +100,9 @@
 
         <zone name="footer_before"></zone>
 
-        @if (IsSectionDefined("footer"))
-        {
-            @RenderSection("footer")
-        }
-        else
-        {
+        <zone name="footer" replace-content="true">
             @await Component.InvokeAsync("Footer")
-        }
+        </zone>
 
         <zone name="page-end"></zone>
     </div>

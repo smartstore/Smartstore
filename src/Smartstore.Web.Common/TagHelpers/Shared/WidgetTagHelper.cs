@@ -63,8 +63,15 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             TagHelperContent childContent = await output.GetChildContentAsync();
-            TagHelperContent content;
 
+            if (childContent.IsEmptyOrWhiteSpace)
+            {
+                output.SuppressOutput();
+                return;
+            }
+
+            TagHelperContent content;
+            
             if (output.TagName == "widget")
             {
                 // Never render <widget> tag, only the content
