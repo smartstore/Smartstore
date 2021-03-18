@@ -2,9 +2,11 @@
 @using Smartstore.Core.Content.Media;
 @using Smartstore.Utilities;
 @using Smartstore.Web.Models.Catalog;
+@using Smartstore.Web.Razor; 
 
 @model ProductSummaryModel
 @inject MediaSettings MediaSettings
+@inject IRazorViewInvoker RazorViewInvoker
 
 @{
     var id = "artlist-" + CommonHelper.GenerateRandomDigitCode(10);
@@ -18,8 +20,7 @@
         imgRatio = thumbAspectRatio.ToString(CultureInfo.InvariantCulture);
     }
 
-    var pagerHtml = HtmlString.Empty;
-    //pagerHtml = await Html.PartialAsync("Product.List.Pager", Model); // TODO: (core) Uncomment
+    var pagerHtml = new HtmlString(await RazorViewInvoker.InvokeViewAsync("Product.List.Pager", Model, true));
     var hasPager = pagerHtml.Value.HasValue();
 
     // TODO: (mc) AllowFiltering (?)
@@ -72,9 +73,11 @@
         </div>
         <div sm-if="hasPager || Model.AllowViewModeChanging" class="artlist-action-group artlist-action-group--page">
             @* ViewMode *@
-            <partial sm-if="Model.AllowViewModeChanging && Model.ViewMode == ProductSummaryViewMode.Grid || Model.ViewMode == ProductSummaryViewMode.List" 
-                     name="Product.List.ViewMode" model="Model" />
-            
+            @if (Model.AllowViewModeChanging && Model.ViewMode == ProductSummaryViewMode.Grid || Model.ViewMode == ProductSummaryViewMode.List)
+            {
+                <partial name="Product.List.ViewMode" model="Model" />
+            }
+
             @* Pager *@
             @if (hasPager)
             {

@@ -48,7 +48,7 @@
 <div sm-if="Model.AvailablePageSizes != null && Model.AvailablePageSizes.Count() > 1" class="artlist-action artlist-action--pagesize ml-auto">
     <div class="mf-dropdown">
         <button class="btn btn-secondary btn-artlist-action">
-            <em>@T("Pager.XPerPage", $"<span>{pageable.PageSize}</span>")</em>
+            <em>@Html.Raw(T("Pager.XPerPage", $"<span>{pageable.PageSize}</span>"))</em>
             <i class="fas fa-caret-down"></i>
         </button>
         <select class="artlist-action-select form-control noskin"
@@ -67,16 +67,19 @@
 
 <div sm-if="pageable.TotalPages > 1" class="artlist-action artlist-action--pager d-flex flex-nowrap">
 
-    <a sm-if="pageable.PageNumber > 1" href='@Display.ModifyUrl(null, "i=" + (pageable.PageNumber - 1))' title="@T("Pager.PageX", pageable.PageNumber - 1)"
-       rel="prev" class="btn btn-secondary btn-pager-prev pull-xs-left" data-toggle="tooltip">
-        <i class="fa fa-chevron-left"></i>
-    </a>
+    @if (pageable.PageNumber > 1)
+    {
+        <a href='@Display.ModifyUrl(null, "i=" + (pageable.PageNumber - 1))' title="@T("Pager.PageX", pageable.PageNumber - 1)"
+           rel="prev" class="btn btn-secondary btn-pager-prev pull-xs-left" data-toggle="tooltip">
+            <i class="fa fa-chevron-left"></i>
+        </a>
+    }
 
     <div class="mf-dropdown">
         <button class="btn btn-secondary btn-artlist-action">
             <em class="d-sm-none"><span>@pageable.PageNumber</span>/<span>@pageable.TotalPages</span></em>
-            <em class="d-none d-sm-inline d-md-none">@T("Pager.PageXOfYShort", $"<span>{pageable.PageNumber}</span>", $"<span>{pageable.TotalPages}</span>")</em>
-            <em class="d-none d-md-inline">@T("Pager.PageXOfY", $"<span>{pageable.PageNumber}</span>", $"<span>{pageable.TotalPages}</span>")</em>
+            <em class="d-none d-sm-inline d-md-none">@Html.Raw(T("Pager.PageXOfYShort", $"<span>{pageable.PageNumber}</span>", $"<span>{pageable.TotalPages}</span>"))</em>
+            <em class="d-none d-md-inline">@Html.Raw(T("Pager.PageXOfY", $"<span>{pageable.PageNumber}</span>", $"<span>{pageable.TotalPages}</span>"))</em>
             <i class="fas fa-caret-down"></i>
         </button>
         <select class="artlist-action-select form-control noskin" name="artlist-action-page" id="artlist-action-page" data-qname="i" title="@T("Pager.PageXOfY", pageable.PageNumber, pageable.TotalPages)">
