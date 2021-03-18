@@ -28,7 +28,7 @@
     <partial name="MetaProperties" model="Model.MetaProperties" />
 </widget>
 
-<widget target-zone="left">
+<widget sm-if="Model.SearchResult.Facets.Count > 0" target-zone="left">
     @*TODO: (mg) (core) Implement "Filters", "Search".*@
 </widget>
 
@@ -68,9 +68,7 @@
                     <h3 class="heading-title fs-h1">@T("Products.FeaturedProducts")</h3>
                 </div>
                 <div class="block-body pt-3 artlist-no-separators">
-                    @{
-                        <partial name="Product.List" model="Model.FeaturedProducts" />
-                    }
+                    <partial name="Product.List" model="Model.FeaturedProducts" />
                 </div>
             </div>
         }

@@ -87,7 +87,6 @@ namespace Smartstore.Web.Controllers
 
             // Activity log
             Services.ActivityLogger.LogActivity("PublicStore.ViewProduct", T("ActivityLog.PublicStore.ViewProduct"), product.Name);
-            await _db.SaveChangesAsync();
 
             // TODO: (mh) (core) Continue CatalogController.Category()
             

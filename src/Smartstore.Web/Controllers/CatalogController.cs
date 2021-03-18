@@ -105,7 +105,6 @@ namespace Smartstore.Web.Controllers
             if (!customer.IsSystemAccount)
             {
                 customer.GenericAttributes.LastContinueShoppingPage = Services.WebHelper.GetCurrentPageUrl(false);
-                await _db.SaveChangesAsync();
             }
 
             var model = await _helper.PrepareCategoryModelAsync(category);
@@ -212,7 +211,6 @@ namespace Smartstore.Web.Controllers
 
             // Activity log.
             Services.ActivityLogger.LogActivity("PublicStore.ViewCategory", T("ActivityLog.PublicStore.ViewCategory"), category.Name);
-            await _db.SaveChangesAsync();
 
             return View(templateViewPath, model);
         }
@@ -247,7 +245,6 @@ namespace Smartstore.Web.Controllers
             if (!customer.IsSystemAccount)
             {
                 customer.GenericAttributes.LastContinueShoppingPage = Services.WebHelper.GetCurrentPageUrl(false);
-                await _db.SaveChangesAsync();
             }
 
             var model = await _helper.PrepareBrandModelAsync(manufacturer);
@@ -319,9 +316,8 @@ namespace Smartstore.Web.Controllers
             var templateCacheKey = string.Format(ModelCacheInvalidator.MANUFACTURER_TEMPLATE_MODEL_KEY, manufacturer.ManufacturerTemplateId);
             var templateViewPath = await Services.Cache.GetAsync(templateCacheKey, async () =>
             {
-                var template = await _db.ManufacturerTemplates.FindByIdAsync(manufacturer.ManufacturerTemplateId);
-                if (template == null)
-                    template = _db.ManufacturerTemplates.FirstOrDefault();
+                var template = await _db.ManufacturerTemplates.FindByIdAsync(manufacturer.ManufacturerTemplateId, false)
+                    ?? await _db.ManufacturerTemplates.FirstOrDefaultAsync();
 
                 return template.ViewPath;
             });
