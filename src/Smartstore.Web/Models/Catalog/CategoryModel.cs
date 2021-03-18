@@ -1,24 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
+using Smartstore.Web.Models.Search;
 
 namespace Smartstore.Web.Models.Catalog
 {
-    // TODO: (mh) (core) Implement ISearchResultModel later.
-    public partial class CategoryModel : EntityModelBase//, ISearchResultModel
+    public partial class CategoryModel : EntityModelBase, ISearchResultModel
     {
-        public CatalogSearchResult SearchResult
-        {
-            get;
-            set;
-        }
+        public CatalogSearchResult SearchResult { get; set; }
 
         public LocalizedValue<string> Name { get; set; }
         public LocalizedValue<string> FullName { get; set; }
