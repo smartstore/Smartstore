@@ -1,0 +1,143 @@
+﻿@using Smartstore.Web.Models.Catalog
+@using Smartstore.Core.Domain.Catalog
+
+@model CategoryModel
+
+@{
+    var categoryName = Model.FullName.Value.HasValue() ? Model.FullName : Model.Name;
+
+    Assets.AppendTitleParts(Model.MetaTitle.HasValue() ? Model.MetaTitle : Model.Name);
+    Assets.AppendMetaDescriptionParts(Model.MetaDescription);
+    Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
+
+    if (Model.CanonicalUrl.HasValue())
+    {
+        Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
+    }
+
+    int firstItemIndex = 0;
+    int lastItemIndex = 0;
+    if (Model.SearchResult.TotalHitsCount > 0)
+    {
+        var hits = await Model.SearchResult.GetHitsAsync();
+        firstItemIndex = hits.FirstItemIndex;
+        lastItemIndex = hits.LastItemIndex;
+    }
+
+    ViewBag.HideLeftCol = true; // ...on mobile
+
+    async Task SubCategoryList()
+    {
+        <div class="artlist artlist-grid artlist-4-cols artlist-boxed artlist-sub-categories@(Model.SubCategoryDisplayType == SubCategoryDisplayType.AboveProductList ? " hide-on-active-filter" : "")">
+            @foreach (var item in Model.SubCategories)
+            {
+                var image = item.Image;
+                var linkTitle = T("Media.Category.ImageLinkTitleFormat", item.Name);
+
+                <article class="art" data-id="@item.Id">
+                    <div class="art-picture-block">
+                        @if (image.HasImage())
+                        {
+                            <a class="art-picture img-center-container" href="@item.Url" title="@linkTitle">
+                                <img sm-model="image" loading="lazy" />
+                            </a>
+                        }
+                    </div>
+                    <div class="art-genericname">
+                        <a href="@item.Url" title="@linkTitle">
+                            <span sm-language-attributes-for="item.Name">@item.Name</span>
+                        </a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+}
+
+<widget target-zone="head">
+    <partial name="MetaProperties" model="Model.MetaProperties" />
+</widget>
+
+@section left {
+    <menu name="Main" template="Categories"></menu>
+    @*TODO: (mg) (core) Implement "Filters", "Search".*@
+}
+
+<div class="page category-page">
+    <div class="page-title">
+        <h1 sm-language-attributes-for="categoryName" class="h3">
+            @categoryName
+        </h1>
+        @if (Model.SearchResult.TotalHitsCount > 0)
+        {
+            var pageIndex = $"<span class='lrm'>{firstItemIndex.ToString("N0")}-{lastItemIndex.ToString("N0")}</span>";
+            var pageSize = $"<span class='lrm'>{Model.SearchResult.TotalHitsCount.ToString("N0")}</span>";
+            <h5 class="search-hitcount">@Html.Raw(T("Search.PagingInfo", pageIndex, pageSize))</h5>
+        }
+    </div>
+    <div class="page-body">
+        <zone name="categorydetails_top" />
+
+        @* Description *@
+        @if (Model.Description.Value.HasValue())
+        {
+            <div sm-language-attributes-for="Model.Description" class="category-description lead hide-on-active-filter html-editor-content">
+                <collapsed-content>
+                    @Html.Raw(Model.Description)
+                </collapsed-content>
+            </div>
+        }
+
+        @* Subcategories *@
+        @if (Model.SubCategories.Count > 0 && Model.SubCategoryDisplayType == SubCategoryDisplayType.AboveProductList)
+        {
+            <zone name="categorydetails_before_subcategories" />
+            await SubCategoryList();
+        }
+
+        @* Featured products *@
+        @if (Model.FeaturedProducts != null && Model.FeaturedProducts.Items.Count > 0)
+        {
+            <zone name="categorydetails_before_featured_products" />
+
+            <div class="product-grid featured-product-grid block hide-on-active-filter">
+                <div class="heading heading-center">
+                    <h3 class="heading-title fs-h1">@T("Products.FeaturedProducts")</h3>
+                </div>
+                <div class="block-body pt-3 artlist-no-separators">
+                    <partial name="Product.List" model="Model.FeaturedProducts" />
+                </div>
+            </div>
+        }
+
+        @* Product list *@
+        <zone name="categorydetails_before_product_list" />
+
+        <div class="product-list-container">
+            @if (Model.Products != null)
+            {
+                <partial name="Product.List" model="Model.Products" />
+            }
+        </div>
+
+        @if (Model.BottomDescription.Value.HasValue())
+        {
+            <div sm-language-attributes-for="Model.BottomDescription" class="category-description lead html-editor-content">
+                <collapsed-content>
+                    @Html.Raw(Model.BottomDescription)
+                </collapsed-content>
+            </div>
+        }
+
+        @* Subcategories *@
+        @if (Model.SubCategories.Count > 0 && Model.SubCategoryDisplayType == SubCategoryDisplayType.Bottom)
+        {
+            <zone name="categorydetails_before_subcategories" />
+            await SubCategoryList();
+        }
+
+        @* TODO: (mc) find more intelligent way of rendering RecentlyViewedProducts globally *@
+        @await Component.InvokeAsync("RecentlyViewedProducts")
+        <zone name="categorydetails_bottom" />
+    </div>
+</div>

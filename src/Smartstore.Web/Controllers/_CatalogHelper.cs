@@ -31,8 +31,10 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Net;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
+using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Web.Controllers
@@ -80,6 +82,7 @@ namespace Smartstore.Web.Controllers
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IUrlService _urlService;
         private readonly ILinkResolver _linkResolver;
+        private readonly SocialSettings _socialSettings;
 
         public CatalogHelper(
             SmartDbContext db,
@@ -117,7 +120,8 @@ namespace Smartstore.Web.Controllers
             ProductUrlHelper productUrlHelper,
             ILocalizedEntityService localizedEntityService,
             IUrlService urlService,
-            ILinkResolver linkResolver)
+            ILinkResolver linkResolver,
+            SocialSettings socialSettings)
         {
             _db = db;
             _services = services;
@@ -160,6 +164,7 @@ namespace Smartstore.Web.Controllers
             _urlService = urlService;
             _linkResolver = linkResolver;
             _httpRequest = _urlHelper.ActionContext.HttpContext.Request;
+            _socialSettings = socialSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -330,6 +335,29 @@ namespace Smartstore.Web.Controllers
 
         #region Category
 
+        public async Task<CategoryModel> PrepareCategoryModelAsync(Category category)
+        {
+            if (category == null)
+                return null;
+
+            var model = new CategoryModel
+            {
+                Id = category.Id,
+                Name = category.GetLocalized(x => x.Name),
+                FullName = category.GetLocalized(x => x.FullName),
+                Description = category.GetLocalized(x => x.Description, detectEmptyHtml: true),
+                BottomDescription = category.GetLocalized(x => x.BottomDescription, detectEmptyHtml: true),
+                MetaKeywords = category.GetLocalized(x => x.MetaKeywords),
+                MetaDescription = category.GetLocalized(x => x.MetaDescription),
+                MetaTitle = category.GetLocalized(x => x.MetaTitle),
+                SeName = await category.GetActiveSlugAsync()
+            };
+
+            model.MetaProperties = PrepareMetaPropertiesCategory(model);
+
+            return model;
+        }
+
         public async Task<List<CategorySummaryModel>> MapCategorySummaryModelAsync(IEnumerable<Category> categories, int thumbSize)
         {
             Guard.NotNull(categories, nameof(categories));
@@ -339,6 +367,7 @@ namespace Smartstore.Web.Controllers
                 .Where(x => x != 0)
                 .Distinct()
                 .ToArray();
+
             var files = (await _mediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
 
             return await categories
@@ -598,5 +627,66 @@ namespace Smartstore.Web.Controllers
         }
 
         #endregion
+
+        #region Metaproperties
+
+        public MetaPropertiesModel PrepareMetaPropertiesCategory(CategoryModel category)
+        {
+            var model = new MetaPropertiesModel
+            {
+                Url = _urlHelper.RouteUrl("Category", new { category.SeName }, _httpRequest.Scheme),
+                Title = category.Name.Value,
+                Description = category.MetaDescription?.Value,
+                Type = "product"
+            };
+
+            var fileInfo = category.Image?.File;
+            PrepareMetaPropertiesModel(model, fileInfo);
+
+            return model;
+        }
+
+        public void PrepareMetaPropertiesModel(MetaPropertiesModel model, MediaFileInfo fileInfo)
+        {
+            model.Site = _urlHelper.RouteUrl("HomePage", null, _httpRequest.Scheme);
+            model.SiteName = _storeContext.CurrentStore.Name;
+
+            var imageUrl = fileInfo?.GetUrl();
+            if (fileInfo != null && imageUrl.HasValue())
+            {
+                imageUrl = WebHelper.GetAbsoluteUrl(imageUrl, _httpRequest, true);
+                model.ImageUrl = imageUrl;
+                model.ImageType = fileInfo.MimeType;
+
+                if (fileInfo.Alt.HasValue())
+                {
+                    model.ImageAlt = fileInfo.Alt;
+                }
+
+                if (fileInfo.Size.Width > 0 && fileInfo.Size.Height > 0)
+                {
+                    model.ImageWidth = fileInfo.Size.Width;
+                    model.ImageHeight = fileInfo.Size.Height;
+                }
+            }
+
+            model.TwitterSite = _socialSettings.TwitterSite;
+            model.FacebookAppId = _socialSettings.FacebookAppId;
+        }
+
+        #endregion
+
+        // INFO: (mh) (core) Ported CatalogSearchQuery.GetViewMode() like this because there was no proper place for the old extension method.
+        public ProductSummaryViewMode GetSearchQueryViewMode(CatalogSearchQuery query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            if (query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list"))
+            {
+                return ProductSummaryViewMode.List;
+            }
+
+            return ProductSummaryViewMode.Grid;
+        }
     }
 }
