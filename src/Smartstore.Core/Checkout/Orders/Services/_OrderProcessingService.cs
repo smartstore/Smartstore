@@ -7,17 +7,22 @@ using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
+using Smartstore.Core.Security;
+using Smartstore.Core.Web;
 using Smartstore.Data;
 using Smartstore.Events;
 
@@ -27,51 +32,72 @@ namespace Smartstore.Core.Checkout.Orders
     {
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
+        private readonly IWebHelper _webHelper;
         private readonly ILocalizationService _localizationService;
         private readonly ICurrencyService _currencyService;
         private readonly IPaymentService _paymentService;
         private readonly IProductService _productService;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly ITaxService _taxService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IMessageFactory _messageFactory;
+        private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
+        private readonly IEncryptor _encryptor;
         private readonly IEventPublisher _eventPublisher;
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly OrderSettings _orderSettings;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly LocalizationSettings _localizationSettings;
+        private readonly TaxSettings _taxSettings;
         private readonly Currency _primaryCurrency;
         private readonly Currency _workingCurrency;
 
         public OrderProcessingService(
             SmartDbContext db,
             IWorkContext workContext,
+            IWebHelper webHelper,
             ILocalizationService localizationService,
             ICurrencyService currencyService,
             IPaymentService paymentService,
             IProductService productService,
+            IProductAttributeMaterializer productAttributeMaterializer,
             IOrderCalculationService orderCalculationService,
+            ITaxService taxService,
             IShoppingCartService shoppingCartService,
             IShoppingCartValidator shoppingCartValidator,
             IMessageFactory messageFactory,
+            ICheckoutAttributeFormatter checkoutAttributeFormatter,
+            IEncryptor encryptor,
             IEventPublisher eventPublisher,
             RewardPointsSettings rewardPointsSettings,
             OrderSettings orderSettings,
-            LocalizationSettings localizationSettings)
+            ShoppingCartSettings shoppingCartSettings,
+            LocalizationSettings localizationSettings,
+            TaxSettings taxSettings)
         {
             _db = db;
             _workContext = workContext;
+            _webHelper = webHelper;
             _localizationService = localizationService;
             _currencyService = currencyService;
             _paymentService = paymentService;
             _productService = productService;
+            _productAttributeMaterializer = productAttributeMaterializer;
             _orderCalculationService = orderCalculationService;
+            _taxService = taxService;
             _shoppingCartService = shoppingCartService;
             _shoppingCartValidator = shoppingCartValidator;
             _messageFactory = messageFactory;
+            _checkoutAttributeFormatter = checkoutAttributeFormatter;
+            _encryptor = encryptor;
             _eventPublisher = eventPublisher;
             _rewardPointsSettings = rewardPointsSettings;
             _orderSettings = orderSettings;
+            _shoppingCartSettings = shoppingCartSettings;
             _localizationSettings = localizationSettings;
+            _taxSettings = taxSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
             _workingCurrency = workContext.WorkingCurrency;

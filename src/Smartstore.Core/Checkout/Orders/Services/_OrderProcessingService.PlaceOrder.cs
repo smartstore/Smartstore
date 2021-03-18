@@ -1,26 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Localization;
-using Smartstore.Core.Messages;
 using Smartstore.Core.Stores;
-using Smartstore.Data;
-using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -29,6 +23,8 @@ namespace Smartstore.Core.Checkout.Orders
         public virtual async Task<PlaceOrderResult> PlaceOrderAsync(ProcessPaymentRequest paymentRequest, Dictionary<string, string> extraData)
         {
             Guard.NotNull(paymentRequest, nameof(paymentRequest));
+
+            extraData ??= new();
 
             var result = new PlaceOrderResult();
 
@@ -50,21 +46,40 @@ namespace Smartstore.Core.Checkout.Orders
                     return result;
                 }
 
-                if (paymentRequest.IsRecurringPayment)
+                var context = new PlaceOrderContext
                 {
+                    Result = result,
+                    InitialOrder = initialOrder,
+                    Customer = customer,
+                    Cart = cart,
+                    ExtraData = extraData,
+                    PaymentRequest = paymentRequest
+                };
+
+                if (!paymentRequest.IsRecurringPayment)
+                {
+                    context.CartRequiresShipping = cart.IsShippingRequired();
+                }
+                else
+                {
+                    context.CartRequiresShipping = initialOrder.ShippingStatus != ShippingStatus.ShippingNotRequired;
                     paymentRequest.PaymentMethodSystemName = initialOrder.PaymentMethodSystemName;
                 }
 
-                var order = new Order();
-                var utcNow = DateTime.UtcNow;
-
                 // Collect data for new order.
-                var affiliate = await _db.Affiliates.FindByIdAsync(customer.AffiliateId, false);
-                order.AffiliateId = (affiliate?.Active ?? false) ? affiliate.Id : 0;
+                // Also applies data (like order and tax total) to paymentRequest for payment processing below.
+                await ApplyCustomerData(context);
+                await ApplyPricingData(context);
 
-                await GetCustomerData(order, initialOrder, customer, paymentRequest);
+                if (await ProcessPayment(context))
+                {
+                    await SaveOrder(context);
+                    await AddAssociatedData(context);
 
-                //...
+                    // Saves changes to database.
+                    await CheckOrderStatusAsync(context.Order);
+
+                }
             }
             catch (Exception ex)
             {
@@ -348,30 +363,460 @@ namespace Smartstore.Core.Checkout.Orders
 
         #region Utilities
 
-        private async Task GetCustomerData(Order order, Order initialOrder, Customer customer, ProcessPaymentRequest paymentRequest)
+        private async Task ApplyCustomerData(PlaceOrderContext ctx)
         {
-            // Customer currency.
-            if (!paymentRequest.IsRecurringPayment)
+            var order = ctx.Order;
+            var customer = ctx.Customer;
+            var affiliate = await _db.Affiliates.FindByIdAsync(customer.AffiliateId, false);
+
+            order.CustomerId = customer.Id;
+            order.CustomerIp = _webHelper.GetClientIpAddress().ToString();
+            order.AffiliateId = (affiliate?.Active ?? false) ? affiliate.Id : 0;
+            order.ShippingStatus = ctx.CartRequiresShipping ? ShippingStatus.NotYetShipped : ShippingStatus.ShippingNotRequired;
+
+            if (!ctx.PaymentRequest.IsRecurringPayment)
             {
-                var customerCurrencyId = customer.GenericAttributes.Get<int>(SystemCustomerAttributeNames.CurrencyId, paymentRequest.StoreId);
+                var storeId = ctx.PaymentRequest.StoreId;
+                var customerCurrencyId = customer.GenericAttributes.Get<int>(SystemCustomerAttributeNames.CurrencyId, storeId);
                 var currencyTmp = await _db.Currencies.FindByIdAsync(customerCurrencyId, false);
                 var customerCurrency = (currencyTmp?.Published ?? false) ? currencyTmp : _workingCurrency;
 
                 order.CustomerCurrencyCode = customerCurrency.CurrencyCode;
                 order.CurrencyRate = customerCurrency.Rate / _primaryCurrency.Rate;
+                order.CustomerLanguageId = customer.GenericAttributes.Get<int>(SystemCustomerAttributeNames.LanguageId, storeId);
+                order.CustomerTaxDisplayType = _workContext.GetTaxDisplayTypeFor(customer, storeId);
+
+                order.VatNumber = _taxSettings.EuVatEnabled && (VatNumberStatus)customer.VatNumberStatusId == VatNumberStatus.Valid
+                    ? customer.GenericAttributes.VatNumber
+                    : string.Empty;
+
+                order.RawAttributes = customer.GenericAttributes.RawCheckoutAttributes;
+                order.CheckoutAttributeDescription = await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer);
+
+                if (ctx.CartRequiresShipping)
+                {
+                    var shippingOption = customer.GenericAttributes.Get<ShippingOption>(SystemCustomerAttributeNames.SelectedShippingOption, storeId);
+                    if (shippingOption != null)
+                    {
+                        order.ShippingMethod = shippingOption.Name;
+                        order.ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName;
+                    }
+                }
             }
             else
             {
-                order.CustomerCurrencyCode = initialOrder.CustomerCurrencyCode;
-                order.CurrencyRate = initialOrder.CurrencyRate;
+                var io = ctx.InitialOrder;
+
+                order.CustomerCurrencyCode = io.CustomerCurrencyCode;
+                order.CurrencyRate = io.CurrencyRate;
+                order.CustomerLanguageId = io.CustomerLanguageId;
+                order.CustomerTaxDisplayType = io.CustomerTaxDisplayType;
+                order.VatNumber = io.VatNumber;
+                order.RawAttributes = io.RawAttributes;
+                order.CheckoutAttributeDescription = io.CheckoutAttributeDescription;
+
+                if (ctx.CartRequiresShipping)
+                {
+                    order.ShippingMethod = io.ShippingMethod;
+                    order.ShippingRateComputationMethodSystemName = io.ShippingRateComputationMethodSystemName;
+                }
             }
 
-            // Customer language.
-            var languageId = !paymentRequest.IsRecurringPayment
-                ? customer.GenericAttributes.Get<int>(SystemCustomerAttributeNames.LanguageId, paymentRequest.StoreId)
-                : initialOrder.CustomerLanguageId;
+            if (order.CustomerLanguageId == 0)
+            {
+                order.CustomerLanguageId = _workContext.WorkingLanguage.Id;
+            }
 
-            order.CustomerLanguageId = languageId != 0 ? languageId : _workContext.WorkingLanguage.Id;
+            // Apply extra data.
+            if (ctx.ExtraData.TryGetValue("CustomerComment", out var customerComment))
+            {
+                order.CustomerOrderComment = customerComment;
+            }
+
+            if (_shoppingCartSettings.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None &&
+                ctx.ExtraData.TryGetValue("AcceptThirdPartyEmailHandOver", out var acceptEmailHandOver))
+            {
+                order.AcceptThirdPartyEmailHandOver = acceptEmailHandOver.ToBool();
+            }
+        }
+
+        private async Task ApplyPricingData(PlaceOrderContext ctx)
+        {
+            var order = ctx.Order;
+
+            if (!ctx.PaymentRequest.IsRecurringPayment)
+            {
+                // Sub total.
+                var subTotalInclTax = await _orderCalculationService.GetShoppingCartSubTotalAsync(ctx.Cart, true);
+                var subTotalExclTax = await _orderCalculationService.GetShoppingCartSubTotalAsync(ctx.Cart, false);
+
+                order.OrderSubtotalInclTax = subTotalInclTax.SubTotalWithoutDiscount.Amount;
+                order.OrderSubtotalExclTax = subTotalExclTax.SubTotalWithoutDiscount.Amount;
+                order.OrderSubTotalDiscountInclTax = subTotalInclTax.DiscountAmount.Amount;
+                order.OrderSubTotalDiscountExclTax = subTotalExclTax.DiscountAmount.Amount;
+
+                ctx.AddDiscount(subTotalInclTax.AppliedDiscount);               
+
+                // Shipping total.
+                var shippingTotalInclTax = await _orderCalculationService.GetShoppingCartShippingTotalAsync(ctx.Cart, true);
+                var shippingTotalExclTax = await _orderCalculationService.GetShoppingCartShippingTotalAsync(ctx.Cart, false);
+
+                order.OrderShippingInclTax = shippingTotalInclTax.ShippingTotal?.Amount ?? decimal.Zero;
+                order.OrderShippingExclTax = shippingTotalExclTax.ShippingTotal?.Amount ?? decimal.Zero;
+                order.OrderShippingTaxRate = shippingTotalInclTax.TaxRate;
+
+                ctx.AddDiscount(shippingTotalInclTax.AppliedDiscount);              
+
+                // Payment total.
+                var paymentFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(ctx.Cart, ctx.PaymentRequest.PaymentMethodSystemName);
+                var (paymentFeeInclTax, paymentFeeTaxRate) = await _taxService.GetPaymentMethodFeeAsync(paymentFee, true, null, ctx.Customer);
+                var (paymentFeeExclTax, _) = await _taxService.GetPaymentMethodFeeAsync(paymentFee, false, null, ctx.Customer);
+
+                order.PaymentMethodAdditionalFeeInclTax = paymentFeeInclTax.Amount;
+                order.PaymentMethodAdditionalFeeExclTax = paymentFeeExclTax.Amount;
+                order.PaymentMethodAdditionalFeeTaxRate = paymentFeeTaxRate;
+
+                // Tax total.
+                var (taxTotal, taxRates) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(ctx.Cart);
+                order.OrderTax = taxTotal.Amount;
+                order.TaxRates = FormatTaxRates(taxRates);
+
+                // Order total.
+                ctx.CartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(ctx.Cart);
+                order.OrderTotal = ctx.CartTotal.Total.Value.Amount;
+                order.OrderTotalRounding = ctx.CartTotal.ToNearestRounding.Amount;
+                order.RefundedAmount = decimal.Zero;
+                order.OrderDiscount = ctx.CartTotal.DiscountAmount.Amount;
+                order.CreditBalance = ctx.CartTotal.CreditBalance.Amount;
+
+                ctx.AddDiscount(ctx.CartTotal.AppliedDiscount);
+            }
+            else
+            {
+                var io = ctx.InitialOrder;
+
+                ctx.CartTotal = new ShoppingCartTotal
+                {
+                    Total = new(io.OrderTotal, _primaryCurrency),
+                    DiscountAmount = new(io.OrderDiscount, _primaryCurrency)
+                };
+
+                order.OrderSubtotalInclTax = io.OrderSubtotalInclTax;
+                order.OrderSubtotalExclTax = io.OrderSubtotalExclTax;
+                order.OrderSubTotalDiscountInclTax = io.OrderSubTotalDiscountInclTax;
+                order.OrderSubTotalDiscountExclTax = io.OrderSubTotalDiscountExclTax;
+                order.OrderShippingInclTax = io.OrderShippingInclTax;
+                order.OrderShippingExclTax = io.OrderShippingExclTax;
+                order.OrderShippingTaxRate = io.OrderShippingTaxRate;
+                order.PaymentMethodAdditionalFeeInclTax = io.PaymentMethodAdditionalFeeInclTax;
+                order.PaymentMethodAdditionalFeeExclTax = io.PaymentMethodAdditionalFeeExclTax;
+                order.PaymentMethodAdditionalFeeTaxRate = io.PaymentMethodAdditionalFeeTaxRate;
+                order.OrderTax = io.OrderTax;
+                order.TaxRates = io.TaxRates;
+                order.OrderTotal = io.OrderTotal;
+                order.OrderTotalRounding = io.OrderTotalRounding;
+                order.RefundedAmount = decimal.Zero;
+                order.OrderDiscount = io.OrderDiscount;
+                order.CreditBalance = io.CreditBalance;
+            }
+
+            ctx.PaymentRequest.OrderTax = order.OrderTax;
+            ctx.PaymentRequest.OrderTotal = ctx.CartTotal.Total.Value;
+        }
+
+        private async Task<bool> ProcessPayment(PlaceOrderContext ctx)
+        {
+            // Give payment processor the opportunity to fullfill billing address.
+            var preProcessPaymentResult = await _paymentService.PreProcessPaymentAsync(ctx.PaymentRequest);
+
+            if (!preProcessPaymentResult.Success)
+            {
+                ctx.Result.Errors.AddRange(preProcessPaymentResult.Errors);
+                ctx.Result.Errors.Add(T("Common.Error.PreProcessPayment"));
+                return false;
+            }
+
+            var result = new ProcessPaymentResult();
+            var order = ctx.Order;
+            var io = ctx.InitialOrder;
+            var pr = ctx.PaymentRequest;
+
+            if (!pr.IsRecurringPayment)
+            {
+                order.BillingAddress = (Address)ctx.Customer.BillingAddress.Clone();
+                order.ShippingAddress = ctx.CartRequiresShipping ? (Address)ctx.Customer.ShippingAddress.Clone() : null;
+            }
+            else
+            {
+                order.BillingAddress = (Address)io.BillingAddress.Clone();
+                order.ShippingAddress = ctx.CartRequiresShipping ? (Address)io.ShippingAddress.Clone() : null;
+            }
+
+            var skipPaymentWorkflow = ctx.CartTotal.Total.Value == decimal.Zero;
+            var paymentMethod = !skipPaymentWorkflow
+                ? await _paymentService.LoadPaymentMethodBySystemNameAsync(pr.PaymentMethodSystemName)
+                : null;
+
+            if (skipPaymentWorkflow)
+            {
+                pr.PaymentMethodSystemName = string.Empty;
+            }
+
+            if (!pr.IsRecurringPayment)
+            {
+                ctx.IsRecurringCart = ctx.Cart.ContainsRecurringItem();
+                if (ctx.IsRecurringCart)
+                {
+                    var cycleInfo = ctx.Cart.GetRecurringCycleInfo(_localizationService);
+                    pr.RecurringCycleLength = cycleInfo.CycleLength ?? 0;
+                    pr.RecurringCyclePeriod = cycleInfo.CyclePeriod ?? RecurringProductCyclePeriod.Days;
+                    pr.RecurringTotalCycles = cycleInfo.TotalCycles ?? 0;
+                }
+            }
+            else
+            {
+                ctx.IsRecurringCart = true;
+            }
+
+            // Process payment.
+            if (!skipPaymentWorkflow && !pr.IsMultiOrder)
+            {
+                if (!pr.IsRecurringPayment)
+                {
+                    if (!ctx.IsRecurringCart)
+                    {
+                        result = await _paymentService.ProcessPaymentAsync(pr);
+                    }
+                    else
+                    {
+                        var recurringPaymentType = await _paymentService.GetRecurringPaymentTypeAsync(pr.PaymentMethodSystemName);
+                        switch (recurringPaymentType)
+                        {
+                            case RecurringPaymentType.Manual:
+                            case RecurringPaymentType.Automatic:
+                                result = await _paymentService.ProcessRecurringPaymentAsync(pr);
+                                break;
+                            case RecurringPaymentType.NotSupported:
+                                result.Errors.Add(T("Payment.RecurringPaymentNotSupported"));
+                                break;
+                            default:
+                                result.Errors.Add(T("Payment.RecurringPaymentTypeUnknown"));
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    if (ctx.IsRecurringCart)
+                    {
+                        // Old credit card info.
+                        pr.CreditCardType = io.AllowStoringCreditCardNumber ? _encryptor.DecryptText(io.CardType) : string.Empty;
+                        pr.CreditCardName = io.AllowStoringCreditCardNumber ? _encryptor.DecryptText(io.CardName) : string.Empty;
+                        pr.CreditCardNumber = io.AllowStoringCreditCardNumber ? _encryptor.DecryptText(io.CardNumber) : string.Empty;
+                        pr.CreditCardCvv2 = io.AllowStoringCreditCardNumber ? _encryptor.DecryptText(io.CardCvv2) : string.Empty;
+                        pr.CreditCardExpireMonth = io.AllowStoringCreditCardNumber ? _encryptor.DecryptText(io.CardExpirationMonth).ToInt() : 0;
+                        pr.CreditCardExpireYear = io.AllowStoringCreditCardNumber ? _encryptor.DecryptText(io.CardExpirationYear).ToInt() : 0;
+
+                        var recurringPaymentType = await _paymentService.GetRecurringPaymentTypeAsync(pr.PaymentMethodSystemName);
+                        switch (recurringPaymentType)
+                        {
+                            case RecurringPaymentType.Manual:
+                                result = await _paymentService.ProcessRecurringPaymentAsync(pr);
+                                break;
+                            case RecurringPaymentType.Automatic:
+                                // Payment is processed on payment gateway site.
+                                result = new ProcessPaymentResult();
+                                break;
+                            case RecurringPaymentType.NotSupported:
+                                result.Errors.Add(T("Payment.RecurringPaymentNotSupported"));
+                                break;
+                            default:
+                                result.Errors.Add(T("Payment.RecurringPaymentTypeUnknown"));
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        result.Errors.Add(T("Order.NoRecurringProducts"));
+                    }
+                }
+            }
+            else
+            {
+                result.NewPaymentStatus = PaymentStatus.Paid;
+            }
+
+            if (result.Success)
+            {
+                order.StoreId = pr.StoreId;
+                order.OrderGuid = pr.OrderGuid;
+                order.OrderStatus = OrderStatus.Pending;
+                order.AllowStoringCreditCardNumber = result.AllowStoringCreditCardNumber;
+                order.CardType = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardType) : string.Empty;
+                order.CardName = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardName) : string.Empty;
+                order.CardNumber = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardNumber) : string.Empty;
+                order.MaskedCreditCardNumber = _encryptor.EncryptText(_paymentService.GetMaskedCreditCardNumber(pr.CreditCardNumber));
+                order.CardCvv2 = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardCvv2) : string.Empty;
+                order.CardExpirationMonth = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardExpireMonth.ToString()) : string.Empty;
+                order.CardExpirationYear = result.AllowStoringCreditCardNumber ? _encryptor.EncryptText(pr.CreditCardExpireYear.ToString()) : string.Empty;
+                order.AllowStoringDirectDebit = result.AllowStoringDirectDebit;
+                order.DirectDebitAccountHolder = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitAccountHolder) : string.Empty;
+                order.DirectDebitAccountNumber = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitAccountNumber) : string.Empty;
+                order.DirectDebitBankCode = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitBankCode) : string.Empty;
+                order.DirectDebitBankName = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitBankName) : string.Empty;
+                order.DirectDebitBIC = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitBic) : string.Empty;
+                order.DirectDebitCountry = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitCountry) : string.Empty;
+                order.DirectDebitIban = result.AllowStoringDirectDebit ? _encryptor.EncryptText(pr.DirectDebitIban) : string.Empty;
+                order.PaymentMethodSystemName = pr.PaymentMethodSystemName;
+                order.AuthorizationTransactionId = result.AuthorizationTransactionId;
+                order.AuthorizationTransactionCode = result.AuthorizationTransactionCode;
+                order.AuthorizationTransactionResult = result.AuthorizationTransactionResult;
+                order.CaptureTransactionId = result.CaptureTransactionId;
+                order.CaptureTransactionResult = result.CaptureTransactionResult;
+                order.SubscriptionTransactionId = result.SubscriptionTransactionId;
+                order.PurchaseOrderNumber = pr.PurchaseOrderNumber;
+                order.PaymentStatus = result.NewPaymentStatus;
+                order.PaidDateUtc = null;
+            }
+            else
+            {
+                // Copy errors.
+                ctx.Result.Errors.Add(T("Payment.PayingFailed"));
+                ctx.Result.Errors.AddRange(result.Errors);
+            }
+
+            return result.Success;
+        }
+
+        private async Task SaveOrder(PlaceOrderContext ctx)
+        {
+            _db.Orders.Add(ctx.Order);
+
+            // Save, we need the primary key.
+            await _db.SaveChangesAsync();
+
+            ctx.Result.PlacedOrder = ctx.Order;
+
+            // Save order items.
+            if (!ctx.PaymentRequest.IsRecurringPayment)
+            {
+                foreach (var item in ctx.Cart)
+                {
+                    await _productAttributeMaterializer.MergeWithCombinationAsync(item.Item.Product, item.Item.AttributeSelection);
+
+                    //...
+                }
+            }
+            else
+            {
+            }
+
+            // INFO: CheckOrderStatus performs commit.
+        }
+
+        private async Task AddAssociatedData(PlaceOrderContext ctx)
+        {
+            if (!ctx.PaymentRequest.IsRecurringPayment)
+            {
+                foreach (var discount in ctx.AppliedDiscounts)
+                {
+                    _db.DiscountUsageHistory.Add(new DiscountUsageHistory
+                    {
+                        Discount = discount,
+                        Order = ctx.Order,
+                        CreatedOnUtc = ctx.Now
+                    });
+                }
+
+                foreach (var giftCard in ctx.CartTotal.AppliedGiftCards)
+                {
+                    giftCard.GiftCard.GiftCardUsageHistory.Add(new GiftCardUsageHistory
+                    {
+                        GiftCardId = giftCard.GiftCard.Id,
+                        UsedWithOrder = ctx.Order,
+                        UsedValue = giftCard.UsableAmount.Amount,
+                        CreatedOnUtc = ctx.Now
+                    });
+                }
+            }
+
+            if (ctx.CartTotal.RedeemedRewardPointsAmount > decimal.Zero)
+            {
+                var msg = await _localizationService.GetResourceAsync("RewardPoints.Message.RedeemedForOrder", ctx.Order.CustomerLanguageId);
+
+                ctx.Customer.AddRewardPointsHistoryEntry(
+                    -ctx.CartTotal.RedeemedRewardPoints,
+                    msg.FormatInvariant(ctx.Order.GetOrderNumber()), 
+                    ctx.Order, 
+                    ctx.CartTotal.RedeemedRewardPointsAmount.Amount);
+            }
+
+            // Recurring order.
+            if (!ctx.PaymentRequest.IsRecurringPayment && ctx.IsRecurringCart)
+            {
+                // Create recurring payment (the first payment).
+                var rp = new RecurringPayment
+                {
+                    CycleLength = ctx.PaymentRequest.RecurringCycleLength,
+                    CyclePeriod = ctx.PaymentRequest.RecurringCyclePeriod,
+                    TotalCycles = ctx.PaymentRequest.RecurringTotalCycles,
+                    StartDateUtc = ctx.Now,
+                    IsActive = true,
+                    CreatedOnUtc = ctx.Now,
+                    InitialOrderId = ctx.Order.Id
+                };
+
+                _db.RecurringPayments.Add(rp);
+
+                var recurringPaymentType = await _paymentService.GetRecurringPaymentTypeAsync(ctx.PaymentRequest.PaymentMethodSystemName);
+                switch (recurringPaymentType)
+                {
+                    case RecurringPaymentType.Manual:
+                        {
+                            // First payment.
+                            rp.RecurringPaymentHistory.Add(new RecurringPaymentHistory
+                            {
+                                RecurringPaymentId = rp.Id,
+                                CreatedOnUtc = ctx.Now,
+                                OrderId = ctx.Order.Id
+                            });
+                        }
+                        break;
+                    case RecurringPaymentType.Automatic:
+                        // Will be created later (process is automated).
+                        break;
+                    case RecurringPaymentType.NotSupported:
+                    default:
+                        break;
+                }
+            }
+
+            // INFO: CheckOrderStatus performs commit.
+        }
+
+        class PlaceOrderContext
+        {
+            public DateTime Now { get; } = DateTime.UtcNow;
+            public PlaceOrderResult Result { get; init; }
+            public Order Order { get; } = new();
+            public Order InitialOrder { get; init; }
+            public Customer Customer { get; init; }
+            public Dictionary<string, string> ExtraData { get; init; }
+            public ProcessPaymentRequest PaymentRequest { get; init; }
+            public IList<OrganizedShoppingCartItem> Cart { get; init; }
+            public bool CartRequiresShipping { get; set; }
+            public ShoppingCartTotal CartTotal { get; set; }
+            public bool IsRecurringCart { get; set; }
+
+            public List<Discount> AppliedDiscounts { get; } = new();
+
+            public void AddDiscount(Discount discount)
+            {
+                if (discount != null && !AppliedDiscounts.Any(x => x.Id == discount.Id))
+                {
+                    AppliedDiscounts.Add(discount);
+                }
+            }
         }
 
         #endregion
