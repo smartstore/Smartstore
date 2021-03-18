@@ -20,8 +20,7 @@
         imgRatio = thumbAspectRatio.ToString(CultureInfo.InvariantCulture);
     }
 
-    var pagerHtml = new HtmlString(await RazorViewInvoker.InvokeViewAsync("Product.List.Pager", Model, true));
-    var hasPager = pagerHtml.Value.HasValue();
+    var hasPager = (Model.AvailablePageSizes != null && Model.AvailablePageSizes.Count() > 1) || Model.PagedList.TotalPages > 1;
 
     // TODO: (mc) AllowFiltering (?)
     var hasActions = Model.PagedList.TotalPages > 1
@@ -81,7 +80,7 @@
             @* Pager *@
             @if (hasPager)
             {
-                @Html.Raw(pagerHtml)
+                <partial name="Product.List.Pager" model="Model" />
             }
         </div>
     </div>
@@ -103,7 +102,7 @@
 
 <div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-actions artlist-actions--bottom">
     <div class="artlist-action-group artlist-action-group--page">
-        @Html.Raw(pagerHtml)
+        <partial name="Product.List.Pager" model="Model" />
     </div>
 </div>
 
