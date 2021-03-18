@@ -37,11 +37,11 @@
     <div class="page-main canvas-slidable">
 
         @if (IsSectionDefined("header"))
-		{
+        {
             @RenderSection("header")
-		}
-		else
-		{
+        }
+        else
+        {
             <header id="header">
                 <div class="menubar-section d-none d-lg-block @(Display.GetThemeVariable<bool>("inverse-menubar") ? "menubar-inverse" : "menubar-light")">
                     <div class="container menubar-container">
@@ -64,7 +64,9 @@
         }
 
         <div id="content-wrapper">
-            @*TODO (mh) (core) JavaScriptDisabledWarning*@
+            
+            <partial name="JavaScriptDisabledWarning" />
+
             <zone name="content-before"></zone>
 
             <section id="content" class="container">

@@ -1,0 +1,20 @@
+﻿@using  Smartstore.Core.Common.Settings
+
+@inject CommonSettings CommonSettings
+
+@if (!CommonSettings.DisplayJavaScriptDisabledWarning)
+{
+    return;
+}
+
+<noscript>
+    <div class="noscript">
+        <p>
+            <strong>JavaScript seem to be disabled in your browser.</strong>
+        </p>
+        <p>
+            You must have JavaScript enabled in your browser to utilize the functionality of
+            this website.
+        </p>
+    </div>
+</noscript>
