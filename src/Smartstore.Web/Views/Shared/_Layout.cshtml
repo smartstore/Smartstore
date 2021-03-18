@@ -1,65 +1,130 @@
 ﻿@inject Smartstore.Core.Stores.IStoreContext StoreContext
 
-@{ 
+@{
     Layout = "_Document";
+
+    <zone name="body_start_html_tag_after"></zone>
+
+    var hasLeftCol = IsSectionDefined("left");
+    var hasRightCol = IsSectionDefined("right");
+    var hideLeftCol = ViewBag.HideLeftCol == true;
+    var hideRightCol = ViewBag.HideRightCol == true;
+
+    int mainColspan = 12;
+    int cols = 1;
+    if (hasLeftCol)
+    {
+        mainColspan -= 3;
+        cols += 1;
+    }
+    if (hasRightCol)
+    {
+        mainColspan -= 3;
+        cols += 1;
+    }
+
+    Assets.BodyAttributes.AppendCssClass("lyt-cols-" + cols);
+
+    if (Display.GetThemeVariable<bool>("boxed"))
+    {
+        Assets.BodyAttributes.AppendCssClass("boxed");
+    }
 }
 
 <div id="page">
     <div class="canvas-blocker canvas-slidable"></div>
 
     <div class="page-main canvas-slidable">
-        <header id="header">
-            <div class="menubar-section d-none d-lg-block @(Display.GetThemeVariable<bool>("inverse-menubar") ? "menubar-inverse" : "menubar-light")">
-                <div class="container menubar-container">
-                    @await Component.InvokeAsync("TopBar")
-                </div>
-            </div>
-            <div class="shopbar-section @(Display.GetThemeVariable<bool>("inverse-shopbar") ? "shopbar-inverse" : "shopbar-light")">
-                <div class="container shopbar-container">
-                    @await Component.InvokeAsync("ShopBar")
-                </div>
-            </div>
-            <div class="megamenu-section d-none d-lg-block">
-                <nav class="navbar @(Display.GetThemeVariable<bool>("inverse-navbar") ? "navbar-inverse" : "navbar-light")">
-                    <div class="container megamenu-container">
-                        <menu name="Main" template="Main" />
-                    </div>
-                </nav>
-            </div>
-        </header>
 
-        <zone name="content-before"></zone>
+        @if (IsSectionDefined("header"))
+		{
+            @RenderSection("header")
+		}
+		else
+		{
+            <header id="header">
+                <div class="menubar-section d-none d-lg-block @(Display.GetThemeVariable<bool>("inverse-menubar") ? "menubar-inverse" : "menubar-light")">
+                    <div class="container menubar-container">
+                        @await Component.InvokeAsync("TopBar")
+                    </div>
+                </div>
+                <div class="shopbar-section @(Display.GetThemeVariable<bool>("inverse-shopbar") ? "shopbar-inverse" : "shopbar-light")">
+                    <div class="container shopbar-container">
+                        @await Component.InvokeAsync("ShopBar")
+                    </div>
+                </div>
+                <div class="megamenu-section d-none d-lg-block">
+                    <nav class="navbar @(Display.GetThemeVariable<bool>("inverse-navbar") ? "navbar-inverse" : "navbar-light")">
+                        <div class="container megamenu-container">
+                            <menu name="Main" template="Main" />
+                        </div>
+                    </nav>
+                </div>
+            </header>
+        }
 
         <div id="content-wrapper">
+            @*TODO (mh) (core) JavaScriptDisabledWarning*@
+            <zone name="content-before"></zone>
+
             <section id="content" class="container">
-                <div class="d-none d-md-flex flex-wrap">
-                    <h5 class="text-muted">@Context.Request.PathBase.Value - @Context.Request.Path.Value</h5>
-                </div>
+
+                @RenderSection("teaser", required: false)
 
                 <zone name="teaser"></zone>
 
                 <partial name="Breadcrumb" model="null" />
 
                 <div id="content-body" class="row">
-                    <div id="content-center" class="col-lg-12">
+
+                    @if (hasLeftCol)
+                    {
+                        <aside id="content-left" class="col-lg-3 mb-4 mb-lg-0@(hideLeftCol ? " d-none d-lg-block" : "")">
+                            <zone name="aside_left_before"></zone>
+                            @RenderSection("left")
+                            <zone name="aside_left_after"></zone>
+                        </aside>
+                    }
+
+                    <div id="content-center" class="col-lg-@mainColspan">
                         <zone name="main_column_before"></zone>
-                        <div class="page">
-                            <div class="page-body">
-                                @RenderBody()
-                            </div>
-                        </div>
+                        @RenderBody()
                         <zone name="main_column_after"></zone>
                     </div>
+
+                    @if (hasRightCol)
+                    {
+                        <aside id="content-right" class="col-lg-3 mt-4 mt-lg-0@(hideRightCol ? " d-none d-lg-block" : "")">
+                            <zone name="aside_right_before"></zone>
+                            @RenderSection("right")
+                            <zone name="aside_right_after"></zone>
+                        </aside>
+                    }
+
+                    <zone name="content-after"></zone>
                 </div>
             </section>
         </div>
 
-        <zone name="content-after"></zone>
+        <zone name="footer_before"></zone>
 
-        @await Component.InvokeAsync("Footer")
+        @if (IsSectionDefined("footer"))
+        {
+            @RenderSection("footer")
+        }
+        else
+        {
+            @await Component.InvokeAsync("Footer")
+        }
+
+        <zone name="page-end"></zone>
     </div>
 
     <a href="#" id="scroll-top" class="scrollto d-flex align-items-center justify-content-center shadow-sm">
         <i class="fa fa-lg fa-angle-up"></i>
     </a>
 </div>
+
+@*TODO (mh) (core) Notifications*@
+
+<zone name="body_end_html_tag_before"></zone>
