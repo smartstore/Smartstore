@@ -621,7 +621,7 @@ namespace Smartstore.Core.Catalog.Products
 
         private decimal _price;
         /// <summary>
-        /// Gets or sets the product price.
+        /// Gets or sets the product regular price.
         /// </summary>
         public decimal Price
         {
@@ -1013,15 +1013,9 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <inheritdoc/>
-        public string GetDisplayNameMemberName()
-        {
-            return nameof(Name);
-        }
+        public string GetDisplayNameMemberName() => nameof(Name);
 
         /// <inheritdoc/>
-        public Task<decimal> GetRegularPriceAsync()
-        {
-            return Task.FromResult(Price);
-        }
+        Task<decimal> IPricable.GetRegularPriceAsync() => Task.FromResult(Price);
     }
 }

@@ -6,6 +6,7 @@ using Smartstore.Core.Catalog.Products;
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     [ServiceLifetime(ServiceLifetime.Singleton)]
+    [CalculatorUsage(CalculatorTargets.Product | CalculatorTargets.CartItem, CalculatorOrdering.Default)]
     public class OfferPriceCalculator : IPriceCalculator
     {
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)

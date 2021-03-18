@@ -11,6 +11,6 @@ namespace Smartstore.Core.Checkout.Tax
         /// <summary>
         /// Gets tax rate
         /// </summary>
-        Task<CalculateTaxResult> GetTaxRateAsync(CalculateTaxRequest calculateTaxRequest);
+        Task<TaxRate> GetTaxRateAsync(TaxRateRequest request);
     }
 }

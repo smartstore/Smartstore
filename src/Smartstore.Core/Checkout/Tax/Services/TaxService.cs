@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
@@ -18,7 +19,7 @@ namespace Smartstore.Core.Checkout.Tax
 {
     public partial class TaxService : ITaxService
     {
-        private readonly Dictionary<TaxRateCacheKey, decimal> _cachedTaxRates = new();
+        private readonly Dictionary<TaxRateCacheKey, TaxRate> _cachedTaxRates = new();
         private readonly Dictionary<TaxAddressKey, Address> _cachedTaxAddresses = new();
         private readonly ITaxCalculator _taxCalculator;
         private readonly IGeoCountryLookup _geoCountryLookup;
@@ -63,36 +64,138 @@ namespace Smartstore.Core.Checkout.Tax
         public virtual string FormatTaxRate(decimal taxRate)
             => taxRate.ToString("G29");
 
-        public virtual async Task<decimal> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null)
+        public virtual async Task<TaxRate> GetTaxRateAsync(IPricable product, int? taxCategoryId = null, Customer customer = null)
         {
             taxCategoryId ??= product?.TaxCategoryId ?? 0;
             customer ??= _workContext.CurrentCustomer;
 
             var cacheKey = CreateTaxRateCacheKey(customer, taxCategoryId.Value, product);
-            if (_cachedTaxRates.TryGetValue(cacheKey, out var taxRate))
-                return taxRate;
+            if (!_cachedTaxRates.TryGetValue(cacheKey, out var result))
+            {
+                result = await GetTaxRateCore(product, taxCategoryId.Value, customer);
+                _cachedTaxRates[cacheKey] = result;
+            }
 
+            return result;
+        }
+
+        protected virtual async Task<TaxRate> GetTaxRateCore(IPricable product, int taxCategoryId, Customer customer)
+        {
             var activeTaxProvider = LoadActiveTaxProvider();
             if (activeTaxProvider == null || await IsTaxExemptAsync(product, customer))
-                return decimal.Zero;
+            {
+                return new TaxRate(0m, taxCategoryId);
+            }
 
-            var request = new CalculateTaxRequest
+            var request = new TaxRateRequest
             {
                 Customer = customer,
-                TaxCategoryId = taxCategoryId > 0 ? taxCategoryId.Value : product?.TaxCategoryId ?? 0,
+                TaxCategoryId = taxCategoryId,
                 Address = await GetTaxAddressAsync(customer, product)
             };
 
-            var result = await activeTaxProvider.Value.GetTaxRateAsync(request);
-
-            taxRate = result.Success
-                ? Math.Max(result.TaxRate, 0)
-                : decimal.Zero;
-
-            _cachedTaxRates[cacheKey] = taxRate;
-
-            return taxRate;
+            return await activeTaxProvider.Value.GetTaxRateAsync(request);
         }
+
+        #region NEW
+
+        public virtual Task<Tax> CalculateProductTaxAsync(
+            IPricable product,
+            decimal price,
+            bool? inclusive = null,
+            Customer customer = null,
+            Currency currency = null)
+        {
+            Guard.NotNull(product, nameof(product));
+
+            return CalculateTaxAsync(product, price, _taxSettings.PricesIncludeTax, null, inclusive, customer, currency);
+        }
+
+        public virtual async Task<Tax> CalculateCheckoutAttributeTaxAsync(
+            CheckoutAttributeValue attributeValue,
+            bool? inclusive = null,
+            Customer customer = null,
+            Currency currency = null)
+        {
+            Guard.NotNull(attributeValue, nameof(attributeValue));
+
+            await _db.LoadReferenceAsync(attributeValue, x => x.CheckoutAttribute);
+
+            // TODO: (ms) (core) Check this for NULLReferenceException.....
+
+            var attribute = attributeValue.CheckoutAttribute;
+            if (attribute.IsTaxExempt)
+            {
+                return new Tax(TaxRate.Zero, 0m, 0m, true, true, currency);
+            }
+
+            return await CalculateTaxAsync(null, attributeValue.PriceAdjustment, _taxSettings.PricesIncludeTax, attribute.TaxCategoryId, inclusive, customer, currency);
+        }
+
+        public virtual Task<Tax> CalculateShippingTaxAsync(
+            decimal price,
+            bool? inclusive = null,
+            Customer customer = null,
+            Currency currency = null)
+        {
+            if (!_taxSettings.ShippingIsTaxable)
+            {
+                return Task.FromResult(new Tax(TaxRate.Zero, 0m, price, true, true, currency));
+            }
+
+            return CalculateTaxAsync(null, price, 
+                _taxSettings.ShippingPriceIncludesTax, 
+                _taxSettings.ShippingTaxClassId, inclusive, customer, currency);
+        }
+
+        public virtual Task<Tax> CalculatePaymentFeeTaxAsync(
+            decimal price,
+            bool? inclusive = null,
+            Customer customer = null,
+            Currency currency = null)
+        {
+            if (!_taxSettings.PaymentMethodAdditionalFeeIsTaxable)
+            {
+                return Task.FromResult(new Tax(TaxRate.Zero, 0m, price, true, true, currency));
+            }
+
+            return CalculateTaxAsync(null, price, 
+                _taxSettings.PaymentMethodAdditionalFeeIncludesTax, 
+                _taxSettings.PaymentMethodAdditionalFeeTaxClassId, inclusive, customer, currency);
+        }
+
+        protected virtual async Task<Tax> CalculateTaxAsync(
+            IPricable product,
+            decimal price,
+            bool isGrossPrice,
+            int? taxCategoryId = null,
+            bool? inclusive = null,
+            Customer customer = null,
+            Currency currency = null)
+        {
+            // Don't calculate if price is 0.
+            if (price == decimal.Zero)
+            {
+                return Tax.Zero;
+            }
+
+            customer ??= _workContext.CurrentCustomer;
+            currency ??= _workContext.WorkingCurrency;
+            taxCategoryId ??= product?.TaxCategoryId;
+            inclusive ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+
+            var taxRate = await GetTaxRateAsync(product, taxCategoryId, customer);
+
+            var tax = isGrossPrice
+                 // Admin: GROSS prices
+                 ? _taxCalculator.CalculateTaxFromGross(price, taxRate, inclusive.Value, currency)
+                 // Admin: NET prices
+                 : _taxCalculator.CalculateTaxFromNet(price, taxRate, inclusive.Value, currency);
+
+            return tax;
+        }
+
+        #endregion
 
         public virtual async Task<(Money Price, decimal TaxRate)> GetProductPriceAsync(
             Product product,
@@ -227,7 +330,7 @@ namespace Smartstore.Core.Checkout.Tax
             //}
         }
 
-        public virtual async Task<bool> IsTaxExemptAsync(Product product, Customer customer)
+        public virtual async Task<bool> IsTaxExemptAsync(IPricable product, Customer customer)
         {
             if (customer != null)
             {
@@ -282,7 +385,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="taxCategoryId">Tax category identifier.</param>
         /// <param name="product">Product. Gets id or 0 if <c>null</c>.</param>
         /// <returns><see cref="TaxRateCacheKey"/> as tuple of <see cref="Tuple{int, int, int}"/>.</returns>
-        private static TaxRateCacheKey CreateTaxRateCacheKey(Customer customer, int taxCategoryId, Product product)
+        private static TaxRateCacheKey CreateTaxRateCacheKey(Customer customer, int taxCategoryId, IPricable product)
             => new(customer?.Id ?? 0, taxCategoryId, product?.Id ?? 0);
 
         /// <summary>
@@ -304,48 +407,6 @@ namespace Smartstore.Core.Checkout.Tax
                 : price - (price / (100 + percent) * percent);
 
             return result;
-        }
-
-        protected virtual async Task<(decimal Amount, decimal TaxRate)> GetProductPriceAmountAsync2(
-            Product product,
-            decimal price,
-            bool? inclusive = null,
-            bool? isGrossPrice = null,
-            int? taxCategoryId = null,
-            Customer customer = null)
-        {
-            // Don't calculate if price is 0.
-            if (price == decimal.Zero)
-            {
-                return (price, decimal.Zero);
-            }
-
-            customer ??= _workContext.CurrentCustomer;
-            taxCategoryId ??= product?.TaxCategoryId;
-            inclusive ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
-            isGrossPrice ??= _taxSettings.PricesIncludeTax;
-
-            var taxRate = await GetTaxRateAsync(product, taxCategoryId, customer);
-
-            if (isGrossPrice.Value)
-            {
-                if (!inclusive.Value)
-                {
-                    return (CalculateAmount(price, taxRate, false), taxRate);
-                }
-            }
-            else
-            {
-                if (inclusive.Value)
-                {
-                    return (CalculateAmount(price, taxRate, true), taxRate);
-                }
-            }
-
-            // Gross > Net RoundFix
-            price = _workContext.WorkingCurrency.RoundIfEnabledFor(price);
-
-            return (price, taxRate);
         }
 
         protected virtual async Task<(decimal Amount, decimal TaxRate)> GetProductPriceAmountAsync(
@@ -437,7 +498,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <returns>
         /// Customer's tax address.
         /// </returns>
-        protected virtual async Task<Address> GetTaxAddressAsync(Customer customer, Product product = null)
+        protected virtual async Task<Address> GetTaxAddressAsync(Customer customer, IPricable product = null)
         {
             Guard.NotNull(customer, nameof(customer));
 

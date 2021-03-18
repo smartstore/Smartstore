@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Tax
 {
@@ -9,7 +10,7 @@ namespace Smartstore.Core.Checkout.Tax
     /// </summary>
     public readonly struct Tax
     {
-        // TODO: (core) Move Money, Tax & ICurrency to Smartstore.Financial later.
+        // TODO: (core) Move Money, Tax & (I)Currency to Smartstore.Financial later.
         public readonly static Tax Zero;
 
         /// <summary>
@@ -18,21 +19,59 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="rate">The tax rate</param>
         /// <param name="amount">The calculated tax amount</param>
         /// <param name="price">The origin price</param>
-        /// <param name="inclusive">Whether <paramref name="price"/> includes tax already</param>
-        public Tax(decimal rate, decimal amount, decimal price, bool inclusive)
+        /// <param name="isGrossPrice">A value indicating whether <paramref name="price"/> includes tax already.</param>
+        /// <param name="inclusive">A value indicating whether the result price should be gross (including tax).</param>
+        /// <param name="currency">Optional currency for result price rounding. If <c>null</c>, <see cref="Result"/> will be unrounded.</param>
+        public Tax(TaxRate rate, decimal amount, decimal price, bool isGrossPrice, bool inclusive, Currency currency = null)
         {
             Rate = rate;
             Amount = amount;
+            IsGrossPrice = isGrossPrice;
             Inclusive = inclusive;
-            PriceNet = inclusive ? price - amount : price;
-            PriceGross = inclusive ? price : price + amount;
+            PriceNet = isGrossPrice ? price - amount : price;
+            PriceGross = isGrossPrice ? price : price + amount;
+            Price = inclusive ? PriceGross : PriceNet;
+
+            if (currency != null && inclusive != isGrossPrice)
+            {
+                Price = currency.RoundIfEnabledFor(Price);
+            }
         }
 
-        public decimal Rate { get; }
+        /// <summary>
+        /// The tax rate used for calculation.
+        /// </summary>
+        public TaxRate Rate { get; }
+
+        /// <summary>
+        /// The unrounded tax amount.
+        /// </summary>
         public decimal Amount { get; }
+
+        /// <summary>
+        /// Whether source price is gross (including tax)
+        /// </summary>
+        public bool IsGrossPrice { get; }
+
+        /// <summary>
+        /// Whether result price is gross (including tax)
+        /// </summary>
         public bool Inclusive { get; }
+
+        /// <summary>
+        /// The unrounded net price.
+        /// </summary>
         public decimal PriceNet { get; }
+
+        /// <summary>
+        /// The unrounded gross price.
+        /// </summary>
         public decimal PriceGross { get; }
+
+        /// <summary>
+        /// The rounded price, either net or gross according to <see cref="Inclusive"/>.
+        /// </summary>
+        public decimal Price { get; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString()

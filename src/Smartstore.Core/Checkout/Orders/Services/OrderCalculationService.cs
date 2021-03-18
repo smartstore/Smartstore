@@ -749,7 +749,7 @@ namespace Smartstore.Core.Checkout.Orders
                     if (taxRate > maxTaxRate)
                     {
                         maxTaxRate = taxRate;
-                        maxTaxCategoryId = product.TaxCategoryId;
+                        maxTaxCategoryId = taxRate.TaxCategoryId;
                     }
                 }
 

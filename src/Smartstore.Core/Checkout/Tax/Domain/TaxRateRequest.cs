@@ -4,9 +4,9 @@ using Smartstore.Core.Identity;
 namespace Smartstore.Core.Checkout.Tax
 {
     /// <summary>
-    /// Represents a request for tax calculation
+    /// Represents a request for a tax rate.
     /// </summary>
-    public partial class CalculateTaxRequest
+    public partial class TaxRateRequest
     {
         /// <summary>
         /// Gets or sets a customer

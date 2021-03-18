@@ -301,6 +301,9 @@ namespace Smartstore.Web.Controllers
                 calculationOptions.BatchContext = batchContext;
                 calculationOptions.TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: calculationOptions.GrossPrices, target: PricingTarget.Product, language: language);
 
+                // Don't perform discount limitation and coupon code check in list rendering as it can have heavy impact on performance.
+                calculationOptions.CheckDiscountValidity = false;
+
                 var mapItemContext = new MapProductSummaryItemContext
                 {
                     BatchContext = batchContext,
@@ -757,7 +760,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Calculate saving.
-            var finalPriceWithDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, options.Customer, false, 1, null, batchContext);
+            var finalPriceWithDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, options.Customer, true, 1, null, batchContext);
             (finalPriceWithDiscount, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, finalPriceWithDiscount);
             finalPriceWithDiscount = ToWorkingCurrency(finalPriceWithDiscount, ctx);
 

@@ -19,8 +19,8 @@ namespace Smartstore.Core.Catalog.Pricing
         }
 
         public Product AssociatedProduct { get; set; }
-        public ICollection<Discount> AppliedDiscounts { get; init; }
-        public ICollection<ProductVariantAttributeValue> AppliedAttributes { get; init; }
+        public ICollection<Discount> AppliedDiscounts { get; } = new HashSet<Discount>();
+        public ICollection<ProductVariantAttributeValue> AppliedAttributes { get; }
         public TierPrice AppliedTierPrice { get; set; }
         public ProductVariantAttributeCombination AppliedAttributeCombination { get; set; }
 

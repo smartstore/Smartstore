@@ -10,7 +10,7 @@ namespace Smartstore.Core.Catalog.Discounts
     public partial interface IDiscountService
     {
         /// <summary>
-        /// Gets all discounts.
+        /// Gets all discounts as untracked entities.
         /// </summary>
         /// <param name="discountType">Discount type. <c>null</c> to load all discounts.</param>
         /// <param name="couponCode">Discount coupon code. <c>null</c> to load all discounts.</param>

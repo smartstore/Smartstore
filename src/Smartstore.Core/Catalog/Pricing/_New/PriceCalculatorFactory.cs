@@ -2,30 +2,56 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Smartstore.Caching;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
     public partial class PriceCalculatorFactory : IPriceCalculatorFactory
     {
-        private readonly IEnumerable<Lazy<IPriceCalculator>> _lazyCalculators;
+        private readonly IRequestCache _requestCache;
+        private readonly IEnumerable<Lazy<IPriceCalculator, PriceCalculatorMetadata>> _lazyCalculators;
 
-        public PriceCalculatorFactory(IEnumerable<Lazy<IPriceCalculator>> calculators)
+        public PriceCalculatorFactory(IRequestCache requestCache, IEnumerable<Lazy<IPriceCalculator, PriceCalculatorMetadata>> calculators)
         {
-            _lazyCalculators = calculators;
+            _requestCache = requestCache;
+            _lazyCalculators = calculators.OrderBy(x => x.Metadata.Order);
         }
 
         public IPriceCalculator[] GetCalculators(PriceCalculationContext context)
         {
             Guard.NotNull(context, nameof(context));
 
-            return GetCalculatorsCore(context).ToArray();
+            var cacheKey = "PriceCalculators:" + GenerateHashCode(context).ToString();
+
+            return _requestCache.Get(cacheKey, () => 
+            {
+                return _lazyCalculators
+                    .Where(x => MatchCalculator(context, x.Metadata))
+                    .Select(x => x.Value)
+                    .ToArray();
+            });
         }
 
-        protected virtual List<IPriceCalculator> GetCalculatorsCore(PriceCalculationContext context)
+        protected virtual int GenerateHashCode(PriceCalculationContext context)
         {
-            return _lazyCalculators
-                .Select(x => x.Value)
-                .ToList();
+            // TODO: (more) Add more parts to PriceCalculationContext hash
+            return HashCode.Combine(context.Product.GetType());
+        }
+
+        protected virtual bool MatchCalculator(PriceCalculationContext context, PriceCalculatorMetadata metadata)
+        {
+            if (context.Product is Product)
+            {
+                return metadata.ValidTargets.HasFlag(CalculatorTargets.Product);
+            }
+            else if (context.Product is ShoppingCartItem)
+            {
+                return metadata.ValidTargets.HasFlag(CalculatorTargets.CartItem);
+            }
+
+            return false;
         }
 
         public async Task RunCalculators(IPriceCalculator[] calculators, CalculatorContext context)

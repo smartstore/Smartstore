@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
@@ -46,16 +47,78 @@ namespace Smartstore.Core.Checkout.Tax
         string FormatTaxRate(decimal taxRate);
 
         /// <summary>
-        /// Gets tax rate.
+        /// Gets tax rate for given product.
         /// </summary>
         /// <param name="product">Product. Can be <c>null</c>.</param>
-        /// <param name="taxCategoryId">Tax category identifier. Obtained from <see cref="Product.TaxCategoryId"/> if <c>null</c>.</param>
+        /// <param name="taxCategoryId">Tax category identifier. Obtained from <see cref="IPricable.TaxCategoryId"/> if <c>null</c>.</param>
         /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
         /// <returns>Tax rate.</returns>
-        Task<decimal> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null);
+        Task<TaxRate> GetTaxRateAsync(IPricable product, int? taxCategoryId = null, Customer customer = null);
+
+        #region NEW
 
         /// <summary>
-        /// Gets the product price in the primary currency.
+        /// Calculates product tax.
+        /// </summary>
+        /// <param name="product">Product</param>
+        /// <param name="price">Product price.</param>
+        /// <param name="inclusive">A value indicating whether the calculated price should include tax. Obtained from <see cref="IWorkContext.TaxDisplayType"/> if <c>null</c>.</param>
+        /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <param name="currency">Optional currency instance for cash rounding.</param>
+        /// <returns>A <see cref="Tax"/> structure containing the calculation result.</returns>
+        Task<Tax> CalculateProductTaxAsync(
+            IPricable product,
+            decimal price,
+            bool? inclusive = null,
+            Customer customer = null,
+            Currency currency = null);
+
+        /// <summary>
+        /// Calculates tax for a checkout attribute value.
+        /// </summary>
+        /// <param name="attributeValue">Checkout attribute value.</param>
+        /// <param name="inclusive">A value indicating whether the calculated price should include tax. Obtained from <see cref="IWorkContext.TaxDisplayType"/> if <c>null</c>.</param>
+        /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <param name="currency">Optional currency instance for cash rounding.</param>
+        /// <returns>A <see cref="Tax"/> structure containing the calculation result.</returns>
+        Task<Tax> CalculateCheckoutAttributeTaxAsync(
+            CheckoutAttributeValue attributeValue,
+            bool? inclusive = null,
+            Customer customer = null,
+            Currency currency = null);
+
+        /// <summary>
+        /// Calculates shipping charge tax.
+        /// </summary>
+        /// <param name="price">The shipping charge.</param>
+        /// <param name="inclusive">A value indicating whether the calculated price should include tax. Obtained from <see cref="TaxSettings.ShippingPriceIncludesTax"/> if <c>null</c>.</param>
+        /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <param name="currency">Optional currency instance for cash rounding.</param>
+        /// <returns>A <see cref="Tax"/> structure containing the calculation result.</returns>
+        Task<Tax> CalculateShippingTaxAsync(
+            decimal price,
+            bool? inclusive = null,
+            Customer customer = null,
+            Currency currency = null);
+
+        /// <summary>
+        /// Calculates payment fee tax.
+        /// </summary>
+        /// <param name="price">The payment fee.</param>
+        /// <param name="inclusive">A value indicating whether the calculated price should include tax. Obtained from <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/> if <c>null</c>.</param>
+        /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <param name="currency">Optional currency instance for cash rounding.</param>
+        /// <returns>A <see cref="Tax"/> structure containing the calculation result.</returns>
+        Task<Tax> CalculatePaymentFeeTaxAsync(
+            decimal price,
+            bool? inclusive = null,
+            Customer customer = null,
+            Currency currency = null);
+
+        #endregion
+
+        /// <summary>
+        /// Calculates the product price in the primary currency.
         /// </summary>
         /// <param name="product">Product. Can be <c>null</c>.</param>
         /// <param name="price">Product price.</param>
@@ -132,7 +195,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <returns>
         /// <c>True</c> if the product is tax exempted, <c>False</c> if otherwise.
         /// </returns>
-        Task<bool> IsTaxExemptAsync(Product product, Customer customer);
+        Task<bool> IsTaxExemptAsync(IPricable product, Customer customer);
 
         /// <summary>
         /// Checks whether the customer has a EU VAT exemption (the European Union value added tax).

@@ -9,7 +9,7 @@ namespace Smartstore.Core.Checkout.Tax
     [Display(Order = 0)]
     internal class FreeTaxProvider : ITaxProvider
     {
-        public Task<CalculateTaxResult> GetTaxRateAsync(CalculateTaxRequest calculateTaxRequest) 
-            => Task.FromResult(new CalculateTaxResult());
+        public Task<TaxRate> GetTaxRateAsync(TaxRateRequest request) 
+            => Task.FromResult(new TaxRate(19m, request.TaxCategoryId));
     }
 }

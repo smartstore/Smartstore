@@ -21,6 +21,7 @@ using Smartstore.Core.Search.Facets;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -87,10 +88,18 @@ namespace Smartstore.Core.Bootstrapping
 
             foreach (var calculatorType in calculatorTypes)
             {
+                var usageAttribute = calculatorType.GetAttribute<CalculatorUsageAttribute>(true);
+
                 var registration = builder
                     .RegisterType(calculatorType)
                     .As<IPriceCalculator>()
-                    .Keyed<IPriceCalculator>(calculatorType);
+                    .Keyed<IPriceCalculator>(calculatorType)
+                    .WithMetadata<PriceCalculatorMetadata>(m => 
+                    {
+                        m.For(em => em.CalculatorType, calculatorType);
+                        m.For(em => em.ValidTargets, usageAttribute?.ValidTargets ?? CalculatorTargets.All);
+                        m.For(em => em.Order, usageAttribute?.Order ?? CalculatorOrdering.Default);
+                    });
 
                 var lifetime = calculatorType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
 

@@ -64,6 +64,8 @@ namespace Smartstore.Core.Catalog.Pricing
         public bool IgnoreAttributes { get; set; }
         public string TaxFormat { get; set; }
 
+        public bool CheckDiscountValidity { get; set; } = true;
+
         public bool DetermineSelectionPrice { get; set; }
         public bool DetermineLowestPrice { get; set; }
         public bool DetermineMinTierPrice { get; set; }
