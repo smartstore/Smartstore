@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
@@ -203,15 +204,15 @@ namespace Smartstore.Web.Controllers
             var templateCacheKey = string.Format(ModelCacheInvalidator.CATEGORY_TEMPLATE_MODEL_KEY, category.CategoryTemplateId);
             var templateViewPath = await Services.Cache.GetAsync(templateCacheKey, async () =>
             {
-                var template = await _db.CategoryTemplates.FindByIdAsync(category.CategoryTemplateId);
-                if (template == null)
-                    template = _db.CategoryTemplates.FirstOrDefault();
+                var template = await _db.CategoryTemplates.FindByIdAsync(category.CategoryTemplateId, false) 
+                    ?? await _db.CategoryTemplates.FirstOrDefaultAsync();
 
                 return template.ViewPath;
             });
 
             // Activity log.
             Services.ActivityLogger.LogActivity("PublicStore.ViewCategory", T("ActivityLog.PublicStore.ViewCategory"), category.Name);
+            await _db.SaveChangesAsync();
 
             return View(templateViewPath, model);
         }

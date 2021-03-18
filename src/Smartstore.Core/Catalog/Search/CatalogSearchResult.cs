@@ -76,7 +76,7 @@ namespace Smartstore.Core.Catalog.Search
                     ? await _hitsFactory.Invoke()
                     : Enumerable.Empty<Product>();
 
-                _hits = new PagedList<Product>(products, Query.PageIndex, Query.Take, TotalHitsCount);
+                _hits = products.ToPagedList(Query.PageIndex, Query.Take, TotalHitsCount);
             }
 
             return _hits;

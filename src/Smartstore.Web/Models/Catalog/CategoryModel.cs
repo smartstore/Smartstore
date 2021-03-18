@@ -27,10 +27,13 @@ namespace Smartstore.Web.Models.Catalog
         public LocalizedValue<string> MetaKeywords { get; set; }
         public LocalizedValue<string> MetaDescription { get; set; }
         public LocalizedValue<string> MetaTitle { get; set; }
+
         public string SeName { get; set; }
         public string CanonicalUrl { get; set; }
-        public ImageModel Image { get; set; } = new();
         public bool DisplayCategoryBreadcrumb { get; set; }
+
+        public ImageModel Image { get; set; } = new();
+
         public SubCategoryDisplayType SubCategoryDisplayType { get; set; }
         public IList<CategorySummaryModel> SubCategories { get; set; } = new List<CategorySummaryModel>();
         public ProductSummaryModel FeaturedProducts { get; set; }

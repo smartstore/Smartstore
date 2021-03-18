@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Common
 {
-    public class MetaPropertiesModel
+    public class MetaPropertiesModel : ModelBase
     {
         public string Site { get; set; }
         public string SiteName { get; set; }
