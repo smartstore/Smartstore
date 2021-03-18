@@ -173,6 +173,29 @@ namespace Smartstore.Web.Controllers
 
         #region Brand
 
+        public async Task<BrandModel> PrepareBrandModelAsync(Manufacturer manufacturer)
+        {
+            if (manufacturer == null)
+                return null;
+
+            var model = new BrandModel
+            {
+                Id = manufacturer.Id,
+                Name = manufacturer.GetLocalized(x => x.Name),
+                Description = manufacturer.GetLocalized(x => x.Description, detectEmptyHtml: true),
+                BottomDescription = manufacturer.GetLocalized(x => x.BottomDescription, detectEmptyHtml: true),
+                MetaKeywords = manufacturer.GetLocalized(x => x.MetaKeywords),
+                MetaDescription = manufacturer.GetLocalized(x => x.MetaDescription),
+                MetaTitle = manufacturer.GetLocalized(x => x.MetaTitle),
+                SeName = await manufacturer.GetActiveSlugAsync()
+            };
+
+            model.MetaProperties = PrepareMetaPropertiesBrand(model);
+
+            return model;
+        }
+
+
         public async Task<List<BrandOverviewModel>> PrepareBrandOverviewModelAsync(
             ICollection<ProductManufacturer> brands,
             IDictionary<int, BrandOverviewModel> cachedModels = null,
@@ -641,6 +664,22 @@ namespace Smartstore.Web.Controllers
             };
 
             var fileInfo = category.Image?.File;
+            PrepareMetaPropertiesModel(model, fileInfo);
+
+            return model;
+        }
+
+        public MetaPropertiesModel PrepareMetaPropertiesBrand(BrandModel brand)
+        {
+            var model = new MetaPropertiesModel
+            {
+                Url = _urlHelper.RouteUrl("Manufacturer", new { brand.SeName }, _httpRequest.Scheme),
+                Title = brand.Name.Value,
+                Description = brand.MetaDescription?.Value,
+                Type = "product"
+            };
+
+            var fileInfo = brand.Image?.File;
             PrepareMetaPropertiesModel(model, fileInfo);
 
             return model;

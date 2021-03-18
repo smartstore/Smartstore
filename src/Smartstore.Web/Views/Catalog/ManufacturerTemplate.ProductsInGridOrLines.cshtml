@@ -1,0 +1,101 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model BrandModel
+
+@{
+    Assets.AppendTitleParts(Model.MetaTitle.HasValue() ? Model.MetaTitle : Model.Name);
+    Assets.AppendMetaDescriptionParts(Model.MetaDescription);
+    Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
+
+    if (Model.CanonicalUrl.HasValue())
+    {
+        Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
+    }
+
+    int firstItemIndex = 0;
+    int lastItemIndex = 0;
+    if (Model.SearchResult.TotalHitsCount > 0)
+    {
+        var hits = await Model.SearchResult.GetHitsAsync();
+        firstItemIndex = hits.FirstItemIndex;
+        lastItemIndex = hits.LastItemIndex;
+    }
+
+    ViewBag.HideLeftCol = true; // ...on mobile
+}
+
+<widget target-zone="head">
+    <partial name="MetaProperties" model="Model.MetaProperties" />
+</widget>
+
+@section left {
+    @*TODO: (mg) (core) Implement "Filters", "Search".*@
+}
+
+<div class="page manufacturer-page">
+    <div class="page-title">
+        <h1 sm-language-attributes-for="Model.Name" class="h3">
+            @Model.Name
+        </h1>
+        @if (Model.SearchResult.TotalHitsCount > 0)
+        {
+            var pageIndex = $"<span class='lrm'>{firstItemIndex.ToString("N0")}-{lastItemIndex.ToString("N0")}</span>";
+            var pageSize = $"<span class='lrm'>{Model.SearchResult.TotalHitsCount.ToString("N0")}</span>";
+            <h5 class="search-hitcount">@Html.Raw(T("Search.PagingInfo", pageIndex, pageSize))</h5>
+        }
+    </div>
+
+    <div class="page-body">
+        <zone name="manufacturerdetails_top" />
+
+        @* Description *@
+        @if (Model.Description.HasValue())
+        {
+            <div sm-language-attributes-for="Model.Description" class="manufacturer-description lead html-editor-content">
+                <collapsed-content>
+                    @Html.Raw(Model.Description)
+                </collapsed-content>
+            </div>
+        }
+
+        @* Featured products *@
+        @if (Model.FeaturedProducts != null && Model.FeaturedProducts.Items.Count > 0)
+        {
+            <zone name="manufacturerdetails_before_featured_products" />
+
+            <div class="product-grid featured-product-grid block">
+                <div class="heading heading-center">
+                    <h3 class="heading-title fs-h1">@T("Products.FeaturedProducts")</h3>
+                </div>
+                <div class="block-body pt-3 artlist-no-separators">
+                    @{
+                        <partial name="Product.List" model="Model.FeaturedProducts" />
+                    }
+                </div>
+            </div>
+        }
+
+        @* Product list *@
+        <zone name="categorydetails_before_product_list" />
+
+        <div class="product-list-container">
+            @if (Model.Products != null)
+            {
+                <partial name="Product.List" model="Model.Products" />
+            }
+        </div>
+
+        @if (Model.BottomDescription.Value.HasValue())
+        {
+            <div sm-language-attributes-for="Model.Description" class="manufacturer-description lead html-editor-content">
+                <collapsed-content>
+                    @Html.Raw(Model.Description)
+                </collapsed-content>
+            </div>
+        }
+
+        @* TODO: (mc) find more intelligent way of rendering RecentlyViewedProducts globally *@
+        @await Component.InvokeAsync("RecentlyViewedProducts")
+        <zone name="manufacturerdetails_bottom" />
+    </div>
+</div>

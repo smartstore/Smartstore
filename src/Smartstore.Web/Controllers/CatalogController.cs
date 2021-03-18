@@ -210,6 +210,9 @@ namespace Smartstore.Web.Controllers
                 return template.ViewPath;
             });
 
+            // Activity log.
+            Services.ActivityLogger.LogActivity("PublicStore.ViewCategory", T("ActivityLog.PublicStore.ViewCategory"), category.Name);
+
             return View(templateViewPath, model);
         }
 
@@ -237,6 +240,7 @@ namespace Smartstore.Web.Controllers
                 return NotFound();
 
             var customer = Services.WorkContext.CurrentCustomer;
+            var storeId = Services.StoreContext.CurrentStore.Id;
 
             // 'Continue shopping' URL.
             if (!customer.IsSystemAccount)
@@ -245,9 +249,89 @@ namespace Smartstore.Web.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            // TODO: (mh) (core) Continue CatalogController.Manufacturer()
+            var model = await _helper.PrepareBrandModelAsync(manufacturer);
 
-            return Content($"Manufacturer --> Id: {manufacturer.Id}, Name: {manufacturer.Name}");
+            if (_seoSettings.CanonicalUrlsEnabled)
+            {
+                model.CanonicalUrl = _urlHelper.Value.RouteUrl("Manufacturer", new { model.SeName }, Request.Scheme);
+            }
+
+            if (query.IsSubPage && !_catalogSettings.ShowDescriptionInSubPages)
+            {
+                model.Description.ChangeValue(string.Empty);
+                model.BottomDescription.ChangeValue(string.Empty);
+            }
+
+            model.Image = await _helper.PrepareBrandImageModelAsync(manufacturer, model.Name);
+
+            // Featured products.
+            var hideFeaturedProducts = _catalogSettings.IgnoreFeaturedProducts || (query.IsSubPage && !_catalogSettings.IncludeFeaturedProductsInSubPages);
+            if (!hideFeaturedProducts)
+            {
+                CatalogSearchResult featuredProductsResult = null;
+
+                var cacheKey = ModelCacheInvalidator.MANUFACTURER_HAS_FEATURED_PRODUCTS_KEY.FormatInvariant(manufacturerId, string.Join(",", customer.GetRoleIds()), storeId);
+                var hasFeaturedProductsCache = await Services.Cache.GetAsync<bool?>(cacheKey);
+
+                var featuredProductsQuery = new CatalogSearchQuery()
+                    .VisibleOnly(customer)
+                    .WithVisibility(ProductVisibility.Full)
+                    .WithManufacturerIds(true, manufacturerId)
+                    .HasStoreId(storeId)
+                    .WithLanguage(Services.WorkContext.WorkingLanguage)
+                    .WithCurrency(Services.WorkContext.WorkingCurrency);
+
+                if (!hasFeaturedProductsCache.HasValue)
+                {
+                    featuredProductsResult = await _catalogSearchService.SearchAsync(featuredProductsQuery);
+                    hasFeaturedProductsCache = featuredProductsResult.TotalHitsCount > 0;
+                    await Services.Cache.PutAsync(cacheKey, hasFeaturedProductsCache);
+                }
+
+                if (hasFeaturedProductsCache.Value && featuredProductsResult == null)
+                {
+                    featuredProductsResult = await _catalogSearchService.SearchAsync(featuredProductsQuery);
+                }
+
+                if (featuredProductsResult != null)
+                {
+                    // TODO: (mc) determine settings properly
+                    var featuredProductsmappingSettings = _helper.GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode.Grid);
+                    model.FeaturedProducts = await _helper.MapProductSummaryModelAsync(await featuredProductsResult.GetHitsAsync(), featuredProductsmappingSettings);
+                }
+            }
+
+            // Products
+            query.WithManufacturerIds(_catalogSettings.IncludeFeaturedProductsInNormalLists ? null : false, manufacturerId);
+
+            var searchResult = await _catalogSearchService.SearchAsync(query);
+            model.SearchResult = searchResult;
+
+            var viewMode = _helper.GetSearchQueryViewMode(query);
+            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(viewMode);
+            model.Products = await _helper.MapProductSummaryModelAsync(await searchResult.GetHitsAsync(), mappingSettings);
+
+            // Prepare paging/sorting/mode stuff
+            _helper.MapListActions(model.Products, manufacturer, _catalogSettings.DefaultPageSizeOptions);
+
+            // Template.
+            var templateCacheKey = string.Format(ModelCacheInvalidator.MANUFACTURER_TEMPLATE_MODEL_KEY, manufacturer.ManufacturerTemplateId);
+            var templateViewPath = await Services.Cache.GetAsync(templateCacheKey, async () =>
+            {
+                var template = await _db.ManufacturerTemplates.FindByIdAsync(manufacturer.ManufacturerTemplateId);
+                if (template == null)
+                    template = _db.ManufacturerTemplates.FirstOrDefault();
+
+                return template.ViewPath;
+            });
+
+            // Activity log.
+            Services.ActivityLogger.LogActivity("PublicStore.ViewManufacturer", T("ActivityLog.PublicStore.ViewManufacturer"), manufacturer.Name);
+
+            // TODO: (mh) (core) Why weren't categories announced?
+            Services.DisplayControl.Announce(manufacturer);
+
+            return View(templateViewPath, model);
         }
 
         #endregion

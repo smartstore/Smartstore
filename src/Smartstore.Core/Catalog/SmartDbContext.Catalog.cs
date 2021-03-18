@@ -14,7 +14,8 @@ namespace Smartstore.Core.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
         public DbSet<CategoryTemplate> CategoryTemplates { get; set; }
-        
+        public DbSet<ManufacturerTemplate> ManufacturerTemplates { get; set; }
+
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<ProductManufacturer> ProductManufacturers { get; set; }
 
