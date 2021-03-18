@@ -58,6 +58,33 @@ namespace Smartstore.Core.Widgets
             _zoneExpressionWidgetsMap.Add(zonePattern, widget);
         }
 
+        public bool HasContent(string zone)
+        {
+            if (zone.IsEmpty())
+            {
+                return false;
+            }
+
+            if (_zoneWidgetsMap != null && _zoneWidgetsMap.ContainsKey(zone))
+            {
+                return true;
+            }
+
+            if (_zoneExpressionWidgetsMap != null)
+            {
+                foreach (var entry in _zoneExpressionWidgetsMap)
+                {
+                    var rg = entry.Key;
+                    if (rg.IsMatch(zone))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public IEnumerable<WidgetInvoker> GetWidgets(string zone)
         {
             if (zone.IsEmpty())

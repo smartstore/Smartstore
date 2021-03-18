@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Html;
-using Smartstore.Core.Widgets;
 
 namespace Smartstore.Core.Widgets
 {
