@@ -464,7 +464,7 @@ namespace Smartstore.Web.Controllers
 
             var result = await _catalogSearchService.SearchAsync(query);
             var settings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
-            var model = await _helper.MapProductSummaryModelAsync((await result.GetHitsAsync()).ToList(), settings);
+            var model = await _helper.MapProductSummaryModelAsync(await result.GetHitsAsync(), settings);
             model.GridColumnSpan = GridColumnSpan.Max5Cols;
 
             return View(model);
