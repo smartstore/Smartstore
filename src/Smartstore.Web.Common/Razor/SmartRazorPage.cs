@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Mvc.Razor.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
 using Smartstore.Core.Content.Menus;
@@ -18,29 +17,54 @@ namespace Smartstore.Web.Razor
 
     public abstract class SmartRazorPage<TModel> : RazorPage<TModel>
     {
-        [RazorInject]
-        protected IDisplayHelper Display { get; set; }
+        private IDisplayHelper _display;
+        private Localizer _localizer;
+        private IWorkContext _workContext;
+        private IEventPublisher _eventPublisher;
+        private IApplicationContext _appContext;
+        private IPageAssetBuilder _assets;
+        private IUserAgent _userAgent;
+        private ILinkResolver _linkResolver;
 
-        [RazorInject]
-        protected Localizer T { get; set; }
+        protected IDisplayHelper Display 
+        { 
+            get => _display ??= base.Context.RequestServices.GetRequiredService<IDisplayHelper>(); 
+        }
 
-        [RazorInject]
-        protected IWorkContext WorkContext { get; set; }
+        protected Localizer T 
+        { 
+            get => _localizer ??= base.Context.RequestServices.GetRequiredService<Localizer>();
+        }
 
-        [RazorInject]
-        protected IEventPublisher EventPublisher { get; set; }
+        protected IWorkContext WorkContext 
+        { 
+            get => _workContext ??= base.Context.RequestServices.GetRequiredService<IWorkContext>(); 
+        }
 
-        [RazorInject]
-        protected IApplicationContext ApplicationContext { get; set; }
+        protected IEventPublisher EventPublisher 
+        { 
+            get => _eventPublisher ??= base.Context.RequestServices.GetRequiredService<IEventPublisher>(); 
+        }
 
-        [RazorInject]
-        protected IPageAssetBuilder Assets { get; set; }
+        protected IApplicationContext ApplicationContext 
+        { 
+            get => _appContext ??= base.Context.RequestServices.GetRequiredService<IApplicationContext>(); 
+        }
 
-        [RazorInject]
-        protected IUserAgent UserAgent { get; set; }
+        protected IPageAssetBuilder Assets 
+        { 
+            get => _assets ??= base.Context.RequestServices.GetRequiredService<IPageAssetBuilder>(); 
+        }
 
-        [RazorInject]
-        protected ILinkResolver LinkResolver { get; set; }
+        protected IUserAgent UserAgent 
+        { 
+            get => _userAgent ??= base.Context.RequestServices.GetRequiredService<IUserAgent>(); 
+        }
+
+        protected ILinkResolver LinkResolver 
+        { 
+            get => _linkResolver ??= base.Context.RequestServices.GetRequiredService<ILinkResolver>(); 
+        }
 
         /// <summary>
         /// Resolves a service from scoped service container.
