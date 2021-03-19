@@ -404,7 +404,6 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        // TODO: (mh) (core) [RewriteUrl(SslRequirement.No)] Is this stil necessary?
         [LocalizedRoute("/producttag/all", Name = "ProductTagsAll")]
         public async Task<IActionResult> ProductTagsAll()
         {
@@ -412,7 +411,7 @@ namespace Smartstore.Web.Controllers
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
             var model = new PopularProductTagsModel();
-
+            
             // TODO: (mg) This is gonna explode with large amount of tags. Rethink!
             var allTags = await _db.ProductTags
                 .Where(x => x.Published)
