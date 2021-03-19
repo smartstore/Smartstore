@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Caching.OutputCache;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
@@ -13,6 +14,7 @@ using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -330,6 +332,35 @@ namespace Smartstore.Web.Controllers
 
             return View(templateViewPath, model);
         }
+
+        [LocalizedRoute("manufacturer/all", Name = "ManufacturerList")]
+        public async Task<IActionResult> ManufacturerAll()
+        {
+            var model = new List<BrandModel>();
+            var manufacturers = await _db.Manufacturers.AsNoTracking().ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id).ToListAsync();
+
+            var fileIds = manufacturers
+                .Select(x => x.MediaFileId ?? 0)
+                .Where(x => x != 0)
+                .Distinct()
+                .ToArray();
+
+            var files = (await Services.MediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
+
+            foreach (var manufacturer in manufacturers)
+            {
+                var manuModel = await _helper.PrepareBrandModelAsync(manufacturer);
+                manuModel.Image = await _helper.PrepareBrandImageModelAsync(manufacturer, manuModel.Name, files);
+                model.Add(manuModel);
+            }
+
+            Services.DisplayControl.AnnounceRange(manufacturers);
+
+            ViewBag.SortManufacturersAlphabetically = _catalogSettings.SortManufacturersAlphabetically;
+
+            return View(model);
+        }
+
 
         #endregion
     }
