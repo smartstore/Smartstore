@@ -12,15 +12,6 @@
         Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
     }
 
-    int firstItemIndex = 0;
-    int lastItemIndex = 0;
-    if (Model.SearchResult.TotalHitsCount > 0)
-    {
-        var hits = await Model.SearchResult.GetHitsAsync();
-        firstItemIndex = hits.FirstItemIndex;
-        lastItemIndex = hits.LastItemIndex;
-    }
-
     ViewBag.HideLeftCol = true; // ...on mobile
 }
 
@@ -39,9 +30,7 @@
         </h1>
         @if (Model.SearchResult.TotalHitsCount > 0)
         {
-            var pageIndex = $"<span class='lrm'>{firstItemIndex.ToString("N0")}-{lastItemIndex.ToString("N0")}</span>";
-            var pageSize = $"<span class='lrm'>{Model.SearchResult.TotalHitsCount.ToString("N0")}</span>";
-            <h5 class="search-hitcount">@Html.Raw(T("Search.PagingInfo", pageIndex, pageSize))</h5>
+            <partial name="SearchResultHitsCount" model="Model.SearchResult" />
         }
     </div>
 

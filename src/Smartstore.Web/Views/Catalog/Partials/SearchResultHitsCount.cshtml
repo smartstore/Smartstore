@@ -1,0 +1,21 @@
+﻿@using Smartstore.Core.Catalog.Search
+
+@model CatalogSearchResult
+
+@{
+    int firstItemIndex = 0;
+    int lastItemIndex = 0;
+    if (Model.TotalHitsCount > 0)
+    {
+        var hits = await Model.GetHitsAsync();
+        firstItemIndex = hits.FirstItemIndex;
+        lastItemIndex = hits.LastItemIndex;
+    }
+
+    var pageIndex = $"<span class='lrm'>{firstItemIndex.ToString("N0")}-{lastItemIndex.ToString("N0")}</span>";
+    var pageSize = $"<span class='lrm'>{Model.TotalHitsCount.ToString("N0")}</span>";
+}
+
+<h5 class="search-hitcount">@Html.Raw(T("Search.PagingInfo", pageIndex, pageSize))</h5>
+
+@*TODO: (mh) (core) use this in CategoryTemplate.ProductsInGridOrLines, ProductsByTag if approved by MC, else revert *@ 
