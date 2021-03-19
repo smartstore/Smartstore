@@ -9,9 +9,9 @@ namespace Smartstore.Web.Components
 {
     public class ShopLogoViewComponent : SmartViewComponent
     {
-        private readonly Lazy<IMediaService> _mediaService;
+        private readonly IMediaService _mediaService;
 
-        public ShopLogoViewComponent(Lazy<IMediaService> mediaService)
+        public ShopLogoViewComponent(IMediaService mediaService)
         {
             _mediaService = mediaService;
         }
@@ -24,7 +24,7 @@ namespace Smartstore.Web.Components
             {
                 o.ExpiresIn(TimeSpan.FromDays(1));
 
-                var logo = await _mediaService.Value.GetFileByIdAsync(store.LogoMediaFileId, MediaLoadFlags.AsNoTracking);
+                var logo = await _mediaService.GetFileByIdAsync(store.LogoMediaFileId, MediaLoadFlags.AsNoTracking);
 
                 var model = new ShopLogoModel
                 {
@@ -34,7 +34,7 @@ namespace Smartstore.Web.Components
 
                 if (logo != null)
                 {
-                    model.LogoUrl = _mediaService.Value.GetUrl(logo, 0, null, false);
+                    model.LogoUrl = _mediaService.GetUrl(logo, 0, null, false);
                     model.LogoWidth = logo.Size.Width;
                     model.LogoHeight = logo.Size.Height;
                 }
