@@ -1,0 +1,61 @@
+﻿@using Smartstore.Web.Models.Catalog;
+
+@model ProductsByTagModel
+
+@{
+    Assets.AppendTitleParts(T("PageTitle.ProductsByTag", Model.TagName));
+    Assets.AppendMetaDescriptionParts(T("PageTitle.ProductsByTag", Model.TagName));
+    
+    if (Model.CanonicalUrl.HasValue())
+    {
+        Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
+    }
+
+    int firstItemIndex = 0;
+    int lastItemIndex = 0;
+    if (Model.SearchResult.TotalHitsCount > 0)
+    {
+        var hits = await Model.SearchResult.GetHitsAsync();
+        firstItemIndex = hits.FirstItemIndex;
+        lastItemIndex = hits.LastItemIndex;
+    }
+
+    ViewBag.HideLeftCol = true; // ...on mobile
+}
+
+<widget sm-if="Model.SearchResult.Facets.Count > 0" target-zone="left">
+    @*TODO: (mg) (core) Implement "Filters", "Search".*@
+</widget>
+
+<div class="page product-tag-page">
+    <div class="page-title">
+        @{
+            // TODO: (mh) (core) how to do this?
+            //var langAttrs = Html.LanguageAttributes(Model.TagName);
+            var langAttrs = "";
+        }
+        <h1 class="h3 d-flex align-items-baseline">@Html.Raw(T("Products.Tags.ProductsTaggedWith", $"<small {langAttrs} class='search-term pl-2'>{Model.TagName}</small>"))</h1>
+
+        @if (Model.SearchResult.TotalHitsCount > 0)
+        {
+            var pageIndex = $"<span class='lrm'>{firstItemIndex.ToString("N0")}-{lastItemIndex.ToString("N0")}</span>";
+            var pageSize = $"<span class='lrm'>{Model.SearchResult.TotalHitsCount.ToString("N0")}</span>";
+            <h5 class="search-hitcount">@Html.Raw(T("Search.PagingInfo", pageIndex, pageSize))</h5>
+        }
+    </div>
+
+    <div class="page-body">
+        <zone name="productsbytag_top" />
+
+        <div class="product-list-container">
+            @if (Model.Products != null)
+            {
+                <partial name="Product.List" model="Model.Products" />
+            }
+        </div>
+
+        @* TODO: (mc) find more intelligent way of rendering RecentlyViewedProducts globally *@
+        @await Component.InvokeAsync("RecentlyViewedProducts")
+        <zone name="productsbytag_bottom" />
+    </div>
+</div>

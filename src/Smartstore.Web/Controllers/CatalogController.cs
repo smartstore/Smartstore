@@ -333,11 +333,14 @@ namespace Smartstore.Web.Controllers
             return View(templateViewPath, model);
         }
 
-        [LocalizedRoute("manufacturer/all", Name = "ManufacturerList")]
+        [LocalizedRoute("/manufacturer/all", Name = "ManufacturerList")]
         public async Task<IActionResult> ManufacturerAll()
         {
             var model = new List<BrandModel>();
-            var manufacturers = await _db.Manufacturers.AsNoTracking().ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id).ToListAsync();
+            var manufacturers = await _db.Manufacturers
+                .AsNoTracking()
+                .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
+                .ToListAsync();
 
             var fileIds = manufacturers
                 .Select(x => x.MediaFileId ?? 0)
@@ -360,6 +363,144 @@ namespace Smartstore.Web.Controllers
 
             return View(model);
         }
+
+        #endregion
+
+        #region ProductTags
+
+        // TODO: (mh) (core) [RewriteUrl(SslRequirement.No)] Is this stil necessary?
+        // TODO: (mh) (core) What about this original RouteValue > productTagId = idConstraint?
+        [LocalizedRoute("/producttag/{productTagId}/{*path}", Name = "ProductsByTag")]
+        public async Task<IActionResult> ProductsByTag(int productTagId, CatalogSearchQuery query)
+        {
+            var productTag = await _db.ProductTags.FindByIdAsync(productTagId);
+            if (productTag == null)
+            {
+                return NotFound();
+            }
+
+            if (!productTag.Published && !await Services.Permissions.AuthorizeAsync(Permissions.Catalog.Product.Read))
+            {
+                return NotFound();
+            }
+
+            var model = new ProductsByTagModel
+            {
+                Id = productTag.Id,
+                TagName = productTag.GetLocalized(y => y.Name)
+            };
+
+            if (_seoSettings.CanonicalUrlsEnabled)
+            {
+                model.CanonicalUrl = _urlHelper.Value.RouteUrl("ProductsByTag", new { productTagId = productTagId, path = model.TagName }, Request.Scheme);
+            }
+
+            query.WithProductTagIds(new int[] { productTagId });
+
+            var searchResult = await _catalogSearchService.SearchAsync(query);
+            model.SearchResult = searchResult;
+
+            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
+            model.Products = await _helper.MapProductSummaryModelAsync(await searchResult.GetHitsAsync(), mappingSettings);
+
+            // Prepare paging/sorting/mode stuff.
+            _helper.MapListActions(model.Products, null, _catalogSettings.DefaultPageSizeOptions);
+
+            return View(model);
+        }
+
+        // TODO: (mh) (core) [RewriteUrl(SslRequirement.No)] Is this stil necessary?
+        [LocalizedRoute("/producttag/all", Name = "ProductTagsAll")]
+        public async Task<IActionResult> ProductTagsAll()
+        {
+            // TODO: (mh) (core) This is nearly the same code as in PopularProductTagsViewComponent > implement helper method PreparePopularProductTagsModel?
+            var store = Services.StoreContext.CurrentStore;
+            var customer = Services.WorkContext.CurrentCustomer;
+            var model = new PopularProductTagsModel();
+
+            // TODO: (mg) This is gonna explode with large amount of tags. Rethink!
+            var allTags = await _db.ProductTags
+                .Where(x => x.Published)
+                .ToListAsync();
+
+            var tags = (from t in allTags
+                        let numProducts = _productTagService.CountProductsByTagIdAsync(t.Id, customer, store.Id).Await()
+                        where numProducts > 0
+                        orderby numProducts descending
+                        select new
+                        {
+                            Tag = t,
+                            LocalizedName = t.GetLocalized(x => x.Name),
+                            NumProducts = numProducts
+                        })
+                        .OrderBy(x => x.LocalizedName.Value)
+                        .ToList();
+
+            foreach (var tag in tags)
+            {
+                model.Tags.Add(new ProductTagModel
+                {
+                    Id = tag.Tag.Id,
+                    Name = tag.LocalizedName,
+                    Slug = tag.Tag.BuildSlug(),
+                    ProductCount = tag.NumProducts
+                });
+            }
+
+            return View(model);
+        }
+
+        #endregion
+
+        [LocalizedRoute("/newproducts", Name = "RecentlyAddedProducts")]
+        public async Task<IActionResult> RecentlyAddedProducts(CatalogSearchQuery query)
+        {
+            if (!_catalogSettings.RecentlyAddedProductsEnabled || _catalogSettings.RecentlyAddedProductsNumber <= 0)
+            {
+                return View(ProductSummaryModel.Empty);
+            }
+
+            query.Sorting.Clear();
+            query = query
+                .BuildFacetMap(false)
+                .SortBy(ProductSortingEnum.CreatedOn)
+                .Slice(0, _catalogSettings.RecentlyAddedProductsNumber);
+
+            var result = await _catalogSearchService.SearchAsync(query);
+            var settings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
+
+            // TODO: (mh) (core) PagedList seems not to be correct. 100 items, Pagesize = 100 but 124 Pages :-/
+            var model = await _helper.MapProductSummaryModelAsync(await result.GetHitsAsync(), settings);
+            model.GridColumnSpan = GridColumnSpan.Max5Cols;
+
+            return View(model);
+        }
+
+        // TODO: (mh) (core) Implement when RssActionResult is available.
+        //[LocalizedRoute("/newproducts/rss", Name = "RecentlyAddedProductsRSS")]
+        //public async Task<IActionResult> RecentlyAddedProductsRSS()
+        //{
+        //    ...
+        //    return new RssActionResult { Feed = feed };
+        //}
+
+        [LocalizedRoute("/recentlyviewedproducts", Name = "RecentlyViewedProducts")]
+        public async Task<IActionResult> RecentlyViewedProducts()
+        {
+            if (!_catalogSettings.RecentlyViewedProductsEnabled || _catalogSettings.RecentlyViewedProductsNumber <= 0)
+            {
+                return View(ProductSummaryModel.Empty);
+            }
+
+            var products = await _recentlyViewedProductsService.GetRecentlyViewedProductsAsync(_catalogSettings.RecentlyViewedProductsNumber);
+            var settings = _helper.GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode.List);
+            var model = await _helper.MapProductSummaryModelAsync(products, settings);
+
+            return View(model);
+        }
+
+        #region Comparing products
+
 
 
         #endregion

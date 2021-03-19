@@ -1,0 +1,26 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model ProductSummaryModel
+
+@{
+    Assets.AppendTitleParts(T("PageTitle.RecentlyViewedProducts"));
+}
+
+<div class="page recently-viewed-products-page">
+    <div class="heading mb-4">
+        <h3 class="heading-title fs-h1">@T("Products.RecentlyViewedProducts")</h3>
+    </div>
+
+    <div class="page-body">
+        @if (Model.Items.Count > 0)
+        {
+            <partial name="Product.List" model="Model" />
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                @T("Common.ListIsEmpty")
+            </div>
+        }
+    </div>
+</div>

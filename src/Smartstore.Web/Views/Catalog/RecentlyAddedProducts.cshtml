@@ -1,0 +1,39 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model ProductSummaryModel
+
+@{
+    Assets.AppendTitleParts(T("PageTitle.RecentlyAddedProducts"));
+}
+
+<div class="page recently-added-products-page">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="heading">
+                <h1 class="heading-title">@T("Products.NewProducts")</h1>
+            </div>
+        </div>
+
+        <zone name="recently_added_products_top" />
+        
+        <div class="col col-auto">
+            <a asp-route="RecentlyAddedProductsRSS" class="btn btn-warning" title="@T("Products.NewProducts.RSS.Hint")">
+                <i class="fa fa-rss"></i>
+                <span>@T("Products.NewProducts.RSS")</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="page-body">
+        @if (Model.Items.Count > 0)
+        {
+            <partial name="Product.List" model="Model" />
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                @T("Common.ListIsEmpty")
+            </div>
+        }
+    </div>
+</div>
