@@ -452,6 +452,8 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
+        #region Recently[...]Products
+
         [LocalizedRoute("/newproducts", Name = "RecentlyAddedProducts")]
         public async Task<IActionResult> RecentlyAddedProducts(CatalogSearchQuery query)
         {
@@ -499,9 +501,133 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
+        #endregion
+
         #region Comparing products
 
+        [LocalizedRoute("/compareproducts", Name = "CompareProducts")]
+        public async Task<IActionResult> CompareProducts()
+        {
+            if (!_catalogSettings.CompareProductsEnabled)
+            {
+                return NotFound();
+            }
 
+            var products = await _productCompareService.GetCompareListAsync();
+            var settings = _helper.GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode.Compare);
+            var model = await _helper.MapProductSummaryModelAsync(products, settings);
+
+            return View(model);
+        }
+
+        [ActionName("AddProductToCompare")]
+        public async Task<IActionResult> AddProductToCompareList(int id)
+        {
+            var product = await _db.Products.FindByIdAsync(id);
+            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published)
+                return NotFound();
+
+            if (!_catalogSettings.CompareProductsEnabled)
+                return NotFound();
+
+            _productCompareService.AddToList(id);
+
+            //activity log
+            Services.ActivityLogger.LogActivity("PublicStore.AddToCompareList", T("ActivityLog.PublicStore.AddToCompareList"), product.Name);
+
+            return RedirectToRoute("CompareProducts");
+        }
+
+        [HttpPost]
+        [ActionName("AddProductToCompare")]
+        public async Task<IActionResult> AddProductToCompareListAjax(int id)
+        {
+            var product = await _db.Products.FindByIdAsync(id);
+
+            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.CompareProductsEnabled)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = T("AddProductToCompareList.CouldNotBeAdded")
+                });
+            }
+
+            _productCompareService.AddToList(id);
+
+            //activity log
+            Services.ActivityLogger.LogActivity("PublicStore.AddToCompareList", T("ActivityLog.PublicStore.AddToCompareList"), product.Name);
+
+            return Json(new
+            {
+                success = true,
+                message = string.Format(T("AddProductToCompareList.ProductWasAdded"), product.Name)
+            });
+        }
+
+        [ActionName("RemoveProductFromCompare")]
+        public async Task<IActionResult> RemoveProductFromCompareList(int id)
+        {
+            var product = await _db.Products.FindByIdAsync(id);
+            if (product == null)
+                return NotFound();
+
+            if (!_catalogSettings.CompareProductsEnabled)
+                return NotFound();
+
+            _productCompareService.RemoveFromList(id);
+
+            return RedirectToRoute("CompareProducts");
+        }
+
+        [HttpPost]
+        [ActionName("RemoveProductFromCompare")]
+        public async Task<IActionResult> RemoveProductFromCompareListAjax(int id)
+        {
+            var product = await _db.Products.FindByIdAsync(id);
+            if (product == null || !_catalogSettings.CompareProductsEnabled)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = T("AddProductToCompareList.CouldNotBeRemoved")
+                });
+            }
+
+            _productCompareService.RemoveFromList(id);
+
+            return Json(new
+            {
+                success = true,
+                message = string.Format(T("AddProductToCompareList.ProductWasDeleted"), product.Name)
+            });
+        }
+
+        public IActionResult ClearCompareList()
+        {
+            if (!_catalogSettings.CompareProductsEnabled)
+                return RedirectToRoute("HomePage");
+
+            _productCompareService.ClearCompareList();
+
+            return RedirectToRoute("CompareProducts");
+        }
+
+        // ajax
+        [HttpPost]
+        [ActionName("ClearCompareList")]
+        public ActionResult ClearCompareListAjax()
+        {
+            _productCompareService.ClearCompareList();
+
+            return Json(new
+            {
+                success = true,
+                message = T("CompareList.ListWasCleared")
+            });
+        }
+
+        // TODO: (mh) (core) OffCanvasCompare
 
         #endregion
     }
