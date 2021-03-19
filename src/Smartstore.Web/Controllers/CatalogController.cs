@@ -470,9 +470,7 @@ namespace Smartstore.Web.Controllers
 
             var result = await _catalogSearchService.SearchAsync(query);
             var settings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
-
-            // TODO: (mh) (core) PagedList seems not to be correct. 100 items, Pagesize = 100 but 124 Pages :-/
-            var model = await _helper.MapProductSummaryModelAsync(await result.GetHitsAsync(), settings);
+            var model = await _helper.MapProductSummaryModelAsync((await result.GetHitsAsync()).ToList(), settings);
             model.GridColumnSpan = GridColumnSpan.Max5Cols;
 
             return View(model);
