@@ -19,7 +19,7 @@ namespace Smartstore.Web.Models.Common
             public string Size { get; set; }
 
             /// <summary>
-            /// Represents complete thumbnail URL.
+            /// Represents complete icon URL.
             /// </summary>
             public string Url { get; set; }
         }

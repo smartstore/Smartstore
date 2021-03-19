@@ -251,6 +251,15 @@ namespace Smartstore.Web.Infrastructure.Hooks
 		public const string STORE_FAVICON_MODEL_KEY = "pres:favicon-{0}";
 		public const string STORE_FAVICON_PATTERN_KEY = "pres:favicon*";
 
+		/// <summary>
+		/// Key for shop logo
+		/// </summary>
+		/// <remarks>
+		/// {0} : current store ID
+		/// </remarks>
+		public const string STORE_LOGO_MODEL_KEY = "pres:logo-{0}";
+		public const string STORE_LOGO_PATTERN_KEY = "pres:logo*";
+
 		#endregion
 
 		private static readonly HashSet<string> _candidateSettingKeys = new(StringComparer.OrdinalIgnoreCase)
@@ -365,6 +374,7 @@ namespace Smartstore.Web.Infrastructure.Hooks
 			else if (entity is Store)
 			{
 				await _cache.RemoveByPatternAsync(STORE_FAVICON_PATTERN_KEY);
+				await _cache.RemoveByPatternAsync(STORE_LOGO_PATTERN_KEY);
 			}
 			//else if (entity is Poll)
 			//{
