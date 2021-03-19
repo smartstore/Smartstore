@@ -515,16 +515,15 @@ namespace Smartstore.Web.Controllers
         [ActionName("AddProductToCompare")]
         public async Task<IActionResult> AddProductToCompareList(int id)
         {
-            var product = await _db.Products.FindByIdAsync(id);
-            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published)
+            if (!_catalogSettings.CompareProductsEnabled)
                 return NotFound();
 
-            if (!_catalogSettings.CompareProductsEnabled)
+            var product = await _db.Products.FindByIdAsync(id, false);
+            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published)
                 return NotFound();
 
             _productCompareService.AddToList(id);
 
-            //activity log
             Services.ActivityLogger.LogActivity("PublicStore.AddToCompareList", T("ActivityLog.PublicStore.AddToCompareList"), product.Name);
 
             return RedirectToRoute("CompareProducts");
@@ -534,15 +533,20 @@ namespace Smartstore.Web.Controllers
         [ActionName("AddProductToCompare")]
         public async Task<IActionResult> AddProductToCompareListAjax(int id)
         {
-            var product = await _db.Products.FindByIdAsync(id);
-
-            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.CompareProductsEnabled)
+            var failed = Json(new
             {
-                return Json(new
-                {
-                    success = false,
-                    message = T("AddProductToCompareList.CouldNotBeAdded")
-                });
+                success = false,
+                message = T("AddProductToCompareList.CouldNotBeAdded")
+            });
+
+            if (!_catalogSettings.CompareProductsEnabled)
+                return failed;
+
+            var product = await _db.Products.FindByIdAsync(id, false);
+
+            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published)
+            {
+                return failed;
             }
 
             _productCompareService.AddToList(id);
@@ -560,11 +564,11 @@ namespace Smartstore.Web.Controllers
         [ActionName("RemoveProductFromCompare")]
         public async Task<IActionResult> RemoveProductFromCompareList(int id)
         {
-            var product = await _db.Products.FindByIdAsync(id);
-            if (product == null)
+            if (!_catalogSettings.CompareProductsEnabled)
                 return NotFound();
 
-            if (!_catalogSettings.CompareProductsEnabled)
+            var product = await _db.Products.FindByIdAsync(id, false);
+            if (product == null)
                 return NotFound();
 
             _productCompareService.RemoveFromList(id);
@@ -576,14 +580,19 @@ namespace Smartstore.Web.Controllers
         [ActionName("RemoveProductFromCompare")]
         public async Task<IActionResult> RemoveProductFromCompareListAjax(int id)
         {
-            var product = await _db.Products.FindByIdAsync(id);
-            if (product == null || !_catalogSettings.CompareProductsEnabled)
+            var failed = Json(new
             {
-                return Json(new
-                {
-                    success = false,
-                    message = T("AddProductToCompareList.CouldNotBeRemoved")
-                });
+                success = false,
+                message = T("AddProductToCompareList.CouldNotBeRemoved")
+            });
+
+            if (!_catalogSettings.CompareProductsEnabled)
+                return failed;
+
+            var product = await _db.Products.FindByIdAsync(id, false);
+            if (product == null)
+            {
+                return failed;
             }
 
             _productCompareService.RemoveFromList(id);
@@ -598,7 +607,7 @@ namespace Smartstore.Web.Controllers
         public IActionResult ClearCompareList()
         {
             if (!_catalogSettings.CompareProductsEnabled)
-                return RedirectToRoute("HomePage");
+                return RedirectToRoute("Homepage");
 
             _productCompareService.ClearCompareList();
 
@@ -608,7 +617,7 @@ namespace Smartstore.Web.Controllers
         // ajax
         [HttpPost]
         [ActionName("ClearCompareList")]
-        public ActionResult ClearCompareListAjax()
+        public IActionResult ClearCompareListAjax()
         {
             _productCompareService.ClearCompareList();
 

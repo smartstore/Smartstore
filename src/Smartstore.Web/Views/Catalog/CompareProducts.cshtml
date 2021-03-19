@@ -35,7 +35,7 @@
             </div>
         </div>
         <div sm-if="Model.Items.Any()" class="col col-auto">
-            <a asp-action="ClearCompareList" asp-controller="Catalog" class="btn btn-danger mb-2" rel="nofollow">
+            <a asp-action="ClearCompareList" asp-controller="Catalog" asp-area="" class="btn btn-danger mb-2" rel="nofollow">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Products.Compare.Clear")</span>
             </a>
@@ -101,7 +101,7 @@
                             {
                                 <th class="border-top-0 border-bottom-0 pb-1">
                                     <a sm-if="product.Image.HasImage()" class="d-block text-center" href="@product.DetailUrl">
-                                        <img sm-model="product.Image" loading="lazy" />
+                                        <img sm-model="product.Image" class="img-fluid" loading="lazy" />
                                     </a>
                                 </th>
                             }
