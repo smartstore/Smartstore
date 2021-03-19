@@ -68,19 +68,19 @@
 {
     <div class="artlist-actions artlist-actions--top d-flex flex-wrap" attr-style='(imgRatio.HasValue(), "--img-aspect-ratio: " + imgRatio)'>
         <div sm-if="Model.AllowSorting || Model.AllowFiltering" class="artlist-action-group artlist-action-group--filtersort">
-            <partial name="Product.List.FilterSort" model="Model" />
+            @{ await Html.RenderPartialAsync("Product.List.FilterSort", Model); }
         </div>
         <div sm-if="hasPager || Model.AllowViewModeChanging" class="artlist-action-group artlist-action-group--page">
             @* ViewMode *@
             @if (Model.AllowViewModeChanging && Model.ViewMode == ProductSummaryViewMode.Grid || Model.ViewMode == ProductSummaryViewMode.List)
             {
-                <partial name="Product.List.ViewMode" model="Model" />
+                await Html.RenderPartialAsync("Product.List.ViewMode", Model);
             }
 
             @* Pager *@
             @if (hasPager)
             {
-                <partial name="Product.List.Pager" model="Model" />
+                await Html.RenderPartialAsync("Product.List.Pager", Model);
             }
         </div>
     </div>
@@ -96,13 +96,13 @@
 <div sm-if="Model.PagedList.TotalCount > 0" id="@id" class='@string.Join(" ", listCssClasses)'>
     @foreach (var product in Model.Items)
     {
-        <partial name="Product.List.Item" model="product" />
+        await Html.RenderPartialAsync("Product.List.Item", product);
     }
 </div>
 
 <div sm-if="Model.PagedList.TotalPages > 1 && hasPager" class="artlist-actions artlist-actions--bottom">
     <div class="artlist-action-group artlist-action-group--page">
-        <partial name="Product.List.Pager" model="Model" />
+        @{ await Html.RenderPartialAsync("Product.List.Pager", Model); }
     </div>
 </div>
 
