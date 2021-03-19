@@ -11,7 +11,7 @@
         public const int First = -1000;
 
         /// <summary>
-        /// Not used by Smartstore.
+        /// Used by calculators that should run early in the pipeline.
         /// </summary>
         public const int Early = -500;
 
@@ -21,7 +21,7 @@
         public const int Default = 0;
 
         /// <summary>
-        /// Not used by Smartstore.
+        /// Used by calculators that should run late in the pipeline (e.g. used by <see cref="Smartstore.Core.Catalog.Pricing.Calculators.DiscountPriceCalculator"/>.
         /// </summary>
         public const int Late = 500;
 

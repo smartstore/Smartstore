@@ -11,7 +11,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     {
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {
-            if (context.Product is Product product && product.SpecialPrice.HasValue)
+            if (context.Product is Product product && product.SpecialPrice.HasValue && product.ProductType != ProductType.GroupedProduct)
             {
                 // Check date range
                 var now = DateTime.UtcNow;

@@ -90,15 +90,18 @@ namespace Smartstore.Core.Catalog.Pricing
             var targetCurrency = _workContext.WorkingCurrency;
 
             batchContext ??= new ProductBatchContext(null, _services, store, customer, true);
-
-            return new PriceCalculationOptions(batchContext, customer, store, language, targetCurrency)
+            
+            var options = new PriceCalculationOptions(batchContext, customer, store, language, targetCurrency)
             {
                 GrossPrices = _workContext.GetTaxDisplayTypeFor(customer, store.Id) == TaxDisplayType.IncludingTax,
-                DetermineSelectionPrice = _catalogSettings.PriceDisplayType == PriceDisplayType.PreSelectedPrice,
                 IgnoreDiscounts = _catalogSettings.IgnoreDiscounts || _catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
                 IgnoreAttributes = _catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
-                DetermineLowestPrice = _catalogSettings.PriceDisplayType == PriceDisplayType.LowestPrice
+                PriceRangeFormat = T("Products.PriceRangeFrom").Value
             };
+
+            options.TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: options.GrossPrices, target: PricingTarget.Product, language: language);
+
+            return options;
         }
 
         public async Task<CalculatedPrice> CalculatePriceLegacyAsync(PriceCalculationContext context)
@@ -129,6 +132,9 @@ namespace Smartstore.Core.Catalog.Pricing
             var calculators = _calculatorFactory.GetCalculators(context);
             var calculatorContext = new CalculatorContext(context, await context.Product.GetRegularPriceAsync());
 
+            // Remember source product
+            var sourceProduct = context.Product;
+
             // Run all collected calculators
             await _calculatorFactory.RunCalculators(calculators, calculatorContext);
 
@@ -138,18 +144,34 @@ namespace Smartstore.Core.Catalog.Pricing
             // Prepare result by converting price amounts
             var result = new CalculatedPrice(calculatorContext)
             {
-                RegularPrice = ConvertAmount(calculatorContext.RegularPrice, context, taxRate, out _).Value,
-                OfferPrice = ConvertAmount(calculatorContext.OfferPrice, context, taxRate, out _),
-                SelectionPrice = ConvertAmount(calculatorContext.SelectionPrice, context, taxRate, out _),
-                LowestPrice = ConvertAmount(calculatorContext.LowestPrice, context, taxRate, out _),
-                FinalPrice = ConvertAmount(calculatorContext.FinalPrice, context, taxRate, out var tax).Value,
+                Product = sourceProduct,
+                ContextProduct = calculatorContext.Product,
+                RegularPrice = ConvertAmount(calculatorContext.RegularPrice, calculatorContext, taxRate, false, out _).Value,
+                OfferPrice = ConvertAmount(calculatorContext.OfferPrice, calculatorContext, taxRate, false, out _),
+                SelectionPrice = ConvertAmount(calculatorContext.SelectionPrice, calculatorContext, taxRate, false, out _),
+                LowestPrice = ConvertAmount(calculatorContext.LowestPrice, calculatorContext, taxRate, false, out _),
+                FinalPrice = ConvertAmount(calculatorContext.FinalPrice, calculatorContext, taxRate, true, out var tax).Value,
                 Tax = tax
             };
 
+            if (tax.HasValue && _primaryCurrency != context.Options.TargetCurrency)
+            {
+                // Exchange tax amounts
+                // TODO: (mg) (core) Check for rounding issues thoroughly!
+                result.Tax = new Tax(
+                    tax.Value.Rate,
+                    // Amount
+                    _currencyService.ConvertFromPrimaryCurrency(tax.Value.Amount, context.Options.TargetCurrency).Amount,
+                    // Price
+                    result.FinalPrice.Amount,
+                    tax.Value.IsGrossPrice, 
+                    tax.Value.Inclusive);
+            }
+            
             return result;
         }
 
-        private Money? ConvertAmount(decimal? amount, PriceCalculationContext context, TaxRate taxRate, out Tax? tax)
+        private Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax)
         {
             tax = null;
             
@@ -172,6 +194,19 @@ namespace Smartstore.Core.Catalog.Pricing
             if (amount != 0 && context.Options.TaxFormat != null)
             {
                 money = money.WithPostFormat(context.Options.TaxFormat);
+            }
+
+            if (isFinalPrice && context.HasPriceRange)
+            {
+                var finalPricePostFormat = money.PostFormat;
+                finalPricePostFormat = finalPricePostFormat == null
+                    ? context.Options.PriceRangeFormat
+                    : string.Format(context.Options.PriceRangeFormat, finalPricePostFormat);
+
+                if (money.PostFormat != finalPricePostFormat)
+                {
+                    money = money.WithPostFormat(finalPricePostFormat);
+                }
             }
 
             return money;

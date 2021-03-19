@@ -299,7 +299,6 @@ namespace Smartstore.Web.Controllers
                 int thumbSize = model.ThumbSize ?? _mediaSettings.ProductThumbPictureSize;
 
                 calculationOptions.BatchContext = batchContext;
-                calculationOptions.TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: calculationOptions.GrossPrices, target: PricingTarget.Product, language: language);
 
                 // Don't perform discount limitation and coupon code check in list rendering as it can have heavy impact on performance.
                 calculationOptions.CheckDiscountValidity = false;
@@ -646,6 +645,8 @@ namespace Smartstore.Web.Controllers
 
                     ctx.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
                     ctx.AssociatedProductBatchContext = _dataExporter.Value.CreateProductBatchContext(allAssociatedProducts, options.Customer, null, null, false);
+
+                    options.AssociatedProductsBatchContext = ctx.AssociatedProductBatchContext;
                 }
 
                 associatedProducts = ctx.GroupedProducts[product.Id];
@@ -683,21 +684,13 @@ namespace Smartstore.Web.Controllers
 
             #region Test NEW
 
-            var originalDetermineLowestPrice = options.DetermineLowestPrice;
-            var calculationContext = new PriceCalculationContext(product, options);
-
-            if (product.ProductType == ProductType.GroupedProduct)
+            var calculationContext = new PriceCalculationContext(product, options)
             {
-                options.BatchContext = ctx.AssociatedProductBatchContext;
-                options.DetermineLowestPrice = true;
-            }
+                AssociatedProducts = associatedProducts
+            };
 
             // -----> Perform calculation <-------
             var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
-
-            // Restore original options
-            options.BatchContext = ctx.BatchContext;
-            options.DetermineLowestPrice = originalDetermineLowestPrice;
 
             priceModel.Price = calculatedPrice.FinalPrice;
             priceModel.HasDiscount = calculatedPrice.HasDiscount;

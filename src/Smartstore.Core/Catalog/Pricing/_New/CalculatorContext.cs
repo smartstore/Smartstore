@@ -18,7 +18,6 @@ namespace Smartstore.Core.Catalog.Pricing
             FinalPrice = regularPrice;
         }
 
-        public Product AssociatedProduct { get; set; }
         public ICollection<Discount> AppliedDiscounts { get; } = new HashSet<Discount>();
         public ICollection<ProductVariantAttributeValue> AppliedAttributes { get; }
         public TierPrice AppliedTierPrice { get; set; }
@@ -29,5 +28,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public decimal? SelectionPrice { get; set; }
         public decimal? LowestPrice { get; set; }
         public decimal FinalPrice { get; set; }
+        public bool HasPriceRange { get; set; }
     }
 }

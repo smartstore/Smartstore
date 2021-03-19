@@ -22,6 +22,7 @@ using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine.Modularity;
+using System;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -116,6 +117,13 @@ namespace Smartstore.Core.Bootstrapping
                     registration.InstancePerLifetimeScope();
                 }
             }
+
+            // Register calculator resolve delegate
+            builder.Register<Func<Type, IPriceCalculator>>(c =>
+            {
+                var cc = c.Resolve<IComponentContext>();
+                return key => cc.ResolveKeyed<IPriceCalculator>(key);
+            });
         }
     }
 }

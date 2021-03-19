@@ -23,15 +23,25 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(context, nameof(context));
 
+            if (context.Calculators != null && context.Calculators.Length > 0)
+            {
+                // Don't resolve calculators if context has a specific calculators list.
+                return context.Calculators;
+            }
+
             var cacheKey = "PriceCalculators:" + GenerateHashCode(context).ToString();
 
-            return _requestCache.Get(cacheKey, () => 
+            var calculators = _requestCache.Get(cacheKey, () => 
             {
                 return _lazyCalculators
                     .Where(x => MatchCalculator(context, x.Metadata))
                     .Select(x => x.Value)
                     .ToArray();
             });
+
+            context.Calculators = calculators;
+
+            return calculators;
         }
 
         protected virtual int GenerateHashCode(PriceCalculationContext context)

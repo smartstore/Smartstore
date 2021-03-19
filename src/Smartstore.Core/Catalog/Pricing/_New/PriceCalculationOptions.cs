@@ -7,7 +7,7 @@ using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
-    public class PriceCalculationOptions
+    public class PriceCalculationOptions : ICloneable<PriceCalculationOptions>
     {
         private ProductBatchContext _batchContext;
         private Customer _customer;
@@ -55,21 +55,29 @@ namespace Smartstore.Core.Catalog.Pricing
             set => _targetCurrency = value ?? throw new ArgumentNullException(nameof(TargetCurrency));
         }
 
+        public ProductBatchContext AssociatedProductsBatchContext { get; set; }
+
 
         public bool GrossPrices { get; set; }
         public CashRoundingOptions CashRounding { get; init; }
 
-        public bool IgnoreDiscounts { get; set; }
-        public bool IgnoreTierPrices { get; set; }
+        public bool IgnoreAssociatedProducts { get; set; }
         public bool IgnoreAttributes { get; set; }
+        public bool IgnoreTierPrices { get; set; }
+        public bool IgnoreDiscounts { get; set; }
+
         public string TaxFormat { get; set; }
+        public string PriceRangeFormat { get; set; }
 
         public bool CheckDiscountValidity { get; set; } = true;
-
-        public bool DetermineSelectionPrice { get; set; }
-        public bool DetermineLowestPrice { get; set; }
         public bool DetermineMinTierPrice { get; set; }
         public bool DetermineMinAttributeCombinationPrice { get; set; }
+
+        public PriceCalculationOptions Clone()
+            => ((ICloneable)this).Clone() as PriceCalculationOptions;
+
+        object ICloneable.Clone()
+            => MemberwiseClone();
 
         //public bool ApplyCartRules { get; set; }
     }

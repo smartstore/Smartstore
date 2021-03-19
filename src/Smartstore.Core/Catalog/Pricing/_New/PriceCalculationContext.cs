@@ -13,6 +13,8 @@ namespace Smartstore.Core.Catalog.Pricing
 {
     public class PriceCalculationContext
     {
+        private IPricable _product;
+        
         public PriceCalculationContext(IPricable product, PriceCalculationOptions options)
             : this(product, 1, options)
         {
@@ -20,12 +22,13 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public PriceCalculationContext(IPricable product, int quantity, PriceCalculationOptions options)
         {
-            Guard.NotNull(product, nameof(product));
             Guard.NotNull(options, nameof(options));
 
             Product = product;
-            Options = options;
             Quantity = quantity;
+
+            // Always work with a shallow copy of options
+            Options = options.Clone();
         }
 
         protected PriceCalculationContext(PriceCalculationContext context)
@@ -34,22 +37,32 @@ namespace Smartstore.Core.Catalog.Pricing
 
             Product = context.Product;
             Quantity = context.Quantity;
+            IsGrossPrice = context.IsGrossPrice;
             Options = context.Options;
             Metadata = context.Metadata;
+            Calculators = context.Calculators;
+            AssociatedProducts = context.AssociatedProducts;
             // [...]
         }
 
-        public IPricable Product { get; init; }
+        public IPricable Product
+        {
+            get => _product;
+            set => _product = value ?? throw new ArgumentNullException(nameof(Store));
+        }
+
         public int Quantity { get; set; } = 1;
         public bool? IsGrossPrice { get; set; }
 
         public PriceCalculationOptions Options { get; init; }
         public Dictionary<string, object> Metadata { get; } = new();
-        
+
+        public ICollection<Product> AssociatedProducts { get; set; }
         public ProductBundleItemData BundleItem { get; set; }
         public decimal? AdditionalCharge { get; set; }
-        public IList<Product> AssociatedProducts { get; set; }
         public IList<object> Attributes { get; set; }
         public IList<object> BundleItems { get; set; }
+
+        public IPriceCalculator[] Calculators { get; set; }
     }
 }

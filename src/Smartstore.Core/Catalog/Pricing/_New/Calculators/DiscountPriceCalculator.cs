@@ -8,7 +8,7 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
-    [CalculatorUsage(CalculatorTargets.Product | CalculatorTargets.CartItem, CalculatorOrdering.Default + 10)]
+    [CalculatorUsage(CalculatorTargets.Product | CalculatorTargets.CartItem, CalculatorOrdering.Late)]
     public class DiscountPriceCalculator : IPriceCalculator
     {
         private readonly SmartDbContext _db;
@@ -38,7 +38,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     }
                 }
             }
-            
+
             await next(context);
         }
 
