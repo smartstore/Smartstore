@@ -5,8 +5,8 @@
 @{
     Assets.AppendTitleParts(T("PageTitle.Manufacturers"));
 
-    var numericList = Model.Where(x => Char.IsNumber(x.Name.Value[0])).OrderBy(x => x.Name);
-    var alphabeticalList = Model.Except(numericList).Where(x => x.Name.HasValue()).OrderBy(x => x.Name);
+    var numericList = Model.Where(x => Char.IsNumber(x.Name.Value[0])).OrderBy(x => x.Name).ToArray();
+    var alphabeticalList = Model.Except(numericList).Where(x => x.Name.HasValue()).OrderBy(x => x.Name).ToArray();
     var sortManufacturersAlphabetically = (bool)ViewBag.SortManufacturersAlphabetically;
 
     async Task RenderManufacturer(BrandModel item)

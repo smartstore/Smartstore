@@ -245,7 +245,7 @@ namespace Smartstore.Web.Controllers
 
         public async Task<ImageModel> PrepareBrandImageModelAsync(Manufacturer brand, string localizedName, IDictionary<int, MediaFileInfo> fileLookup = null)
         {
-            MediaFileInfo file;
+            MediaFileInfo file = null;
 
             if (fileLookup != null)
             {
@@ -253,7 +253,14 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                file = await _mediaService.GetFileByIdAsync(brand.MediaFileId ?? 0, MediaLoadFlags.AsNoTracking);
+                if (brand.MediaFile != null)
+                {
+                    file = _mediaService.ConvertMediaFile(brand.MediaFile);
+                }
+                else if (brand.MediaFileId.HasValue)
+                {
+                    file = await _mediaService.GetFileByIdAsync(brand.MediaFileId.Value, MediaLoadFlags.AsNoTracking);
+                }          
             }
 
             var model = new ImageModel
@@ -492,7 +499,7 @@ namespace Smartstore.Web.Controllers
 
         public async Task<ImageModel> PrepareCategoryImageModelAsync(Category category, string localizedName, IDictionary<int, MediaFileInfo> fileLookup = null)
         {
-            MediaFileInfo file;
+            MediaFileInfo file = null;
 
             if (fileLookup != null)
             {
@@ -500,7 +507,14 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                file = await _mediaService.GetFileByIdAsync(category.MediaFileId ?? 0, MediaLoadFlags.AsNoTracking);
+                if (category.MediaFile != null)
+                {
+                    file = _mediaService.ConvertMediaFile(category.MediaFile);
+                }
+                else if (category.MediaFileId.HasValue)
+                {
+                    file = await _mediaService.GetFileByIdAsync(category.MediaFileId.Value, MediaLoadFlags.AsNoTracking);
+                }
             }
 
             var model = new ImageModel

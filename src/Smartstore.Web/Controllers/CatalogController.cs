@@ -83,7 +83,10 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Category(int categoryId, CatalogSearchQuery query)
         {
-            var category = await _db.Categories.FindByIdAsync(categoryId, false);
+            var category = await _db.Categories
+                .Include(x => x.MediaFile)
+                .FindByIdAsync(categoryId, false);
+
             if (category == null || category.Deleted)
                 return NotFound();
 
@@ -337,27 +340,20 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ManufacturerAll()
         {
             var model = new List<BrandModel>();
-            var manufacturers = await _db.Manufacturers
+            var brands = await _db.Manufacturers
                 .AsNoTracking()
+                .Include(x => x.MediaFile)
                 .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
                 .ToListAsync();
 
-            var fileIds = manufacturers
-                .Select(x => x.MediaFileId ?? 0)
-                .Where(x => x != 0)
-                .Distinct()
-                .ToArray();
-
-            var files = (await Services.MediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
-
-            foreach (var manufacturer in manufacturers)
+            foreach (var brand in brands)
             {
-                var manuModel = await _helper.PrepareBrandModelAsync(manufacturer);
-                manuModel.Image = await _helper.PrepareBrandImageModelAsync(manufacturer, manuModel.Name, files);
+                var manuModel = await _helper.PrepareBrandModelAsync(brand);
+                manuModel.Image = await _helper.PrepareBrandImageModelAsync(brand, manuModel.Name);
                 model.Add(manuModel);
             }
 
-            Services.DisplayControl.AnnounceRange(manufacturers);
+            Services.DisplayControl.AnnounceRange(brands);
 
             ViewBag.SortManufacturersAlphabetically = _catalogSettings.SortManufacturersAlphabetically;
 

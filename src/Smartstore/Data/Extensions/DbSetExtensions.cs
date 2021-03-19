@@ -68,18 +68,22 @@ namespace Smartstore
         ///     return the tracked entity without a database roundtrip.
         /// </summary>
         /// <param name="id">The primary id of the entity.</param>
+        /// <param name="tracked">
+        ///     Whether to put entity to change tracker after it was loaded from database. Note that <c>false</c>
+        ///     has no effect if the entity was in change tracker already (it will NOT be detached).
+        /// </param>
         /// <returns>The entity found, or null.</returns>
         /// <remarks>
         ///     This method is slightly faster than <see cref="DbSet{TEntity}.Find(object[])"/>
         ///     because the key is known.
         /// </remarks>
-        public static TEntity FindById<TEntity, TProperty>(this IIncludableQueryable<TEntity, TProperty> query, int id)
+        public static TEntity FindById<TEntity, TProperty>(this IIncludableQueryable<TEntity, TProperty> query, int id, bool tracked = true)
             where TEntity : BaseEntity
         {
             if (id == 0)
                 return null;
 
-            return FindTracked<TEntity>(query.GetDbContext(), id) ?? query.SingleOrDefault(x => x.Id == id);
+            return FindTracked<TEntity>(query.GetDbContext(), id) ?? query.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
         }
 
         /// <summary>
@@ -125,13 +129,17 @@ namespace Smartstore
         ///     return the tracked entity without a database roundtrip.
         /// </summary>
         /// <param name="id">The primary id of the entity.</param>
+        /// <param name="tracked">
+        ///     Whether to put entity to change tracker after it was loaded from database. Note that <c>false</c>
+        ///     has no effect if the entity was in change tracker already (it will NOT be detached).
+        /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
         /// <remarks>
         ///     This method is slightly faster than <see cref="DbSet{TEntity}.FindAsync(object[], CancellationToken)(object[])"/>
         ///     because the key is known.
         /// </remarks>
-        public static ValueTask<TEntity> FindByIdAsync<TEntity, TProperty>(this IIncludableQueryable<TEntity, TProperty> query, int id, CancellationToken cancellationToken = default)
+        public static ValueTask<TEntity> FindByIdAsync<TEntity, TProperty>(this IIncludableQueryable<TEntity, TProperty> query, int id, bool tracked = true, CancellationToken cancellationToken = default)
             where TEntity : BaseEntity
         {
             if (id == 0)
@@ -141,7 +149,7 @@ namespace Smartstore
             return trackedEntity != null
                 ? new ValueTask<TEntity>(trackedEntity)
                 : new ValueTask<TEntity>(
-                    query.SingleOrDefaultAsync(x => x.Id == id, cancellationToken));
+                    query.ApplyTracking(tracked).SingleOrDefaultAsync(x => x.Id == id, cancellationToken));
         }
 
         [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Perf")]
