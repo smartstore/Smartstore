@@ -17,8 +17,7 @@
         addImageClass += " no-default-picture";
     }
 
-    var artDetailUrl = Url.RouteUrl("Product", new { SeName = Model.SeName });
-    ViewBag.ArtDetailUrl = artDetailUrl;
+    ViewBag.ArtDetailUrl = Model.DetailUrl;
 }
 
 <article class="art" data-id="@Model.Id">
@@ -27,7 +26,7 @@
         @if (image.Title.HasValue())
         {
             var linkTitle = T("Media.Product.ImageLinkTitleFormat", Model.Name);
-            <a class="art-picture img-center-container@(addImageClass)" href="@artDetailUrl" title="@linkTitle" attr-data-content='(!hasImage, T("Common.NoImageAvail"))'>
+            <a class="art-picture img-center-container@(addImageClass)" href="@Model.DetailUrl" title="@linkTitle" attr-data-content='(!hasImage, T("Common.NoImageAvail"))'>
                 <img sm-model="image" loading="lazy" />
             </a>
         }
@@ -79,7 +78,7 @@
     }
 
     <h3 class="art-name" sm-language-attributes-for="@Model.Name">
-        <a href="@artDetailUrl" title="@Model.Name.ToString()">
+        <a href="@Model.DetailUrl" title="@Model.Name.ToString()">
             <span>@Model.Name</span>
         </a>
     </h3>

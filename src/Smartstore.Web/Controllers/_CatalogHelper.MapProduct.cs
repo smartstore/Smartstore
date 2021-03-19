@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Caching.OutputCache;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
@@ -366,12 +367,14 @@ namespace Smartstore.Web.Controllers
             var model = ctx.Model;
             var settings = ctx.MappingSettings;
             var options = ctx.CalculationOptions;
+            var slug = await product.GetActiveSlugAsync();
 
             var item = new ProductSummaryModel.SummaryItem(ctx.Model)
             {
                 Id = product.Id,
                 Name = product.GetLocalized(x => x.Name),
-                SeName = await product.GetActiveSlugAsync()
+                SeName = slug,
+                DetailUrl = _urlHelper.RouteUrl("Product", new { SeName = slug })
             };
 
             if (model.ShowDescription)

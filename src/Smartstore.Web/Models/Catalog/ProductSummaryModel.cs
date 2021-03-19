@@ -106,6 +106,7 @@ namespace Smartstore.Web.Models.Catalog
             public LocalizedValue<string> ShortDescription { get; set; }
             public LocalizedValue<string> FullDescription { get; set; }
             public string SeName { get; set; }
+            public string DetailUrl { get; set; }
             public string Sku { get; set; }
             public string Weight { get; set; }
             public string Dimensions { get; set; }

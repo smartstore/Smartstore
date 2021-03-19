@@ -4,7 +4,6 @@
 
 @{
     var list = Model.Parent;
-    var artDetailUrl = Url.RouteUrl("Product", new { SeName = Model.SeName });
 }
 
 <div class="art-variant-info">
@@ -19,7 +18,7 @@
         <span class="bidi-embed@(list.ViewMode == ProductSummaryViewMode.List ? "" : " d-block")">
             @T(Model.Attributes.Count == 1 ? "Products.PlusOption" : "Products.PlusOptions"):
         </span>
-        <a href="@artDetailUrl" class="font-weight-medium bidi-embed" sm-language-attributes-for="Model.Attributes[0].Name">
+        <a href="@Model.DetailUrl" class="font-weight-medium bidi-embed" sm-language-attributes-for="Model.Attributes[0].Name">
             @string.Join(", ", Model.Attributes.Select(x => x.Name.ToHtmlString())).Truncate(50, "...")
         </a>
     </div>
