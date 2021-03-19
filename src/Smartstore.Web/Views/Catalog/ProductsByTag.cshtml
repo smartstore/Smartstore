@@ -32,9 +32,13 @@
         @{
             // TODO: (mh) (core) how to do this?
             //var langAttrs = Html.LanguageAttributes(Model.TagName);
-            var langAttrs = "";
+            var langAttrs = string.Empty;
+            if (Model.TagName.HasValue() && Model.TagName.BidiOverride && Model.TagName.CurrentLanguage.Rtl)
+            {
+                langAttrs = $" lang=\"{Model.TagName.CurrentLanguage.GetTwoLetterISOLanguageName()}\" dir=\"rtl\"";
+            }
         }
-        <h1 class="h3 d-flex align-items-baseline">@Html.Raw(T("Products.Tags.ProductsTaggedWith", $"<small {langAttrs} class='search-term pl-2'>{Model.TagName}</small>"))</h1>
+        <h1 class="h3 d-flex align-items-baseline">@Html.Raw(T("Products.Tags.ProductsTaggedWith", $"<small{langAttrs} class='search-term pl-2'>{Model.TagName}</small>"))</h1>
 
         @if (Model.SearchResult.TotalHitsCount > 0)
         {

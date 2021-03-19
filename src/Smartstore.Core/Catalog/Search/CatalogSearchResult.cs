@@ -66,7 +66,8 @@ namespace Smartstore.Core.Catalog.Search
         public ISearchEngine Engine { get; init; }
 
         /// <summary>
-        /// Gets product hits.
+        /// Gets the product hits. Once loaded, the result is cached so that
+        /// subsequent calls to this method do not hit the database again.
         /// </summary>
         public async Task<IPagedList<Product>> GetHitsAsync()
         {

@@ -364,12 +364,11 @@ namespace Smartstore.Web.Controllers
 
         #region ProductTags
 
-        // TODO: (mh) (core) [RewriteUrl(SslRequirement.No)] Is this stil necessary?
         // TODO: (mh) (core) What about this original RouteValue > productTagId = idConstraint?
-        [LocalizedRoute("/producttag/{productTagId}/{*path}", Name = "ProductsByTag")]
+        [LocalizedRoute("/producttag/{productTagId:int}/{*path}", Name = "ProductsByTag")]
         public async Task<IActionResult> ProductsByTag(int productTagId, CatalogSearchQuery query)
         {
-            var productTag = await _db.ProductTags.FindByIdAsync(productTagId);
+            var productTag = await _db.ProductTags.FindByIdAsync(productTagId, false);
             if (productTag == null)
             {
                 return NotFound();
@@ -388,10 +387,10 @@ namespace Smartstore.Web.Controllers
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {
-                model.CanonicalUrl = _urlHelper.Value.RouteUrl("ProductsByTag", new { productTagId = productTagId, path = model.TagName }, Request.Scheme);
+                model.CanonicalUrl = _urlHelper.Value.RouteUrl("ProductsByTag", new { productTagId, path = model.TagName }, Request.Scheme);
             }
 
-            query.WithProductTagIds(new int[] { productTagId });
+            query.WithProductTagIds(productTagId);
 
             var searchResult = await _catalogSearchService.SearchAsync(query);
             model.SearchResult = searchResult;
