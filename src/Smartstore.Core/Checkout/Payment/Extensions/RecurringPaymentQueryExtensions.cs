@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 
-namespace Smartstore
+namespace Smartstore.Core.Checkout.Payment
 {
     public static partial class RecurringPaymentQueryExtensions
     {

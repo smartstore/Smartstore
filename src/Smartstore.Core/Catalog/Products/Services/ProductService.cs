@@ -330,8 +330,8 @@ namespace Smartstore.Core.Catalog.Products
                         product.DisableWishlistButton = newDisableWishlistButton;
                         product.Published = newPublished;
 
-                        // Commit required because of store owner notification.
-                        await _db.SaveChangesAsync();
+                        // SaveChanges is not necessary because SendQuantityBelowStoreOwnerNotificationAsync
+                        // does not reload anything that has been changed in the meantime.
 
                         if (decrease && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
                         {
@@ -380,8 +380,6 @@ namespace Smartstore.Core.Catalog.Products
                     }
                 }
             }
-
-            await _db.SaveChangesAsync();
 
             return result;
         }

@@ -1,8 +1,7 @@
 ﻿using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Identity;
 
-namespace Smartstore
+namespace Smartstore.Core.Checkout.Payment
 {
     public static partial class RecurringPaymentExtensions
     {

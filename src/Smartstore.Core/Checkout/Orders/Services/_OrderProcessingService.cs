@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Dasync.Collections;
+using Microsoft.AspNetCore.Mvc.Razor.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -18,8 +19,10 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Messages;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
@@ -38,15 +41,21 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IPaymentService _paymentService;
         private readonly IProductService _productService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+        private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ITaxService _taxService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly IMessageFactory _messageFactory;
+        private readonly IShippingService _shippingService;
+        private readonly IGiftCardService _giftCardService;
+        private readonly INewsletterSubscriptionService _newsletterSubscriptionService;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly IEncryptor _encryptor;
+        private readonly IMessageFactory _messageFactory;
         private readonly IEventPublisher _eventPublisher;
+        private readonly IActivityLogger _activityLogger;
         private readonly RewardPointsSettings _rewardPointsSettings;
+        private readonly CatalogSettings _catalogSettings;
         private readonly OrderSettings _orderSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly LocalizationSettings _localizationSettings;
@@ -63,15 +72,21 @@ namespace Smartstore.Core.Checkout.Orders
             IPaymentService paymentService,
             IProductService productService,
             IProductAttributeMaterializer productAttributeMaterializer,
+            IProductAttributeFormatter productAttributeFormatter,
             IOrderCalculationService orderCalculationService,
             ITaxService taxService,
             IShoppingCartService shoppingCartService,
             IShoppingCartValidator shoppingCartValidator,
-            IMessageFactory messageFactory,
+            IShippingService shippingService,
+            IGiftCardService giftCardService,
+            INewsletterSubscriptionService newsletterSubscriptionService,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
             IEncryptor encryptor,
+            IMessageFactory messageFactory,
             IEventPublisher eventPublisher,
+            IActivityLogger activityLogger,
             RewardPointsSettings rewardPointsSettings,
+            CatalogSettings catalogSettings,
             OrderSettings orderSettings,
             ShoppingCartSettings shoppingCartSettings,
             LocalizationSettings localizationSettings,
@@ -85,15 +100,21 @@ namespace Smartstore.Core.Checkout.Orders
             _paymentService = paymentService;
             _productService = productService;
             _productAttributeMaterializer = productAttributeMaterializer;
+            _productAttributeFormatter = productAttributeFormatter;
             _orderCalculationService = orderCalculationService;
             _taxService = taxService;
             _shoppingCartService = shoppingCartService;
             _shoppingCartValidator = shoppingCartValidator;
-            _messageFactory = messageFactory;
+            _shippingService = shippingService;
+            _giftCardService = giftCardService;
+            _newsletterSubscriptionService = newsletterSubscriptionService;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
             _encryptor = encryptor;
+            _messageFactory = messageFactory;
             _eventPublisher = eventPublisher;
+            _activityLogger = activityLogger;
             _rewardPointsSettings = rewardPointsSettings;
+            _catalogSettings = catalogSettings;
             _orderSettings = orderSettings;
             _shoppingCartSettings = shoppingCartSettings;
             _localizationSettings = localizationSettings;
@@ -106,22 +127,11 @@ namespace Smartstore.Core.Checkout.Orders
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public virtual bool CanCancelOrder(Order order)
-        {
-            // TODO: (mg) (core) Make extension method for Order.
-            Guard.NotNull(order, nameof(order));
-
-            if (order.OrderStatus == OrderStatus.Cancelled)
-                return false;
-
-            return true;
-        }
-
         public virtual async Task CancelOrderAsync(Order order, bool notifyCustomer)
         {
             Guard.NotNull(order, nameof(order));
 
-            if (!CanCancelOrder(order))
+            if (!order.CanCancelOrder())
             {
                 throw new SmartException(T("Order.CannotCancel"));
             }
@@ -149,17 +159,9 @@ namespace Smartstore.Core.Checkout.Orders
             await _db.SaveChangesAsync();
         }
 
-        public virtual bool CanCompleteOrder(Order order)
-        {
-            // TODO: (mg) (core) Make extension method for Order.
-            Guard.NotNull(order, nameof(order));
-
-            return order.OrderStatus != OrderStatus.Complete && order.OrderStatus != OrderStatus.Cancelled;
-        }
-
         public virtual async Task CompleteOrderAsync(Order order)
         {
-            if (!CanCompleteOrder(order))
+            if (!order.CanCompleteOrder())
             {
                 throw new SmartException(T("Order.CannotMarkCompleted"));
             }
@@ -546,8 +548,6 @@ namespace Smartstore.Core.Checkout.Orders
             if (context.AdjustInventory && context.QuantityDelta != 0)
             {
                 context.Inventory = await _productService.AdjustInventoryAsync(oi, context.QuantityDelta > 0, Math.Abs(context.QuantityDelta));
-
-                await _db.SaveChangesAsync();
             }
 
             if (context.UpdateRewardPoints && context.QuantityDelta < 0)
@@ -558,10 +558,10 @@ namespace Smartstore.Core.Checkout.Orders
                 decimal reduceAmount = Math.Abs(context.QuantityDelta) * oi.UnitPriceInclTax;
                 ApplyRewardPoints(oi.Order, true, reduceAmount);
 
-                await _db.SaveChangesAsync();
-
                 context.RewardPointsNew = oi.Order.Customer.GetRewardPointsBalance();
             }
+
+            await _db.SaveChangesAsync();
         }
 
         #region Utilities

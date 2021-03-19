@@ -14,7 +14,35 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string GetOrderNumber(this Order order)
         {
+            Guard.NotNull(order, nameof(order));
+
             return order.OrderNumber.IsEmpty() ? order.Id.ToString() : order.OrderNumber;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether an order can be marked as completed.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order can be marked as completed.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool CanCompleteOrder(this Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            return order.OrderStatus != OrderStatus.Complete && order.OrderStatus != OrderStatus.Cancelled;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether an order can be cancelled.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order can be cancelled.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool CanCancelOrder(this Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            return order.OrderStatus != OrderStatus.Cancelled;
         }
 
         /// <summary>

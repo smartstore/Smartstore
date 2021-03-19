@@ -96,7 +96,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             return localizationService.GetResource("Admin.Orders.OrderItem.Update.Info")
-                .FormatWith(stockOld.NaIfEmpty(), stockNew.NaIfEmpty(), RewardPointsOld, RewardPointsNew);
+                .FormatInvariant(stockOld.NaIfEmpty(), stockNew.NaIfEmpty(), RewardPointsOld, RewardPointsNew);
         }
     }
 }

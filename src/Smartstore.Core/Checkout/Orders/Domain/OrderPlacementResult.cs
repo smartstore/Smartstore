@@ -1,25 +1,27 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
-    /// Represents a PlaceOrderResult
+    /// Represents the result of an order placement.
     /// </summary>
-    public partial class PlaceOrderResult
+    public partial class OrderPlacementResult
     {
         /// <summary>
-        /// Gets or sets the placed order
+        /// Gets or sets the placed order.
         /// </summary>
         public Order PlacedOrder { get; set; }
 
         /// <summary>
-        /// Gets or sets the list of errors
+        /// Gets or sets a list of errors.
         /// </summary>
         public List<string> Errors { get; set; } = new();
 
         /// <summary>
-        /// Returns true if <see cref="Errors"/> does not contain any elements
+        /// <c>true</c> if <see cref="Errors"/> does not contain any elements.
         /// </summary>
-        public bool Success => Errors.Count == 0;
+        public bool Success
+            => !Errors.Any();
     }
 }

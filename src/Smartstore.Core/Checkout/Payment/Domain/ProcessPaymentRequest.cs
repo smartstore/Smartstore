@@ -45,10 +45,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         public bool IsMultiOrder { get; set; }
 
-        /// <summary>
-        /// Use that dictionary for any payment method or checkout flow specific data.
-        /// </summary>
-        public Dictionary<string, CustomPaymentRequestValue> CustomProperties { get; set; } = new();
+        // Obsolete! Use CheckoutState instead. (Was only used by Payone plugin in the early days anyway.)
+        /// <summary>Use that dictionary for any payment method or checkout flow specific data.</summary>
+        //public Dictionary<string, CustomPaymentRequestValue> CustomProperties { get; set; } = new();
 
         /// <summary>
         /// All shopping cart item identifiers.

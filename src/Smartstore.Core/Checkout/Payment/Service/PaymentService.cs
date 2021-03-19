@@ -20,7 +20,7 @@ using StackExchange.Profiling.Internal;
 
 namespace Smartstore.Core.Checkout.Payment
 {
-    // TODO: (ms) (core) Porting of CapturePaymentHook.
+    // TODO: (mg) (core) Add porting of CapturePaymentHook.
     public partial class PaymentService : IPaymentService
     {
         private const string PAYMENT_METHODS_ALL_KEY = "paymentmethod.all-{0}-";
@@ -58,12 +58,6 @@ namespace Smartstore.Core.Checkout.Payment
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public DbQuerySettings QuerySettings { get; set; } = DbQuerySettings.Default;
-
-        public virtual async Task<bool> IsPaymentMethodActiveAsync(string systemName, int storeId = 0)
-        {
-            var method = await LoadPaymentMethodBySystemNameAsync(systemName, true, storeId);
-            return method != null;
-        }
 
         public virtual async Task<bool> IsPaymentMethodActiveAsync(
             string systemName,
@@ -142,10 +136,7 @@ namespace Smartstore.Core.Checkout.Payment
                 var fallbackMethod = allProviders.FirstOrDefault(x => x.IsPaymentMethodActive(_paymentSettings));
                 if (fallbackMethod == null)
                 {
-                    // TODO: Plugin descriptor is missing
-
-                    //fallbackMethod = allProviders.FirstOrDefault(x => x.Metadata?.PluginDescriptor?.SystemName?.IsCaseInsensitiveEqual("SmartStore.OfflinePayment") ?? false)
-                    //    ?? allProviders.FirstOrDefault();
+                    fallbackMethod = allProviders.FirstOrDefault(x => x.Metadata?.ModuleDescriptor?.SystemName?.EqualsNoCase("SmartStore.OfflinePayment") ?? false) ?? allProviders.FirstOrDefault();
                 }
 
                 if (fallbackMethod != null)
@@ -294,16 +285,6 @@ namespace Smartstore.Core.Checkout.Payment
             return await paymentMethod.Value.CanRePostProcessPaymentAsync(order);
         }
 
-        public virtual async Task<bool> SupportCaptureAsync(string paymentMethodSystemName)
-        {
-            // TODO: (mg) (core) Remove SupportCaptureAsync from interface and make extension method
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
-            if (paymentMethod == null)
-                return false;
-
-            return paymentMethod.Value.SupportCapture;
-        }
-
         public virtual async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(capturePaymentRequest.Order.PaymentMethodSystemName);
@@ -324,26 +305,6 @@ namespace Smartstore.Core.Checkout.Payment
             {
                 throw;
             }
-        }
-
-        public virtual async Task<bool> SupportPartiallyRefundAsync(string paymentMethodSystemName)
-        {
-            // TODO: (mg) (core) Remove SupportPartiallyRefundAsync from interface and make extension method
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
-            if (paymentMethod == null)
-                return false;
-
-            return paymentMethod.Value.SupportPartiallyRefund;
-        }
-
-        public virtual async Task<bool> SupportRefundAsync(string paymentMethodSystemName)
-        {
-            // TODO: (mg) (core) Remove SupportRefundAsync from interface and make extension method
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
-            if (paymentMethod == null)
-                return false;
-
-            return paymentMethod.Value.SupportRefund;
         }
 
         public virtual async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
@@ -368,16 +329,6 @@ namespace Smartstore.Core.Checkout.Payment
             }
         }
 
-        public virtual async Task<bool> SupportVoidAsync(string paymentMethodSystemName)
-        {
-            // TODO: (mg) (core) Remove SupportVoidAsync from interface and make extension method
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
-            if (paymentMethod == null)
-                return false;
-
-            return paymentMethod.Value.SupportVoid;
-        }
-
         public virtual async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
         {
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(voidPaymentRequest.Order.PaymentMethodSystemName);
@@ -398,15 +349,6 @@ namespace Smartstore.Core.Checkout.Payment
             {
                 throw;
             }
-        }
-
-        public virtual async Task<RecurringPaymentType> GetRecurringPaymentTypeAsync(string paymentMethodSystemName)
-        {
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
-            if (paymentMethod == null)
-                return RecurringPaymentType.NotSupported;
-
-            return paymentMethod.Value.RecurringPaymentType;
         }
 
         public virtual async Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
@@ -464,15 +406,6 @@ namespace Smartstore.Core.Checkout.Payment
             }
         }
 
-        public virtual async Task<PaymentMethodType> GetPaymentMethodTypeAsync(string paymentMethodSystemName)
-        {
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
-            if (paymentMethod == null)
-                return PaymentMethodType.Unknown;
-
-            return paymentMethod.Value.PaymentMethodType;
-        }
-
         public virtual string GetMaskedCreditCardNumber(string creditCardNumber)
         {
             if (creditCardNumber.IsNullOrWhiteSpace())
@@ -490,6 +423,7 @@ namespace Smartstore.Core.Checkout.Payment
             return maskedChars + last4;
         }
 
+        // TODO: (mg) (core) Complete porting of PaymentService.GetAllPaymentMethodFilters.
         protected virtual IList<IPaymentMethodFilter> GetAllPaymentMethodFilters()
         {
             if (_paymentMethodFilterTypes == null)
@@ -502,8 +436,6 @@ namespace Smartstore.Core.Checkout.Payment
                     }
                 }
             }
-
-            // TODO: (ms) (core) ContainerManager is missing
 
             var paymentMethodFilters = _paymentMethodFilterTypes
                 //.Select(x => EngineContext.Current.ContainerManager.ResolveUnregistered(x) as IPaymentMethodFilter)

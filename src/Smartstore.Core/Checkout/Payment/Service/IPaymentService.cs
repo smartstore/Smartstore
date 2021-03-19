@@ -13,14 +13,6 @@ namespace Smartstore.Core.Checkout.Payment
     public partial interface IPaymentService
     {
         /// <summary>
-        /// Checks whether a payment method is active for a shop.
-        /// </summary>
-        /// <param name="systemName">System name of the payment provider.</param>
-        /// <param name="storeId">Filter payment provider by store identifier. 0 to load all.</param>
-        /// <returns><c>True</c> payment method is active, otherwise <c>false</c>.</returns>
-        Task<bool> IsPaymentMethodActiveAsync(string systemName, int storeId = 0);
-
-        /// <summary>
         /// Checks whether a payment method is active, not filtered out and match applied rule sets.
         /// A payment method that meets these requirements appears in the checkout.
         /// </summary>
@@ -104,32 +96,11 @@ namespace Smartstore.Core.Checkout.Payment
         Task<bool> CanRePostProcessPaymentAsync(Order order);
 
         /// <summary>
-        /// Gets a value indicating whether the payment method supports capture.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A value indicating whether capture is supported.</returns>
-        Task<bool> SupportCaptureAsync(string paymentMethodSystemName);
-
-        /// <summary>
         /// Captures payment.
         /// </summary>
         /// <param name="capturePaymentRequest">Capture payment request.</param>
         /// <returns>Capture payment result.</returns>
         Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest);
-
-        /// <summary>
-        /// Gets a value indicating whether partial refund is supported by payment method.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A value indicating whether partial refund is supported.</returns>
-        Task<bool> SupportPartiallyRefundAsync(string paymentMethodSystemName);
-
-        /// <summary>
-        /// Gets a value indicating whether refund is supported by payment method.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A value indicating whether refund is supported.</returns>
-        Task<bool> SupportRefundAsync(string paymentMethodSystemName);
 
         /// <summary>
         /// Refunds a payment.
@@ -139,25 +110,11 @@ namespace Smartstore.Core.Checkout.Payment
         Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest);
 
         /// <summary>
-        /// Gets a value indicating whether void is supported by payment method.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A value indicating whether void is supported.</returns>
-        Task<bool> SupportVoidAsync(string paymentMethodSystemName);
-
-        /// <summary>
         /// Voids a payment.
         /// </summary>
         /// <param name="voidPaymentRequest">Void payment request.</param>
         /// <returns>Void payment result.</returns>
         Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest);
-
-        /// <summary>
-        /// Gets a recurring payment type of payment method.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A recurring payment type of payment method.</returns>
-        Task<RecurringPaymentType> GetRecurringPaymentTypeAsync(string paymentMethodSystemName);
 
         /// <summary>
         /// Process recurring payment.
@@ -172,13 +129,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// <param name="cancelPaymentRequest">Cancel recurring payment request.</param>
         /// <returns>Cancel recurring payment result.</returns>
         Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest);
-
-        /// <summary>
-        /// Gets a payment method type.
-        /// </summary>
-        /// <param name="paymentMethodSystemName">Payment method system name.</param>
-        /// <returns>A payment method type.</returns>
-        Task<PaymentMethodType> GetPaymentMethodTypeAsync(string paymentMethodSystemName);
 
         /// <summary>
         /// Gets masked credit card number.

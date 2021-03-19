@@ -14,25 +14,11 @@ namespace Smartstore.Core.Checkout.Orders
     public partial interface IOrderProcessingService
     {
         /// <summary>
-        /// Gets a value indicating whether an order can be cancelled.
-        /// </summary>
-        /// <param name="order">Order.</param>
-        /// <returns>A value indicating whether an order can be cancelled.</returns>
-        bool CanCancelOrder(Order order);
-
-        /// <summary>
         /// Cancels an order.
         /// </summary>
         /// <param name="order">Order.</param>
         /// <param name="notifyCustomer"><c>true</c> to notify customer.</param>
         Task CancelOrderAsync(Order order, bool notifyCustomer);
-
-        /// <summary>
-        /// Gets a value indicating whether an order can be marked as completed.
-        /// </summary>
-        /// <param name="order">Order.</param>
-        /// <returns>A value indicating whether an order can be marked as completed.</returns>
-        bool CanCompleteOrder(Order order);
 
         /// <summary>
         /// Marks an order as completed.
@@ -100,6 +86,14 @@ namespace Smartstore.Core.Checkout.Orders
         Task AutoUpdateOrderDetailsAsync(AutoUpdateOrderItemContext context);
 
         #region Place order
+
+        /// <summary>
+        /// Places an order.
+        /// </summary>
+        /// <param name="paymentRequest">Payment processing request.</param>
+        /// <param name="extraData">Additional data to be taken into account when placing the order.</param>
+        /// <returns>Order placement result.</returns>
+        Task<OrderPlacementResult> PlaceOrderAsync(ProcessPaymentRequest paymentRequest, Dictionary<string, string> extraData);
 
         /// <summary>
         /// Checks whether an order can be placed.

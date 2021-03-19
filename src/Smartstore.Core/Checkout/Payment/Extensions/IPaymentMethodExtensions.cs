@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Web;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore
+namespace Smartstore.Core.Checkout.Payment
 {
+    // TODO: (mg) (core) Complete IPaymentMethod extensions.
     public static class PaymentExtentions
     {
         /// <summary>
@@ -31,8 +31,6 @@ namespace Smartstore
         {
             Guard.NotNull(method, nameof(method));
 
-            // TODO: (core) (ms) GetConfigurationRoute is missing
-
             //if (method is IConfigurable configurable)
             //{
             //    configurable.GetConfigurationRoute(out var action, out var controller, out var routeValues);
@@ -48,8 +46,6 @@ namespace Smartstore
         public static RouteInfo GetPaymentInfoRoute(this IPaymentMethod method)
         {
             Guard.NotNull(method, nameof(method));
-
-            // TODO: (core) (ms) GetPaymentInfoRoute is missing
 
             //method.GetPaymentInfoRoute(out var action, out var controller, out var routeValues);
             //return action.HasValue() ? new RouteInfo(action, controller, routeValues) : null;

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Crypto.Signers;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
@@ -22,13 +21,13 @@ namespace Smartstore.Core.Checkout.Orders
 {
     public partial class OrderProcessingService : IOrderProcessingService
     {
-        public virtual async Task<PlaceOrderResult> PlaceOrderAsync(ProcessPaymentRequest paymentRequest, Dictionary<string, string> extraData)
+        public virtual async Task<OrderPlacementResult> PlaceOrderAsync(ProcessPaymentRequest paymentRequest, Dictionary<string, string> extraData)
         {
             Guard.NotNull(paymentRequest, nameof(paymentRequest));
 
             extraData ??= new();
 
-            var result = new PlaceOrderResult();
+            var result = new OrderPlacementResult();
 
             try
             {
@@ -75,18 +74,31 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (await ProcessPayment(context))
                 {
-                    await SaveOrder(context);
+                    _db.Orders.Add(context.Order);
+
+                    // Save, we need the primary key.
+                    // Payment has been made. Order MUST be saved immediately!
+                    await _db.SaveChangesAsync();
+
+                    context.Result.PlacedOrder = context.Order;
+
+                    // Also applies data (like discounts) required for saving associated data.
+                    await AddOrderItems(context);
                     await AddAssociatedData(context);
+
+                    // Email messages, order notes etc.
+                    await FinalizeOrderPlacement(context);
 
                     // Saves changes to database.
                     await CheckOrderStatusAsync(context.Order);
 
-                    // Reset checkout data.
-                    if (!paymentRequest.IsRecurringPayment && !paymentRequest.IsMultiOrder)
-                    {
-                        customer.ResetCheckoutData(paymentRequest.StoreId, true, true, true, true, true, true);
-                    }
+                    // Events.
+                    await _eventPublisher.PublishOrderPlacedAsync(context.Order);
 
+                    if (context.Order.PaymentStatus == PaymentStatus.Paid)
+                    {
+                        await _eventPublisher.PublishOrderPaidAsync(context.Order);
+                    }
                 }
             }
             catch (Exception ex)
@@ -696,28 +708,163 @@ namespace Smartstore.Core.Checkout.Orders
             return result.Success;
         }
 
-        private async Task SaveOrder(PlaceOrderContext ctx)
+        private async Task AddOrderItems(PlaceOrderContext ctx)
         {
-            _db.Orders.Add(ctx.Order);
-
-            // Save, we need the primary key.
-            // Payment has been made. Order MUST be saved immediately!
-            await _db.SaveChangesAsync();
-
-            ctx.Result.PlacedOrder = ctx.Order;
-
-            // Save order items.
             if (!ctx.PaymentRequest.IsRecurringPayment)
             {
-                foreach (var item in ctx.Cart)
+                foreach (var cartItem in ctx.Cart)
                 {
-                    await _productAttributeMaterializer.MergeWithCombinationAsync(item.Item.Product, item.Item.AttributeSelection);
+                    var itm = cartItem.Item;
+                    var product = itm.Product;
 
-                    //...
+                    await _productAttributeMaterializer.MergeWithCombinationAsync(product, itm.AttributeSelection);
+
+                    var attributeDescription = await _productAttributeFormatter.FormatAttributesAsync(itm.AttributeSelection, product, ctx.Customer);
+                    var itemWeight = await _shippingService.GetCartItemWeightAsync(cartItem, false);
+                    var displayDeliveryTime =
+                        _shoppingCartSettings.DeliveryTimesInShoppingCart != DeliveryTimesPresentation.None &&
+                        product.DeliveryTimeId.HasValue &&
+                        product.IsShippingEnabled &&
+                        product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
+
+                    //var productCost = _priceCalculationService.GetProductCost(sc.Item.Product, sc.Item.AttributesXml);
+                    var productCost = decimal.Zero;
+
+                    var scUnitPriceExclTax = decimal.Zero;
+
+                    // TODO: (mg) (core) Use price calculation when adding order items.
+                    var orderItem = new OrderItem
+                    {
+                        OrderItemGuid = Guid.NewGuid(),
+                        Order = ctx.Order,
+                        ProductId = itm.ProductId,
+                        //UnitPriceInclTax = scUnitPriceInclTax,
+                        UnitPriceExclTax = scUnitPriceExclTax,
+                        //PriceInclTax = scSubTotalInclTax,
+                        //PriceExclTax = scSubTotalExclTax,
+                        //TaxRate = unitPriceTaxRate,
+                        //DiscountAmountInclTax = discountAmountInclTax,
+                        //DiscountAmountExclTax = discountAmountExclTax,
+                        AttributeDescription = attributeDescription,
+                        RawAttributes = itm.RawAttributes,
+                        Quantity = itm.Quantity,
+                        DownloadCount = 0,
+                        IsDownloadActivated = false,
+                        LicenseDownloadId = 0,
+                        ItemWeight = itemWeight,
+                        ProductCost = productCost,
+                        DeliveryTimeId = product.GetDeliveryTimeIdAccordingToStock(_catalogSettings),
+                        DisplayDeliveryTime = displayDeliveryTime
+                    };
+
+                    if (product.ProductType == ProductType.BundledProduct && cartItem.ChildItems != null)
+                    {
+                        var listBundleData = new List<ProductBundleItemOrderData>();
+
+                        foreach (var childItem in cartItem.ChildItems)
+                        {
+                            //var bundleItemSubTotal = _taxService.GetProductPrice(childItem.Item.Product, _priceCalculationService.GetSubTotal(childItem, true), out taxRate);
+                            var bundleItemSubTotal = decimal.Zero;
+
+                            var attributesInfo = await _productAttributeFormatter.FormatAttributesAsync(
+                                childItem.Item.AttributeSelection, 
+                                childItem.Item.Product, 
+                                ctx.Customer,
+                                includePrices: false,
+                                includeHyperlinks: true);
+
+                            childItem.BundleItemData.ToOrderData(listBundleData, bundleItemSubTotal, childItem.Item.RawAttributes, attributesInfo);
+                        }
+
+                        orderItem.SetBundleData(listBundleData);
+                    }
+
+                    ctx.Order.OrderItems.Add(orderItem);
+
+                    // Gift cards.
+                    if (product.IsGiftCard)
+                    {
+                        var giftCardInfo = itm.AttributeSelection.GiftCardInfo;
+                        if (giftCardInfo != null)
+                        {
+                            _db.GiftCards.AddRange(Enumerable.Repeat(new GiftCard
+                            {
+                                GiftCardType = product.GiftCardType,
+                                PurchasedWithOrderItem = orderItem,
+                                Amount = scUnitPriceExclTax,
+                                IsGiftCardActivated = false,
+                                GiftCardCouponCode = await _giftCardService.GenerateGiftCardCodeAsync(),
+                                RecipientName = giftCardInfo.RecipientName,
+                                RecipientEmail = giftCardInfo.RecipientEmail,
+                                SenderName = giftCardInfo.SenderName,
+                                SenderEmail = giftCardInfo.SenderEmail,
+                                Message = giftCardInfo.Message,
+                                IsRecipientNotified = false,
+                                CreatedOnUtc = ctx.Now
+                            }, itm.Quantity));
+                        }
+                    }
+
+                    await _productService.AdjustInventoryAsync(cartItem, true);
                 }
             }
             else
             {
+                foreach (var oi in ctx.InitialOrder.OrderItems)
+                {
+                    var newOrderItem = new OrderItem
+                    {
+                        OrderItemGuid = Guid.NewGuid(),
+                        Order = ctx.Order,
+                        ProductId = oi.ProductId,
+                        UnitPriceInclTax = oi.UnitPriceInclTax,
+                        UnitPriceExclTax = oi.UnitPriceExclTax,
+                        PriceInclTax = oi.PriceInclTax,
+                        PriceExclTax = oi.PriceExclTax,
+                        TaxRate = oi.TaxRate,
+                        AttributeDescription = oi.AttributeDescription,
+                        RawAttributes = oi.RawAttributes,
+                        Quantity = oi.Quantity,
+                        DiscountAmountInclTax = oi.DiscountAmountInclTax,
+                        DiscountAmountExclTax = oi.DiscountAmountExclTax,
+                        DownloadCount = 0,
+                        IsDownloadActivated = false,
+                        LicenseDownloadId = 0,
+                        ItemWeight = oi.ItemWeight,
+                        BundleData = oi.BundleData,
+                        ProductCost = oi.ProductCost,
+                        DeliveryTimeId = oi.DeliveryTimeId,
+                        DisplayDeliveryTime = oi.DisplayDeliveryTime
+                    };
+
+                    ctx.Order.OrderItems.Add(newOrderItem);
+
+                    // Gift cards.
+                    if (oi.Product.IsGiftCard)
+                    {
+                        var giftCardInfo = oi.AttributeSelection.GiftCardInfo;
+                        if (giftCardInfo != null)
+                        {
+                            _db.GiftCards.AddRange(Enumerable.Repeat(new GiftCard
+                            {
+                                GiftCardType = oi.Product.GiftCardType,
+                                PurchasedWithOrderItem = newOrderItem,
+                                Amount = oi.UnitPriceExclTax,
+                                IsGiftCardActivated = false,
+                                GiftCardCouponCode = await _giftCardService.GenerateGiftCardCodeAsync(),
+                                RecipientName = giftCardInfo.RecipientName,
+                                RecipientEmail = giftCardInfo.RecipientEmail,
+                                SenderName = giftCardInfo.SenderName,
+                                SenderEmail = giftCardInfo.SenderEmail,
+                                Message = giftCardInfo.Message,
+                                IsRecipientNotified = false,
+                                CreatedOnUtc = ctx.Now
+                            }, oi.Quantity));
+                        }
+                    }
+
+                    await _productService.AdjustInventoryAsync(oi, true, oi.Quantity);
+                }
             }
 
             // INFO: CheckOrderStatus performs commit.
@@ -832,7 +979,29 @@ namespace Smartstore.Core.Checkout.Orders
                 _db.RecurringPayments.Add(rp);
             }
 
-            // Notifications and order notes.
+            // Obsolete: use CheckoutState instead.
+            // Add generic attributes automatically for custom payment properties.
+            //var customAttributes = ctx.PaymentRequest.CustomProperties
+            //    .Where(x => x.Key.HasValue() && x.Value.AutoCreateGenericAttribute)
+            //    .Select(x => new GenericAttribute
+            //    {
+            //        EntityId = order.Id,
+            //        KeyGroup = nameof(Order),
+            //        Key = x.Key,
+            //        Value = x.Value.Value.Convert<string>(),
+            //        StoreId = order.StoreId
+            //    })
+            //    .ToList();
+            //_db.GenericAttributes.AddRange(customAttributes);
+
+            // INFO: CheckOrderStatus performs commit.
+        }
+
+        private async Task FinalizeOrderPlacement(PlaceOrderContext ctx)
+        {
+            var order = ctx.Order;
+
+            // Messages and order notes.
             order.AddOrderNote(T("Admin.OrderNotice.OrderPlaced"));
 
             var msg = await _messageFactory.SendOrderPlacedStoreOwnerNotificationAsync(order, _localizationSettings.DefaultAdminLanguageId);
@@ -847,28 +1016,41 @@ namespace Smartstore.Core.Checkout.Orders
                 order.AddOrderNote(T("Admin.OrderNotice.CustomerEmailQueued", msg.Email.Id));
             }
 
-            // Check for generic attributes to be inserted automatically.
-            var customAttributes = ctx.PaymentRequest.CustomProperties
-                .Where(x => x.Key.HasValue() && x.Value.AutoCreateGenericAttribute)
-                .Select(x => new GenericAttribute
+            // Newsletter subscription.
+            if (_shoppingCartSettings.NewsLetterSubscription != CheckoutNewsLetterSubscription.None && ctx.ExtraData.TryGetValue("SubscribeToNewsLetter", out var addSubscription))
+            {
+                var subscriptionResult = await _newsletterSubscriptionService.ApplySubscriptionAsync(addSubscription.ToBool(), ctx.Customer.Email, order.StoreId);
+                if (subscriptionResult.HasValue)
                 {
-                    EntityId = order.Id,
-                    KeyGroup = nameof(Order),
-                    Key = x.Key,
-                    Value = x.Value.Value.Convert<string>(),
-                    StoreId = order.StoreId
-                })
-                .ToList();
+                    order.AddOrderNote(T(subscriptionResult.Value ? "Admin.OrderNotice.NewsLetterSubscriptionAdded" : "Admin.OrderNotice.NewsLetterSubscriptionRemoved"));
+                }
+            }
 
-            _db.GenericAttributes.AddRange(customAttributes);
+            // Log activity.
+            if (!ctx.PaymentRequest.IsRecurringPayment)
+            {
+                _activityLogger.LogActivity("PublicStore.PlaceOrder", T("ActivityLog.PublicStore.PlaceOrder"), order.GetOrderNumber());
+            }
 
-            // INFO: CheckOrderStatus performs commit.
+            // Reset checkout data.
+            if (!ctx.PaymentRequest.IsRecurringPayment && !ctx.PaymentRequest.IsMultiOrder)
+            {
+                ctx.Customer.ResetCheckoutData(ctx.PaymentRequest.StoreId, true, true, true, true, true, true);
+            }
+
+            // Clear shopping cart.
+            if (!ctx.PaymentRequest.IsRecurringPayment && !ctx.PaymentRequest.IsMultiOrder)
+            {
+                await _shoppingCartService.DeleteCartItemsAsync(ctx.Cart.Select(x => x.Item), false);
+            }
+
+            // INFO: DeleteCartItemsAsync and CheckOrderStatus perform commits.
         }
 
         class PlaceOrderContext
         {
             public DateTime Now { get; } = DateTime.UtcNow;
-            public PlaceOrderResult Result { get; init; }
+            public OrderPlacementResult Result { get; init; }
             public Order Order { get; } = new();
             public Order InitialOrder { get; init; }
             public Customer Customer { get; init; }

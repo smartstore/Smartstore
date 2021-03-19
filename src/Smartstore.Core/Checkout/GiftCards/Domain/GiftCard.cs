@@ -122,7 +122,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         public OrderItem PurchasedWithOrderItem
         {
             get => _lazyLoader?.Load(this, ref _purchasedWithOrderItem) ?? _purchasedWithOrderItem;
-            protected set => _purchasedWithOrderItem = value;
+            set => _purchasedWithOrderItem = value;
         }
     }
 }
