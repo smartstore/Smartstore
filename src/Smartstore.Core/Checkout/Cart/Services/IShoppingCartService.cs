@@ -10,8 +10,20 @@ namespace Smartstore.Core.Checkout.Cart
     public interface IShoppingCartService
     {
         /// <summary>
-        /// Adds an item to the cart and updates database async.
+        /// Adds <see cref="AddToCartContext.Item"/> as well as all <see cref="AddToCartContext.ChildItems"/> to customers shopping cart 
+        /// and automatically updates database async.
         /// </summary>
+        /// <param name="ctx">Context info about the items to be added to the cart.</param>
+        Task AddItemToCartAsync(AddToCartContext ctx);
+
+        /// <summary>
+        /// Adds or creates cart items from <see cref="AddToCartContext.Product"/> to the customers shopping cart and automatically. 
+        /// Updates the database async as long as the item is not a bundle or it is a bundle and <see cref="AddToCartContext.AutomaticallyAddBundleProductsIfEnabled"/> is true.
+        /// </summary>
+        /// <remarks>
+        /// If you manually assign <see cref="AddToCartContext"/> with bundle items, then use <see cref="AddItemToCartAsync(AddToCartContext)"/> 
+        /// afterwards to commit items to the database.
+        /// </remarks>
         /// <param name="ctx">Context info about the product to be added to the cart.</param>
         /// <returns><c>True</c> if the item was successfully added to the cart; otherwise <c>false</c></returns>
         Task<bool> AddToCartAsync(AddToCartContext ctx);

@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
+using Smartstore.Collections;
 using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Common;
@@ -93,7 +97,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 return base.ConvertFrom(culture, value);
             }
-            
+
             object result = null;
             string str = value as string;
 
@@ -104,6 +108,18 @@ namespace Smartstore.Core.Catalog.Products
                     using var reader = new StringReader(str);
                     var serializer = new XmlSerializer(_forList ? typeof(List<ProductBundleItemOrderData>) : typeof(ProductBundleItemOrderData));
                     result = serializer.Deserialize(reader);
+
+                    var productBundleOrderItemData = result as List<ProductBundleItemOrderData>;
+
+                    var elements = XElement.Parse(str)
+                        .Elements().Elements()
+                        .Where(x => x.Name.LocalName == "AttributesXml")
+                        .ToList();
+
+                    for (var i = 0; i < elements.Count; i++)
+                    {
+                        productBundleOrderItemData[i].RawAttributes = elements[i].Value;
+                    }
                 }
                 catch
                 {

@@ -219,7 +219,7 @@ namespace Smartstore.Core.Checkout.Orders
             foreach (var orderItem in order.OrderItems)
             {
                 var isBundle = orderItem.Product.ProductType == ProductType.BundledProduct;
-                
+
                 var addToCartContext = new AddToCartContext
                 {
                     Customer = order.Customer,
@@ -229,7 +229,6 @@ namespace Smartstore.Core.Checkout.Orders
                     RawAttributes = orderItem.RawAttributes,
                     CustomerEnteredPrice = new(isBundle ? decimal.Zero : orderItem.UnitPriceExclTax, _primaryCurrency),
                     Quantity = orderItem.Quantity,
-                    AutomaticallyAddRequiredProductsIfEnabled = false
                 };
 
                 var valid = await _shoppingCartService.AddToCartAsync(addToCartContext);
@@ -240,8 +239,8 @@ namespace Smartstore.Core.Checkout.Orders
                     var bundleItemIds = bundleData.Select(x => x.BundleItemId).Distinct().ToArray();
 
                     var bundleItems = await _db.ProductBundleItem
-                        .AsNoTracking()
                         .Include(x => x.Product)
+                        .Include(x => x.BundleProduct)
                         .Where(x => bundleItemIds.Contains(x.Id))
                         .ToListAsync();
 
@@ -251,22 +250,31 @@ namespace Smartstore.Core.Checkout.Orders
                     {
                         bundleItemsDic.TryGetValue(itemData.BundleItemId, out var bundleItem);
 
-                        // TODO: (mg) (core) Add data of bundle items for re-ordering, as soon as ShoppingCartService allows it.
-                        //var itemContext = new AddToCartContext
-                        //{
-                        //    Customer = order.Customer,
-                        //    Product = bundleItem.Product,
-                        //    BundleItem = bundleItem,
-                        //    CartType = ShoppingCartType.ShoppingCart,
-                        //    StoreId = order.StoreId,
-                        //    RawAttributes = itemData.RawAttributes,
-                        //    CustomerEnteredPrice = new(_primaryCurrency),
-                        //    Quantity = itemData.Quantity,
-                        //    AutomaticallyAddRequiredProductsIfEnabled = false
-                        //};
+                        var itemContext = new AddToCartContext
+                        {
+                            Item = addToCartContext.Item,
+                            ChildItems = addToCartContext.ChildItems,
+                            Customer = order.Customer,
+                            Product = bundleItem.Product,
+                            BundleItem = bundleItem,
+                            CartType = ShoppingCartType.ShoppingCart,
+                            StoreId = order.StoreId,
+                            RawAttributes = itemData.RawAttributes,
+                            CustomerEnteredPrice = new(_primaryCurrency),
+                            Quantity = itemData.Quantity,
+                        };
 
-                        //await _shoppingCartService.AddToCartAsync(itemContext);
+                        if(!await _shoppingCartService.AddToCartAsync(itemContext))
+                        {
+                            valid = false;
+                            break;
+                        }
                     }
+                }
+
+                if (valid)
+                {
+                    await _shoppingCartService.AddItemToCartAsync(addToCartContext);
                 }
             }
         }
@@ -340,7 +348,7 @@ namespace Smartstore.Core.Checkout.Orders
         public virtual bool IsReturnRequestAllowed(Order order)
         {
             if (!_orderSettings.ReturnRequestsEnabled ||
-                order == null || 
+                order == null ||
                 order.Deleted ||
                 order.OrderStatus != OrderStatus.Complete)
             {
@@ -755,7 +763,7 @@ namespace Smartstore.Core.Checkout.Orders
                 order.PaidDateUtc = DateTime.UtcNow;
             }
 
-            if (order.OrderStatus == OrderStatus.Pending && 
+            if (order.OrderStatus == OrderStatus.Pending &&
                 (order.PaymentStatus == PaymentStatus.Authorized || order.PaymentStatus == PaymentStatus.Paid))
             {
                 await SetOrderStatusAsync(order, OrderStatus.Processing, false);
@@ -767,7 +775,7 @@ namespace Smartstore.Core.Checkout.Orders
                 await SetOrderStatusAsync(order, OrderStatus.Processing, false);
             }
 
-            if (order.OrderStatus != OrderStatus.Cancelled && 
+            if (order.OrderStatus != OrderStatus.Cancelled &&
                 order.OrderStatus != OrderStatus.Complete &&
                 order.PaymentStatus == PaymentStatus.Paid &&
                 (order.ShippingStatus == ShippingStatus.ShippingNotRequired || order.ShippingStatus == ShippingStatus.Delivered))

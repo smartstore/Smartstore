@@ -182,7 +182,7 @@ namespace Smartstore.Core.Checkout.Orders
                         ChildItems = item.ChildItems.Select(x => x.Item).ToList()
                     };
 
-                    if (!await _shoppingCartValidator.ValidateAddToCartItemAsync(ctx, cart))
+                    if (!await _shoppingCartValidator.ValidateAddToCartItemAsync(ctx, item.Item, cart))
                     {
                         warnings.AddRange(ctx.Warnings);
                         return (warnings, cart);
@@ -475,7 +475,7 @@ namespace Smartstore.Core.Checkout.Orders
                 order.OrderSubTotalDiscountInclTax = subTotalInclTax.DiscountAmount.Amount;
                 order.OrderSubTotalDiscountExclTax = subTotalExclTax.DiscountAmount.Amount;
 
-                ctx.AddDiscount(subTotalInclTax.AppliedDiscount);               
+                ctx.AddDiscount(subTotalInclTax.AppliedDiscount);
 
                 // Shipping total.
                 var shippingTotalInclTax = await _orderCalculationService.GetShoppingCartShippingTotalAsync(ctx.Cart, true);
@@ -485,7 +485,7 @@ namespace Smartstore.Core.Checkout.Orders
                 order.OrderShippingExclTax = shippingTotalExclTax.ShippingTotal?.Amount ?? decimal.Zero;
                 order.OrderShippingTaxRate = shippingTotalInclTax.TaxRate;
 
-                ctx.AddDiscount(shippingTotalInclTax.AppliedDiscount);              
+                ctx.AddDiscount(shippingTotalInclTax.AppliedDiscount);
 
                 // Payment total.
                 var paymentFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(ctx.Cart, ctx.PaymentRequest.PaymentMethodSystemName);
@@ -945,8 +945,8 @@ namespace Smartstore.Core.Checkout.Orders
 
                 ctx.Customer.AddRewardPointsHistoryEntry(
                     -ctx.CartTotal.RedeemedRewardPoints,
-                    str.FormatInvariant(order.GetOrderNumber()), 
-                    order, 
+                    str.FormatInvariant(order.GetOrderNumber()),
+                    order,
                     ctx.CartTotal.RedeemedRewardPointsAmount.Amount);
             }
 

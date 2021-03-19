@@ -83,6 +83,7 @@ namespace Smartstore.Core.Catalog.Attributes
             {
                 var query = _db.ProductVariantAttributes
                     .AsNoTracking()
+                    .Include(x => x.Product)
                     .Include(x => x.ProductAttribute)
                     .Include(x => x.ProductVariantAttributeValues)
                     .Where(x => ids.Contains(x.Id))

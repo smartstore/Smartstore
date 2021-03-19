@@ -26,7 +26,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="bundleItems"><see cref="ProductBundleItem"/> collection to validate.</param>
         /// <param name="warnings">List of errors as string.</param>
         /// <returns><c>True</c> when all bundle items are valid, otherwise <c>false</c>.</returns>
-        bool ValidateBundleItems(IEnumerable<ProductBundleItem> bundleItems, IList<string> warnings);
+        bool ValidateBundleItem(ProductBundleItem bundleItems, IList<string> warnings);
 
         /// <summary>
         /// Validates shopping cart for products not found (null), recurring and standard product mix-ups as well as checkout attributes.
@@ -44,7 +44,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="ctx">Context object containing all the information about the item and context for adding it to the shopping cart.</param>
         /// <param name="cartItems">Shopping cart items of customer to validate.</param>
         /// <returns><c>True</c> when no error occured, otherwise <c>false</c>.</returns>
-        Task<bool> ValidateAddToCartItemAsync(AddToCartContext ctx, IEnumerable<OrganizedShoppingCartItem> cartItems);
+        Task<bool> ValidateAddToCartItemAsync(AddToCartContext ctx, ShoppingCartItem cartItem, IEnumerable<OrganizedShoppingCartItem> cartItems);
 
         /// <summary>
         /// Validates shopping cart for maximum number of cart/wish list items.
