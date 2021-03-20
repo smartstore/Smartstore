@@ -5,6 +5,8 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -102,5 +104,21 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="productId1">First product identifier.</param>
         /// <returns>Number of cross sell products added.</returns>
         Task<int> EnsureMutuallyCrossSellProductsAsync(int productId1);
+
+        /// <summary>
+        /// Creates a product batch context for fast retrieval (eager loading) of product navigation properties.
+        /// </summary>
+        /// <param name="products">Products. <c>null</c> to lazy load data if required.</param>
+        /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
+        /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
+        /// <param name="includeHidden">A value indicating whether to include hidden records.</param>
+        /// <param name="maxMediaPerProduct">Media files per product, <c>null</c> to load all files per product.</param>
+        /// <returns>Product batch context</returns>
+        ProductBatchContext CreateProductBatchContext(
+            IEnumerable<Product> products = null,
+            Store store = null,
+            Customer customer = null,
+            bool includeHidden = true,
+            int? maxMediaPerProduct = null);
     }
 }

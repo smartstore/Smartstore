@@ -53,20 +53,5 @@ namespace Smartstore.Core.DataExchange.Export
             _currencyService = currencyService;
             _catalogSettings = catalogSettings;
         }
-
-        public virtual ProductBatchContext CreateProductBatchContext(
-            IEnumerable<Product> products = null,
-            Customer customer = null,
-            Store store = null,
-            int? maxMediaPerProduct = null,
-            bool includeHidden = true)
-        {
-            return new ProductBatchContext(
-                products,
-                _services,
-                store ?? _storeContext.CurrentStore,
-                customer ?? _workContext.CurrentCustomer,
-                includeHidden);
-        }
     }
 }

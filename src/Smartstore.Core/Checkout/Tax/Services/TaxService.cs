@@ -61,7 +61,7 @@ namespace Smartstore.Core.Checkout.Tax
         public virtual string FormatTaxRate(decimal taxRate)
             => taxRate.ToString("G29");
 
-        public virtual async Task<TaxRate> GetTaxRateAsync(IPricable product, int? taxCategoryId = null, Customer customer = null)
+        public virtual async Task<TaxRate> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null)
         {
             taxCategoryId ??= product?.TaxCategoryId ?? 0;
             customer ??= _workContext.CurrentCustomer;
@@ -76,7 +76,7 @@ namespace Smartstore.Core.Checkout.Tax
             return result;
         }
 
-        protected virtual async Task<TaxRate> GetTaxRateCore(IPricable product, int taxCategoryId, Customer customer)
+        protected virtual async Task<TaxRate> GetTaxRateCore(Product product, int taxCategoryId, Customer customer)
         {
             var activeTaxProvider = LoadActiveTaxProvider();
             if (activeTaxProvider == null || await IsTaxExemptAsync(product, customer))
@@ -227,7 +227,7 @@ namespace Smartstore.Core.Checkout.Tax
             //}
         }
 
-        public virtual async Task<bool> IsTaxExemptAsync(IPricable product, Customer customer)
+        public virtual async Task<bool> IsTaxExemptAsync(Product product, Customer customer)
         {
             if (customer != null)
             {
@@ -282,7 +282,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="taxCategoryId">Tax category identifier.</param>
         /// <param name="product">Product. Gets id or 0 if <c>null</c>.</param>
         /// <returns><see cref="TaxRateCacheKey"/> as tuple of <see cref="Tuple{int, int, int}"/>.</returns>
-        private static TaxRateCacheKey CreateTaxRateCacheKey(Customer customer, int taxCategoryId, IPricable product)
+        private static TaxRateCacheKey CreateTaxRateCacheKey(Customer customer, int taxCategoryId, Product product)
             => new(customer?.Id ?? 0, taxCategoryId, product?.Id ?? 0);
 
         /// <summary>
@@ -395,7 +395,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <returns>
         /// Customer's tax address.
         /// </returns>
-        protected virtual async Task<Address> GetTaxAddressAsync(Customer customer, IPricable product = null)
+        protected virtual async Task<Address> GetTaxAddressAsync(Customer customer, Product product = null)
         {
             Guard.NotNull(customer, nameof(customer));
 

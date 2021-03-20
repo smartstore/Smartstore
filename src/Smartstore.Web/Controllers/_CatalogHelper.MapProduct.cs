@@ -197,7 +197,7 @@ namespace Smartstore.Web.Controllers
                 using var scope = new DbContextScope(_db, retainConnection: true, deferCommit: true);
 
                 // PERF!!
-                var calculationOptions = _priceCalculationService.CreateDefaultOptions();
+                var calculationOptions = _priceCalculationService.CreateDefaultOptions(true);
                 var language = calculationOptions.Language;
                 var customer = calculationOptions.Customer;
                 var allowPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
@@ -210,7 +210,7 @@ namespace Smartstore.Web.Controllers
 
                 //var productIds = products.Select(x => x.Id).ToArray();
 
-                string taxInfo = T(calculationOptions.GrossPrices ? "Tax.InclVAT" : "Tax.ExclVAT");
+                string taxInfo = T(calculationOptions.TaxInclusive ? "Tax.InclVAT" : "Tax.ExclVAT");
                 var legalInfo = string.Empty;
 
                 var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
@@ -243,7 +243,7 @@ namespace Smartstore.Web.Controllers
                 }
 
                 // Run in uncommitting scope, because pictures could be updated (IsNew property) 
-                var batchContext = _dataExporter.Value.CreateProductBatchContext(products, customer, null, 1, false);
+                var batchContext = _productService.CreateProductBatchContext(products, calculationOptions.Store, customer, false, 1);
 
                 if (settings.MapPrices)
                 {
@@ -317,7 +317,7 @@ namespace Smartstore.Web.Controllers
                     AllowPrices = allowPrices,
                     AllowShoppingCart = allowShoppingCart,
                     AllowWishlist = allowWishlist,
-                    ShippingChargeTaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: calculationOptions.GrossPrices, target: PricingTarget.ShippingCharge, language: language),
+                    ShippingChargeTaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: calculationOptions.TaxInclusive, target: PricingTarget.ShippingCharge, language: language),
                 };
 
                 if (settings.MapPictures)
@@ -647,9 +647,9 @@ namespace Smartstore.Web.Controllers
                         .ThenBy(x => x.DisplayOrder);
 
                     ctx.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
-                    ctx.AssociatedProductBatchContext = _dataExporter.Value.CreateProductBatchContext(allAssociatedProducts, options.Customer, null, null, false);
+                    ctx.AssociatedProductBatchContext = _productService.CreateProductBatchContext(allAssociatedProducts, options.Store, options.Customer, false, null);
 
-                    options.AssociatedProductsBatchContext = ctx.AssociatedProductBatchContext;
+                    options.ChildProductsBatchContext = ctx.AssociatedProductBatchContext;
                 }
 
                 associatedProducts = ctx.GroupedProducts[product.Id];

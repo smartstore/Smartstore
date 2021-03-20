@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
@@ -24,7 +25,7 @@ namespace Smartstore.Core.Checkout.Tax
         }
 
         public virtual Task<Tax> CalculateProductTaxAsync(
-            IPricable product,
+            Product product,
             decimal price,
             bool? inclusive = null,
             Customer customer = null,
@@ -89,7 +90,7 @@ namespace Smartstore.Core.Checkout.Tax
         }
 
         protected virtual async Task<Tax> CalculateTaxAsync(
-            IPricable product,
+            Product product,
             decimal price,
             bool isGrossPrice,
             int? taxCategoryId = null,

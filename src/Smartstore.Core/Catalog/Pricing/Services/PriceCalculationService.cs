@@ -28,8 +28,8 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
-        private readonly ICommonServices _services;
         private readonly IPriceCalculatorFactory _calculatorFactory;
+        private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
         private readonly IManufacturerService _manufacturerService;
         private readonly ITaxCalculator _taxCalculator;
@@ -46,8 +46,8 @@ namespace Smartstore.Core.Catalog.Pricing
             SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,
-            ICommonServices services,
             IPriceCalculatorFactory calculatorFactory,
+            IProductService productService,
             ICategoryService categoryService,
             IManufacturerService manufacturerService,
             ITaxCalculator taxCalculator,
@@ -61,8 +61,8 @@ namespace Smartstore.Core.Catalog.Pricing
             _db = db;
             _workContext = workContext;
             _storeContext = storeContext;
-            _services = services;
             _calculatorFactory = calculatorFactory;
+            _productService = productService;
             _categoryService = categoryService;
             _manufacturerService = manufacturerService;
             _taxCalculator = taxCalculator;
@@ -82,24 +82,29 @@ namespace Smartstore.Core.Catalog.Pricing
 
         #region New
 
-        public PriceCalculationOptions CreateDefaultOptions(ProductBatchContext batchContext = null)
+        public PriceCalculationOptions CreateDefaultOptions(bool forListing, ProductBatchContext batchContext = null)
         {
-            var store = _storeContext.CurrentStore;
-            var customer = _workContext.CurrentCustomer;
+            var store = batchContext?.Store ?? _storeContext.CurrentStore;
+            var customer = batchContext?.Customer ?? _workContext.CurrentCustomer;
             var language = _workContext.WorkingLanguage;
             var targetCurrency = _workContext.WorkingCurrency;
+            var priceDisplay = _catalogSettings.PriceDisplayType;
+            var ignoreDiscounts = _catalogSettings.IgnoreDiscounts;
+            var taxInclusive = _workContext.GetTaxDisplayTypeFor(customer, store.Id) == TaxDisplayType.IncludingTax;
 
-            batchContext ??= new ProductBatchContext(null, _services, store, customer, true);
+            batchContext ??= _productService.CreateProductBatchContext(null, store, customer, true);
             
             var options = new PriceCalculationOptions(batchContext, customer, store, language, targetCurrency)
             {
-                GrossPrices = _workContext.GetTaxDisplayTypeFor(customer, store.Id) == TaxDisplayType.IncludingTax,
-                IgnoreDiscounts = _catalogSettings.IgnoreDiscounts || _catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
-                IgnoreAttributes = _catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
+                IsGrossPrice = _taxSettings.PricesIncludeTax,
+                TaxInclusive = taxInclusive,
+                IgnoreDiscounts = priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes || ignoreDiscounts, // TODO: (core) Uncomment this
+                IgnoreAttributes = priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
+                DetermineLowestPrice = forListing && priceDisplay == PriceDisplayType.LowestPrice,
+                DeterminePreselectedPrice = forListing && priceDisplay == PriceDisplayType.PreSelectedPrice,
+                TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: taxInclusive, target: PricingTarget.Product, language: language),
                 PriceRangeFormat = T("Products.PriceRangeFrom").Value
             };
-
-            options.TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: options.GrossPrices, target: PricingTarget.Product, language: language);
 
             return options;
         }
@@ -125,12 +130,9 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(context, nameof(context));
 
-            // Verify context
-            VerifyContext(context);
-
             // Collect calculators
             var calculators = _calculatorFactory.GetCalculators(context);
-            var calculatorContext = new CalculatorContext(context, await context.Product.GetRegularPriceAsync());
+            var calculatorContext = new CalculatorContext(context, context.Product.Price);
 
             // Remember source product
             var sourceProduct = context.Product;
@@ -148,7 +150,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 ContextProduct = calculatorContext.Product,
                 RegularPrice = ConvertAmount(calculatorContext.RegularPrice, calculatorContext, taxRate, false, out _).Value,
                 OfferPrice = ConvertAmount(calculatorContext.OfferPrice, calculatorContext, taxRate, false, out _),
-                SelectionPrice = ConvertAmount(calculatorContext.SelectionPrice, calculatorContext, taxRate, false, out _),
+                PreselectedPrice = ConvertAmount(calculatorContext.PreselectedPrice, calculatorContext, taxRate, false, out _),
                 LowestPrice = ConvertAmount(calculatorContext.LowestPrice, calculatorContext, taxRate, false, out _),
                 FinalPrice = ConvertAmount(calculatorContext.FinalPrice, calculatorContext, taxRate, true, out var tax).Value,
                 Tax = tax
@@ -180,28 +182,30 @@ namespace Smartstore.Core.Catalog.Pricing
                 return null;
             }
 
+            var options = context.Options;
+
             if (amount != 0)
             {
-                tax = context.IsGrossPrice == true
-                     ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, context.Options.GrossPrices, context.Options.TargetCurrency)
-                     : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, context.Options.GrossPrices, context.Options.TargetCurrency);
+                tax = context.Options.IsGrossPrice
+                     ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.TargetCurrency)
+                     : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, options.TaxInclusive, options.TargetCurrency);
 
                 amount = tax.Value.Price;
             }
 
-            var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, context.Options.TargetCurrency);
+            var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, options.TargetCurrency);
 
-            if (amount != 0 && context.Options.TaxFormat != null)
+            if (amount != 0 && options.TaxFormat != null)
             {
-                money = money.WithPostFormat(context.Options.TaxFormat);
+                money = money.WithPostFormat(options.TaxFormat);
             }
 
             if (isFinalPrice && context.HasPriceRange)
             {
                 var finalPricePostFormat = money.PostFormat;
                 finalPricePostFormat = finalPricePostFormat == null
-                    ? context.Options.PriceRangeFormat
-                    : string.Format(context.Options.PriceRangeFormat, finalPricePostFormat);
+                    ? options.PriceRangeFormat
+                    : string.Format(options.PriceRangeFormat, finalPricePostFormat);
 
                 if (money.PostFormat != finalPricePostFormat)
                 {
@@ -210,12 +214,6 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             return money;
-        }
-
-        private void VerifyContext(PriceCalculationContext context)
-        {
-            // TODO: (core) More verification for PriceCalculationContext (?)
-            context.IsGrossPrice ??= _taxSettings.PricesIncludeTax;
         }
 
         #endregion
@@ -270,7 +268,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var result = decimal.Zero;
 
-            context ??= new ProductBatchContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
+            context ??= _productService.CreateProductBatchContext(null, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
 
             if (product.ProductType == ProductType.BundledProduct)
             {
@@ -307,7 +305,7 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             // Note, attribute price adjustments will not be taken into account here.
-            context ??= new ProductBatchContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
+            context ??= _productService.CreateProductBatchContext(null, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
 
             var isBundlePerItemPricing = product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing;
             var lowestPrice = await GetFinalPriceAmountAsync(product, null, decimal.Zero, customer, true, int.MaxValue, null, context);
@@ -361,7 +359,7 @@ namespace Smartstore.Core.Catalog.Pricing
             decimal? lowestPrice = null;
             Product lowestPriceProduct = null;
 
-            context ??= new ProductBatchContext(null, _services, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
+            context ??= _productService.CreateProductBatchContext(null, _storeContext.CurrentStore, customer ?? _workContext.CurrentCustomer, true);
 
             foreach (var associatedProduct in associatedProducts)
             {

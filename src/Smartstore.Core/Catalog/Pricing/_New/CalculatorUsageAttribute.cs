@@ -6,8 +6,9 @@ namespace Smartstore.Core.Catalog.Pricing
     public enum CalculatorTargets
     {
         Product = 1,
-        CartItem = 2,
-        All = Product | CartItem
+        GroupedProduct = 2,
+        Bundle = 4,
+        All = Product | GroupedProduct | Bundle
         // More targets [...]
     }
 

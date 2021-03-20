@@ -114,10 +114,10 @@ namespace Smartstore.Core.Checkout.Tax
         /// Gets tax rate for given product.
         /// </summary>
         /// <param name="product">Product. Can be <c>null</c>.</param>
-        /// <param name="taxCategoryId">Tax category identifier. Obtained from <see cref="IPricable.TaxCategoryId"/> if <c>null</c>.</param>
+        /// <param name="taxCategoryId">Tax category identifier. Obtained from <see cref="Product.TaxCategoryId"/> if <c>null</c>.</param>
         /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
         /// <returns>Tax rate.</returns>
-        Task<TaxRate> GetTaxRateAsync(IPricable product, int? taxCategoryId = null, Customer customer = null);
+        Task<TaxRate> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null);
 
         /// <summary>
         /// Gets VAT Number status.
@@ -139,7 +139,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <returns>
         /// <c>True</c> if the product is tax exempted, <c>False</c> if otherwise.
         /// </returns>
-        Task<bool> IsTaxExemptAsync(IPricable product, Customer customer);
+        Task<bool> IsTaxExemptAsync(Product product, Customer customer);
 
         /// <summary>
         /// Checks whether the customer has a EU VAT exemption (the European Union value added tax).

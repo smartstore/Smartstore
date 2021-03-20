@@ -8,7 +8,7 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
-    [CalculatorUsage(CalculatorTargets.Product | CalculatorTargets.CartItem, CalculatorOrdering.Late)]
+    [CalculatorUsage(CalculatorTargets.All, CalculatorOrdering.Late)]
     public class DiscountPriceCalculator : IPriceCalculator
     {
         private readonly SmartDbContext _db;
@@ -22,9 +22,29 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {
-            // Don't calculate when customer entered price or discounts should be ignored in any case.
-            if (!context.Options.IgnoreDiscounts && context.Product is Product product && !product.CustomerEntersPrice)
+            var product = context.Product;
+            var bundleItem = context.BundleItem;
+
+            if (bundleItem?.Item != null)
             {
+                var bi = bundleItem.Item;
+                if (bi.Discount.HasValue && bi.BundleProduct.BundlePerItemPricing)
+                {
+                    var appliedDiscount = new Discount
+                    {
+                        UsePercentage = bi.DiscountPercentage,
+                        DiscountPercentage = bi.Discount.Value,
+                        DiscountAmount = bi.Discount.Value
+                    };
+
+                    context.AppliedDiscounts.Add(appliedDiscount);
+                    var discountAmount = appliedDiscount.GetDiscountAmount(context.FinalPrice);
+                    context.FinalPrice -= discountAmount;
+                }
+            }
+            else if (!context.Options.IgnoreDiscounts && !product.CustomerEntersPrice)
+            {
+                // Don't calculate when customer entered price or discounts should be ignored in any case.
                 var applicableDiscounts = await GetApplicableDiscounts(product, context);
                 if (applicableDiscounts.Any())
                 {

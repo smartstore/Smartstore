@@ -39,26 +39,30 @@ namespace Smartstore.Core.Catalog.Pricing
                     .ToArray();
             });
 
-            context.Calculators = calculators;
-
             return calculators;
         }
 
         protected virtual int GenerateHashCode(PriceCalculationContext context)
         {
             // TODO: (more) Add more parts to PriceCalculationContext hash
-            return HashCode.Combine(context.Product.GetType());
+            return context.Product.ProductTypeId;
         }
 
         protected virtual bool MatchCalculator(PriceCalculationContext context, PriceCalculatorMetadata metadata)
         {
-            if (context.Product is Product)
+            var productType = context.Product.ProductType;
+
+            if (productType == ProductType.SimpleProduct)
             {
                 return metadata.ValidTargets.HasFlag(CalculatorTargets.Product);
             }
-            else if (context.Product is ShoppingCartItem)
+            else if (productType == ProductType.BundledProduct)
             {
-                return metadata.ValidTargets.HasFlag(CalculatorTargets.CartItem);
+                return metadata.ValidTargets.HasFlag(CalculatorTargets.Bundle);
+            }
+            else if (productType == ProductType.GroupedProduct)
+            {
+                return metadata.ValidTargets.HasFlag(CalculatorTargets.GroupedProduct);
             }
 
             return false;

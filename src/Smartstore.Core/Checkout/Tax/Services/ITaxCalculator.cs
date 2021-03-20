@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
@@ -40,7 +41,7 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="currency">Optional currency instance for cash rounding.</param>
         /// <returns>A <see cref="Tax"/> structure containing the calculation result.</returns>
         Task<Tax> CalculateProductTaxAsync(
-            IPricable product,
+            Product product,
             decimal price,
             bool? inclusive = null,
             Customer customer = null,

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core;
@@ -15,6 +14,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using System.Threading.Tasks;
 using Smartstore.Net;
+using System.Collections.Generic;
 
 namespace Smartstore.Web
 {
@@ -32,6 +32,9 @@ namespace Smartstore.Web
         private readonly IUserAgent _userAgent;
         private readonly IWebHelper _webHelper;
         private readonly IGeoCountryLookup _geoCountryLookup;
+
+        // KeyItem1 = CustomerId, KeyItem2 = StoreId
+        private readonly Dictionary<(int, int), TaxDisplayType> _taxDisplayTypes = new();
 
         private TaxDisplayType? _taxDisplayType;
         private Language _language;
@@ -395,55 +398,66 @@ namespace Smartstore.Web
         public TaxDisplayType TaxDisplayType 
         {
             get => GetTaxDisplayTypeFor(CurrentCustomer, _storeContext.CurrentStore.Id);
-            set => _taxDisplayType = value;
+            set 
+            {
+                if (_taxSettings.AllowCustomersToSelectTaxDisplayType)
+                {
+                    CurrentCustomer.TaxDisplayTypeId = (int)value;
+                    _db.SaveChanges();
+                }
+
+                _taxDisplayTypes[(CurrentCustomer.Id, _storeContext.CurrentStore.Id)] = value;
+            } 
         }
 
         public TaxDisplayType GetTaxDisplayTypeFor(Customer customer, int storeId)
         {
-            if (_taxDisplayType.HasValue)
-            {
-                return _taxDisplayType.Value;
-            }
+            var key = (customer.Id, storeId);
 
-            int? taxDisplayType = null;
-
-            if (_taxSettings.AllowCustomersToSelectTaxDisplayType && customer != null)
+            if (!_taxDisplayTypes.TryGetValue(key, out var result))
             {
-                taxDisplayType = customer.TaxDisplayTypeId;
-            }
+                int? taxDisplayTypeId = null;
 
-            if (!taxDisplayType.HasValue && _taxSettings.EuVatEnabled)
-            {
-                if (customer != null &&  _taxService.Value.IsVatExemptAsync(customer).Await())
+                if (_taxSettings.AllowCustomersToSelectTaxDisplayType && customer != null)
                 {
-                    taxDisplayType = (int)TaxDisplayType.ExcludingTax;
+                    taxDisplayTypeId = customer.TaxDisplayTypeId;
                 }
-            }
-            
-            if (!taxDisplayType.HasValue)
-            {
-                var customerRoles = customer.CustomerRoleMappings.Select(x => x.CustomerRole).ToList();
-                string key = string.Format(WebCacheInvalidator.CUSTOMERROLES_TAX_DISPLAY_TYPES_KEY, string.Join(",", customerRoles.Select(x => x.Id)), storeId);
-                var cacheResult = _cache.Get(key, () =>
+
+                if (!taxDisplayTypeId.HasValue && _taxSettings.EuVatEnabled)
                 {
-                    var roleTaxDisplayTypes = customerRoles
-                        .Where(x => x.TaxDisplayType.HasValue)
-                        .OrderByDescending(x => x.TaxDisplayType.Value)
-                        .Select(x => x.TaxDisplayType.Value);
-
-                    if (roleTaxDisplayTypes.Any())
+                    if (customer != null && _taxService.Value.IsVatExemptAsync(customer).Await())
                     {
-                        return (TaxDisplayType)roleTaxDisplayTypes.FirstOrDefault();
+                        taxDisplayTypeId = (int)TaxDisplayType.ExcludingTax;
                     }
+                }
 
-                    return _taxSettings.TaxDisplayType;
-                });
+                if (!taxDisplayTypeId.HasValue)
+                {
+                    var customerRoles = customer.CustomerRoleMappings.Select(x => x.CustomerRole).ToList();
+                    string cacheKey = string.Format(WebCacheInvalidator.CUSTOMERROLES_TAX_DISPLAY_TYPES_KEY, string.Join(",", customerRoles.Select(x => x.Id)), storeId);
+                    var cacheResult = _cache.Get(cacheKey, () =>
+                    {
+                        var roleTaxDisplayTypes = customerRoles
+                            .Where(x => x.TaxDisplayType.HasValue)
+                            .OrderByDescending(x => x.TaxDisplayType.Value)
+                            .Select(x => x.TaxDisplayType.Value);
 
-                taxDisplayType = (int)cacheResult;
+                        if (roleTaxDisplayTypes.Any())
+                        {
+                            return (TaxDisplayType)roleTaxDisplayTypes.FirstOrDefault();
+                        }
+
+                        return _taxSettings.TaxDisplayType;
+                    });
+
+                    taxDisplayTypeId = (int)cacheResult;
+                }
+
+                result = (TaxDisplayType)taxDisplayTypeId.Value;
+                _taxDisplayTypes[key] = result;
             }
 
-            _taxDisplayType = (TaxDisplayType)taxDisplayType.Value;
-            return _taxDisplayType.Value;
+            return result;
         }
 
         public bool IsAdminArea 

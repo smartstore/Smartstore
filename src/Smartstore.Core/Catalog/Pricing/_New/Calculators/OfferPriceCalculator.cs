@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     [ServiceLifetime(ServiceLifetime.Singleton)]
-    [CalculatorUsage(CalculatorTargets.Product | CalculatorTargets.CartItem, CalculatorOrdering.Default)]
+    [CalculatorUsage(CalculatorTargets.Product | CalculatorTargets.Bundle, CalculatorOrdering.Default)]
     public class OfferPriceCalculator : IPriceCalculator
     {
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {
-            if (context.Product is Product product && product.SpecialPrice.HasValue && product.ProductType != ProductType.GroupedProduct)
+            var product = context.Product;
+            if (product.SpecialPrice.HasValue)
             {
                 // Check date range
                 var now = DateTime.UtcNow;

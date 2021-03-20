@@ -32,8 +32,6 @@ namespace Smartstore.Core.Catalog.Products
         protected readonly IProductService _productService;
         protected readonly ICategoryService _categoryService;
         protected readonly IManufacturerService _manufacturerService;
-        protected readonly Store _store;
-        protected readonly Customer _customer;
         protected readonly bool _includeHidden;
         protected readonly int? _maxMediaPerProduct;
 
@@ -66,8 +64,8 @@ namespace Smartstore.Core.Catalog.Products
             _productService = services.Resolve<IProductService>();
             _categoryService = services.Resolve<ICategoryService>();
             _manufacturerService = services.Resolve<IManufacturerService>();
-            _store = store;
-            _customer = customer;
+            Store = store;
+            Customer = customer;
             _includeHidden = includeHidden;
             _maxMediaPerProduct = maxMediaPerProduct;
 
@@ -80,6 +78,9 @@ namespace Smartstore.Core.Catalog.Products
                 _groupedProductIds.AddRange(products.Where(x => x.ProductType == ProductType.GroupedProduct).Select(x => x.Id));
             }
         }
+
+        public Store Store { get; }
+        public Customer Customer { get; }
 
         public IReadOnlyList<int> ProductIds => _productIds;
 
@@ -216,14 +217,14 @@ namespace Smartstore.Core.Catalog.Products
             var tierPrices = await _db.TierPrices
                 .AsNoTracking()
                 .Include(x => x.CustomerRole)
-                .Where(x => ids.Contains(x.ProductId) && (x.StoreId == 0 || x.StoreId == _store.Id))
+                .Where(x => ids.Contains(x.ProductId) && (x.StoreId == 0 || x.StoreId == Store.Id))
                 .ToListAsync();
 
             return tierPrices
                 // Sorting locally is most likely faster.
                 .OrderBy(x => x.ProductId)
                 .ThenBy(x => x.Quantity)
-                .FilterForCustomer(_customer)
+                .FilterForCustomer(Customer)
                 .ToMultimap(x => x.ProductId, x => x);
         }
 

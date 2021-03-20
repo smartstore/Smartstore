@@ -9,25 +9,36 @@ using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Products
 {
     public partial class ProductService : IProductService
     {
         private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
+        private readonly ICommonServices _services;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IMessageFactory _messageFactory;
         private readonly LocalizationSettings _localizationSettings;
 
         public ProductService(
             SmartDbContext db,
+            IWorkContext workContext,
+            IStoreContext storeContext,
+            ICommonServices services,
             IProductAttributeMaterializer productAttributeMaterializer,
             IMessageFactory messageFactory,
             LocalizationSettings localizationSettings)
         {
             _db = db;
+            _workContext = workContext;
+            _storeContext = storeContext;
+            _services = services;
             _productAttributeMaterializer = productAttributeMaterializer;
             _messageFactory = messageFactory;
             _localizationSettings = localizationSettings;
@@ -511,6 +522,21 @@ namespace Smartstore.Core.Catalog.Products
             }
 
             return added;
+        }
+
+        public virtual ProductBatchContext CreateProductBatchContext(
+            IEnumerable<Product> products = null,
+            Store store = null,
+            Customer customer = null,
+            bool includeHidden = true,
+            int? maxMediaPerProduct = null)
+        {
+            return new ProductBatchContext(
+                products,
+                _services,
+                store ?? _storeContext.CurrentStore,
+                customer ?? _workContext.CurrentCustomer,
+                includeHidden);
         }
     }
 

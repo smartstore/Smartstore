@@ -19,26 +19,25 @@ namespace Smartstore.Core.Catalog.Pricing
 
             Product = context.Product;
             AppliedDiscounts = context.AppliedDiscounts;
-            AppliedTierPrice = context.AppliedTierPrice;
-            context.AppliedAttributeCombination = context.AppliedAttributeCombination;
+            //AppliedTierPrice = context.AppliedTierPrice;
+            //context.AppliedAttributeCombination = context.AppliedAttributeCombination;
             HasPriceRange = context.HasPriceRange;
         }
 
-        public IPricable Product { get; init; }
-        public IPricable ContextProduct { get; set; }
-        //public bool DisplayFromMessage { get; init; }
+        public Product Product { get; init; }
+        public Product ContextProduct { get; set; }
 
         public ICollection<Discount> AppliedDiscounts { get; init; }
-        public ICollection<ProductVariantAttributeValue> AppliedAttributes { get; init; }
-        public TierPrice AppliedTierPrice { get; set; }
-        public ProductVariantAttributeCombination AppliedAttributeCombination { get; set; }
+        //public ICollection<ProductVariantAttributeValue> AppliedAttributes { get; init; }
+        //public TierPrice AppliedTierPrice { get; set; }
+        //public ProductVariantAttributeCombination AppliedAttributeCombination { get; set; }
 
         public Money RegularPrice { get; set; }
         public Money FinalPrice { get; set; }
         public bool HasPriceRange { get; set; }
 
         public Money? OfferPrice { get; set; }
-        public Money? SelectionPrice { get; set; }
+        public Money? PreselectedPrice { get; set; }
         public Money? LowestPrice { get; set; }
         public Money? MinTierPrice { get; set; }
         public Money? MinAttributeCombinationPrice { get; set; }

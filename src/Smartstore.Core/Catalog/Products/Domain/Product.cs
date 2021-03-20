@@ -93,7 +93,7 @@ namespace Smartstore.Core.Catalog.Products
     [Index(nameof(SystemName), nameof(IsSystemProduct), Name = "IX_Product_SystemName_IsSystemProduct")]
     [Index(nameof(Published), nameof(Id), nameof(Visibility), nameof(Deleted), nameof(IsSystemProduct), nameof(AvailableStartDateTimeUtc), nameof(AvailableEndDateTimeUtc), Name = "IX_SeekExport1")]
     [Index(nameof(Visibility), Name = "IX_Visibility")]
-    public partial class Product : EntityWithDiscounts, IAuditable, IPricable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
+    public partial class Product : EntityWithDiscounts, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
     {
         #region Static
 
@@ -1014,8 +1014,5 @@ namespace Smartstore.Core.Catalog.Products
 
         /// <inheritdoc/>
         public string GetDisplayNameMemberName() => nameof(Name);
-
-        /// <inheritdoc/>
-        Task<decimal> IPricable.GetRegularPriceAsync() => Task.FromResult(Price);
     }
 }

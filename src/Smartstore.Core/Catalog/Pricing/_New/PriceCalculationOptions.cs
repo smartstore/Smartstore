@@ -55,23 +55,25 @@ namespace Smartstore.Core.Catalog.Pricing
             set => _targetCurrency = value ?? throw new ArgumentNullException(nameof(TargetCurrency));
         }
 
-        public ProductBatchContext AssociatedProductsBatchContext { get; set; }
+        public ProductBatchContext ChildProductsBatchContext { get; set; }
 
-
-        public bool GrossPrices { get; set; }
-        public CashRoundingOptions CashRounding { get; init; }
-
-        public bool IgnoreAssociatedProducts { get; set; }
+        public bool IgnoreGroupedProducts { get; set; }
+        public bool IgnoreBundles { get; set; }
         public bool IgnoreAttributes { get; set; }
         public bool IgnoreTierPrices { get; set; }
         public bool IgnoreDiscounts { get; set; }
 
+        public bool IsGrossPrice { get; set; }
+        public bool TaxInclusive { get; set; }
+        public CashRoundingOptions CashRounding { get; init; }
         public string TaxFormat { get; set; }
         public string PriceRangeFormat { get; set; }
 
         public bool CheckDiscountValidity { get; set; } = true;
-        public bool DetermineMinTierPrice { get; set; }
-        public bool DetermineMinAttributeCombinationPrice { get; set; }
+        public bool DetermineLowestPrice { get; set; }
+        public bool DeterminePreselectedPrice { get; set; }
+        public bool DetermineMinTierPrice { get; set; } // ???
+        public bool DetermineMinAttributeCombinationPrice { get; set; } // ???
 
         public PriceCalculationOptions Clone()
             => ((ICloneable)this).Clone() as PriceCalculationOptions;

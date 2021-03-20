@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Smartstore.Core.Checkout.Orders;
 
 namespace Smartstore

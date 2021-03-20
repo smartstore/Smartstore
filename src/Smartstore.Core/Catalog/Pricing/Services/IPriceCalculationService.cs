@@ -16,7 +16,7 @@ namespace Smartstore.Core.Catalog.Pricing
     {
         #region NEW
 
-        PriceCalculationOptions CreateDefaultOptions(ProductBatchContext batchContext = null);
+        PriceCalculationOptions CreateDefaultOptions(bool forListing, ProductBatchContext batchContext = null);
 
         Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context);
 
