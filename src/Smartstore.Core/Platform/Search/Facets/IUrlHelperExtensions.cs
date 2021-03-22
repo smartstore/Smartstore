@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Platform.Search.Facets;
 using Smartstore.Engine;
 
 namespace Smartstore.Core.Search.Facets

@@ -1,6 +1,4 @@
-﻿using Smartstore.Core.Search.Facets;
-
-namespace Smartstore.Core.Platform.Search.Facets
+﻿namespace Smartstore.Core.Search.Facets
 {
     /// <summary>
     /// Represents a helper to modify facet URLs.

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Collections;
-using Smartstore.Core.Search.Facets;
 
-namespace Smartstore.Core.Platform.Search.Facets
+namespace Smartstore.Core.Search.Facets
 {
     public abstract partial class FacetUrlHelperBase : IFacetUrlHelper
     {

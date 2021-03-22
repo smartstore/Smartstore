@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Smartstore.Core.Web;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Payment
 {
-    // TODO: (mg) (core) Complete IPaymentMethod extensions.
     public static class PaymentExtentions
     {
         /// <summary>

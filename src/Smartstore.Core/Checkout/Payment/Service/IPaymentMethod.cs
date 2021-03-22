@@ -88,6 +88,21 @@ namespace Smartstore.Core.Checkout.Payment
         /// <returns>The fixed fee or a percentage value. If UsePercentage is <c>true</c>, the fee is calculated as a percentage of the order total.</returns>
         Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(IList<OrganizedShoppingCartItem> cart);
 
+        // TODO: (mg) (core) Provide raw payment form data required by IsPaymentDataValidAsync and GetPaymentSummaryAsync of IPaymentMethod somehow (was formerly a FormCollection).
+
+        /// <summary>
+        /// Validates payment data entered by customer on checkout's payment page.
+        /// </summary>
+        /// <returns><c>null</c> if the payment data is valid, otherwise a list of warnings to be displayed.</returns>
+        Task<IList<string>> IsPaymentDataValidAsync();
+
+        /// <summary>
+        /// Gets a short summary of payment data entered by customer in checkout that is displayed on the checkout's confirm page.
+        /// Typically used to display the brand name and masked number of a credit card.
+        /// </summary>
+        /// <returns>Payment summary. <c>null</c> if there's no summary.</returns>
+        Task<string> GetPaymentSummaryAsync();
+
         /// <summary>
         /// Captures payment.
         /// </summary>
@@ -139,12 +154,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// Gets the widget invoker for payment info. Return <c>null</c> when there's nothing to render.
         /// </summary>
         WidgetInvoker GetPaymentInfoWidget();
-
-        /// <summary>
-        /// Gets the controller type. It is required by checkout to validate payment forms and to get payment summary and info.
-        /// </summary>
-        /// <returns>Type of controller.</returns>
-        Type GetControllerType();
 
         #endregion
     }

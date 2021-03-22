@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Smartstore.Core.Platform.Search.Facets
+namespace Smartstore.Core.Search.Facets
 {
     /// <summary>
     /// Represents a provider to get facet helpers.

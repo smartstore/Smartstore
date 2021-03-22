@@ -15,12 +15,12 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using StackExchange.Profiling.Internal;
 
 namespace Smartstore.Core.Checkout.Payment
 {
-    // TODO: (mg) (core) Add porting of CapturePaymentHook.
     public partial class PaymentService : IPaymentService
     {
         private const string PAYMENT_METHODS_ALL_KEY = "paymentmethod.all-{0}-";
@@ -34,7 +34,7 @@ namespace Smartstore.Core.Checkout.Payment
         private readonly ICartRuleProvider _cartRuleProvider;
         private readonly IProviderManager _providerManager;
         private readonly IRequestCache _requestCache;
-        //private readonly ITypeFinder _typeFinder;
+        private readonly ITypeScanner _typeScanner;
 
         public PaymentService(
             SmartDbContext db,
@@ -42,9 +42,8 @@ namespace Smartstore.Core.Checkout.Payment
             PaymentSettings paymentSettings,
             ICartRuleProvider cartRuleProvider,
             IProviderManager providerManager,
-            IRequestCache requestCache
-            //ITypeFinder typeFinder
-            )
+            IRequestCache requestCache,
+            ITypeScanner typeScanner)
         {
             _db = db;
             _storeMappingService = storeMappingService;
@@ -52,7 +51,7 @@ namespace Smartstore.Core.Checkout.Payment
             _cartRuleProvider = cartRuleProvider;
             _providerManager = providerManager;
             _requestCache = requestCache;
-            //_typeFinder = typeFinder;
+            _typeScanner = typeScanner;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -423,7 +422,6 @@ namespace Smartstore.Core.Checkout.Payment
             return maskedChars + last4;
         }
 
-        // TODO: (mg) (core) Complete porting of PaymentService.GetAllPaymentMethodFilters.
         protected virtual IList<IPaymentMethodFilter> GetAllPaymentMethodFilters()
         {
             if (_paymentMethodFilterTypes == null)
@@ -432,14 +430,13 @@ namespace Smartstore.Core.Checkout.Payment
                 {
                     if (_paymentMethodFilterTypes == null)
                     {
-                        //_paymentMethodFilterTypes = _typeFinder.FindClassesOfType<IPaymentMethodFilter>(ignoreInactivePlugins: true).ToList();
+                        _paymentMethodFilterTypes = _typeScanner.FindTypes<IPaymentMethodFilter>(ignoreInactiveModules: true).ToList();
                     }
                 }
             }
 
             var paymentMethodFilters = _paymentMethodFilterTypes
-                //.Select(x => EngineContext.Current.ContainerManager.ResolveUnregistered(x) as IPaymentMethodFilter)
-                .Select(x => x as IPaymentMethodFilter)
+                .Select(x => EngineContext.Current.Scope.ResolveUnregistered(x) as IPaymentMethodFilter)
                 .ToList();
 
             return paymentMethodFilters;

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Smartstore.Core.Web;
+using Smartstore.Core.Widgets;
 
 namespace Smartstore.Core.Search.Facets
 {
@@ -13,14 +13,14 @@ namespace Smartstore.Core.Search.Facets
             _selectors = selectors;
         }
 
-        public RouteInfo GetTemplateRoute(FacetGroup facetGroup)
+        public WidgetInvoker GetTemplateWidget(FacetGroup facetGroup)
         {
-            var route = _selectors
+            var widget = _selectors
                 .OrderByDescending(x => x.Ordinal)
-                .Select(x => x.GetTemplateRoute(facetGroup))
+                .Select(x => x.GetTemplateWidget(facetGroup))
                 .FirstOrDefault(x => x != null);
 
-            return route;
+            return widget;
         }
     }
 }

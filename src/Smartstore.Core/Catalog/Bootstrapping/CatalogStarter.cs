@@ -1,4 +1,6 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Attributes.Modelling;
 using Smartstore.Core.Catalog.Attributes.Rules;
@@ -13,16 +15,12 @@ using Smartstore.Core.Catalog.Products.Rules;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
-using Smartstore.Core.Seo;
-using Smartstore.Core.Platform.Search.Facets;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Search.Facets;
+using Smartstore.Core.Seo;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Engine.Modularity;
-using System;
 
 namespace Smartstore.Core.Bootstrapping
 {

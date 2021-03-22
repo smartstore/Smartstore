@@ -3,7 +3,6 @@ using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
-using Smartstore.Core.Platform.Search.Facets;
 
 namespace Smartstore.Core.Search.Facets
 {
