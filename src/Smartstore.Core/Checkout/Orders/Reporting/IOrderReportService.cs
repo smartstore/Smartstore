@@ -3,6 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.Orders.Reporting
 {
@@ -14,35 +18,34 @@ namespace Smartstore.Core.Checkout.Orders.Reporting
         ByAmountDesc
     }
 
-  //  /// <summary>
-  //  /// Order report service interface.
-  //  /// </summary>
-  //  public partial interface IOrderReportService
-  //  {
-
+    /// <summary>
+    /// Order report service interface.
+    /// </summary>
+    public partial interface IOrderReportService
+    {
   //      /// <summary>
-  //      /// Gets order average report.
+  //      /// Gets an <see cref="OrderAverageReportLine"/> from <see cref="Orders"/> query.
   //      /// </summary>
-  //      /// <param name="orderQuery">Order queryable.</param>
-  //      /// <returns><see cref="OrderAverageReportLine"/>.</returns>
+  //      /// <param name="orderQuery"><see cref="IQueryable"/> of <see cref="Order"/>.</param>
+  //      /// <returns><see cref="OrderAverageReportLine"/></returns>
   //      Task<OrderAverageReportLine> GetOrderAverageReportLineAsync(IQueryable<Order> orderQuery);
 
   //      /// <summary>
-  //      /// Gets best sellers report.
+  //      /// Gets bestsellers report.
   //      /// </summary>
-		///// <param name="storeId">Store identifier</param>
-  //      /// <param name="startTime">Order start time; null to load all</param>
-  //      /// <param name="endTime">Order end time; null to load all</param>
-  //      /// <param name="orderStatus">Order status; null to load all records</param>
-  //      /// <param name="paymentStatus">Order payment status; null to load all records</param>
-  //      /// <param name="shippingStatus">Shipping status; null to load all records</param>
-  //      /// <param name="billingCountryId">Billing country identifier; 0 to load all records</param>
+		///// <param name="storeId"><see cref="Store"/> identifier.</param>
+  //      /// <param name="startTime"><see cref="Order"/> start <see cref="DateTime"/> as UTC.</param>
+  //      /// <param name="endTime"><see cref="Order"/> end <see cref="DateTime"/> as UTC.</param>
+  //      /// <param name="orderStatusId"><see cref="OrderStatus"/> identifier.</param>
+  //      /// <param name="paymentStatusId"><see cref="PaymentStatus"/> identifier.</param>
+  //      /// <param name="shippingStatusId"><see cref="ShippingStatus"/> identifier.</param>
+  //      /// <param name="billingCountryId">Billing country identifier.</param>
   //      /// <param name="pageIndex">Page index.</param>
   //      /// <param name="pageSize">Page size.</param>
   //      /// <param name="sorting">Sorting of report items.</param>
-  //      /// <param name="showHidden">A value indicating whether to show hidden records</param>
-  //      /// <returns>Best selling products.</returns>
-		//Task<IPagedList<BestsellersReportLine>> BestSellersReportAsync(
+  //      /// <param name="includeHidden">A value indicating whether to include hidden records.</param>
+  //      /// <returns>Best selling <see cref="Product"/>s.</returns>
+		//Task<IPagedList<BestsellersReportLine>> BestsellersReportAsync(
   //          int storeId,
   //          DateTime? startTime,
   //          DateTime? endTime,
@@ -53,55 +56,54 @@ namespace Smartstore.Core.Checkout.Orders.Reporting
   //          int pageIndex = 0,
   //          int pageSize = int.MaxValue,
   //          ReportSorting sorting = ReportSorting.ByQuantityDesc,
-  //          bool showHidden = false);
+  //          bool includeHidden = false);
 
   //      /// <summary>
-  //      /// Gets a list of product identifiers purchased by other customers who purchased the above
+  //      /// Gets an <see cref="Array"/> of <see cref="Product"/> identifiers purchased by other <see cref="Customer"/>s who purchased <paramref name="productId"/>.
   //      /// </summary>
-		///// <param name="storeId">Store identifier</param>
-  //      /// <param name="productId">Product identifier</param>
-  //      /// <param name="recordsToReturn">Records to return</param>
-  //      /// <param name="showHidden">A value indicating whether to show hidden records</param>
-  //      /// <returns>Product collection</returns>
-		//Task<int[]> GetAlsoPurchasedProductsIdsAsync(int productId, int? recordsToReturn = 5, int storeId = 0, bool showHidden = false);
+  //      /// <param name="productId"><see cref="Product"/> identifier.</param>
+  //      /// <param name="recordsToReturn">Number of records to return.</param>
+		///// <param name="storeId"><see cref="Store"/> identifier.</param>
+  //      /// <param name="includeHidden">A value indicating whether to include hidden records.</param>
+  //      /// <returns><see cref="Array"/> of <see cref="Product"/> identifiers.</returns>
+		//Task<int[]> GetAlsoPurchasedProductIdsAsync(int productId, int? recordsToReturn = 5, int storeId = 0, bool includeHidden = false);
 
   //      /// <summary>
-  //      /// Gets a list of products that were never sold
+  //      /// Gets an <see cref="IPagedList{}"/> of <see cref="Product"/>s that have never been sold.
   //      /// </summary>
-  //      /// <param name="startTime">Order start time; null to load all</param>
-  //      /// <param name="endTime">Order end time; null to load all</param>
-  //      /// <param name="pageIndex">Page index</param>
-  //      /// <param name="pageSize">Page size</param>
-  //      /// <param name="showHidden">A value indicating whether to show hidden records</param>
-  //      /// <returns>Products</returns>
-  //      Task<IPagedList<Product>> ProductsNeverSoldAsync(DateTime? startTime, DateTime? endTime, int pageIndex, int pageSize, bool showHidden = false);
+  //      /// <param name="startTime"><see cref="Order"/> start <see cref="DateTime"/> as UTC.</param>
+  //      /// <param name="endTime"><see cref="Order"/> end <see cref="DateTime"/> as UTC.</param>
+  //      /// <param name="pageIndex">Page index.</param>
+  //      /// <param name="pageSize">Page size.</param>
+  //      /// <param name="includeHidden">A value indicating whether to include hidden records.</param>
+  //      /// <returns><see cref="IPagedList{}"/> of <see cref="Product"/>s that have never been sold.</returns>
+  //      Task<IPagedList<Product>> ProductsNeverSoldAsync(DateTime? startTime, DateTime? endTime, int pageIndex, int pageSize, bool includeHidden = false);
 
   //      /// <summary>
-  //      /// Get order profit.
+  //      /// Gets <see cref="Order"/> profit.
   //      /// </summary>
-  //      /// <param name="orderQuery">Order queryable.</param>
-  //      /// <returns>Order profit.</returns>
+  //      /// <param name="orderQuery"><see cref="IQueryable"/> of <see cref="Order"/>.</param>
+  //      /// <returns><see cref="Order"/> profit.</returns>
   //      Task<decimal> GetProfitAsync(IQueryable<Order> orderQuery);
 
-
   //      /// <summary>
-  //      /// Get paged list of incomplete orders
+  //      /// Gets <see cref="IPagedList{}"/> of incomplete <see cref="Order"/>s.
   //      /// </summary>
-  //      /// <param name="storeId">Store identifier</param>
-  //      /// <param name="startTimeUtc">Start time limitation</param>
-  //      /// <param name="endTimeUtc">End time limitation</param>
-  //      /// <returns>List of incomplete orders</returns>
+  //      /// <param name="storeId"><see cref="Store"/> identifier.</param>
+  //      /// <param name="startTimeUtc"><see cref="Order"/> start <see cref="DateTime"/> as UTC.</param>
+  //      /// <param name="endTimeUtc"><see cref="Order"/> end <see cref="DateTime"/> as UTC.</param>
+  //      /// <returns><see cref="IPagedList{}"/> of incomplete <see cref="Order"/>s.</returns>
   //      Task<IPagedList<OrderDataPoint>> GetIncompleteOrdersAsync(int storeId, DateTime? startTimeUtc, DateTime? endTimeUtc);
 
   //      /// <summary>
-  //      /// Get paged list of orders as ChartDataPoints
+  //      /// Gets <see cref="IPagedList{}"/> of <see cref="Order"/> as <see cref="OrderDataPoint"/>.
   //      /// </summary>
-  //      /// <param name="storeId">Store identifier</param>
-  //      /// <param name="startTimeUtc">Start time UTC</param>
-  //      /// <param name="endTimeUtc">End time UTC</param>
-  //      /// <param name="pageIndex">Page index</param>
-  //      /// <param name="pageSize">Page size</param>
-  //      /// <returns></returns>
+  //      /// <param name="storeId"><see cref="Store"/> identifier.</param>
+  //      /// <param name="startTimeUtc"><see cref="Order"/> start <see cref="DateTime"/> as UTC.</param>
+  //      /// <param name="endTimeUtc"><see cref="Order"/> end <see cref="DateTime"/> as UTC.</param>
+  //      /// <param name="pageIndex">Page index.</param>
+  //      /// <param name="pageSize">Page size.</param>
+  //      /// <returns><see cref="IPagedList{}"/> of <see cref="OrderDataPoint"/></returns>
   //      Task<IPagedList<OrderDataPoint>> GetOrdersDashboardDataAsync(int storeId, DateTime? startTimeUtc, DateTime? endTimeUtc, int pageIndex, int pageSize);
-    //}
+    }
 }

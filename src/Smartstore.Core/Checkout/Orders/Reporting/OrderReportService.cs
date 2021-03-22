@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Orders.Reporting
 {
-    // TODO: (ms) (core) Change decimal to money
-    public partial class OrderReportService /*: IOrderReportService*/
+    public partial class OrderReportService : IOrderReportService
     {
         private readonly SmartDbContext _db;
 
@@ -18,143 +18,86 @@ namespace Smartstore.Core.Checkout.Orders.Reporting
             _db = db;
         }
 
-        // TODO: (ms) (core) This method seems to be not needed
-        //public virtual async Task<OrderAverageReportLine> GetOrderAverageReportLineAsync(
+        //public virtual Task<IPagedList<BestsellersReportLine>> BestsellersReportAsync(
         //    int storeId,
-        //    int[] orderStatusIds,
-        //    int[] paymentStatusIds,
-        //    int[] shippingStatusIds,
-        //    DateTime? startTimeUtc,
-        //    DateTime? endTimeUtc,
-        //    string billingEmail,
-        //    bool ignoreCancelledOrders = false)
+        //    DateTime? startTime,
+        //    DateTime? endTime,
+        //    int? orderStatusId = null,
+        //    int? paymentStatusId = null,
+        //    int? shippingStatusId = null,
+        //    int? billingCountryId = null,
+        //    int pageIndex = 0,
+        //    int pageSize = int.MaxValue,
+        //    ReportSorting sorting = ReportSorting.ByQuantityDesc,
+        //    bool includeHidden = false)
         //{
-        //    //var query = _db.Orders
-        //    //    .ApplyStandardFilter(storeId: storeId)
-        //    //    .ApplyDateFilter(startTimeUtc, endTimeUtc)
-        //    //    .ApplyBillingFilter(billingEmail)
-        //    //    .ApplyStatusFilter(orderStatusIds, paymentStatusIds, shippingStatusIds);
+        //    var query = _db.OrderItems
+        //        .Join(_db.Orders.AsNoTracking(), orderItem => orderItem.OrderId, o => o.Id, (orderItem, o) => orderItem)
+        //        .Join(_db.Products.AsNoTracking(), orderItem => orderItem.ProductId, p => p.Id, (orderItem, p) => orderItem)
+        //        .Where(x => (storeId == 0 || storeId == x.Order.StoreId)
+        //            && (!startTime.HasValue || startTime.Value <= x.Order.CreatedOnUtc)
+        //            && (!endTime.HasValue || endTime.Value >= x.Order.CreatedOnUtc)
+        //            && (!orderStatusId.HasValue || orderStatusId == x.Order.OrderStatusId)
+        //            && (!paymentStatusId.HasValue || paymentStatusId == x.Order.PaymentStatusId)
+        //            && (!shippingStatusId.HasValue || shippingStatusId == x.Order.ShippingStatusId)
+        //            && (billingCountryId == 0 || x.Order.BillingAddress.CountryId == billingCountryId)
+        //            && (!x.Product.IsSystemProduct)
+        //            && (includeHidden || x.Product.Published))
+        //        .GroupBy(x => x.ProductId)
+        //        .Select(x => new BestsellersReportLine
+        //        {
+        //            ProductId = x.Key,
+        //            TotalAmount = x.Sum(x => x.PriceExclTax),
+        //            TotalQuantity = x.Sum(x => x.Quantity)
+        //        });
 
+        //    query = sorting switch
+        //    {
+        //        ReportSorting.ByAmountAsc => query.OrderBy(x => x.TotalAmount),
+        //        ReportSorting.ByAmountDesc => query.OrderByDescending(x => x.TotalAmount),
+        //        ReportSorting.ByQuantityAsc => query.OrderBy(x => x.TotalQuantity).ThenByDescending(x => x.TotalAmount),
+        //        _ => query.OrderByDescending(x => x.TotalQuantity).ThenByDescending(x => x.TotalAmount),
+        //    };
+
+        //    return query.ToPagedList(pageIndex, pageSize).LoadAsync();
         //}
 
-        // TODO: (ms) (core) refactor method parameters -> qury extensions - reutrns query 
-        // apply status filter
-        // apply shipping filer
-        // apply time filter
-        public virtual Task<IPagedList<BestSellersReportLine>> BestSellersReportAsync(
-            int storeId,
-            DateTime? startTime,
-            DateTime? endTime,
-            int? orderStatusId = null,
-            int? paymentStatusId = null,
-            int? shippingStatusId = null,
-            int? billingCountryId = null,
-            int pageIndex = 0,
-            int pageSize = int.MaxValue,
-            ReportSorting sorting = ReportSorting.ByQuantityDesc,
-            bool showHidden = false)
-        {
-            var query =
-                from orderItem in _db.OrderItems
-                join o in _db.Orders.AsNoTracking() on orderItem.OrderId equals o.Id
-                join p in _db.Products.AsNoTracking() on orderItem.ProductId equals p.Id
-                where (storeId == 0 || storeId == o.StoreId)
-                    && (!startTime.HasValue || startTime.Value <= o.CreatedOnUtc)
-                    && (!endTime.HasValue || endTime.Value >= o.CreatedOnUtc)
-                    && (!orderStatusId.HasValue || orderStatusId == o.OrderStatusId)
-                    && (!paymentStatusId.HasValue || paymentStatusId == o.PaymentStatusId)
-                    && (!shippingStatusId.HasValue || shippingStatusId == o.ShippingStatusId)
-                    && (billingCountryId == 0 || o.BillingAddress.CountryId == billingCountryId)
-                    && (!p.IsSystemProduct)
-                    && (showHidden || p.Published)
-                select orderItem;
-
-            // Group by product ID.
-            var groupedQuery =
-                from orderItem in query
-                group orderItem by orderItem.ProductId into g
-                select new BestSellersReportLine
-                {
-                    ProductId = g.Key,
-                    TotalAmount = g.Sum(x => x.PriceExclTax),
-                    TotalQuantity = g.Sum(x => x.Quantity)
-                };
-
-            groupedQuery = sorting switch
-            {
-                ReportSorting.ByAmountAsc => groupedQuery.OrderBy(x => x.TotalAmount),
-                ReportSorting.ByAmountDesc => groupedQuery.OrderByDescending(x => x.TotalAmount),
-                ReportSorting.ByQuantityAsc => groupedQuery.OrderBy(x => x.TotalQuantity).ThenByDescending(x => x.TotalAmount),
-                _ => groupedQuery.OrderByDescending(x => x.TotalQuantity).ThenByDescending(x => x.TotalAmount),
-            };
-
-            return groupedQuery.ToPagedList(pageIndex, pageSize).LoadAsync();
-        }
-
-        // TODO: (ms) (core) This method seems to be not needed
-        //public virtual Task<int> GetPurchaseCountAsync(int productId)
+        //public virtual Task<int[]> GetAlsoPurchasedProductIdsAsync(int productId, int? recordsToReturn = 5, int storeId = 0, bool includeHidden = false)
         //{
         //    if (productId == 0)
-        //        return Task.FromResult(0);
+        //        return Task.FromResult(Array.Empty<int>());
 
-        //    var query =
-        //        from orderItem in _db.OrderItems
-        //        where orderItem.ProductId == productId
-        //        group orderItem by orderItem.Id into g
-        //        select new { ProductsPurchased = g.Sum(x => x.Quantity) };
+        //    // This inner query retrieves all orderItems which contain the productId.
+        //    var orderItems = _db.OrderItems
+        //        .ApplyProductFilter(new[] { productId }, includeHidden)
+        //        .Select(x => x.OrderId);
 
-        //    return query.Select(x => x.ProductsPurchased).FirstOrDefaultAsync();
+        //    var query = _db.OrderItems
+        //        .ApplyProductFilter(includeHidden: includeHidden)
+        //        .Include(x => x.Order)
+        //        .Join(_db.Products, x => x.ProductId, y => y.Id, (x, y) => new { OrderItem = x, Product = x.Product })
+        //        .Where(x => orderItems.Contains(x.OrderItem.OrderId)
+        //            && x.Product.Id != productId
+        //            && (storeId == 0 || x.OrderItem.Order.StoreId == storeId))
+        //        .GroupBy(x => x.Product.Id)
+        //        .Select(x => new
+        //        {
+        //            ProductId = x.Key,
+        //            ProductsPurchased = x.Sum(x => x.OrderItem.Quantity)
+        //        })
+        //        .OrderByDescending(x => x.ProductsPurchased)
+        //        .AsQueryable();
+
+        //    if (recordsToReturn.GetValueOrDefault() > 0)
+        //    {
+        //        query = query.Take(recordsToReturn.Value);
+        //    }
+
+        //    return query.Select(x => x.ProductId).ToArrayAsync();
         //}
 
-        /// <summary>
-        /// So this retrieves product ids, which have also been purchased with productId
-        /// </summary>
-        /// <param name="productId"></param>
-        /// <param name="recordsToReturn"></param>
-        /// <param name="storeId"></param>
-        /// <param name="showHidden"></param>
-        /// <returns></returns>
-        public virtual async Task<int[]> GetAlsoPurchasedProductsIdsAsync(int productId, int? recordsToReturn = 5, int storeId = 0, bool showHidden = false)
-        {
-            if (productId == 0)
-                return Array.Empty<int>();
-
-            // This inner query retrieves all orderItems which contain the productId.
-            var orderItems = await _db.OrderItems
-                .Where(x => x.ProductId == productId)
-                .Select(x => x.OrderId)
-                .ToListAsync();
-
-            var query = _db.OrderItems
-                .Include(x => x.Order)
-                .Join(_db.Products, x => x.ProductId, y => y.Id, (x, y) => new { OrderItem = x, Product = y })
-                .Where(x => orderItems.Contains(x.OrderItem.OrderId)
-                    && x.Product.Id != productId
-                    && (showHidden || x.Product.Published)
-                    && (storeId == 0 || x.OrderItem.Order.StoreId == storeId)
-                    && !x.Product.IsSystemProduct)
-                .GroupBy(x => x.Product.Id)
-                .Select(x => new
-                {
-                    ProductId = x.Key,
-                    ProductsPurchased = x.Sum(x => x.OrderItem.Quantity)
-                })
-                .OrderByDescending(x => x.ProductsPurchased)
-                .AsQueryable();
-
-            if (recordsToReturn.GetValueOrDefault() > 0)
-            {
-                query = query.Take(recordsToReturn.Value);
-            }
-
-            return await query.Select(x => x.ProductId).ToArrayAsync();
-        }
-
-        // extensions
-        //public virtual Task<IPagedList<Product>> ProductsNeverSoldAsync(DateTime? startTime, DateTime? endTime, int pageIndex, int pageSize, bool showHidden = false)
+        //public virtual Task<IPagedList<Product>> ProductsNeverSoldAsync(DateTime? startTime, DateTime? endTime, int pageIndex, int pageSize, bool includeHidden = false)
         //{
-        //    var groupedProductId = (int)ProductType.GroupedProduct;
-
         //    var query1 = (from orderItem in _db.OrderItems.AsNoTracking()
         //                  join o in _db.Orders.AsNoTracking() on orderItem.OrderId equals o.Id
         //                  where (!startTime.HasValue || startTime.Value <= o.CreatedOnUtc)
@@ -164,26 +107,14 @@ namespace Smartstore.Core.Checkout.Orders.Reporting
         //    var query2 = from p in _db.Products.AsNoTracking()
         //                 where !query1.Contains(p.Id)
         //                    && !p.IsSystemProduct
-        //                    && (showHidden || p.Published)
-        //                    && p.ProductTypeId != groupedProductId
+        //                    && (includeHidden || p.Published)
+        //                    && p.ProductTypeId != (int)ProductType.GroupedProduct
         //                 orderby p.Name
         //                 select p;
 
         //    return query2.ToPagedList(pageIndex, pageSize).LoadAsync();
         //}
 
-        // extneision
-        //public virtual async Task<decimal> GetProfitAsync(IQueryable<Order> orderQuery)
-        //{
-        //    var productCost = await _db.OrderItems
-        //        .Join(_db.Orders, orderItem => orderItem.OrderId, o => o.Id, (orderItem, o) => orderItem)
-        //        .SumAsync(x => ((decimal?)x.ProductCost ?? decimal.Zero) * x.Quantity) ;
-
-        //    var summary = await GetOrderAverageReportLineAsync(orderQuery);
-        //    var profit = summary.SumOrders - summary.SumTax - productCost;
-
-        //    return profit;
-        //}
 
         //// apply incomplete orders filter extension -> extensions
         //public virtual Task<IList<OrderDataPoint>> GetIncompleteOrdersAsync(int storeId, DateTime? startTimeUtc, DateTime? endTimeUtc)
