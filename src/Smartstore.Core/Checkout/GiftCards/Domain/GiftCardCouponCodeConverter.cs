@@ -76,7 +76,6 @@ namespace Smartstore.Core.Checkout.GiftCards
                     }
                 }
 
-                // TODO: (ms) (core) GiftCardCouponCodeConverter always returns null here.
                 return result;
             }
 

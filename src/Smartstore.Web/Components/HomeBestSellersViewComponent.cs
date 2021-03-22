@@ -7,10 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Orders.Events;
+using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
+using Smartstore.Events;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
@@ -23,10 +26,11 @@ namespace Smartstore.Web.Components
         private readonly CatalogHelper _catalogHelper;
         private readonly IAclService _aclService;
         private readonly IStoreMappingService _storeMappingService;
+        private readonly IEventPublisher _eventPublisher;
         private readonly CatalogSettings _catalogSettings;
 
         public HomeBestSellersViewComponent(
-            SmartDbContext db, 
+            SmartDbContext db,
             CatalogHelper catalogHelper,
             IAclService aclService,
             IStoreMappingService storeMappingService,
@@ -52,10 +56,19 @@ namespace Smartstore.Web.Components
             var report = await Services.Cache.GetAsync(ModelCacheInvalidator.HOMEPAGE_BESTSELLERS_REPORT_KEY.FormatInvariant(storeId), async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromHours(1));
+                                
+                var creatingBestsellersEvent = new CreatingBestsellersReportLineEvent();
+                await _eventPublisher.PublishAsync(creatingBestsellersEvent);
 
-                // TODO: (ms) (core) Publish event for BestSellers resolution so that modules can jump in with custom resolvers.
+                var bestsellers = new List<BestsellersReportLine>();
 
-                var query = _db.OrderItems
+                if (!creatingBestsellersEvent.Reports.IsNullOrEmpty())
+                {
+                    bestsellers = creatingBestsellersEvent.Reports;
+                }
+                else
+                {
+                    var query = _db.OrderItems
                     .AsNoTracking()
                     .ApplyOrderFilter(storeId)
                     .ApplyProductFilter()
@@ -63,10 +76,10 @@ namespace Smartstore.Web.Components
                     // INFO: some products may be excluded by ACL or store mapping later, so take more.
                     .Take(Convert.ToInt32(_catalogSettings.NumberOfBestsellersOnHomepage * 1.5));
 
-                var sql = query.ToQueryString();
+                    bestsellers = await query.ToListAsync();
+                }
 
-                var bestSellers = await query.ToListAsync();
-                return bestSellers;
+                return bestsellers;
             });
 
             if (report.Count == 0)

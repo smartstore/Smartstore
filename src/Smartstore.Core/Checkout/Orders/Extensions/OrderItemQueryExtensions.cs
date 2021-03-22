@@ -4,8 +4,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
-using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
 
 namespace Smartstore
@@ -85,10 +83,10 @@ namespace Smartstore
         /// </summary>
         /// <param name="includeHidden">Include unpublished products also</param>
         public static IQueryable<OrderItem> ApplyProductFilter(this IQueryable<OrderItem> query,
+            int[] productIds = null,
             bool includeHidden = false)
         {
             // TODO: (ms) Add more params to OrderItemQueryExtensions.ApplyProductFilter()
-
             Guard.NotNull(query, nameof(query));
 
             var db = query.GetDbContext<SmartDbContext>();
@@ -97,43 +95,35 @@ namespace Smartstore
                 from oi in query
                 join p in db.Products on oi.ProductId equals p.Id
                 where
-                    (!p.IsSystemProduct) && (includeHidden || p.Published)
+                    !p.IsSystemProduct
+                    && (includeHidden || p.Published)
+                    && (!productIds.IsNullOrEmpty() && productIds.Contains(p.Id))
                 select oi;
 
             return query;
         }
 
-        public static IQueryable<BestSellersReportLine> SelectAsBestSellersReportLine(this IQueryable<OrderItem> query, ReportSorting sorting = ReportSorting.ByQuantityDesc)
+        public static IQueryable<BestsellersReportLine> SelectAsBestSellersReportLine(this IQueryable<OrderItem> query, ReportSorting sorting = ReportSorting.ByQuantityDesc)
         {
             Guard.NotNull(query, nameof(query));
 
             // Group by product ID.
-            var selector =
-                from oi in query
-                group oi by oi.ProductId into g
-                select new BestSellersReportLine
+            var selector = query
+                .GroupBy(x => x.ProductId)
+                .Select(x => new BestsellersReportLine
                 {
-                    ProductId = g.Key,
-                    TotalAmount = g.Sum(x => x.PriceExclTax),
-                    TotalQuantity = g.Sum(x => x.Quantity)
-                };
+                    ProductId = x.Key,
+                    TotalAmount = x.Sum(x => x.PriceExclTax),
+                    TotalQuantity = x.Sum(x => x.Quantity)
+                });
 
-            switch (sorting)
+            selector = sorting switch
             {
-                case ReportSorting.ByAmountAsc:
-                    selector = selector.OrderBy(x => x.TotalAmount);
-                    break;
-                case ReportSorting.ByAmountDesc:
-                    selector = selector.OrderByDescending(x => x.TotalAmount);
-                    break;
-                case ReportSorting.ByQuantityAsc:
-                    selector = selector.OrderBy(x => x.TotalQuantity).ThenByDescending(x => x.TotalAmount);
-                    break;
-                case ReportSorting.ByQuantityDesc:
-                default:
-                    selector = selector.OrderByDescending(x => x.TotalQuantity).ThenByDescending(x => x.TotalAmount);
-                    break;
-            }
+                ReportSorting.ByAmountAsc => selector.OrderBy(x => x.TotalAmount),
+                ReportSorting.ByAmountDesc => selector.OrderByDescending(x => x.TotalAmount),
+                ReportSorting.ByQuantityAsc => selector.OrderBy(x => x.TotalQuantity).ThenByDescending(x => x.TotalAmount),
+                _ => selector.OrderByDescending(x => x.TotalQuantity).ThenByDescending(x => x.TotalAmount),
+            };
 
             return selector;
         }

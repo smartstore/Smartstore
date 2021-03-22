@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a best sellers report line.
     /// </summary>
-    public partial class BestSellersReportLine
+    public partial class BestsellersReportLine
     {
         /// <summary>
         /// Gets or sets the product identifier.
