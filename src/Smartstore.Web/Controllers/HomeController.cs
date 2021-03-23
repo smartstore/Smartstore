@@ -70,6 +70,7 @@ using Smartstore.Scheduling;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Data;
 using Smartstore.Core.Common.Settings;
+using System.Runtime.InteropServices;
 
 namespace Smartstore.Web.Controllers
 {
@@ -826,6 +827,43 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
+            var pcs = Services.Resolve<IPriceCalculationService>();
+            var ps = Services.Resolve<IProductService>();
+            var customer = Services.WorkContext.CurrentCustomer;
+            var product = await _db.Products.FindByIdAsync(1751, false);
+            var batchContext = ps.CreateProductBatchContext(new[] { product }, null, customer);
+            List<Product> associatedProducts = null;
+
+            var preselectedPrice = await pcs.GetPreselectedPriceAsync(product, customer, batchContext);
+            var finalPrice = await pcs.GetFinalPriceAsync(product, null, null, customer, false, 1, null, batchContext);
+            Money lowestPrice;
+
+            if (product.ProductType == ProductType.GroupedProduct)
+            {
+                associatedProducts = await _db.Products
+                    .AsNoTracking()
+                    .ApplyAssociatedProductsFilter(new[] { product.Id })
+                    .ToListAsync();
+
+                lowestPrice = (await pcs.GetLowestPriceAsync(product, customer, batchContext, associatedProducts)).LowestPrice ?? new();
+            }
+            else
+            {
+                lowestPrice = (await pcs.GetLowestPriceAsync(product, customer, batchContext)).LowestPrice;
+            }
+
+            var options = pcs.CreateDefaultOptions(true);
+            options.DetermineLowestPrice = true;
+            options.DeterminePreselectedPrice = true;
+            var calculationContext = new PriceCalculationContext(product, options) { AssociatedProducts = associatedProducts };
+            var cp = await pcs.CalculatePriceAsync(calculationContext);
+
+            content.AppendLine($"Prices       {"old".PadRight(12)} {"new".PadRight(12)}");
+            content.AppendLine($"Final      : {Fmt(finalPrice)} {Fmt(cp.FinalPrice)}");
+            content.AppendLine($"Preselected: {Fmt(preselectedPrice)} {Fmt(cp.PreselectedPrice)}");
+            content.AppendLine($"Lowest     : {Fmt(lowestPrice)} {Fmt(cp.LowestPrice)}");
+
+
             //var checkoutAtributes = "<Attributes><CheckoutAttribute ID=\"2\"><CheckoutAttributeValue><Value>30ccd4a0-8e60-46be-8740-7c9f9d08dd26</Value></CheckoutAttributeValue></CheckoutAttribute><CheckoutAttribute ID=\"1\"><CheckoutAttributeValue><Value>2</Value></CheckoutAttributeValue></CheckoutAttribute></Attributes>";
             //var selection = new CheckoutAttributeSelection(checkoutAtributes);
 
@@ -848,25 +886,6 @@ namespace Smartstore.Web.Controllers
             //    .ToListAsync();
 
             //content.AppendLine("downloads: " + string.Join(", ", downloads.Select(x => $"{x.Id}:{x.IsTransient}")));
-
-
-            //var gcService = Services.Resolve<IGiftCardService>();
-            //var customer = await _db.Customers.Include(x => x.Addresses).FindByIdAsync(2666330);
-
-            ////customer.GenericAttributes.GiftCardCouponCodes = new List<GiftCardCouponCode>
-            ////{
-            ////    new GiftCardCouponCode("027be3c3-7a9f")
-            ////};
-
-            ////await _db.SaveChangesAsync();
-
-            //var giftCards = await gcService.GetValidGiftCardsAsync(1, customer);
-
-            //foreach (var gc in giftCards)
-            //{
-            //    content.AppendLine($"gift card: {gc.UsableAmount.ToString()}. {gc.GiftCard.GiftCardCouponCode}");
-            //}
-
 
             //var price = 16.98M;
             //var currency = Services.WorkContext.WorkingCurrency;
@@ -915,33 +934,13 @@ namespace Smartstore.Web.Controllers
             //resNew = currencyService.ConvertFromPrimaryStoreCurrency(new Money(price, usd));
             //content.AppendLine($"{resOld}, {resNew.Amount} {resNew.Currency.CurrencyCode}. ConvertFromPrimaryStoreCurrency.");
 
-            //var order = await _db.Orders.FindByIdAsync(32120);
-            //var (orderTotal, roundingAmount) = await orderService.GetOrderTotalInCustomerCurrencyAsync(order);
-            //content.AppendLine($"Order total {order.OrderTotal} in customer currency: total {orderTotal.Amount} {orderTotal.Currency.CurrencyCode}, roundingAmount {roundingAmount.Amount} {roundingAmount.Currency.CurrencyCode}");
+            return Content(content.ToString());
+            //return View();
 
-
-            //var customer = await _db.Customers.Include(x => x.Addresses).FindByIdAsync(2666330);
-            //content.AppendLine($"Addresses assigned: " + customer.Addresses.Count);
-
-            //var address = await _db.Addresses.FindByIdAsync(84228);
-            //if (address != null)
-            //{
-            //    customer.RemoveAddress(address);
-            //    await _db.SaveChangesAsync();
-
-            //    content.AppendLine($"Removed assigned address. Addresses assigned: " + customer.Addresses.Count);
-            //}
-
-            //var customer = await _db.Customers
-            //    .Include(x => x.RewardPointsHistory)
-            //        .ThenInclude(x => x.UsedWithOrder)
-            //            .ThenInclude(x => x.RedeemedRewardPointsEntry)  // Tricky. Causes InvalidOperationException "...results in a cycle" when AsNoTracking.
-            //    //.AsNoTracking()
-            //    .FirstOrDefaultAsync(x => x.Id == 2666330);
-            //content.AppendLine($"RewardPointsHistory: {customer.RewardPointsHistory.Count}");
-
-            //return Content(content.ToString());
-            return View();
+            string Fmt( Money? m)
+            {
+                return (m ?? new()).ToString().PadRight(12);
+            }
         }
     }
 }

@@ -550,5 +550,5 @@ namespace Smartstore.Core.Catalog.Products
     // - SystemCustomerAttributeNames.WalletEnabled belongs to Wallet module (as extension method for CustomerAttributeCollection).
     // - AccessDenied action method must process unauthorized message through query string parameter 'permission' (ITempDataDictionary doesn't work in PermissionAttribute).
     // - Check callers of IPaymentMethod.IsPaymentDataValidAsync. Default return value is now null and not an empty list anymore.
-    // - Apply AlwaysPermittedAttribute to action methods where AccessShop permission check must be skipped (like "Register").
+    // - Apply NeverAuthorizeAttribute to action methods where AccessShop permission check must be skipped (like "Register").
 }

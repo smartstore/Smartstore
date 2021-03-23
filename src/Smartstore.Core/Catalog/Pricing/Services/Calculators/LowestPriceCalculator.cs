@@ -19,7 +19,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             // Get lowest possible price.
             // TODO: So how to get the price here (from pipeline?). Should incl. tier prices (int.MaxValue), discounts but ignore additionalCharge and this LowestPriceCalculator.
-            var lowestPrice = decimal.Zero;
+            var lowestPrice = context.FinalPrice;
 
             if (product.LowestAttributeCombinationPrice.HasValue && product.LowestAttributeCombinationPrice.Value < lowestPrice)
             {
