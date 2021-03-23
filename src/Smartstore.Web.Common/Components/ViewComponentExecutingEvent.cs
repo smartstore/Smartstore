@@ -10,7 +10,7 @@ namespace Smartstore.Web.Components
     /// by <see cref="SmartViewComponent"/>, this event must be explicitly published by view component authors
     /// at the most suitable code location (preferably right before model creation). The component
     /// author should then check whether the <see cref="Model"/> property has been assigned a non-null value by any event consumer.
-    /// The author should skip model creation in that case and continue with <see cref="Model"/> instead.
+    /// The author should skip model creation in that case and continue with externally provided <see cref="Model"/> instead.
     /// </summary>
     public class ViewComponentExecutingEvent<TModel> : ViewComponentEventBase
     {

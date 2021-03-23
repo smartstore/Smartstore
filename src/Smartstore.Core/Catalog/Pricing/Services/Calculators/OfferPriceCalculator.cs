@@ -21,6 +21,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                 if ((from == null || now >= from) && (to == null || now <= to))
                 {
+                    // TODO: (mg) (core) Does it make sense here to set FinalPrice only when SpecialPrice is lower?
                     context.OfferPrice = product.SpecialPrice;
                     context.FinalPrice = product.SpecialPrice.Value;
                 }

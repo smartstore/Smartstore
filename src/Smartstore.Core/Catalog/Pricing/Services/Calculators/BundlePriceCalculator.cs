@@ -44,6 +44,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                     // Add price of part to root final price (unit price * contained quantity in this bundle)
                     context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice, bundleItem.Item.Quantity);
+
+                    // TODO: (mg) (core) Is it not better to continue the pipeline here (unlike in Smartstore classic)? Continuation could
+                    // apply OfferPrice and/or further discounts to the automatically calculated final price here. TBD with MC please.
                 }
             }
             else
