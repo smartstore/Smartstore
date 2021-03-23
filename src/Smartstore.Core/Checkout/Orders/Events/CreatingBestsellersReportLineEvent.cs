@@ -7,11 +7,11 @@ namespace Smartstore.Core.Checkout.Orders.Events
     {
         public CreatingBestsellersReportLineEvent()
         {
-        }  
+        }
 
         /// <summary>
         /// Best seller reports.
         /// </summary>
-        public List<BestsellersReportLine> Reports { get; init; }
+        public List<BestsellersReportLine> Reports { get; init; } = new();
     }
 }

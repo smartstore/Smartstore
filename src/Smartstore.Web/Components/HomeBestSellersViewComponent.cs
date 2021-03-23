@@ -34,12 +34,14 @@ namespace Smartstore.Web.Components
             CatalogHelper catalogHelper,
             IAclService aclService,
             IStoreMappingService storeMappingService,
+            IEventPublisher eventPublisher,
             CatalogSettings catalogSettings)
         {
             _db = db;
             _catalogHelper = catalogHelper;
             _aclService = aclService;
             _storeMappingService = storeMappingService;
+            _eventPublisher = eventPublisher;
             _catalogSettings = catalogSettings;
         }
 
