@@ -8,7 +8,7 @@ namespace Smartstore.Core.Search.Facets
 {
     public partial class CatalogFacetUrlHelper : FacetUrlHelperBase
     {
-        private readonly static IDictionary<FacetGroupKind, string> _queryNames = new Dictionary<FacetGroupKind, string>
+        private readonly static Dictionary<FacetGroupKind, string> _queryNames = new()
         {
 			{ FacetGroupKind.Brand, "m" },
             { FacetGroupKind.Category, "c" },

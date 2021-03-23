@@ -71,12 +71,12 @@ namespace Smartstore.Web.Components
                 else
                 {
                     var query = _db.OrderItems
-                    .AsNoTracking()
-                    .ApplyOrderFilter(storeId)
-                    .ApplyProductFilter()
-                    .SelectAsBestSellersReportLine()
-                    // INFO: some products may be excluded by ACL or store mapping later, so take more.
-                    .Take(Convert.ToInt32(_catalogSettings.NumberOfBestsellersOnHomepage * 1.5));
+                        .AsNoTracking()
+                        .ApplyOrderFilter(storeId)
+                        .ApplyProductFilter()
+                        .SelectAsBestSellersReportLine()
+                        // INFO: some products may be excluded by ACL or store mapping later, so take more.
+                        .Take(Convert.ToInt32(_catalogSettings.NumberOfBestsellersOnHomepage * 1.5));
 
                     bestsellers = await query.ToListAsync();
                 }
