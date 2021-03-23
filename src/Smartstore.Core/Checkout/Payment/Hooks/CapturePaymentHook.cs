@@ -1,30 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using DinkToPdf;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Checkout.Payment.Hooks
 {
-    public class CapturePaymentHook : DbSaveHook<Order>
+    public class CapturePaymentHook : AsyncDbSaveHook<Order>
     {
-        // TODO: (ms) (core) OrderProcessingService missing
-        private readonly Lazy<ICommonServices> _services;
-        //private readonly Lazy<IOrderProcessingService> _orderProcessingService;
+        private readonly ISettingFactory _settingFactory;
+        private readonly IOrderProcessingService _orderProcessingService;
         private readonly HashSet<Order> _toCapture = new();
 
         public CapturePaymentHook(
-            Lazy<ICommonServices> services
-            //Lazy<IOrderProcessingService> orderProcessingService
-            )
+            ISettingFactory settingFactory,
+            IOrderProcessingService orderProcessingService)
         {
-            _services = services;
-            //_orderProcessingService = orderProcessingService;
+            _settingFactory = settingFactory;
+            _orderProcessingService = orderProcessingService;
         }
 
         private static bool IsStatusPropertyModifiedTo(IHookedEntity entry, string propertyName, int statusId)
@@ -41,52 +38,55 @@ namespace Smartstore.Core.Checkout.Payment.Hooks
             return false;
         }
 
-        //protected override void OnUpdating(Order entity, IHookedEntity entry)
-        //{
-        //    var isShipped = IsStatusPropertyModifiedTo(entry, nameof(entity.ShippingStatusId), (int)ShippingStatus.Shipped);
-        //    var isDelivered = IsStatusPropertyModifiedTo(entry, nameof(entity.ShippingStatusId), (int)ShippingStatus.Delivered);
+        protected override async Task<HookResult> OnUpdatingAsync(Order entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            var isShipped = IsStatusPropertyModifiedTo(entry, nameof(entity.ShippingStatusId), (int)ShippingStatus.Shipped);
+            var isDelivered = IsStatusPropertyModifiedTo(entry, nameof(entity.ShippingStatusId), (int)ShippingStatus.Delivered);
 
-        //    if (isShipped || isDelivered)
-        //    {
-        //        var settings = _services.Value.Settings.GetSettingByKey<PaymentSettings>(entity.StoreId);
-        //        if (settings.CapturePaymentReason.HasValue)
-        //        {
-        //            if (isShipped && settings.CapturePaymentReason.Value == CapturePaymentReason.OrderShipped)
-        //            {
-        //                _toCapture.Add(entity);
-        //            }
-        //            else if (isDelivered && settings.CapturePaymentReason.Value == CapturePaymentReason.OrderDelivered)
-        //            {
-        //                _toCapture.Add(entity);
-        //            }
-        //        }
-        //    }
+            if (isShipped || isDelivered)
+            {
+                var settings = await _settingFactory.LoadSettingsAsync<PaymentSettings>(entity.StoreId);
+                if (settings.CapturePaymentReason.HasValue)
+                {
+                    if (isShipped && settings.CapturePaymentReason.Value == CapturePaymentReason.OrderShipped)
+                    {
+                        _toCapture.Add(entity);
+                    }
+                    else if (isDelivered && settings.CapturePaymentReason.Value == CapturePaymentReason.OrderDelivered)
+                    {
+                        _toCapture.Add(entity);
+                    }
+                }
+            }
 
-        //    //if (IsStatusPropertyModifiedTo(entry, nameof(entity.OrderStatusId), (int)OrderStatus.Complete))
-        //    //{
-        //    // That's too late. The payment is already marked as paid and the capture process would never be executed.
-        //    //}
-        //}
+            return HookResult.Ok;
 
-        //public override void OnAfterSave(IHookedEntity entry)
-        //{
-        //    // Do not remove.
-        //}
+            //if (IsStatusPropertyModifiedTo(entry, nameof(entity.OrderStatusId), (int)OrderStatus.Complete))
+            //{
+            // That's too late. The payment is already marked as paid and the capture process would never be executed.
+            //}
+        }
 
-        //public override void OnAfterSaveCompleted()
-        //{
-        //    if (_toCapture.Any())
-        //    {
-        //        foreach (var order in _toCapture)
-        //        {
-        //            if (_orderProcessingService.Value.CanCapture(order))
-        //            {
-        //                _orderProcessingService.Value.Capture(order);
-        //            }
-        //        }
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        {
+            // Do not remove.
+            return Task.FromResult(HookResult.Ok);
+        }
 
-        //        _toCapture.Clear();
-        //    }
-        //}
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            if (_toCapture.Any())
+            {
+                foreach (var order in _toCapture)
+                {
+                    if (await _orderProcessingService.CanCaptureAsync(order))
+                    {
+                        await _orderProcessingService.CaptureAsync(order);
+                    }
+                }
+
+                _toCapture.Clear();
+            }
+        }
     }
 }
