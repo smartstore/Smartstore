@@ -5,9 +5,6 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Categories;
-using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Checkout.Orders.Events;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Data;
 using Smartstore.Core.Domain.Catalog;
@@ -25,8 +22,8 @@ namespace Smartstore.Web.Components
         private readonly SmartDbContext _db;
         private readonly CatalogHelper _catalogHelper;
         private readonly IAclService _aclService;
-        private readonly IStoreMappingService _storeMappingService;
         private readonly IEventPublisher _eventPublisher;
+        private readonly IStoreMappingService _storeMappingService;
         private readonly CatalogSettings _catalogSettings;
 
         public HomeBestSellersViewComponent(
@@ -59,14 +56,14 @@ namespace Smartstore.Web.Components
             {
                 o.ExpiresIn(TimeSpan.FromHours(1));
                                 
-                var creatingBestsellersEvent = new CreatingBestsellersReportLineEvent();
-                await _eventPublisher.PublishAsync(creatingBestsellersEvent);
-
                 var bestsellers = new List<BestsellersReportLine>();
 
-                if (!creatingBestsellersEvent.Reports.IsNullOrEmpty())
+                var bestsellersEvent = new ViewComponentExecutingEvent<List<BestsellersReportLine>>(ViewComponentContext);
+                await _eventPublisher.PublishAsync(bestsellersEvent);
+
+                if (bestsellersEvent.Model is List<BestsellersReportLine> report)
                 {
-                    bestsellers = creatingBestsellersEvent.Reports;
+                    bestsellers = report;
                 }
                 else
                 {
@@ -74,7 +71,7 @@ namespace Smartstore.Web.Components
                         .AsNoTracking()
                         .ApplyOrderFilter(storeId)
                         .ApplyProductFilter()
-                        .SelectAsBestSellersReportLine()
+                        .SelectAsBestsellersReportLine()
                         // INFO: some products may be excluded by ACL or store mapping later, so take more.
                         .Take(Convert.ToInt32(_catalogSettings.NumberOfBestsellersOnHomepage * 1.5));
 
