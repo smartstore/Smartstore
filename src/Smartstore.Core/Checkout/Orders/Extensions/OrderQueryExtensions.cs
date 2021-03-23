@@ -44,7 +44,6 @@ namespace Smartstore
         /// <param name="fromUtc">Start date in UTC.</param>
         /// <param name="toUtc">End date in UTC</param>
         public static IQueryable<Order> ApplyDateFilter(this IQueryable<Order> query, DateTime? fromUtc = null, DateTime? toUtc = null)
-            
         {
             Guard.NotNull(query, nameof(query));
 
@@ -131,8 +130,12 @@ namespace Smartstore
         /// <param name="query">Order query.</param>
         /// <param name="billingEmail">Email of billing address.</param>
         /// <param name="billingName">First or last name of billing address.</param>
+        /// <param name="billingCountryIds">Billing country identifiers.</param>
         /// <returns>Order query.</returns>
-        public static IQueryable<Order> ApplyBillingFilter(this IQueryable<Order> query, string billingEmail = null, string billingName = null)
+        public static IQueryable<Order> ApplyBillingFilter(this IQueryable<Order> query,
+            string billingEmail = null,
+            string billingName = null,
+            int[] billingCountryIds = null)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -147,6 +150,11 @@ namespace Smartstore
                     && (!string.IsNullOrEmpty(x.BillingAddress.LastName) && x.BillingAddress.LastName.Contains(billingName)
                     || !string.IsNullOrEmpty(x.BillingAddress.FirstName) && x.BillingAddress.FirstName.Contains(billingName)
                 ));
+            }
+
+            if (!billingCountryIds.IsNullOrEmpty())
+            {
+                query = query.Where(x => billingCountryIds.Contains((int)x.BillingAddress.CountryId));
             }
 
             return query;
@@ -172,9 +180,9 @@ namespace Smartstore
         /// Applies a never sold products filter to query.
         /// </summary>
         /// <param name="query">Orders query with date filter already applied.</param>
-        /// <param name="showHidden">A value indicating whether to include unpublished products.</param>
+        /// <param name="includeHidden">A value indicating whether to include unpublished products.</param>
         /// <returns>Query with products which have never been sold.</returns>
-        public static IQueryable<Product> ApplyNeverSoldProductsFilter(this IQueryable<Order> query, bool showHidden = false)
+        public static IQueryable<Product> ApplyNeverSoldProductsFilter(this IQueryable<Order> query, bool includeHidden = false)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -190,7 +198,7 @@ namespace Smartstore
 
             return db.Products
                 .AsNoTracking()
-                .ApplyStandardFilter(showHidden)
+                .ApplyStandardFilter(includeHidden)
                 .Where(x => !orderItemProductIdsQuery.Contains(x.Id) && x.ProductTypeId != groupedProductId)
                 .OrderBy(x => x.Name);
         }
@@ -259,7 +267,7 @@ namespace Smartstore
         {
             Guard.NotNull(query, nameof(query));
 
-            return query.SumAsync(x => (decimal?)x.OrderTotal ?? decimal.Zero);            
+            return query.SumAsync(x => (decimal?)x.OrderTotal ?? decimal.Zero);
         }
 
         /// <summary>
