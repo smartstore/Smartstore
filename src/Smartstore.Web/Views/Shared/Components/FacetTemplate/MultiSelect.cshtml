@@ -1,6 +1,55 @@
 ﻿@using Smartstore.Core.Search.Facets
 @model FacetGroup
+@{
+    var facets = Model.HasChildren ? FlattenFacets(Model.Facets) : Model.Facets;
+}
 
-<div>
-    TODO: MultiSelect facet template...
+@if (facets.Count() > 7)
+{
+    <div class="facet-local-search has-icon has-icon-right input-group-sm pb-3">
+        <input type="text" class="form-control facet-local-search-input" placeholder="@T("Search.Facet.FindPlaceholder", Model.Label)" />
+        <span class="input-group-icon">
+            <i class="fa fa-search text-muted"></i>
+        </span>
+    </div>
+}
+
+<div class="facet-body-inner@(Model.IsScrollable ? " scrollable custom-scrollbar" : "")">
+    @foreach (var facet in facets)
+    {
+        <div class="facet-item facet-check" data-href="@Url.FacetToggle(facet)">
+            <label>
+                <input class="facet-control-native" type="checkbox" value="@facet.Value.ToString()" attr-checked='(facet.Value.IsSelected, "checked")' />
+                <span class="facet-control-ui"></span>
+                <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
+                    @(facet.Value.Label ?? facet.Value.ToString())
+                </span>
+            </label>
+        </div>
+    }
 </div>
+
+@functions
+{
+    private ICollection<Facet> FlattenFacets(IEnumerable<Facet> facets)
+    {
+        var flattened = new List<Facet>();
+
+        foreach (var facet in facets)
+        {
+            if (facet.IsChoice)
+            {
+                if (facet.Published)
+                {
+                    flattened.Add(facet);
+                }
+            }
+            else if (facet.Children.Count > 0)
+            {
+                flattened.AddRange(FlattenFacets(facet.Children));
+            }
+        }
+
+        return flattened.OrderByDescending(x => x.Value.IsSelected).ThenByDescending(x => x.HitCount).ToList();
+    }
+}

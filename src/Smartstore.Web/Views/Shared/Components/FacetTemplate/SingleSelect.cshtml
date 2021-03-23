@@ -1,0 +1,19 @@
+﻿@using Smartstore.Core.Search.Facets
+@model FacetGroup
+<div class="facet-body-inner@(Model.IsScrollable ? " scrollable custom-scrollbar" : "")">
+    @foreach (var facet in Model.Facets)
+    {
+        if (facet.Published)
+        {
+            <div class="facet-item facet-radio" data-href="@Url.FacetToggle(facet)">
+                <label>
+                    <input class="facet-control-native" type="radio" name="optradio-@(Model.Key)" value="@facet.Value.ToString()" attr-checked='(facet.Value.IsSelected, "checked")' />
+                    <span class="facet-control-ui"></span>
+                    <span class="facet-label has-count" attr-data-count='(facet.HitCount > 0, facet.HitCount.ToString("N0"))'>
+                        @(facet.Value.Label ?? facet.Value.ToString())
+                    </span>
+                </label>
+            </div>
+        }
+    }
+</div>
