@@ -37,7 +37,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// The child product (e.g. associated product of a grouped product or a bundle item part) to calculate price for.
         /// </param>
         /// <param name="context">The calculator context of the root pipeline.</param>
-        /// <param name="childContextConfigurer">An opütional configurer action for the child context.</param>
+        /// <param name="childContextConfigurer">An optional configurer action for the child context.</param>
         /// <returns>The nested calculator context.</returns>
         protected async Task<CalculatorContext> CalculateChildPriceAsync(Product childProduct, CalculatorContext context, Action<CalculatorContext> childContextConfigurer = null)
         {

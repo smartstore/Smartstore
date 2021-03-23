@@ -61,21 +61,21 @@ namespace Smartstore.Core.Catalog.Pricing
         public Money? OfferPrice { get; set; }
 
         /// <summary>
-        /// The price for preselected product, if any. TODO: (mg) (core) Describe.
+        /// The price that is initially displayed on the product detail page, if any.
+        /// Includes price adjustments of preselected attributes and prices of attribute combinations.
         /// </summary>
         public Money? PreselectedPrice { get; set; }
 
         /// <summary>
-        /// The lowest possible price, if any. TODO: (mg) (core) Describe.
+        /// The lowest possible price of a product, if any.
+        /// Includes prices of attribute combinations and tier prices. Ignores price adjustments of attributes.
         /// </summary>
         public Money? LowestPrice { get; set; }
 
-        /// <summary>
-        /// The minimum tier price, if any. TODO: (mg) (core) Describe.
-        /// </summary>
+        // ??? (maybe delete, internal stuff)
         public Money? MinTierPrice { get; set; }
 
-        // ??? (maybe delete)
+        // ??? (maybe delete, internal stuff)
         public Money? MinAttributeCombinationPrice { get; set; }
 
         /// <summary>

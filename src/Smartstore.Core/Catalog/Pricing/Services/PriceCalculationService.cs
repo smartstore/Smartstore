@@ -880,7 +880,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (bundleItem != null)
             {
-                bundleItem.AdditionalCharge = new(attributesTotalPriceBase, _primaryCurrency);
+                bundleItem.AdditionalCharge = attributesTotalPriceBase;
             }
 
             var result = await GetFinalPriceAmountAsync(product, bundleItems, attributesTotalPriceBase, customer, true, 1, bundleItem, context);
@@ -1102,7 +1102,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
                 foreach (var itemData in items.Where(x => x?.Item != null))
                 {
-                    var itemPrice = await GetFinalPriceAmountAsync(itemData.Item.Product, itemData.AdditionalCharge?.Amount ?? decimal.Zero, customer, includeDiscounts, 1, itemData, context);
+                    var itemPrice = await GetFinalPriceAmountAsync(itemData.Item.Product, itemData.AdditionalCharge, customer, includeDiscounts, 1, itemData, context);
 
                     result += itemPrice * itemData.Item.Quantity;
                 }

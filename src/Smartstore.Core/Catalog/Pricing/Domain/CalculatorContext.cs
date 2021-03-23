@@ -6,7 +6,7 @@ namespace Smartstore.Core.Catalog.Pricing
 {
     /// <summary>
     /// Contains data that <see cref="IPriceCalculator"/> instances require access to.
-    /// All monetray amounts are in the primary store currency, without any tax calculation applied.
+    /// All monetary amounts are in the primary store currency, without any tax calculation applied.
     /// </summary>
     public class CalculatorContext : PriceCalculationContext
     {
@@ -48,12 +48,14 @@ namespace Smartstore.Core.Catalog.Pricing
         public decimal? OfferPrice { get; set; }
 
         /// <summary>
-        /// The price for preselected product, if any. TODO: (mg) (core) Describe.
+        /// The price that is initially displayed on the product detail page, if any.
+        /// Includes price adjustments of preselected attributes and prices of attribute combinations.
         /// </summary>
         public decimal? PreselectedPrice { get; set; }
 
         /// <summary>
-        /// The lowest possible price, if any. TODO: (mg) (core) Describe.
+        /// The lowest possible price of a product, if any.
+        /// Includes prices of attribute combinations and tier prices. Ignores price adjustments of attributes.
         /// </summary>
         public decimal? LowestPrice { get; set; }
 
@@ -69,7 +71,7 @@ namespace Smartstore.Core.Catalog.Pricing
             target.Product = Product;
             target.RegularPrice = RegularPrice;
             target.OfferPrice = OfferPrice;
-            target.PreselectedPrice = FinalPrice;
+            target.PreselectedPrice = PreselectedPrice;
             target.FinalPrice = FinalPrice;
             target.HasPriceRange = HasPriceRange;
 

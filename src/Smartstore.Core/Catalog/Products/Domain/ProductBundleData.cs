@@ -5,13 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using Smartstore.Collections;
 using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Common;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
@@ -32,9 +29,9 @@ namespace Smartstore.Core.Catalog.Products
         public ProductBundleItem Item { get; private set; }
 
         /// <summary>
-        /// Gets or sets the additional charge as money. Maybe <c>null</c> if no additional charge is set.
+        /// Gets or sets the additional charge.
         /// </summary>
-        public Money? AdditionalCharge { get; set; }
+        public decimal AdditionalCharge { get; set; }
     }
 
     /// <summary>

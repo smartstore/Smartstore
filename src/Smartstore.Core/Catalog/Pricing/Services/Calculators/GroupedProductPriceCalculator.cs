@@ -55,14 +55,14 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                         lowestPriceCalculation = childCalculation;
                     }
                 }
-
-                lowestPriceCalculation.HasPriceRange = true;
             }
             else
             {
                 // Get the final price of first associated product
                 lowestPriceCalculation = await CalculateChildPriceAsync(context.AssociatedProducts.First(), context, c => { c.Quantity = int.MaxValue; });
             }
+
+            lowestPriceCalculation.HasPriceRange = context.AssociatedProducts.Count > 1;
 
             // Copy data from child context to this context
             lowestPriceCalculation.CopyTo(context);

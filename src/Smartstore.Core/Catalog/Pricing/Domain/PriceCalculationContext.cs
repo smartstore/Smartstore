@@ -58,7 +58,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public ICollection<Product> AssociatedProducts { get; set; }
         public ProductBundleItemData BundleItem { get; set; }
-        public decimal? AdditionalCharge { get; set; }
+        public decimal AdditionalCharge { get; set; }
         public IList<object> Attributes { get; set; }
         public ICollection<ProductBundleItemData> BundleItems { get; set; }
     }
