@@ -880,7 +880,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (bundleItem != null)
             {
-                bundleItem.AdditionalCharge = new(attributesTotalPriceBase, _primaryCurrency);
+                bundleItem.AdditionalCharge = attributesTotalPriceBase;
             }
 
             var result = await GetFinalPriceAmountAsync(product, bundleItems, attributesTotalPriceBase, customer, true, 1, bundleItem, context);

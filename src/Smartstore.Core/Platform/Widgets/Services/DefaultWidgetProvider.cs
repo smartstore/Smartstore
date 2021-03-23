@@ -94,9 +94,9 @@ namespace Smartstore.Core.Widgets
 
             var result = new List<WidgetInvoker>();
 
-            if (_zoneWidgetsMap != null && _zoneWidgetsMap.ContainsKey(zone))
+            if (_zoneWidgetsMap != null && _zoneWidgetsMap.TryGetValues(zone, out var widgets))
             {
-                result.AddRange(_zoneWidgetsMap[zone]);
+                result.AddRange(widgets);
             }
 
             if (_zoneExpressionWidgetsMap != null)
@@ -119,9 +119,16 @@ namespace Smartstore.Core.Widgets
             Guard.NotEmpty(zone, nameof(zone));
             Guard.NotEmpty(widgetKey, nameof(widgetKey));
 
-            if (_zoneWidgetsMap != null && _zoneWidgetsMap.ContainsKey(zone))
+            if (_zoneWidgetsMap != null && _zoneWidgetsMap.TryGetValues(zone, out var widgets))
             {
-                return _zoneWidgetsMap[zone].Any(x => x.Key == widgetKey);
+                // INFO: Hot path code
+                foreach (var widget in widgets)
+                {
+                    if (widget.Key == widgetKey)
+                    {
+                        return true;
+                    }
+                }
             }
 
             return false;

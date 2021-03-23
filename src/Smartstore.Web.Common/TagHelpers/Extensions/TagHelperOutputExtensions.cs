@@ -119,16 +119,8 @@ namespace Smartstore.Web.TagHelpers
             output.PreElement.CopyTo(destination);
 
             // Copy Element (Tag and Attributes).
-            // "contentBuilder" is either "destination" or "TagBuilder.InnerHtml".
-            CopyElement(output, destination, out var contentBuilder);
-
-            // Copy Content
-            if (contentBuilder != null)
-            {
-                output.PreContent.CopyTo(contentBuilder);
-                output.Content.CopyTo(contentBuilder);
-                output.PostContent.CopyTo(contentBuilder);
-            }
+            //CopyElement(output, destination, out var contentBuilder);
+            CopyElement(output, destination, false);
 
             // Copy PostElement
             output.PostElement.CopyTo(destination);
@@ -147,16 +139,7 @@ namespace Smartstore.Web.TagHelpers
             output.PreElement.MoveTo(destination);
 
             // Copy Element (Tag and Attributes).
-            // "contentBuilder" is either "destination" or "TagBuilder.InnerHtml".
-            CopyElement(output, destination, out var contentBuilder);
-
-            // Copy Content
-            if (contentBuilder != null)
-            {
-                output.PreContent.MoveTo(contentBuilder);
-                output.Content.MoveTo(contentBuilder);
-                output.PostContent.MoveTo(contentBuilder);
-            }
+            CopyElement(output, destination, true);
 
             // Copy PostElement
             output.PostElement.MoveTo(destination);
@@ -173,16 +156,7 @@ namespace Smartstore.Web.TagHelpers
             content.AppendHtml(output.PreElement);
 
             // Copy Element (Tag and Attributes).
-            // "contentBuilder" is either "destination" or "TagBuilder.InnerHtml".
-            CopyElement(output, content, out var contentBuilder);
-
-            // Set Content
-            if (contentBuilder != null)
-            {
-                contentBuilder.AppendHtml(output.PreContent);
-                contentBuilder.AppendHtml(output.Content);
-                contentBuilder.AppendHtml(output.PostContent);
-            }
+            CopyElement(output, content, false);
 
             // Set PostElement
             content.AppendHtml(output.PostElement);
@@ -190,36 +164,65 @@ namespace Smartstore.Web.TagHelpers
             return content;
         }
 
-        private static void CopyElement(TagHelperOutput output, IHtmlContentBuilder destination, out IHtmlContentBuilder contentBuilder)
+        private static void CopyElement(TagHelperOutput output, IHtmlContentBuilder destination, bool move = false)
         {
-            contentBuilder = destination;
-
-            if (output.TagName.HasValue())
+            switch (output.TagMode)
             {
-                var tag = new TagBuilder(output.TagName);
+                case TagMode.StartTagOnly:
+                    destination.AppendHtml("<");
+                    destination.AppendHtml(output.TagName);
+                    CopyAttributes(output, destination, move);
+                    destination.AppendHtml(">");
+                    break;
+                case TagMode.SelfClosing:
+                    destination.AppendHtml("<");
+                    destination.AppendHtml(output.TagName);
+                    CopyAttributes(output, destination, move);
+                    destination.AppendHtml(" />");
+                    break;
+                default:
+                    destination.AppendHtml("<");
+                    destination.AppendHtml(output.TagName);
+                    CopyAttributes(output, destination, move);
+                    destination.AppendHtml(">");
 
-                foreach (var attribute in output.Attributes)
-                {
-                    tag.Attributes.Add(attribute.Name, attribute.Value?.ToString());
-                }
+                    // InnerHtml
+                    if (move)
+                    {
+                        output.PreContent.MoveTo(destination);
+                        output.Content.MoveTo(destination);
+                        output.PostContent.MoveTo(destination);
+                    }
+                    else
+                    {
+                        output.PreContent.CopyTo(destination);
+                        output.Content.CopyTo(destination);
+                        output.PostContent.CopyTo(destination);
+                    }
 
-                if (output.TagMode == TagMode.StartTagAndEndTag)
-                {
-                    tag.TagRenderMode = TagRenderMode.Normal;
-                    contentBuilder = tag.InnerHtml;
-                }
-                else if (output.TagMode == TagMode.SelfClosing)
-                {
-                    tag.TagRenderMode = TagRenderMode.SelfClosing;
-                    contentBuilder = null;
-                }
-                else // StartTagOnly
-                {
-                    tag.TagRenderMode = TagRenderMode.StartTag;
-                    contentBuilder = null;
-                }
+                    destination.AppendHtml("</");
+                    destination.AppendHtml(output.TagName);
+                    destination.AppendHtml(">");
+                    break;
+            }
+        }
 
-                destination.AppendHtml(tag);
+        private static void CopyAttributes(TagHelperOutput output, IHtmlContentBuilder destination, bool move = false)
+        {
+            if (output.Attributes.Count > 0)
+            {
+                foreach (var attr in output.Attributes)
+                {
+                    destination.Append(" ");
+                    if (move)
+                    {
+                        attr.MoveTo(destination);
+                    }
+                    else
+                    {
+                        attr.CopyTo(destination);
+                    }
+                }
             }
         }
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Widgets;
 
@@ -56,6 +58,12 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
+            if (output.Attributes.ContainsName("data-origin"))
+            {
+                var origin = output.Attributes["data-origin"];
+                var x = origin;
+            }
+
             if (Key.HasValue() && _widgetProvider.ContainsWidget(TargetZone, Key))
             {
                 output.SuppressOutput();
@@ -63,17 +71,16 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             TagHelperContent childContent = await output.GetChildContentAsync();
-
-            if (childContent.IsEmptyOrWhiteSpace)
-            {
-                output.SuppressOutput();
-                return;
-            }
-
             TagHelperContent content;
             
             if (output.TagName == "widget")
             {
+                if (childContent.IsEmptyOrWhiteSpace)
+                {
+                    output.SuppressOutput();
+                    return;
+                }
+
                 // Never render <widget> tag, only the content
                 output.TagName = null;
                 content = childContent;
