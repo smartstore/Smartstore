@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
@@ -15,15 +16,17 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using StackExchange.Profiling.Internal;
 
 namespace Smartstore.Core.Checkout.Payment
 {
-    public partial class PaymentService : IPaymentService
+    public partial class PaymentService : AsyncDbSaveHook<PaymentMethod>, IPaymentService
     {
         private const string PAYMENT_METHODS_ALL_KEY = "paymentmethod.all-{0}-";
+        private const string PAYMENT_METHODS_PATTERN_KEY = "paymentmethod.*";
 
         private readonly static object _lock = new();
         private static IList<Type> _paymentMethodFilterTypes = null;
@@ -57,6 +60,20 @@ namespace Smartstore.Core.Checkout.Payment
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public DbQuerySettings QuerySettings { get; set; } = DbQuerySettings.Default;
+
+        #region Hook
+
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
+        public override Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            _requestCache.RemoveByPattern(PAYMENT_METHODS_PATTERN_KEY);
+
+            return Task.CompletedTask;
+        }
+
+        #endregion
 
         public virtual async Task<bool> IsPaymentMethodActiveAsync(
             string systemName,
