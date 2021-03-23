@@ -1,21 +1,22 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Smartstore.Web.Components
 {
-    public class ViewComponentResultExecutingEvent
+    /// <summary>
+    /// Is always being published right before a view component is about to render the view.
+    /// This event sort of replaces "OnActionExecuted" or "OnResultExecuting" child action filters of classic MVC.
+    /// </summary>
+    public class ViewComponentResultExecutingEvent : ViewComponentEventBase
     {
         public ViewComponentResultExecutingEvent(ViewComponentContext context, ViewViewComponentResult result)
+            : base(context)
         {
-            Guard.NotNull(context, nameof(context));
             Guard.NotNull(result, nameof(result));
 
-            ViewComponentContext = context;
+            Result = result;
         }
 
-        public ViewComponentContext ViewComponentContext { get; }
         public ViewViewComponentResult Result { get; set; }
 
         public string ViewName 
@@ -23,25 +24,11 @@ namespace Smartstore.Web.Components
             get => Result.ViewName;
             set => Result.ViewName = value;
         }
+
         public object Model
         {
             get => Result.ViewData.Model;
             set => Result.ViewData.Model = value;
-        }
-
-        public HttpContext HttpContext 
-        { 
-            get => ViewComponentContext.ViewContext.HttpContext;
-        }
-
-        public ViewDataDictionary ViewData
-        {
-            get => ViewComponentContext.ViewData;
-        }
-
-        public ViewComponentDescriptor Descriptor
-        {
-            get => ViewComponentContext.ViewComponentDescriptor;
         }
     }
 }
