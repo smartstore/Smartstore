@@ -2,17 +2,16 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core.Security;
 using Smartstore.Data;
 
-namespace Smartstore.Web.Filters
+namespace Smartstore.Core.Security
 {
     /// <summary>
     /// Checks whether the current user has the permission to access the shop.
     /// </summary>
-    public sealed class AccessShopPermittedAttribute : TypeFilterAttribute
+    public sealed class AuthorizeShopAccessAttribute : TypeFilterAttribute
     {
-        public AccessShopPermittedAttribute()
+        public AuthorizeShopAccessAttribute()
             : base(typeof(AccessShopFilter))
         {
         }
@@ -36,7 +35,7 @@ namespace Smartstore.Web.Filters
                 }
 
                 var endpoint = context?.HttpContext?.GetEndpoint();
-                if (endpoint?.Metadata?.GetMetadata<AlwaysPermittedAttribute>() != null)
+                if (endpoint?.Metadata?.GetMetadata<NeverAuthorizeAttribute>() != null)
                 {
                     return;
                 }

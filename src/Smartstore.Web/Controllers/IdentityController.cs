@@ -35,7 +35,7 @@ namespace Smartstore.Web.Controllers
         #region Login / Logout / Register
 
         [HttpGet]
-        [AllowAnonymous]
+        [AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/login", Name = "Login")]
         public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
         {
@@ -52,7 +52,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
+        [AllowAnonymous, NeverAuthorize]
         [ValidateAntiForgeryToken, ValidateCaptcha]
         [LocalizedRoute("/login", Name = "Login")]
         public async Task<IActionResult> Login(LoginModel model, string returnUrl, string captchaError)
@@ -103,7 +103,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
+        [AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/register", Name = "Register")]
         public IActionResult Register(string returnUrl = null)
         {
@@ -118,7 +118,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
+        [AllowAnonymous, NeverAuthorize]
         [ValidateAntiForgeryToken, ValidateCaptcha, ValidateHoneypot]
         [LocalizedRoute("/register", Name = "Register")]
         public async Task<IActionResult> Register(RegisterModel model, string returnUrl = null)
@@ -160,6 +160,7 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
+        [NeverAuthorize]
         [LocalizedRoute("/logout", Name = "Logout")]
         public async Task<IActionResult> Logout()
         {
@@ -192,7 +193,7 @@ namespace Smartstore.Web.Controllers
         #region Access
 
         [HttpGet]
-        [AllowAnonymous]
+        [AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/access-denied", Name = "AccessDenied")]
         public IActionResult AccessDenied(string returnUrl = null)
         {
