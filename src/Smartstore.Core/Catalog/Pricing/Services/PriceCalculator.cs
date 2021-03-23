@@ -33,8 +33,13 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// Gets the final price for a child product by running a nested calculation pipeline.
         /// </summary>
+        /// <param name="childProduct">
+        /// The child product (e.g. associated product of a grouped product or a bundle item part) to calculate price for.
+        /// </param>
+        /// <param name="context">The calculator context of the root pipeline.</param>
+        /// <param name="childContextConfigurer">An opütional configurer action for the child context.</param>
         /// <returns>The nested calculator context.</returns>
-        protected async Task<CalculatorContext> CalculateChildPriceAsync(Product childProduct, CalculatorContext context)
+        protected async Task<CalculatorContext> CalculateChildPriceAsync(Product childProduct, CalculatorContext context, Action<CalculatorContext> childContextConfigurer = null)
         {
             if (context.Product == childProduct)
             {
@@ -42,16 +47,15 @@ namespace Smartstore.Core.Catalog.Pricing
                 throw new InvalidOperationException("Deadlock");
             }
             
-            var childCalculatorContext = new CalculatorContext(context, childProduct.Price)
-            {
-                Product = childProduct,
-                Quantity = int.MaxValue
-            };
+            var childCalculatorContext = new CalculatorContext(context, childProduct.Price) { Product = childProduct };
+
+            childContextConfigurer?.Invoke(childCalculatorContext);
 
             // INFO: we know that options have been cloned.
-            childCalculatorContext.Options.BatchContext = context.Options.ChildProductsBatchContext;
-            childCalculatorContext.Options.IgnoreGroupedProducts = true;
-            childCalculatorContext.Options.IgnoreBundles = true;
+            if (context.Options.ChildProductsBatchContext != null)
+            {
+                childCalculatorContext.Options.BatchContext = context.Options.ChildProductsBatchContext;
+            }
 
             // Get calculators for child product context
             var calculators = _calculatorFactory.GetCalculators(childCalculatorContext);

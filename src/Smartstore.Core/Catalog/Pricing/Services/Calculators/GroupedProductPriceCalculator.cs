@@ -10,14 +10,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     public class GroupedProductPriceCalculator : PriceCalculator
     {
         private readonly ICatalogSearchService _catalogSearchService;
-        private readonly IPriceCalculatorFactory _calculatorFactory;
         private readonly IProductService _productService;
 
         public GroupedProductPriceCalculator(ICatalogSearchService catalogSearchService, IPriceCalculatorFactory calculatorFactory, IProductService productService)
             : base(calculatorFactory)
         {
             _catalogSearchService = catalogSearchService;
-            _calculatorFactory = calculatorFactory;
             _productService = productService;
         }
 
@@ -32,14 +30,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 return;
             }
 
-            var options = context.Options;
-
-            if (options.IgnoreGroupedProducts)
-            {
-                await next(context);
-                return;
-            }
-
             await EnsureAssociatedProductsAreLoaded(product, context);
 
             if (context.AssociatedProducts.Count == 0)
@@ -48,6 +38,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 return;
             }
 
+            var options = context.Options;
+
             CalculatorContext lowestPriceCalculation = null;
 
             if (options.DetermineLowestPrice && context.AssociatedProducts.Count > 1)
@@ -55,7 +47,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 foreach (var associatedProduct in context.AssociatedProducts)
                 {
                     // Get the final price of associated product
-                    var childCalculation = await CalculateChildPriceAsync(associatedProduct, context);
+                    var childCalculation = await CalculateChildPriceAsync(associatedProduct, context, c => { c.Quantity = int.MaxValue; });
 
                     if (lowestPriceCalculation == null || childCalculation.FinalPrice < lowestPriceCalculation.FinalPrice)
                     {
@@ -69,7 +61,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             else
             {
                 // Get the final price of first associated product
-                lowestPriceCalculation = await CalculateChildPriceAsync(context.AssociatedProducts.First(), context);
+                lowestPriceCalculation = await CalculateChildPriceAsync(context.AssociatedProducts.First(), context, c => { c.Quantity = int.MaxValue; });
             }
 
             // Copy data from child context to this context

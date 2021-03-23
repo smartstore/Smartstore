@@ -60,6 +60,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public ProductBundleItemData BundleItem { get; set; }
         public decimal? AdditionalCharge { get; set; }
         public IList<object> Attributes { get; set; }
-        public IList<object> BundleItems { get; set; }
+        public ICollection<ProductBundleItemData> BundleItems { get; set; }
     }
 }

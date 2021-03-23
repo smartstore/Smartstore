@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
+    /// <summary>
+    /// TODO: (mg) (core) Describe once implemented completely.
+    /// </summary>
     public class CashRoundingOptions
     {
         public bool RoundNetPrices { get; set; }

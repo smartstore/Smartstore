@@ -147,7 +147,6 @@ namespace Smartstore.Core.Catalog.Pricing
             var result = new CalculatedPrice(calculatorContext)
             {
                 Product = sourceProduct,
-                ContextProduct = calculatorContext.Product,
                 RegularPrice = ConvertAmount(calculatorContext.RegularPrice, calculatorContext, taxRate, false, out _).Value,
                 OfferPrice = ConvertAmount(calculatorContext.OfferPrice, calculatorContext, taxRate, false, out _),
                 PreselectedPrice = ConvertAmount(calculatorContext.PreselectedPrice, calculatorContext, taxRate, false, out _),

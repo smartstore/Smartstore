@@ -13,6 +13,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             var product = context.Product;
             if (product.SpecialPrice.HasValue)
             {
+                // TODO: (mg) Does Bundle with ItemPricing has OfferPrice?
                 // Check date range
                 var now = DateTime.UtcNow;
                 var from = product.SpecialPriceStartDateTimeUtc;

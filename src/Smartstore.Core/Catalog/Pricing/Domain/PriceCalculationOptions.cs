@@ -57,8 +57,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public ProductBatchContext ChildProductsBatchContext { get; set; }
 
-        public bool IgnoreGroupedProducts { get; set; }
-        public bool IgnoreBundles { get; set; }
         public bool IgnoreAttributes { get; set; }
         public bool IgnoreTierPrices { get; set; }
         public bool IgnoreDiscounts { get; set; }

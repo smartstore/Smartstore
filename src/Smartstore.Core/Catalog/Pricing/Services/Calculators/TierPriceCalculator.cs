@@ -13,6 +13,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     {
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {
+            // TODO: (core) ICatalogSettings.DisplayTierPricesWithDiscounts
+
             var product = context.Product;
             var options = context.Options;
             
