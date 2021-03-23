@@ -6,7 +6,7 @@ namespace Smartstore.Web.Components
     /// <summary>
     /// Component to render facet templates.
     /// </summary>
-    public class FacetTemplateViewComponent : SmartViewComponent
+    public class FacetGroupViewComponent : SmartViewComponent
     {
         public IViewComponentResult Invoke(FacetGroup facetGroup, string templateName)
         {

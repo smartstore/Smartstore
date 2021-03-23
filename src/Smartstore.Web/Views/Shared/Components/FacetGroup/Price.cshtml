@@ -1,8 +1,10 @@
 ﻿@using Smartstore.Core.Search.Facets
+
 @model FacetGroup
 @{
     var customRangeFacet = Model.Facets.FirstOrDefault(x => x.Key == "custom");
 }
+
 <div class="facet-body-inner">
     @foreach (var facet in Model.Facets)
     {
@@ -22,8 +24,8 @@
 
     @if (customRangeFacet != null)
     {
-        string value = customRangeFacet.Value.Value != null ? customRangeFacet.Value.Value.ToString() : "";
-        string upperValue = customRangeFacet.Value.UpperValue != null ? customRangeFacet.Value.UpperValue.ToString() : "";
+        string value = customRangeFacet.Value.Value != null ? customRangeFacet.Value.Value.ToString() : string.Empty;
+        string upperValue = customRangeFacet.Value.UpperValue != null ? customRangeFacet.Value.UpperValue.ToString() : string.Empty;
 
         <div class="facet-range-container d-flex align-items-center mt-2">
             <div class="flex-grow-1 pr-2">

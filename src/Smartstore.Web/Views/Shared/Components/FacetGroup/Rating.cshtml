@@ -1,4 +1,5 @@
 ﻿@using Smartstore.Core.Search.Facets
+
 @model FacetGroup
 @{
     var facets = Model.Facets.Where(x => x.Published).Reverse().Skip(1);
@@ -7,6 +8,7 @@
         return;
     }
 }
+
 <div class="facet-body-inner facet-body-rating">
     @foreach (var facet in facets)
     {

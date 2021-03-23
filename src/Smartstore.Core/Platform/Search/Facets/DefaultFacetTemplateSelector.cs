@@ -14,7 +14,7 @@ namespace Smartstore.Core.Search.Facets
                 return null;
             }
 
-            var widget = new ComponentWidgetInvoker("FacetTemplate", new { facetGroup, templateName })
+            var widget = new ComponentWidgetInvoker("FacetGroup", new { facetGroup, templateName })
             {
                 Order = facetGroup.DisplayOrder
             };
