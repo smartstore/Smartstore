@@ -1,0 +1,17 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model ProductDetailsModel
+
+<div class="pd-bundle-price alert alert-success m-b-0">
+    @*TODO: (mh) (core) Verify that this is correct to check for existing value *@
+    @if (Model.ProductPrice.PriceWithDiscount > 0)
+    {
+        @Html.Raw(T("Products.Bundle.YouSave",
+                    $"<span class='pd-bundle-price-offer lrm'>{Model.ProductPrice.PriceWithDiscount}</span>",
+                    $"<span class='pd-bundle-price-regular lrm'>{Model.ProductPrice.Price}</span>"));
+    }
+    else
+    {
+        @Html.Raw(T("Products.Bundle.YouSaveWithoutDiscount", $"<span class='pd-bundle-price-offer'>{Model.ProductPrice.Price}</span>"));
+    }
+</div>

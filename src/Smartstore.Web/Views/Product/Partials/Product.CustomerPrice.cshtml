@@ -1,0 +1,8 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model ProductDetailsModel
+
+<div class="form-group">
+    <label asp-for="AddToCart.CustomerEnteredPrice" />
+    <input asp-for="AddToCart.CustomerEnteredPrice" value="@Convert.ToInt32(Math.Ceiling(Model.AddToCart.CustomerEnteredPrice))" />
+</div>

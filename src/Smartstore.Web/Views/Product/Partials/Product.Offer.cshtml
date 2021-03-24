@@ -1,0 +1,100 @@
+﻿@using Smartstore.Web.Models.Catalog
+@using Smartstore.Core.Catalog.Products
+
+@model ProductDetailsModel
+
+@{
+    var conditionContent = "http://schema.org/";
+
+    switch (Model.Condition)
+    {
+        case ProductCondition.Damaged:
+            conditionContent += "DamagedCondition";
+            break;
+        case ProductCondition.Used:
+            conditionContent += "UsedCondition";
+            break;
+        case ProductCondition.Refurbished:
+            conditionContent += "RefurbishedCondition";
+            break;
+        case ProductCondition.New:
+        default:
+            conditionContent += "NewCondition";
+            break;
+    }
+}
+
+<div class="pd-offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+    <meta itemprop="itemCondition" content="@conditionContent" />
+    @*TODO: (mh) (core) Is Scheme correctly obtained? *@
+    <link itemprop="url" href="@Url.RouteUrl("Product", new { SeName = Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme)" />
+    @if (!Model.AddToCart.DisableBuyButton || !Model.AddToCart.DisableWishlistButton || Model.ProductPrice.ShowLoginNote)
+    {
+        if (Model.AddToCart.CustomerEntersPrice && !Model.ProductPrice.HidePrices)
+        {
+            var dataDictCustomerPrice = new ViewDataDictionary(ViewData);
+            dataDictCustomerPrice.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", Model.Id);
+            <partial name="Product.CustomerPrice" model="Model" view-data="dataDictCustomerPrice" />
+        }
+        else
+        {
+            <div class="pd-offer-price-container" data-partial="Price">
+                <partial name="Product.Offer.Price" model="Model" />
+            </div>
+        }
+    }
+
+    <meta itemprop="availability" content="@(Model.IsAvailable ? "http://schema.org/InStock" : "http://schema.org/SoldOut")" />
+    <meta sm-if="Model.ProductPrice.PriceValidUntilUtc.HasValue()" itemprop="priceValidUntil" content="@Model.ProductPrice.PriceValidUntilUtc" />
+
+    <div class="pd-stock-info-container" data-partial="Stock">
+        <partial name="Product.StockInfo" model="Model" />
+    </div>
+
+    @if (Model.GiftCard.IsGiftCard)
+    {
+        var dataDictGiftCard = new ViewDataDictionary(ViewData);
+        dataDictGiftCard.TemplateInfo.HtmlFieldPrefix = Model.GiftCardFieldPrefix;
+        <partial name="Product.GiftCard" model="Model.GiftCard" view-data="dataDictGiftCard" />
+    }
+
+    <div sm-if="Model.ProductType != ProductType.BundledProduct && Model.ProductVariantAttributes.ShouldBeRendered()" class="pd-variants-container" data-partial="Variants">
+        @{
+            var dataDictVariants = new ViewDataDictionary(ViewData);
+            dataDictVariants.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", Model.Id);
+            <partial name="Product.Variants" model="Model.ProductVariantAttributes" view-data="dataDictVariants" />
+        }
+    </div>
+
+    <div class="pd-offer-actions-container" data-partial="OfferActions">
+        @{
+            var dataDictAddToCart = new ViewDataDictionary(ViewData);
+            dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", Model.Id);
+            <partial name="Product.Offer.Actions" model="Model" view-data="dataDictAddToCart" />
+        }
+    </div>
+
+    <partial name="Product.Offer.Actions.Misc" model="Model" />
+</div>
+
+<script sm-target-zone="scripts" data-origin="product-detail-offer">
+    // Ask question
+    $(document).on('click', '.action-ask-question', function (e) {
+        e.preventDefault();
+        const el = $(this);
+		const form = el.data('form-selector');
+		if (form) {
+			const href = el.data('href');
+            $.ajax({
+				cache: false,
+                url: href,
+                data: $(form).serialize(),
+				success: function (response) {
+					// Redirect to ask question get action
+					if (response.redirect)
+						location.href = response.redirect;
+				}
+            });
+        }
+    });
+</script>

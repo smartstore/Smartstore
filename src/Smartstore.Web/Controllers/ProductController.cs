@@ -1,13 +1,16 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Catalog;
+using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Web.Controllers
@@ -26,7 +29,9 @@ namespace Smartstore.Web.Controllers
         private readonly IProductCompareService _productCompareService;
         private readonly CatalogHelper _helper;
         private readonly IBreadcrumb _breadcrumb;
-
+        private readonly SeoSettings _seoSettings;
+        private readonly ContactDataSettings _contactDataSettings;
+        private readonly Lazy<IUrlHelper> _urlHelper;
 
         public ProductController(
             SmartDbContext db,
@@ -40,7 +45,10 @@ namespace Smartstore.Web.Controllers
             MediaSettings mediaSettings,
             CatalogSettings catalogSettings,
             CatalogHelper helper,
-            IBreadcrumb breadcrumb)
+            IBreadcrumb breadcrumb,
+            SeoSettings seoSettings,
+            ContactDataSettings contactDataSettings,
+            Lazy<IUrlHelper> urlHelper)
         {
             _db = db;
             _productService = productService;
@@ -54,6 +62,9 @@ namespace Smartstore.Web.Controllers
             _catalogSettings = catalogSettings;
             _helper = helper;
             _breadcrumb = breadcrumb;
+            _seoSettings = seoSettings;
+            _contactDataSettings = contactDataSettings;
+            _urlHelper = urlHelper;
         }
 
         #region Products
@@ -77,20 +88,64 @@ namespace Smartstore.Web.Controllers
             if (!await _storeMappingService.AuthorizeAsync(product))
                 return NotFound();
 
+            // Is product individually visible?
+            if (product.Visibility == ProductVisibility.Hidden)
+            {
+                // Find parent grouped product.
+                var parentGroupedProduct = await _db.Products.FindByIdAsync(product.ParentGroupedProductId, false);
+                if (parentGroupedProduct == null)
+                    return NotFound();
+
+                var seName = await parentGroupedProduct.GetActiveSlugAsync();
+                if (seName.IsEmpty())
+                    return NotFound();
+
+                var routeValues = new RouteValueDictionary
+                {
+                    { "SeName", seName }
+                };
+
+                // Add query string parameters.
+                Request.Query.Each(x => routeValues.Add(x.Key, Request.Query[x.Value]));
+
+                return RedirectToRoute("Product", routeValues);
+            }
+
+            // Prepare the view model
+            var model = await _helper.PrepareProductDetailsPageModelAsync(product, query);
+
+            // Some cargo data
+            model.PictureSize = _mediaSettings.ProductDetailsPictureSize;
+            model.HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty();
+            if (_seoSettings.CanonicalUrlsEnabled)
+            {
+                model.CanonicalUrl = _urlHelper.Value.RouteUrl("Product", new { model.SeName }, Request.Scheme);
+            }
+
             // Save as recently viewed
             _recentlyViewedProductsService.AddProductToRecentlyViewedList(product.Id);
 
             // Activity log
             Services.ActivityLogger.LogActivity("PublicStore.ViewProduct", T("ActivityLog.PublicStore.ViewProduct"), product.Name);
 
-            // TODO: (mh) (core) Continue CatalogController.Category()
-            
-            var store = Services.StoreContext.CurrentStore;
-            var price = Services.CurrencyService.ConvertToWorkingCurrency(product.Price);
+            // Breadcrumb
+            if (_catalogSettings.CategoryBreadcrumbEnabled)
+            {
+                await _helper.GetBreadcrumbAsync(_breadcrumb, ControllerContext, product);
 
-            return Content($"Product --> Id: {product.Id}, Name: {product.Name}, Price: {price}");
+                _breadcrumb.Track(new MenuItem
+                {
+                    Text = model.Name,
+                    Rtl = model.Name.CurrentLanguage.Rtl,
+                    EntityId = product.Id,
+                    Url = Url.RouteUrl("Product", new { model.SeName })
+                });
+            }
+
+            return View(model.ProductTemplateViewPath, model);
         }
 
         #endregion
     }
 }
+

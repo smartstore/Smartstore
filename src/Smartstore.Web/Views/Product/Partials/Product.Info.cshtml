@@ -1,0 +1,57 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model ProductDetailsModel
+
+@{
+    var brand = Model.Brands == null ? null : Model.Brands.FirstOrDefault();
+}
+
+<div class="pd-info pd-group">
+    <!-- Brand -->
+    <div sm-if="brand != null" class="pd-brand-block">
+        <a class="pd-brand" asp-route="Manufacturer" asp-route-SeName="@brand.SeName">
+            @if (brand.Image != null && brand.Image.HasImage())
+            {
+                <img sm-model="brand.Image" class="pd-brand-picture" />
+            }
+            else
+            {
+                <span sm-language-attributes-for="brand.Name">@brand.Name</span>
+            }
+        </a>
+        <meta itemprop="brand" content="@brand.Name.Value">
+        <meta sm-if="Model.Sku.HasValue()" itemprop="sku" content="@Model.Sku" />
+        <meta sm-if="Model.Gtin.HasValue()" itemprop="gtin" content="@Model.Gtin" />
+        <meta sm-if="Model.ManufacturerPartNumber.HasValue()" itemprop="mpn" content="@Model.ManufacturerPartNumber" />
+    </div>
+
+    <!-- Title -->
+    <div class="page-title">
+        <h1 sm-language-attributes-for="Model.Name" class="pd-name" itemprop="name">
+            @if (Model.IsAssociatedProduct && Model.VisibleIndividually)
+            {
+                <a asp-route="Product" asp-route-SeName="@Model.SeName" title="@T("Products.Details")">@Model.Name</a>
+            }
+            else
+            {
+                @Model.Name
+            }
+        </h1>
+    </div>
+
+    <!-- Short description -->
+    @if (Model.ShortDescription.Value.HasValue())
+    {
+        <div sm-language-attributes-for="Model.ShortDescription" class="pd-description" itemprop="description">
+            @Html.Raw(Model.ShortDescription)
+        </div>
+    }
+</div>
+
+<!-- Review Overview -->
+@*TODO: (mh) (core) sm-if seems to be broken for partials*@
+@*<partial sm-if="!Model.IsAssociatedProduct && Model.DisplayProductReviews" name="Product.ReviewSummary" model="Model.ReviewOverview" />*@
+@if (!Model.IsAssociatedProduct && Model.DisplayProductReviews)
+{
+    <partial name="Product.ReviewSummary" model="Model.ReviewOverview" />
+}

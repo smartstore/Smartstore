@@ -1,0 +1,27 @@
+﻿@using Smartstore.Web.Models.Catalog
+@using Smartstore.Core.Checkout.GiftCards 
+
+@model ProductDetailsModel.GiftCardModel
+
+<div sm-if="Model.IsGiftCard" class="pd-giftcard">
+    <div class="form-group pd-giftcard-recipient-name">
+        <label asp-for="@Model.RecipientName" class="required" />
+        <input asp-for="@Model.RecipientName" />
+    </div>
+    <div sm-if="Model.GiftCardType == GiftCardType.Virtual" class="form-group pd-giftcard-recipient-email">
+        <label asp-for="@Model.RecipientEmail" class="required" />
+        <input asp-for="@Model.RecipientEmail" />
+    </div>
+    <div class="form-group pd-giftcard-sender-name">
+        <label asp-for="@Model.SenderName" class="required" />
+        <input asp-for="@Model.SenderName" />
+    </div>
+    <div sm-if="Model.GiftCardType == GiftCardType.Virtual" class="form-group pd-giftcard-sender-email">
+        <label asp-for="@Model.SenderEmail" class="required" />
+        <input asp-for="@Model.SenderEmail" />
+    </div>
+    <div class="form-group pd-giftcard-message">
+        <label asp-for="@Model.Message"/>
+        <textarea asp-for="@Model.Message" />
+    </div>
+</div>

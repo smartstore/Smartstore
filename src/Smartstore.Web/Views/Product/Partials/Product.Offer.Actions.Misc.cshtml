@@ -1,0 +1,76 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model ProductDetailsModel
+
+@{
+    if (Model.ActionItems.Count == 0)
+    {
+        return;
+    }
+
+    var primaryActions = Model.ActionItems.Values.Where(x => x.IsPrimary).OrderBy(x => x.Priority).ToList();
+    var actions = Model.ActionItems.Values.Where(x => !x.IsPrimary).OrderBy(x => x.Priority).ToList();
+}
+
+<div class="pd-actions-container">
+    <div sm-if="primaryActions.Count > 0" class="pd-actions-primary">
+        @foreach (var action in primaryActions)
+        {
+            <a href="@action.Href" class="btn btn-@action.PrimaryActionColor btn-block @action.CssClass">
+                <i class="@action.IconCssClass"></i>
+                <span>@action.Title</span>
+            </a>
+        }
+    </div>
+    
+    @if (actions.Count > 0)
+    {
+        var colClass = "col";
+        if (actions.Count < 5 || actions.Count == 6)
+        {
+            colClass += "-" + 12 / actions.Count;
+        }
+
+        <div class="row sm-gutters pd-actions@(actions.Count > 6 ? " pd-actions-xl": "")">
+            @foreach (var action in actions)
+            {
+                var key = action.Key;
+                var isSpecial = key == "wishlist" || key == "compare";
+                <div class="@colClass pd-action-item" attr-style='(actions.Count == 5, "width: 20%; min-width: 20%")'>
+                    @if (isSpecial)
+                    {
+                        <a data-href='@action.Href' 
+                           attr-data-form-selector='(key == "wishlist", "#pd-form")'
+                           title="@action.Tooltip"
+                           href="#"
+                           class="pd-action-link@(isSpecial ? " pd-action-link-special" : "") @action.CssClass"
+                           rel="nofollow"
+                           data-type="@key"
+                           data-action="add">
+                           <i class="pd-action-icon @action.IconCssClass"></i> 
+                           <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : "")">@action.Title</span>
+                        </a>
+                    }
+                    else if (key == "ask")
+                    {
+                        <a class="pd-action-link @(action.CssClass) action-ask-question" href="javascript:void(0)"
+                           data-href="@Url.Action("AskQuestionAjax", "Product", new { id = Model.Id })"
+                           data-form-selector="#pd-form" rel="nofollow" title="@action.Tooltip">
+                           <i class="pd-action-icon @action.IconCssClass"></i> 
+                           <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : "")">@action.Title</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="pd-action-link@(isSpecial ? " pd-action-link-special" : "") @(action.CssClass)" href="@action.Href" rel="nofollow" title="@action.Tooltip">
+                            <i class="pd-action-icon @action.IconCssClass"></i>
+                            <span sm-if="actions.Count < 7" class="pd-action-label@(actions.Count > 4 ? " fs-sm" : "")">@action.Title</span>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<zone name="productdetail_action_links_after" />

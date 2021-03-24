@@ -1,0 +1,43 @@
+﻿@model IQuantityInput
+
+@using Smartstore.Web.Models.Catalog;
+@using Microsoft.AspNetCore.Routing
+ 
+@{
+    var large = ViewData["large"].Convert<bool>();
+    //var itemId = ViewData["itemId"].Convert<string>();
+    // TODO: (mc) > (mh) finalize dropdown later in v3.1+
+    var inputStyle = "spinner";
+    //var inputStyle = Model.QuantiyControlType;
+
+    var htmlAttributes = new RouteValueDictionary(ViewData["htmlAttributes"] ?? new object());
+    var fixedAttributes = new RouteValueDictionary();
+
+    foreach (var attr in htmlAttributes)
+    {
+        fixedAttributes[attr.Key.StartsWith("data_") ? attr.Key.Replace("_", "-") : attr.Key] = attr.Value;
+    }
+
+    fixedAttributes["class"] = "form-control" + (large ? " form-control-lg" : "");
+    fixedAttributes["data-min"] = Model.MinOrderAmount;
+    fixedAttributes["data-max"] = Model.MaxOrderAmount;
+    fixedAttributes["data-postfix"] = Model.QuantityUnitName;
+    fixedAttributes["data-step"] = Model.QuantityStep;
+}
+
+<div class="qty-input@(Model.QuantityUnitName != null && Model.QuantityUnitName.Value.HasValue() ? " has-postfix" : "")">
+    @if (inputStyle == "spinner")
+    {
+        @Html.TextBoxFor(model => model.EnteredQuantity, fixedAttributes)
+    }
+    else
+    {
+        <div sm-if="Model.AllowedQuantities != null && Model.AllowedQuantities.Count > 0" class="mf-dropdown" style="display: block">
+            <button class="btn btn-warning btn-labeled icon-right btn-block@(large ? " btn-lg" : "")">
+                <span data-bind="value">@Model.EnteredQuantity</span>
+                <b><i class="fas fa-caret-down"></i></b>
+            </button>
+            @Html.DropDownListFor(model => Model.EnteredQuantity, Model.AllowedQuantities, new { @class = "form-control qty-dropdown noskin" })
+        </div>
+    }
+</div>

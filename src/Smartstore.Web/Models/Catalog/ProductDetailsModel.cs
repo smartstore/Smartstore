@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Attributes;
@@ -9,6 +10,7 @@ using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Rendering.Choices;
 
@@ -18,6 +20,8 @@ namespace Smartstore.Web.Models.Catalog
     {
         public MediaGalleryModel MediaGalleryModel { get; set; } = new();
 
+        public MetaPropertiesModel MetaProperties { get; set; } = new();
+
         public LocalizedValue<string> Name { get; set; }
         public LocalizedValue<string> ShortDescription { get; set; }
         public LocalizedValue<string> FullDescription { get; set; }
@@ -26,12 +30,12 @@ namespace Smartstore.Web.Models.Catalog
         public LocalizedValue<string> MetaDescription { get; set; }
         public LocalizedValue<string> MetaTitle { get; set; }
         public string SeName { get; set; }
+        public string CanonicalUrl { get; set; }
         public ProductType ProductType { get; set; }
         public bool VisibleIndividually { get; set; }
 
         public int PictureSize { get; set; }
-        public bool CanonicalUrlsEnabled { get; set; }
-
+        
         public ProductCondition Condition { get; set; }
         public bool ShowCondition { get; set; }
         public string LocalizedCondition { get; set; }
@@ -95,6 +99,8 @@ namespace Smartstore.Web.Models.Catalog
 
         public List<BrandOverviewModel> Brands { get; set; } = new();
         public int ReviewCount { get; set; }
+        public ProductReviewOverviewModel ReviewOverview { get; set; } = new();
+        
 
         // A list of associated products. For example, "Grouped" products could have several child "simple" products
         public List<ProductDetailsModel> AssociatedProducts { get; set; } = new();
@@ -260,5 +266,28 @@ namespace Smartstore.Web.Models.Catalog
         }
 
         #endregion
+    }
+
+    // TODO: (mh) (core) This doesn't belong here. Find a proper place.
+    public static class ProductDetailsExtensions
+    {
+        public static bool ShouldBeRendered(this ProductDetailsModel.ProductVariantAttributeModel variantAttribute)
+        {
+            switch (variantAttribute.AttributeControlType)
+            {
+                case AttributeControlType.DropdownList:
+                case AttributeControlType.RadioList:
+                case AttributeControlType.Checkboxes:
+                case AttributeControlType.Boxes:
+                    return variantAttribute.Values.Count > 0;
+                default:
+                    return true;
+            }
+        }
+
+        public static bool ShouldBeRendered(this IEnumerable<ProductDetailsModel.ProductVariantAttributeModel> variantAttributes)
+        {
+            return variantAttributes?.FirstOrDefault(x => x.ShouldBeRendered()) != null;
+        }
     }
 }

@@ -1,0 +1,144 @@
+﻿@using Smartstore.Web.Models.Catalog
+@using Smartstore.Core.Catalog.Products
+
+@model ProductDetailsModel
+
+@{
+    Assets.AppendTitleParts(Model.MetaTitle.HasValue() ? Model.MetaTitle : Model.Name);
+    Assets.AppendMetaDescriptionParts(Model.MetaDescription);
+    Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
+
+    if (Model.CanonicalUrl.HasValue())
+    {
+        Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
+    }
+
+    string updateUrl = Url.Action("UpdateProductDetails", "Product", new
+    {
+        productId = Model.Id,
+        bundleItemId = Model.BundleItem.Id,
+        itemType = (string)null // TODO: (mc) WTF!?
+    });
+}
+
+<widget target-zone="head">
+    <partial name="MetaProperties" model="Model.MetaProperties" />
+</widget>
+
+<div class="page product-details-page" itemscope itemtype="http://schema.org/Product">
+    <zone name="productdetails_top" />
+
+    <article class="pd page-body">
+
+        <div id="main-update-container" class="update-container" data-url="@updateUrl">
+            @using (Html.BeginRouteForm("Product", new { SeName = Model.SeName }, FormMethod.Post, false, new { id = "pd-form" }))
+            {
+                <!-- Top Content: Picture, Description, Attrs, Variants, Bundle Items, Price etc. -->
+                <section class="row pd-section pd-section-top">
+                    <!-- Picture -->
+                    <div class="col-12 col-md-6 col-lg-7 pd-data-col">
+                        <zone name="productdetails_pictures_top" />
+                        <div id="pd-gallery-container">
+                            <partial name="Product.Media" model="Model.MediaGalleryModel" />
+                        </div>
+                        <zone name="productdetails_pictures_bottom" />
+                    </div>
+
+                    <!-- Sidebar: Info, Price, Buttons etc. -->
+                    <aside class="col-12 col-md-6 col-lg-5 pd-info-col zoom-window-container">
+                        <zone name="productdetails_info_top" />
+
+                        <partial name="Product.Info" model="Model" />
+
+                        <div sm-if="Model.ProductType == ProductType.BundledProduct" class="pd-bundle-container pd-group card shadow-sm">
+                            <partial name="Product.Bundle" model="Model" />
+                        </div>
+
+                        @if (Model.ProductType != ProductType.GroupedProduct)
+                        {
+                            <zone name="productdetails_attrs_top" />
+
+                            <!-- Product attributes (SKU, EAN, Weight etc.) -->
+                            <div class="pd-attrs-container" data-partial="Attrs">
+                                <partial name="Product.Attrs" model="Model" />
+                            </div>
+
+                            <!-- Offer box -->
+                            <partial name="Product.Offer" model="Model" />
+                        }
+                        else
+                        {
+                            <partial name="Product.Offer.Actions.Misc" model="Model" />
+                        }
+
+                        <!-- social share -->
+                        <div sm-if="Model.ProductShareCode.HasValue()" class="pd-share d-flex justify-content-@(Model.ProductType == ProductType.GroupedProduct ? "start mt-4" : "center mt-3")">
+                            @Html.Raw(Model.ProductShareCode)
+                        </div>
+
+                        @if (Model.DisplayAdminLink)
+                        {
+                            <a asp-action="Edit" asp-controller="Product" asp-area="admin" asp-route-id="@Model.Id" class="btn btn-secondary btn-flat btn-admin-edit" target="admin-product" rel="nofollow">
+                                <i class="fa fa-cog"></i>
+                                <span>@T("Common.Catalog.EditProduct")</span>
+                            </a>
+                        }
+
+                    </aside>
+                </section>
+
+                <section sm-if="Model.ProductType == ProductType.GroupedProduct" class="pd-section pd-section-variants">
+                    @if (Model.AssociatedProducts.Count == 0)
+                    {
+                        <div class="pd-no-associated-products alert alert-warning">
+                            @T("Products.NoAssociatedProducts")
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var product in Model.AssociatedProducts)
+                        {
+                            var dataDictProduct = new ViewDataDictionary(ViewData);
+                            dataDictProduct.TemplateInfo.HtmlFieldPrefix = string.Format("product_{0}", product.Id);
+                            <partial name="Product.AssociatedProduct" model="product" view-data="dataDictProduct" />
+                        }
+                    }
+                </section>
+            }
+        </div>
+
+        <!-- Bottom Content: Full Description, Specification, Review etc. -->
+        <section class="pd-section pd-section-bottom">
+            <!-- Tabs -->
+            <partial name="Product.Tabs" model="Model" />
+            <zone name="productdetail_tabs_after" />
+
+            <!-- Tags -->
+            @*TODO: (mh) (core) ProductTags *@
+            <zone name="productdetail_tags_after" />
+
+            <!-- Related products -->
+            @*TODO: (mh) (core) RelatedProducts *@
+            <zone name="productdetail_related_products_after" />
+
+            <!-- Products also purchased -->
+            @*TODO: (mh) (core) ProductsAlsoPurchased *@
+            <zone name="productdetail_also_purchased_after" />
+        </section>
+    </article>
+
+    @* TODO: (mc) find more intelligent way of rendering RecentlyViewedProducts globally *@
+    @await Component.InvokeAsync("RecentlyViewedProducts")
+    <zone name="productdetails_bottom" />
+</div>
+
+<script sm-target-zone="scripts" data-origin="product-detail">
+    $(function () {
+        var settings = {
+            galleryStartIndex: @(Model.MediaGalleryModel.GalleryStartIndex),
+            enableZoom: toBool('@(Model.MediaGalleryModel.ImageZoomEnabled)')
+        };
+
+    	$('#pd-form').productDetail(settings);
+    });
+</script>

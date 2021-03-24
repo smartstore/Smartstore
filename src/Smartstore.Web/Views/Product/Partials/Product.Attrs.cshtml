@@ -1,0 +1,59 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model ProductDetailsModel
+
+@{
+    var showDimensions = Model.ShowDimensions && (Model.Length.HasValue() || Model.Width.HasValue() || Model.Height.HasValue());
+    var showAttrs = (Model.ShowCondition && Model.LocalizedCondition.HasValue())
+        || (Model.ShowSku && Model.Sku.HasValue())
+        || (Model.ShowWeight && Model.Weight.HasValue())
+        || showDimensions
+        || (Model.ShowGtin && Model.Gtin.HasValue())
+        || (Model.ShowManufacturerPartNumber && Model.ManufacturerPartNumber.HasValue());
+
+    if (!showAttrs)
+    {
+        return;
+    }
+}
+
+<table class="pd-attrs pd-group">
+    <tr sm-if="Model.ShowCondition && Model.LocalizedCondition.HasValue()" class="pd-attr-condition">
+        <td>@T("Products.Condition")</td>
+        <td>@Model.LocalizedCondition</td>
+    </tr>
+    <tr sm-if="Model.ShowSku && Model.Sku.HasValue()" class="pd-attr-sku">
+        <td>@T("Products.Sku")</td>
+        <td itemprop="sku">@Model.Sku</td>
+    </tr>
+    <tr sm-if="Model.ShowGtin && Model.Gtin.HasValue()" class="pd-attr-gtin">
+        <td>@T("Products.GTIN")</td>
+        <td itemprop="gtin13">@Model.Gtin</td>
+    </tr>
+    <tr sm-if="Model.ShowManufacturerPartNumber && Model.ManufacturerPartNumber.HasValue()" class="pd-attr-mpn">
+        <td>@T("Products.ManufacturerPartNumber")</td>
+        <td itemprop="mpn">@Model.ManufacturerPartNumber</td>
+    </tr>
+    <tr sm-if="Model.ShowWeight && Model.Weight.HasValue()" class="pd-attr-weight">
+        <td>@T("Products.Weight")</td>
+        <td itemprop="weight">@Model.Weight</td>
+    </tr>
+    
+    @if (showDimensions)
+    {
+        <tr sm-if="Model.Width.HasValue()" class="pd-attr-width">
+            <td>@T("Products.Width")</td>
+            <td itemprop="width">@Model.Width</td>
+        </tr>
+        <tr sm-if="Model.Length.HasValue()" class="pd-attr-length">
+            <td>@T("Products.Length")</td>
+            <td itemprop="depth">@Model.Length</td>
+        </tr>
+        <tr sm-if="Model.Height.HasValue()" class="pd-attr-height">
+            <td>@T("Products.Height")</td>
+            <td itemprop="height">@Model.Height</td>
+        </tr>
+    }
+
+    <zone name="productdetails_attrs_bottom" />
+</table>

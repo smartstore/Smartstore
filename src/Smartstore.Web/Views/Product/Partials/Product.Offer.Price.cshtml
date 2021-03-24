@@ -1,0 +1,57 @@
+﻿@using Smartstore.Web.Models.Catalog
+
+@model ProductDetailsModel
+
+@{
+    if (Model.AddToCart.DisableBuyButton && Model.AddToCart.DisableWishlistButton && !Model.ProductPrice.ShowLoginNote)
+    {
+        return;
+    }
+}
+
+<div class="pd-offer-price">
+    @if (Model.ProductPrice.ShowLoginNote)
+    {
+        <h4 class="pd-price pd-loginforprice">@T("Products.LoginForPrice")</h4>
+    }
+    else if (Model.ProductPrice.CallForPrice)
+    {
+        <h4 class="pd-price pd-callforprice">@T("Products.CallForPrice")</h4>
+    }
+    else
+    {
+        var isBundleItem = Model.IsBundlePart;
+        var priceModel = Model.ProductPrice;
+        var basePriceEnabled = isBundleItem ? priceModel.BundleItemShowBasePrice : Model.IsBasePriceEnabled;
+
+        var currentPrice = 0;
+        var currentPriceValue = 0;
+        var currentPriceLabel = priceModel.NoteWithDiscount;
+
+        <!-- Current price -->
+        <div class="pd-group clearfix">
+            <div class="row sm-gutters pd-price-group">
+                <div class="col-auto pd-price-block">
+                    @*TODO: (mh) (core) Finish price display!*@
+                    Pricing Not implemented yet
+                </div>
+            </div>
+        </div>
+
+        <!-- Tier prices -->
+        <div class="pd-tierprices">
+            @* TODO (mh) (core): ViewComponent or Partial? *@
+            @*<partial name="Product.TierPrices" model="Model" />*@
+        </div>
+
+        <!-- Pangv & legal info -->
+        <div sm-if="(basePriceEnabled && Model.BasePriceInfo.HasValue()) || (Model.ShowLegalInfo && Model.LegalInfo.HasValue())" class="pd-group">
+            <div sm-if="basePriceEnabled && Model.BasePriceInfo.HasValue()" class="pd-pangv">
+                @Html.Raw(LocalizedValue.FixBrackets(Model.BasePriceInfo, WorkContext.WorkingLanguage))
+            </div>
+            <div sm-if="Model.ShowLegalInfo && Model.LegalInfo.HasValue() && currentPriceValue != 0" class="pd-legalinfo">
+                @Html.Raw(Model.LegalInfo)
+            </div>
+        </div>
+    }
+</div>
