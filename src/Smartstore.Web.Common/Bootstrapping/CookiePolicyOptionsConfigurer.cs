@@ -29,7 +29,7 @@ namespace Smartstore.Web.Bootstrapping
             ///
             //options.CheckConsentNeeded = context => true;
             options.HttpOnly = HttpOnlyPolicy.None;
-            options.ConsentCookie.Name = CookieNames.GdprConsent;
+            options.ConsentCookie.Name = CookieNames.CookieConsent;
             options.MinimumSameSitePolicy = _privacySettings.SameSiteMode;
 
             // Whether to allow the use of cookies from SSL protected page on the other store pages which are not protected

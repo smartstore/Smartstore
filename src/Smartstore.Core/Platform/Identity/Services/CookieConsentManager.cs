@@ -70,7 +70,7 @@ namespace Smartstore.Core.Identity
             Guard.NotNull(cookieType, nameof(cookieType));
 
             var request = _httpContextAccessor?.HttpContext?.Request;
-            if (request != null && request.Cookies.TryGetValue(CookieNames.CookieConsent, out var value) && value.HasValue())
+            if (request != null && request.Cookies.TryGetValue(CookieNames.GdprConsent, out var value) && value.HasValue())
             {
                 try
                 {
@@ -99,7 +99,7 @@ namespace Smartstore.Core.Identity
             var context = _httpContextAccessor?.HttpContext;
             if (context != null)
             {
-                var cookieName = CookieNames.CookieConsent;
+                var cookieName = CookieNames.GdprConsent;
                 string value = null;
 
                 if (context.Items.TryGetValue(cookieName, out var obj))
@@ -116,7 +116,9 @@ namespace Smartstore.Core.Identity
 
                         return cookieData;
                     }
-                    catch { }
+                    catch 
+                    { 
+                    }
                 }
             }
 
@@ -135,7 +137,7 @@ namespace Smartstore.Core.Identity
                 };
 
                 var cookies = context.Response.Cookies;
-                var cookieName = CookieNames.CookieConsent;
+                var cookieName = CookieNames.GdprConsent;
 
                 var options = new CookieOptions
                 {
