@@ -60,6 +60,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<PasswordHasher>().As<IPasswordHasher<Customer>>().InstancePerLifetimeScope();
             //builder.RegisterType<UserValidator>().As<IUserValidator<Customer>>().As<IPasswordValidator<Customer>>().InstancePerLifetimeScope();
             builder.RegisterType<GdprTool>().As<IGdprTool>().InstancePerLifetimeScope();
+            builder.RegisterType<CookieConsentManager>().As<ICookieConsentManager>().InstancePerLifetimeScope();
 
             // Rules.
             builder.RegisterType<TargetGroupService>()

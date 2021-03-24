@@ -56,6 +56,11 @@
         public static string GdprConsent => Prefix + ".Consent";
 
         /// <summary>
+        /// Gets the cookie name of the cookie consent manager.
+        /// </summary>
+        public static string CookieConsent => Prefix + ".CookieConsent";
+
+        /// <summary>
         /// Gets the StoreIdOverride cookie name
         /// </summary>
         public static string StoreIdOverride => Prefix + ".StoreIdOverride";

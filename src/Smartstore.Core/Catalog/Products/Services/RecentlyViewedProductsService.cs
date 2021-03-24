@@ -84,7 +84,6 @@ namespace Smartstore.Core.Catalog.Products
 
             cookies.Delete(cookieName, options);
 
-            // TODO: (mg) viewing an already viewed product does not reorder. Fix.
             cookies.Append(cookieName, 
                 string.Join(",", newProductIds.Take(maxProducts)),
                 options);

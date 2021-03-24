@@ -155,6 +155,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 Tax = tax
             };
 
+            // TODO: (core) Taxing the final price only? The FinalPrice is not necessarily the requested, displayed price (depends on CatalogSettings.PriceDisplayType).
             if (tax.HasValue && _primaryCurrency != context.Options.TargetCurrency)
             {
                 // Exchange tax amounts
@@ -183,6 +184,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var options = context.Options;
 
+            // TODO: (core) The caller must be able to obtain prices without any consideration of taxes.
             if (amount != 0)
             {
                 tax = context.Options.IsGrossPrice
