@@ -1,0 +1,30 @@
+﻿@model ChoiceModel
+
+@{
+    var controlId = Model.BuildControlId();
+    var items = Model.Values ?? new List<ChoiceItemModel>();
+}
+
+<select id="@controlId" name="@controlId" class="form-control" attr-disabled='(Model.IsDisabled, "disabled")'>
+    @if (!Model.IsRequired)
+    {
+        <option>@T("Common.Unspecified")</option>
+    }
+    else if (items.Any() && !items.Any(x => x.IsPreSelected))
+    {
+        <option>@T("Common.PleaseSelect")</option>
+    }
+    @foreach (var item in items)
+    {
+        var hasColor = item.Color.HasValue() && item.Color != "transparent";
+        var hasImage = item.ImageUrl.HasValue();
+        <option value="@item.Id" title="@item.Title.NullEmpty()"
+                attr-selected='(item.IsPreSelected, "selected")'
+                attr-data-imageurl='(hasImage, item.ImageUrl)'
+                attr-data-color='(hasColor && !hasImage, item.Color)'
+                attr-data-item-class='(item.IsUnavailable, "choice-item-unavailable")'
+                attr-disabled='(item.IsDisabled, "disabled")'>
+            @item.GetItemLabel()
+        </option>
+    }
+</select>

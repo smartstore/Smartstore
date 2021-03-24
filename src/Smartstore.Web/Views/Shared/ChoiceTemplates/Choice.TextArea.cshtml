@@ -1,0 +1,10 @@
+﻿@model ChoiceModel
+
+@{
+    var controlId = Model.BuildControlId();
+    var placeholder = Model.Description.RemoveHtml().TrimSafe();
+}
+
+<textarea cols="20" rows="2" id="@(controlId)" name="@(controlId)" class="form-control" placeholder="@placeholder" attr-disabled='(Model.IsDisabled, "disabled")'>
+    @Model.TextValue
+</textarea>

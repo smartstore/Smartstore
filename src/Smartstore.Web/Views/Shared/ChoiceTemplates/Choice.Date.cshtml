@@ -1,0 +1,9 @@
+﻿@model ChoiceModel
+
+@{
+    var controlId = Model.BuildControlId();
+}
+
+<triple-date-picker day-name="@(controlId + "-day")" month-name="@(controlId + "-month")" year-name="@(controlId + "-year")"
+                    day="Model.SelectedDay" month="Model.SelectedMonth" year="Model.SelectedYear"
+                    begin-year="Model.BeginYear" end-year="Model.EndYear" disabled="Model.IsDisabled" />
