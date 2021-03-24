@@ -4,12 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Org.BouncyCastle.Asn1.Cms;
 using Smartstore.Caching;
 using Smartstore.Core;
 using Smartstore.Core.Catalog;
@@ -586,11 +584,12 @@ namespace Smartstore.Web.Controllers
                     DisplayTextForZeroPrices = _catalogSettings.DisplayTextForZeroPrices
                 };
 
-                // Brands.
-                var brands = await _manufacturerService.GetProductManufacturersByProductIdsAsync(new[]{ product.Id });
-                model.Brands = _catalogSettings.ShowManufacturerInProductDetail
-                    ? await PrepareBrandOverviewModelAsync(brands, null, _catalogSettings.ShowManufacturerPicturesInProductDetail)
-                    : null;
+                // Brands
+                if (_catalogSettings.ShowManufacturerPicturesInProductDetail)
+                {
+                    var brands = await _manufacturerService.GetProductManufacturersByProductIdsAsync(new[] { product.Id });
+                    model.Brands = await PrepareBrandOverviewModelAsync(brands, null, true);
+                }
 
                 // Review overview.
                 model.ReviewOverview.RatingSum = product.ApprovedRatingSum;
@@ -636,7 +635,7 @@ namespace Smartstore.Web.Controllers
                 model.ProductTemplateViewPath = await _services.Cache.GetAsync(templateCacheKey, async () =>
                 {
                     var template = await _db.ProductTemplates.FindByIdAsync(product.ProductTemplateId, false)
-                        ?? await _db.ProductTemplates.FirstOrDefaultAsync();
+                        ?? await _db.ProductTemplates.AsNoTracking().FirstOrDefaultAsync();
 
                     return template.ViewPath;
                 });
@@ -664,6 +663,7 @@ namespace Smartstore.Web.Controllers
                 {
                     // Bundled items.
                     var bundleItemQuery = await _db.ProductBundleItem
+                        .AsNoTracking()
                         .ApplyBundledProductsFilter(new[] { product.Id })
                         .Include(x => x.Product)
                         .Include(x => x.BundleProduct)
@@ -781,6 +781,7 @@ namespace Smartstore.Web.Controllers
                 }
 
                 var files = await _db.ProductMediaFiles.ApplyProductFilter(new[] { product.Id })
+                    .AsNoTracking()
                     .Select(x => _mediaService.ConvertMediaFile(x.MediaFile))
                     .ToListAsync();
 
@@ -804,6 +805,10 @@ namespace Smartstore.Web.Controllers
             IList<ProductBundleItemData> productBundleItems = null,
             int selectedQuantity = 1)
         {
+            // TODO: (mh) (core) Split this method into many protected methods:
+            // PrepareProductAttributesModel, PrepareProductAttributeCombinationsModel, PrepareProductPriceModel,
+            // PrepareProductCartModel, PrepareProductGiftCardsModel
+
             Guard.NotNull(model, nameof(model));
             Guard.NotNull(product, nameof(product));
 
@@ -821,9 +826,10 @@ namespace Smartstore.Web.Controllers
 
             var hasSelectedAttributesValues = false;
             var hasSelectedAttributes = query.Variants.Any();
-            List<ProductVariantAttributeValue> selectedAttributeValues = null;
+            IList<ProductVariantAttributeValue> selectedAttributeValues = null;
             
             var variantAttributes = isBundle ? new List<ProductVariantAttribute>() : await _db.ProductVariantAttributes
+                .AsNoTracking()
                 .Where(x => x.ProductId == product.Id)
                 .OrderBy(x => x.DisplayOrder)
                 .Include(x => x.ProductAttribute)
@@ -895,14 +901,15 @@ namespace Smartstore.Web.Controllers
                                     Guid guid;
                                     if (selectedVariant.Value.HasValue() && Guid.TryParse(selectedVariant.Value, out guid))
                                     {
-                                        var download = await _db.Downloads
+                                        var downloadFileName = await _db.Downloads
+                                            .AsNoTracking()
                                             .Where(x => x.DownloadGuid == guid)
-                                            .Include(x => x.MediaFile)
+                                            .Select(x => x.MediaFile.Name)
                                             .FirstOrDefaultAsync();
 
-                                        if (download?.MediaFile != null)
+                                        if (downloadFileName != null)
                                         {
-                                            pvaModel.UploadedFileName = download.MediaFile.Name;
+                                            pvaModel.UploadedFileName = downloadFileName;
                                         }
                                     }
                                     break;
@@ -926,9 +933,10 @@ namespace Smartstore.Web.Controllers
                     var pvaValues = !attribute.IsListTypeAttribute() 
                         ? new List<ProductVariantAttributeValue>()
                         : await _db.ProductVariantAttributeValues
-                        .Where(x => x.ProductVariantAttributeId == attribute.Id)
-                        .OrderBy(x => x.DisplayOrder)
-                        .ToListAsync();
+                            .AsNoTracking()
+                            .Where(x => x.ProductVariantAttributeId == attribute.Id)
+                            .OrderBy(x => x.DisplayOrder)
+                            .ToListAsync();
 
                     foreach (var pvaValue in pvaValues)
                     {
@@ -943,7 +951,7 @@ namespace Smartstore.Web.Controllers
                             preSelectedValueId = attributeFilter.AttributeValueId;
                         }
 
-                        var linkedProduct = await _db.Products.FindByIdAsync(pvaValue.LinkedProductId);
+                        var linkedProduct = await _db.Products.FindByIdAsync(pvaValue.LinkedProductId, false);
 
                         var pvaValueModel = new ProductDetailsModel.ProductVariantAttributeValueModel
                         {
@@ -998,6 +1006,7 @@ namespace Smartstore.Web.Controllers
                         if (_catalogSettings.ShowLinkedAttributeValueImage && pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage)
                         {
                             var linkageFile = await _db.ProductMediaFiles
+                                .AsNoTracking()
                                 .ApplyProductFilter(new[] { pvaValue.LinkedProductId }, 1)
                                 .Include(x => x.MediaFile)
                                 .FirstOrDefaultAsync();
@@ -1074,11 +1083,11 @@ namespace Smartstore.Web.Controllers
                     // Merge with combination data if there's a match.
                     var warnings = new List<string>();
                     var checkAvailability = product.AttributeChoiceBehaviour == AttributeChoiceBehaviour.GrayOutUnavailable;
-                    var attributesSelection = new ProductVariantAttributeSelection(null);
+                    ProductVariantAttributeSelection attributesSelection;
 
                     if (query.VariantCombinationId != 0)
                     {
-                        var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId);
+                        var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
                         attributesSelection = new ProductVariantAttributeSelection(combination?.RawAttributes ?? string.Empty);
                     }
                     else
@@ -1087,7 +1096,7 @@ namespace Smartstore.Web.Controllers
                         attributesSelection = selection.Selection;
                     }
 
-                    selectedAttributeValues = (await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(attributesSelection)).ToList();
+                    selectedAttributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(attributesSelection);
                     hasSelectedAttributesValues = attributesSelection.AttributesMap.Any();
 
                     if (isBundlePricing)
@@ -1263,8 +1272,8 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            var dimension = await _db.MeasureDimensions.Where(x => x.Id == _measureSettings.BaseDimensionId).FirstOrDefaultAsync();
-            var weight = await _db.MeasureWeights.Where(x => x.Id == _measureSettings.BaseDimensionId).FirstOrDefaultAsync();
+            var dimension = await _db.MeasureDimensions.AsNoTracking().Where(x => x.Id == _measureSettings.BaseDimensionId).FirstOrDefaultAsync();
+            var weight = await _db.MeasureWeights.AsNoTracking().Where(x => x.Id == _measureSettings.BaseDimensionId).FirstOrDefaultAsync();
             var dimensionSystemKeyword = dimension?.SystemKeyword ?? string.Empty;
             var weightSystemKeyword = dimension?.SystemKeyword ?? string.Empty;
 
@@ -1325,7 +1334,7 @@ namespace Smartstore.Web.Controllers
                 model.DeliveryTimeName = T("ShoppingCart.NotAvailable");
             }
 
-            var quantityUnit = await _db.QuantityUnits.ApplyQuantityUnitFilter(product.QuantityUnitId).FirstOrDefaultAsync();
+            var quantityUnit = await _db.QuantityUnits.AsNoTracking().ApplyQuantityUnitFilter(product.QuantityUnitId).FirstOrDefaultAsync();
 
             if (quantityUnit != null)
             {

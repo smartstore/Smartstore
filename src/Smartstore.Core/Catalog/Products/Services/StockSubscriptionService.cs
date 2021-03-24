@@ -36,12 +36,16 @@ namespace Smartstore.Core.Catalog.Products
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public virtual async Task<bool> IsSubscribedAsync(Product product, Customer customer = null, int? storeId = null)
+        public virtual Task<bool> IsSubscribedAsync(Product product, Customer customer = null, int? storeId = null)
         {
             Guard.NotNull(product, nameof(product));
 
-            var subscription = await GetSubscriptionAsync(product, customer ?? _workContext.CurrentCustomer, storeId ?? _storeContext.CurrentStore.Id);
-            return subscription != null;
+            customer ??= _workContext.CurrentCustomer;
+            storeId ??= _storeContext.CurrentStore.Id;
+
+            return _db.BackInStockSubscriptions
+                .ApplyStandardFilter(product.Id, customer.Id, storeId)
+                .AnyAsync();
         }
 
         public virtual async Task<(bool Success, string Message)> SubscribeAsync(Product product, Customer customer = null, int? storeId = null)
