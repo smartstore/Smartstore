@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Net;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 
@@ -463,19 +465,92 @@ namespace Smartstore.Web.Controllers
 
             var result = await _catalogSearchService.SearchAsync(query);
             var settings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
-            var model = await _helper.MapProductSummaryModelAsync(await result.GetHitsAsync(), settings);
+            var model = await _helper.MapProductSummaryModelAsync((await result.GetHitsAsync()).ToList(), settings);
             model.GridColumnSpan = GridColumnSpan.Max5Cols;
 
             return View(model);
         }
 
-        // TODO: (mh) (core) Implement when RssActionResult is available.
-        //[LocalizedRoute("/newproducts/rss", Name = "RecentlyAddedProductsRSS")]
-        //public async Task<IActionResult> RecentlyAddedProductsRSS()
-        //{
-        //    ...
-        //    return new RssActionResult { Feed = feed };
-        //}
+        [LocalizedRoute("/newproducts/rss", Name = "RecentlyAddedProductsRSS")]
+        public async Task<IActionResult> RecentlyAddedProductsRSS(CatalogSearchQuery query)
+        {
+            // TODO: (mc) find a more prominent place for the "NewProducts" link (may be in main menu?)
+            var store = Services.StoreContext.CurrentStore;
+            var protocol = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
+            var selfLink = Url.RouteUrl("RecentlyAddedProductsRSS", null, protocol);
+            var recentProductsLink = Url.RouteUrl("RecentlyAddedProducts", null, protocol);
+            var title = $"{store.Name} - {T("RSS.RecentlyAddedProducts")}";
+            var feed = new SmartSyndicationFeed(new Uri(recentProductsLink), title, T("RSS.InformationAboutProducts"));
+
+            feed.AddNamespaces(true);
+            feed.Init(selfLink, Services.WorkContext.WorkingLanguage.LanguageCulture);
+
+            if (!_catalogSettings.RecentlyAddedProductsEnabled || _catalogSettings.RecentlyAddedProductsNumber <= 0)
+            {
+                return new RssActionResult { Feed = feed };
+            }
+
+            var items = new List<SyndicationItem>();
+
+            query.Sorting.Clear();
+            query = query
+                .BuildFacetMap(false)
+                .SortBy(ProductSortingEnum.CreatedOn)
+                .Slice(0, _catalogSettings.RecentlyAddedProductsNumber);
+
+            var result = await _catalogSearchService.SearchAsync(query);
+            var hits = await result.GetHitsAsync();
+            var storeUrl = store.GetHost();
+
+            // Prefetching.
+            var fileIds = hits
+                .Select(x => x.MainPictureId ?? 0)
+                .Where(x => x != 0)
+                .Distinct()
+                .ToArray();
+
+            var files = (await Services.MediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
+
+            foreach (var product in hits)
+            {
+                var productUrl = Url.RouteUrl("Product", new { SeName = await product.GetActiveSlugAsync() }, protocol);
+                if (productUrl.HasValue())
+                {
+                    var content = product.GetLocalized(x => x.FullDescription).Value;
+
+                    if (content.HasValue())
+                    {
+                        content = WebHelper.MakeAllUrlsAbsolute(content, Request);
+                    }
+
+                    var item = feed.CreateItem(
+                        product.GetLocalized(x => x.Name),
+                        product.GetLocalized(x => x.ShortDescription),
+                        productUrl,
+                        product.CreatedOnUtc,
+                        content);
+
+                    try
+                    {
+                        // We add only the first media file.
+                        if (files.TryGetValue(product.MainPictureId ?? 0, out var file))
+                        {
+                            var url = Services.MediaService.GetUrl(file, _mediaSettings.ProductDetailsPictureSize, storeUrl, false);
+                            feed.AddEnclosure(item, file, url);
+                        }
+                    }
+                    catch { }
+
+                    items.Add(item);
+                }
+            }
+
+            feed.Items = items;
+
+            Services.DisplayControl.AnnounceRange(hits);
+
+            return new RssActionResult { Feed = feed };
+        }
 
         [LocalizedRoute("/recentlyviewedproducts", Name = "RecentlyViewedProducts")]
         public async Task<IActionResult> RecentlyViewedProducts()
