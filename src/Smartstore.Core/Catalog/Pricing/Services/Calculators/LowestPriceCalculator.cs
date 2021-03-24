@@ -17,7 +17,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 await next(context);
                 return;
             }
-
+            
             var product = context.Product;
 
             // Get lowest possible price.

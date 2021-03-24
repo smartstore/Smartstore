@@ -6,7 +6,6 @@ using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog;
-using Smartstore.Core.Checkout.Orders.Events;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
@@ -50,36 +49,25 @@ namespace Smartstore.Web.Components
                 return Empty();
             }
 
+            var bestsellersEvent = new ViewComponentExecutingEvent<List<BestsellersReportLine>>(ViewComponentContext);
+            await _eventPublisher.PublishAsync(bestsellersEvent);
+
             var storeId = Services.StoreContext.CurrentStore.Id;
 
             // Load report from cache
-            var report = await Services.Cache.GetAsync(ModelCacheInvalidator.HOMEPAGE_BESTSELLERS_REPORT_KEY.FormatInvariant(storeId), async (o) =>
+            var report = bestsellersEvent.Model ?? await Services.Cache.GetAsync(ModelCacheInvalidator.HOMEPAGE_BESTSELLERS_REPORT_KEY.FormatInvariant(storeId), async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromHours(1));
                                 
-                var bestsellers = new List<BestsellersReportLine>();
+                var query = _db.OrderItems
+                    .AsNoTracking()
+                    .ApplyOrderFilter(storeId)
+                    .ApplyProductFilter()
+                    .SelectAsBestsellersReportLine()
+                    // INFO: some products may be excluded by ACL or store mapping later, so take more.
+                    .Take(Convert.ToInt32(_catalogSettings.NumberOfBestsellersOnHomepage * 1.5));
 
-                var bestsellersEvent = new ViewComponentExecutingEvent<List<BestsellersReportLine>>(ViewComponentContext);
-                await _eventPublisher.PublishAsync(bestsellersEvent);
-
-                if (bestsellersEvent.Model is List<BestsellersReportLine> report)
-                {
-                    bestsellers = report;
-                }
-                else
-                {
-                    var query = _db.OrderItems
-                        .AsNoTracking()
-                        .ApplyOrderFilter(storeId)
-                        .ApplyProductFilter()
-                        .SelectAsBestsellersReportLine()
-                        // INFO: some products may be excluded by ACL or store mapping later, so take more.
-                        .Take(Convert.ToInt32(_catalogSettings.NumberOfBestsellersOnHomepage * 1.5));
-
-                    bestsellers = await query.ToListAsync();
-                }
-
-                return bestsellers;
+                return await query.ToListAsync();
             });
 
             if (report.Count == 0)
