@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Brands;
-using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 

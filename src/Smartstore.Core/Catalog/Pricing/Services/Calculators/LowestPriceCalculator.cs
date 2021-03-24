@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
+    /// <summary>
+    /// TODO: (mg) (core) Describe
+    /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 10)]
     public class LowestPriceCalculator : IPriceCalculator
     {

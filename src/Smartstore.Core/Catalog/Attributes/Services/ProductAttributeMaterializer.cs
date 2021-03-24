@@ -10,7 +10,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 

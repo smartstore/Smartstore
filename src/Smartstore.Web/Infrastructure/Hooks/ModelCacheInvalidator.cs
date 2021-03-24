@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Smartstore.Caching;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -12,7 +12,6 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Topics;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
@@ -21,7 +20,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Web.Infrastructure.Hooks
 {
-	internal partial class ModelCacheInvalidator : IDbSaveHook
+    internal partial class ModelCacheInvalidator : IDbSaveHook
 	{
         // TODO: (core) Move Blog/News/Forum stuff to external modules.
 		

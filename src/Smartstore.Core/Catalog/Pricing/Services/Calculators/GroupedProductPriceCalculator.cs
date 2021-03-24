@@ -6,6 +6,9 @@ using Smartstore.Core.Catalog.Search;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
+    /// <summary>
+    /// TODO: (mg) (core) Describe
+    /// </summary>
     [CalculatorUsage(CalculatorTargets.GroupedProduct, CalculatorOrdering.Early)]
     public class GroupedProductPriceCalculator : PriceCalculator
     {
@@ -47,7 +50,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 foreach (var associatedProduct in context.AssociatedProducts)
                 {
                     // Get the final price of associated product
-                    var childCalculation = await CalculateChildPriceAsync(associatedProduct, context, c => { c.Quantity = int.MaxValue; });
+                    var childCalculation = await CalculateChildPriceAsync(associatedProduct, context, c => 
+                    { 
+                        c.Quantity = int.MaxValue;
+                        c.AssociatedProducts = null;
+                    });
 
                     if (lowestPriceCalculation == null || childCalculation.FinalPrice < lowestPriceCalculation.FinalPrice)
                     {
@@ -59,7 +66,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             else
             {
                 // Get the final price of first associated product
-                lowestPriceCalculation = await CalculateChildPriceAsync(context.AssociatedProducts.First(), context, c => { c.Quantity = int.MaxValue; });
+                lowestPriceCalculation = await CalculateChildPriceAsync(context.AssociatedProducts.First(), context, c => 
+                { 
+                    c.Quantity = int.MaxValue;
+                    c.AssociatedProducts = null;
+                });
             }
 
             lowestPriceCalculation.HasPriceRange = context.AssociatedProducts.Count > 1;

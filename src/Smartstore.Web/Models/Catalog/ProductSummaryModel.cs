@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Smartstore.Collections;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Media;

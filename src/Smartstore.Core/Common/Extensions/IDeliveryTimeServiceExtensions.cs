@@ -2,7 +2,7 @@
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Domain.Catalog;
+using Smartstore.Core.Catalog;
 
 namespace Smartstore
 {

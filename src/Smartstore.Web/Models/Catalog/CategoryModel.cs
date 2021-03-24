@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Search;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;

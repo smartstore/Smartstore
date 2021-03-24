@@ -1,9 +1,9 @@
-﻿using Autofac;
+﻿using System.Linq;
+using Autofac;
 using Smartstore.Core;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Common;
 using Smartstore.Engine;
-using Smartstore.Core.Domain.Catalog;
-using System.Linq;
 
 namespace Smartstore
 {

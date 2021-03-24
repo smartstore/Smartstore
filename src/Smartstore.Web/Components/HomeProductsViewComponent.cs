@@ -1,12 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;

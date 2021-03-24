@@ -6,7 +6,6 @@ using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Security;
 using Smartstore.Net;
 

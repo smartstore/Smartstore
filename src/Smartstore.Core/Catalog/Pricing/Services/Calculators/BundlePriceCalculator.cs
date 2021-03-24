@@ -5,6 +5,9 @@ using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
+    /// <summary>
+    /// TODO: (mg) (core) Describe
+    /// </summary>
     [CalculatorUsage(CalculatorTargets.Bundle, CalculatorOrdering.Early)]
     public class BundlePriceCalculator : PriceCalculator
     {
@@ -39,6 +42,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     { 
                         c.Quantity = 1;
                         c.AdditionalCharge = bundleItem.AdditionalCharge;
+                        c.BundleItems = null;
                         c.BundleItem = bundleItem; 
                     });
 

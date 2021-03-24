@@ -4,6 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
+    /// <summary>
+    /// TODO: (mg) (core) Describe
+    /// </summary>
     [ServiceLifetime(ServiceLifetime.Singleton)]
     [CalculatorUsage(CalculatorTargets.Product | CalculatorTargets.Bundle, CalculatorOrdering.Default)]
     public class OfferPriceCalculator : IPriceCalculator

@@ -8,6 +8,9 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
+    /// <summary>
+    /// TODO: (mg) (core) Describe
+    /// </summary>
     [CalculatorUsage(CalculatorTargets.All, CalculatorOrdering.Late)]
     public class DiscountPriceCalculator : IPriceCalculator
     {

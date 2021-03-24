@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
@@ -16,8 +17,24 @@ namespace Smartstore.Core.Catalog.Pricing
     {
         #region NEW
 
+        /// <summary>
+        /// Creates a new <see cref="PriceCalculationOptions"/> instance with predefined options. 
+        /// The returned object is ready to be passed to <see cref="PriceCalculationContext"/> constructors.
+        /// This method builds options with context defaults from <see cref="IWorkContext"/>, <see cref="CatalogSettings"/> etc.
+        /// </summary>
+        /// <param name="forListing">
+        /// If <c>false</c>, <see cref="PriceCalculationOptions.DetermineLowestPrice" /> and <see cref="PriceCalculationOptions.DeterminePreselectedPrice" />
+        /// will also be <c>false</c>.
+        /// </param>
+        /// <param name="batchContext">The product batch context to use during calculation. Will be created internally if <c>null</c>.</param>
+        /// <returns>A new <see cref="PriceCalculationOptions"/> instance.</returns>
         PriceCalculationOptions CreateDefaultOptions(bool forListing, ProductBatchContext batchContext = null);
 
+        /// <summary>
+        /// Calculates the price for a given product.
+        /// </summary>
+        /// <param name="context">The context that contains the input product, the calculation options and some cargo data.</param>
+        /// <returns>A new <see cref="CalculatedPrice"/> instance.</returns>
         Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context);
 
         #endregion

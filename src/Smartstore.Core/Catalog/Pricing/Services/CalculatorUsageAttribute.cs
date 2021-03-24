@@ -43,7 +43,7 @@ namespace Smartstore.Core.Catalog.Pricing
         }
 
         /// <summary>
-        /// The valid targets for the annotated calculator. The calculator will be excluded from the pipeline,
+        /// The valid targets for the annotated calculator. The calculator will be excluded from the pipeline
         /// if the product for which a price is calculated does not match.
         /// </summary>
         public CalculatorTargets ValidTargets { get; }

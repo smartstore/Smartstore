@@ -61,7 +61,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// Copies all data from current context to given <paramref name="target"/> context.
-        /// Mostly called in nested calculation pipelines.
+        /// Mostly called in nested calculation pipelines to merge child with root data.
         /// </summary>
         /// <param name="target"></param>
         public void CopyTo(CalculatorContext target)

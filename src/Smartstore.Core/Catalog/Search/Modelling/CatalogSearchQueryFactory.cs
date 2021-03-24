@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;

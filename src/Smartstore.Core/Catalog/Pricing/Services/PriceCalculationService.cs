@@ -17,7 +17,6 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Localization;
 

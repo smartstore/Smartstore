@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
+    /// <summary>
+    /// TODO: (mg) (core) Describe
+    /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 100)]
     public class TierPriceCalculator : IPriceCalculator
     {
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {
-            // TODO: (core) ICatalogSettings.DisplayTierPricesWithDiscounts
+            // TODO: (core) CatalogSettings.DisplayTierPricesWithDiscounts
 
             var product = context.Product;
             var options = context.Options;

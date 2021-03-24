@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.Common;

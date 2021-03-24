@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Products

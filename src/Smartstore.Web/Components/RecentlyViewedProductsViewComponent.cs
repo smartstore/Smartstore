@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Domain.Catalog;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.Catalog;
 

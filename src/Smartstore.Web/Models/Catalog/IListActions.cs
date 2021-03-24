@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Smartstore.Collections;
-using Smartstore.Core.Domain.Catalog;
+using Smartstore.Core.Catalog;
 
 namespace Smartstore.Web.Models.Catalog
 {

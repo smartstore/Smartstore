@@ -1,8 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Domain.Catalog;
+using Smartstore.Core.Catalog;
 
 namespace Smartstore.Web.TagHelpers.Public
 {
