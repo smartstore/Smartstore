@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +20,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models.Catalog;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
 {
@@ -44,7 +42,6 @@ namespace Smartstore.Web.Controllers
         private readonly SeoSettings _seoSettings;
         private readonly ContactDataSettings _contactDataSettings;
         private readonly Lazy<IUrlHelper> _urlHelper;
-        private readonly Lazy<IRazorViewInvoker> _razorViewInvoker;
 
         public ProductController(
             SmartDbContext db,
@@ -63,8 +60,7 @@ namespace Smartstore.Web.Controllers
             IBreadcrumb breadcrumb,
             SeoSettings seoSettings,
             ContactDataSettings contactDataSettings,
-            Lazy<IUrlHelper> urlHelper,
-            Lazy<IRazorViewInvoker> razorViewInvoker)
+            Lazy<IUrlHelper> urlHelper)
         {
             _db = db;
             _productService = productService;
@@ -83,14 +79,13 @@ namespace Smartstore.Web.Controllers
             _seoSettings = seoSettings;
             _contactDataSettings = contactDataSettings;
             _urlHelper = urlHelper;
-            _razorViewInvoker = razorViewInvoker;
         }
 
         #region Products
 
         public async Task<IActionResult> ProductDetails(int productId, ProductVariantQuery query)
         {
-            var product = await _db.Products.FindByIdAsync(productId, false);
+            var product = await _db.Products.FindByIdAsync(productId, true);
             if (product == null || product.Deleted || product.IsSystemProduct)
                 return NotFound();
 
@@ -125,7 +120,7 @@ namespace Smartstore.Web.Controllers
                 };
 
                 // Add query string parameters.
-                Request.Query.Each(x => routeValues.Add(x.Key, Request.Query[x.Value]));
+                Request.Query.Each(x => routeValues.Add(x.Key, Request.Query[x.Value].ToString()));
 
                 return RedirectToRoute("Product", routeValues);
             }
@@ -164,9 +159,13 @@ namespace Smartstore.Web.Controllers
             return View(model.ProductTemplateViewPath, model);
         }
 
+        /// <summary>
+        /// TODO: (mh) (core) Describe what this action does.
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult> UpdateProductDetails(int productId, string itemType, int bundleItemId, ProductVariantQuery query)
         {
+            // TODO: (core) UpdateProductDetails action needs some decent refactoring.
             var form = HttpContext.Request.Form;
             int quantity = 1;
             int galleryStartIndex = -1;
@@ -189,6 +188,7 @@ namespace Smartstore.Web.Controllers
             if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
             {
                 var bundleItemQuery = await _db.ProductBundleItem
+                    .AsNoTracking()
                     .ApplyBundledProductsFilter(new[] { product.Id })
                     .Include(x => x.Product)
                     .Include(x => x.BundleProduct)
@@ -218,14 +218,15 @@ namespace Smartstore.Web.Controllers
                 // Update bundle item thumbnail.
                 if (!bundleItem.Item.HideThumbnail)
                 {
-                    var assignedMediaIds = m.SelectedCombination?.GetAssignedMediaIds() ?? new int[0];
-                    var hasFile = (await _db.MediaFiles.FindByIdAsync(assignedMediaIds[0])) != null;
+                    var assignedMediaIds = m.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
+                    var hasFile = await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]);
                     if (assignedMediaIds.Any() && hasFile)
                     {
-                        var file = _db.ProductMediaFiles
+                        var file = await _db.ProductMediaFiles
+                            .AsNoTracking()
                             .ApplyProductFilter(new[] { bundleItem.Item.ProductId }, 1)
                             .Select(x => x.MediaFile)
-                            .FirstOrDefault();
+                            .FirstOrDefaultAsync();
 
                         dynamicThumbUrl = _mediaService.GetUrl(file, _mediaSettings.BundledProductPictureSize, null, false);
                     }
@@ -235,13 +236,14 @@ namespace Smartstore.Web.Controllers
             {
                 // Update associated product thumbnail.
                 var assignedMediaIds = m.SelectedCombination?.GetAssignedMediaIds() ?? new int[0];
-                var hasFile = (await _db.MediaFiles.FindByIdAsync(assignedMediaIds[0])) != null;
+                var hasFile = await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]);
                 if (assignedMediaIds.Any() && hasFile)
                 {
-                    var file = _db.ProductMediaFiles
+                    var file = await _db.ProductMediaFiles
+                        .AsNoTracking()
                         .ApplyProductFilter(new[] { productId }, 1)
                         .Select(x => x.MediaFile)
-                        .FirstOrDefault();
+                        .FirstOrDefaultAsync();
 
                     dynamicThumbUrl = _mediaService.GetUrl(file, _mediaSettings.AssociatedProductPictureSize, null, false);
                 }
@@ -250,6 +252,7 @@ namespace Smartstore.Web.Controllers
             {
                 // Update image gallery.
                 var files = await _db.ProductMediaFiles
+                    .AsNoTracking()
                     .ApplyProductFilter(new[] { productId })
                     .Select(x => _mediaService.ConvertMediaFile(x.MediaFile))
                     .ToListAsync();
@@ -284,7 +287,7 @@ namespace Smartstore.Web.Controllers
                         m.SelectedCombination);
 
                     galleryStartIndex = mediaModel.GalleryStartIndex;
-                    galleryHtml = (await _razorViewInvoker.Value.InvokeViewAsync("Product.Media", mediaModel)).ToString();
+                    galleryHtml = (await this.InvokeViewAsync("Product.Media", mediaModel)).ToString();
                 }
 
                 m.PriceDisplayStyle = _catalogSettings.PriceDisplayStyle;
@@ -297,9 +300,9 @@ namespace Smartstore.Web.Controllers
             {
                 partials = new
                 {
-                    BundleItemPrice = await _razorViewInvoker.Value.InvokeViewAsync("Product.Offer.Price", m),
-                    BundleItemStock = await _razorViewInvoker.Value.InvokeViewAsync("Product.StockInfo", m),
-                    BundleItemVariants = await _razorViewInvoker.Value.InvokeViewAsync("Product.Variants", m.ProductVariantAttributes)
+                    BundleItemPrice = await this.InvokeViewAsync("Product.Offer.Price", m),
+                    BundleItemStock = await this.InvokeViewAsync("Product.StockInfo", m),
+                    BundleItemVariants = await this.InvokeViewAsync("Product.Variants", m.ProductVariantAttributes)
                 };
             }
             else
@@ -328,17 +331,17 @@ namespace Smartstore.Web.Controllers
 
                 partials = new
                 {
-                    Attrs = await _razorViewInvoker.Value.InvokeViewAsync("Product.Attrs", m),
-                    Price = await _razorViewInvoker.Value.InvokeViewAsync("Product.Offer.Price", m),
-                    Stock = await _razorViewInvoker.Value.InvokeViewAsync("Product.StockInfo", m),
-                    Variants = await _razorViewInvoker.Value.InvokeViewAsync("Product.Variants", m.ProductVariantAttributes),
+                    Attrs = await this.InvokeViewAsync("Product.Attrs", m),
+                    Price = await this.InvokeViewAsync("Product.Offer.Price", m),
+                    Stock = await this.InvokeViewAsync("Product.StockInfo", m),
+                    Variants = await this.InvokeViewAsync("Product.Variants", m.ProductVariantAttributes),
 
                     // TODO: (mc) (core) We may need another parameter for this.
                     //OfferActions = await _razorViewInvoker.Value.InvokeViewAsync("Product.Offer.Actions", m, dataDictAddToCart),
                     
                     // TODO: (mh) (core) Implement when Component or Partial is available.
                     //TierPrices = await _razorViewInvoker.Value.InvokeViewAsync("Product.TierPrices", await _razorViewInvoker.InvokeViewAsync(product, adjustment)),
-                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await _razorViewInvoker.Value.InvokeViewAsync("Product.Bundle.Price", m) : null
+                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await this.InvokeViewAsync("Product.Bundle.Price", m) : null
                 };
             }
 

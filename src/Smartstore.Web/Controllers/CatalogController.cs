@@ -539,7 +539,9 @@ namespace Smartstore.Web.Controllers
                             feed.AddEnclosure(item, file, url);
                         }
                     }
-                    catch { }
+                    catch 
+                    { 
+                    }
 
                     items.Add(item);
                 }
