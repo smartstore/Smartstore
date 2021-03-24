@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using Smartstore.Core.Localization;
 using Smartstore.Domain;
@@ -20,8 +19,11 @@ namespace Smartstore.Core.Identity
     /// <summary>
     /// Module cookie infos.
     /// </summary>
-    public class CookieInfo : BaseEntity, ILocalizedEntity
+    public class CookieInfo : ILocalizedEntity
     {
+        int ILocalizedEntity.Id => 0;
+        string INamedEntity.GetEntityName() => Name;
+
         /// <summary>
         /// Name of the module.
         /// </summary>
@@ -35,7 +37,6 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Selected store identifiers.
         /// </summary>
-        [NotMapped]
         public int[] SelectedStoreIds { get; set; }
 
         /// <summary>
