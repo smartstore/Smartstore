@@ -229,7 +229,7 @@ namespace Smartstore.Core.Content.Media
 
             var result = await _mediaService.SearchFilesAsync(query);
 
-            foreach (var file in result.OfType<IFile>())
+            await foreach (var file in result.OfType<IFile>())
             {
                 yield return file;
             }
