@@ -32,7 +32,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DateTime ConvertToUserTime(this IDateTimeHelper helper, DateTime dt, DateTimeKind sourceDateTimeKind)
         {
-            return helper.ConvertToUserTime(DateTime.SpecifyKind(dt, sourceDateTimeKind));
+            return helper.ConvertToUserTime(DateTime.SpecifyKind(dt, sourceDateTimeKind), helper.CurrentTimeZone);
         }
 
         /// <summary>
