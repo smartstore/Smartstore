@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 
 namespace Smartstore
 {
@@ -127,5 +128,126 @@ namespace Smartstore
 
             return false;
         }
+
+        #region Payment
+
+        /// <summary>
+        /// Gets a value indicating whether an order can be marked as authorized.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order can be marked as authorized.</returns>
+        public static bool CanMarkOrderAsAuthorized(this Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (order.OrderStatus == OrderStatus.Cancelled)
+                return false;
+
+            if (order.PaymentStatus == PaymentStatus.Pending)
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether an order can be marked as paid.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order can be marked as paid.</returns>
+        public static bool CanMarkOrderAsPaid(this Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (order.OrderStatus == OrderStatus.Cancelled)
+                return false;
+
+            if (order.PaymentStatus == PaymentStatus.Paid ||
+                order.PaymentStatus == PaymentStatus.Refunded ||
+                order.PaymentStatus == PaymentStatus.Voided)
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether an order can be refunded "offline" (without calling any payment provider).
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order can be refunded.</returns>
+        public static bool CanRefundOffline(this Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (order.OrderTotal == decimal.Zero)
+                return false;
+
+            // Only partial refunds allowed if already refunded.
+            if (order.RefundedAmount > decimal.Zero)
+                return false;
+
+            // Uncomment the lines below in order to allow this operation for cancelled orders.
+            //if (order.OrderStatus == OrderStatus.Cancelled)
+            //     return false;
+
+            if (order.PaymentStatus == PaymentStatus.Paid)
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether an order can be partially refunded "offline" (without calling any payment provider).
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <param name="amountToRefund">The amount to refund.</param>
+        /// <returns>A value indicating whether an order can be partially refunded "offline".</returns>
+        public static bool CanPartiallyRefundOffline(this Order order, decimal amountToRefund)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (order.OrderTotal == decimal.Zero)
+                return false;
+
+            // Uncomment the lines below in order to allow this operation for cancelled orders.
+            //if (order.OrderStatus == OrderStatus.Cancelled)
+            //    return false;
+
+            var canBeRefunded = order.OrderTotal - order.RefundedAmount;
+            if (canBeRefunded <= decimal.Zero)
+                return false;
+
+            if (amountToRefund > canBeRefunded)
+                return false;
+
+            if (order.PaymentStatus == PaymentStatus.Paid ||
+                order.PaymentStatus == PaymentStatus.PartiallyRefunded)
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether an order can be voided "offline" (without calling any payment provider).
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order can be voided "offline".</returns>
+        public static bool CanVoidOffline(this Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            if (order.OrderTotal == decimal.Zero)
+                return false;
+
+            // Uncomment the lines below in order to allow this operation for cancelled orders.
+            //if (order.OrderStatus == OrderStatus.Cancelled)
+            //    return false;
+
+            if (order.PaymentStatus == PaymentStatus.Authorized)
+                return true;
+
+            return false;
+        }
+
+        #endregion
     }
 }

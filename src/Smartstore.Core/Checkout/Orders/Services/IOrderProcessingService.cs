@@ -120,24 +120,10 @@ namespace Smartstore.Core.Checkout.Orders
         #region Payment
 
         /// <summary>
-        /// Gets a value indicating whether an order can be marked as authorized.
-        /// </summary>
-        /// <param name="order">Order.</param>
-        /// <returns>A value indicating whether an order can be marked as authorized.</returns>
-        bool CanMarkOrderAsAuthorized(Order order);
-
-        /// <summary>
         /// Marks an order as authorized.
         /// </summary>
         /// <param name="order">Order.</param>
         Task MarkAsAuthorizedAsync(Order order);
-
-        /// <summary>
-        /// Gets a value indicating whether an order can be marked as paid.
-        /// </summary>
-        /// <param name="order">Order.</param>
-        /// <returns>A value indicating whether an order can be marked as paid.</returns>
-        bool CanMarkOrderAsPaid(Order order);
 
         /// <summary>
         /// Marks an order as paid.
@@ -174,13 +160,6 @@ namespace Smartstore.Core.Checkout.Orders
         Task<IList<string>> RefundAsync(Order order);
 
         /// <summary>
-        /// Gets a value indicating whether an order can be refunded "offline" (without calling any payment provider).
-        /// </summary>
-        /// <param name="order">Order.</param>
-        /// <returns>A value indicating whether an order can be refunded.</returns>
-        bool CanRefundOffline(Order order);
-
-        /// <summary>
         /// Refunds an order "offline" (without calling any payment provider).
         /// </summary>
         /// <param name="order">Order.</param>
@@ -203,14 +182,6 @@ namespace Smartstore.Core.Checkout.Orders
         Task<IList<string>> PartiallyRefundAsync(Order order, decimal amountToRefund);
 
         /// <summary>
-        /// Gets a value indicating whether an order can be partially refunded "offline" (without calling any payment provider).
-        /// </summary>
-        /// <param name="order">Order.</param>
-        /// <param name="amountToRefund">The amount to refund.</param>
-        /// <returns>A value indicating whether an order can be partially refunded "offline".</returns>
-        bool CanPartiallyRefundOffline(Order order, decimal amountToRefund);
-
-        /// <summary>
         /// Partially refunds an order "offline" (without calling any payment provider).
         /// </summary>
         /// <param name="order">Order.</param>
@@ -231,25 +202,10 @@ namespace Smartstore.Core.Checkout.Orders
         Task<IList<string>> VoidAsync(Order order);
 
         /// <summary>
-        /// Gets a value indicating whether an order can be voided "offline" (without calling any payment provider).
-        /// </summary>
-        /// <param name="order">Order.</param>
-        /// <returns>A value indicating whether an order can be voided "offline".</returns>
-        bool CanVoidOffline(Order order);
-
-        /// <summary>
         /// Voids an order "offline" (without calling any payment provider).
         /// </summary>
         /// <param name="order">Order.</param>
         Task VoidOfflineAsync(Order order);
-
-        /// <summary>
-        /// Gets a value indicating whether a customer can cancel recurring payment.
-        /// </summary>
-        /// <param name="customerToValidate">Customer.</param>
-        /// <param name="recurringPayment">Recurring payment.</param>
-        /// <returns>A value indicating whether a customer can cancel recurring payment.</returns>
-        bool CanCancelRecurringPayment(Customer customerToValidate, RecurringPayment recurringPayment);
 
         /// <summary>
         /// Cancels a recurring payment.

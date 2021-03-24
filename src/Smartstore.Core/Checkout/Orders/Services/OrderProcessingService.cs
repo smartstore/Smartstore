@@ -166,7 +166,7 @@ namespace Smartstore.Core.Checkout.Orders
                 throw new SmartException(T("Order.CannotMarkCompleted"));
             }
 
-            if (CanMarkOrderAsPaid(order))
+            if (order.CanMarkOrderAsPaid())
             {
                 await MarkOrderAsPaidAsync(order);
             }

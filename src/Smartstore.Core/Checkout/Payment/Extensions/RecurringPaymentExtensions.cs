@@ -24,10 +24,12 @@ namespace Smartstore.Core.Checkout.Payment
             if (customer == null)
                 return false;
 
-            if (initialOrder.OrderStatus == OrderStatus.Cancelled
-                || !customerToValidate.IsAdmin() && customer.Id != customerToValidate.Id
-                || !recurringPayment.NextPaymentDate.HasValue)
+            if (initialOrder.OrderStatus == OrderStatus.Cancelled ||
+                (!customerToValidate.IsAdmin() && customer.Id != customerToValidate.Id) ||
+                !recurringPayment.NextPaymentDate.HasValue)
+            {
                 return false;
+            }
 
             return true;
         }

@@ -11,20 +11,6 @@ namespace Smartstore.Core.Checkout.Orders
 {
     public partial class OrderProcessingService : IOrderProcessingService
     {
-        public virtual bool CanMarkOrderAsAuthorized(Order order)
-        {
-            // TODO: (mg) (core) Make extension method for Order.
-            Guard.NotNull(order, nameof(order));
-
-            if (order.OrderStatus == OrderStatus.Cancelled)
-                return false;
-
-            if (order.PaymentStatus == PaymentStatus.Pending)
-                return true;
-
-            return false;
-        }
-
         public virtual async Task MarkAsAuthorizedAsync(Order order)
         {
             Guard.NotNull(order, nameof(order));
@@ -37,27 +23,11 @@ namespace Smartstore.Core.Checkout.Orders
             await CheckOrderStatusAsync(order);
         }
 
-        public virtual bool CanMarkOrderAsPaid(Order order)
-        {
-            // TODO: (mg) (core) Make extension method for Order.
-            Guard.NotNull(order, nameof(order));
-
-            if (order.OrderStatus == OrderStatus.Cancelled)
-                return false;
-
-            if (order.PaymentStatus == PaymentStatus.Paid ||
-                order.PaymentStatus == PaymentStatus.Refunded ||
-                order.PaymentStatus == PaymentStatus.Voided)
-                return false;
-
-            return true;
-        }
-
         public virtual async Task MarkOrderAsPaidAsync(Order order)
         {
             Guard.NotNull(order, nameof(order));
 
-            if (!CanMarkOrderAsPaid(order))
+            if (!order.CanMarkOrderAsPaid())
             {
                 throw new SmartException(T("Order.CannotMarkPaid"));
             }
@@ -214,33 +184,11 @@ namespace Smartstore.Core.Checkout.Orders
             return result.Errors;
         }
 
-        public virtual bool CanRefundOffline(Order order)
-        {
-            // TODO: (mg) (core) Make extension method for Order.
-            Guard.NotNull(order, nameof(order));
-
-            if (order.OrderTotal == decimal.Zero)
-                return false;
-
-            // Only partial refunds allowed if already refunded.
-            if (order.RefundedAmount > decimal.Zero)
-                return false;
-
-            // Uncomment the lines below in order to allow this operation for cancelled orders.
-            //if (order.OrderStatus == OrderStatus.Cancelled)
-            //     return false;
-
-            if (order.PaymentStatus == PaymentStatus.Paid)
-                return true;
-
-            return false;
-        }
-
         public virtual async Task RefundOfflineAsync(Order order)
         {
             Guard.NotNull(order, nameof(order));
 
-            if (!CanRefundOffline(order))
+            if (!order.CanRefundOffline())
             {
                 throw new SmartException(T("Order.CannotRefund"));
             }
@@ -331,37 +279,11 @@ namespace Smartstore.Core.Checkout.Orders
             return result.Errors;
         }
 
-        public virtual bool CanPartiallyRefundOffline(Order order, decimal amountToRefund)
-        {
-            // TODO: (mg) (core) Make extension method for Order.
-            Guard.NotNull(order, nameof(order));
-
-            if (order.OrderTotal == decimal.Zero)
-                return false;
-
-            // Uncomment the lines below in order to allow this operation for cancelled orders.
-            //if (order.OrderStatus == OrderStatus.Cancelled)
-            //    return false;
-
-            var canBeRefunded = order.OrderTotal - order.RefundedAmount;
-            if (canBeRefunded <= decimal.Zero)
-                return false;
-
-            if (amountToRefund > canBeRefunded)
-                return false;
-
-            if (order.PaymentStatus == PaymentStatus.Paid ||
-                order.PaymentStatus == PaymentStatus.PartiallyRefunded)
-                return true;
-
-            return false;
-        }
-
         public virtual async Task PartiallyRefundOfflineAsync(Order order, decimal amountToRefund)
         {
             Guard.NotNull(order, nameof(order));
 
-            if (!CanPartiallyRefundOffline(order, amountToRefund))
+            if (!order.CanPartiallyRefundOffline(amountToRefund))
             {
                 throw new SmartException(T("Order.CannotPartialRefund"));
             }
@@ -438,29 +360,11 @@ namespace Smartstore.Core.Checkout.Orders
             return result.Errors;
         }
 
-        public virtual bool CanVoidOffline(Order order)
-        {
-            // TODO: (mg) (core) Make extension method for Order.
-            Guard.NotNull(order, nameof(order));
-
-            if (order.OrderTotal == decimal.Zero)
-                return false;
-
-            // Uncomment the lines below in order to allow this operation for cancelled orders.
-            //if (order.OrderStatus == OrderStatus.Cancelled)
-            //    return false;
-
-            if (order.PaymentStatus == PaymentStatus.Authorized)
-                return true;
-
-            return false;
-        }
-
         public virtual async Task VoidOfflineAsync(Order order)
         {
             Guard.NotNull(order, nameof(order));
 
-            if (!CanVoidOffline(order))
+            if (!order.CanVoidOffline())
             {
                 throw new SmartException(T("Order.CannotVoid"));
             }
@@ -470,35 +374,6 @@ namespace Smartstore.Core.Checkout.Orders
 
             // INFO: CheckOrderStatus performs commit.
             await CheckOrderStatusAsync(order);
-        }
-
-        public virtual bool CanCancelRecurringPayment(Customer customerToValidate, RecurringPayment recurringPayment)
-        {
-            // TODO: (mg) (core) Make extension method for RecurringPayment.
-            if (customerToValidate == null || recurringPayment == null)
-                return false;
-
-            var initialOrder = recurringPayment.InitialOrder;
-            if (initialOrder == null)
-                return false;
-
-            var customer = recurringPayment.InitialOrder.Customer;
-            if (customer == null)
-                return false;
-
-            if (initialOrder.OrderStatus == OrderStatus.Cancelled)
-                return false;
-
-            if (!customerToValidate.IsAdmin())
-            {
-                if (customer.Id != customerToValidate.Id)
-                    return false;
-            }
-
-            if (!recurringPayment.NextPaymentDate.HasValue)
-                return false;
-
-            return true;
         }
 
         public virtual async Task<IList<string>> CancelRecurringPaymentAsync(RecurringPayment recurringPayment)
