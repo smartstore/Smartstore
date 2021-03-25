@@ -112,6 +112,8 @@ namespace Smartstore.Web.Models.Catalog
 
         public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = new();
 
+        public ProductReviewsModel ProductReviews { get; set; } = new();
+
         public bool CompareEnabled { get; set; }
         public bool TellAFriendEnabled { get; set; }
         public bool AskQuestionEnabled { get; set; }

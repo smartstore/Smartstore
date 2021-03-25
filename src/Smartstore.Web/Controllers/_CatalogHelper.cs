@@ -592,6 +592,7 @@ namespace Smartstore.Web.Controllers
                 }
 
                 // Review overview.
+                model.ReviewOverview.ProductId = product.Id;
                 model.ReviewOverview.RatingSum = product.ApprovedRatingSum;
                 model.ReviewOverview.TotalReviews = product.ApprovedTotalReviews;
                 model.ReviewOverview.AllowCustomerReviews = product.AllowCustomerReviews;
@@ -857,6 +858,8 @@ namespace Smartstore.Web.Controllers
             PrepareProductGiftCardsModel(model, product, customer);
 
             model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(product);
+
+            await PrepareProductReviewsModelAsync(model.ProductReviews, product, 10);
 
             _services.DisplayControl.Announce(product);
 
@@ -1787,19 +1790,20 @@ namespace Smartstore.Web.Controllers
             model.ProductName = product.GetLocalized(x => x.Name);
             model.ProductSeName = await product.GetActiveSlugAsync();
 
+            // TODO: (mh) (core) Including Customer & CustomerRoleMappings threw an exception. Investigate further.
             var query = _db.Entry(product).Collection(x => x.ProductReviews).Query()
                 .Where(x => x.IsApproved)
                 .Include(x => x.Customer)
-                .ThenInclude(x => x.CustomerContent)
-                .Include(x => x.Customer)
-                .ThenInclude(x => x.CustomerRoleMappings.Select(c => c.Customer));
-
-            model.TotalReviewsCount = await query.CountAsync();
+                .ThenInclude(x => x.CustomerContent);
+                //.Include(x => x.Customer)
+                //.ThenInclude(x => x.CustomerRoleMappings.Select(c => c.Customer));
 
             var reviews = await query
                 .OrderByDescending(x => x.CreatedOnUtc)
                 .Take(take)
                 .ToListAsync();
+
+            model.TotalReviewsCount = reviews.Count;
 
             foreach (var review in reviews)
             {

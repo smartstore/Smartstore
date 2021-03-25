@@ -5,8 +5,6 @@
 @inject IRazorViewInvoker RazorViewInvoker
 
 @{
-    // TODO: (mh) (core) Viewcomponent or Partial? RE: partial please.
-    //var specificationAttributes = Html.Action("ProductSpecifications", new { productId = Model.Id }).ToString();
     var specificationAttributes = await RazorViewInvoker.InvokeViewAsync("Product.Specs", Model.SpecificationAttributes);
 }
 
@@ -31,9 +29,7 @@
 
     @if (specificationAttributes.HasValue())
     {
-        // INFO: (mh) (core) I'm not sure how sm-if behaves with complex tag helpers. Better not use it here.
         <tab sm-title="@T("Products.Specs")" sm-selected="!Model.FullDescription.HasValue()">
-            @*TODO: (mh) (core) Viewcomponent or Partial? RE: partial please. *@
             @Html.Raw(specificationAttributes)
         </tab>
     }
@@ -41,9 +37,12 @@
     @if (Model.DisplayProductReviews)
     {
         <tab sm-title="@T("Reviews")" sm-selected="!Model.FullDescription.HasValue() && !specificationAttributes.HasValue()" sm-badge-text="@Model.ReviewCount.ToString()" sm-badge-style="@Model.ReviewCount > 0 ? BadgeStyle.Warning : BadgeStyle.Secondary">
-            @*TODO: (mh) (core) Viewcomponent or Partial? *@
+            <p class="mb-4">
+                <a asp-action="Reviews" asp-controller="Product" asp-route-id="@Model.Id" class="btn btn-warning">
+                    <span>@T($"Reviews.Overview.{(Model.ProductReviews.TotalReviewsCount > 0 ? "AddNew" : "First")}")</span>
+                </a>
+            </p>
+            <partial name="Product.Reviews" model="Model.ProductReviews" />
         </tab>
     }
 </tabstrip>
-
-
