@@ -27,15 +27,6 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Converts the date and date time kind to current user date and time
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DateTime ConvertToUserTime(this IDateTimeHelper helper, DateTime dt, DateTimeKind sourceDateTimeKind)
-        {
-            return helper.ConvertToUserTime(DateTime.SpecifyKind(dt, sourceDateTimeKind), helper.CurrentTimeZone);
-        }
-
-        /// <summary>
         /// Converts the date and time to Coordinated Universal Time (UTC)
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

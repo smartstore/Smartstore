@@ -42,6 +42,11 @@ namespace Smartstore.Core.Common.Services
             return TimeZoneInfo.GetSystemTimeZones();
         }
 
+        public virtual DateTime ConvertToUserTime(DateTime dt, DateTimeKind sourceDateTimeKind)
+        {
+            return TimeZoneInfo.ConvertTime(DateTime.SpecifyKind(dt, sourceDateTimeKind), CurrentTimeZone);
+        }
+
         public virtual DateTime ConvertToUserTime(DateTime dt, TimeZoneInfo sourceTimeZone, TimeZoneInfo destinationTimeZone)
         {
             return TimeZoneInfo.ConvertTime(dt, sourceTimeZone, destinationTimeZone);

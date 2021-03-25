@@ -17,13 +17,21 @@ namespace Smartstore.Core.Common.Services
         TimeZoneInfo FindTimeZoneById(string id);
 
         /// <summary>
-        /// Returns a sorted collection of all the time zones
+        /// Returns a sorted collection of all the time zones.
         /// </summary>
         /// <returns>A read-only collection of System.TimeZoneInfo objects.</returns>
         ReadOnlyCollection<TimeZoneInfo> GetSystemTimeZones();
 
         /// <summary>
-        /// Converts the date and time to current user date and time
+        /// Converts the date and time to current user date and time.
+        /// </summary>
+        /// <param name="dt">The date and time (respesents local system time or UTC time) to convert.</param>
+        /// <param name="sourceDateTimeKind">The source datetimekind</param>
+        /// <returns>A DateTime value that represents time that corresponds to the dateTime parameter in customer time zone.</returns>
+        DateTime ConvertToUserTime(DateTime dt, DateTimeKind sourceDateTimeKind);
+
+        /// <summary>
+        /// Converts the date and time to current user date and time.
         /// </summary>
         /// <param name="dt">The date and time to convert.</param>
         /// <param name="sourceTimeZone">The time zone of dateTime.</param>
