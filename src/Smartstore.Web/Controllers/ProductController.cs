@@ -370,9 +370,10 @@ namespace Smartstore.Web.Controllers
         #region Email a friend
 
         [GdprConsent]
-        public async Task<ActionResult> EmailAFriend(int id)
+        public async Task<IActionResult> EmailAFriend(int id)
         {
-            var product = await _db.Products.FindByIdAsync(id);
+            var product = await _db.Products.FindByIdAsync(id, false);
+
             if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.EmailAFriendEnabled)
                 return NotFound();
 
@@ -384,9 +385,9 @@ namespace Smartstore.Web.Controllers
         [HttpPost, ActionName("EmailAFriend")]
         [ValidateCaptcha]
         [GdprConsent]
-        public async Task<ActionResult> EmailAFriendSend(ProductEmailAFriendModel model, int id, string captchaError)
+        public async Task<IActionResult> EmailAFriendSend(ProductEmailAFriendModel model, int id, string captchaError)
         {
-            var product = await _db.Products.FindByIdAsync(id);
+            var product = await _db.Products.FindByIdAsync(id, false);
             if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.EmailAFriendEnabled)
                 return NotFound();
 
@@ -424,7 +425,6 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        // TODO: (mh) (core) Move to CatalogHelper?
         private async Task<ProductEmailAFriendModel> PrepareEmailAFriendModelAsync(Product product)
         {
             var model = new ProductEmailAFriendModel

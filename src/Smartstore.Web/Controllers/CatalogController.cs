@@ -365,7 +365,6 @@ namespace Smartstore.Web.Controllers
 
         #region ProductTags
 
-        // TODO: (mh) (core) What about this original RouteValue > productTagId = idConstraint?
         [LocalizedRoute("/producttag/{productTagId:int}/{*path}", Name = "ProductsByTag")]
         public async Task<IActionResult> ProductsByTag(int productTagId, CatalogSearchQuery query)
         {

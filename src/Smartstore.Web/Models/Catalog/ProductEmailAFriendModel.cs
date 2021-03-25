@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using FluentValidation;
-using FluentValidation.Attributes;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Catalog
 {
+    [LocalizedDisplay("Products.EmailAFriend.")]
     public partial class ProductEmailAFriendModel : ModelBase
     {
         public int ProductId { get; set; }
@@ -16,16 +15,16 @@ namespace Smartstore.Web.Models.Catalog
 
         [Required]
         [DataType(DataType.EmailAddress)]
-        [LocalizedDisplay("Products.EmailAFriend.FriendEmail")]
+        [LocalizedDisplay("*FriendEmail")]
         public string FriendEmail { get; set; }
 
         [Required]
         [DataType(DataType.EmailAddress)]
-        [LocalizedDisplay("Products.EmailAFriend.YourEmailAddress")]
+        [LocalizedDisplay("*YourEmailAddress")]
         public string YourEmailAddress { get; set; }
 
         [SanitizeHtml]
-        [LocalizedDisplay("Products.EmailAFriend.PersonalMessage")]
+        [LocalizedDisplay("*PersonalMessage")]
         public string PersonalMessage { get; set; }
 
         public bool AllowChangedCustomerEmail { get; set; }
