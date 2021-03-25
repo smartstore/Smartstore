@@ -62,6 +62,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                         lowestPriceCalculation = childCalculation;
                     }
                 }
+
+                lowestPriceCalculation.HasPriceRange = true;
             }
             else
             {
@@ -72,8 +74,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     c.AssociatedProducts = null;
                 });
             }
-
-            lowestPriceCalculation.HasPriceRange = context.AssociatedProducts.Count > 1;
 
             // Copy data from child context to this context
             lowestPriceCalculation.CopyTo(context);

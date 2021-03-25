@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
 
@@ -31,6 +30,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             if (product.BundlePerItemPricing)
             {
+                if (context.Options.DetermineLowestPrice)
+                {
+                    context.HasPriceRange = true;
+                }
+
                 await EnsureBundleItemsAreLoaded(product, context);
 
                 foreach (var bundleItem in context.BundleItems)

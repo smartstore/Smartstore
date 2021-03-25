@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
@@ -22,18 +21,25 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             
             if (!options.IgnoreTierPrices && !options.IgnoreDiscounts && product.HasTierPrices)
             {
+                var tierPrices = await LoadTierPrices(product, options.BatchContext);
+
                 // TODO: (core) Really check IgnoreDiscounts here?
-                var tierPrice = await GetMinimumTierPriceAsync(product, options.Customer, context.Quantity, options.BatchContext);
+                var tierPrice = GetMinimumTierPrice(product, options.Customer, tierPrices, context.Quantity);
                 if (tierPrice.HasValue)
                 {
                     // TODO ...
+                }
+
+                if (context.Options.DetermineLowestPrice && !context.HasPriceRange)
+                {
+                    context.HasPriceRange = tierPrices.Any() && !(tierPrices.Count() == 1 && tierPrices.First().Quantity <= 1);
                 }
             }
 
             await next(context);
         }
 
-        protected virtual async Task<decimal?> GetMinimumTierPriceAsync(Product product, Customer customer, int quantity, ProductBatchContext batchContext)
+        protected virtual decimal? GetMinimumTierPrice(Product product, Customer customer, IEnumerable<TierPrice> tierPrices, int quantity)
         {
             if (!product.HasTierPrices)
             {
@@ -42,7 +48,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             var previousQty = 1;
             decimal? result = null;
-            var tierPrices = await LoadTierPrices(product, customer, batchContext);
 
             foreach (var tierPrice in tierPrices)
             {
@@ -70,10 +75,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             return result;
         }
 
-        private static async Task<IEnumerable<TierPrice>> LoadTierPrices(Product product, Customer customer, ProductBatchContext batchContext)
+        private static async Task<IEnumerable<TierPrice>> LoadTierPrices(Product product, ProductBatchContext batchContext)
         {
             if (!product.HasTierPrices)
+            {
                 return Enumerable.Empty<TierPrice>();
+            }
 
             if (!batchContext.TierPrices.FullyLoaded)
             {

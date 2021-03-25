@@ -34,10 +34,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 lowestPrice = product.LowestAttributeCombinationPrice ?? decimal.Zero;
             }
 
-            if (!context.LowestPrice.HasValue || (context.LowestPrice.HasValue && lowestPrice < context.LowestPrice.Value))
+            if (lowestPrice < context.FinalPrice)
             {
-                context.LowestPrice = lowestPrice;
+                context.FinalPrice = lowestPrice;
             }
+
+            context.LowestPrice = context.FinalPrice;
 
             // Check whether the product has a price range.
             if (!context.HasPriceRange)
@@ -51,16 +53,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 context.HasPriceRange = attributes.Any(x => x.ProductVariantAttributeValues.Any(y => y.PriceAdjustment != decimal.Zero));
             }
 
-            // Do that here or in TierPriceCalculator?:
-            //if (!context.HasPriceRange && product.HasTierPrices)
-            //{
-            //    var tierPrices = await context.Options.BatchContext.TierPrices.GetOrLoadAsync(product.Id);
-            //    tierPrices = tierPrices.RemoveDuplicatedQuantities();
-
-            //    context.HasPriceRange = tierPrices.Any() && !(tierPrices.Count == 1 && tierPrices.First().Quantity <= 1);
-            //}
-
-            // TODO ...
             await next(context);
         }
     }

@@ -853,15 +853,19 @@ namespace Smartstore.Web.Controllers
             }
 
             var options = pcs.CreateDefaultOptions(true);
+            var cpFinal = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, options) { AssociatedProducts = associatedProducts });
+
             options.DetermineLowestPrice = true;
+            var cpLowest = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, options) { AssociatedProducts = associatedProducts });
+
+            options.DetermineLowestPrice = false;
             options.DeterminePreselectedPrice = true;
-            var calculationContext = new PriceCalculationContext(product, options) { AssociatedProducts = associatedProducts };
-            var cp = await pcs.CalculatePriceAsync(calculationContext);
+            var cpPreselected = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, options) { AssociatedProducts = associatedProducts });
 
             content.AppendLine($"Prices       {"old".PadRight(12)} {"new".PadRight(12)}");
-            content.AppendLine($"Final      : {Fmt(finalPrice)} {Fmt(cp.FinalPrice)}");
-            content.AppendLine($"Preselected: {Fmt(preselectedPrice)} {Fmt(cp.PreselectedPrice)}");
-            content.AppendLine($"Lowest     : {Fmt(lowestPrice)} {Fmt(cp.LowestPrice)}");
+            content.AppendLine($"Final      : {Fmt(finalPrice)} {Fmt(cpFinal.FinalPrice)}");
+            content.AppendLine($"Lowest     : {Fmt(lowestPrice)} {Fmt(cpLowest.FinalPrice)}");
+            content.AppendLine($"Preselected: {Fmt(preselectedPrice)} {Fmt(cpPreselected.FinalPrice)}");
 
 
             //var checkoutAtributes = "<Attributes><CheckoutAttribute ID=\"2\"><CheckoutAttributeValue><Value>30ccd4a0-8e60-46be-8740-7c9f9d08dd26</Value></CheckoutAttributeValue></CheckoutAttribute><CheckoutAttribute ID=\"1\"><CheckoutAttributeValue><Value>2</Value></CheckoutAttributeValue></CheckoutAttribute></Attributes>";

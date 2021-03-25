@@ -154,7 +154,6 @@ namespace Smartstore.Core.Catalog.Pricing
                 Tax = tax
             };
 
-            // TODO: (core) Taxing the final price only? The FinalPrice is not necessarily the requested, displayed price (depends on CatalogSettings.PriceDisplayType).
             if (tax.HasValue && _primaryCurrency != context.Options.TargetCurrency)
             {
                 // Exchange tax amounts
@@ -200,7 +199,6 @@ namespace Smartstore.Core.Catalog.Pricing
                 money = money.WithPostFormat(options.TaxFormat);
             }
 
-            // TODO: (core) PriceRangeFormat is only applied to the lowest price, not to the final price.
             if (isFinalPrice && context.HasPriceRange)
             {
                 var finalPricePostFormat = money.PostFormat;
