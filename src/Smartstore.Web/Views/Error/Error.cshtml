@@ -64,7 +64,7 @@
 </head>
 <body>
     <div class="page">
-        <img src="/images/sad.png" width="128" height="128" />
+        <img src="~/images/sad.png" width="128" height="128" />
         
         @if (title.HasValue())
         {
@@ -93,7 +93,9 @@
         @if (showCustomErrors && Model != null)
         {
             <p class="error">
-                <strong>Controller:</strong> @Model.ControllerName.NaIfEmpty(), <strong>Action:</strong> @Model.ActionName.NaIfEmpty()
+                <strong>Controller:</strong> @Model.ControllerName.NaIfEmpty(), 
+                <strong>Action:</strong> @Model.ActionName.NaIfEmpty(),
+                <strong>Status:</strong> @((int)Model.StatusCode) (@Model.StatusCode.ToString())
                 @{
                     var ex = Model.Exception;
                     if (ex != null)

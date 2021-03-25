@@ -5,6 +5,7 @@ using System.Threading;
 using Autofac;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Smartstore.Data;
@@ -45,6 +46,7 @@ namespace Smartstore.Engine
             TypeScanner = new DefaultTypeScanner(ModuleCatalog, logger, coreAssemblies);
 
             // Create app configuration
+            // TODO: (core) Try to incorporate IOptionsMonitor<SmartConfiguration> somehow.
             var config = new SmartConfiguration();
             configuration.Bind("Smartstore", config);
 
