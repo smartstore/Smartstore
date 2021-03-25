@@ -26,7 +26,6 @@
 
 <div class="pd-offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
     <meta itemprop="itemCondition" content="@conditionContent" />
-    @* TODO: (mh) (core) Is Scheme correctly obtained? RE: Yes, almost :-). *@
     <link itemprop="url" href="@Url.RouteUrl("Product", new { SeName = Model.SeName }, Context.Request.Scheme)" />
     @if (!Model.AddToCart.DisableBuyButton || !Model.AddToCart.DisableWishlistButton || Model.ProductPrice.ShowLoginNote)
     {

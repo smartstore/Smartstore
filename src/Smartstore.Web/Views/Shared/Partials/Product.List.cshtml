@@ -2,11 +2,9 @@
 @using Smartstore.Core.Content.Media;
 @using Smartstore.Utilities;
 @using Smartstore.Web.Models.Catalog;
-@using Smartstore.Web.Razor; 
 
 @model ProductSummaryModel
 @inject MediaSettings MediaSettings
-@inject IRazorViewInvoker RazorViewInvoker
 
 @{
     var id = "artlist-" + CommonHelper.GenerateRandomDigitCode(10);

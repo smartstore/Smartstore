@@ -418,7 +418,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
             }
 
-            // If we got this far, something failed, redisplay form.
+            // If we got this far something failed. Redisplay form.
             model = await PrepareEmailAFriendModelAsync(product);
 
             return View(model);

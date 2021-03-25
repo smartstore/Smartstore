@@ -28,13 +28,13 @@
 
                 <div class="form-group">
                     <label asp-for="FriendEmail" class="col-form-label required"></label>
-                    <input asp-for="FriendEmail" placeholder="@T("Products.EmailAFriend.FriendEmail.Hint")" class="fullname" autofocus="autofocus" />
+                    <input asp-for="FriendEmail" type="email" placeholder="@T("Products.EmailAFriend.FriendEmail.Hint")" class="fullname" autofocus="autofocus" />
                     <span asp-validation-for="FriendEmail"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="YourEmailAddress" class="col-form-label required"></label>
-                    <input asp-for="YourEmailAddress" attr-readonly='(Model.AllowChangedCustomerEmail, "readonly")' placeholder="@T("Products.EmailAFriend.YourEmailAddress.Hint")" class="fullname" autofocus="autofocus" />
+                    <input asp-for="YourEmailAddress" type="email" attr-readonly='(Model.AllowChangedCustomerEmail, "readonly")' placeholder="@T("Products.EmailAFriend.YourEmailAddress.Hint")" class="fullname" autofocus="autofocus" />
                     <span asp-validation-for="YourEmailAddress"></span>
                 </div>
 
