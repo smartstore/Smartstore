@@ -19,8 +19,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             var product = context.Product;
             var options = context.Options;
-            
-            if (!options.IgnoreTierPrices && !options.IgnoreDiscounts && product.HasTierPrices)
+
+            // Ignore tier prices of bundle items (BundlePerItemPricing).
+            if (!options.IgnoreTierPrices && !options.IgnoreDiscounts && product.HasTierPrices && context.BundleItem?.Item == null)
             {
                 var tierPrices = await LoadTierPrices(product, options.BatchContext);
 
