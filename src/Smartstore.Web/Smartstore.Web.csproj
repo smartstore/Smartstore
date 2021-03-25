@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+    <PackageReference Include="FluentValidation.ValidatorAttribute" Version="8.6.1" />
   </ItemGroup>
 
   <ItemGroup>

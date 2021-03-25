@@ -16,9 +16,12 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messages;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Utilities.Html;
+using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.Web.Controllers
@@ -41,7 +44,9 @@ namespace Smartstore.Web.Controllers
         private readonly IBreadcrumb _breadcrumb;
         private readonly SeoSettings _seoSettings;
         private readonly ContactDataSettings _contactDataSettings;
+        private readonly CaptchaSettings _captchaSettings;
         private readonly Lazy<IUrlHelper> _urlHelper;
+        private readonly Lazy<IMessageFactory> _messageFactory;
 
         public ProductController(
             SmartDbContext db,
@@ -60,7 +65,9 @@ namespace Smartstore.Web.Controllers
             IBreadcrumb breadcrumb,
             SeoSettings seoSettings,
             ContactDataSettings contactDataSettings,
-            Lazy<IUrlHelper> urlHelper)
+            CaptchaSettings captchaSettings,
+            Lazy<IUrlHelper> urlHelper,
+            Lazy<IMessageFactory> messageFactory)
         {
             _db = db;
             _productService = productService;
@@ -78,7 +85,9 @@ namespace Smartstore.Web.Controllers
             _breadcrumb = breadcrumb;
             _seoSettings = seoSettings;
             _contactDataSettings = contactDataSettings;
+            _captchaSettings = captchaSettings;
             _urlHelper = urlHelper;
+            _messageFactory = messageFactory;
         }
 
         #region Products
@@ -356,8 +365,83 @@ namespace Smartstore.Web.Controllers
             return new JsonResult(new { Data = data });
         }
 
+        #endregion
+
+        #region Email a friend
+
+        [GdprConsent]
+        public async Task<ActionResult> EmailAFriend(int id)
+        {
+            var product = await _db.Products.FindByIdAsync(id);
+            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.EmailAFriendEnabled)
+                return NotFound();
+
+            var model = await PrepareEmailAFriendModelAsync(product);
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("EmailAFriend")]
+        [ValidateCaptcha]
+        [GdprConsent]
+        public async Task<ActionResult> EmailAFriendSend(ProductEmailAFriendModel model, int id, string captchaError)
+        {
+            var product = await _db.Products.FindByIdAsync(id);
+            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.EmailAFriendEnabled)
+                return NotFound();
+
+            if (_captchaSettings.ShowOnEmailProductToFriendPage && captchaError.HasValue())
+            {
+                ModelState.AddModelError("", captchaError);
+            }
+
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            // Check whether the current customer is guest and ia allowed to email a friend.
+            if (customer.IsGuest() && !_catalogSettings.AllowAnonymousUsersToEmailAFriend)
+            {
+                ModelState.AddModelError("", T("Products.EmailAFriend.OnlyRegisteredUsers"));
+            }
+
+            if (ModelState.IsValid)
+            {
+                //email
+                await _messageFactory.Value.SendShareProductMessageAsync(
+                    customer,
+                    product,
+                    model.YourEmailAddress,
+                    model.FriendEmail,
+                    HtmlUtils.ConvertPlainTextToHtml(model.PersonalMessage.HtmlEncode()));
+
+                NotifySuccess(T("Products.EmailAFriend.SuccessfullySent"));
+
+                return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
+            }
+
+            // If we got this far, something failed, redisplay form.
+            model = await PrepareEmailAFriendModelAsync(product);
+
+            return View(model);
+        }
+
+        // TODO: (mh) (core) Move to CatalogHelper?
+        private async Task<ProductEmailAFriendModel> PrepareEmailAFriendModelAsync(Product product)
+        {
+            var model = new ProductEmailAFriendModel
+            {
+                ProductId = product.Id,
+                ProductName = product.GetLocalized(x => x.Name),
+                ProductSeName = await product.GetActiveSlugAsync(),
+                YourEmailAddress = Services.WorkContext.CurrentCustomer.Email,
+                AllowChangedCustomerEmail = _catalogSettings.AllowDifferingEmailAddressForEmailAFriend,
+                DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnEmailProductToFriendPage
+            };
+
+            return model;
+        }
 
         #endregion
+
     }
 }
 
