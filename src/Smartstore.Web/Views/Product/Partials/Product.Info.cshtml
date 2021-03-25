@@ -49,8 +49,7 @@
 </div>
 
 <!-- Review Overview -->
-@*TODO: (mh) (core) sm-if seems to be broken for partials*@
-@*<partial sm-if="!Model.IsAssociatedProduct && Model.DisplayProductReviews" name="Product.ReviewSummary" model="Model.ReviewOverview" />*@
+@* TODO: (mh) (core) sm-if seems to be broken for partials. RE: Complicated stuff -> don't use sm-if for partials. *@
 @if (!Model.IsAssociatedProduct && Model.DisplayProductReviews)
 {
     <partial name="Product.ReviewSummary" model="Model.ReviewOverview" />

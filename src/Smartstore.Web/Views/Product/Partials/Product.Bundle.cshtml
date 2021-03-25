@@ -39,13 +39,13 @@
                 {
                     if (img != null)
                     {
-                        <a asp-route="Product" asp-route-SeName="@Model.SeName" title="@T("Products.Details")">
+                        <a asp-route="Product" asp-route-SeName="@item.SeName" title="@T("Products.Details")">
                             <img sm-file="img" sm-size="gallery.ThumbSize" />
                         </a>
                     }
                     else
                     {
-                        <a asp-route="Product" asp-route-SeName="@Model.SeName" title="@T("Products.Details")">@item.Name</a>
+                        <a asp-route="Product" asp-route-SeName="@item.SeName" title="@T("Products.Details")">@item.Name</a>
                     }
                 }
                 else

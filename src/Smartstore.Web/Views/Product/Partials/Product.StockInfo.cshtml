@@ -60,7 +60,7 @@
     <div sm-if="Model.DisplayBackInStockSubscription" class="pd-stocksub">
         @if (!Model.IsCurrentCustomerRegistered)
         {
-            <a asp-route="Login" asp-route-returnUrl="@Context.Request.Query["returnUrl"]" rel="nofollow">@T("BackInStockSubscriptions.NotifyMeWhenAvailable")</a>
+            <a asp-route="Login" asp-route-returnUrl="@Context.Request.RawUrl()" rel="nofollow">@T("BackInStockSubscriptions.NotifyMeWhenAvailable")</a>
         }
         else
         {

@@ -5,20 +5,21 @@
 
 <div sm-if="Model.IsGiftCard" class="pd-giftcard">
     <div class="form-group pd-giftcard-recipient-name">
+        @* TODO: (mh) (core) Check whether the LABEL tag helper generates the "for" attribute. *@
         <label asp-for="@Model.RecipientName" class="required" />
-        <input asp-for="@Model.RecipientName" />
+        <input asp-for="@Model.RecipientName" type="text" />
     </div>
     <div sm-if="Model.GiftCardType == GiftCardType.Virtual" class="form-group pd-giftcard-recipient-email">
         <label asp-for="@Model.RecipientEmail" class="required" />
-        <input asp-for="@Model.RecipientEmail" />
+        <input asp-for="@Model.RecipientEmail" type="email" />
     </div>
     <div class="form-group pd-giftcard-sender-name">
         <label asp-for="@Model.SenderName" class="required" />
-        <input asp-for="@Model.SenderName" />
+        <input asp-for="@Model.SenderName" type="text" />
     </div>
     <div sm-if="Model.GiftCardType == GiftCardType.Virtual" class="form-group pd-giftcard-sender-email">
         <label asp-for="@Model.SenderEmail" class="required" />
-        <input asp-for="@Model.SenderEmail" />
+        <input asp-for="@Model.SenderEmail" type="email" />
     </div>
     <div class="form-group pd-giftcard-message">
         <label asp-for="@Model.Message"/>

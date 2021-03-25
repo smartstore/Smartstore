@@ -58,8 +58,10 @@
                 </div>
             </div>
 
-            <div sm-if="item.ProductVariantAttributes.ShouldBeRendered()" class="pd-bundle-item-variants@(item.BundleItem.IsBundleItemPricing ? "" : " d-none") pt-3" data-partial="BundleItemVariants">
-                <partial name="Product.Variants" model="item.ProductVariantAttributes" />
+            <div sm-if="item.ProductVariantAttributes.ShouldBeRendered()" 
+                 class="pd-bundle-item-variants@(item.BundleItem.IsBundleItemPricing ? "" : " d-none") pt-3" 
+                 data-partial="BundleItemVariants">
+                <partial name="Product.Variants" model="item.ProductVariantAttributes" view-data="new ViewDataDictionary(ViewData)" />
             </div>
             
             @if (item.GiftCard.IsGiftCard)

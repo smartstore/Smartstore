@@ -21,9 +21,8 @@
     });
 }
 
-<widget target-zone="head">
-    <partial name="MetaProperties" model="Model.MetaProperties" />
-</widget>
+
+<partial name="MetaProperties" model="Model.MetaProperties" />
 
 <div class="page product-details-page" itemscope itemtype="http://schema.org/Product">
     <zone name="productdetails_top" />
@@ -31,16 +30,17 @@
     <article class="pd page-body">
 
         <div id="main-update-container" class="update-container" data-url="@updateUrl">
-            @using (Html.BeginRouteForm("Product", new { SeName = Model.SeName }, FormMethod.Post, false, new { id = "pd-form" }))
-            {
+            <form asp-route="Product" asp-route-SeName="Model.SeName" method="post" id="pd-form">
                 <!-- Top Content: Picture, Description, Attrs, Variants, Bundle Items, Price etc. -->
                 <section class="row pd-section pd-section-top">
                     <!-- Picture -->
                     <div class="col-12 col-md-6 col-lg-7 pd-data-col">
                         <zone name="productdetails_pictures_top" />
+
                         <div id="pd-gallery-container">
                             <partial name="Product.Media" model="Model.MediaGalleryModel" />
                         </div>
+
                         <zone name="productdetails_pictures_bottom" />
                     </div>
 
@@ -104,7 +104,7 @@
                         }
                     }
                 </section>
-            }
+            </form>
         </div>
 
         <!-- Bottom Content: Full Description, Specification, Review etc. -->

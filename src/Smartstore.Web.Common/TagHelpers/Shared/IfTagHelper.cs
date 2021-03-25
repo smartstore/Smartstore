@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -21,12 +17,14 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(IfAttributeName)]
         public bool Condition { get; set; } = true;
 
-        public override void Process(TagHelperContext context, TagHelperOutput output)
+        public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
             if (!Condition)
             {
                 output.SuppressOutput();
             }
+
+            return Task.CompletedTask;
         }
     }
 }

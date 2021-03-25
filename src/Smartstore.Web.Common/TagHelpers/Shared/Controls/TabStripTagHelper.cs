@@ -88,10 +88,10 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string Breakpoint { get; set; }
 
         /// <summary>
-        /// Tab nav position
+        /// Tab nav position. Default = Top.
         /// </summary>
         [HtmlAttributeName(PositionAttributeName)]
-        public TabsPosition Position { get; set; }
+        public TabsPosition Position { get; set; } = TabsPosition.Top;
 
         /// <summary>
         /// Tab nav style

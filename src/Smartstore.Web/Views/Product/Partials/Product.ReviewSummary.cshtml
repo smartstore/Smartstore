@@ -13,6 +13,8 @@
     {
         ratingPercent = ((Model.RatingSum * 100) / Model.TotalReviews) / 5;
     }
+
+    var reviewPageUrl = Url.Action("Reviews", new { id = Model.ProductId });
 }
 
 <div class="pd-review-summary pd-group" @Html.Raw(Model.TotalReviews > 0 ? " itemprop='aggregateRating' itemscope itemtype='http://schema.org/AggregateRating'" : "")>
@@ -21,16 +23,14 @@
         <div class="rating">
             <div style="width: @(ratingPercent)%"></div>
         </div>
-        <span sm-if="Model.TotalReviews > 0" class="pd-review-count">
-            (<a asp-action="Reviews" asp-controller="Product" asp-route-id="@Model.ProductId">@Model.TotalReviews</a>)
-        </span>
+        <span sm-if="Model.TotalReviews > 0" class="pd-review-count">(<a href="@reviewPageUrl">@Model.TotalReviews</a>)</span>
     </div>
 
     @* TEXT *@
     <span class="pd-review-link">
         @if (Model.TotalReviews > 0)
         {
-            <a asp-action="Reviews" asp-controller="Product" asp-route-id="@Model.ProductId">@T("Reviews.Overview.AddNew")</a>
+            <a href="@reviewPageUrl">@T("Reviews.Overview.AddNew")</a>
             @* Hidden microdata info *@
             decimal ratingValue = ratingPercent / (decimal)20;
             <meta itemprop="ratingValue" content='@ratingValue.ToString("0.0", new CultureInfo("en-US"))' />
@@ -39,7 +39,7 @@
         }
         else
         {
-            <a asp-action="Reviews" asp-controller="Product" asp-route-id="@Model.ProductId">@T("Reviews.Overview.First")</a>
+            <a href="@reviewPageUrl">@T("Reviews.Overview.First")</a>
         }
     </span>
 </div>
