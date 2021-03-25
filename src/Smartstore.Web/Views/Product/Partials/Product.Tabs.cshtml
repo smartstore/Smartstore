@@ -1,13 +1,13 @@
 ﻿@using Smartstore.Web.Models.Catalog
+@using Smartstore.Web.Razor;
 
 @model ProductDetailsModel
+@inject IRazorViewInvoker RazorViewInvoker
 
 @{
-    // TODO: (mh) (core) Fire event. But why don't we fire the event more generically in Taghelper? RE: we do already?
-
     // TODO: (mh) (core) Viewcomponent or Partial? RE: partial please.
     //var specificationAttributes = Html.Action("ProductSpecifications", new { productId = Model.Id }).ToString();
-    var specificationAttributes = string.Empty;
+    var specificationAttributes = await RazorViewInvoker.InvokeViewAsync("Product.Specs", Model.SpecificationAttributes);
 }
 
 <tabstrip id="pd-tabs" class="pd-tabs" sm-nav-style="Material" sm-hide-single-item="true" sm-responsive="true" sm-breakpoint="&lt;md">
@@ -34,6 +34,7 @@
         // INFO: (mh) (core) I'm not sure how sm-if behaves with complex tag helpers. Better not use it here.
         <tab sm-title="@T("Products.Specs")" sm-selected="!Model.FullDescription.HasValue()">
             @*TODO: (mh) (core) Viewcomponent or Partial? RE: partial please. *@
+            @Html.Raw(specificationAttributes)
         </tab>
     }
 
@@ -46,4 +47,3 @@
 </tabstrip>
 
 
-    

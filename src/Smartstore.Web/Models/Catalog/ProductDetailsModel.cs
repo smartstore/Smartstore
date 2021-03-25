@@ -110,6 +110,8 @@ namespace Smartstore.Web.Models.Catalog
         public ProductBundleItemModel BundleItem { get; set; } = new();
         public bool IsBundlePart { get; set; }
 
+        public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = new();
+
         public bool CompareEnabled { get; set; }
         public bool TellAFriendEnabled { get; set; }
         public bool AskQuestionEnabled { get; set; }

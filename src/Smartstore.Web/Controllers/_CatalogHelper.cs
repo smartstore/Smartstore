@@ -856,6 +856,8 @@ namespace Smartstore.Web.Controllers
 
             PrepareProductGiftCardsModel(model, product, customer);
 
+            model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(product);
+
             _services.DisplayControl.Announce(product);
 
             return model;
