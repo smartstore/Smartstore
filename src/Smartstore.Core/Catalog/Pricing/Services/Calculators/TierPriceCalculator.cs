@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
@@ -28,6 +29,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 if (tierPrice.HasValue)
                 {
                     // TODO ...
+                    context.FinalPrice = Math.Min(context.FinalPrice, tierPrice.Value);
                 }
 
                 if (context.Options.DetermineLowestPrice && !context.HasPriceRange)

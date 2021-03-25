@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
-    /// TODO: (mg) (core) Describe
+    /// Calculates the lowest possible product price.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 10)]
     public class LowestPriceCalculator : IPriceCalculator
@@ -17,11 +17,13 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 await next(context);
                 return;
             }
-            
-            var product = context.Product;
+
+            // Process the whole pipeline with maximum quantity to get the minimum tier price applied.
+            context.Quantity = int.MaxValue;
+            await next(context);
 
             // Get lowest possible price.
-            // TODO: So how to get the price here (from pipeline?). Should incl. tier prices (int.MaxValue), discounts but ignore additionalCharge and this LowestPriceCalculator.
+            var product = context.Product;
             var lowestPrice = context.FinalPrice;
 
             if (product.LowestAttributeCombinationPrice.HasValue && product.LowestAttributeCombinationPrice.Value < lowestPrice)
@@ -52,8 +54,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 var attributes = await context.Options.BatchContext.Attributes.GetOrLoadAsync(product.Id);
                 context.HasPriceRange = attributes.Any(x => x.ProductVariantAttributeValues.Any(y => y.PriceAdjustment != decimal.Zero));
             }
-
-            await next(context);
         }
     }
 }
