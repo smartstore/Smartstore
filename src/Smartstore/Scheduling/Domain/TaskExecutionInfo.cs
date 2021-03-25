@@ -81,7 +81,7 @@ namespace Smartstore.Scheduling
         }
 
         object ICloneable.Clone()
-            => this.Clone();
+            => Clone();
 
         public TaskExecutionInfo Clone()
         {
