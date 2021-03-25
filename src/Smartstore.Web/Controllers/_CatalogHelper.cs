@@ -703,7 +703,7 @@ namespace Smartstore.Web.Controllers
 
                 model = await PrepareProductDetailModelAsync(model, product, query, isAssociatedProduct, productBundleItem, bundleItems);
 
-                // Action items
+                // Action items.
                 {
                     if (model.HasSampleDownload)
                     {
@@ -805,42 +805,28 @@ namespace Smartstore.Web.Controllers
             IList<ProductBundleItemData> productBundleItems = null,
             int selectedQuantity = 1)
         {
-            // TODO: (mh) (core) Split this method into many protected methods:
-            // PrepareProductAttributesModel, PrepareProductAttributeCombinationsModel, PrepareProductPriceModel,
-            // PrepareProductCartModel, PrepareProductGiftCardsModel
-
             Guard.NotNull(model, nameof(model));
             Guard.NotNull(product, nameof(product));
 
+            // TODO: (mh) (core) Decide whether to obtain these directly in the helper methods to spare params or pass them all.
+            // Currently only customer is passed and should also be spared.
             var store = _services.StoreContext.CurrentStore;
             var customer = _services.WorkContext.CurrentCustomer;
             var currency = _services.WorkContext.WorkingCurrency;
 
             var preSelectedPriceAdjustmentBase = new Money();
             var preSelectedWeightAdjustment = decimal.Zero;
-            var displayPrices = _services.Permissions.Authorize(Permissions.Catalog.DisplayPrice);
+            //var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
             var isBundle = product.ProductType == ProductType.BundledProduct;
-            var isBundleItemPricing = productBundleItem != null && productBundleItem.Item.BundleProduct.BundlePerItemPricing;
-            var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
-            var bundleItemId = productBundleItem == null ? 0 : productBundleItem.Item.Id;
-
-            var hasSelectedAttributesValues = false;
-            var hasSelectedAttributes = query.Variants.Any();
-            IList<ProductVariantAttributeValue> selectedAttributeValues = null;
-            
+            //var isBundleItemPricing = productBundleItem != null && productBundleItem.Item.BundleProduct.BundlePerItemPricing;
+            //var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
+            //var bundleItemId = productBundleItem == null ? 0 : productBundleItem.Item.Id;
             var variantAttributes = isBundle ? new List<ProductVariantAttribute>() : await _db.ProductVariantAttributes
                 .AsNoTracking()
                 .Where(x => x.ProductId == product.Id)
                 .OrderBy(x => x.DisplayOrder)
                 .Include(x => x.ProductAttribute)
                 .ToListAsync();
-
-            var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "Products.Availability.IsNotActive", T("Products.Availability.IsNotActive") },
-                { "Products.Availability.OutOfStock", T("Products.Availability.OutOfStock") },
-                { "Products.Availability.Backordering", T("Products.Availability.Backordering") },
-            };
 
             model.IsBundlePart = product.ProductType != ProductType.BundledProduct && productBundleItem != null;
             model.ProductPrice.DynamicPriceUpdate = _catalogSettings.EnableDynamicPriceUpdate;
@@ -851,319 +837,366 @@ namespace Smartstore.Web.Controllers
                 selectedQuantity = 1;
             }
 
-            #region Product attributes
+            IList<ProductVariantAttributeValue> selectedAttributeValues = null;
+            var hasSelectedAttributesValues = false;
 
             // Bundles don't have attributes.
             if (!isBundle)
             {
-                foreach (var attribute in variantAttributes)
-                {
-                    var pvaModel = new ProductDetailsModel.ProductVariantAttributeModel
-                    {
-                        Id = attribute.Id,
-                        ProductId = attribute.ProductId,
-                        BundleItemId = bundleItemId,
-                        ProductAttributeId = attribute.ProductAttributeId,
-                        ProductAttribute = attribute,
-                        Alias = attribute.ProductAttribute.Alias,
-                        Name = attribute.ProductAttribute.GetLocalized(x => x.Name),
-                        Description = attribute.ProductAttribute.GetLocalized(x => x.Description),
-                        TextPrompt = attribute.TextPrompt,
-                        CustomData = attribute.CustomData,
-                        IsRequired = attribute.IsRequired,
-                        AttributeControlType = attribute.AttributeControlType,
-                        AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions
-                    };
-
-                    if (hasSelectedAttributes)
-                    {
-                        var selectedVariant = query.Variants.FirstOrDefault(x =>
-                            x.ProductId == product.Id &&
-                            x.BundleItemId == bundleItemId &&
-                            x.AttributeId == attribute.ProductAttributeId &&
-                            x.VariantAttributeId == attribute.Id);
-
-                        if (selectedVariant != null)
-                        {
-                            switch (attribute.AttributeControlType)
-                            {
-                                case AttributeControlType.Datepicker:
-                                    if (selectedVariant.Date.HasValue)
-                                    {
-                                        pvaModel.SelectedDay = selectedVariant.Date.Value.Day;
-                                        pvaModel.SelectedMonth = selectedVariant.Date.Value.Month;
-                                        pvaModel.SelectedYear = selectedVariant.Date.Value.Year;
-                                    }
-                                    break;
-                                case AttributeControlType.FileUpload:
-                                    pvaModel.UploadedFileGuid = selectedVariant.Value;
-
-                                    Guid guid;
-                                    if (selectedVariant.Value.HasValue() && Guid.TryParse(selectedVariant.Value, out guid))
-                                    {
-                                        var downloadFileName = await _db.Downloads
-                                            .AsNoTracking()
-                                            .Where(x => x.DownloadGuid == guid)
-                                            .Select(x => x.MediaFile.Name)
-                                            .FirstOrDefaultAsync();
-
-                                        if (downloadFileName != null)
-                                        {
-                                            pvaModel.UploadedFileName = downloadFileName;
-                                        }
-                                    }
-                                    break;
-                                case AttributeControlType.TextBox:
-                                case AttributeControlType.MultilineTextbox:
-                                    pvaModel.TextValue = selectedVariant.Value;
-                                    break;
-                            }
-                        }
-                    }
-
-                    // TODO: obsolete? Alias field is not used for custom values anymore, only for URL as URL variant alias.
-                    if (attribute.AttributeControlType == AttributeControlType.Datepicker && pvaModel.Alias.HasValue() && RegularExpressions.IsYearRange.IsMatch(pvaModel.Alias))
-                    {
-                        var match = RegularExpressions.IsYearRange.Match(pvaModel.Alias);
-                        pvaModel.BeginYear = match.Groups[1].Value.ToInt();
-                        pvaModel.EndYear = match.Groups[2].Value.ToInt();
-                    }
-
-                    var preSelectedValueId = 0;
-                    var pvaValues = !attribute.IsListTypeAttribute() 
-                        ? new List<ProductVariantAttributeValue>()
-                        : await _db.ProductVariantAttributeValues
-                            .AsNoTracking()
-                            .Where(x => x.ProductVariantAttributeId == attribute.Id)
-                            .OrderBy(x => x.DisplayOrder)
-                            .ToListAsync();
-
-                    foreach (var pvaValue in pvaValues)
-                    {
-                        ProductBundleItemAttributeFilter attributeFilter = null;
-
-                        if (productBundleItem?.Item?.IsFilteredOut(pvaValue, out attributeFilter) ?? false)
-                        {
-                            continue;
-                        }
-                        if (preSelectedValueId == 0 && attributeFilter != null && attributeFilter.IsPreSelected)
-                        {
-                            preSelectedValueId = attributeFilter.AttributeValueId;
-                        }
-
-                        var linkedProduct = await _db.Products.FindByIdAsync(pvaValue.LinkedProductId, false);
-
-                        var pvaValueModel = new ProductDetailsModel.ProductVariantAttributeValueModel
-                        {
-                            Id = pvaValue.Id,
-                            ProductAttributeValue = pvaValue,
-                            PriceAdjustment = string.Empty,
-                            Name = pvaValue.GetLocalized(x => x.Name),
-                            Alias = pvaValue.Alias,
-                            Color = pvaValue.Color, // Used with "Boxes" attribute type.
-                            IsPreSelected = pvaValue.IsPreSelected
-                        };
-
-                        if (linkedProduct != null && linkedProduct.Visibility != ProductVisibility.Hidden)
-                        {
-                            pvaValueModel.SeName = await linkedProduct.GetActiveSlugAsync();
-                        }
-
-                        // TODO: (mh) (core) Implement when price calculation pipeline is ready.
-                        // Display price if allowed.
-                        //if (displayPrices && !isBundlePricing)
-                        //{
-                        //    var attributeValuePriceAdjustment = await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, null, selectedQuantity);
-                        //    var priceAdjustmentBase = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment, out var _);
-                        //    var priceAdjustment = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, currency);
-
-                        //    if (_catalogSettings.ShowVariantCombinationPriceAdjustment && !product.CallForPrice)
-                        //    {
-                        //        if (priceAdjustmentBase > decimal.Zero)
-                        //        {
-                        //            pvaValueModel.PriceAdjustment = "+" + _priceFormatter.FormatPrice(priceAdjustment, true, false);
-                        //        }
-                        //        else if (priceAdjustmentBase < decimal.Zero)
-                        //        {
-                        //            pvaValueModel.PriceAdjustment = "-" + _priceFormatter.FormatPrice(-priceAdjustment, true, false);
-                        //        }
-                        //    }
-
-                        //    if (pvaValueModel.IsPreSelected)
-                        //    {
-                        //        preSelectedPriceAdjustmentBase = decimal.Add(preSelectedPriceAdjustmentBase, priceAdjustmentBase);
-                        //        preSelectedWeightAdjustment = decimal.Add(preSelectedWeightAdjustment, pvaValue.WeightAdjustment);
-                        //    }
-
-                        //    if (_catalogSettings.ShowLinkedAttributeValueQuantity && pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage)
-                        //    {
-                        //        pvaValueModel.QuantityInfo = pvaValue.Quantity;
-                        //    }
-
-                        //    pvaValueModel.PriceAdjustmentValue = priceAdjustment;
-                        //}
-
-                        if (_catalogSettings.ShowLinkedAttributeValueImage && pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage)
-                        {
-                            var linkageFile = await _db.ProductMediaFiles
-                                .AsNoTracking()
-                                .ApplyProductFilter(new[] { pvaValue.LinkedProductId }, 1)
-                                .Include(x => x.MediaFile)
-                                .FirstOrDefaultAsync();
-
-                            if (linkageFile != null)
-                            {
-                                pvaValueModel.ImageUrl = _mediaService.GetUrl(linkageFile.MediaFile, _mediaSettings.VariantValueThumbPictureSize, null, false);
-                            }
-                        }
-                        else if (pvaValue.MediaFileId != 0)
-                        {
-                            pvaValueModel.ImageUrl = await _mediaService.GetUrlAsync(pvaValue.MediaFileId, _mediaSettings.VariantValueThumbPictureSize, null, false);
-                        }
-
-                        pvaModel.Values.Add(pvaValueModel);
-                    }
-
-                    // We need selected attributes for initially displayed combination images and multiple selected checkbox values.
-                    if (query.VariantCombinationId == 0)
-                    {
-                        ProductDetailsModel.ProductVariantAttributeValueModel defaultValue = null;
-
-                        // Value pre-selected by a bundle item filter discards the default pre-selection.
-                        if (preSelectedValueId != 0)
-                        {
-                            pvaModel.Values.Each(x => x.IsPreSelected = false);
-
-                            defaultValue = pvaModel.Values.OfType<ProductDetailsModel.ProductVariantAttributeValueModel>().FirstOrDefault(v => v.Id == preSelectedValueId);
-
-                            if (defaultValue != null)
-                            {
-                                defaultValue.IsPreSelected = true;
-                                query.AddVariant(new ProductVariantQueryItem(defaultValue.Id.ToString())
-                                {
-                                    ProductId = product.Id,
-                                    BundleItemId = bundleItemId,
-                                    AttributeId = attribute.ProductAttributeId,
-                                    VariantAttributeId = attribute.Id,
-                                    Alias = attribute.ProductAttribute.Alias,
-                                    ValueAlias = defaultValue.Alias
-                                });
-                            }
-                        }
-
-                        if (defaultValue == null)
-                        {
-                            foreach (var value in pvaModel.Values.Where(x => x.IsPreSelected))
-                            {
-                                query.AddVariant(new ProductVariantQueryItem(value.Id.ToString())
-                                {
-                                    ProductId = product.Id,
-                                    BundleItemId = bundleItemId,
-                                    AttributeId = attribute.ProductAttributeId,
-                                    VariantAttributeId = attribute.Id,
-                                    Alias = attribute.ProductAttribute.Alias,
-                                    ValueAlias = value.Alias
-                                });
-                            }
-                        }
-                    }
-
-                    model.ProductVariantAttributes.Add(pvaModel);
-                }
+                await PrepareProductAttributesModelAsync(model, product, variantAttributes, query, productBundleItem);
+                (selectedAttributeValues, hasSelectedAttributesValues) = 
+                    await PrepareProductAttributeCombinationsModel(model, product, customer, variantAttributes, query, productBundleItem);
             }
 
-            #endregion
+            await PrepareProductPropertiesModelAsync(model, product, customer, productBundleItem, selectedAttributeValues, preSelectedWeightAdjustment, hasSelectedAttributesValues, isAssociatedProduct);
 
-            #region Attribute combinations
+            await PrepareProductPriceModelAsync(model, product, customer, productBundleItem);
 
-            if (!isBundle)
+            await PrepareProductCartModelAsync(model, product, customer, selectedQuantity);
+
+            PrepareProductGiftCardsModel(model, product, customer);
+
+            _services.DisplayControl.Announce(product);
+
+            return model;
+        }
+
+        #region PrepareProductDetailModelAsync helper methods
+
+        // TODO: (mh) (core) preSelectedPriceAdjustmentBase & preSelectedWeightAdjustment might have to be return params.
+        // Implement along with pricing when available.
+        protected async Task PrepareProductAttributesModelAsync(
+            ProductDetailsModel model, 
+            Product product, 
+            List<ProductVariantAttribute> variantAttributes,
+            ProductVariantQuery query,
+            ProductBundleItemData productBundleItem)
+        {
+            var bundleItemId = productBundleItem == null ? 0 : productBundleItem.Item.Id;
+            var hasSelectedAttributes = query.Variants.Any();
+
+            foreach (var attribute in variantAttributes)
             {
-                if (query.Variants.Any() || query.VariantCombinationId != 0)
+                var pvaModel = new ProductDetailsModel.ProductVariantAttributeModel
                 {
-                    // Merge with combination data if there's a match.
-                    var warnings = new List<string>();
-                    var checkAvailability = product.AttributeChoiceBehaviour == AttributeChoiceBehaviour.GrayOutUnavailable;
-                    ProductVariantAttributeSelection attributesSelection;
+                    Id = attribute.Id,
+                    ProductId = attribute.ProductId,
+                    BundleItemId = bundleItemId,
+                    ProductAttributeId = attribute.ProductAttributeId,
+                    ProductAttribute = attribute,
+                    Alias = attribute.ProductAttribute.Alias,
+                    Name = attribute.ProductAttribute.GetLocalized(x => x.Name),
+                    Description = attribute.ProductAttribute.GetLocalized(x => x.Description),
+                    TextPrompt = attribute.TextPrompt,
+                    CustomData = attribute.CustomData,
+                    IsRequired = attribute.IsRequired,
+                    AttributeControlType = attribute.AttributeControlType,
+                    AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions
+                };
 
-                    if (query.VariantCombinationId != 0)
+                if (hasSelectedAttributes)
+                {
+                    var selectedVariant = query.Variants.FirstOrDefault(x =>
+                        x.ProductId == product.Id &&
+                        x.BundleItemId == bundleItemId &&
+                        x.AttributeId == attribute.ProductAttributeId &&
+                        x.VariantAttributeId == attribute.Id);
+
+                    if (selectedVariant != null)
                     {
-                        var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
-                        attributesSelection = new ProductVariantAttributeSelection(combination?.RawAttributes ?? string.Empty);
-                    }
-                    else
-                    {
-                        var selection = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, variantAttributes, product.Id, bundleItemId, false);
-                        attributesSelection = selection.Selection;
-                    }
-
-                    selectedAttributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(attributesSelection);
-                    hasSelectedAttributesValues = attributesSelection.AttributesMap.Any();
-
-                    if (isBundlePricing)
-                    {
-                        model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
-                            attributesSelection,
-                            product,
-                            customer,
-                            separator: ", ",
-                            includePrices: false,
-                            includeGiftCardAttributes: false,
-                            includeHyperlinks: false);
-                    }
-
-                    model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, attributesSelection);
-
-                    if (model.SelectedCombination != null && model.SelectedCombination.IsActive == false)
-                    {
-                        model.IsAvailable = false;
-                        model.StockAvailability = res["Products.Availability.IsNotActive"];
-                    }
-
-                    // Required for below product.IsAvailableByStock().
-                    product.MergeWithCombination(model.SelectedCombination);
-
-                    // Explicitly selected values always discards values pre-selected by merchant.
-                    var selectedValueIds = selectedAttributeValues.Select(x => x.Id).ToArray();
-
-                    foreach (var attribute in model.ProductVariantAttributes)
-                    {
-                        var updatePreSelection = selectedValueIds.Any() && selectedValueIds.Intersect(attribute.Values.Select(x => x.Id)).Any();
-
-                        foreach (ProductDetailsModel.ProductVariantAttributeValueModel value in attribute.Values)
+                        switch (attribute.AttributeControlType)
                         {
-                            if (updatePreSelection)
-                            {
-                                value.IsPreSelected = selectedValueIds.Contains(value.Id);
-                            }
-
-                            if (!_catalogSettings.ShowVariantCombinationPriceAdjustment)
-                            {
-                                value.PriceAdjustment = string.Empty;
-                            }
-
-                            if (checkAvailability)
-                            {
-                                var availabilityInfo = await _productAttributeMaterializer.IsCombinationAvailableAsync(
-                                    product,
-                                    variantAttributes,
-                                    selectedAttributeValues,
-                                    value.ProductAttributeValue);
-
-                                if (availabilityInfo != null)
+                            case AttributeControlType.Datepicker:
+                                if (selectedVariant.Date.HasValue)
                                 {
-                                    value.IsUnavailable = true;
+                                    pvaModel.SelectedDay = selectedVariant.Date.Value.Day;
+                                    pvaModel.SelectedMonth = selectedVariant.Date.Value.Month;
+                                    pvaModel.SelectedYear = selectedVariant.Date.Value.Year;
+                                }
+                                break;
+                            case AttributeControlType.FileUpload:
+                                pvaModel.UploadedFileGuid = selectedVariant.Value;
 
-                                    // Set title attribute for unavailable option.
-                                    if (product.DisplayStockAvailability && availabilityInfo.IsOutOfStock && availabilityInfo.IsActive)
+                                Guid guid;
+                                if (selectedVariant.Value.HasValue() && Guid.TryParse(selectedVariant.Value, out guid))
+                                {
+                                    var downloadFileName = await _db.Downloads
+                                        .AsNoTracking()
+                                        .Where(x => x.DownloadGuid == guid)
+                                        .Select(x => x.MediaFile.Name)
+                                        .FirstOrDefaultAsync();
+
+                                    if (downloadFileName != null)
                                     {
-                                        value.Title = product.BackorderMode == BackorderMode.NoBackorders || product.BackorderMode == BackorderMode.AllowQtyBelow0
-                                            ? res["Products.Availability.OutOfStock"]
-                                            : res["Products.Availability.Backordering"];
+                                        pvaModel.UploadedFileName = downloadFileName;
                                     }
-                                    else
-                                    {
-                                        value.Title = res["Products.Availability.IsNotActive"];
-                                    }
+                                }
+                                break;
+                            case AttributeControlType.TextBox:
+                            case AttributeControlType.MultilineTextbox:
+                                pvaModel.TextValue = selectedVariant.Value;
+                                break;
+                        }
+                    }
+                }
+
+                // TODO: obsolete? Alias field is not used for custom values anymore, only for URL as URL variant alias.
+                if (attribute.AttributeControlType == AttributeControlType.Datepicker && pvaModel.Alias.HasValue() && RegularExpressions.IsYearRange.IsMatch(pvaModel.Alias))
+                {
+                    var match = RegularExpressions.IsYearRange.Match(pvaModel.Alias);
+                    pvaModel.BeginYear = match.Groups[1].Value.ToInt();
+                    pvaModel.EndYear = match.Groups[2].Value.ToInt();
+                }
+
+                var preSelectedValueId = 0;
+                var pvaValues = !attribute.IsListTypeAttribute()
+                    ? new List<ProductVariantAttributeValue>()
+                    : await _db.ProductVariantAttributeValues
+                        .AsNoTracking()
+                        .Where(x => x.ProductVariantAttributeId == attribute.Id)
+                        .OrderBy(x => x.DisplayOrder)
+                        .ToListAsync();
+
+                foreach (var pvaValue in pvaValues)
+                {
+                    ProductBundleItemAttributeFilter attributeFilter = null;
+
+                    if (productBundleItem?.Item?.IsFilteredOut(pvaValue, out attributeFilter) ?? false)
+                    {
+                        continue;
+                    }
+                    if (preSelectedValueId == 0 && attributeFilter != null && attributeFilter.IsPreSelected)
+                    {
+                        preSelectedValueId = attributeFilter.AttributeValueId;
+                    }
+
+                    var linkedProduct = await _db.Products.FindByIdAsync(pvaValue.LinkedProductId, false);
+
+                    var pvaValueModel = new ProductDetailsModel.ProductVariantAttributeValueModel
+                    {
+                        Id = pvaValue.Id,
+                        ProductAttributeValue = pvaValue,
+                        PriceAdjustment = string.Empty,
+                        Name = pvaValue.GetLocalized(x => x.Name),
+                        Alias = pvaValue.Alias,
+                        Color = pvaValue.Color, // Used with "Boxes" attribute type.
+                        IsPreSelected = pvaValue.IsPreSelected
+                    };
+
+                    if (linkedProduct != null && linkedProduct.Visibility != ProductVisibility.Hidden)
+                    {
+                        pvaValueModel.SeName = await linkedProduct.GetActiveSlugAsync();
+                    }
+
+                    // TODO: (mh) (core) Implement when price calculation pipeline is ready.
+                    // Display price if allowed.
+                    //if (displayPrices && !isBundlePricing)
+                    //{
+                    //    var attributeValuePriceAdjustment = await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, null, selectedQuantity);
+                    //    var priceAdjustmentBase = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment, out var _);
+                    //    var priceAdjustment = _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, currency);
+
+                    //    if (_catalogSettings.ShowVariantCombinationPriceAdjustment && !product.CallForPrice)
+                    //    {
+                    //        if (priceAdjustmentBase > decimal.Zero)
+                    //        {
+                    //            pvaValueModel.PriceAdjustment = "+" + _priceFormatter.FormatPrice(priceAdjustment, true, false);
+                    //        }
+                    //        else if (priceAdjustmentBase < decimal.Zero)
+                    //        {
+                    //            pvaValueModel.PriceAdjustment = "-" + _priceFormatter.FormatPrice(-priceAdjustment, true, false);
+                    //        }
+                    //    }
+
+                    //    if (pvaValueModel.IsPreSelected)
+                    //    {
+                    //        preSelectedPriceAdjustmentBase = decimal.Add(preSelectedPriceAdjustmentBase, priceAdjustmentBase);
+                    //        preSelectedWeightAdjustment = decimal.Add(preSelectedWeightAdjustment, pvaValue.WeightAdjustment);
+                    //    }
+
+                    //    if (_catalogSettings.ShowLinkedAttributeValueQuantity && pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                    //    {
+                    //        pvaValueModel.QuantityInfo = pvaValue.Quantity;
+                    //    }
+
+                    //    pvaValueModel.PriceAdjustmentValue = priceAdjustment;
+                    //}
+
+                    if (_catalogSettings.ShowLinkedAttributeValueImage && pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                    {
+                        var linkageFile = await _db.ProductMediaFiles
+                            .AsNoTracking()
+                            .ApplyProductFilter(new[] { pvaValue.LinkedProductId }, 1)
+                            .Include(x => x.MediaFile)
+                            .FirstOrDefaultAsync();
+
+                        if (linkageFile != null)
+                        {
+                            pvaValueModel.ImageUrl = _mediaService.GetUrl(linkageFile.MediaFile, _mediaSettings.VariantValueThumbPictureSize, null, false);
+                        }
+                    }
+                    else if (pvaValue.MediaFileId != 0)
+                    {
+                        pvaValueModel.ImageUrl = await _mediaService.GetUrlAsync(pvaValue.MediaFileId, _mediaSettings.VariantValueThumbPictureSize, null, false);
+                    }
+
+                    pvaModel.Values.Add(pvaValueModel);
+                }
+
+                // We need selected attributes for initially displayed combination images and multiple selected checkbox values.
+                if (query.VariantCombinationId == 0)
+                {
+                    ProductDetailsModel.ProductVariantAttributeValueModel defaultValue = null;
+
+                    // Value pre-selected by a bundle item filter discards the default pre-selection.
+                    if (preSelectedValueId != 0)
+                    {
+                        pvaModel.Values.Each(x => x.IsPreSelected = false);
+
+                        defaultValue = pvaModel.Values.OfType<ProductDetailsModel.ProductVariantAttributeValueModel>().FirstOrDefault(v => v.Id == preSelectedValueId);
+
+                        if (defaultValue != null)
+                        {
+                            defaultValue.IsPreSelected = true;
+                            query.AddVariant(new ProductVariantQueryItem(defaultValue.Id.ToString())
+                            {
+                                ProductId = product.Id,
+                                BundleItemId = bundleItemId,
+                                AttributeId = attribute.ProductAttributeId,
+                                VariantAttributeId = attribute.Id,
+                                Alias = attribute.ProductAttribute.Alias,
+                                ValueAlias = defaultValue.Alias
+                            });
+                        }
+                    }
+
+                    if (defaultValue == null)
+                    {
+                        foreach (var value in pvaModel.Values.Where(x => x.IsPreSelected))
+                        {
+                            query.AddVariant(new ProductVariantQueryItem(value.Id.ToString())
+                            {
+                                ProductId = product.Id,
+                                BundleItemId = bundleItemId,
+                                AttributeId = attribute.ProductAttributeId,
+                                VariantAttributeId = attribute.Id,
+                                Alias = attribute.ProductAttribute.Alias,
+                                ValueAlias = value.Alias
+                            });
+                        }
+                    }
+                }
+
+                model.ProductVariantAttributes.Add(pvaModel);
+            }
+        }
+
+        protected async Task<(IList<ProductVariantAttributeValue>, bool)> PrepareProductAttributeCombinationsModel(
+            ProductDetailsModel model,
+            Product product,
+            Customer customer,
+            List<ProductVariantAttribute> variantAttributes,
+            ProductVariantQuery query,
+            ProductBundleItemData productBundleItem)
+        {
+            // TODO: (mh) (core) Must be out param as it is needed in subsequent code.
+            IList<ProductVariantAttributeValue> selectedAttributeValues = null;
+            var hasSelectedAttributesValues = false;
+
+            var bundleItemId = productBundleItem == null ? 0 : productBundleItem.Item.Id;
+            var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
+            var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Products.Availability.IsNotActive", T("Products.Availability.IsNotActive") },
+                { "Products.Availability.OutOfStock", T("Products.Availability.OutOfStock") },
+                { "Products.Availability.Backordering", T("Products.Availability.Backordering") },
+            };
+
+            if (query.Variants.Any() || query.VariantCombinationId != 0)
+            {
+                // Merge with combination data if there's a match.
+                var warnings = new List<string>();
+                var checkAvailability = product.AttributeChoiceBehaviour == AttributeChoiceBehaviour.GrayOutUnavailable;
+                ProductVariantAttributeSelection attributesSelection;
+
+                if (query.VariantCombinationId != 0)
+                {
+                    var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
+                    attributesSelection = new ProductVariantAttributeSelection(combination?.RawAttributes ?? string.Empty);
+                }
+                else
+                {
+                    var selection = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, variantAttributes, product.Id, bundleItemId, false);
+                    attributesSelection = selection.Selection;
+                }
+
+                selectedAttributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(attributesSelection);
+                hasSelectedAttributesValues = attributesSelection.AttributesMap.Any();
+
+                if (isBundlePricing)
+                {
+                    model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
+                        attributesSelection,
+                        product,
+                        customer,
+                        separator: ", ",
+                        includePrices: false,
+                        includeGiftCardAttributes: false,
+                        includeHyperlinks: false);
+                }
+
+                model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, attributesSelection);
+
+                if (model.SelectedCombination != null && model.SelectedCombination.IsActive == false)
+                {
+                    model.IsAvailable = false;
+                    model.StockAvailability = res["Products.Availability.IsNotActive"];
+                }
+
+                // Required for below product.IsAvailableByStock().
+                product.MergeWithCombination(model.SelectedCombination);
+
+                // Explicitly selected values always discards values pre-selected by merchant.
+                var selectedValueIds = selectedAttributeValues.Select(x => x.Id).ToArray();
+
+                foreach (var attribute in model.ProductVariantAttributes)
+                {
+                    var updatePreSelection = selectedValueIds.Any() && selectedValueIds.Intersect(attribute.Values.Select(x => x.Id)).Any();
+
+                    foreach (ProductDetailsModel.ProductVariantAttributeValueModel value in attribute.Values)
+                    {
+                        if (updatePreSelection)
+                        {
+                            value.IsPreSelected = selectedValueIds.Contains(value.Id);
+                        }
+
+                        if (!_catalogSettings.ShowVariantCombinationPriceAdjustment)
+                        {
+                            value.PriceAdjustment = string.Empty;
+                        }
+
+                        if (checkAvailability)
+                        {
+                            var availabilityInfo = await _productAttributeMaterializer.IsCombinationAvailableAsync(
+                                product,
+                                variantAttributes,
+                                selectedAttributeValues,
+                                value.ProductAttributeValue);
+
+                            if (availabilityInfo != null)
+                            {
+                                value.IsUnavailable = true;
+
+                                // Set title attribute for unavailable option.
+                                if (product.DisplayStockAvailability && availabilityInfo.IsOutOfStock && availabilityInfo.IsActive)
+                                {
+                                    value.Title = product.BackorderMode == BackorderMode.NoBackorders || product.BackorderMode == BackorderMode.AllowQtyBelow0
+                                        ? res["Products.Availability.OutOfStock"]
+                                        : res["Products.Availability.Backordering"];
+                                }
+                                else
+                                {
+                                    value.Title = res["Products.Availability.IsNotActive"];
                                 }
                             }
                         }
@@ -1171,9 +1204,22 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            #endregion
+            return (selectedAttributeValues, hasSelectedAttributesValues);
+        }
 
-            #region Properties
+        protected async Task PrepareProductPropertiesModelAsync(
+            ProductDetailsModel model, 
+            Product product, 
+            Customer customer, 
+            ProductBundleItemData productBundleItem,
+            IList<ProductVariantAttributeValue> selectedAttributeValues,
+            decimal preSelectedWeightAdjustment,
+            bool hasSelectedAttributesValues,
+            bool isAssociatedProduct)
+        {
+            var store = _services.StoreContext.CurrentStore;
+            var currency = _services.WorkContext.WorkingCurrency;
+            var isBundle = product.ProductType == ProductType.BundledProduct;
 
             if ((productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemShoppingCart) ||
                 (product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes && !hasSelectedAttributesValues))
@@ -1293,10 +1339,10 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            model.Weight = (model.WeightValue > 0) ? "{0} {1}".FormatCurrent(model.WeightValue.ToString("N2"), weightSystemKeyword) : string.Empty;
-            model.Height = (product.Height > 0) ? "{0} {1}".FormatCurrent(product.Height.ToString("N2"), dimensionSystemKeyword) : string.Empty;
-            model.Length = (product.Length > 0) ? "{0} {1}".FormatCurrent(product.Length.ToString("N2"), dimensionSystemKeyword) : string.Empty;
-            model.Width = (product.Width > 0) ? "{0} {1}".FormatCurrent(product.Width.ToString("N2"), dimensionSystemKeyword) : string.Empty;
+            model.Weight = (model.WeightValue > 0) ? $"{model.WeightValue:N2} {weightSystemKeyword}" : string.Empty;
+            model.Height = (product.Height > 0) ? $"{product.Height:N2} {dimensionSystemKeyword}" : string.Empty;
+            model.Length = (product.Length > 0) ? $"{product.Length:N2} {dimensionSystemKeyword}" : string.Empty;
+            model.Width = (product.Width > 0) ? $"{product.Width:N2} {dimensionSystemKeyword}" : string.Empty;
 
             if (productBundleItem != null)
             {
@@ -1351,11 +1397,12 @@ namespace Smartstore.Web.Controllers
                 model.DisplayBackInStockSubscription = true;
                 model.BackInStockAlreadySubscribed = await _stockSubscriptionService.IsSubscribedAsync(product, customer, store.Id);
             }
+        }
 
-            #endregion
-
-            // TODO: (mh) (core) Reimplement when PricingChain is ready?
-            #region Product price
+        // TODO: (mh) (core) Reimplement when PricingChain is ready.
+        protected async Task PrepareProductPriceModelAsync(ProductDetailsModel model, Product product, Customer customer, ProductBundleItemData productBundleItem)
+        {
+            var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
 
             model.ProductPrice.ProductId = product.Id;
             model.ProductPrice.HidePrices = !displayPrices;
@@ -1499,9 +1546,12 @@ namespace Smartstore.Web.Controllers
             //    model.ProductPrice.Price = null;
             //}
 
-            #endregion
+        }
 
-            #region 'Add to cart' model
+        protected async Task PrepareProductCartModelAsync(ProductDetailsModel model, Product product, Customer customer, int selectedQuantity)
+        {
+            var currency = _services.WorkContext.WorkingCurrency;
+            var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
 
             model.AddToCart.ProductId = product.Id;
             model.AddToCart.EnteredQuantity = product.OrderMinimumQuantity > selectedQuantity ? product.OrderMinimumQuantity : selectedQuantity;
@@ -1530,7 +1580,7 @@ namespace Smartstore.Web.Controllers
                 // TODO: (mh) (core) CustomerEnteredPrice must also be Money?
                 model.AddToCart.CustomerEnteredPrice = minimumCustomerEnteredPrice.Amount;
 
-                model.AddToCart.CustomerEnteredPriceRange = T("Products.EnterProductPrice.Range", 
+                model.AddToCart.CustomerEnteredPriceRange = T("Products.EnterProductPrice.Range",
                     _currencyService.ConvertToWorkingCurrency(minimumCustomerEnteredPrice),
                     _currencyService.ConvertToWorkingCurrency(maximumCustomerEnteredPrice));
             }
@@ -1545,11 +1595,10 @@ namespace Smartstore.Web.Controllers
             //        Value = qty.ToString()
             //    });
             //}
+        }
 
-            #endregion
-
-            #region Gift card
-
+        protected void PrepareProductGiftCardsModel(ProductDetailsModel model, Product product, Customer customer)
+        {
             model.GiftCard.IsGiftCard = product.IsGiftCard;
             if (model.GiftCard.IsGiftCard)
             {
@@ -1558,12 +1607,9 @@ namespace Smartstore.Web.Controllers
                 model.GiftCard.SenderEmail = customer.Email;
             }
 
-            #endregion
-
-            _services.DisplayControl.Announce(product);
-
-            return model;
         }
+
+        #endregion
 
         public MediaGalleryModel PrepareProductDetailsMediaGalleryModel(
             IList<MediaFileInfo> files,
