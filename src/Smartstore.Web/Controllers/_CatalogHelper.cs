@@ -844,21 +844,29 @@ namespace Smartstore.Web.Controllers
             // Bundles don't have attributes.
             if (!isBundle)
             {
+                // Attributes
                 await PrepareProductAttributesModelAsync(model, product, variantAttributes, query, productBundleItem);
-                (selectedAttributeValues, hasSelectedAttributesValues) = 
-                    await PrepareProductAttributeCombinationsModel(model, product, customer, variantAttributes, query, productBundleItem);
+
+                // Attribute combinations
+                (selectedAttributeValues, hasSelectedAttributesValues) = await PrepareProductAttributeCombinationsModel(model, product, customer, variantAttributes, query, productBundleItem);
             }
 
+            // Properties
             await PrepareProductPropertiesModelAsync(model, product, customer, productBundleItem, selectedAttributeValues, preSelectedWeightAdjustment, hasSelectedAttributesValues, isAssociatedProduct);
 
+            // Price
             await PrepareProductPriceModelAsync(model, product, customer, productBundleItem);
 
+            // AddToCart
             await PrepareProductCartModelAsync(model, product, customer, selectedQuantity);
 
+            // GiftCards
             PrepareProductGiftCardsModel(model, product, customer);
 
+            // Specifications
             model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(product);
 
+            // Reviews
             await PrepareProductReviewsModelAsync(model.ProductReviews, product, 10);
 
             _services.DisplayControl.Announce(product);
