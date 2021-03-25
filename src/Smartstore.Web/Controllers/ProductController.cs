@@ -21,6 +21,7 @@ using Smartstore.Core.Messages;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Web;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Catalog;
@@ -30,6 +31,7 @@ namespace Smartstore.Web.Controllers
     public partial class ProductController : PublicControllerBase
     {
         private readonly SmartDbContext _db;
+        private readonly IWebHelper _webHelper;
         private readonly IProductService _productService;
         private readonly IProductTagService _productTagService;
         private readonly IProductAttributeService _productAttributeService;
@@ -51,6 +53,7 @@ namespace Smartstore.Web.Controllers
 
         public ProductController(
             SmartDbContext db,
+            IWebHelper webHelper,
             IProductService productService,
             IProductTagService productTagService,
             IProductAttributeService productAttributeService,
@@ -71,6 +74,7 @@ namespace Smartstore.Web.Controllers
             Lazy<IMessageFactory> messageFactory)
         {
             _db = db;
+            _webHelper = webHelper;
             _productService = productService;
             _productTagService = productTagService;
             _productAttributeService = productAttributeService;
@@ -374,6 +378,84 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
+        #region Product reviews
+
+        [HttpPost]
+        public async Task<ActionResult> SetReviewHelpfulness(int productReviewId, bool washelpful)
+        {
+            var productReview = await _db.CustomerContent.FindByIdAsync(productReviewId) as ProductReview;
+
+            if (productReview == null)
+                throw new ArgumentException(T("Reviews.NotFound", productReviewId));
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (customer.IsGuest() && !_catalogSettings.AllowAnonymousUsersToReviewProduct)
+            {
+                return Json(new
+                {
+                    Success = false,
+                    Result = T("Reviews.Helpfulness.OnlyRegistered").Value,
+                    TotalYes = productReview.HelpfulYesTotal,
+                    TotalNo = productReview.HelpfulNoTotal
+                });
+            }
+
+            // Customers aren't allowed to vote for their own reviews.
+            if (productReview.CustomerId == customer.Id)
+            {
+                return Json(new
+                {
+                    Success = false,
+                    Result = T("Reviews.Helpfulness.YourOwnReview").Value,
+                    TotalYes = productReview.HelpfulYesTotal,
+                    TotalNo = productReview.HelpfulNoTotal
+                });
+            }
+
+            // Delete previous helpfulness.
+            var oldPrh = (from prh in productReview.ProductReviewHelpfulnessEntries
+                          where prh.CustomerId == customer.Id
+                          select prh).FirstOrDefault();
+
+            if (oldPrh != null)
+            {
+                _db.CustomerContent.Remove(oldPrh);
+            }
+
+            // Insert new helpfulness.
+            var newPrh = new ProductReviewHelpfulness
+            {
+                ProductReviewId = productReview.Id,
+                CustomerId = customer.Id,
+                IpAddress = _webHelper.GetClientIpAddress().ToString(),
+                WasHelpful = washelpful,
+                IsApproved = true //always approved
+            };
+
+            _db.CustomerContent.Add(newPrh);
+            
+            // New totals.
+            int helpfulYesTotal = (from prh in productReview.ProductReviewHelpfulnessEntries
+                                   where prh.WasHelpful
+                                   select prh).Count();
+            int helpfulNoTotal = (from prh in productReview.ProductReviewHelpfulnessEntries
+                                  where !prh.WasHelpful
+                                  select prh).Count();
+
+            productReview.HelpfulYesTotal = helpfulYesTotal;
+            productReview.HelpfulNoTotal = helpfulNoTotal;
+            
+            return Json(new
+            {
+                Success = true,
+                Result = T("Reviews.Helpfulness.SuccessfullyVoted").Value,
+                TotalYes = productReview.HelpfulYesTotal,
+                TotalNo = productReview.HelpfulNoTotal
+            });
+        }
+
+        #endregion
+
         #region Email a friend
 
         [GdprConsent]
@@ -448,7 +530,6 @@ namespace Smartstore.Web.Controllers
         }
 
         #endregion
-
     }
 }
 
