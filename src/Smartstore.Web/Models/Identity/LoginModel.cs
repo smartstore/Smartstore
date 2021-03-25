@@ -5,6 +5,7 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Identity
 {
+    // TODO: (mh) (core) One property of Email, Username or UsernameOrEmail must be required.
     [LocalizedDisplay("Account.Login.Fields.")]
     public partial class LoginModel : ModelBase
     {
@@ -23,6 +24,7 @@ namespace Smartstore.Web.Models.Identity
         public string UsernameOrEmail { get; set; }
 
         [DataType(DataType.Password)]
+        [Required]
         [LocalizedDisplay("*Password", Prompt = "*Password")]
         public string Password { get; set; }
 

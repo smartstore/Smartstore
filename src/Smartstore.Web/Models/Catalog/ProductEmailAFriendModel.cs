@@ -1,11 +1,11 @@
-﻿using FluentValidation;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using FluentValidation.Attributes;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Catalog
 {
-    [Validator(typeof(ProductEmailAFriendValidator))]
     public partial class ProductEmailAFriendModel : ModelBase
     {
         public int ProductId { get; set; }
@@ -14,9 +14,13 @@ namespace Smartstore.Web.Models.Catalog
 
         public string ProductSeName { get; set; }
 
+        [Required]
+        [DataType(DataType.EmailAddress)]
         [LocalizedDisplay("Products.EmailAFriend.FriendEmail")]
         public string FriendEmail { get; set; }
 
+        [Required]
+        [DataType(DataType.EmailAddress)]
         [LocalizedDisplay("Products.EmailAFriend.YourEmailAddress")]
         public string YourEmailAddress { get; set; }
 
@@ -27,16 +31,5 @@ namespace Smartstore.Web.Models.Catalog
         public bool AllowChangedCustomerEmail { get; set; }
 
         public bool DisplayCaptcha { get; set; }
-    }
-
-    public class ProductEmailAFriendValidator : AbstractValidator<ProductEmailAFriendModel>
-    {
-        public ProductEmailAFriendValidator()
-        {
-            RuleFor(x => x.FriendEmail).NotEmpty();
-            RuleFor(x => x.FriendEmail).EmailAddress();
-            RuleFor(x => x.YourEmailAddress).NotEmpty();
-            RuleFor(x => x.YourEmailAddress).EmailAddress();
-        }
     }
 }
