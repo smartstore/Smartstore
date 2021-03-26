@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Localization;
+﻿using System;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Logging
 {
@@ -19,5 +20,13 @@ namespace Smartstore.Core.Logging
         public string Message { get; set; }
 
         public bool Durable { get; set; }
+    }
+
+    /// <summary>
+    /// For proper JSON serialization
+    /// </summary>
+    internal class NotifyEntriesHolder
+    {
+        public NotifyEntry[] Entries { get; set; } = Array.Empty<NotifyEntry>();
     }
 }

@@ -21,10 +21,6 @@ namespace Smartstore.ComponentModel
         private readonly HashSet<Type> _unSerializableTypes = new() { typeof(Task), typeof(Task<>) };
         private readonly HashSet<Type> _unDeserializableTypes = new() { typeof(Task), typeof(Task<>) };
 
-        public NewtonsoftJsonSerializer()
-        {
-        }
-
         private static JsonSerializerSettings CreateSerializerSettings()
         {
             var settings = new JsonSerializerSettings

@@ -26,25 +26,25 @@ namespace Smartstore
             {
                 var result = Enumerable.Empty<NotifyEntry>();
                 string key = NotifyFilterAttribute.NotificationsAccessKey;
-                ICollection<NotifyEntry> entries;
+                NotifyEntriesHolder holder;
 
                 var tempData = displayHelper.Resolve<ITempDataDictionaryFactory>().GetTempData(displayHelper.HttpContext);
                 if (tempData.ContainsKey(key))
                 {
-                    entries = tempData[key] as ICollection<NotifyEntry>;
-                    if (entries != null)
+                    holder = tempData[key] as NotifyEntriesHolder;
+                    if (holder != null)
                     {
-                        result = result.Concat(entries);
+                        result = result.Concat(holder.Entries);
                     }
                 }
 
                 var viewData = displayHelper.Resolve<IViewDataAccessor>().ViewData;
                 if (viewData != null && viewData.ContainsKey(key))
                 {
-                    entries = viewData[key] as ICollection<NotifyEntry>;
-                    if (entries != null)
+                    holder = viewData[key] as NotifyEntriesHolder;
+                    if (holder != null)
                     {
-                        result = result.Concat(entries);
+                        result = result.Concat(holder.Entries);
                     }
                 }
 

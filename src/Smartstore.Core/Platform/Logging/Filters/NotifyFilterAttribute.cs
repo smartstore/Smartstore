@@ -54,15 +54,14 @@ namespace Smartstore.Core.Logging
                 if (!source.Any())
                     return;
 
-                var existing = (bag[NotificationsAccessKey] ?? new HashSet<NotifyEntry>()) as HashSet<NotifyEntry>;
+                var existingHolder = (bag[NotificationsAccessKey] ?? new NotifyEntriesHolder()) as NotifyEntriesHolder;
 
-                source.Each(x =>
-                {
-                    if (x.Message.HasValue())
-                        existing.Add(x);
-                });
+                existingHolder.Entries = existingHolder.Entries
+                    .Union(source.Where(x => x.Message.HasValue()))
+                    .ToArray();
 
-                bag[NotificationsAccessKey] = TrimSet(existing);
+                bag[NotificationsAccessKey] = TrimSet(existingHolder);
+                
             }
 
             private static void HandleAjaxRequest(NotifyEntry entry, HttpResponse response)
@@ -74,14 +73,14 @@ namespace Smartstore.Core.Logging
                 response.Headers.Add("X-Message", entry.Message.ToString());
             }
 
-            private static HashSet<NotifyEntry> TrimSet(HashSet<NotifyEntry> entries)
+            private static NotifyEntriesHolder TrimSet(NotifyEntriesHolder holder)
             {
-                if (entries.Count <= 20)
+                if (holder.Entries.Length <= 20)
                 {
-                    return entries;
+                    return holder;
                 }
-
-                return new HashSet<NotifyEntry>(entries.Skip(entries.Count - 20));
+                
+                return new NotifyEntriesHolder { Entries = holder.Entries.Skip(holder.Entries.Length - 20).ToArray() };
             }
         }
     }
