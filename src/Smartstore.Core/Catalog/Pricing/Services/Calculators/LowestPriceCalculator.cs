@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
-    /// TODO: (mg) (core) The decription is too inaccurate. What does lowest possible price mean? Explain please.
-    /// Calculates the lowest possible product price.
+    /// Calculates the lowest possible price a product can achieve. 
+    /// The lowest tier price, the lowest attribute combination price and discounts are taken into account in the calculation.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 10)]
     public class LowestPriceCalculator : IPriceCalculator

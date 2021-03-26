@@ -27,13 +27,14 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             var product = context.Product;
             var bundleItem = context.BundleItem;
+            Discount appliedDiscount = null;
 
             if (bundleItem?.Item != null)
             {
                 var bi = bundleItem.Item;
                 if (bi.Discount.HasValue && bi.BundleProduct.BundlePerItemPricing)
                 {
-                    var appliedDiscount = new Discount
+                    appliedDiscount = new Discount
                     {
                         UsePercentage = bi.DiscountPercentage,
                         DiscountPercentage = bi.Discount.Value,
@@ -51,15 +52,24 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 var applicableDiscounts = await GetApplicableDiscounts(product, context);
                 if (applicableDiscounts.Any())
                 {
-                    var preferredDiscount = applicableDiscounts.GetPreferredDiscount(context.FinalPrice);
+                    appliedDiscount = applicableDiscounts.GetPreferredDiscount(context.FinalPrice);
 
-                    if (preferredDiscount != null)
+                    if (appliedDiscount != null)
                     {
-                        context.AppliedDiscounts.Add(preferredDiscount);
-                        var discountAmount = preferredDiscount.GetDiscountAmount(context.FinalPrice);
+                        context.AppliedDiscounts.Add(appliedDiscount);
+                        var discountAmount = appliedDiscount.GetDiscountAmount(context.FinalPrice);
                         context.FinalPrice -= discountAmount;
                     }
                 }
+            }
+
+            // Percentage discount on minimum tier price.
+            if (!context.Options.IgnorePercentageDiscountOnTierPrices &&
+                context.MinTierPrice != decimal.Zero &&
+                appliedDiscount != null &&
+                appliedDiscount.UsePercentage)
+            {
+                context.FinalPrice -= appliedDiscount.GetDiscountAmount(context.MinTierPrice);
             }
 
             await next(context);

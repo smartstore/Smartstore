@@ -42,7 +42,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             }
 
             var options = context.Options;
-
+            var quantity = options.DetermineLowestPrice ? int.MaxValue : context.Quantity;
             CalculatorContext lowestPriceCalculation = null;
 
             if (options.DetermineLowestPrice && context.AssociatedProducts.Count > 1)
@@ -52,7 +52,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     // Get the final price of associated product
                     var childCalculation = await CalculateChildPriceAsync(associatedProduct, context, c => 
                     { 
-                        c.Quantity = int.MaxValue;
+                        c.Quantity = quantity;
                         c.AssociatedProducts = null;
                     });
 
@@ -70,7 +70,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 // Get the final price of first associated product
                 lowestPriceCalculation = await CalculateChildPriceAsync(context.AssociatedProducts.First(), context, c => 
                 { 
-                    c.Quantity = int.MaxValue;
+                    c.Quantity = quantity;
                     c.AssociatedProducts = null;
                 });
             }

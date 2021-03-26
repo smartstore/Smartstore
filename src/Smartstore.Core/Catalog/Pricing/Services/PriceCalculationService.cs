@@ -97,6 +97,7 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 IsGrossPrice = _taxSettings.PricesIncludeTax,
                 TaxInclusive = taxInclusive,
+                IgnorePercentageDiscountOnTierPrices = !_catalogSettings.ApplyPercentageDiscountOnTierPrice,
                 IgnoreDiscounts = priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes || ignoreDiscounts, // TODO: (core) Uncomment this
                 IgnoreAttributes = priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
                 DetermineLowestPrice = forListing && priceDisplay == PriceDisplayType.LowestPrice,

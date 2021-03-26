@@ -39,8 +39,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                 foreach (var bundleItem in context.BundleItems)
                 {
-                    // Get the final unit price of bundle item part product
-                    // TODO: (mg) (core) Does it make more sense to pass contained quantity here (bundleItem.Item.Quantity) instead of multiplying later.
+                    // Get the final unit price of bundle item part product.
+                    // Do not pass bundleItem.Item.Quantity. The pipline always calculates a unit price.
                     // TODO: (mg) (core) I think we need some sort of BundleItemsBatchContext here performance-wise (like we build and pass for grouped products)?
                     var childCalculation = await CalculateChildPriceAsync(bundleItem.Item.Product, context, c => 
                     { 
@@ -50,7 +50,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                         c.BundleItem = bundleItem; 
                     });
 
-                    // Add price of part to root final price (unit price * contained quantity in this bundle)
+                    // Add price of part to root final price (unit price * contained quantity in this bundle).
                     context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice, bundleItem.Item.Quantity);
 
                     // TODO: (mg) (core) Is it not better to continue the pipeline here (unlike in Smartstore classic)? Continuation could
