@@ -594,7 +594,7 @@ namespace Smartstore.Web.Controllers
                 return NotFound();
 
             var product = await _db.Products.FindByIdAsync(id, false);
-            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published)
+            if (product == null || product.IsSystemProduct || !product.Published)
                 return NotFound();
 
             _productCompareService.AddToList(id);
@@ -619,7 +619,7 @@ namespace Smartstore.Web.Controllers
 
             var product = await _db.Products.FindByIdAsync(id, false);
 
-            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published)
+            if (product == null || product.IsSystemProduct || !product.Published)
             {
                 return failed;
             }

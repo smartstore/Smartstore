@@ -125,7 +125,7 @@ namespace Smartstore.Web.Controllers
                 .Where(x => x.Id == productId)
                 .FirstOrDefaultAsync();
 
-            if (product == null || product.Deleted || product.IsSystemProduct)
+            if (product == null || product.IsSystemProduct)
                 return NotFound();
 
             // Is published? Check whether the current user has a "Manage catalog" permission.
@@ -404,7 +404,7 @@ namespace Smartstore.Web.Controllers
         {
             // INFO: (mh) (core) Entitity is being loaded tracked because else navigation properties can't be loaded in PrepareProductReviewsModelAsync.
             var product = await _db.Products.FindByIdAsync(id);
-            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !product.AllowCustomerReviews)
+            if (product == null || product.IsSystemProduct || !product.Published || !product.AllowCustomerReviews)
             {
                 return NotFound();
             }
@@ -438,7 +438,7 @@ namespace Smartstore.Web.Controllers
         {
             // INFO: (mh) (core) Entitity is being loaded tracked because else navigation properties can't be loaded in PrepareProductReviewsModelAsync.
             var product = await _db.Products.FindByIdAsync(id);
-            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !product.AllowCustomerReviews)
+            if (product == null || product.IsSystemProduct || !product.Published || !product.AllowCustomerReviews)
             {
                 return NotFound();
             }
@@ -614,7 +614,7 @@ namespace Smartstore.Web.Controllers
         {
             var product = await _db.Products.FindByIdAsync(id, false);
 
-            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.AskQuestionEnabled)
+            if (product == null || product.IsSystemProduct || !product.Published || !_catalogSettings.AskQuestionEnabled)
                 return NotFound();
 
             var model = await PrepareAskQuestionModelAsync(product);
@@ -628,8 +628,7 @@ namespace Smartstore.Web.Controllers
         {
             var product = await _db.Products.FindByIdAsync(model.Id, false);
 
-            // TODO: (mh) (core) Deleted ain't neccessary anymore. Remove!
-            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.AskQuestionEnabled)
+            if (product == null || product.IsSystemProduct || !product.Published || !_catalogSettings.AskQuestionEnabled)
                 return NotFound();
 
             if (_captchaSettings.ShowOnAskQuestionPage && captchaError.HasValue())
@@ -726,7 +725,7 @@ namespace Smartstore.Web.Controllers
         {
             var product = await _db.Products.FindByIdAsync(id, false);
 
-            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.EmailAFriendEnabled)
+            if (product == null || product.IsSystemProduct || !product.Published || !_catalogSettings.EmailAFriendEnabled)
                 return NotFound();
 
             var model = await PrepareEmailAFriendModelAsync(product);
@@ -740,7 +739,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> EmailAFriendSend(ProductEmailAFriendModel model, int id, string captchaError)
         {
             var product = await _db.Products.FindByIdAsync(id, false);
-            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.EmailAFriendEnabled)
+            if (product == null || product.IsSystemProduct || !product.Published || !_catalogSettings.EmailAFriendEnabled)
                 return NotFound();
 
             if (_captchaSettings.ShowOnEmailProductToFriendPage && captchaError.HasValue())
