@@ -42,6 +42,7 @@
                         <div class="col-md-9 star-rating-parent">
                             <div class="review-rating star-rating star-rating-large">
                                 @{
+                                    // TODO: (mh) (core) A click on the stars scrolls to top. Check if classic behaves the same way. Fix it.
                                     var srName = Html.NameFor(x => x.Rating);
                                 }
                                 <input type="radio" id="@(srName)5" name="@srName" value="5" checked="@(5 == Model.Rating)" /><label for="@(srName)5" class="tooltip-toggle" title="@T("Reviews.Fields.Rating.Excellent")"></label>
@@ -79,9 +80,9 @@
                         </div>
                     </div>
 
-                    <div sm-if="Model.DisplayCaptcha" class="captcha-box form-group row justify-content-end">
+                    <div sm-if="Model.DisplayCaptcha" class="form-group row justify-content-end">
                         <div class="col-md-9">
-                            <captcha sm-enabled="Model.DisplayCaptcha" />
+                            <captcha />
                         </div>
                     </div>
 

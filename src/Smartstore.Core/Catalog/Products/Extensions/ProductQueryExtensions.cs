@@ -4,6 +4,8 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using Smartstore.Core.Identity;
+using Smartstore.Core.Content.Media;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -126,7 +128,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Includes media for eager loading: 
         /// <see cref="Product.ProductPictures"/> (sorted by <see cref="ProductMediaFile.DisplayOrder"/>), then <see cref="ProductMediaFile.MediaFile"/>
         /// </summary>
-        public static IQueryable<Product> IncludeMedia(this IQueryable<Product> query)
+        public static IIncludableQueryable<Product, MediaFile> IncludeMedia(this IQueryable<Product> query)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -142,7 +144,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Published <see cref="Product.ProductManufacturers"/> (sorted by <see cref="Manufacturer.DisplayOrder"/> then by <see cref="Manufacturer.Name"/>), 
         /// then <see cref="ProductManufacturer.Manufacturer"/>, then <see cref="Manufacturer.MediaFile"/>
         /// </summary>
-        public static IQueryable<Product> IncludeManufacturers(this IQueryable<Product> query)
+        public static IIncludableQueryable<Product, MediaFile> IncludeManufacturers(this IQueryable<Product> query)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -154,7 +156,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Published <see cref="Product.ProductBundleItems"/> (sorted by <see cref="ProductBundleItem.DisplayOrder"/>), 
         /// then <see cref="ProductBundleItem.BundleProduct"/>.
         /// </summary>
-        public static IQueryable<Product> IncludeBundleItems(this IQueryable<Product> query)
+        public static IIncludableQueryable<Product, Product> IncludeBundleItems(this IQueryable<Product> query)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -162,6 +164,23 @@ namespace Smartstore.Core.Catalog.Products
                 .Where(y => y.Published)
                 .OrderBy(y => y.DisplayOrder))
                 .ThenInclude(x => x.BundleProduct);
+        }
+
+        /// <summary>
+        /// Includes product reviews for eager loading:
+        /// Approved <see cref="Product.ProductReviews"/> (sorted by <see cref="ProductBundleItem.CreatedOnUtc"/> desc), 
+        /// then <see cref="ProductReview.Customer"/>.
+        /// </summary>
+        public static IIncludableQueryable<Product, Customer> IncludeReviews(this IQueryable<Product> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            // INFO: using .Take(x) will fail due to TPH inheritance. EF bug?
+
+            return query.Include(x => x.ProductReviews
+                .Where(y => y.IsApproved)
+                .OrderByDescending(y => y.CreatedOnUtc))
+                .ThenInclude(x => x.Customer);
         }
 
         ///// <summary>

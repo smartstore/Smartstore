@@ -237,6 +237,8 @@ namespace Smartstore.Core.Catalog.Products
         {
             Guard.NotNull(product, nameof(product));
 
+            // TODO: (core) Make a faster ApplyProductReviewTotals later without the necessity to eager load reviews.
+
             var approvedRatingSum = 0;
             var notApprovedRatingSum = 0;
             var approvedTotalReviews = 0;

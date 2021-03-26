@@ -19,7 +19,7 @@ namespace Smartstore.Core.Stores
         internal const string OverriddenStoreIdKey = "OverriddenStoreId";
         const string CacheKey = "stores:all";
 
-        private readonly ICacheManager _cache;
+        private readonly ICacheFactory _cacheFactory;
         private readonly IDbContextFactory<SmartDbContext> _dbContextFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IActionContextAccessor _actionContextAccessor;
@@ -27,12 +27,12 @@ namespace Smartstore.Core.Stores
         private Store _currentStore;
 
         public StoreContext(
-            ICacheManager cache,
+            ICacheFactory cacheFactory,
             IDbContextFactory<SmartDbContext> dbContextFactory,
             IHttpContextAccessor httpContextAccessor,
             IActionContextAccessor actionContextAccessor)
         {
-            _cache = cache;
+            _cacheFactory = cacheFactory;
             _dbContextFactory = dbContextFactory;
             _httpContextAccessor = httpContextAccessor;
             _actionContextAccessor = actionContextAccessor;
@@ -62,7 +62,7 @@ namespace Smartstore.Core.Stores
         {
             if (entry.Entity is Store || entry.Entity is Currency)
             {
-                _cache.Remove(CacheKey);
+                _cacheFactory.GetHybridCache().Remove(CacheKey);
                 return HookResult.Ok;
             }
             else
@@ -112,7 +112,7 @@ namespace Smartstore.Core.Stores
 
         public StoreEntityCache GetCachedStores()
         {
-            return _cache.Get(CacheKey, (o) =>
+            return _cacheFactory.GetMemoryCache().Get(CacheKey, (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromDays(1));
                 

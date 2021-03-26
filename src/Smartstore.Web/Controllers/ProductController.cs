@@ -401,8 +401,11 @@ namespace Smartstore.Web.Controllers
         [GdprConsent]
         public async Task<IActionResult> Reviews(int id)
         {
-            // INFO: (mh) (core) Entitity is being loaded tracked because else navigation properties can't be loaded in PrepareProductReviewsModelAsync.
-            var product = await _db.Products.FindByIdAsync(id);
+            // INFO: Entitity is being loaded tracked because else navigation properties can't be loaded in PrepareProductReviewsModelAsync.
+            var product = await _db.Products
+                .IncludeReviews()
+                .FindByIdAsync(id);
+
             if (product == null || product.IsSystemProduct || !product.Published || !product.AllowCustomerReviews)
             {
                 return NotFound();
@@ -435,8 +438,11 @@ namespace Smartstore.Web.Controllers
         [GdprConsent]
         public async Task<IActionResult> ReviewsAdd(int id, ProductReviewsModel model, string captchaError)
         {
-            // INFO: (mh) (core) Entitity is being loaded tracked because else navigation properties can't be loaded in PrepareProductReviewsModelAsync.
-            var product = await _db.Products.FindByIdAsync(id);
+            // INFO: Entitity is being loaded tracked because else navigation properties can't be loaded in PrepareProductReviewsModelAsync.
+            var product = await _db.Products
+                .IncludeReviews()
+                .FindByIdAsync(id);
+
             if (product == null || product.IsSystemProduct || !product.Published || !product.AllowCustomerReviews)
             {
                 return NotFound();
@@ -463,7 +469,6 @@ namespace Smartstore.Web.Controllers
                 }
 
                 var isApproved = !_catalogSettings.ProductReviewsMustBeApproved;
-                
                 var productReview = new ProductReview
                 {
                     ProductId = product.Id,
@@ -477,8 +482,7 @@ namespace Smartstore.Web.Controllers
                     IsApproved = isApproved,
                 };
 
-                _db.CustomerContent.Add(productReview);
-
+                product.ProductReviews.Add(productReview);
                 _productService.ApplyProductReviewTotals(product);
 
                 if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)
@@ -506,7 +510,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SetReviewHelpfulness(int productReviewId, bool washelpful)
         {
-            // INFO: (mh) (core) Entitity is being loaded tracked because it must be saved later.
+            // INFO: Entitity is being loaded tracked because it must be saved later.
             var productReview = await _db.ProductReviews.FindByIdAsync(productReviewId);
 
             if (productReview == null)

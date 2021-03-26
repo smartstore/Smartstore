@@ -1819,12 +1819,22 @@ namespace Smartstore.Web.Controllers
             model.ProductName = product.GetLocalized(x => x.Name);
             model.ProductSeName = await product.GetActiveSlugAsync();
 
+            var collectionLoaded = _db.IsCollectionLoaded(product, x => x.ProductReviews);
+
+            // We need the query for total count resolution.
             var query = _db.Entry(product)
                 .Collection(x => x.ProductReviews)
                 .Query()
                 .Where(x => x.IsApproved);
 
-            model.TotalReviewsCount = await query.CountAsync();
+            if (collectionLoaded)
+            {
+                model.TotalReviewsCount = product.ProductReviews.Count;
+            }
+            else
+            {
+                model.TotalReviewsCount = await query.CountAsync();
+            }
 
             if (model.TotalReviewsCount > 0)
             {
@@ -1833,7 +1843,7 @@ namespace Smartstore.Web.Controllers
                     query = query.Take(take.Value);
                 }
                 
-                var reviews = await query
+                var reviews = collectionLoaded ? product.ProductReviews.Take(take ?? int.MaxValue).ToList() : await query
                     .OrderByDescending(y => y.CreatedOnUtc)
                     .Include(x => x.Customer)
                     .ToListAsync();
