@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -508,7 +507,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> SetReviewHelpfulness(int productReviewId, bool washelpful)
         {
             // INFO: (mh) (core) Entitity is being loaded tracked because it must be saved later.
-            var productReview = await _db.CustomerContent.FindByIdAsync(productReviewId) as ProductReview;
+            var productReview = await _db.ProductReviews.FindByIdAsync(productReviewId);
 
             if (productReview == null)
                 throw new ArgumentException(T("Reviews.NotFound", productReviewId));
@@ -537,39 +536,42 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
-            // Delete previous helpfulness.
-            var oldPrh = (from prh in productReview.ProductReviewHelpfulnessEntries
-                          where prh.CustomerId == customer.Id
-                          select prh).FirstOrDefault();
+            var entriesQuery = _db.CustomerContent
+                .AsQueryable()
+                .OfType<ProductReviewHelpfulness>()
+                .Where(x => x.ProductReviewId == productReview.Id);
 
-            if (oldPrh != null)
+            // Delete previous helpfulness.
+            var oldEntry = await entriesQuery.Where(x => x.CustomerId == customer.Id).FirstOrDefaultAsync();
+
+            if (oldEntry != null)
             {
-                _db.CustomerContent.Remove(oldPrh);
+                _db.CustomerContent.Remove(oldEntry);
             }
 
             // Insert new helpfulness.
-            var newPrh = new ProductReviewHelpfulness
+            var newEntry = new ProductReviewHelpfulness
             {
                 ProductReviewId = productReview.Id,
                 CustomerId = customer.Id,
                 IpAddress = _webHelper.GetClientIpAddress().ToString(),
                 WasHelpful = washelpful,
-                IsApproved = true //always approved
+                IsApproved = true // Always approved
             };
 
-            _db.CustomerContent.Add(newPrh);
-            
+            _db.CustomerContent.Add(newEntry);
+
+            await _db.SaveChangesAsync();
+
             // New totals.
-            int helpfulYesTotal = (from prh in productReview.ProductReviewHelpfulnessEntries
-                                   where prh.WasHelpful
-                                   select prh).Count();
-            int helpfulNoTotal = (from prh in productReview.ProductReviewHelpfulnessEntries
-                                  where !prh.WasHelpful
-                                  select prh).Count();
+            int helpfulYesTotal = await entriesQuery.Where(x => x.WasHelpful).CountAsync();
+            int helpfulNoTotal = await entriesQuery.Where(x => !x.WasHelpful).CountAsync();
 
             productReview.HelpfulYesTotal = helpfulYesTotal;
             productReview.HelpfulNoTotal = helpfulNoTotal;
-            
+
+            await _db.SaveChangesAsync();
+
             return Json(new
             {
                 Success = true,
