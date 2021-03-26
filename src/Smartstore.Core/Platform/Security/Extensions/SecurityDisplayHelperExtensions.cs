@@ -1,4 +1,6 @@
 ﻿using System;
+using Smartstore.Core;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Security;
 
 namespace Smartstore
@@ -17,11 +19,12 @@ namespace Smartstore
         {
             return displayHelper.HttpContext.GetItem(nameof(IsStoreClosed), () =>
             {
-                // TODO: (core) Implement SecurityDisplayHelperExtensions.IsStoreClosed()
-                //var settings = displayHelper.Resolve<StoreInformationSettings>;
-                //return IsAdmin() && settings.StoreClosedAllowForAdmins ? false : settings.StoreClosed;
+                var settings = displayHelper.Resolve<StoreInformationSettings>();
+                var customer = displayHelper.Resolve<IWorkContext>().CurrentCustomer;
 
-                return false;
+                return settings.StoreClosedAllowForAdmins && customer.IsAdmin() 
+                    ? false 
+                    : settings.StoreClosed;
             });
         }
     }
