@@ -2963,6 +2963,7 @@ namespace Smartstore.Web.Infrastructure.Installation
             }
         }
 
+        // TODO: (ms) (core) Why comment without ANY TODO hint?!!!
         //protected override void Alter(IList<ForumGroup> entities)
         //{
         //    base.Alter(entities);

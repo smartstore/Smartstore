@@ -5,12 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Caching.Tasks;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -20,11 +22,15 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Media.Tasks;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.Logging.Tasks;
 using Smartstore.Core.Messages;
+using Smartstore.Core.Messages.Tasks;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -54,8 +60,9 @@ namespace Smartstore.Core.Data.Setup
 
         #region Mandatory data creators
 
-        public List<MediaFile> Pictures()
+        public Task<List<MediaFile>> Pictures()
         {
+            // TODO: (mh) (core) Make ALL methods either async or sync. Don't mix up, it's unpredictable. Make them return Task<T>.
             var entities = new List<MediaFile>
             {
                 CreatePicture("company-logo.png"),
@@ -70,7 +77,7 @@ namespace Smartstore.Core.Data.Setup
             };
 
             Alter(entities);
-            return entities;
+            return Task.FromResult(entities);
         }
 
         public async Task<List<Store>> Stores()
@@ -733,7 +740,8 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Send emails",
                     CronExpression = "* * * * *", // every Minute
-					Type = "SmartStore.Services.Messages.QueuedMessagesSendTask, SmartStore.Services",
+                    // INFO: (ms) (core) WTF??!!!!!!!!!!!!!
+					Type = nameof(QueuedMessagesSendTask),
                     Enabled = true,
                     StopOnError = false,
                     Priority = TaskPriority.High
@@ -742,7 +750,8 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Delete guests",
                     CronExpression = "*/10 * * * *", // Every 10 minutes
-					Type = "SmartStore.Services.Customers.DeleteGuestsTask, SmartStore.Services",
+                    // TODO: (ms) (core) Use nameof(Type) once all tasks are ready.
+					Type = "DeleteGuestsTask",
                     Enabled = true,
                     StopOnError = false,
                 },
@@ -750,7 +759,7 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Delete logs",
                     CronExpression = "0 1 * * *", // At 01:00
-					Type = "SmartStore.Services.Logging.DeleteLogsTask, SmartStore.Services",
+					Type = nameof(DeleteLogsTask),
                     Enabled = true,
                     StopOnError = false,
                 },
@@ -758,7 +767,7 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Clear cache",
                     CronExpression = "0 */12 * * *", // Every 12 hours
-					Type = "SmartStore.Services.Caching.ClearCacheTask, SmartStore.Services",
+					Type = nameof(ClearCacheTask),
                     Enabled = false,
                     StopOnError = false,
                 },
@@ -766,7 +775,7 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Update currency exchange rates",
                     CronExpression = "0 */6 * * *", // Every 6 hours
-					Type = "SmartStore.Services.Directory.UpdateExchangeRateTask, SmartStore.Services",
+					Type = "UpdateExchangeRateTask",
                     Enabled = false,
                     StopOnError = false,
                     Priority = TaskPriority.High
@@ -775,7 +784,7 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Clear transient uploads",
                     CronExpression = "30 1,13 * * *", // At 01:30 and 13:30
-					Type = "SmartStore.Services.Media.TransientMediaClearTask, SmartStore.Services",
+					Type = nameof(TransientMediaClearTask),
                     Enabled = true,
                     StopOnError = false,
                 },
@@ -783,7 +792,7 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Clear email queue",
                     CronExpression = "0 2 * * *", // At 02:00
-					Type = "SmartStore.Services.Messages.QueuedMessagesClearTask, SmartStore.Services",
+					Type = nameof(QueuedMessagesClearTask),
                     Enabled = true,
                     StopOnError = false,
                 },
@@ -791,7 +800,7 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Cleanup temporary files",
                     CronExpression = "30 3 * * *", // At 03:30
-					Type = "SmartStore.Services.Common.TempFileCleanupTask, SmartStore.Services",
+					Type = "TempFileCleanupTask",
                     Enabled = true,
                     StopOnError = false
                 },
@@ -799,7 +808,7 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Rebuild XML Sitemap",
                     CronExpression = "45 3 * * *",
-                    Type = "SmartStore.Services.Seo.RebuildXmlSitemapTask, SmartStore.Services",
+                    Type = nameof(RebuildXmlSitemapTask),
                     Enabled = true,
                     StopOnError = false
                 },
@@ -807,7 +816,7 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Update assignments of customers to customer roles",
                     CronExpression = "15 2 * * *", // At 02:15
-                    Type = "SmartStore.Services.Customers.TargetGroupEvaluatorTask, SmartStore.Services",
+                    Type = nameof(TargetGroupEvaluatorTask),
                     Enabled = true,
                     StopOnError = false
                 },
@@ -815,7 +824,7 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Update assignments of products to categories",
                     CronExpression = "20 2 * * *", // At 02:20
-                    Type = "SmartStore.Services.Catalog.ProductRuleEvaluatorTask, SmartStore.Services",
+                    Type = nameof(ProductRuleEvaluatorTask),
                     Enabled = true,
                     StopOnError = false
                 }
@@ -1638,6 +1647,7 @@ namespace Smartstore.Core.Data.Setup
 
         protected string FormatAttributeXml(int attributeId, int valueId, bool withRootTag = true)
         {
+            // TODO: (ms) (core) WTF?!!! We save as JSON now. YOU implemented it!!!!!!
             var xml = $"<ProductVariantAttribute ID=\"{attributeId}\"><ProductVariantAttributeValue><Value>{valueId}</Value></ProductVariantAttributeValue></ProductVariantAttribute>";
 
             if (withRootTag)

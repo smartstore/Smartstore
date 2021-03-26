@@ -51,7 +51,7 @@ namespace Smartstore.Scheduling
         public string CronExpression { get; set; }
 
         /// <summary>
-        /// The type of corresponding <see cref="ITask"/> implementation class.
+        /// The type name of corresponding <see cref="ITask"/> implementation class.
         /// </summary>
         public string Type { get; set; }
 
