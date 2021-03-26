@@ -2,7 +2,7 @@
 using Smartstore.Core.Data.Setup;
 using Smartstore.Core.Localization;
 
-namespace SmartStore.Data.Setup
+namespace Smartstore.Data.Setup
 {
     public class SeedDataConfiguration
     {
