@@ -88,10 +88,10 @@
 				cache: false,
                 url: href,
                 data: $(form).serialize(),
-				success: function (response) {
+                success: function (response) {
 					// Redirect to ask question get action
-					if (response.redirect)
-						location.href = response.redirect;
+					if (response.Data.redirect)
+						location.href = response.Data.redirect;
 				}
             });
         }

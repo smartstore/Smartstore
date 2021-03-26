@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -50,8 +51,12 @@ namespace Smartstore.Web.Controllers
         private readonly ContactDataSettings _contactDataSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly LocalizationSettings _localizationSettings;
+        private readonly PrivacySettings _privacySettings;
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly Lazy<IMessageFactory> _messageFactory;
+        private readonly Lazy<ProductUrlHelper> _productUrlHelper;
+        private readonly Lazy<IProductAttributeFormatter> _productAttributeFormatter;
+        private readonly Lazy<IProductAttributeMaterializer> _productAttributeMaterializer;
 
         public ProductController(
             SmartDbContext db,
@@ -74,8 +79,12 @@ namespace Smartstore.Web.Controllers
             ContactDataSettings contactDataSettings,
             CaptchaSettings captchaSettings,
             LocalizationSettings localizationSettings,
+            PrivacySettings privacySettings,
             Lazy<IUrlHelper> urlHelper,
-            Lazy<IMessageFactory> messageFactory)
+            Lazy<IMessageFactory> messageFactory,
+            Lazy<ProductUrlHelper> productUrlHelper,
+            Lazy<IProductAttributeFormatter> productAttributeFormatter,
+            Lazy<IProductAttributeMaterializer> productAttributeMaterializer)
         {
             _db = db;
             _webHelper = webHelper;
@@ -97,8 +106,12 @@ namespace Smartstore.Web.Controllers
             _contactDataSettings = contactDataSettings;
             _captchaSettings = captchaSettings;
             _localizationSettings = localizationSettings;
+            _privacySettings = privacySettings;
             _urlHelper = urlHelper;
             _messageFactory = messageFactory;
+            _productUrlHelper = productUrlHelper;
+            _productAttributeFormatter = productAttributeFormatter;
+            _productAttributeMaterializer = productAttributeMaterializer;
         }
 
         #region Products
@@ -568,6 +581,144 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
+        #region Ask product question
+
+        public async Task<IActionResult> AskQuestionAjax(int id, ProductVariantQuery query)
+        {
+            // Get attributeXml from product variant query
+            if (query != null && id > 0)
+            {
+                var attributes = await _db.ProductVariantAttributes
+                    .Include(x => x.ProductAttribute)
+                    .ApplyProductFilter(new[] { id })
+                    .ToListAsync();
+
+                var selection = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, attributes, id, 0, false);
+                var attributesXml = selection.Selection.AsXml();
+
+                // INFO: (mh) (core) Added check for id in order to keep it and not add it twice. See code below.
+                if (attributesXml.HasValue() && TempData["AskQuestionAttributesXml-" + id] == null)
+                {
+                    TempData.Add("AskQuestionAttributesXml-" + id, attributesXml);
+                }
+            }
+
+            return new JsonResult(new
+            {
+                Data = new { redirect = Url.Action("AskQuestion", new { id }) }
+            });
+        }
+
+        [GdprConsent]
+        public async Task<IActionResult> AskQuestion(int id)
+        {
+            var product = await _db.Products.FindByIdAsync(id, false);
+
+            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.AskQuestionEnabled)
+                return NotFound();
+
+            var model = await PrepareAskQuestionModelAsync(product);
+            return View(model);
+        }
+
+        [HttpPost, ActionName("AskQuestion")]
+        [ValidateCaptcha, ValidateHoneypot]
+        [GdprConsent]
+        public async Task<IActionResult> AskQuestionSend(ProductAskQuestionModel model, string captchaError)
+        {
+            var product = await _db.Products.FindByIdAsync(model.Id, false);
+
+            // TODO: (mh) (core) Deleted ain't neccessary anymore. Remove!
+            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !_catalogSettings.AskQuestionEnabled)
+                return NotFound();
+
+            if (_captchaSettings.ShowOnAskQuestionPage && captchaError.HasValue())
+            {
+                ModelState.AddModelError("", captchaError);
+            }
+
+            // INFO: This was real crap. I'll remove it once MC reviewed.
+            //model.ProductUrl = _services.StoreContext.CurrentStore.Url + model.ProductUrl.Substring(1);
+
+            if (ModelState.IsValid)
+            {
+                var msg = await _messageFactory.Value.SendProductQuestionMessageAsync(
+                    Services.WorkContext.CurrentCustomer,
+                    product,
+                    model.SenderEmail,
+                    model.SenderName,
+                    model.SenderPhone,
+                    HtmlUtils.ConvertPlainTextToHtml(model.Question.HtmlEncode()),
+                    HtmlUtils.ConvertPlainTextToHtml(model.SelectedAttributes.HtmlEncode()),
+                    model.ProductUrl,
+                    model.IsQuoteRequest);
+
+                if (msg?.Email?.Id != null)
+                {
+                    TempData.Remove("AskQuestionAttributesXml-" + product.Id);
+
+                    NotifySuccess(T("Products.AskQuestion.Sent"), true);
+                    return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
+                }
+                else
+                {
+                    ModelState.AddModelError("", T("Common.Error.SendMail"));
+                }
+            }
+
+            // If we got this far something failed. Redisplay form.
+            model = await PrepareAskQuestionModelAsync(product);
+
+            return View(model);
+        }
+
+        private async Task<ProductAskQuestionModel> PrepareAskQuestionModelAsync(Product product)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            var attributesXml = "";
+
+            // INFO: (mh) (core) Used peek in order to keep xml information upon site refresh or redisplay of form in case of failed model validation.
+            // TODO: (mh) (core) Remove if approved by mc.
+            //if (TempData.TryGetValue("AskQuestionAttributesXml-" + product.Id, out var obj))
+            //{
+            //    attributesXml = obj as string;
+            //}
+
+            attributesXml = TempData.Peek("AskQuestionAttributesXml-" + product.Id) as string;
+
+            // Check if saved attributeXml belongs to current product id
+            var attributeInfo = "";
+            var selection = new ProductVariantAttributeSelection(attributesXml);
+            if (selection.AttributesMap.Any())
+            {
+                attributeInfo = await _productAttributeFormatter.Value.FormatAttributesAsync(
+                    selection, product, null, separator: ", ", includePrices: false, includeGiftCardAttributes: false, includeHyperlinks: false);
+            }
+
+            var seName = await product.GetActiveSlugAsync();
+            var model = new ProductAskQuestionModel
+            {
+                Id = product.Id,
+                ProductName = product.GetLocalized(x => x.Name),
+                ProductSeName = seName,
+                SenderEmail = customer.Email,
+                SenderName = customer.GetFullName(),
+                SenderNameRequired = _privacySettings.FullNameOnProductRequestRequired,
+                SenderPhone = customer.GenericAttributes.Phone,
+                DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnAskQuestionPage,
+                SelectedAttributes = attributeInfo,
+                ProductUrl = await _productUrlHelper.Value.GetProductUrlAsync(product.Id, seName, selection),
+                IsQuoteRequest = product.CallForPrice
+            };
+
+            model.Question = T("Products.AskQuestion.Question." + (model.IsQuoteRequest ? "QuoteRequest" : "GeneralInquiry"), model.ProductName);
+
+            return model;
+        }
+
+        #endregion
+
         #region Email a friend
 
         [GdprConsent]
@@ -599,7 +750,7 @@ namespace Smartstore.Web.Controllers
 
             var customer = Services.WorkContext.CurrentCustomer;
 
-            // Check whether the current customer is guest and ia allowed to email a friend.
+            // Check whether the current customer is guest and is allowed to email a friend.
             if (customer.IsGuest() && !_catalogSettings.AllowAnonymousUsersToEmailAFriend)
             {
                 ModelState.AddModelError("", T("Products.EmailAFriend.OnlyRegisteredUsers"));

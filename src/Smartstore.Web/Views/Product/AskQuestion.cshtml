@@ -1,0 +1,79 @@
+﻿@model ProductAskQuestionModel
+@using Smartstore.Web.Models.Catalog;
+
+@{
+    var title = T("Products.AskQuestion." + (Model.IsQuoteRequest ? "TitleQuoteRequest" : "Title"));
+
+    Assets.AppendTitleParts(Model.ProductName);
+    Assets.AppendMetaDescriptionParts(title);
+    Assets.AddMetaRobots();
+}
+
+<div class="page ask-question-page">
+    <div class="page-title">
+        <h1>@title</h1>
+    </div>
+    <div class="page-body">
+        <form asp-action="AskQuestion" class="form-horizontal" method="post" autocomplete="off">
+            <fieldset>
+                <legend>
+                    <a href="@Model.ProductUrl" class="product">
+                        <span sm-language-attributes-for="Model.ProductName">@Model.ProductName</span>
+                    </a>
+                    <input type="hidden" class="form-control " id="SelectedAttributes" name="SelectedAttributes" value="@Html.Raw(Model.SelectedAttributes)">
+                    <input type="hidden" class="form-control " id="ProductUrl" name="ProductUrl" value="@Html.Raw(Model.ProductUrl)">
+                    <input type="hidden" class="form-control " id="IsQuoteRequest" name="IsQuoteRequest" value="@Html.Raw(Model.IsQuoteRequest)">
+                </legend>
+                <p class="fwm fs-h5">@Html.Raw(Model.SelectedAttributes)</p>
+
+                <div asp-validation-summary="ModelOnly" class="message-error"></div>
+
+                @*TODO: Is this sufficient?*@
+                <honeypot sm-enabled="true" />
+
+                <div class="form-group">
+                    <label asp-for="SenderEmail" class="col-form-label required"></label>
+                    <input asp-for="SenderEmail" type="email" autofocus />
+                    <span asp-validation-for="SenderEmail"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="SenderName" class="col-form-label@(Model.SenderNameRequired ? " required" : "")"></label>
+                    <input asp-for="SenderName" type="text" autofocus />
+                    <span asp-validation-for="SenderName"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="SenderPhone" class="col-form-label"></label>
+                    <input asp-for="SenderPhone" type="tel" placeholder="@T("Common.Optional")" autofocus />
+                    <span asp-validation-for="SenderPhone"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Question" class="col-form-label required"></label>
+                    <textarea asp-for="Question" placeholder="@T("Products.EmailAFriend.PersonalMessage.Hint")" class="personal-message" autofocus="autofocus"></textarea>
+                    <span asp-validation-for="Question"></span>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-12 text-muted">
+                        @T("Common.FormFields.Required.Hint")
+                    </div>
+                </div>
+
+                <zone name="gdpr_consent" />
+
+                <captcha sm-enabled="Model.DisplayCaptcha" class="form-group" />
+
+                <div class="control-group">
+                    <div class="controls">
+                        <button type="submit" name="send-email" class="btn btn-primary">
+                            <i class="fa fa-caret-right"></i>
+                            <span>@T("Common.Send")</span>
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
