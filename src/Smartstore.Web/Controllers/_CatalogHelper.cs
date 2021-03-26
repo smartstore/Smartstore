@@ -540,12 +540,17 @@ namespace Smartstore.Web.Controllers
             Product product,
             ProductVariantQuery query,
             bool isAssociatedProduct = false,
-            ProductBundleItemData productBundleItem = null)
+            ProductBundleItemData productBundleItem = null,
+            ProductBatchContext batchContext = null)
         {
             Guard.NotNull(product, nameof(product));
 
-            var customer = _services.WorkContext.CurrentCustomer;
-            var store = _services.StoreContext.CurrentStore;
+            if (batchContext == null)
+            {
+                var customer = _services.WorkContext.CurrentCustomer;
+                var store = _services.StoreContext.CurrentStore;
+                batchContext ??= _productService.CreateProductBatchContext(new[] { product }, store, customer, false);
+            }
 
             using (_services.Chronometer.Step("PrepareProductDetailsPageModel"))
             {
@@ -562,7 +567,7 @@ namespace Smartstore.Web.Controllers
                     ProductType = product.ProductType,
                     VisibleIndividually = product.Visibility != ProductVisibility.Hidden,
                     ReviewCount = product.ApprovedTotalReviews,
-                    DisplayAdminLink = await _services.Permissions.AuthorizeAsync(Permissions.System.AccessBackend, customer),
+                    DisplayAdminLink = await _services.Permissions.AuthorizeAsync(Permissions.System.AccessBackend, batchContext.Customer),
                     Condition = product.Condition,
                     ShowCondition = _catalogSettings.ShowProductCondition,
                     LocalizedCondition = await product.Condition.GetLocalizedEnumAsync(_services.WorkContext.WorkingLanguage.Id, false),
@@ -575,7 +580,7 @@ namespace Smartstore.Web.Controllers
                     Gtin = product.Gtin,
                     StockAvailability = product.FormatStockMessage(_localizationService),
                     HasSampleDownload = product.IsDownload && product.HasSampleDownload,
-                    IsCurrentCustomerRegistered = customer.IsRegistered(),
+                    IsCurrentCustomerRegistered = batchContext.Customer.IsRegistered(),
                     IsAssociatedProduct = isAssociatedProduct,
                     CompareEnabled = !isAssociatedProduct && _catalogSettings.CompareProductsEnabled,
                     TellAFriendEnabled = !isAssociatedProduct && _catalogSettings.EmailAFriendEnabled,
@@ -587,7 +592,11 @@ namespace Smartstore.Web.Controllers
                 // Brands
                 if (_catalogSettings.ShowManufacturerPicturesInProductDetail)
                 {
-                    var brands = await _manufacturerService.GetProductManufacturersByProductIdsAsync(new[] { product.Id });
+                    var brands = _db.IsCollectionLoaded(product, x => x.ProductManufacturers)
+                        // TODO: (core) Authorize for and ACL? But does make no sense?! Hmmm...
+                        ? product.ProductManufacturers
+                        : await batchContext.ProductManufacturers.GetOrLoadAsync(product.Id);
+                    
                     model.Brands = await PrepareBrandOverviewModelAsync(brands, null, true);
                 }
 
@@ -628,7 +637,7 @@ namespace Smartstore.Web.Controllers
                 {
                     // Out of stock.
                     model.DisplayBackInStockSubscription = true;
-                    model.BackInStockAlreadySubscribed = await _stockSubscriptionService.IsSubscribedAsync(product, customer, store.Id);
+                    model.BackInStockAlreadySubscribed = await _stockSubscriptionService.IsSubscribedAsync(product, batchContext.Customer, batchContext.Store.Id);
                 }
 
                 // Template.
@@ -648,15 +657,21 @@ namespace Smartstore.Web.Controllers
                 {
                     // Associated products.
                     var searchQuery = new CatalogSearchQuery()
-                        .VisibleOnly(customer)
-                        .HasStoreId(store.Id)
-                        .HasParentGroupedProduct(product.Id);
+                        .VisibleOnly(batchContext.Customer)
+                        .HasStoreId(batchContext.Store.Id)
+                        .HasParentGroupedProduct(product.Id)
+                        .UseHitsFactory(async (q, ids) => 
+                        {
+                            return (await q.IncludeMedia().IncludeManufacturers().Where(x => ids.Contains(x.Id)).ToListAsync())
+                                .OrderBySequence(ids)
+                                .ToList();
+                        });
 
                     var associatedProducts = await (await _catalogSearchService.SearchAsync(searchQuery)).GetHitsAsync();
 
                     foreach (var associatedProduct in associatedProducts)
                     {
-                        var assciatedProductModel = await PrepareProductDetailsPageModelAsync(associatedProduct, query, true, null);
+                        var assciatedProductModel = await PrepareProductDetailsPageModelAsync(associatedProduct, query, true, null, batchContext);
                         model.AssociatedProducts.Add(assciatedProductModel);
                     }
                 }
@@ -673,7 +688,7 @@ namespace Smartstore.Web.Controllers
                     foreach (var itemData in bundleItemDatas.Where(x => x.Item.Product.CanBeBundleItem()))
                     {
                         var item = itemData.Item;
-                        var bundledProductModel = await PrepareProductDetailsPageModelAsync(item.Product, query, false, itemData);
+                        var bundledProductModel = await PrepareProductDetailsPageModelAsync(item.Product, query, false, itemData, batchContext);
 
                         bundledProductModel.ShowLegalInfo = false;
                         bundledProductModel.DeliveryTimesPresentation = DeliveryTimesPresentation.None;
@@ -696,7 +711,7 @@ namespace Smartstore.Web.Controllers
                     }
                 }
 
-                model = await PrepareProductDetailModelAsync(model, product, query, isAssociatedProduct, productBundleItem, bundleItemDatas);
+                await PrepareProductDetailModelAsync(model, product, query, isAssociatedProduct, productBundleItem, bundleItemDatas);
 
                 // Action items.
                 {
@@ -793,7 +808,7 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        public async Task<ProductDetailsModel> PrepareProductDetailModelAsync(
+        public async Task PrepareProductDetailModelAsync(
             ProductDetailsModel model,
             Product product,
             ProductVariantQuery query,
@@ -864,8 +879,6 @@ namespace Smartstore.Web.Controllers
             await PrepareProductReviewsModelAsync(model.ProductReviews, product, 10);
 
             _services.DisplayControl.Announce(product);
-
-            return model;
         }
 
         #region PrepareProductDetailModelAsync helper methods
@@ -1124,7 +1137,9 @@ namespace Smartstore.Web.Controllers
 
                 if (query.VariantCombinationId != 0)
                 {
-                    var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
+                    var combination = _db.IsCollectionLoaded(product, x => x.ProductVariantAttributeCombinations)
+                        ? product.ProductVariantAttributeCombinations.FirstOrDefault(x => x.Id == query.VariantCombinationId)
+                        : await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
                     attributesSelection = new ProductVariantAttributeSelection(combination?.RawAttributes ?? string.Empty);
                 }
                 else
@@ -1383,7 +1398,10 @@ namespace Smartstore.Web.Controllers
                 model.DeliveryTimeName = T("ShoppingCart.NotAvailable");
             }
 
-            var quantityUnit = await _db.QuantityUnits.AsNoTracking().ApplyQuantityUnitFilter(product.QuantityUnitId).FirstOrDefaultAsync();
+            var quantityUnit = await _db.QuantityUnits
+                .AsNoTracking()
+                .ApplyQuantityUnitFilter(product.QuantityUnitId)
+                .FirstOrDefaultAsync();
 
             if (quantityUnit != null)
             {
@@ -1718,12 +1736,26 @@ namespace Smartstore.Web.Controllers
             string cacheKey = string.Format(ModelCacheInvalidator.PRODUCT_SPECS_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id);
             return await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
-                var attrs = await _db.ProductSpecificationAttributes
-                    .AsNoTracking()
-                    .ApplyProductsFilter(new[] { product.Id }, null, true)
-                    .Include(x => x.SpecificationAttributeOption)
-                    .ThenInclude(x => x.SpecificationAttribute)
-                    .ToListAsync();
+                List<ProductSpecificationAttribute> attrs;
+                
+                if (_db.IsCollectionLoaded(product, x => x.ProductSpecificationAttributes))
+                {
+                    attrs = product.ProductSpecificationAttributes
+                        .Where(x =>
+                            (x.ShowOnProductPage == null && x.SpecificationAttributeOption?.SpecificationAttribute?.ShowOnProductPage == true) ||
+                            (x.ShowOnProductPage == true))
+                        .OrderBy(x => x.DisplayOrder)
+                        .ToList();
+                }
+                else
+                {
+                    attrs = await _db.ProductSpecificationAttributes
+                        .AsNoTracking()
+                        .ApplyProductsFilter(new[] { product.Id }, null, true)
+                        .Include(x => x.SpecificationAttributeOption)
+                        .ThenInclude(x => x.SpecificationAttribute)
+                        .ToListAsync();
+                }
 
                 return attrs
                     .Select(x => new ProductSpecificationModel

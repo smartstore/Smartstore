@@ -96,9 +96,11 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ProductDetails(int productId, ProductVariantQuery query)
         {
             var product = await _db.Products
+                .IncludeMedia()
+                .IncludeManufacturers()
+                .IncludeBundleItems()
                 .Where(x => x.Id == productId)
-                .IncludeMega() // Perf
-                .SingleOrDefaultAsync();
+                .FirstOrDefaultAsync();
 
             if (product == null || product.Deleted || product.IsSystemProduct)
                 return NotFound();

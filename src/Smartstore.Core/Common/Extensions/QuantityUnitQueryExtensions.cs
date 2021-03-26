@@ -21,7 +21,7 @@ namespace Smartstore
 
             if (quantityUnitId == 0 || quantityUnitId == null)
             {
-                var catalogSettings = EngineContext.Current.Application.Services.Resolve<CatalogSettings>();
+                var catalogSettings = EngineContext.Current.Scope.Resolve<CatalogSettings>();
 
                 if (catalogSettings.ShowDefaultQuantityUnit)
                 {

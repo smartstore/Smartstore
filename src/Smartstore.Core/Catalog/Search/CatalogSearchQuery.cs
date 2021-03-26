@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Common;
@@ -13,6 +15,9 @@ namespace Smartstore.Core.Catalog.Search
     [ModelBinder(typeof(CatalogSearchQueryModelBinder))]
     public partial class CatalogSearchQuery : SearchQuery<CatalogSearchQuery>, ICloneable<CatalogSearchQuery>
     {
+        private readonly static Func<DbSet<Product>, int[], Task<List<Product>>> _defaultHitsFactory = (dbSet, ids) => dbSet.GetManyAsync(ids);
+        private Func<DbSet<Product>, int[], Task<List<Product>>> _hitsFactory = _defaultHitsFactory;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CatalogSearchQuery"/> class without a search term being set
         /// </summary>
@@ -31,15 +36,11 @@ namespace Smartstore.Core.Catalog.Search
         {
         }
 
-        public CatalogSearchQuery Clone()
-        {
-            return (CatalogSearchQuery)MemberwiseClone();
-        }
+        public CatalogSearchQuery Clone() 
+            => (CatalogSearchQuery)MemberwiseClone();
 
-        object ICloneable.Clone()
-        {
-            return MemberwiseClone();
-        }
+        object ICloneable.Clone() 
+            => MemberwiseClone();
 
         public bool IsSubPage
         {
@@ -53,6 +54,22 @@ namespace Smartstore.Core.Catalog.Search
                 var hasActiveFilter = FacetDescriptors.Values.Any(x => x.Values.Any(y => y.IsSelected));
                 return hasActiveFilter;
             }
+        }
+
+        public Func<DbSet<Product>, int[], Task<List<Product>>> HitsFactory
+        {
+            get => _hitsFactory;
+        }
+
+        /// <summary>
+        /// Uses the given factory to load products from database AFTER all matching product ids has been determined.
+        /// Gives you the chance - among other things - to eager load navigation properties.
+        /// </summary>
+        /// <param name="hitsFactory">The factory to use. The second param contains all matched product ids.</param>
+        public CatalogSearchQuery UseHitsFactory(Func<DbSet<Product>, int[], Task<List<Product>>> hitsFactory)
+        {
+            _hitsFactory = hitsFactory;
+            return this;
         }
 
         public CatalogSearchQuery SortBy(ProductSortingEnum sort)

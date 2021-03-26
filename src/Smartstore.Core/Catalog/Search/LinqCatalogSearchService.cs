@@ -76,7 +76,6 @@ namespace Smartstore.Core.Catalog.Search
                         .Take(searchQuery.Take);
 
                     hitsEntityIds = query.Select(x => x.Id).ToArray();
-                    hitsFactory = async () => await _db.Products.GetManyAsync(hitsEntityIds);
                 }
 
                 if (searchQuery.ResultFlags.HasFlag(SearchResultFlags.WithFacets) && searchQuery.FacetDescriptors.Any())
@@ -88,9 +87,9 @@ namespace Smartstore.Core.Catalog.Search
             var result = new CatalogSearchResult(
                 null,
                 searchQuery,
+                _db.Products,
                 totalHits,
                 hitsEntityIds,
-                hitsFactory,
                 null,
                 facets);
 

@@ -123,50 +123,96 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <summary>
-        /// Includes a bunch of navigation properties for eager loading:
-        /// <list type="bullet">
-        ///     <item><see cref="Product.ProductPictures"/> (sorted by <see cref="ProductMediaFile.DisplayOrder"/>), then <see cref="ProductMediaFile.MediaFile"/></item>
-        ///     <item><see cref="Product.DeliveryTime"/></item>
-        ///     <item><see cref="Product.QuantityUnit"/></item>
-        ///     <item><see cref="Product.ProductManufacturers"/>, then <see cref="ProductManufacturer.Manufacturer"/></item>
-        ///     <item><see cref="Product.ProductSpecificationAttributes"/>, then <see cref="ProductSpecificationAttribute.SpecificationAttributeOption"/></item>
-        ///     <item><see cref="Product.ProductVariantAttributes"/>, then <see cref="ProductVariantAttribute.ProductAttribute"/> and <see cref="ProductVariantAttribute.ProductVariantAttributeValues"/></item>
-        ///     <item><see cref="Product.ProductVariantAttributeCombinations"/>, then <see cref="ProductVariantAttributeCombination.DeliveryTime"/></item>
-        ///     <item><see cref="Product.TierPrices"/> (sorted by <see cref="TierPrice.Quantity"/>)</item>
-        ///     <item>Published <see cref="Product.ProductBundleItems"/> (sorted by <see cref="ProductBundleItem.DisplayOrder"/>), then <see cref="ProductBundleItem.BundleProduct"/></item>
-        /// </list>
+        /// Includes media for eager loading: 
+        /// <see cref="Product.ProductPictures"/> (sorted by <see cref="ProductMediaFile.DisplayOrder"/>), then <see cref="ProductMediaFile.MediaFile"/>
         /// </summary>
-        public static IIncludableQueryable<Product, Product> IncludeMega(this IQueryable<Product> query)
+        public static IQueryable<Product> IncludeMedia(this IQueryable<Product> query)
         {
             Guard.NotNull(query, nameof(query));
 
-            var megaInclude = query
-                .Include(x => x.ProductPictures
-                    .OrderBy(y => y.DisplayOrder))
-                    .ThenInclude(x => x.MediaFile)
-                .Include(x => x.DeliveryTime)
-                .Include(x => x.QuantityUnit)
-                .Include(x => x.ProductManufacturers)
+            return query.Include(x => x.ProductManufacturers
+                .Where(y => y.Manufacturer.Published)
+                .OrderBy(y => y.DisplayOrder).ThenBy(y => y.Manufacturer.Name))
                     .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.ProductSpecificationAttributes)
-                    .ThenInclude(x => x.SpecificationAttributeOption)
-                .Include(x => x.ProductTags)
-                .Include(x => x.ProductVariantAttributes)
-                    .ThenInclude(x => x.ProductAttribute)
-                .Include(x => x.ProductVariantAttributes)
-                    .ThenInclude(x => x.ProductVariantAttributeValues)
-                .Include(x => x.ProductVariantAttributeCombinations)
-                    .ThenInclude(x => x.QuantityUnit)
-                .Include(x => x.ProductVariantAttributeCombinations)
-                    .ThenInclude(x => x.DeliveryTime)
-                .Include(x => x.TierPrices
-                    .OrderBy(x => x.Quantity))
-                .Include(x => x.ProductBundleItems
-                    .Where(y => y.Published)
-                    .OrderBy(y => y.DisplayOrder))
-                    .ThenInclude(x => x.BundleProduct);
-
-            return megaInclude;
+                    .ThenInclude(x => x.MediaFile);
         }
+
+        /// <summary>
+        /// Includes manufacturers for eager loading:
+        /// Published <see cref="Product.ProductManufacturers"/> (sorted by <see cref="Manufacturer.DisplayOrder"/> then by <see cref="Manufacturer.Name"/>), 
+        /// then <see cref="ProductManufacturer.Manufacturer"/>, then <see cref="Manufacturer.MediaFile"/>
+        /// </summary>
+        public static IQueryable<Product> IncludeManufacturers(this IQueryable<Product> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query.Include(x => x.ProductPictures.OrderBy(y => y.DisplayOrder)).ThenInclude(x => x.MediaFile);
+        }
+
+        /// <summary>
+        /// Includes bundle items for eager loading:
+        /// Published <see cref="Product.ProductBundleItems"/> (sorted by <see cref="ProductBundleItem.DisplayOrder"/>), 
+        /// then <see cref="ProductBundleItem.BundleProduct"/>.
+        /// </summary>
+        public static IQueryable<Product> IncludeBundleItems(this IQueryable<Product> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query.Include(x => x.ProductBundleItems
+                .Where(y => y.Published)
+                .OrderBy(y => y.DisplayOrder))
+                .ThenInclude(x => x.BundleProduct);
+        }
+
+        ///// <summary>
+        ///// Includes a bunch of navigation properties for eager loading:
+        ///// <list type="bullet">
+        /////     <item><see cref="Product.ProductPictures"/> (sorted by <see cref="ProductMediaFile.DisplayOrder"/>), then <see cref="ProductMediaFile.MediaFile"/></item>
+        /////     <item>
+        /////         Published <see cref="Product.ProductManufacturers"/> (sorted by <see cref="Manufacturer.DisplayOrder"/> then by <see cref="Manufacturer.Name"/>), 
+        /////         then <see cref="ProductManufacturer.Manufacturer"/>, then <see cref="Manufacturer.MediaFile"/>
+        /////     </item>
+        /////     <item><see cref="Product.ProductSpecificationAttributes"/>, then <see cref="ProductSpecificationAttribute.SpecificationAttributeOption"/>, then <see cref="SpecificationAttributeOption.SpecificationAttribute"/></item>
+        /////     <item><see cref="Product.ProductVariantAttributes"/>, then <see cref="ProductVariantAttribute.ProductAttribute"/> and <see cref="ProductVariantAttribute.ProductVariantAttributeValues"/></item>
+        /////     <item><see cref="Product.ProductVariantAttributeCombinations"/>, then <see cref="ProductVariantAttributeCombination.DeliveryTime"/></item>
+        /////     <item><see cref="Product.TierPrices"/> (sorted by <see cref="TierPrice.Quantity"/>)</item>
+        /////     <item>Published <see cref="Product.ProductBundleItems"/> (sorted by <see cref="ProductBundleItem.DisplayOrder"/>), then <see cref="ProductBundleItem.BundleProduct"/></item>
+        ///// </list>
+        ///// </summary>
+        //public static IQueryable<Product> IncludeMega(this IQueryable<Product> query)
+        //{
+        //    Guard.NotNull(query, nameof(query));
+
+        //    var megaInclude = query
+        //        .Include(x => x.ProductPictures
+        //            .OrderBy(y => y.DisplayOrder))
+        //            .ThenInclude(x => x.MediaFile)
+        //        //.Include(x => x.DeliveryTime) // Is DB cached anyway
+        //        //.Include(x => x.QuantityUnit)  // Is DB cached anyway
+        //        .Include(x => x.ProductManufacturers
+        //            .Where(y => y.Manufacturer.Published)
+        //            .OrderBy(y => y.DisplayOrder).ThenBy(y => y.Manufacturer.Name))
+        //            .ThenInclude(x => x.Manufacturer)
+        //            .ThenInclude(x => x.MediaFile)
+        //        .Include(x => x.ProductSpecificationAttributes)
+        //            .ThenInclude(x => x.SpecificationAttributeOption)
+        //            .ThenInclude(x => x.SpecificationAttribute)
+        //        .Include(x => x.ProductTags)
+        //        .Include(x => x.ProductVariantAttributes)
+        //            .ThenInclude(x => x.ProductAttribute)
+        //        .Include(x => x.ProductVariantAttributes)
+        //            .ThenInclude(x => x.ProductVariantAttributeValues)
+        //        .Include(x => x.ProductVariantAttributeCombinations)
+        //            .ThenInclude(x => x.QuantityUnit)
+        //        .Include(x => x.ProductVariantAttributeCombinations)
+        //            .ThenInclude(x => x.DeliveryTime)
+        //        .Include(x => x.TierPrices
+        //            .OrderBy(x => x.Quantity))
+        //        .Include(x => x.ProductBundleItems
+        //            .Where(y => y.Published)
+        //            .OrderBy(y => y.DisplayOrder));
+
+        //    return megaInclude;
+        //}
     }
 }

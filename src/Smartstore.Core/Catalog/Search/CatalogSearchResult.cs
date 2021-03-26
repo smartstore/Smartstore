@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Search;
@@ -11,7 +12,7 @@ namespace Smartstore.Core.Catalog.Search
 {
     public partial class CatalogSearchResult
     {
-        private readonly Func<Task<IList<Product>>> _hitsFactory;
+        private readonly DbSet<Product> _dbSet;
         private IPagedList<Product> _hits;
 
         /// <summary>
@@ -19,16 +20,16 @@ namespace Smartstore.Core.Catalog.Search
         /// </summary>
         /// <param name="query">Catalog search query</param>
         public CatalogSearchResult(CatalogSearchQuery query)
-            : this(null, query, 0, null, null, null, null)
+            : this(null, query, null, 0, null, null, null)
         {
         }
 
         public CatalogSearchResult(
             ISearchEngine engine,
             CatalogSearchQuery query,
+            DbSet<Product> dbSet,
             int totalHitsCount,
             int[] hitsEntityIds,
-            Func<Task<IList<Product>>> hitsFactory,
             string[] spellCheckerSuggestions,
             IDictionary<string, FacetGroup> facets)
         {
@@ -36,9 +37,9 @@ namespace Smartstore.Core.Catalog.Search
 
             Engine = engine;
             Query = query;
+            _dbSet = dbSet;
             TotalHitsCount = totalHitsCount;
             HitsEntityIds = hitsEntityIds ?? Array.Empty<int>();
-            _hitsFactory = hitsFactory;
             //_hitsFactory = hitsFactory ?? (() => Task.FromResult<IList<Product>>(new List<Product>()));
             SpellCheckerSuggestions = spellCheckerSuggestions ?? Array.Empty<string>();
             Facets = facets ?? new Dictionary<string, FacetGroup>();
@@ -73,8 +74,8 @@ namespace Smartstore.Core.Catalog.Search
         {
             if (_hits == null)
             {
-                var products = TotalHitsCount > 0 && _hitsFactory != null
-                    ? await _hitsFactory.Invoke()
+                var products = TotalHitsCount > 0 && _dbSet != null && Query.HitsFactory != null
+                    ? await Query.HitsFactory.Invoke(_dbSet, HitsEntityIds)
                     : Enumerable.Empty<Product>();
 
                 _hits = products.ToPagedList(Query.PageIndex, Query.Take, TotalHitsCount);

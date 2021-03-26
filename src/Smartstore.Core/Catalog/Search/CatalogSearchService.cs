@@ -95,11 +95,7 @@ namespace Smartstore.Core.Catalog.Search
                                 searchHits = await searchEngine.SearchAsync();
                             }
 
-                            using (_services.Chronometer.Step(stepPrefix + "Collect"))
-                            {
-                                hitsEntityIds = searchHits.Select(x => x.EntityId).ToArray();
-                                hitsFactory = async () => await _db.Products.GetManyAsync(hitsEntityIds);
-                            }
+                            hitsEntityIds = searchHits.Select(x => x.EntityId).ToArray();
                         }
 
                         if (searchQuery.ResultFlags.HasFlag(SearchResultFlags.WithFacets))
@@ -138,9 +134,9 @@ namespace Smartstore.Core.Catalog.Search
                     var result = new CatalogSearchResult(
                         searchEngine,
                         searchQuery,
+                        _db.Products,
                         totalCount,
                         hitsEntityIds,
-                        hitsFactory,
                         spellCheckerSuggestions,
                         facets);
 
