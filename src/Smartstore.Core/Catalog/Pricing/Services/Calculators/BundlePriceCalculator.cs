@@ -71,10 +71,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             if (context.BundleItems == null)
             {
                 // Associated bundle items have not been preloaded unfortunately. Get 'em here for this particular product.
-                if (!options.BatchContext.ProductBundleItems.FullyLoaded)
-                {
-                    await options.BatchContext.ProductBundleItems.LoadAllAsync();
-                }
+                //if (!options.BatchContext.ProductBundleItems.FullyLoaded)
+                //{
+                //    await options.BatchContext.ProductBundleItems.LoadAllAsync();
+                //}
 
                 context.BundleItems = (await options.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id))
                     .Select(x => new ProductBundleItemData(x))

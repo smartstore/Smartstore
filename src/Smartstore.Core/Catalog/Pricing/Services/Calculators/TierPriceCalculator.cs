@@ -94,10 +94,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 return Enumerable.Empty<TierPrice>();
             }
 
-            if (!batchContext.TierPrices.FullyLoaded)
-            {
-                await batchContext.TierPrices.LoadAllAsync();
-            }
+            //if (!batchContext.TierPrices.FullyLoaded)
+            //{
+            //    await batchContext.TierPrices.LoadAllAsync();
+            //}
 
             var tierPrices = await batchContext.TierPrices.GetOrLoadAsync(product.Id);
             return tierPrices.RemoveDuplicatedQuantities();
