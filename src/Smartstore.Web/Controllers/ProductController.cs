@@ -589,9 +589,25 @@ namespace Smartstore.Web.Controllers
 
         #region Ask product question
 
+        [GdprConsent]
+        public async Task<IActionResult> AskQuestion(int id)
+        {
+            if (!_catalogSettings.AskQuestionEnabled)
+                return NotFound();
+
+            var product = await _db.Products.FindByIdAsync(id, false);
+
+            if (product == null || product.IsSystemProduct || !product.Published)
+                return NotFound();
+
+            var model = await PrepareAskQuestionModelAsync(product);
+
+            return View(model);
+        }
+
         public async Task<IActionResult> AskQuestionAjax(int id, ProductVariantQuery query)
         {
-            // Get attributeXml from product variant query
+            // Get rawAttributes from product variant query
             if (query != null && id > 0)
             {
                 var attributes = await _db.ProductVariantAttributes
@@ -600,12 +616,12 @@ namespace Smartstore.Web.Controllers
                     .ToListAsync();
 
                 var selection = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, attributes, id, 0, false);
-                var attributesXml = selection.Selection.AsXml();
+                var rawAttributes = selection.Selection.AsJson();
 
                 // INFO: (mh) (core) Added check for id in order to keep it and not add it twice. See code below.
-                if (attributesXml.HasValue() && TempData["AskQuestionAttributesXml-" + id] == null)
+                if (rawAttributes.HasValue() && TempData["AskQuestionAttributeSelection-" + id] == null)
                 {
-                    TempData.Add("AskQuestionAttributesXml-" + id, attributesXml);
+                    TempData.Add("AskQuestionAttributeSelection-" + id, rawAttributes);
                 }
             }
 
@@ -615,26 +631,17 @@ namespace Smartstore.Web.Controllers
             });
         }
 
-        [GdprConsent]
-        public async Task<IActionResult> AskQuestion(int id)
-        {
-            var product = await _db.Products.FindByIdAsync(id, false);
-
-            if (product == null || product.IsSystemProduct || !product.Published || !_catalogSettings.AskQuestionEnabled)
-                return NotFound();
-
-            var model = await PrepareAskQuestionModelAsync(product);
-            return View(model);
-        }
-
         [HttpPost, ActionName("AskQuestion")]
         [ValidateCaptcha, ValidateHoneypot]
         [GdprConsent]
         public async Task<IActionResult> AskQuestionSend(ProductAskQuestionModel model, string captchaError)
         {
+            if (!_catalogSettings.AskQuestionEnabled)
+                return NotFound();
+
             var product = await _db.Products.FindByIdAsync(model.Id, false);
 
-            if (product == null || product.IsSystemProduct || !product.Published || !_catalogSettings.AskQuestionEnabled)
+            if (product == null || product.IsSystemProduct || !product.Published)
                 return NotFound();
 
             if (_captchaSettings.ShowOnAskQuestionPage && captchaError.HasValue())
@@ -660,9 +667,9 @@ namespace Smartstore.Web.Controllers
 
                 if (msg?.Email?.Id != null)
                 {
-                    TempData.Remove("AskQuestionAttributesXml-" + product.Id);
+                    TempData.Remove("AskQuestionAttributeSelection-" + product.Id);
 
-                    NotifySuccess(T("Products.AskQuestion.Sent"), true);
+                    NotifySuccess(T("Products.AskQuestion.Sent"));
                     return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
                 }
                 else
@@ -681,24 +688,30 @@ namespace Smartstore.Web.Controllers
         {
             var customer = Services.WorkContext.CurrentCustomer;
 
-            var attributesXml = "";
+            //var rawAttributes = string.Empty;
 
             // INFO: (mh) (core) Used peek in order to keep xml information upon site refresh or redisplay of form in case of failed model validation.
             // TODO: (mh) (core) Remove if approved by mc.
-            //if (TempData.TryGetValue("AskQuestionAttributesXml-" + product.Id, out var obj))
+            //if (TempData.TryGetValue("AskQuestionAttributeSelection-" + product.Id, out var obj))
             //{
             //    attributesXml = obj as string;
             //}
 
-            attributesXml = TempData.Peek("AskQuestionAttributesXml-" + product.Id) as string;
+            var rawAttributes = TempData.Peek("AskQuestionAttributeSelection-" + product.Id) as string;
 
-            // Check if saved attributeXml belongs to current product id
-            var attributeInfo = "";
-            var selection = new ProductVariantAttributeSelection(attributesXml);
+            // Check if saved rawAttributes belongs to current product id
+            var formattedAttributes = string.Empty;
+            var selection = new ProductVariantAttributeSelection(rawAttributes);
             if (selection.AttributesMap.Any())
             {
-                attributeInfo = await _productAttributeFormatter.Value.FormatAttributesAsync(
-                    selection, product, null, separator: ", ", includePrices: false, includeGiftCardAttributes: false, includeHyperlinks: false);
+                formattedAttributes = await _productAttributeFormatter.Value.FormatAttributesAsync(
+                    selection, 
+                    product,
+                    customer: null, 
+                    separator: ", ", 
+                    includePrices: false, 
+                    includeGiftCardAttributes: false, 
+                    includeHyperlinks: false);
             }
 
             var seName = await product.GetActiveSlugAsync();
@@ -712,7 +725,7 @@ namespace Smartstore.Web.Controllers
                 SenderNameRequired = _privacySettings.FullNameOnProductRequestRequired,
                 SenderPhone = customer.GenericAttributes.Phone,
                 DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnAskQuestionPage,
-                SelectedAttributes = attributeInfo,
+                SelectedAttributes = formattedAttributes,
                 ProductUrl = await _productUrlHelper.Value.GetProductUrlAsync(product.Id, seName, selection),
                 IsQuoteRequest = product.CallForPrice
             };
