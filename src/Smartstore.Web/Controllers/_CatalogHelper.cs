@@ -641,7 +641,7 @@ namespace Smartstore.Web.Controllers
                     return template.ViewPath;
                 });
 
-                IList<ProductBundleItemData> bundleItems = null;
+                IList<ProductBundleItemData> bundleItemDatas = null;
                 ProductVariantAttributeCombination combination = null;
 
                 if (product.ProductType == ProductType.GroupedProduct && !isAssociatedProduct)
@@ -663,20 +663,14 @@ namespace Smartstore.Web.Controllers
                 else if (product.ProductType == ProductType.BundledProduct && productBundleItem == null)
                 {
                     // Bundled items.
-                    var bundleItemQuery = await _db.ProductBundleItem
-                        .AsNoTracking()
-                        .ApplyBundledProductsFilter(new[] { product.Id })
-                        .Include(x => x.Product)
-                        .Include(x => x.BundleProduct)
-                        .ToListAsync();
+                    var bundleItems = product.ProductBundleItems;
 
-                    if(bundleItemQuery.Count > 0)
+                    if (bundleItems.Count > 0)
                     {
-                        bundleItems = new List<ProductBundleItemData>();
-                        bundleItemQuery.Each(x => bundleItems.Add(new ProductBundleItemData(x)));
+                        bundleItemDatas = bundleItems.Select(x => new ProductBundleItemData(x)).ToList();
                     }
                     
-                    foreach (var itemData in bundleItems.Where(x => x.Item.Product.CanBeBundleItem()))
+                    foreach (var itemData in bundleItemDatas.Where(x => x.Item.Product.CanBeBundleItem()))
                     {
                         var item = itemData.Item;
                         var bundledProductModel = await PrepareProductDetailsPageModelAsync(item.Product, query, false, itemData);
@@ -702,7 +696,7 @@ namespace Smartstore.Web.Controllers
                     }
                 }
 
-                model = await PrepareProductDetailModelAsync(model, product, query, isAssociatedProduct, productBundleItem, bundleItems);
+                model = await PrepareProductDetailModelAsync(model, product, query, isAssociatedProduct, productBundleItem, bundleItemDatas);
 
                 // Action items.
                 {
@@ -772,26 +766,28 @@ namespace Smartstore.Web.Controllers
                     }
                 }
 
-                IList<int> combinationPictureIds = null;
+                ICollection<int> combinationFileIds = null;
 
                 if (productBundleItem == null)
                 {
-                    combinationPictureIds = await _productAttributeService.GetAttributeCombinationFileIdsAsync(product.Id);
+                    combinationFileIds = await _productAttributeService.GetAttributeCombinationFileIdsAsync(product);
                     if (combination == null && model.SelectedCombination != null)
+                    {
                         combination = model.SelectedCombination;
+                    }
                 }
 
-                var files = await _db.ProductMediaFiles.ApplyProductFilter(new[] { product.Id })
-                    .AsNoTracking()
+                var files = product.ProductPictures
+                    .Where(x => x.MediaFile != null)
                     .Select(x => _mediaService.ConvertMediaFile(x.MediaFile))
-                    .ToListAsync();
+                    .ToList();
 
                 if (product.HasPreviewPicture && files.Count > 1)
                 {
                     files.RemoveAt(0);
                 }
 
-                model.MediaGalleryModel = PrepareProductDetailsMediaGalleryModel(files, model.Name, combinationPictureIds, isAssociatedProduct, productBundleItem, combination);
+                model.MediaGalleryModel = PrepareProductDetailsMediaGalleryModel(files, model.Name, combinationFileIds, isAssociatedProduct, productBundleItem, combination);
 
                 return model;
             }
@@ -822,12 +818,10 @@ namespace Smartstore.Web.Controllers
             //var isBundleItemPricing = productBundleItem != null && productBundleItem.Item.BundleProduct.BundlePerItemPricing;
             //var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
             //var bundleItemId = productBundleItem == null ? 0 : productBundleItem.Item.Id;
-            var variantAttributes = isBundle ? new List<ProductVariantAttribute>() : await _db.ProductVariantAttributes
-                .AsNoTracking()
-                .Where(x => x.ProductId == product.Id)
+
+            var variantAttributes = isBundle ? new List<ProductVariantAttribute>() : product.ProductVariantAttributes
                 .OrderBy(x => x.DisplayOrder)
-                .Include(x => x.ProductAttribute)
-                .ToListAsync();
+                .ToList();
 
             model.IsBundlePart = product.ProductType != ProductType.BundledProduct && productBundleItem != null;
             model.ProductPrice.DynamicPriceUpdate = _catalogSettings.EnableDynamicPriceUpdate;
@@ -960,16 +954,12 @@ namespace Smartstore.Web.Controllers
                     pvaModel.BeginYear = match.Groups[1].Value.ToInt();
                     pvaModel.EndYear = match.Groups[2].Value.ToInt();
                 }
-
+                
                 var preSelectedValueId = 0;
                 var pvaValues = !attribute.IsListTypeAttribute()
                     ? new List<ProductVariantAttributeValue>()
-                    : await _db.ProductVariantAttributeValues
-                        .AsNoTracking()
-                        .Where(x => x.ProductVariantAttributeId == attribute.Id)
-                        .OrderBy(x => x.DisplayOrder)
-                        .ToListAsync();
-
+                    : attribute.ProductVariantAttributeValues.OrderBy(x => x.DisplayOrder).ToList();
+                
                 foreach (var pvaValue in pvaValues)
                 {
                     ProductBundleItemAttributeFilter attributeFilter = null;
@@ -983,7 +973,7 @@ namespace Smartstore.Web.Controllers
                         preSelectedValueId = attributeFilter.AttributeValueId;
                     }
 
-                    var linkedProduct = await _db.Products.FindByIdAsync(pvaValue.LinkedProductId, false);
+                    var linkedProduct = await _db.Products.FindByIdAsync(pvaValue.LinkedProductId);
 
                     var pvaValueModel = new ProductDetailsModel.ProductVariantAttributeValueModel
                     {
@@ -1627,7 +1617,7 @@ namespace Smartstore.Web.Controllers
         public MediaGalleryModel PrepareProductDetailsMediaGalleryModel(
             IList<MediaFileInfo> files,
             string productName,
-            IList<int> allCombinationImageIds,
+            ICollection<int> allCombinationImageIds,
             bool isAssociatedProduct,
             ProductBundleItemData bundleItem = null,
             ProductVariantAttributeCombination combination = null)
@@ -1749,7 +1739,6 @@ namespace Smartstore.Web.Controllers
         public async Task<List<ProductDetailsModel.TierPriceModel>> CreateTierPriceModelAsync(Product product, decimal adjustment = decimal.Zero)
         {
             var model = await product.TierPrices
-                .OrderBy(x => x.Quantity)
                 .FilterByStore(_services.StoreContext.CurrentStore.Id)
                 .FilterForCustomer(_services.WorkContext.CurrentCustomer)
                 .ToList()
@@ -1789,7 +1778,7 @@ namespace Smartstore.Web.Controllers
             return model;
         }
 
-        public async Task PrepareProductReviewsModelAsync(ProductReviewsModel model, Product product, int take = int.MaxValue)
+        public async Task PrepareProductReviewsModelAsync(ProductReviewsModel model, Product product, int? take = null)
         {
             Guard.NotNull(product, nameof(product));
             Guard.NotNull(model, nameof(model));
@@ -1798,41 +1787,46 @@ namespace Smartstore.Web.Controllers
             model.ProductName = product.GetLocalized(x => x.Name);
             model.ProductSeName = await product.GetActiveSlugAsync();
 
-            // TODO: (mh) (core) Including Customer & CustomerRoleMappings threw an exception. Investigate further.
-            var query = _db.Entry(product).Collection(x => x.ProductReviews).Query()
-                .Where(x => x.IsApproved)
-                .Include(x => x.Customer)
-                .ThenInclude(x => x.CustomerContent);
-                //.Include(x => x.Customer)
-                //.ThenInclude(x => x.CustomerRoleMappings.Select(c => c.Customer));
+            var query = _db.Entry(product)
+                .Collection(x => x.ProductReviews)
+                .Query()
+                .Where(x => x.IsApproved);
 
-            var reviews = await query
-                .OrderByDescending(x => x.CreatedOnUtc)
-                .Take(take)
-                .ToListAsync();
+            model.TotalReviewsCount = await query.CountAsync();
 
-            model.TotalReviewsCount = reviews.Count;
-
-            foreach (var review in reviews)
+            if (model.TotalReviewsCount > 0)
             {
-                model.Items.Add(new ProductReviewModel
+                if (take.HasValue)
                 {
-                    Id = review.Id,
-                    CustomerId = review.CustomerId,
-                    CustomerName = review.Customer.FormatUserName(),
-                    AllowViewingProfiles = _customerSettings.AllowViewingProfiles && review.Customer != null && !review.Customer.IsGuest(),
-                    Title = review.Title,
-                    ReviewText = review.ReviewText,
-                    Rating = review.Rating,
-                    Helpfulness = new ProductReviewHelpfulnessModel
+                    query = query.Take(take.Value);
+                }
+                
+                var reviews = await query
+                    .OrderByDescending(y => y.CreatedOnUtc)
+                    .Include(x => x.Customer)
+                    .ToListAsync();
+
+                foreach (var review in reviews)
+                {
+                    model.Items.Add(new ProductReviewModel
                     {
-                        ProductReviewId = review.Id,
-                        HelpfulYesTotal = review.HelpfulYesTotal,
-                        HelpfulNoTotal = review.HelpfulNoTotal,
-                    },
-                    WrittenOnStr = _dateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc).ToString("D"),
-                    WrittenOn = review.CreatedOnUtc
-                });
+                        Id = review.Id,
+                        CustomerId = review.CustomerId,
+                        CustomerName = review.Customer.FormatUserName(),
+                        AllowViewingProfiles = _customerSettings.AllowViewingProfiles && review.Customer != null && !review.Customer.IsGuest(),
+                        Title = review.Title,
+                        ReviewText = review.ReviewText,
+                        Rating = review.Rating,
+                        Helpfulness = new ProductReviewHelpfulnessModel
+                        {
+                            ProductReviewId = review.Id,
+                            HelpfulYesTotal = review.HelpfulYesTotal,
+                            HelpfulNoTotal = review.HelpfulNoTotal,
+                        },
+                        WrittenOnStr = _dateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc).ToString("D"),
+                        WrittenOn = review.CreatedOnUtc
+                    });
+                }
             }
 
             model.CanCurrentCustomerLeaveReview = _catalogSettings.AllowAnonymousUsersToReviewProduct || !_services.WorkContext.CurrentCustomer.IsGuest();

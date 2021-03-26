@@ -15,6 +15,7 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
 using Smartstore.Core.Security;
@@ -94,7 +95,11 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ProductDetails(int productId, ProductVariantQuery query)
         {
-            var product = await _db.Products.FindByIdAsync(productId, true);
+            var product = await _db.Products
+                .Where(x => x.Id == productId)
+                .IncludeMega() // Perf
+                .SingleOrDefaultAsync();
+
             if (product == null || product.Deleted || product.IsSystemProduct)
                 return NotFound();
 

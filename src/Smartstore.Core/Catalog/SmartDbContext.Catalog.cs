@@ -20,6 +20,7 @@ namespace Smartstore.Core.Data
 
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<ProductManufacturer> ProductManufacturers { get; set; }
+        public DbSet<ProductReview> ProductReviews { get; set; }
 
         public DbSet<RelatedProduct> RelatedProducts { get; set; }
         public DbSet<CrossSellProduct> CrossSellProducts { get; set; }

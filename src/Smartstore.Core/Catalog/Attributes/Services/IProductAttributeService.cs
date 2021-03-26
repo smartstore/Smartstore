@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Collections;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -37,9 +38,17 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Gets a distinct list of media file identifiers.
         /// Only files that are explicitly assigned to combinations are taken into account.
         /// </summary>
+        /// <param name="product">Product.</param>
+        /// <returns>List of media file identifiers.</returns>
+        Task<ICollection<int>> GetAttributeCombinationFileIdsAsync(Product product);
+
+        /// <summary>
+        /// Gets a distinct list of media file identifiers.
+        /// Only files that are explicitly assigned to combinations are taken into account.
+        /// </summary>
         /// <param name="productId">Product identifier.</param>
         /// <returns>List of media file identifiers.</returns>
-        Task<IList<int>> GetAttributeCombinationFileIdsAsync(int productId);
+        Task<ICollection<int>> GetAttributeCombinationFileIdsAsync(int productId);
 
         /// <summary>
         /// Creates all variant attributes combinations for a product.

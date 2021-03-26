@@ -1,4 +1,9 @@
 ﻿using System.Linq;
+using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Pricing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -115,6 +120,53 @@ namespace Smartstore.Core.Catalog.Products
             return query
                 .OrderBy(x => x.ParentGroupedProductId)
                 .ThenBy(x => x.DisplayOrder);
+        }
+
+        /// <summary>
+        /// Includes a bunch of navigation properties for eager loading:
+        /// <list type="bullet">
+        ///     <item><see cref="Product.ProductPictures"/> (sorted by <see cref="ProductMediaFile.DisplayOrder"/>), then <see cref="ProductMediaFile.MediaFile"/></item>
+        ///     <item><see cref="Product.DeliveryTime"/></item>
+        ///     <item><see cref="Product.QuantityUnit"/></item>
+        ///     <item><see cref="Product.ProductManufacturers"/>, then <see cref="ProductManufacturer.Manufacturer"/></item>
+        ///     <item><see cref="Product.ProductSpecificationAttributes"/>, then <see cref="ProductSpecificationAttribute.SpecificationAttributeOption"/></item>
+        ///     <item><see cref="Product.ProductVariantAttributes"/>, then <see cref="ProductVariantAttribute.ProductAttribute"/> and <see cref="ProductVariantAttribute.ProductVariantAttributeValues"/></item>
+        ///     <item><see cref="Product.ProductVariantAttributeCombinations"/>, then <see cref="ProductVariantAttributeCombination.DeliveryTime"/></item>
+        ///     <item><see cref="Product.TierPrices"/> (sorted by <see cref="TierPrice.Quantity"/>)</item>
+        ///     <item>Published <see cref="Product.ProductBundleItems"/> (sorted by <see cref="ProductBundleItem.DisplayOrder"/>), then <see cref="ProductBundleItem.BundleProduct"/></item>
+        /// </list>
+        /// </summary>
+        public static IIncludableQueryable<Product, Product> IncludeMega(this IQueryable<Product> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            var megaInclude = query
+                .Include(x => x.ProductPictures
+                    .OrderBy(y => y.DisplayOrder))
+                    .ThenInclude(x => x.MediaFile)
+                .Include(x => x.DeliveryTime)
+                .Include(x => x.QuantityUnit)
+                .Include(x => x.ProductManufacturers)
+                    .ThenInclude(x => x.Manufacturer)
+                .Include(x => x.ProductSpecificationAttributes)
+                    .ThenInclude(x => x.SpecificationAttributeOption)
+                .Include(x => x.ProductTags)
+                .Include(x => x.ProductVariantAttributes)
+                    .ThenInclude(x => x.ProductAttribute)
+                .Include(x => x.ProductVariantAttributes)
+                    .ThenInclude(x => x.ProductVariantAttributeValues)
+                .Include(x => x.ProductVariantAttributeCombinations)
+                    .ThenInclude(x => x.QuantityUnit)
+                .Include(x => x.ProductVariantAttributeCombinations)
+                    .ThenInclude(x => x.DeliveryTime)
+                .Include(x => x.TierPrices
+                    .OrderBy(x => x.Quantity))
+                .Include(x => x.ProductBundleItems
+                    .Where(y => y.Published)
+                    .OrderBy(y => y.DisplayOrder))
+                    .ThenInclude(x => x.BundleProduct);
+
+            return megaInclude;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data;
@@ -249,11 +250,28 @@ namespace Smartstore.Core.Catalog.Attributes
             return addedValues;
         }
 
-        public virtual async Task<IList<int>> GetAttributeCombinationFileIdsAsync(int productId)
+        public virtual Task<ICollection<int>> GetAttributeCombinationFileIdsAsync(Product product)
+        {
+            Guard.NotNull(product, nameof(product));
+
+            if (!_db.IsCollectionLoaded(product, x => x.ProductVariantAttributeCombinations))
+            {
+                return GetAttributeCombinationFileIdsAsync(product.Id);
+            }
+
+            var fileIds = product.ProductVariantAttributeCombinations
+                .Where(x => !string.IsNullOrEmpty(x.AssignedMediaFileIds) && x.IsActive)
+                .Select(x => x.AssignedMediaFileIds)
+                .ToList();
+
+            return Task.FromResult(CreateFileIdSet(fileIds));
+        }
+
+        public virtual async Task<ICollection<int>> GetAttributeCombinationFileIdsAsync(int productId)
         {
             if (productId == 0)
             {
-                return new List<int>();
+                return new HashSet<int>();
             }
 
             var fileIds = await _db.ProductVariantAttributeCombinations
@@ -261,21 +279,22 @@ namespace Smartstore.Core.Catalog.Attributes
                 .Select(x => x.AssignedMediaFileIds)
                 .ToListAsync();
 
-            if (!fileIds.Any())
+            return CreateFileIdSet(fileIds);
+        }
+
+        private static ICollection<int> CreateFileIdSet(List<string> source)
+        {
+            if (!source.Any())
             {
-                return new List<int>();
+                return new HashSet<int>();
             }
 
-            var uniqueFileIds = fileIds
+            var result = source
                 .SelectMany(x => x.SplitSafe(","))
-                .Distinct();
-
-            var result = uniqueFileIds
                 .Select(x => x.ToInt())
-                .Where(x => x != 0)
-                .ToList();
+                .Where(x => x != 0);
 
-            return result;
+            return new HashSet<int>(result);
         }
 
         public virtual async Task<int> CreateAllAttributeCombinationsAsync(int productId)
