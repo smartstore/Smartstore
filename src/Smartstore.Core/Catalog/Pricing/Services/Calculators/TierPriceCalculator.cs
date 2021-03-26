@@ -7,7 +7,7 @@ using Smartstore.Core.Identity;
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
-    /// Calculates the minimum tier price and applies it if it's lower than the FinalPrice.
+    /// Calculates the minimum tier price and applies it if it is lower than the FinalPrice.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 100)]
     public class TierPriceCalculator : IPriceCalculator
@@ -93,11 +93,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             {
                 return Enumerable.Empty<TierPrice>();
             }
-
-            //if (!batchContext.TierPrices.FullyLoaded)
-            //{
-            //    await batchContext.TierPrices.LoadAllAsync();
-            //}
 
             var tierPrices = await batchContext.TierPrices.GetOrLoadAsync(product.Id);
             return tierPrices.RemoveDuplicatedQuantities();

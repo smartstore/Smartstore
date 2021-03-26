@@ -27,11 +27,6 @@ namespace Smartstore.Core.Catalog.Pricing
         //public ProductVariantAttributeCombination AppliedAttributeCombination { get; set; }
 
         /// <summary>
-        /// Gets or sets the miniumum tier price determined during calculation.
-        /// </summary>
-        public decimal MinTierPrice { get; set; }
-
-        /// <summary>
         /// The regular price of the input <see cref="Product"/>, in the primary currency, usually <see cref="Product.Price"/>
         /// </summary>
         public decimal RegularPrice { get; private set; }
@@ -63,6 +58,12 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Includes prices of attribute combinations and tier prices. Ignores price adjustments of attributes.
         /// </summary>
         public decimal? LowestPrice { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the miniumum tier price determined during calculation.
+        /// </summary>
+        public decimal? MinTierPrice { get; set; }
 
         /// <summary>
         /// Copies all data from current context to given <paramref name="target"/> context.

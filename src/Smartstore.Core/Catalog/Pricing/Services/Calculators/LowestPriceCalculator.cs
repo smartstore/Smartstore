@@ -5,7 +5,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
     /// Calculates the lowest possible price a product can achieve. 
-    /// The lowest tier price, the lowest attribute combination price and discounts are taken into account in the calculation.
+    /// The lowest tier price, the lowest attribute combination price and discounts are taken into account during calculation.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 10)]
     public class LowestPriceCalculator : IPriceCalculator

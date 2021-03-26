@@ -65,11 +65,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             // Percentage discount on minimum tier price.
             if (!context.Options.IgnorePercentageDiscountOnTierPrices &&
+                context.MinTierPrice.HasValue &&
                 context.MinTierPrice != decimal.Zero &&
                 appliedDiscount != null &&
                 appliedDiscount.UsePercentage)
             {
-                context.FinalPrice -= appliedDiscount.GetDiscountAmount(context.MinTierPrice);
+                context.FinalPrice -= appliedDiscount.GetDiscountAmount(context.MinTierPrice.Value);
             }
 
             await next(context);
