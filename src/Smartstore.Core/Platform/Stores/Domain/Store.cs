@@ -140,9 +140,9 @@ namespace Smartstore.Core.Stores
         /// <summary>
         /// Gets or sets the primary store currency
         /// </summary>
-        public Currency PrimaryStoreCurrency 
+        public Currency PrimaryStoreCurrency
         { 
-            get => _lazyLoader?.Load(this, ref _primaryStoreCurrency) ?? _primaryStoreCurrency;
+            get => _primaryStoreCurrency ?? _lazyLoader?.Load(this, ref _primaryStoreCurrency);
             set => _primaryStoreCurrency = value;
         }
 
@@ -152,7 +152,7 @@ namespace Smartstore.Core.Stores
         /// </summary>
         public Currency PrimaryExchangeRateCurrency 
         {
-            get => _lazyLoader?.Load(this, ref _primaryExchangeRateCurrency) ?? _primaryExchangeRateCurrency;
+            get => _primaryExchangeRateCurrency ?? _lazyLoader?.Load(this, ref _primaryExchangeRateCurrency);
             set => _primaryExchangeRateCurrency = value;
         }
 
