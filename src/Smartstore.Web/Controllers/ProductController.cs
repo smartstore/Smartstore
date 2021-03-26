@@ -40,6 +40,7 @@ namespace Smartstore.Web.Controllers
         private readonly IStoreMappingService _storeMappingService;
         private readonly ICatalogSearchService _catalogSearchService;
         private readonly IMediaService _mediaService;
+        private readonly ICustomerService _customerService;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
         private readonly IProductCompareService _productCompareService;
@@ -48,6 +49,7 @@ namespace Smartstore.Web.Controllers
         private readonly SeoSettings _seoSettings;
         private readonly ContactDataSettings _contactDataSettings;
         private readonly CaptchaSettings _captchaSettings;
+        private readonly LocalizationSettings _localizationSettings;
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly Lazy<IMessageFactory> _messageFactory;
 
@@ -63,6 +65,7 @@ namespace Smartstore.Web.Controllers
             IStoreMappingService storeMappingService,
             ICatalogSearchService catalogSearchService,
             IMediaService mediaService,
+            ICustomerService customerService,
             MediaSettings mediaSettings,
             CatalogSettings catalogSettings,
             CatalogHelper helper,
@@ -70,6 +73,7 @@ namespace Smartstore.Web.Controllers
             SeoSettings seoSettings,
             ContactDataSettings contactDataSettings,
             CaptchaSettings captchaSettings,
+            LocalizationSettings localizationSettings,
             Lazy<IUrlHelper> urlHelper,
             Lazy<IMessageFactory> messageFactory)
         {
@@ -84,6 +88,7 @@ namespace Smartstore.Web.Controllers
             _storeMappingService = storeMappingService;
             _catalogSearchService = catalogSearchService;
             _mediaService = mediaService;
+            _customerService = customerService;
             _mediaSettings = mediaSettings;
             _catalogSettings = catalogSettings;
             _helper = helper;
@@ -91,6 +96,7 @@ namespace Smartstore.Web.Controllers
             _seoSettings = seoSettings;
             _contactDataSettings = contactDataSettings;
             _captchaSettings = captchaSettings;
+            _localizationSettings = localizationSettings;
             _urlHelper = urlHelper;
             _messageFactory = messageFactory;
         }
@@ -183,7 +189,7 @@ namespace Smartstore.Web.Controllers
         /// TODO: (mh) (core) Describe what this action does.
         /// </summary>
         [HttpPost]
-        public async Task<ActionResult> UpdateProductDetails(int productId, string itemType, int bundleItemId, ProductVariantQuery query)
+        public async Task<IActionResult> UpdateProductDetails(int productId, string itemType, int bundleItemId, ProductVariantQuery query)
         {
             // TODO: (core) UpdateProductDetails action needs some decent refactoring.
             var form = HttpContext.Request.Form;
@@ -193,8 +199,8 @@ namespace Smartstore.Web.Controllers
             string dynamicThumbUrl = null;
             var isAssociated = itemType.EqualsNoCase("associateditem");
             var m = new ProductDetailsModel();
-            var product = await _db.Products.FindByIdAsync(productId);
-            var bItem = await _db.ProductBundleItem.FindByIdAsync(bundleItemId);
+            var product = await _db.Products.FindByIdAsync(productId, false);
+            var bItem = await _db.ProductBundleItem.FindByIdAsync(bundleItemId, false);
             IList<ProductBundleItemData> bundleItems = null;
             ProductBundleItemData bundleItem = bItem == null ? null : new ProductBundleItemData(bItem);
             
@@ -380,9 +386,115 @@ namespace Smartstore.Web.Controllers
 
         #region Product reviews
 
-        [HttpPost]
-        public async Task<ActionResult> SetReviewHelpfulness(int productReviewId, bool washelpful)
+        [GdprConsent]
+        public async Task<IActionResult> Reviews(int id)
         {
+            // INFO: (mh) (core) Entitity is being loaded tracked because else navigation properties can't be loaded in PrepareProductReviewsModelAsync.
+            var product = await _db.Products.FindByIdAsync(id);
+            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !product.AllowCustomerReviews)
+            {
+                return NotFound();
+            }
+
+            var model = new ProductReviewsModel
+            {
+                Rating = _catalogSettings.DefaultProductRatingValue
+            };
+
+            await _helper.PrepareProductReviewsModelAsync(model, product);
+
+            model.SuccessfullyAdded = (TempData["SuccessfullyAdded"] as bool?) ?? false;
+            if (model.SuccessfullyAdded)
+            {
+                model.Result = T(_catalogSettings.ProductReviewsMustBeApproved ? "Reviews.SeeAfterApproving" : "Reviews.SuccessfullyAdded");
+            }
+
+            // Only registered users can leave reviews.
+            if (Services.WorkContext.CurrentCustomer.IsGuest() && !_catalogSettings.AllowAnonymousUsersToReviewProduct)
+            {
+                ModelState.AddModelError("", T("Reviews.OnlyRegisteredUsersCanWriteReviews"));
+            }
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("Reviews")]
+        [ValidateCaptcha]
+        [GdprConsent]
+        public async Task<IActionResult> ReviewsAdd(int id, ProductReviewsModel model, string captchaError)
+        {
+            // INFO: (mh) (core) Entitity is being loaded tracked because else navigation properties can't be loaded in PrepareProductReviewsModelAsync.
+            var product = await _db.Products.FindByIdAsync(id);
+            if (product == null || product.Deleted || product.IsSystemProduct || !product.Published || !product.AllowCustomerReviews)
+            {
+                return NotFound();
+            }
+
+            if (_captchaSettings.ShowOnProductReviewPage && captchaError.HasValue())
+            {
+                ModelState.AddModelError("", captchaError);
+            }
+
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (customer.IsGuest() && !_catalogSettings.AllowAnonymousUsersToReviewProduct)
+            {
+                ModelState.AddModelError("", T("Reviews.OnlyRegisteredUsersCanWriteReviews"));
+            }
+
+            if (ModelState.IsValid)
+            {
+                var rating = model.Rating;
+                if (rating < 1 || rating > 5)
+                {
+                    rating = _catalogSettings.DefaultProductRatingValue;
+                }
+
+                var isApproved = !_catalogSettings.ProductReviewsMustBeApproved;
+                
+                var productReview = new ProductReview
+                {
+                    ProductId = product.Id,
+                    CustomerId = customer.Id,
+                    IpAddress = _webHelper.GetClientIpAddress().ToString(),
+                    Title = model.Title,
+                    ReviewText = model.ReviewText,
+                    Rating = rating,
+                    HelpfulYesTotal = 0,
+                    HelpfulNoTotal = 0,
+                    IsApproved = isApproved,
+                };
+
+                _db.CustomerContent.Add(productReview);
+
+                _productService.ApplyProductReviewTotals(product);
+
+                if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)
+                {
+                    await _messageFactory.Value.SendProductReviewNotificationMessageAsync(productReview, _localizationSettings.DefaultAdminLanguageId);
+                }
+
+                Services.ActivityLogger.LogActivity("PublicStore.AddProductReview", T("ActivityLog.PublicStore.AddProductReview"), product.Name);
+
+                if (isApproved)
+                {
+                    _customerService.ApplyRewardPointsForProductReview(customer, product, true);
+                }
+
+                TempData["SuccessfullyAdded"] = true;
+
+                return RedirectToAction("Reviews");
+            }
+
+            // If we got this far something failed. Redisplay form.
+            await _helper.PrepareProductReviewsModelAsync(model, product);
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetReviewHelpfulness(int productReviewId, bool washelpful)
+        {
+            // INFO: (mh) (core) Entitity is being loaded tracked because it must be saved later.
             var productReview = await _db.CustomerContent.FindByIdAsync(productReviewId) as ProductReview;
 
             if (productReview == null)

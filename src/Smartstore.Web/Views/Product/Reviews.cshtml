@@ -1,0 +1,113 @@
+﻿@model ProductReviewsModel
+
+@using Smartstore.Web.Models.Catalog;
+
+@{
+    Assets.AppendTitleParts(Model.ProductName);
+    Assets.AppendMetaDescriptionParts(T("PageTitle.ProductReviews"));
+    Assets.AddMetaRobots();
+}
+
+<div class="page product-reviews-page">
+    <div class="page-title">
+        <h1 class="h3 d-flex align-items-baseline">
+            <span class="pr-2">@T("Reviews.ProductReviewsFor")</span>
+            <small sm-language-attributes-for="Model.ProductName">
+                <a asp-route="Product" asp-route-SeName="@Model.ProductSeName" style="text-decoration: none;">@Model.ProductName</a>
+            </small>
+        </h1>
+    </div>
+
+    <div class="page-body">
+        <zone name="productreviews_page_top" />
+
+        @if (Model.SuccessfullyAdded && Model.Result.HasValue())
+        {
+            <div class="alert alert-success">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                @Model.Result
+            </div>
+        }
+        else
+        {
+            <div asp-validation-summary="ModelOnly" class="m-b-0"></div>
+
+            <div class="write-review mb-4" id="review-form">
+                <h4 class="d-none">@T("Reviews.Overview.AddNew")</h4>
+                <form asp-action="Reviews" class="form-horizontal" method="post" autocomplete="off">
+                    <div class="form-group row">
+                        <label asp-for="Rating" class="form-control-label col-form-label col-md-3"></label>
+                        <div class="col-md-9 star-rating-parent">
+                            <div class="review-rating star-rating star-rating-large">
+                                @{
+                                    var srName = Html.NameFor(x => x.Rating);
+                                }
+                                <input type="radio" id="@(srName)5" name="@srName" value="5" checked="@(5 == Model.Rating)" /><label for="@(srName)5" class="tooltip-toggle" title="@T("Reviews.Fields.Rating.Excellent")"></label>
+                                <input type="radio" id="@(srName)4" name="@srName" value="4" checked="@(4 == Model.Rating)" /><label for="@(srName)4"></label>
+                                <input type="radio" id="@(srName)3" name="@srName" value="3" checked="@(3 == Model.Rating)" /><label for="@(srName)3"></label>
+                                <input type="radio" id="@(srName)2" name="@srName" value="2" checked="@(2 == Model.Rating)" /><label for="@(srName)2"></label>
+                                <input type="radio" id="@(srName)1" name="@srName" value="1" checked="@(1 == Model.Rating)" /><label for="@(srName)1" class="tooltip-toggle" title="@T("Reviews.Fields.Rating.Bad")"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="Title" class="form-control-label col-form-label col-md-3 required"></label>
+                        <div class="col-md-9">
+                            <input asp-for="Title" type="text" attr-disabled='(!Model.CanCurrentCustomerLeaveReview, "disabled")' autofocus />
+                            <span asp-validation-for="Title"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="ReviewText" class="form-control-label col-form-label col-md-3 required"></label>
+                        <div class="col-md-9">
+                            <textarea asp-for="ReviewText" cols="1" rows="4" attr-disabled='(!Model.CanCurrentCustomerLeaveReview, "disabled")' autofocus></textarea>
+                            <span asp-validation-for="ReviewText"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col col-sm-auto offset-sm-3 text-muted">
+                            @T("Common.FormFields.Required.Hint")
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-end">
+                        <div class="col-sm-9">
+                            <zone name="gdpr_consent" />
+                        </div>
+                    </div>
+
+                    <div sm-if="Model.DisplayCaptcha" class="captcha-box form-group row justify-content-end">
+                        <div class="col-md-9">
+                            <captcha sm-enabled="Model.DisplayCaptcha" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row m-b-0 justify-content-end">
+                        <div class="col-md-9">
+                            <button type="submit" name="add-review" value="add-review" class="btn btn-primary write-product-review-button">
+                                <span>@T("Reviews.SubmitButton")</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        }
+
+        <div sm-if="Model.Items.Count > 0" class="block">
+            <div class="block-title">
+                <h3 class="d-flex align-items-center">
+                    <span>@T("Reviews.ExistingReviews")</span>
+                    <small class="text-muted pl-2 lrm">(@Model.Items.Count)</small>
+                </h3>
+            </div>
+            <div class="block-body pt-3">
+                <partial name="Product.Reviews" model="Model" />
+            </div>
+        </div>
+
+        <zone name="productreviews_page_bottom" />
+    </div>
+</div>
