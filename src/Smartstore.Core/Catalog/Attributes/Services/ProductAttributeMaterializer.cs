@@ -322,6 +322,8 @@ namespace Smartstore.Core.Catalog.Attributes
 
         public virtual async Task<ProductVariantAttributeCombination> FindAttributeCombinationAsync(int productId, ProductVariantAttributeSelection selection)
         {
+            // TODO: (core) (important) Save combination hash in table and always lookup by hash instead of iterating thru local data to find a match.
+            
             if (productId == 0 || !(selection?.AttributesMap?.Any() ?? false))
             {
                 return null;

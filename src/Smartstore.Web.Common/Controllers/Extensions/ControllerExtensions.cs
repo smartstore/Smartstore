@@ -15,9 +15,9 @@ namespace Smartstore.Web.Controllers
         /// <param name="viewName">View name</param>
         /// <param name="isMainPage"><c>false</c>: View is partial</param>
         /// <returns>View rendering result</returns>
-        public static Task<string> InvokeViewAsync(this ControllerBase controller, string viewName, bool isMainPage = false)
+        public static Task<string> InvokeViewAsync(this ControllerBase controller, string viewName, bool isPartial = true)
         {
-            return InvokeViewAsync<dynamic>(controller, viewName, null, isMainPage);
+            return InvokeViewAsync<dynamic>(controller, viewName, null, isPartial);
         }
 
         /// <summary>
@@ -27,14 +27,14 @@ namespace Smartstore.Web.Controllers
         /// <param name="model">Model</param>
         /// <param name="isMainPage"><c>false</c>: View is partial</param>
         /// <returns>View rendering result</returns>
-        public static Task<string> InvokeViewAsync<TModel>(this ControllerBase controller, string viewName, TModel model, bool isMainPage = false)
+        public static Task<string> InvokeViewAsync<TModel>(this ControllerBase controller, string viewName, TModel model, bool isPartial = true)
         {
             Guard.NotNull(controller, nameof(controller));
 
             viewName = viewName.NullEmpty() ?? controller.ControllerContext.ActionDescriptor.ActionName;
 
             var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
-            return renderer.InvokeViewAsync(viewName, model, isMainPage);
+            return renderer.InvokeViewAsync(viewName, model, isPartial);
         }
 
         /// <summary>

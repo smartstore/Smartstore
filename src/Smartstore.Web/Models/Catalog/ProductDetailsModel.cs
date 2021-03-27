@@ -8,7 +8,9 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
@@ -16,6 +18,37 @@ using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Web.Models.Catalog
 {
+    public partial class ProductDetailsModelContext
+    {
+        public ProductDetailsModelContext()
+        {
+        }
+
+        public ProductDetailsModelContext(ProductDetailsModelContext other)
+        {
+            Product = other.Product;
+            AssociatedProducts = other.AssociatedProducts;
+            BundleItemDatas = other.BundleItemDatas;
+            BatchContext = other.BatchContext;
+            VariantQuery = other.VariantQuery;
+            Customer = other.Customer;
+            Store = other.Store;
+            Currency = other.Currency;
+        }
+
+        public Product Product { get; set; }
+        public IList<Product> AssociatedProducts { get; set; }
+        public IList<ProductBundleItemData> BundleItemDatas { get; set; }
+        public ProductBatchContext BatchContext { get; set; }
+        public ProductVariantQuery VariantQuery { get; set; }
+        public Customer Customer { get; set; }
+        public Store Store { get; set; }
+        public Currency Currency { get; set; }
+
+        public bool IsAssociatedProduct { get; set; }
+        public ProductBundleItemData ProductBundleItem { get; set; }
+    }
+    
     public partial class ProductDetailsModel : EntityModelBase
     {
         public MediaGalleryModel MediaGalleryModel { get; set; } = new();

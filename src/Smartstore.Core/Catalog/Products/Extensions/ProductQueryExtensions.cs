@@ -125,18 +125,15 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <summary>
-        /// Includes media for eager loading: 
+        /// Includes media for eager loading:
         /// <see cref="Product.ProductPictures"/> (sorted by <see cref="ProductMediaFile.DisplayOrder"/>), then <see cref="ProductMediaFile.MediaFile"/>
         /// </summary>
         public static IIncludableQueryable<Product, MediaFile> IncludeMedia(this IQueryable<Product> query)
         {
             Guard.NotNull(query, nameof(query));
 
-            return query.Include(x => x.ProductManufacturers
-                .Where(y => y.Manufacturer.Published)
-                .OrderBy(y => y.DisplayOrder).ThenBy(y => y.Manufacturer.Name))
-                    .ThenInclude(x => x.Manufacturer)
-                    .ThenInclude(x => x.MediaFile);
+            return query.Include(x => x.ProductPictures.OrderBy(y => y.DisplayOrder))
+                .ThenInclude(x => x.MediaFile);
         }
 
         /// <summary>

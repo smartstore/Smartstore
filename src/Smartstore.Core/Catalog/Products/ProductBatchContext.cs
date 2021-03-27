@@ -294,6 +294,7 @@ namespace Smartstore.Core.Catalog.Products
             var files = await _db.ProductMediaFiles
                 .AsNoTracking()
                 .ApplyProductFilter(ids, _maxMediaPerProduct)
+                .Include(x => x.MediaFile)
                 .ToListAsync();
 
             return files.ToMultimap(x => x.ProductId, x => x);

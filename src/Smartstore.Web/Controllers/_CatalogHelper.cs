@@ -536,21 +536,34 @@ namespace Smartstore.Web.Controllers
 
         #region Product
 
-        public async Task<ProductDetailsModel> PrepareProductDetailsPageModelAsync(
-            Product product,
-            ProductVariantQuery query,
-            bool isAssociatedProduct = false,
-            ProductBundleItemData productBundleItem = null,
-            ProductBatchContext batchContext = null)
+        public Task<ProductDetailsModel> MapProductDetailsPageModelAsync(Product product, ProductVariantQuery query)
         {
             Guard.NotNull(product, nameof(product));
 
-            if (batchContext == null)
+            var customer = _services.WorkContext.CurrentCustomer;
+            var store = _services.StoreContext.CurrentStore;
+            var modelContext = new ProductDetailsModelContext
             {
-                var customer = _services.WorkContext.CurrentCustomer;
-                var store = _services.StoreContext.CurrentStore;
-                batchContext ??= _productService.CreateProductBatchContext(new[] { product }, store, customer, false);
-            }
+                Product = product,
+                VariantQuery = query,
+                Customer = customer,
+                Store = store,
+                Currency = _services.WorkContext.WorkingCurrency,
+                BatchContext = _productService.CreateProductBatchContext(new[] { product }, store, customer, false)
+            };
+
+            return MapProductDetailsPageModelAsync(modelContext);
+        }
+
+        protected internal virtual async Task<ProductDetailsModel> MapProductDetailsPageModelAsync(ProductDetailsModelContext modelContext)
+        {
+            Guard.NotNull(modelContext, nameof(modelContext));
+
+            var product = modelContext.Product;
+            var query = modelContext.VariantQuery;
+            var batchContext = modelContext.BatchContext;
+            var isAssociatedProduct = modelContext.IsAssociatedProduct;
+            var isBundleItem = modelContext.ProductBundleItem != null;
 
             using (_services.Chronometer.Step("PrepareProductDetailsPageModel"))
             {
@@ -589,22 +602,127 @@ namespace Smartstore.Web.Controllers
                     DisplayTextForZeroPrices = _catalogSettings.DisplayTextForZeroPrices
                 };
 
+                #region Bundles / Grouped products
+
+                if (product.ProductType == ProductType.GroupedProduct && !isAssociatedProduct)
+                {
+                    // Associated products.
+                    var searchQuery = new CatalogSearchQuery()
+                        .VisibleOnly(batchContext.Customer)
+                        .HasStoreId(batchContext.Store.Id)
+                        .HasParentGroupedProduct(product.Id);
+
+                    modelContext.AssociatedProducts = await (await _catalogSearchService.SearchAsync(searchQuery)).GetHitsAsync();
+
+                    // Push Ids of associated products to batch context to save roundtrips
+                    batchContext.Collect(modelContext.AssociatedProducts.Select(x => x.Id).ToArray());
+
+                    foreach (var associatedProduct in modelContext.AssociatedProducts)
+                    {
+                        var childModelContext = new ProductDetailsModelContext(modelContext)
+                        {
+                            Product = associatedProduct,
+                            IsAssociatedProduct = true,
+                            ProductBundleItem = null
+                        };
+
+                        var assciatedProductModel = await MapProductDetailsPageModelAsync(childModelContext);
+                        model.AssociatedProducts.Add(assciatedProductModel);
+                    }
+                }
+                else if (product.ProductType == ProductType.BundledProduct && !isBundleItem)
+                {
+                    // Bundled items.
+                    var bundleItems = await batchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
+
+                    if (bundleItems.Count > 0)
+                    {
+                        modelContext.BundleItemDatas = bundleItems
+                            .Where(x => x.Product.CanBeBundleItem())
+                            .Select(x => new ProductBundleItemData(x))
+                            .ToList();
+
+                        // Push Ids of bundle items to batch context to save roundtrips
+                        batchContext.Collect(modelContext.BundleItemDatas.Select(x => x.Item.ProductId).ToArray());
+
+                        foreach (var itemData in modelContext.BundleItemDatas)
+                        {
+                            var item = itemData.Item;
+                            var childModelContext = new ProductDetailsModelContext(modelContext)
+                            {
+                                Product = item.Product,
+                                IsAssociatedProduct = false,
+                                ProductBundleItem = itemData
+                            };
+
+                            var bundledProductModel = await MapProductDetailsPageModelAsync(childModelContext);
+
+                            bundledProductModel.ShowLegalInfo = false;
+                            bundledProductModel.DeliveryTimesPresentation = DeliveryTimesPresentation.None;
+
+                            bundledProductModel.BundleItem.Id = item.Id;
+                            bundledProductModel.BundleItem.Quantity = item.Quantity;
+                            bundledProductModel.BundleItem.HideThumbnail = item.HideThumbnail;
+                            bundledProductModel.BundleItem.Visible = item.Visible;
+                            bundledProductModel.BundleItem.IsBundleItemPricing = item.BundleProduct.BundlePerItemPricing;
+
+                            var bundleItemName = item.GetLocalized(x => x.Name);
+                            if (bundleItemName.Value.HasValue())
+                            {
+                                bundledProductModel.Name = bundleItemName;
+                            }
+                                
+                            var bundleItemShortDescription = item.GetLocalized(x => x.ShortDescription);
+                            if (bundleItemShortDescription.Value.HasValue())
+                            {
+                                bundledProductModel.ShortDescription = bundleItemShortDescription;
+                            }
+
+                            model.BundledItems.Add(bundledProductModel);
+                        }
+                    }
+                }
+
+                #endregion
+
+                #region Template
+
+                var templateCacheKey = string.Format(ModelCacheInvalidator.PRODUCT_TEMPLATE_MODEL_KEY, product.ProductTemplateId);
+                model.ProductTemplateViewPath = await _services.Cache.GetAsync(templateCacheKey, async () =>
+                {
+                    var template = await _db.ProductTemplates.FindByIdAsync(product.ProductTemplateId, false)
+                        ?? await _db.ProductTemplates.AsNoTracking().FirstOrDefaultAsync();
+
+                    return template.ViewPath;
+                });
+
+                #endregion
+
+                #region Brands
+
                 // Brands
                 if (_catalogSettings.ShowManufacturerPicturesInProductDetail)
                 {
                     var brands = _db.IsCollectionLoaded(product, x => x.ProductManufacturers)
-                        // TODO: (core) Authorize for and ACL? But does make no sense?! Hmmm...
+                        // TODO: (core) Authorize for and ACL? But does make no sense here?! Hmmm...
                         ? product.ProductManufacturers
                         : await batchContext.ProductManufacturers.GetOrLoadAsync(product.Id);
                     
                     model.Brands = await PrepareBrandOverviewModelAsync(brands, null, true);
                 }
 
-                // Review overview.
+                #endregion
+
+                #region Review overview
+
                 model.ReviewOverview.ProductId = product.Id;
                 model.ReviewOverview.RatingSum = product.ApprovedRatingSum;
                 model.ReviewOverview.TotalReviews = product.ApprovedTotalReviews;
                 model.ReviewOverview.AllowCustomerReviews = product.AllowCustomerReviews;
+
+                #endregion
+
+                #region Share code
 
                 // Social share code.
                 if (_catalogSettings.ShowShareButton && _catalogSettings.PageShareCode.HasValue())
@@ -619,6 +737,10 @@ namespace Smartstore.Web.Controllers
                     model.ProductShareCode = shareCode;
                 }
 
+                #endregion
+
+                #region Giftcard
+
                 // Get gift card values from query string.
                 if (product.IsGiftCard)
                 {
@@ -629,7 +751,10 @@ namespace Smartstore.Web.Controllers
                     model.GiftCard.Message = query.GetGiftCardValue(product.Id, 0, "Message");
                 }
 
-                // Back in stock subscriptions.
+                #endregion
+
+                #region Stock subscription
+
                 if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock &&
                      product.BackorderMode == BackorderMode.NoBackorders &&
                      product.AllowBackInStockSubscriptions &&
@@ -640,159 +765,96 @@ namespace Smartstore.Web.Controllers
                     model.BackInStockAlreadySubscribed = await _stockSubscriptionService.IsSubscribedAsync(product, batchContext.Customer, batchContext.Store.Id);
                 }
 
-                // Template.
-                var templateCacheKey = string.Format(ModelCacheInvalidator.PRODUCT_TEMPLATE_MODEL_KEY, product.ProductTemplateId);
-                model.ProductTemplateViewPath = await _services.Cache.GetAsync(templateCacheKey, async () =>
+                #endregion
+
+                // ----> Core mapper <------
+                await PrepareProductDetailModelAsync(model, modelContext);
+
+                #region Action items
+
+                if (model.HasSampleDownload)
                 {
-                    var template = await _db.ProductTemplates.FindByIdAsync(product.ProductTemplateId, false)
-                        ?? await _db.ProductTemplates.AsNoTracking().FirstOrDefaultAsync();
-
-                    return template.ViewPath;
-                });
-
-                IList<ProductBundleItemData> bundleItemDatas = null;
-                ProductVariantAttributeCombination combination = null;
-
-                if (product.ProductType == ProductType.GroupedProduct && !isAssociatedProduct)
-                {
-                    // Associated products.
-                    var searchQuery = new CatalogSearchQuery()
-                        .VisibleOnly(batchContext.Customer)
-                        .HasStoreId(batchContext.Store.Id)
-                        .HasParentGroupedProduct(product.Id)
-                        .UseHitsFactory(async (q, ids) => 
-                        {
-                            return (await q.IncludeMedia().IncludeManufacturers().Where(x => ids.Contains(x.Id)).ToListAsync())
-                                .OrderBySequence(ids)
-                                .ToList();
-                        });
-
-                    var associatedProducts = await (await _catalogSearchService.SearchAsync(searchQuery)).GetHitsAsync();
-
-                    foreach (var associatedProduct in associatedProducts)
+                    model.ActionItems["sample"] = new ProductDetailsModel.ActionItemModel
                     {
-                        var assciatedProductModel = await PrepareProductDetailsPageModelAsync(associatedProduct, query, true, null, batchContext);
-                        model.AssociatedProducts.Add(assciatedProductModel);
-                    }
-                }
-                else if (product.ProductType == ProductType.BundledProduct && productBundleItem == null)
-                {
-                    // Bundled items.
-                    var bundleItems = product.ProductBundleItems;
-
-                    if (bundleItems.Count > 0)
-                    {
-                        bundleItemDatas = bundleItems.Select(x => new ProductBundleItemData(x)).ToList();
-                    }
-                    
-                    foreach (var itemData in bundleItemDatas.Where(x => x.Item.Product.CanBeBundleItem()))
-                    {
-                        var item = itemData.Item;
-                        var bundledProductModel = await PrepareProductDetailsPageModelAsync(item.Product, query, false, itemData, batchContext);
-
-                        bundledProductModel.ShowLegalInfo = false;
-                        bundledProductModel.DeliveryTimesPresentation = DeliveryTimesPresentation.None;
-
-                        bundledProductModel.BundleItem.Id = item.Id;
-                        bundledProductModel.BundleItem.Quantity = item.Quantity;
-                        bundledProductModel.BundleItem.HideThumbnail = item.HideThumbnail;
-                        bundledProductModel.BundleItem.Visible = item.Visible;
-                        bundledProductModel.BundleItem.IsBundleItemPricing = item.BundleProduct.BundlePerItemPricing;
-
-                        var bundleItemName = item.GetLocalized(x => x.Name);
-                        if (bundleItemName.Value.HasValue())
-                            bundledProductModel.Name = bundleItemName;
-
-                        var bundleItemShortDescription = item.GetLocalized(x => x.ShortDescription);
-                        if (bundleItemShortDescription.Value.HasValue())
-                            bundledProductModel.ShortDescription = bundleItemShortDescription;
-
-                        model.BundledItems.Add(bundledProductModel);
-                    }
+                        Key = "sample",
+                        Title = T("Products.DownloadSample"),
+                        CssClass = "action-download-sample",
+                        IconCssClass = "fa fa-download",
+                        Href = _urlHelper.Action("Sample", "Download", new { productId = model.Id }),
+                        IsPrimary = true,
+                        PrimaryActionColor = "danger"
+                    };
                 }
 
-                await PrepareProductDetailModelAsync(model, product, query, isAssociatedProduct, productBundleItem, bundleItemDatas);
-
-                // Action items.
+                if (!model.AddToCart.DisableWishlistButton && model.ProductType != ProductType.GroupedProduct)
                 {
-                    if (model.HasSampleDownload)
+                    model.ActionItems["wishlist"] = new ProductDetailsModel.ActionItemModel
                     {
-                        model.ActionItems["sample"] = new ProductDetailsModel.ActionItemModel
-                        {
-                            Key = "sample",
-                            Title = T("Products.DownloadSample"),
-                            CssClass = "action-download-sample",
-                            IconCssClass = "fa fa-download",
-                            Href = _urlHelper.Action("Sample", "Download", new { productId = model.Id }),
-                            IsPrimary = true,
-                            PrimaryActionColor = "danger"
-                        };
-                    }
-
-                    if (!model.AddToCart.DisableWishlistButton && model.ProductType != ProductType.GroupedProduct)
-                    {
-                        model.ActionItems["wishlist"] = new ProductDetailsModel.ActionItemModel
-                        {
-                            Key = "wishlist",
-                            Title = T("ShoppingCart.AddToWishlist.Short"),
-                            Tooltip = T("ShoppingCart.AddToWishlist"),
-                            CssClass = "ajax-cart-link action-add-to-wishlist",
-                            IconCssClass = "icm icm-heart",
-                            Href = _urlHelper.Action("AddProduct", "ShoppingCart", new { productId = model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist })
-                        };
-                    }
-
-                    if (model.CompareEnabled)
-                    {
-                        model.ActionItems["compare"] = new ProductDetailsModel.ActionItemModel
-                        {
-                            Key = "compare",
-                            Title = T("Common.Shopbar.Compare"),
-                            Tooltip = T("Products.Compare.AddToCompareList"),
-                            CssClass = "action-compare ajax-cart-link",
-                            IconCssClass = "icm icm-repeat",
-                            Href = _urlHelper.Action("AddProductToCompare", "Catalog", new { id = model.Id })
-                        };
-                    }
-
-                    if (model.AskQuestionEnabled && !model.ProductPrice.CallForPrice)
-                    {
-                        model.ActionItems["ask"] = new ProductDetailsModel.ActionItemModel
-                        {
-                            Key = "ask",
-                            Title = T("Products.AskQuestion.Short"),
-                            Tooltip = T("Products.AskQuestion"),
-                            CssClass = "action-ask-question",
-                            IconCssClass = "icm icm-envelope",
-                            Href = _urlHelper.Action("AskQuestion", new { id = model.Id })
-                        };
-                    }
-
-                    if (model.TellAFriendEnabled)
-                    {
-                        model.ActionItems["tell"] = new ProductDetailsModel.ActionItemModel
-                        {
-                            Key = "tell",
-                            Title = T("Products.EmailAFriend"),
-                            CssClass = "action-bullhorn",
-                            IconCssClass = "icm icm-bullhorn",
-                            Href = _urlHelper.Action("EmailAFriend", new { id = model.Id })
-                        };
-                    }
+                        Key = "wishlist",
+                        Title = T("ShoppingCart.AddToWishlist.Short"),
+                        Tooltip = T("ShoppingCart.AddToWishlist"),
+                        CssClass = "ajax-cart-link action-add-to-wishlist",
+                        IconCssClass = "icm icm-heart",
+                        Href = _urlHelper.Action("AddProduct", "ShoppingCart", new { productId = model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist })
+                    };
                 }
+
+                if (model.CompareEnabled)
+                {
+                    model.ActionItems["compare"] = new ProductDetailsModel.ActionItemModel
+                    {
+                        Key = "compare",
+                        Title = T("Common.Shopbar.Compare"),
+                        Tooltip = T("Products.Compare.AddToCompareList"),
+                        CssClass = "action-compare ajax-cart-link",
+                        IconCssClass = "icm icm-repeat",
+                        Href = _urlHelper.Action("AddProductToCompare", "Catalog", new { id = model.Id })
+                    };
+                }
+
+                if (model.AskQuestionEnabled && !model.ProductPrice.CallForPrice)
+                {
+                    model.ActionItems["ask"] = new ProductDetailsModel.ActionItemModel
+                    {
+                        Key = "ask",
+                        Title = T("Products.AskQuestion.Short"),
+                        Tooltip = T("Products.AskQuestion"),
+                        CssClass = "action-ask-question",
+                        IconCssClass = "icm icm-envelope",
+                        Href = _urlHelper.Action("AskQuestion", new { id = model.Id })
+                    };
+                }
+
+                if (model.TellAFriendEnabled)
+                {
+                    model.ActionItems["tell"] = new ProductDetailsModel.ActionItemModel
+                    {
+                        Key = "tell",
+                        Title = T("Products.EmailAFriend"),
+                        CssClass = "action-bullhorn",
+                        IconCssClass = "icm icm-bullhorn",
+                        Href = _urlHelper.Action("EmailAFriend", new { id = model.Id })
+                    };
+                }
+
+                #endregion
+
+                #region Media
 
                 ICollection<int> combinationFileIds = null;
+                ProductVariantAttributeCombination combination = null;
 
-                if (productBundleItem == null)
+                if (modelContext.ProductBundleItem == null)
                 {
                     combinationFileIds = await _productAttributeService.GetAttributeCombinationFileIdsAsync(product);
-                    if (combination == null && model.SelectedCombination != null)
-                    {
-                        combination = model.SelectedCombination;
-                    }
+                    combination ??= model.SelectedCombination;
                 }
 
-                var files = product.ProductPictures
+                var productMediaFiles = _db.IsCollectionLoaded(product, x => x.ProductPictures)
+                    ? product.ProductPictures
+                    : await batchContext.ProductMediaFiles.GetOrLoadAsync(product.Id);
+
+                var files = productMediaFiles
                     .Where(x => x.MediaFile != null)
                     .Select(x => _mediaService.ConvertMediaFile(x.MediaFile))
                     .ToList();
@@ -802,31 +864,26 @@ namespace Smartstore.Web.Controllers
                     files.RemoveAt(0);
                 }
 
-                model.MediaGalleryModel = PrepareProductDetailsMediaGalleryModel(files, model.Name, combinationFileIds, isAssociatedProduct, productBundleItem, combination);
+                model.MediaGalleryModel = PrepareProductDetailsMediaGalleryModel(
+                    files, model.Name, combinationFileIds, isAssociatedProduct, modelContext.ProductBundleItem, combination);
+
+                #endregion
 
                 return model;
             }
         }
 
-        public async Task PrepareProductDetailModelAsync(
-            ProductDetailsModel model,
-            Product product,
-            ProductVariantQuery query,
-            bool isAssociatedProduct = false,
-            ProductBundleItemData productBundleItem = null,
-            IList<ProductBundleItemData> productBundleItems = null,
-            int selectedQuantity = 1)
+        public async Task PrepareProductDetailModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity = 1)
         {
             Guard.NotNull(model, nameof(model));
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(modelContext, nameof(modelContext));
 
             // TODO: (mh) (core) Decide whether to obtain these directly in the helper methods to spare params or pass them all.
             // Currently only customer is passed and should also be spared.
-            var store = _services.StoreContext.CurrentStore;
-            var customer = _services.WorkContext.CurrentCustomer;
-            var currency = _services.WorkContext.WorkingCurrency;
+            var product = modelContext.Product;
+            var customer = modelContext.Customer;
 
-            var preSelectedPriceAdjustmentBase = new Money();
+            //var preSelectedPriceAdjustmentBase = new Money();
             var preSelectedWeightAdjustment = decimal.Zero;
             //var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
             var isBundle = product.ProductType == ProductType.BundledProduct;
@@ -834,11 +891,11 @@ namespace Smartstore.Web.Controllers
             //var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
             //var bundleItemId = productBundleItem == null ? 0 : productBundleItem.Item.Id;
 
-            var variantAttributes = isBundle ? new List<ProductVariantAttribute>() : product.ProductVariantAttributes
-                .OrderBy(x => x.DisplayOrder)
-                .ToList();
+            var variantAttributes = isBundle
+                ? new List<ProductVariantAttribute>() 
+                : await modelContext.BatchContext.Attributes.GetOrLoadAsync(product.Id);
 
-            model.IsBundlePart = product.ProductType != ProductType.BundledProduct && productBundleItem != null;
+            model.IsBundlePart = product.ProductType != ProductType.BundledProduct && modelContext.ProductBundleItem != null;
             model.ProductPrice.DynamicPriceUpdate = _catalogSettings.EnableDynamicPriceUpdate;
             model.ProductPrice.BundleItemShowBasePrice = _catalogSettings.BundleItemShowBasePrice;
 
@@ -854,26 +911,26 @@ namespace Smartstore.Web.Controllers
             if (!isBundle)
             {
                 // Attributes
-                await PrepareProductAttributesModelAsync(model, product, variantAttributes, query, productBundleItem);
+                await PrepareProductAttributesModelAsync(model, modelContext, variantAttributes);
 
                 // Attribute combinations
-                (selectedAttributeValues, hasSelectedAttributesValues) = await PrepareProductAttributeCombinationsModel(model, product, customer, variantAttributes, query, productBundleItem);
+                (selectedAttributeValues, hasSelectedAttributesValues) = await PrepareProductAttributeCombinationsModel(model, modelContext, variantAttributes);
             }
 
             // Properties
-            await PrepareProductPropertiesModelAsync(model, product, customer, productBundleItem, selectedAttributeValues, preSelectedWeightAdjustment, hasSelectedAttributesValues, isAssociatedProduct);
+            await PrepareProductPropertiesModelAsync(model, modelContext, selectedAttributeValues, preSelectedWeightAdjustment, hasSelectedAttributesValues);
 
             // Price
-            await PrepareProductPriceModelAsync(model, product, customer, productBundleItem);
+            await PrepareProductPriceModelAsync(model, modelContext);
 
             // AddToCart
-            await PrepareProductCartModelAsync(model, product, customer, selectedQuantity);
+            await PrepareProductCartModelAsync(model, modelContext, selectedQuantity);
 
             // GiftCards
-            PrepareProductGiftCardsModel(model, product, customer);
+            PrepareProductGiftCardsModel(model, modelContext);
 
             // Specifications
-            model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(product);
+            model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(modelContext);
 
             // Reviews
             await PrepareProductReviewsModelAsync(model.ProductReviews, product, 10);
@@ -885,13 +942,11 @@ namespace Smartstore.Web.Controllers
 
         // TODO: (mh) (core) preSelectedPriceAdjustmentBase & preSelectedWeightAdjustment might have to be return params.
         // Implement along with pricing when available.
-        protected async Task PrepareProductAttributesModelAsync(
-            ProductDetailsModel model, 
-            Product product, 
-            List<ProductVariantAttribute> variantAttributes,
-            ProductVariantQuery query,
-            ProductBundleItemData productBundleItem)
+        protected async Task PrepareProductAttributesModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, ICollection<ProductVariantAttribute> variantAttributes)
         {
+            var product = modelContext.Product;
+            var productBundleItem = modelContext.ProductBundleItem;
+            var query = modelContext.VariantQuery;
             var bundleItemId = productBundleItem == null ? 0 : productBundleItem.Item.Id;
             var hasSelectedAttributes = query.Variants.Any();
 
@@ -1108,17 +1163,17 @@ namespace Smartstore.Web.Controllers
         }
 
         protected async Task<(IList<ProductVariantAttributeValue>, bool)> PrepareProductAttributeCombinationsModel(
-            ProductDetailsModel model,
-            Product product,
-            Customer customer,
-            List<ProductVariantAttribute> variantAttributes,
-            ProductVariantQuery query,
-            ProductBundleItemData productBundleItem)
+            ProductDetailsModel model, 
+            ProductDetailsModelContext modelContext, 
+            ICollection<ProductVariantAttribute> variantAttributes)
         {
             // TODO: (mh) (core) Must be out param as it is needed in subsequent code.
             IList<ProductVariantAttributeValue> selectedAttributeValues = null;
             var hasSelectedAttributesValues = false;
 
+            var product = modelContext.Product;
+            var productBundleItem = modelContext.ProductBundleItem;
+            var query = modelContext.VariantQuery;
             var bundleItemId = productBundleItem == null ? 0 : productBundleItem.Item.Id;
             var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
             var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
@@ -1137,9 +1192,7 @@ namespace Smartstore.Web.Controllers
 
                 if (query.VariantCombinationId != 0)
                 {
-                    var combination = _db.IsCollectionLoaded(product, x => x.ProductVariantAttributeCombinations)
-                        ? product.ProductVariantAttributeCombinations.FirstOrDefault(x => x.Id == query.VariantCombinationId)
-                        : await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
+                    var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
                     attributesSelection = new ProductVariantAttributeSelection(combination?.RawAttributes ?? string.Empty);
                 }
                 else
@@ -1156,7 +1209,7 @@ namespace Smartstore.Web.Controllers
                     model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
                         attributesSelection,
                         product,
-                        customer,
+                        modelContext.Customer,
                         separator: ", ",
                         includePrices: false,
                         includeGiftCardAttributes: false,
@@ -1227,16 +1280,16 @@ namespace Smartstore.Web.Controllers
 
         protected async Task PrepareProductPropertiesModelAsync(
             ProductDetailsModel model, 
-            Product product, 
-            Customer customer, 
-            ProductBundleItemData productBundleItem,
-            IList<ProductVariantAttributeValue> selectedAttributeValues,
+            ProductDetailsModelContext modelContext, 
+            ICollection<ProductVariantAttributeValue> selectedAttributeValues,
             decimal preSelectedWeightAdjustment,
-            bool hasSelectedAttributesValues,
-            bool isAssociatedProduct)
+            bool hasSelectedAttributesValues)
         {
-            var store = _services.StoreContext.CurrentStore;
-            var currency = _services.WorkContext.WorkingCurrency;
+            var product = modelContext.Product;
+            var productBundleItem = modelContext.ProductBundleItem;
+            var currency = modelContext.Currency;
+            var customer = modelContext.Customer;
+            var store = modelContext.Store;
             var isBundle = product.ProductType == ProductType.BundledProduct;
 
             if ((productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemShoppingCart) ||
@@ -1366,7 +1419,7 @@ namespace Smartstore.Web.Controllers
             {
                 model.ThumbDimensions = _mediaSettings.BundledProductPictureSize;
             }
-            else if (isAssociatedProduct)
+            else if (modelContext.IsAssociatedProduct)
             {
                 model.ThumbDimensions = _mediaSettings.AssociatedProductPictureSize;
             }
@@ -1421,8 +1474,10 @@ namespace Smartstore.Web.Controllers
         }
 
         // TODO: (mh) (core) Reimplement when PricingChain is ready.
-        protected async Task PrepareProductPriceModelAsync(ProductDetailsModel model, Product product, Customer customer, ProductBundleItemData productBundleItem)
+        protected async Task PrepareProductPriceModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext)
         {
+            var product = modelContext.Product;
+            var productBundleItem = modelContext.ProductBundleItem;
             var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
 
             model.ProductPrice.ProductId = product.Id;
@@ -1569,9 +1624,12 @@ namespace Smartstore.Web.Controllers
 
         }
 
-        protected async Task PrepareProductCartModelAsync(ProductDetailsModel model, Product product, Customer customer, int selectedQuantity)
+        protected async Task PrepareProductCartModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
         {
-            var currency = _services.WorkContext.WorkingCurrency;
+            var product = modelContext.Product;
+            var productBundleItem = modelContext.ProductBundleItem;
+            var customer = modelContext.Customer;
+            var currency = modelContext.Currency;
             var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
 
             model.AddToCart.ProductId = product.Id;
@@ -1618,16 +1676,15 @@ namespace Smartstore.Web.Controllers
             //}
         }
 
-        protected void PrepareProductGiftCardsModel(ProductDetailsModel model, Product product, Customer customer)
+        protected void PrepareProductGiftCardsModel(ProductDetailsModel model, ProductDetailsModelContext modelContext)
         {
-            model.GiftCard.IsGiftCard = product.IsGiftCard;
+            model.GiftCard.IsGiftCard = modelContext.Product.IsGiftCard;
             if (model.GiftCard.IsGiftCard)
             {
-                model.GiftCard.GiftCardType = product.GiftCardType;
-                model.GiftCard.SenderName = customer.GetFullName();
-                model.GiftCard.SenderEmail = customer.Email;
+                model.GiftCard.GiftCardType = modelContext.Product.GiftCardType;
+                model.GiftCard.SenderName = modelContext.Customer.GetFullName();
+                model.GiftCard.SenderEmail = modelContext.Customer.Email;
             }
-
         }
 
         #endregion
@@ -1729,9 +1786,12 @@ namespace Smartstore.Web.Controllers
             return model;
         }
 
-        public async Task<List<ProductSpecificationModel>> PrepareProductSpecificationModelAsync(Product product)
+        protected async Task<List<ProductSpecificationModel>> PrepareProductSpecificationModelAsync(ProductDetailsModelContext modelContext)
         {
-            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(modelContext, nameof(modelContext));
+
+            var product = modelContext.Product;
+            var batchContext = modelContext.BatchContext;
 
             string cacheKey = string.Format(ModelCacheInvalidator.PRODUCT_SPECS_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id);
             return await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
@@ -1749,12 +1809,11 @@ namespace Smartstore.Web.Controllers
                 }
                 else
                 {
-                    attrs = await _db.ProductSpecificationAttributes
-                        .AsNoTracking()
-                        .ApplyProductsFilter(new[] { product.Id }, null, true)
-                        .Include(x => x.SpecificationAttributeOption)
-                        .ThenInclude(x => x.SpecificationAttribute)
-                        .ToListAsync();
+                    attrs = (await batchContext.SpecificationAttributes.GetOrLoadAsync(product.Id))
+                        .Where(x =>
+                            (x.ShowOnProductPage == null && x.SpecificationAttributeOption?.SpecificationAttribute?.ShowOnProductPage == true) ||
+                            (x.ShowOnProductPage == true))
+                        .ToList();
                 }
 
                 return attrs
@@ -1820,6 +1879,11 @@ namespace Smartstore.Web.Controllers
             model.ProductSeName = await product.GetActiveSlugAsync();
 
             var collectionLoaded = _db.IsCollectionLoaded(product, x => x.ProductReviews);
+
+            if (!collectionLoaded)
+            {
+                _db.Attach(product);
+            }
 
             // We need the query for total count resolution.
             var query = _db.Entry(product)

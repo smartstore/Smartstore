@@ -120,7 +120,6 @@ namespace Smartstore.Web.Controllers
             var product = await _db.Products
                 .IncludeMedia()
                 .IncludeManufacturers()
-                .IncludeBundleItems()
                 .Where(x => x.Id == productId)
                 .FirstOrDefaultAsync();
 
@@ -164,7 +163,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Prepare the view model
-            var model = await _helper.PrepareProductDetailsPageModelAsync(product, query);
+            var model = await _helper.MapProductDetailsPageModelAsync(product, query);
 
             // Some cargo data
             model.PictureSize = _mediaSettings.ProductDetailsPictureSize;
@@ -210,12 +209,14 @@ namespace Smartstore.Web.Controllers
             string galleryHtml = null;
             string dynamicThumbUrl = null;
             var isAssociated = itemType.EqualsNoCase("associateditem");
-            var m = new ProductDetailsModel();
-            var product = await _db.Products.FindByIdAsync(productId, false);
+
+            var product = await _db.Products.FindByIdAsync(productId);
+            var batchContext = _productService.CreateProductBatchContext(new[] { product }, includeHidden: false);
             var bItem = await _db.ProductBundleItem.FindByIdAsync(bundleItemId, false);
-            IList<ProductBundleItemData> bundleItems = null;
+
+            IList<ProductBundleItemData> bundleItemDatas = null;
             ProductBundleItemData bundleItem = bItem == null ? null : new ProductBundleItemData(bItem);
-            
+
             // Quantity required for tier prices.
             string quantityKey = form.Keys.FirstOrDefault(k => k.EndsWith("EnteredQuantity"));
             if (quantityKey.HasValue())
@@ -234,29 +235,51 @@ namespace Smartstore.Web.Controllers
 
                 if (bundleItemQuery.Count > 0)
                 {
-                    bundleItems = new List<ProductBundleItemData>();
-                    bundleItemQuery.Each(x => bundleItems.Add(new ProductBundleItemData(x)));
+                    bundleItemDatas = new List<ProductBundleItemData>();
+                    bundleItemQuery.Each(x => bundleItemDatas.Add(new ProductBundleItemData(x)));
                 }
 
                 if (query.Variants.Count > 0)
                 {
+                    batchContext.Collect(bundleItemDatas.Select(x => x.Item.Product.Id).ToArray());
+
                     // May add elements to query object if they are preselected by bundle item filter.
-                    foreach (var itemData in bundleItems)
+                    foreach (var itemData in bundleItemDatas)
                     {
-                        await _helper.PrepareProductDetailsPageModelAsync(itemData.Item.Product, query, false, itemData);
+                        await _helper.MapProductDetailsPageModelAsync(new ProductDetailsModelContext
+                        {
+                            Product = itemData.Item.Product,
+                            BatchContext = batchContext,
+                            VariantQuery = query,
+                            ProductBundleItem = itemData
+                        });
                     }
                 }
             }
 
+            var modelContext = new ProductDetailsModelContext
+            {
+                Product = product,
+                BatchContext = batchContext,
+                VariantQuery = query,
+                IsAssociatedProduct = isAssociated,
+                ProductBundleItem = bundleItem,
+                BundleItemDatas = bundleItemDatas,
+                Customer = batchContext.Customer,
+                Store = batchContext.Store,
+                Currency = Services.WorkContext.WorkingCurrency
+            };
+
             // Get merged model data.
-            await _helper.PrepareProductDetailModelAsync(m, product, query, isAssociated, bundleItem, bundleItems, quantity);
+            var model = new ProductDetailsModel();
+            await _helper.PrepareProductDetailModelAsync(model, modelContext, quantity);
 
             if (bundleItem != null)
             {
                 // Update bundle item thumbnail.
                 if (!bundleItem.Item.HideThumbnail)
                 {
-                    var assignedMediaIds = m.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
+                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
                     var hasFile = await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]);
                     if (assignedMediaIds.Any() && hasFile)
                     {
@@ -273,7 +296,7 @@ namespace Smartstore.Web.Controllers
             else if (isAssociated)
             {
                 // Update associated product thumbnail.
-                var assignedMediaIds = m.SelectedCombination?.GetAssignedMediaIds() ?? new int[0];
+                var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? new int[0];
                 var hasFile = await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]);
                 if (assignedMediaIds.Any() && hasFile)
                 {
@@ -305,7 +328,7 @@ namespace Smartstore.Web.Controllers
                     // All pictures rendered... only index is required.
                     galleryStartIndex = 0;
 
-                    var assignedMediaIds = m.SelectedCombination?.GetAssignedMediaIds() ?? new int[0];
+                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? new int[0];
                     if (assignedMediaIds.Any())
                     {
                         var file = files.FirstOrDefault(p => p.Id == assignedMediaIds[0]);
@@ -322,31 +345,31 @@ namespace Smartstore.Web.Controllers
                         allCombinationPictureIds,
                         false,
                         bundleItem,
-                        m.SelectedCombination);
+                        model.SelectedCombination);
 
                     galleryStartIndex = mediaModel.GalleryStartIndex;
                     galleryHtml = (await this.InvokeViewAsync("Product.Media", mediaModel)).ToString();
                 }
 
-                m.PriceDisplayStyle = _catalogSettings.PriceDisplayStyle;
-                m.DisplayTextForZeroPrices = _catalogSettings.DisplayTextForZeroPrices;
+                model.PriceDisplayStyle = _catalogSettings.PriceDisplayStyle;
+                model.DisplayTextForZeroPrices = _catalogSettings.DisplayTextForZeroPrices;
             }
 
             object partials = null;
 
-            if (m.IsBundlePart)
+            if (model.IsBundlePart)
             {
                 partials = new
                 {
-                    BundleItemPrice = await this.InvokeViewAsync("Product.Offer.Price", m),
-                    BundleItemStock = await this.InvokeViewAsync("Product.StockInfo", m),
-                    BundleItemVariants = await this.InvokeViewAsync("Product.Variants", m.ProductVariantAttributes)
+                    BundleItemPrice = await this.InvokeViewAsync("Product.Offer.Price", model),
+                    BundleItemStock = await this.InvokeViewAsync("Product.StockInfo", model),
+                    BundleItemVariants = await this.InvokeViewAsync("Product.Variants", model.ProductVariantAttributes)
                 };
             }
             else
             {
                 var dataDictAddToCart = new ViewDataDictionary(ViewData);
-                dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{m.Id}";
+                dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
 
                 decimal adjustment = decimal.Zero;
                 decimal taxRate = decimal.Zero;
@@ -369,17 +392,17 @@ namespace Smartstore.Web.Controllers
 
                 partials = new
                 {
-                    Attrs = await this.InvokeViewAsync("Product.Attrs", m),
-                    Price = await this.InvokeViewAsync("Product.Offer.Price", m),
-                    Stock = await this.InvokeViewAsync("Product.StockInfo", m),
-                    Variants = await this.InvokeViewAsync("Product.Variants", m.ProductVariantAttributes),
+                    Attrs = await this.InvokeViewAsync("Product.Attrs", model),
+                    Price = await this.InvokeViewAsync("Product.Offer.Price", model),
+                    Stock = await this.InvokeViewAsync("Product.StockInfo", model),
+                    Variants = await this.InvokeViewAsync("Product.Variants", model.ProductVariantAttributes),
 
                     // TODO: (mc) (core) We may need another parameter for this.
                     //OfferActions = await _razorViewInvoker.Value.InvokeViewAsync("Product.Offer.Actions", m, dataDictAddToCart),
                     
                     // TODO: (mh) (core) Implement when Component or Partial is available.
                     //TierPrices = await _razorViewInvoker.Value.InvokeViewAsync("Product.TierPrices", await _razorViewInvoker.InvokeViewAsync(product, adjustment)),
-                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await this.InvokeViewAsync("Product.Bundle.Price", m) : null
+                    BundlePrice = product.ProductType == ProductType.BundledProduct ? await this.InvokeViewAsync("Product.Bundle.Price", model) : null
                 };
             }
 

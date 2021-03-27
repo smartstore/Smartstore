@@ -14,7 +14,7 @@ namespace Smartstore
         public static Task<DeliveryTime> GetDeliveryTimeAsync(this IDeliveryTimeService service, Product product, CatalogSettings catalogSettings)
         {
             var deliveryTimeId = product.GetDeliveryTimeIdAccordingToStock(catalogSettings);
-            return service.GetDeliveryTimeAsync(deliveryTimeId, true);
+            return service.GetDeliveryTimeAsync(deliveryTimeId, false);
         }
     }
 }
