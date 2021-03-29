@@ -19,6 +19,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
@@ -775,7 +776,7 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Name = "Update currency exchange rates",
                     CronExpression = "0 */6 * * *", // Every 6 hours
-					Type = "UpdateExchangeRateTask",
+					Type = nameof(UpdateExchangeRateTask),
                     Enabled = false,
                     StopOnError = false,
                     Priority = TaskPriority.High
@@ -1645,34 +1646,16 @@ namespace Smartstore.Core.Data.Setup
             return currency;
         }
 
-        protected string FormatAttributeXml(int attributeId, int valueId, bool withRootTag = true)
+        protected string FormatAttributeJson(List<(int Attribute, object Value)> Attributes)
         {
-            // TODO: (ms) (core) WTF?!!! We save as JSON now. YOU implemented it!!!!!!
-            var xml = $"<ProductVariantAttribute ID=\"{attributeId}\"><ProductVariantAttributeValue><Value>{valueId}</Value></ProductVariantAttributeValue></ProductVariantAttribute>";
+            var selection = new ProductVariantAttributeSelection(string.Empty);
 
-            if (withRootTag)
+            foreach (var attribute in Attributes)
             {
-                return string.Concat("<Attributes>", xml, "</Attributes>");
+                selection.AddAttribute(attribute.Attribute, new List<object> { attribute.Value });
             }
 
-            return xml;
-        }
-        protected string FormatAttributeXml(int attributeId1, int valueId1, int attributeId2, int valueId2)
-        {
-            return string.Concat(
-                "<Attributes>",
-                FormatAttributeXml(attributeId1, valueId1, false),
-                FormatAttributeXml(attributeId2, valueId2, false),
-                "</Attributes>");
-        }
-        protected string FormatAttributeXml(int attributeId1, int valueId1, int attributeId2, int valueId2, int attributeId3, int valueId3)
-        {
-            return string.Concat(
-                "<Attributes>",
-                FormatAttributeXml(attributeId1, valueId1, false),
-                FormatAttributeXml(attributeId2, valueId2, false),
-                FormatAttributeXml(attributeId3, valueId3, false),
-                "</Attributes>");
+            return selection.AsJson();
         }
 
         #endregion

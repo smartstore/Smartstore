@@ -2963,7 +2963,7 @@ namespace Smartstore.Web.Infrastructure.Installation
             }
         }
 
-        // TODO: (ms) (core) Why comment without ANY TODO hint?!!!
+        // TODO: (ms) (core) Implement installation content for forum
         //protected override void Alter(IList<ForumGroup> entities)
         //{
         //    base.Alter(entities);
@@ -3195,6 +3195,8 @@ namespace Smartstore.Web.Infrastructure.Installation
                     x.Host = "localhost";
                 });
         }
+
+        // TODO: (ms) (core) Implement installation content for blogs, news and polls modules
 
         //protected override void Alter(IList<BlogPost> entities)
         //{

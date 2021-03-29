@@ -1747,10 +1747,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_blue-gray-classic-black",
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "blue-gray-classic").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "blue-gray-classic").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -1766,10 +1767,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_gray-course-black",
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "gray-course").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "gray-course").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -1785,11 +1787,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_brown-course-havana",
-
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "brown-course").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "brown-course").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -1805,11 +1807,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_green-classic-havana-black",
-
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "green-classic").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "green-classic").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -1825,11 +1827,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_blue-gray-classic-havana-black",
-
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "blue-gray-classic").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "blue-gray-classic").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id )
+                }),
                 StockQuantity = 0,
                 AllowOutOfStockOrders = true,
                 IsActive = false,
@@ -1845,11 +1847,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_blue-gray-classic-havana",
-
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "blue-gray-classic").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "blue-gray-classic").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id )
+                }),
                 StockQuantity = 0,
                 AllowOutOfStockOrders = true,
                 IsActive = false,
@@ -1865,11 +1867,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_gray-course-havana-black",
-
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "gray-course").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "gray-course").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id )
+                }),
                 StockQuantity = 0,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -1885,11 +1887,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_gray-course-havana",
-
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "gray-course").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "gray-course").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id )
+                }),
                 StockQuantity = 0,
                 AllowOutOfStockOrders = true,
                 IsActive = false,
@@ -1905,11 +1907,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_green-classic-rayban-black",
-
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "green-classic").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "green-classic").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id )
+                }),
                 StockQuantity = 0,
                 AllowOutOfStockOrders = true,
                 IsActive = false,
@@ -1925,11 +1927,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_green-classic-havana",
-
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "green-classic").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "green-classic").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana").Id )
+                }),
                 StockQuantity = 0,
                 AllowOutOfStockOrders = true,
                 IsActive = false,
@@ -1945,11 +1947,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_brown-course-havana-black",
-
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "brown-course").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "brown-course").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "havana-black").Id )
+                }),
                 StockQuantity = 0,
                 AllowOutOfStockOrders = true,
                 IsActive = false,
@@ -1965,11 +1967,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productWayfarer,
                 Sku = productWayfarer.Sku + "_brown-course-rayban-black",
-
-                RawAttributes = FormatAttributeXml(
-                    wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "brown-course").Id,
-                    wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(wayfarerLenscolor.Id, wayfarerLenscolorValues.First(x => x.Alias == "brown-course").Id ),
+                    new(wayfarerFramecolor.Id, wayfarerFramecolorValues.First(x => x.Alias == "rayban-black").Id )
+                }),
                 StockQuantity = 0,
                 AllowOutOfStockOrders = true,
                 IsActive = false,
@@ -2013,7 +2015,12 @@ namespace Smartstore.Core.Data.Setup
                             {
                                 Product = productFlak,
                                 Sku = productFlak.Sku + string.Concat("-", framecolorValue.Alias, "-", lenscolorValue.Alias, "-", lenstypeValue.Alias),
-                                RawAttributes = FormatAttributeXml(flakLenscolor.Id, lenscolorValue.Id, flakLenstype.Id, lenstypeValue.Id, flakFramecolor.Id, framecolorValue.Id),
+                                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                                {
+                                    new(flakLenscolor.Id, lenscolorValue.Id ),
+                                    new(flakLenstype.Id, lenstypeValue.Id ),
+                                    new(flakFramecolor.Id, framecolorValue.Id )
+                                }),
                                 StockQuantity = 10000,
                                 AllowOutOfStockOrders = true,
                                 IsActive = true,
@@ -2046,7 +2053,10 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productPs3,
                 Sku = productPs3.Sku + "-B",
-                RawAttributes = FormatAttributeXml(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "with_controller").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "with_controller").Id ),
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2057,7 +2067,10 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productPs3,
                 Sku = productPs3.Sku + "-W",
-                RawAttributes = FormatAttributeXml(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "without_controller").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(productAttributeColor.Id, attributeColorValues.First(x => x.Alias == "without_controller").Id ),
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2079,7 +2092,10 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productAirpod,
                 Sku = productAirpod.Sku + "-gold",
-                RawAttributes = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "gold").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "gold").Id ),
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2089,7 +2105,10 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productAirpod,
                 Sku = productAirpod.Sku + "-rose",
-                RawAttributes = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "rose").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "rose").Id ),
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2099,7 +2118,10 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productAirpod,
                 Sku = productAirpod.Sku + "-mint",
-                RawAttributes = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "mint").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "mint").Id ),
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2109,7 +2131,10 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productAirpod,
                 Sku = productAirpod.Sku + "-lightblue",
-                RawAttributes = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "lightblue").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "lightblue").Id ),
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2119,7 +2144,10 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productAirpod,
                 Sku = productAirpod.Sku + "-turquoise",
-                RawAttributes = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "turquoise").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "turquoise").Id ),
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2129,7 +2157,10 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productAirpod,
                 Sku = productAirpod.Sku + "-white",
-                RawAttributes = FormatAttributeXml(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "white").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(airpodAttributeColor.Id, airpodAttributeColorValues.First(x => x.Alias == "white").Id ),
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2157,11 +2188,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "-silver-64gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "silver").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "silver").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2173,11 +2204,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "silver-128gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "silver").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "silver").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2191,10 +2222,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "-gold-64gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "gold").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "gold").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 Price = 279M,
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
@@ -2206,11 +2238,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "gold-128gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "gold").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "gold").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2223,11 +2255,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "-spacegray-64gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "spacegray").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "spacegray").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2238,11 +2270,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "spacegray-128gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "spacegray").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "spacegray").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2255,11 +2287,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "-rose-64gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "rose").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "rose").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2270,11 +2302,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "rose-128gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "rose").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "rose").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2287,11 +2319,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "-mint-64gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "mint").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "mint").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2302,11 +2334,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "mint-128gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "mint").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "mint").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2319,11 +2351,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "-purple-64gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "purple").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "purple").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2334,11 +2366,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "purple-128gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "purple").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "purple").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2351,11 +2383,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "-lightblue-64gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "lightblue").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "lightblue").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2366,11 +2398,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "lightblue-128gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "lightblue").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "lightblue").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2383,11 +2415,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "-yellow-64gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "yellow").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "yellow").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2398,11 +2430,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "yellow-128gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "yellow").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "yellow").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2415,11 +2447,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "-turquoise-64gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "turquoise").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "turquoise").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2430,11 +2462,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productiPad97,
                 Sku = productiPad97.Sku + "turquoise-128gb",
-
-                RawAttributes = FormatAttributeXml(
-                    iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "turquoise").Id,
-                    ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(iPad97Color.Id, iPad97ColorValues.First(x => x.Alias == "turquoise").Id ),
+                    new(ipad97Capacity.Id, iPad97CapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2463,11 +2495,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productIphone7Plus,
                 Sku = productIphone7Plus.Sku + "-black-64gb",
-
-                RawAttributes = FormatAttributeXml(
-                    Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "black").Id,
-                    Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "black").Id ),
+                    new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2478,11 +2510,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productIphone7Plus,
                 Sku = productIphone7Plus.Sku + "-black-128gb",
-
-                RawAttributes = FormatAttributeXml(
-                    Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "black").Id,
-                    Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id),
-
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "black").Id ),
+                    new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2493,9 +2525,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productIphone7Plus,
                 Sku = productIphone7Plus.Sku + "-red-64",
-                RawAttributes = FormatAttributeXml(
-                    Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "red").Id,
-                    Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "red").Id ),
+                    new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2506,9 +2540,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productIphone7Plus,
                 Sku = productIphone7Plus.Sku + "-red-128",
-                RawAttributes = FormatAttributeXml(
-                    Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "red").Id,
-                    Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "red").Id ),
+                    new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2519,9 +2555,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productIphone7Plus,
                 Sku = productIphone7Plus.Sku + "-silver-64",
-                RawAttributes = FormatAttributeXml(
-                    Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "silver").Id,
-                    Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "silver").Id ),
+                    new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2533,9 +2571,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productIphone7Plus,
                 Sku = productIphone7Plus.Sku + "-silver-128",
-                RawAttributes = FormatAttributeXml(
-                    Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "silver").Id,
-                    Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "silver").Id ),
+                    new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2546,9 +2586,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productIphone7Plus,
                 Sku = productIphone7Plus.Sku + "-rose-64",
-                RawAttributes = FormatAttributeXml(
-                    Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "rose").Id,
-                    Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "rose").Id ),
+                    new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2559,9 +2601,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productIphone7Plus,
                 Sku = productIphone7Plus.Sku + "-rose-128",
-                RawAttributes = FormatAttributeXml(
-                    Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "rose").Id,
-                    Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "rose").Id ),
+                    new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2572,9 +2616,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productIphone7Plus,
                 Sku = productIphone7Plus.Sku + "-gold-64",
-                RawAttributes = FormatAttributeXml(
-                    Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "gold").Id,
-                    Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "gold").Id ),
+                    new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "64gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2585,9 +2631,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productIphone7Plus,
                 Sku = productIphone7Plus.Sku + "-gold-128",
-                RawAttributes = FormatAttributeXml(
-                    Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "gold").Id,
-                    Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(Iphone7PlusColor.Id, Iphone7PlusColorValues.First(x => x.Alias == "gold").Id ),
+                    new(Iphone7PlusCapacity.Id, Iphone7PlusCapacityValues.First(x => x.Alias == "128gb").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2634,9 +2682,11 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Product = productAllStar,
                     Sku = productAllStar.Sku + string.Concat("-", lowerColor, "-", comb.Size),
-                    RawAttributes = FormatAttributeXml(
-                        allStarColor.Id, allStarColorValues.First(x => x.Alias == lowerColor).Id,
-                        allStarSize.Id, allStarSizeValues.First(x => x.Alias == comb.Size).Id),
+                    RawAttributes = FormatAttributeJson(new List<(int, object)>
+                    {
+                        new(allStarColor.Id, allStarColorValues.First(x => x.Alias == lowerColor).Id ),
+                        new(allStarSize.Id, allStarSizeValues.First(x => x.Alias == comb.Size).Id )
+                    }),
                     StockQuantity = 10000,
                     AllowOutOfStockOrders = true,
                     IsActive = true,
@@ -2682,9 +2732,11 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Product = productShirtMeccanica,
                     Sku = productShirtMeccanica.Sku + string.Concat("-", lowerColor, "-", lowerSize),
-                    RawAttributes = FormatAttributeXml(
-                        shirtMeccanicaColor.Id, shirtMeccanicaColorValues.First(x => x.Alias == lowerColor).Id,
-                        shirtMeccanicaSize.Id, shirtMeccanicaSizeValues.First(x => x.Alias == lowerSize).Id),
+                    RawAttributes = FormatAttributeJson(new List<(int, object)>
+                    {
+                        new(shirtMeccanicaColor.Id, shirtMeccanicaColorValues.First(x => x.Alias == lowerColor).Id ),
+                        new(shirtMeccanicaSize.Id, shirtMeccanicaSizeValues.First(x => x.Alias == lowerSize).Id )
+                    }),
                     StockQuantity = 10000,
                     AllowOutOfStockOrders = true,
                     IsActive = true,
@@ -2754,9 +2806,11 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Product = productLadiesJacket,
                     Sku = productLadiesJacket.Sku + string.Concat("-", lowerColor, "-", lowerSize),
-                    RawAttributes = FormatAttributeXml(
-                        ladiesJacketColor.Id, ladiesJacketColorValues.First(x => x.Alias == lowerColor).Id,
-                        ladiesJacketSize.Id, ladiesJacketSizeValues.First(x => x.Alias == lowerSize).Id),
+                    RawAttributes = FormatAttributeJson(new List<(int, object)>
+                    {
+                        new(ladiesJacketColor.Id, ladiesJacketColorValues.First(x => x.Alias == lowerColor).Id ),
+                        new(ladiesJacketSize.Id, ladiesJacketSizeValues.First(x => x.Alias == lowerSize).Id )
+                    }),
                     StockQuantity = 10000,
                     AllowOutOfStockOrders = true,
                     IsActive = true,
@@ -2780,9 +2834,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productCorbusierTable,
                 Sku = productCorbusierTable.Sku + "-clear-15",
-                RawAttributes = FormatAttributeXml(
-                    corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "clear-glass").Id,
-                    corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "15mm").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "clear-glass").Id ),
+                    new(corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "15mm").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2792,9 +2848,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productCorbusierTable,
                 Sku = productCorbusierTable.Sku + "-clear-19",
-                RawAttributes = FormatAttributeXml(
-                    corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "clear-glass").Id,
-                    corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "19mm").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "clear-glass").Id ),
+                    new(corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "19mm").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2804,9 +2862,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productCorbusierTable,
                 Sku = productCorbusierTable.Sku + "-sandblasted-15",
-                RawAttributes = FormatAttributeXml(
-                    corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "sandblasted-glass").Id,
-                    corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "15mm").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "sandblasted-glass").Id ),
+                    new(corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "15mm").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2816,9 +2876,11 @@ namespace Smartstore.Core.Data.Setup
             {
                 Product = productCorbusierTable,
                 Sku = productCorbusierTable.Sku + "-sandblasted-19",
-                RawAttributes = FormatAttributeXml(
-                    corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "sandblasted-glass").Id,
-                    corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "19mm").Id),
+                RawAttributes = FormatAttributeJson(new List<(int, object)>
+                {
+                    new(corbusierTablePlate.Id, corbusierTablePlateValues.First(x => x.Alias == "sandblasted-glass").Id ),
+                    new(corbusierTablePlateThickness.Id, corbusierTablePlateThicknessValues.First(x => x.Alias == "19mm").Id )
+                }),
                 StockQuantity = 10000,
                 AllowOutOfStockOrders = true,
                 IsActive = true,
@@ -2880,9 +2942,11 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Product = productAdidasTANGOSALABALL,
                     Sku = productAdidasTANGOSALABALL.Sku + string.Concat("-", lowerColor, "-", lowerSize),
-                    RawAttributes = FormatAttributeXml(
-                        adidasTANGOSALABALLColor.Id, adidasTANGOSALABALLColorValues.First(x => x.Alias == lowerColor).Id,
-                        adidasTANGOSALABALLSize.Id, adidasTANGOSALABALLSizeValues.First(x => x.Alias == lowerSize).Id),
+                    RawAttributes = FormatAttributeJson(new List<(int, object)>
+                    {
+                        new(adidasTANGOSALABALLColor.Id, adidasTANGOSALABALLColorValues.First(x => x.Alias == lowerColor).Id ),
+                        new(adidasTANGOSALABALLSize.Id, adidasTANGOSALABALLSizeValues.First(x => x.Alias == lowerSize).Id )
+                    }),
                     StockQuantity = 10000,
                     AllowOutOfStockOrders = true,
                     IsActive = true,
@@ -2937,9 +3001,11 @@ namespace Smartstore.Core.Data.Setup
                 {
                     Product = productTorfabrikBall,
                     Sku = productTorfabrikBall.Sku + string.Concat("-", lowerColor, "-", lowerSize),
-                    RawAttributes = FormatAttributeXml(
-                        torfabrikBallColor.Id, torfabrikBallColorValues.First(x => x.Alias == lowerColor).Id,
-                        torfabrikBallSize.Id, torfabrikBallSizeValues.First(x => x.Alias == lowerSize).Id),
+                    RawAttributes = FormatAttributeJson(new List<(int, object)>
+                    {
+                        new(torfabrikBallColor.Id, torfabrikBallColorValues.First(x => x.Alias == lowerColor).Id ),
+                        new(torfabrikBallSize.Id, torfabrikBallSizeValues.First(x => x.Alias == lowerSize).Id )
+                    }),
                     StockQuantity = 10000,
                     AllowOutOfStockOrders = true,
                     IsActive = true,
@@ -2985,7 +3051,12 @@ namespace Smartstore.Core.Data.Setup
                         {
                             Product = productBallChair,
                             Sku = productBallChair.Sku + string.Concat("-", colorValue.Alias, "-", materialValue.Alias),
-                            RawAttributes = FormatAttributeXml(ballChairMaterial.Id, materialValue.Id, ballChairColor.Id, colorValue.Id, ballChairLeatherColor.Id, leatherColorValue.Id),
+                            RawAttributes = FormatAttributeJson(new List<(int, object)>
+                            {
+                                new(ballChairMaterial.Id, materialValue.Id ),
+                                new(ballChairColor.Id, colorValue.Id ),
+                                new(ballChairLeatherColor.Id, leatherColorValue.Id )
+                            }),
                             StockQuantity = 10000,
                             AllowOutOfStockOrders = true,
                             IsActive = true,
