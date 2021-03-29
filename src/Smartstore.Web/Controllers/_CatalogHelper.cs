@@ -1709,7 +1709,7 @@ namespace Smartstore.Web.Controllers
             {
                 var productTags = await product.ProductTags
                     .WhereAsync(async x => x.Published && (await _productTagService.CountProductsByTagIdAsync(x.Id, storeId: storeId)) > 0)
-                    .ToListAsync();
+                    .AsyncToList();
 
                 var tagModel = await productTags.SelectAsync(async x =>
                     {
@@ -1722,7 +1722,7 @@ namespace Smartstore.Web.Controllers
                         };
                         return ptModel;
                     })
-                    .ToListAsync();
+                    .AsyncToList();
 
                 return tagModel;
             });
