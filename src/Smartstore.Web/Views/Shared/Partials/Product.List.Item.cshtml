@@ -77,7 +77,7 @@
         }
     }
 
-    <h3 class="art-name" sm-language-attributes-for="@Model.Name">
+    <h3 class="art-name" sm-language-attributes-for="Model.Name">
         <a href="@Model.DetailUrl" title="@Model.Name.ToString()">
             <span>@Model.Name</span>
         </a>
@@ -85,7 +85,7 @@
 
     @if (list.ShowDescription)
     {
-        <div class="art-description" title="@Model.ShortDescription.ToString()" sm-language-attributes-for="@Model.ShortDescription">
+        <div class="art-description" title="@Model.ShortDescription.ToString()" sm-language-attributes-for="Model.ShortDescription">
             @Html.Raw(Model.ShortDescription.Truncate(160, "..."))
         </div>
     }

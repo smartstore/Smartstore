@@ -21,16 +21,16 @@
                     <a href="@Model.ProductUrl" class="product">
                         <span sm-language-attributes-for="Model.ProductName">@Model.ProductName</span>
                     </a>
-                    <input type="hidden" class="form-control" id="SelectedAttributes" name="SelectedAttributes" value="@Html.Raw(Model.SelectedAttributes)">
-                    <input type="hidden" class="form-control" id="ProductUrl" name="ProductUrl" value="@Html.Raw(Model.ProductUrl)">
-                    <input type="hidden" class="form-control" id="IsQuoteRequest" name="IsQuoteRequest" value="@Html.Raw(Model.IsQuoteRequest)">
+                    <input type="hidden" id="SelectedAttributes" name="SelectedAttributes" value="@Html.Raw(Model.SelectedAttributes)">
+                    <input type="hidden" id="ProductUrl" name="ProductUrl" value="@Html.Raw(Model.ProductUrl)">
+                    <input type="hidden" id="IsQuoteRequest" name="IsQuoteRequest" value="@Html.Raw(Model.IsQuoteRequest)">
                 </legend>
                 <p class="fwm fs-h5">@Html.Raw(Model.SelectedAttributes)</p>
 
                 <div asp-validation-summary="ModelOnly" class="message-error"></div>
 
                 <honeypot />
-                @* TODO: (mh) (core) Why autofocus on every text input? WTF? *@
+
                 <div class="form-group">
                     <label asp-for="SenderEmail" class="col-form-label required"></label>
                     <input asp-for="SenderEmail" type="email" />

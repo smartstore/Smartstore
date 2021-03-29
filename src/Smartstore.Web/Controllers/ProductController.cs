@@ -641,7 +641,6 @@ namespace Smartstore.Web.Controllers
                 var selection = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, attributes, id, 0, false);
                 var rawAttributes = selection.Selection.AsJson();
 
-                // INFO: (mh) (core) Added check for id in order to keep it and not add it twice. See code below.
                 if (rawAttributes.HasValue() && TempData["AskQuestionAttributeSelection-" + id] == null)
                 {
                     TempData.Add("AskQuestionAttributeSelection-" + id, rawAttributes);
@@ -671,9 +670,6 @@ namespace Smartstore.Web.Controllers
             {
                 ModelState.AddModelError("", captchaError);
             }
-
-            // INFO: This was real crap. I'll remove it once MC reviewed.
-            //model.ProductUrl = _services.StoreContext.CurrentStore.Url + model.ProductUrl.Substring(1);
 
             if (ModelState.IsValid)
             {
@@ -710,16 +706,6 @@ namespace Smartstore.Web.Controllers
         private async Task<ProductAskQuestionModel> PrepareAskQuestionModelAsync(Product product)
         {
             var customer = Services.WorkContext.CurrentCustomer;
-
-            //var rawAttributes = string.Empty;
-
-            // INFO: (mh) (core) Used peek in order to keep xml information upon site refresh or redisplay of form in case of failed model validation.
-            // TODO: (mh) (core) Remove if approved by mc.
-            //if (TempData.TryGetValue("AskQuestionAttributeSelection-" + product.Id, out var obj))
-            //{
-            //    attributesXml = obj as string;
-            //}
-
             var rawAttributes = TempData.Peek("AskQuestionAttributeSelection-" + product.Id) as string;
 
             // Check if saved rawAttributes belongs to current product id
