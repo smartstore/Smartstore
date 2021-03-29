@@ -883,10 +883,7 @@ namespace Smartstore.Web.Controllers
             Guard.NotNull(model, nameof(model));
             Guard.NotNull(modelContext, nameof(modelContext));
 
-            // TODO: (mh) (core) Decide whether to obtain these directly in the helper methods to spare params or pass them all.
-            // Currently only customer is passed and should also be spared.
             var product = modelContext.Product;
-            var customer = modelContext.Customer;
 
             //var preSelectedPriceAdjustmentBase = new Money();
             var preSelectedWeightAdjustment = decimal.Zero;
@@ -1705,7 +1702,7 @@ namespace Smartstore.Web.Controllers
         {
             var storeId = _services.StoreContext.CurrentStore.Id;
             var cacheKey = string.Format(ModelCacheInvalidator.PRODUCTTAG_BY_PRODUCT_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id, storeId);
-            var cacheModel = await _services.Cache.GetAsync(cacheKey, async () =>
+            var cacheModel = await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
                 var productTags = await product.ProductTags
                     .WhereAsync(async x => x.Published && (await _productTagService.CountProductsByTagIdAsync(x.Id, storeId: storeId)) > 0)
