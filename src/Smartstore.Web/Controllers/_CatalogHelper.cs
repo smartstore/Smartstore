@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -85,7 +86,9 @@ namespace Smartstore.Web.Controllers
         private readonly ILinkResolver _linkResolver;
         private readonly SocialSettings _socialSettings;
         private readonly ContactDataSettings _contactDataSettings;
+        private readonly IProductTagService _productTagService;
         
+
         public CatalogHelper(
             SmartDbContext db,
             ICommonServices services,
@@ -123,7 +126,8 @@ namespace Smartstore.Web.Controllers
             IUrlService urlService,
             ILinkResolver linkResolver,
             SocialSettings socialSettings,
-            ContactDataSettings contactDataSettings)
+            ContactDataSettings contactDataSettings,
+            IProductTagService productTagService)
         {
             _db = db;
             _services = services;
@@ -167,6 +171,7 @@ namespace Smartstore.Web.Controllers
             _httpRequest = _urlHelper.ActionContext.HttpContext.Request;
             _socialSettings = socialSettings;
             _contactDataSettings = contactDataSettings;
+            _productTagService = productTagService;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -935,6 +940,9 @@ namespace Smartstore.Web.Controllers
             // Reviews
             await PrepareProductReviewsModelAsync(model.ProductReviews, product, 10);
 
+            // Tags
+            await PrepareProductTagsModelAsync(model, product);
+
             _services.DisplayControl.Announce(product);
         }
 
@@ -1685,6 +1693,35 @@ namespace Smartstore.Web.Controllers
                 model.GiftCard.SenderName = modelContext.Customer.GetFullName();
                 model.GiftCard.SenderEmail = modelContext.Customer.Email;
             }
+        }
+
+        protected async Task PrepareProductTagsModelAsync(ProductDetailsModel model, Product product)
+        {
+            var storeId = _services.StoreContext.CurrentStore.Id;
+            var cacheKey = string.Format(ModelCacheInvalidator.PRODUCTTAG_BY_PRODUCT_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id, storeId);
+            var cacheModel = await _services.Cache.GetAsync(cacheKey, async () =>
+            {
+                var productTags = await product.ProductTags
+                    .WhereAsync(async x => x.Published && (await _productTagService.CountProductsByTagIdAsync(x.Id, storeId: storeId)) > 0)
+                    .ToListAsync();
+
+                var tagModel = await productTags.SelectAsync(async x =>
+                    {
+                        var ptModel = new ProductTagModel
+                        {
+                            Id = x.Id,
+                            Name = x.GetLocalized(y => y.Name),
+                            Slug = x.BuildSlug(),
+                            ProductCount = await _productTagService.CountProductsByTagIdAsync(x.Id, storeId: storeId)
+                        };
+                        return ptModel;
+                    })
+                    .ToListAsync();
+
+                return tagModel;
+            });
+
+            model.ProductTags = cacheModel;
         }
 
         #endregion

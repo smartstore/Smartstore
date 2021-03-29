@@ -1,0 +1,27 @@
+﻿@model IList<ProductTagModel>
+
+@using Smartstore.Web.Models.Catalog;
+
+@{
+    if (Model == null || Model.Count == 0)
+    {
+        return;
+    }
+}
+
+<div class="pd-tags block">
+    <div class="block-title">
+        <h4>@T("Products.Tags")</h4>
+    </div>
+    <div class="block-body pt-3">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var tag = Model[i];
+
+            <a asp-route="ProductsByTag" asp-route-productTagId="@tag.Id" asp-route-path="@tag.Slug" class="pd-tag">
+                <span sm-language-attributes-for="tag.Name">@tag.Name</span>
+                <span class="pd-tag-count pl-1">@tag.ProductCount</span>
+            </a>
+        }
+    </div>
+</div>
