@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Data;
@@ -106,20 +105,20 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Applies a selection for also purchased product ids
+        /// Applies a selection for also purchased product ids.
         /// </summary>
-        /// <param name="query"></param>
-        /// <param name="productId"></param>
-        /// <param name="recordsToReturn"></param>
-        /// <param name="storeId"></param>
-        /// <param name="includeHidden"></param>
-        /// <returns></returns>
-        public static IQueryable<Product> SelectAlsoPurchasedProductIds(this IQueryable<OrderItem> query, int productId, int? recordsToReturn = 5, int storeId = 0, bool includeHidden = false)
+        /// <param name="query">Query of <see cref="OrderItem"/>s to select from.</param>
+        /// <param name="productId">Product identifier to also receive products purchased with the product.</param>
+        /// <param name="recordsToReturn">Number of products to return. <c>Null</c> or 0 to retrieve all.</param>
+        /// <param name="storeId">Store identifier to get orders from.</param>
+        /// <param name="includeHidden">A value indicating whether to include unpublished products.</param>
+        /// <returns>Query of product identifiers.</returns>
+        public static IQueryable<int> SelectAlsoPurchasedProductIds(this IQueryable<OrderItem> query, int productId, int? recordsToReturn = 5, int storeId = 0, bool includeHidden = false)
         {
             Guard.NotNull(query, nameof(query));
 
             if (productId == 0)
-                return Array.Empty<Product>().AsQueryable();
+                return Array.Empty<int>().AsQueryable();
 
             var db = query.GetDbContext<SmartDbContext>();
 
@@ -132,10 +131,10 @@ namespace Smartstore
                 .Where(x => orderIdsQuery.Contains(x.OrderId)
                     && x.Product.Id != productId
                     && (storeId == 0 || x.Order.StoreId == storeId))
-                .GroupBy(x => x.Product.Id)
+                .GroupBy(x => x.ProductId)
                 .Select(x => new
                 {
-                    Product = x.ElementAt(x.Key).Product,
+                    Product = x.Key,
                     ProductsPurchased = x.Sum(x => x.Quantity)
                 })
                 .OrderByDescending(x => x.ProductsPurchased)
@@ -149,6 +148,12 @@ namespace Smartstore
             return productsQuery;
         }
 
+        /// <summary>
+        /// Applies a selection for bestsellers report.
+        /// </summary>
+        /// <param name="query">Order item query to select report from.</param>
+        /// <param name="sorting">Sorting setting to define Bestsellers report type.</param>
+        /// <returns>Query of bestsellers report.</returns>
         public static IQueryable<BestsellersReportLine> SelectAsBestsellersReportLine(this IQueryable<OrderItem> query, ReportSorting sorting = ReportSorting.ByQuantityDesc)
         {
             Guard.NotNull(query, nameof(query));
