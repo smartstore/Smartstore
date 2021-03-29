@@ -830,12 +830,17 @@ namespace Smartstore.Web.Controllers
             var pcs = Services.Resolve<IPriceCalculationService>();
             var ps = Services.Resolve<IProductService>();
             var customer = Services.WorkContext.CurrentCustomer;
+            var primaryCurrency = Services.Resolve<ICurrencyService>().PrimaryCurrency;
             var product = await _db.Products.FindByIdAsync(1751, false);
             var batchContext = ps.CreateProductBatchContext(new[] { product }, null, customer);
             List<Product> associatedProducts = null;
 
+            var attributeValue = await _db.ProductVariantAttributeValues.FindByIdAsync(4300, false);
+            var attributeValues = new List<ProductVariantAttributeValue> { attributeValue };
+            Money? addtionalCharge = attributeValue?.PriceAdjustment != decimal.Zero ? new(attributeValue.PriceAdjustment, primaryCurrency) : null;
+
             var preselectedPrice = await pcs.GetPreselectedPriceAsync(product, customer, batchContext);
-            var finalPrice = await pcs.GetFinalPriceAsync(product, null, null, customer, false, 1, null, batchContext);
+            var finalPrice = await pcs.GetFinalPriceAsync(product, null, addtionalCharge, customer, false, 1, null, batchContext);
             Money lowestPrice;
 
             if (product.ProductType == ProductType.GroupedProduct)
@@ -852,15 +857,26 @@ namespace Smartstore.Web.Controllers
                 lowestPrice = (await pcs.GetLowestPriceAsync(product, customer, batchContext)).LowestPrice;
             }
 
-            var options = pcs.CreateDefaultOptions(true);
-            var cpFinal = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, options) { AssociatedProducts = associatedProducts });
+            var cpFinalOptions = pcs.CreateDefaultOptions(true);
+            var cpFinal = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpFinalOptions) 
+            {
+                AssociatedProducts = associatedProducts,
+                AttributeValues = attributeValues
+            });
 
-            options.DetermineLowestPrice = true;
-            var cpLowest = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, options) { AssociatedProducts = associatedProducts });
+            var cpLowestOptions = pcs.CreateDefaultOptions(true);
+            cpLowestOptions.DetermineLowestPrice = true;
+            var cpLowest = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpLowestOptions) 
+            {
+                AssociatedProducts = associatedProducts
+            });
 
-            options.DetermineLowestPrice = false;
-            options.DeterminePreselectedPrice = true;
-            var cpPreselected = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, options) { AssociatedProducts = associatedProducts });
+            var cpPreselectedOptions = pcs.CreateDefaultOptions(true);
+            cpPreselectedOptions.DeterminePreselectedPrice = true;
+            var cpPreselected = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpPreselectedOptions) 
+            {
+                AssociatedProducts = associatedProducts
+            });
 
             content.AppendLine($"Prices       {"old".PadRight(12)} {"new".PadRight(12)}");
             content.AppendLine($"Final      : {Fmt(finalPrice)} {Fmt(cpFinal.FinalPrice)}");

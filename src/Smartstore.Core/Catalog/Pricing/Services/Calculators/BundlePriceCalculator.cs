@@ -5,14 +5,18 @@ using Smartstore.Core.Catalog.Products;
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
-    /// TODO: (mg) (core) Describe
+    /// Calculates the price of a bundled product. If <see cref="Product.BundlePerItemPricing"/> is activated, 
+    /// then the price for each bundle item is calculated and multiplied by <see cref="ProductBundleItem.Quantity"/>.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Bundle, CalculatorOrdering.Early)]
     public class BundlePriceCalculator : PriceCalculator
     {
-        public BundlePriceCalculator(IPriceCalculatorFactory calculatorFactory)
+        private readonly IProductService _productService;
+
+        public BundlePriceCalculator(IPriceCalculatorFactory calculatorFactory, IProductService productService)
             : base(calculatorFactory)
         {
+            _productService = productService;
         }
 
         public override async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
@@ -26,8 +30,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 return;
             }
 
-            var options = context.Options;
-
             if (product.BundlePerItemPricing)
             {
                 if (context.Options.DetermineLowestPrice)
@@ -40,18 +42,20 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 foreach (var bundleItem in context.BundleItems)
                 {
                     // Get the final unit price of bundle item part product.
-                    // Do not pass bundleItem.Item.Quantity. The pipline always calculates a unit price.
-                    // TODO: (mg) (core) I think we need some sort of BundleItemsBatchContext here performance-wise (like we build and pass for grouped products)?
+                    // No need to pass bundleItem.Item.Quantity. The pipline always calculates a unit price.
                     var childCalculation = await CalculateChildPriceAsync(bundleItem.Item.Product, context, c => 
                     { 
                         c.Quantity = 1;
-                        c.AdditionalCharge = bundleItem.AdditionalCharge;
+                        c.AssociatedProducts = null;
                         c.BundleItems = null;
-                        c.BundleItem = bundleItem; 
+                        c.BundleItem = bundleItem;
+                        c.AttributeValues = null;
+                        c.AdditionalCharge = decimal.Zero;
+                        c.MinTierPrice = null;
                     });
 
-                    // Add price of part to root final price (unit price * contained quantity in this bundle).
-                    context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice, bundleItem.Item.Quantity);
+                    // Add price of part to root final price (unit price + additional charge * contained quantity in this bundle).
+                    context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice + bundleItem.AdditionalCharge, bundleItem.Item.Quantity);
 
                     // TODO: (mg) (core) Is it not better to continue the pipeline here (unlike in Smartstore classic)? Continuation could
                     // apply OfferPrice and/or further discounts to the automatically calculated final price here. TBD with MC please.
@@ -75,6 +79,16 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     .Where(x => x.Item != null)
                     .ToList();
             }
+
+            if (options.ChildProductsBatchContext == null && context.BundleItems.Any())
+            {
+                // Create a batch context with all bundle item products.
+                var bundleItemProducts = context.BundleItems.Select(x => x.Item.Product);
+
+                options.ChildProductsBatchContext = _productService.CreateProductBatchContext(bundleItemProducts, options.Store, options.Customer, false);
+            }
+
+            options.BatchContext = options.ChildProductsBatchContext;
         }
     }
 }

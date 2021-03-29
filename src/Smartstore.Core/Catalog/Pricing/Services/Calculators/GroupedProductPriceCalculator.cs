@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
@@ -7,7 +6,8 @@ using Smartstore.Core.Catalog.Search;
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
-    /// TODO: (mg) (core) Describe
+    /// Calculates the price of the first child product associated with a grouped product, or if the lowest price is requested, 
+    /// the lowest price of all associated products.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.GroupedProduct, CalculatorOrdering.Early)]
     public class GroupedProductPriceCalculator : PriceCalculator
@@ -54,6 +54,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     { 
                         c.Quantity = quantity;
                         c.AssociatedProducts = null;
+                        c.BundleItems = null;
+                        c.BundleItem = null;
+                        c.AttributeValues = null;
+                        c.AdditionalCharge = decimal.Zero;
+                        c.MinTierPrice = null;
                     });
 
                     if (lowestPriceCalculation == null || childCalculation.FinalPrice < lowestPriceCalculation.FinalPrice)
@@ -72,6 +77,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 { 
                     c.Quantity = quantity;
                     c.AssociatedProducts = null;
+                    c.BundleItems = null;
+                    c.BundleItem = null;
+                    c.AttributeValues = null;
+                    c.AdditionalCharge = decimal.Zero;
+                    c.MinTierPrice = null;
                 });
             }
 

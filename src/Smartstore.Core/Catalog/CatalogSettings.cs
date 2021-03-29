@@ -407,9 +407,10 @@ namespace Smartstore.Core.Catalog
         public bool IncludeFeaturedProductsInSubPages { get; set; }
 
         /// <summary>
+        /// Obsolete (an old hidden setting that no longer has any effect).
         /// Gets or sets a value indicating whether tier prices should be displayed with applied discounts (if available)
         /// </summary>
-        public bool DisplayTierPricesWithDiscounts { get; set; } = true;
+        //public bool DisplayTierPricesWithDiscounts { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to ignore discounts (side-wide)

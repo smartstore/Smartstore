@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Catalog.Pricing
@@ -49,6 +50,7 @@ namespace Smartstore.Core.Catalog.Pricing
             AssociatedProducts = context.AssociatedProducts;
             BundleItems = context.BundleItems;
             BundleItem = context.BundleItem;
+            AttributeValues = context.AttributeValues;
             AdditionalCharge = context.AdditionalCharge;
             // [...]
         }
@@ -108,7 +110,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// TODO: (mg) (core) Describe when ready.
         /// </summary>
-        public IList<object> Attributes { get; set; }
+        public IList<ProductVariantAttributeValue> AttributeValues { get; set; }
 
         /// <summary>
         /// TODO: (mg) (core) Describe when fully implemented.

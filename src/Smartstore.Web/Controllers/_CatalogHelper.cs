@@ -1922,7 +1922,7 @@ namespace Smartstore.Web.Controllers
                     var finalPriceBase = await _priceCalculationService.GetFinalPriceAsync(product,
                         adjustmentAmount, 
                         _services.WorkContext.CurrentCustomer, 
-                        _catalogSettings.DisplayTierPricesWithDiscounts, 
+                        true, 
                         tierPrice.Quantity, null, null, true);
 
                     (priceBase, taxRate) = await _taxService.GetProductPriceAsync(product, finalPriceBase);

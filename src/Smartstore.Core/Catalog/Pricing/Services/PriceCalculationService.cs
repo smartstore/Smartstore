@@ -140,6 +140,9 @@ namespace Smartstore.Core.Catalog.Pricing
             // Run all collected calculators
             await _calculatorFactory.RunCalculators(calculators, calculatorContext);
 
+            // A product price cannot be less than zero.
+            calculatorContext.FinalPrice = Math.Max(calculatorContext.FinalPrice, decimal.Zero);
+
             // Determine tax rate for product
             var taxRate = await _taxService.GetTaxRateAsync(context.Product, null, context.Options.Customer);
 

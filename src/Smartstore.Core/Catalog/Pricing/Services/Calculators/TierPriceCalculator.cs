@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
@@ -14,52 +15,39 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     {
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {
-            // TODO: (core) CatalogSettings.DisplayTierPricesWithDiscounts is an old hidden setting that does absolutely nothing. What is the meaning of it?
-
             var product = context.Product;
             var options = context.Options;
-
             // Ignore tier prices of bundle items (BundlePerItemPricing).
-            if (!options.IgnoreTierPrices && !options.IgnoreDiscounts && product.HasTierPrices && context.BundleItem?.Item == null)
+            var processTierPrices = !options.IgnoreTierPrices && !options.IgnoreDiscounts && product.HasTierPrices && context.BundleItem?.Item == null;
+
+            if (processTierPrices)
             {
-                var tierPrices = await LoadTierPrices(product, options.BatchContext);
-                var tierPrice = GetMinimumTierPrice(product, options.Customer, tierPrices, context.Quantity);
+                var tierPrices = await options.BatchContext.TierPrices.GetOrLoadAsync(product.Id);
+                tierPrices = tierPrices.RemoveDuplicatedQuantities();
 
-                if (tierPrice.HasValue)
-                {
-                    // Keep the minimum tier price because it's required for discount calculation.
-                    context.MinTierPrice = tierPrice.Value;
-
-                    // Previously, the tier price was not applied here if a discount achieved a smaller FinalPrice.
-                    if (tierPrice.Value < context.FinalPrice)
-                    {
-                        context.FinalPrice = tierPrice.Value;
-                    }
-
-                    //if (!options.IgnorePercentageDiscountOnTierPrices)
-                    //{
-                    //    context.FinalPrice -= GetPercentageDiscountAmount(context, product, tierPrice.Value);
-                    //}
-                }
+                // Put minimum tier price to context because it's required for discount calculation.
+                context.MinTierPrice = GetMinimumTierPrice(product, tierPrices, context.Quantity);
 
                 if (context.Options.DetermineLowestPrice && !context.HasPriceRange)
                 {
-                    context.HasPriceRange = tierPrices.Any() && !(tierPrices.Count() == 1 && tierPrices.First().Quantity <= 1);
+                    context.HasPriceRange = tierPrices.Any() && !(tierPrices.Count == 1 && tierPrices.First().Quantity <= 1);
                 }
             }
 
+            // Process the whole pipeline. We need the result of discount calculation.
             await next(context);
+
+            if (processTierPrices && context.MinTierPrice.HasValue)
+            {
+                // Apply the minimum tier price if it achieves a lower price than the discounted FinalPrice.
+                context.FinalPrice = Math.Min(context.FinalPrice, context.MinTierPrice.Value);
+            }
         }
 
-        protected virtual decimal? GetMinimumTierPrice(Product product, Customer customer, IEnumerable<TierPrice> tierPrices, int quantity)
+        protected virtual decimal? GetMinimumTierPrice(Product product, IEnumerable<TierPrice> tierPrices, int quantity)
         {
-            if (!product.HasTierPrices)
-            {
-                return decimal.Zero;
-            }
-
-            var previousQty = 1;
             decimal? result = null;
+            var previousQty = 1;
 
             foreach (var tierPrice in tierPrices)
             {
@@ -86,42 +74,5 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             return result;
         }
-
-        private static async Task<IEnumerable<TierPrice>> LoadTierPrices(Product product, ProductBatchContext batchContext)
-        {
-            if (!product.HasTierPrices)
-            {
-                return Enumerable.Empty<TierPrice>();
-            }
-
-            var tierPrices = await batchContext.TierPrices.GetOrLoadAsync(product.Id);
-            return tierPrices.RemoveDuplicatedQuantities();
-        }
-
-        //private decimal GetPercentageDiscountAmount(CalculatorContext context, Product product, decimal tierPrice)
-        //{
-        //    Discount discount = null;
-        //    var bundleItem = context.BundleItem?.Item;
-
-        //    if (bundleItem != null)
-        //    {
-        //        if (bundleItem.BundleProduct.BundlePerItemPricing &&
-        //            bundleItem.Discount.HasValue &&
-        //            bundleItem.DiscountPercentage)
-        //        {
-        //            discount = new Discount
-        //            {
-        //                UsePercentage = true,
-        //                DiscountPercentage = bundleItem.Discount.Value,
-        //                DiscountAmount = bundleItem.Discount.Value
-        //            };
-        //        }
-        //    }
-        //    else if (!product.CustomerEntersPrice)
-        //    {
-        //    }
-
-        //    return discount?.GetDiscountAmount(tierPrice) ?? decimal.Zero;
-        //}
     }
 }
