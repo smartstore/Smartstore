@@ -54,7 +54,7 @@ namespace Smartstore.Core.Catalog.Pricing
         [JsonIgnore]
         public Product Product
         {
-            get => _lazyLoader?.Load(this, ref _product) ?? _product;
+            get => _product ?? _lazyLoader?.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -90,7 +90,7 @@ namespace Smartstore.Core.Catalog.Pricing
         [JsonIgnore]
         public CustomerRole CustomerRole
         {
-            get => _lazyLoader?.Load(this, ref _customerRole) ?? _customerRole;
+            get => _customerRole ?? _lazyLoader?.Load(this, ref _customerRole);
             set => _customerRole = value;
         }
     }

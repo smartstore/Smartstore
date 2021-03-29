@@ -70,7 +70,7 @@ namespace Smartstore.Core.Catalog.Attributes
         [JsonIgnore]
         public Product Product
         {
-            get => _lazyLoader?.Load(this, ref _product) ?? _product;
+            get => _product ?? _lazyLoader?.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -146,7 +146,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public DeliveryTime DeliveryTime
         {
-            get => _lazyLoader?.Load(this, ref _deliveryTime) ?? _deliveryTime;
+            get => _deliveryTime ?? _lazyLoader?.Load(this, ref _deliveryTime);
             set => _deliveryTime = value;
         }
 

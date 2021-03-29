@@ -57,7 +57,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// </summary>
         public Category Category
         {
-            get => _lazyLoader?.Load(this, ref _category) ?? _category;
+            get => _category ?? _lazyLoader?.Load(this, ref _category);
             set => _category = value;
         }
 
@@ -72,7 +72,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// </summary>
         public Product Product
         {
-            get => _lazyLoader?.Load(this, ref _product) ?? _product;
+            get => _product ?? _lazyLoader?.Load(this, ref _product);
             set => _product = value;
         }
 

@@ -46,7 +46,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ProductBundleItem BundleItem
         {
-            get => _lazyLoader?.Load(this, ref _bundleItem) ?? _bundleItem;
+            get => _bundleItem ?? _lazyLoader?.Load(this, ref _bundleItem);
             set => _bundleItem = value;
         }
 

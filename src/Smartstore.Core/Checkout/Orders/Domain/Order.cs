@@ -506,7 +506,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Customer Customer
         {
-            get => _lazyLoader?.Load(this, ref _customer) ?? _customer;
+            get => _customer ?? _lazyLoader?.Load(this, ref _customer);
             set => _customer = value;
         }
 
@@ -516,7 +516,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Address BillingAddress
         {
-            get => _lazyLoader?.Load(this, ref _billingAddress) ?? _billingAddress;
+            get => _billingAddress ?? _lazyLoader?.Load(this, ref _billingAddress);
             set => _billingAddress = value;
         }
 
@@ -526,7 +526,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Address ShippingAddress
         {
-            get => _lazyLoader?.Load(this, ref _shippingAddress) ?? _shippingAddress;
+            get => _shippingAddress ?? _lazyLoader?.Load(this, ref _shippingAddress);
             set => _shippingAddress = value;
         }
 
@@ -543,7 +543,7 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public ICollection<WalletHistory> WalletHistory
         {
-            get => _lazyLoader?.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());
+            get => _walletHistory ?? _lazyLoader?.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());
             protected set => _walletHistory = value;
         }
 
@@ -554,7 +554,7 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public ICollection<DiscountUsageHistory> DiscountUsageHistory
         {
-            get => _lazyLoader?.Load(this, ref _discountUsageHistory) ?? (_discountUsageHistory ??= new HashSet<DiscountUsageHistory>());
+            get => _discountUsageHistory ?? _lazyLoader?.Load(this, ref _discountUsageHistory) ?? (_discountUsageHistory ??= new HashSet<DiscountUsageHistory>());
             protected set => _discountUsageHistory = value;
         }
 
@@ -565,7 +565,7 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
         {
-            get => _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
+            get => _giftCardUsageHistory ?? _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
             protected set => _giftCardUsageHistory = value;
         }
 
@@ -575,7 +575,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public ICollection<OrderNote> OrderNotes
         {
-            get => _lazyLoader?.Load(this, ref _orderNotes) ?? (_orderNotes ??= new HashSet<OrderNote>());
+            get => _orderNotes ?? _lazyLoader?.Load(this, ref _orderNotes) ?? (_orderNotes ??= new HashSet<OrderNote>());
             protected set => _orderNotes = value;
         }
 
@@ -585,7 +585,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public ICollection<OrderItem> OrderItems
         {
-            get => _lazyLoader?.Load(this, ref _orderItems) ?? (_orderItems ??= new HashSet<OrderItem>());
+            get => _orderItems ?? _lazyLoader?.Load(this, ref _orderItems) ?? (_orderItems ??= new HashSet<OrderItem>());
             protected internal set => _orderItems = value;
         }
 
@@ -595,7 +595,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public ICollection<Shipment> Shipments
         {
-            get => _lazyLoader?.Load(this, ref _shipments) ?? (_shipments ??= new HashSet<Shipment>());
+            get => _shipments ?? _lazyLoader?.Load(this, ref _shipments) ?? (_shipments ??= new HashSet<Shipment>());
             protected set => _shipments = value;
         }
 

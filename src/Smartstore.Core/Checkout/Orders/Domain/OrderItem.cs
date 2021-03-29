@@ -173,7 +173,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Order Order
         {
-            get => _lazyLoader?.Load(this, ref _order) ?? _order;
+            get => _order ?? _lazyLoader?.Load(this, ref _order);
             set => _order = value;
         }
 
@@ -183,7 +183,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Product Product
         { 
-            get => _lazyLoader?.Load(this, ref _product) ?? _product;
+            get => _product ?? _lazyLoader?.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -194,7 +194,7 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public ICollection<GiftCard> AssociatedGiftCards
         {
-            get => _lazyLoader?.Load(this, ref _associatedGiftCards) ?? (_associatedGiftCards ??= new HashSet<GiftCard>());
+            get => _associatedGiftCards ?? _lazyLoader?.Load(this, ref _associatedGiftCards) ?? (_associatedGiftCards ??= new HashSet<GiftCard>());
             protected set => _associatedGiftCards = value;
         }
     }

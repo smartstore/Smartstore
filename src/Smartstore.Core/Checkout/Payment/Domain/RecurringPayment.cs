@@ -135,7 +135,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         public ICollection<RecurringPaymentHistory> RecurringPaymentHistory
         {
-            get => _lazyLoader?.Load(this, ref _recurringPaymentHistory) ?? (_recurringPaymentHistory ??= new List<RecurringPaymentHistory>());
+            get => _recurringPaymentHistory = _lazyLoader?.Load(this, ref _recurringPaymentHistory) ?? (_recurringPaymentHistory ??= new List<RecurringPaymentHistory>());
             protected set => _recurringPaymentHistory = value;
         }
 
@@ -145,7 +145,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         public Order InitialOrder
         {
-            get => _lazyLoader?.Load(this, ref _initialOrder) ?? _initialOrder;
+            get => _initialOrder = _lazyLoader?.Load(this, ref _initialOrder);
             set => _initialOrder = value;
         }
     }

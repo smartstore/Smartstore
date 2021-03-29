@@ -53,7 +53,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         public Shipment Shipment
         {
-            get => _lazyloader?.Load(this, ref _shipment) ?? _shipment;
+            get => _shipment ?? _lazyloader?.Load(this, ref _shipment);
             set => _shipment = value;
         }
     }

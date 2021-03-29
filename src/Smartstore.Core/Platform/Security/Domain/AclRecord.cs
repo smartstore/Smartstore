@@ -63,7 +63,7 @@ namespace Smartstore.Core.Security
         /// </summary>
         public CustomerRole CustomerRole
         {
-            get => _lazyLoader?.Load(this, ref _customerRole) ?? _customerRole;
+            get => _customerRole ?? _lazyLoader?.Load(this, ref _customerRole);
             set => _customerRole = value;
         }
 

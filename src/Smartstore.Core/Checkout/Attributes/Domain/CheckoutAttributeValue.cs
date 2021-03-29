@@ -91,7 +91,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// </summary>
         public MediaFile MediaFile
         {
-            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+            get => _mediaFile ?? _lazyLoader?.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
 
@@ -102,7 +102,7 @@ namespace Smartstore.Core.Checkout.Attributes
         [JsonIgnore]
         public CheckoutAttribute CheckoutAttribute
         {
-            get => _lazyLoader?.Load(this, ref _checkoutAttribute) ?? _checkoutAttribute;
+            get => _checkoutAttribute ?? _lazyLoader?.Load(this, ref _checkoutAttribute);
             set => _checkoutAttribute = value;
         }
     }

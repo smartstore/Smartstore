@@ -54,7 +54,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public Product Product
         {
-            get => _lazyLoader?.Load(this, ref _product) ?? _product;
+            get => _product ?? _lazyLoader?.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -65,7 +65,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <inheritdoc/>
         public MediaFile MediaFile
         {
-            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+            get => _mediaFile ?? _lazyLoader?.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
 

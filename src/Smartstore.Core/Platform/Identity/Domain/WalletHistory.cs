@@ -60,7 +60,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public Customer Customer
         {
-            get => _lazyLoader?.Load(this, ref _customer) ?? _customer;
+            get => _customer ?? _lazyLoader?.Load(this, ref _customer);
             set => _customer = value;
         }
 
@@ -75,7 +75,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public Order Order
         {
-            get => _lazyLoader?.Load(this, ref _order) ?? _order;
+            get => _order ?? _lazyLoader?.Load(this, ref _order);
             set => _order = value;
         }
 

@@ -115,7 +115,7 @@ namespace Smartstore.Core.Messages
         /// </summary>
         public EmailAccount EmailAccount
         {
-            get => _lazyLoader?.Load(this, ref _emailAccount) ?? _emailAccount;
+            get => _emailAccount ?? _lazyLoader?.Load(this, ref _emailAccount);
             set => _emailAccount = value;
         }
 

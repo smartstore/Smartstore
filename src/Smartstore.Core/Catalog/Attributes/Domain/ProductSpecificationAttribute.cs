@@ -61,7 +61,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public SpecificationAttributeOption SpecificationAttributeOption
         {
-            get => _lazyLoader?.Load(this, ref _specificationAttributeOption) ?? _specificationAttributeOption;
+            get => _specificationAttributeOption ?? _lazyLoader?.Load(this, ref _specificationAttributeOption);
             set => _specificationAttributeOption = value;
         }
 
@@ -77,7 +77,7 @@ namespace Smartstore.Core.Catalog.Attributes
         [JsonIgnore]
         public Product Product
         {
-            get => _lazyLoader?.Load(this, ref _product) ?? _product;
+            get => _product ?? _lazyLoader?.Load(this, ref _product);
             set => _product = value;
         }
 

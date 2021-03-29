@@ -59,7 +59,7 @@ namespace Smartstore.Core.Messages
         /// </summary>
         public QueuedEmail QueuedEmail
         {
-            get => _lazyLoader?.Load(this, ref _queuedEmail) ?? _queuedEmail;
+            get => _queuedEmail ?? _lazyLoader?.Load(this, ref _queuedEmail);
             set => _queuedEmail = value;
         }
 
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Messages
         /// </remarks>
         public MediaFile MediaFile
         {
-            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+            get => _mediaFile ?? _lazyLoader?.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
 
@@ -115,7 +115,7 @@ namespace Smartstore.Core.Messages
         /// </summary>
         public MediaStorage MediaStorage
         {
-            get => _lazyLoader?.Load(this, ref _mediaStorage) ?? _mediaStorage;
+            get => _mediaStorage ?? _lazyLoader?.Load(this, ref _mediaStorage);
             set => _mediaStorage = value;
         }
     }

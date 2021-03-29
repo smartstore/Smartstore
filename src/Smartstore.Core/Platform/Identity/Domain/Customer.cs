@@ -250,7 +250,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public Address BillingAddress 
         {
-            get => _lazyLoader?.Load(this, ref _billingAddress) ?? _billingAddress;
+            get => _billingAddress ?? _lazyLoader?.Load(this, ref _billingAddress);
             set => _billingAddress = value;
         }
 
@@ -260,7 +260,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public Address ShippingAddress
         {
-            get => _lazyLoader?.Load(this, ref _shippingAddress) ?? _shippingAddress;
+            get => _shippingAddress ?? _lazyLoader?.Load(this, ref _shippingAddress);
             set => _shippingAddress = value;
         }
 

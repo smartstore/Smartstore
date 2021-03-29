@@ -79,7 +79,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         public Order Order
         {
-            get => _lazyLoader?.Load(this, ref _order) ?? _order;
+            get => _order ?? _lazyLoader?.Load(this, ref _order);
             set => _order = value;
         }
 
@@ -89,7 +89,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         public ICollection<ShipmentItem> ShipmentItems
         {
-            get => _lazyLoader?.Load(this, ref _shipmentItems) ?? (_shipmentItems ??= new HashSet<ShipmentItem>());
+            get => _shipmentItems ?? _lazyLoader?.Load(this, ref _shipmentItems) ?? (_shipmentItems ??= new HashSet<ShipmentItem>());
             protected set => _shipmentItems = value;
         }
     }

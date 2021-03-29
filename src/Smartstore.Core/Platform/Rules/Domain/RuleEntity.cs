@@ -31,7 +31,7 @@ namespace Smartstore.Core.Rules
         [JsonIgnore]
         public RuleSetEntity RuleSet
         {
-            get => _lazyLoader?.Load(this, ref _ruleSet) ?? _ruleSet;
+            get => _ruleSet = _lazyLoader?.Load(this, ref _ruleSet);
             set => _ruleSet = value;
         }
 

@@ -154,7 +154,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// </summary>
         public MediaFile MediaFile
         {
-            get => LazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+            get => _mediaFile ?? LazyLoader?.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
 

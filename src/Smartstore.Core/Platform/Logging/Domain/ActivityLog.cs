@@ -74,7 +74,7 @@ namespace Smartstore.Core.Logging
         /// </summary>
         public ActivityLogType ActivityLogType 
         {
-            get => _lazyLoader?.Load(this, ref _activityLogType) ?? _activityLogType;
+            get => _activityLogType ?? _lazyLoader?.Load(this, ref _activityLogType);
             set => _activityLogType = value;
         }
 
@@ -85,7 +85,7 @@ namespace Smartstore.Core.Logging
         [JsonIgnore]
         public Customer Customer 
         {
-            get => _lazyLoader?.Load(this, ref _customer) ?? _customer;
+            get => _customer ?? _lazyLoader?.Load(this, ref _customer);
             set => _customer = value;
         }
     }

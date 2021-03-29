@@ -52,7 +52,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ProductVariantAttribute ProductVariantAttribute
         {
-            get => _lazyLoader?.Load(this, ref _productVariantAttribute) ?? _productVariantAttribute;
+            get => _productVariantAttribute ?? _lazyLoader?.Load(this, ref _productVariantAttribute);
             set => _productVariantAttribute = value;
         }
 

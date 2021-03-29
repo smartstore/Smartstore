@@ -76,7 +76,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public MediaFile MediaFile
         {
-            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+            get => _mediaFile ?? _lazyLoader?.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
 

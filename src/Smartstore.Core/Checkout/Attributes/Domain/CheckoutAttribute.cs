@@ -107,7 +107,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// </summary>
         public ICollection<CheckoutAttributeValue> CheckoutAttributeValues
         {
-            get => _lazyLoader?.Load(this, ref _checkoutAttributeValues) ?? (_checkoutAttributeValues ??= new HashSet<CheckoutAttributeValue>());
+            get => _checkoutAttributeValues ?? _lazyLoader?.Load(this, ref _checkoutAttributeValues) ?? (_checkoutAttributeValues ??= new HashSet<CheckoutAttributeValue>());
             protected set => _checkoutAttributeValues = value;
         }
     }

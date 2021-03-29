@@ -76,7 +76,7 @@ namespace Smartstore.Scheduling
         /// </summary>
         public TaskDescriptor Task
         {
-            get => _lazyLoader?.Load(this, ref _task) ?? _task;
+            get => _task ?? _lazyLoader?.Load(this, ref _task);
             set => _task = value;
         }
 

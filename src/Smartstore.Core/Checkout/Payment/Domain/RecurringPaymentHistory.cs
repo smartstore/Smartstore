@@ -54,7 +54,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         public RecurringPayment RecurringPayment
         {
-            get => _lazyLoader?.Load(this, ref _recurringPayment) ?? _recurringPayment;
+            get => _recurringPayment ?? _lazyLoader?.Load(this, ref _recurringPayment);
             set => _recurringPayment = value;
         }
     }

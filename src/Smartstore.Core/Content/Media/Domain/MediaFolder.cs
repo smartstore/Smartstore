@@ -57,7 +57,7 @@ namespace Smartstore.Core.Content.Media
         [JsonIgnore]
         public MediaFolder Parent
         {
-            get => _lazyLoader?.Load(this, ref _parent) ?? _parent;
+            get => _parent ?? _lazyLoader?.Load(this, ref _parent);
             set => _parent = value;
         }
 

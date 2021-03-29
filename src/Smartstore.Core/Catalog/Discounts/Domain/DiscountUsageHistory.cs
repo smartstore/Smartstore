@@ -55,7 +55,7 @@ namespace Smartstore.Core.Catalog.Discounts
         [JsonIgnore]
         public Discount Discount
         {
-            get => _lazyLoader?.Load(this, ref _discount) ?? _discount;
+            get => _discount ?? _lazyLoader?.Load(this, ref _discount);
             set => _discount = value;
         }
 
@@ -71,7 +71,7 @@ namespace Smartstore.Core.Catalog.Discounts
         [JsonIgnore]
         public Order Order
         {
-            get => _lazyLoader?.Load(this, ref _order) ?? _order;
+            get => _order ?? _lazyLoader?.Load(this, ref _order);
             set => _order = value;
         }
 

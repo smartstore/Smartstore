@@ -41,7 +41,7 @@ namespace Smartstore.Core.Security
         [ForeignKey("PermissionRecordId")]
         public PermissionRecord PermissionRecord
         {
-            get => _lazyLoader?.Load(this, ref _permissionRecord) ?? _permissionRecord;
+            get => _permissionRecord ?? _lazyLoader?.Load(this, ref _permissionRecord);
             set => _permissionRecord = value;
         }
 
@@ -57,7 +57,7 @@ namespace Smartstore.Core.Security
         [ForeignKey("CustomerRoleId")]
         public CustomerRole CustomerRole
         {
-            get => _lazyLoader?.Load(this, ref _customerRole) ?? _customerRole;
+            get => _customerRole ?? _lazyLoader?.Load(this, ref _customerRole);
             set => _customerRole = value;
         }
     }

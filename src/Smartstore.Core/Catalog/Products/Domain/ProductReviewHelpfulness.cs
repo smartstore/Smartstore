@@ -47,7 +47,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ProductReview ProductReview
         {
-            get => _lazyLoader?.Load(this, ref _productReview) ?? _productReview;
+            get => _productReview ?? _lazyLoader?.Load(this, ref _productReview);
             set => _productReview = value;
         }
 

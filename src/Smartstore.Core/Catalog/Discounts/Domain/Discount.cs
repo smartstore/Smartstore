@@ -202,7 +202,7 @@ namespace Smartstore.Core.Catalog.Discounts
         /// </summary>
         public ICollection<RuleSetEntity> RuleSets
         {
-            get => _lazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
+            get => _ruleSets ?? _lazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
             protected set => _ruleSets = value;
         }
 
@@ -212,7 +212,7 @@ namespace Smartstore.Core.Catalog.Discounts
         /// </summary>
         public ICollection<Manufacturer> AppliedToManufacturers
         {
-            get => _lazyLoader?.Load(this, ref _appliedToManufacturers) ?? (_appliedToManufacturers ??= new HashSet<Manufacturer>());
+            get => _appliedToManufacturers ?? _lazyLoader?.Load(this, ref _appliedToManufacturers) ?? (_appliedToManufacturers ??= new HashSet<Manufacturer>());
             protected set => _appliedToManufacturers = value;
         }
 
@@ -222,7 +222,7 @@ namespace Smartstore.Core.Catalog.Discounts
         /// </summary>
         public ICollection<Category> AppliedToCategories
         {
-            get => _lazyLoader?.Load(this, ref _appliedToCategories) ?? (_appliedToCategories ??= new HashSet<Category>());
+            get => _appliedToCategories ?? _lazyLoader?.Load(this, ref _appliedToCategories) ?? (_appliedToCategories ??= new HashSet<Category>());
             protected set => _appliedToCategories = value;
         }
 
@@ -233,7 +233,7 @@ namespace Smartstore.Core.Catalog.Discounts
         [JsonIgnore]
         public ICollection<Product> AppliedToProducts
         {
-            get => _lazyLoader?.Load(this, ref _appliedToProducts) ?? (_appliedToProducts ??= new HashSet<Product>());
+            get => _appliedToProducts ?? _lazyLoader?.Load(this, ref _appliedToProducts) ?? (_appliedToProducts ??= new HashSet<Product>());
             protected set => _appliedToProducts = value;
         }
     }

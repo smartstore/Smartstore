@@ -50,7 +50,7 @@ namespace Smartstore.Core.Catalog.Products
         [JsonIgnore]
         public ICollection<Product> Products
         {
-            get => _lazyLoader?.Load(this, ref _products) ?? (_products ??= new HashSet<Product>());
+            get => _products ?? _lazyLoader?.Load(this, ref _products) ?? (_products ??= new HashSet<Product>());
             protected set => _products = value;
         }
     }

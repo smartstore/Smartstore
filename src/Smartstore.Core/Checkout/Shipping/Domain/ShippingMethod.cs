@@ -86,7 +86,7 @@ namespace Smartstore.Core.Checkout.Shipping
         [JsonIgnore]
         public ICollection<RuleSetEntity> RuleSets
         {
-            get => _lazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
+            get => _ruleSets = _lazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
             protected set => _ruleSets = value;
         }
     }

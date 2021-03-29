@@ -75,7 +75,7 @@ namespace Smartstore.Core.Localization
         /// </summary>
         public Language Language 
         {
-            get => _lazyLoader?.Load(this, ref _language) ?? _language;
+            get => _language ?? _lazyLoader?.Load(this, ref _language);
             set => _language = value;
         }
     }

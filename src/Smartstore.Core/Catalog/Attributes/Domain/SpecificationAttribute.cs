@@ -80,7 +80,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ICollection<SpecificationAttributeOption> SpecificationAttributeOptions
         {
-            get => _lazyLoader?.Load(this, ref _specificationAttributeOptions) ?? (_specificationAttributeOptions ??= new HashSet<SpecificationAttributeOption>());
+            get => _specificationAttributeOptions ?? _lazyLoader?.Load(this, ref _specificationAttributeOptions) ?? (_specificationAttributeOptions ??= new HashSet<SpecificationAttributeOption>());
             protected set => _specificationAttributeOptions = value;
         }
     }

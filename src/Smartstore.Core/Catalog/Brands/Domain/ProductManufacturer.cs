@@ -56,7 +56,7 @@ namespace Smartstore.Core.Catalog.Brands
         /// </summary>
         public Manufacturer Manufacturer
         {
-            get => _lazyLoader?.Load(this, ref _manufacturer) ?? _manufacturer;
+            get => _manufacturer ?? _lazyLoader?.Load(this, ref _manufacturer);
             set => _manufacturer = value;
         }
 
@@ -71,7 +71,7 @@ namespace Smartstore.Core.Catalog.Brands
         /// </summary>
         public Product Product
         {
-            get => _lazyLoader?.Load(this, ref _product) ?? _product;
+            get => _product ?? _lazyLoader?.Load(this, ref _product);
             set => _product = value;
         }
 

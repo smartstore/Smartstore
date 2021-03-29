@@ -106,7 +106,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public MediaFolder Folder
         {
-            get => _lazyLoader?.Load(this, ref _folder) ?? _folder;
+            get => _folder ?? _lazyLoader?.Load(this, ref _folder);
             set => _folder = value;
         }
 
@@ -210,7 +210,7 @@ namespace Smartstore.Core.Content.Media
         [JsonIgnore]
         public MediaStorage MediaStorage
         {
-            get => _lazyLoader?.Load(this, ref _mediaStorage) ?? _mediaStorage;
+            get => _mediaStorage ?? _lazyLoader?.Load(this, ref _mediaStorage);
             set => _mediaStorage = value;
         }
 
@@ -220,7 +220,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public ICollection<MediaTag> Tags
         {
-            get => _lazyLoader?.Load(this, ref _tags) ?? (_tags ??= new HashSet<MediaTag>());
+            get => _tags ?? _lazyLoader?.Load(this, ref _tags) ?? (_tags ??= new HashSet<MediaTag>());
             protected set => _tags = value;
         }
 
@@ -230,7 +230,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public ICollection<MediaTrack> Tracks
         {
-            get => _lazyLoader?.Load(this, ref _tracks) ?? (_tracks ??= new HashSet<MediaTrack>());
+            get => _tracks ?? _lazyLoader?.Load(this, ref _tracks) ?? (_tracks ??= new HashSet<MediaTrack>());
             protected set => _tracks = value;
         }
 
@@ -240,7 +240,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public ICollection<ProductMediaFile> ProductMediaFiles
         {
-            get => _lazyLoader?.Load(this, ref _productMediaFiles) ?? (_productMediaFiles ??= new HashSet<ProductMediaFile>());
+            get => _productMediaFiles ?? _lazyLoader?.Load(this, ref _productMediaFiles) ?? (_productMediaFiles ??= new HashSet<ProductMediaFile>());
             protected set => _productMediaFiles = value;
         }
     }

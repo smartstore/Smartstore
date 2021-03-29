@@ -57,7 +57,7 @@ namespace Smartstore.Core.Content.Menus
         /// </summary>
         [JsonIgnore]
         public MenuEntity Menu {
-            get => _lazyLoader?.Load(this, ref _menu) ?? _menu;
+            get => _menu ?? _lazyLoader?.Load(this, ref _menu);
             set => _menu = value;
         }
 

@@ -52,7 +52,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ProductAttribute ProductAttribute
         {
-            get => _lazyLoader?.Load(this, ref _productAttribute) ?? _productAttribute;
+            get => _productAttribute ?? _lazyLoader?.Load(this, ref _productAttribute);
             set => _productAttribute = value;
         }
 
@@ -62,7 +62,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ICollection<ProductAttributeOption> ProductAttributeOptions
         {
-            get => _lazyLoader?.Load(this, ref _productAttributeOptions) ?? (_productAttributeOptions ??= new HashSet<ProductAttributeOption>());
+            get => _productAttributeOptions ?? _lazyLoader?.Load(this, ref _productAttributeOptions) ?? (_productAttributeOptions ??= new HashSet<ProductAttributeOption>());
             protected set => _productAttributeOptions = value;
         }
     }

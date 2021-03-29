@@ -63,7 +63,7 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public Order Order 
         {
-            get => _lazyLoader?.Load(this, ref _order) ?? _order;
+            get => _order ?? _lazyLoader?.Load(this, ref _order);
             set => _order = value;
         }
     }

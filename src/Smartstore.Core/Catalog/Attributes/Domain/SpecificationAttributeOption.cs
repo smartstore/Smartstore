@@ -49,7 +49,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public SpecificationAttribute SpecificationAttribute
         {
-            get => _lazyLoader?.Load(this, ref _specificationAttribute) ?? _specificationAttribute;
+            get => _specificationAttribute ?? _lazyLoader?.Load(this, ref _specificationAttribute);
             set => _specificationAttribute = value;
         }
 
@@ -90,7 +90,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ICollection<ProductSpecificationAttribute> ProductSpecificationAttributes
         {
-            get => _lazyLoader?.Load(this, ref _productSpecificationAttributes) ?? (_productSpecificationAttributes ??= new HashSet<ProductSpecificationAttribute>());
+            get => _productSpecificationAttributes = _lazyLoader?.Load(this, ref _productSpecificationAttributes) ?? (_productSpecificationAttributes ??= new HashSet<ProductSpecificationAttribute>());
             protected set => _productSpecificationAttributes = value;
         }
     }

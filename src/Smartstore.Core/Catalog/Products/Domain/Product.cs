@@ -405,7 +405,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public Download SampleDownload
         {
-            get => LazyLoader?.Load(this, ref _sampleDownload) ?? _sampleDownload;
+            get => _sampleDownload ?? LazyLoader?.Load(this, ref _sampleDownload);
             set => _sampleDownload = value;
         }
 
@@ -798,7 +798,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public DeliveryTime DeliveryTime
         {
-            get => LazyLoader?.Load(this, ref _deliveryTime) ?? _deliveryTime;
+            get => _deliveryTime ?? LazyLoader?.Load(this, ref _deliveryTime);
             set => _deliveryTime = value;
         }
 
@@ -808,7 +808,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public QuantityUnit QuantityUnit
         {
-            get => LazyLoader?.Load(this, ref _quantityUnit) ?? _quantityUnit;
+            get => _quantityUnit ?? LazyLoader?.Load(this, ref _quantityUnit);
             set => _quantityUnit = value;
         }
 
@@ -829,7 +829,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public Country CountryOfOrigin
         {
-            get => LazyLoader?.Load(this, ref _countryOfOrigin) ?? _countryOfOrigin;
+            get => _countryOfOrigin ?? LazyLoader?.Load(this, ref _countryOfOrigin);
             set => _countryOfOrigin = value;
         }
 

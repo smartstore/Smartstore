@@ -111,7 +111,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// </summary> 
         public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
         {
-            get => _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
+            get => _giftCardUsageHistory ?? _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
             protected set => _giftCardUsageHistory = value;
         }
                 
@@ -121,7 +121,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// </summary>
         public OrderItem PurchasedWithOrderItem
         {
-            get => _lazyLoader?.Load(this, ref _purchasedWithOrderItem) ?? _purchasedWithOrderItem;
+            get => _purchasedWithOrderItem ?? _lazyLoader?.Load(this, ref _purchasedWithOrderItem);
             set => _purchasedWithOrderItem = value;
         }
     }

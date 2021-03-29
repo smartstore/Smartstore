@@ -135,7 +135,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>        
         public Product Product
         {
-            get => _lazyLoader?.Load(this, ref _product) ?? _product;
+            get => _product ?? _lazyLoader?.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -145,7 +145,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public Customer Customer
         {
-            get => _lazyLoader?.Load(this, ref _customer) ?? _customer;
+            get => _customer ?? _lazyLoader?.Load(this, ref _customer);
             set => _customer = value;
         }
 
@@ -155,7 +155,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public ProductBundleItem BundleItem
         {
-            get => _lazyLoader?.Load(this, ref _bundleItem) ?? _bundleItem;
+            get => _bundleItem ?? _lazyLoader?.Load(this, ref _bundleItem);
             set => _bundleItem = value;
         }
 

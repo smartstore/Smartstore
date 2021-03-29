@@ -49,7 +49,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ProductAttributeOptionsSet ProductAttributeOptionsSet
         {
-            get => _lazyLoader?.Load(this, ref _productAttributeOptionsSet) ?? _productAttributeOptionsSet;
+            get => _productAttributeOptionsSet ?? _lazyLoader?.Load(this, ref _productAttributeOptionsSet);
             set => _productAttributeOptionsSet = value;
         }
 

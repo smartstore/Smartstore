@@ -49,7 +49,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public Product Product
         {
-            get => _lazyLoader?.Load(this, ref _product) ?? _product;
+            get => _product ?? _lazyLoader?.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -86,7 +86,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ICollection<ProductReviewHelpfulness> ProductReviewHelpfulnessEntries
         {
-            get => _lazyLoader?.Load(this, ref _productReviewHelpfulnessEntries) ?? (_productReviewHelpfulnessEntries ??= new HashSet<ProductReviewHelpfulness>());
+            get => _productReviewHelpfulnessEntries ?? _lazyLoader?.Load(this, ref _productReviewHelpfulnessEntries) ?? (_productReviewHelpfulnessEntries ??= new HashSet<ProductReviewHelpfulness>());
             protected set => _productReviewHelpfulnessEntries = value;
         }
     }
