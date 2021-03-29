@@ -51,7 +51,6 @@ namespace Smartstore.Collections
         /// Data keys are collected internally in order to load the associated data in one go using <see cref="GetOrLoadAsync(int)"/> or <see cref="GetOrLoad(int)"/>.
         /// </summary>
         /// <param name="keys">Data keys like <see cref="BaseEntity.Id"/>.</param>
-        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
         public virtual void Collect(IEnumerable<int> keys)
         {
             if (keys?.Any() ?? false)

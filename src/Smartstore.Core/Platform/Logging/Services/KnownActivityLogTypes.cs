@@ -4,6 +4,6 @@ namespace Smartstore.Core.Logging
 {
     public static class KnownActivityLogTypes
     {
-        // TODO: (core) Declare all known activity log type system names as constants.
+        // TODO: (ms) (core) Declare all known activity log type system names as constants.
     }
 }
