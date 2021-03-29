@@ -149,6 +149,7 @@ namespace Smartstore.Web.Models.Catalog
         
         public ProductReviewsModel ProductReviews { get; set; } = new();
 
+        public ProductSummaryModel AlsoPurchased { get; set; }
         public ProductSummaryModel RelatedProducts { get; set; }
 
         public bool CompareEnabled { get; set; }

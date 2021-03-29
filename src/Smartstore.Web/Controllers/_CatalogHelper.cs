@@ -946,6 +946,9 @@ namespace Smartstore.Web.Controllers
             // Related products
             await PrepareRelatedProductsModelAsync(model, product);
 
+            // Also purchased products
+            await PrepareAlsoPurchasedProductsModelAsync(model, product);
+
             _services.DisplayControl.Announce(product);
         }
 
@@ -1751,6 +1754,35 @@ namespace Smartstore.Web.Controllers
 
             model.RelatedProducts = await MapProductSummaryModelAsync(products, settings);
             model.RelatedProducts.ShowBasePrice = false;
+        }
+
+        protected async Task PrepareAlsoPurchasedProductsModelAsync(ProductDetailsModel model, Product product)
+        {
+            if (!_catalogSettings.ProductsAlsoPurchasedEnabled)
+            {
+                return;
+            }
+
+            var storeId = _services.StoreContext.CurrentStore.Id;
+
+            var alsoPurchasedProductIds = await _services.Cache.GetAsync(string.Format(ModelCacheInvalidator.PRODUCTS_ALSO_PURCHASED_IDS_KEY, product.Id, storeId), async () =>
+            {
+                return await _db.OrderItems
+                    .AsNoTracking()
+                    .SelectAlsoPurchasedProductIds(product.Id, _catalogSettings.ProductsAlsoPurchasedNumber, storeId)
+                    .ToArrayAsync();
+            });
+
+            var products = await _db.Products
+                .ApplyAclFilter(_services.WorkContext.CurrentCustomer)
+                .ApplyStoreFilter(storeId)
+                .Where(x => alsoPurchasedProductIds.Contains(x.Id))
+                .ToListAsync();
+
+            products = products.OrderBySequence(alsoPurchasedProductIds).ToList();
+
+            var settings = GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode.Mini);
+            model.AlsoPurchased = await MapProductSummaryModelAsync(products, settings);
         }
 
         #endregion
