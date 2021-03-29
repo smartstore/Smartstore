@@ -943,6 +943,9 @@ namespace Smartstore.Web.Controllers
             // Tags
             await PrepareProductTagsModelAsync(model, product);
 
+            // Related products
+            await PrepareRelatedProductsModelAsync(model, product);
+
             _services.DisplayControl.Announce(product);
         }
 
@@ -1722,6 +1725,32 @@ namespace Smartstore.Web.Controllers
             });
 
             model.ProductTags = cacheModel;
+        }
+
+        protected async Task PrepareRelatedProductsModelAsync(ProductDetailsModel model, Product product)
+        {
+            var relatedProductIds = await _db.RelatedProducts
+                .AsNoTracking()
+                .Where(x => x.ProductId1 == product.Id)
+                .OrderBy(x => x.DisplayOrder)
+                .Select(x => x.ProductId2)
+                .ToArrayAsync();
+
+            var products = await _db.Products
+                .ApplyAclFilter(_services.WorkContext.CurrentCustomer)
+                .ApplyStoreFilter(_services.StoreContext.CurrentStore.Id)
+                .Where(x => relatedProductIds.Contains(x.Id))
+                .ToListAsync();
+
+            products = products.OrderBySequence(relatedProductIds).ToList();
+
+            var settings = GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode.Grid, x =>
+            {
+                x.DeliveryTimesPresentation = DeliveryTimesPresentation.None;
+            });
+
+            model.RelatedProducts = await MapProductSummaryModelAsync(products, settings);
+            model.RelatedProducts.ShowBasePrice = false;
         }
 
         #endregion
