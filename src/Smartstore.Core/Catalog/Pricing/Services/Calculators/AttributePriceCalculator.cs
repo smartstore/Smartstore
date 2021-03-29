@@ -29,6 +29,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             var product = context.Product;
             var options = context.Options;
+            // TODO: (mg) (core) And who sets these Values? The caller? That would make things really complicated.
             var values = context.AttributeValues;
 
             if (options.IgnoreAttributes || !(values?.Any() ?? false))
@@ -61,6 +62,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     if (processTierPrices && value.PriceAdjustment > decimal.Zero)
                     {
                         var tierPrices = await options.BatchContext.TierPrices.GetOrLoadAsync(product.Id);
+                        // TODO: (mg) (core) I don't like the fact that everytime we fetch TierPrices, dupe removal is performed.
+                        //       Find a way to make this only once during pipeline execution.
                         tierPrices = tierPrices.RemoveDuplicatedQuantities();
 
                         var priceAdjustment = GetTierPriceAttributeAdjustment(product, tierPrices, context.Quantity, value.PriceAdjustment);
