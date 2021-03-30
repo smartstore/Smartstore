@@ -36,7 +36,7 @@ namespace Smartstore.Web.Components
                 if (pngIcon != null)
                 {
                     var pngSizes = new[] { 16, 32, 96, 196 };
-                    AddThumbnails(pngIcon, pngSizes, model.PngIcons);
+                    AddIconUrls(pngIcon, pngSizes, model.PngIcons);
                 }
 
                 // AppleTouchIcon
@@ -44,7 +44,7 @@ namespace Smartstore.Web.Components
                 if (appleTouchIcon != null)
                 {
                     var appleTouchSizes = new[] { 57, 60, 72, 76, 114, 120, 144, 152, 180 };
-                    AddThumbnails(appleTouchIcon, appleTouchSizes, model.AppleTouchIcons);
+                    AddIconUrls(appleTouchIcon, appleTouchSizes, model.AppleTouchIcons);
                 }
 
                 // MS Tiles
@@ -57,7 +57,7 @@ namespace Smartstore.Web.Components
             return View(model);
         }
 
-        private void AddThumbnails(MediaFileInfo file, int[] sizes, List<FaviconModel.Favicon> urls)
+        private void AddIconUrls(MediaFileInfo file, int[] sizes, List<FaviconModel.Favicon> urls)
         {
             foreach (var size in sizes)
             {

@@ -1710,14 +1710,13 @@ namespace Smartstore.Web.Controllers
 
                 var tagModel = await productTags.SelectAsync(async x =>
                     {
-                        var ptModel = new ProductTagModel
+                        return new ProductTagModel
                         {
                             Id = x.Id,
                             Name = x.GetLocalized(y => y.Name),
                             Slug = x.BuildSlug(),
                             ProductCount = await _productTagService.CountProductsByTagIdAsync(x.Id, storeId: storeId)
                         };
-                        return ptModel;
                     })
                     .AsyncToList();
 

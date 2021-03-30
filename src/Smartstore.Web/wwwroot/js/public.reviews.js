@@ -1,9 +1,6 @@
-﻿
-;
+﻿;
 (function ($, window, document, undefined) {
-
     $(function () {
-
         $(".review-list").on("click", ".review-vote-link", function (e) {
             var el = $(this);
             var reviewId = el.parent().data("review-id");
@@ -32,8 +29,6 @@
             }
             return false;
         });
-
     });
-
 })(jQuery, this, document);
 

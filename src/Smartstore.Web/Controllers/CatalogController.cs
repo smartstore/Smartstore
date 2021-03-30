@@ -218,6 +218,8 @@ namespace Smartstore.Web.Controllers
             // Activity log.
             Services.ActivityLogger.LogActivity("PublicStore.ViewCategory", T("ActivityLog.PublicStore.ViewCategory"), category.Name);
 
+            Services.DisplayControl.Announce(category);
+
             return View(templateViewPath, model);
         }
 
@@ -331,7 +333,6 @@ namespace Smartstore.Web.Controllers
             // Activity log.
             Services.ActivityLogger.LogActivity("PublicStore.ViewManufacturer", T("ActivityLog.PublicStore.ViewManufacturer"), manufacturer.Name);
 
-            // TODO: (mh) (core) Why weren't categories announced?
             Services.DisplayControl.Announce(manufacturer);
 
             return View(templateViewPath, model);
