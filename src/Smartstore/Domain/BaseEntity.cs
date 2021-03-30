@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Smartstore.Domain
 {
@@ -10,6 +11,18 @@ namespace Smartstore.Domain
     /// </summary>
     public abstract partial class BaseEntity : INamedEntity, IEquatable<BaseEntity>
     {
+        protected BaseEntity()
+        {
+        }
+
+        protected BaseEntity(ILazyLoader lazyLoader)
+        {
+            LazyLoader = lazyLoader;
+        }
+
+        [NotMapped] // TODO: (core) Remove [NotMappedAttribute] once the EF bug (https://github.com/dotnet/efcore/issues/23968) is fixed.
+        protected internal virtual ILazyLoader LazyLoader { get; set; }
+
         /// <summary>
         /// Gets or sets the entity identifier
         /// </summary>

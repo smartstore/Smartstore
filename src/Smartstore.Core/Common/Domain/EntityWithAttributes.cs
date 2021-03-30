@@ -1,20 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
-using Smartstore.Core;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Data;
-using Smartstore.Core.Stores;
 using Smartstore.Engine;
 
 namespace Smartstore.Domain
 {
     public abstract class EntityWithAttributes : BaseEntity
     {
+        protected EntityWithAttributes()
+        {
+        }
+
+        protected EntityWithAttributes(ILazyLoader lazyLoader)
+            : base(lazyLoader)
+        {
+        }
+
         /// <summary>
         /// Gets a specialized generic attributes collection for the current entity.
         /// Loaded data will be cached for the duration of the request.

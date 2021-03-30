@@ -36,12 +36,10 @@ namespace Smartstore.Core.Stores
         {
         }
 
-        private readonly ILazyLoader _lazyLoader;
-
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private Store(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -142,7 +140,7 @@ namespace Smartstore.Core.Stores
         /// </summary>
         public Currency PrimaryStoreCurrency
         { 
-            get => _primaryStoreCurrency ?? _lazyLoader?.Load(this, ref _primaryStoreCurrency);
+            get => _primaryStoreCurrency ?? LazyLoader.Load(this, ref _primaryStoreCurrency);
             set => _primaryStoreCurrency = value;
         }
 
@@ -152,7 +150,7 @@ namespace Smartstore.Core.Stores
         /// </summary>
         public Currency PrimaryExchangeRateCurrency 
         {
-            get => _primaryExchangeRateCurrency ?? _lazyLoader?.Load(this, ref _primaryExchangeRateCurrency);
+            get => _primaryExchangeRateCurrency ?? LazyLoader.Load(this, ref _primaryExchangeRateCurrency);
             set => _primaryExchangeRateCurrency = value;
         }
 

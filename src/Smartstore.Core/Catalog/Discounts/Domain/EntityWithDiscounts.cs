@@ -15,12 +15,9 @@ namespace Smartstore.Core.Catalog.Discounts
         }
 
         protected EntityWithDiscounts(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            LazyLoader = lazyLoader;
         }
-
-        [NotMapped]
-        protected ILazyLoader LazyLoader { get; }
 
         /// <inheritdoc />
         public bool HasDiscountsApplied { get; set; }
