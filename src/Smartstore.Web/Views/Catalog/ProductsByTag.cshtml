@@ -5,7 +5,7 @@
 @{
     Assets.AppendTitleParts(T("PageTitle.ProductsByTag", Model.TagName));
     Assets.AppendMetaDescriptionParts(T("PageTitle.ProductsByTag", Model.TagName));
-    
+
     if (Model.CanonicalUrl.HasValue())
     {
         Assets.AppendCanonicalUrlParts(Model.CanonicalUrl);
@@ -14,9 +14,12 @@
     ViewBag.HideLeftCol = true; // ...on mobile
 }
 
-<widget sm-if="Model.SearchResult.Facets.Count > 0" target-zone="left">
-    <partial name="Filters" model="Model" />
-</widget>
+@if (Model.SearchResult.Facets.Count > 0)
+{
+    <widget target-zone="left">
+        <partial name="Filters" model="Model" />
+    </widget>
+}
 
 <div class="page product-tag-page">
     <div class="page-title">
