@@ -212,7 +212,9 @@ namespace Smartstore.Web.Controllers
 
             var product = await _db.Products.FindByIdAsync(productId);
             var batchContext = _productService.CreateProductBatchContext(new[] { product }, includeHidden: false);
-            var bItem = await _db.ProductBundleItem.FindByIdAsync(bundleItemId, false);
+            var bItem = await _db.ProductBundleItem
+                .Include(x => x.BundleProduct)
+                .FindByIdAsync(bundleItemId, false);
 
             IList<ProductBundleItemData> bundleItemDatas = null;
             ProductBundleItemData bundleItem = bItem == null ? null : new ProductBundleItemData(bItem);
@@ -280,7 +282,7 @@ namespace Smartstore.Web.Controllers
                 if (!bundleItem.Item.HideThumbnail)
                 {
                     var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
-                    var hasFile = await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]);
+                    var hasFile = assignedMediaIds.Any() && await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]);
                     if (assignedMediaIds.Any() && hasFile)
                     {
                         var file = await _db.ProductMediaFiles
