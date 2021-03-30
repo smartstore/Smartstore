@@ -121,7 +121,7 @@ namespace Smartstore.Core.Common
         /// </summary>
         public Country Country
         {
-            get => _country = _lazyLoader?.Load(this, ref _country);
+            get => _country ?? _lazyLoader?.Load(this, ref _country);
             set => _country = value;
         }
 
@@ -131,7 +131,7 @@ namespace Smartstore.Core.Common
         /// </summary>
         public StateProvince StateProvince
         {
-            get => _stateProvince = _lazyLoader?.Load(this, ref _stateProvince);
+            get => _stateProvince ?? _lazyLoader?.Load(this, ref _stateProvince);
             set => _stateProvince = value;
         }
 
