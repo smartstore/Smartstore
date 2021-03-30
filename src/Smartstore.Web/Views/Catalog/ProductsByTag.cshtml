@@ -15,7 +15,7 @@
 }
 
 <widget sm-if="Model.SearchResult.Facets.Count > 0" target-zone="left">
-    @*TODO: (mg) (core) Implement "Filters", "Search".*@
+    <partial name="Filters" model="Model" />
 </widget>
 
 <div class="page product-tag-page">

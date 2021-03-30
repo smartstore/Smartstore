@@ -18,7 +18,7 @@
 <partial name="MetaProperties" model="Model.MetaProperties" />
 
 <widget sm-if="Model.SearchResult.Facets.Count > 0" target-zone="left">
-    @*TODO: (mg) (core) Implement "Filters", "Search".*@
+    <partial name="Filters" model="Model" />
 </widget>
 
 <div class="page manufacturer-page">

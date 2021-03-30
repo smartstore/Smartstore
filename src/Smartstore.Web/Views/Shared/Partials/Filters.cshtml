@@ -1,0 +1,54 @@
+﻿@using Smartstore.Web.Models.Search
+@using Smartstore.Core.Search.Facets
+
+@model ISearchResultModel
+
+@{
+    var templateProvider = Resolve<IFacetTemplateProvider>();
+    var facetGroups = Model.SearchResult.Facets.Select(x => x.Value).OrderBy(x => x.DisplayOrder);
+
+    int i = 0;
+
+    if (Model == null)
+    {
+        return;
+    }
+}
+
+<zone name="search_filters_before" />
+
+<div class="faceted-search-container">
+    <div class="faceted-search" id="faceted-search">
+        @foreach (var group in facetGroups)
+        {
+            i++;
+            var selectedFilters = group.SelectedFacets.ToArray();
+            var selectedCount = selectedFilters.Length;
+            var expanded = i <= 3 || selectedCount > 0;
+
+            <div class="facet-group" data-key="@group.Key">
+                <a class="facet-group-header facet-toggle@(!expanded ? " collapsed" : "")@(selectedCount > 0 ? " has-selection" : "")"
+                   data-toggle="collapse"
+                   href="#facet-body-@(group.Key)"
+                   aria-expanded="@expanded"
+                   aria-controls="facet-body-@(group.Key)"
+                   attr-data-selections="(selectedCount > 0, selectedCount.ToString())">
+
+                    <span sm-if="selectedCount > 0" class="facet-selection">@T("Search.Facet.SelectedCount", selectedCount)</span>
+                    @(group.Label ?? group.Key)
+                </a>
+                <div id="facet-body-@(group.Key)" class="facet-body collapse@(expanded ? " show" : "")" aria-expanded="@expanded">
+                    @await templateProvider.GetTemplateWidget(group).InvokeAsync(ViewContext)
+                    @if (selectedCount > 0)
+                    {
+                        <a href="@Url.FacetRemove(selectedFilters)" class="btn-remove-group-filters">
+                            @T("Search.Facet.RemoveGroupFilters")
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<zone name="search_filters_after" />
