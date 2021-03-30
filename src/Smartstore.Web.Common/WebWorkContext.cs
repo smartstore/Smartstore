@@ -36,7 +36,6 @@ namespace Smartstore.Web
         // KeyItem1 = CustomerId, KeyItem2 = StoreId
         private readonly Dictionary<(int, int), TaxDisplayType> _taxDisplayTypes = new();
 
-        private TaxDisplayType? _taxDisplayType;
         private Language _language;
         private Customer _customer;
         private Currency _currency;

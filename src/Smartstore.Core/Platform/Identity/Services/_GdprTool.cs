@@ -35,7 +35,6 @@ namespace Smartstore.Core.Identity
 		//// TODO: (core) Apply IBackInStockSubscriptionService to GdprTool when ported.
 		//private readonly IBackInStockSubscriptionService _backInStockSubscriptionService;
 		private readonly ILanguageService _languageService;
-		private readonly ICommonServices _services;
 		private readonly IWorkContext _workContext;
 		private readonly IEventPublisher _eventPublisher;
 

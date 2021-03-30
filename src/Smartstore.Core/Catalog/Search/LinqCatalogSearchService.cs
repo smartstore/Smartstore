@@ -43,7 +43,6 @@ namespace Smartstore.Core.Catalog.Search
 
             var totalHits = 0;
             int[] hitsEntityIds = null;
-            Func<Task<IList<Product>>> hitsFactory = null;
             IDictionary<string, FacetGroup> facets = null;
 
             if (searchQuery.Take > 0)

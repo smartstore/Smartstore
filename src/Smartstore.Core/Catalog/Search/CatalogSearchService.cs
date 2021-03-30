@@ -71,7 +71,6 @@ namespace Smartstore.Core.Catalog.Search
                     int[] hitsEntityIds = null;
                     string[] spellCheckerSuggestions = null;
                     IEnumerable<ISearchHit> searchHits;
-                    Func<Task<IList<Product>>> hitsFactory = null;
                     IDictionary<string, FacetGroup> facets = null;
 
                     await _services.EventPublisher.PublishAsync(new CatalogSearchingEvent(searchQuery, false));
