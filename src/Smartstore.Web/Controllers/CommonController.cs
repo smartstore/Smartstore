@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -16,6 +15,7 @@ namespace Smartstore.Web.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly Lazy<IMediaService> _mediaService;
+        private readonly Lazy<ILanguageService> _languageService;
         private readonly IThemeContext _themeContext;
         private readonly IThemeRegistry _themeRegistry;
         private readonly ThemeSettings _themeSettings;
@@ -24,6 +24,7 @@ namespace Smartstore.Web.Controllers
         public CommonController(
             SmartDbContext db,
             Lazy<IMediaService> mediaService,
+            Lazy<ILanguageService> languageService,
             IThemeContext themeContext, 
             IThemeRegistry themeRegistry, 
             ThemeSettings themeSettings,
@@ -31,6 +32,7 @@ namespace Smartstore.Web.Controllers
         {
             _db = db;
             _mediaService = mediaService;
+            _languageService = languageService;
             _themeContext = themeContext;
             _themeRegistry = themeRegistry;
             _themeSettings = themeSettings;
@@ -105,7 +107,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/set-language/{langid:int}", Name = "ChangeLanguage")]
         public async Task<IActionResult> SetLanguage(int langid, string returnUrl = "")
         {
-            var language = await _db.Languages.FindByIdAsync(langid);
+            var language = await _db.Languages.FindByIdAsync(langid, false);
             if (language != null && language.Published)
             {
                 Services.WorkContext.WorkingLanguage = language;
@@ -115,8 +117,12 @@ namespace Smartstore.Web.Controllers
 
             if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
-                // TODO: (mh) (core) Don't prepend code if it is master language and master is prefixless by configuration.
-                helper.PrependCultureCode(Services.WorkContext.WorkingLanguage.UniqueSeoCode, true);
+                // Don't prepend culture code if it is master language and master is prefixless by configuration.
+                string defaultSeoCode = await _languageService.Value.GetMasterLanguageSeoCodeAsync();
+                if (language.UniqueSeoCode != defaultSeoCode && _localizationSettings.DefaultLanguageRedirectBehaviour == 0)
+                {
+                    helper.PrependCultureCode(Services.WorkContext.WorkingLanguage.UniqueSeoCode, true);
+                }
             }
 
             returnUrl = helper.FullPath;

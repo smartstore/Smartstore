@@ -96,7 +96,6 @@ namespace Smartstore.Web.Components
 
         private async Task<LocalizedUrlHelper> CreateUrlHelperForLanguageSelectorAsync(LanguageModel model, int currentLanguageId)
         {
-            // TODO: (mh) (core) Debug & Test once product actions are implemented.
             if (currentLanguageId != model.Id)
             {
                 var routeValues = Request.RouteValues;

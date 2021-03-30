@@ -63,7 +63,7 @@ namespace Smartstore.Core.Data.Setup
 
         public Task<List<MediaFile>> Pictures()
         {
-            // TODO: (mh) (core) Make ALL methods either async or sync. Don't mix up, it's unpredictable. Make them return Task<T>.
+            // TODO: (ms) (core) Make ALL methods either async or sync. Don't mix up, it's unpredictable. Make them return Task<T>.
             var entities = new List<MediaFile>
             {
                 CreatePicture("company-logo.png"),

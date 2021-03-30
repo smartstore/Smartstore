@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.Catalog
 {
-    // TODO: (mh) (core) uncomment when validation is available.
-    //[Validator(typeof(ProductAskQuestionValidator))]
     public partial class ProductAskQuestionModel : EntityModelBase
     {
         public LocalizedValue<string> ProductName { get; set; }
@@ -37,15 +37,14 @@ namespace Smartstore.Web.Models.Catalog
         public bool DisplayCaptcha { get; set; }
     }
 
-    // TODO: (mh) (core) uncomment when validation is available.
-    //public class ProductAskQuestionValidator : AbstractValidator<ProductAskQuestionModel>
-    //{
-    //    public ProductAskQuestionValidator(PrivacySettings privacySettings)
-    //    {
-    //        if (privacySettings.FullNameOnProductRequestRequired)
-    //        {
-    //            RuleFor(x => x.SenderName).NotEmpty();
-    //        }
-    //    }
-    //}
+    public class ProductAskQuestionValidator : SmartValidator<ProductAskQuestionModel>
+    {
+        public ProductAskQuestionValidator(PrivacySettings privacySettings)
+        {
+            if (privacySettings.FullNameOnProductRequestRequired)
+            {
+                RuleFor(x => x.SenderName).NotEmpty();
+            }
+        }
+    }
 }

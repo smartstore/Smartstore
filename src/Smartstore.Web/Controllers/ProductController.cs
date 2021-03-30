@@ -197,7 +197,9 @@ namespace Smartstore.Web.Controllers
         }
 
         /// <summary>
-        /// TODO: (mh) (core) Describe what this action does.
+        /// This action is used to update the display of product detail view.
+        /// It will be called via AJAX upon user interaction (e.g. changing of quantity || attribute selection).
+        /// All relevasnt product partials will be rendered with updated models and returned as JSON data.
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> UpdateProductDetails(int productId, string itemType, int bundleItemId, ProductVariantQuery query)
