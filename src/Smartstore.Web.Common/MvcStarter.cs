@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Autofac;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
@@ -28,6 +30,7 @@ using Smartstore.IO;
 using Smartstore.Net;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Razor;
 using Smartstore.Web.Theming;
 
@@ -110,7 +113,38 @@ namespace Smartstore.Web
                 {
                     // TODO: (core) FileProvider
                 })
-                //// TODO: (core) Add FluentValidation
+                .AddFluentValidation(c => 
+                {
+                    c.LocalizationEnabled = true;
+                    c.ImplicitlyValidateChildProperties = true;
+
+                    // Scan active assemblies for validators
+                    c.RegisterValidatorsFromAssemblies(appContext.TypeScanner.Assemblies, lifetime: ServiceLifetime.Scoped);
+
+                    var opts = c.ValidatorOptions;
+
+                    // It sais 'not recommended', but who cares: SAVE RAM!
+                    opts.DisableAccessorCache = true;
+
+                    // Language Manager
+                    opts.LanguageManager = new ValidatorLanguageManager(appContext);
+
+                    // Display name resolver
+                    var originalDisplayNameResolver = opts.DisplayNameResolver;
+                    opts.DisplayNameResolver = (type, member, expression) =>
+                    {
+                        string name = null;
+
+                        if (expression != null && member != null)
+                        {
+                            var metadataProvider = EngineContext.Current.Application.Services.Resolve<IModelMetadataProvider>();
+                            var metadata = metadataProvider.GetMetadataForProperty(type, member.Name);
+                            name = metadata.DisplayName;
+                        }
+
+                        return name ?? originalDisplayNameResolver.Invoke(type, member, expression);
+                    };
+                })
                 .AddNewtonsoftJson(o =>
                 {
                     var settings = o.SerializerSettings;
