@@ -23,16 +23,14 @@ namespace Smartstore.Core.Catalog.Products
     /// </summary>
     public partial class ProductBundleItemAttributeFilter : BaseEntity, ICloneable<ProductBundleItemAttributeFilter>
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductBundleItemAttributeFilter()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductBundleItemAttributeFilter(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -46,7 +44,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ProductBundleItem BundleItem
         {
-            get => _bundleItem ?? _lazyLoader?.Load(this, ref _bundleItem);
+            get => _bundleItem ?? LazyLoader.Load(this, ref _bundleItem);
             set => _bundleItem = value;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -25,15 +26,14 @@ namespace Smartstore.Core.Checkout.Shipping
     /// </summary>
     public partial class Shipment : EntityWithAttributes
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public Shipment()
         {
         }
 
-        public Shipment(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private Shipment(ILazyLoader lazyLoader)
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         public Order Order
         {
-            get => _order ?? _lazyLoader?.Load(this, ref _order);
+            get => _order ?? LazyLoader.Load(this, ref _order);
             set => _order = value;
         }
 
@@ -89,7 +89,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         public ICollection<ShipmentItem> ShipmentItems
         {
-            get => _shipmentItems ?? _lazyLoader?.Load(this, ref _shipmentItems) ?? (_shipmentItems ??= new HashSet<ShipmentItem>());
+            get => _shipmentItems ?? LazyLoader.Load(this, ref _shipmentItems) ?? (_shipmentItems ??= new HashSet<ShipmentItem>());
             protected set => _shipmentItems = value;
         }
     }

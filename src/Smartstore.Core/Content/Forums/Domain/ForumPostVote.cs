@@ -24,16 +24,14 @@
 //    [Table("ForumPostVote")] // Enables EF TPT inheritance
 //    public partial class ForumPostVote : CustomerContent
 //    {
-//        private readonly ILazyLoader _lazyLoader;
-
 //        public ForumPostVote()
 //        {
 //        }
 
 //        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 //        private ForumPostVote(ILazyLoader lazyLoader)
+//            : base(lazyLoader)
 //        {
-//            _lazyLoader = lazyLoader;
 //        }
 
 //        /// <summary>
@@ -50,8 +48,9 @@
 //        /// <summary>
 //        /// Forum post entity.
 //        /// </summary>
-//        public virtual ForumPost ForumPost {
-//            get => _lazyLoader?.Load(this, ref _forumPost) ?? _forumPost;
+//        public virtual ForumPost ForumPost
+//        {
+//            get => _forumPost ?? LazyLoader.Load(this, ref _forumPost);
 //            protected set => _forumPost = value;
 //        }
 //    }

@@ -31,15 +31,13 @@ namespace Smartstore.Core.Checkout.Attributes
     [CacheableEntity]
     public partial class CheckoutAttributeValue : BaseEntity, ILocalizedEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public CheckoutAttributeValue()
         {
         }
 
         public CheckoutAttributeValue(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -91,7 +89,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// </summary>
         public MediaFile MediaFile
         {
-            get => _mediaFile ?? _lazyLoader?.Load(this, ref _mediaFile);
+            get => _mediaFile ?? LazyLoader.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
 
@@ -102,7 +100,7 @@ namespace Smartstore.Core.Checkout.Attributes
         [JsonIgnore]
         public CheckoutAttribute CheckoutAttribute
         {
-            get => _checkoutAttribute ?? _lazyLoader?.Load(this, ref _checkoutAttribute);
+            get => _checkoutAttribute ?? LazyLoader.Load(this, ref _checkoutAttribute);
             set => _checkoutAttribute = value;
         }
     }

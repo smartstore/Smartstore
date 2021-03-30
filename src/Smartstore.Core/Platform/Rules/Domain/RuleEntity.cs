@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
@@ -12,15 +13,14 @@ namespace Smartstore.Core.Rules
     [Index(nameof(DisplayOrder), Name = "IX_PageBuilder_DisplayOrder")]
     public partial class RuleEntity : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public RuleEntity()
         {
         }
 
-        public RuleEntity(ILazyLoader lazyLoader)
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private RuleEntity(ILazyLoader lazyLoader) 
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         [Required]
@@ -31,7 +31,7 @@ namespace Smartstore.Core.Rules
         [JsonIgnore]
         public RuleSetEntity RuleSet
         {
-            get => _ruleSet = _lazyLoader?.Load(this, ref _ruleSet);
+            get => _ruleSet = LazyLoader.Load(this, ref _ruleSet);
             set => _ruleSet = value;
         }
 

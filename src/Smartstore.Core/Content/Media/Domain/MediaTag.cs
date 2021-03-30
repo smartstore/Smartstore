@@ -17,16 +17,14 @@ namespace Smartstore.Core.Content.Media
     [CacheableEntity]
     public partial class MediaTag : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public MediaTag()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private MediaTag(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -42,7 +40,7 @@ namespace Smartstore.Core.Content.Media
         [JsonIgnore]
         public ICollection<MediaFile> MediaFiles
         {
-            get => _lazyLoader?.Load(this, ref _mediaFiles) ?? (_mediaFiles ??= new HashSet<MediaFile>());
+            get => _mediaFiles ?? LazyLoader.Load(this, ref _mediaFiles) ?? (_mediaFiles ??= new HashSet<MediaFile>());
             protected set => _mediaFiles = value;
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -22,15 +23,14 @@ namespace Smartstore.Core.Checkout.Payment
     /// </summary>
     public partial class RecurringPaymentHistory : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public RecurringPaymentHistory()
         {
         }
 
-        public RecurringPaymentHistory(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private RecurringPaymentHistory(ILazyLoader lazyLoader)
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         public RecurringPayment RecurringPayment
         {
-            get => _recurringPayment ?? _lazyLoader?.Load(this, ref _recurringPayment);
+            get => _recurringPayment ?? LazyLoader.Load(this, ref _recurringPayment);
             set => _recurringPayment = value;
         }
     }

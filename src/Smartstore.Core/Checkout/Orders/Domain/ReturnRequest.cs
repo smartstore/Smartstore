@@ -27,16 +27,14 @@ namespace Smartstore.Core.Checkout.Orders
     /// </summary>
     public partial class ReturnRequest : BaseEntity, IAuditable
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ReturnRequest()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ReturnRequest(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -60,7 +58,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Customer Customer
         {
-            get => _customer ?? _lazyLoader?.Load(this, ref _customer);
+            get => _customer ?? LazyLoader.Load(this, ref _customer);
             set => _customer = value;
         }
 

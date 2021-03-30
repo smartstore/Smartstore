@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -34,7 +35,6 @@ namespace Smartstore.Core.Checkout.Orders
     /// </summary>
     public partial class OrderItem : BaseEntity, IAttributeAware
     {
-        private readonly ILazyLoader _lazyLoader;
         private ProductVariantAttributeSelection _attributeSelection;
         private string _rawAttributes;
 
@@ -42,9 +42,10 @@ namespace Smartstore.Core.Checkout.Orders
         {
         }
 
-        public OrderItem(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private OrderItem(ILazyLoader lazyLoader)
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -173,7 +174,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Order Order
         {
-            get => _order ?? _lazyLoader?.Load(this, ref _order);
+            get => _order ?? LazyLoader.Load(this, ref _order);
             set => _order = value;
         }
 
@@ -183,7 +184,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Product Product
         { 
-            get => _product ?? _lazyLoader?.Load(this, ref _product);
+            get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -194,7 +195,7 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public ICollection<GiftCard> AssociatedGiftCards
         {
-            get => _associatedGiftCards ?? _lazyLoader?.Load(this, ref _associatedGiftCards) ?? (_associatedGiftCards ??= new HashSet<GiftCard>());
+            get => _associatedGiftCards ?? LazyLoader.Load(this, ref _associatedGiftCards) ?? (_associatedGiftCards ??= new HashSet<GiftCard>());
             protected set => _associatedGiftCards = value;
         }
     }

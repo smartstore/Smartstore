@@ -24,16 +24,14 @@ namespace Smartstore.Core.Catalog.Products
     [Table("ProductReviewHelpfulness")] // Enables EF TPT inheritance
     public partial class ProductReviewHelpfulness : CustomerContent
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductReviewHelpfulness()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductReviewHelpfulness(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -47,7 +45,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ProductReview ProductReview
         {
-            get => _productReview ?? _lazyLoader?.Load(this, ref _productReview);
+            get => _productReview ?? LazyLoader.Load(this, ref _productReview);
             set => _productReview = value;
         }
 

@@ -32,16 +32,14 @@ namespace Smartstore.Core.Identity
     /// </summary>
     public class RewardPointsHistory : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public RewardPointsHistory()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private RewardPointsHistory(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -55,7 +53,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public Customer Customer
         {
-            get => _customer ?? _lazyLoader?.Load(this, ref _customer);
+            get => _customer ?? LazyLoader.Load(this, ref _customer);
             set => _customer = value;
         }
 

@@ -57,16 +57,14 @@
 
 //        #endregion
 
-//        private readonly ILazyLoader _lazyLoader;
-
 //        public BlogPost()
 //        {
 //        }
 
 //        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 //        private BlogPost(ILazyLoader lazyLoader)
+//            : base(lazyLoader)
 //        {
-//            _lazyLoader = lazyLoader;
 //        }
 
 //        /// <summary>
@@ -96,7 +94,7 @@
 //        /// </summary>
 //        public MediaFile MediaFile
 //        {
-//            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+//            get => _mediaFile ?? LazyLoader.Load(this, ref _mediaFile);
 //            set => _mediaFile = value;
 //        }
 
@@ -115,7 +113,7 @@
 //        /// </summary>
 //        public MediaFile PreviewMediaFile
 //        {
-//            get => _lazyLoader?.Load(this, ref _previewMediaFile) ?? _previewMediaFile;
+//            get => _previewMediaFile ?? LazyLoader.Load(this, ref _previewMediaFile);
 //            set => _previewMediaFile = value;
 //        }
 
@@ -214,7 +212,7 @@
 //        [NotMapped]
 //        public virtual Language Language
 //        {
-//            get => _lazyLoader?.Load(this, ref _language) ?? _language;
+//            get => _language ?? LazyLoader.Load(this, ref _language);
 //            set => _language = value;
 //        }
 
@@ -224,7 +222,7 @@
 //        /// </summary>
 //        public virtual ICollection<BlogComment> BlogComments
 //        {
-//            get => _blogComments ??= new HashSet<BlogComment>();
+//            get => _blogComments ?? LazyLoader.Load(this, ref _blogComments) ?? (_blogComments ??= new HashSet<BlogComment>());
 //            protected set => _blogComments = value;
 //        }
 

@@ -24,17 +24,14 @@
 //    [Table("NewsComment")] // Enables EF TPT inheritance
 //    public partial class NewsComment : CustomerContent
 //    {
-
-//        private readonly ILazyLoader _lazyLoader;
-
 //        public NewsComment()
 //        {
 //        }
 
 //        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 //        private NewsComment(ILazyLoader lazyLoader)
+//            : base(lazyLoader)
 //        {
-//            _lazyLoader = lazyLoader;
 //        }
 
 //        /// <summary>
@@ -64,7 +61,7 @@
 //        [NotMapped]
 //        public virtual NewsItem NewsItem
 //        {
-//            get => _lazyLoader?.Load(this, ref _newsItem) ?? _newsItem;
+//            get => _newsItem ?? LazyLoader.Load(this, ref _newsItem);
 //            set => _newsItem = value;
 //        }
 //    }

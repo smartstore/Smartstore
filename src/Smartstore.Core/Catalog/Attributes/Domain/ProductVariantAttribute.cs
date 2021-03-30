@@ -36,16 +36,14 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(ProductId), nameof(DisplayOrder), Name = "IX_Product_ProductAttribute_Mapping_ProductId_DisplayOrder")]
     public partial class ProductVariantAttribute : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductVariantAttribute()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductVariantAttribute(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -60,7 +58,7 @@ namespace Smartstore.Core.Catalog.Attributes
         [JsonIgnore]
         public Product Product
         {
-            get => _product ?? _lazyLoader?.Load(this, ref _product);
+            get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -75,7 +73,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ProductAttribute ProductAttribute
         {
-            get => _productAttribute ?? _lazyLoader?.Load(this, ref _productAttribute);
+            get => _productAttribute ?? LazyLoader.Load(this, ref _productAttribute);
             set => _productAttribute = value;
         }
 
@@ -144,7 +142,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ICollection<ProductVariantAttributeValue> ProductVariantAttributeValues
         {
-            get => _productVariantAttributeValues ?? _lazyLoader?.Load(this, ref _productVariantAttributeValues) ?? (_productVariantAttributeValues ??= new HashSet<ProductVariantAttributeValue>());
+            get => _productVariantAttributeValues ?? LazyLoader.Load(this, ref _productVariantAttributeValues) ?? (_productVariantAttributeValues ??= new HashSet<ProductVariantAttributeValue>());
             protected set => _productVariantAttributeValues = value;
         }
     }

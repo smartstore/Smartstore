@@ -24,16 +24,14 @@
 //    [Index(nameof(SubjectToAcl), Name = "IX_SubjectToAcl")]
 //    public partial class ForumGroup : BaseEntity, IAuditable, IStoreRestricted, IAclRestricted, ILocalizedEntity, ISlugSupported
 //    {
-//        private readonly ILazyLoader _lazyLoader;
-
 //        public ForumGroup()
 //        {
 //        }
 
 //        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 //        private ForumGroup(ILazyLoader lazyLoader)
+//            : base(lazyLoader)
 //        {
-//            _lazyLoader = lazyLoader;
 //        }
 
 //        /// <summary>
@@ -79,7 +77,7 @@
 //        /// </summary>
 //        public virtual ICollection<Forum> Forums
 //        {
-//            get => _lazyLoader?.Load(this, ref _forums) ?? _forums;
+//            get => _forums ?? LazyLoader.Load(this, ref _forums);
 //            protected set => _forums = value;
 //        }
 

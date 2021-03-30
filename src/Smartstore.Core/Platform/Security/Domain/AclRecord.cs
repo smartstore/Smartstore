@@ -29,16 +29,14 @@ namespace Smartstore.Core.Security
     [CacheableEntity]
     public partial class AclRecord : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public AclRecord()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private AclRecord(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+            : base(lazyLoader)
+        {     
         }
 
         /// <summary>
@@ -63,7 +61,7 @@ namespace Smartstore.Core.Security
         /// </summary>
         public CustomerRole CustomerRole
         {
-            get => _customerRole ?? _lazyLoader?.Load(this, ref _customerRole);
+            get => _customerRole ?? LazyLoader.Load(this, ref _customerRole);
             set => _customerRole = value;
         }
 

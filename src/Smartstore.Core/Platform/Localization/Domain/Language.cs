@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -31,15 +32,14 @@ namespace Smartstore.Core.Localization
     [CacheableEntity]
     public partial class Language : EntityWithAttributes, IStoreRestricted
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public Language()
         {
         }
 
-        public Language(ILazyLoader lazyLoader)
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private Language(ILazyLoader lazyLoader) 
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Smartstore.Core.Localization
         [JsonIgnore]
         public ICollection<LocaleStringResource> LocaleStringResources
         {
-            get => _lazyLoader?.Load(this, ref _localeStringResources) ?? (_localeStringResources ??= new HashSet<LocaleStringResource>());
+            get => _localeStringResources ?? LazyLoader.Load(this, ref _localeStringResources) ?? (_localeStringResources ??= new HashSet<LocaleStringResource>());
             protected set => _localeStringResources = value;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -24,15 +25,14 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// </summary>
     public partial class GiftCard : EntityWithAttributes, IGiftCardInfo
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public GiftCard()
         {
         }
 
-        public GiftCard(ILazyLoader lazyLoader)
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private GiftCard(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// </summary> 
         public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
         {
-            get => _giftCardUsageHistory ?? _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
+            get => _giftCardUsageHistory ?? LazyLoader.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
             protected set => _giftCardUsageHistory = value;
         }
                 
@@ -121,7 +121,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         /// </summary>
         public OrderItem PurchasedWithOrderItem
         {
-            get => _purchasedWithOrderItem ?? _lazyLoader?.Load(this, ref _purchasedWithOrderItem);
+            get => _purchasedWithOrderItem ?? LazyLoader.Load(this, ref _purchasedWithOrderItem);
             set => _purchasedWithOrderItem = value;
         }
     }

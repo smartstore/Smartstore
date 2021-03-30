@@ -72,16 +72,14 @@ namespace Smartstore.Core.Identity
     [Index(nameof(Deleted), nameof(IsSystemAccount), Name = "IX_Customer_Deleted_IsSystemAccount")]
     public partial class Customer : EntityWithAttributes, ISoftDeletable
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public Customer()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private Customer(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+            : base(lazyLoader)
+        {     
         }
 
         /// <summary>
@@ -250,7 +248,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public Address BillingAddress 
         {
-            get => _billingAddress ?? _lazyLoader?.Load(this, ref _billingAddress);
+            get => _billingAddress ?? LazyLoader.Load(this, ref _billingAddress);
             set => _billingAddress = value;
         }
 
@@ -260,7 +258,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public Address ShippingAddress
         {
-            get => _shippingAddress ?? _lazyLoader?.Load(this, ref _shippingAddress);
+            get => _shippingAddress ?? LazyLoader.Load(this, ref _shippingAddress);
             set => _shippingAddress = value;
         }
 
@@ -270,7 +268,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public ICollection<Address> Addresses
         {
-            get => _lazyLoader?.Load(this, ref _addresses) ?? (_addresses ??= new HashSet<Address>());
+            get => _addresses ?? LazyLoader.Load(this, ref _addresses) ?? (_addresses ??= new HashSet<Address>());
             protected set => _addresses = value;
         }
 
@@ -281,7 +279,7 @@ namespace Smartstore.Core.Identity
         [JsonIgnore]
         public ICollection<ExternalAuthenticationRecord> ExternalAuthenticationRecords
         {
-            get => _lazyLoader?.Load(this, ref _externalAuthenticationRecords) ?? (_externalAuthenticationRecords ??= new HashSet<ExternalAuthenticationRecord>());
+            get => _externalAuthenticationRecords ?? LazyLoader.Load(this, ref _externalAuthenticationRecords) ?? (_externalAuthenticationRecords ??= new HashSet<ExternalAuthenticationRecord>());
             protected set => _externalAuthenticationRecords = value;
         }
 
@@ -292,7 +290,7 @@ namespace Smartstore.Core.Identity
         [JsonIgnore]
         public ICollection<CustomerContent> CustomerContent
         {
-            get => _lazyLoader?.Load(this, ref _customerContent) ?? (_customerContent ??= new HashSet<CustomerContent>());
+            get => _customerContent ?? LazyLoader.Load(this, ref _customerContent) ?? (_customerContent ??= new HashSet<CustomerContent>());
             protected set => _customerContent = value;
         }
 
@@ -302,7 +300,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public ICollection<CustomerRoleMapping> CustomerRoleMappings
         {
-            get => _lazyLoader?.Load(this, ref _customerRoleMappings) ?? (_customerRoleMappings ??= new HashSet<CustomerRoleMapping>());
+            get => _customerRoleMappings ?? LazyLoader.Load(this, ref _customerRoleMappings) ?? (_customerRoleMappings ??= new HashSet<CustomerRoleMapping>());
             protected set => _customerRoleMappings = value;
         }
 
@@ -313,7 +311,7 @@ namespace Smartstore.Core.Identity
         [JsonIgnore]
         public ICollection<ShoppingCartItem> ShoppingCartItems
         {
-            get => _lazyLoader?.Load(this, ref _shoppingCartItems) ?? (_shoppingCartItems ??= new HashSet<ShoppingCartItem>());
+            get => _shoppingCartItems ?? LazyLoader.Load(this, ref _shoppingCartItems) ?? (_shoppingCartItems ??= new HashSet<ShoppingCartItem>());
             set => _shoppingCartItems = value;
         }
 
@@ -323,7 +321,7 @@ namespace Smartstore.Core.Identity
         /// </summary>        
         public ICollection<Order> Orders
         {
-            get => _lazyLoader?.Load(this, ref _orders) ?? (_orders ??= new HashSet<Order>());
+            get => _orders ?? LazyLoader.Load(this, ref _orders) ?? (_orders ??= new HashSet<Order>());
             protected set => _orders = value;
         }
 
@@ -334,7 +332,7 @@ namespace Smartstore.Core.Identity
         [JsonIgnore]
         public ICollection<RewardPointsHistory> RewardPointsHistory
         {
-            get => _lazyLoader?.Load(this, ref _rewardPointsHistory) ?? (_rewardPointsHistory ??= new HashSet<RewardPointsHistory>());
+            get => _rewardPointsHistory ?? LazyLoader.Load(this, ref _rewardPointsHistory) ?? (_rewardPointsHistory ??= new HashSet<RewardPointsHistory>());
             protected set => _rewardPointsHistory = value;
         }
 
@@ -345,7 +343,7 @@ namespace Smartstore.Core.Identity
         [JsonIgnore]
         public ICollection<WalletHistory> WalletHistory
         {
-            get => _lazyLoader?.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());
+            get => _walletHistory ?? LazyLoader.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());
             protected set => _walletHistory = value;
         }
 
@@ -355,7 +353,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public ICollection<ReturnRequest> ReturnRequests
         {
-            get => _lazyLoader?.Load(this, ref _returnRequests) ?? (_returnRequests ??= new HashSet<ReturnRequest>());
+            get => _returnRequests ?? LazyLoader.Load(this, ref _returnRequests) ?? (_returnRequests ??= new HashSet<ReturnRequest>());
             protected set => _returnRequests = value;
         }
 

@@ -36,12 +36,10 @@ namespace Smartstore.Core.Common
         {
         }
 
-        private readonly ILazyLoader _lazyLoader;
-
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private StateProvince(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -77,7 +75,7 @@ namespace Smartstore.Core.Common
         /// </summary>
         public Country Country
         {
-            get => _country ?? _lazyLoader?.Load(this, ref _country);
+            get => _country ?? LazyLoader.Load(this, ref _country);
             set => _country = value;
         }
     }

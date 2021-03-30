@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -28,15 +29,14 @@ namespace Smartstore.Core.Checkout.GiftCards
     /// </summary>
     public partial class GiftCardUsageHistory : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public GiftCardUsageHistory()
         {
         }
 
-        public GiftCardUsageHistory(ILazyLoader lazyLoader)
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private GiftCardUsageHistory(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         [JsonIgnore]
         public GiftCard GiftCard
         {
-            get => _giftCard ?? _lazyLoader?.Load(this, ref _giftCard);
+            get => _giftCard ?? LazyLoader.Load(this, ref _giftCard);
             set => _giftCard = value;
         }
 
@@ -77,7 +77,7 @@ namespace Smartstore.Core.Checkout.GiftCards
         [JsonIgnore]
         public Order UsedWithOrder
         {
-            get => _usedWithOrder ?? _lazyLoader?.Load(this, ref _usedWithOrder);
+            get => _usedWithOrder ?? LazyLoader.Load(this, ref _usedWithOrder);
             set => _usedWithOrder = value;
         }
     }

@@ -33,16 +33,14 @@ namespace Smartstore.Core.Content.Media
     [CacheableEntity]
     public partial class MediaFolder : EntityWithAttributes
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public MediaFolder()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private MediaFolder(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -57,7 +55,7 @@ namespace Smartstore.Core.Content.Media
         [JsonIgnore]
         public MediaFolder Parent
         {
-            get => _parent ?? _lazyLoader?.Load(this, ref _parent);
+            get => _parent ?? LazyLoader.Load(this, ref _parent);
             set => _parent = value;
         }
 
@@ -96,7 +94,7 @@ namespace Smartstore.Core.Content.Media
         [JsonIgnore]
         public ICollection<MediaFolder> Children
         {
-            get => _lazyLoader?.Load(this, ref _children) ?? (_children ??= new HashSet<MediaFolder>());
+            get => _children ?? LazyLoader.Load(this, ref _children) ?? (_children ??= new HashSet<MediaFolder>());
             protected set => _children = value;
         }
 
@@ -107,7 +105,7 @@ namespace Smartstore.Core.Content.Media
         [JsonIgnore]
         public ICollection<MediaFile> Files
         {
-            get => _lazyLoader?.Load(this, ref _files) ?? (_files ??= new HashSet<MediaFile>());
+            get => _files ?? LazyLoader.Load(this, ref _files) ?? (_files ??= new HashSet<MediaFile>());
             protected set => _files = value;
         }
     }

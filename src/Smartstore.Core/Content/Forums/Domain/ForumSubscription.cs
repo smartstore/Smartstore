@@ -28,16 +28,14 @@
 //    [Index(nameof(TopicId), Name = "IX_Forums_Subscription_TopicId")]
 //    public partial class ForumSubscription : BaseEntity
 //    {
-//        private readonly ILazyLoader _lazyLoader;
-
 //        public ForumSubscription()
 //        {
 //        }
 
 //        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 //        private ForumSubscription(ILazyLoader lazyLoader)
-//        {
-//            _lazyLoader = lazyLoader;
+//            : base(lazyLoader)
+//        {     
 //        }
 
 //        /// <summary>
@@ -71,7 +69,7 @@
 //        /// </summary>
 //        public virtual Customer Customer
 //        {
-//            get => _lazyLoader?.Load(this, ref _customer) ?? _customer;
+//            get => _customer ?? LazyLoader.Load(this, ref _customer);
 //            set => _customer = value;
 //        }
 //    }

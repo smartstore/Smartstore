@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Domain;
@@ -21,15 +22,14 @@ namespace Smartstore.Core.Checkout.Shipping
     /// </summary>
     public partial class ShipmentItem : BaseEntity
     {
-        private readonly ILazyLoader _lazyloader;
-
         public ShipmentItem()
         {
         }
 
-        public ShipmentItem(ILazyLoader lazyLoader)
-        {
-            _lazyloader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private ShipmentItem(ILazyLoader lazyLoader)
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         public Shipment Shipment
         {
-            get => _shipment ?? _lazyloader?.Load(this, ref _shipment);
+            get => _shipment ?? LazyLoader.Load(this, ref _shipment);
             set => _shipment = value;
         }
     }

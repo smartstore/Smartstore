@@ -27,16 +27,14 @@ namespace Smartstore.Core.Content.Media
     [Index(nameof(UpdatedOnUtc), nameof(IsTransient), Name = "IX_UpdatedOn_IsTransient")]
     public partial class Download : BaseEntity, ICloneable<Download>
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public Download()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private Download(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -76,7 +74,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public MediaFile MediaFile
         {
-            get => _mediaFile ?? _lazyLoader?.Load(this, ref _mediaFile);
+            get => _mediaFile ?? LazyLoader.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
 

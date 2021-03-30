@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -23,15 +24,14 @@ namespace Smartstore.Core.Content.Menus
     [Index(nameof(SubjectToAcl), Name = "IX_Menu_SubjectToAcl")]
     public class MenuEntity : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public MenuEntity()
         {
         }
 
-        public MenuEntity(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private MenuEntity(ILazyLoader lazyLoader)
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Smartstore.Core.Content.Menus
         /// </summary>
         public ICollection<MenuItemEntity> Items
         {
-            get => _lazyLoader?.Load(this, ref _items) ?? (_items ??= new HashSet<MenuItemEntity>());
+            get => _items ?? LazyLoader.Load(this, ref _items) ?? (_items ??= new HashSet<MenuItemEntity>());
             protected set => _items = value;
         }
 

@@ -17,16 +17,14 @@ namespace Smartstore.Core.Catalog.Products
     [Index(nameof(Published), Name = "IX_ProductTag_Published")]
     public partial class ProductTag : BaseEntity, ILocalizedEntity, IDisplayedEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductTag()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductTag(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         public string GetDisplayNameMemberName() => nameof(Name);
@@ -50,7 +48,7 @@ namespace Smartstore.Core.Catalog.Products
         [JsonIgnore]
         public ICollection<Product> Products
         {
-            get => _products ?? _lazyLoader?.Load(this, ref _products) ?? (_products ??= new HashSet<Product>());
+            get => _products ?? LazyLoader.Load(this, ref _products) ?? (_products ??= new HashSet<Product>());
             protected set => _products = value;
         }
     }

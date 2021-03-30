@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using Smartstore.Data.Caching;
@@ -21,15 +22,14 @@ namespace Smartstore.Scheduling
     [CacheableEntity(NeverCache = true)]
     public class TaskDescriptor : BaseEntity, ICloneable<TaskDescriptor>
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public TaskDescriptor()
         {
         }
 
-        public TaskDescriptor(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private TaskDescriptor(ILazyLoader lazyLoader)
+            : base(lazyLoader)
+        {     
         }
 
         // Legacy compat
@@ -88,16 +88,11 @@ namespace Smartstore.Scheduling
         /// <summary>
         /// Gets a value indicating whether a task is scheduled for execution (Enabled = true and NextRunUtc &lt;= UtcNow and is not running).
         /// </summary>
-        public bool IsPending
-        {
-            get
-            {
-                return Enabled &&
-                    NextRunUtc.HasValue &&
-                    NextRunUtc <= DateTime.UtcNow &&
-                    (LastExecution == null || !LastExecution.IsRunning);
-            }
-        }
+        public bool IsPending 
+            => Enabled
+               && NextRunUtc.HasValue
+               && NextRunUtc <= DateTime.UtcNow
+               && (LastExecution == null || !LastExecution.IsRunning);
 
         /// <summary>
         /// Gets info about the last (or current) execution.
@@ -111,12 +106,12 @@ namespace Smartstore.Scheduling
         [JsonIgnore]
         public ICollection<TaskExecutionInfo> ExecutionHistory
         {
-            get => _lazyLoader?.Load(this, ref _executionHistory) ?? (_executionHistory ??= new HashSet<TaskExecutionInfo>());
+            get => _executionHistory ?? LazyLoader.Load(this, ref _executionHistory) ?? (_executionHistory ??= new HashSet<TaskExecutionInfo>());
             protected set => _executionHistory = value;
         }
 
         object ICloneable.Clone()
-            => this.Clone();
+            => Clone();
 
         public TaskDescriptor Clone()
         {

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -25,15 +26,14 @@ namespace Smartstore.Core.Localization
     [Index(nameof(ResourceName), nameof(LanguageId), Name = "IX_LocaleStringResource")]
     public partial class LocaleStringResource : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public LocaleStringResource()
         {
         }
 
-        public LocaleStringResource(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private LocaleStringResource(ILazyLoader lazyLoader) 
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Smartstore.Core.Localization
         [JsonIgnore]
         public Language Language
         {
-            get => _language ?? _lazyLoader?.Load(this, ref _language);
+            get => _language ?? LazyLoader.Load(this, ref _language);
             set => _language = value;
         }
     }

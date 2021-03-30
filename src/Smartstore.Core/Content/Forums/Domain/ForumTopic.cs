@@ -38,16 +38,14 @@
 //    [Index(nameof(TopicTypeId), nameof(LastPostTime), Name = "IX_TopicTypeId_LastPostTime")]
 //    public partial class ForumTopic : BaseEntity, IAuditable
 //    {
-//        private readonly ILazyLoader _lazyLoader;
-
 //        public ForumTopic()
 //        {
 //        }
 
 //        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 //        private ForumTopic(ILazyLoader lazyLoader)
+//            : base(lazyLoader)
 //        {
-//            _lazyLoader = lazyLoader;
 //        }
 
 //        /// <summary>
@@ -132,8 +130,9 @@
 //        /// <summary>
 //        /// Gets the forum.
 //        /// </summary>
-//        public virtual Forum Forum {
-//            get => _lazyLoader?.Load(this, ref _forum) ?? _forum;
+//        public virtual Forum Forum
+//        {
+//            get => _forum ?? LazyLoader.Load(this, ref _forum);
 //            set => _forum = value;
 //        }
 
@@ -141,8 +140,9 @@
 //        /// <summary>
 //        /// Gets the customer.
 //        /// </summary>
-//        public virtual Customer Customer {
-//            get => _lazyLoader?.Load(this, ref _customer) ?? _customer;
+//        public virtual Customer Customer
+//        {
+//            get => _customer ?? LazyLoader.Load(this, ref _customer);
 //            set => _customer = value;
 //        }
 
@@ -151,16 +151,6 @@
 //        /// </summary>
 //        [NotMapped, JsonIgnore]
 //        public int NumReplies
-//        {
-//            get
-//            {
-//                if (NumPosts > 0)
-//                {
-//                    return NumPosts - 1;
-//                }
-
-//                return 0;
-//            }
-//        }
+//            => NumPosts > 0 ? NumPosts - 1 : 0;
 //    }
 //}

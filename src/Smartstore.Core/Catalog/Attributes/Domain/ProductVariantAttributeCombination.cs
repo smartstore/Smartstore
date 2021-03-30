@@ -44,7 +44,6 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(StockQuantity), nameof(AllowOutOfStockOrders), Name = "IX_StockQuantity_AllowOutOfStockOrders")]
     public partial class ProductVariantAttributeCombination : BaseEntity, IAttributeAware
     {
-        private readonly ILazyLoader _lazyLoader;
         private ProductVariantAttributeSelection _attributeSelection;
         private string _rawAttributes;
 
@@ -54,8 +53,8 @@ namespace Smartstore.Core.Catalog.Attributes
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductVariantAttributeCombination(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace Smartstore.Core.Catalog.Attributes
         [JsonIgnore]
         public Product Product
         {
-            get => _product ?? _lazyLoader?.Load(this, ref _product);
+            get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -146,7 +145,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public DeliveryTime DeliveryTime
         {
-            get => _deliveryTime ?? _lazyLoader?.Load(this, ref _deliveryTime);
+            get => _deliveryTime ?? LazyLoader.Load(this, ref _deliveryTime);
             set => _deliveryTime = value;
         }
 
@@ -161,7 +160,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public QuantityUnit QuantityUnit
         {
-            get => _lazyLoader?.Load(this, ref _quantityUnit) ?? _quantityUnit;
+            get => LazyLoader.Load(this, ref _quantityUnit) ?? _quantityUnit;
             set => _quantityUnit = value;
         }
 

@@ -19,16 +19,14 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(DisplayOrder), Name = "IX_DisplayOrder")]
     public partial class ProductAttribute : EntityWithAttributes, ILocalizedEntity, IDisplayOrder, ISearchAlias
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductAttribute()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductAttribute(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -81,7 +79,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ICollection<ProductAttributeOptionsSet> ProductAttributeOptionsSets
         {
-            get => _productAttributeOptionsSets ?? _lazyLoader?.Load(this, ref _productAttributeOptionsSets) ?? (_productAttributeOptionsSets ??= new HashSet<ProductAttributeOptionsSet>());
+            get => _productAttributeOptionsSets ?? LazyLoader.Load(this, ref _productAttributeOptionsSets) ?? (_productAttributeOptionsSets ??= new HashSet<ProductAttributeOptionsSet>());
             protected set => _productAttributeOptionsSets = value;
         }
     }

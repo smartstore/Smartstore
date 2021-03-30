@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -36,15 +37,14 @@ namespace Smartstore.Core.Logging
     [CacheableEntity(NeverCache = true)]
     public partial class ActivityLog : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ActivityLog()
         {
         }
 
-        public ActivityLog(ILazyLoader lazyLoader)
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private ActivityLog(ILazyLoader lazyLoader) 
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -72,9 +72,9 @@ namespace Smartstore.Core.Logging
         /// <summary>
         /// Gets the activity log type
         /// </summary>
-        public ActivityLogType ActivityLogType 
+        public ActivityLogType ActivityLogType
         {
-            get => _activityLogType ?? _lazyLoader?.Load(this, ref _activityLogType);
+            get => _activityLogType ?? LazyLoader.Load(this, ref _activityLogType);
             set => _activityLogType = value;
         }
 
@@ -83,9 +83,9 @@ namespace Smartstore.Core.Logging
         /// Gets the customer
         /// </summary>
         [JsonIgnore]
-        public Customer Customer 
+        public Customer Customer
         {
-            get => _customer ?? _lazyLoader?.Load(this, ref _customer);
+            get => _customer ?? LazyLoader.Load(this, ref _customer);
             set => _customer = value;
         }
     }

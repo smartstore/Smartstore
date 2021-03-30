@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -38,7 +39,6 @@ namespace Smartstore.Core.Checkout.Cart
     [Index(nameof(ShoppingCartTypeId), nameof(CustomerId), Name = "IX_ShoppingCartItem_ShoppingCartTypeId_CustomerId")]
     public partial class ShoppingCartItem : EntityWithAttributes, IAuditable, IAttributeAware
     {
-        private readonly ILazyLoader _lazyLoader;
         private ProductVariantAttributeSelection _attributeSelection;
         private string _rawAttributes;
 
@@ -46,9 +46,10 @@ namespace Smartstore.Core.Checkout.Cart
         {
         }
 
-        public ShoppingCartItem(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private ShoppingCartItem(ILazyLoader lazyLoader)
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -135,7 +136,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>        
         public Product Product
         {
-            get => _product ?? _lazyLoader?.Load(this, ref _product);
+            get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -145,7 +146,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public Customer Customer
         {
-            get => _customer ?? _lazyLoader?.Load(this, ref _customer);
+            get => _customer ?? LazyLoader.Load(this, ref _customer);
             set => _customer = value;
         }
 
@@ -155,7 +156,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public ProductBundleItem BundleItem
         {
-            get => _bundleItem ?? _lazyLoader?.Load(this, ref _bundleItem);
+            get => _bundleItem ?? LazyLoader.Load(this, ref _bundleItem);
             set => _bundleItem = value;
         }
 

@@ -19,7 +19,6 @@ namespace Smartstore.Core.Content.Media
     [Index(nameof(MediaFileId), nameof(EntityId), nameof(EntityName), nameof(Property), Name = "IX_MediaTrack_Composite")]
     public partial class MediaTrack : BaseEntity, IEquatable<MediaTrack>
     {
-        private readonly ILazyLoader _lazyLoader;
         private int _mediaFileId;
         private int _entityId;
         private string _entityName;
@@ -32,8 +31,8 @@ namespace Smartstore.Core.Content.Media
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private MediaTrack(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -56,7 +55,7 @@ namespace Smartstore.Core.Content.Media
         [JsonIgnore]
         public MediaFile MediaFile
         {
-            get => _mediaFile ?? _lazyLoader?.Load(this, ref _mediaFile);
+            get => _mediaFile ?? LazyLoader.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
 

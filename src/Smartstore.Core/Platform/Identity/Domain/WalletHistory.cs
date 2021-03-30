@@ -32,16 +32,14 @@ namespace Smartstore.Core.Identity
     [Index(nameof(StoreId), nameof(CreatedOnUtc), Name = "IX_StoreId_CreatedOn")]
     public partial class WalletHistory : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public WalletHistory()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private WalletHistory(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -60,7 +58,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public Customer Customer
         {
-            get => _customer ?? _lazyLoader?.Load(this, ref _customer);
+            get => _customer ?? LazyLoader.Load(this, ref _customer);
             set => _customer = value;
         }
 
@@ -75,7 +73,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public Order Order
         {
-            get => _order ?? _lazyLoader?.Load(this, ref _order);
+            get => _order ?? LazyLoader.Load(this, ref _order);
             set => _order = value;
         }
 

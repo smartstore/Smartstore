@@ -49,16 +49,14 @@ namespace Smartstore.Core.Checkout.Orders
     [Index(nameof(CustomerId), Name = "IX_Order_CustomerId")]
     public partial class Order : EntityWithAttributes, IAuditable, ISoftDeletable
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public Order()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private Order(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         #region Properties
@@ -506,7 +504,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Customer Customer
         {
-            get => _customer ?? _lazyLoader?.Load(this, ref _customer);
+            get => _customer ?? LazyLoader.Load(this, ref _customer);
             set => _customer = value;
         }
 
@@ -516,7 +514,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Address BillingAddress
         {
-            get => _billingAddress ?? _lazyLoader?.Load(this, ref _billingAddress);
+            get => _billingAddress ?? LazyLoader.Load(this, ref _billingAddress);
             set => _billingAddress = value;
         }
 
@@ -526,7 +524,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public Address ShippingAddress
         {
-            get => _shippingAddress ?? _lazyLoader?.Load(this, ref _shippingAddress);
+            get => _shippingAddress ?? LazyLoader.Load(this, ref _shippingAddress);
             set => _shippingAddress = value;
         }
 
@@ -543,7 +541,7 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public ICollection<WalletHistory> WalletHistory
         {
-            get => _walletHistory ?? _lazyLoader?.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());
+            get => _walletHistory ?? LazyLoader.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());
             protected set => _walletHistory = value;
         }
 
@@ -554,7 +552,7 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public ICollection<DiscountUsageHistory> DiscountUsageHistory
         {
-            get => _discountUsageHistory ?? _lazyLoader?.Load(this, ref _discountUsageHistory) ?? (_discountUsageHistory ??= new HashSet<DiscountUsageHistory>());
+            get => _discountUsageHistory ?? LazyLoader.Load(this, ref _discountUsageHistory) ?? (_discountUsageHistory ??= new HashSet<DiscountUsageHistory>());
             protected set => _discountUsageHistory = value;
         }
 
@@ -565,7 +563,7 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
         {
-            get => _giftCardUsageHistory ?? _lazyLoader?.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
+            get => _giftCardUsageHistory ?? LazyLoader.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
             protected set => _giftCardUsageHistory = value;
         }
 
@@ -575,7 +573,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public ICollection<OrderNote> OrderNotes
         {
-            get => _orderNotes ?? _lazyLoader?.Load(this, ref _orderNotes) ?? (_orderNotes ??= new HashSet<OrderNote>());
+            get => _orderNotes ?? LazyLoader.Load(this, ref _orderNotes) ?? (_orderNotes ??= new HashSet<OrderNote>());
             protected set => _orderNotes = value;
         }
 
@@ -585,7 +583,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public ICollection<OrderItem> OrderItems
         {
-            get => _orderItems ?? _lazyLoader?.Load(this, ref _orderItems) ?? (_orderItems ??= new HashSet<OrderItem>());
+            get => _orderItems ?? LazyLoader.Load(this, ref _orderItems) ?? (_orderItems ??= new HashSet<OrderItem>());
             protected internal set => _orderItems = value;
         }
 
@@ -595,7 +593,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public ICollection<Shipment> Shipments
         {
-            get => _shipments ?? _lazyLoader?.Load(this, ref _shipments) ?? (_shipments ??= new HashSet<Shipment>());
+            get => _shipments ?? LazyLoader.Load(this, ref _shipments) ?? (_shipments ??= new HashSet<Shipment>());
             protected set => _shipments = value;
         }
 

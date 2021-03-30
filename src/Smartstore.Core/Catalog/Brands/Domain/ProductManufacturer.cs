@@ -33,16 +33,14 @@ namespace Smartstore.Core.Catalog.Brands
     [Index(nameof(ManufacturerId), nameof(ProductId), Name = "IX_PMM_Product_and_Manufacturer")]
     public partial class ProductManufacturer : BaseEntity, IDisplayOrder
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductManufacturer()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductManufacturer(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -56,7 +54,7 @@ namespace Smartstore.Core.Catalog.Brands
         /// </summary>
         public Manufacturer Manufacturer
         {
-            get => _manufacturer ?? _lazyLoader?.Load(this, ref _manufacturer);
+            get => _manufacturer ?? LazyLoader.Load(this, ref _manufacturer);
             set => _manufacturer = value;
         }
 
@@ -71,7 +69,7 @@ namespace Smartstore.Core.Catalog.Brands
         /// </summary>
         public Product Product
         {
-            get => _product ?? _lazyLoader?.Load(this, ref _product);
+            get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }
 

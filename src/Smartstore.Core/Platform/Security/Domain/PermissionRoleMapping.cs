@@ -12,8 +12,6 @@ namespace Smartstore.Core.Security
     /// </summary>
     public partial class PermissionRoleMapping : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public PermissionRoleMapping()
         {
         }
@@ -21,7 +19,6 @@ namespace Smartstore.Core.Security
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private PermissionRoleMapping(ILazyLoader lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -41,7 +38,7 @@ namespace Smartstore.Core.Security
         [ForeignKey("PermissionRecordId")]
         public PermissionRecord PermissionRecord
         {
-            get => _permissionRecord ?? _lazyLoader?.Load(this, ref _permissionRecord);
+            get => _permissionRecord ?? LazyLoader.Load(this, ref _permissionRecord);
             set => _permissionRecord = value;
         }
 
@@ -57,7 +54,7 @@ namespace Smartstore.Core.Security
         [ForeignKey("CustomerRoleId")]
         public CustomerRole CustomerRole
         {
-            get => _customerRole ?? _lazyLoader?.Load(this, ref _customerRole);
+            get => _customerRole ?? LazyLoader.Load(this, ref _customerRole);
             set => _customerRole = value;
         }
     }

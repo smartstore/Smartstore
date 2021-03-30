@@ -5,7 +5,6 @@
 //using Microsoft.EntityFrameworkCore;
 //using Microsoft.EntityFrameworkCore.Infrastructure;
 //using Microsoft.EntityFrameworkCore.Metadata.Builders;
-//using Smartstore.Core.Content.Forums.Domain;
 //using Smartstore.Core.Seo;
 //using Smartstore.Core.Localization;
 //using Smartstore.Domain;
@@ -31,16 +30,14 @@
 //    [Index(nameof(ForumGroupId), nameof(DisplayOrder), Name = "IX_ForumGroupId_DisplayOrder")]
 //    public partial class Forum : BaseEntity, IAuditable, ILocalizedEntity, ISlugSupported
 //    {
-//        private readonly ILazyLoader _lazyLoader;
-
 //        public Forum()
 //        {
 //        }
 
 //        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 //        private Forum(ILazyLoader lazyLoader)
+//            : base(lazyLoader)
 //        {
-//            _lazyLoader = lazyLoader;
 //        }
 
 //        /// <summary>
@@ -109,8 +106,9 @@
 //        /// <summary>
 //        /// Gets the ForumGroup.
 //        /// </summary>
-//        public virtual ForumGroup ForumGroup {
-//            get => _lazyLoader?.Load(this, ref _forumGroup) ?? _forumGroup;
+//        public virtual ForumGroup ForumGroup
+//        {
+//            get => _forumGroup ?? LazyLoader.Load(this, ref _forumGroup);
 //            set => _forumGroup = value;
 //        }
 

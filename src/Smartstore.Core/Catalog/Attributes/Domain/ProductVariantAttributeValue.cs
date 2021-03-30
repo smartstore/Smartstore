@@ -29,16 +29,14 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(ProductVariantAttributeId), nameof(DisplayOrder), Name = "IX_ProductVariantAttributeValue_ProductVariantAttributeId_DisplayOrder")]
     public partial class ProductVariantAttributeValue : BaseEntity, ILocalizedEntity, ISearchAlias, IDisplayOrder
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductVariantAttributeValue()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductVariantAttributeValue(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -52,7 +50,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ProductVariantAttribute ProductVariantAttribute
         {
-            get => _productVariantAttribute ?? _lazyLoader?.Load(this, ref _productVariantAttribute);
+            get => _productVariantAttribute ?? LazyLoader.Load(this, ref _productVariantAttribute);
             set => _productVariantAttribute = value;
         }
 

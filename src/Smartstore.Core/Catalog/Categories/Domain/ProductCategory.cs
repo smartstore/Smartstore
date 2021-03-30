@@ -34,16 +34,14 @@ namespace Smartstore.Core.Catalog.Categories
     [Index(nameof(CategoryId), nameof(ProductId), Name = "IX_PCM_Product_and_Category")]
     public partial class ProductCategory : BaseEntity, IDisplayOrder
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductCategory()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductCategory(ILazyLoader lazyLoader)
+            : base (lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -57,7 +55,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// </summary>
         public Category Category
         {
-            get => _category ?? _lazyLoader?.Load(this, ref _category);
+            get => _category ?? LazyLoader.Load(this, ref _category);
             set => _category = value;
         }
 
@@ -72,7 +70,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// </summary>
         public Product Product
         {
-            get => _product ?? _lazyLoader?.Load(this, ref _product);
+            get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }
 

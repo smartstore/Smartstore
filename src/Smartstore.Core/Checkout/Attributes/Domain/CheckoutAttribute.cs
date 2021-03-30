@@ -17,15 +17,13 @@ namespace Smartstore.Core.Checkout.Attributes
     [CacheableEntity]
     public partial class CheckoutAttribute : EntityWithAttributes, ILocalizedEntity, IStoreRestricted
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public CheckoutAttribute()
         {
         }
 
         public CheckoutAttribute(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -107,7 +105,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// </summary>
         public ICollection<CheckoutAttributeValue> CheckoutAttributeValues
         {
-            get => _checkoutAttributeValues ?? _lazyLoader?.Load(this, ref _checkoutAttributeValues) ?? (_checkoutAttributeValues ??= new HashSet<CheckoutAttributeValue>());
+            get => _checkoutAttributeValues ?? LazyLoader.Load(this, ref _checkoutAttributeValues) ?? (_checkoutAttributeValues ??= new HashSet<CheckoutAttributeValue>());
             protected set => _checkoutAttributeValues = value;
         }
     }

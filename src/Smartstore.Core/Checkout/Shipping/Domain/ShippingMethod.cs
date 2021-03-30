@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -43,15 +44,14 @@ namespace Smartstore.Core.Checkout.Shipping
     [CacheableEntity]
     public partial class ShippingMethod : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IDisplayOrder, IRulesContainer
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ShippingMethod()
         {
         }
 
-        public ShippingMethod(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private ShippingMethod(ILazyLoader lazyLoader)
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Smartstore.Core.Checkout.Shipping
         [JsonIgnore]
         public ICollection<RuleSetEntity> RuleSets
         {
-            get => _ruleSets = _lazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
+            get => _ruleSets ?? LazyLoader.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
             protected set => _ruleSets = value;
         }
     }

@@ -32,16 +32,14 @@
 //    [Table("Forums_PrivateMessage")]
 //    public partial class PrivateMessage : BaseEntity
 //    {
-//        private readonly ILazyLoader _lazyLoader;
-
 //        public PrivateMessage()
 //        {
 //        }
 
 //        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 //        private PrivateMessage(ILazyLoader lazyLoader)
+//            : base(lazyLoader)
 //        {
-//            _lazyLoader = lazyLoader;
 //        }
 
 //        /// <summary>
@@ -95,8 +93,9 @@
 //        /// <summary>
 //        /// Gets the customer who sent the message.
 //        /// </summary>
-//        public virtual Customer FromCustomer {
-//            get => _lazyLoader?.Load(this, ref _fromCustomer) ?? _fromCustomer;
+//        public virtual Customer FromCustomer
+//        {
+//            get => _fromCustomer ?? LazyLoader.Load(this, ref _fromCustomer);
 //            set => _fromCustomer = value;
 //        }
 
@@ -104,8 +103,9 @@
 //        /// <summary>
 //        /// Gets the customer who should receive the message.
 //        /// </summary>
-//        public virtual Customer ToCustomer {
-//            get => _lazyLoader?.Load(this, ref _toCustomer) ?? _toCustomer;
+//        public virtual Customer ToCustomer
+//        {
+//            get => _toCustomer ?? LazyLoader.Load(this, ref _toCustomer);
 //            set => _toCustomer = value;
 //        }
 //    }

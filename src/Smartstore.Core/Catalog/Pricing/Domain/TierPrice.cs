@@ -30,16 +30,14 @@ namespace Smartstore.Core.Catalog.Pricing
     /// </summary>
     public partial class TierPrice : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public TierPrice()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private TierPrice(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -54,7 +52,7 @@ namespace Smartstore.Core.Catalog.Pricing
         [JsonIgnore]
         public Product Product
         {
-            get => _product ?? _lazyLoader?.Load(this, ref _product);
+            get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -90,7 +88,7 @@ namespace Smartstore.Core.Catalog.Pricing
         [JsonIgnore]
         public CustomerRole CustomerRole
         {
-            get => _customerRole ?? _lazyLoader?.Load(this, ref _customerRole);
+            get => _customerRole ?? LazyLoader.Load(this, ref _customerRole);
             set => _customerRole = value;
         }
     }

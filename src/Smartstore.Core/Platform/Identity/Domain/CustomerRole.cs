@@ -48,16 +48,14 @@ namespace Smartstore.Core.Identity
     [Index(nameof(SystemName), nameof(IsSystemRole), Name = "IX_CustomerRole_SystemName_IsSystemRole")]
     public partial class CustomerRole : EntityWithAttributes, IRulesContainer
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public CustomerRole()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private CustomerRole(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -113,7 +111,7 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public ICollection<PermissionRoleMapping> PermissionRoleMappings
         {
-            get => _lazyLoader?.Load(this, ref _permissionRoleMappings) ?? (_permissionRoleMappings ??= new HashSet<PermissionRoleMapping>());
+            get => _permissionRoleMappings ?? LazyLoader.Load(this, ref _permissionRoleMappings) ?? (_permissionRoleMappings ??= new HashSet<PermissionRoleMapping>());
             protected set => _permissionRoleMappings = value;
         }
 
@@ -124,7 +122,7 @@ namespace Smartstore.Core.Identity
         [JsonIgnore]
         public ICollection<RuleSetEntity> RuleSets
         {
-            get => _lazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
+            get => _ruleSets ?? LazyLoader.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
             protected set => _ruleSets = value;
         }
     }

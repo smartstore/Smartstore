@@ -57,16 +57,14 @@
 
 //        #endregion
 
-//        private readonly ILazyLoader _lazyLoader;
-
 //        public NewsItem()
 //        {
 //        }
 
 //        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 //        private NewsItem(ILazyLoader lazyLoader)
+//            : base(lazyLoader)
 //        {
-//            _lazyLoader = lazyLoader;
 //        }
 
 //        /// <summary>
@@ -103,7 +101,7 @@
 //        /// </summary>
 //        public MediaFile MediaFile
 //        {
-//            get => _lazyLoader?.Load(this, ref _mediaFile) ?? _mediaFile;
+//            get => _mediaFile ?? LazyLoader.Load(this, ref _mediaFile);
 //            set => _mediaFile = value;
 //        }
 
@@ -118,7 +116,7 @@
 //        /// </summary>
 //        public MediaFile PreviewMediaFile
 //        {
-//            get => _lazyLoader?.Load(this, ref _previewMediaFile) ?? _previewMediaFile;
+//            get => _previewMediaFile ?? LazyLoader.Load(this, ref _previewMediaFile);
 //            set => _previewMediaFile = value;
 //        }
 
@@ -190,8 +188,9 @@
 //        /// Gets or sets the language.
 //        /// </summary>
 //        [NotMapped]
-//        public virtual Language Language {
-//            get => _lazyLoader?.Load(this, ref _language) ?? _language;
+//        public virtual Language Language
+//        {
+//            get => _language ?? LazyLoader.Load(this, ref _language);
 //            set => _language = value;
 //        }
 
@@ -202,7 +201,7 @@
 //        [NotMapped]
 //        public virtual ICollection<NewsComment> NewsComments
 //        {
-//            get => _lazyLoader?.Load(this, ref _newsComments) ?? _newsComments;
+//            get => _newsComments ?? LazyLoader.Load(this, ref _newsComments) ?? (_newsComments ??= new HashSet<NewsComment>());
 //            set => _newsComments = value;
 //        }
 

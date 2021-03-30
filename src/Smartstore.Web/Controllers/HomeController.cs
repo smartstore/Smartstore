@@ -259,6 +259,8 @@ namespace Smartstore.Web.Controllers
             ViewBag.MetaDescription = _homePageSettings.GetLocalizedSetting(x => x.MetaDescription, storeId);
             ViewBag.MetaKeywords = _homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, storeId);
 
+            MsTest();
+
             return View();
         }
 
@@ -799,6 +801,10 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> MsTest()
         {
+            var xxx = await _db.OrderItems.SelectAlsoPurchasedProductIds(11).ToListAsync();
+
+            var aaa = 10;
+
             //var customer = await _db.Customers.Where(x => x.Email == "admin@meinstore.de").FirstOrDefaultAsync();
 
             //var xxxxxx = await _giftCardService.GetValidGiftCardsAsync(customer: customer);

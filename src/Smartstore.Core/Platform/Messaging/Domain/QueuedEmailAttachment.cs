@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -37,15 +38,14 @@ namespace Smartstore.Core.Messages
     [Index(nameof(MediaFileId), Name = "IX_MediaFileId")]
     public partial class QueuedEmailAttachment : BaseEntity, IMediaAware
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public QueuedEmailAttachment()
         {
         }
 
-        public QueuedEmailAttachment(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private QueuedEmailAttachment(ILazyLoader lazyLoader) 
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Smartstore.Core.Messages
         /// </summary>
         public QueuedEmail QueuedEmail
         {
-            get => _queuedEmail ?? _lazyLoader?.Load(this, ref _queuedEmail);
+            get => _queuedEmail ?? LazyLoader.Load(this, ref _queuedEmail);
             set => _queuedEmail = value;
         }
 
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Messages
         /// </remarks>
         public MediaFile MediaFile
         {
-            get => _mediaFile ?? _lazyLoader?.Load(this, ref _mediaFile);
+            get => _mediaFile ?? LazyLoader.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
 
@@ -115,7 +115,7 @@ namespace Smartstore.Core.Messages
         /// </summary>
         public MediaStorage MediaStorage
         {
-            get => _mediaStorage ?? _lazyLoader?.Load(this, ref _mediaStorage);
+            get => _mediaStorage ?? LazyLoader.Load(this, ref _mediaStorage);
             set => _mediaStorage = value;
         }
     }

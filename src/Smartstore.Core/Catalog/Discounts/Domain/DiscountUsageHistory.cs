@@ -31,16 +31,14 @@ namespace Smartstore.Core.Catalog.Discounts
     /// </summary>
     public partial class DiscountUsageHistory : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public DiscountUsageHistory()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private DiscountUsageHistory(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -55,7 +53,7 @@ namespace Smartstore.Core.Catalog.Discounts
         [JsonIgnore]
         public Discount Discount
         {
-            get => _discount ?? _lazyLoader?.Load(this, ref _discount);
+            get => _discount ?? LazyLoader.Load(this, ref _discount);
             set => _discount = value;
         }
 
@@ -71,7 +69,7 @@ namespace Smartstore.Core.Catalog.Discounts
         [JsonIgnore]
         public Order Order
         {
-            get => _order ?? _lazyLoader?.Load(this, ref _order);
+            get => _order ?? LazyLoader.Load(this, ref _order);
             set => _order = value;
         }
 

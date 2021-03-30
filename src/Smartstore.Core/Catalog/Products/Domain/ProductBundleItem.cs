@@ -35,16 +35,14 @@ namespace Smartstore.Core.Catalog.Products
     /// </summary>
     public partial class ProductBundleItem : BaseEntity, IAuditable, ILocalizedEntity, IDisplayOrder, ICloneable<ProductBundleItem>
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductBundleItem()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductBundleItem(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -58,7 +56,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public Product Product
         {
-            get => _product ?? _lazyLoader?.Load(this, ref _product);
+            get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -73,7 +71,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public Product BundleProduct
         {
-            get => _bundleProduct ?? _lazyLoader?.Load(this, ref _bundleProduct);
+            get => _bundleProduct ?? LazyLoader.Load(this, ref _bundleProduct);
             set => _bundleProduct = value;
         }
 
@@ -142,7 +140,7 @@ namespace Smartstore.Core.Catalog.Products
         [JsonIgnore]
         public ICollection<ProductBundleItemAttributeFilter> AttributeFilters
         {
-            get => _attributeFilters ?? _lazyLoader?.Load(this, ref _attributeFilters) ?? (_attributeFilters ??= new HashSet<ProductBundleItemAttributeFilter>());
+            get => _attributeFilters ?? LazyLoader.Load(this, ref _attributeFilters) ?? (_attributeFilters ??= new HashSet<ProductBundleItemAttributeFilter>());
             protected set => _attributeFilters = value;
         }
 

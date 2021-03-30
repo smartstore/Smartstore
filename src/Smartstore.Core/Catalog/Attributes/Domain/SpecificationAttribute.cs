@@ -18,16 +18,14 @@ namespace Smartstore.Core.Catalog.Attributes
     [Index(nameof(AllowFiltering), Name = "IX_AllowFiltering")]
     public partial class SpecificationAttribute : EntityWithAttributes, ILocalizedEntity, IDisplayOrder, ISearchAlias
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public SpecificationAttribute()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private SpecificationAttribute(ILazyLoader lazyLoader)
+            : base (lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -80,7 +78,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ICollection<SpecificationAttributeOption> SpecificationAttributeOptions
         {
-            get => _specificationAttributeOptions ?? _lazyLoader?.Load(this, ref _specificationAttributeOptions) ?? (_specificationAttributeOptions ??= new HashSet<SpecificationAttributeOption>());
+            get => _specificationAttributeOptions ?? LazyLoader.Load(this, ref _specificationAttributeOptions) ?? (_specificationAttributeOptions ??= new HashSet<SpecificationAttributeOption>());
             protected set => _specificationAttributeOptions = value;
         }
     }

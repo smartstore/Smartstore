@@ -37,16 +37,14 @@
 //    [Index(nameof(Published), Name = "IX_Published")]
 //    public partial class ForumPost : BaseEntity, IAuditable
 //    {
-//        private readonly ILazyLoader _lazyLoader;
-
 //        public ForumPost()
 //        {
 //        }
 
 //        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 //        private ForumPost(ILazyLoader lazyLoader)
+//            : base(lazyLoader)
 //        {
-//            _lazyLoader = lazyLoader;
 //        }
 
 //        /// <summary>
@@ -90,8 +88,9 @@
 //        /// <summary>
 //        /// Gets the topic.
 //        /// </summary>
-//        public virtual ForumTopic ForumTopic {
-//            get => _lazyLoader?.Load(this, ref _forumTopic) ?? _forumTopic;
+//        public virtual ForumTopic ForumTopic
+//        {
+//            get => _forumTopic ?? LazyLoader.Load(this, ref _forumTopic);
 //            protected set => _forumTopic = value;
 //        }
 
@@ -99,8 +98,9 @@
 //        /// <summary>
 //        /// Gets the customer.
 //        /// </summary>
-//        public virtual Customer Customer {
-//            get => _lazyLoader?.Load(this, ref _customer) ?? _customer;
+//        public virtual Customer Customer
+//        {
+//            get => _customer ?? LazyLoader.Load(this, ref _customer);
 //            protected set => _customer = value;
 //        }
 
@@ -110,7 +110,7 @@
 //        /// </summary>
 //        public virtual ICollection<ForumPostVote> ForumPostVotes
 //        {
-//            get => _lazyLoader?.Load(this, ref _forumPostVotes) ?? _forumPostVotes;
+//            get => _forumPostVotes ?? LazyLoader.Load(this, ref _forumPostVotes);
 //            protected set => _forumPostVotes = value;
 //        }
 //    }

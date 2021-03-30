@@ -39,12 +39,10 @@ namespace Smartstore.Core.Common
         {
         }
 
-        private readonly ILazyLoader _lazyLoader;
-
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private Country(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -120,7 +118,7 @@ namespace Smartstore.Core.Common
         [JsonIgnore]
         public Currency DefaultCurrency
         {
-            get => _defaultCurrency = _lazyLoader?.Load(this, ref _defaultCurrency);
+            get => _defaultCurrency ?? LazyLoader.Load(this, ref _defaultCurrency);
             set => _defaultCurrency = value;
         }
 
@@ -131,7 +129,7 @@ namespace Smartstore.Core.Common
         [JsonIgnore]
         public ICollection<StateProvince> StateProvinces
         {
-            get => _stateProvinces ?? _lazyLoader?.Load(this, ref _stateProvinces) ?? (_stateProvinces ??= new HashSet<StateProvince>());
+            get => _stateProvinces ?? LazyLoader.Load(this, ref _stateProvinces) ?? (_stateProvinces ??= new HashSet<StateProvince>());
             protected set => _stateProvinces = value;
         }
     }

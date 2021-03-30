@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -24,15 +25,13 @@ namespace Smartstore.Core.Checkout.Orders
     /// </summary>
     public partial class OrderNote : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public OrderNote()
         {
         }
 
-        public OrderNote(ILazyLoader lazyLoader)
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private OrderNote(ILazyLoader lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -63,7 +62,7 @@ namespace Smartstore.Core.Checkout.Orders
         [JsonIgnore]
         public Order Order 
         {
-            get => _order ?? _lazyLoader?.Load(this, ref _order);
+            get => _order ?? LazyLoader.Load(this, ref _order);
             set => _order = value;
         }
     }

@@ -38,16 +38,14 @@ namespace Smartstore.Core.Catalog.Attributes
     [Table("Product_SpecificationAttribute_Mapping")]
     public partial class ProductSpecificationAttribute : BaseEntity, IDisplayOrder
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductSpecificationAttribute()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductSpecificationAttribute(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -61,7 +59,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public SpecificationAttributeOption SpecificationAttributeOption
         {
-            get => _specificationAttributeOption ?? _lazyLoader?.Load(this, ref _specificationAttributeOption);
+            get => _specificationAttributeOption ?? LazyLoader.Load(this, ref _specificationAttributeOption);
             set => _specificationAttributeOption = value;
         }
 
@@ -77,7 +75,7 @@ namespace Smartstore.Core.Catalog.Attributes
         [JsonIgnore]
         public Product Product
         {
-            get => _product ?? _lazyLoader?.Load(this, ref _product);
+            get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }
 

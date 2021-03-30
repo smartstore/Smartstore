@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -26,15 +27,14 @@ namespace Smartstore.Core.Messages
     [Index(nameof(EmailAccountId), Name = "IX_EmailAccountId")]
     public partial class QueuedEmail : BaseEntity
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public QueuedEmail()
         {
         }
 
-        public QueuedEmail(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private QueuedEmail(ILazyLoader lazyLoader) 
+            : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Smartstore.Core.Messages
         /// </summary>
         public EmailAccount EmailAccount
         {
-            get => _emailAccount ?? _lazyLoader?.Load(this, ref _emailAccount);
+            get => _emailAccount ?? LazyLoader.Load(this, ref _emailAccount);
             set => _emailAccount = value;
         }
 
@@ -125,7 +125,7 @@ namespace Smartstore.Core.Messages
         /// </summary>
         public ICollection<QueuedEmailAttachment> Attachments
         {
-            get => _lazyLoader?.Load(this, ref _attachments) ?? (_attachments ??= new HashSet<QueuedEmailAttachment>());
+            get => _attachments ?? LazyLoader.Load(this, ref _attachments) ?? (_attachments ??= new HashSet<QueuedEmailAttachment>());
             protected set => _attachments = value;
         }
     }

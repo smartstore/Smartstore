@@ -26,16 +26,14 @@ namespace Smartstore.Core.Catalog.Attributes
     /// </summary>
     public partial class ProductAttributeOption : BaseEntity, ILocalizedEntity, ISearchAlias, IDisplayOrder, ICloneable<ProductVariantAttributeValue>
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductAttributeOption()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductAttributeOption(ILazyLoader lazyLoader)
+            : base (lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -49,7 +47,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// </summary>
         public ProductAttributeOptionsSet ProductAttributeOptionsSet
         {
-            get => _productAttributeOptionsSet ?? _lazyLoader?.Load(this, ref _productAttributeOptionsSet);
+            get => _productAttributeOptionsSet ?? LazyLoader.Load(this, ref _productAttributeOptionsSet);
             set => _productAttributeOptionsSet = value;
         }
 

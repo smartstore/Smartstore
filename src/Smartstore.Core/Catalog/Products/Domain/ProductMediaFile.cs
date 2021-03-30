@@ -31,16 +31,14 @@ namespace Smartstore.Core.Catalog.Products
     [Table("Product_MediaFile_Mapping")]
     public partial class ProductMediaFile : BaseEntity, IMediaFile, IDisplayOrder
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public ProductMediaFile()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ProductMediaFile(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -54,7 +52,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public Product Product
         {
-            get => _product ?? _lazyLoader?.Load(this, ref _product);
+            get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }
 
@@ -65,7 +63,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <inheritdoc/>
         public MediaFile MediaFile
         {
-            get => _mediaFile ?? _lazyLoader?.Load(this, ref _mediaFile);
+            get => _mediaFile ?? LazyLoader.Load(this, ref _mediaFile);
             set => _mediaFile = value;
         }
 

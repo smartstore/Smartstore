@@ -83,16 +83,14 @@ namespace Smartstore.Core.Content.Media
 
         #endregion
 
-        private readonly ILazyLoader _lazyLoader;
-
         public MediaFile()
         {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private MediaFile(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -106,7 +104,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public MediaFolder Folder
         {
-            get => _folder ?? _lazyLoader?.Load(this, ref _folder);
+            get => _folder ?? LazyLoader.Load(this, ref _folder);
             set => _folder = value;
         }
 
@@ -210,7 +208,7 @@ namespace Smartstore.Core.Content.Media
         [JsonIgnore]
         public MediaStorage MediaStorage
         {
-            get => _mediaStorage ?? _lazyLoader?.Load(this, ref _mediaStorage);
+            get => _mediaStorage ?? LazyLoader.Load(this, ref _mediaStorage);
             set => _mediaStorage = value;
         }
 
@@ -220,7 +218,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public ICollection<MediaTag> Tags
         {
-            get => _tags ?? _lazyLoader?.Load(this, ref _tags) ?? (_tags ??= new HashSet<MediaTag>());
+            get => _tags ?? LazyLoader.Load(this, ref _tags) ?? (_tags ??= new HashSet<MediaTag>());
             protected set => _tags = value;
         }
 
@@ -230,7 +228,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public ICollection<MediaTrack> Tracks
         {
-            get => _tracks ?? _lazyLoader?.Load(this, ref _tracks) ?? (_tracks ??= new HashSet<MediaTrack>());
+            get => _tracks ?? LazyLoader.Load(this, ref _tracks) ?? (_tracks ??= new HashSet<MediaTrack>());
             protected set => _tracks = value;
         }
 
@@ -240,7 +238,7 @@ namespace Smartstore.Core.Content.Media
         /// </summary>
         public ICollection<ProductMediaFile> ProductMediaFiles
         {
-            get => _productMediaFiles ?? _lazyLoader?.Load(this, ref _productMediaFiles) ?? (_productMediaFiles ??= new HashSet<ProductMediaFile>());
+            get => _productMediaFiles ?? LazyLoader.Load(this, ref _productMediaFiles) ?? (_productMediaFiles ??= new HashSet<ProductMediaFile>());
             protected set => _productMediaFiles = value;
         }
     }

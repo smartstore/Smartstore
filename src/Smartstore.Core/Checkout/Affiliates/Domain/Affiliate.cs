@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -27,15 +28,14 @@ namespace Smartstore.Core.Checkout.Affiliates
     /// </summary>
     public partial class Affiliate : EntityWithAttributes, ISoftDeletable
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public Affiliate()
         {
         }
 
-        public Affiliate(ILazyLoader lazyLoader)
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private Affiliate(ILazyLoader lazyLoader)
+            : base(lazyLoader)
         {
-            _lazyLoader = lazyLoader;
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Smartstore.Core.Checkout.Affiliates
         [JsonIgnore]
         public Address Address
         {
-            get => _address ?? _lazyLoader?.Load(this, ref _address);
+            get => _address ?? LazyLoader.Load(this, ref _address);
             set => _address = value;
         }
     }

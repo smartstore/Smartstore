@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Catalog.Categories;
@@ -23,15 +24,13 @@ namespace Smartstore.Core.Rules
     [CacheableEntity(MaxRows = 1, Expiry = 480)] // MaxRows = 1 caches only ById calls
     public partial class RuleSetEntity : EntityWithAttributes, IAuditable
     {
-        private readonly ILazyLoader _lazyLoader;
-
         public RuleSetEntity()
         {
         }
 
-        public RuleSetEntity(ILazyLoader lazyLoader)
-        {
-            _lazyLoader = lazyLoader;
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private RuleSetEntity(ILazyLoader lazyLoader) : base(lazyLoader)
+        {            
         }
 
         /// <summary>
@@ -84,7 +83,7 @@ namespace Smartstore.Core.Rules
         /// </summary>
         public ICollection<RuleEntity> Rules
         {
-            get => _lazyLoader?.Load(this, ref _rules) ?? (_rules ??= new HashSet<RuleEntity>());
+            get => _rules ?? LazyLoader.Load(this, ref _rules) ?? (_rules ??= new HashSet<RuleEntity>());
             protected set => _rules = value;
         }
 
@@ -94,7 +93,7 @@ namespace Smartstore.Core.Rules
         /// </summary>
         public ICollection<Discount> Discounts
         {
-            get => _lazyLoader?.Load(this, ref _discounts) ?? (_discounts ??= new HashSet<Discount>());
+            get => _discounts ?? LazyLoader.Load(this, ref _discounts) ?? (_discounts ??= new HashSet<Discount>());
             protected set => _discounts = value;
         }
 
@@ -104,7 +103,7 @@ namespace Smartstore.Core.Rules
         /// </summary>
         public ICollection<Category> Categories
         {
-            get => _lazyLoader?.Load(this, ref _categories) ?? (_categories ??= new HashSet<Category>());
+            get => _categories ?? LazyLoader.Load(this, ref _categories) ?? (_categories ??= new HashSet<Category>());
             protected set => _categories = value;
         }
 
@@ -114,7 +113,7 @@ namespace Smartstore.Core.Rules
         /// </summary>
         public ICollection<ShippingMethod> ShippingMethods
         {
-            get => _shippingMethods ?? (_shippingMethods = new HashSet<ShippingMethod>());
+            get => _shippingMethods ?? LazyLoader.Load(this, ref _shippingMethods) ?? (_shippingMethods ??= new HashSet<ShippingMethod>());
             protected set => _shippingMethods = value;
         }
 
@@ -124,7 +123,7 @@ namespace Smartstore.Core.Rules
         /// </summary>
         public ICollection<PaymentMethod> PaymentMethods
         {
-            get => _paymentMethods ?? (_paymentMethods = new HashSet<PaymentMethod>());
+            get => _paymentMethods ?? LazyLoader.Load(this, ref _paymentMethods) ?? (_paymentMethods ??= new HashSet<PaymentMethod>());
             protected set => _paymentMethods = value;
         }
 
@@ -134,7 +133,7 @@ namespace Smartstore.Core.Rules
         /// </summary>
         public ICollection<CustomerRole> CustomerRoles
         {
-            get => _customerRoles ?? (_customerRoles = new HashSet<CustomerRole>());
+            get => _customerRoles ?? LazyLoader.Load(this, ref _customerRoles) ?? (_customerRoles ??= new HashSet<CustomerRole>());
             protected set => _customerRoles = value;
         }
     }
