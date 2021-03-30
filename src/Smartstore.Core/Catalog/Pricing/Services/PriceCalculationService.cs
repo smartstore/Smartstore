@@ -109,6 +109,9 @@ namespace Smartstore.Core.Catalog.Pricing
             return options;
         }
 
+        // TODO: (mg) (core) That's wrong. Must be executed by AttributePriceCalculator based on correct (child) PriceCalculationContext.
+        // Caller must initially provide multiple ProductVariantAttributeSelection somehow, for each product and each bundle item (see OrganizedShoppingCartItem).
+        // -> Structure... Key: Product.Id & ProductBundleItem.Id. Value: ProductVariantAttributeSelection, applyPreSelectedAttributes(?)...
         public async Task ApplyAttributesAsync(PriceCalculationContext context, ProductVariantAttributeSelection selection, bool applyPreSelectedAttributes = false)
         {
             Guard.NotNull(context, nameof(context));
