@@ -1,0 +1,29 @@
+﻿@using Smartstore.Web.Models.Search;
+
+@model SearchResultModelBase.HitGroup
+
+@{
+    var parentModel = Model.Parent as SearchResultModel;
+}
+
+<h6 sm-if="Model.DisplayName.HasValue()" class="instasearch-group-header">@Model.DisplayName</h6>
+
+<ul class="instasearch-hits">
+    @foreach (var hit in Model.Hits)
+    {
+        <li>
+            <a class="instasearch-hit" href="@hit.Url">
+                @if (hit.NoHighlight)
+                {
+                    @hit.Label
+                }
+                else
+                {
+                    @Html.Raw(parentModel.Highlight(hit.Label, "name", parentModel.Query, null, "<span class='instasearch-match pl-1'>", "</span>"))
+                }
+                
+                <span sm-if="hit.Tag.HasValue()" class="instasearch-hit-tag">@Html.Raw(hit.Tag)</span>
+            </a>
+        </li>
+    }
+</ul>

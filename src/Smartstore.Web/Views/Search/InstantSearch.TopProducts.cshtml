@@ -1,0 +1,30 @@
+﻿@using Smartstore.Web.Models.Search
+
+@model SearchResultModel
+
+@{
+    var hasThumbs = Model.TopProducts.Items.Any(x => x.Image != null && x.Image.File != null && x.Image.File.GetUrl().HasValue());
+}
+
+<ul class="instasearch-hits@(hasThumbs ? " has-thumbs" : "")">
+    @foreach (var hit in Model.TopProducts.Items)
+    {
+        <li>
+            <a class="instasearch-hit" asp-route="Product" asp-route-SeName="@hit.SeName">
+                <span class="instasearch-hit-wrapper">
+                    <span sm-if="hasThumbs && hit.Image != null && hit.Image.File != null && hit.Image.File.GetUrl().HasValue()" class="instasearch-hit-thumb d-block">
+                        <img src="@hit.Image.File.GetUrl()" alt="" class="img-fluid" />
+                    </span>
+                    <span class="d-block text-truncate">
+                        <span class="d-block text-truncate" sm-language-attributes-for="hit.Name" >
+                            @Html.Raw(Model.Highlight(hit.Name, "name", Model.Query, null, "<span class='instasearch-match'>", "</span>"))
+                        </span>
+                        <span sm-if="hasThumbs && hit.ShortDescription.Value.HasValue()" class="instasearch-hit-label-secondary d-block text-truncate" sm-language-attributes-for="hit.ShortDescription">
+                            @hit.ShortDescription.Value.RemoveHtml()
+                        </span>
+                    </span>
+                </span>
+            </a>
+        </li>
+    }
+</ul>
