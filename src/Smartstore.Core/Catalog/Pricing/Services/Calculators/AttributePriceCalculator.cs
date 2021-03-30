@@ -69,11 +69,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 {
                     if (processTierPrices && value.PriceAdjustment > decimal.Zero)
                     {
-                        var tierPrices = await options.BatchContext.TierPrices.GetOrLoadAsync(product.Id);
-                        // TODO: (mg) (core) I don't like the fact that everytime we fetch TierPrices, dupe removal is performed.
-                        //       Find a way to make this only once during pipeline execution.
-                        tierPrices = tierPrices.RemoveDuplicatedQuantities();
-
+                        var tierPrices = await context.GetTierPricesAsync();
                         var priceAdjustment = GetTierPriceAttributeAdjustment(product, tierPrices, context.Quantity, value.PriceAdjustment);
                         context.FinalPrice += priceAdjustment;
                     }

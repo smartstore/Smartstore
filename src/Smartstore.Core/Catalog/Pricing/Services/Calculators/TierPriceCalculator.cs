@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
@@ -22,8 +21,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             if (processTierPrices)
             {
-                var tierPrices = await options.BatchContext.TierPrices.GetOrLoadAsync(product.Id);
-                tierPrices = tierPrices.RemoveDuplicatedQuantities();
+                var tierPrices = await context.GetTierPricesAsync();
 
                 // Put minimum tier price to context because it's required for discount calculation.
                 context.MinTierPrice = GetMinimumTierPrice(product, tierPrices, context.Quantity);
