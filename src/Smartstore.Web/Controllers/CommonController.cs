@@ -6,6 +6,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Theming;
 
@@ -15,16 +16,15 @@ namespace Smartstore.Web.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly Lazy<IMediaService> _mediaService;
-        private readonly Lazy<ILanguageService> _languageService;
+        private readonly UrlPolicy _urlPolicy;
         private readonly IThemeContext _themeContext;
         private readonly IThemeRegistry _themeRegistry;
         private readonly ThemeSettings _themeSettings;
-        private readonly LocalizationSettings _localizationSettings;
 
         public CommonController(
             SmartDbContext db,
             Lazy<IMediaService> mediaService,
-            Lazy<ILanguageService> languageService,
+            UrlPolicy urlPolicy,
             IThemeContext themeContext, 
             IThemeRegistry themeRegistry, 
             ThemeSettings themeSettings,
@@ -32,11 +32,10 @@ namespace Smartstore.Web.Controllers
         {
             _db = db;
             _mediaService = mediaService;
-            _languageService = languageService;
+            _urlPolicy = urlPolicy;
             _themeContext = themeContext;
             _themeRegistry = themeRegistry;
             _themeSettings = themeSettings;
-            _localizationSettings = localizationSettings;
         }
 
         [Route("browserconfig.xml")]
@@ -114,12 +113,11 @@ namespace Smartstore.Web.Controllers
             }
 
             var helper = new LocalizedUrlHelper(Request.PathBase, returnUrl ?? string.Empty);
-
-            if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
+            
+            if (_urlPolicy.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
                 // Don't prepend culture code if it is master language and master is prefixless by configuration.
-                string defaultSeoCode = await _languageService.Value.GetMasterLanguageSeoCodeAsync();
-                if (language.UniqueSeoCode != defaultSeoCode && _localizationSettings.DefaultLanguageRedirectBehaviour == 0)
+                if (language.UniqueSeoCode != _urlPolicy.DefaultCultureCode || _urlPolicy.LocalizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect)
                 {
                     helper.PrependCultureCode(Services.WorkContext.WorkingLanguage.UniqueSeoCode, true);
                 }
