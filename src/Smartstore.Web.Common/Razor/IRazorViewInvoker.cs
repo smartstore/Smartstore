@@ -17,6 +17,15 @@ namespace Smartstore.Web.Razor
         Task<string> InvokeViewAsync(string viewName, object model, bool isPartial = true);
 
         /// <summary>
+        /// Invokes a view and returns its html content.
+        /// </summary>
+        /// <param name="viewName">View name</param>
+        /// <param name="viewData">The <see cref="ViewDataDictionary"/> instance that also contains the model.</param>
+        /// <param name="isPartial"><c>true</c>: View is partial, otherwise main page.</param>
+        /// <returns>View rendering result</returns>
+        Task<string> InvokeViewAsync(string viewName, ViewDataDictionary viewData, bool isPartial = true);
+
+        /// <summary>
         /// Invokes a view component and returns its html content.
         /// </summary>
         /// <param name="viewData">View name</param>

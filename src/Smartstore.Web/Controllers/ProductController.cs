@@ -372,7 +372,7 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                var dataDictAddToCart = new ViewDataDictionary(ViewData);
+                var dataDictAddToCart = new ViewDataDictionary(ViewData) { Model = model };
                 dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
 
                 decimal adjustment = decimal.Zero;
@@ -400,9 +400,7 @@ namespace Smartstore.Web.Controllers
                     Price = await this.InvokeViewAsync("Product.Offer.Price", model),
                     Stock = await this.InvokeViewAsync("Product.StockInfo", model),
                     Variants = await this.InvokeViewAsync("Product.Variants", model.ProductVariantAttributes),
-
-                    // TODO: (mc) (core) We may need another parameter for this.
-                    //OfferActions = await _razorViewInvoker.Value.InvokeViewAsync("Product.Offer.Actions", m, dataDictAddToCart),
+                    OfferActions = await this.InvokeViewAsync("Product.Offer.Actions", dataDictAddToCart),
                     
                     // TODO: (mh) (core) Implement when Component or Partial is available.
                     //TierPrices = await _razorViewInvoker.Value.InvokeViewAsync("Product.TierPrices", await _razorViewInvoker.InvokeViewAsync(product, adjustment)),

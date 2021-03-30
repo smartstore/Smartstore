@@ -49,17 +49,30 @@ namespace Smartstore.Web.Razor
             _mvcViewOptions = mvcViewOptions;
         }
 
-        public async Task<string> InvokeViewAsync(string viewName, object model, bool isPartial = true)
+        public Task<string> InvokeViewAsync(string viewName, object model, bool isPartial = true)
         {
-            Guard.NotNull(viewName, nameof(viewName));
-            
             var actionContext = GetActionContext();
-            var view = FindView(actionContext, viewName, isPartial);
 
             var viewData = new ViewDataDictionary(_metadataProvider, actionContext.ModelState)
             {
                 Model = model
             };
+
+            return InvokeViewAsync(viewName, actionContext, viewData, isPartial);
+        }
+
+        public Task<string> InvokeViewAsync(string viewName, ViewDataDictionary viewData, bool isPartial = true)
+        {
+            return InvokeViewAsync(viewName, GetActionContext(), viewData, isPartial);
+        }
+
+        protected virtual async Task<string> InvokeViewAsync(string viewName, ActionContext actionContext, ViewDataDictionary viewData, bool isPartial = true)
+        {
+            Guard.NotEmpty(viewName, nameof(viewName));
+            Guard.NotNull(actionContext, nameof(actionContext));
+            Guard.NotNull(viewData, nameof(viewData));
+
+            var view = FindView(actionContext, viewName, isPartial);
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             using (var output = new StringWriter(sb))
