@@ -50,7 +50,7 @@ namespace Smartstore.Core.Catalog.Pricing
             AssociatedProducts = context.AssociatedProducts;
             BundleItems = context.BundleItems;
             BundleItem = context.BundleItem;
-            AttributeValues = context.AttributeValues;
+            Attributes = context.Attributes;
             AdditionalCharge = context.AdditionalCharge;
             // [...]
         }
@@ -110,11 +110,18 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// TODO: (mg) (core) Describe when ready.
         /// </summary>
-        public IList<ProductVariantAttributeValue> AttributeValues { get; set; }
+        public List<AttributePricingItem> Attributes { get; set; } = new();
 
         /// <summary>
         /// TODO: (mg) (core) Describe when fully implemented.
         /// </summary>
         public decimal AdditionalCharge { get; set; }
+    }
+
+    public class AttributePricingItem
+    {
+        public int ProductId { get; init; }
+        public int BundleItemId { get; init; }
+        public ProductVariantAttributeValue Value { get; init; }
     }
 }

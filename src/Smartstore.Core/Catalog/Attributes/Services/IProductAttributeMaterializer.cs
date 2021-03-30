@@ -25,14 +25,6 @@ namespace Smartstore.Core.Catalog.Attributes
         Task<IList<ProductVariantAttributeValue>> MaterializeProductVariantAttributeValuesAsync(ProductVariantAttributeSelection selection);
 
         /// <summary>
-        /// Gets a list of product variant attribute values.
-        /// </summary>
-        /// <param name="selection">Attributes selection.</param>
-        /// <param name="attributes">Product variant attributes.</param>
-        /// <returns>List of product variant attribute values.</returns>
-        IList<ProductVariantAttributeValue> MaterializeProductVariantAttributeValues(ProductVariantAttributeSelection selection, IEnumerable<ProductVariantAttribute> attributes);
-
-        /// <summary>
         /// Creates an attribute selection.
         /// </summary>
         /// <param name="query">Product variant query.</param>

@@ -91,7 +91,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var ignoreDiscounts = _catalogSettings.IgnoreDiscounts;
             var taxInclusive = _workContext.GetTaxDisplayTypeFor(customer, store.Id) == TaxDisplayType.IncludingTax;
 
-            batchContext ??= _productService.CreateProductBatchContext(null, store, customer, true);
+            batchContext ??= _productService.CreateProductBatchContext(null, store, customer, false);
             
             var options = new PriceCalculationOptions(batchContext, customer, store, language, targetCurrency)
             {
@@ -107,6 +107,57 @@ namespace Smartstore.Core.Catalog.Pricing
             };
 
             return options;
+        }
+
+        public async Task ApplyAttributesAsync(PriceCalculationContext context, ProductVariantAttributeSelection selection, bool applyPreSelectedAttributes = false)
+        {
+            Guard.NotNull(context, nameof(context));
+
+            var productId = context.Product.Id;
+            var bundleItemId = context.BundleItem?.Item?.Id ?? 0;
+            // Always use BatchContext if available.
+            var attributes = await context.Options.BatchContext.Attributes.GetOrLoadAsync(productId);
+
+            // Selected attributes.
+            var attributeValues = selection.MaterializeProductVariantAttributeValues(attributes);
+            if (attributeValues.Any())
+            {
+                // Ignore attributes that have no relevance for pricing.
+                var pricingItems = attributeValues
+                    .Where(x => x.PriceAdjustment != decimal.Zero || x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                    .Select(x => new AttributePricingItem
+                    {
+                        ProductId = productId,
+                        BundleItemId = bundleItemId,
+                        Value = x
+                    });
+
+                context.Attributes.AddRange(pricingItems);
+            }
+
+            // Attributes pre-selected by merchant.
+            if (applyPreSelectedAttributes)
+            {
+                var appliedValueIds = context.Attributes.Select(x => x.Value.Id).ToArray();
+
+                var preSelectedValues = attributes
+                    .SelectMany(x => x.ProductVariantAttributeValues)
+                    .Where(x => 
+                        x.IsPreSelected &&
+                        !appliedValueIds.Contains(x.Id) &&
+                        (x.PriceAdjustment != decimal.Zero || x.ValueType == ProductVariantAttributeValueType.ProductLinkage))
+                    .ToList();
+
+                var pricingItems = preSelectedValues
+                    .Select(x => new AttributePricingItem
+                    {
+                        ProductId = productId,
+                        BundleItemId = bundleItemId,
+                        Value = x
+                    });
+
+                context.Attributes.AddRange(pricingItems);
+            }
         }
 
         public async Task<CalculatedPrice> CalculatePriceLegacyAsync(PriceCalculationContext context)

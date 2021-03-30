@@ -836,8 +836,10 @@ namespace Smartstore.Web.Controllers
             List<Product> associatedProducts = null;
 
             var attributeValue = await _db.ProductVariantAttributeValues.FindByIdAsync(4300, false);
-            var attributeValues = new List<ProductVariantAttributeValue> { attributeValue };
             Money? addtionalCharge = attributeValue?.PriceAdjustment != decimal.Zero ? new(attributeValue.PriceAdjustment, primaryCurrency) : null;
+
+            var rawAttributes = "<Attributes><ProductVariantAttribute ID=\"1015\"><ProductVariantAttributeValue><Value>4300</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1016\" ><ProductVariantAttributeValue><Value>4303</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
+            var attributeSelection = new ProductVariantAttributeSelection(rawAttributes);
 
             var preselectedPrice = await pcs.GetPreselectedPriceAsync(product, customer, batchContext);
             var finalPrice = await pcs.GetFinalPriceAsync(product, null, addtionalCharge, customer, false, 1, null, batchContext);
@@ -858,11 +860,12 @@ namespace Smartstore.Web.Controllers
             }
 
             var cpFinalOptions = pcs.CreateDefaultOptions(true);
-            var cpFinal = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpFinalOptions) 
+            var cpFinalContext = new PriceCalculationContext(product, cpFinalOptions)
             {
-                AssociatedProducts = associatedProducts,
-                AttributeValues = attributeValues
-            });
+                AssociatedProducts = associatedProducts
+            };
+            await pcs.ApplyAttributesAsync(cpFinalContext, attributeSelection);
+            var cpFinal = await pcs.CalculatePriceAsync(cpFinalContext);
 
             var cpLowestOptions = pcs.CreateDefaultOptions(true);
             cpLowestOptions.DetermineLowestPrice = true;

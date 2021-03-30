@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AngleSharp.Common;
-using Smartstore.Core.Catalog.Attributes;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
-    /// Calculates the price of product attributes specified by <see cref="PriceCalculationContext.AttributeValues"/>.
+    /// Calculates the price of product attributes specified by <see cref="PriceCalculationContext.Attributes"/>.
     /// These are usually attributes selected on the product detail page, whose price adjustments must be included in the shopping cart.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 10)]
@@ -29,15 +28,19 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             var product = context.Product;
             var options = context.Options;
-            // TODO: (mg) (core) And who sets these Values? The caller? That would make things really complicated.
-            var values = context.AttributeValues;
 
-            if (options.IgnoreAttributes || !(values?.Any() ?? false))
+            if (options.IgnoreAttributes || !(context.Attributes?.Any() ?? false))
             {
                 // Proceed with pipeline and omit this calculator, it is made for attributes price calculation only.
                 await next(context);
                 return;
             }
+
+            // Get related attributes.
+            var bundleItemId = context.BundleItem?.Item?.Id ?? 0;
+            var attributes = context.Attributes
+                .Where(x => x.ProductId == product.Id && x.BundleItemId == bundleItemId)
+                .ToList();
 
             var processTierPrices = 
                 !options.IgnoreTierPrices && 
@@ -46,18 +49,23 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 context.Quantity > 1 &&
                 _catalogSettings.ApplyTierPricePercentageToAttributePriceAdjustments;
 
-            var linkedProductIds = values
-                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+            var linkedProductIds = attributes
+                .Select(x => x.Value)
+                .Where(x => x.ValueType == Attributes.ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
                 .Select(x => x.LinkedProductId)
                 .Distinct()
                 .ToArray();
 
-            var linkedProducts = await _db.Products.GetManyAsync(linkedProductIds);
-            var linkedProductsDic = linkedProducts.ToDictionary(x => x.Id);
+            var linkedProducts = await _db.Products
+                .AsNoTracking()
+                .Where(x => linkedProductIds.Contains(x.Id))
+                .ToDictionaryAsync(x => x.Id);
 
-            foreach (var value in values)
+            foreach (var attribute in attributes)
             {
-                if (value.ValueType == ProductVariantAttributeValueType.Simple)
+                var value = attribute.Value;
+
+                if (value.LinkedProductId == 0)
                 {
                     if (processTierPrices && value.PriceAdjustment > decimal.Zero)
                     {
@@ -74,8 +82,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                         context.FinalPrice += value.PriceAdjustment;
                     }
                 }
-                else if (value.ValueType == ProductVariantAttributeValueType.ProductLinkage && 
-                    linkedProductsDic.TryGetValue(value.LinkedProductId, out var linkedProduct))
+                else if (linkedProducts.TryGetValue(value.LinkedProductId, out var linkedProduct))
                 {
                     var childCalculation = await CalculateChildPriceAsync(linkedProduct, context, c =>
                     {
@@ -84,7 +91,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                         c.AssociatedProducts = null;
                         c.BundleItems = null;
                         c.BundleItem = null;
-                        c.AttributeValues = null;
                         c.AdditionalCharge = decimal.Zero;
                         c.MinTierPrice = null;
                     });

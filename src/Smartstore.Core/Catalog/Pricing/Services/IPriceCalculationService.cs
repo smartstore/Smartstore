@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
@@ -29,6 +28,11 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="batchContext">The product batch context to use during calculation. Will be created internally if <c>null</c>.</param>
         /// <returns>A new <see cref="PriceCalculationOptions"/> instance.</returns>
         PriceCalculationOptions CreateDefaultOptions(bool forListing, ProductBatchContext batchContext = null);
+
+        /// <summary>
+        /// TODO: (mg) (core) Describe when ready.
+        /// </summary>
+        Task ApplyAttributesAsync(PriceCalculationContext context, ProductVariantAttributeSelection selection, bool applyPreSelectedAttributes = false);
 
         /// <summary>
         /// Calculates the price for a given product.

@@ -149,47 +149,6 @@ namespace Smartstore.Core.Catalog.Attributes
             return result;
         }
 
-        // TODO: (mg) (core) Check whether IProductAttributeMaterializer.MaterializeProductVariantAttributeValues is still required.
-        public virtual IList<ProductVariantAttributeValue> MaterializeProductVariantAttributeValues(ProductVariantAttributeSelection selection, IEnumerable<ProductVariantAttribute> attributes)
-        {
-            var result = new List<ProductVariantAttributeValue>();
-
-            if (selection?.AttributesMap?.Any() ?? false)
-            {
-                var listTypeAttributeIds = attributes
-                    .Where(x => x.IsListTypeAttribute())
-                    .OrderBy(x => x.DisplayOrder)
-                    .Select(x => x.Id)
-                    .Distinct()
-                    .ToArray();
-
-                var valueIds = selection.AttributesMap
-                    .Where(x => listTypeAttributeIds.Contains(x.Key))
-                    .SelectMany(x => x.Value)
-                    .Select(x => x.ToString())
-                    .Where(x => x.HasValue())   // Avoid exception when string is empty.
-                    .Select(x => x.ToInt())
-                    .Where(x => x != 0)
-                    .Distinct()
-                    .ToArray();
-
-                foreach (int valueId in valueIds)
-                {
-                    foreach (var attribute in attributes)
-                    {
-                        var attributeValue = attribute.ProductVariantAttributeValues.FirstOrDefault(x => x.Id == valueId);
-                        if (attributeValue != null)
-                        {
-                            result.Add(attributeValue);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
         public virtual async Task<(ProductVariantAttributeSelection Selection, List<string> Warnings)> CreateAttributeSelectionAsync(
             ProductVariantQuery query,
             IEnumerable<ProductVariantAttribute> attributes,

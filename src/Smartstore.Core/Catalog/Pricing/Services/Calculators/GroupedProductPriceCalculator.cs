@@ -56,7 +56,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                         c.AssociatedProducts = null;
                         c.BundleItems = null;
                         c.BundleItem = null;
-                        c.AttributeValues = null;
                         c.AdditionalCharge = decimal.Zero;
                         c.MinTierPrice = null;
                     });
@@ -79,7 +78,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     c.AssociatedProducts = null;
                     c.BundleItems = null;
                     c.BundleItem = null;
-                    c.AttributeValues = null;
                     c.AdditionalCharge = decimal.Zero;
                     c.MinTierPrice = null;
                 });
