@@ -1,0 +1,75 @@
+﻿@using Smartstore.Web.Models.Search;
+
+@model SearchResultModel
+
+@{
+    var suggestions = new string[0];
+    var encodedTerm = Model.Term.EmptyNull().HtmlEncode();
+    var encodedAttemptedTerm = Model.AttemptedTerm.EmptyNull().HtmlEncode();
+
+    Assets.AppendTitleParts(encodedTerm.HasValue() ? T("Search.PageTitle", "\"" + encodedTerm + "\"") : T("Search.Title"));
+
+    ViewBag.HideLeftCol = true; // ...on mobile
+}
+
+<widget target-zone="left">
+    @*TODO: (mh) (core) Implement "Filters", "Search".*@
+</widget>
+
+<div class="page search-page">
+    <div class="page-title">
+        <h1 class="h3">
+            @if (encodedTerm.HasValue())
+            {
+                @Html.Raw(T("Search.PageTitle", "<small class='search-term'>" + encodedTerm + "</small>"))
+            }
+            else
+            {
+                @T("Search.Title")
+            }
+        </h1>
+
+        @if (Model.TotalProductsCount > 0)
+        {
+            <partial name="SearchResultHitsCount" model="Model.SearchResult" />
+        }
+    </div>
+
+    <div class="page-body">
+        <div sm-if="encodedAttemptedTerm.HasValue()" class="alert alert-warning">
+            @T("Search.TermCorrectedHint", $"<strong>{encodedTerm}</strong>", $"<strong>{encodedAttemptedTerm}</strong>")
+        </div>
+
+        @if (Model.Error.HasValue())
+        {
+            <div class="alert alert-danger">
+                @Model.Error
+            </div>
+        }
+        else if (Model.TotalProductsCount == 0)
+        {
+            <div class="alert alert-warning">
+                @T("Search.NoResultsText")
+            </div>
+        }
+
+        <p sm-if="suggestions.Any()" class="search-suggestions">
+            <strong>@(T(encodedAttemptedTerm.HasValue() || Model.TotalProductsCount == 0 ? "Search.DidYouMean" : "Search.RelatedSearchTerms")):</strong>
+            @{
+                var links = string.Join(", ", suggestions.Select(x => "<a href='" + Url.RouteUrl("Search", new { q = x }) + $"'>{x}</a>"));
+            }
+            @Html.Raw(links)
+        </p>
+
+        <zone name="search_results_before" />
+
+        <div class="search-results">
+            @if (Model.TotalProductsCount > 0)
+            {
+                <partial name="Product.List" model="Model.TopProducts" />
+            }
+        </div>
+
+        <zone name="search_results_after" />
+    </div>
+</div>
