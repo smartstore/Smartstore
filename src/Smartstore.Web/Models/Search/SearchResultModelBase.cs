@@ -10,12 +10,7 @@ namespace Smartstore.Web.Models.Search
 {
     public abstract class SearchResultModelBase : ModelBase
     {
-        protected SearchResultModelBase()
-        {
-            HitGroups = new List<HitGroup>();
-        }
-
-        public abstract IList<HitGroup> HitGroups { get; protected set; }
+        public abstract List<HitGroup> HitGroups { get; protected set; }
 
         /// <summary>
         /// Adds spell checker suggestions to this model.
@@ -100,14 +95,13 @@ namespace Smartstore.Web.Models.Search
                 Guard.NotNull(parent, nameof(parent));
 
                 Parent = parent;
-                Hits = new List<HitItem>();
             }
 
             public string Name { get; set; }
             public string DisplayName { get; set; }
             public int Ordinal { get; set; }
-            public IList<HitItem> Hits { get; private set; }
-            public SearchResultModelBase Parent { get; private set; }
+            public List<HitItem> Hits { get; } = new();
+            public SearchResultModelBase Parent { get; }
         }
 
         public class HitItem

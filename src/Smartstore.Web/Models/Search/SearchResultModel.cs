@@ -11,7 +11,7 @@ namespace Smartstore.Web.Models.Search
             Query = query;
         }
 
-        public CatalogSearchQuery Query { get; private set; }
+        public CatalogSearchQuery Query { get; }
 
         public CatalogSearchResult SearchResult { get; set; }
 
@@ -21,13 +21,14 @@ namespace Smartstore.Web.Models.Search
         /// suggested at least one term.
         /// </summary>
         public string AttemptedTerm { get; set; }
+
         public string Term { get; set; }
 
         public ProductSummaryModel TopProducts { get; set; }
 
         public int TotalProductsCount { get; set; }
 
-        public override IList<HitGroup> HitGroups { get; protected set; }
+        public override List<HitGroup> HitGroups { get; protected set; } = new();
 
         public string Error { get; set; }
     }
