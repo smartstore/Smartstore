@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
@@ -35,7 +36,7 @@ namespace Smartstore.Web.Models.Identity
 
     public class RegisterModelValidator : SmartValidator<RegisterModel>
     {
-        public RegisterModelValidator(Localizer T, CustomerSettings customerSettings, TaxSettings taxSettings)
+        public RegisterModelValidator(Localizer T, CustomerSettings customerSettings, TaxSettings taxSettings, SmartDbContext db)
         {
             RuleFor(x => x.ConfirmPassword).Equal(x => x.Password).WithMessage(T("Account.Fields.Password.EnteredPasswordsDoNotMatch"));
 

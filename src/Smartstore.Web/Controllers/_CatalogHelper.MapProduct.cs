@@ -147,7 +147,7 @@ namespace Smartstore.Web.Controllers
         public virtual Task<ProductSummaryModel> MapProductSummaryModelAsync(IList<Product> products, ProductSummaryMappingSettings settings)
         {
             Guard.NotNull(products, nameof(products));
-            
+
             return MapProductSummaryModelAsync(products.ToPagedList(0, int.MaxValue), settings);
         }
 
