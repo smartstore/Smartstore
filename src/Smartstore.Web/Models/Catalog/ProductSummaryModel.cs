@@ -4,6 +4,7 @@ using Smartstore.Collections;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
@@ -16,16 +17,15 @@ namespace Smartstore.Web.Models.Catalog
     {
         public readonly static ProductSummaryModel Empty = new(new PagedList<Product>(new List<Product>(), 0, int.MaxValue));
 
-        public ProductSummaryModel(IPagedList<Product> products)
+        public ProductSummaryModel(IPagedList<Product> products, CatalogSearchResult sourceResult = null)
         {
             Guard.NotNull(products, nameof(products));
 
-            Items = new List<SummaryItem>();
-            AvailableSortOptions = new Dictionary<int, string>();
-            AvailablePageSizes = Array.Empty<int>();
             PagedList = products;
+            SourceResult = sourceResult;
         }
 
+        public CatalogSearchResult SourceResult { get; init; }
         public int? ThumbSize { get; set; }
         public bool ShowSku { get; set; }
         public bool ShowWeight { get; set; }
@@ -47,7 +47,7 @@ namespace Smartstore.Web.Models.Catalog
         public bool ForceRedirectionAfterAddingToCart { get; set; }
         public DeliveryTimesPresentation DeliveryTimesPresentation { get; set; }
 
-        public IList<SummaryItem> Items { get; set; }
+        public List<SummaryItem> Items { get; set; } = new();
 
         #region IListActions
 
@@ -61,10 +61,10 @@ namespace Smartstore.Web.Models.Catalog
         public int? CurrentSortOrder { get; set; }
         public string CurrentSortOrderName { get; set; }
         public string RelevanceSortOrderName { get; set; }
-        public IDictionary<int, string> AvailableSortOptions { get; set; }
+        public Dictionary<int, string> AvailableSortOptions { get; set; } = new();
 
-        public IPageable PagedList { get; private set; }
-        public IEnumerable<int> AvailablePageSizes { get; set; }
+        public IPageable PagedList { get; }
+        public IEnumerable<int> AvailablePageSizes { get; set; } = Array.Empty<int>();
 
         public void Dispose()
         {

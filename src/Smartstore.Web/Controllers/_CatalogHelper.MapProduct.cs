@@ -151,7 +151,17 @@ namespace Smartstore.Web.Controllers
             return MapProductSummaryModelAsync(products.ToPagedList(0, int.MaxValue), settings);
         }
 
+        public virtual async Task<ProductSummaryModel> MapProductSummaryModelAsync(CatalogSearchResult sourceResult, ProductSummaryMappingSettings settings)
+        {
+            return await MapProductSummaryModelAsync(await sourceResult.GetHitsAsync(), sourceResult, settings);
+        }
+
         public virtual async Task<ProductSummaryModel> MapProductSummaryModelAsync(IPagedList<Product> products, ProductSummaryMappingSettings settings)
+        {
+            return await MapProductSummaryModelAsync(products, null, settings);
+        }
+
+        public virtual async Task<ProductSummaryModel> MapProductSummaryModelAsync(IPagedList<Product> products, CatalogSearchResult sourceResult, ProductSummaryMappingSettings settings)
         {
             Guard.NotNull(products, nameof(products));
 
@@ -162,7 +172,7 @@ namespace Smartstore.Web.Controllers
 
             using (_services.Chronometer.Step("MapProductSummaryModel"))
             {
-                var model = new ProductSummaryModel(products)
+                var model = new ProductSummaryModel(products, sourceResult)
                 {
                     ViewMode = settings.ViewMode,
                     GridColumnSpan = _catalogSettings.GridStyleListColumnSpan,

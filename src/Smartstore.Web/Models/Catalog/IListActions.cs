@@ -17,7 +17,7 @@ namespace Smartstore.Web.Models.Catalog
         int? CurrentSortOrder { get; }
         string CurrentSortOrderName { get; }
         string RelevanceSortOrderName { get; }
-        IDictionary<int, string> AvailableSortOptions { get; }
+        Dictionary<int, string> AvailableSortOptions { get; }
 
         IPageable PagedList { get; }
         IEnumerable<int> AvailablePageSizes { get; }

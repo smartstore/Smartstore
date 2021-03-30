@@ -149,7 +149,7 @@ namespace Smartstore.Web.Controllers
 
             var viewMode = _helper.GetSearchQueryViewMode(query);
             var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(viewMode);
-            model.Products = await _helper.MapProductSummaryModelAsync(await searchResult.GetHitsAsync(), mappingSettings);
+            model.Products = await _helper.MapProductSummaryModelAsync(searchResult, mappingSettings);
 
             model.SubCategoryDisplayType = _catalogSettings.SubCategoryDisplayType;
 
@@ -198,7 +198,7 @@ namespace Smartstore.Web.Controllers
                 if (featuredProductsResult != null)
                 {
                     var featuredProductsMappingSettings = _helper.GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode.Grid);
-                    model.FeaturedProducts = await _helper.MapProductSummaryModelAsync(await featuredProductsResult.GetHitsAsync(), featuredProductsMappingSettings);
+                    model.FeaturedProducts = await _helper.MapProductSummaryModelAsync(featuredProductsResult, featuredProductsMappingSettings);
                 }
             }
 
@@ -303,7 +303,7 @@ namespace Smartstore.Web.Controllers
                 {
                     // TODO: (mc) determine settings properly
                     var featuredProductsmappingSettings = _helper.GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode.Grid);
-                    model.FeaturedProducts = await _helper.MapProductSummaryModelAsync(await featuredProductsResult.GetHitsAsync(), featuredProductsmappingSettings);
+                    model.FeaturedProducts = await _helper.MapProductSummaryModelAsync(featuredProductsResult, featuredProductsmappingSettings);
                 }
             }
 
@@ -315,7 +315,7 @@ namespace Smartstore.Web.Controllers
 
             var viewMode = _helper.GetSearchQueryViewMode(query);
             var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(viewMode);
-            model.Products = await _helper.MapProductSummaryModelAsync(await searchResult.GetHitsAsync(), mappingSettings);
+            model.Products = await _helper.MapProductSummaryModelAsync(searchResult, mappingSettings);
 
             // Prepare paging/sorting/mode stuff
             _helper.MapListActions(model.Products, manufacturer, _catalogSettings.DefaultPageSizeOptions);
@@ -397,7 +397,7 @@ namespace Smartstore.Web.Controllers
             model.SearchResult = searchResult;
 
             var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
-            model.Products = await _helper.MapProductSummaryModelAsync(await searchResult.GetHitsAsync(), mappingSettings);
+            model.Products = await _helper.MapProductSummaryModelAsync(searchResult, mappingSettings);
 
             // Prepare paging/sorting/mode stuff.
             _helper.MapListActions(model.Products, null, _catalogSettings.DefaultPageSizeOptions);
@@ -465,7 +465,7 @@ namespace Smartstore.Web.Controllers
 
             var result = await _catalogSearchService.SearchAsync(query);
             var settings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
-            var model = await _helper.MapProductSummaryModelAsync((await result.GetHitsAsync()).ToList(), settings);
+            var model = await _helper.MapProductSummaryModelAsync(result, settings);
             model.GridColumnSpan = GridColumnSpan.Max5Cols;
 
             return View(model);

@@ -1,18 +1,18 @@
-﻿@using Smartstore.Web.Models.Search
-@using Smartstore.Core.Search.Facets
+﻿@using Smartstore.Core.Search.Facets
+@using Smartstore.Core.Catalog.Search
 
-@model ISearchResultModel
+@model CatalogSearchResult
 
 @{
-    var templateProvider = Resolve<IFacetTemplateProvider>();
-    var facetGroups = Model.SearchResult.Facets.Select(x => x.Value).OrderBy(x => x.DisplayOrder);
-
-    int i = 0;
-
     if (Model == null)
     {
         return;
     }
+
+    var templateProvider = Resolve<IFacetTemplateProvider>();
+    var facetGroups = Model.Facets.Select(x => x.Value).OrderBy(x => x.DisplayOrder);
+
+    int i = 0;
 }
 
 <zone name="search_filters_before" />

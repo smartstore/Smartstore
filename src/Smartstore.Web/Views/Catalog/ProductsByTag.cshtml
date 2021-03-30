@@ -17,7 +17,7 @@
 @if (Model.SearchResult.Facets.Count > 0)
 {
     <widget target-zone="left">
-        <partial name="Filters" model="Model" />
+        <partial name="Filters" model="Model.SearchResult" />
     </widget>
 }
 

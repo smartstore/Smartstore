@@ -89,7 +89,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Add product hits.
-            model.TopProducts = await _catalogHelper.MapProductSummaryModelAsync(hits, mappingSettings);
+            model.TopProducts = await _catalogHelper.MapProductSummaryModelAsync(hits, result, mappingSettings);
 
             // Add spell checker suggestions (if any).
             model.AddSpellCheckerSuggestions(result.SpellCheckerSuggestions, T, x => Url.RouteUrl("Search", new { q = x }));
@@ -163,7 +163,7 @@ namespace Smartstore.Web.Controllers
             model.TotalProductsCount = result.TotalHitsCount;
 
             var mappingSettings = _catalogHelper.GetBestFitProductSummaryMappingSettings(_catalogHelper.GetSearchQueryViewMode(query));
-            var summaryModel = await _catalogHelper.MapProductSummaryModelAsync(await result.GetHitsAsync(), mappingSettings);
+            var summaryModel = await _catalogHelper.MapProductSummaryModelAsync(result, mappingSettings);
 
             // Prepare paging/sorting/mode stuff.
             _catalogHelper.MapListActions(summaryModel, null, _catalogSettings.DefaultPageSizeOptions);
