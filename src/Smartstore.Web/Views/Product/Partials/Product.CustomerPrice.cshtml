@@ -3,6 +3,7 @@
 @model ProductDetailsModel
 
 <div class="form-group">
+    @* TODO: (mh) (core) Label[for] and textbox ID will not match. Please check and fix somehow. *@
     <label asp-for="AddToCart.CustomerEnteredPrice"></label>
     @Html.TextBox("CustomerEnteredPrice", Convert.ToInt32(Math.Ceiling(Model.AddToCart.CustomerEnteredPrice)), new { @class = "form-control" })
 </div>

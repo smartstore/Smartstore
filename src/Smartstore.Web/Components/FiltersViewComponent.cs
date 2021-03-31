@@ -8,9 +8,13 @@ namespace Smartstore.Web.Components
     /// </summary>
     public class FiltersViewComponent : SmartViewComponent
     {
-        public IViewComponentResult Invoke(CatalogSearchResult model)
+        public IViewComponentResult Invoke(CatalogSearchResult model = null)
         {
-            Guard.NotNull(model, nameof(model));
+            if (model == null)
+            {
+                return Empty();
+            }
+
             return View(model);
         }
     }

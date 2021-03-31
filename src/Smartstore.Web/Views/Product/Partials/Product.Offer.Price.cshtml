@@ -111,11 +111,11 @@
         </div>
 
         <!-- Pangv & legal info -->
-        <div sm-if="(basePriceEnabled && Model.BasePriceInfo.HasValue()) || (Model.ShowLegalInfo && Model.LegalInfo.HasValue())" class="pd-group">
-            <div sm-if="basePriceEnabled && Model.BasePriceInfo.HasValue()" class="pd-pangv">
+        <div class="pd-group" sm-if="(basePriceEnabled && Model.BasePriceInfo.HasValue()) || (Model.ShowLegalInfo && Model.LegalInfo.HasValue())">
+            <div class="pd-pangv" sm-if="basePriceEnabled && Model.BasePriceInfo.HasValue()">
                 @Html.Raw(LocalizedValue.FixBrackets(Model.BasePriceInfo, WorkContext.WorkingLanguage))
             </div>
-            <div sm-if="Model.ShowLegalInfo && Model.LegalInfo.HasValue() && currentPriceValue != 0" class="pd-legalinfo">
+            <div class="pd-legalinfo" sm-if="Model.ShowLegalInfo && Model.LegalInfo.HasValue() && currentPriceValue != 0">
                 @Html.Raw(Model.LegalInfo)
             </div>
         </div>
