@@ -5,16 +5,16 @@ using Smartstore.Engine;
 
 namespace Smartstore.Data.SqlServer
 {
-    internal class MySqlDbFactory : IDbFactory
+    internal class MySqlDbFactory : DbFactory
     {
-        public DbSystemType DbSystem { get; } = DbSystemType.MySql;
+        public override DbSystemType DbSystem { get; } = DbSystemType.MySql;
 
-        public DataProvider CreateDataProvider(DatabaseFacade database)
+        public override DataProvider CreateDataProvider(DatabaseFacade database)
         {
             return new MySqlDataProvider(database);
         }
 
-        public DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString, IApplicationContext appContext)
+        public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString, IApplicationContext appContext)
         {
             var appConfig = appContext.AppConfiguration;
 

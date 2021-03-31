@@ -20,8 +20,8 @@ namespace Smartstore.Domain
             LazyLoader = lazyLoader;
         }
 
-        [NotMapped] // TODO: (core) Remove [NotMappedAttribute] once the EF bug (https://github.com/dotnet/efcore/issues/23968) is fixed.
-        protected internal virtual ILazyLoader LazyLoader { get; set; }
+        //[NotMapped] // TODO: (core) Remove [NotMappedAttribute] once the EF bug (https://github.com/dotnet/efcore/issues/23968) is fixed.
+        protected virtual ILazyLoader LazyLoader { get; set; }
 
         /// <summary>
         /// Gets or sets the entity identifier

@@ -137,7 +137,7 @@ namespace Smartstore.Data
 
         public Version AppVersion { get; set; }
 
-        public IDbFactory DbFactory { get; internal set; }
+        public DbFactory DbFactory { get; internal set; }
 
         public string ConnectionString { get; set; }
 
@@ -163,7 +163,7 @@ namespace Smartstore.Data
                     {
                         RawDataSettings.AddRange(settings);
 
-                        DbFactory = CreateDbFactory(settings.Get("DataProvider"));
+                        DbFactory = DbFactory.Load(settings.Get("DataProvider"), _appContext.TypeScanner);
 
                         ConnectionString = settings.Get("DataConnectionString");
 
@@ -180,7 +180,7 @@ namespace Smartstore.Data
             }
         }
 
-        private static IDbFactory CreateDbFactory(string provider)
+        private static DbFactory CreateDbFactory(string provider)
         {
             Guard.NotEmpty(provider, nameof(provider));
 
@@ -208,13 +208,13 @@ namespace Smartstore.Data
             var assemblyPath = Path.Combine(binPath, assemblyName);
             var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
 
-            var dbFactoryType = _appContext.TypeScanner.FindTypes<IDbFactory>(new[] { assembly }).FirstOrDefault();
+            var dbFactoryType = _appContext.TypeScanner.FindTypes<DbFactory>(new[] { assembly }).FirstOrDefault();
             if (dbFactoryType == null)
             {
-                throw new SmartException($"The data provider assembly '${assemblyName}' does not contain any concrete '${typeof(IDbFactory)}' implementation.");
+                throw new SmartException($"The data provider assembly '${assemblyName}' does not contain any concrete '${typeof(DbFactory)}' implementation.");
             }
 
-            return (IDbFactory)Activator.CreateInstance(dbFactoryType);
+            return (DbFactory)Activator.CreateInstance(dbFactoryType);
         }
 
         protected void Reset()
