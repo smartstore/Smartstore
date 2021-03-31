@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Smartstore.Data.Hooks;
@@ -236,14 +238,64 @@ namespace Smartstore.Data
             {
                 // TODO: (core) Add more proper conventions (set StringLength to 4000 by default?)
                 // TODO: (core) Make provider for conventions
-
                 ApplySingularTableNameConvention(entityType);
-
+                
                 var decimalProperties = entityType.GetProperties();
                 foreach (var property in decimalProperties)
                 {
                     // decimal HasPrecision(18, 4) convention
                     ApplyDecimalPrecisionConvention(property);
+                }
+
+                // Add ILazyLoader service property
+                AddLazyLoaderServiceProperty(entityType);
+            }
+        }
+
+        private static void AddLazyLoaderServiceProperty(IMutableEntityType entityType)
+        {
+            // EF Core 5 is buggy when it comes to discovering protected service properties in base types.
+            // The default "ServicePropertyDiscoveryConvention" complains about duplicate properties, although
+            // we have only one ILazyLoader property in BaseEntity. EF is not capable of discovering the hierarchy chain.
+            // In EF 6 (11/2021) this will be fixed, but we cannot wait until then. Therefore we remove
+            // "ServicePropertyDiscoveryConvention" (see FixedRuntimeConventionSetBuilder class) and apply
+            // ILazyLoader service properties here.
+
+            if (entityType.IsPropertyBag)
+            {
+                return;
+            }
+
+            if (entityType.BaseType != null)
+            {
+                // TPH inheritance: derived type maps to base type table.
+                return;
+            }
+
+            if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+            {
+                var hasNavigation = entityType.GetDeclaredNavigations().Any();
+
+                if (hasNavigation)
+                {
+                    var lazyLoaderProperty = entityType.ClrType.GetRuntimeProperties().FirstOrDefault(x => x.PropertyType == typeof(ILazyLoader));
+
+                    if (lazyLoaderProperty != null)
+                    {
+                        try
+                        {
+                            var serviceProperty = entityType.AddServiceProperty(lazyLoaderProperty);
+
+                            serviceProperty.ParameterBinding = new DependencyInjectionParameterBinding(
+                                lazyLoaderProperty.PropertyType,
+                                lazyLoaderProperty.PropertyType, 
+                                serviceProperty);
+                        }
+                        catch
+                        {
+                            // Ignore duplicate property exception in the TPH types ProductReview and MediaFolder.
+                        }
+                    }
                 }
             }
         }

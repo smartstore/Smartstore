@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Smartstore.Core.Data;
@@ -115,6 +117,10 @@ namespace Smartstore.Core.Bootstrapping
                 //w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
                 //w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
             });
+
+            // Replace default conventionset builder with a custom one that removes
+            // "ServicePropertyDiscoveryConvention" convention. See INFO in FixedRuntimeConventionSetBuilder class.
+            o.ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>();
 
             if (enableCaching)
             {
