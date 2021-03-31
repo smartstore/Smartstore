@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading;
-using Smartstore.Data.DataProviders;
 using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Threading;
 
 namespace Smartstore.Data
 {
-    public enum DataProviderType
+    public enum DbSystemType
     {
         Unknown,
         SqlServer,
@@ -22,7 +23,7 @@ namespace Smartstore.Data
     {
         private static Func<IApplicationContext, DataSettings> _settingsFactory = new Func<IApplicationContext, DataSettings>(x => new DataSettings());
         private static Action<DataSettings> _loadedCallback;
-        private static readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim();
+        private static readonly ReaderWriterLockSlim _rwLock = new();
 
         private static IApplicationContext _appContext;
         private static DataSettings _instance;
@@ -136,9 +137,7 @@ namespace Smartstore.Data
 
         public Version AppVersion { get; set; }
 
-        public DataProviderType DataProviderType { get; set; }
-
-        public Type DataProviderClrType { get; set; }
+        public IDbFactory DbFactory { get; internal set; }
 
         public string ConnectionString { get; set; }
 
@@ -146,32 +145,7 @@ namespace Smartstore.Data
         //public string DataConnectionType { get; set; }
 
         public bool IsValid()
-            => DataProviderType > DataProviderType.Unknown && ConnectionString.HasValue();
-
-        // TODO: (core) Do we still need DataSettings.ProviderInvariantName and ProviderFriendlyName?
-        //public string ProviderInvariantName
-        //{
-        //    get
-        //    {
-        //        if (this.DataProvider.HasValue() && this.DataProvider.IsCaseInsensitiveEqual("sqlserver"))
-        //            return "System.Data.SqlClient";
-
-        //        // SqlCe should always be the default provider
-        //        return "System.Data.SqlServerCe.4.0";
-        //    }
-        //}
-
-        //public string ProviderFriendlyName
-        //{
-        //    get
-        //    {
-        //        if (this.DataProvider.HasValue() && this.DataProvider.IsCaseInsensitiveEqual("sqlserver"))
-        //            return "SQL Server";
-
-        //        // SqlCe should always be the default provider
-        //        return "SQL Server Compact (SQL CE)";
-        //    }
-        //}
+            => DbFactory != null && ConnectionString.HasValue();
 
         protected virtual bool Load()
         {
@@ -189,7 +163,8 @@ namespace Smartstore.Data
                     {
                         RawDataSettings.AddRange(settings);
 
-                        (DataProviderType, DataProviderClrType) = ConvertDataProvider(settings.Get("DataProvider"));
+                        DbFactory = CreateDbFactory(settings.Get("DataProvider"));
+
                         ConnectionString = settings.Get("DataConnectionString");
 
                         if (settings.ContainsKey("AppVersion"))
@@ -205,21 +180,41 @@ namespace Smartstore.Data
             }
         }
 
-        private static (DataProviderType, Type) ConvertDataProvider(string provider)
+        private static IDbFactory CreateDbFactory(string provider)
         {
-            if (provider.HasValue())
+            Guard.NotEmpty(provider, nameof(provider));
+
+            var assemblyName = string.Empty;
+
+            switch (provider.ToLowerInvariant())
             {
-                if (provider.EqualsNoCase("sqlserver"))
-                {
-                    return (DataProviderType.SqlServer, typeof(SqlServerDataProvider));
-                }
-                if (provider.EqualsNoCase("mysql"))
-                {
-                    return (DataProviderType.MySql, typeof(MySqlDataProvider));
-                }
+                case "sqlserver":
+                    assemblyName = "Smartstore.Data.SqlServer.dll";
+                    break;
+                case "mysql":
+                    assemblyName = "Smartstore.Data.MySql.dll";
+                    break;
+                case "sqlite":
+                    assemblyName = "Smartstore.Data.Sqlite.dll";
+                    break;
             }
 
-            return (DataProviderType.Unknown, null);
+            if (assemblyName.IsEmpty())
+            {
+                throw new SmartException($"Unknown database provider type name '${provider}'.");
+            }
+
+            var binPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var assemblyPath = Path.Combine(binPath, assemblyName);
+            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
+
+            var dbFactoryType = _appContext.TypeScanner.FindTypes<IDbFactory>(new[] { assembly }).FirstOrDefault();
+            if (dbFactoryType == null)
+            {
+                throw new SmartException($"The data provider assembly '${assemblyName}' does not contain any concrete '${typeof(IDbFactory)}' implementation.");
+            }
+
+            return (IDbFactory)Activator.CreateInstance(dbFactoryType);
         }
 
         protected void Reset()
@@ -230,10 +225,8 @@ namespace Smartstore.Data
                 TenantName = null;
                 TenantRoot = null;
                 AppVersion = null;
-                DataProviderType = DataProviderType.Unknown;
-                DataProviderClrType = null;
+                DbFactory = null;
                 ConnectionString = null;
-                //this.DataConnectionType = null;
 
                 _installed = null;
             }
@@ -332,7 +325,7 @@ namespace Smartstore.Data
         {
             return string.Format("AppVersion: {0}{3}DataProvider: {1}{3}DataConnectionString: {2}{3}",
                 this.AppVersion.ToString(),
-                this.DataProviderType,
+                this.DbFactory.DbSystem,
                 this.ConnectionString,
                 Environment.NewLine);
         }

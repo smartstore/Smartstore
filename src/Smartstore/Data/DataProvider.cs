@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
-using Microsoft.Data.SqlClient;
+//using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -35,6 +35,8 @@ namespace Smartstore.Data
     {
         protected DataProvider(DatabaseFacade database)
         {
+            Guard.NotNull(database, nameof(database));
+            
             // TODO: (core) Add more methods: EnsureColumn(), ... 
             Database = database;
         }
@@ -409,7 +411,7 @@ namespace Smartstore.Data
 
         #region Connection
 
-        public abstract DataProviderType ProviderType { get; }
+        public abstract DbSystemType ProviderType { get; }
 
         public DbParameter CreateParameter(string name, object value)
         {
@@ -422,10 +424,7 @@ namespace Smartstore.Data
             return p;
         }
 
-        public virtual DbParameter CreateParameter()
-        {
-            return new SqlParameter();
-        }
+        public abstract DbParameter CreateParameter();
 
         #endregion
     }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -8,7 +10,7 @@ using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Smartstore.Data.DataProviders
+namespace Smartstore.Data.SqlServer
 {
     public class MySqlDataProvider : DataProvider
     {
@@ -29,7 +31,7 @@ namespace Smartstore.Data.DataProviders
                 WHERE table_schema = '{database}'
                 GROUP BY table_schema";
 
-        public override DataProviderType ProviderType => DataProviderType.MySql;
+        public override DbSystemType ProviderType => DbSystemType.MySql;
 
         public override DataProviderFeatures Features
             => DataProviderFeatures.AccessIncrement | DataProviderFeatures.ReIndex | DataProviderFeatures.Shrink | DataProviderFeatures.ComputeSize
@@ -138,6 +140,12 @@ namespace Smartstore.Data.DataProviders
         {
             // TODO: (core) Check if MySql can stream blobs this way.
             return new SqlBlobStream(Database.GetDbConnection(), tableName, blobColumnName, pkColumnName, pkColumnValue);
+        }
+
+        public override DbParameter CreateParameter()
+        {
+            // TODO: (core) Return MySql DbParameter
+            throw new NotImplementedException();
         }
     }
 }

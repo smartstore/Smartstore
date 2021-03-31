@@ -46,7 +46,7 @@ namespace Smartstore.Data.Batching
             (string sql, string tableAlias, string tableAliasSufixAs, string topStatement, string leadingComments, IEnumerable<object> parameters)
                 = GetBatchSql(query, context, isUpdate: false);
 
-            tableAlias = context.DataProvider.ProviderType == DataProviderType.Sqlite ? tableAlias : $"[{tableAlias}]";
+            tableAlias = context.DataProvider.ProviderType == DbSystemType.Sqlite ? tableAlias : $"[{tableAlias}]";
 
             var resultQuery = $"{leadingComments}DELETE {topStatement}{tableAlias}{sql}";
             return (resultQuery, new List<object>(parameters));
@@ -92,7 +92,7 @@ namespace Smartstore.Data.Batching
 
             CreateUpdateBody(columnNameValueDict, tableAlias, expression.Body, context.DataProvider, ref sqlColumns, ref sqlParameters);
 
-            sqlColumns = context.DataProvider.ProviderType == DataProviderType.Sqlite ? sqlColumns.Replace($"[{tableAlias}].", "") : sqlColumns;
+            sqlColumns = context.DataProvider.ProviderType == DbSystemType.Sqlite ? sqlColumns.Replace($"[{tableAlias}].", "") : sqlColumns;
 
             var resultQuery = $"{leadingComments}UPDATE {topStatement}{tableAlias}{tableAliasSufixAs} SET {sqlColumns} {sql}";
             return (resultQuery, sqlParameters);
@@ -108,10 +108,10 @@ namespace Smartstore.Data.Batching
             string tableAlias = string.Empty;
             string tableAliasSufixAs = string.Empty;
             string topStatement = string.Empty;
-            if (databaseType != DataProviderType.Sqlite) // when Sqlite and Deleted metod tableAlias is Empty: ""
+            if (databaseType != DbSystemType.Sqlite) // when Sqlite and Deleted metod tableAlias is Empty: ""
             {
-                string escapeSymbolEnd = (databaseType == DataProviderType.SqlServer) ? "]" : "."; // SqlServer : PostgreSql;
-                string escapeSymbolStart = (databaseType == DataProviderType.SqlServer) ? "[" : " "; // SqlServer : PostgreSql;
+                string escapeSymbolEnd = (databaseType == DbSystemType.SqlServer) ? "]" : "."; // SqlServer : PostgreSql;
+                string escapeSymbolStart = (databaseType == DbSystemType.SqlServer) ? "[" : " "; // SqlServer : PostgreSql;
                 string tableAliasEnd = sqlQuery[SelectStatementLength..sqlQuery.IndexOf(escapeSymbolEnd)]; // " TOP(10) [table_alias" / " [table_alias" : " table_alias"
                 int tableAliasStartIndex = tableAliasEnd.IndexOf(escapeSymbolStart);
                 tableAlias = tableAliasEnd.Substring(tableAliasStartIndex + escapeSymbolStart.Length); // "table_alias"
@@ -123,7 +123,7 @@ namespace Smartstore.Data.Batching
             sql = sql.Contains("{") ? sql.Replace("{", "{{") : sql; // Curly brackets have to be escaped:
             sql = sql.Contains("}") ? sql.Replace("}", "}}") : sql; // https://github.com/aspnet/EntityFrameworkCore/issues/8820
 
-            if (isUpdate && databaseType == DataProviderType.Sqlite)
+            if (isUpdate && databaseType == DbSystemType.Sqlite)
             {
                 var match = Regex.Match(sql, @"FROM (""[^""]+"")( AS ""[^""]+"")");
                 tableAlias = match.Groups[1].Value;
@@ -259,7 +259,7 @@ namespace Smartstore.Data.Batching
                 switch (binaryExpression.NodeType)
                 {
                     case ExpressionType.Add:
-                        sqlColumns.Append(dbType == DataProviderType.Sqlite && IsStringConcat(binaryExpression) ? " ||" : " +");
+                        sqlColumns.Append(dbType == DbSystemType.Sqlite && IsStringConcat(binaryExpression) ? " ||" : " +");
                         break;
                     case ExpressionType.Divide:
                         sqlColumns.Append(" /");

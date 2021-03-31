@@ -4,7 +4,8 @@
     <TargetFramework>net5.0</TargetFramework>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <UserSecretsId>b35c0f56-dfa8-4120-b29b-a677578afcd1</UserSecretsId>
-  </PropertyGroup>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	</PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="App_Data\Logs\**" />

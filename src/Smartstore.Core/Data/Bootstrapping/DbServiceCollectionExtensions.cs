@@ -102,19 +102,11 @@ namespace Smartstore.Core.Bootstrapping
         {
             var appContext = p.GetRequiredService<IApplicationContext>();
             var appConfig = appContext.AppConfiguration;
+            var dbFactory = DataSettings.Instance.DbFactory;
 
-            //// TODO: (core) Fetch services which SmartDbContext depends on from IInfrastructure<IServiceProvider>
-            //// TODO: (core) Determine DB provider and call UseSqlServer, UseMySql etc.
-            o.UseSqlServer(DataSettings.Instance.ConnectionString, sql =>
-            {
-                if (appConfig.DbCommandTimeout.HasValue)
-                {
-                    sql.CommandTimeout(appConfig.DbCommandTimeout.Value);
-                }
+            o = dbFactory.ConfigureDbContext(o, DataSettings.Instance.ConnectionString, appContext);
 
-                //sql.EnableRetryOnFailure(3, TimeSpan.FromMilliseconds(100), null);
-            })
-            .ConfigureWarnings(w =>
+            o.ConfigureWarnings(w =>
             {
                 // EF throws when query is untracked otherwise
                 w.Ignore(CoreEventId.DetachedLazyLoadingWarning);

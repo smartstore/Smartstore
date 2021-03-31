@@ -19,7 +19,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Test.Common", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Tests", "test\Smartstore.Tests\Smartstore.Tests.csproj", "{03D6513D-C334-4AD8-8469-692E2E7E4121}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smartstore.Core.Tests", "test\Smartstore.Core.Tests\Smartstore.Core.Tests.csproj", "{C1484772-1A5F-4077-BFE2-7278240B303D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Core.Tests", "test\Smartstore.Core.Tests\Smartstore.Core.Tests.csproj", "{C1484772-1A5F-4077-BFE2-7278240B303D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{82A38DDA-C944-4C15-AF43-86732F8ED15A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.SqlServer", "src\Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj", "{BFC8BA20-AB93-4B37-B9BB-6783BA5B194F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.MySql", "src\Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj", "{253DECF2-2ECA-4A90-955B-9299CCEC1363}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +61,14 @@ Global
 		{C1484772-1A5F-4077-BFE2-7278240B303D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1484772-1A5F-4077-BFE2-7278240B303D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1484772-1A5F-4077-BFE2-7278240B303D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFC8BA20-AB93-4B37-B9BB-6783BA5B194F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFC8BA20-AB93-4B37-B9BB-6783BA5B194F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFC8BA20-AB93-4B37-B9BB-6783BA5B194F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFC8BA20-AB93-4B37-B9BB-6783BA5B194F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{253DECF2-2ECA-4A90-955B-9299CCEC1363}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{253DECF2-2ECA-4A90-955B-9299CCEC1363}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{253DECF2-2ECA-4A90-955B-9299CCEC1363}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{253DECF2-2ECA-4A90-955B-9299CCEC1363}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,6 +77,8 @@ Global
 		{1F0EDB0F-8A4D-4E0A-8DDA-DA999276033D} = {B3391994-AE0F-4C8C-AE8E-968F6013B4B6}
 		{03D6513D-C334-4AD8-8469-692E2E7E4121} = {B3391994-AE0F-4C8C-AE8E-968F6013B4B6}
 		{C1484772-1A5F-4077-BFE2-7278240B303D} = {B3391994-AE0F-4C8C-AE8E-968F6013B4B6}
+		{BFC8BA20-AB93-4B37-B9BB-6783BA5B194F} = {82A38DDA-C944-4C15-AF43-86732F8ED15A}
+		{253DECF2-2ECA-4A90-955B-9299CCEC1363} = {82A38DDA-C944-4C15-AF43-86732F8ED15A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

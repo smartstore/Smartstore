@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyVersion>4.5.0.0</AssemblyVersion>
     <FileVersion>4.5.0.0</FileVersion>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   
   <ItemGroup>

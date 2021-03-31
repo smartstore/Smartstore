@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Smartstore.ComponentModel;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using Smartstore.Engine;
@@ -30,8 +29,7 @@ namespace Smartstore.Data
             {
                 if (_dataProvider == null || _dataProvider.IsDisposed)
                 {
-                    var providerType = DataSettings.Instance.DataProviderClrType;
-                    _dataProvider = (DataProvider)FastActivator.CreateInstance(providerType, new object[] { this.Database });
+                    _dataProvider = DataSettings.Instance.DbFactory.CreateDataProvider(this.Database);
                 }
 
                 return _dataProvider;

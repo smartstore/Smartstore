@@ -104,7 +104,7 @@ namespace Smartstore.Data.Batching
 
             //var relationalData = entityType.Relational(); relationalData.Schema relationalData.TableName // DEPRECATED in Core3.0
             var storeObjectIdent = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table).Value;
-            bool isSqlServer = context.DataProvider.ProviderType == DataProviderType.SqlServer;
+            bool isSqlServer = context.DataProvider.ProviderType == DbSystemType.SqlServer;
             string defaultSchema = isSqlServer ? "dbo" : null;
             Schema = entityType.GetSchema() ?? defaultSchema;
             TableName = entityType.GetTableName();

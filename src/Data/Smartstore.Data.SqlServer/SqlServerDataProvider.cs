@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,7 +11,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Smartstore.Data.DataProviders
+namespace Smartstore.Data.SqlServer
 {
     public class SqlServerDataProvider : DataProvider
     {
@@ -69,7 +70,7 @@ namespace Smartstore.Data.DataProviders
                     RAISERROR (@ErrorMessage, 16, 1)
                  END";
 
-        public override DataProviderType ProviderType => DataProviderType.SqlServer;
+        public override DbSystemType ProviderType => DbSystemType.SqlServer;
 
         public override DataProviderFeatures Features
             => DataProviderFeatures.Backup | DataProviderFeatures.ComputeSize | DataProviderFeatures.ReIndex | DataProviderFeatures.ExecuteSqlScript
@@ -226,6 +227,11 @@ namespace Smartstore.Data.DataProviders
         public override bool IsUniquenessViolationException(DbUpdateException updateException)
         {
             return DetectSqlError(updateException?.InnerException, _uniquenessViolationErrorCodes);
+        }
+
+        public override DbParameter CreateParameter()
+        {
+            return new SqlParameter();
         }
 
         private static bool DetectSqlError(Exception ex, ICollection<int> errorCodes)

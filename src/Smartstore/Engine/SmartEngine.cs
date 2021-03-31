@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Smartstore.Bootstrapping;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
+using Smartstore.Data;
 using Smartstore.DependencyInjection;
 using Smartstore.Diagnostics;
 using Smartstore.Engine.Builders;
@@ -87,6 +88,7 @@ namespace Smartstore.Engine
                 services.AddSingleton(app.TypeScanner);
                 services.AddSingleton<IEngine>(_engine);
                 services.AddSingleton(app);
+                services.AddSingleton(DataSettings.Instance.DbFactory);
 
                 // Bind the config to host options
                 services.Configure<HostOptions>(app.Configuration.GetSection("HostOptions"));
