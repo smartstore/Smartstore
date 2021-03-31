@@ -835,7 +835,8 @@ namespace Smartstore.Web.Controllers
 
             var pcs = Services.Resolve<IPriceCalculationService>();
             var ps = Services.Resolve<IProductService>();
-            var customer = Services.WorkContext.CurrentCustomer;
+            var scs = Services.Resolve<IShoppingCartService>();
+            var customer = await _db.Customers.FindByIdAsync(2666330, false);
             var primaryCurrency = Services.Resolve<ICurrencyService>().PrimaryCurrency;
             var product = await _db.Products.FindByIdAsync(1751, false);
             var batchContext = ps.CreateProductBatchContext(new[] { product }, null, customer);
@@ -870,7 +871,7 @@ namespace Smartstore.Web.Controllers
             {
                 AssociatedProducts = associatedProducts
             };
-            cpFinalContext.Attributes.Add(new AttributePricingItem { ProductId = product.Id, Selection = attributeSelection });
+            cpFinalContext.AddAttributes(attributeSelection, product.Id);
             var cpFinal = await pcs.CalculatePriceAsync(cpFinalContext);
 
             var cpLowestOptions = pcs.CreateDefaultOptions(true);
@@ -887,81 +888,20 @@ namespace Smartstore.Web.Controllers
                 AssociatedProducts = associatedProducts
             });
 
+            var cart = await scs.GetCartItemsAsync(customer);
+            var cartItem = cart.FirstOrDefault(x => x.Item.ProductId == 3394);
+            var cpCartOptions = pcs.CreateDefaultOptions(false);
+            var cpCartContext = new PriceCalculationContext(cartItem.Item.Product, cpCartOptions);
+            cpCartContext.AddAttributes(cart);
+            var cpCart = await pcs.CalculatePriceAsync(cpCartContext);
+            var cartPrice = await pcs.GetUnitPriceAsync(cartItem, true);
+
             content.AppendLine($"Prices       {"old".PadRight(12)} {"new".PadRight(12)}");
             content.AppendLine($"Final      : {Fmt(finalPrice)} {Fmt(cpFinal.FinalPrice)}");
             content.AppendLine($"Lowest     : {Fmt(lowestPrice)} {Fmt(cpLowest.FinalPrice)}");
             content.AppendLine($"Preselected: {Fmt(preselectedPrice)} {Fmt(cpPreselected.FinalPrice)}");
+            content.AppendLine($"Cart       : {Fmt(cartPrice)} {Fmt(cpCart.FinalPrice)}");
 
-
-            //var checkoutAtributes = "<Attributes><CheckoutAttribute ID=\"2\"><CheckoutAttributeValue><Value>30ccd4a0-8e60-46be-8740-7c9f9d08dd26</Value></CheckoutAttributeValue></CheckoutAttribute><CheckoutAttribute ID=\"1\"><CheckoutAttributeValue><Value>2</Value></CheckoutAttributeValue></CheckoutAttribute></Attributes>";
-            //var selection = new CheckoutAttributeSelection(checkoutAtributes);
-
-            //var fileUploadAttributeIds = await _db.CheckoutAttributes
-            //    .Where(x => x.AttributeControlTypeId == (int)AttributeControlType.FileUpload)
-            //    .Select(x => x.Id)
-            //    .ToListAsync();
-
-            //var fileGuids = selection.AttributesMap
-            //    .Where(x => fileUploadAttributeIds.Contains(x.Key))
-            //    .SelectMany(x => x.Value)
-            //    .Select(x => Guid.TryParse(x as string, out Guid guid) ? guid : Guid.Empty)
-            //    .Where(x => x != Guid.Empty)
-            //    .ToArray();
-
-            //content.AppendLine("GUIDs " + string.Join(", ", fileGuids.Select(x => x.ToString())));
-
-            //var downloads = await _db.Downloads
-            //    .Where(x => fileGuids.Contains(x.DownloadGuid) && x.IsTransient)
-            //    .ToListAsync();
-
-            //content.AppendLine("downloads: " + string.Join(", ", downloads.Select(x => $"{x.Id}:{x.IsTransient}")));
-
-            //var price = 16.98M;
-            //var currency = Services.WorkContext.WorkingCurrency;
-            //var currencyService = Services.Resolve<ICurrencyService>();
-            //var orderService = Services.Resolve<IOrderService>();
-            //var priceCalculationService = Services.Resolve<IPriceCalculationService>();
-            //var usd = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == "USD");
-
-            //var product = await _db.Products.FindByIdAsync(1751);
-            //var basePriceEur = await priceCalculationService.GetBasePriceInfoAsync(product, null, null);
-            //var basePriceUsd = await priceCalculationService.GetBasePriceInfoAsync(product, null, usd);
-            //content.AppendLine($"EUR: {basePriceEur}. USD: {basePriceUsd}");
-
-            //var menus = await _db.Menus.GetManyAsync(new[] { 13,14 }, true);
-            //_db.Menus.RemoveRange(menus);
-            //await _db.SaveChangesAsync();
-
-            //var customer = await _db.Customers.Where(x => x.IsSystemAccount && x.Email == "builtin@background-task-record.com").FirstOrDefaultAsync();
-            //_db.Customers.Remove(customer);
-            //var role = await _db.CustomerRoles.Where(x => x.IsSystemRole).FirstOrDefaultAsync();
-            //_db.CustomerRoles.Remove(role);
-            //await _db.SaveChangesAsync();
-
-            //_db.Customers.Add(new Customer
-            //{
-            //    CustomerGuid = Guid.NewGuid(),
-            //    Email = "builtin@background-task-record.com",
-            //    LastActivityDateUtc = DateTime.UtcNow
-            //});
-            //await _db.SaveChangesAsync();
-
-
-            //var resOld = currencyService.ConvertToPrimaryExchangeRateCurrency(price, usd);
-            //var resNew = currencyService.ConvertToPrimaryExchangeRateCurrency(new Money(price, usd));
-            //content.AppendLine($"{resOld}, {resNew.Amount} {resNew.Currency.CurrencyCode}. ConvertToPrimaryExchangeRateCurrency.");
-
-            //resOld = currencyService.ConvertToPrimaryStoreCurrency(price, usd);
-            //resNew = currencyService.ConvertToPrimaryStoreCurrency(new Money(price, usd));
-            //content.AppendLine($"{resOld}, {resNew.Amount} {resNew.Currency.CurrencyCode}. ConvertToPrimaryStoreCurrency.");
-
-            //resOld = currencyService.ConvertFromPrimaryExchangeRateCurrency(price, usd);
-            //resNew = currencyService.ConvertFromPrimaryExchangeRateCurrency(new Money(price, usd));
-            //content.AppendLine($"{resOld}, {resNew.Amount} {resNew.Currency.CurrencyCode}. ConvertFromPrimaryExchangeRateCurrency.");
-
-            //resOld = currencyService.ConvertFromPrimaryStoreCurrency(price, usd);
-            //resNew = currencyService.ConvertFromPrimaryStoreCurrency(new Money(price, usd));
-            //content.AppendLine($"{resOld}, {resNew.Amount} {resNew.Currency.CurrencyCode}. ConvertFromPrimaryStoreCurrency.");
 
             return Content(content.ToString());
             //return View();

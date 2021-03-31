@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 
@@ -7,34 +8,43 @@ namespace Smartstore.Core.Catalog.Pricing
 {
     public static partial class PriceCalculationContextExtensions
     {
-        /// <summary>
-        /// TODO: (mg) (core) Describe when ready.
-        /// </summary>
-        public static void ApplyAttributes(this PriceCalculationContext context, IEnumerable<OrganizedShoppingCartItem> cart)
+        // TODO: (mg) (core) Describe pricing pipeline when ready.
+
+        public static void AddAttributes(this PriceCalculationContext context, ProductVariantAttributeSelection selection, int productId, int? bundleItemId = null)
         {
             Guard.NotNull(context, nameof(context));
-            Guard.NotNull(cart, nameof(cart));
 
-            foreach (var parent in cart)
+            if (selection?.AttributesMap?.Any() ?? false)
             {
-                AddCartItem(parent.Item);
-
-                if (parent.Item.Product.ProductType == ProductType.BundledProduct && parent.Item.Product.BundlePerItemPricing)
+                context.Attributes.Add(new PriceCalculationAttributes(selection, productId)
                 {
-                    parent.ChildItems.Each(x => AddCartItem(x.Item));
-                }
+                    BundleItemId = bundleItemId
+                });
             }
+        }
 
-            void AddCartItem(ShoppingCartItem item)
+        public static void AddAttributes(this PriceCalculationContext context, ShoppingCartItem item)
+        {
+            Guard.NotNull(context, nameof(context));
+
+            if (item != null)
             {
-                if (item.AttributeSelection?.AttributesMap?.Any() ?? false)
+                context.AddAttributes(item.AttributeSelection, item.ProductId, item.BundleItemId);
+            }
+        }
+
+        public static void AddAttributes(this PriceCalculationContext context, IEnumerable<OrganizedShoppingCartItem> cart)
+        {
+            Guard.NotNull(context, nameof(context));
+
+            var item = cart?.FirstOrDefault(x => x.Item.ProductId == context.Product.Id);
+            if (item?.Item != null)
+            {
+                context.AddAttributes(item.Item);
+
+                if (item.Item.Product.ProductType == ProductType.BundledProduct && item.Item.Product.BundlePerItemPricing)
                 {
-                    context.Attributes.Add(new AttributePricingItem
-                    {
-                        ProductId = item.ProductId,
-                        BundleItemId = item.BundleItemId,
-                        Selection = item.AttributeSelection
-                    });
+                    item.ChildItems.Each(x => context.AddAttributes(x.Item));
                 }
             }
         }

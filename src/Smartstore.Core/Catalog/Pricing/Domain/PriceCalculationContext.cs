@@ -126,18 +126,11 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// TODO: (mg) (core) Describe when ready.
         /// </summary>
-        public List<AttributePricingItem> Attributes { get; set; } = new();
+        public List<PriceCalculationAttributes> Attributes { get; set; } = new();
 
         /// <summary>
         /// TODO: (mg) (core) Describe when fully implemented.
         /// </summary>
         public decimal AdditionalCharge { get; set; }
-    }
-
-    public class AttributePricingItem
-    {
-        public int ProductId { get; init; }
-        public int? BundleItemId { get; init; }
-        public ProductVariantAttributeSelection Selection { get; init; }
     }
 }

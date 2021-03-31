@@ -39,6 +39,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                 await EnsureBundleItemsAreLoaded(product, context);
 
+                context.FinalPrice = decimal.Zero;
+
                 foreach (var bundleItem in context.BundleItems)
                 {
                     // Get the final unit price of bundle item part product.
@@ -53,8 +55,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                         c.MinTierPrice = null;
                     });
 
-                    // Add price of part to root final price (unit price + additional charge * contained quantity in this bundle).
-                    context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice + bundleItem.AdditionalCharge, bundleItem.Item.Quantity);
+                    // Add price of part to root final price (unit price * contained quantity in this bundle).
+                    context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice, bundleItem.Item.Quantity);
 
                     // TODO: (mg) (core) Is it not better to continue the pipeline here (unlike in Smartstore classic)? Continuation could
                     // apply OfferPrice and/or further discounts to the automatically calculated final price here. TBD with MC please.
