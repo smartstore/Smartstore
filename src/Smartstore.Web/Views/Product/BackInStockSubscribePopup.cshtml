@@ -1,0 +1,47 @@
+﻿@using Smartstore.Web.Models.Catalog;
+
+@model BackInStockSubscribeModel
+
+@{
+    Layout = "~/Views/Shared/Layouts/_Layout.Popup.cshtml";
+}
+
+<form asp-action="BackInStockSubscribePopup" asp-route-id="@Model.ProductId" id="back-in-stock-subscription-form" method="post" autocomplete="off">
+    <div class="page back-in-stock-subscription-page">
+        <div class="page-title">
+            <h4>
+                @T(Model.AlreadySubscribed ? "BackInStockSubscriptions.AlreadySubscribed" : "BackInStockSubscriptions.PopupTitle")
+            </h4>
+        </div>
+        <div class="page-body">
+            @if (!Model.SubscriptionAllowed)
+            {
+                <div>@T("BackInStockSubscriptions.NotAllowed")</div>
+            }
+            else if (!Model.IsCurrentCustomerRegistered)
+            {
+                <div>@T("BackInStockSubscriptions.OnlyRegistered")</div>
+            }
+            else if (!Model.AlreadySubscribed && Model.CurrentNumberOfBackInStockSubscriptions >= Model.MaximumBackInStockSubscriptions)
+            {
+                <div>@T("BackInStockSubscriptions.MaxSubscriptions", Model.MaximumBackInStockSubscriptions)</div>
+            }
+            else
+            {
+                <p sm-if="!Model.AlreadySubscribed" class="x-tooltip fs-h5">@T("BackInStockSubscriptions.Tooltip")</p>
+
+                <button type="submit" id="back-in-stock-notify-me" class="mt-2 btn btn-lg btn-@(Model.AlreadySubscribed ? "danger" : "success")">
+                    @T(Model.AlreadySubscribed ? "BackInStockSubscriptions.Unsubscribe" : "BackInStockSubscriptions.NotifyMe")
+                </button>
+
+                <script sm-target-zone="scripts" data-origin="stock-subscription">
+                    $(function () {
+                        $("#back-in-stock-notify-me").click(function (e) {
+                            parent.$(".modal").modal("hide");
+                        });
+                    });
+                </script>
+            }
+        </div>
+    </div>
+</form>

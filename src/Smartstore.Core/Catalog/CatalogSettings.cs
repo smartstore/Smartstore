@@ -428,7 +428,7 @@ namespace Smartstore.Core.Catalog
         public bool IgnoreFeaturedProducts { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating maximum number of 'back in stock' subscription
+        /// Gets or sets a value indicating maximum number of 'back in stock' subscription per customer.
         /// </summary>
         public int MaximumBackInStockSubscriptions { get; set; } = 200;
 

@@ -1,0 +1,10 @@
+﻿@{
+    Layout = "_Document";
+    Assets.BodyAttributes.AppendCssClass("popup");
+}
+
+<div id="popup-content">
+    <zone name="body_start_html_tag_after" />
+    @RenderBody()
+    <zone name="body_end_html_tag_before" />
+</div>

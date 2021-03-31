@@ -56,6 +56,7 @@ namespace Smartstore.Web.Controllers
         private readonly Lazy<ProductUrlHelper> _productUrlHelper;
         private readonly Lazy<IProductAttributeFormatter> _productAttributeFormatter;
         private readonly Lazy<IProductAttributeMaterializer> _productAttributeMaterializer;
+        private readonly Lazy<IStockSubscriptionService> _stockSubscriptionService;
 
         public ProductController(
             SmartDbContext db,
@@ -83,7 +84,8 @@ namespace Smartstore.Web.Controllers
             Lazy<IMessageFactory> messageFactory,
             Lazy<ProductUrlHelper> productUrlHelper,
             Lazy<IProductAttributeFormatter> productAttributeFormatter,
-            Lazy<IProductAttributeMaterializer> productAttributeMaterializer)
+            Lazy<IProductAttributeMaterializer> productAttributeMaterializer,
+            Lazy<IStockSubscriptionService> stockSubscriptionService)
         {
             _db = db;
             _webHelper = webHelper;
@@ -111,6 +113,7 @@ namespace Smartstore.Web.Controllers
             _productUrlHelper = productUrlHelper;
             _productAttributeFormatter = productAttributeFormatter;
             _productAttributeMaterializer = productAttributeMaterializer;
+            _stockSubscriptionService = stockSubscriptionService;
         }
 
         #region Products
@@ -118,6 +121,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ProductDetails(int productId, ProductVariantQuery query)
         {
             var product = await _db.Products
+                .AsNoTracking()
                 .IncludeMedia()
                 .IncludeManufacturers()
                 .Where(x => x.Id == productId)
@@ -194,6 +198,115 @@ namespace Smartstore.Web.Controllers
             }
 
             return View(model.ProductTemplateViewPath, model);
+        }
+
+        /// <summary>
+        /// Returns content view for stock subscribe popup.
+        /// </summary>
+        /// <param name="id">Represents the <see cref="Product.Id"/> of the corresponding subscription.</param>
+        public async Task<IActionResult> BackInStockSubscribe(int id)
+        {
+            var product = await _db.Products.FindByIdAsync(id, false);
+
+            if (product == null || product.IsSystemProduct || !product.Published)
+                return NotFound();
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            var store = Services.StoreContext.CurrentStore;
+
+            var model = new BackInStockSubscribeModel();
+            model.ProductId = product.Id;
+            model.ProductName = product.GetLocalized(x => x.Name);
+            model.ProductSeName = await product.GetActiveSlugAsync();
+            model.IsCurrentCustomerRegistered = customer.IsRegistered();
+            model.MaximumBackInStockSubscriptions = _catalogSettings.MaximumBackInStockSubscriptions;
+            model.CurrentNumberOfBackInStockSubscriptions = await _db.BackInStockSubscriptions
+                .ApplyStandardFilter(customerId: customer.Id, storeId: store.Id)
+                .CountAsync();
+            
+            if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock &&
+                product.BackorderMode == BackorderMode.NoBackorders &&
+                product.AllowBackInStockSubscriptions &&
+                product.StockQuantity <= 0)
+            {
+                // Out of stock.
+                model.SubscriptionAllowed = true;
+                model.AlreadySubscribed = await _stockSubscriptionService.Value.IsSubscribedAsync(product, customer, store.Id);
+            }
+
+            return View("BackInStockSubscribePopup", model);
+        }
+
+        /// <summary>
+        /// Post back method of stock subscribe popup. Will be called via AJAX.
+        /// </summary>
+        /// <param name="id">Represents the <see cref="Product.Id"/> of the corresponding subscription.</param>
+        [HttpPost]
+        public async Task<IActionResult> BackInStockSubscribePopup(int id)
+        {
+            var product = await _db.Products.FindByIdAsync(id, false);
+
+            if (product == null || product.IsSystemProduct || !product.Published)
+                return Content(T("Products.NotFound", id));
+
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (!customer.IsRegistered())
+            {
+                return Content(T("BackInStockSubscriptions.OnlyRegistered"));
+            }
+
+            if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock &&
+                product.BackorderMode == BackorderMode.NoBackorders &&
+                product.AllowBackInStockSubscriptions &&
+                product.StockQuantity <= 0)
+            {
+                var store = Services.StoreContext.CurrentStore;
+
+                // Out of stock.
+                var subscription = await _db.BackInStockSubscriptions
+                    .ApplyStandardFilter(product.Id, customer.Id, store.Id)
+                    .FirstOrDefaultAsync();
+                
+                if (subscription != null)
+                {
+                    // Unsubscribe.
+                    _db.BackInStockSubscriptions.Remove(subscription);
+                    await _db.SaveChangesAsync();
+                    
+                    return Content("Unsubscribed");
+                }
+                else
+                {
+                    var customerSubscriptionCount = await _db.BackInStockSubscriptions
+                        .ApplyStandardFilter(customerId: customer.Id, storeId: store.Id)
+                        .CountAsync();
+
+                    if (customerSubscriptionCount >= _catalogSettings.MaximumBackInStockSubscriptions)
+                    {
+                        return Content(T("BackInStockSubscriptions.MaxSubscriptions", _catalogSettings.MaximumBackInStockSubscriptions));
+                    }
+
+                    // Subscribe.
+                    subscription = new BackInStockSubscription
+                    {
+                        Customer = customer,
+                        //Product = product,    // INFO: (mh) (core) Throws: Ein expliziter Wert für die Identitätsspalte kann nicht in der Product-Tabelle eingefügt werden, wenn IDENTITY_INSERT auf OFF festgelegt ist.
+                        ProductId = product.Id,
+                        StoreId = store.Id,
+                        CreatedOnUtc = DateTime.UtcNow
+                    };
+
+                    _db.BackInStockSubscriptions.Add(subscription);
+                    await _db.SaveChangesAsync();
+                
+                    return Content("Subscribed");
+                }
+            }
+            else
+            {
+                return Content(T("BackInStockSubscriptions.NotAllowed"));
+            }
         }
 
         /// <summary>
