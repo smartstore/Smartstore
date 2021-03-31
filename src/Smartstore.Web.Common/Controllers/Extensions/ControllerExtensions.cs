@@ -17,7 +17,7 @@ namespace Smartstore.Web.Controllers
         /// <returns>View rendering result</returns>
         public static Task<string> InvokeViewAsync(this ControllerBase controller, string viewName, bool isPartial = true)
         {
-            return InvokeViewAsync<dynamic>(controller, viewName, null, isPartial);
+            return InvokeViewAsync(controller, viewName, (object)null, isPartial);
         }
 
         /// <summary>
@@ -25,9 +25,9 @@ namespace Smartstore.Web.Controllers
         /// </summary>
         /// <param name="viewName">View name</param>
         /// <param name="model">Model</param>
-        /// <param name="isMainPage"><c>false</c>: View is partial</param>
+        /// <param name="isPartial"><c>true</c>: View is partial, otherwise main page.</param>
         /// <returns>View rendering result</returns>
-        public static Task<string> InvokeViewAsync<TModel>(this ControllerBase controller, string viewName, TModel model, bool isPartial = true)
+        public static Task<string> InvokeViewAsync(this ControllerBase controller, string viewName, object model, bool isPartial = true)
         {
             Guard.NotNull(controller, nameof(controller));
 
@@ -35,6 +35,23 @@ namespace Smartstore.Web.Controllers
 
             var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
             return renderer.InvokeViewAsync(viewName, model, isPartial);
+        }
+
+        /// <summary>
+        /// Invokes a view and returns its html content.
+        /// </summary>
+        /// <param name="viewName">View name</param>
+        /// <param name="viewData">The <see cref="ViewDataDictionary"/> instance that also contains the model.</param>
+        /// <param name="isPartial"><c>true</c>: View is partial, otherwise main page.</param>
+        /// <returns>View rendering result</returns>
+        public static Task<string> InvokeViewAsync(this ControllerBase controller, string viewName, ViewDataDictionary viewData, bool isPartial = true)
+        {
+            Guard.NotNull(controller, nameof(controller));
+
+            viewName = viewName.NullEmpty() ?? controller.ControllerContext.ActionDescriptor.ActionName;
+
+            var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
+            return renderer.InvokeViewAsync(viewName, viewData, isPartial);
         }
 
         /// <summary>
