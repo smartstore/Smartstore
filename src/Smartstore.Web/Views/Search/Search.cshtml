@@ -12,9 +12,12 @@
     ViewBag.HideLeftCol = true; // ...on mobile
 }
 
-<widget target-zone="left">
-    <partial name="Filters" model="Model.SearchResult"/>
-</widget>
+@if (Model.SearchResult.Facets.Count > 0)
+{
+    <widget target-zone="left">
+        @await Component.InvokeAsync("Filters", Model.SearchResult)
+    </widget>
+}
 
 <div class="page search-page">
     <div class="page-title">
