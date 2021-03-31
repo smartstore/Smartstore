@@ -1,0 +1,63 @@
+﻿@using Smartstore.Core.Search.Facets
+@using Smartstore.Core.Catalog.Search
+
+@model CatalogSearchResult
+
+@functions {
+    private Facet[] FlattenFacets(IEnumerable<Facet> facets)
+    {
+        var flattened = new List<Facet>();
+
+        foreach (var facet in facets)
+        {
+            if (facet.IsChoice)
+            {
+                if (facet.Value.IsSelected)
+                {
+                    flattened.Add(facet);
+                }
+            }
+            else if (facet.Children.Count > 0)
+            {
+                flattened.AddRange(FlattenFacets(facet.Children));
+            }
+        }
+
+        return flattened.ToArray();
+    }
+}
+
+@{
+    var activeFilters = FlattenFacets(Model.Facets.SelectMany(x => x.Value.Facets));
+}
+
+<zone name="active_filters_before" />
+
+@if (activeFilters.Length > 0)
+{
+    Assets.BodyAttributes.AppendCssClass("has-active-filter");
+
+    <div class="active-filters-container">
+        <ul class="list-unstyled clearfix active-filters">
+            @foreach (var filter in activeFilters)
+            {
+                <li class="active-filter-item" data-key="@filter.Key" data-group="@filter.FacetGroup.Key">
+                    <a class="btn btn-gray btn-sm active-filter-link" href='@Url.FacetRemove(filter)' title="@T("Search.Facet.RemoveFilter", filter.FacetGroup.Label, filter.Value.Label)">
+                        <span class="active-filter-label">@(filter.Value.Label ?? filter.Value.ToString())</span>
+                    </a>
+                </li>
+            }
+            <li class="active-filter-item active-filter-item-clear">
+                <a class="btn btn-secondary btn-to-danger btn-flat btn-sm active-filter-link" href='@Url.FacetRemove(activeFilters)'>
+                    <span class="active-filter-label">@T("Search.Facet.RemoveAllFilters")</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+}
+
+<div sm-if="activeFilters.Length > 0 && Model.TotalHitsCount == 0" class="alert alert-warning">
+    @T("Search.FilterNoResultsText")
+</div>
+
+<zone name="active_filters_after" />
