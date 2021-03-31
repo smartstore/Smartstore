@@ -137,7 +137,7 @@ namespace Smartstore.Core.Catalog.Pricing
     public class AttributePricingItem
     {
         public int ProductId { get; init; }
-        public int BundleItemId { get; init; }
-        public ProductVariantAttributeValue Value { get; init; }
+        public int? BundleItemId { get; init; }
+        public ProductVariantAttributeSelection Selection { get; init; }
     }
 }

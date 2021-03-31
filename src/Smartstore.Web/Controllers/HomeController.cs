@@ -870,7 +870,7 @@ namespace Smartstore.Web.Controllers
             {
                 AssociatedProducts = associatedProducts
             };
-            await pcs.ApplyAttributesAsync(cpFinalContext, attributeSelection);
+            cpFinalContext.Attributes.Add(new AttributePricingItem { ProductId = product.Id, Selection = attributeSelection });
             var cpFinal = await pcs.CalculatePriceAsync(cpFinalContext);
 
             var cpLowestOptions = pcs.CreateDefaultOptions(true);

@@ -30,11 +30,6 @@ namespace Smartstore.Core.Catalog.Pricing
         PriceCalculationOptions CreateDefaultOptions(bool forListing, ProductBatchContext batchContext = null);
 
         /// <summary>
-        /// TODO: (mg) (core) Describe when ready.
-        /// </summary>
-        Task ApplyAttributesAsync(PriceCalculationContext context, ProductVariantAttributeSelection selection, bool applyPreSelectedAttributes = false);
-
-        /// <summary>
         /// Calculates the price for a given product.
         /// </summary>
         /// <param name="context">The context that contains the input product, the calculation options and some cargo data.</param>
