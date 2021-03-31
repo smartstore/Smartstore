@@ -55,7 +55,7 @@ namespace Smartstore.Core.Catalog.Products
             bool tracked = false);
 
         /// <summary>
-        /// Gets a cross-sell products by shopping cart.
+        /// Gets cross-sell products by shopping cart.
         /// </summary>
         /// <param name="cart">Shopping cart.</param>
         /// <param name="numberOfProducts">Number of products to return.</param>
