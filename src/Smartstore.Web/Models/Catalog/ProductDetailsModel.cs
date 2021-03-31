@@ -95,6 +95,8 @@ namespace Smartstore.Web.Models.Catalog
         public bool BackInStockAlreadySubscribed { get; set; }
 
         public ProductPriceModel ProductPrice { get; set; } = new();
+        public List<TierPriceModel> TierPrices { get; set; } = new();
+        
         public AddToCartModel AddToCart { get; set; } = new();
         public List<ProductVariantAttributeModel> ProductVariantAttributes { get; set; } = new();
         public string AttributeInfo { get; set; }
@@ -292,7 +294,7 @@ namespace Smartstore.Web.Models.Catalog
 
                 if (PriceAdjustment.HasValue())
                 {
-                    label += " ({0})".FormatWith(PriceAdjustment);
+                    label += PriceAdjustment;
                 }
 
                 return label;

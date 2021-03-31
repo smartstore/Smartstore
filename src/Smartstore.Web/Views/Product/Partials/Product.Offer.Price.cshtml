@@ -1,4 +1,6 @@
 ﻿@using Smartstore.Web.Models.Catalog
+@using Smartstore.Core.Common
+@using Smartstore.Core.Catalog.Pricing
 
 @model ProductDetailsModel
 
@@ -24,24 +26,88 @@
         var priceModel = Model.ProductPrice;
         var basePriceEnabled = isBundleItem ? priceModel.BundleItemShowBasePrice : Model.IsBasePriceEnabled;
 
-        var currentPrice = 0;
-        var currentPriceValue = 0;
+        var currentPrice = (priceModel.PriceWithDiscount > 0 ? priceModel.PriceWithDiscount : priceModel.Price).ToString();
+        var currentPriceValue = priceModel.PriceWithDiscount > 0 ? priceModel.PriceWithDiscount : priceModel.Price;
         var currentPriceLabel = priceModel.NoteWithDiscount;
+
+        var oldPrice1 = priceModel.OldPrice;
+        var oldPrice1Label = T("Products.Price.OldPrice").Value;
+
+        var oldPrice2 = priceModel.PriceWithDiscount < priceModel.Price ? priceModel.Price : new Money();
+        var oldPrice2Label = priceModel.NoteWithoutDiscount;
+
+        if (oldPrice2 > 0 && oldPrice1 == 0)
+        {
+            oldPrice1 = oldPrice2;
+            oldPrice2 = new Money();
+            oldPrice2Label = null;
+        }
+
+        if (priceModel.Price == 0 && Model.DisplayTextForZeroPrices)
+        {
+            currentPrice = T("Products.Free").Value;
+            oldPrice1 = new Money();
+            oldPrice2 = new Money();
+            oldPrice2Label = null;
+        }
+
+        var blocksHaveLabel = currentPriceLabel.HasValue() && oldPrice2Label.HasValue();
+
+        var artPriceClasses = "pd-price";
+        if (isBundleItem)
+        {
+            artPriceClasses += " pd-price-sm";
+        }
+        if (priceModel.OldPrice > 0)
+        {
+            artPriceClasses += " pd-price--offer";
+        }
+
+        var badgeClasses = "";
+        if (Model.PriceDisplayStyle == PriceDisplayStyle.BadgeAll || (Model.PriceDisplayStyle == PriceDisplayStyle.BadgeFreeProductsOnly && priceModel.Price == 0))
+        {
+            badgeClasses = Model.PriceDisplayStyle == PriceDisplayStyle.BadgeAll && priceModel.SavingAmount > 0 ? "text-danger" : "text-success";
+        }
 
         <!-- Current price -->
         <div class="pd-group clearfix">
             <div class="row sm-gutters pd-price-group">
                 <div class="col-auto pd-price-block">
-                    @*TODO: (mh) (core) Finish price display!*@
-                    Pricing Not implemented yet
+                    <meta sm-if="!isBundleItem" itemprop="priceCurrency" content="@WorkContext.WorkingCurrency.CurrencyCode" />
+                    <div sm-if="blocksHaveLabel" class="pd-price-label">@currentPriceLabel</div>
+                    <div class="@artPriceClasses">
+                        <meta sm-if="!priceModel.CallForPrice && !isBundleItem" itemprop="price" content="@currentPriceValue.ToString()" />
+                        <span class="@badgeClasses">
+                            @Html.Raw(currentPrice)
+                        </span>
+                    </div>
+                </div>
+
+                <div sm-if="oldPrice2 > 0" class="col-auto pd-price-block">
+                    <div sm-if="blocksHaveLabel" class="pd-price-label">@oldPrice2Label</div>
+                    <div class="pd-price@(isBundleItem ? " pd-price-sm" : "")">
+                        @Html.Raw(oldPrice2)
+                    </div>
                 </div>
             </div>
+            
+            <!-- Regular price -->
+			@if (oldPrice1 > 0 || priceModel.SavingAmount > 0)
+			{
+				<div sm-if="oldPrice1 > 0" class="pd-oldprice-line d-flex">
+				    <span sm-if="oldPrice1Label.HasValue()">@Html.Raw(oldPrice1Label):</span>
+					<span class="pd-oldprice pl-1">@Html.Raw(oldPrice1)</span>
+				</div>
+				<div sm-if="priceModel.SavingAmount > 0" class="pd-oldprice-line d-flex">
+					<span>@T("ShoppingCart.ItemYouSave"):</span>
+					<span class="pl-1">@priceModel.SavingAmount <span class="pd-saving-percent">(@priceModel.SavingPercent.ToString("N0") %)</span></span>
+				</div>
+			}
         </div>
 
         <!-- Tier prices -->
-        <div class="pd-tierprices">
-            @* TODO (mh) (core): ViewComponent or Partial? *@
-            @*<partial name="Product.TierPrices" model="Model" />*@
+        <div sm-if="!isBundleItem" class="pd-tierprices">
+            <partial name="Product.TierPrices" model="Model.TierPrices" />
         </div>
 
         <!-- Pangv & legal info -->

@@ -4,6 +4,5 @@
 
 <div class="form-group">
     <label asp-for="AddToCart.CustomerEnteredPrice"></label>
-    @* TODO: (mh) (core) Check if generated ID and NAME are correct!! *@
-    <input asp-for="AddToCart.CustomerEnteredPrice" value="@Convert.ToInt32(Math.Ceiling(Model.AddToCart.CustomerEnteredPrice))" type="text" />
+    @Html.TextBox("CustomerEnteredPrice", Convert.ToInt32(Math.Ceiling(Model.AddToCart.CustomerEnteredPrice)), new { @class = "form-control" })
 </div>

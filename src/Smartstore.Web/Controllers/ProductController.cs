@@ -401,9 +401,7 @@ namespace Smartstore.Web.Controllers
                     Stock = await this.InvokeViewAsync("Product.StockInfo", model),
                     Variants = await this.InvokeViewAsync("Product.Variants", model.ProductVariantAttributes),
                     OfferActions = await this.InvokeViewAsync("Product.Offer.Actions", dataDictAddToCart),
-                    
-                    // TODO: (mh) (core) Implement when Component or Partial is available.
-                    //TierPrices = await _razorViewInvoker.Value.InvokeViewAsync("Product.TierPrices", await _razorViewInvoker.InvokeViewAsync(product, adjustment)),
+                    TierPrices = await this.InvokeViewAsync("Product.TierPrices", model.TierPrices),
                     BundlePrice = product.ProductType == ProductType.BundledProduct ? await this.InvokeViewAsync("Product.Bundle.Price", model) : null
                 };
             }
