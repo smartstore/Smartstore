@@ -112,7 +112,6 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ProductDetails(int productId, ProductVariantQuery query)
         {
             var product = await _db.Products
-                .AsNoTracking()
                 .IncludeMedia()
                 .IncludeManufacturers()
                 .Where(x => x.Id == productId)
@@ -205,16 +204,18 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var store = Services.StoreContext.CurrentStore;
 
-            var model = new BackInStockSubscribeModel();
-            model.ProductId = product.Id;
-            model.ProductName = product.GetLocalized(x => x.Name);
-            model.ProductSeName = await product.GetActiveSlugAsync();
-            model.IsCurrentCustomerRegistered = customer.IsRegistered();
-            model.MaximumBackInStockSubscriptions = _catalogSettings.MaximumBackInStockSubscriptions;
-            model.CurrentNumberOfBackInStockSubscriptions = await _db.BackInStockSubscriptions
-                .ApplyStandardFilter(customerId: customer.Id, storeId: store.Id)
-                .CountAsync();
-            
+            var model = new BackInStockSubscribeModel
+            {
+                ProductId = product.Id,
+                ProductName = product.GetLocalized(x => x.Name),
+                ProductSeName = await product.GetActiveSlugAsync(),
+                IsCurrentCustomerRegistered = customer.IsRegistered(),
+                MaximumBackInStockSubscriptions = _catalogSettings.MaximumBackInStockSubscriptions,
+                CurrentNumberOfBackInStockSubscriptions = await _db.BackInStockSubscriptions
+                    .ApplyStandardFilter(customerId: customer.Id, storeId: store.Id)
+                    .CountAsync()
+            };
+
             if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock &&
                 product.BackorderMode == BackorderMode.NoBackorders &&
                 product.AllowBackInStockSubscriptions &&
