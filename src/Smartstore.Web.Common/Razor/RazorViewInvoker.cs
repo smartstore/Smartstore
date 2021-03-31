@@ -49,10 +49,10 @@ namespace Smartstore.Web.Razor
             _mvcViewOptions = mvcViewOptions;
         }
 
+        // TODO: (mc) (core) ViewDataDictionary is an object to. So the overloaded method will never be used.
         public Task<string> InvokeViewAsync(string viewName, object model, bool isPartial = true)
         {
             var actionContext = GetActionContext();
-
             var viewData = new ViewDataDictionary(_metadataProvider, actionContext.ModelState)
             {
                 Model = model

@@ -951,8 +951,6 @@ namespace Smartstore.Web.Controllers
 
         #region PrepareProductDetailModelAsync helper methods
 
-        // TODO: (mh) (core) preSelectedPriceAdjustmentBase & preSelectedWeightAdjustment might have to be return params.
-        // Implement along with pricing when available.
         protected async Task<(Money, decimal)> PrepareProductAttributesModelAsync(
             ProductDetailsModel model, 
             ProductDetailsModelContext modelContext, 
@@ -1366,7 +1364,7 @@ namespace Smartstore.Web.Controllers
             var defaultTaxRate = string.Empty;
             if (_taxSettings.DisplayTaxRates)
             {
-                // TODO: (ms) (core) Taxrate always contains a Rate of 0
+                // INFO: (mh) (core) Taxrate always contains a Rate of 0 because not all TaxProviders are implemented yet.
                 var taxRate = await _taxService.GetTaxRateAsync(product, customer: customer);
                 if (taxRate.Rate != decimal.Zero)
                 {

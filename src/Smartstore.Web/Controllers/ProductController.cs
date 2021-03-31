@@ -33,17 +33,14 @@ namespace Smartstore.Web.Controllers
         private readonly SmartDbContext _db;
         private readonly IWebHelper _webHelper;
         private readonly IProductService _productService;
-        private readonly IProductTagService _productTagService;
         private readonly IProductAttributeService _productAttributeService;
         private readonly IRecentlyViewedProductsService _recentlyViewedProductsService;
         private readonly IAclService _aclService;
         private readonly IStoreMappingService _storeMappingService;
-        private readonly ICatalogSearchService _catalogSearchService;
         private readonly IMediaService _mediaService;
         private readonly ICustomerService _customerService;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
-        private readonly IProductCompareService _productCompareService;
         private readonly CatalogHelper _helper;
         private readonly IBreadcrumb _breadcrumb;
         private readonly SeoSettings _seoSettings;
@@ -62,13 +59,10 @@ namespace Smartstore.Web.Controllers
             SmartDbContext db,
             IWebHelper webHelper,
             IProductService productService,
-            IProductTagService productTagService,
             IProductAttributeService productAttributeService,
             IRecentlyViewedProductsService recentlyViewedProductsService,
-            IProductCompareService productCompareService,
             IAclService aclService,
             IStoreMappingService storeMappingService,
-            ICatalogSearchService catalogSearchService,
             IMediaService mediaService,
             ICustomerService customerService,
             MediaSettings mediaSettings,
@@ -90,13 +84,10 @@ namespace Smartstore.Web.Controllers
             _db = db;
             _webHelper = webHelper;
             _productService = productService;
-            _productTagService = productTagService;
             _productAttributeService = productAttributeService;
             _recentlyViewedProductsService = recentlyViewedProductsService;
-            _productCompareService = productCompareService;
             _aclService = aclService;
             _storeMappingService = storeMappingService;
-            _catalogSearchService = catalogSearchService;
             _mediaService = mediaService;
             _customerService = customerService;
             _mediaSettings = mediaSettings;
