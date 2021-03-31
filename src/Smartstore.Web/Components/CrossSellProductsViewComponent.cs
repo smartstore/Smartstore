@@ -32,7 +32,10 @@ namespace Smartstore.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            // Get customer shopping cart items
             var cart = await _cartService.GetCartItemsAsync(Services.WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart, Services.StoreContext.CurrentStore.Id);
+
+            // Get cross-sell products by cart
             var products = await _productService.GetCrossSellProductsByShoppingCartAsync(cart, _shoppingCartSettings.CrossSellsNumber);
 
             // TODO: (mh) (core) Authorization can also be done in service method as it is only used in this viewcomponent?
@@ -41,6 +44,10 @@ namespace Smartstore.Web.Components
 
             if (products.Any())
             {
+                // Cross-sell products are displayed on the shopping cart page.
+                // We know that the entire shopping cart page is not refreshed
+                // even if "ShoppingCartSettings.DisplayCartAfterAddingProduct" setting  is enabled.
+                // That's why we force page refresh (redirect) in this case
                 var settings = _helper.GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode.Grid, x =>
                 {
                     x.ForceRedirectionAfterAddingToCart = true;
