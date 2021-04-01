@@ -20,7 +20,7 @@
 @if (Model.SearchResult.Facets.Count > 0)
 {
     <widget target-zone="left">
-        @await Component.InvokeAsync("Filters", Model.SearchResult)
+        <partial name="~/Views/Search/Partials/Filters.cshtml" model="Model.SearchResult" />
     </widget>
 } 
 
