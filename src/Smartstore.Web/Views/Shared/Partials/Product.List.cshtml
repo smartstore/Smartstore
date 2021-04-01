@@ -86,7 +86,7 @@
 
 @if (Model.AllowFiltering)
 {
-    <partial name="~/Views/Search/Partials/ActiveFilters.cshtml" model="Model.SourceResult" />
+    <partial name="Search/ActiveFilters" model="Model.SourceResult" />
 }
 
 <div sm-if="Model.PagedList.TotalCount > 0" id="@id" class='@string.Join(" ", listCssClasses)'>
