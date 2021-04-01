@@ -106,7 +106,7 @@ namespace Smartstore.Web.Models.Common
             sb.Append(FirstName);
             if (FirstName.HasValue() && LastName.HasValue())
             {
-                sb.Append(" ");
+                sb.Append(' ');
             }
             sb.Append(LastName);
 
@@ -131,7 +131,7 @@ namespace Smartstore.Web.Models.Common
                 sb.Append(StateProvinceName);
                 if (ZipPostalCodeEnabled && ZipPostalCode.HasValue())
                 {
-                    sb.Append(" ");
+                    sb.Append(' ');
                 }
             }
 
@@ -150,18 +150,12 @@ namespace Smartstore.Web.Models.Common
         {
             if (addressSettings.CountryRequired && addressSettings.CountryEnabled)
             {
-                RuleFor(x => x.CountryId)                    
-                    .NotNull()
-                    .NotEqual(0)
-                    .WithMessage(T("Address.Fields.Country.Required"));
+                RuleFor(x => x.CountryId).NotNull().NotEqual(0);
             }
 
             if (addressSettings.StateProvinceRequired && addressSettings.StateProvinceEnabled)
             {
-                RuleFor(x => x.StateProvinceId)
-                    .NotNull()
-                    .NotEqual(0)
-                    .WithMessage(T("Address.Fields.StateProvince.Required"));
+                RuleFor(x => x.StateProvinceId).NotNull().NotEqual(0);
             }
 
             if (addressSettings.CompanyRequired && addressSettings.CompanyEnabled)

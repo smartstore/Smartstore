@@ -900,7 +900,7 @@ namespace Smartstore.Web.Controllers
 
             await _productAttributeMaterializer.MergeWithCombinationAsync(product, item.AttributeSelection);
 
-            var productSeName = await SeoExtensions.GetActiveSlugAsync(product);
+            var productSeName = await product.GetActiveSlugAsync();
 
             var model = new WishlistModel.ShoppingCartItemModel
             {
@@ -1104,7 +1104,7 @@ namespace Smartstore.Web.Controllers
             {
                 Id = file?.Id ?? 0,
                 ThumbSize = pictureSize,
-                Host = _mediaService.GetUrl(file, pictureSize, null, !_catalogSettings.HideProductDefaultPictures),
+                NoFallback = _catalogSettings.HideProductDefaultPictures,
                 Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? T("Media.Product.ImageLinkTitleFormat", productName),
                 Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? T("Media.Product.ImageAlternateTextFormat", productName),
                 File = file
