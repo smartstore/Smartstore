@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core;
@@ -16,10 +15,9 @@ namespace Smartstore.Web.Infrastructure
 {
     public partial class MyAccountMenu : IMenu
     {
-        // TODO: (mc) (core) Injecting IUrlHelper here reproduces the error I get occasinally when running VS for a long time.
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
-        //private readonly IUrlHelper _urlHelper;
+        private readonly Work<IUrlHelper> _urlHelper;
         private readonly CustomerSettings _customerSettings;
         private readonly OrderSettings _orderSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
@@ -30,14 +28,14 @@ namespace Smartstore.Web.Infrastructure
         public MyAccountMenu(
             SmartDbContext db,
             ICommonServices services,
-            //IUrlHelper urlHelper,
+            Work<IUrlHelper> urlHelper,
             CustomerSettings customerSettings,
             OrderSettings orderSettings,
             RewardPointsSettings rewardPointsSettings)
         {
             _db = db;
             _services = services;
-            //_urlHelper = urlHelper;
+            _urlHelper = urlHelper;
             _customerSettings = customerSettings;
             _orderSettings = orderSettings;
             _rewardPointsSettings = rewardPointsSettings;
@@ -92,9 +90,7 @@ namespace Smartstore.Web.Infrastructure
         {
             var store = _services.StoreContext.CurrentStore;
             var customer = _services.WorkContext.CurrentCustomer;
-
-            // TODO: (mh) (core) Temporary only. Inject if possible.
-            var _urlHelper = EngineContext.Current.ResolveService<IUrlHelper>();
+            var urlHelper = _urlHelper.Value;
 
             var root = new TreeNode<MenuItem>(new MenuItem { Text = T("Account.Navigation") })
             {
@@ -106,7 +102,8 @@ namespace Smartstore.Web.Infrastructure
                 Id = "info",
                 Text = T("Account.CustomerInfo"),
                 Icon = "fal fa-user",
-                Url = _urlHelper.Action("Info", "Customer", new { area = "" })
+                ActionName = "Info",
+                ControllerName = "Customer"
             });
 
             root.Append(new MenuItem
@@ -114,7 +111,8 @@ namespace Smartstore.Web.Infrastructure
                 Id = "addresses",
                 Text = T("Account.CustomerAddresses"),
                 Icon = "fal fa-address-book",
-                Url = _urlHelper.Action("Addresses", "Customer", new { area = "" })
+                ActionName = "Addresses",
+                ControllerName = "Customer"
             });
 
             root.Append(new MenuItem
@@ -122,12 +120,13 @@ namespace Smartstore.Web.Infrastructure
                 Id = "orders",
                 Text = T("Account.CustomerOrders"),
                 Icon = "fal fa-file-invoice",
-                Url = _urlHelper.Action("Orders", "Customer", new { area = "" })
+                ActionName = "Orders",
+                ControllerName = "Customer"
             });
 
             if (_orderSettings.ReturnRequestsEnabled)
             {
-                var hasReturnRequests = await _db.ReturnRequests.ApplyStandardFilter(customerId: customer.Id).AnyAsync();
+                var hasReturnRequests = await _db.ReturnRequests.ApplyStandardFilter(customerId: customer.Id, storeId: store.Id).AnyAsync();
                 if (hasReturnRequests)
                 {
                     root.Append(new MenuItem
@@ -135,7 +134,8 @@ namespace Smartstore.Web.Infrastructure
                         Id = "returnrequests",
                         Text = T("Account.CustomerReturnRequests"),
                         Icon = "fal fa-truck",
-                        Url = _urlHelper.Action("ReturnRequests", "Customer", new { area = "" })
+                        ActionName = "ReturnRequests",
+                        ControllerName = "Customer"
                     });
                 }
             }
@@ -147,7 +147,8 @@ namespace Smartstore.Web.Infrastructure
                     Id = "downloads",
                     Text = T("Account.DownloadableProducts"),
                     Icon = "fal fa-download",
-                    Url = _urlHelper.Action("DownloadableProducts", "Customer", new { area = "" })
+                    ActionName = "DownloadableProducts",
+                    ControllerName = "Customer"
                 });
             }
 
@@ -158,7 +159,8 @@ namespace Smartstore.Web.Infrastructure
                     Id = "backinstock",
                     Text = T("Account.BackInStockSubscriptions"),
                     Icon = "fal fa-truck-loading",
-                    Url = _urlHelper.Action("BackInStockSubscriptions", "Customer", new { area = "" })
+                    ActionName = "BackInStockSubscriptions",
+                    ControllerName = "Customer"
                 });
             }
 
@@ -169,7 +171,8 @@ namespace Smartstore.Web.Infrastructure
                     Id = "rewardpoints",
                     Text = T("Account.RewardPoints"),
                     Icon = "fal fa-certificate",
-                    Url = _urlHelper.Action("RewardPoints", "Customer", new { area = "" })
+                    ActionName = "RewardPoints",
+                    ControllerName = "Customer"
                 });
             }
 
@@ -178,7 +181,8 @@ namespace Smartstore.Web.Infrastructure
                 Id = "changepassword",
                 Text = T("Account.ChangePassword"),
                 Icon = "fal fa-unlock-alt",
-                Url = _urlHelper.Action("ChangePassword", "Customer", new { area = "" })
+                ActionName = "ChangePassword",
+                ControllerName = "Customer" // TODO: (mh) (core) Will change --> Identity
             });
 
             if (_customerSettings.AllowCustomersToUploadAvatars)
@@ -188,8 +192,15 @@ namespace Smartstore.Web.Infrastructure
                     Id = "avatar",
                     Text = T("Account.Avatar"),
                     Icon = "fal fa-user-circle",
-                    Url = _urlHelper.Action("Avatar", "Customer", new { area = "" })
+                    ActionName = "Avatar",
+                    ControllerName = "Customer"
                 });
+            }
+
+            // Add area = "" to all items in one go
+            foreach (var item in root.Children)
+            {
+                item.Value.RouteValues["area"] = string.Empty;
             }
 
             // TODO: (mh) (core) Append items from Forum module.
