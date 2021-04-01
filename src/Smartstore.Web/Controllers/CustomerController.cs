@@ -1,0 +1,503 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Caching;
+using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common.Services;
+using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Messages;
+using Smartstore.Engine.Modularity;
+using Smartstore.Web.Infrastructure.Hooks;
+using Smartstore.Web.Models.Customers;
+using Microsoft.AspNetCore.Identity;
+
+namespace Smartstore.Web.Controllers
+{
+    public class CustomerController : PublicControllerBase
+    {
+        private readonly SmartDbContext _db;
+        private readonly INewsletterSubscriptionService _newsletterSubscriptionService;
+        private readonly ITaxService _taxService;
+        private readonly IMessageFactory _messageFactory;
+        private readonly UserManager<Customer> _userManager;
+        private readonly SignInManager<Customer> _signInManager;
+        private readonly IProviderManager _providerManager;
+        private readonly ICacheManager _cache;
+        private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly DateTimeSettings _dateTimeSettings;
+        private readonly CustomerSettings _customerSettings;
+        private readonly TaxSettings _taxSettings;
+        private readonly LocalizationSettings _localizationSettings;
+
+        public CustomerController(
+            SmartDbContext db,
+            INewsletterSubscriptionService newsletterSubscriptionService,
+            ITaxService taxService,
+            IMessageFactory messageFactory,
+            UserManager<Customer> userManager,
+            SignInManager<Customer> signInManager,
+            IProviderManager providerManager,
+            ICacheManager cache,
+            IDateTimeHelper dateTimeHelper,
+            DateTimeSettings dateTimeSettings,
+            CustomerSettings customerSettings,
+            TaxSettings taxSettings,
+            LocalizationSettings localizationSettings)
+        {
+            _db = db;
+            _newsletterSubscriptionService = newsletterSubscriptionService;
+            _taxService = taxService;
+            _messageFactory = messageFactory;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _providerManager = providerManager;
+            _cache = cache;
+            _dateTimeHelper = dateTimeHelper;
+            _dateTimeSettings = dateTimeSettings;
+            _customerSettings = customerSettings;
+            _taxSettings = taxSettings;
+            _localizationSettings = localizationSettings;
+        }
+
+        public async Task<IActionResult> Info()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+            
+            var model = new CustomerInfoModel();
+            await PrepareCustomerInfoModelAsync(model, customer, false);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Info(CustomerInfoModel model)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    customer.FirstName = model.FirstName;
+                    customer.LastName = model.LastName;
+
+                    // Username.
+                    if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames)
+                    {
+                        if (!customer.Username.EqualsNoCase(model.Username.Trim()))
+                        {
+                            // Change username.
+                            await _userManager.SetUserNameAsync(customer, model.Username.Trim());
+                            // Re-authenticate.
+                            await _signInManager.SignInAsync(customer, true);
+                        }
+                    }
+
+                    // Email.
+                    if (!customer.Email.Equals(model.Email.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        // Change email.
+                        await _userManager.SetEmailAsync(customer, model.Email.Trim());
+                        // Re-authenticate (if usernames are disabled).
+                        if (_customerSettings.CustomerLoginType == CustomerLoginType.Email)
+                        {
+                            await _signInManager.SignInAsync(customer, true);
+                        }
+                    }
+
+                    // VAT number.
+                    if (_taxSettings.EuVatEnabled)
+                    {
+                        var prevVatNumber = customer.GenericAttributes.VatNumber;
+                        customer.GenericAttributes.VatNumber = model.VatNumber;
+
+                        if (prevVatNumber != model.VatNumber)
+                        {
+                            (var vatNumberStatus, var vatName, var vatAddress) = await _taxService.GetVatNumberStatusAsync(model.VatNumber);
+                            customer.VatNumberStatusId = (int)vatNumberStatus;
+
+                            // Send VAT number admin notification.
+                            if (model.VatNumber.HasValue() && _taxSettings.EuVatEmailAdminWhenNewVatSubmitted)
+                            {
+                                await _messageFactory.SendNewVatSubmittedStoreOwnerNotificationAsync(customer, model.VatNumber, vatAddress, _localizationSettings.DefaultAdminLanguageId);
+                            }
+                        }
+                    }
+
+                    // Customer number.
+                    if (_customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
+                    {
+                        var numberExists = await _db.Customers.Where(x => x.CustomerNumber == model.CustomerNumber).AnyAsync();
+
+                        if (model.CustomerNumber != customer.CustomerNumber && numberExists)
+                        {
+                            NotifyError("Common.CustomerNumberAlreadyExists");
+                        }
+                        else
+                        {
+                            customer.CustomerNumber = model.CustomerNumber;
+                        }
+                    }
+
+                    if (_customerSettings.DateOfBirthEnabled)
+                    {
+                        try
+                        {
+                            if (model.DateOfBirthYear.HasValue && model.DateOfBirthMonth.HasValue && model.DateOfBirthDay.HasValue)
+                            {
+                                customer.BirthDate = new DateTime(model.DateOfBirthYear.Value, model.DateOfBirthMonth.Value, model.DateOfBirthDay.Value);
+                            }
+                            else
+                            {
+                                customer.BirthDate = null;
+                            }
+                        }
+                        catch { }
+                    }
+
+                    if (_customerSettings.CompanyEnabled)
+                    {
+                        customer.Company = model.Company;
+                    }
+                    if (_customerSettings.TitleEnabled)
+                    {
+                        customer.Title = model.Title;
+                    }
+                    if (_customerSettings.GenderEnabled)
+                    {
+                        customer.Gender = model.Gender;
+                    }
+                    if (_customerSettings.StreetAddressEnabled)
+                    {
+                        customer.GenericAttributes.StreetAddress = model.StreetAddress;
+                    }
+                    if (_customerSettings.StreetAddress2Enabled)
+                    {
+                        customer.GenericAttributes.StreetAddress2 = model.StreetAddress2;
+                    }
+                    if (_customerSettings.ZipPostalCodeEnabled)
+                    {
+                        customer.GenericAttributes.ZipPostalCode = model.ZipPostalCode;
+                    }
+                    if (_customerSettings.CityEnabled)
+                    {
+                        customer.GenericAttributes.City = model.City;
+                    }
+                    if (_customerSettings.CountryEnabled)
+                    {
+                        customer.GenericAttributes.CountryId = model.CountryId;
+                    }
+                    if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
+                    {
+                        customer.GenericAttributes.StateProvinceId = model.StateProvinceId;
+                    }
+                    if (_customerSettings.PhoneEnabled)
+                    {
+                        customer.GenericAttributes.Phone = model.Phone;
+                    }
+                    if (_customerSettings.FaxEnabled)
+                    {
+                        customer.GenericAttributes.Fax = model.Fax;
+                    }
+                    if (_customerSettings.NewsletterEnabled)
+                    {
+                        await _newsletterSubscriptionService.ApplySubscriptionAsync(model.Newsletter, customer.Email, Services.StoreContext.CurrentStore.Id);
+                    }
+                    // TODO: (mh) (core) Forum module stuff.
+                    //if (_forumSettings.ForumsEnabled && _forumSettings.SignaturesEnabled)
+                    //{
+                    //    customer.GenericAttributes.Signature = model.Signature;
+                    //}
+                    if (_dateTimeSettings.AllowCustomersToSetTimeZone)
+                    {
+                        customer.TimeZoneId = model.TimeZoneId;
+                    }
+
+                    await _db.SaveChangesAsync();
+                    
+                    return RedirectToAction("Info");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+
+            await PrepareCustomerInfoModelAsync(model, customer, false);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckUsernameAvailability(string username)
+        {
+            var usernameAvailable = false;
+            var statusText = T("Account.CheckUsernameAvailability.NotAvailable");
+
+            if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && username != null)
+            {
+                username = username.Trim();
+
+                if (username.HasValue())
+                {
+                    var customer = Services.WorkContext.CurrentCustomer;
+                    if (customer != null && customer.Username != null && customer.Username.EqualsNoCase(username))
+                    {
+                        statusText = T("Account.CheckUsernameAvailability.CurrentUsername");
+                    }
+                    else
+                    {
+                        customer = await _db.Customers
+                            .AsNoTracking()
+                            .ApplyIdentFilter(userName: username)
+                            .FirstOrDefaultAsync();
+
+                        if (customer == null)
+                        {
+                            statusText = T("Account.CheckUsernameAvailability.Available");
+                            usernameAvailable = true;
+                        }
+                    }
+                }
+            }
+
+            return Json(new { Available = usernameAvailable, Text = statusText.Value });
+        }
+
+        [NonAction]
+        protected async Task PrepareCustomerInfoModelAsync(CustomerInfoModel model, Customer customer, bool excludeProperties)
+        {
+            Guard.NotNull(model, nameof(model));
+            Guard.NotNull(customer, nameof(customer));
+
+            model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
+
+            var availableTimeZones = new List<SelectListItem>();
+            foreach (var tzi in _dateTimeHelper.GetSystemTimeZones())
+            {
+                availableTimeZones.Add(new SelectListItem
+                {
+                    Text = tzi.DisplayName,
+                    Value = tzi.Id,
+                    Selected = (excludeProperties ? tzi.Id == model.TimeZoneId : tzi.Id == _dateTimeHelper.CurrentTimeZone.Id)
+                });
+            }
+            ViewBag.AvailableTimeZones = availableTimeZones;
+
+            if (!excludeProperties)
+            {
+                var dateOfBirth = customer.BirthDate;
+
+                var newsletterSubscription = await _db.NewsletterSubscriptions
+                    .AsNoTracking()
+                    .ApplyMailAddressFilter(customer.Email, Services.StoreContext.CurrentStore.Id)
+                    .FirstOrDefaultAsync();
+
+                model.Company = customer.Company;
+                model.Title = customer.Title;
+                model.FirstName = customer.FirstName;
+                model.LastName = customer.LastName;
+                model.Gender = customer.Gender;
+                model.CustomerNumber = customer.CustomerNumber;
+                model.Email = customer.Email;
+                model.Username = customer.Username;
+
+                if (dateOfBirth.HasValue)
+                {
+                    model.DateOfBirthDay = dateOfBirth.Value.Day;
+                    model.DateOfBirthMonth = dateOfBirth.Value.Month;
+                    model.DateOfBirthYear = dateOfBirth.Value.Year;
+                }
+
+                model.VatNumber = customer.GenericAttributes.VatNumber;
+                model.StreetAddress = customer.GenericAttributes.StreetAddress;
+                model.StreetAddress2 = customer.GenericAttributes.StreetAddress2;
+                model.City = customer.GenericAttributes.City;
+                model.ZipPostalCode = customer.GenericAttributes.ZipPostalCode;
+                model.CountryId = (int)customer.GenericAttributes.CountryId;
+                model.StateProvinceId = (int)customer.GenericAttributes.StateProvinceId;
+                model.Phone = customer.GenericAttributes.Phone;
+                model.Fax = customer.GenericAttributes.Fax;
+                model.Signature = customer.GenericAttributes.Signature;
+                model.Newsletter = newsletterSubscription != null && newsletterSubscription.Active;
+            }
+            else
+            {
+                if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && !_customerSettings.AllowUsersToChangeUsernames)
+                {
+                    model.Username = customer.Username;
+                }
+            }
+
+            // TODO: (mh) (core) Make taghelpers or some other generic solution for this always repeating code.
+            // Countries and states.
+            if (_customerSettings.CountryEnabled)
+            {
+                var availableCountries = new List<SelectListItem>
+                {
+                    new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" }
+                };
+
+                var countries = await _db.Countries
+                    .AsNoTracking()
+                    .ApplyStandardFilter()
+                    .ToListAsync();
+
+                foreach (var c in countries)
+                {
+                    availableCountries.Add(new SelectListItem
+                    {
+                        Text = c.GetLocalized(x => x.Name),
+                        Value = c.Id.ToString(),
+                        Selected = c.Id == model.CountryId
+                    });
+                }
+
+                ViewBag.AvailableCountries = availableCountries;
+
+                if (_customerSettings.StateProvinceEnabled)
+                {
+                    var availableStates = new List<SelectListItem>();
+
+                    var states = await _db.StateProvinces
+                        .AsNoTracking()
+                        .ApplyCountryFilter(model.CountryId)
+                        .ToListAsync();
+
+                    if (states.Any())
+                    {
+                        foreach (var s in states)
+                        {
+                            availableStates.Add(new SelectListItem
+                            {
+                                Text = s.GetLocalized(x => x.Name),
+                                Value = s.Id.ToString(),
+                                Selected = (s.Id == model.StateProvinceId)
+                            });
+                        }
+                    }
+                    else
+                    {
+                        availableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
+                    }
+
+                    ViewBag.AvailableStates = availableStates;
+                }
+            }
+
+            model.DisplayVatNumber = _taxSettings.EuVatEnabled;
+            model.VatNumberStatusNote = await ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnumAsync(Services.WorkContext.WorkingLanguage.Id);
+            model.GenderEnabled = _customerSettings.GenderEnabled;
+            model.TitleEnabled = _customerSettings.TitleEnabled;
+            model.DateOfBirthEnabled = _customerSettings.DateOfBirthEnabled;
+            model.CompanyEnabled = _customerSettings.CompanyEnabled;
+            model.CompanyRequired = _customerSettings.CompanyRequired;
+            model.StreetAddressEnabled = _customerSettings.StreetAddressEnabled;
+            model.StreetAddressRequired = _customerSettings.StreetAddressRequired;
+            model.StreetAddress2Enabled = _customerSettings.StreetAddress2Enabled;
+            model.StreetAddress2Required = _customerSettings.StreetAddress2Required;
+            model.ZipPostalCodeEnabled = _customerSettings.ZipPostalCodeEnabled;
+            model.ZipPostalCodeRequired = _customerSettings.ZipPostalCodeRequired;
+            model.CityEnabled = _customerSettings.CityEnabled;
+            model.CityRequired = _customerSettings.CityRequired;
+            model.CountryEnabled = _customerSettings.CountryEnabled;
+            model.StateProvinceEnabled = _customerSettings.StateProvinceEnabled;
+            model.PhoneEnabled = _customerSettings.PhoneEnabled;
+            model.PhoneRequired = _customerSettings.PhoneRequired;
+            model.FaxEnabled = _customerSettings.FaxEnabled;
+            model.FaxRequired = _customerSettings.FaxRequired;
+            model.NewsletterEnabled = _customerSettings.NewsletterEnabled;
+            model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+            model.AllowUsersToChangeUsernames = _customerSettings.AllowUsersToChangeUsernames;
+            model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
+            // TODO: (mh) (core) This must be injected by Forum module somehow.
+            //model.SignatureEnabled = _forumSettings.ForumsEnabled && _forumSettings.SignaturesEnabled;
+            model.DisplayCustomerNumber = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled
+                && _customerSettings.CustomerNumberVisibility != CustomerNumberVisibility.None;
+
+            if (_customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled
+                && (_customerSettings.CustomerNumberVisibility == CustomerNumberVisibility.Editable
+                || (_customerSettings.CustomerNumberVisibility == CustomerNumberVisibility.EditableIfEmpty && model.CustomerNumber.IsEmpty())))
+            {
+                model.CustomerNumberEnabled = true;
+            }
+            else
+            {
+                model.CustomerNumberEnabled = false;
+            }
+
+            // TODO: (mh) (core) Implement when IExternalAuthenticationMethod and stuff is available.
+            // External authentication.
+            foreach (var ear in customer.ExternalAuthenticationRecords)
+            {
+                //var authMethod = _providerManager.GetProvider<IExternalAuthenticationMethod>(systemName, storeId);
+                //var authMethod = _openAuthenticationService.LoadExternalAuthenticationMethodBySystemName(ear.ProviderSystemName);
+                //if (authMethod == null || !authMethod.IsMethodActive(_externalAuthenticationSettings))
+                //  continue;
+                //    model.AssociatedExternalAuthRecords.Add(new CustomerInfoModel.AssociatedExternalAuthModel
+                //    {
+                //        Id = ear.Id,
+                //        Email = ear.Email,
+                //        ExternalIdentifier = ear.ExternalIdentifier,
+                //        AuthMethodName = _pluginMediator.GetLocalizedFriendlyName(authMethod.Metadata, _workContext.WorkingLanguage.Id)
+                //    });
+            }
+        }
+
+        // INFO: (mh) (core) Current CountryController just has this one method. Details TBD.
+        /// <summary>
+        /// This action method gets called via an ajax request.
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> GetStatesByCountryId(string countryId, bool addEmptyStateIfRequired)
+        {
+            // TODO: (mh) (core) Don't throw in frontend.
+            if (!countryId.HasValue())
+                throw new ArgumentNullException(nameof(countryId));
+
+            string cacheKey = string.Format(ModelCacheInvalidator.STATEPROVINCES_BY_COUNTRY_MODEL_KEY, countryId, addEmptyStateIfRequired, Services.WorkContext.WorkingLanguage.Id);
+            var cacheModel = await _cache.GetAsync(cacheKey, async () =>
+            {
+                var country = await _db.Countries
+                    .AsNoTracking()
+                    .Where(x => x.Id == Convert.ToInt32(countryId))
+                    .FirstOrDefaultAsync();
+
+                var states = await _db.StateProvinces
+                    .AsNoTracking()
+                    .ApplyCountryFilter(country != null ? country.Id : 0)
+                    .ToListAsync();
+
+                var result = (from s in states
+                              select new { id = s.Id, name = s.GetLocalized(x => x.Name).Value })
+                              .ToList();
+
+                if (addEmptyStateIfRequired && result.Count == 0)
+                {
+                    result.Insert(0, new { id = 0, name = T("Address.OtherNonUS").Value });
+                }
+                
+                return result;
+            });
+
+            return Json(cacheModel);
+        }
+    }
+}

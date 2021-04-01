@@ -26,10 +26,11 @@ namespace Smartstore
         {
             Guard.NotNull(query, nameof(query));
 
-            if (countryId == 0)
-            {
-                return query;
-            }
+            // INFO: If countryId == 0 an empty query should be returned.
+            //if (countryId == 0)
+            //{
+            //    return query;
+            //}
 
             query = from x in query                   
                     where x.CountryId == countryId

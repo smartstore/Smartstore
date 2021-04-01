@@ -1,0 +1,26 @@
+﻿@{
+    Layout = "_Layout";
+    Assets.BodyAttributes.AppendCssClass("myaccount-page");
+}
+
+<div class="page page-myaccount page-myaccount-@ViewBag.PageClassToken">
+    <div class="page-body">
+        <div class="row">
+            <div class="col-md-4 col-lg-3 d-print-none">
+                <zone name="myaccount_menu_before" />
+                <menu name="MyAccount" template="ListGroup"></menu>
+                <zone name="myaccount_menu_after" />
+
+                @*TODO: (mh) (core) Consider this in poll module*@
+                @*@{ Html.RenderAction("PollBlock", "Poll", new { systemKeyword = "MyAccountMenu", area = "" }); }*@
+            </div>
+            <div class="col-md-8 col-lg-9">
+                <div class="page-title pt-4 pt-md-0">
+                    <h1 class="h3">@ViewBag.PageTitle</h1>
+                </div>
+
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+</div>
