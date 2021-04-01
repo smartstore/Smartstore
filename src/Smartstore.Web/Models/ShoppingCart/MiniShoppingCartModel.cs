@@ -13,7 +13,7 @@ namespace Smartstore.Web.Models.ShoppingCart
     {
         public List<ShoppingCartItemModel> Items { get; set; } = new();
         public int TotalProducts { get; set; }
-        public string SubTotal { get; set; }
+        public string SubTotal { get; set; } // TODO: (mh) (core) Make "Money" later
         public bool DisplayCheckoutButton { get; set; }
         public bool CurrentCustomerIsGuest { get; set; }
         public bool AnonymousCheckoutAllowed { get; set; }
@@ -50,7 +50,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             public QuantityControlType QuantiyControlType { get; set; }
 
-            public string UnitPrice { get; set; }
+            public string UnitPrice { get; set; } // TODO: (mh) (core) Make "Money" later
 
             public string BasePriceInfo { get; set; }
 
@@ -66,7 +66,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
         public partial class ShoppingCartItemBundleItem : ModelBase
         {
-            public string PictureUrl { get; set; }
+            public string PictureUrl { get; set; } // TODO: (mh) (core) Use ImageModel
             public LocalizedValue<string> ProductName { get; set; }
             public string ProductSeName { get; set; }
             public string ProductUrl { get; set; }

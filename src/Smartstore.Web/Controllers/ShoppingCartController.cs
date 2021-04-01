@@ -97,12 +97,12 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> OffCanvasShoppingCart()
         {
             if (!_shoppingCartSettings.MiniShoppingCartEnabled)
-                return Content("");
+                return Content(string.Empty);
 
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart))
-                return Content("");
+                return Content(string.Empty);
 
-            var model = PrepareMiniShoppingCartModel();
+            var model = await PrepareMiniShoppingCartModelAsync();
 
             // TODO: (ms) (core) Session SafeSet method extension is missing.
             //HttpContext.Session.SafeSet(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
@@ -147,7 +147,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [NonAction]
-        protected async Task<MiniShoppingCartModel> PrepareMiniShoppingCartModel()
+        protected async Task<MiniShoppingCartModel> PrepareMiniShoppingCartModelAsync()
         {
             var customer = Services.WorkContext.CurrentCustomer;
             var storeId = Services.StoreContext.CurrentStore.Id;
