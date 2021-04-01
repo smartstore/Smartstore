@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
-using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore
 {
@@ -11,20 +11,26 @@ namespace Smartstore
     public static class CheckoutAttributeExtensions
     {
         /// <summary>
-        /// Gets invalid shippable attribute ids.
-        /// Invalid shippable attributes are attributes that require a shippable product, when the shopping cart does not require shipping at all.
+        /// Gets invalid shippable attribute ids from <paramref name="attributes"/>.
         /// </summary>
         /// <returns><see cref="IEnumerable{int}"/> with invalid shippable attribute identifiers.</returns>
-        public static IEnumerable<int> GetInvalidShippableAttributesIds(this IEnumerable<CheckoutAttribute> attributes, IList<OrganizedShoppingCartItem> cart)
+        public static IEnumerable<int> GetInvalidShippableAttributesIds(this IEnumerable<CheckoutAttribute> attributes)
         {
             Guard.NotNull(attributes, nameof(attributes));
-
-            if (cart.IsShippingRequired())
-                return Enumerable.Empty<int>();
 
             return attributes
                 .Where(x => x.ShippableProductRequired)
                 .Select(x => x.Id);
+        }
+        /// <summary>
+        /// Removes shippable product attributes from <paramref name="attributes"/>.        
+        /// </summary>
+        /// <returns><see cref="IEnumerable{CheckoutAttribute}"/> with invalid shippable attributes.</returns>
+        public static IEnumerable<CheckoutAttribute> RemoveShippableAttributes(this IEnumerable<CheckoutAttribute> attributes)
+        {
+            Guard.NotNull(attributes, nameof(attributes));
+
+            return attributes.Where(x => !x.ShippableProductRequired);
         }
 
         /// <summary>

@@ -392,7 +392,7 @@ namespace Smartstore.Core.Checkout.Cart
                 var attributeSelection = customer.GenericAttributes.CheckoutAttributes;
                 var attributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection);
                 var organizedCartItems = await GetCartItemsAsync(customer, storeId: storeId);
-                var attributeIdsToRemove = attributes.GetInvalidShippableAttributesIds(organizedCartItems);
+                var attributeIdsToRemove = attributes.GetInvalidShippableAttributesIds();
 
                 attributeSelection.RemoveAttributes(attributeIdsToRemove);
                 customer.GenericAttributes.CheckoutAttributes = attributeSelection;
