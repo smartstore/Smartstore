@@ -32,7 +32,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             public LocalizedValue<string> ShortDesc { get; set; }
 
-            public string ProductSeName { get; set; }
+            public string ProductSetName { get; set; }
 
             public string ProductUrl { get; set; }
 
@@ -68,7 +68,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         {
             public string PictureUrl { get; set; } // TODO: (mh) (core) Use ImageModel
             public LocalizedValue<string> ProductName { get; set; }
-            public string ProductSeName { get; set; }
+            public string ProductSetName { get; set; }
             public string ProductUrl { get; set; }
         }
 
