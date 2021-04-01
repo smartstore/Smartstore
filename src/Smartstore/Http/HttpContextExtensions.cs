@@ -165,4 +165,5 @@ namespace Smartstore
                 IsEssential = true
             });
         }
+    }
 }
