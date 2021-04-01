@@ -12,7 +12,7 @@ using Smartstore.Engine;
 
 namespace Smartstore.Core.Logging.Serilog
 {
-    public sealed class SmartDbContextSink : IBatchedLogEventSink
+    internal sealed class SmartDbContextSink : IBatchedLogEventSink
     {
         private readonly IFormatProvider _formatProvider;
 

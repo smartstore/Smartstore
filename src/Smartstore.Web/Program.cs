@@ -17,7 +17,6 @@ using Serilog.Extensions.Logging;
 using Serilog.Filters;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Engine;
-using Smartstore.Engine.Initialization;
 using MsHost = Microsoft.Extensions.Hosting.Host;
 
 namespace Smartstore.Web
@@ -49,26 +48,12 @@ namespace Smartstore.Web
 
         public static async Task Main(string[] args)
         {
-            await CreateHostBuilder(args).RunAsync();
+            await BuildWebHost(args).RunAsync();
         }
 
-        public static IHost CreateHostBuilder(string[] args) 
+        public static IHost BuildWebHost(string[] args)
         {
-            Log.Logger = SetupSerilog(Configuration);
-
-            // Build the host
-            var host = MsHost.CreateDefaultBuilder(args)
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                .ConfigureLogging(SetupLogging)
-                .UseSerilog(dispose: true)
-                .ConfigureWebHostDefaults(wb => wb
-                    .UseStartup<Startup>(hostingContext => 
-                    {
-                        hostingContext.Configuration = Configuration;
-                        var startupLogger = new SerilogLoggerFactory(Log.Logger).CreateLogger("File");
-                        return new Startup(hostingContext, startupLogger); 
-                    }))
-                .Build();
+            var host = CreateHostBuilder(args).Build();
 
             // At this stage - after ConfigureServices & ConfigureContainer have been called - we can access IServiceProvider.
             var appContext = host.Services.GetRequiredService<IApplicationContext>();
@@ -84,6 +69,26 @@ namespace Smartstore.Web
                 host.Services.AsLifetimeScope());
 
             return host;
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            Log.Logger = SetupSerilog(Configuration);
+
+            // Create host builder
+            var builder = MsHost.CreateDefaultBuilder(args)
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                .ConfigureLogging(SetupLogging)
+                .UseSerilog(dispose: true)
+                .ConfigureWebHostDefaults(wb => wb
+                    .UseStartup<Startup>(hostingContext =>
+                    {
+                        hostingContext.Configuration = Configuration;
+                        var startupLogger = new SerilogLoggerFactory(Log.Logger).CreateLogger("File");
+                        return new Startup(hostingContext, startupLogger);
+                    }));
+
+            return builder;
         }
 
         private static void SetupLogging(HostBuilderContext hostingContext, ILoggingBuilder loggingBuilder)

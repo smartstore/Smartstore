@@ -1,12 +1,17 @@
+using System.Linq;
 using System.Reflection;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Smartstore.Bootstrapping;
+using Smartstore.Core.Data;
 using Smartstore.Engine;
 using MsLogger = Microsoft.Extensions.Logging.ILogger;
 
@@ -56,6 +61,32 @@ namespace Smartstore.Web
 
         public void Configure(IApplicationBuilder app, IHostApplicationLifetime appLifetime)
         {
+            //using (var scope = app.ApplicationServices.CreateScope())
+            //{
+            //    var db = scope.ServiceProvider.GetRequiredService<SmartDbContext>();
+
+            //    if (!db.Database.GetService<IRelationalDatabaseCreator>().Exists())
+            //    {
+            //        db.Database.Migrate();
+            //    }
+            //    else
+            //    {
+            //        var hasLegacyMigrations = db.DataProvider.HasTable("__MigrationHistory");
+            //        if (hasLegacyMigrations)
+            //        {
+            //            var firstPendingMigration = db.Database.GetPendingMigrations().FirstOrDefault();
+            //            if (firstPendingMigration != "Initial")
+            //            {
+            //                db.Database.Migrate();
+            //            }
+            //        }
+            //        else
+            //        {
+            //            db.Database.Migrate();
+            //        }
+            //    }
+            //}
+
             // Must come very early.
             app.UseContextState();
 

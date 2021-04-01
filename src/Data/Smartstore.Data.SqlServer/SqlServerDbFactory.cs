@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Engine;
 
@@ -18,6 +19,7 @@ namespace Smartstore.Data.SqlServer
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString, IApplicationContext appContext)
         {
+            //// Add-Migration Initial -Context SqlServerSmartDbContext -Project Smartstore.Data.SqlServer
             var appConfig = appContext.AppConfiguration;
 
             return builder.UseSqlServer(connectionString, sql =>

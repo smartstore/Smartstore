@@ -17,12 +17,14 @@ namespace Smartstore.Core.Stores
             builder
                 .HasOne(x => x.PrimaryStoreCurrency)
                 .WithMany()
-                .HasForeignKey(x => x.PrimaryStoreCurrencyId);
+                .HasForeignKey(x => x.PrimaryStoreCurrencyId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasOne(x => x.PrimaryExchangeRateCurrency)
                 .WithMany()
-                .HasForeignKey(x => x.PrimaryExchangeRateCurrencyId);
+                .HasForeignKey(x => x.PrimaryExchangeRateCurrencyId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 
