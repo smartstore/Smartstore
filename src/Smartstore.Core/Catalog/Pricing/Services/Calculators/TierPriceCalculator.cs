@@ -8,6 +8,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
     /// Calculates the minimum tier price and applies it if it is lower than the FinalPrice.
+    /// Tier prices of bundle items are ignored if per-item-pricing is activated for the bundle.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 100)]
     public class TierPriceCalculator : IPriceCalculator
@@ -16,7 +17,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             var product = context.Product;
             var options = context.Options;
-            // Ignore tier prices of bundle items (BundlePerItemPricing).
             var processTierPrices = !options.IgnoreTierPrices && !options.IgnoreDiscounts && product.HasTierPrices && context.BundleItem?.Item == null;
 
             if (processTierPrices)

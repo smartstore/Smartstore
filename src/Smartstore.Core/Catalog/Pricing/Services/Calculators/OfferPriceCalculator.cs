@@ -5,7 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
-    /// TODO: (mg) (core) Describe
+    /// Calculates the offer price (aka special price), if any specified for the product.
+    /// The offer price of bundle items is also taken into account if per-item-pricing is activated for the bundle.
+    /// We do not restrict and apply the offer price even if it is greater than the regular price,
+    /// although this scenario is likely to be unusual in real life.
     /// </summary>
     [ServiceLifetime(ServiceLifetime.Singleton)]
     [CalculatorUsage(CalculatorTargets.Product | CalculatorTargets.Bundle, CalculatorOrdering.Default)]
@@ -16,15 +19,13 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             var product = context.Product;
             if (product.SpecialPrice.HasValue)
             {
-                // TODO: (mg) Does Bundle with ItemPricing has OfferPrice?
-                // Check date range
+                // Check date range.
                 var now = DateTime.UtcNow;
                 var from = product.SpecialPriceStartDateTimeUtc;
                 var to = product.SpecialPriceEndDateTimeUtc;
 
                 if ((from == null || now >= from) && (to == null || now <= to))
                 {
-                    // TODO: (mg) (core) Does it make sense here to set FinalPrice only when SpecialPrice is lower?
                     context.OfferPrice = product.SpecialPrice;
                     context.FinalPrice = product.SpecialPrice.Value;
                 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -13,6 +14,7 @@ namespace Smartstore.Core.Catalog.Pricing
     {
         private Product _product;
         private ICollection<TierPrice> _tierPrices;
+        private List<ProductVariantAttributeValue> _preSelectedAttributeValues;
 
         /// <summary>
         /// Creates a new context instance for given <paramref name="product"/> and <paramref name="options"/>.
@@ -105,6 +107,17 @@ namespace Smartstore.Core.Catalog.Pricing
         public ICollection<ProductBundleItemData> BundleItems { get; set; }
 
         /// <summary>
+        /// A single bundle part. Used by bundle price calculator in nested calculation pipeline.
+        /// </summary>
+        public ProductBundleItemData BundleItem { get; set; }
+
+        // TODO: (mg) (core) Describe pricing pipeline when ready.
+
+        public List<PriceCalculationAttributes> Attributes { get; set; } = new();
+
+        public decimal AdditionalCharge { get; set; }
+
+        /// <summary>
         /// Gets tier prices for <see cref="Product"/>. Tier prices with duplicate quantities are removed.
         /// </summary>
         public async Task<ICollection<TierPrice>> GetTierPricesAsync()
@@ -118,19 +131,28 @@ namespace Smartstore.Core.Catalog.Pricing
             return _tierPrices;
         }
 
-        /// <summary>
-        /// A single bundle part. Used by bundle price calculator in nested calculation pipeline.
-        /// </summary>
-        public ProductBundleItemData BundleItem { get; set; }
+        public async Task<List<ProductVariantAttributeValue>> GetPreSelectedAttributeValuesAsync()
+        {
+            if (_preSelectedAttributeValues == null)
+            {
+                var attributes = await Options.BatchContext.Attributes.GetOrLoadAsync(Product.Id);
+                var preSelectedValues = attributes.SelectMany(x => x.ProductVariantAttributeValues);
 
-        /// <summary>
-        /// TODO: (mg) (core) Describe when ready.
-        /// </summary>
-        public List<PriceCalculationAttributes> Attributes { get; set; } = new();
+                // Ignore attributes that are filtered out for a bundle item.
+                if (BundleItem?.Item?.FilterAttributes ?? false)
+                {
+                    preSelectedValues = preSelectedValues
+                        .Where(x => BundleItem.Item.AttributeFilters.Any(af => af.IsPreSelected && af.AttributeId == x.ProductVariantAttributeId && af.AttributeValueId == x.Id));
+                }
+                else
+                {
+                    preSelectedValues = preSelectedValues.Where(x => x.IsPreSelected);
+                }
 
-        /// <summary>
-        /// TODO: (mg) (core) Describe when fully implemented.
-        /// </summary>
-        public decimal AdditionalCharge { get; set; }
+                _preSelectedAttributeValues = preSelectedValues.ToList();
+            }
+
+            return _preSelectedAttributeValues;
+        }
     }
 }

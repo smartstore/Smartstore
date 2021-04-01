@@ -31,8 +31,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             var options = context.Options;
             var product = context.Product;
+            var hasSelectedAttributes = context.Attributes.Any() || options.ApplyPreSelectedAttributes;
 
-            if (options.IgnoreAttributes || !(context.Attributes?.Any() ?? false))
+            if (options.IgnoreAttributes || !hasSelectedAttributes)
             {
                 // Proceed with pipeline and omit this calculator, it is made for attributes price calculation only.
                 await next(context);
@@ -46,8 +47,13 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 context.Quantity > 1 &&
                 _catalogSettings.ApplyTierPricePercentageToAttributePriceAdjustments;
 
-            var attributes = await context.Options.BatchContext.Attributes.GetOrLoadAsync(product.Id);
-            var attributeValues = GetSelectedAttributeValues(context, attributes);
+            var attributes = await options.BatchContext.Attributes.GetOrLoadAsync(product.Id);
+            var attributeValues = await GetSelectedAttributeValuesAsync(context, attributes);
+
+            // Ignore attributes that have no relevance for pricing.
+            attributeValues = attributeValues
+                .Where(x => x.PriceAdjustment != decimal.Zero || x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
+                .ToList();
 
             var linkedProductIds = attributeValues
                 .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
@@ -119,7 +125,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             return result;
         }
 
-        protected virtual List<ProductVariantAttributeValue> GetSelectedAttributeValues(CalculatorContext context, IEnumerable<ProductVariantAttribute> attributes)
+        protected virtual async Task<List<ProductVariantAttributeValue>> GetSelectedAttributeValuesAsync(CalculatorContext context, IEnumerable<ProductVariantAttribute> attributes)
         {
             var result = new List<ProductVariantAttributeValue>();
             var bundleItem = context?.BundleItem?.Item;
@@ -132,20 +138,20 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             foreach (var selection in selections)
             {
-                var attributeValues = selection.MaterializeProductVariantAttributeValues(attributes);
-
-                // Ignore attributes that have no relevance for pricing.
-                var pricingValues = attributeValues
-                    .Where(x => x.PriceAdjustment != decimal.Zero || x.ValueType == ProductVariantAttributeValueType.ProductLinkage);
+                var selectedValues = selection.MaterializeProductVariantAttributeValues(attributes);
 
                 // Ignore attributes that are filtered out for a bundle item.
                 if (bundleItem?.FilterAttributes ?? false)
                 {
-                    pricingValues = pricingValues
+                    var filteredValues = selectedValues
                         .Where(x => bundleItem.AttributeFilters.Any(af => af.AttributeId == x.ProductVariantAttributeId && af.AttributeValueId == x.Id));
-                }
 
-                result.AddRange(pricingValues);
+                    result.AddRange(filteredValues);
+                }
+                else
+                {
+                    result.AddRange(selectedValues);
+                }
             }
 
             // Apply attributes pre-selected by merchant.
@@ -153,22 +159,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             {
                 // Ignore already applied values.
                 var appliedValueIds = result.Select(x => x.Id).ToArray();
-
-                var preSelectedValues = attributes
-                    .SelectMany(x => x.ProductVariantAttributeValues)
-                    .Where(x =>
-                        !appliedValueIds.Contains(x.Id) &&
-                        x.IsPreSelected &&
-                        (x.PriceAdjustment != decimal.Zero || x.ValueType == ProductVariantAttributeValueType.ProductLinkage));
-
-                // Ignore attributes that are filtered out for a bundle item.
-                if (bundleItem?.FilterAttributes ?? false)
-                {
-                    preSelectedValues = preSelectedValues
-                        .Where(x => bundleItem.AttributeFilters.Any(af => af.IsPreSelected && af.AttributeId == x.ProductVariantAttributeId && af.AttributeValueId == x.Id));
-                }
-
-                result.AddRange(preSelectedValues);
+                var preSelectedValues = await context.GetPreSelectedAttributeValuesAsync();
+                
+                result.AddRange(preSelectedValues.Where(x => !appliedValueIds.Contains(x.Id)));
             }
 
             return result;

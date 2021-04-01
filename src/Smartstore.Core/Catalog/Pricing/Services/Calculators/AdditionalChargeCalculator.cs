@@ -6,14 +6,14 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     /// <summary>
     /// A simple calculator that just adds <see cref="PriceCalculationContext.AdditionalCharge"/> to <see cref="CalculatorContext.FinalPrice"/>.
     /// </summary>
-    [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Late)]
-    public class AdditionalChargeCalculator : IPriceCalculator
-    {
-        public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
-        {
-            await next(context);
+    //[CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Late)]
+    //public class AdditionalChargeCalculator : IPriceCalculator
+    //{
+    //    public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
+    //    {
+    //        await next(context);
 
-            context.FinalPrice += context.AdditionalCharge;
-        }
-    }
+    //        context.FinalPrice += context.AdditionalCharge;
+    //    }
+    //}
 }
