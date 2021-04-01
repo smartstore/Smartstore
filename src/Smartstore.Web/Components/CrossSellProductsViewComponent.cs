@@ -1,8 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.Catalog;
 
@@ -15,17 +19,23 @@ namespace Smartstore.Web.Components
     {
         private readonly IShoppingCartService _cartService;
         private readonly IProductService _productService;
+        private readonly IAclService _aclService;
+        private readonly IStoreMappingService _storeMappingService;
         private readonly CatalogHelper _helper;
         private readonly ShoppingCartSettings _shoppingCartSettings;
-
+        
         public CrossSellProductsViewComponent(
             IShoppingCartService cartService, 
             IProductService productService,
+            IAclService aclService,
+            IStoreMappingService storeMappingService,
             CatalogHelper helper,
             ShoppingCartSettings shoppingCartSettings)
         {
             _cartService = cartService;
             _productService = productService;
+            _aclService = aclService;
+            _storeMappingService = storeMappingService;
             _helper = helper;
             _shoppingCartSettings = shoppingCartSettings;
         }
@@ -34,13 +44,13 @@ namespace Smartstore.Web.Components
         {
             // Get customer shopping cart items
             var cart = await _cartService.GetCartItemsAsync(Services.WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart, Services.StoreContext.CurrentStore.Id);
+            var products = await _productService.GetCrossSellProductsByShoppingCartAsync(cart, Convert.ToInt32(_shoppingCartSettings.CrossSellsNumber * 1.5));
 
-            // Get cross-sell products by cart
-            var products = await _productService.GetCrossSellProductsByShoppingCartAsync(cart, _shoppingCartSettings.CrossSellsNumber);
-
-            // TODO: (mh) (core) Authorization can also be done in service method as it is only used in this viewcomponent?
             // ACL and store mapping
-            //products = products.Where(p => _aclService.Authorize(p) && _storeMappingService.Authorize(p)).ToList();
+            products = await products
+                .WhereAsync(async c => (await _aclService.AuthorizeAsync(c)) && (await _storeMappingService.AuthorizeAsync(c)))
+                .Take(_shoppingCartSettings.CrossSellsNumber)
+                .AsyncToList();
 
             if (products.Any())
             {
