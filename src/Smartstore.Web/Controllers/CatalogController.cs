@@ -19,6 +19,7 @@ using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Http;
 using Smartstore.Net;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;

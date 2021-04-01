@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using DinkToPdf;
 using Microsoft.AspNetCore.Http;
-using Smartstore.Net;
+using Smartstore.Http;
 
 namespace Smartstore.Pdf
 {

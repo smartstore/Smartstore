@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Smartstore.Http;
 using Smartstore.IO;
 
 namespace Smartstore.Net

@@ -17,7 +17,7 @@ using Smartstore.IO;
 using Smartstore.Threading;
 using Smartstore.Utilities;
 
-namespace Smartstore.Net
+namespace Smartstore.Http
 {
     public static partial class WebHelper
     {

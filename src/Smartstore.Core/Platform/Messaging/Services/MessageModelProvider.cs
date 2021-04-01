@@ -32,8 +32,8 @@ using Smartstore.Core.Messages.Events;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
+using Smartstore.Http;
 using Smartstore.Imaging;
-using Smartstore.Net;
 using Smartstore.Templating;
 using Smartstore.Utilities.Html;
 

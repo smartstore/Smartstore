@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
-using Smartstore.Net;
+using Smartstore.Http;
 
 namespace Smartstore.Scheduling
 {

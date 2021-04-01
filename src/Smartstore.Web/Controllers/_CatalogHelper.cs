@@ -34,7 +34,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
-using Smartstore.Net;
+using Smartstore.Http;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Common;

@@ -4,8 +4,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Smartstore.Caching;
 using Smartstore.Engine;
+using Smartstore.Http;
 using Smartstore.IO;
-using Smartstore.Net;
 
 namespace Smartstore.Core.Localization
 {

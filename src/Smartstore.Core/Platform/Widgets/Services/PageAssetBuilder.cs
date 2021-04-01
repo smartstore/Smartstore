@@ -11,7 +11,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
-using Smartstore.Net;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Widgets
 {

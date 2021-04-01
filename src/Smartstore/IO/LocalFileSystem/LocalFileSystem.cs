@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.Primitives;
-using Smartstore.Net;
+using Smartstore.Http;
 using Smartstore.Utilities;
 
 namespace Smartstore.IO

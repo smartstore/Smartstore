@@ -10,8 +10,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
+using Smartstore.Http;
 using Smartstore.IO;
-using Smartstore.Net;
 using Smartstore.Utilities;
 
 namespace Smartstore.Engine
