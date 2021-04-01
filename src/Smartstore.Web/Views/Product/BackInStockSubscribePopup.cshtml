@@ -3,7 +3,7 @@
 @model BackInStockSubscribeModel
 
 @{
-    Layout = "~/Views/Shared/Layouts/_Layout.Popup.cshtml";
+    Layout = "_Layout.Popup";
 }
 
 <form asp-action="BackInStockSubscribePopup" asp-route-id="@Model.ProductId" id="back-in-stock-subscription-form" method="post">

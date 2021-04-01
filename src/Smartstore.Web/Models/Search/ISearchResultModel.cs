@@ -14,6 +14,7 @@ namespace Smartstore.Web.Models.Search
         CatalogSearchResult SearchResult { get; }
     }
 
+    // TODO: (mc) (core) This may be obsolete. Remove it when not needed.
     [ModelBinder(typeof(ISearchResultModel))]
     public class SearchResultModelBinder : IModelBinder
     {

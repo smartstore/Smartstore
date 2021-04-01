@@ -18,7 +18,7 @@
     </div>
 
     <div class="page-body">
-        <form asp-action="EmailAFriend" class="form-horizontal" method="post" autocomplete="off">
+        <form asp-action="EmailAFriend" class="form-horizontal" method="post">
             <fieldset>
                 <legend>
                     <a asp-route="Product" asp-route-SeName="@Model.ProductSeName" sm-language-attributes-for="Model.ProductName" class="product">@Model.ProductName</a>
@@ -28,19 +28,19 @@
 
                 <div class="form-group">
                     <label asp-for="FriendEmail" class="col-form-label required"></label>
-                    <input asp-for="FriendEmail" type="email" placeholder="@T("Products.EmailAFriend.FriendEmail.Hint")" class="fullname" autofocus />
+                    <input asp-for="FriendEmail" type="email" placeholder="@T("Products.EmailAFriend.FriendEmail.Hint")" class="fullname" />
                     <span asp-validation-for="FriendEmail"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="YourEmailAddress" class="col-form-label required"></label>
-                    <input asp-for="YourEmailAddress" type="email" attr-readonly='(Model.AllowChangedCustomerEmail, "readonly")' placeholder="@T("Products.EmailAFriend.YourEmailAddress.Hint")" class="fullname" autofocus />
+                    <input asp-for="YourEmailAddress" type="email" attr-readonly='(Model.AllowChangedCustomerEmail, "readonly")' placeholder="@T("Products.EmailAFriend.YourEmailAddress.Hint")" class="fullname" />
                     <span asp-validation-for="YourEmailAddress"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="PersonalMessage" class="col-form-label"></label>
-                    <textarea asp-for="PersonalMessage" placeholder="@T("Products.EmailAFriend.PersonalMessage.Hint")" class="personal-message" autofocus="autofocus"></textarea>
+                    <textarea asp-for="PersonalMessage" placeholder="@T("Products.EmailAFriend.PersonalMessage.Hint")" class="personal-message"></textarea>
                     <span asp-validation-for="PersonalMessage"></span>
                 </div>
 

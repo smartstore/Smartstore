@@ -36,7 +36,7 @@
 
             <div class="write-review mb-4" id="review-form">
                 <h4 class="d-none">@T("Reviews.Overview.AddNew")</h4>
-                <form asp-action="Reviews" class="form-horizontal" method="post" autocomplete="off">
+                <form asp-action="Reviews" class="form-horizontal" method="post">
                     <div class="form-group row">
                         <label asp-for="Rating" class="form-control-label col-form-label col-md-3"></label>
                         <div class="col-md-9 star-rating-parent">
@@ -62,14 +62,14 @@
                     <div class="form-group row">
                         <label asp-for="Title" class="form-control-label col-form-label col-md-3 required"></label>
                         <div class="col-md-9">
-                            <input asp-for="Title" type="text" attr-disabled='(!Model.CanCurrentCustomerLeaveReview, "disabled")' autofocus />
+                            <input asp-for="Title" type="text" attr-disabled='(!Model.CanCurrentCustomerLeaveReview, "disabled")'/>
                             <span asp-validation-for="Title"></span>
                         </div>
                     </div>
                     <div class="form-group row">
                         <label asp-for="ReviewText" class="form-control-label col-form-label col-md-3 required"></label>
                         <div class="col-md-9">
-                            <textarea asp-for="ReviewText" cols="1" rows="4" attr-disabled='(!Model.CanCurrentCustomerLeaveReview, "disabled")' autofocus></textarea>
+                            <textarea asp-for="ReviewText" cols="1" rows="4" attr-disabled='(!Model.CanCurrentCustomerLeaveReview, "disabled")'></textarea>
                             <span asp-validation-for="ReviewText"></span>
                         </div>
                     </div>
