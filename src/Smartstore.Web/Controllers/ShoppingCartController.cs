@@ -25,6 +25,7 @@ namespace Smartstore.Web.Controllers
 {
     public class ShoppingCartController : PublicControllerBase
     {
+        // TODO: (ms) (core) SmartDbContext should always be first => then services & helpers => then settings & last the lazy stuff that's not needed often.
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly IPriceCalculationService _priceCalculationService;
@@ -72,50 +73,28 @@ namespace Smartstore.Web.Controllers
             _db = db;
         }
 
-        [NonAction]
-        protected async Task<MiniShoppingCartModel> PrepareMiniShoppingCartModel()
-        {
-            var customer = Services.WorkContext.CurrentCustomer;
-            var storeId = Services.StoreContext.CurrentStore.Id;
-
-            var model = new MiniShoppingCartModel
-            {
-                ShowProductImages = _shoppingCartSettings.ShowProductImagesInMiniShoppingCart,
-                ThumbSize = _mediaSettings.MiniCartThumbPictureSize,
-                CurrentCustomerIsGuest = customer.IsGuest(),
-                AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed,
-                DisplayMoveToWishlistButton = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist),
-                ShowBasePrice = _shoppingCartSettings.ShowBasePrice
-            };
-
-            // TODO: (ms) (core) Finish the job.
-
-            return model;
-        }
-
-
         public IActionResult CartSummary()
         {
             // Stop annoying MiniProfiler report.
             return new EmptyResult();
         }
 
+        // TODO: (ms) (core) Remove it. This is a view component already.
+        //public ActionResult OffCanvasCart()
+        //{
+        //    var model = new OffCanvasCartModel();
 
-        public ActionResult OffCanvasCart()
-        {
-            var model = new OffCanvasCartModel();
+        //    if (Services.Permissions.Authorize(Permissions.System.AccessShop))
+        //    {
+        //        model.ShoppingCartEnabled = _shoppingCartSettings.MiniShoppingCartEnabled && Services.Permissions.Authorize(Permissions.Cart.AccessShoppingCart);
+        //        model.WishlistEnabled = Services.Permissions.Authorize(Permissions.Cart.AccessWishlist);
+        //        model.CompareProductsEnabled = _catalogSettings.CompareProductsEnabled;
+        //    }
 
-            if (Services.Permissions.Authorize(Permissions.System.AccessShop))
-            {
-                model.ShoppingCartEnabled = _shoppingCartSettings.MiniShoppingCartEnabled && Services.Permissions.Authorize(Permissions.Cart.AccessShoppingCart);
-                model.WishlistEnabled = Services.Permissions.Authorize(Permissions.Cart.AccessWishlist);
-                model.CompareProductsEnabled = _catalogSettings.CompareProductsEnabled;
-            }
+        //    return PartialView(model);
+        //}
 
-            return PartialView(model);
-        }
-
-        public async Task<ActionResult> OffCanvasShoppingCart()
+        public async Task<IActionResult> OffCanvasShoppingCart()
         {
             if (!_shoppingCartSettings.MiniShoppingCartEnabled)
                 return Content("");
@@ -125,13 +104,13 @@ namespace Smartstore.Web.Controllers
 
             var model = PrepareMiniShoppingCartModel();
 
-            // TODO: (ms) Session SafeSet method extension is missing.
+            // TODO: (ms) (core) Session SafeSet method extension is missing.
             //HttpContext.Session.SafeSet(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
 
-            return PartialView(model);
+            return View(model);
         }
 
-        public async Task<ActionResult> OffCanvasWishlist()
+        public async Task<IActionResult> OffCanvasWishlist()
         {
             var customer = Services.WorkContext.CurrentCustomer;
             var storeId = Services.StoreContext.CurrentStore.Id;
@@ -164,9 +143,29 @@ namespace Smartstore.Web.Controllers
 
             model.ThumbSize = _mediaSettings.MiniCartThumbPictureSize;
 
-            return PartialView(model);
+            return View(model);
         }
 
+        [NonAction]
+        protected async Task<MiniShoppingCartModel> PrepareMiniShoppingCartModel()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            var storeId = Services.StoreContext.CurrentStore.Id;
+
+            var model = new MiniShoppingCartModel
+            {
+                ShowProductImages = _shoppingCartSettings.ShowProductImagesInMiniShoppingCart,
+                ThumbSize = _mediaSettings.MiniCartThumbPictureSize,
+                CurrentCustomerIsGuest = customer.IsGuest(),
+                AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed,
+                DisplayMoveToWishlistButton = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist),
+                ShowBasePrice = _shoppingCartSettings.ShowBasePrice
+            };
+
+            // TODO: (ms) (core) Finish the job.
+
+            return model;
+        }
 
         [NonAction]
         protected async Task<WishlistModel> PrepareWishlistModelAsync(IList<OrganizedShoppingCartItem> cart, bool isEditable = true)
@@ -203,14 +202,13 @@ namespace Smartstore.Web.Controllers
 
             foreach (var item in cart)
             {
-                var wishlistCartItemModel = await PrepareWishlistCartItemModelAsync(item);
-
-                model.Items.Add(wishlistCartItemModel);
+                model.Items.Add(await PrepareWishlistCartItemModelAsync(item));
             }
 
             return model;
         }
 
+        [NonAction]
         private async Task<WishlistModel.ShoppingCartItemModel> PrepareWishlistCartItemModelAsync(OrganizedShoppingCartItem cartItem)
         {
             Guard.NotNull(cartItem, nameof(cartItem));
@@ -296,8 +294,7 @@ namespace Smartstore.Web.Controllers
 
             if (product.IsRecurring)
             {
-                model.RecurringInfo = string.Format(T("ShoppingCart.RecurringPeriod"),
-                    product.RecurringCycleLength, product.RecurringCyclePeriod.GetLocalizedEnum());
+                model.RecurringInfo = T("ShoppingCart.RecurringPeriod", product.RecurringCycleLength, product.RecurringCyclePeriod.GetLocalizedEnum());
             }
 
             if (product.CallForPrice)
@@ -393,6 +390,7 @@ namespace Smartstore.Web.Controllers
             if (file == null)
             {
                 var productMediaFile = await _db.ProductMediaFiles
+                    .AsNoTracking()
                     .Include(x => x.MediaFile)
                     .Where(x => x.Id == product.Id)
                     .OrderBy(x => x.DisplayOrder)
@@ -408,6 +406,7 @@ namespace Smartstore.Web.Controllers
             if (file == null && product.Visibility == ProductVisibility.Hidden && product.ParentGroupedProductId > 0)
             {
                 var productMediaFile = await _db.ProductMediaFiles
+                    .AsNoTracking()
                     .Include(x => x.MediaFile)
                     .Where(x => x.Id == product.ParentGroupedProductId)
                     .OrderBy(x => x.DisplayOrder)
