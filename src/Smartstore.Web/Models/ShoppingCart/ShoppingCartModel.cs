@@ -10,7 +10,7 @@ using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Rendering.Choices;
-using SmartStore.Web.Models.Common;
+using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {

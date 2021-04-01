@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Web.Modelling;
 
-namespace SmartStore.Web.Models.ShoppingCart
+namespace Smartstore.Web.Models.ShoppingCart
 {
     [LocalizedDisplay("Wishlist.EmailAFriend.")]
     public partial class WishlistEmailAFriendModel : ModelBase

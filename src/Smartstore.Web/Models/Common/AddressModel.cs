@@ -3,13 +3,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 
-namespace SmartStore.Web.Models.Common
+namespace Smartstore.Web.Models.Common
 {
     [LocalizedDisplay("Address.Fields.")]
     public partial class AddressModel : EntityModelBase
