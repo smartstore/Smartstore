@@ -104,8 +104,7 @@ namespace Smartstore.Web.Controllers
 
             var model = await PrepareMiniShoppingCartModelAsync();
 
-            // TODO: (ms) (core) Session SafeSet method extension is missing.
-            //HttpContext.Session.SafeSet(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
+            HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
 
             return View(model);
         }

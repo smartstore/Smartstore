@@ -4,7 +4,7 @@ namespace Smartstore.Core.Checkout.Orders
 {
     public partial class CheckoutState
     {
-        public static string CheckoutStateSessionKey => "SmCheckoutState";
+        public static string CheckoutStateSessionKey => ".Smart.CheckoutState";
 
         /// <summary>
         /// The payment summary as displayed on the checkout confirmation page
