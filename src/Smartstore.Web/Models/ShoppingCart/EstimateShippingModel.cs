@@ -21,6 +21,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         [LocalizedDisplay("*ZipPostalCode")]
         public string ZipPostalCode { get; set; }
 
+        // TODO: (ms) Remove "Available" Lists of SelectListItems -> Use ViewBag instead
         public List<SelectListItem> AvailableCountries { get; set; } = new();
         public List<SelectListItem> AvailableStates { get; set; } = new();
 

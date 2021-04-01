@@ -2,6 +2,7 @@
 using System.Linq;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Identity
@@ -221,17 +222,15 @@ namespace Smartstore.Core.Identity
             set => Set(SystemCustomerAttributeNames.SelectedPaymentMethod, value, CurrentStoreId);
         }
 
-        // TODO: (core) Use Domain type 'ShippingOption', not string.
-        public string SelectedShippingOption
+        public ShippingOption SelectedShippingOption
         {
-            get => Get<string>(SystemCustomerAttributeNames.SelectedShippingOption, CurrentStoreId);
+            get => Get<ShippingOption>(SystemCustomerAttributeNames.SelectedShippingOption, CurrentStoreId);
             set => Set(SystemCustomerAttributeNames.SelectedShippingOption, value, CurrentStoreId);
         }
 
-        // TODO: (core) Use type 'List<ShippingOption>', not string.
-        public string OfferedShippingOptions
+        public List<ShippingOption> OfferedShippingOptions
         {
-            get => Get<string>(SystemCustomerAttributeNames.OfferedShippingOptions, CurrentStoreId);
+            get => Get<List<ShippingOption>>(SystemCustomerAttributeNames.OfferedShippingOptions, CurrentStoreId);
             set => Set(SystemCustomerAttributeNames.OfferedShippingOptions, value, CurrentStoreId);
         }
 
