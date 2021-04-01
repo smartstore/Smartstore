@@ -9,6 +9,8 @@ namespace Smartstore.Data.SqlServer
     {
         public override DbSystemType DbSystem { get; } = DbSystemType.MySql;
 
+        public override Type SmartDbContextType => typeof(MySqlSmartDbContext);
+
         public override DataProvider CreateDataProvider(DatabaseFacade database)
         {
             return new MySqlDataProvider(database);

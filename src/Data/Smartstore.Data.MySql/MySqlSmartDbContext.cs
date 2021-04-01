@@ -6,7 +6,7 @@ namespace Smartstore.Data.SqlServer
 {
     public class MySqlSmartDbContext : SmartDbContext
     {
-        public MySqlSmartDbContext(DbContextOptions<SmartDbContext> options)
+        public MySqlSmartDbContext(DbContextOptions<MySqlSmartDbContext> options)
             : base(options)
         {
         }

@@ -7,6 +7,7 @@ using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
 using Smartstore.Core.DependencyInjection;
+using Smartstore.Data;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
@@ -25,7 +26,9 @@ namespace Smartstore.Core.Bootstrapping
             services.AddDbQuerySettings();
 
             // Application DbContext as pooled factory
-            services.AddPooledApplicationDbContextFactory<SmartDbContext>(appContext);
+            services.AddPooledApplicationDbContextFactory<SmartDbContext>(
+                DataSettings.Instance.DbFactory.SmartDbContextType, 
+                appContext.AppConfiguration.DbContextPoolSize);
 
             if (appContext.IsInstalled)
             {

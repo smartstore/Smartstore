@@ -6,7 +6,7 @@ namespace Smartstore.Data.SqlServer
 {
     public class SqlServerSmartDbContext : SmartDbContext
     {
-        public SqlServerSmartDbContext(DbContextOptions<SmartDbContext> options)
+        public SqlServerSmartDbContext(DbContextOptions<SqlServerSmartDbContext> options)
             : base(options)
         {
         }

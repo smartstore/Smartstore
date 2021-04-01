@@ -19,6 +19,8 @@ namespace Smartstore.Data
         
         public abstract DbSystemType DbSystem { get; }
 
+        public abstract Type SmartDbContextType { get; }
+
         public abstract DataProvider CreateDataProvider(DatabaseFacade database);
 
         public abstract DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString, IApplicationContext appContext);

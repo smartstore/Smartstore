@@ -272,31 +272,36 @@ namespace Smartstore.Data
                 return;
             }
 
-            if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+            if (!typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
             {
-                var hasNavigation = entityType.GetDeclaredNavigations().Any();
+                return;
+            }
 
-                if (hasNavigation)
-                {
-                    var lazyLoaderProperty = entityType.ClrType.GetRuntimeProperties().FirstOrDefault(x => x.PropertyType == typeof(ILazyLoader));
+            var hasNavigation = entityType.GetDeclaredNavigations().Any();
+            if (!hasNavigation)
+            {
+                // An entity without nav properties has no need for lazy/eager loading.
+                return;
+            }
 
-                    if (lazyLoaderProperty != null)
-                    {
-                        try
-                        {
-                            var serviceProperty = entityType.AddServiceProperty(lazyLoaderProperty);
+            var lazyLoaderProperty = entityType.ClrType.GetRuntimeProperties().FirstOrDefault(x => x.PropertyType == typeof(ILazyLoader));
+            if (lazyLoaderProperty == null)
+            {
+                return;
+            }
 
-                            serviceProperty.ParameterBinding = new DependencyInjectionParameterBinding(
-                                lazyLoaderProperty.PropertyType,
-                                lazyLoaderProperty.PropertyType, 
-                                serviceProperty);
-                        }
-                        catch
-                        {
-                            // Ignore duplicate property exception in the TPH types ProductReview and MediaFolder.
-                        }
-                    }
-                }
+            try
+            {
+                var serviceProperty = entityType.AddServiceProperty(lazyLoaderProperty);
+
+                serviceProperty.ParameterBinding = new DependencyInjectionParameterBinding(
+                    lazyLoaderProperty.PropertyType,
+                    lazyLoaderProperty.PropertyType,
+                    serviceProperty);
+            }
+            catch
+            {
+                // Ignore duplicate property exception in the TPH types ProductReview and MediaFolder.
             }
         }
 

@@ -8,7 +8,9 @@ namespace Smartstore.Data.SqlServer
     internal class SqlServerDbFactory : DbFactory
     {
         public override DbSystemType DbSystem { get; } = DbSystemType.SqlServer;
-        
+
+        public override Type SmartDbContextType => typeof(SqlServerSmartDbContext);
+
         public override DataProvider CreateDataProvider(DatabaseFacade database)
         {
             return new SqlServerDataProvider(database);
