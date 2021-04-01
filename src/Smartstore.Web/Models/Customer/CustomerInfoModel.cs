@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Identity;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 
-// TODO: (mh) (core) Namespace customer is conflicting with Customer Entity. Why?
+// TODO: (mh) (core) Namespace customer is conflicting with Customer Entity. Why? RE: Namespace and class names should never equal.
 namespace Smartstore.Web.Models.Customers
 {
     [LocalizedDisplay("Account.Fields.")]

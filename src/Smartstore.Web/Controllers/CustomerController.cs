@@ -91,6 +91,8 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
+            // TODO: (mh) (core) Email and Username checks are missing (?)
+
             try
             {
                 if (ModelState.IsValid)
@@ -264,12 +266,12 @@ namespace Smartstore.Web.Controllers
                     }
                     else
                     {
-                        customer = await _db.Customers
+                        var userExists = await _db.Customers
                             .AsNoTracking()
                             .ApplyIdentFilter(userName: username)
-                            .FirstOrDefaultAsync();
+                            .AnyAsync();
 
-                        if (customer == null)
+                        if (!userExists)
                         {
                             statusText = T("Account.CheckUsernameAvailability.Available");
                             usernameAvailable = true;
@@ -461,12 +463,12 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        // INFO: (mh) (core) Current CountryController just has this one method. Details TBD.
+        // INFO: (mh) (core) Current CountryController just has this one method. Details TBD. RE: But it does NOT belong here. Find another - perhaps more generic - controller please.
         /// <summary>
         /// This action method gets called via an ajax request.
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetStatesByCountryId(string countryId, bool addEmptyStateIfRequired)
+        public async Task<IActionResult> StatesByCountryId(string countryId, bool addEmptyStateIfRequired)
         {
             // TODO: (mh) (core) Don't throw in frontend.
             if (!countryId.HasValue())

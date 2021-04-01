@@ -4,10 +4,14 @@
 
 @{
     Assets.AppendTitleParts(T("PageTitle.Account"));
-    
+
     Layout = "_MyAccount";
     ViewBag.PageClassToken = "info";
     ViewBag.PageTitle = T("Account.CustomerInfo").Value;
+
+    // TODO: (mh) (core) Because no property is annotated with [RequiredAttribute] in this model, our FormControlTagHelper
+    // marks every text input as optional and renders the "Optional" placeholder attribute. You have to specify on
+    // control level whether input is required or not: sm-required="true|false", e.g. sm-required="@Model.CompanyRequired".
 }
 
 <form asp-action="Info" class="form-horizontal" method="post">
@@ -21,11 +25,11 @@
             <label class="col-lg-3 col-form-label">@T("Account.Fields.Gender")</label>
             <div class="col-lg-9 form-inline">
                 <div class="form-check form-check-inline">
-                    <input sm-ignore-label="true" asp-for="Gender" type="radio" class="form-check-input" id="gender-male" value="M" attr-checked='(Model.Gender == "M", "checked")' />
+                    <input type="radio" asp-for="Gender" sm-ignore-label="true" class="form-check-input" id="gender-male" value="M" attr-checked='(Model.Gender == "M", "checked")' />
                     <label class="form-check-label" for="gender-male">@T("Account.Fields.Gender.Male")</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input sm-ignore-label="true" asp-for="Gender" type="radio" class="form-check-input" id="gender-female" value="F" attr-checked='(Model.Gender == "F", "checked")' />
+                    <input type="radio" asp-for="Gender" sm-ignore-label="true" class="form-check-input" id="gender-female" value="F" attr-checked='(Model.Gender == "F", "checked")' />
                     <label class="form-check-label" for="gender-female">@T("Account.Fields.Gender.Female")</label>
                 </div>
             </div>
@@ -134,15 +138,9 @@
                     @foreach (var item in Model.AssociatedExternalAuthRecords)
                     {
                         <tr>
-                            <td>
-                                @item.AuthMethodName
-                            </td>
-                            <td>
-                                @item.Email
-                            </td>
-                            <td>
-                                @item.ExternalIdentifier
-                            </td>
+                            <td>@item.AuthMethodName</td>
+                            <td>@item.Email</td>
+                            <td>@item.ExternalIdentifier</td>
                         </tr>
                     }
                 </tbody>
@@ -178,7 +176,7 @@
         <div sm-if="Model.StreetAddressEnabled" class="form-group row">
             <label asp-for="StreetAddress" class="col-lg-3 col-form-label@(Model.StreetAddressRequired ? " required" : "")"></label>
             <div class="col-lg-9">
-                <input asp-for="StreetAddress" />
+                <input asp-for="StreetAddress" sm-required="Model.StreetAddressRequired" />
                 <span asp-validation-for="StreetAddress"></span>
             </div>
         </div>
@@ -210,7 +208,7 @@
                 <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
                         class="country-input country-selector"
                         data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
-                        data-states-ajax-url="@Url.Action("GetStatesByCountryId", "Customer")"
+                        data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
                         data-addEmptyStateIfRequired="true"></select>
             </div>
         </div>
@@ -218,7 +216,7 @@
         <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
             <label asp-for="StateProvinceId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select>
+                <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select> @* TODO: (mh) (core) Does passing a dynamic object really work? *@
             </div>
         </div>
     </fieldset>

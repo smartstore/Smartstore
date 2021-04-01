@@ -108,7 +108,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             output.AppendCssClass("form-control");
 
-            var selectClass = "date-part noskin remember form-control";
             if (ControlSize != ControlSize.Medium)
             {
                 output.AppendCssClass("form-control-" + (ControlSize == ControlSize.Small ? "sm" : "lg"));

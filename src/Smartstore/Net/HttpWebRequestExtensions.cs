@@ -7,7 +7,7 @@ using Smartstore.Net;
 namespace Smartstore
 {
     public static class HttpWebRequestExtensions
-    {        
+    {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetAuthenticationCookie(this HttpWebRequest webRequest, HttpRequest httpRequest)
         {
