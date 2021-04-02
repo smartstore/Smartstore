@@ -39,7 +39,7 @@ namespace Smartstore.Web.Infrastructure
             _customerSettings = customerSettings;
             _orderSettings = orderSettings;
             _rewardPointsSettings = rewardPointsSettings;
-            
+
             T = NullLocalizer.Instance;
         }
 

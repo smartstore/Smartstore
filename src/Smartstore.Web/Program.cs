@@ -52,8 +52,8 @@ namespace Smartstore.Web
         {
             var host = BuildWebHost(args);
 
-            // Migrate database
-            await MigrateDatabase(host);
+            //// Migrate database
+            //await MigrateDatabase(host);
 
             // Run host
             await host.RunAsync();
@@ -61,11 +61,16 @@ namespace Smartstore.Web
 
         private static async Task MigrateDatabase(IHost host)
         {
-            using (var scope = host.Services.CreateScope())
+            var appContext = host.Services.GetRequiredService<IApplicationContext>();
+            if (!appContext.IsInstalled)
             {
-                var db = scope.ServiceProvider.GetRequiredService<SmartDbContext>();
-                await db.Database.EnsureCreatedAsync();
+                return;
             }
+
+            using var scope = host.Services.CreateScope();
+            using var db = scope.ServiceProvider.GetRequiredService<SmartDbContext>();
+
+            await db.Database.EnsureCreatedAsync();
         }
 
         public static IHost BuildWebHost(string[] args)

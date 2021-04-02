@@ -1887,7 +1887,7 @@ namespace Smartstore.Web.Infrastructure.Installation
                 });
         }
 
-        protected override void Alter(Core.Seo.UrlRecord entity)
+        protected override void Alter(UrlRecord entity)
         {
             base.Alter(entity);
 
