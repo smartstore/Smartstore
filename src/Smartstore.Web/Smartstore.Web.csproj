@@ -10,12 +10,16 @@
   <ItemGroup>
     <Compile Remove="App_Data\Logs\**" />
     <Compile Remove="App_Data\Tenants\**" />
+    <Compile Remove="App_Data\_temp\**" />
     <Content Remove="App_Data\Logs\**" />
     <Content Remove="App_Data\Tenants\**" />
+    <Content Remove="App_Data\_temp\**" />
     <EmbeddedResource Remove="App_Data\Logs\**" />
     <EmbeddedResource Remove="App_Data\Tenants\**" />
+    <EmbeddedResource Remove="App_Data\_temp\**" />
     <None Remove="App_Data\Logs\**" />
     <None Remove="App_Data\Tenants\**" />
+    <None Remove="App_Data\_temp\**" />
   </ItemGroup>
 
   <ItemGroup>
