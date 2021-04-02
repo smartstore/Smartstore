@@ -16,13 +16,11 @@ namespace Smartstore.Core.Common
         {
             builder.HasOne(a => a.Country)
                 .WithMany()
-                .HasForeignKey(a => a.CountryId)
-                .OnDelete(DeleteBehavior.NoAction); // TODO: (core) Is DeleteBehavior.NoAction the correct equivalent to WillCascadeOnDelete(false)
+                .HasForeignKey(a => a.CountryId);
 
             builder.HasOne(a => a.StateProvince)
                 .WithMany()
-                .HasForeignKey(a => a.StateProvinceId)
-                .OnDelete(DeleteBehavior.NoAction); // TODO: (core) Is DeleteBehavior.NoAction the correct equivalent to WillCascadeOnDelete(false)
+                .HasForeignKey(a => a.StateProvinceId);
         }
     }
 

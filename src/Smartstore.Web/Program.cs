@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,6 +16,7 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
 using Serilog.Filters;
+using Smartstore.Core.Data;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Engine;
 using MsHost = Microsoft.Extensions.Hosting.Host;
@@ -48,7 +50,22 @@ namespace Smartstore.Web
 
         public static async Task Main(string[] args)
         {
-            await BuildWebHost(args).RunAsync();
+            var host = BuildWebHost(args);
+
+            // Migrate database
+            await MigrateDatabase(host);
+
+            // Run host
+            await host.RunAsync();
+        }
+
+        private static async Task MigrateDatabase(IHost host)
+        {
+            using (var scope = host.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<SmartDbContext>();
+                await db.Database.EnsureCreatedAsync();
+            }
         }
 
         public static IHost BuildWebHost(string[] args)

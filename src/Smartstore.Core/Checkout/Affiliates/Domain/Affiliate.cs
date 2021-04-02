@@ -17,9 +17,8 @@ namespace Smartstore.Core.Checkout.Affiliates
 
             builder.HasOne(x => x.Address)
                 .WithMany()
-                .HasForeignKey(x => x.AddressId)
                 .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 

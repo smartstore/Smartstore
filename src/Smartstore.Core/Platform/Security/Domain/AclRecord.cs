@@ -13,11 +13,11 @@ namespace Smartstore.Core.Security
     {
         public void Configure(EntityTypeBuilder<AclRecord> builder)
         {
-            builder
-                .HasOne(x => x.CustomerRole)
-                .WithMany()
-                .HasForeignKey(x => x.CustomerRoleId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder
+            //    .HasOne(x => x.CustomerRole)
+            //    .WithMany()
+            //    .HasForeignKey(x => x.CustomerRoleId)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

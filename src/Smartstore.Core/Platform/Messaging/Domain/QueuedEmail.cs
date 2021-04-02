@@ -13,10 +13,10 @@ namespace Smartstore.Core.Messages
     {
         public void Configure(EntityTypeBuilder<QueuedEmail> builder)
         {
-            builder.HasOne(x => x.EmailAccount)
-                .WithMany()
-                .HasForeignKey(x => x.EmailAccountId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder.HasOne(x => x.EmailAccount)
+            //    .WithMany()
+            //    .HasForeignKey(x => x.EmailAccountId)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

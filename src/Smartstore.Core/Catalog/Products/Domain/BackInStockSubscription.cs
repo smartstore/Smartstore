@@ -12,17 +12,17 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<BackInStockSubscription> builder)
         {
-            builder.HasOne(c => c.Product)
-                .WithMany()
-                .HasForeignKey(c => c.ProductId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+            //builder.HasOne(c => c.Product)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.ProductId)
+            //    .IsRequired(false)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(c => c.Customer)
-                .WithMany()
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+            //builder.HasOne(c => c.Customer)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.CustomerId)
+            //    .IsRequired(false)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

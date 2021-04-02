@@ -11,10 +11,10 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<ProductBundleItemAttributeFilter> builder)
         {
-            builder.HasOne(c => c.BundleItem)
-                .WithMany(c => c.AttributeFilters)
-                .HasForeignKey(c => c.BundleItemId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder.HasOne(c => c.BundleItem)
+            //    .WithMany(c => c.AttributeFilters)
+            //    .HasForeignKey(c => c.BundleItemId)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

@@ -17,11 +17,11 @@ namespace Smartstore.Core.Checkout.Payment
             // Globally exclude soft-deleted entities from all queries.
             builder.HasQueryFilter(c => !c.Deleted);
 
-            builder.HasOne(x => x.InitialOrder)
-                .WithMany()
-                .HasForeignKey(x => x.InitialOrderId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+            //builder.HasOne(x => x.InitialOrder)
+            //    .WithMany()
+            //    .HasForeignKey(x => x.InitialOrderId)
+            //    .IsRequired(false)
+            //    .OnDelete(DeleteBehavior.SetNull);
         }
     }
 

@@ -11,16 +11,16 @@ namespace Smartstore.Core.Identity
     {
         public void Configure(EntityTypeBuilder<CustomerRoleMapping> builder)
         {
-            builder.HasOne(c => c.Customer)
-                .WithMany(c => c.CustomerRoleMappings)
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+            //builder.HasOne(c => c.Customer)
+            //    .WithMany(c => c.CustomerRoleMappings)
+            //    .HasForeignKey(c => c.CustomerId)
+            //    .IsRequired(false)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(c => c.CustomerRole)
-                .WithMany()
-                .HasForeignKey(c => c.CustomerRoleId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder.HasOne(c => c.CustomerRole)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.CustomerRoleId)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

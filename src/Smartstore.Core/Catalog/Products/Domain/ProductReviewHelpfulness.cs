@@ -11,10 +11,10 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<ProductReviewHelpfulness> builder)
         {
-            builder.HasOne(c => c.ProductReview)
-                .WithMany(c => c.ProductReviewHelpfulnessEntries)
-                .HasForeignKey(c => c.ProductReviewId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder.HasOne(c => c.ProductReview)
+            //    .WithMany(c => c.ProductReviewHelpfulnessEntries)
+            //    .HasForeignKey(c => c.ProductReviewId)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

@@ -13,16 +13,16 @@ namespace Smartstore.Core.Identity
     {
         public void Configure(EntityTypeBuilder<WalletHistory> builder)
         {
-            builder.HasOne(c => c.Customer)
-                .WithMany(c => c.WalletHistory)
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+            //builder.HasOne(c => c.Customer)
+            //    .WithMany(c => c.WalletHistory)
+            //    .HasForeignKey(c => c.CustomerId)
+            //    .OnDelete(DeleteBehavior.Cascade)
+            //    .IsRequired(false);
 
-            builder.HasOne(c => c.Order)
-                .WithMany(c => c.WalletHistory)
-                .HasForeignKey(c => c.OrderId)
-                .OnDelete(DeleteBehavior.SetNull);
+            //builder.HasOne(c => c.Order)
+            //    .WithMany(c => c.WalletHistory)
+            //    .HasForeignKey(c => c.OrderId)
+            //    .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 

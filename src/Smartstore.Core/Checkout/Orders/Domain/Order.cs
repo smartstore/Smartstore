@@ -29,19 +29,20 @@ namespace Smartstore.Core.Checkout.Orders
 
             builder.Property(x => x.CurrencyRate).HasPrecision(18, 8);
 
-            builder.HasOne(x => x.Customer)
+            builder
+                .HasOne(x => x.Customer)
                 .WithMany(x => x.Orders)
                 .HasForeignKey(x => x.CustomerId);
 
-            builder.HasOne(o => o.BillingAddress)
+            builder
+                .HasOne(o => o.BillingAddress)
                 .WithMany()
-                .HasForeignKey(o => o.BillingAddressId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .HasForeignKey(o => o.BillingAddressId);
 
-            builder.HasOne(o => o.ShippingAddress)
+            builder
+                .HasOne(o => o.ShippingAddress)
                 .WithMany()
-                .HasForeignKey(o => o.ShippingAddressId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .HasForeignKey(o => o.ShippingAddressId);
         }
     }
 

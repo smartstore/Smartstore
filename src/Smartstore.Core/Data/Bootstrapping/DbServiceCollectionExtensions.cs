@@ -206,6 +206,7 @@ namespace Smartstore.Core.Bootstrapping
                 typeof(IDbContextPool<>).MakeGenericType(contextImplType),
                 typeof(DbContextPool<>).MakeGenericType(contextImplType));
 
+            // TODO: NOOOOO
             services.TryAddSingleton<IDbContextFactory<SmartDbContext>, PooledSmartDbContextFactory>();
 
             services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<SmartDbContext>>().CreateDbContext());

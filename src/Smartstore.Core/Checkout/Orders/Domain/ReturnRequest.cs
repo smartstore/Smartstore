@@ -14,11 +14,11 @@ namespace Smartstore.Core.Checkout.Orders
     {
         public void Configure(EntityTypeBuilder<ReturnRequest> builder)
         {
-            builder.HasOne(c => c.Customer)
-                .WithMany(c => c.ReturnRequests)
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+            //builder.HasOne(c => c.Customer)
+            //    .WithMany(c => c.ReturnRequests)
+            //    .HasForeignKey(c => c.CustomerId)
+            //    .OnDelete(DeleteBehavior.Cascade)
+            //    .IsRequired(false);
         }
     }
 

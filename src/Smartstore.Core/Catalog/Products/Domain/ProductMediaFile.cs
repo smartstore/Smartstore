@@ -12,16 +12,16 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<ProductMediaFile> builder)
         {
-            builder.HasOne(c => c.MediaFile)
-                .WithMany(c => c.ProductMediaFiles)
-                .HasForeignKey(c => c.MediaFileId)
-                .OnDelete(DeleteBehavior.Cascade);
+            //builder.HasOne(c => c.MediaFile)
+            //    .WithMany(c => c.ProductMediaFiles)
+            //    .HasForeignKey(c => c.MediaFileId)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(c => c.Product)
-                .WithMany(c => c.ProductPictures)
-                .HasForeignKey(c => c.ProductId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+            //builder.HasOne(c => c.Product)
+            //    .WithMany(c => c.ProductPictures)
+            //    .HasForeignKey(c => c.ProductId)
+            //    .IsRequired(false)
+            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

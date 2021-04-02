@@ -26,11 +26,6 @@ namespace Smartstore.Core.Content.Media
                 .HasForeignKey(c => c.MediaStorageId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            builder.HasMany(c => c.Tracks)
-                .WithOne(c => c.MediaFile)
-                .HasForeignKey(c => c.MediaFileId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             builder.HasMany(c => c.Tags)
                 .WithMany(c => c.MediaFiles)
                 .UsingEntity<Dictionary<string, object>>(

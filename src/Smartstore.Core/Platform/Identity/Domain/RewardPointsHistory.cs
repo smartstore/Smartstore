@@ -14,16 +14,16 @@ namespace Smartstore.Core.Identity
     {
         public void Configure(EntityTypeBuilder<RewardPointsHistory> builder)
         {
-            builder.HasOne(c => c.Customer)
-                .WithMany(c => c.RewardPointsHistory)
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired(false);
+            //builder.HasOne(c => c.Customer)
+            //    .WithMany(c => c.RewardPointsHistory)
+            //    .HasForeignKey(c => c.CustomerId)
+            //    .IsRequired(false)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(c => c.UsedWithOrder)
-                .WithOne(c => c.RedeemedRewardPointsEntry)
-                .HasForeignKey<RewardPointsHistory>(c => c.UsedWithOrderId)
-                .OnDelete(DeleteBehavior.SetNull);
+            //builder.HasOne(c => c.UsedWithOrder)
+            //    .WithOne(c => c.RedeemedRewardPointsEntry)
+            //    .HasForeignKey<RewardPointsHistory>(c => c.UsedWithOrderId)
+            //    .OnDelete(DeleteBehavior.SetNull);
         }
     }
 

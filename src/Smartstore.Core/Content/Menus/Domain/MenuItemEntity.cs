@@ -16,11 +16,11 @@ namespace Smartstore.Core.Content.Menus
     {
         public void Configure(EntityTypeBuilder<MenuItemEntity> builder)
         {
-            builder.HasOne(x => x.Menu)
-                .WithMany(x => x.Items)
-                .HasForeignKey(c => c.MenuId)
-                .OnDelete(DeleteBehavior.Cascade);
-            //DeleteBehavior.NoAction TODO: (mh) (core) In classic there was no action on delete. Test!
+            //builder.HasOne(x => x.Menu)
+            //    .WithMany(x => x.Items)
+            //    .HasForeignKey(c => c.MenuId)
+            //    .OnDelete(DeleteBehavior.Cascade);
+            ////DeleteBehavior.NoAction TODO: (mh) (core) In classic there was no action on delete. Test!
         }
     }
 
