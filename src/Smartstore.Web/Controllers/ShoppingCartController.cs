@@ -135,7 +135,8 @@ namespace Smartstore.Web.Controllers
                 if (cart.IncludesMatchingItems(x=>x.IsRecurring) && paymentMethod.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
                     continue;
 
-                // TODO: (ms) PaymentMethod: implement GetPaymentInfoRoute equivalent
+                // TODO: (ms) (core) PaymentMethod: implement GetPaymentInfoRoute equivalent
+                // INFO: GetPaymentInfoWidget is the replacement
                 //paymentMethod.Value.GetPaymentInfoRoute(out string actionName, out string controllerName, out RouteValueDictionary routeValues);
 
                 //if (actionName.HasValue() && controllerName.HasValue())
@@ -159,6 +160,7 @@ namespace Smartstore.Web.Controllers
 
             if (cart.IsNullOrEmpty())
             {
+                // TODO: (ms) (core) How can customer be not null if the cart is empty? Remove the next lines & init customer after this if statement.
                 if (customer != null)
                 {
                     customer.GenericAttributes.CheckoutAttributes = selectedAttributes;
@@ -262,7 +264,7 @@ namespace Smartstore.Web.Controllers
         }
 
 
-        // TODO: (ms) Add methods dev documentations
+        // TODO: (ms) (core) Add methods dev documentations
         [NonAction]
         protected async Task PrepareWishlistModel(WishlistModel model, IList<OrganizedShoppingCartItem> cart, bool isEditable = true)
         {
@@ -357,7 +359,7 @@ namespace Smartstore.Web.Controllers
             model.ShowProductBundleImages = _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart;
             model.ShowSku = _catalogSettings.ShowProductSku;
 
-            var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId);
+            var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             if (measure != null)
             {
                 model.MeasureUnitName = measure.GetLocalized(x => x.Name);
@@ -372,7 +374,10 @@ namespace Smartstore.Web.Controllers
             // Gift card and gift card boxes.
             model.DiscountBox.Display = _shoppingCartSettings.ShowDiscountBox;
             var discountCouponCode = customer.GenericAttributes.DiscountCouponCode;
-            var discount = await _db.Discounts.Where(x => x.CouponCode == discountCouponCode).FirstOrDefaultAsync();
+            var discount = await _db.Discounts
+                .AsNoTracking()
+                .Where(x => x.CouponCode == discountCouponCode)
+                .FirstOrDefaultAsync();
 
             if (discount != null
                 && discount.RequiresCouponCode
@@ -629,9 +634,7 @@ namespace Smartstore.Web.Controllers
                     }
                     else
                     {
-                        model.EstimateShipping.AvailableStates.Add(
-                            new SelectListItem { Text = await _localizationService.GetResourceAsync("Address.OtherNonUS"), Value = "0" }
-                            );
+                        model.EstimateShipping.AvailableStates.Add(new SelectListItem { Text = await _localizationService.GetResourceAsync("Address.OtherNonUS"), Value = "0" });
                     }
 
                     if (setEstimateShippingDefaultAddress && customer.ShippingAddress != null)
@@ -647,7 +650,7 @@ namespace Smartstore.Web.Controllers
 
             foreach (var sci in cart)
             {
-                // TODO: (ms) Implement missing methods like PrepareShoppingCartItemModel
+                // TODO: (ms) (core) Implement missing methods like PrepareShoppingCartItemModel
 
                 //var shoppingCartItemModel = PrepareShoppingCartItemModel(sci);
                 //model.Items.Add(shoppingCartItemModel);
@@ -659,7 +662,7 @@ namespace Smartstore.Web.Controllers
 
             if (prepareAndDisplayOrderReviewData)
             {
-                // TODO: (ms) GetCheckoutState is missing SafeGetValue & SafeSet
+                // TODO: (ms) (core) GetCheckoutState is missing SafeGetValue & SafeSet
                 //var checkoutState = HttpContext.GetCheckoutState();
 
                 //model.OrderReviewData.Display = true;
@@ -711,7 +714,7 @@ namespace Smartstore.Web.Controllers
 
             #endregion
 
-            PrepareButtonPaymentMethodModelAsync(model.ButtonPaymentMethods, cart);
+            await PrepareButtonPaymentMethodModelAsync(model.ButtonPaymentMethods, cart);
         }
 
 
@@ -742,7 +745,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("HomePage");
 
             var customer = customerGuid.HasValue
-                ? _db.Customers.AsNoTracking().FirstOrDefault(x => x.CustomerGuid == customerGuid.Value)
+                ? await _db.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.CustomerGuid == customerGuid.Value)
                 : Services.WorkContext.CurrentCustomer;
 
             if (customer == null)
@@ -887,7 +890,7 @@ namespace Smartstore.Web.Controllers
             return model;
         }
 
-        // TODO: (ms) Encapsulates matching functionality with PrepareShoppingCartItemModel and extract as base method
+        // TODO: (ms) (core) Encapsulates matching functionality with PrepareShoppingCartItemModel and extract as base method
         [NonAction]
         private async Task<WishlistModel.ShoppingCartItemModel> PrepareWishlistCartItemModelAsync(OrganizedShoppingCartItem cartItem)
         {
