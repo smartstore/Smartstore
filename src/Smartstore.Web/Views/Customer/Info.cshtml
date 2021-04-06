@@ -154,7 +154,7 @@
         <div sm-if="Model.CompanyEnabled" class="form-group row">
             <label asp-for="Company" class="col-lg-3 col-form-label@(Model.CompanyRequired ? " required" : "")"></label>
             <div class="col-lg-9">
-                <input asp-for="Company" />
+                <input asp-for="Company" sm-required="Model.CompanyRequired" />
                 <span asp-validation-for="Company"></span>
             </div>
         </div>
@@ -183,21 +183,21 @@
         <div sm-if="Model.StreetAddress2Enabled" class="form-group row">
             <label asp-for="StreetAddress2" class="col-lg-3 col-form-label@(Model.StreetAddress2Required ? " required" : "")"></label>
             <div class="col-lg-9">
-                <input asp-for="StreetAddress2" />
+                <input asp-for="StreetAddress2" sm-required="Model.StreetAddress2Required" />
                 <span asp-validation-for="StreetAddress2"></span>
             </div>
         </div>
         <div sm-if="Model.ZipPostalCodeEnabled" class="form-group row">
             <label asp-for="ZipPostalCode" class="col-lg-3 col-form-label@(Model.ZipPostalCodeRequired ? " required" : "")"></label>
             <div class="col-lg-9">
-                <input asp-for="ZipPostalCode" />
+                <input asp-for="ZipPostalCode" sm-required="Model.ZipPostalCodeRequired" />
                 <span asp-validation-for="ZipPostalCode"></span>
             </div>
         </div>
         <div sm-if="Model.CityEnabled" class="form-group row">
             <label asp-for="City" class="col-lg-3 col-form-label@(Model.CityRequired ? " required" : "")"></label>
             <div class="col-lg-9">
-                <input asp-for="City" />
+                <input asp-for="City" sm-required="Model.CityRequired" />
                 <span asp-validation-for="City"></span>
             </div>
         </div>
@@ -216,7 +216,7 @@
         <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
             <label asp-for="StateProvinceId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select> @* TODO: (mh) (core) Does passing a dynamic object really work? *@
+                <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select> @* TODO: (mh) (core) Does passing a dynamic object really work? RE: I've tested this. So: yes, it works here liek expected *@
             </div>
         </div>
     </fieldset>
@@ -226,14 +226,14 @@
         <div sm-if="Model.PhoneEnabled" class="form-group row">
             <label asp-for="Phone" class="col-lg-3 col-form-label@(Model.PhoneRequired ? " required" : "")"></label>
             <div class="col-lg-9">
-                <input asp-for="Phone" />
+                <input asp-for="Phone" sm-required="Model.PhoneRequired" />
                 <span asp-validation-for="Phone"></span>
             </div>
         </div>
         <div sm-if="Model.FaxEnabled" class="form-group row">
             <label asp-for="Fax" class="col-lg-3 col-form-label@(Model.FaxRequired ? " required" : "")"></label>
             <div class="col-lg-9">
-                <input asp-for="Fax" />
+                <input asp-for="Fax" sm-required="Model.FaxRequired" />
                 <span asp-validation-for="Fax"></span>
             </div>
         </div>

@@ -17,6 +17,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Customers;
 using Microsoft.AspNetCore.Identity;
+using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Controllers
 {
@@ -91,7 +92,14 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
-            // TODO: (mh) (core) Email and Username checks are missing (?)
+            if (model.Email.IsEmpty())
+            {
+                ModelState.AddModelError("", "Email is not provided.");
+            }
+            if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames && model.Username.IsEmpty())
+            {
+                ModelState.AddModelError("", "Username is not provided.");
+            }
 
             try
             {
