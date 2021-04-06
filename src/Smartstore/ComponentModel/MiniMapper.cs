@@ -25,7 +25,7 @@ namespace Smartstore.ComponentModel
                 return (TTo)result;
             }
 
-            return default(TTo);
+            return default;
         }
 
         public static object Map<TFrom>(TFrom from, Type toType, CultureInfo culture = null)
