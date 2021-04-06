@@ -12,19 +12,17 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     /// <summary>
     /// Calculates the price of product attributes specified by <see cref="PriceCalculationContext.SelectedAttributes"/>.
     /// These are usually attributes selected on the product detail page, whose price adjustments must be included in the shopping cart.
-    /// Also applies attributes pre-selected by merchant if <see cref="PriceCalculationContext.ApplyPreSelectedAttributes"/> is <c>true</c>.
+    /// Also applies attributes preselected by merchant if <see cref="PriceCalculationContext.ApplyPreSelectedAttributes"/> is <c>true</c>.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 10)]
     public class AttributePriceCalculator : PriceCalculator
     {
         private readonly SmartDbContext _db;
-        private readonly CatalogSettings _catalogSettings;
 
-        public AttributePriceCalculator(IPriceCalculatorFactory calculatorFactory, SmartDbContext db, CatalogSettings catalogSettings)
+        public AttributePriceCalculator(IPriceCalculatorFactory calculatorFactory, SmartDbContext db)
             : base(calculatorFactory)
         {
             _db = db;
-            _catalogSettings = catalogSettings;
         }
 
         public override async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
@@ -159,7 +157,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 }
             }
 
-            // Apply attributes pre-selected by merchant.
+            // Apply attributes preselected by merchant.
             if (context.Options.ApplyPreSelectedAttributes)
             {
                 // Ignore already applied values.

@@ -70,12 +70,13 @@ namespace Smartstore.Core.Catalog.Pricing
             Guard.NotNull(target, nameof(target));
 
             target.Product = Product;
-            target.MinTierPrice = MinTierPrice;
             target.RegularPrice = RegularPrice;
-            target.OfferPrice = OfferPrice;
-            target.PreselectedPrice = PreselectedPrice;
             target.FinalPrice = FinalPrice;
             target.HasPriceRange = HasPriceRange;
+            target.OfferPrice = OfferPrice;
+            target.PreselectedPrice = PreselectedPrice;
+            target.LowestPrice = LowestPrice;
+            target.MinTierPrice = MinTierPrice;
 
             target.AppliedDiscounts.Clear();
             target.AppliedDiscounts.AddRange(AppliedDiscounts);

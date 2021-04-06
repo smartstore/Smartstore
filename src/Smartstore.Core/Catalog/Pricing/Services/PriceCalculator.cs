@@ -35,6 +35,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         /// <param name="childProduct">
         /// The child product (e.g. associated product of a grouped product or a bundle item part) to calculate price for.
+        /// Must not be the same product as <see cref="PriceCalculationContext.Product"/>.
         /// </param>
         /// <param name="context">The calculator context of the root pipeline.</param>
         /// <param name="childContextConfigurer">An optional configurer action for the child context.</param>
@@ -43,8 +44,7 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             if (context.Product == childProduct)
             {
-                // TODO: (core) Decent error message for price calculation deadlocking.
-                throw new InvalidOperationException("Deadlock");
+                throw new InvalidOperationException("The product of a nested calculation pipeline cannot be the same as that of the root pipeline. It would result in a deadlock.");
             }
             
             var childCalculatorContext = new CalculatorContext(context, childProduct.Price) { Product = childProduct };

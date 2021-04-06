@@ -875,19 +875,13 @@ namespace Smartstore.Web.Controllers
 
                 var finalPriceTierPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalChargeTierPrice, customer, true, tierPriceTestQuantity, null, batchContext);
                 var cpFinalTpOptions = pcs.CreateDefaultOptions(false);
-                var cpFinalTpContext = new PriceCalculationContext(product, tierPriceTestQuantity, cpFinalTpOptions)
-                {
-                    AssociatedProducts = associatedProducts
-                };
+                var cpFinalTpContext = new PriceCalculationContext(product, tierPriceTestQuantity, cpFinalTpOptions);
                 cpFinalTpContext.AddSelectedAttributes(attributeSelection, product.Id);
                 var cpFinalTierPrice = await pcs.CalculatePriceAsync(cpFinalTpContext);
 
                 var finalPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalCharge, customer, true, 1, null, batchContext);
                 var cpFinalOptions = pcs.CreateDefaultOptions(false);
-                var cpFinalContext = new PriceCalculationContext(product, cpFinalOptions)
-                {
-                    AssociatedProducts = associatedProducts
-                };
+                var cpFinalContext = new PriceCalculationContext(product, cpFinalOptions);
                 cpFinalContext.AddSelectedAttributes(attributeSelection, product.Id);
                 var cpFinal = await pcs.CalculatePriceAsync(cpFinalContext);
 
@@ -898,18 +892,12 @@ namespace Smartstore.Web.Controllers
 
                 var cpLowestOptions = pcs.CreateDefaultOptions(true);
                 cpLowestOptions.DetermineLowestPrice = true;
-                var cpLowest = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpLowestOptions)
-                {
-                    AssociatedProducts = associatedProducts
-                });
+                var cpLowest = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpLowestOptions));
 
                 var preselectedPrice = await pcs.GetPreselectedPriceAsync(isGrouped ? associatedProducts.First() : product, customer, batchContext);
                 var cpPreselectedOptions = pcs.CreateDefaultOptions(true);
                 cpPreselectedOptions.DeterminePreselectedPrice = true;
-                var cpPreselected = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpPreselectedOptions)
-                {
-                    AssociatedProducts = associatedProducts
-                });
+                var cpPreselected = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpPreselectedOptions));
 
                 content.AppendLine($"Prices       {"old".PadRight(12)} {"new".PadRight(12)} {product.Id}, {product.ProductType}");
                 content.AppendLine($"Final      : {Fmt(finalPrice, cpFinal.FinalPrice)}");

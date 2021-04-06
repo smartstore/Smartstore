@@ -141,7 +141,7 @@ namespace Smartstore.Core.Catalog.Pricing
         }
 
         /// <summary>
-        /// Gets the product attribute values pre-selected by the merchant.
+        /// Gets the product attribute values preselected by the merchant.
         /// </summary>
         public async Task<List<ProductVariantAttributeValue>> GetPreSelectedAttributeValuesAsync()
         {

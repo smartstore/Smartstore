@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 
@@ -7,7 +6,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
     /// Calculates the price that is initially displayed on the product detail page.
-    /// Actually, it does not calculate anything, but applies the attribute combination price determined by the attributes pre-selected by the merchant.
+    /// Actually, it does not calculate anything, but applies the attribute combination price determined by the attributes preselected by the merchant.
     /// That's why this calculator must run very early.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Early + 1)]
@@ -26,7 +25,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             if (!options.DeterminePreselectedPrice)
             {
-                // Proceed with pipeline and omit this calculator, it is made for pre-selected price calculation only.
+                // Proceed with pipeline and omit this calculator, it is made for preselected price calculation only.
                 await next(context);
                 return;
             }
@@ -37,6 +36,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             if (selectedValues.Any())
             {
+                // Create attribute selection of preselected values.
                 var query = new ProductVariantQuery();
                 var product = context.Product;
                 var bundleItemId = context.BundleItem?.Item?.Id ?? 0;
@@ -61,20 +61,17 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId, false);
                 var selectedCombination = combinations.FirstOrDefault(x => x.AttributeSelection.Equals(selection));
 
-                // Merge combination price.
+                // Apply attribute combination price.
                 if ((selectedCombination?.IsActive ?? false) && selectedCombination.Price.HasValue)
                 {
-                    product.MergedDataValues = new Dictionary<string, object> { { "Price", selectedCombination.Price.Value } };
+                    context.FinalPrice = selectedCombination.Price.Value;
 
-                    // Base price info actually not required during calculation but feels ok this way.
-                    if (selectedCombination.BasePriceAmount.HasValue)
-                        product.MergedDataValues.Add("BasePriceAmount", selectedCombination.BasePriceAmount.Value);
-
-                    if (selectedCombination.BasePriceBaseAmount.HasValue)
-                        product.MergedDataValues.Add("BasePriceBaseAmount", selectedCombination.BasePriceBaseAmount.Value);
+                    // That comes too late because regular price has already been passed to child CalculatorContext:
+                    //product.MergedDataValues = new Dictionary<string, object> { { "Price", selectedCombination.Price.Value } };
                 }
             }
 
+            // The product page is always loaded with the default quantity of 1.
             context.Quantity = 1;
             await next(context);
 
