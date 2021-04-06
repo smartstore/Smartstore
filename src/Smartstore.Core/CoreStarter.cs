@@ -27,7 +27,7 @@ namespace Smartstore.Core.Bootstrapping
 
             // Application DbContext as pooled factory
             services.AddPooledApplicationDbContextFactory<SmartDbContext>(
-                DataSettings.Instance.DbFactory.SmartDbContextType, 
+                DataSettings.Instance.DbFactory.SmartDbContextType,
                 appContext.AppConfiguration.DbContextPoolSize);
 
             if (appContext.IsInstalled)

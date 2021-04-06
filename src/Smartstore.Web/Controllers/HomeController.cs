@@ -260,7 +260,7 @@ namespace Smartstore.Web.Controllers
             ViewBag.MetaDescription = _homePageSettings.GetLocalizedSetting(x => x.MetaDescription, storeId);
             ViewBag.MetaKeywords = _homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, storeId);
 
-            await MsTest();
+            //await MsTest();
 
             return View();
         }

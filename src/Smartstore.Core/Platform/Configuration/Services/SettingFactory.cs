@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Configuration
 {
@@ -16,11 +19,13 @@ namespace Smartstore.Core.Configuration
     {
         private readonly ICacheManager _cache;
         private readonly IDbContextFactory<SmartDbContext> _dbContextFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SettingFactory(ICacheManager cache, IDbContextFactory<SmartDbContext> dbContextFactory)
+        public SettingFactory(ICacheManager cache, IDbContextFactory<SmartDbContext> dbContextFactory, IHttpContextAccessor httpContextAccessor)
         {
             _cache = cache;
             _dbContextFactory = dbContextFactory;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -56,9 +61,11 @@ namespace Smartstore.Core.Configuration
             {
                 o.ExpiresIn(TimeSpan.FromHours(8));
 
-                using var db = _dbContextFactory.CreateDbContext();
-                var rawSettings = GetRawSettings(db, settingsType, storeId, true, false);
-                return MaterializeSettings(settingsType, rawSettings);
+                using (GetOrCreateDbContext(out var db))
+                {
+                    var rawSettings = GetRawSettings(db, settingsType, storeId, true, false);
+                    return MaterializeSettings(settingsType, rawSettings);
+                }
             }, independent: true, allowRecursion: true);
         }
 
@@ -79,9 +86,11 @@ namespace Smartstore.Core.Configuration
             {
                 o.ExpiresIn(TimeSpan.FromHours(8));
 
-                using var db = _dbContextFactory.CreateDbContext();
-                var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, true, false);
-                return MaterializeSettings(settingsType, rawSettings);
+                using (GetOrCreateDbContext(out var db))
+                {
+                    var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, true, false);
+                    return MaterializeSettings(settingsType, rawSettings);
+                }
             }, independent: true, allowRecursion: true);
         }
 
@@ -96,61 +105,78 @@ namespace Smartstore.Core.Configuration
             var prefix = settingsType.Name;
             var hasChanges = false;
 
-            using var db = _dbContextFactory.CreateDbContext();
-            var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, false, true);
-
-            foreach (var prop in FastProperty.GetProperties(settingsType).Values)
+            using (GetOrCreateDbContext(out var db))
             {
-                // Get only properties we can read and write to
-                if (!prop.IsPublicSettable)
-                    continue;
+                var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, false, true);
 
-                var converter = TypeConverterFactory.GetConverter(prop.Property.PropertyType);
-                if (converter == null || !converter.CanConvertFrom(typeof(string)))
-                    continue;
-
-                string key = prefix + "." + prop.Name;
-                string currentValue = prop.GetValue(settings).Convert<string>();
-
-                if (rawSettings.TryGetValue(key, out var setting))
+                foreach (var prop in FastProperty.GetProperties(settingsType).Values)
                 {
-                    if (setting.Value != currentValue)
+                    // Get only properties we can read and write to
+                    if (!prop.IsPublicSettable)
+                        continue;
+
+                    var converter = TypeConverterFactory.GetConverter(prop.Property.PropertyType);
+                    if (converter == null || !converter.CanConvertFrom(typeof(string)))
+                        continue;
+
+                    string key = prefix + "." + prop.Name;
+                    string currentValue = prop.GetValue(settings).Convert<string>();
+
+                    if (rawSettings.TryGetValue(key, out var setting))
                     {
-                        // Update
-                        setting.Value = currentValue;
+                        if (setting.Value != currentValue)
+                        {
+                            // Update
+                            setting.Value = currentValue;
+                            hasChanges = true;
+                        }
+                    }
+                    else
+                    {
+                        // Insert
+                        setting = new Setting
+                        {
+                            Name = key.ToLowerInvariant(),
+                            Value = currentValue,
+                            StoreId = storeId
+                        };
+
                         hasChanges = true;
+                        db.Settings.Add(setting);
                     }
                 }
-                else
+
+                var numSaved = hasChanges ? await db.SaveChangesAsync() : 0;
+
+                if (numSaved > 0)
                 {
-                    // Insert
-                    setting = new Setting
-                    {
-                        Name = key.ToLowerInvariant(),
-                        Value = currentValue,
-                        StoreId = storeId
-                    };
-
-                    hasChanges = true;
-                    db.Settings.Add(setting);
+                    // Prevent reloading from DB on next hit
+                    await _cache.PutAsync(
+                        SettingService.BuildCacheKeyForClassAccess(settingsType, storeId),
+                        settings,
+                        new CacheEntryOptions().ExpiresIn(SettingService.DefaultExpiry));
                 }
+
+                return numSaved;
             }
-
-            var numSaved = hasChanges ? await db.SaveChangesAsync() : 0;
-
-            if (numSaved > 0)
-            {
-                // Prevent reloading from DB on next hit
-                await _cache.PutAsync(
-                    SettingService.BuildCacheKeyForClassAccess(settingsType, storeId), 
-                    settings, 
-                    new CacheEntryOptions().ExpiresIn(SettingService.DefaultExpiry));
-            }
-
-            return numSaved;
         }
 
         #region Utils
+
+        private IDisposable GetOrCreateDbContext(out SmartDbContext db)
+        {
+            db = _httpContextAccessor.HttpContext?.RequestServices?.GetService<SmartDbContext>();
+
+            if (db != null)
+            {
+                // Don't dispose request scoped main db instance.
+                return ActionDisposable.Empty;
+            }
+
+            db = _dbContextFactory.CreateDbContext();
+
+            return db;
+        }
 
         private static IDictionary<string, Setting> GetRawSettings(SmartDbContext db, Type settingsType, int storeId, bool doFallback, bool tracked = false)
         {

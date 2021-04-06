@@ -32,7 +32,6 @@ using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Razor;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web
 {

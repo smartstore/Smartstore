@@ -157,7 +157,7 @@ namespace Smartstore.Core.Content.Menus
                 if (childIds.Any())
                 {
                     ids.AddRange(childIds);
-                    childIds.Each(async x => await GetChildIdsAsync(x, ids));
+                    await childIds.EachAsync(x => GetChildIdsAsync(x, ids));
                 }
             }
         }
