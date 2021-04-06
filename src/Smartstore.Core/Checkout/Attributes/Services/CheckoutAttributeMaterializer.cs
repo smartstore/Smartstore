@@ -14,7 +14,7 @@ namespace Smartstore.Core.Checkout.Attributes
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
 
-        public CheckoutAttributeMaterializer(SmartDbContext db, StoreContext storeContext)
+        public CheckoutAttributeMaterializer(SmartDbContext db, IStoreContext storeContext)
         {
             _db = db;
             _storeContext = storeContext;
