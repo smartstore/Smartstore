@@ -24,20 +24,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             var options = context.Options;
 
-            if (!options.DeterminePreselectedPrice || options.IgnoreAttributes)
+            if (!options.DeterminePreselectedPrice)
             {
                 // Proceed with pipeline and omit this calculator, it is made for pre-selected price calculation only.
                 await next(context);
                 return;
             }
-
-            //if (!options.ApplyPreSelectedAttributes)
-            //{
-            //    throw new ArgumentException($"{nameof(PriceCalculationOptions.ApplyPreSelectedAttributes)} must be 'true' for PreselectedPriceCalculator to get pre-selected attribute values.");
-            //}
-
-            // TODOs:
-            // - CatalogSettings.EnableDynamicPriceUpdate
 
             var selectedValues = (await context.GetPreSelectedAttributeValuesAsync())
                 .Where(x => x.ProductVariantAttribute.IsListTypeAttribute())
@@ -85,6 +77,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             context.Quantity = 1;
             await next(context);
+
+            context.PreselectedPrice = context.FinalPrice;
         }
     }
 }

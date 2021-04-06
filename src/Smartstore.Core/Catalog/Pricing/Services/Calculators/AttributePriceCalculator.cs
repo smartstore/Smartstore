@@ -10,7 +10,7 @@ using Smartstore.Core.Data;
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
-    /// Calculates the price of product attributes specified by <see cref="PriceCalculationContext.Attributes"/>.
+    /// Calculates the price of product attributes specified by <see cref="PriceCalculationContext.SelectedAttributes"/>.
     /// These are usually attributes selected on the product detail page, whose price adjustments must be included in the shopping cart.
     /// Also applies attributes pre-selected by merchant if <see cref="PriceCalculationContext.ApplyPreSelectedAttributes"/> is <c>true</c>.
     /// </summary>
@@ -31,21 +31,21 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             var options = context.Options;
             var product = context.Product;
-            var hasSelectedAttributes = context.Attributes.Any() || options.ApplyPreSelectedAttributes;
 
-            if (options.IgnoreAttributes || !hasSelectedAttributes)
+            if (!context.SelectedAttributes.Any() && !options.ApplyPreSelectedAttributes)
             {
-                // Proceed with pipeline and omit this calculator, it is made for attributes price calculation only.
+                // Proceed with pipeline and omit this calculator.
+                // The caller has not provided selected attributes and preselected attributes should not be applied.
                 await next(context);
                 return;
             }
 
-            var processTierPrices =
+            var includeTierPriceAttributePriceAdjustment =
                 !options.IgnoreTierPrices &&
+                !options.IgnorePercentageTierPricesOnAttributePriceAdjustments &&
                 product.HasTierPrices &&
                 context.BundleItem?.Item == null &&
-                context.Quantity > 1 &&
-                _catalogSettings.ApplyTierPricePercentageToAttributePriceAdjustments;
+                context.Quantity > 1;
 
             var attributes = await options.BatchContext.Attributes.GetOrLoadAsync(product.Id);
             var attributeValues = await GetSelectedAttributeValuesAsync(context, attributes);
@@ -68,17 +68,19 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             // Add attribute price adjustment to final price.
             foreach (var value in attributeValues)
             {
+                var adjustment = decimal.Zero;
+
                 if (value.LinkedProductId == 0)
                 {
-                    if (processTierPrices && value.PriceAdjustment > decimal.Zero)
+                    if (includeTierPriceAttributePriceAdjustment && value.PriceAdjustment > decimal.Zero)
                     {
                         var tierPrices = await context.GetTierPricesAsync();
-                        var priceAdjustment = GetTierPriceAttributeAdjustment(product, tierPrices, context.Quantity, value.PriceAdjustment);
-                        context.FinalPrice += priceAdjustment;
+                        adjustment = GetTierPriceAttributeAdjustment(product, tierPrices, context.Quantity, value.PriceAdjustment);
                     }
-                    else
+
+                    if (adjustment == decimal.Zero)
                     {
-                        context.FinalPrice += value.PriceAdjustment;
+                        adjustment = value.PriceAdjustment;
                     }
                 }
                 else if (linkedProducts.TryGetValue(value.LinkedProductId, out var linkedProduct))
@@ -95,8 +97,11 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     });
 
                     // Add price of linked product to root final price (unit price * linked product quantity).
-                    context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice, value.Quantity);
+                    adjustment = decimal.Multiply(childCalculation.FinalPrice, value.Quantity);
                 }
+
+                context.FinalPrice += adjustment;
+                context.AdditionalCharge += adjustment;
             }
 
             await next(context);
@@ -131,7 +136,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             var bundleItem = context?.BundleItem?.Item;
 
             // Apply attributes selected by customer.
-            var selections = context.Attributes
+            var selections = context.SelectedAttributes
                 .Where(x => x.ProductId == context.Product.Id && x.BundleItemId == context.BundleItem?.Item?.Id)
                 .Select(x => x.Selection)
                 .ToList();

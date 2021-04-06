@@ -6,7 +6,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
     /// Calculates the offer price (aka special price), if any specified for the product.
-    /// The offer price of bundle items is also taken into account if per-item-pricing is activated for the bundle.
+    /// The offer price of bundle items is also taken into account if per-item pricing is activated for the bundle.
     /// We do not restrict and apply the offer price even if it is greater than the regular price,
     /// although this scenario is likely to be unusual in real life.
     /// </summary>

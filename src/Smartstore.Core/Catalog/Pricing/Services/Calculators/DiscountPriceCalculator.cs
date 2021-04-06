@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Discounts;
@@ -9,7 +8,9 @@ using Smartstore.Core.Data;
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
-    /// TODO: (mg) (core) Describe
+    /// Calculates and applies the discount amount.
+    /// Takes into account discounts of products, categories, manufacturers and of bundle items (if per-item pricing is activated).
+    /// Also applies the discount amount on the minimum tier price if <see cref="PriceCalculationOptions.IgnorePercentageDiscountOnTierPrices"/> is activated.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.All, CalculatorOrdering.Late)]
     public class DiscountPriceCalculator : IPriceCalculator
@@ -87,14 +88,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             if (product.HasDiscountsApplied)
             {
                 var collectionLoaded = _db.IsCollectionLoaded(product, x => x.AppliedDiscounts);
-                if (!collectionLoaded)
-                {
-                    if (!batchContext.AppliedDiscounts.FullyLoaded)
-                    {
-                        await batchContext.AppliedDiscounts.LoadAllAsync();
-                    }
-                }
-
                 var appliedDiscounts = collectionLoaded ? product.AppliedDiscounts : await batchContext.AppliedDiscounts.GetOrLoadAsync(product.Id);
 
                 if (appliedDiscounts != null)
@@ -107,23 +100,15 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             var categoryDiscounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToCategories);
             if (categoryDiscounts.Any())
             {
-                if (!batchContext.ProductCategories.FullyLoaded)
-                {
-                    await batchContext.ProductCategories.LoadAllAsync();
-                }
-
                 var productCategories = await batchContext.ProductCategories.GetOrLoadAsync(product.Id);
 
                 foreach (var productCategory in productCategories)
                 {
                     var category = productCategory.Category;
 
-                    if (category == null)
-                        continue;
-
-                    if (category.HasDiscountsApplied)
+                    if (category?.HasDiscountsApplied ?? false)
                     {
-                        //// INFO: AppliedDiscounts are eager loaded already.
+                        // INFO: AppliedDiscounts are eager loaded already.
                         //await _db.LoadCollectionAsync(category, x => x.AppliedDiscounts);
 
                         await TryAddDiscounts(category.AppliedDiscounts, result, DiscountType.AssignedToCategories, context.Options);
@@ -132,26 +117,18 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             }
 
             // Check discounts assigned to manufacturers.
-            var manufacturerDiscounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToCategories);
+            var manufacturerDiscounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToManufacturers);
             if (manufacturerDiscounts.Any())
             {
-                if (!batchContext.ProductManufacturers.FullyLoaded)
-                {
-                    await batchContext.ProductManufacturers.LoadAllAsync();
-                }
-
                 var productManufacturers = await batchContext.ProductManufacturers.GetOrLoadAsync(product.Id);
 
                 foreach (var productManufacturer in productManufacturers)
                 {
                     var manu = productManufacturer.Manufacturer;
 
-                    if (manu == null)
-                        continue;
-
-                    if (manu.HasDiscountsApplied)
+                    if (manu?.HasDiscountsApplied ?? false)
                     {
-                        //// INFO: AppliedDiscounts are eager loaded already.
+                        // INFO: AppliedDiscounts are eager loaded already.
                         //await _db.LoadCollectionAsync(manu, x => x.AppliedDiscounts);
 
                         await TryAddDiscounts(manu.AppliedDiscounts, result, DiscountType.AssignedToManufacturers, context.Options);
@@ -166,13 +143,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             foreach (var discount in source)
             {
-                // TODO: (mg) (core) Pass through context data from CalculationOptions (Store etc.)
-                if (discount.DiscountType == type && !target.Contains(discount) && await _discountService.IsDiscountValidAsync(discount, options.Customer))
+                if (discount.DiscountType == type && !target.Contains(discount))
                 {
                     bool isValid;
                     if (options.CheckDiscountValidity)
                     {
-                        isValid = await _discountService.IsDiscountValidAsync(discount, options.Customer);
+                        isValid = await _discountService.IsDiscountValidAsync(discount, options.Customer, options.Store);
                     }
                     else
                     {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Smartstore.Core.Catalog.Discounts;
 
 namespace Smartstore.Core.Catalog.Pricing
@@ -7,6 +6,7 @@ namespace Smartstore.Core.Catalog.Pricing
     /// <summary>
     /// Contains data that <see cref="IPriceCalculator"/> instances require access to.
     /// All monetary amounts are in the primary store currency, without any tax calculation applied.
+    /// The calculated price is always the unit price of the product.
     /// </summary>
     public class CalculatorContext : PriceCalculationContext
     {
@@ -22,9 +22,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Add an entity to this collection if your calculator applied a discount to the final price.
         /// </summary>
         public ICollection<Discount> AppliedDiscounts { get; } = new HashSet<Discount>();
-        //public ICollection<ProductVariantAttributeValue> AppliedAttributes { get; } = new List<ProductVariantAttributeValue>();
-        //public TierPrice AppliedTierPrice { get; set; }
-        //public ProductVariantAttributeCombination AppliedAttributeCombination { get; set; }
 
         /// <summary>
         /// The regular price of the input <see cref="Product"/>, in the primary currency, usually <see cref="Product.Price"/>
@@ -59,7 +56,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public decimal? LowestPrice { get; set; }
 
-
         /// <summary>
         /// Gets or sets the miniumum tier price determined during calculation.
         /// </summary>
@@ -69,7 +65,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Copies all data from current context to given <paramref name="target"/> context.
         /// Mostly called in nested calculation pipelines to merge child with root data.
         /// </summary>
-        /// <param name="target"></param>
         public void CopyTo(CalculatorContext target)
         {
             Guard.NotNull(target, nameof(target));

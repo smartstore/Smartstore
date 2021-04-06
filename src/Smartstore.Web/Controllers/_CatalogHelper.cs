@@ -898,13 +898,7 @@ namespace Smartstore.Web.Controllers
                 : await modelContext.BatchContext.Attributes.GetOrLoadAsync(product.Id);
 
             model.IsBundlePart = product.ProductType != ProductType.BundledProduct && modelContext.ProductBundleItem != null;
-            model.ProductPrice.DynamicPriceUpdate = _catalogSettings.EnableDynamicPriceUpdate;
             model.ProductPrice.BundleItemShowBasePrice = _catalogSettings.BundleItemShowBasePrice;
-
-            if (!model.ProductPrice.DynamicPriceUpdate)
-            {
-                selectedQuantity = 1;
-            }
 
             IList<ProductVariantAttributeValue> selectedAttributeValues = null;
             var hasSelectedAttributesValues = false;
@@ -1547,9 +1541,8 @@ namespace Smartstore.Web.Controllers
 
                         (oldPriceBase, taxRate) = await _taxService.GetProductPriceAsync(product, new Money(product.OldPrice, _currencyService.PrimaryCurrency));
 
-                        if (model.ProductPrice.DynamicPriceUpdate && !isBundlePricing)
+                        if (!isBundlePricing)
                         {
-
                             if (selectedAttributeValues != null)
                             {
                                 selectedAttributeValues.Each(async x => attributesTotalPriceBase += 

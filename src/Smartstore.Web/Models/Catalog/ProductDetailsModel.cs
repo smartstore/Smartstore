@@ -221,7 +221,6 @@ namespace Smartstore.Web.Models.Catalog
             public bool HidePrices { get; set; }
             public bool ShowLoginNote { get; set; }
 
-            public bool DynamicPriceUpdate { get; set; }
             public bool BundleItemShowBasePrice { get; set; }
 
             public string NoteWithDiscount { get; set; }

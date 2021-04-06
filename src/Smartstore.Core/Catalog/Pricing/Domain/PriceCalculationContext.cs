@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
@@ -54,7 +55,7 @@ namespace Smartstore.Core.Catalog.Pricing
             AssociatedProducts = context.AssociatedProducts;
             BundleItems = context.BundleItems;
             BundleItem = context.BundleItem;
-            Attributes = context.Attributes;
+            SelectedAttributes = context.SelectedAttributes;
             AdditionalCharge = context.AdditionalCharge;
             // [...]
         }
@@ -111,10 +112,18 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public ProductBundleItemData BundleItem { get; set; }
 
-        // TODO: (mg) (core) Describe pricing pipeline when ready.
+        /// <summary>
+        /// Gets or sets the selected product attributes to be included in the price calculation.
+        /// For example required to take into account price adjustments of attributes selected by the customer.
+        /// It is recommended to use the <see cref="PriceCalculationContext"/> extension methods to apply these attributes, 
+        /// e.g. <see cref="PriceCalculationContextExtensions.AddSelectedAttributes(PriceCalculationContext, IEnumerable{OrganizedShoppingCartItem})"/>
+        /// to apply selected attributes of all products indcluded in a shopping cart.
+        /// </summary>
+        public List<PriceCalculationAttributes> SelectedAttributes { get; set; } = new();
 
-        public List<PriceCalculationAttributes> Attributes { get; set; } = new();
-
+        /// <summary>
+        /// The additional charges applied to the <see cref="CalculatorContext.FinalPrice"/> during calculation, such as price adjustments of product attributes.
+        /// </summary>
         public decimal AdditionalCharge { get; set; }
 
         /// <summary>
@@ -131,6 +140,9 @@ namespace Smartstore.Core.Catalog.Pricing
             return _tierPrices;
         }
 
+        /// <summary>
+        /// Gets the product attribute values pre-selected by the merchant.
+        /// </summary>
         public async Task<List<ProductVariantAttributeValue>> GetPreSelectedAttributeValuesAsync()
         {
             if (_preSelectedAttributeValues == null)

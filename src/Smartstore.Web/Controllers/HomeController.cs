@@ -71,6 +71,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using System.Data;
 using Smartstore.Core.Common.Settings;
 using System.Runtime.InteropServices;
+using Smartstore.Core.Catalog;
 
 namespace Smartstore.Web.Controllers
 {
@@ -838,77 +839,107 @@ namespace Smartstore.Web.Controllers
             var scs = Services.Resolve<IShoppingCartService>();
             var customer = await _db.Customers.FindByIdAsync(2666330, false);
             var primaryCurrency = Services.Resolve<ICurrencyService>().PrimaryCurrency;
-            var product = await _db.Products.FindByIdAsync(1751, false);
-            var batchContext = ps.CreateProductBatchContext(new[] { product }, null, customer);
-            List<Product> associatedProducts = null;
+            var tierPriceTestQuantity = 8;
+            var productIds = new[] { 1751, 4367 };
 
-            var attributeValue = await _db.ProductVariantAttributeValues.FindByIdAsync(4300, false);
-            Money? addtionalCharge = attributeValue?.PriceAdjustment != decimal.Zero ? new(attributeValue.PriceAdjustment, primaryCurrency) : null;
-
-            var rawAttributes = "<Attributes><ProductVariantAttribute ID=\"1015\"><ProductVariantAttributeValue><Value>4300</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1016\" ><ProductVariantAttributeValue><Value>4303</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
-            var attributeSelection = new ProductVariantAttributeSelection(rawAttributes);
-
-            var preselectedPrice = await pcs.GetPreselectedPriceAsync(product, customer, batchContext);
-            var finalPrice = await pcs.GetFinalPriceAsync(product, null, addtionalCharge, customer, false, 1, null, batchContext);
-            Money lowestPrice;
-
-            if (product.ProductType == ProductType.GroupedProduct)
+            foreach (var productId in productIds)
             {
-                associatedProducts = await _db.Products
+                var product = await _db.Products.FindByIdAsync(productId, false);
+                var batchContext = ps.CreateProductBatchContext(new[] { product }, null, customer);
+                var isGrouped = product.ProductType == ProductType.GroupedProduct;
+
+                var associatedProducts = isGrouped
+                    ? await _db.Products
+                        .AsNoTracking()
+                        .ApplyAssociatedProductsFilter(new[] { product.Id })
+                        .ToListAsync()
+                    : null;
+
+                var additionalCharge = new Money(primaryCurrency);
+                var additionalChargeTierPrice = new Money(primaryCurrency);
+                var attributeValues = await _db.ProductVariantAttributeValues
                     .AsNoTracking()
-                    .ApplyAssociatedProductsFilter(new[] { product.Id })
+                    .Where(x => x.ProductVariantAttribute.ProductId == product.Id)
                     .ToListAsync();
 
-                lowestPrice = (await pcs.GetLowestPriceAsync(product, customer, batchContext, associatedProducts)).LowestPrice ?? new();
+                foreach (var attributeValue in attributeValues)
+                {
+                    additionalCharge += await pcs.GetProductVariantAttributeValuePriceAdjustmentAsync(attributeValue, product, customer, batchContext);
+                    additionalChargeTierPrice += await pcs.GetProductVariantAttributeValuePriceAdjustmentAsync(attributeValue, product, customer, batchContext, tierPriceTestQuantity);
+                }
+
+                var rawAttributes = "<Attributes><ProductVariantAttribute ID=\"1015\"><ProductVariantAttributeValue><Value>4300</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1016\" ><ProductVariantAttributeValue><Value>4303</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
+                var attributeSelection = product.ProductType == ProductType.SimpleProduct
+                    ? new ProductVariantAttributeSelection(rawAttributes)
+                    : new ProductVariantAttributeSelection(string.Empty);
+
+                var finalPriceTierPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalChargeTierPrice, customer, true, tierPriceTestQuantity, null, batchContext);
+                var cpFinalTpOptions = pcs.CreateDefaultOptions(false);
+                var cpFinalTpContext = new PriceCalculationContext(product, tierPriceTestQuantity, cpFinalTpOptions)
+                {
+                    AssociatedProducts = associatedProducts
+                };
+                cpFinalTpContext.AddSelectedAttributes(attributeSelection, product.Id);
+                var cpFinalTierPrice = await pcs.CalculatePriceAsync(cpFinalTpContext);
+
+                var finalPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalCharge, customer, true, 1, null, batchContext);
+                var cpFinalOptions = pcs.CreateDefaultOptions(false);
+                var cpFinalContext = new PriceCalculationContext(product, cpFinalOptions)
+                {
+                    AssociatedProducts = associatedProducts
+                };
+                cpFinalContext.AddSelectedAttributes(attributeSelection, product.Id);
+                var cpFinal = await pcs.CalculatePriceAsync(cpFinalContext);
+
+
+                var lowestPrice = isGrouped
+                    ? (await pcs.GetLowestPriceAsync(product, customer, batchContext, associatedProducts)).LowestPrice ?? new()
+                    : (await pcs.GetLowestPriceAsync(product, customer, batchContext)).LowestPrice;
+
+                var cpLowestOptions = pcs.CreateDefaultOptions(true);
+                cpLowestOptions.DetermineLowestPrice = true;
+                var cpLowest = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpLowestOptions)
+                {
+                    AssociatedProducts = associatedProducts
+                });
+
+                var preselectedPrice = await pcs.GetPreselectedPriceAsync(isGrouped ? associatedProducts.First() : product, customer, batchContext);
+                var cpPreselectedOptions = pcs.CreateDefaultOptions(true);
+                cpPreselectedOptions.DeterminePreselectedPrice = true;
+                var cpPreselected = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpPreselectedOptions)
+                {
+                    AssociatedProducts = associatedProducts
+                });
+
+                content.AppendLine($"Prices       {"old".PadRight(12)} {"new".PadRight(12)} {product.Id}, {product.ProductType}");
+                content.AppendLine($"Final      : {Fmt(finalPrice, cpFinal.FinalPrice)}");
+                content.AppendLine($"Final {tierPriceTestQuantity} qty: {Fmt(finalPriceTierPrice, cpFinalTierPrice.FinalPrice)}");
+                content.AppendLine($"Lowest     : {Fmt(lowestPrice, cpLowest.FinalPrice)}");
+                content.AppendLine($"Preselected: {Fmt(preselectedPrice, cpPreselected.FinalPrice)}");
+                content.AppendLine("");
             }
-            else
-            {
-                lowestPrice = (await pcs.GetLowestPriceAsync(product, customer, batchContext)).LowestPrice;
-            }
-
-            var cpFinalOptions = pcs.CreateDefaultOptions(true);
-            var cpFinalContext = new PriceCalculationContext(product, cpFinalOptions)
-            {
-                AssociatedProducts = associatedProducts
-            };
-            cpFinalContext.AddAttributes(attributeSelection, product.Id);
-            var cpFinal = await pcs.CalculatePriceAsync(cpFinalContext);
-
-            var cpLowestOptions = pcs.CreateDefaultOptions(true);
-            cpLowestOptions.DetermineLowestPrice = true;
-            var cpLowest = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpLowestOptions) 
-            {
-                AssociatedProducts = associatedProducts
-            });
-
-            var cpPreselectedOptions = pcs.CreateDefaultOptions(true);
-            cpPreselectedOptions.DeterminePreselectedPrice = true;
-            var cpPreselected = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpPreselectedOptions) 
-            {
-                AssociatedProducts = associatedProducts
-            });
 
             var cart = await scs.GetCartItemsAsync(customer);
             var cartItem = cart.FirstOrDefault(x => x.Item.ProductId == 3394);
             var cpCartOptions = pcs.CreateDefaultOptions(false);
             var cpCartContext = new PriceCalculationContext(cartItem.Item.Product, cpCartOptions);
-            cpCartContext.AddAttributes(cart);
+            cpCartContext.AddSelectedAttributes(cart);
             var cpCart = await pcs.CalculatePriceAsync(cpCartContext);
             var cartPrice = await pcs.GetUnitPriceAsync(cartItem, true);
 
-            content.AppendLine($"Prices       {"old".PadRight(12)} {"new".PadRight(12)}");
-            content.AppendLine($"Final      : {Fmt(finalPrice)} {Fmt(cpFinal.FinalPrice)}");
-            content.AppendLine($"Lowest     : {Fmt(lowestPrice)} {Fmt(cpLowest.FinalPrice)}");
-            content.AppendLine($"Preselected: {Fmt(preselectedPrice)} {Fmt(cpPreselected.FinalPrice)}");
-            content.AppendLine($"Cart       : {Fmt(cartPrice)} {Fmt(cpCart.FinalPrice)}");
+            content.AppendLine($"Cart       : {Fmt(cartPrice, cpCart.FinalPrice)}");
+            content.AppendLine("");
 
 
             return Content(content.ToString());
             //return View();
 
-            string Fmt( Money? m)
+            string Fmt(Money m1, Money m2)
             {
-                return (m ?? new()).ToString().PadRight(12);
+                var str = $"{m1.ToString().PadRight(12)} {m2.ToString().PadRight(12)}";
+                if (m1 != m2)
+                    str += " !!";
+                return str;
             }
         }
     }

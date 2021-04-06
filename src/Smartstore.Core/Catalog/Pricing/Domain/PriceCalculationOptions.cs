@@ -95,7 +95,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// Gets or sets a value indicating whether product attributes should be ignored during price calculation.
         /// </summary>
-        public bool IgnoreAttributes { get; set; }
+        //public bool IgnoreAttributes { get; set; }
 
         /// <summary>
         /// TODO: (mg) (core) Describe
@@ -111,6 +111,11 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Gets or sets a value indicating whether percentage discounts on tier prices should be ignored during price calculation.
         /// </summary>
         public bool IgnorePercentageDiscountOnTierPrices { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to ignore percentage tier prices on attribute price adjustments.
+        /// </summary>
+        public bool IgnorePercentageTierPricesOnAttributePriceAdjustments { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether discounts should be ignored during price calculation.

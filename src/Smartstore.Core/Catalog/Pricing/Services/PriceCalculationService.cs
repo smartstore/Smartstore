@@ -90,6 +90,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var priceDisplay = _catalogSettings.PriceDisplayType;
             var ignoreDiscounts = _catalogSettings.IgnoreDiscounts;
             var taxInclusive = _workContext.GetTaxDisplayTypeFor(customer, store.Id) == TaxDisplayType.IncludingTax;
+            var determinePreSelectedPrice = forListing && priceDisplay == PriceDisplayType.PreSelectedPrice;
 
             batchContext ??= _productService.CreateProductBatchContext(null, store, customer, false);
             
@@ -98,10 +99,12 @@ namespace Smartstore.Core.Catalog.Pricing
                 IsGrossPrice = _taxSettings.PricesIncludeTax,
                 TaxInclusive = taxInclusive,
                 IgnorePercentageDiscountOnTierPrices = !_catalogSettings.ApplyPercentageDiscountOnTierPrice,
+                IgnorePercentageTierPricesOnAttributePriceAdjustments = !_catalogSettings.ApplyTierPricePercentageToAttributePriceAdjustments,
                 IgnoreDiscounts = priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes || ignoreDiscounts, // TODO: (core) Uncomment this
-                IgnoreAttributes = priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
+                //IgnoreAttributes = priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
                 DetermineLowestPrice = forListing && priceDisplay == PriceDisplayType.LowestPrice,
-                DeterminePreselectedPrice = forListing && priceDisplay == PriceDisplayType.PreSelectedPrice,
+                DeterminePreselectedPrice = determinePreSelectedPrice,
+                ApplyPreSelectedAttributes = determinePreSelectedPrice,
                 TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: taxInclusive, target: PricingTarget.Product, language: language),
                 PriceRangeFormat = T("Products.PriceRangeFrom").Value
             };
@@ -597,14 +600,11 @@ namespace Smartstore.Core.Catalog.Pricing
                 IEnumerable<Discount> appliedDiscounts;
                 if (context == null)
                 {
+                    await _db.LoadCollectionAsync(product, x => x.AppliedDiscounts);
                     appliedDiscounts = product.AppliedDiscounts;
                 }
                 else
                 {
-                    if (!context.AppliedDiscounts.FullyLoaded)
-                    {
-                        context.AppliedDiscounts.LoadAll();
-                    }
                     appliedDiscounts = await context.AppliedDiscounts.GetOrLoadAsync(product.Id);
                 }
 
@@ -867,7 +867,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 }
             }
 
-            if (_catalogSettings.EnableDynamicPriceUpdate && !isBundlePricing)
+            if (!isBundlePricing)
             {
                 if (selectedAttributeValues.Count > 0)
                 {

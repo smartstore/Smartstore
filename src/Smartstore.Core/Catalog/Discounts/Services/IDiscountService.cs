@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
@@ -24,7 +25,8 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <param name="discount">Discount.</param>
         /// <param name="customer">Customer.</param>
         /// <param name="couponCodeToValidate">Coupon code to validate.</param>
+        /// <param name="store">Store. If <c>null</c>, store will be obtained via <see cref="IStoreContext.CurrentStore"/>.</param>
         /// <returns><c>true</c>discount requirements are met, otherwise <c>false</c>.</returns>
-        Task<bool> IsDiscountValidAsync(Discount discount, Customer customer, string couponCodeToValidate);
+        Task<bool> IsDiscountValidAsync(Discount discount, Customer customer, string couponCodeToValidate, Store store = null);
     }
 }

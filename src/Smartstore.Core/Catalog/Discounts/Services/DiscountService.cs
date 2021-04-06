@@ -66,26 +66,11 @@ namespace Smartstore.Core.Catalog.Discounts
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            // Update HasDiscountsApplied property.
             if (_relatedEntityIds.Any())
             {
-                await ProcessChunk(
-                    _db.Products,
-                    _relatedEntityIds["product"],
-                    x => x.HasDiscountsApplied = x.AppliedDiscounts.Any(),
-                    cancelToken);
-
-                await ProcessChunk(
-                    _db.Categories,
-                    _relatedEntityIds["category"],
-                    x => x.HasDiscountsApplied = x.AppliedDiscounts.Any(),
-                    cancelToken);
-
-                await ProcessChunk(
-                    _db.Manufacturers,
-                    _relatedEntityIds["manufactuter"],
-                    x => x.HasDiscountsApplied = x.AppliedDiscounts.Any(),
-                    cancelToken);
+                await UpdateHasDiscountsAppliedProperty(_db.Products, _relatedEntityIds["product"], cancelToken);
+                await UpdateHasDiscountsAppliedProperty(_db.Categories, _relatedEntityIds["category"], cancelToken);
+                await UpdateHasDiscountsAppliedProperty(_db.Manufacturers, _relatedEntityIds["manufactuter"], cancelToken);
 
                 _relatedEntityIds.Clear();
             }
@@ -100,7 +85,7 @@ namespace Smartstore.Core.Catalog.Discounts
             _relatedEntityIds.AddRange("manufacturer", entity.AppliedToManufacturers.Select(x => x.Id));
         }
 
-        private async Task ProcessChunk<TEntity>(DbSet<TEntity> dbSet, IEnumerable<int> ids, Action<TEntity> process, CancellationToken cancelToken = default)
+        private async Task UpdateHasDiscountsAppliedProperty<TEntity>(DbSet<TEntity> dbSet, IEnumerable<int> ids, CancellationToken cancelToken = default)
             where TEntity : EntityWithDiscounts
         {
             var allIds = ids.ToArray();
@@ -117,7 +102,6 @@ namespace Smartstore.Core.Catalog.Discounts
                     var hasDiscounts = isLoaded
                         ? entity.AppliedDiscounts.Any()
                         : await collectionEntry.Query().AnyAsync(cancelToken);
-
 
                     entity.HasDiscountsApplied = hasDiscounts;
                 }
@@ -172,11 +156,13 @@ namespace Smartstore.Core.Catalog.Discounts
             return result.SelectMany(x => x.Value);
         }
 
-        public virtual async Task<bool> IsDiscountValidAsync(Discount discount, Customer customer, string couponCodeToValidate)
+        public virtual async Task<bool> IsDiscountValidAsync(Discount discount, Customer customer, string couponCodeToValidate, Store store = null)
         {
             Guard.NotNull(discount, nameof(discount));
 
-            var cacheKey = new DiscountKey(discount, customer, couponCodeToValidate);
+            store ??= _storeContext.CurrentStore;
+
+            var cacheKey = new DiscountKey(discount, customer, couponCodeToValidate, store);
             if (_discountValidityCache.TryGetValue(cacheKey, out var result))
             {
                 return result;
@@ -218,7 +204,7 @@ namespace Smartstore.Core.Catalog.Discounts
             // Better not to apply discounts if there are gift cards in the cart cause the customer could "earn" money through that.
             if (discount.DiscountType == DiscountType.AssignedToOrderTotal || discount.DiscountType == DiscountType.AssignedToOrderSubTotal)
             {
-                var cart =  await _cartService.Value.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
+                var cart =  await _cartService.Value.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
                 if (cart.Any(x => x.Item?.Product != null && x.Item.Product.IsGiftCard))
                 {
                     return Cached(false);
@@ -278,10 +264,10 @@ namespace Smartstore.Core.Catalog.Discounts
             }
         }
 
-        class DiscountKey : Tuple<Discount, Customer, string>
+        class DiscountKey : Tuple<Discount, Customer, string, Store>
         {
-            public DiscountKey(Discount discount, Customer customer, string customerCouponCode)
-                : base(discount, customer, customerCouponCode)
+            public DiscountKey(Discount discount, Customer customer, string customerCouponCode, Store store)
+                : base(discount, customer, customerCouponCode, store)
             {
             }
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
@@ -8,7 +7,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
     /// Calculates the minimum tier price and applies it if it is lower than the FinalPrice.
-    /// Tier prices of bundle items are ignored if per-item-pricing is activated for the bundle.
+    /// Tier prices of bundle items are ignored if per-item pricing is activated for the bundle.
     /// </summary>
     [CalculatorUsage(CalculatorTargets.Product, CalculatorOrdering.Default + 100)]
     public class TierPriceCalculator : IPriceCalculator
@@ -38,7 +37,16 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             if (processTierPrices && context.MinTierPrice.HasValue)
             {
                 // Apply the minimum tier price if it achieves a lower price than the discounted FinalPrice.
-                context.FinalPrice = Math.Min(context.FinalPrice, context.MinTierPrice.Value);
+
+                // Wrong result:
+                //context.FinalPrice = Math.Min(context.FinalPrice, context.MinTierPrice.Value);
+
+                // Better but ugly and not exactly what we did before:
+                var finalPriceWithoutAdditionalCharge = context.FinalPrice - context.AdditionalCharge;
+                if (context.MinTierPrice.Value < finalPriceWithoutAdditionalCharge)
+                {
+                    context.FinalPrice = context.MinTierPrice.Value + context.AdditionalCharge;
+                }
             }
         }
 
