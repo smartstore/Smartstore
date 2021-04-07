@@ -10,8 +10,7 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Common
 {
-    // TODO: (mh) (core) Will not be registered automatically and thus not be used for mapping yet.
-    public class AddressMapper : IMapper<Address, AddressModel>
+    internal class AddressMapper : IMapper<Address, AddressModel>
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
@@ -31,9 +30,9 @@ namespace Smartstore.Web.Models.Common
 
             // INFO: (mh) (core) no async :-/
             var loadCountries = _db.Countries
-                    .AsNoTracking()
-                    .ApplyStandardFilter()
-                    .ToList();
+                .AsNoTracking()
+                .ApplyStandardFilter()
+                .ToList();
 
             // Form fields
             MiniMapper.Map(_addressSettings, to);

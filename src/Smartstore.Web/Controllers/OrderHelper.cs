@@ -23,6 +23,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Utilities.Html;
+using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Models.Orders;
 
@@ -310,7 +311,7 @@ namespace Smartstore.Web.Controllers
             if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {
                 model.IsShippable = true;
-                MiniMapper.Map(order.ShippingAddress, model.ShippingAddress);
+                MapperFactory.Map(order.ShippingAddress, model.ShippingAddress);
                 model.ShippingMethod = order.ShippingMethod;
 
                 // Shipments (only already shipped).
@@ -336,7 +337,7 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            MiniMapper.Map(order.BillingAddress, model.BillingAddress);
+            MapperFactory.Map(order.BillingAddress, model.BillingAddress);
             model.VatNumber = order.VatNumber;
 
             // Payment method.

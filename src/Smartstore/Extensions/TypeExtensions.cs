@@ -257,10 +257,11 @@ namespace Smartstore
                 return false;
             }
 
-            if (!source.IsGenericTypeDefinition)
-            {
-                return false;
-            }
+            // TODO: (core) Check!!
+            //if (!source.IsGenericTypeDefinition)
+            //{
+            //    return false;
+            //}
 
             if (source == type)
             {
