@@ -273,8 +273,8 @@ namespace Smartstore.Web.Controllers
             {
                 File = file,
                 ThumbSize = _mediaSettings.ManufacturerThumbPictureSize,
-                Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? string.Format(T("Media.Manufacturer.ImageLinkTitleFormat"), localizedName),
-                Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? string.Format(T("Media.Manufacturer.ImageAlternateTextFormat"), localizedName),
+                Title = file?.File?.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? T("Media.Manufacturer.ImageLinkTitleFormat", localizedName),
+                Alt = file?.File?.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? T("Media.Manufacturer.ImageAlternateTextFormat", localizedName),
                 NoFallback = _catalogSettings.HideManufacturerDefaultPictures
             };
 

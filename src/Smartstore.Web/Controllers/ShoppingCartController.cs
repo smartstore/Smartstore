@@ -34,7 +34,6 @@ namespace Smartstore.Web.Controllers
 {
     public class ShoppingCartController : PublicControllerBase
     {
-        // TODO: (ms) (core) SmartDbContext should always be first => then services & helpers => then settings & last the lazy stuff that's not needed often.
         private readonly SmartDbContext _db;
         private readonly ITaxService _taxService;
         private readonly IMediaService _mediaService;

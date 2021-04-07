@@ -8,10 +8,6 @@
     Layout = "_MyAccount";
     ViewBag.PageClassToken = "info";
     ViewBag.PageTitle = T("Account.CustomerInfo").Value;
-
-    // TODO: (mh) (core) Because no property is annotated with [RequiredAttribute] in this model, our FormControlTagHelper
-    // marks every text input as optional and renders the "Optional" placeholder attribute. You have to specify on
-    // control level whether input is required or not: sm-required="true|false", e.g. sm-required="@Model.CompanyRequired".
 }
 
 <form asp-action="Info" class="form-horizontal" method="post">

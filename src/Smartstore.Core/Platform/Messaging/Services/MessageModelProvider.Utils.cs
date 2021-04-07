@@ -181,7 +181,7 @@ namespace Smartstore.Core.Messages
             if (file == null && product.Visibility == ProductVisibility.Hidden && product.ParentGroupedProductId > 0)
             {
                 var productFile = await _db.ProductMediaFiles
-                    .ApplyProductFilter(new int[product.ParentGroupedProductId], 1)
+                    .ApplyProductFilter(new int[] { product.ParentGroupedProductId }, 1)
                     .FirstOrDefaultAsync();
 
                 if (productFile != null)
