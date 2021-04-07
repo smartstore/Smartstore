@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
+using Smartstore.Collections;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
@@ -16,13 +21,6 @@ using Smartstore.Core.Messages;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Customers;
-using Microsoft.AspNetCore.Identity;
-using Smartstore.Web.Models.Common;
-using Smartstore.Core.Checkout.Orders;
-using Smartstore.Collections;
-using Smartstore.Core.Checkout.Payment;
-using Microsoft.AspNetCore.Http;
-using Smartstore.Web.Filters;
 
 namespace Smartstore.Web.Controllers
 {
@@ -356,7 +354,7 @@ namespace Smartstore.Web.Controllers
 
         // TODO: (mh) (core) Test this.
         [HttpPost, ActionName("Orders")]
-        [FormValueRequired(FormValueRequirement.StartsWith, "cancelRecurringPayment")]
+        [FormValueRequired(FormValueRequirementOperator.StartsWith, "cancelRecurringPayment")]
         public async Task<IActionResult> CancelRecurringPayment(FormCollection form)
         {
             var customer = Services.WorkContext.CurrentCustomer;
