@@ -1,0 +1,161 @@
+﻿using System;
+using System.Collections.Generic;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Localization;
+using Smartstore.Web.Modelling;
+using Smartstore.Web.Models.Common;
+using Smartstore.Web.Models.Media;
+
+namespace Smartstore.Web.Models.Orders
+{
+    public partial class OrderDetailsModel : EntityModelBase
+    {
+        public int StoreId { get; set; }
+
+        public CompanyInformationSettings MerchantCompanyInfo { get; set; } = new();
+        public string MerchantCompanyCountryName { get; set; }
+
+        public string OrderNumber { get; set; }
+        public bool DisplayPdfInvoice { get; set; }
+        public bool RenderOrderNotes { get; set; }
+
+        public DateTime CreatedOn { get; set; }
+
+        public string OrderStatus { get; set; }
+
+        public bool IsReOrderAllowed { get; set; }
+
+        public bool IsReturnRequestAllowed { get; set; }
+
+        public bool IsShippable { get; set; }
+        public string ShippingStatus { get; set; }
+        public AddressModel ShippingAddress { get; set; } = new();
+        public string ShippingMethod { get; set; }
+        public List<ShipmentBriefModel> Shipments { get; set; } = new();
+
+        public AddressModel BillingAddress { get; set; } = new();
+
+        public string VatNumber { get; set; }
+
+        public string PaymentMethod { get; set; }
+
+        public string PaymentMethodSystemName { get; set; }
+
+        #region Offline payment data 
+
+        public string CardNumber { get; set; }
+        public string MaskedCreditCardNumber { get; set; }
+        public string CardCvv2 { get; set; }
+        public string CardExpirationMonth { get; set; }
+        public string CardExpirationYear { get; set; }
+        public string DirectDebitAccountHolder { get; set; }
+        public string DirectDebitAccountNumber { get; set; }
+        public string DirectDebitBankCode { get; set; }
+        public string DirectDebitBankName { get; set; }
+        public string DirectDebitBIC { get; set; }
+        public string DirectDebitCountry { get; set; }
+        public string DirectDebitIban { get; set; }
+
+        #endregion
+
+        public bool CanRePostProcessPayment { get; set; }
+        public bool DisplayPurchaseOrderNumber { get; set; }
+        public string PurchaseOrderNumber { get; set; }
+
+        public string OrderSubtotal { get; set; }
+        public string OrderSubTotalDiscount { get; set; }
+        public string OrderShipping { get; set; }
+        public string PaymentMethodAdditionalFee { get; set; }
+        public string CheckoutAttributeInfo { get; set; }
+        public string Tax { get; set; }
+        public List<TaxRate> TaxRates { get; set; } = new();
+        public bool DisplayTax { get; set; }
+        public bool DisplayTaxRates { get; set; }
+        public string OrderTotalDiscount { get; set; }
+        public int RedeemedRewardPoints { get; set; }
+        public string RedeemedRewardPointsAmount { get; set; }
+        public string CreditBalance { get; set; }
+        public string OrderTotalRounding { get; set; }
+        public string OrderTotal { get; set; }
+        public string CustomerComment { get; set; }
+        public int CustomerLanguageId { get; set; }
+
+        public List<GiftCard> GiftCards { get; set; } = new();
+
+        public bool ShowSku { get; set; }
+        public bool ShowProductImages { get; set; }
+        public bool ShowProductBundleImages { get; set; }
+        public int BundleThumbSize { get; set; }
+
+        public List<OrderItemModel> Items { get; set; } = new();
+        public List<OrderNote> OrderNotes { get; set; } = new();
+
+        #region Nested Classes
+
+        public partial class OrderItemModel : EntityModelBase
+        {
+            public string Sku { get; set; }
+            public int ProductId { get; set; }
+            public LocalizedValue<string> ProductName { get; set; }
+            public string ProductSeName { get; set; }
+            public string ProductUrl { get; set; }
+            public ProductType ProductType { get; set; }
+            public string UnitPrice { get; set; }
+            public string SubTotal { get; set; }
+            public int Quantity { get; set; }
+            public string QuantityUnit { get; set; }
+            public string AttributeInfo { get; set; }
+            public bool BundlePerItemPricing { get; set; }
+            public bool BundlePerItemShoppingCart { get; set; }
+            public ImageModel Image { get; set; }
+
+            public List<BundleItemModel> BundleItems { get; set; } = new();
+        }
+
+        public partial class BundleItemModel : ModelBase
+        {
+            public ImageModel Image { get; set; }
+            public string Sku { get; set; }
+            public string ProductName { get; set; }
+            public string ProductSeName { get; set; }
+            public string ProductUrl { get; set; }
+            public bool VisibleIndividually { get; set; }
+            public int Quantity { get; set; }
+            public int DisplayOrder { get; set; }
+            public string PriceWithDiscount { get; set; }
+            public string AttributeInfo { get; set; }
+            public bool HideThumbnail { get; set; }
+        }
+
+        public partial class TaxRate : ModelBase
+        {
+            public string Rate { get; set; }
+            public string Value { get; set; }
+            public string Label { get; set; }
+        }
+
+        public partial class GiftCard : ModelBase
+        {
+            public string CouponCode { get; set; }
+            public string Amount { get; set; }
+            public string Remaining { get; set; }
+        }
+
+        public partial class OrderNote : ModelBase
+        {
+            public string Note { get; set; }
+            public DateTime CreatedOn { get; set; }
+            public string FriendlyCreatedOn { get; set; }
+        }
+
+        public partial class ShipmentBriefModel : EntityModelBase
+        {
+            public string TrackingNumber { get; set; }
+            public DateTime? ShippedDate { get; set; }
+            public DateTime? DeliveryDate { get; set; }
+        }
+
+        #endregion
+    }
+}

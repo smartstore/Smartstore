@@ -1,0 +1,444 @@
+﻿@using Smartstore.Web.Models.Orders;
+@using Smartstore.Core.Catalog.Products;
+
+@model OrderDetailsModel
+
+@{
+    Assets.AppendTitleParts(T("PageTitle.OrderDetails"));
+
+    async Task RenderAddress(AddressModel address)
+    {
+        <div class="mb-2">
+            @Html.Raw(address.FormattedAddress)
+        </div>
+        <div class="email">
+            @T("Order.Email"): @address.Email
+        </div>
+        <div sm-if="address.PhoneEnabled && address.PhoneNumber.HasValue()" class="phone">
+            @T("Order.Phone"): @address.PhoneNumber
+        </div>
+        <div sm-if="address.FaxEnabled && address.FaxNumber.HasValue()" class="fax">
+            @T("Order.Fax"): @address.FaxNumber
+        </div>
+    }
+
+    async Task SimpleProduct(OrderDetailsModel.OrderItemModel item)
+    {
+        <div class="cart-row">
+            <div class="cart-col cart-col-main">
+                <div class="row sm-gutters">
+                    <div sm-if="Model.ShowProductImages && item.Image.HasImage()" class="col cart-item-img">
+                        <img sm-model="item.Image" class="img-fluid" />
+                    </div>
+
+                    <div class="col">
+                        <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                        <div sm-if="Model.ShowSku && item.Sku.HasValue()" class="cart-item-sku small">
+                            <span>@T("Order.Product(s).SKU")</span>
+                            <span class="text-muted">@item.Sku</span>
+                        </div>
+                        <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs">
+                            @Html.Raw(item.AttributeInfo)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cart-col cart-col-price" data-caption="@T("Order.Product(s).Price")">
+                <span class="price">@item.UnitPrice</span>
+            </div>
+            <div class="cart-col cart-col-qty" data-caption="@T("Order.Product(s).Quantity")">
+                @item.Quantity
+                @item.QuantityUnit
+            </div>
+            <div class="cart-col cart-col-price cart-col-subtotal" data-caption="@T("Order.Product(s).Total")">
+                <span class="price">@item.SubTotal</span>
+            </div>
+        </div>
+
+        <zone name="orderdetails_page_after_item" />
+    }
+
+    async Task BundleProducts(OrderDetailsModel.OrderItemModel parentItem)
+    {
+        if (parentItem.BundleItems != null)
+        {
+            foreach (var item in parentItem.BundleItems.OrderBy(x => x.DisplayOrder))
+            {
+                <div class="cart-row cart-row-child">
+                    <div class="cart-col cart-col-main">
+                        <div class="row sm-gutters">
+                            <div class="col cart-item-img">
+                                <!-- Spacer -->
+                            </div>
+                            <div class="col">
+                                <div class="d-flex w-100 align-items-center justify-content-start flex-nowrap">
+                                    @if (Model.ShowProductBundleImages)
+                                    {
+                                        <div class="mr-3" style="@($"width: {Math.Min(Model.BundleThumbSize, 60)}px;")">
+                                            @if (item.Image.HasImage() && !item.HideThumbnail)
+                                            {
+                                                <img sm-model="item.Image" class="img-fluid" />
+                                            }
+                                        </div>
+                                    }
+                                    <div>
+                                        <span sm-if="item.Quantity > 1 && parentItem.BundlePerItemShoppingCart" class="font-weight-medium">@(item.Quantity)&nbsp;&#215;</span>
+                                        @if (item.VisibleIndividually)
+                                        {
+                                            <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" dir="auto">@item.ProductName</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="cart-item-link" dir="auto">@item.ProductName</span>
+                                        }
+                                    </div>
+                                </div>
+                                
+                                <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs text-muted mt-1">
+                                    @Html.Raw(item.AttributeInfo)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cart-col cart-col-price">
+                        @if (item.PriceWithDiscount.HasValue())
+                        {
+                            <span class="price">@Html.Raw(item.PriceWithDiscount)</span>
+                        }
+                        else
+                        {
+                            <text>&nbsp;</text>
+                        }
+                    </div>
+                    <div class="cart-col">&nbsp;</div>
+                    <div class="cart-col">&nbsp;</div>
+                </div>
+            }
+        }
+
+        <zone name="orderdetails_page_after_item" />
+    }
+}
+
+<div class="page page-order-details">
+    <div class="row mb-3">
+        <div class="page-title mb-3 col">
+            <h1 class="h2 mb-0">
+                @T("Order.OrderDetails")
+                <small class="text-muted"><small>@Model.OrderNumber</small></small>
+            </h1>
+        </div>
+
+        @*TODO: (mh) (core) Implement corresponding actions*@
+        <div class="print-buttons col col-auto">
+            <a asp-action="Print" asp-route-id="@Model.Id" asp-route-pdf="false" target="print" class="btn btn-secondary btn-sm print-order-button" rel="nofollow">
+                <i class="fa fa-print"></i>
+                <span>@T("Order.Print")</span>
+            </a>
+            @if (Model.DisplayPdfInvoice)
+            {
+                <a asp-action="Print" asp-route-id="@Model.Id" asp-route-pdf="true" class="btn btn-secondary btn-sm pdf-order-button" rel="nofollow">
+                    <i class="far fa-file-pdf"></i>
+                    <span>@T("Order.GetPDFInvoice")</span>
+                </a>
+            }
+        </div>
+    </div>
+
+    <div class="page-body">
+        <zone name="orderdetails_page_top" />
+
+        <div class="row mb-3">
+            <div class="col-6 col-sm-auto pb-3">
+                <h5 class="text-muted">@T("Order.OrderDate")</h5>
+                <div>@Model.CreatedOn.ToShortDateString().ReplaceNativeDigits()</div>
+            </div>
+            <div class="col-6 col-sm-auto pb-3">
+                <h5 class="text-muted">@T("Order.Order#")</h5>
+                <div>@Model.OrderNumber</div>
+            </div>
+            <div sm-if="Model.DisplayPurchaseOrderNumber" class="col-6 col-sm-auto pb-3">
+                <h5 class="text-muted">@T("Order.PurchaseOrderNumber")</h5>
+                <div>@Model.PurchaseOrderNumber</div>
+            </div>
+            <div class="col-6 col-sm-auto pb-3">
+                <h5 class="text-muted">@T("Order.OrderStatus")</h5>
+                <div>@Model.OrderStatus</div>
+            </div>
+            <div class="col-6 col-sm-auto pb-3">
+                <h5 class="text-muted">@T("Order.OrderTotal")</h5>
+                <div class="text-success">@Model.OrderTotal</div>
+            </div>
+        </div>
+
+        <zone name="orderdetails_page_overview" />
+
+        <div class="card card-body order-details-box">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col mb-4 mb-lg-0 billinginfo">
+                            <h5>@T("Order.BillingAddress")</h5>
+                            @{ await RenderAddress(Model.BillingAddress); }
+                        </div>
+                        <div sm-if="Model.IsShippable && Model.ShippingAddress != null" class="col mb-4 mb-lg-0 shippinginfo">
+                            <h5>@T("Order.ShippingAddress")</h5>
+                            @{ await RenderAddress(Model.ShippingAddress); }
+                        </div>
+                    </div>
+                </div>
+
+                <div sm-if="Model.PaymentMethod.HasValue() || Model.IsShippable || Model.VatNumber.HasValue()" class="col-md-4">
+                    <div class="row">
+                        <div class="col">
+                            @if (Model.IsShippable)
+                            {
+                                <h5>@T("Order.ShippingMethod")</h5>
+                                <p>@Model.ShippingMethod</p>
+                            }
+                            @if (Model.PaymentMethod.HasValue())
+                            {
+                                <h5>@T("Order.PaymentMethod")</h5>
+                                <p>@Model.PaymentMethod</p>
+
+                                if (Model.CanRePostProcessPayment)
+                                {
+                                    using (Html.BeginForm())
+                                    {
+                                        <input type="submit" name="repost-payment" value="@T("Order.CompletePayment")" class="btn btn-primary btn-sm btn-block re-order-button btn-above" />
+                                        <div class="small text-muted pt-2">@T("Order.CompletePayment.Hint")</div>
+                                    }
+                                }
+                            }
+                            @if (Model.VatNumber.HasValue())
+                            {
+                                <h5>@T("Order.VATNumber")</h5>
+                                <p>@Model.VatNumber</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <zone name="orderdetails_page_beforeproducts" />
+
+        <div sm-if="Model.Items.Count > 0" class="card my-5">
+            <div id="order-items" class="cart mb-0">
+                <div class="cart-head">
+                    <div class="cart-row">
+                        <div class="cart-col cart-col-main">
+                            @T("Order.Product(s).Item")
+                        </div>
+                        <div class="cart-col cart-col-price">
+                            @T("Order.Product(s).Price")
+                        </div>
+                        <div class="cart-col cart-col-qty">
+                            @T("Order.Product(s).Quantity")
+                        </div>
+                        <div class="cart-col cart-col-price cart-col-subtotal">
+                            @T("Order.Product(s).Total")
+                        </div>
+                    </div>
+                </div>
+                <div class="cart-body">
+                    @foreach (var item in Model.Items)
+                    {
+                        if (item.ProductType == ProductType.BundledProduct)
+                        {
+                            await SimpleProduct(item);
+                            await BundleProducts(item);
+                        }
+                        else
+                        {
+                            await SimpleProduct(item);
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="cart-footer rounded-bottom">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div sm-if="Model.CheckoutAttributeInfo.HasValue()" class="cart-checkout-attrs">
+                            @Html.Raw(Model.CheckoutAttributeInfo)
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="cart-summary">
+                            <tr class="cart-summary-subtotal">
+                                <td class="cart-summary-label">@T("Order.SubTotal"):</td>
+                                <td class="cart-summary-value">@Model.OrderSubtotal</td>
+                            </tr>
+                            <tr sm-if="Model.OrderSubTotalDiscount.HasValue()" class="cart-summary-subtotaldiscount cart-summary-pos">
+                                <td class="cart-summary-label">@T("Order.SubTotalDiscount"):</td>
+                                <td class="cart-summary-value">@Model.OrderSubTotalDiscount</td>
+                            </tr>
+                            <tr sm-if="Model.IsShippable" class="cart-summary-shipping cart-summary-neg">
+                                <td class="cart-summary-label">@T("Order.Shipping"):</td>
+                                <td class="cart-summary-value">@Model.OrderShipping</td>
+                            </tr>
+                            <tr sm-if="Model.PaymentMethodAdditionalFee.HasValue()" class="cart-summary-payfee cart-summary-neg">
+                                <td class="cart-summary-label">@T("Order.PaymentMethodAdditionalFee"):</td>
+                                <td class="cart-summary-value">@Model.PaymentMethodAdditionalFee</td>
+                            </tr>
+                            @if (Model.DisplayTaxRates && Model.TaxRates.Count > 0)
+                            {
+                                foreach (var taxRate in Model.TaxRates)
+                                {
+                                    <tr class="cart-summary-tax">
+                                        <td class="cart-summary-label">@T("Order.TaxRateLine", taxRate.Rate):</td>
+                                        <td class="cart-summary-value">@taxRate.Value</td>
+                                    </tr>
+                                }
+                            }
+                            <tr sm-if="Model.DisplayTax" class="cart-summary-tax">
+                                <td class="cart-summary-label">@T("Order.Tax"):</td>
+                                <td class="cart-summary-value">@Model.Tax</td>
+                            </tr>
+                            <tr sm-if="Model.OrderTotalDiscount.HasValue()" class="cart-summary-totaldiscount cart-summary-pos">
+                                <td class="cart-summary-label">@T("Order.TotalDiscount"):</td>
+                                <td class="cart-summary-value">@Model.OrderTotalDiscount</td>
+                            </tr>
+
+                            @if (Model.GiftCards.Count > 0)
+                            {
+                                foreach (var gc in Model.GiftCards)
+                                {
+                                    <tr class="cart-summary-giftcard">
+                                        <td class="cart-summary-label">
+                                            <span class="cart-summary-pos pr-1">@T("Order.GiftCardInfo", gc.CouponCode)</span>
+                                            <span class="text-nowrap text-muted small">@T("ShoppingCart.Totals.GiftCardInfo.Remaining", gc.Remaining)</span>
+                                        </td>
+                                        <td class="cart-summary-value cart-summary-pos">@gc.Amount</td>
+                                    </tr>
+                                }
+                            }
+
+                            <tr sm-if="Model.RedeemedRewardPoints > 0" class="cart-summary-rewardpoints cart-summary-pos">
+                                <td class="cart-summary-label">@T("Order.RewardPoints", Model.RedeemedRewardPoints):</td>
+                                <td class="cart-summary-value">@Model.RedeemedRewardPointsAmount</td>
+                            </tr>
+                            <tr sm-if="Model.CreditBalance.HasValue()" class="cart-summary-credit-balance cart-summary-pos">
+                                <td class="cart-summary-label">@T("ShoppingCart.Totals.CreditBalance"):</td>
+                                <td class="cart-summary-value">@Model.CreditBalance</td>
+                            </tr>
+                            <tr sm-if="Model.OrderTotalRounding.HasValue()" class="cart-summary-totalrounding cart-summary-pos">
+                                <td class="cart-summary-label">@T("ShoppingCart.Totals.Rounding"):</td>
+                                <td class="cart-summary-value">@Model.OrderTotalRounding</td>
+                            </tr>
+                            <tr class="cart-summary-total">
+                                <td class="cart-summary-label">@T("Order.OrderTotal"):</td>
+                                <td class="cart-summary-value">@Model.OrderTotal</td>
+                            </tr>
+                        </table>
+
+                        <zone name="orderdetails_page_aftertotal" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <zone name="orderdetails_page_afterproducts" />
+
+        @*TODO: (mh) (core) Implement corresponding actions*@
+        <div sm-if="Model.IsReturnRequestAllowed || Model.IsReOrderAllowed" class="cart-actions row sm-gutters mb-2 justify-content-lg-end">
+            <div sm-if="Model.IsReturnRequestAllowed" class="col-12 col-sm-6 col-lg-3">
+                <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@Model.Id" class="btn btn-secondary btn-block" rel="nofollow">
+                    <i class="fa fa-reply"></i>
+                    <span>@T("Order.ReturnItems")</span>
+                </a>
+            </div>
+            <div sm-if="Model.IsReOrderAllowed" class="col-12 mt-2 col-sm-6 mt-sm-0 col-lg-3">
+                <a asp-action="ReOrder" asp-route-id="@Model.Id" class="btn btn-primary btn-block" rel="nofollow">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span>@T("Order.Reorder")</span>
+                </a>
+            </div>
+        </div>
+
+        <div sm-if="Model.Shipments.Count > 0" class="card mt-4">
+            <h4 class="card-header">
+                @T("Order.Shipments")
+            </h4>
+
+            <div class="shipments-box table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>@T("Order.Shipments.ID")</th>
+                            <th>@T("Order.Shipments.TrackingNumber")</th>
+                            <th>@T("Order.Shipments.ShippedDate")</th>
+                            <th>@T("Order.Shipments.DeliveryDate")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Shipments)
+                        {
+                            <tr>
+                                <td>
+                                    @*TODO: (mh) (core) Implement corresponding action*@
+                                    <a asp-action="ShipmentDetails" asp-route-id="@item.Id" title="@T("Order.Shipments.ViewDetails")">
+                                        @item.Id
+                                    </a>
+                                </td>
+                                <td>
+                                    @item.TrackingNumber
+                                </td>
+                                <td>
+                                    @if (item.ShippedDate.HasValue)
+                                    {
+                                        @item.ShippedDate.Value.ToNativeString("D")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">@T("Order.Shipments.ShippedDate.NotYet")</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.DeliveryDate.HasValue)
+                                    {
+                                        @item.DeliveryDate.Value.ToNativeString("D")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">@T("Order.Shipments.DeliveryDate.NotYet")</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div sm-if="Model.OrderNotes.Count > 0" class="card mt-4">
+            <h4 class="card-header">
+                @T("Order.Notes")
+            </h4>
+
+            <div class="ordernotes-box table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>@T("Order.Notes.CreatedOn")</th>
+                            <th>@T("Order.Notes.Note")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderNotes)
+                        {
+                            <tr>
+                                <td class="text-nowrap">@item.FriendlyCreatedOn</td>
+                                <td dir="auto">@Html.Raw(item.Note)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <zone name="orderdetails_page_bottom" />
+    </div>
+</div>
+
