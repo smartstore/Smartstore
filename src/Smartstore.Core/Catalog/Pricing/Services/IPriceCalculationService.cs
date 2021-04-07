@@ -182,7 +182,7 @@ namespace Smartstore.Core.Catalog.Pricing
         string GetBasePriceInfo(Product product, Money productPrice, Currency currency);
 
         /// <summary>
-        /// /// Gets the base price info for a product.
+        /// Gets the base price info for a product.
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
