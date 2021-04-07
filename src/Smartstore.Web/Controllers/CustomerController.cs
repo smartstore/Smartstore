@@ -310,26 +310,26 @@ namespace Smartstore.Web.Controllers
         
         #region Addresses
 
-        public async Task<IActionResult> Addresses() 
-        {
-            var customer = Services.WorkContext.CurrentCustomer;
-            if (!customer.IsRegistered())
-            {
-                return new UnauthorizedResult();
-            }
+        //public async Task<IActionResult> Addresses() 
+        //{
+        //    var customer = Services.WorkContext.CurrentCustomer;
+        //    if (!customer.IsRegistered())
+        //    {
+        //        return new UnauthorizedResult();
+        //    }
 
-            var model = new CustomerAddressListModel();
+        //    var model = new CustomerAddressListModel();
 
-            // TODO: (mh) (core) What to do with addressModel.PrepareModel?
-            //foreach (var address in customer.Addresses)
-            //{
-            //    var addressModel = new AddressModel();
-            //    addressModel.PrepareModel(address, false, _addressSettings, _localizationService, _stateProvinceService, () => _countryService.GetAllCountries());
-            //    model.Addresses.Add(addressModel);
-            //}
+        //    // TODO: (mh) (core) What to do with addressModel.PrepareModel?
+        //    //foreach (var address in customer.Addresses)
+        //    //{
+        //    //    var addressModel = new AddressModel();
+        //    //    addressModel.PrepareModel(address, false, _addressSettings, _localizationService, _stateProvinceService, () => _countryService.GetAllCountries());
+        //    //    model.Addresses.Add(addressModel);
+        //    //}
 
-            return View(model);
-        }
+        //    return View(model);
+        //}
 
         #endregion
 
