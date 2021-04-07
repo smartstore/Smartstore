@@ -18,6 +18,11 @@ using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Customers;
 using Microsoft.AspNetCore.Identity;
 using Smartstore.Web.Models.Common;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Collections;
+using Smartstore.Core.Checkout.Payment;
+using Microsoft.AspNetCore.Http;
+using Smartstore.Web.Filters;
 
 namespace Smartstore.Web.Controllers
 {
@@ -26,6 +31,9 @@ namespace Smartstore.Web.Controllers
         private readonly SmartDbContext _db;
         private readonly INewsletterSubscriptionService _newsletterSubscriptionService;
         private readonly ITaxService _taxService;
+        private readonly ILocalizationService _localizationService;
+        private readonly IOrderProcessingService _orderProcessingService;
+        private readonly IOrderService _orderService;
         private readonly IMessageFactory _messageFactory;
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
@@ -36,11 +44,15 @@ namespace Smartstore.Web.Controllers
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
         private readonly LocalizationSettings _localizationSettings;
+        private readonly OrderSettings _orderSettings;
 
         public CustomerController(
             SmartDbContext db,
             INewsletterSubscriptionService newsletterSubscriptionService,
             ITaxService taxService,
+            ILocalizationService localizationService,
+            IOrderProcessingService orderProcessingService,
+            IOrderService orderService,
             IMessageFactory messageFactory,
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
@@ -50,11 +62,15 @@ namespace Smartstore.Web.Controllers
             DateTimeSettings dateTimeSettings,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
-            LocalizationSettings localizationSettings)
+            LocalizationSettings localizationSettings,
+            OrderSettings orderSettings)
         {
             _db = db;
             _newsletterSubscriptionService = newsletterSubscriptionService;
             _taxService = taxService;
+            _localizationService = localizationService;
+            _orderProcessingService = orderProcessingService;
+            _orderService = orderService;
             _messageFactory = messageFactory;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -65,6 +81,7 @@ namespace Smartstore.Web.Controllers
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
             _localizationSettings = localizationSettings;
+            _orderSettings = orderSettings;
         }
 
         public async Task<IActionResult> Info()
@@ -290,6 +307,94 @@ namespace Smartstore.Web.Controllers
 
             return Json(new { Available = usernameAvailable, Text = statusText.Value });
         }
+        
+        #region Addresses
+
+        public async Task<IActionResult> Addresses() 
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            var model = new CustomerAddressListModel();
+
+            // TODO: (mh) (core) What to do with addressModel.PrepareModel?
+            //foreach (var address in customer.Addresses)
+            //{
+            //    var addressModel = new AddressModel();
+            //    addressModel.PrepareModel(address, false, _addressSettings, _localizationService, _stateProvinceService, () => _countryService.GetAllCountries());
+            //    model.Addresses.Add(addressModel);
+            //}
+
+            return View(model);
+        }
+
+        #endregion
+
+        #region Orders
+
+        public async Task<IActionResult> Orders(int? page, int? recurringPaymentsPage)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            var ordersPageIndex = Math.Max((page ?? 0) - 1, 0);
+            var rpPageIndex = Math.Max((recurringPaymentsPage ?? 0) - 1, 0);
+
+            var model = await PrepareCustomerOrderListModelAsync(customer, ordersPageIndex, rpPageIndex);
+            model.OrdersPage = page;
+            model.RecurringPaymentsPage = recurringPaymentsPage;
+
+            return View(model);
+        }
+
+        // TODO: (mh) (core) Test this.
+        [HttpPost, ActionName("Orders")]
+        [FormValueRequired(FormValueRequirement.StartsWith, "cancelRecurringPayment")]
+        public async Task<IActionResult> CancelRecurringPayment(FormCollection form)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            // Get recurring payment identifier.
+            var recurringPaymentId = 0;
+            foreach (var formValue in form.Keys)
+            {
+                if (formValue.StartsWith("cancelRecurringPayment", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    recurringPaymentId = Convert.ToInt32(formValue["cancelRecurringPayment".Length..]);
+                }
+            }
+
+            var recurringPayment = await _db.RecurringPayments.FindByIdAsync(recurringPaymentId, false);
+            if (recurringPayment == null)
+            {
+                return RedirectToAction("Orders");
+            }
+
+            if (recurringPayment.IsCancelable(customer))
+            {
+                var errors = await _orderProcessingService.CancelRecurringPaymentAsync(recurringPayment);
+                var model = await PrepareCustomerOrderListModelAsync(customer, 0, 0);
+                model.CancelRecurringPaymentErrors = errors.ToList();
+
+                return View(model);
+            }
+
+            return RedirectToAction("Orders");
+        }
+
+        #endregion
 
         [NonAction]
         protected async Task PrepareCustomerInfoModelAsync(CustomerInfoModel model, Customer customer, bool excludeProperties)
@@ -471,7 +576,73 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        // INFO: (mh) (core) Current CountryController just has this one method. Details TBD. RE: But it does NOT belong here. Find another - perhaps more generic - controller please.
+        [NonAction]
+        protected async Task<CustomerOrderListModel> PrepareCustomerOrderListModelAsync(Customer customer, int orderPageIndex, int recurringPaymentPageIndex)
+        {
+            Guard.NotNull(customer, nameof(customer));
+
+            var store = Services.StoreContext.CurrentStore;
+            var model = new CustomerOrderListModel();
+
+            var orders = (await _db.Orders
+                .AsNoTracking()
+                .ApplyStandardFilter(_orderSettings.DisplayOrdersOfAllStores ? 0 : store.Id, customer.Id)
+                .ToListAsync())
+                .ToPagedList(orderPageIndex, _orderSettings.OrderListPageSize);
+
+            var orderModels = await orders
+                .SelectAsync(async x =>
+                {
+                    var orderModel = new CustomerOrderListModel.OrderDetailsModel
+                    {
+                        Id = x.Id,
+                        OrderNumber = x.GetOrderNumber(),
+                        CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                        OrderStatus = await _localizationService.GetLocalizedEnumAsync(x.OrderStatus),
+                        IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(x)
+                    };
+
+                    // TODO: (mh) (core) Check format!
+                    (var orderTotal, var roundingAmount) = await _orderService.GetOrderTotalInCustomerCurrencyAsync(x);
+                    orderModel.OrderTotal = orderTotal;
+
+                    return orderModel;
+                })
+                .AsyncToList();
+
+            model.Orders = new PagedList<CustomerOrderListModel.OrderDetailsModel>(orderModels, orders.PageIndex, orders.PageSize, orders.TotalCount);
+
+            // Recurring payments.
+            var recurringPayments = (await _db.RecurringPayments
+                .AsNoTracking()
+                .ApplyStandardFilter(customerId: customer.Id, storeId: store.Id)
+                .ToListAsync())
+                .ToPagedList(recurringPaymentPageIndex, _orderSettings.RecurringPaymentListPageSize);
+
+            var rpModels = await recurringPayments
+                .SelectAsync(async x =>
+                {
+                    return new CustomerOrderListModel.RecurringPaymentModel
+                    {
+                        Id = x.Id,
+                        StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc, DateTimeKind.Utc).ToString(),
+                        CycleInfo = $"{x.CycleLength} {await _localizationService.GetLocalizedEnumAsync(x.CyclePeriod)}",
+                        NextPayment = x.NextPaymentDate.HasValue ? _dateTimeHelper.ConvertToUserTime(x.NextPaymentDate.Value, DateTimeKind.Utc).ToString() : string.Empty,
+                        TotalCycles = x.TotalCycles,
+                        CyclesRemaining = x.CyclesRemaining,
+                        InitialOrderId = x.InitialOrder.Id,
+                        CanCancel = x.IsCancelable(customer)
+                    };
+                })
+                .AsyncToList();
+
+            model.RecurringPayments = new PagedList<CustomerOrderListModel.RecurringPaymentModel>(rpModels, recurringPayments.PageIndex, recurringPayments.PageSize, recurringPayments.TotalCount);
+
+            return model;
+        }
+
+        // INFO: (mh) (core) Current CountryController just has this one method. Details TBD.
+        // RE: But it does NOT belong here. Find another - perhaps more generic - controller please.
         /// <summary>
         /// This action method gets called via an ajax request.
         /// </summary>
