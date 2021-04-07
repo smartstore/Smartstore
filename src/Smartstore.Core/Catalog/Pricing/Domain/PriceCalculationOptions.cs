@@ -93,12 +93,7 @@ namespace Smartstore.Core.Catalog.Pricing
         public ProductBatchContext ChildProductsBatchContext { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether product attributes should be ignored during price calculation.
-        /// </summary>
-        //public bool IgnoreAttributes { get; set; }
-
-        /// <summary>
-        /// TODO: (mg) (core) Describe
+        /// Gets or sets a value indicating whether to apply product attributes preselected by merchant in price calculation.
         /// </summary>
         public bool ApplyPreSelectedAttributes { get; set; }
 
@@ -155,29 +150,23 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// Gets or sets a value indicating whether the lowest possible price should be determined
-        /// (Cheapest child product, cheapest attribute combination, or lowest tier price).
+        /// (cheapest child product, cheapest attribute combination, or lowest tier price).
         /// Turn this on to show price ranges in listings. May have impact on performance.
         /// </summary>
         public bool DetermineLowestPrice { get; set; }
 
         /// <summary>
-        /// TODO: (mg) (core) Describe
+        /// Gets or sets a value indicating whether to determine the price that is initially displayed on the product detail page.
+        /// (applies the attribute combination price determined by the attributes preselected by the merchant).
+        /// May have impact on performance.
         /// </summary>
         public bool DeterminePreselectedPrice { get; set; }
 
-        /// <summary>
-        /// TODO: (mg) (core) Describe or remove
-        /// </summary>
-        public bool DetermineMinTierPrice { get; set; } // ???
-
-        /// <summary>
-        /// TODO: (mg) (core) Describe or remove
-        /// </summary>
-        public bool DetermineMinAttributeCombinationPrice { get; set; } // ???
-
+        /// <inheritdoc/>
         public PriceCalculationOptions Clone()
             => ((ICloneable)this).Clone() as PriceCalculationOptions;
 
+        /// <inheritdoc/>
         object ICloneable.Clone()
             => MemberwiseClone();
     }

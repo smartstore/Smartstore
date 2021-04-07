@@ -27,6 +27,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             // Get lowest possible price.
             var product = context.Product;
             var lowestPrice = context.FinalPrice;
+            var forceApply = false;
 
             if (product.LowestAttributeCombinationPrice.HasValue && product.LowestAttributeCombinationPrice.Value < lowestPrice)
             {
@@ -35,10 +36,13 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             if (lowestPrice == decimal.Zero && product.Price == decimal.Zero)
             {
+                // Do not display 0 as lowest price.
+                forceApply = true;
                 lowestPrice = product.LowestAttributeCombinationPrice ?? decimal.Zero;
             }
-
-            if (lowestPrice < context.FinalPrice)
+            
+            // Apply lowest price.
+            if (lowestPrice < context.FinalPrice || forceApply)
             {
                 context.FinalPrice = lowestPrice;
             }

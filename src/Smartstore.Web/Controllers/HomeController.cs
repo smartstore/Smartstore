@@ -72,6 +72,7 @@ using System.Data;
 using Smartstore.Core.Common.Settings;
 using System.Runtime.InteropServices;
 using Smartstore.Core.Catalog;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.Controllers
 {
@@ -839,19 +840,35 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
+            await MgPricingCalculationTests(content);
+
+            return Content(content.ToString());
+            //return View();
+        }
+
+        private async Task MgPricingCalculationTests(StringBuilder content)
+        {
             var pcs = Services.Resolve<IPriceCalculationService>();
             var ps = Services.Resolve<IProductService>();
             var scs = Services.Resolve<IShoppingCartService>();
             var customer = await _db.Customers.FindByIdAsync(2666330, false);
             var primaryCurrency = Services.Resolve<ICurrencyService>().PrimaryCurrency;
+            var renderedIds = new List<int>();
             var tierPriceTestQuantity = 8;
-            var productIds = new[] { 1751, 4367 };
+            var productIds = new List<int> { 1751, 4367, 4227, 4039 };
+            //var productIds = new List<int> { 3017, 3586, 3731, 3838, 4093, 4094, 4095, 4096, 4097, 4098, 4099, 4307 };
+            //var productIds = await GetRandomProductIds(0);
+            var alwaysRender = productIds.Count <= 10;
 
             foreach (var productId in productIds)
             {
                 var product = await _db.Products.FindByIdAsync(productId, false);
+                if (product == null || !product.Published)
+                    continue;
+
                 var batchContext = ps.CreateProductBatchContext(new[] { product }, null, customer);
                 var isGrouped = product.ProductType == ProductType.GroupedProduct;
+                var isBundle = product.ProductType == ProductType.BundledProduct;
 
                 var associatedProducts = isGrouped
                     ? await _db.Products
@@ -860,12 +877,17 @@ namespace Smartstore.Web.Controllers
                         .ToListAsync()
                     : null;
 
+                if (isGrouped && !associatedProducts.Any())
+                    continue;
+
                 var additionalCharge = new Money(primaryCurrency);
                 var additionalChargeTierPrice = new Money(primaryCurrency);
-                var attributeValues = await _db.ProductVariantAttributeValues
-                    .AsNoTracking()
-                    .Where(x => x.ProductVariantAttribute.ProductId == product.Id)
-                    .ToListAsync();
+                var attributeValues = product.Id == 1751
+                    ? await _db.ProductVariantAttributeValues
+                        .AsNoTracking()
+                        .Where(x => x.ProductVariantAttribute.ProductId == product.Id)
+                        .ToListAsync()
+                    : new List<ProductVariantAttributeValue>();
 
                 foreach (var attributeValue in attributeValues)
                 {
@@ -878,38 +900,50 @@ namespace Smartstore.Web.Controllers
                     ? new ProductVariantAttributeSelection(rawAttributes)
                     : new ProductVariantAttributeSelection(string.Empty);
 
-                var finalPriceTierPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalChargeTierPrice, customer, true, tierPriceTestQuantity, null, batchContext);
-                var cpFinalTpOptions = pcs.CreateDefaultOptions(false);
-                var cpFinalTpContext = new PriceCalculationContext(product, tierPriceTestQuantity, cpFinalTpOptions);
-                cpFinalTpContext.AddSelectedAttributes(attributeSelection, product.Id);
-                var cpFinalTierPrice = await pcs.CalculatePriceAsync(cpFinalTpContext);
-
                 var finalPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalCharge, customer, true, 1, null, batchContext);
                 var cpFinalOptions = pcs.CreateDefaultOptions(false);
                 var cpFinalContext = new PriceCalculationContext(product, cpFinalOptions);
                 cpFinalContext.AddSelectedAttributes(attributeSelection, product.Id);
                 var cpFinal = await pcs.CalculatePriceAsync(cpFinalContext);
 
+                var finalPriceTierPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalChargeTierPrice, customer, true, tierPriceTestQuantity, null, batchContext);
+                var cpFinalTpOptions = pcs.CreateDefaultOptions(false);
+                var cpFinalTpContext = new PriceCalculationContext(product, tierPriceTestQuantity, cpFinalTpOptions);
+                cpFinalTpContext.AddSelectedAttributes(attributeSelection, product.Id);
+                var cpFinalTierPrice = await pcs.CalculatePriceAsync(cpFinalTpContext);
+
 
                 var lowestPrice = isGrouped
                     ? (await pcs.GetLowestPriceAsync(product, customer, batchContext, associatedProducts)).LowestPrice ?? new()
                     : (await pcs.GetLowestPriceAsync(product, customer, batchContext)).LowestPrice;
-
                 var cpLowestOptions = pcs.CreateDefaultOptions(true);
                 cpLowestOptions.DetermineLowestPrice = true;
+                cpLowestOptions.ApplyPreSelectedAttributes = cpLowestOptions.DeterminePreselectedPrice = false;
                 var cpLowest = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpLowestOptions));
 
                 var preselectedPrice = await pcs.GetPreselectedPriceAsync(isGrouped ? associatedProducts.First() : product, customer, batchContext);
                 var cpPreselectedOptions = pcs.CreateDefaultOptions(true);
-                cpPreselectedOptions.DeterminePreselectedPrice = true;
+                cpPreselectedOptions.DetermineLowestPrice = false;
+                cpPreselectedOptions.ApplyPreSelectedAttributes = cpPreselectedOptions.DeterminePreselectedPrice = true;
                 var cpPreselected = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpPreselectedOptions));
 
-                content.AppendLine($"Prices       {"old".PadRight(12)} {"new".PadRight(12)} {product.Id}, {product.ProductType}");
-                content.AppendLine($"Final      : {Fmt(finalPrice, cpFinal.FinalPrice)}");
-                content.AppendLine($"Final {tierPriceTestQuantity} qty: {Fmt(finalPriceTierPrice, cpFinalTierPrice.FinalPrice)}");
-                content.AppendLine($"Lowest     : {Fmt(lowestPrice, cpLowest.FinalPrice)}");
-                content.AppendLine($"Preselected: {Fmt(preselectedPrice, cpPreselected.FinalPrice)}");
-                content.AppendLine("");
+
+                var hasDifferingAmount =
+                    (finalPrice != cpFinal.FinalPrice) ||
+                    (finalPriceTierPrice != cpFinalTierPrice.FinalPrice) ||
+                    (lowestPrice != cpLowest.FinalPrice) ||
+                    (preselectedPrice != cpPreselected.FinalPrice);
+
+                if (hasDifferingAmount || alwaysRender)
+                {
+                    renderedIds.Add(product.Id);
+                    content.AppendLine($"Prices       {"old".PadRight(12)} {"new".PadRight(12)} {product.Id}, {product.ProductType}");
+                    content.AppendLine($"Final      : {Fmt(finalPrice, cpFinal.FinalPrice)}");
+                    content.AppendLine($"Final {tierPriceTestQuantity} qty: {Fmt(finalPriceTierPrice, cpFinalTierPrice.FinalPrice)}");
+                    content.AppendLine($"Lowest     : {Fmt(lowestPrice, cpLowest.FinalPrice)}");
+                    content.AppendLine($"Preselected: {Fmt(preselectedPrice, cpPreselected.FinalPrice)}");
+                    content.AppendLine("");
+                }
             }
 
             var cart = await scs.GetCartItemsAsync(customer);
@@ -922,10 +956,7 @@ namespace Smartstore.Web.Controllers
 
             content.AppendLine($"Cart       : {Fmt(cartPrice, cpCart.FinalPrice)}");
             content.AppendLine("");
-
-
-            return Content(content.ToString());
-            //return View();
+            content.Insert(0, "productIds: " + string.Join(", ", renderedIds) + "\r\n");
 
             string Fmt(Money m1, Money m2)
             {
@@ -933,6 +964,30 @@ namespace Smartstore.Web.Controllers
                 if (m1 != m2)
                     str += " !!";
                 return str;
+            }
+            async Task<List<int>> GetRandomProductIds(int num)
+            {
+                var result = new HashSet<int>();
+                var ids = await _db.Products
+                    .Where(x => x.Published)
+                    .Select(x => x.Id)
+                    .ToListAsync();
+
+                if (num == 0)
+                    return ids;
+
+                using var random = new NumberRandomizer();
+
+                for (var i = 0; i < num * 10; ++i)
+                {
+                    var rnd = random.Next(0, ids.Count - 1);
+                    result.Add(ids[rnd]);
+
+                    if (result.Count >= num)
+                        break;
+                }
+
+                return result.ToList();
             }
         }
     }

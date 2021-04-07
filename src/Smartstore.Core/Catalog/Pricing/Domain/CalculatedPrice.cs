@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Tax;
@@ -19,8 +18,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
             Product = context.Product;
             AppliedDiscounts = context.AppliedDiscounts;
-            //AppliedTierPrice = context.AppliedTierPrice;
-            //context.AppliedAttributeCombination = context.AppliedAttributeCombination;
             HasPriceRange = context.HasPriceRange;
         }
 
@@ -35,9 +32,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// List of discount entities that have been applied during calculation.
         /// </summary>
         public ICollection<Discount> AppliedDiscounts { get; init; }
-        //public ICollection<ProductVariantAttributeValue> AppliedAttributes { get; init; }
-        //public TierPrice AppliedTierPrice { get; set; }
-        //public ProductVariantAttributeCombination AppliedAttributeCombination { get; set; }
 
         /// <summary>
         /// The regular price of the input <see cref="Product"/>, in the target currency, usually <see cref="Product.Price"/>
@@ -71,12 +65,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Includes prices of attribute combinations and tier prices. Ignores price adjustments of attributes.
         /// </summary>
         public Money? LowestPrice { get; set; }
-
-        // ??? (maybe delete, internal stuff)
-        public Money? MinTierPrice { get; set; }
-
-        // ??? (maybe delete, internal stuff)
-        public Money? MinAttributeCombinationPrice { get; set; }
 
         /// <summary>
         /// Tax for <see cref="FinalPrice"/>.
