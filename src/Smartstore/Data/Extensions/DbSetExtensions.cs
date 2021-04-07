@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Data;
 using Smartstore.Domain;
@@ -55,7 +53,7 @@ namespace Smartstore
             if (id == 0)
                 return null;
 
-            return FindTracked<TEntity>(dbSet.GetDbContext(), id) ?? dbSet.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
+            return dbSet.GetDbContext().FindTracked<TEntity>(id) ?? dbSet.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
         }
 
         /// <summary>
@@ -83,7 +81,7 @@ namespace Smartstore
             if (id == 0)
                 return null;
 
-            return FindTracked<TEntity>(query.GetDbContext(), id) ?? query.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
+            return query.GetDbContext().FindTracked<TEntity>(id) ?? query.ApplyTracking(tracked).SingleOrDefault(x => x.Id == id);
         }
 
         /// <summary>
@@ -112,7 +110,7 @@ namespace Smartstore
             if (id == 0)
                 return ValueTask.FromResult((TEntity)null);
 
-            var trackedEntity = FindTracked<TEntity>(dbSet.GetDbContext(), id);
+            var trackedEntity = dbSet.GetDbContext().FindTracked<TEntity>(id);
             return trackedEntity != null
                 ? new ValueTask<TEntity>(trackedEntity)
                 : new ValueTask<TEntity>(
@@ -145,21 +143,11 @@ namespace Smartstore
             if (id == 0)
                 return ValueTask.FromResult((TEntity)null);
 
-            var trackedEntity = FindTracked<TEntity>(query.GetDbContext(), id);
+            var trackedEntity = query.GetDbContext().FindTracked<TEntity>(id);
             return trackedEntity != null
                 ? new ValueTask<TEntity>(trackedEntity)
                 : new ValueTask<TEntity>(
                     query.ApplyTracking(tracked).SingleOrDefaultAsync(x => x.Id == id, cancellationToken));
-        }
-
-        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Perf")]
-        private static TEntity FindTracked<TEntity>(DbContext dbContext, int id)
-            where TEntity : BaseEntity
-        {
-            var stateManager = dbContext.GetDependencies().StateManager;
-            var key = dbContext.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey();
-
-            return stateManager.TryGetEntry(key, new object[] { id })?.Entity as TEntity;
         }
 
         #endregion

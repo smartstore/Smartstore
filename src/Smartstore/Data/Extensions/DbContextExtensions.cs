@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Smartstore.ComponentModel;
 using Smartstore.Data;
 using Smartstore.Domain;
@@ -70,6 +72,22 @@ namespace Smartstore
         #endregion
 
         #region Entity states, detaching
+
+        /// <summary>
+        /// Tries to locate an already loaded and tracked entity in the local state manager.
+        /// </summary>
+        /// <typeparam name="TEntity">The type of entity to locate.</typeparam>
+        /// <param name="entityId">The primary key of entity to locate.</param>
+        /// <returns>The entity instance if found, <c>null</c> otherwise.</returns>
+        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Perf")]
+        public static TEntity FindTracked<TEntity>(this HookingDbContext ctx, int entityId)
+            where TEntity : BaseEntity
+        {
+            var stateManager = ctx.GetDependencies().StateManager;
+            var key = ctx.Model.FindEntityType(typeof(TEntity)).FindPrimaryKey();
+
+            return stateManager.TryGetEntry(key, new object[] { entityId })?.Entity as TEntity;
+        }
 
         /// <summary>
         /// Checks whether at least one entity in the change tracker is in <see cref="EfState.Added"/>, 
@@ -333,13 +351,19 @@ namespace Smartstore
             Guard.NotNull(entity, nameof(entity));
             Guard.NotNull(navigationProperty, nameof(navigationProperty));
 
+            collectionEntry = null;
+            if (entity.Id == 0)
+            {
+                return false;
+            }
+
             var entry = ctx.Entry(entity);
             collectionEntry = entry.Collection(navigationProperty);
 
             // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
             if (entry.State == EfState.Detached || entry.State == EfState.Added)
             {
-                return false;
+                return collectionEntry.CurrentValue != null;
             }
 
             return collectionEntry.IsLoaded;
@@ -367,13 +391,19 @@ namespace Smartstore
             Guard.NotNull(entity, nameof(entity));
             Guard.NotNull(navigationProperty, nameof(navigationProperty));
 
+            referenceEntry = null;
+            if (entity.Id == 0)
+            {
+                return false;
+            }
+
             var entry = ctx.Entry(entity);
             referenceEntry = entry.Reference(navigationProperty);
 
             // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
             if (entry.State == EfState.Detached || entry.State == EfState.Added)
             {
-                return false;
+                return referenceEntry.CurrentValue != null;
             }
 
             return referenceEntry.IsLoaded;
@@ -386,7 +416,7 @@ namespace Smartstore
         /// <param name="navigationProperty">The navigation property expression.</param>
         /// <param name="force"><c>false:</c> do nothing if data is already loaded. <c>true:</c> Reload data event if loaded already.</param>
         /// <param name="queryModifier">Modifier for the query that is about to be executed against the database.</param>
-        public static async Task LoadCollectionAsync<TEntity, TCollection>(
+        public static async Task<CollectionEntry<TEntity, TCollection>> LoadCollectionAsync<TEntity, TCollection>(
             this HookingDbContext ctx,
             TEntity entity,
             Expression<Func<TEntity, IEnumerable<TCollection>>> navigationProperty,
@@ -398,15 +428,43 @@ namespace Smartstore
             Guard.NotNull(entity, nameof(entity));
             Guard.NotNull(navigationProperty, nameof(navigationProperty));
 
-            var entry = ctx.Entry(entity);
-            var collection = entry.Collection(navigationProperty);
+            if (entity.Id == 0)
+            {
+                return null;
+            }
 
-            // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
-            if (entry.State == EfState.Detached)
+            var entry = ctx.Entry(entity);
+            if (entry.State == EfState.Deleted)
+            {
+                return null;
+            }
+
+            var collection = entry.Collection(navigationProperty);
+            var isLoaded = collection.CurrentValue != null || collection.IsLoaded;
+
+            if (!isLoaded && entry.State == EfState.Detached)
             {
                 try
                 {
-                    ctx.Attach(entity);
+                    // Attaching an entity while another instance with same primary key is attached will throw.
+                    // First we gonna try to locate an already attached entity.
+                    var other = ctx.FindTracked<TEntity>(entity.Id);
+                    if (other != null)
+                    {
+                        // An entity with same key is attached already. So we gonna load the navigation property of attached entity
+                        // and copy the result to this detached entity. This way we don't need to attach the source entity.
+                        var otherCollection = await ctx.LoadCollectionAsync(other, navigationProperty, force, queryModifier);
+
+                        // Copy collection over to detached entity.
+                        collection.CurrentValue = otherCollection.CurrentValue;
+                        collection.IsLoaded = true;
+                        isLoaded = true;
+                        force = false;
+                    }
+                    else
+                    {
+                        ctx.Attach(entity);
+                    }
                 }
                 catch
                 {
@@ -417,9 +475,10 @@ namespace Smartstore
             if (force)
             {
                 collection.IsLoaded = false;
+                isLoaded = false;
             }
 
-            if (!collection.IsLoaded)
+            if (!isLoaded)
             {
                 if (queryModifier != null)
                 {
@@ -433,6 +492,8 @@ namespace Smartstore
 
                 collection.IsLoaded = true;
             }
+
+            return collection;
         }
 
         /// <summary>
@@ -442,7 +503,7 @@ namespace Smartstore
         /// <param name="navigationProperty">The navigation property expression.</param>
         /// <param name="force"><c>false:</c> do nothing if data is already loaded. <c>true:</c> Reload data event if loaded already.</param>
         /// <param name="queryModifier">Modifier for the query that is about to be executed against the database.</param>
-        public static async Task LoadReferenceAsync<TEntity, TProperty>(
+        public static async Task<ReferenceEntry<TEntity, TProperty>> LoadReferenceAsync<TEntity, TProperty>(
             this HookingDbContext ctx,
             TEntity entity,
             Expression<Func<TEntity, TProperty>> navigationProperty,
@@ -454,15 +515,43 @@ namespace Smartstore
             Guard.NotNull(entity, nameof(entity));
             Guard.NotNull(navigationProperty, nameof(navigationProperty));
 
-            var entry = ctx.Entry(entity);
-            var reference = entry.Reference(navigationProperty);
+            if (entity.Id == 0)
+            {
+                return null;
+            }
 
-            // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
-            if (entry.State == EfState.Detached)
+            var entry = ctx.Entry(entity);
+            if (entry.State == EfState.Deleted)
+            {
+                return null;
+            }
+
+            var reference = entry.Reference(navigationProperty);
+            var isLoaded = reference.CurrentValue != null || reference.IsLoaded;
+
+            if (!isLoaded && entry.State == EfState.Detached)
             {
                 try
                 {
-                    ctx.Attach(entity);
+                    // Attaching an entity while another instance with same primary key is attached will throw.
+                    // First we gonna try to locate an already attached entity.
+                    var other = ctx.FindTracked<TEntity>(entity.Id);
+                    if (other != null)
+                    {
+                        // An entity with same key is attached already. So we gonna load the reference property of attached entity
+                        // and copy the result to this detached entity. This way we don't need to attach the source entity.
+                        var otherReference = await ctx.LoadReferenceAsync(other, navigationProperty, force, queryModifier);
+
+                        // Copy reference over to detached entity.
+                        reference.CurrentValue = otherReference.CurrentValue;
+                        reference.IsLoaded = true;
+                        isLoaded = true;
+                        force = false;
+                    }
+                    else
+                    {
+                        ctx.Attach(entity);
+                    }
                 }
                 catch
                 {
@@ -473,9 +562,10 @@ namespace Smartstore
             if (force)
             {
                 reference.IsLoaded = false;
+                isLoaded = false;
             }
 
-            if (!reference.IsLoaded)
+            if (!isLoaded)
             {
                 if (queryModifier != null)
                 {
@@ -489,6 +579,8 @@ namespace Smartstore
 
                 reference.IsLoaded = true;
             }
+
+            return reference;
         }
 
         #endregion

@@ -187,10 +187,9 @@ namespace Smartstore.Core.Bootstrapping
             Action<IServiceProvider, DbContextOptionsBuilder, RelationalOptionsExtension> optionsBuilder = null)
             where TContext : HookingDbContext
         {
+            // INFO: TContextImpl cannot be a type parameter because type is defined in an assembly that is not referenced.
             Guard.NotNull(services, nameof(services));
             Guard.NotNull(contextImplType, nameof(contextImplType));
-
-            // INFO: TContextImpl cannot be a type parameter because type is defined in an assembly that is not referenced.
 
             var addPoolingOptionsMethod = typeof(EntityFrameworkServiceCollectionExtensions)
                 .GetMethod("AddPoolingOptions", BindingFlags.NonPublic | BindingFlags.Static)
