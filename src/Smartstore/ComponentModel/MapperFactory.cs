@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Autofac;
 using Smartstore.Engine;
 
@@ -58,19 +59,19 @@ namespace Smartstore.ComponentModel
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TTo Map<TFrom, TTo>(TFrom from)
+        public static Task<TTo> MapAsync<TFrom, TTo>(TFrom from, dynamic parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
-            return GetMapper<TFrom, TTo>().Map(from);
+            return GetMapper<TFrom, TTo>().MapAsync(from, parameters);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Map<TFrom, TTo>(TFrom from, TTo to)
+        public static Task MapAsync<TFrom, TTo>(TFrom from, TTo to, dynamic parameters = null)
             where TFrom : class
             where TTo : class
         {
-            GetMapper<TFrom, TTo>().Map(from, to);
+            return GetMapper<TFrom, TTo>().MapAsync(from, to, parameters);
         }
 
         public static IMapper<TFrom, TTo> GetMapper<TFrom, TTo>()
@@ -105,14 +106,12 @@ namespace Smartstore.ComponentModel
             public Type ToType { get => base.Item2; }
         }
 
-        class GenericMapper<TFrom, TTo> : IMapper<TFrom, TTo>
+        class GenericMapper<TFrom, TTo> : Mapper<TFrom, TTo>
             where TFrom : class
             where TTo : class
         {
-            public void Map(TFrom from, TTo to)
-            {
-                MiniMapper.Map<TFrom, TTo>(from, to);
-            }
+            protected override void Map(TFrom from, TTo to, dynamic parameters = null)
+                => MiniMapper.Map<TFrom, TTo>(from, to);
         }
     }
 }

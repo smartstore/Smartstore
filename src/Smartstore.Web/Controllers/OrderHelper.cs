@@ -310,7 +310,7 @@ namespace Smartstore.Web.Controllers
             if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {
                 model.IsShippable = true;
-                MapperFactory.Map(order.ShippingAddress, model.ShippingAddress);
+                await MapperFactory.MapAsync(order.ShippingAddress, model.ShippingAddress);
                 model.ShippingMethod = order.ShippingMethod;
 
                 // Shipments (only already shipped).
@@ -336,7 +336,7 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            MapperFactory.Map(order.BillingAddress, model.BillingAddress);
+            await MapperFactory.MapAsync(order.BillingAddress, model.BillingAddress);
             model.VatNumber = order.VatNumber;
 
             // Payment method.

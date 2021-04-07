@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
@@ -10,7 +12,7 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Common
 {
-    internal class AddressMapper : IMapper<Address, AddressModel>
+    internal class AddressMapper : Mapper<Address, AddressModel>
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
@@ -23,16 +25,21 @@ namespace Smartstore.Web.Models.Common
             _addressSettings = addressSettings;
         }
 
-        public void Map(Address from, AddressModel to)
+        protected override void Map(Address from, AddressModel to, dynamic parameters = null)
+            => throw new NotImplementedException();
+
+        public override async Task MapAsync(Address from, AddressModel to, dynamic parameters = null)
         {
             // INFO & TODO: (mh) (core) Legacy params. Was false most of the time.
             var excludeProperties = false;
 
-            // INFO: (mh) (core) no async :-/
-            var loadCountries = _db.Countries
+            // TODO: (mh) (core) This mapper does not behave like original one. In classic, a countries loader delegate
+            // is passed to the mapping function, whereas here ALL countries are loaded (ALWAYS!).
+
+            var countries = await _db.Countries
                 .AsNoTracking()
                 .ApplyStandardFilter()
-                .ToList();
+                .ToListAsync();
 
             // Form fields
             MiniMapper.Map(_addressSettings, to);
@@ -52,10 +59,10 @@ namespace Smartstore.Web.Models.Common
             }
 
             // Countries and states
-            if (_addressSettings.CountryEnabled && loadCountries != null)
+            if (_addressSettings.CountryEnabled && countries != null)
             {
                 to.AvailableCountries.Add(new SelectListItem { Text = _services.Localization.GetResource("Address.SelectCountry"), Value = "0" });
-                foreach (var c in loadCountries)
+                foreach (var c in countries)
                 {
                     to.AvailableCountries.Add(new SelectListItem
                     {
@@ -67,7 +74,10 @@ namespace Smartstore.Web.Models.Common
 
                 if (_addressSettings.StateProvinceEnabled)
                 {
-                    var states = _db.StateProvinces.Where(x => x.CountryId == (to.CountryId ?? 0)).ToList();
+                    var states = await _db.StateProvinces
+                        .AsNoTracking()
+                        .Where(x => x.CountryId == (to.CountryId ?? 0))
+                        .ToListAsync();
 
                     if (states.Count > 0)
                     {
