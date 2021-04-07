@@ -785,7 +785,8 @@ namespace Smartstore.Core.Catalog.Pricing
             // 1. Fill query with initially selected attributes.
             foreach (var attribute in attributes.Where(x => x.ProductVariantAttributeValues.Any() && x.IsListTypeAttribute()))
             {
-                await _db.LoadCollectionAsync(attribute, x => x.ProductVariantAttributeValues);
+                // INFO: ProductVariantAttributeValues are eager loaded already.
+                //await _db.LoadCollectionAsync(attribute, x => x.ProductVariantAttributeValues);
 
                 var preSelectedValueId = 0;
                 var selectedValueIds = new List<int>();

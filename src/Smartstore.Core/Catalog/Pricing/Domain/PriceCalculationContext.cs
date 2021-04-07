@@ -147,21 +147,36 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             if (_preSelectedAttributeValues == null)
             {
+                _preSelectedAttributeValues = new List<ProductVariantAttributeValue>();
+
+                var bundleItem = BundleItem?.Item;
                 var attributes = await Options.BatchContext.Attributes.GetOrLoadAsync(Product.Id);
-                var preSelectedValues = attributes.SelectMany(x => x.ProductVariantAttributeValues);
 
-                // Ignore attributes that are filtered out for a bundle item.
-                if (BundleItem?.Item?.FilterAttributes ?? false)
+                foreach (var attribute in attributes.Where(x => x.IsListTypeAttribute()))
                 {
-                    preSelectedValues = preSelectedValues
-                        .Where(x => BundleItem.Item.AttributeFilters.Any(af => af.IsPreSelected && af.AttributeId == x.ProductVariantAttributeId && af.AttributeValueId == x.Id));
-                }
-                else
-                {
-                    preSelectedValues = preSelectedValues.Where(x => x.IsPreSelected);
-                }
+                    ProductVariantAttributeValue defaultValue = null;
 
-                _preSelectedAttributeValues = preSelectedValues.ToList();
+                    // Get the attribute value preselected by a bundle item attribute filter.
+                    if (bundleItem?.FilterAttributes ?? false)
+                    {
+                        // Only a single value can be preselected for an attribute filter (that's why we use FirstOrDefault).
+                        var valueId = bundleItem.AttributeFilters.FirstOrDefault(x => x.AttributeId == attribute.Id && x.IsPreSelected)?.AttributeValueId ?? 0;
+                        if (valueId != 0)
+                        {
+                            defaultValue = attribute.ProductVariantAttributeValues.FirstOrDefault(x => x.Id == valueId);
+                        }
+                    }
+
+                    // A value preselected by a bundle item attribute filter always discards the default preselection.
+                    if (defaultValue != null)
+                    {
+                        _preSelectedAttributeValues.Add(defaultValue);
+                    }
+                    else
+                    {
+                        _preSelectedAttributeValues.AddRange(attribute.ProductVariantAttributeValues.Where(x => x.IsPreSelected));
+                    }
+                }
             }
 
             return _preSelectedAttributeValues;

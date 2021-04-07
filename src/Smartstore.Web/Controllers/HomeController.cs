@@ -856,7 +856,7 @@ namespace Smartstore.Web.Controllers
             var productIds = new List<int> { 1751, 4367, 4227, 4039 };
             //var productIds = new List<int> { 3017, 3586, 3731, 3838, 4093, 4094, 4095, 4096, 4097, 4098, 4099, 4307 };
             //var productIds = await GetRandomProductIds(0);
-            var alwaysRender = productIds.Count <= 10;
+            var alwaysRender = productIds.Count <= 12;
 
             foreach (var productId in productIds)
             {
