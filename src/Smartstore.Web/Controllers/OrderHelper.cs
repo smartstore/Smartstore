@@ -74,6 +74,8 @@ namespace Smartstore.Web.Controllers
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
+        public static string OrderDetailsPrintViewPath => "~/Views/Order/Details.Print.cshtml";
+
         private async Task<ImageModel> PrepareOrderItemImageModelAsync(
             Product product,
             int pictureSize,
@@ -98,7 +100,7 @@ namespace Smartstore.Web.Controllers
             // No attribute combination image, then load product picture.
             if (file == null)
             {
-                // TODO: (mh) (core) Wierd problem with ApplyProductFilter here. Solve this!
+                // TODO: (mh) (core) Weird problem with ApplyProductFilter here. Solve this!
                 var mediaFile = await _db.ProductMediaFiles
                     .AsNoTracking()
                     //.ApplyProductFilter(new int[] { product.Id }, 1)
@@ -164,11 +166,7 @@ namespace Smartstore.Web.Controllers
                 AttributeInfo = orderItem.AttributeDescription
             };
 
-            var quantityUnit = await _db.QuantityUnits
-                .AsNoTracking()
-                .Where(x => x.Id == orderItem.Product.QuantityUnitId)
-                .FirstOrDefaultAsync();
-
+            var quantityUnit = await _db.QuantityUnits.FindByIdAsync(orderItem.Product.QuantityUnitId ?? 0, false);
             model.QuantityUnit = quantityUnit == null ? string.Empty : quantityUnit.GetLocalized(x => x.Name);
 
             if (orderItem.Product.ProductType == ProductType.BundledProduct && orderItem.BundleData.HasValue())
@@ -274,40 +272,41 @@ namespace Smartstore.Web.Controllers
         {
             Guard.NotNull(order, nameof(order));
 
+            var settingFactory = _services.SettingFactory;
             var store = await _db.Stores.FindByIdAsync(order.StoreId, false) ?? _services.StoreContext.CurrentStore;
             var language = _services.WorkContext.WorkingLanguage;
 
-            var orderSettings = await _services.SettingFactory.LoadSettingsAsync<OrderSettings>(store.Id);
-            var catalogSettings = await _services.SettingFactory.LoadSettingsAsync<CatalogSettings>(store.Id);
-            var taxSettings = await _services.SettingFactory.LoadSettingsAsync<TaxSettings>(store.Id);
-            var pdfSettings = await _services.SettingFactory.LoadSettingsAsync<PdfSettings>(store.Id);
-            var addressSettings = await _services.SettingFactory.LoadSettingsAsync<AddressSettings>(store.Id);
-            var companyInfoSettings = await _services.SettingFactory.LoadSettingsAsync<CompanyInformationSettings>(store.Id);
-            var shoppingCartSettings = await _services.SettingFactory.LoadSettingsAsync<ShoppingCartSettings>(store.Id);
-            var mediaSettings = await _services.SettingFactory.LoadSettingsAsync<MediaSettings>(store.Id);
+            var orderSettings = await settingFactory.LoadSettingsAsync<OrderSettings>(store.Id);
+            var catalogSettings = await settingFactory.LoadSettingsAsync<CatalogSettings>(store.Id);
+            var taxSettings = await settingFactory.LoadSettingsAsync<TaxSettings>(store.Id);
+            var pdfSettings = await settingFactory.LoadSettingsAsync<PdfSettings>(store.Id);
+            var addressSettings = await settingFactory.LoadSettingsAsync<AddressSettings>(store.Id);
+            var companyInfoSettings = await settingFactory.LoadSettingsAsync<CompanyInformationSettings>(store.Id);
+            var shoppingCartSettings = await settingFactory.LoadSettingsAsync<ShoppingCartSettings>(store.Id);
+            var mediaSettings = await settingFactory.LoadSettingsAsync<MediaSettings>(store.Id);
 
-            var model = new OrderDetailsModel();
+            var model = new OrderDetailsModel
+            {
+                Id = order.Id,
+                StoreId = order.StoreId,
+                CustomerLanguageId = order.CustomerLanguageId,
+                CustomerComment = order.CustomerOrderComment,
+                OrderNumber = order.GetOrderNumber(),
+                CreatedOn = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc),
+                OrderStatus = await _services.Localization.GetLocalizedEnumAsync(order.OrderStatus),
+                IsReOrderAllowed = orderSettings.IsReOrderAllowed,
+                IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(order),
+                DisplayPdfInvoice = pdfSettings.Enabled,
+                RenderOrderNotes = pdfSettings.RenderOrderNotes,
+                // Shipping info.
+                ShippingStatus = await _services.Localization.GetLocalizedEnumAsync(order.ShippingStatus)
+            };
 
             // TODO: refactor modelling for multi-order processing.
             var companyCountry = await _db.Countries.FindByIdAsync(companyInfoSettings.CountryId, false);
             model.MerchantCompanyInfo = companyInfoSettings;
-            model.MerchantCompanyCountryName = companyCountry != null ? companyCountry.GetLocalized(x => x.Name) : null;
+            model.MerchantCompanyCountryName = companyCountry?.GetLocalized(x => x.Name);
 
-            model.Id = order.Id;
-            model.StoreId = order.StoreId;
-            model.CustomerLanguageId = order.CustomerLanguageId;
-            model.CustomerComment = order.CustomerOrderComment;
-
-            model.OrderNumber = order.GetOrderNumber();
-            model.CreatedOn = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
-            model.OrderStatus = await _services.Localization.GetLocalizedEnumAsync(order.OrderStatus);
-            model.IsReOrderAllowed = orderSettings.IsReOrderAllowed;
-            model.IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(order);
-            model.DisplayPdfInvoice = pdfSettings.Enabled;
-            model.RenderOrderNotes = pdfSettings.RenderOrderNotes;
-
-            // Shipping info.
-            model.ShippingStatus = await _services.Localization.GetLocalizedEnumAsync(order.ShippingStatus);
             if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {
                 model.IsShippable = true;
@@ -349,7 +348,7 @@ namespace Smartstore.Web.Controllers
             model.CanRePostProcessPayment = await _paymentService.CanRePostProcessPaymentAsync(order);
 
             // Purchase order number (we have to find a better to inject this information because it's related to a certain plugin).
-            if (paymentMethod != null && paymentMethod.Metadata.SystemName.Equals("SmartStore.PurchaseOrderNumber", StringComparison.InvariantCultureIgnoreCase))
+            if (paymentMethod != null && paymentMethod.Metadata.SystemName.Equals("Smartstore.PurchaseOrderNumber", StringComparison.InvariantCultureIgnoreCase))
             {
                 model.DisplayPurchaseOrderNumber = true;
                 model.PurchaseOrderNumber = order.PurchaseOrderNumber;
