@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
@@ -563,7 +564,7 @@ namespace Smartstore.Web.Controllers
                 {
                     Note = orderNote.FormatOrderNoteText(),
                     CreatedOn = createdOn,
-                    FriendlyCreatedOn = createdOn.RelativeFormat(false, "f")
+                    FriendlyCreatedOn = createdOn.Humanize()
                 });
             }
 
