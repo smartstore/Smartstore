@@ -8,6 +8,29 @@ using Smartstore.Engine;
 
 namespace Smartstore.Core.Data
 {
+    /// <summary>
+    /// Provides support for multi-provider-aware pooled DbContext factories.
+    /// </summary>
+    [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Support for multi-provider pooled factory")]
+    public sealed class PooledApplicationDbContextFactory<TContext, TContextImpl> : IDbContextFactory<TContext>
+        where TContextImpl : HookingDbContext, TContext
+        where TContext : DbContext
+    {
+        private readonly IDbContextPool<TContextImpl> _pool;
+
+        public PooledApplicationDbContextFactory(IDbContextPool<TContextImpl> pool)
+        {
+            Guard.NotNull(pool, nameof(pool));
+            _pool = pool;
+        }
+
+        public TContext CreateDbContext()
+            => (TContext)new DbContextLease(_pool, standalone: true).Context;
+    }
+
+    /// <summary>
+    /// Provides support for multi-provider-aware pooled DbContext factories.
+    /// </summary>
     [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Support for multi-provider pooled factory")]
     internal sealed class PooledApplicationDbContextFactory<TContext> : IDbContextFactory<TContext>
         where TContext : HookingDbContext

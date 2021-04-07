@@ -50,14 +50,13 @@ namespace Smartstore.Core.Bootstrapping
         public static IServiceCollection AddApplicationDbContext<TContext>(
             this IServiceCollection services,
             bool enableCache = true,
-            Action<IServiceProvider, DbContextOptionsBuilder> optionsBuilder = null,
-            Action<RelationalOptionsExtension> relationalOptionsBuilder = null)
+            Action<IServiceProvider, DbContextOptionsBuilder, RelationalOptionsExtension> optionsBuilder = null)
             where TContext : HookingDbContext
         {
             Guard.NotNull(services, nameof(services));
 
             services.AddDbContext<TContext>(
-                (p, o) => ConfigureDbContext(p, o, enableCache, optionsBuilder, relationalOptionsBuilder),
+                (p, o) => ConfigureDbContext(p, o, enableCache, optionsBuilder),
                 ServiceLifetime.Scoped, 
                 ServiceLifetime.Singleton);
 
@@ -75,15 +74,14 @@ namespace Smartstore.Core.Bootstrapping
         public static IServiceCollection AddApplicationDbContext<TContext, TContextImpl>(
             this IServiceCollection services,
             bool enableCache = true,
-            Action<IServiceProvider, DbContextOptionsBuilder> optionsBuilder = null,
-            Action<RelationalOptionsExtension> relationalOptionsBuilder = null)
+            Action<IServiceProvider, DbContextOptionsBuilder, RelationalOptionsExtension> optionsBuilder = null)
             where TContextImpl : HookingDbContext, TContext
             where TContext : class
         {
             Guard.NotNull(services, nameof(services));
 
             services.AddDbContext<TContext, TContextImpl>(
-                (p, o) => ConfigureDbContext(p, o, enableCache, optionsBuilder, relationalOptionsBuilder),
+                (p, o) => ConfigureDbContext(p, o, enableCache, optionsBuilder),
                 ServiceLifetime.Scoped, 
                 ServiceLifetime.Singleton);
 
@@ -105,14 +103,13 @@ namespace Smartstore.Core.Bootstrapping
             this IServiceCollection services,
             IApplicationContext appContext,
             bool enableCaching = true,
-            Action<IServiceProvider, DbContextOptionsBuilder> optionsBuilder = null,
-            Action<RelationalOptionsExtension> relationalOptionsBuilder = null)
+            Action<IServiceProvider, DbContextOptionsBuilder, RelationalOptionsExtension> optionsBuilder = null)
             where TContext : HookingDbContext
         {
             Guard.NotNull(services, nameof(services));
 
             services.AddDbContextPool<TContext>(
-                (p, o) => ConfigureDbContext(p, o, enableCaching, optionsBuilder, relationalOptionsBuilder),
+                (p, o) => ConfigureDbContext(p, o, enableCaching, optionsBuilder),
                 appContext.AppConfiguration.DbContextPoolSize);
 
             return services;
@@ -131,15 +128,14 @@ namespace Smartstore.Core.Bootstrapping
             this IServiceCollection services,
             int poolSize = 128,
             bool enableCaching = true,
-            Action<IServiceProvider, DbContextOptionsBuilder> optionsBuilder = null,
-            Action<RelationalOptionsExtension> relationalOptionsBuilder = null)
+            Action<IServiceProvider, DbContextOptionsBuilder, RelationalOptionsExtension> optionsBuilder = null)
             where TContextImpl : HookingDbContext, TContext
             where TContext : class
         {
             Guard.NotNull(services, nameof(services));
 
             services.AddDbContextPool<TContext, TContextImpl>(
-                (p, o) => ConfigureDbContext(p, o, enableCaching, optionsBuilder, relationalOptionsBuilder),
+                (p, o) => ConfigureDbContext(p, o, enableCaching, optionsBuilder),
                 poolSize);
 
             return services;
@@ -160,21 +156,19 @@ namespace Smartstore.Core.Bootstrapping
             this IServiceCollection services, 
             int poolSize = 128,
             bool enableCaching = true,
-            Action<IServiceProvider, DbContextOptionsBuilder> optionsBuilder = null,
-            Action<RelationalOptionsExtension> relationalOptionsBuilder = null)
+            Action<IServiceProvider, DbContextOptionsBuilder, RelationalOptionsExtension> optionsBuilder = null)
             where TContext : HookingDbContext
         {
             Guard.NotNull(services, nameof(services));
 
             services.AddPooledDbContextFactory<TContext>(
-                (p, o) => ConfigureDbContext(p, o, enableCaching, optionsBuilder, relationalOptionsBuilder), 
+                (p, o) => ConfigureDbContext(p, o, enableCaching, optionsBuilder), 
                 poolSize);
 
             services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext());
 
             return services;
         }
-
 
         /// <summary>
         /// Registers a pooling <see cref="IDbContextFactory{TContext}"/> as singleton, <typeparamref name="TContext"/> as scoped,
@@ -183,15 +177,14 @@ namespace Smartstore.Core.Bootstrapping
         /// <param name="contextImplType">The type of database provider specific, derived context.</param>
         /// <param name="poolSize">Sets the maximum number of instances retained by the pool.</param>
         /// <param name="enableCaching">Whether to add the interceptor for 2nd level entity caching.</param>
-        /// <param name="optionsBuilder">A custom options modifier</param>
+        /// <param name="optionsBuilder">A custom options modifier.</param>
         [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Support for multi-provider pooled factory")]
         public static IServiceCollection AddPooledApplicationDbContextFactory<TContext>(
             this IServiceCollection services,
             Type contextImplType,
             int poolSize = 128,
             bool enableCaching = true,
-            Action<IServiceProvider, DbContextOptionsBuilder> optionsBuilder = null,
-            Action<RelationalOptionsExtension> relationalOptionsBuilder = null)
+            Action<IServiceProvider, DbContextOptionsBuilder, RelationalOptionsExtension> optionsBuilder = null)
             where TContext : HookingDbContext
         {
             Guard.NotNull(services, nameof(services));
@@ -204,17 +197,25 @@ namespace Smartstore.Core.Bootstrapping
                 .MakeGenericMethod(contextImplType);
 
             // --> Call AddPoolingOptions<TContextImplementation>(services, optionsAction, poolSize)
-            addPoolingOptionsMethod.Invoke(null, new object[] { 
-                services, 
-                (Action<IServiceProvider, DbContextOptionsBuilder>)DbProviderConfigurer, 
+            addPoolingOptionsMethod.Invoke(null, new object[] {
+                services,
+                (Action<IServiceProvider, DbContextOptionsBuilder>)DbProviderConfigurer,
                 poolSize });
 
             // --> Call services.TryAddSingleton<IDbContextPool<TContextImpl>, DbContextPool<TContextImpl>>()
-            services.TryAddSingleton(
-                typeof(IDbContextPool<>).MakeGenericType(contextImplType),
-                typeof(DbContextPool<>).MakeGenericType(contextImplType));
+            var contextPoolServiceType = typeof(IDbContextPool<>).MakeGenericType(contextImplType);
+            var contextPoolImplType = typeof(DbContextPool<>).MakeGenericType(contextImplType);
+            services.TryAddSingleton(contextPoolServiceType, contextPoolImplType);
 
-            services.TryAddSingleton<IDbContextFactory<TContext>>(c => new PooledApplicationDbContextFactory<TContext>(contextImplType));
+            // --> Register provider-aware IDbContextFactory<TContext>
+            services.TryAddSingleton(c => 
+            {
+                var pool = c.GetRequiredService(contextPoolServiceType);
+                var pooledFactoryType = typeof(PooledApplicationDbContextFactory<,>).MakeGenericType(typeof(TContext), contextImplType);
+
+                var instance = Activator.CreateInstance(pooledFactoryType, new object[] { pool });
+                return (IDbContextFactory<TContext>)instance;
+            });
 
             services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext());
 
@@ -222,18 +223,17 @@ namespace Smartstore.Core.Bootstrapping
 
             void DbProviderConfigurer(IServiceProvider p, DbContextOptionsBuilder o)
             {
-                ConfigureDbContext(p, o, enableCaching, optionsBuilder, relationalOptionsBuilder);
+                ConfigureDbContext(p, o, enableCaching, optionsBuilder);
             }
         }
 
         #endregion
 
         private static void ConfigureDbContext(
-            IServiceProvider p, 
+            IServiceProvider p,
             DbContextOptionsBuilder builder,
             bool enableCaching,
-            Action<IServiceProvider, DbContextOptionsBuilder> customOptionsBuilder,
-            Action<RelationalOptionsExtension> relationalOptionsBuilder)
+            Action<IServiceProvider, DbContextOptionsBuilder, RelationalOptionsExtension> customOptionsBuilder)
         {
             var appContext = p.GetRequiredService<IApplicationContext>();
             var appConfig = appContext.AppConfiguration;
@@ -250,7 +250,7 @@ namespace Smartstore.Core.Bootstrapping
                     //w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
                     //w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
                 })
-                // Replace default conventionset builder with a custom one that removes
+                // Replace default ConventionSet builder with a custom one that removes
                 // "ServicePropertyDiscoveryConvention" convention. See INFO in FixedRuntimeConventionSetBuilder class.
                 .ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>();
 
@@ -264,8 +264,6 @@ namespace Smartstore.Core.Bootstrapping
                 }
 
                 relationalOptions.WithMigrationsHistoryTableName("__EFMigrationsHistory_" + options.ContextType.Name);
-
-                relationalOptionsBuilder?.Invoke(relationalOptions);
             }
 
             if (enableCaching)
@@ -274,7 +272,7 @@ namespace Smartstore.Core.Bootstrapping
             }
 
             // Custom action from module or alike
-            customOptionsBuilder?.Invoke(p, builder);
+            customOptionsBuilder?.Invoke(p, builder, relationalOptions);
         }
     }
 }
