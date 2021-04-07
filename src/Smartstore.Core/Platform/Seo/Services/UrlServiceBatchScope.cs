@@ -69,6 +69,7 @@ namespace Smartstore.Core.Seo
             }
 
             var numAffected = await _urlService._db.SaveChangesAsync(cancelToken);
+            _batch.Clear();
             return numAffected;
 
             //return 0;

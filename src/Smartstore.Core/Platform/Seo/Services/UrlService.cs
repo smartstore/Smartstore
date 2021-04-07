@@ -32,7 +32,6 @@ namespace Smartstore.Core.Seo
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
-        private readonly IWebHelper _webHelper;
         private readonly ILanguageService _languageService;
         private readonly LocalizationSettings _localizationSettings;
         internal readonly SeoSettings _seoSettings;
@@ -51,7 +50,6 @@ namespace Smartstore.Core.Seo
             IHttpContextAccessor httpContextAccessor,
             IWorkContext workContext,
             IStoreContext storeContext,
-            IWebHelper webHelper,
             ILanguageService languageService,
             LocalizationSettings localizationSettings,
             SeoSettings seoSettings,
@@ -63,7 +61,6 @@ namespace Smartstore.Core.Seo
             _httpContextAccessor = httpContextAccessor;
             _workContext = workContext;
             _storeContext = storeContext;
-            _webHelper = webHelper;
             _languageService = languageService;
             _localizationSettings = localizationSettings;
             _seoSettings = seoSettings;
@@ -88,7 +85,6 @@ namespace Smartstore.Core.Seo
                 _httpContextAccessor,
                 _workContext,
                 _storeContext,
-                _webHelper,
                 _languageService,
                 _localizationSettings,
                 _seoSettings,
