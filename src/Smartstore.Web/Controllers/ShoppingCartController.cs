@@ -118,6 +118,7 @@ namespace Smartstore.Web.Controllers
         [NonAction]
         protected async Task PrepareButtonPaymentMethodModelAsync(ButtonPaymentMethodModel model, IList<OrganizedShoppingCartItem> cart)
         {
+            // TODO: (ms) (core) There was no throwing in the original code. I suggest to return if model is null or query IsNullOrEmpty().
             Guard.NotNull(model, nameof(model));
             Guard.NotNull(cart, nameof(cart));
 
@@ -145,6 +146,7 @@ namespace Smartstore.Web.Controllers
         [NonAction]
         protected async Task ParseAndSaveCheckoutAttributesAsync(List<OrganizedShoppingCartItem> cart, ProductVariantQuery query)
         {
+            // TODO: (ms) (core) There was no throwing in the original code. I suggest to return if cart or query IsNullOrEmpty().
             Guard.NotNull(cart, nameof(cart));
             Guard.NotNull(query, nameof(query));
 
@@ -242,6 +244,8 @@ namespace Smartstore.Web.Controllers
             if (cart.Count == 0)
                 return model;
 
+            // TODO: (ms) (core) Wishlist can be sent to other customers.
+            // So to use WorkContext.CurrentCustomer may be incorrect, though cart.FirstOrDefault()?.Item.Customer should never be null.
             var customer = cart.FirstOrDefault()?.Item.Customer ?? Services.WorkContext.CurrentCustomer;
             model.CustomerGuid = customer.CustomerGuid;
             model.CustomerFullname = customer.GetFullName();
@@ -293,6 +297,7 @@ namespace Smartstore.Web.Controllers
         [NonAction]
         protected async Task<WishlistModel.ShoppingCartItemModel> PrepareWishlistCartItemModelAsync(OrganizedShoppingCartItem cartItem)
         {
+            // TODO: (ms) (core) Be carefull with throwing in the frontend :-)
             Guard.NotNull(cartItem, nameof(cartItem));
 
             var item = cartItem.Item;
@@ -380,7 +385,7 @@ namespace Smartstore.Web.Controllers
 
             if (product.IsRecurring)
             {
-                model.RecurringInfo = T("ShoppingCart.RecurringPeriod", product.RecurringCycleLength, product.RecurringCyclePeriod.GetLocalizedEnum());
+                model.RecurringInfo = T("ShoppingCart.RecurringPeriod", product.RecurringCycleLength, await product.RecurringCyclePeriod.GetLocalizedEnumAsync());
             }
 
             if (product.CallForPrice)
@@ -467,12 +472,12 @@ namespace Smartstore.Web.Controllers
         /// <param name="prepareAndDisplayOrderReviewData">A value indicating whether to prepare review data (such as billing/shipping address, payment or shipping data entered during checkout).</param>
         [NonAction]
         protected async Task<ShoppingCartModel> PrepareShoppingCartModelAsync(
-        IList<OrganizedShoppingCartItem> cart,
-        bool isEditable = true,
-        bool validateCheckoutAttributes = false,
-        bool prepareEstimateShippingIfEnabled = true,
-        bool setEstimateShippingDefaultAddress = true,
-        bool prepareAndDisplayOrderReviewData = false)
+            IList<OrganizedShoppingCartItem> cart,
+            bool isEditable = true,
+            bool validateCheckoutAttributes = false,
+            bool prepareEstimateShippingIfEnabled = true,
+            bool setEstimateShippingDefaultAddress = true,
+            bool prepareAndDisplayOrderReviewData = false)
         {
             Guard.NotNull(cart, nameof(cart));
 
@@ -802,7 +807,7 @@ namespace Smartstore.Web.Controllers
                 model.OrderReviewData.Display = true;
 
                 // Billing info.
-                // TODO: (ms) (core) Implement AddressModels PrepareModel()
+                // TODO: (mh) (core) Implement AddressModels PrepareModel()
                 //var billingAddress = customer.BillingAddress;
                 //if (billingAddress != null)
                 //{
@@ -814,7 +819,7 @@ namespace Smartstore.Web.Controllers
                 {
                     model.OrderReviewData.IsShippable = true;
 
-                    // TODO: (ms) (core) Implement AddressModels PrepareModel()
+                    // TODO: (mh) (core) Implement AddressModels PrepareModel()
                     //var shippingAddress = customer.ShippingAddress;
                     //if (shippingAddress != null)
                     //{
