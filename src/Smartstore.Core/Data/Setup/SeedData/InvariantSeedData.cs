@@ -1534,8 +1534,8 @@ namespace Smartstore.Core.Data.Setup
         {
             var name = entity switch
             {
-                var x when x is Category or Manufacturer or Product => x.GetDisplayName(),
-                //BlogPost or NewsItem => x.Title,
+                var x when x is Category or Manufacturer or Product => GetSeName(x.GetDisplayName()).Truncate(400),
+                //BlogPost or NewsItem => x.Title, // TODO: (core) Make InstallSeeder for Blog, News and Forum
                 Topic y => GetSeName(y.SystemName).Truncate(400),
                 _ => string.Empty
             };
