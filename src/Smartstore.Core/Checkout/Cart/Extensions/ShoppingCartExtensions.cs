@@ -32,8 +32,8 @@ namespace Smartstore
             this IList<OrganizedShoppingCartItem> cart,
             ShoppingCartType shoppingCartType,
             Product product,
-            ProductVariantAttributeSelection selection,
-            Money customerEnteredPrice)
+            ProductVariantAttributeSelection selection = null,
+            Money? customerEnteredPrice = null)
         {
             Guard.NotNull(cart, nameof(cart));
             Guard.NotNull(product, nameof(product));
@@ -53,29 +53,39 @@ namespace Smartstore
             // Ensure matching product infos are the same (attributes, gift card values (if it is gift card), customerEnteredPrice).
             foreach (var cartItem in filteredCart)
             {
-                // Compare attribute selection
-                var cartItemSelection = cartItem.Item.AttributeSelection;
-                if (cartItemSelection != selection)
-                    continue;
-
                 var currentProduct = cartItem.Item.Product;
 
-                // Compare gift cards info values (if it is a gift card)
-                if (currentProduct.IsGiftCard &&
-                    (cartItemSelection.GiftCardInfo == null
-                    || selection.GiftCardInfo == null
-                    || cartItemSelection != selection))
+                // Compare attribute selection, if not null
+                if (selection != null)
                 {
-                    continue;
+                    var cartItemSelection = cartItem.Item.AttributeSelection;
+                    if (cartItemSelection != selection)
+                    {
+                        continue;
+                    }
+
+                    // Compare gift cards info values (if it is a gift card)
+                    if (currentProduct.IsGiftCard &&
+                        (cartItemSelection.GiftCardInfo == null
+                        || selection.GiftCardInfo == null
+                        || cartItemSelection != selection))
+                    {
+                        continue;
+                    }
                 }
 
                 // Products with CustomerEntersPrice are equal if the price is the same.
                 // But a system product may only be placed once in the shopping cart.
-                if (currentProduct.CustomerEntersPrice
-                    && !currentProduct.IsSystemProduct
-                    && customerEnteredPrice.RoundedAmount != decimal.Round(cartItem.Item.CustomerEnteredPrice, customerEnteredPrice.DecimalDigits))
+                if (customerEnteredPrice.HasValue)
                 {
-                    continue;
+                    var enteredPrice = customerEnteredPrice.Value;
+
+                    if (currentProduct.CustomerEntersPrice
+                        && !currentProduct.IsSystemProduct
+                        && enteredPrice != decimal.Round(cartItem.Item.CustomerEnteredPrice, enteredPrice.DecimalDigits))
+                    {
+                        continue;
+                    }
                 }
 
                 // If we got this far, we found a matching product with the same values
