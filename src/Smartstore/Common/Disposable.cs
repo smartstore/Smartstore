@@ -81,14 +81,14 @@ namespace Smartstore
         protected internal void CheckDisposed()
         {
             if (IsDisposed)
-                throw Error.ObjectDisposed(GetType().FullName);
+                throw new ObjectDisposedException(GetType().FullName);
         }
 
         [DebuggerStepThrough]
         protected internal void CheckDisposed(string errorMessage)
         {
             if (IsDisposed)
-                throw Error.ObjectDisposed(GetType().FullName, errorMessage);
+                throw new ObjectDisposedException(GetType().FullName, errorMessage);
         }
 
         protected static void DisposeEnumerable(IEnumerable enumerable)

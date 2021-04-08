@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Smartstore
@@ -31,72 +30,127 @@ namespace Smartstore
         {
         }
 
-        #region 3.0
-
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotNull(object arg, string argName)
+        public static T NotNull<T>(T arg, string argName)
         {
-            if (arg == null)
-                throw new ArgumentNullException(argName);
+            return arg ?? throw new ArgumentNullException(argName);
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotEmpty(string arg, string argName)
+        public static string NotEmpty(string arg, string argName)
         {
-            if (string.IsNullOrWhiteSpace(arg))
-                throw Error.Argument(argName, NotEmptyStringMessage, argName);
+            Exception e = null;
+            if (arg is null)
+            {
+                e = new ArgumentNullException(argName);
+            }
+            else if (arg.Trim().Length == 0)
+            {
+                e = new ArgumentException(string.Format(NotEmptyStringMessage, argName), argName);
+            }
+            
+            if (e != null)
+            {
+                throw e;
+            }   
+
+            return arg;
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotEmpty<T>(ICollection<T> arg, string argName)
+        public static string NotOutOfLength(string arg, int maxLength, string argName)
         {
-            if (arg == null || !arg.Any())
-                throw Error.Argument(argName, NotEmptyColMessage);
+            Exception e = null;
+            if (arg is null)
+            {
+                e = new ArgumentNullException(argName);
+            }
+            else if (arg.Trim().Length > maxLength)
+            {
+                e = new ArgumentException(string.Format(NotOutOfLengthMessage, argName, maxLength), argName);
+            }
+
+            if (e != null)
+            {
+                throw e;
+            }
+
+            return arg;
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotEmpty(Guid arg, string argName)
+        public static ICollection<T> NotEmpty<T>(ICollection<T> arg, string argName)
         {
-            if (arg == Guid.Empty)
-                throw Error.Argument(argName, NotEmptyGuidMessage, argName);
+            if (arg == null || arg.Count == 0)
+            {
+                throw new ArgumentException(NotEmptyColMessage, argName);
+            }
+
+            return arg;
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void InRange<T>(T arg, T min, T max, string argName) where T : struct, IComparable<T>
+        public static T NotEmpty<T>(T arg, string argName) where T : struct
+        {
+            if (Equals(arg, default(T)))
+            {
+                throw new ArgumentException(string.Format(NotEmptyGuidMessage, argName), argName);
+            }
+
+            return arg;
+        }
+
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T InRange<T>(T arg, T min, T max, string argName) where T : struct, IComparable<T>
         {
             if (arg.CompareTo(min) < 0 || arg.CompareTo(max) > 0)
-                throw Error.ArgumentOutOfRange(argName, InRangeMessage, argName, min, max);
-        }
-
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotOutOfLength(string arg, int maxLength, string argName)
-        {
-            if (arg.Trim().Length > maxLength)
             {
-                throw Error.Argument(argName, NotOutOfLengthMessage, argName, maxLength);
+                throw new ArgumentOutOfRangeException(argName, string.Format(InRangeMessage, argName, min, max));
             }
+
+            return arg;
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotNegative<T>(T arg, string argName, string message = NotNegativeMessage) where T : struct, IComparable<T>
+        public static T NotNegative<T>(T arg, string argName, string message = NotNegativeMessage) where T : struct, IComparable<T>
         {
-            if (arg.CompareTo(default(T)) < 0)
-                throw Error.ArgumentOutOfRange(argName, message.FormatInvariant(argName, arg));
+            if (arg.CompareTo(default) < 0)
+            {
+                throw new ArgumentOutOfRangeException(argName, string.Format(message, argName, arg));
+            }
+
+            return arg;
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotZero<T>(T arg, string argName) where T : struct, IComparable<T>
+        public static T IsPositive<T>(T arg, string argName, string message = IsPositiveMessage) where T : struct, IComparable<T>
+        {
+            if (arg.CompareTo(default) < 1)
+            {
+                throw new ArgumentOutOfRangeException(argName, string.Format(message, argName, arg));
+            }
+
+            return arg;
+        }
+
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T NotZero<T>(T arg, string argName) where T : struct, IComparable<T>
         {
             if (arg.CompareTo(default(T)) == 0)
-                throw Error.ArgumentOutOfRange(argName, NotZeroMessage, argName, arg);
+            {
+                throw new ArgumentOutOfRangeException(argName, string.Format(NotZeroMessage, argName, arg));
+            }
+
+            return arg;
         }
 
         [DebuggerStepThrough]
@@ -118,18 +172,10 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void IsPositive<T>(T arg, string argName, string message = IsPositiveMessage) where T : struct, IComparable<T>
-        {
-            if (arg.CompareTo(default(T)) < 1)
-                throw Error.ArgumentOutOfRange(argName, message.FormatInvariant(argName));
-        }
-
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void IsTrue(bool arg, string argName, string message = IsTrueMessage)
         {
             if (!arg)
-                throw Error.Argument(argName, message.FormatInvariant(argName));
+                throw new ArgumentException(string.Format(message, argName), argName);
         }
 
         [DebuggerStepThrough]
@@ -139,7 +185,9 @@ namespace Smartstore
             NotNull(arg, argName);
 
             if (!arg.IsEnum)
-                throw Error.Argument(argName, IsEnumTypeMessage, arg.FullName);
+            {
+                throw new ArgumentException(string.Format(IsEnumTypeMessage, arg.FullName), argName);
+            }
         }
 
         [DebuggerStepThrough]
@@ -150,72 +198,39 @@ namespace Smartstore
 
             if (!Enum.IsDefined(enumType, arg))
             {
-                throw Error.ArgumentOutOfRange(argName, IsEnumTypeMessage2, argName, enumType.FullName);
+                throw new ArgumentException(string.Format(IsEnumTypeMessage2, enumType.FullName), argName);
             }
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotDisposed(Disposable arg, string argName)
+        public static T NotDisposed<T>(T arg, string argName) where T : Disposable
         {
             NotNull(arg, argName);
 
             if (arg.IsDisposed)
-                throw Error.ObjectDisposed(argName);
+            {
+                throw new ObjectDisposedException(argName);
+            }
+
+            return arg;
         }
 
         [DebuggerStepThrough]
         public static void PagingArgsValid(int indexArg, int sizeArg, string indexArgName, string sizeArgName)
         {
-            NotNegative<int>(indexArg, indexArgName, "PageIndex cannot be below 0");
+            NotNegative(indexArg, indexArgName, "PageIndex cannot be below 0");
 
             if (indexArg > 0)
             {
                 // if pageIndex is specified (> 0), PageSize CANNOT be 0 
-                IsPositive<int>(sizeArg, sizeArgName, "PageSize cannot be below 1 if a PageIndex greater 0 was provided.");
+                IsPositive(sizeArg, sizeArgName, "PageSize cannot be below 1 if a PageIndex greater 0 was provided.");
             }
             else
             {
                 // pageIndex 0 actually means: take all!
                 NotNegative(sizeArg, sizeArgName);
             }
-        }
-
-        #endregion
-
-        [DebuggerStepThrough]
-        [Obsolete("Use NotNull() with nameof operator instead")]
-        public static void ArgumentNotNull(object arg, string argName)
-        {
-            if (arg == null)
-                throw new ArgumentNullException(argName);
-        }
-
-        [DebuggerStepThrough]
-        [Obsolete("Use NotNull() with nameof operator instead")]
-        public static void ArgumentNotNull<T>(Func<T> arg)
-        {
-            if (arg() == null)
-                throw new ArgumentNullException(GetParamName(arg));
-        }
-
-        [DebuggerStepThrough]
-        [Obsolete("Use NotEmpty() with nameof operator instead")]
-        public static void ArgumentNotEmpty(Func<string> arg)
-        {
-            if (arg().IsEmpty())
-            {
-                var argName = GetParamName(arg);
-                throw Error.Argument(argName, "String parameter '{0}' cannot be null or all whitespace.", argName);
-            }
-        }
-
-        [DebuggerStepThrough]
-        [Obsolete("Use NotEmpty() with nameof operator instead")]
-        public static void ArgumentNotEmpty(string arg, string argName)
-        {
-            if (arg.IsEmpty())
-                throw Error.Argument(argName, "String parameter '{0}' cannot be null or all whitespace.", argName);
         }
 
         [DebuggerStepThrough]
@@ -229,7 +244,9 @@ namespace Smartstore
         public static void InheritsFrom<TBase>(Type type, string message)
         {
             if (type.BaseType != typeof(TBase))
+            {
                 throw new InvalidOperationException(message);
+            }
         }
 
         [DebuggerStepThrough]
@@ -237,7 +254,9 @@ namespace Smartstore
         public static void Implements<TInterface>(Type type, string message = ImplementsMessage)
         {
             if (!typeof(TInterface).IsAssignableFrom(type))
+            {
                 throw new InvalidOperationException(message.FormatInvariant(type.FullName, typeof(TInterface).FullName));
+            }
         }
 
         [DebuggerStepThrough]
@@ -251,24 +270,30 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static void IsTypeOf<TType>(object instance)
+        public static object IsTypeOf<TType>(object instance)
         {
-            IsTypeOf<TType>(instance, IsTypeOfMessage.FormatInvariant(instance.GetType().Name, typeof(TType).FullName));
+            return IsTypeOf<TType>(instance, IsTypeOfMessage.FormatInvariant(instance.GetType().Name, typeof(TType).FullName));
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void IsTypeOf<TType>(object instance, string message)
+        public static object IsTypeOf<TType>(object instance, string message)
         {
             if (instance is not TType)
+            {
                 throw new InvalidOperationException(message);
+            }
+
+            return instance;
         }
 
         [DebuggerStepThrough]
         public static void IsEqual<TException>(object compare, object instance, string message = IsEqualMessage) where TException : Exception
         {
             if (!compare.Equals(instance))
+            {
                 throw (TException)Activator.CreateInstance(typeof(TException), message);
+            }
         }
 
         [DebuggerStepThrough]
@@ -283,16 +308,10 @@ namespace Smartstore
         public static void HasDefaultConstructor(Type t)
         {
             if (!t.HasDefaultConstructor())
-                throw Error.InvalidOperation(HasDefaultConstructorMessage, t.FullName);
+            {
+                throw new InvalidOperationException(string.Format(HasDefaultConstructorMessage, t.FullName));
+            }
         }
-
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static string GetParamName<T>(Func<T> expression)
-        {
-            return expression.Method.Name;
-        }
-
     }
 
 }

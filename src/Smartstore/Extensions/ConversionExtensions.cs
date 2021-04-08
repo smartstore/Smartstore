@@ -496,7 +496,7 @@ namespace Smartstore
             if (!DictionaryConverter.CanCreateType(objectType))
             {
                 throw Error.Argument(
-                    "objectType",
+                    nameof(objectType),
                     "The type '{0}' must be a class and have a parameterless default constructor in order to deserialize properly.",
                     objectType.FullName);
             }

@@ -304,7 +304,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (product.ProductType == ProductType.GroupedProduct)
             {
-                throw Error.InvalidOperation("Choose the other override for products of type grouped product.");
+                throw new InvalidOperationException("Choose the other override for products of type grouped product.");
             }
 
             // Note, attribute price adjustments will not be taken into account here.
@@ -356,7 +356,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (product.ProductType != ProductType.GroupedProduct)
             {
-                throw Error.InvalidOperation("Choose the other override for products not of type grouped product.");
+                throw new InvalidOperationException("Choose the other override for products not of type grouped product.");
             }
 
             decimal? lowestPrice = null;
