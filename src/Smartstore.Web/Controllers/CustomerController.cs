@@ -8,10 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
-using Smartstore.Collections;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
@@ -21,10 +22,8 @@ using Smartstore.Core.Messages;
 using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Infrastructure.Hooks;
-using Smartstore.Web.Models.Customers;
-using Smartstore.ComponentModel;
-using Smartstore.Core.Common;
 using Smartstore.Web.Models.Common;
+using Smartstore.Web.Models.Customers;
 
 namespace Smartstore.Web.Controllers
 {
@@ -35,7 +34,9 @@ namespace Smartstore.Web.Controllers
         private readonly ITaxService _taxService;
         private readonly ILocalizationService _localizationService;
         private readonly IOrderProcessingService _orderProcessingService;
+        private readonly IOrderCalculationService _orderCalculationService;
         private readonly IOrderService _orderService;
+        private readonly ICurrencyService _currencyService;
         private readonly IMessageFactory _messageFactory;
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
@@ -47,6 +48,7 @@ namespace Smartstore.Web.Controllers
         private readonly TaxSettings _taxSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly OrderSettings _orderSettings;
+        private readonly RewardPointsSettings _rewardPointsSettings;
 
         public CustomerController(
             SmartDbContext db,
@@ -54,7 +56,9 @@ namespace Smartstore.Web.Controllers
             ITaxService taxService,
             ILocalizationService localizationService,
             IOrderProcessingService orderProcessingService,
+            IOrderCalculationService orderCalculationService,
             IOrderService orderService,
+            ICurrencyService currencyService,
             IMessageFactory messageFactory,
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
@@ -65,14 +69,17 @@ namespace Smartstore.Web.Controllers
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
             LocalizationSettings localizationSettings,
-            OrderSettings orderSettings)
+            OrderSettings orderSettings,
+            RewardPointsSettings rewardPointsSettings)
         {
             _db = db;
             _newsletterSubscriptionService = newsletterSubscriptionService;
             _taxService = taxService;
             _localizationService = localizationService;
             _orderProcessingService = orderProcessingService;
+            _orderCalculationService = orderCalculationService;
             _orderService = orderService;
+            _currencyService = currencyService;
             _messageFactory = messageFactory;
             _userManager = userManager;
             _signInManager = signInManager;
@@ -84,6 +91,7 @@ namespace Smartstore.Web.Controllers
             _taxSettings = taxSettings;
             _localizationSettings = localizationSettings;
             _orderSettings = orderSettings;
+            _rewardPointsSettings = rewardPointsSettings;
         }
 
         [RequireSsl]
@@ -525,6 +533,45 @@ namespace Smartstore.Web.Controllers
             }
 
             return RedirectToAction("Orders");
+        }
+
+        #endregion
+
+        #region Reward points
+
+        [RequireSsl]
+        public ActionResult RewardPoints()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            if (!_rewardPointsSettings.Enabled)
+            {
+                return RedirectToAction("Info");
+            }
+            
+            var model = new CustomerRewardPointsModel();
+            foreach (var rph in customer.RewardPointsHistory.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id))
+            {
+                model.RewardPoints.Add(new CustomerRewardPointsModel.RewardPointsHistoryModel()
+                {
+                    Points = rph.Points,
+                    PointsBalance = rph.PointsBalance,
+                    Message = rph.Message,
+                    CreatedOn = _dateTimeHelper.ConvertToUserTime(rph.CreatedOnUtc, DateTimeKind.Utc)
+                });
+            }
+
+            int rewardPointsBalance = customer.GetRewardPointsBalance();
+            var rewardPointsAmountBase = _orderCalculationService.ConvertRewardPointsToAmount(rewardPointsBalance);
+            var rewardPointsAmount = _currencyService.ConvertFromPrimaryCurrency(rewardPointsAmountBase.Amount, Services.WorkContext.WorkingCurrency);
+            model.RewardPointsBalance = T("RewardPoints.CurrentBalance", rewardPointsBalance, rewardPointsAmount.ToString());
+
+            return View(model);
         }
 
         #endregion
