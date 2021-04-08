@@ -4,16 +4,25 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
     public abstract class CartModelBase : ModelBase
     {
-        public virtual IEnumerable<CartEntityModelBase> Items { get; set; }
+        public virtual IEnumerable<CartEntityModelBase> Items { get; }
+
+        public bool ShowSku { get; set; }
+        public bool ShowProductImages { get; set; }
+        public bool ShowProductBundleImages { get; set; }
+        public bool IsEditable { get; set; }
+        public int BundleThumbSize { get; set; }
+        public bool DisplayShortDesc { get; set; }
+        public List<string> Warnings { get; set; } = new();
     }
 
-    public abstract class CartEntityModelBase : EntityModelBase
+    public abstract class CartEntityModelBase : EntityModelBase, IQuantityInput
     {
         public string Sku { get; set; }
         public ImageModel Image { get; set; } = new();
@@ -45,7 +54,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         public bool BundlePerItemShoppingCart { get; set; }
         public BundleItemModel BundleItem { get; set; } = new();
 
-        public virtual IEnumerable<CartEntityModelBase> ChildItems { get; set; }
+        public virtual IEnumerable<CartEntityModelBase> ChildItems { get; }
         public DateTime CreatedOnUtc { get; set; }
     }
 

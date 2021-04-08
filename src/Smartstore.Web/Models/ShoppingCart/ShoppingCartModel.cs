@@ -4,7 +4,6 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering.Choices;
 
@@ -12,16 +11,11 @@ namespace Smartstore.Web.Models.ShoppingCart
 {
     public partial class ShoppingCartModel : CartModelBase
     {
-        public override IEnumerable<CartEntityModelBase> Items { get; set; } = new List<ShoppingCartItemModel>();
+        public override IEnumerable<ShoppingCartItemModel> Items { get; } = new List<ShoppingCartItemModel>();
 
-        public bool ShowSku { get; set; }
-        public bool ShowProductImages { get; set; }
-        public bool ShowProductBundleImages { get; set; }
-        public bool IsEditable { get; set; }
         public string CheckoutAttributeInfo { get; set; }
         public List<CheckoutAttributeModel> CheckoutAttributes { get; set; } = new();
 
-        public List<string> Warnings { get; set; } = new();
         public bool TermsOfServiceEnabled { get; set; }
         public EstimateShippingModel EstimateShipping { get; set; } = new();
         public DiscountBoxModel DiscountBox { get; set; } = new();
@@ -29,13 +23,10 @@ namespace Smartstore.Web.Models.ShoppingCart
         public RewardPointsBoxModel RewardPoints { get; set; } = new();
         public OrderReviewDataModel OrderReviewData { get; set; }
         public int MediaDimensions { get; set; }
-        public int BundleThumbSize { get; set; }
         public DeliveryTimesPresentation DeliveryTimesPresentation { get; set; }
         public ButtonPaymentMethodModel ButtonPaymentMethods { get; set; } = new();
         public string CustomerComment { get; set; }
         public string MeasureUnitName { get; set; }
-
-        public bool DisplayShortDesc { get; set; }
         public bool DisplayWeight { get; set; }
         public bool DisplayBasePrice { get; set; }
         public bool DisplayCommentBox { get; set; }
@@ -44,7 +35,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
         #region Nested Classes
 
-        public partial class ShoppingCartItemModel : CartEntityModelBase, IQuantityInput
+        public partial class ShoppingCartItemModel : CartEntityModelBase
         {
             public decimal Weight { get; set; }
 
@@ -58,7 +49,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             public bool HasUserAgreement { get; set; }
             public bool IsEsd { get; set; }
 
-            public override IEnumerable<CartEntityModelBase> ChildItems { get; set; } = new List<ShoppingCartItemModel>();
+            public override IEnumerable<ShoppingCartItemModel> ChildItems { get; } = new List<ShoppingCartItemModel>();
             public bool DisableWishlistButton { get; set; }
         }
 
