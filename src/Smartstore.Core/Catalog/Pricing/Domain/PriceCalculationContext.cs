@@ -28,6 +28,20 @@ namespace Smartstore.Core.Catalog.Pricing
         }
 
         /// <summary>
+        /// Creates a new context instance for given <paramref name="cartItem"/> and <paramref name="options"/>.
+        /// Also adds selected product attributes to be taken into account in the price calculation.
+        /// </summary>
+        /// <param name="cartItem">Shopping cart item.</param>
+        /// <param name="options">The calculation options.</param>
+        public PriceCalculationContext(OrganizedShoppingCartItem cartItem, PriceCalculationOptions options)
+            : this(cartItem?.Item?.Product, 1, options)
+        {
+            Guard.NotNull(cartItem, nameof(cartItem));
+
+            this.AddSelectedAttributes(cartItem);
+        }
+
+        /// <summary>
         /// Creates a new context instance for given <paramref name="product"/>, <paramref name="quantity"/> and <paramref name="options"/>.
         /// </summary>
         /// <param name="product">The product to calculate price for.</param>
@@ -35,6 +49,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="options">The calculation options.</param>
         public PriceCalculationContext(Product product, int quantity, PriceCalculationOptions options)
         {
+            Guard.NotNull(product, nameof(product));
             Guard.NotNull(options, nameof(options));
 
             Product = product;
@@ -48,16 +63,13 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(context, nameof(context));
 
+            // For reasons of practicability, we only copy the data provided by the caller
+            // but no intermediate data determined by the pipeline itself.
             Product = context.Product;
             Quantity = context.Quantity;
             Options = context.Options;
             Metadata = context.Metadata;
-            AssociatedProducts = context.AssociatedProducts;
-            BundleItems = context.BundleItems;
-            BundleItem = context.BundleItem;
             SelectedAttributes = context.SelectedAttributes;
-            AdditionalCharge = context.AdditionalCharge;
-            // [...]
         }
 
         /// <summary>

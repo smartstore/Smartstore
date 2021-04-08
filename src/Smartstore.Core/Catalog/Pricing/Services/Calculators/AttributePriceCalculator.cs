@@ -30,7 +30,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             var options = context.Options;
             var product = context.Product;
 
-            if (!context.SelectedAttributes.Any() && !options.ApplyPreSelectedAttributes)
+            if (!context.SelectedAttributes.Any() && !options.ApplyPreselectedAttributes)
             {
                 // Proceed with pipeline and omit this calculator.
                 // The caller has not provided selected attributes and preselected attributes should not be applied.
@@ -87,11 +87,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     {
                         c.Options.IgnoreDiscounts = false;
                         c.Quantity = 1;
-                        c.AssociatedProducts = null;
-                        c.BundleItems = null;
-                        c.BundleItem = null;
-                        c.AdditionalCharge = decimal.Zero;
-                        c.MinTierPrice = null;
                     });
 
                     // Add price of linked product to root final price (unit price * linked product quantity).
@@ -158,7 +153,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             }
 
             // Apply attributes preselected by merchant.
-            if (context.Options.ApplyPreSelectedAttributes)
+            if (context.Options.ApplyPreselectedAttributes)
             {
                 // Ignore already applied values.
                 var appliedValueIds = result.Select(x => x.Id).ToArray();

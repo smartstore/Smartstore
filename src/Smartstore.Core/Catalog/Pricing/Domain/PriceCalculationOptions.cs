@@ -95,7 +95,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// Gets or sets a value indicating whether to apply product attributes preselected by merchant in price calculation.
         /// </summary>
-        public bool ApplyPreSelectedAttributes { get; set; }
+        public bool ApplyPreselectedAttributes { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether tier prices should be ignored during price calculation.
@@ -126,6 +126,11 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Gets or sets a value indicating whether resulting monetary amounts (after the pipeline has been invoked) should include sales taxes.
         /// </summary>
         public bool TaxInclusive { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to ignore sales taxes.
+        /// </summary>
+        public bool IgnoreTax { get; set; }
 
         /// <summary>
         /// Gets cash rounding options.

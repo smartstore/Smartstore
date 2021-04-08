@@ -856,6 +856,7 @@ namespace Smartstore.Web.Controllers
             var productIds = new List<int> { 1751, 4367, 4227, 4039 };
             //var productIds = new List<int> { 3017, 3586, 3731, 3838, 4093, 4094, 4095, 4096, 4097, 4098, 4099, 4307 };
             //var productIds = await GetRandomProductIds(0);
+            var productIds2 = await GetRandomProductIds(1);
             var alwaysRender = productIds.Count <= 12;
 
             foreach (var productId in productIds)
@@ -916,13 +917,13 @@ namespace Smartstore.Web.Controllers
                     : (await pcs.GetLowestPriceAsync(product, customer, batchContext)).LowestPrice;
                 var cpLowestOptions = pcs.CreateDefaultOptions(true);
                 cpLowestOptions.DetermineLowestPrice = true;
-                cpLowestOptions.ApplyPreSelectedAttributes = cpLowestOptions.DeterminePreselectedPrice = false;
+                cpLowestOptions.ApplyPreselectedAttributes = cpLowestOptions.DeterminePreselectedPrice = false;
                 var cpLowest = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpLowestOptions));
 
                 var preselectedPrice = await pcs.GetPreselectedPriceAsync(isGrouped ? associatedProducts.First() : product, customer, batchContext);
                 var cpPreselectedOptions = pcs.CreateDefaultOptions(true);
                 cpPreselectedOptions.DetermineLowestPrice = false;
-                cpPreselectedOptions.ApplyPreSelectedAttributes = cpPreselectedOptions.DeterminePreselectedPrice = true;
+                cpPreselectedOptions.ApplyPreselectedAttributes = cpPreselectedOptions.DeterminePreselectedPrice = true;
                 var cpPreselected = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpPreselectedOptions));
 
 
@@ -945,16 +946,17 @@ namespace Smartstore.Web.Controllers
             }
 
             var cart = await scs.GetCartItemsAsync(customer);
-            var cartItem = cart.FirstOrDefault(x => x.Item.ProductId == 3394);
-            var cpCartOptions = pcs.CreateDefaultOptions(false);
-            var cpCartContext = new PriceCalculationContext(cartItem.Item.Product, cpCartOptions);
-            cpCartContext.AddSelectedAttributes(cart);
-            var cpCart = await pcs.CalculatePriceAsync(cpCartContext);
-            var cartPrice = await pcs.GetUnitPriceAsync(cartItem, true);
+            content.AppendLine($"Cart         ");
+            foreach (var item in cart)
+            {
+                var cpCartContext = new PriceCalculationContext(item, pcs.CreateDefaultOptions(false));
+                var cpCart = await pcs.CalculatePriceAsync(cpCartContext);
+                var cartPrice = await pcs.GetUnitPriceAsync(item, true);
 
-            content.AppendLine($"Cart       : {Fmt(cartPrice, cpCart.FinalPrice)}");
-            content.AppendLine("");
-            content.Insert(0, "productIds: " + string.Join(", ", renderedIds) + "\r\n");
+                content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(cartPrice, cpCart.FinalPrice)}");
+            }
+
+            content.Insert(0, "productIds: " + string.Join(", ", renderedIds) + "\r\n\r\n");
 
             string Fmt(Money m1, Money m2)
             {

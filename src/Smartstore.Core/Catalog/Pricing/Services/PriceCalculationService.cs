@@ -88,9 +88,8 @@ namespace Smartstore.Core.Catalog.Pricing
             var language = _workContext.WorkingLanguage;
             var targetCurrency = _workContext.WorkingCurrency;
             var priceDisplay = _catalogSettings.PriceDisplayType;
-            var ignoreDiscounts = _catalogSettings.IgnoreDiscounts;
             var taxInclusive = _workContext.GetTaxDisplayTypeFor(customer, store.Id) == TaxDisplayType.IncludingTax;
-            var determinePreSelectedPrice = forListing && priceDisplay == PriceDisplayType.PreSelectedPrice;
+            var determinePreselectedPrice = forListing && priceDisplay == PriceDisplayType.PreSelectedPrice;
 
             batchContext ??= _productService.CreateProductBatchContext(null, store, customer, false);
             
@@ -100,11 +99,10 @@ namespace Smartstore.Core.Catalog.Pricing
                 TaxInclusive = taxInclusive,
                 IgnorePercentageDiscountOnTierPrices = !_catalogSettings.ApplyPercentageDiscountOnTierPrice,
                 IgnorePercentageTierPricesOnAttributePriceAdjustments = !_catalogSettings.ApplyTierPricePercentageToAttributePriceAdjustments,
-                IgnoreDiscounts = priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes || ignoreDiscounts, // TODO: (core) Uncomment this
-                //IgnoreAttributes = priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
+                IgnoreDiscounts = (forListing && priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes) || _catalogSettings.IgnoreDiscounts,
                 DetermineLowestPrice = forListing && priceDisplay == PriceDisplayType.LowestPrice,
-                DeterminePreselectedPrice = determinePreSelectedPrice,
-                ApplyPreSelectedAttributes = determinePreSelectedPrice,
+                DeterminePreselectedPrice = determinePreselectedPrice,
+                ApplyPreselectedAttributes = determinePreselectedPrice,
                 TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: taxInclusive, target: PricingTarget.Product, language: language),
                 PriceRangeFormat = T("Products.PriceRangeFrom").Value
             };
@@ -189,8 +187,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var options = context.Options;
 
-            // TODO: (core) The caller must be able to obtain prices without any consideration of taxes.
-            if (amount != 0)
+            if (amount != 0 && !options.IgnoreTax)
             {
                 tax = context.Options.IsGrossPrice
                      ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.TargetCurrency)

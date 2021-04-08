@@ -9,7 +9,6 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -265,16 +264,11 @@ namespace Smartstore.Core.Catalog.Products
             var bundleItemsQuery = _db.ProductBundleItem
                 .AsNoTracking()
                 .Include(x => x.Product)
-                .Include(x => x.BundleProduct);
+                .Include(x => x.BundleProduct)
+                .Include(x => x.AttributeFilters)
+                .ApplyBundledProductsFilter(ids, _includeHidden);
 
-            var query =
-                from pbi in bundleItemsQuery
-                join p in _db.Products.AsNoTracking() on pbi.ProductId equals p.Id
-                where ids.Contains(pbi.BundleProductId) && (_includeHidden || (pbi.Published && p.Published))
-                orderby pbi.DisplayOrder
-                select pbi;
-
-            var bundleItems = await query.ToListAsync();
+            var bundleItems = await bundleItemsQuery.ToListAsync();
 
             return bundleItems.ToMultimap(x => x.BundleProductId, x => x);
         }
@@ -293,8 +287,8 @@ namespace Smartstore.Core.Catalog.Products
         {
             var files = await _db.ProductMediaFiles
                 .AsNoTracking()
-                .ApplyProductFilter(ids, _maxMediaPerProduct)
                 .Include(x => x.MediaFile)
+                .ApplyProductFilter(ids, _maxMediaPerProduct)
                 .ToListAsync();
 
             return files.ToMultimap(x => x.ProductId, x => x);

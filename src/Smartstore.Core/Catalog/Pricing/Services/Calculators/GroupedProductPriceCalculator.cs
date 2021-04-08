@@ -53,11 +53,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     var childCalculation = await CalculateChildPriceAsync(associatedProduct, context, c => 
                     { 
                         c.Quantity = quantity;
-                        c.AssociatedProducts = null;
-                        c.BundleItems = null;
-                        c.BundleItem = null;
-                        c.AdditionalCharge = decimal.Zero;
-                        c.MinTierPrice = null;
                     });
 
                     if (lowestPriceCalculation == null || childCalculation.FinalPrice < lowestPriceCalculation.FinalPrice)
@@ -75,11 +70,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 lowestPriceCalculation = await CalculateChildPriceAsync(context.AssociatedProducts.First(), context, c => 
                 { 
                     c.Quantity = quantity;
-                    c.AssociatedProducts = null;
-                    c.BundleItems = null;
-                    c.BundleItem = null;
-                    c.AdditionalCharge = decimal.Zero;
-                    c.MinTierPrice = null;
                 });
             }
 

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -32,38 +31,32 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// Adds selected product attributes of a shopping cart item to be taken into account in the price calculation.
         /// For example required for price adjustments of attributes selected by the customer.
+        /// Also adds selected attributes of bundle items if <see cref="Product.BundlePerItemPricing"/> is activated.
         /// </summary>
         /// <param name="context">The target product calculation context.</param>
         /// <param name="item">Shopping cart item.</param>
-        public static void AddSelectedAttributes(this PriceCalculationContext context, ShoppingCartItem item)
+        public static void AddSelectedAttributes(this PriceCalculationContext context, OrganizedShoppingCartItem cartItem)
         {
             Guard.NotNull(context, nameof(context));
 
-            if (item != null)
+            if (cartItem != null)
             {
-                context.AddSelectedAttributes(item.AttributeSelection, item.ProductId, item.BundleItemId);
+                var item = cartItem.Item;
+
+                context.AddSelectedAttributes(item);
+
+                if (item.Product.ProductType == ProductType.BundledProduct && item.Product.BundlePerItemPricing)
+                {
+                    cartItem.ChildItems.Each(x => context.AddSelectedAttributes(x.Item));
+                }
             }
         }
 
-        /// <summary>
-        /// Adds selected product attributes of all products included in a shopping cart to be taken into account in the price calculation.
-        /// For example required for price adjustments of attributes selected by the customer.
-        /// </summary>
-        /// <param name="context">The target product calculation context.</param>
-        /// <param name="cart">Shopping cart.</param>
-        public static void AddSelectedAttributes(this PriceCalculationContext context, IEnumerable<OrganizedShoppingCartItem> cart)
+        private static void AddSelectedAttributes(this PriceCalculationContext context, ShoppingCartItem item)
         {
-            Guard.NotNull(context, nameof(context));
-
-            var item = cart?.FirstOrDefault(x => x.Item.ProductId == context.Product.Id);
-            if (item?.Item != null)
+            if (item != null)
             {
-                context.AddSelectedAttributes(item.Item);
-
-                if (item.Item.Product.ProductType == ProductType.BundledProduct && item.Item.Product.BundlePerItemPricing)
-                {
-                    item.ChildItems.Each(x => context.AddSelectedAttributes(x.Item));
-                }
+                context.AddSelectedAttributes(item.AttributeSelection, item.ProductId, item.BundleItemId);
             }
         }
     }

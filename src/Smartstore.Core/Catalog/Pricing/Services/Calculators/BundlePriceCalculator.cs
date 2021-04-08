@@ -48,11 +48,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     var childCalculation = await CalculateChildPriceAsync(bundleItem.Item.Product, context, c => 
                     { 
                         c.Quantity = 1;
-                        c.AssociatedProducts = null;
-                        c.BundleItems = null;
                         c.BundleItem = bundleItem;
-                        c.AdditionalCharge = decimal.Zero;
-                        c.MinTierPrice = null;
                     });
 
                     // Add price of part to root final price (unit price * contained quantity in this bundle).
