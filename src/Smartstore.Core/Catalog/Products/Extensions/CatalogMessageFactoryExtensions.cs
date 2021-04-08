@@ -4,7 +4,7 @@ using Smartstore.Core.Messages;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    public static partial class IMessageFactoryExtensions
+    public static partial class CatalogMessageFactoryExtensions
     {
         /// <summary>
         /// Sends an "email a friend" message.

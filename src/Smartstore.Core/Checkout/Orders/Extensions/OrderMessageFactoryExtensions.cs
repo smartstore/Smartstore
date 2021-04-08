@@ -1,11 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Smartstore.Core.Checkout.GiftCards;
-using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Messages;
 
-namespace Smartstore
+namespace Smartstore.Core.Checkout.Orders
 {
     public static class OrderMessageFactoryExtensions
     {
@@ -34,36 +30,6 @@ namespace Smartstore
                 MessageContext.Create(MessageTemplateNames.OrderPlacedCustomer, languageId, order.StoreId, order.Customer), 
                 true, 
                 order);
-        }
-
-        /// <summary>
-        /// Sends a shipment sent notification to the customer.
-        /// </summary>
-        public static Task<CreateMessageResult> SendShipmentSentCustomerNotificationAsync(this IMessageFactory factory, Shipment shipment, int languageId = 0)
-        {
-            Guard.NotNull(shipment, nameof(shipment));
-            Guard.NotNull(shipment.Order, nameof(shipment.Order));
-
-            return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.ShipmentSentCustomer, languageId, shipment.Order.StoreId, shipment.Order.Customer), 
-                true, 
-                shipment, 
-                shipment.Order);
-        }
-
-        /// <summary>
-        /// Sends a shipment delivered notification to the customer.
-        /// </summary>
-        public static Task<CreateMessageResult> SendShipmentDeliveredCustomerNotificationAsync(this IMessageFactory factory, Shipment shipment, int languageId = 0)
-        {
-            Guard.NotNull(shipment, nameof(shipment));
-            Guard.NotNull(shipment.Order, nameof(shipment.Order));
-
-            return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.ShipmentDeliveredCustomer, languageId, shipment.Order.StoreId, shipment.Order.Customer), 
-                true, 
-                shipment, 
-                shipment.Order);
         }
 
         /// <summary>
@@ -106,21 +72,6 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Sends a recurring payment cancelled notification to the store owner.
-        /// </summary>
-        public static Task<CreateMessageResult> SendRecurringPaymentCancelledStoreOwnerNotificationAsync(this IMessageFactory factory, RecurringPayment recurringPayment, int languageId = 0)
-        {
-            Guard.NotNull(recurringPayment, nameof(recurringPayment));
-
-            var order = recurringPayment.InitialOrder;
-            return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.RecurringPaymentCancelledStoreOwner, languageId, order?.StoreId, order?.Customer), 
-                true, 
-                recurringPayment, 
-                order);
-        }
-
-        /// <summary>
         /// Sends a new return request message to the store owner.
         /// </summary>
         public static Task<CreateMessageResult> SendNewReturnRequestStoreOwnerNotificationAsync(this IMessageFactory factory, ReturnRequest returnRequest, OrderItem orderItem, int languageId = 0)
@@ -149,25 +100,6 @@ namespace Smartstore
                 MessageContext.Create(MessageTemplateNames.ReturnRequestStatusChangedCustomer, languageId, orderItem.Order?.StoreId, returnRequest.Customer), 
                 true, 
                 returnRequest);
-        }
-
-        /// <summary>
-        /// Sends a gift card notification to the customer.
-        /// </summary>
-        public static Task<CreateMessageResult> SendGiftCardNotificationAsync(this IMessageFactory factory, GiftCard giftCard, int languageId = 0)
-        {
-            Guard.NotNull(giftCard, nameof(giftCard));
-
-            var orderItem = giftCard.PurchasedWithOrderItem;
-            var customer = orderItem?.Order?.Customer;
-            var storeId = orderItem?.Order?.StoreId;
-
-            return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.GiftCardCustomer, languageId, storeId, customer), 
-                true, 
-                giftCard, 
-                orderItem, 
-                orderItem?.Product);
         }
     }
 }

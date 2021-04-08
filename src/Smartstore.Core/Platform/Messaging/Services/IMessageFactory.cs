@@ -91,23 +91,5 @@ namespace Smartstore.Core.Messages
 
             return factory.CreateMessageAsync(messageContext, true, model);
         }
-
-        /// <summary>
-        /// Sends a newsletter subscription activation message.
-        /// </summary>
-        public static Task<CreateMessageResult> SendNewsLetterSubscriptionActivationMessageAsync(this IMessageFactory factory, NewsletterSubscription subscription, int languageId = 0)
-        {
-            Guard.NotNull(subscription, nameof(subscription));
-            return factory.CreateMessageAsync(MessageContext.Create(MessageTemplateNames.NewsLetterSubscriptionActivation, languageId), true, subscription);
-        }
-
-        /// <summary>
-        /// Sends a newsletter subscription deactivation message.
-        /// </summary>
-        public static Task<CreateMessageResult> SendNewsLetterSubscriptionDeactivationMessageAsync(this IMessageFactory factory, NewsletterSubscription subscription, int languageId = 0)
-        {
-            Guard.NotNull(subscription, nameof(subscription));
-            return factory.CreateMessageAsync(MessageContext.Create(MessageTemplateNames.NewsLetterSubscriptionDeactivation, languageId), true, subscription);
-        }
     }
 }

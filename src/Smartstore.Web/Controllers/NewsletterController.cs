@@ -75,7 +75,7 @@ namespace Smartstore.Web.Controllers
                     {
                         if (!subscription.Active)
                         {
-                            await _messageFactory.SendNewsLetterSubscriptionActivationMessageAsync(subscription, _workContext.WorkingLanguage.Id);
+                            await _messageFactory.SendNewsletterSubscriptionActivationMessageAsync(subscription, _workContext.WorkingLanguage.Id);
                         }
                         result = T("Newsletter.SubscribeEmailSent");
                     }
@@ -83,7 +83,7 @@ namespace Smartstore.Web.Controllers
                     {
                         if (subscription.Active)
                         {
-                            await _messageFactory.SendNewsLetterSubscriptionDeactivationMessageAsync(subscription, _workContext.WorkingLanguage.Id);
+                            await _messageFactory.SendNewsletterSubscriptionDeactivationMessageAsync(subscription, _workContext.WorkingLanguage.Id);
                         }
                         result = T("Newsletter.UnsubscribeEmailSent");
                     }
@@ -103,7 +103,7 @@ namespace Smartstore.Web.Controllers
                     _db.NewsletterSubscriptions.Add(subscription);
                     await _db.SaveChangesAsync();
 
-                    await _messageFactory.SendNewsLetterSubscriptionActivationMessageAsync(subscription, _workContext.WorkingLanguage.Id);
+                    await _messageFactory.SendNewsletterSubscriptionActivationMessageAsync(subscription, _workContext.WorkingLanguage.Id);
 
                     result = T("Newsletter.SubscribeEmailSent");
                 }

@@ -1,11 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Messages;
 
-namespace Smartstore
+namespace Smartstore.Core.Identity
 {
-    // TODO: (mh) (core) Move all methods in THIS and other IMessageFactory extension classes to where they belong to:
-    // Identity, Order, Cart... whatever.
     public static partial class CustomerMessageFactoryExtensions
     {
         /// <summary>
