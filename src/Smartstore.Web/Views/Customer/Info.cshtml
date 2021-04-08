@@ -212,7 +212,7 @@
         <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
             <label asp-for="StateProvinceId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
-                <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select> @* TODO: (mh) (core) Does passing a dynamic object really work? RE: I've tested this. So: yes, it works here liek expected *@
+                <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select>
             </div>
         </div>
     </fieldset>

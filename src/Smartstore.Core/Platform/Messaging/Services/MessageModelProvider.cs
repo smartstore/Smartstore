@@ -231,9 +231,9 @@ namespace Smartstore.Core.Messages
                 case RecurringPayment x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
-                //case ReturnRequest x:
-                //    modelPart = await CreateModelPartAsync(x, messageContext);
-                //    break;
+                case ReturnRequest x:
+                    modelPart = await CreateModelPartAsync(x, messageContext);
+                    break;
                 case GiftCard x:
                     modelPart = await CreateModelPartAsync(x, messageContext);
                     break;
@@ -1014,25 +1014,25 @@ namespace Smartstore.Core.Messages
             return m;
         }
 
-        //protected virtual object CreateModelPart(RewardPointsHistory part, MessageContext messageContext)
-        //{
-        //    Guard.NotNull(messageContext, nameof(messageContext));
-        //    Guard.NotNull(part, nameof(part));
+        protected virtual async Task<object> CreateModelPartAsync(RewardPointsHistory part, MessageContext messageContext)
+        {
+            Guard.NotNull(messageContext, nameof(messageContext));
+            Guard.NotNull(part, nameof(part));
 
-        //    var m = new Dictionary<string, object>
-        //    {
-        //        { "Id", part.Id },
-        //        { "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) },
-        //        { "Message", part.Message.NullEmpty() },
-        //        { "Points", part.Points },
-        //        { "PointsBalance", part.PointsBalance },
-        //        { "UsedAmount", part.UsedAmount }
-        //    };
+            var m = new Dictionary<string, object>
+            {
+                { "Id", part.Id },
+                { "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) },
+                { "Message", part.Message.NullEmpty() },
+                { "Points", part.Points },
+                { "PointsBalance", part.PointsBalance },
+                { "UsedAmount", part.UsedAmount }
+            };
 
-        //    PublishModelPartCreatedEvent<RewardPointsHistory>(part, m);
+            await PublishModelPartCreatedEventAsync(part, m);
 
-        //    return m;
-        //}
+            return m;
+        }
 
         protected virtual async Task<object> CreateModelPartAsync(IEnumerable<GenericAttribute> part, MessageContext messageContext)
         {

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
@@ -18,8 +15,8 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Messages
@@ -89,8 +86,7 @@ namespace Smartstore.Core.Messages
                 : null;
 
             // Overrides
-            // TODO: (mh) (core) Uncomment when available.
-            //m.Properties["OrderNumber"] = part.GetOrderNumber().NullEmpty();
+            m.Properties["OrderNumber"] = part.GetOrderNumber().NullEmpty();
             m.Properties["AcceptThirdPartyEmailHandOver"] = GetBoolResource(part.AcceptThirdPartyEmailHandOver, messageContext);
 
             // Items, Totals & Co.
@@ -231,13 +227,12 @@ namespace Smartstore.Core.Messages
                 };
             }).ToArray();
 
-            // TODO: (mh) (core) Uncomment when available.
             // Reward Points
-            //m.RedeemedRewardPoints = order.RedeemedRewardPointsEntry == null ? null : new
-            //{
-            //    Title = T("Order.RewardPoints", language.Id, -order.RedeemedRewardPointsEntry.Points).Text,
-            //    Amount = FormatPrice(-order.RedeemedRewardPointsEntry.UsedAmount, order, messageContext)
-            //};
+            m.RedeemedRewardPoints = order.RedeemedRewardPointsEntry == null ? null : new
+            {
+                Title = T("Order.RewardPoints", language.Id, -order.RedeemedRewardPointsEntry.Points).Value,
+                Amount = FormatPrice(-order.RedeemedRewardPointsEntry.UsedAmount, order, messageContext)
+            };
 
             await PublishModelPartCreatedEventAsync(order, m);
 
@@ -279,14 +274,13 @@ namespace Smartstore.Core.Messages
             Guard.NotNull(messageContext, nameof(messageContext));
             Guard.NotNull(part, nameof(part));
 
-            // TODO: (mh) (core) Uncomment when available.
-            //var productAttributeParser = _services.Resolve<IProductAttributeParser>();
+            var productAttributeMaterializer = _services.Resolve<IProductAttributeMaterializer>();
             var downloadService = _services.Resolve<IDownloadService>();
             var order = part.Order;
             var isNet = order.CustomerTaxDisplayType == TaxDisplayType.ExcludingTax;
             var product = part.Product;
-            // TODO: (mh) (core) Uncomment when available.
-            //product.MergeWithCombination(part.AttributesXml, productAttributeParser);
+            var attributeCombination = await productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, part.AttributeSelection);
+            product.MergeWithCombination(attributeCombination);
 
             // Bundle items.
             object bundleItems = null;
@@ -375,8 +369,7 @@ namespace Smartstore.Core.Messages
             {
                 { "Id", part.Id },
                 { "CreatedOn", ToUserDate(part.CreatedOnUtc, messageContext) },
-                // TODO: (mh) (core) Uncomment when FormatOrderNoteText is available.
-                //{ "Text", part.FormatOrderNoteText().NullEmpty() }
+                { "Text", part.FormatOrderNoteText().NullEmpty() }
             };
 
             await PublishModelPartCreatedEventAsync(part, m);
@@ -408,21 +401,21 @@ namespace Smartstore.Core.Messages
 
             var itemParts = new List<object>();
 
-            // TODO: (mh) (core) Uncomment when IOrderService is available.
-            //var orderService = _services.Resolve<IOrderService>();
-            //var orderItems = orderService.GetOrderItemsByOrderIds(new int[] { part.OrderId })[part.OrderId];
-            //var orderItemsDic = orderItems.ToDictionarySafe(x => x.Id);
+            // TODO: (mh) (core) ToListAsync, ToMultimap, ToDictionarySafe. Debug & Test. 
+            var db = _services.Resolve<SmartDbContext>();
+            var orderItems = await db.OrderItems.AsNoTracking().ApplyStandardFilter(part.OrderId).ToListAsync();
+            var map = orderItems.ToMultimap(x => x.OrderId, x => x);
+            var orderItemsDic = orderItems.ToDictionarySafe(x => x.Id);
 
-            //foreach (var shipmentItem in part.ShipmentItems)
-            //{
-            //    if (orderItemsDic.TryGetValue(shipmentItem.OrderItemId, out var orderItem) && orderItem.Product != null)
-            //    {
-            //        var itemPart = CreateModelPart(orderItem, messageContext) as Dictionary<string, object>;
-            //        itemPart["Qty"] = shipmentItem.Quantity;
-
-            //        itemParts.Add(itemPart);
-            //    }
-            //}
+            foreach (var shipmentItem in part.ShipmentItems)
+            {
+                if (orderItemsDic.TryGetValue(shipmentItem.OrderItemId, out var orderItem) && orderItem.Product != null)
+                {
+                    var itemPart = await CreateModelPartAsync(orderItem, messageContext) as Dictionary<string, object>;
+                    itemPart["Qty"] = shipmentItem.Quantity;
+                    itemParts.Add(itemPart);
+                }
+            }
 
             var trackingUrl = part.TrackingUrl;
 
@@ -488,28 +481,27 @@ namespace Smartstore.Core.Messages
             return m;
         }
 
-        //// TODO: (mh) (core) Uncomment when available.
-        //protected virtual object CreateModelPart(ReturnRequest part, MessageContext messageContext)
-        //{
-        //    Guard.NotNull(messageContext, nameof(messageContext));
-        //    Guard.NotNull(part, nameof(part));
+        protected virtual async Task<object> CreateModelPartAsync(ReturnRequest part, MessageContext messageContext)
+        {
+            Guard.NotNull(messageContext, nameof(messageContext));
+            Guard.NotNull(part, nameof(part));
 
-        //    var m = new Dictionary<string, object>
-        //    {
-        //        { "Id", part.Id },
-        //        { "Reason", part.ReasonForReturn.NullEmpty() },
-        //        { "Status", part.ReturnRequestStatus.GetLocalizedEnum(_services.Localization, messageContext.Language.Id) },
-        //        { "RequestedAction", part.RequestedAction.NullEmpty() },
-        //        { "CustomerComments", HtmlUtils.StripTags(part.CustomerComments).NullEmpty() },
-        //        { "StaffNotes", HtmlUtils.StripTags(part.StaffNotes).NullEmpty() },
-        //        { "Quantity", part.Quantity },
-        //        { "RefundToWallet", part.RefundToWallet },
-        //        { "Url", BuildActionUrl("Edit", "ReturnRequest", new { id = part.Id, area = "admin" }, messageContext) }
-        //    };
+            var m = new Dictionary<string, object>
+            {
+                { "Id", part.Id },
+                { "Reason", part.ReasonForReturn.NullEmpty() },
+                { "Status", await part.ReturnRequestStatus.GetLocalizedEnumAsync(messageContext.Language.Id) },
+                { "RequestedAction", part.RequestedAction.NullEmpty() },
+                { "CustomerComments", HtmlUtils.StripTags(part.CustomerComments).NullEmpty() },
+                { "StaffNotes", HtmlUtils.StripTags(part.StaffNotes).NullEmpty() },
+                { "Quantity", part.Quantity },
+                { "RefundToWallet", part.RefundToWallet },
+                { "Url", BuildActionUrl("Edit", "ReturnRequest", new { id = part.Id, area = "admin" }, messageContext) }
+            };
 
-        //    PublishModelPartCreatedEvent<ReturnRequest>(part, m);
+            await PublishModelPartCreatedEventAsync(part, m);
 
-        //    return m;
-        //}
+            return m;
+        }
     }
 }
