@@ -1,0 +1,1 @@
+﻿This folder contains tests for Smartstore.Web.Common project

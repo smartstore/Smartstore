@@ -322,7 +322,7 @@ namespace Smartstore.Core.Identity
         public ICollection<Order> Orders
         {
             get => _orders ?? LazyLoader.Load(this, ref _orders) ?? (_orders ??= new HashSet<Order>());
-            protected set => _orders = value;
+            protected internal set => _orders = value;
         }
 
         private ICollection<RewardPointsHistory> _rewardPointsHistory;
