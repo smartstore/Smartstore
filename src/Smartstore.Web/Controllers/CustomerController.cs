@@ -18,6 +18,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
+using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Customers;
@@ -82,6 +83,7 @@ namespace Smartstore.Web.Controllers
             _orderSettings = orderSettings;
         }
 
+        [RequireSsl]
         public async Task<IActionResult> Info()
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -308,6 +310,7 @@ namespace Smartstore.Web.Controllers
         
         #region Addresses
 
+        //[RequireSsl]
         //public async Task<IActionResult> Addresses() 
         //{
         //    var customer = Services.WorkContext.CurrentCustomer;
@@ -333,6 +336,7 @@ namespace Smartstore.Web.Controllers
 
         #region Orders
 
+        [RequireSsl]
         public async Task<IActionResult> Orders(int? page, int? recurringPaymentsPage)
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -582,11 +586,11 @@ namespace Smartstore.Web.Controllers
             var store = Services.StoreContext.CurrentStore;
             var model = new CustomerOrderListModel();
 
-            var orders = (await _db.Orders
+            var orders = await _db.Orders
                 .AsNoTracking()
-                .ApplyStandardFilter(_orderSettings.DisplayOrdersOfAllStores ? 0 : store.Id, customer.Id)
-                .ToListAsync())
-                .ToPagedList(orderPageIndex, _orderSettings.OrderListPageSize);
+                .ApplyStandardFilter(customer.Id, _orderSettings.DisplayOrdersOfAllStores ? 0 : store.Id)
+                .ToPagedList(orderPageIndex, _orderSettings.OrderListPageSize)
+                .LoadAsync();
 
             var orderModels = await orders
                 .SelectAsync(async x =>
@@ -608,14 +612,14 @@ namespace Smartstore.Web.Controllers
                 })
                 .AsyncToList();
 
-            model.Orders = new PagedList<CustomerOrderListModel.OrderDetailsModel>(orderModels, orders.PageIndex, orders.PageSize, orders.TotalCount);
+            model.Orders = orderModels.ToPagedList(orders.PageIndex, orders.PageSize, orders.TotalCount);
 
             // Recurring payments.
-            var recurringPayments = (await _db.RecurringPayments
+            var recurringPayments = await _db.RecurringPayments
                 .AsNoTracking()
                 .ApplyStandardFilter(customerId: customer.Id, storeId: store.Id)
-                .ToListAsync())
-                .ToPagedList(recurringPaymentPageIndex, _orderSettings.RecurringPaymentListPageSize);
+                .ToPagedList(recurringPaymentPageIndex, _orderSettings.RecurringPaymentListPageSize)
+                .LoadAsync();
 
             var rpModels = await recurringPayments
                 .SelectAsync(async x =>
@@ -634,7 +638,7 @@ namespace Smartstore.Web.Controllers
                 })
                 .AsyncToList();
 
-            model.RecurringPayments = new PagedList<CustomerOrderListModel.RecurringPaymentModel>(rpModels, recurringPayments.PageIndex, recurringPayments.PageSize, recurringPayments.TotalCount);
+            model.RecurringPayments = rpModels.ToPagedList(recurringPayments.PageIndex, recurringPayments.PageSize, recurringPayments.TotalCount);
 
             return model;
         }

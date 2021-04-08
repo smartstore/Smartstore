@@ -75,7 +75,8 @@
                     </tbody>
                 </table>
                 <div sm-if="Model.RecurringPayments.TotalPages > 1" class="mt-1">
-                    <pagination sm-list-items="Model.RecurringPayments" sm-modified-param="recurringPaymentsPage" />
+                    @* TODO: (mh) (core) The classic Pager component behaves differently (.Action("Orders", "Customer")...) *@
+                    <pagination sm-list-items="Model.RecurringPayments" sm-query-param="recurringPaymentsPage" id="rp-paginator" />
                 </div>
             </div>
         </div>
@@ -125,5 +126,6 @@
 </div>
 
 <div sm-if="Model.Orders.TotalPages > 1" class="mt-1">
-    <pagination sm-list-items="Model.Orders" sm-modified-param="page" />
+    @* TODO: (mh) (core) The classic Pager component behaves differently (.Action("Orders", "Customer")...) *@
+    <pagination sm-list-items="Model.Orders" sm-query-param="page" id="paginator" />
 </div>

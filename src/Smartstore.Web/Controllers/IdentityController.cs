@@ -35,7 +35,7 @@ namespace Smartstore.Web.Controllers
         #region Login / Logout / Register
 
         [HttpGet]
-        [AllowAnonymous, NeverAuthorize]
+        [RequireSsl, AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/login", Name = "Login")]
         public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
         {
@@ -103,7 +103,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous, NeverAuthorize]
+        [RequireSsl, AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/register", Name = "Register")]
         public IActionResult Register(string returnUrl = null)
         {
