@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -16,31 +18,49 @@ namespace Smartstore.Web.Models.Common
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
+        private readonly IAddressService _addressService;
         private readonly AddressSettings _addressSettings;
 
-        public AddressMapper(SmartDbContext db, ICommonServices services, AddressSettings addressSettings)
+        public AddressMapper(
+            SmartDbContext db, 
+            ICommonServices services, 
+            IAddressService addressService, 
+            AddressSettings addressSettings)
         {
             _db = db;
             _services = services;
+            _addressService = addressService;
             _addressSettings = addressSettings;
         }
 
         protected override void Map(Address from, AddressModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
+        /// <summary>
+        /// TODO: (mh) (core) Write docs. Especially parameters.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="parameters"></param>
         public override async Task MapAsync(Address from, AddressModel to, dynamic parameters = null)
         {
-            // INFO & TODO: (mh) (core) Legacy params. Was false most of the time.
             var excludeProperties = false;
+            var countries = new List<Country>();
+            if (parameters != null)
+            {
+                var fastPropExcludeProperties = FastProperty.GetProperty(parameters.GetType(), "excludeProperties", PropertyCachingStrategy.Uncached);
+                if (fastPropExcludeProperties != null)
+                {
+                    excludeProperties = fastPropExcludeProperties.GetValue(parameters);
+                }
 
-            // TODO: (mh) (core) This mapper does not behave like original one. In classic, a countries loader delegate
-            // is passed to the mapping function, whereas here ALL countries are loaded (ALWAYS!).
-
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter()
-                .ToListAsync();
-
+                var fastPropCountries = FastProperty.GetProperty(parameters.GetType(), "countries", PropertyCachingStrategy.Uncached);
+                if (fastPropCountries != null)
+                {
+                    countries = fastPropCountries.GetValue(parameters);
+                }
+            }
+            
             // Form fields
             MiniMapper.Map(_addressSettings, to);
 
@@ -54,12 +74,12 @@ namespace Smartstore.Web.Models.Common
                 {
                     to.StateProvinceName = from.StateProvince.GetLocalized(x => x.Name);
                 }
-                // TODO: (mh) (core) Implement IAddressService & Inject.
-                //to.FormattedAddress = Core.Infrastructure.EngineContext.Current.Resolve<IAddressService>().FormatAddress(address, true);
+                
+                to.FormattedAddress = await _addressService.FormatAddressAsync(from, true);
             }
 
             // Countries and states
-            if (_addressSettings.CountryEnabled && countries != null)
+            if (_addressSettings.CountryEnabled && countries.Count > 0)
             {
                 to.AvailableCountries.Add(new SelectListItem { Text = _services.Localization.GetResource("Address.SelectCountry"), Value = "0" });
                 foreach (var c in countries)

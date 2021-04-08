@@ -323,11 +323,15 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new List<AddressModel>();
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
+                .ToListAsync();
 
             foreach (var address in customer.Addresses)
             {
                 var addressModel = new AddressModel();
-                await MapperFactory.MapAsync(address, addressModel);
+                await MapperFactory.MapAsync(address, addressModel, new { excludeProperties = false, countries } );
                 model.Add(addressModel);
             }
 

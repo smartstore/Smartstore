@@ -964,7 +964,7 @@ namespace Smartstore.Core.Messages
             Guard.NotNull(messageContext, nameof(messageContext));
             Guard.NotNull(part, nameof(part));
 
-            var settings = await _services.SettingFactory.LoadSettingsAsync<AddressSettings>((int)messageContext.StoreId);
+            var settings = await _services.SettingFactory.LoadSettingsAsync<AddressSettings>();
             var languageId = messageContext.Language?.Id ?? messageContext.LanguageId;
 
             var salutation = part.Salutation.NullEmpty();
