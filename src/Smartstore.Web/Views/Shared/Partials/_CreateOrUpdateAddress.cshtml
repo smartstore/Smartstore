@@ -1,0 +1,145 @@
+﻿@model AddressModel
+
+@{
+    var breakpoint = (ViewData["breakpoint"] as string).NullEmpty() ?? "md";
+}
+
+<input asp-for="Id" type="hidden" />
+
+<div class="form-horizontal">
+
+    <div sm-if="Model.CompanyEnabled" class="form-group row">
+        <label asp-for="Company" class="col-@(breakpoint)-3 col-form-label@(Model.CompanyRequired ? " required" : "")"></label>
+        <div class="col-@(breakpoint)-9">
+            <input asp-for="Company" sm-required="Model.CompanyRequired" />
+            <span asp-validation-for="Company"></span>
+        </div>
+    </div>
+
+    <div><hr /></div>
+
+    <div sm-if="Model.SalutationEnabled || Model.TitleEnabled" class="form-group row">
+        @if (Model.SalutationEnabled)
+        {
+            <label asp-for="Salutation" class="col-@(breakpoint)-3 col-form-label"></label>
+            <div class="col-@(breakpoint)-3">
+                <select asp-for="Salutation" asp-items="Model.AvailableSalutations"></select>
+                <span asp-validation-for="Salutation"></span>
+            </div>
+        }
+        @if (Model.TitleEnabled)
+        {
+            <label asp-for="Title" class="col-@(breakpoint)-3 col-form-label@(Model.SalutationEnabled ? " text-right" : "")"></label>
+            <div class="col-@(breakpoint)-3">
+                <input asp-for="Title" />
+                <span asp-validation-for="Title"></span>
+            </div>
+        }
+    </div>
+    <div class="form-group row">
+        <label asp-for="FirstName" class="col-@(breakpoint)-3 col-form-label required"></label>
+        <div class="col-@(breakpoint)-9">
+            <input asp-for="FirstName" sm-required="true" />
+            <span asp-validation-for="FirstName"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="LastName" class="col-@(breakpoint)-3 col-form-label required"></label>
+        <div class="col-@(breakpoint)-9">
+            <input asp-for="LastName" sm-required="true" />
+            <span asp-validation-for="LastName"></span>
+        </div>
+    </div>
+    <div sm-if="Model.StreetAddressEnabled" class="form-group row">
+        <label asp-for="Address1" class="col-@(breakpoint)-3 col-form-label@(Model.StreetAddressRequired ? " required" : "")"></label>
+        <div class="col-@(breakpoint)-9">
+            <input asp-for="Address1" sm-required="Model.StreetAddressRequired" />
+            <span asp-validation-for="Address1"></span>
+        </div>
+    </div>
+    <div sm-if="Model.StreetAddress2Enabled" class="form-group row">
+        <label asp-for="Address2" class="col-@(breakpoint)-3 col-form-label@(Model.StreetAddress2Required ? " required" : "")"></label>
+        <div class="col-@(breakpoint)-9">
+            <input asp-for="Address2" sm-required="Model.StreetAddress2Required" />
+            <span asp-validation-for="Address2"></span>
+        </div>
+    </div>
+
+    <div sm-if="Model.CityEnabled || Model.ZipPostalCodeEnabled" class="form-group row">
+        <label asp-for="City" class="col-@(breakpoint)-3 col-form-label@(Model.CityRequired ? " required" : "")"></label>
+        <div class="col-@breakpoint-9">
+            <div class="row sm-gutters d-flex">
+                <div class="col">
+                    <input asp-for="City" sm-required="Model.CityRequired" />
+                </div>
+                @if (Model.ZipPostalCodeEnabled)
+                {
+                    <div class="col col-auto">
+                        <label asp-for="ZipPostalCode" class="text-right col-form-label@(Model.ZipPostalCodeRequired ? " required" : "")"></label>
+                    </div>
+                    <div class="col col-auto">
+                        <input asp-for="ZipPostalCode" sm-required="Model.ZipPostalCodeRequired" style="width: 6rem" />
+                    </div>
+                }
+            </div>
+            <span asp-validation-for="City"></span>
+            <span asp-validation-for="ZipPostalCode"></span>
+        </div>
+    </div>
+
+    <div sm-if="Model.CountryEnabled" class="form-group row">
+        <label asp-for="CountryId" class="col-@(breakpoint)-3 col-form-label@(Model.CountryRequired ? " required" : "")"></label>
+        <div class="col-@(breakpoint)-9">
+            <select asp-for="CountryId" asp-items="Model.AvailableCountries" sm-required="Model.CountryRequired"
+                    class="country-input country-selector"
+                    data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
+                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
+                    data-addEmptyStateIfRequired="true"></select>
+            <span asp-validation-for="CountryId"></span>
+        </div>
+    </div>
+
+    <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
+        <label asp-for="StateProvinceId" class="col-@(breakpoint)-3 col-form-label@(Model.StateProvinceRequired ? " required" : "")"></label>
+        <div class="col-@(breakpoint)-9">
+            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" sm-required="Model.StateProvinceRequired"></select>
+        </div>
+    </div>
+
+    <div><hr /></div>
+
+    <div class="form-group row">
+        <label asp-for="Email" class="col-@(breakpoint)-3 col-form-label required"></label>
+        <div class="col-@(breakpoint)-9">
+            <input asp-for="Email" sm-required="true" />
+            <span asp-validation-for="Email"></span>
+        </div>
+    </div>
+    <div sm-if="Model.ValidateEmailAddress" class="form-group row">
+        <label asp-for="EmailMatch" class="col-@(breakpoint)-3 col-form-label required"></label>
+        <div class="col-@(breakpoint)-9">
+            <input asp-for="EmailMatch" sm-required="true" />
+            <span asp-validation-for="EmailMatch"></span>
+        </div>
+    </div>
+    <div sm-if="Model.PhoneEnabled" class="form-group row">
+        <label asp-for="PhoneNumber" class="col-@(breakpoint)-3 col-form-label@(Model.PhoneRequired ? " required" : "")"></label>
+        <div class="col-@(breakpoint)-9">
+            <input asp-for="PhoneNumber" sm-required="Model.PhoneRequired" />
+            <span asp-validation-for="PhoneNumber"></span>
+        </div>
+    </div>
+    <div sm-if="Model.FaxEnabled" class="form-group row">
+        <label asp-for="FaxNumber" class="col-@(breakpoint)-3 col-form-label@(Model.FaxRequired ? " required" : "")"></label>
+        <div class="col-@(breakpoint)-9">
+            <input asp-for="FaxNumber" sm-required="Model.FaxRequired" />
+            <span asp-validation-for="FaxNumber"></span>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="offset-@breakpoint-3 col-@breakpoint-9 text-muted address-required-hint">
+            @T("Common.FormFields.Required.Hint")
+        </div>
+    </div>
+</div>

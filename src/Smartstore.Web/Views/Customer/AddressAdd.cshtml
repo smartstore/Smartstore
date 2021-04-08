@@ -1,0 +1,30 @@
+﻿@model AddressModel
+
+@{
+    Assets.AppendTitleParts(T("PageTitle.Account"));
+
+    Layout = "_MyAccount";
+    ViewBag.PageClassToken = "addresses";
+    ViewBag.PageTitle = T("Account.CustomerAddresses.AddNew").Value;
+
+    var dataDictAddress = new ViewDataDictionary(ViewData);
+    dataDictAddress["breakpoint"] = "lg";
+    //Merge ModelState (required for validation)
+    dataDictAddress.ModelState.Merge(ViewData.ModelState);
+
+    // INFO: (mh) (core) Prefix won't be needed anymore. Because the model now matches the model of the partial.
+    //dataDictAddress.TemplateInfo.HtmlFieldPrefix = "Address";
+}
+
+<form asp-action="AddressAdd">
+    <partial name="_CreateOrUpdateAddress" model="Model" view-data="dataDictAddress" />
+    
+    <div class="form-group row">
+        <div class="col">
+            <button type="submit" class="btn btn-primary btn-lg save-address-button">
+                <i class="fa fa-check"></i>
+                <span>@T("Common.Save")</span>
+            </button>
+        </div>
+    </div>
+</form>

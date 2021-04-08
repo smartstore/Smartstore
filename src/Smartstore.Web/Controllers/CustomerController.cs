@@ -22,6 +22,9 @@ using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Customers;
+using Smartstore.ComponentModel;
+using Smartstore.Core.Common;
+using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Controllers
 {
@@ -307,30 +310,154 @@ namespace Smartstore.Web.Controllers
 
             return Json(new { Available = usernameAvailable, Text = statusText.Value });
         }
-        
+
         #region Addresses
 
-        //[RequireSsl]
-        //public async Task<IActionResult> Addresses() 
-        //{
-        //    var customer = Services.WorkContext.CurrentCustomer;
-        //    if (!customer.IsRegistered())
-        //    {
-        //        return new UnauthorizedResult();
-        //    }
+        [RequireSsl]
+        public async Task<IActionResult> Addresses()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
 
-        //    var model = new CustomerAddressListModel();
+            var model = new List<AddressModel>();
 
-        //    // TODO: (mh) (core) What to do with addressModel.PrepareModel?
-        //    //foreach (var address in customer.Addresses)
-        //    //{
-        //    //    var addressModel = new AddressModel();
-        //    //    addressModel.PrepareModel(address, false, _addressSettings, _localizationService, _stateProvinceService, () => _countryService.GetAllCountries());
-        //    //    model.Addresses.Add(addressModel);
-        //    //}
+            foreach (var address in customer.Addresses)
+            {
+                var addressModel = new AddressModel();
+                await MapperFactory.MapAsync(address, addressModel);
+                model.Add(addressModel);
+            }
 
-        //    return View(model);
-        //}
+            return View(model);
+        }
+
+        [RequireSsl]
+        public async Task<IActionResult> AddressDelete(int id)
+        {
+            if (id < 1)
+                return NotFound();
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            // Find address and ensure that it belongs to the current customer.
+            var address = customer.Addresses.Where(a => a.Id == id).FirstOrDefault();
+            if (address != null)
+            {
+                customer.RemoveAddress(address);
+                // Now delete the address record.
+                _db.Addresses.Remove(address);
+                await _db.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Addresses");
+        }
+
+        [RequireSsl]
+        public async Task<IActionResult> AddressAdd()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            var model = new AddressModel();
+            await MapperFactory.MapAsync(new Address(), model);
+            model.Email = customer?.Email;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddressAdd(AddressModel model)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var address = new Address();
+                MiniMapper.Map(model, address);
+                customer.Addresses.Add(address);
+
+                await _db.SaveChangesAsync();
+
+                return RedirectToAction("Addresses");
+            }
+
+            // If we got this far something failed. Redisplay form.
+            await MapperFactory.MapAsync(new Address(), model);
+
+            return View(model);
+        }
+
+        [RequireSsl]
+        public async Task<IActionResult> AddressEdit(int id)
+        {
+            if (id < 1)
+            {
+                return NotFound();
+            }
+            
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            // Find address and ensure that it belongs to the current customer.
+            var address = customer.Addresses.Where(a => a.Id == id).FirstOrDefault();
+            if (address == null)
+            {
+                return RedirectToAction("Addresses");
+            }
+            
+            var model = new AddressModel();
+            await MapperFactory.MapAsync(address, model);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddressEdit(AddressModel model, int id)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            // Find address and ensure that it belongs to the current customer.
+            var address = customer.Addresses.Where(a => a.Id == id).FirstOrDefault();
+            if (address == null)
+            {
+                return RedirectToAction("Addresses");
+            }
+
+            if (ModelState.IsValid)
+            {
+                MiniMapper.Map(model, address);
+                _db.Addresses.Update(address);
+                await _db.SaveChangesAsync();
+
+                return RedirectToAction("Addresses");
+            }
+
+            // If we got this far something failed. Redisplay form.
+            await MapperFactory.MapAsync(new Address(), model);
+
+            return View(model);
+        }
 
         #endregion
 
