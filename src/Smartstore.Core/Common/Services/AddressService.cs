@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -39,40 +40,24 @@ namespace Smartstore.Core.Common.Services
         protected override Task<HookResult> OnInsertingAsync(Address entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             entity.CreatedOnUtc = DateTime.UtcNow;
-
-            if (entity.CountryId == 0)
-            {
-                entity.CountryId = null;
-            }
-                
-            if (entity.StateProvinceId == 0)
-            {
-                entity.StateProvinceId = null;
-            }
-            
-            return Task.FromResult(HookResult.Ok);
+            return Task.FromResult(FixAddress(entity));
         }
     
         protected override Task<HookResult> OnUpdatingAsync(Address entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (entity.CountryId == 0)
-            {
-                entity.CountryId = null;
-            }
-
-            if (entity.StateProvinceId == 0)
-            {
-                entity.StateProvinceId = null;
-            }
-
-            return Task.FromResult(HookResult.Ok);
+            return Task.FromResult(FixAddress(entity));
         }
 
-        protected override Task<HookResult> OnInsertedAsync(Address entity, IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Ok);
+        private static HookResult FixAddress(Address address)
+        {
+            if (address.CountryId == 0)
+                address.CountryId = null;
 
-        protected override Task<HookResult> OnDeletedAsync(Address entity, IHookedEntity entry, CancellationToken cancelToken)
-            => Task.FromResult(HookResult.Ok);
+            if (address.StateProvinceId == 0)
+                address.StateProvinceId = null;
+
+            return HookResult.Ok;
+        }
 
         #endregion
 
@@ -89,16 +74,24 @@ namespace Smartstore.Core.Common.Services
             if (!address.Email.HasValue())
                 return false;
 
-            if (_addressSettings.CompanyEnabled && _addressSettings.CompanyRequired && !address.Company.HasValue())
+            if (_addressSettings.CompanyEnabled && 
+                _addressSettings.CompanyRequired && 
+                !address.Company.HasValue())
                 return false;
 
-            if (_addressSettings.StreetAddressEnabled && _addressSettings.StreetAddressRequired && !address.Address1.HasValue())
+            if (_addressSettings.StreetAddressEnabled && 
+                _addressSettings.StreetAddressRequired && 
+                !address.Address1.HasValue())
                 return false;
 
-            if (_addressSettings.StreetAddress2Enabled && _addressSettings.StreetAddress2Required && !address.Address2.HasValue())
+            if (_addressSettings.StreetAddress2Enabled && 
+                _addressSettings.StreetAddress2Required && 
+                !address.Address2.HasValue())
                 return false;
 
-            if (_addressSettings.ZipPostalCodeEnabled && _addressSettings.ZipPostalCodeRequired && !address.ZipPostalCode.HasValue())
+            if (_addressSettings.ZipPostalCodeEnabled && 
+                _addressSettings.ZipPostalCodeRequired && 
+                !address.ZipPostalCode.HasValue())
                 return false;
 
             if (_addressSettings.CountryEnabled)
@@ -106,37 +99,42 @@ namespace Smartstore.Core.Common.Services
                 if (address.CountryId == null || address.CountryId.Value == 0)
                     return false;
 
-                var country = await _db.Countries.FindByIdAsync(address.CountryId.Value, false);
+                var country = await _db.Countries
+                    .Include(x => x.StateProvinces.OrderBy(x => x.DisplayOrder))
+                    .FindByIdAsync(address.CountryId.Value, false);
 
                 if (country == null)
                     return false;
 
                 if (_addressSettings.StateProvinceEnabled)
                 {
-                    var hasStates = await _db.StateProvinces
-                        .AsNoTracking()
-                        .ApplyCountryFilter(country.Id)
-                        .AnyAsync();
+                    var hasStates = country.StateProvinces.Any();
                         
                     if (hasStates)
                     {
                         if (address.StateProvinceId == null || address.StateProvinceId.Value == 0)
                             return false;
 
-                        var state = await _db.StateProvinces.FindByIdAsync(address.StateProvinceId.Value, false);
+                        var state = country.StateProvinces.FirstOrDefault(x => address.StateProvinceId.Value == x.Id);
                         if (state == null)
                             return false;
                     }
                 }
             }
 
-            if (_addressSettings.CityEnabled && _addressSettings.CityRequired && !address.City.HasValue())
+            if (_addressSettings.CityEnabled && 
+                _addressSettings.CityRequired && 
+                !address.City.HasValue())
                 return false;
 
-            if (_addressSettings.PhoneEnabled && _addressSettings.PhoneRequired && !address.PhoneNumber.HasValue())
+            if (_addressSettings.PhoneEnabled && 
+                _addressSettings.PhoneRequired && 
+                !address.PhoneNumber.HasValue())
                 return false;
 
-            if (_addressSettings.FaxEnabled && _addressSettings.FaxRequired && address.FaxNumber.HasValue())
+            if (_addressSettings.FaxEnabled && 
+                _addressSettings.FaxRequired && 
+                address.FaxNumber.HasValue())
                 return false;
 
             return true;
