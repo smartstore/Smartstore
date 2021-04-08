@@ -1014,7 +1014,7 @@ namespace Smartstore.Web.Controllers
                     .Select(x => x.MediaFile)
                     .FirstOrDefaultAsync();
 
-                if (mediaFile == null)
+                if (mediaFile != null)
                 {
                     file = _mediaService.ConvertMediaFile(mediaFile);
                 }

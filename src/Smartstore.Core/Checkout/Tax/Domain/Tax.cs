@@ -32,7 +32,7 @@ namespace Smartstore.Core.Checkout.Tax
             PriceGross = isGrossPrice ? price : price + amount;
             Price = inclusive ? PriceGross : PriceNet;
 
-            if (currency != null && inclusive != isGrossPrice)
+            if (currency != null)
             {
                 Price = currency.RoundIfEnabledFor(Price);
             }
