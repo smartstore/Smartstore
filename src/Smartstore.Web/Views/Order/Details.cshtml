@@ -203,7 +203,7 @@
 
                                 if (Model.CanRePostProcessPayment)
                                 {
-                                    using (Html.BeginForm())
+                                    using (Html.BeginForm()) @* TODO: (mh) (core) Use form tag *@
                                     {
                                         <input type="submit" name="repost-payment" value="@T("Order.CompletePayment")" class="btn btn-primary btn-sm btn-block re-order-button btn-above" />
                                         <div class="small text-muted pt-2">@T("Order.CompletePayment.Hint")</div>

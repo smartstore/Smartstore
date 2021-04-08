@@ -11,6 +11,8 @@ namespace Smartstore.Web.Models.Orders
 {
     public partial class OrderDetailsModel : EntityModelBase
     {
+        // TODO: (mh) (core) The "Money" type is missing fucking EVERYWHERE.
+        
         public int StoreId { get; set; }
 
         public CompanyInformationSettings MerchantCompanyInfo { get; set; } = new();

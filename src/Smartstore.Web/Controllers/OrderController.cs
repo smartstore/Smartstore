@@ -12,12 +12,13 @@ namespace Smartstore.Web.Controllers
         private readonly SmartDbContext _db;
         private readonly OrderHelper _orderHelper;
 
-        public OrderController (SmartDbContext db, OrderHelper orderHelper)
+        public OrderController(SmartDbContext db, OrderHelper orderHelper)
         {
             _db = db;
             _orderHelper = orderHelper;
         }
 
+        [RequireSsl]
         public async Task<IActionResult> Details(int id)
         {
             var order = await _db.Orders
