@@ -373,7 +373,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new AddressModel();
-            await MapperFactory.MapAsync(new Address(), model);
+            await MapperFactory.MapAsync(new Address(), model); // TODO: (mh) (core) Pass countries somehow
             model.Email = customer?.Email;
 
             return View(model);
@@ -400,7 +400,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
-            await MapperFactory.MapAsync(new Address(), model);
+            await MapperFactory.MapAsync(new Address(), model); // TODO: (mh) (core) Pass countries somehow
 
             return View(model);
         }
@@ -427,7 +427,7 @@ namespace Smartstore.Web.Controllers
             }
             
             var model = new AddressModel();
-            await MapperFactory.MapAsync(address, model);
+            await MapperFactory.MapAsync(address, model); // TODO: (mh) (core) Pass countries somehow
 
             return View(model);
         }
@@ -458,7 +458,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
-            await MapperFactory.MapAsync(new Address(), model);
+            await MapperFactory.MapAsync(new Address(), model); // TODO: (mh) (core) Pass countries somehow
 
             return View(model);
         }
