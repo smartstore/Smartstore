@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Products
@@ -20,20 +21,25 @@ namespace Smartstore.Core.Catalog.Products
 
             query = query.Where(x => productIds.Contains(x.ProductId));
 
-            if (maxFilesPerProduct == null || maxFilesPerProduct > 999999)
+            if (maxFilesPerProduct == null || maxFilesPerProduct == int.MaxValue)
             {
-                // Don't group on client
-                return query.OrderBy(x => x.ProductId).ThenBy(x => x.DisplayOrder);
+                return query.OrderBy(x => x.DisplayOrder);
             }
 
-            var take = maxFilesPerProduct ?? int.MaxValue;
+            var db = query.GetDbContext<SmartDbContext>();
 
-            // TODO: (mg) (core) This query is slow. Find a better way to group-sort product pictures.
-            return query
-                .AsEnumerable() // Will throw otherwise
-                .GroupBy(x => x.ProductId)
-                .SelectMany(pf => pf.OrderBy(x => x.DisplayOrder).Take(take))
-                .AsQueryable();
+            // TODO: (mg) (core) Perf. Again, too slow. Do not overshoot the target.
+            // It's definitely faster to omit maxFilesPerProduct entirely and load all records -> refactor method and callers.
+            query = query
+                .Select(x => x.ProductId)
+                .Distinct()
+                .SelectMany(key => db.ProductMediaFiles
+                    .AsNoTracking()
+                    .Where(x => x.ProductId == key)
+                    .OrderBy(x => x.DisplayOrder)
+                    .Take(maxFilesPerProduct.Value));
+
+            return query;
         }
     }
 }
