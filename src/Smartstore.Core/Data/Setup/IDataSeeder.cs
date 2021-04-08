@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Smartstore.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Smartstore.Core.Data.Setup
 {
-    public interface IDataSeeder<TContext> where TContext : HookingDbContext
+    public interface IDataSeeder<TContext> where TContext : DbContext
     {
         /// <summary>
         /// Seeds data
