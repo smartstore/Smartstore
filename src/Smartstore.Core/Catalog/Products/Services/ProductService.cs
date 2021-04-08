@@ -531,14 +531,15 @@ namespace Smartstore.Core.Catalog.Products
             Store store = null,
             Customer customer = null,
             bool includeHidden = true,
-            int? maxMediaPerProduct = null)
+            bool loadMainMediaOnly = false)
         {
             return new ProductBatchContext(
                 products,
                 _services,
                 store ?? _storeContext.CurrentStore,
                 customer ?? _workContext.CurrentCustomer,
-                includeHidden);
+                includeHidden,
+                loadMainMediaOnly);
         }
     }
 

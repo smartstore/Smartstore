@@ -253,7 +253,7 @@ namespace Smartstore.Web.Controllers
                 }
 
                 // Run in uncommitting scope, because pictures could be updated (IsNew property) 
-                var batchContext = _productService.CreateProductBatchContext(products, calculationOptions.Store, customer, false, 1);
+                var batchContext = _productService.CreateProductBatchContext(products, calculationOptions.Store, customer, false, true);
 
                 if (settings.MapPrices)
                 {
@@ -657,7 +657,7 @@ namespace Smartstore.Web.Controllers
                         .ThenBy(x => x.DisplayOrder);
 
                     ctx.GroupedProducts = allAssociatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
-                    ctx.AssociatedProductBatchContext = _productService.CreateProductBatchContext(allAssociatedProducts, options.Store, options.Customer, false, null);
+                    ctx.AssociatedProductBatchContext = _productService.CreateProductBatchContext(allAssociatedProducts, options.Store, options.Customer, false);
 
                     options.ChildProductsBatchContext = ctx.AssociatedProductBatchContext;
                 }

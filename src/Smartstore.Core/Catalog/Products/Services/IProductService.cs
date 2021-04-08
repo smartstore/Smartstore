@@ -113,12 +113,16 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="customer">Customer. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="includeHidden">A value indicating whether to include hidden records.</param>
         /// <param name="maxMediaPerProduct">Media files per product, <c>null</c> to load all files per product.</param>
-        /// <returns>Product batch context</returns>
+        /// <param name="loadMainMediaOnly">
+        /// A value indicating whether to load the main media per product only.
+        /// The main media file is determined by <see cref="Product.MainPictureId"/>.
+        /// </param>
+        /// <returns>Product batch context.</returns>
         ProductBatchContext CreateProductBatchContext(
             IEnumerable<Product> products = null,
             Store store = null,
             Customer customer = null,
             bool includeHidden = true,
-            int? maxMediaPerProduct = null);
+            bool loadMainMediaOnly = false);
     }
 }

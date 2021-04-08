@@ -26,13 +26,14 @@ namespace Smartstore.Core.Catalog.Products
         private readonly List<int> _productIdsAppliedDiscounts = new();
         private readonly List<int> _bundledProductIds = new();
         private readonly List<int> _groupedProductIds = new();
+        private readonly List<int> _mainMediaFileIds = new();
 
         protected readonly SmartDbContext _db;
         protected readonly IProductService _productService;
         protected readonly ICategoryService _categoryService;
         protected readonly IManufacturerService _manufacturerService;
         protected readonly bool _includeHidden;
-        protected readonly int? _maxMediaPerProduct;
+        protected readonly bool _loadMainMediaOnly;
 
         private LazyMultimap<ProductVariantAttribute> _attributes;
         private LazyMultimap<ProductVariantAttributeCombination> _attributeCombinations;
@@ -53,7 +54,7 @@ namespace Smartstore.Core.Catalog.Products
             Store store,
             Customer customer,
             bool includeHidden,
-            int? maxMediaPerProduct = null)
+            bool loadMainMediaOnly = false)
         {
             Guard.NotNull(services, nameof(services));
             Guard.NotNull(store, nameof(store));
@@ -66,7 +67,7 @@ namespace Smartstore.Core.Catalog.Products
             Store = store;
             Customer = customer;
             _includeHidden = includeHidden;
-            _maxMediaPerProduct = maxMediaPerProduct;
+            _loadMainMediaOnly = loadMainMediaOnly;
 
             if (products != null)
             {
@@ -75,6 +76,11 @@ namespace Smartstore.Core.Catalog.Products
                 _productIdsAppliedDiscounts.AddRange(products.Where(x => x.HasDiscountsApplied).Select(x => x.Id));
                 _bundledProductIds.AddRange(products.Where(x => x.ProductType == ProductType.BundledProduct).Select(x => x.Id));
                 _groupedProductIds.AddRange(products.Where(x => x.ProductType == ProductType.GroupedProduct).Select(x => x.Id));
+
+                if (loadMainMediaOnly)
+                {
+                    _mainMediaFileIds.AddRange(products.Select(x => x.MainPictureId ?? 0).Where(x => x != 0).Distinct());
+                }
             }
         }
 
@@ -285,11 +291,26 @@ namespace Smartstore.Core.Catalog.Products
 
         protected virtual async Task<Multimap<int, ProductMediaFile>> LoadProductMediaFiles(int[] ids)
         {
-            var files = await _db.ProductMediaFiles
+            List<ProductMediaFile> files = null;
+
+            var query = _db.ProductMediaFiles
                 .AsNoTracking()
-                .Include(x => x.MediaFile)
-                .ApplyProductFilter(ids, _maxMediaPerProduct)
-                .ToListAsync();
+                .Include(x => x.MediaFile);
+
+            if (_loadMainMediaOnly)
+            {
+                files = _mainMediaFileIds.Any()
+                    ? await query.Where(x => _mainMediaFileIds.Contains(x.MediaFileId)).ToListAsync()
+                    : new List<ProductMediaFile>();
+            }
+            else
+            {
+                files = await query
+                    .Where(x => ids.Contains(x.ProductId))
+                    .OrderBy(x => x.ProductId)
+                    .ThenBy(x => x.DisplayOrder)
+                    .ToListAsync();
+            }
 
             return files.ToMultimap(x => x.ProductId, x => x);
         }
