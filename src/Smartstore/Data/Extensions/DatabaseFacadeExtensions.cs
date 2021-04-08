@@ -7,13 +7,42 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
 
 namespace Smartstore
 {
     public static class DatabaseFacadeExtensions
     {
+        #region Migrations
+
+        /// <summary>
+        /// Migrates the database to the specified target migration.
+        /// </summary>
+        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <param name="targetMigration">The target migration to migrate the database to.</param>
+        public static void Migrate(this DatabaseFacade databaseFacade, string targetMigration)
+            => Guard.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate(Guard.NotEmpty(targetMigration, nameof(targetMigration)));
+
+        /// <summary>
+        /// Migrates the database to the specified target migration.
+        /// </summary>
+        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <param name="targetMigration">The target migration to migrate the database to.</param>
+        public static Task MigrateAsync(this DatabaseFacade databaseFacade, string targetMigration, CancellationToken cancellationToken = default)
+            => Guard.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().MigrateAsync(Guard.NotEmpty(targetMigration, nameof(targetMigration)), cancellationToken);
+
+        /// <summary>
+        /// Resolves a service representing an assembly containing EF Core Migrations.
+        /// </summary>
+        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+        public static IMigrationsAssembly GetMigrationsAssembly(this DatabaseFacade databaseFacade)
+            => Guard.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrationsAssembly>();
+
+        #endregion
+
         #region ExecuteScalar
 
         public static T ExecuteScalarInterpolated<T>(this DatabaseFacade databaseFacade, FormattableString sql)
@@ -263,6 +292,19 @@ namespace Smartstore
             }
 
             throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+        }
+
+        private static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
+        {
+            Guard.NotNull(databaseFacade, nameof(databaseFacade));
+
+            var service = databaseFacade.Instance.GetService<TService>();
+            if (service == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+            }
+
+            return service;
         }
     }
 }
