@@ -18,7 +18,7 @@ namespace Smartstore.Core.Checkout.Cart
 
         /// <summary>
         /// Adds or creates cart items from <see cref="AddToCartContext.Product"/> to the customers shopping cart and automatically. 
-        /// Updates the database async as long as the item is not a bundle or it is a bundle and <see cref="AddToCartContext.AutomaticallyAddBundleProductsIfEnabled"/> is true.
+        /// Updates the database async as long as the item is not a bundle or it is a bundle and <see cref="AddToCartContext.AutomaticallyAddBundleProducts"/> is true.
         /// </summary>
         /// <remarks>
         /// If you manually assign <see cref="AddToCartContext"/> with bundle items, then use <see cref="AddItemToCartAsync(AddToCartContext)"/> 
@@ -52,7 +52,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets the customers shopping cart items async.
         /// </summary>
-        /// <param name="customer">Customer of cart.</param>
+        /// <param name="customer">Customer of cart. If <c>null</c>, customer will be obtained via <see cref="IWorkContext.CurrentCustomer"/>.</param>
         /// <param name="cartType">Shopping cart type.</param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns>List of error messages.</returns>

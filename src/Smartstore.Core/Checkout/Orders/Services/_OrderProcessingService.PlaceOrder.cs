@@ -160,7 +160,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
 
 
-                await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true, customer.GenericAttributes.CheckoutAttributes);
+                await _shoppingCartValidator.ValidateCartItemsAsync(cart, warnings, true, customer.GenericAttributes.CheckoutAttributes);
                 if (warnings.Any())
                 {
                     return (warnings, cart);
@@ -178,7 +178,7 @@ namespace Smartstore.Core.Checkout.Orders
                         RawAttributes = item.Item.RawAttributes,
                         CustomerEnteredPrice = new(item.Item.CustomerEnteredPrice, _primaryCurrency),
                         Quantity = item.Item.Quantity,
-                        AutomaticallyAddRequiredProductsIfEnabled = false,
+                        AutomaticallyAddRequiredProducts = false,
                         ChildItems = item.ChildItems.Select(x => x.Item).ToList()
                     };
 

@@ -85,12 +85,12 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets a value indicating whether to add required products
         /// </summary>
-        public bool AutomaticallyAddRequiredProductsIfEnabled { get; set; }
+        public bool AutomaticallyAddRequiredProducts { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to add all bundle (child) products
         /// </summary>
-        public bool AutomaticallyAddBundleProductsIfEnabled { get; set; }
+        public bool AutomaticallyAddBundleProducts { get; set; }
 
         /// <summary>
         /// Gets or sets store identifier

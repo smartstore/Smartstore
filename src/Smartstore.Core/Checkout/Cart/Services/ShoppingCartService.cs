@@ -173,7 +173,7 @@ namespace Smartstore.Core.Checkout.Cart
             var cartItems = await GetCartItemsAsync(ctx.Customer, ctx.CartType, ctx.StoreId.Value);
 
             // Adds required products automatically if it is enabled
-            if (ctx.AutomaticallyAddRequiredProductsIfEnabled)
+            if (ctx.AutomaticallyAddRequiredProducts)
             {
                 var requiredProductIds = ctx.Product.ParseRequiredProductIds();
                 if (requiredProductIds.Any())
@@ -279,7 +279,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             // If ctx.Product is a bundle product and the setting to automatically add bundle products is true, try to add all corresponding BundleItems.
 
-            if (ctx.AutomaticallyAddBundleProductsIfEnabled
+            if (ctx.AutomaticallyAddBundleProducts
                 && ctx.Product.ProductType == ProductType.BundledProduct
                 && ctx.BundleItem == null
                 && ctx.Warnings.Count == 0)
@@ -306,7 +306,7 @@ namespace Smartstore.Core.Checkout.Cart
                         VariantQuery = ctx.VariantQuery,
                         RawAttributes = ctx.RawAttributes,
                         CustomerEnteredPrice = ctx.CustomerEnteredPrice,
-                        AutomaticallyAddRequiredProductsIfEnabled = ctx.AutomaticallyAddRequiredProductsIfEnabled,
+                        AutomaticallyAddRequiredProducts = ctx.AutomaticallyAddRequiredProducts,
                     };
 
                     // If bundleItem could not be added to the shopping cart, remove child items
@@ -319,7 +319,7 @@ namespace Smartstore.Core.Checkout.Cart
             }
 
             // If context is no bundleItem, add item (parent) and its children (grouped product)
-            if ((ctx.Product.ProductType == ProductType.SimpleProduct || ctx.AutomaticallyAddBundleProductsIfEnabled)
+            if ((ctx.Product.ProductType == ProductType.SimpleProduct || ctx.AutomaticallyAddBundleProducts)
                 && ctx.BundleItem == null && ctx.Warnings.Count == 0)
             {
                 await AddItemToCartAsync(ctx);
@@ -342,8 +342,8 @@ namespace Smartstore.Core.Checkout.Cart
                 ctx.Quantity = childItem.Quantity;
                 ctx.RawAttributes = childItem.AttributeSelection.AsJson();
                 ctx.CustomerEnteredPrice = new(childItem.CustomerEnteredPrice, ctx.CustomerEnteredPrice.Currency);
-                ctx.AutomaticallyAddRequiredProductsIfEnabled = false;
-                ctx.AutomaticallyAddBundleProductsIfEnabled = false;
+                ctx.AutomaticallyAddRequiredProducts = false;
+                ctx.AutomaticallyAddBundleProducts = false;
 
                 await AddToCartAsync(ctx);
             }
@@ -529,7 +529,7 @@ namespace Smartstore.Core.Checkout.Cart
                     RawAttributes = cartItem.AttributeSelection.AsJson(),
                     CustomerEnteredPrice = new Money(cartItem.CustomerEnteredPrice, _primaryCurrency),
                     Quantity = newQuantity,
-                    AutomaticallyAddRequiredProductsIfEnabled = false,
+                    AutomaticallyAddRequiredProducts = false,
                 };
 
                 var cartItems = await GetCartItemsAsync(customer, cartItem.ShoppingCartType, cartItem.StoreId);
