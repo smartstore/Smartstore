@@ -8,11 +8,10 @@ using Smartstore.Caching;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
-using Smartstore.Core.Data.Setup;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.Data.Setup;
 using Smartstore.Domain;
 
 namespace Smartstore.Web.Infrastructure.Installation

@@ -42,7 +42,7 @@ using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Data.Setup
+namespace Smartstore.Core.Data.Migrations
 {
     public abstract partial class InvariantSeedData
     {

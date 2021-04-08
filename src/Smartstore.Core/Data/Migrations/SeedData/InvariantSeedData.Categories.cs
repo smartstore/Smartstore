@@ -7,7 +7,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Rules;
 
-namespace Smartstore.Core.Data.Setup
+namespace Smartstore.Core.Data.Migrations
 {
     public abstract partial class InvariantSeedData
     {

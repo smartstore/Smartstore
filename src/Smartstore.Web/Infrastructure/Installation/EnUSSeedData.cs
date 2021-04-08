@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Smartstore.Core.Configuration;
-using Smartstore.Core.Data.Setup;
+using Smartstore.Core.Data.Migrations;
 
 namespace Smartstore.Web.Infrastructure.Installation
 {

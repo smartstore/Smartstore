@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
 
-namespace Smartstore.Core.Data.Setup
+namespace Smartstore.Core.Data.Migrations
 {
     public abstract partial class InvariantSeedData
     {

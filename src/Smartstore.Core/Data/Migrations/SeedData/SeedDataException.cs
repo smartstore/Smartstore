@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Core.Data.Setup
+namespace Smartstore.Core.Data.Migrations
 {
     public class SeedDataException : Exception
     {

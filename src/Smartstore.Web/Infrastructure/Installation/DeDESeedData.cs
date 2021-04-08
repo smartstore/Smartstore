@@ -13,7 +13,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Topics;
-using Smartstore.Core.Data.Setup;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messages;

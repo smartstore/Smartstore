@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Data;
 using Smartstore.Events;
 
-namespace Smartstore.Core.Data.Setup
+namespace Smartstore.Core.Data.Migrations
 {
     public class DbMigrator<TContext> where TContext : DbContext
     {

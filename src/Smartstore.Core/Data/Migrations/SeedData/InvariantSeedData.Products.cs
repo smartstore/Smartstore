@@ -13,7 +13,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Content.Media;
 
-namespace Smartstore.Core.Data.Setup
+namespace Smartstore.Core.Data.Migrations
 {
     public abstract partial class InvariantSeedData
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Smartstore.Core.Configuration;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Data.Setup
+namespace Smartstore.Core.Data.Migrations
 {
     public class SeedSettingsAlterer
     {
