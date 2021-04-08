@@ -36,7 +36,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="validateCheckoutAttributes">A value indicating whether to validate the <see cref="CheckoutAttributeSelection"/>.</param>
         /// <param name="attributeSelection"><see cref="CheckoutAttributeSelection"/> of customer. Cannot be null when <paramref name="validateCheckoutAttributes"/> is <c>true</c>, otherwise there is no attributes selection check.</param>
         /// <returns><c>True</c> when all items as well as the <see cref="CheckoutAttributeSelection"/> are valid, otherwise <c>false</c>.</returns>
-        Task<bool> ValidateCartAsync(IEnumerable<OrganizedShoppingCartItem> cartItems, IList<string> warnings, bool validateCheckoutAttributes = false, CheckoutAttributeSelection attributeSelection = null);
+        Task<bool> ValidateCartItemsAsync(IEnumerable<OrganizedShoppingCartItem> cartItems, IList<string> warnings, bool validateCheckoutAttributes = false, CheckoutAttributeSelection attributeSelection = null);
 
         /// <summary>
         /// Validates add to cart item for product errors, attribute selection errors, gift card info errors, missing required products, bundle item and child items errors.
@@ -69,8 +69,9 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="cartItem">Shopping cart item with product and settings.</param>
         /// <param name="warnings">List of errors as string.</param>
         /// <param name="storeId">Store identifier.</param>
+        /// <param name="quantity">Quantity to validate. If <c>null</c>, <see cref="ShoppingCartItem.Quantity"/> is instead.</param>
         /// <returns><c>True</c> when product is valid, otherwise <c>false</c>.</returns>
-        Task<bool> ValidateProductAsync(ShoppingCartItem cartItem, IList<string> warnings, int? storeId = null);
+        Task<bool> ValidateProductAsync(ShoppingCartItem cartItem, IList<string> warnings, int? storeId = null, int? quantity = null);
 
         /// <summary>
         /// Validates product attribute selection and variant combinations.

@@ -121,7 +121,7 @@ namespace Smartstore.Core.Checkout.Cart
             return !currentWarnings.Any();
         }
 
-        public virtual async Task<bool> ValidateCartAsync(
+        public virtual async Task<bool> ValidateCartItemsAsync(
             IEnumerable<OrganizedShoppingCartItem> cartItems,
             IList<string> warnings,
             bool validateCheckoutAttributes = false,
@@ -275,7 +275,7 @@ namespace Smartstore.Core.Checkout.Cart
             return !currentWarnings.Any();
         }
 
-        public virtual async Task<bool> ValidateProductAsync(ShoppingCartItem cartItem, IList<string> warnings, int? storeId = null)
+        public virtual async Task<bool> ValidateProductAsync(ShoppingCartItem cartItem, IList<string> warnings, int? storeId = null, int? quantity = null)
         {
             Guard.NotNull(cartItem, nameof(cartItem));
             Guard.NotNull(warnings, nameof(warnings));
@@ -348,24 +348,25 @@ namespace Smartstore.Core.Checkout.Cart
                 currentWarnings.Add(T("ShoppingCart.CustomerEnteredPrice.RangeError", min, max));
             }
 
+            var quanitityToValidate = quantity ?? cartItem.Quantity;
             // Quantity validation
-            if (cartItem.Quantity <= 0)
+            if (quanitityToValidate <= 0)
             {
                 currentWarnings.Add(T("ShoppingCart.QuantityShouldPositive"));
             }
 
-            if (cartItem.Quantity < product.OrderMinimumQuantity)
+            if (quanitityToValidate < product.OrderMinimumQuantity)
             {
                 currentWarnings.Add(T("ShoppingCart.MinimumQuantity", product.OrderMinimumQuantity));
             }
 
-            if (cartItem.Quantity > product.OrderMaximumQuantity)
+            if (quanitityToValidate > product.OrderMaximumQuantity)
             {
                 currentWarnings.Add(T("ShoppingCart.MaximumQuantity", product.OrderMaximumQuantity));
             }
 
             var allowedQuantities = product.ParseAllowedQuantities();
-            if (allowedQuantities.Length > 0 && !allowedQuantities.Contains(cartItem.Quantity))
+            if (allowedQuantities.Length > 0 && !allowedQuantities.Contains(quanitityToValidate))
             {
                 currentWarnings.Add(T("ShoppingCart.AllowedQuantities", string.Join(", ", allowedQuantities)));
             }
@@ -378,7 +379,7 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     case ManageInventoryMethod.ManageStock:
                         {
-                            if (product.BackorderMode != BackorderMode.NoBackorders || product.StockQuantity >= cartItem.Quantity)
+                            if (product.BackorderMode != BackorderMode.NoBackorders || product.StockQuantity >= quanitityToValidate)
                                 break;
 
                             var warning = product.StockQuantity > 0
@@ -391,7 +392,7 @@ namespace Smartstore.Core.Checkout.Cart
                     case ManageInventoryMethod.ManageStockByAttributes:
                         {
                             var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, cartItem.AttributeSelection);
-                            if (combination == null || combination.AllowOutOfStockOrders || combination.StockQuantity >= cartItem.Quantity)
+                            if (combination == null || combination.AllowOutOfStockOrders || combination.StockQuantity >= quanitityToValidate)
                                 break;
 
                             var warning = combination.StockQuantity > 0
