@@ -1,0 +1,133 @@
+﻿@model CustomerDownloadableProductsModel
+
+@using Smartstore.Web.Models.Customers;
+
+@{
+    Assets.AppendTitleParts(T("PageTitle.Account"));
+
+    Layout = "_MyAccount";
+    ViewBag.PageClassToken = "downloads";
+    ViewBag.PageTitle = T("Account.DownloadableProducts").Value;
+}
+
+@if (Model.Items.Count == 0)
+{
+    <div class="alert alert-warning">
+        @T("DownloadableProducts.NoItems")
+    </div>
+    return;
+}
+
+<div class="card-deck card-cols-sm-1 esd-list">
+    @foreach (var item in Model.Items)
+    {
+        <div class="card shadow-sm esd-item">
+            <div class="card-body">
+                <h4 class="card-title mb-4" sm-language-attributes-for="item.ProductName">@item.ProductName.Value.Truncate(50, "...")</h4>
+                <dl class="row mb-0">
+                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Order.Order#")</dt>
+                    <dd class="col-sm-9"><a asp-action="Details" asp-controller="Order" asp-route-id="@item.OrderId" rel="nofollow">@item.OrderId</a></dd>
+                    <dt class="col-sm-3 font-weight-400 text-muted">@T("Common.CreatedOn")</dt>
+                    <dd class="col-sm-9">@item.CreatedOn.ToNativeString("d")</dd>
+                    <dt class="col-sm-3 font-weight-400 text-muted">@T("DownloadableProducts.Fields.Product")</dt>
+                    <dd class="col-sm-9">
+                        <a href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                        <div sm-if="item.ProductAttributes.HasValue()">
+                            @Html.Raw(item.ProductAttributes)
+                        </div>
+                    </dd>
+                </dl>
+            </div>
+
+            @if (item.IsDownloadAllowed || item.LicenseId > 0)
+            {
+                <div class="card-footer p-0">
+                    <div class="d-flex">
+                        @if (item.IsDownloadAllowed)
+                        {
+                            <a class="btn btn-secondary btn-flat rounded-0" asp-action="GetDownload" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
+                                <i class="fa fa-download"></i>
+                                <span>@T("DownloadableProducts.Fields.Download")</span>
+                            </a>
+                            <a sm-if="item.DownloadVersions.Count > 1" class="btn btn-secondary btn-flat rounded-0" data-toggle="collapse" href="#download-versions-@item.OrderId" rel="nofollow">
+                                <i class="fa fa-info"></i>
+                                <span>@T("Common.Download.Versions")</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-secondary btn-flat rounded-0 disabled" href="javascript:void(0)" rel="nofollow">
+                                <span>@T("DownloadableProducts.Fields.Download.NA")</span>
+                            </a>
+                        }
+
+                        @if (item.LicenseId > 0)
+                        {
+                            <a class="btn btn-secondary btn-flat rounded-0" asp-action="GetLicense" asp-controller="Download" asp-route-id="@item.OrderItemGuid" rel="nofollow">
+                                <span>@T("DownloadableProducts.Fields.DownloadLicense")</span>
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <div sm-if="item.IsDownloadAllowed && item.DownloadVersions.Count > 1" class="collapse download-versions" id="download-versions-@item.OrderId">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">#</th>
+                                <th scope="col">@T("Common.Download.Version")</th>
+                            </tr>
+                        </thead>
+                        <tbody id="download-versions">
+                            @foreach (var download in item.DownloadVersions)
+                            {
+                                <tr data-toggle="collapse" data-target="#download-@download.DownloadId" class="download-version">
+                                    <th scope="row">
+                                        <i class="fa fa-fw fa-angle-right"></i>
+                                    </th>
+                                    <td>
+                                        @download.FileVersion
+                                    </td>
+                                    <td>
+                                        <a asp-action="GetDownload" asp-controller="Download" asp-route-id="@item.OrderItemGuid" asp-route-fileVersion="@download.FileVersion" class="download-link">
+                                            @download.FileName
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr id="download-@download.DownloadId" class="download-changelog collapse bg-light">
+                                    <td colspan="3">
+                                        <div>
+                                            @if (download.Changelog.HasValue())
+                                            {
+                                                @Html.Raw(download.Changelog)
+                                            }
+                                            else
+                                            {
+                                                @T("Customer.Downloads.NoChangelogAvailable")
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<script sm-target-zone="scripts" data-origin="downloadable-products">
+    $(function () {
+        $('.download-versions .download-changelog').on('show.bs.collapse hide.bs.collapse', function (e) {
+            var icon = $(e.target).prev().find("i");
+            icon.toggleClass("fa-angle-down", e.type == "show");
+        });
+
+        $('.download-versions .download-link').on("click", function (e) {
+            e.stopPropagation();
+        });
+    });
+</script>

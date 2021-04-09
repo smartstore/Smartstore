@@ -16,6 +16,7 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -38,6 +39,7 @@ namespace Smartstore.Web.Controllers
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IOrderService _orderService;
+        private readonly IDownloadService _downloadService;
         private readonly ICurrencyService _currencyService;
         private readonly IMessageFactory _messageFactory;
         private readonly UserManager<Customer> _userManager;
@@ -61,6 +63,7 @@ namespace Smartstore.Web.Controllers
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
             IOrderService orderService,
+            IDownloadService downloadService,
             ICurrencyService currencyService,
             IMessageFactory messageFactory,
             UserManager<Customer> userManager,
@@ -83,6 +86,7 @@ namespace Smartstore.Web.Controllers
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
             _orderService = orderService;
+            _downloadService = downloadService;
             _currencyService = currencyService;
             _messageFactory = messageFactory;
             _userManager = userManager;
@@ -323,6 +327,8 @@ namespace Smartstore.Web.Controllers
 
             return Json(new { Available = usernameAvailable, Text = statusText.Value });
         }
+
+        // TODO: (mh) (core) Login / logout / register must be implemented in IdentityController.
 
         #region Addresses
 
@@ -588,6 +594,127 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
+        #region Downloadable products
+        
+        [RequireSsl]
+        public async Task<IActionResult> DownloadableProducts()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            var model = new CustomerDownloadableProductsModel();
+
+            var items = await _db.OrderItems
+                .AsNoTracking()
+                .ApplyStandardFilter(customerId: customer.Id)
+                .Include(x => x.Product)
+                .Include(x => x.Order)
+                .Where(x => x.Product.IsDownload)
+                .ToListAsync();
+            
+            foreach (var item in items)
+            {
+                var itemModel = new CustomerDownloadableProductsModel.DownloadableProductsModel
+                {
+                    OrderItemGuid = item.OrderItemGuid,
+                    OrderId = item.OrderId,
+                    CreatedOn = _dateTimeHelper.ConvertToUserTime(item.Order.CreatedOnUtc, DateTimeKind.Utc),
+                    ProductName = item.Product.GetLocalized(x => x.Name),
+                    ProductSeName = await item.Product.GetActiveSlugAsync(),
+                    ProductAttributes = item.AttributeDescription,
+                    ProductId = item.ProductId
+                };
+
+                itemModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(item.ProductId, itemModel.ProductSeName, item.AttributeSelection);
+
+                model.Items.Add(itemModel);
+
+                itemModel.IsDownloadAllowed = _downloadService.IsDownloadAllowed(item);
+
+                if (itemModel.IsDownloadAllowed)
+                {
+                    itemModel.DownloadVersions = await _db.Downloads
+                        .AsNoTracking()
+                        .ApplyEntityFilter(nameof(Product), item.Product.Id)
+                        .Where(x => !string.IsNullOrEmpty(x.FileVersion))
+                        .Include(x => x.MediaFile)
+                        .Select(x => new DownloadVersion
+                        {
+                            FileVersion = x.FileVersion,
+                            FileName = x.MediaFile.Name,
+                            DownloadGuid = x.DownloadGuid,
+                            Changelog = x.Changelog,
+                            DownloadId = x.Id
+                        })
+                        .ToListAsync();
+                }
+
+                if (_downloadService.IsLicenseDownloadAllowed(item))
+                {
+                    itemModel.LicenseId = item.LicenseDownloadId ?? 0;
+                }
+            }
+
+            return View(model);
+        }
+
+        /// <summary>
+        /// Gets the user agreement for purchased download.
+        /// </summary>
+        /// <param name="id">OrderItemId <see cref="OrderItem.OrderItemGuid"/></param>
+        /// <param name="fileVersion">Requested version of purchased download.</param>
+        public async Task<IActionResult> UserAgreement(Guid id, string fileVersion = "")
+        {
+            if (id == Guid.Empty)
+            {
+                return NotFound();
+            }
+
+            var orderItem = await _db.OrderItems
+                .AsNoTracking()
+                .Include(x => x.Product)
+                .Where(x => x.OrderItemGuid == id)
+                .FirstOrDefaultAsync();
+                
+            if (orderItem == null)
+            {
+                NotifyError(T("Customer.UserAgreement.OrderItemNotFound"));
+                return RedirectToRoute("HomePage");
+            }
+
+            var product = orderItem.Product;
+            if (product == null || !product.HasUserAgreement)
+            {
+                NotifyError(T("Customer.UserAgreement.ProductNotFound"));
+                return RedirectToRoute("HomePage");
+            }
+
+            var model = new UserAgreementModel
+            {
+                UserAgreementText = product.UserAgreementText,
+                OrderItemGuid = id,
+                FileVersion = fileVersion
+            };
+
+            return View(model);
+        }
+
+        #endregion
+
+        // TODO: (mh) (core) Change password must be implemented in IdentityController.
+
+        #region Avatar
+        // TODO: (mh) (core) 
+        #endregion
+
+        // TODO: (mh) (core) Password recovery must be implemented in IdentityController.
+
+        // TODO: (mh) (core) Forum subscriptions must be implemented in Forum module.
+
         #region Reward points
 
         [RequireSsl]
@@ -627,7 +754,11 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
+        #region Back in stock subscriptions
+        // TODO: (mh) (core) 
+        #endregion
 
+        #region Utilities
 
         [NonAction]
         protected async Task PrepareCustomerInfoModelAsync(CustomerInfoModel model, Customer customer, bool excludeProperties)
@@ -884,6 +1015,8 @@ namespace Smartstore.Web.Controllers
                 .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
                 .ToListAsync();
         }
+
+        #endregion
 
         // INFO: (mh) (core) Current CountryController just has this one method. Details TBD.
         // RE: But it does NOT belong here. Find another - perhaps more generic - controller please.
