@@ -38,8 +38,7 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string NotEmpty(string arg, string argName)
+        public static void NotEmpty(string arg, string argName)
         {
             Exception e = null;
             if (arg is null)
@@ -55,13 +54,10 @@ namespace Smartstore
             {
                 throw e;
             }   
-
-            return arg;
         }
 
         [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string NotOutOfLength(string arg, int maxLength, string argName)
+        public static void NotOutOfLength(string arg, int maxLength, string argName)
         {
             Exception e = null;
             if (arg is null)
@@ -77,8 +73,6 @@ namespace Smartstore
             {
                 throw e;
             }
-
-            return arg;
         }
 
         [DebuggerStepThrough]

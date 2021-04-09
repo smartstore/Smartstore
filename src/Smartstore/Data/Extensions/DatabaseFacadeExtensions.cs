@@ -24,7 +24,7 @@ namespace Smartstore
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="targetMigration">The target migration to migrate the database to.</param>
         public static void Migrate(this DatabaseFacade databaseFacade, string targetMigration)
-            => Guard.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate(Guard.NotEmpty(targetMigration, nameof(targetMigration)));
+            => Guard.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate(targetMigration);
 
         /// <summary>
         /// Migrates the database to the specified target migration.
@@ -32,7 +32,7 @@ namespace Smartstore
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="targetMigration">The target migration to migrate the database to.</param>
         public static Task MigrateAsync(this DatabaseFacade databaseFacade, string targetMigration, CancellationToken cancellationToken = default)
-            => Guard.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().MigrateAsync(Guard.NotEmpty(targetMigration, nameof(targetMigration)), cancellationToken);
+            => Guard.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().MigrateAsync(targetMigration, cancellationToken);
 
         /// <summary>
         /// Resolves a service representing an assembly containing EF Core Migrations.

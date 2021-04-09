@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Smartstore.Core.Data.Migrations
 {
-    public interface IDataSeeder<TContext> where TContext : DbContext
+    public interface IDataSeeder<in TContext> where TContext : DbContext
     {
         /// <summary>
         /// Seeds data
