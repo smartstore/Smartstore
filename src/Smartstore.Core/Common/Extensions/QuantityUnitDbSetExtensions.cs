@@ -4,7 +4,7 @@ using Smartstore.Core.Common;
 
 namespace Smartstore
 {
-    public static partial class QuantityUnitExtensions
+    public static partial class QuantityUnitDbSetExtensions
     {
         /// <summary>
         /// Gets a quantity unit by identifier. Loads the default quantity unit if none was found by <paramref name="quantityUnitId"/>.
