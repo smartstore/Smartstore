@@ -389,33 +389,33 @@ namespace Smartstore.Web.Controllers
                 if (!bundleItem.Item.HideThumbnail)
                 {
                     var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
-                    var hasFile = assignedMediaIds.Any() && await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]);
-                    if (assignedMediaIds.Any() && hasFile)
+
+                    if (assignedMediaIds.Any() && await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]))
                     {
                         var file = await _db.ProductMediaFiles
                             .AsNoTracking()
-                            .ApplyProductFilter(new[] { bundleItem.Item.ProductId }, 1)
-                            .Select(x => x.MediaFile)
+                            .Include(x => x.MediaFile)
+                            .ApplyProductFilter(bundleItem.Item.ProductId)
                             .FirstOrDefaultAsync();
 
-                        dynamicThumbUrl = _mediaService.GetUrl(file, _mediaSettings.BundledProductPictureSize, null, false);
+                        dynamicThumbUrl = _mediaService.GetUrl(file?.MediaFile, _mediaSettings.BundledProductPictureSize, null, false);
                     }
                 }
             }
             else if (isAssociated)
             {
                 // Update associated product thumbnail.
-                var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? new int[0];
-                var hasFile = await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]);
-                if (assignedMediaIds.Any() && hasFile)
+                var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
+
+                if (assignedMediaIds.Any() && await _db.MediaFiles.AnyAsync(x => x.Id == assignedMediaIds[0]))
                 {
                     var file = await _db.ProductMediaFiles
                         .AsNoTracking()
-                        .ApplyProductFilter(new[] { productId }, 1)
-                        .Select(x => x.MediaFile)
+                        .Include(x => x.MediaFile)
+                        .ApplyProductFilter(productId)
                         .FirstOrDefaultAsync();
 
-                    dynamicThumbUrl = _mediaService.GetUrl(file, _mediaSettings.AssociatedProductPictureSize, null, false);
+                    dynamicThumbUrl = _mediaService.GetUrl(file?.MediaFile, _mediaSettings.AssociatedProductPictureSize, null, false);
                 }
             }
             else if (product.ProductType != ProductType.BundledProduct)
@@ -423,8 +423,8 @@ namespace Smartstore.Web.Controllers
                 // Update image gallery.
                 var files = await _db.ProductMediaFiles
                     .AsNoTracking()
-                    .ApplyProductFilter(new[] { productId })
-                    .Select(x => _mediaService.ConvertMediaFile(x.MediaFile))
+                    .Include(x => x.MediaFile)
+                    .ApplyProductFilter(productId)
                     .ToListAsync();
 
                 if (product.HasPreviewPicture && files.Count > 1)
@@ -447,9 +447,13 @@ namespace Smartstore.Web.Controllers
                 else
                 {
                     var allCombinationPictureIds = await _productAttributeService.GetAttributeCombinationFileIdsAsync(product.Id);
+                    var mediaFiles = files
+                        .Where(x => x.MediaFile != null)
+                        .Select(x => _mediaService.ConvertMediaFile(x.MediaFile))
+                        .ToList();
 
                     var mediaModel = _helper.PrepareProductDetailsMediaGalleryModel(
-                        files,
+                        mediaFiles,
                         product.GetLocalized(x => x.Name),
                         allCombinationPictureIds,
                         false,

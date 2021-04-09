@@ -92,7 +92,7 @@ namespace Smartstore.Web.Controllers
             if (combination != null)
             {
                 var mediaIds = combination.GetAssignedMediaIds();
-                if (mediaIds != null && mediaIds.Length > 0)
+                if (mediaIds.Any())
                 {
                     file = await _mediaService.GetFileByIdAsync(mediaIds[0], MediaLoadFlags.AsNoTracking);
                 }
@@ -101,16 +101,15 @@ namespace Smartstore.Web.Controllers
             // No attribute combination image, then load product picture.
             if (file == null)
             {
-                // TODO: (mh) (core) Weird problem with ApplyProductFilter here. Solve this!
                 var mediaFile = await _db.ProductMediaFiles
                     .AsNoTracking()
-                    //.ApplyProductFilter(new int[] { product.Id }, 1)
-                    .Select(x => x.MediaFile)
+                    .Include(x => x.MediaFile)
+                    .ApplyProductFilter(product.Id)
                     .FirstOrDefaultAsync();
 
-                if (mediaFile != null)
+                if (mediaFile?.MediaFile != null)
                 {
-                    file = _mediaService.ConvertMediaFile(mediaFile);
+                    file = _mediaService.ConvertMediaFile(mediaFile.MediaFile);
                 }
             }
 
@@ -119,13 +118,13 @@ namespace Smartstore.Web.Controllers
             {
                 var mediaFile = await _db.ProductMediaFiles
                     .AsNoTracking()
-                    .ApplyProductFilter(new int[] { product.ParentGroupedProductId }, 1)
-                    .Select(x => x.MediaFile)
+                    .Include(x => x.MediaFile)
+                    .ApplyProductFilter(product.ParentGroupedProductId)
                     .FirstOrDefaultAsync();
 
-                if (mediaFile != null)
+                if (mediaFile?.MediaFile != null)
                 {
-                    file = _mediaService.ConvertMediaFile(mediaFile);
+                    file = _mediaService.ConvertMediaFile(mediaFile.MediaFile);
                 }
             }
 

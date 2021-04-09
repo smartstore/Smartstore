@@ -181,10 +181,12 @@ namespace Smartstore.Core.Messages
             if (file == null && product.Visibility == ProductVisibility.Hidden && product.ParentGroupedProductId > 0)
             {
                 var productFile = await _db.ProductMediaFiles
-                    .ApplyProductFilter(new int[] { product.ParentGroupedProductId }, 1)
+                    .AsNoTracking()
+                    .Include(x => x.MediaFile)
+                    .ApplyProductFilter(product.ParentGroupedProductId)
                     .FirstOrDefaultAsync();
 
-                if (productFile != null)
+                if (productFile?.MediaFile != null)
                 {
                     file = mediaService.ConvertMediaFile(productFile.MediaFile);
                 }

@@ -47,6 +47,7 @@ namespace Smartstore.Web.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ILocalizationService _localizationService;
         private readonly IDeliveryTimeService _deliveryTimeService;
+        private readonly IQuantityUnitService _quantityUnitService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
@@ -74,6 +75,7 @@ namespace Smartstore.Web.Controllers
             IShoppingCartService shoppingCartService,
             ILocalizationService localizationService,
             IDeliveryTimeService deliveryTimeService,
+            IQuantityUnitService quantityUnitService,
             IPriceCalculationService priceCalculationService,
             IOrderCalculationService orderCalculationService,
             IShoppingCartValidator shoppingCartValidator,
@@ -100,6 +102,7 @@ namespace Smartstore.Web.Controllers
             _shoppingCartService = shoppingCartService;
             _localizationService = localizationService;
             _deliveryTimeService = deliveryTimeService;
+            _quantityUnitService = quantityUnitService;
             _priceCalculationService = priceCalculationService;
             _orderCalculationService = orderCalculationService;
             _shoppingCartValidator = shoppingCartValidator;
@@ -893,11 +896,7 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
-            var quantityUnit = await _db.QuantityUnits
-                .AsNoTracking()
-                .ApplyQuantityUnitFilter(product.QuantityUnitId)
-                .FirstOrDefaultAsync();
-
+            var quantityUnit = await _quantityUnitService.GetQuantityUnitByIdAsync(product.QuantityUnitId);
             if (quantityUnit != null)
             {
                 model.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);
@@ -994,13 +993,12 @@ namespace Smartstore.Web.Controllers
                 var mediaFile = await _db.ProductMediaFiles
                     .AsNoTracking()
                     .Include(x => x.MediaFile)
-                    .ApplyProductFilter(new int[] { product.Id }, 1)
-                    .Select(x => x.MediaFile)
+                    .ApplyProductFilter(product.Id)
                     .FirstOrDefaultAsync();
 
-                if (mediaFile != null)
+                if (mediaFile?.MediaFile != null)
                 {
-                    file = _mediaService.ConvertMediaFile(mediaFile);
+                    file = _mediaService.ConvertMediaFile(mediaFile.MediaFile);
                 }
             }
 
@@ -1010,13 +1008,12 @@ namespace Smartstore.Web.Controllers
                 var mediaFile = await _db.ProductMediaFiles
                     .AsNoTracking()
                     .Include(x => x.MediaFile)
-                    .ApplyProductFilter(new int[] { product.ParentGroupedProductId }, 1)
-                    .Select(x => x.MediaFile)
+                    .ApplyProductFilter(product.ParentGroupedProductId)
                     .FirstOrDefaultAsync();
 
-                if (mediaFile != null)
+                if (mediaFile?.MediaFile != null)
                 {
-                    file = _mediaService.ConvertMediaFile(mediaFile);
+                    file = _mediaService.ConvertMediaFile(mediaFile.MediaFile);
                 }
             }
 
@@ -1120,12 +1117,12 @@ namespace Smartstore.Web.Controllers
                         var file = await _db.ProductMediaFiles
                             .AsNoTracking()
                             .Include(x => x.MediaFile)
-                            .ApplyProductFilter(new int[] { bundleItem.Item.ProductId }, 1)
+                            .ApplyProductFilter(bundleItem.Item.ProductId)
                             .FirstOrDefaultAsync();
 
-                        if (file != null)
+                        if (file?.MediaFile != null)
                         {
-                            bundleItemModel.PictureUrl = await _mediaService.GetUrlAsync(file.MediaFileId, MediaSettings.ThumbnailSizeXxs);
+                            bundleItemModel.PictureUrl = _mediaService.GetUrl(file.MediaFile, MediaSettings.ThumbnailSizeXxs);
                         }
 
                         cartItemModel.BundleItems.Add(bundleItemModel);

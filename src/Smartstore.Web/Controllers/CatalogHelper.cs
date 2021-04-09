@@ -75,6 +75,7 @@ namespace Smartstore.Web.Controllers
         //private readonly IQuantityUnitService _quantityUnitService;
         private readonly MeasureSettings _measureSettings;
         private readonly IDeliveryTimeService _deliveryTimeService;
+        private readonly IQuantityUnitService _quantityUnitService;
         private readonly Lazy<IDataExporter> _dataExporter;
         private readonly ICatalogSearchService _catalogSearchService;
         private readonly ICatalogSearchQueryFactory _catalogSearchQueryFactory;
@@ -117,6 +118,7 @@ namespace Smartstore.Web.Controllers
             TaxSettings taxSettings,
             PerformanceSettings performanceSettings,
             IDeliveryTimeService deliveryTimeService,
+            IQuantityUnitService quantityUnitService,
             Lazy<IDataExporter> dataExporter,
             ICatalogSearchService catalogSearchService,
             ICatalogSearchQueryFactory catalogSearchQueryFactory,
@@ -156,6 +158,7 @@ namespace Smartstore.Web.Controllers
             _taxSettings = taxSettings;
             _performanceSettings = performanceSettings;
             _deliveryTimeService = deliveryTimeService;
+            _quantityUnitService = quantityUnitService;
             _mediaSettings = mediaSettings;
             _catalogSettings = catalogSettings;
             _customerSettings = customerSettings;
@@ -1111,11 +1114,11 @@ namespace Smartstore.Web.Controllers
                     {
                         var linkageFile = await _db.ProductMediaFiles
                             .AsNoTracking()
-                            .ApplyProductFilter(new[] { pvaValue.LinkedProductId }, 1)
                             .Include(x => x.MediaFile)
+                            .ApplyProductFilter(pvaValue.LinkedProductId)
                             .FirstOrDefaultAsync();
 
-                        if (linkageFile != null)
+                        if (linkageFile?.MediaFile != null)
                         {
                             pvaValueModel.ImageUrl = _mediaService.GetUrl(linkageFile.MediaFile, _mediaSettings.VariantValueThumbPictureSize, null, false);
                         }
@@ -1467,11 +1470,7 @@ namespace Smartstore.Web.Controllers
                 model.DeliveryTimeName = T("ShoppingCart.NotAvailable");
             }
 
-            var quantityUnit = await _db.QuantityUnits
-                .AsNoTracking()
-                .ApplyQuantityUnitFilter(product.QuantityUnitId)
-                .FirstOrDefaultAsync();
-
+            var quantityUnit = await _quantityUnitService.GetQuantityUnitByIdAsync(product.QuantityUnitId);
             if (quantityUnit != null)
             {
                 model.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);
