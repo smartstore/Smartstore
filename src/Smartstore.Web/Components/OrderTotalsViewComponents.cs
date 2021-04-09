@@ -1,0 +1,248 @@
+﻿using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Cart.Events;
+using Smartstore.Core.Checkout.GiftCards;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
+using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
+using Smartstore.Web.Models.ShoppingCart;
+using StackExchange.Profiling.Internal;
+
+namespace Smartstore.Web.Components
+{
+    /// <summary>
+    /// Component for rendering order totals.
+    /// </summary>
+    public class OrderTotalsViewComponents : SmartViewComponent
+    {
+        private readonly SmartDbContext _db;
+        private readonly ITaxService _taxService;
+        private readonly IPaymentService _paymentService;
+        private readonly ICurrencyService _currencyService;
+        private readonly IGiftCardService _giftCardService;
+        private readonly IShoppingCartService _shoppingCartService;
+        private readonly ILocalizationService _localizationService;
+        private readonly IOrderCalculationService _orderCalculationService;
+        private readonly ShoppingCartSettings _shoppingCartSettings;
+        private readonly MeasureSettings _measureSettings;
+        private readonly TaxSettings _taxSettings;
+
+        public OrderTotalsViewComponents(
+            SmartDbContext db,
+            ITaxService taxService,
+            IPaymentService paymentService,
+            ICurrencyService currencyService,
+            IGiftCardService giftCardService,
+            IShoppingCartService shoppingCartService,
+            ILocalizationService localizationService,
+            IOrderCalculationService orderCalculationService,
+            ShoppingCartSettings shoppingCartSettings,
+            MeasureSettings measureSettings,
+            TaxSettings taxSettings
+            )
+        {
+            _db = db;
+            _taxService = taxService;
+            _paymentService = paymentService;
+            _currencyService = currencyService;
+            _giftCardService = giftCardService;
+            _shoppingCartService = shoppingCartService;
+            _localizationService = localizationService;
+            _orderCalculationService = orderCalculationService;
+            _shoppingCartSettings = shoppingCartSettings;
+            _measureSettings = measureSettings;
+            _taxSettings = taxSettings;
+        }
+
+        public async Task<IViewComponentResult> InvokeAsync(bool isEditable = false)
+        {
+            var orderTotalsEvent = new RenderingOrderTotalsEvent();
+            await Services.EventPublisher.PublishAsync(orderTotalsEvent);
+
+            var currency = Services.WorkContext.WorkingCurrency;
+            var customer = orderTotalsEvent.Customer ?? Services.WorkContext.CurrentCustomer;
+            var storeId = orderTotalsEvent.StoreId ?? Services.StoreContext.CurrentStore.Id;
+
+            var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
+            var model = new OrderTotalsModel
+            {
+                IsEditable = isEditable
+            };
+
+            if (cart.Any())
+            {
+                model.Weight = decimal.Zero;
+
+                foreach (var cartItem in cart)
+                {
+                    model.Weight += cartItem.Item.Product.Weight * cartItem.Item.Quantity;
+                }
+
+                var measureWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
+                if (measureWeight != null)
+                {
+                    model.WeightMeasureUnitName = measureWeight.GetLocalized(x => x.Name);
+                }
+
+                // SubTotal
+                var cartSubTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
+                var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubTotalWithoutDiscount.Amount, currency);
+
+                model.SubTotal = subTotalConverted.ToString();
+
+                if (cartSubTotal.DiscountAmount > decimal.Zero)
+                {
+                    var subTotalDiscountAmountConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.DiscountAmount.Amount, currency);
+
+                    model.SubTotalDiscount = (subTotalDiscountAmountConverted * -1m).ToString();
+                    model.AllowRemovingSubTotalDiscount = cartSubTotal.AppliedDiscount != null
+                        && cartSubTotal.AppliedDiscount.RequiresCouponCode
+                        && !cartSubTotal.AppliedDiscount.CouponCode.IsNullOrWhiteSpace()
+                        && model.IsEditable;
+                }
+
+                // Shipping info
+                model.RequiresShipping = cart.IsShippingRequired();
+                if (model.RequiresShipping)
+                {
+                    var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
+                    if (shippingTotal.ShippingTotal.HasValue)
+                    {
+                        var shippingTotalConverted = _currencyService.ConvertFromPrimaryCurrency(shippingTotal.ShippingTotal.Value.Amount, currency);
+                        model.Shipping = shippingTotalConverted.ToString();
+
+                        // Selected shipping method
+                        var shippingOption = customer.GenericAttributes.SelectedShippingOption;
+                        if (shippingOption != null)
+                            model.SelectedShippingMethod = shippingOption.Name;
+                    }
+                }
+
+                // Payment method fee
+                var paymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
+                var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
+                var paymentMethodAdditionalFee = await paymentMethod.Value.GetPaymentFeeInfoAsync(cart);
+                var paymentMethodAdditionalFeeWithTax = await _taxService.GetPaymentMethodFeeAsync(new Money(paymentMethodAdditionalFee.FixedFeeOrPercentage, currency));
+
+                if (paymentMethodAdditionalFeeWithTax.Price != decimal.Zero)
+                {
+                    var paymentMethodAdditionalFeeWithTaxConverted = _currencyService.ConvertFromPrimaryCurrency(paymentMethodAdditionalFeeWithTax.Price.Amount, currency);
+                    model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeWithTaxConverted.ToString();
+                }
+
+                // Tax
+                var displayTax = true;
+                var displayTaxRates = true;
+                if (_taxSettings.HideTaxInOrderSummary && Services.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax)
+                {
+                    displayTax = false;
+                    displayTaxRates = false;
+                }
+                else
+                {
+                    var cartTaxBase = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+                    var cartTax = _currencyService.ConvertFromPrimaryCurrency(cartTaxBase.Price.Amount, currency);
+
+                    if (cartTaxBase.Price == decimal.Zero && _taxSettings.HideZeroTax)
+                    {
+                        displayTax = false;
+                        displayTaxRates = false;
+                    }
+                    else
+                    {
+                        displayTaxRates = _taxSettings.DisplayTaxRates && cartTaxBase.TaxRates.Count > 0;
+                        displayTax = !displayTaxRates;
+                        model.Tax = cartTax.ToString(true);
+
+                        foreach (var taxRate in cartTaxBase.TaxRates)
+                        {
+                            var rate = _taxService.FormatTaxRate(taxRate.Key);
+                            var labelKey = "ShoppingCart.Totals.TaxRateLine" + (Services.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax ? "Incl" : "Excl");
+                            model.TaxRates.Add(new OrderTotalsModel.TaxRate
+                            {
+                                Rate = rate,
+                                Value = _currencyService.ConvertFromPrimaryCurrency(taxRate.Value, currency).ToString(true),
+                                Label = _localizationService.GetResource(labelKey).FormatCurrent(rate)
+                            });
+                        }
+                    }
+                }
+
+                model.DisplayTaxRates = displayTaxRates;
+                model.DisplayTax = displayTax;
+
+                model.DisplayWeight = _shoppingCartSettings.ShowWeight;
+                model.ShowConfirmOrderLegalHint = _shoppingCartSettings.ShowConfirmOrderLegalHint;
+
+                // Cart total
+                var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+                if (cartTotal.ConvertedAmount.Total.HasValue)
+                {
+                    var convertedTotal = cartTotal.ConvertedAmount.Total.Value;
+                    model.OrderTotal = convertedTotal.ToString(true);
+                    if (convertedTotal.RoundedAmount != decimal.Zero)
+                    {
+                        model.OrderTotalRounding = new Money(convertedTotal.RoundedAmount, convertedTotal.Currency).ToString(true); ;
+                    }
+                }
+
+                // Discount
+                if (cartTotal.DiscountAmount > decimal.Zero)
+                {
+                    var orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
+                    model.OrderTotalDiscount = (orderTotalDiscountAmount * -1).ToString(true);
+                    model.AllowRemovingOrderTotalDiscount = cartTotal.AppliedDiscount != null
+                        && cartTotal.AppliedDiscount.RequiresCouponCode
+                        && !string.IsNullOrEmpty(cartTotal.AppliedDiscount.CouponCode)
+                        && model.IsEditable;
+                }
+
+                // Gift cards
+                if (cartTotal.AppliedGiftCards != null && cartTotal.AppliedGiftCards.Count > 0)
+                {
+                    foreach (var appliedGiftCard in cartTotal.AppliedGiftCards)
+                    {
+                        var gcModel = new OrderTotalsModel.GiftCard
+                        {
+                            Id = appliedGiftCard.GiftCard.Id,
+                            CouponCode = appliedGiftCard.GiftCard.GiftCardCouponCode,
+                        };
+
+                        var amountCanBeUsed = _currencyService.ConvertFromPrimaryCurrency(appliedGiftCard.UsableAmount.Amount, currency);
+                        gcModel.Amount = (amountCanBeUsed * -1).ToString(true);
+
+                        var remainingAmountBase = _giftCardService.GetRemainingAmount(appliedGiftCard.GiftCard) - appliedGiftCard.UsableAmount;
+                        var remainingAmount = _currencyService.ConvertFromPrimaryCurrency(remainingAmountBase.Amount, currency);
+                        gcModel.Remaining = remainingAmount.ToString(true);
+
+                        model.GiftCards.Add(gcModel);
+                    }
+                }
+
+                // Reward points
+                if (cartTotal.RedeemedRewardPointsAmount > decimal.Zero)
+                {
+                    var redeemedRewardPointsAmountInCustomerCurrency = _currencyService.ConvertFromPrimaryCurrency(cartTotal.RedeemedRewardPointsAmount.Amount, currency);
+                    model.RedeemedRewardPoints = cartTotal.RedeemedRewardPoints;
+                    model.RedeemedRewardPointsAmount = (redeemedRewardPointsAmountInCustomerCurrency * -1).ToString(true);
+                }
+
+                // Credit balance.
+                if (cartTotal.CreditBalance > decimal.Zero)
+                {
+                    var convertedCreditBalance = _currencyService.ConvertFromPrimaryCurrency(cartTotal.CreditBalance.Amount, currency);
+                    model.CreditBalance = (convertedCreditBalance*-1).ToString(true);
+                }
+            }
+
+            return View(model);
+        }
+    }
+}
