@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,6 +15,24 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Common
 {
+    public static class AddressMappingExtensions
+    {
+        /// <summary>
+        /// TODO: (mh) (core) Describe
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="excludeProperties"></param>
+        /// <param name="countries"></param>
+        public static async Task MapAsync(this Address entity, AddressModel model, bool excludeProperties = false, List<Country> countries = null)
+        {
+            dynamic parameters = new ExpandoObject();
+            parameters.ExcludeProperties = excludeProperties;
+            parameters.Countries = countries;
+
+            await MapperFactory.MapAsync(entity, model, parameters);
+        }
+    }
+
     internal class AddressMapper : Mapper<Address, AddressModel>
     {
         private readonly SmartDbContext _db;
@@ -44,13 +63,8 @@ namespace Smartstore.Web.Models.Common
         /// <param name="parameters">Expects excludeProperties of type <see cref="bool"/> and countries of type <see cref="List<Country>"/>. Both properties can also be ommited.</param>
         public override async Task MapAsync(Address from, AddressModel to, dynamic parameters = null)
         {
-            var excludeProperties = false;
-            var countries = new List<Country>();
-            if (parameters != null)
-            {
-                excludeProperties = parameters.excludeProperties ?? false;
-                countries = parameters.countries;
-            }
+            var excludeProperties = parameters?.ExcludeProperties == true;
+            var countries = parameters?.Countries as IEnumerable<Country>;
             
             // Form fields
             MiniMapper.Map(_addressSettings, to);
@@ -70,7 +84,7 @@ namespace Smartstore.Web.Models.Common
             }
 
             // Countries and states
-            if (_addressSettings.CountryEnabled && countries != null && countries.Count > 0)
+            if (_addressSettings.CountryEnabled && countries != null && countries.Any())
             {
                 to.AvailableCountries.Add(new SelectListItem { Text = _services.Localization.GetResource("Address.SelectCountry"), Value = "0" });
                 foreach (var c in countries)

@@ -639,7 +639,7 @@ namespace Smartstore.Web.Controllers
                 {
                     itemModel.DownloadVersions = await _db.Downloads
                         .AsNoTracking()
-                        .ApplyEntityFilter(nameof(Product), item.Product.Id)
+                        .ApplyEntityFilter<Product>(item.Product)
                         .Where(x => !string.IsNullOrEmpty(x.FileVersion))
                         .Include(x => x.MediaFile)
                         .Select(x => new DownloadVersion

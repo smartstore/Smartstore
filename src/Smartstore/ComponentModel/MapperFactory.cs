@@ -63,7 +63,9 @@ namespace Smartstore.ComponentModel
             where TFrom : class
             where TTo : class, new()
         {
-            return GetMapper<TFrom, TTo>().MapAsync(from, parameters);
+            return GetMapper<TFrom, TTo>().MapAsync(
+                Guard.NotNull(from, nameof(from)), 
+                parameters);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -71,7 +73,10 @@ namespace Smartstore.ComponentModel
             where TFrom : class
             where TTo : class
         {
-            return GetMapper<TFrom, TTo>().MapAsync(from, to, parameters);
+            return GetMapper<TFrom, TTo>().MapAsync(
+                Guard.NotNull(from, nameof(from)), 
+                Guard.NotNull(to, nameof(to)), 
+                parameters);
         }
 
         public static IMapper<TFrom, TTo> GetMapper<TFrom, TTo>()
@@ -111,7 +116,7 @@ namespace Smartstore.ComponentModel
             where TTo : class
         {
             protected override void Map(TFrom from, TTo to, dynamic parameters = null)
-                => MiniMapper.Map<TFrom, TTo>(from, to);
+                => MiniMapper.Map(from, to);
         }
     }
 }
