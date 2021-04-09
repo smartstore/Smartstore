@@ -66,13 +66,14 @@ namespace Smartstore.Core.Content.Menus
 
             if (node.HasChildren)
             {
-                state = state | NodePathState.Parent;
+                state |= NodePathState.Parent;
             }
 
             var lastInPath = currentPath.LastOrDefault();
 
             if (currentPath.Count > 0)
             {
+                // TODO: (mc) (core) Equality check fails for MyAccountMenu though all properties are the same :-/
                 if (node.Value.Equals(lastInPath))
                 {
                     state |= NodePathState.Selected;
