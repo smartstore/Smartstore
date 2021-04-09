@@ -74,6 +74,8 @@ namespace Smartstore.Core.Content.Menus
             if (currentPath.Count > 0)
             {
                 // TODO: (mc) (core) Equality check fails for MyAccountMenu though all properties are the same :-/
+                // RE: This performs a "reference" equality check, NOT a signature check (there's no IEquatable<> on MenuItem and never was).
+                // It is assumed that MenuItem instances are cached as singletons and therefore can be compared more easily.
                 if (node.Value.Equals(lastInPath))
                 {
                     state |= NodePathState.Selected;
