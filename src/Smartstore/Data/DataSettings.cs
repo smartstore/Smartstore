@@ -141,9 +141,6 @@ namespace Smartstore.Data
 
         public string ConnectionString { get; set; }
 
-        // TODO: (core) Do we still need DataSettings.DataConnectionType?
-        //public string DataConnectionType { get; set; }
-
         public bool IsValid()
             => DbFactory != null && ConnectionString.HasValue();
 

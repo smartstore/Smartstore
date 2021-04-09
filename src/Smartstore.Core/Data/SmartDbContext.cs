@@ -41,7 +41,13 @@ namespace Smartstore.Core.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            CreateModel(modelBuilder, typeof(SmartDbContext).Assembly);
+            CreateModel(
+                modelBuilder,
+                // Contains all entities
+                typeof(SmartDbContext).Assembly,
+                // Contains provider specific entity configurations
+                DataSettings.Instance.DbFactory.GetType().Assembly); 
+
             base.OnModelCreating(modelBuilder);
         }
     }

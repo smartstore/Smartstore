@@ -246,6 +246,7 @@ namespace Smartstore.Core.Identity.Rules
                     RuleType = RuleType.Int
                 },
 
+                // TODO: (core) EF.Functions.DateDiffDay will throw for now. See info in Smartstore.DbFunctionsExtensions.
                 new FilterDescriptor<Customer, int?>(x => EF.Functions.DateDiffDay(x.LastActivityDateUtc, DateTime.UtcNow))
                 {
                     Name = "LastActivityDays",

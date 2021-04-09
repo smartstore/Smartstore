@@ -16,11 +16,6 @@ namespace Smartstore.Core.Localization
                 .HasOne(x => x.Language)
                 .WithMany(navigationName: null)
                 .HasForeignKey(x => x.LanguageId);
-
-            builder
-                .HasIndex(x => x.Id)
-                .HasDatabaseName("IX_LocalizedProperty_Key")
-                .IncludeProperties(nameof(LocalizedProperty.EntityId), nameof(LocalizedProperty.LocaleKeyGroup), nameof(LocalizedProperty.LocaleKey));
         }
     }
 

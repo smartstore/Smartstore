@@ -21,14 +21,6 @@ namespace Smartstore.Core.Catalog.Attributes
                 .WithMany(c => c.ProductSpecificationAttributes)
                 .HasForeignKey(c => c.ProductId)
                 .IsRequired(false);
-
-            builder
-                .HasIndex(x => x.AllowFiltering, "IX_PSAM_AllowFiltering")
-                .IncludeProperties(nameof(ProductSpecificationAttribute.ProductId), nameof(ProductSpecificationAttribute.SpecificationAttributeOptionId));
-
-            builder
-                .HasIndex(new[] { nameof(ProductSpecificationAttribute.SpecificationAttributeOptionId), nameof(ProductSpecificationAttribute.AllowFiltering) }, "IX_PSAM_SpecificationAttributeOptionId_AllowFiltering")
-                .IncludeProperties(nameof(ProductSpecificationAttribute.ProductId));
         }
     }
 

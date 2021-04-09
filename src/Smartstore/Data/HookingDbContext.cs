@@ -205,18 +205,19 @@ namespace Smartstore.Data
 
         #region Model bootstrapping
 
-        protected void CreateModel(ModelBuilder modelBuilder, Assembly assembly)
+        protected void CreateModel(ModelBuilder modelBuilder, params Assembly[] assemblies)
         {
-            Guard.NotNull(assembly, nameof(assembly));
+            Guard.NotNull(assemblies, nameof(assemblies));
 
-            RegisterEntities(modelBuilder, assembly);
-            RegisterEntityMappings(modelBuilder, assembly);
+            RegisterEntities(modelBuilder, assemblies);
+            RegisterEntityMappings(modelBuilder, assemblies);
             ApplyConventions(modelBuilder);
         }
 
-        private static void RegisterEntities(ModelBuilder modelBuilder, Assembly assembly)
+        private static void RegisterEntities(ModelBuilder modelBuilder, params Assembly[] assemblies)
         {
-            var entityTypes = assembly.GetExportedTypes()
+            var entityTypes = assemblies
+                .SelectMany(x => x.GetExportedTypes())
                 .Where(x => typeof(BaseEntity).IsAssignableFrom(x) && !x.IsAbstract && x.HasDefaultConstructor())
                 .ToList();
 
@@ -227,9 +228,12 @@ namespace Smartstore.Data
             }
         }
 
-        private static void RegisterEntityMappings(ModelBuilder modelBuilder, Assembly assembly)
+        private static void RegisterEntityMappings(ModelBuilder modelBuilder, params Assembly[] assemblies)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(assembly);
+            foreach (var assembly in assemblies)
+            {
+                modelBuilder.ApplyConfigurationsFromAssembly(assembly);
+            }
         }
 
         private static void ApplyConventions(ModelBuilder modelBuilder)

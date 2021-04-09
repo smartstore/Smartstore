@@ -17,12 +17,6 @@ namespace Smartstore.Core.Common
                 .HasOne(x => x.Country)
                 .WithMany(x => x.StateProvinces)
                 .HasForeignKey(x => x.CountryId);
-
-            // TODO: (core) Apply all indexes in Indexes[.SqlServer].sql in fluent builders.
-            builder
-                .HasIndex(x => x.CountryId)
-                .HasDatabaseName("IX_StateProvince_CountryId")
-                .IncludeProperties(x => new { x.DisplayOrder });
         }
     }
 
