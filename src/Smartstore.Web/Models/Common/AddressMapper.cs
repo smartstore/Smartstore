@@ -37,28 +37,19 @@ namespace Smartstore.Web.Models.Common
             => throw new NotImplementedException();
 
         /// <summary>
-        /// TODO: (mh) (core) Write docs. Especially parameters.
+        /// Maps an address entity to an address model.
         /// </summary>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="parameters"></param>
+        /// <param name="from"><see cref="Address"/></param>
+        /// <param name="to"><see cref="AddressModel"/></param>
+        /// <param name="parameters">Expects excludeProperties of type <see cref="bool"/> and countries of type <see cref="List<Country>"/>. Both properties can also be ommited.</param>
         public override async Task MapAsync(Address from, AddressModel to, dynamic parameters = null)
         {
             var excludeProperties = false;
             var countries = new List<Country>();
             if (parameters != null)
             {
-                var fastPropExcludeProperties = FastProperty.GetProperty(parameters.GetType(), "excludeProperties", PropertyCachingStrategy.Uncached);
-                if (fastPropExcludeProperties != null)
-                {
-                    excludeProperties = fastPropExcludeProperties.GetValue(parameters);
-                }
-
-                var fastPropCountries = FastProperty.GetProperty(parameters.GetType(), "countries", PropertyCachingStrategy.Uncached);
-                if (fastPropCountries != null)
-                {
-                    countries = fastPropCountries.GetValue(parameters);
-                }
+                excludeProperties = parameters.excludeProperties ?? false;
+                countries = parameters.countries;
             }
             
             // Form fields
@@ -79,7 +70,7 @@ namespace Smartstore.Web.Models.Common
             }
 
             // Countries and states
-            if (_addressSettings.CountryEnabled && countries.Count > 0)
+            if (_addressSettings.CountryEnabled && countries != null && countries.Count > 0)
             {
                 to.AvailableCountries.Add(new SelectListItem { Text = _services.Localization.GetResource("Address.SelectCountry"), Value = "0" });
                 foreach (var c in countries)
@@ -127,6 +118,6 @@ namespace Smartstore.Web.Models.Common
             {
                 to.AvailableSalutations.Add(new SelectListItem { Value = sal, Text = sal });
             }            
-        }
+        }   
     }
 }

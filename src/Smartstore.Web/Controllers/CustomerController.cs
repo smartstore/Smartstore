@@ -336,15 +336,11 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new List<AddressModel>();
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
-                .ToListAsync();
 
             foreach (var address in customer.Addresses)
             {
                 var addressModel = new AddressModel();
-                await MapperFactory.MapAsync(address, addressModel, new { excludeProperties = false, countries } );
+                await address.MapAsync(addressModel, countries: await GetAllCountriesAsync());
                 model.Add(addressModel);
             }
 
@@ -386,7 +382,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new AddressModel();
-            await MapperFactory.MapAsync(new Address(), model); // TODO: (mh) (core) Pass countries somehow
+            await new Address().MapAsync(model, countries: await GetAllCountriesAsync());
             model.Email = customer?.Email;
 
             return View(model);
@@ -413,8 +409,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
-            await MapperFactory.MapAsync(new Address(), model); // TODO: (mh) (core) Pass countries somehow
-
+            await new Address().MapAsync(model, countries: await GetAllCountriesAsync());
             return View(model);
         }
 
@@ -440,7 +435,7 @@ namespace Smartstore.Web.Controllers
             }
             
             var model = new AddressModel();
-            await MapperFactory.MapAsync(address, model); // TODO: (mh) (core) Pass countries somehow
+            await address.MapAsync(model, countries: await GetAllCountriesAsync());
 
             return View(model);
         }
@@ -471,7 +466,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
-            await MapperFactory.MapAsync(new Address(), model); // TODO: (mh) (core) Pass countries somehow
+            await new Address().MapAsync(model, countries: await GetAllCountriesAsync());
 
             return View(model);
         }
@@ -875,6 +870,15 @@ namespace Smartstore.Web.Controllers
             model.RecurringPayments = rpModels.ToPagedList(recurringPayments.PageIndex, recurringPayments.PageSize, recurringPayments.TotalCount);
 
             return model;
+        }
+
+        [NonAction]
+        protected async Task<List<Country>> GetAllCountriesAsync()
+        {
+            return await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
+                .ToListAsync();
         }
 
         // INFO: (mh) (core) Current CountryController just has this one method. Details TBD.
