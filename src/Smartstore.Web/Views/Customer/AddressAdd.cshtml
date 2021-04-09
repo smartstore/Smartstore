@@ -6,19 +6,11 @@
     Layout = "_MyAccount";
     ViewBag.PageClassToken = "addresses";
     ViewBag.PageTitle = T("Account.CustomerAddresses.AddNew").Value;
-
-    @* TODO: (mh) (core) I think it's not required to create new ViewData. Just adding stuff to current ViewData should do the trick. Please test and refactor. *@
-    var dataDictAddress = new ViewDataDictionary(ViewData);
-    dataDictAddress["breakpoint"] = "lg";
-    // Merge ModelState (required for validation)
-    dataDictAddress.ModelState.Merge(ViewData.ModelState);
-
-    // INFO: (mh) (core) Prefix won't be needed anymore. Because the model now matches the model of the partial.
-    //dataDictAddress.TemplateInfo.HtmlFieldPrefix = "Address";
+    ViewBag.breakpoint = "lg";
 }
 
 <form asp-action="AddressAdd">
-    <partial name="_CreateOrUpdateAddress" model="Model" view-data="dataDictAddress" />
+    <partial name="_CreateOrUpdateAddress" model="Model" />
     
     <div class="form-group row">
         <div class="col">

@@ -6,18 +6,11 @@
     Layout = "_MyAccount";
     ViewBag.PageClassToken = "addresses";
     ViewBag.PageTitle = T("Account.CustomerAddresses.Edit").Value;
-
-    var dataDictAddress = new ViewDataDictionary(ViewData);
-    dataDictAddress["breakpoint"] = "lg";
-    //Merge ModelState (required for validation)
-    dataDictAddress.ModelState.Merge(ViewData.ModelState);
-
-    // INFO: (mh) (core) Prefix won't be needed anymore. Because the model now matches the model of the partial.
-    //dataDictAddress.TemplateInfo.HtmlFieldPrefix = "Address";
+    ViewBag.breakpoint = "lg";
 }
 
 <form asp-action="AddressEdit">
-    <partial name="_CreateOrUpdateAddress" model="Model" view-data="dataDictAddress" />
+    <partial name="_CreateOrUpdateAddress" model="Model" />
     
     <div class="form-group row">
         <div class="col">
