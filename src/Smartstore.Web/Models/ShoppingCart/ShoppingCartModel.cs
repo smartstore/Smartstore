@@ -55,6 +55,12 @@ namespace Smartstore.Web.Models.ShoppingCart
             public bool IsEsd { get; set; }
 
             public override IEnumerable<ShoppingCartItemModel> ChildItems { get; } = new List<ShoppingCartItemModel>();
+
+            public void AddChildItems(params ShoppingCartItemModel[] models)
+            {
+                ((List<ShoppingCartItemModel>)ChildItems).AddRange(models);
+            }
+
             public bool DisableWishlistButton { get; set; }
         }
 

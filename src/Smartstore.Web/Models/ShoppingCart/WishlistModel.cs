@@ -26,6 +26,11 @@ namespace Smartstore.Web.Models.ShoppingCart
         {
             public override IEnumerable<WishlistItemModel> ChildItems { get; } = new List<WishlistItemModel>();
 
+            public void AddChildItems(params WishlistItemModel[] models)
+            {
+                ((List<WishlistItemModel>)ChildItems).AddRange(models);
+            }
+
             public bool DisableBuyButton { get; set; }
         }
 
