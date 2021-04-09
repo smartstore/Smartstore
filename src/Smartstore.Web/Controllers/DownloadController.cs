@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -28,9 +29,10 @@ namespace Smartstore.Web.Controllers
             _customerSettings = customerSettings;
         }
 
-        private IActionResult GetFileContentResultFor(Download download, byte[] data)
+        [NonAction]
+        private IActionResult GetFileStreamResultFor(Download download, Stream stream)
         {
-            if (data == null || data.LongLength == 0)
+            if (stream == null || stream.Length == 0)
             {
                 NotifyError(T("Common.Download.NoDataAvailable"));
                 return new RedirectResult(Url.Action("Info", "Customer"));
@@ -39,21 +41,16 @@ namespace Smartstore.Web.Controllers
             var fileName = download.MediaFile.Name;
             var contentType = download.MediaFile.MimeType;
 
-            return new FileContentResult(data, contentType)
+            return new FileStreamResult(stream, contentType)
             {
                 FileDownloadName = fileName
             };
         }
 
-        private async Task<IActionResult> GetFileContentResultForAsync(Download download)
+        [NonAction]
+        private async Task<IActionResult> GetFileStreamResultForAsync(Download download)
         {
-            byte[] data;
-            using (var stream = await _downloadService.OpenDownloadStreamAsync(download))
-            {
-                data = stream.ToByteArray();
-            }
-
-            return GetFileContentResultFor(download, data);
+            return GetFileStreamResultFor(download, await _downloadService.OpenDownloadStreamAsync(download));
         }
 
         public async Task<IActionResult> Sample(int productId)
@@ -86,7 +83,7 @@ namespace Smartstore.Web.Controllers
                 return new RedirectResult(download.DownloadUrl);
             }
             
-            return await GetFileContentResultForAsync(download);
+            return await GetFileStreamResultForAsync(download);
         }
 
         public async Task<IActionResult> GetDownload(Guid id, bool agree = false, string fileVersion = "")
@@ -137,19 +134,20 @@ namespace Smartstore.Web.Controllers
             if (fileVersion.HasValue())
             {
                 download = await _db.Downloads
-                        .AsNoTracking()
-                        .ApplyEntityFilter(nameof(product), product.Id)
-                        .Where(x => !string.IsNullOrEmpty(x.FileVersion) && x.FileVersion == fileVersion)
-                        .Include(x => x.MediaFile)
-                        .FirstOrDefaultAsync();
+                    .AsNoTracking()
+                    .ApplyEntityFilter(product)
+                    .ApplyVersionFilter(fileVersion)
+                    .Include(x => x.MediaFile)
+                    .FirstOrDefaultAsync();
             }
             else
             {
+                // TODO: (mh) (core) Sorting is missing: see previous commit.
                 download = await _db.Downloads
-                        .AsNoTracking()
-                        .ApplyEntityFilter(nameof(product), product.Id)
-                        .Include(x => x.MediaFile)
-                        .FirstOrDefaultAsync();
+                    .AsNoTracking()
+                    .ApplyEntityFilter(nameof(product), product.Id)
+                    .Include(x => x.MediaFile)
+                    .FirstOrDefaultAsync();
             }
 
             if (download == null)
@@ -183,13 +181,8 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                byte[] data;
-                using (var stream = await _downloadService.OpenDownloadStreamAsync(download))
-                {
-                    data = stream.ToByteArray();
-                }
-                
-                if (data == null || data.LongLength == 0)
+                var stream = await _downloadService.OpenDownloadStreamAsync(download);
+                if (stream == null || stream.Length == 0)
                 {
                     NotifyError(T("Common.Download.NoDataAvailable"));
                     return RedirectToAction("UserAgreement", "Customer", new { id });
@@ -198,7 +191,7 @@ namespace Smartstore.Web.Controllers
                 orderItem.DownloadCount++;
                 await _db.SaveChangesAsync();
 
-                return GetFileContentResultFor(download, data);
+                return GetFileStreamResultFor(download, stream);
             }
         }
 
@@ -246,10 +239,8 @@ namespace Smartstore.Web.Controllers
             }
 
             var download = await _db.Downloads
-                .AsNoTracking()
-                .Where(x => x.Id == (orderItem.LicenseDownloadId ?? 0))
                 .Include(x => x.MediaFile)
-                .FirstOrDefaultAsync();
+                .FindByIdAsync(orderItem.LicenseDownloadId ?? 0, false);
 
             if (download == null)
             {
@@ -262,7 +253,7 @@ namespace Smartstore.Web.Controllers
                 return new RedirectResult(download.DownloadUrl);
             }
             
-            return await GetFileContentResultForAsync(download);
+            return await GetFileStreamResultForAsync(download);
         }
 
         public async Task<IActionResult> GetFileUpload(Guid downloadId)
@@ -283,7 +274,7 @@ namespace Smartstore.Web.Controllers
                 return new RedirectResult(download.DownloadUrl);
             }
 
-            return await GetFileContentResultForAsync(download);
+            return await GetFileStreamResultForAsync(download);
         }
 
         public async Task<IActionResult> GetUserAgreement(int productId, bool? asPlainText)

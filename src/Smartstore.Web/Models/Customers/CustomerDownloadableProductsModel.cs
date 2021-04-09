@@ -9,8 +9,6 @@ namespace Smartstore.Web.Models.Customers
     {
         public List<DownloadableProductsModel> Items { get; set; } = new();
 
-        #region Nested classes
-
         public partial class DownloadableProductsModel : ModelBase
         {
             public Guid OrderItemGuid { get; set; }
@@ -25,8 +23,6 @@ namespace Smartstore.Web.Models.Customers
             public DateTime CreatedOn { get; set; }
             public List<DownloadVersion> DownloadVersions { get; set; } = new();
         }
-
-        #endregion
     }
 
     public partial class UserAgreementModel : ModelBase

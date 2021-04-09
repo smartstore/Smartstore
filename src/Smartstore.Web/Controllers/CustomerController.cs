@@ -637,20 +637,35 @@ namespace Smartstore.Web.Controllers
 
                 if (itemModel.IsDownloadAllowed)
                 {
-                    itemModel.DownloadVersions = await _db.Downloads
+                    var downloads = await _db.Downloads
                         .AsNoTracking()
-                        .ApplyEntityFilter<Product>(item.Product)
-                        .Where(x => !string.IsNullOrEmpty(x.FileVersion))
+                        .ApplyEntityFilter(item.Product)
+                        .ApplyVersionFilter()
                         .Include(x => x.MediaFile)
+                        .ToListAsync();
+
+                    if (downloads.Any())
+                    {
+                        // TODO: (mh) (core) WTF bro??!! Why do I have to do this for you?! This is a SHITTY port!
+                        // TODO: (mh) (core) Make an extension method for this part: .OrderByVersion(this IEnumerable<Download>...)
+                        var idsOrderedByVersion = downloads
+                            .Select(x => new { x.Id, Version = SemanticVersion.Parse(x.FileVersion.NullEmpty() ?? "1.0.0.0") })
+                            .OrderByDescending(x => x.Version)
+                            .Select(x => x.Id);
+
+                        downloads = new List<Download>(downloads.OrderBySequence(idsOrderedByVersion));
+                    }
+
+                    itemModel.DownloadVersions = downloads
                         .Select(x => new DownloadVersion
                         {
+                            DownloadId = x.Id,
                             FileVersion = x.FileVersion,
                             FileName = x.MediaFile.Name,
                             DownloadGuid = x.DownloadGuid,
-                            Changelog = x.Changelog,
-                            DownloadId = x.Id
+                            Changelog = x.Changelog
                         })
-                        .ToListAsync();
+                        .ToList();
                 }
 
                 if (_downloadService.IsLicenseDownloadAllowed(item))
@@ -683,14 +698,14 @@ namespace Smartstore.Web.Controllers
             if (orderItem == null)
             {
                 NotifyError(T("Customer.UserAgreement.OrderItemNotFound"));
-                return RedirectToRoute("HomePage");
+                return RedirectToRoute("Homepage");
             }
 
             var product = orderItem.Product;
             if (product == null || !product.HasUserAgreement)
             {
                 NotifyError(T("Customer.UserAgreement.ProductNotFound"));
-                return RedirectToRoute("HomePage");
+                return RedirectToRoute("Homepage");
             }
 
             var model = new UserAgreementModel
