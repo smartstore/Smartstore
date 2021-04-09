@@ -11,7 +11,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 {
     public abstract class CartModelBase : ModelBase
     {
-        public virtual IEnumerable<CartEntityModelBase> Items { get; }
+        public abstract IEnumerable<CartEntityModelBase> Items { get; }
 
         public bool ShowSku { get; set; }
         public bool ShowProductImages { get; set; }
@@ -54,7 +54,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         public bool BundlePerItemShoppingCart { get; set; }
         public BundleItemModel BundleItem { get; set; } = new();
 
-        public virtual IEnumerable<CartEntityModelBase> ChildItems { get; }
+        public abstract IEnumerable<CartEntityModelBase> ChildItems { get; }
         public DateTime CreatedOnUtc { get; set; }
     }
 

@@ -13,6 +13,11 @@ namespace Smartstore.Web.Models.ShoppingCart
     {
         public override IEnumerable<ShoppingCartItemModel> Items { get; } = new List<ShoppingCartItemModel>();
 
+        public void AddItems(params ShoppingCartItemModel[] models)
+        {
+            ((List<ShoppingCartItemModel>)Items).AddRange(models);
+        }
+
         public string CheckoutAttributeInfo { get; set; }
         public List<CheckoutAttributeModel> CheckoutAttributes { get; set; } = new();
 

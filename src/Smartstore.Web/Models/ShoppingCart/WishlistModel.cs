@@ -8,6 +8,11 @@ namespace Smartstore.Web.Models.ShoppingCart
     {
         public override IEnumerable<WishlistItemModel> Items { get; } = new List<WishlistItemModel>();
 
+        public void AddItems(params WishlistItemModel[] models)
+        {
+            ((List<WishlistItemModel>)Items).AddRange(models);
+        }
+
         public Guid CustomerGuid { get; set; }
         public string CustomerFullname { get; set; }
         public bool DisplayAddToCart { get; set; }
