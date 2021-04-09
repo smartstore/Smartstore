@@ -17,6 +17,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Diagnostics;
 using Smartstore.Domain;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -77,7 +78,7 @@ namespace Smartstore.Core.Catalog.Products
 
             // Enable hooks for slugs cache invalidation.
             using (_chronometer.Step("Clone product " + product.Id))
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, hooksEnabled: true, deferCommit: true, forceNoTracking: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Normal, deferCommit: true, forceNoTracking: true))
             {
                 if (product.HasSampleDownload && product.SampleDownload != null)
                 {

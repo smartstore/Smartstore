@@ -13,6 +13,7 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Identity.Rules
 {
@@ -42,7 +43,7 @@ namespace Smartstore.Core.Identity.Rules
             var numAdded = 0;
             var rolesCount = 0;
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, hooksEnabled: false, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 // Delete existing system mappings.
                 var deleteQuery = _db.CustomerRoleMappings.Where(x => x.IsSystemMapping);

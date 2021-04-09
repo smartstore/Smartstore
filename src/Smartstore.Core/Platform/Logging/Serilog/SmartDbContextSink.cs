@@ -8,6 +8,7 @@ using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 using Smartstore.Core.Data;
 using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 
 namespace Smartstore.Core.Logging.Serilog
@@ -29,7 +30,7 @@ namespace Smartstore.Core.Logging.Serilog
             {
                 await using (db)
                 {
-                    db.HooksEnabled = false;
+                    db.MinHookImportance = HookImportance.Important;
                     db.Logs.AddRange(batch.Select(CovertLogEvent));
                     await db.SaveChangesAsync();
                 }

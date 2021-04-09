@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 
 namespace Smartstore.Data
@@ -15,7 +16,7 @@ namespace Smartstore.Data
     {
         private readonly HookingDbContext _ctx;
         private readonly bool _autoDetectChangesEnabled;
-        private readonly bool _hooksEnabled;
+        private readonly HookImportance _minHookImportance;
         private readonly bool _lazyLoadingEnabled;
         private readonly bool _retainConnection;
         private readonly bool _suppressCommit;
@@ -38,11 +39,11 @@ namespace Smartstore.Data
         /// </param>
         public DbContextScope(HookingDbContext ctx,
             bool? autoDetectChanges = null,
-            bool? hooksEnabled = null,
             bool? lazyLoading = null,
             bool? forceNoTracking = null,
             bool? deferCommit = false,
             bool retainConnection = false,
+            HookImportance? minHookImportance = null,
             CascadeTiming? cascadeDeleteTiming = null,
             CascadeTiming? deleteOrphansTiming = null,
             bool? autoTransactions = null)
@@ -53,7 +54,7 @@ namespace Smartstore.Data
 
             _ctx = ctx;
             _autoDetectChangesEnabled = changeTracker.AutoDetectChangesEnabled;
-            _hooksEnabled = ctx.HooksEnabled;
+            _minHookImportance = ctx.MinHookImportance;
             _suppressCommit = ctx.SuppressCommit;
             _lazyLoadingEnabled = changeTracker.LazyLoadingEnabled;
             _queryTrackingBehavior = changeTracker.QueryTrackingBehavior;
@@ -65,8 +66,8 @@ namespace Smartstore.Data
             if (autoDetectChanges.HasValue)
                 changeTracker.AutoDetectChangesEnabled = autoDetectChanges.Value;
 
-            if (hooksEnabled.HasValue)
-                ctx.HooksEnabled = hooksEnabled.Value;
+            if (minHookImportance.HasValue)
+                ctx.MinHookImportance = minHookImportance.Value;
 
             if (lazyLoading.HasValue)
                 changeTracker.LazyLoadingEnabled = lazyLoading.Value;
@@ -183,7 +184,7 @@ namespace Smartstore.Data
         {
             var changeTracker = _ctx.ChangeTracker;
 
-            _ctx.HooksEnabled = _hooksEnabled;
+            _ctx.MinHookImportance = _minHookImportance;
             _ctx.SuppressCommit = _suppressCommit;
             _ctx.Database.AutoTransactionsEnabled = _autoTransactionEnabled;
 

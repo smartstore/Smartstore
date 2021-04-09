@@ -184,22 +184,10 @@ namespace Smartstore.Data
 
         private async Task<DbSavingChangesResult> PreExecuteAsync(CancellationToken cancelToken)
         {
-            var importantHooksOnly = false;
             var result = DbSavingChangesResult.Empty;
 
             // hooking is meaningless without hookable entries
             var enableHooks = _changedEntries.Any();
-
-            if (enableHooks)
-            {
-                // despite the fact that hooking can be disabled, we MUST determine if any "important" pre hook exists.
-                // If yes, but hooking is disabled, we'll trigger only the important ones.
-                importantHooksOnly = !_ctx.HooksEnabled && _hookHandler.HasImportantSaveHooks();
-
-                // we'll enable hooking for this unit of work only when it's generally enabled,
-                // OR we have "important" hooks in the pipeline.
-                enableHooks = importantHooksOnly || _ctx.HooksEnabled;
-            }
 
             if (enableHooks)
             {
@@ -211,7 +199,7 @@ namespace Smartstore.Data
                     .ToArray();
 
                 // Regardless of validation (possible fixing validation errors too)
-                result = await _hookHandler.SavingChangesAsync(entries, importantHooksOnly, cancelToken);
+                result = await _hookHandler.SavingChangesAsync(entries, _ctx.MinHookImportance, cancelToken);
 
                 if (result.ProcessedHooks.Any() && entries.Any(x => x.State == EntityState.Modified))
                 {
@@ -247,9 +235,7 @@ namespace Smartstore.Data
                 _dbCache.Invalidate(changedHookEntries.Select(x => x.EntityType).ToArray());
             }
 
-            var importantHooksOnly = !_ctx.HooksEnabled && _hookHandler.HasImportantSaveHooks();
-
-            return await _hookHandler.SavedChangesAsync(changedHookEntries, importantHooksOnly, cancelToken);
+            return await _hookHandler.SavedChangesAsync(changedHookEntries, _ctx.MinHookImportance, cancelToken);
         }
 
         private IEnumerable<EntityEntry> GetChangedEntries()

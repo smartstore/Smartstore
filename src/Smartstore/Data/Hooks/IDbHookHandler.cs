@@ -36,37 +36,49 @@ namespace Smartstore.Data.Hooks
     /// </summary>
     public interface IDbHookHandler
     {
-        bool HasImportantSaveHooks();
-
         /// <summary>
         /// Triggers all pre action hooks
         /// </summary>
         /// <param name="entries">Entries</param>
-        /// <param name="importantHooksOnly">Whether to trigger only hooks marked with the <see cref="ImportantAttribute"/> attribute</param>
+        /// <param name="minHookImportance">
+        /// The minimum importance level of executable hooks. Only hooks with level equal or higher than the given value will be executed.
+        /// </param>
         /// <returns>The list of actually processed hook instances and a value indicating whether the state of at least one entity has changed.</returns>
-        Task<DbSavingChangesResult> SavingChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken = default);
+        Task<DbSavingChangesResult> SavingChangesAsync(
+            IEnumerable<IHookedEntity> entries, 
+            HookImportance minHookImportance = HookImportance.Normal, 
+            CancellationToken cancelToken = default);
 
         /// <summary>
         /// Triggers all post action hooks
         /// </summary>
         /// <param name="entries">Entries</param>
-        /// <param name="importantHooksOnly">Whether to trigger only hooks marked with the <see cref="ImportantAttribute"/> attribute</param>
+        /// <param name="minHookImportance">
+        /// The minimum importance level of executable hooks. Only hooks with level equal or higher than the given value will be executed.
+        /// </param>
         /// <returns>The list of actually processed hook instances</returns>
-        Task<DbSaveChangesResult> SavedChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken = default);
+        Task<DbSaveChangesResult> SavedChangesAsync(
+            IEnumerable<IHookedEntity> entries,
+            HookImportance minHookImportance = HookImportance.Normal,
+            CancellationToken cancelToken = default);
     }
 
     public sealed class NullDbHookHandler : IDbHookHandler
     {
         public static IDbHookHandler Instance { get; } = new NullDbHookHandler();
 
-        public bool HasImportantSaveHooks() => false;
-
-        public Task<DbSavingChangesResult> SavingChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken)
+        public Task<DbSavingChangesResult> SavingChangesAsync(
+            IEnumerable<IHookedEntity> entries,
+            HookImportance minHookImportance = HookImportance.Normal,
+            CancellationToken cancelToken = default)
         {
             return Task.FromResult(DbSavingChangesResult.Empty);
         }
 
-        public Task<DbSaveChangesResult> SavedChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken)
+        public Task<DbSaveChangesResult> SavedChangesAsync(
+            IEnumerable<IHookedEntity> entries,
+            HookImportance minHookImportance = HookImportance.Normal,
+            CancellationToken cancelToken = default)
         {
             return Task.FromResult(DbSaveChangesResult.Empty);
         }

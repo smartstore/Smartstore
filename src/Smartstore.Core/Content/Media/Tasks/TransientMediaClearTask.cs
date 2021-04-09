@@ -7,6 +7,7 @@ using Smartstore.Scheduling;
 using Smartstore.Core.Data;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Media.Tasks
 {
@@ -33,7 +34,7 @@ namespace Smartstore.Core.Content.Media.Tasks
             var olderThan = DateTime.UtcNow.AddHours(-3);
             var numDeleted = 0;
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, hooksEnabled: false))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important))
             {
                 var files = await _db.MediaFiles.Where(x => x.IsTransient && x.UpdatedOnUtc < olderThan).ToListAsync(cancelToken);
                 foreach (var file in files)

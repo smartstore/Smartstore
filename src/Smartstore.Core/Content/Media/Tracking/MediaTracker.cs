@@ -15,6 +15,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
+using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using Smartstore.Utilities;
 using EfState = Microsoft.EntityFrameworkCore.EntityState;
@@ -197,7 +198,7 @@ namespace Smartstore.Core.Content.Media
             if (!tracks.Any())
                 return;
 
-            using (var scope = new DbContextScope(_db, hooksEnabled: false, autoDetectChanges: false))
+            using (var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important, autoDetectChanges: false))
             {
                 // Get the album (necessary later to set FolderId)...
                 MediaFolderNode albumNode = albumName.HasValue()

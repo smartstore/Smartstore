@@ -18,7 +18,7 @@ namespace Smartstore.Core.Data.Migrations
 {
     public class DbMigrator<TContext> where TContext : DbContext
     {
-        private static readonly Regex _migrationIdPattern = new Regex(@"\d{14}_.+");
+        private static readonly Regex _migrationIdPattern = new(@"\d{14}_.+");
         const string _migrationTypeFormat = "{0}.{1}, {2}";
         const string _automaticMigration = "AutomaticMigration";
 
@@ -61,7 +61,6 @@ namespace Smartstore.Core.Data.Migrations
             var appliedMigrations = (await _db.Database.GetAppliedMigrationsAsync()).ToArray();
             var initialMigration = appliedMigrations.LastOrDefault() ?? "[Initial]";
             var lastSuccessfulMigration = appliedMigrations.FirstOrDefault();
-            var migrator = GetMigrator(_db);
             int result = 0;
 
             // Apply migrations
@@ -91,7 +90,7 @@ namespace Smartstore.Core.Data.Migrations
                 try
                 {
                     // Call the actual Migrate() to execute this migration
-                    await migrator.MigrateAsync(migrationId);
+                    await _db.Database.MigrateAsync(migrationId);
                     result++;
                 }
                 catch (Exception ex)
@@ -164,7 +163,7 @@ namespace Smartstore.Core.Data.Migrations
 
                         try
                         {
-                            await GetMigrator(ctx).MigrateAsync(seederEntry.PreviousMigrationId);
+                            await _db.Database.MigrateAsync(seederEntry.PreviousMigrationId);
                         }
                         catch 
                         { 
@@ -194,12 +193,6 @@ namespace Smartstore.Core.Data.Migrations
         #region Utils
 
         // TODO: (core) Replace MigratorUtils with IMigrationsAssembly.
-
-        private static IMigrator GetMigrator(DbContext context)
-        {
-            Guard.NotNull(context, nameof(context));
-            return (context.Database as IInfrastructure<IServiceProvider>).Instance.GetService<IMigrator>();
-        }
 
         private static DbContextOptions GetOptions(DbContext context)
         {

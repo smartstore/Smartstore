@@ -33,6 +33,7 @@ namespace Smartstore.Core.Bootstrapping
             foreach (var hookType in hookTypes)
             {
                 var types = DiscoverHookTypes(hookType);
+                var importantAttribute = hookType.GetAttribute<ImportantAttribute>(false);
 
                 var registration = builder.RegisterType(hookType)
                     .As<IDbSaveHook>()
@@ -41,7 +42,7 @@ namespace Smartstore.Core.Bootstrapping
                         m.For(em => em.HookedType, types.EntityType);
                         m.For(em => em.ImplType, hookType);
                         m.For(em => em.DbContextType, types.ContextType ?? typeof(SmartDbContext));
-                        m.For(em => em.Important, hookType.HasAttribute<ImportantAttribute>(false));
+                        m.For(em => em.Importance, importantAttribute?.Importance ?? HookImportance.Normal);
                         m.For(em => em.Order, hookType.GetAttribute<OrderAttribute>(false)?.Order ?? 0);
                     });
 

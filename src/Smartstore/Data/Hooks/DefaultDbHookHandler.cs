@@ -19,7 +19,6 @@ namespace Smartstore.Data.Hooks
         // Prevents repetitive hooking of the same entity/state/[pre|post] combination within a single request
         private readonly HashSet<HookedEntityKey> _hookedEntities = new HashSet<HookedEntityKey>();
 
-        private static HashSet<Type> _importantSaveHookTypes;
         private readonly static object _lock = new object();
 
         // Contains all IDbSaveHook/EntityType/State/Stage combinations in which
@@ -39,30 +38,16 @@ namespace Smartstore.Data.Hooks
             set;
         } = NullLogger.Instance;
 
-        public bool HasImportantSaveHooks()
-        {
-            if (_importantSaveHookTypes == null)
-            {
-                lock (_lock)
-                {
-                    if (_importantSaveHookTypes == null)
-                    {
-                        _importantSaveHookTypes = new HashSet<Type>();
-                        _importantSaveHookTypes.AddRange(_saveHooks.Where(x => x.Metadata.Important).Select(x => x.Metadata.ImplType));
-                    }
-                }
-            }
-
-            return _importantSaveHookTypes.Any();
-        }
-
-        public async Task<DbSavingChangesResult> SavingChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken = default)
+        public async Task<DbSavingChangesResult> SavingChangesAsync(
+            IEnumerable<IHookedEntity> entries,
+            HookImportance minHookImportance = HookImportance.Normal,
+            CancellationToken cancelToken = default)
         {
             Guard.NotNull(entries, nameof(entries));
 
             var anyStateChanged = false;
 
-            if (!entries.Any() || !_saveHooks.Any() || (importantHooksOnly && !this.HasImportantSaveHooks()))
+            if (!entries.Any() || !_saveHooks.Any())
                 return DbSavingChangesResult.Empty;
 
             var processedHooks = new Multimap<IDbSaveHook, IHookedEntity>();
@@ -82,7 +67,7 @@ namespace Smartstore.Data.Hooks
                     continue;
                 }
 
-                var hooks = GetSaveHookInstancesFor(e, HookStage.PreSave, importantHooksOnly);
+                var hooks = GetSaveHookInstancesFor(e, HookStage.PreSave, minHookImportance);
 
                 foreach (var hook in hooks)
                 {
@@ -127,11 +112,14 @@ namespace Smartstore.Data.Hooks
             return new DbSavingChangesResult(processedHooks.Keys, anyStateChanged) { Entries = entries };
         }
 
-        public async Task<DbSaveChangesResult> SavedChangesAsync(IEnumerable<IHookedEntity> entries, bool importantHooksOnly, CancellationToken cancelToken = default)
+        public async Task<DbSaveChangesResult> SavedChangesAsync(
+            IEnumerable<IHookedEntity> entries,
+            HookImportance minHookImportance = HookImportance.Normal,
+            CancellationToken cancelToken = default)
         {
             Guard.NotNull(entries, nameof(entries));
 
-            if (!entries.Any() || !_saveHooks.Any() || (importantHooksOnly && !this.HasImportantSaveHooks()))
+            if (!entries.Any() || !_saveHooks.Any())
                 return DbSaveChangesResult.Empty;
 
             var processedHooks = new Multimap<IDbSaveHook, IHookedEntity>();
@@ -151,7 +139,7 @@ namespace Smartstore.Data.Hooks
                     continue;
                 }
 
-                var hooks = GetSaveHookInstancesFor(e, HookStage.PostSave, importantHooksOnly);
+                var hooks = GetSaveHookInstancesFor(e, HookStage.PostSave, minHookImportance);
 
                 foreach (var hook in hooks)
                 {
@@ -189,7 +177,7 @@ namespace Smartstore.Data.Hooks
             return new DbSaveChangesResult(processedHooks.Keys);
         }
 
-        private IEnumerable<IDbSaveHook> GetSaveHookInstancesFor(IHookedEntity entry, HookStage stage, bool importantOnly)
+        private IEnumerable<IDbSaveHook> GetSaveHookInstancesFor(IHookedEntity entry, HookStage stage, HookImportance minHookImportance)
         {
             if (entry.EntityType == null)
             {
@@ -199,7 +187,7 @@ namespace Smartstore.Data.Hooks
             IEnumerable<IDbSaveHook> hooks;
 
             // For request cache lookup
-            var requestKey = new RequestHookKey(entry, stage, importantOnly);
+            var requestKey = new RequestHookKey(entry, stage, minHookImportance);
 
             if (_hooksRequestCache.ContainsKey(requestKey))
             {
@@ -212,8 +200,8 @@ namespace Smartstore.Data.Hooks
                     .Where(x => x.Metadata.DbContextType.IsAssignableFrom(entry.DbContext.GetType()))
                     // Reduce by entity types which can be processed by this hook
                     .Where(x => x.Metadata.HookedType.IsAssignableFrom(entry.EntityType))
-                    // When importantOnly, only include hook types with [ImportantAttribute]
-                    .Where(x => !importantOnly || _importantSaveHookTypes.Contains(x.Metadata.ImplType))
+                    // Only include hook types with Importance >= minHookImportance
+                    .Where(x => x.Metadata.Importance >= minHookImportance)
                     // Exclude void hooks (hooks known to be useless for the current EntityType/State/Stage combination)
                     .Where(x => !_voidHooks.Contains(new HookKey(x.Metadata.ImplType, entry, stage)))
                     // Apply sort
@@ -253,8 +241,9 @@ namespace Smartstore.Data.Hooks
             var hookType = hook.GetType();
 
             // Unregister from request cache (if cached)
-            _hooksRequestCache.Remove(new RequestHookKey(entry, stage, false), hook);
-            _hooksRequestCache.Remove(new RequestHookKey(entry, stage, true), hook);
+            _hooksRequestCache.Remove(new RequestHookKey(entry, stage, HookImportance.Normal), hook);
+            _hooksRequestCache.Remove(new RequestHookKey(entry, stage, HookImportance.Important), hook);
+            _hooksRequestCache.Remove(new RequestHookKey(entry, stage, HookImportance.Essential), hook);
 
             lock (_lock)
             {
@@ -276,11 +265,11 @@ namespace Smartstore.Data.Hooks
             {
             }
         }
-
-        class RequestHookKey : Tuple<Type, Type, EntityState, HookStage, bool>
+        
+        class RequestHookKey : Tuple<Type, Type, EntityState, HookStage, HookImportance>
         {
-            public RequestHookKey(IHookedEntity entry, HookStage stage, bool importantOnly)
-                : base(entry.DbContext.GetType(), entry.EntityType, entry.InitialState, stage, importantOnly)
+            public RequestHookKey(IHookedEntity entry, HookStage stage, HookImportance minHookImportance)
+                : base(entry.DbContext.GetType(), entry.EntityType, entry.InitialState, stage, minHookImportance)
             {
             }
         }

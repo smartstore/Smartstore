@@ -107,7 +107,7 @@ namespace Smartstore.Tests.Data.Hooks
 				CreateEntry<Category>(EntityState.Added) // Hook_Entity_Inserted_Deleted_Update
 			};
 
-            var processedHooks = (await _handler.SavedChangesAsync(entries, false)).ProcessedHooks;
+            var processedHooks = (await _handler.SavedChangesAsync(entries, HookImportance.Normal)).ProcessedHooks;
             var expected = GetExpectedSaveHooks(entries, true, false);
 
             Assert.AreEqual(expected.Count, processedHooks.Count());
@@ -125,7 +125,7 @@ namespace Smartstore.Tests.Data.Hooks
                 CreateEntry<Category>(EntityState.Added) // > Important
 			};
 
-            var result = await _handler.SavingChangesAsync(entries, true);
+            var result = await _handler.SavingChangesAsync(entries, HookImportance.Important);
             var anyStateChanged = result.AnyStateChanged;
             var processedHooks = result.ProcessedHooks;
             var expected = GetExpectedSaveHooks(entries, false, true);
@@ -150,7 +150,7 @@ namespace Smartstore.Tests.Data.Hooks
                 HookedType = typeof(TEntity),
                 DbContextType = typeof(SmartDbContext),
                 ImplType = typeof(THook),
-                Important = typeof(THook).GetAttribute<ImportantAttribute>(false) != null,
+                Importance = typeof(THook).GetAttribute<ImportantAttribute>(false)?.Importance ?? HookImportance.Normal,
                 Order = 0
             });
 

@@ -9,6 +9,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -342,7 +343,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             var addedCombinations = 0;
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, hooksEnabled: false))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important))
             {
                 foreach (var values in resultMatrix)
                 {

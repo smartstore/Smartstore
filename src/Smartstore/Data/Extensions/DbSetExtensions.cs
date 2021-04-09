@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 
 namespace Smartstore
@@ -236,7 +237,7 @@ namespace Smartstore
             var numDeleted = 0;
             var ctx = dbSet.GetDbContext();
 
-            using (var scope = new DbContextScope(ctx: ctx, autoDetectChanges: false, hooksEnabled: false))
+            using (var scope = new DbContextScope(ctx: ctx, autoDetectChanges: false, minHookImportance: HookImportance.Important))
             {
                 var query = dbSet.AsQueryable();
                 if (predicate != null)
@@ -285,7 +286,7 @@ namespace Smartstore
             var numDeleted = 0;
             var ctx = dbSet.GetDbContext();
 
-            using (var scope = new DbContextScope(ctx: ctx, autoDetectChanges: false, hooksEnabled: false))
+            using (var scope = new DbContextScope(ctx: ctx, autoDetectChanges: false, minHookImportance: HookImportance.Important))
             {
                 var query = dbSet.AsQueryable();
                 if (predicate != null)

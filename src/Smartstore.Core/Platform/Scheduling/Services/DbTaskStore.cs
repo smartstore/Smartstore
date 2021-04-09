@@ -13,6 +13,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
+using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 using Smartstore.Utilities;
 
@@ -36,7 +37,7 @@ namespace Smartstore.Scheduling
             _dtHelper = dtHelper;
             _commonSettings = commonSettings;
 
-            _db.HooksEnabled = false;
+            _db.MinHookImportance = HookImportance.Essential;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;

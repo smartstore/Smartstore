@@ -21,16 +21,16 @@ namespace Smartstore.Data.Hooks
         public Type DbContextType { get; set; }
 
         /// <summary>
-        /// Whether the hook should run in any case, even if hooking has been turned off.
+        /// The importance level.
         /// </summary>
-        public bool Important { get; set; }
+        public HookImportance Importance { get; set; }
 
         /// <summary>
         /// The execution order.
         /// </summary>
         public int Order { get; set; }
 
-        public static HookMetadata Create<THook, TContext>(Type hookedType, bool important = false)
+        public static HookMetadata Create<THook, TContext>(Type hookedType, HookImportance importance = HookImportance.Normal)
             where THook : IDbSaveHook
             where TContext : DbContext
         {
@@ -41,7 +41,7 @@ namespace Smartstore.Data.Hooks
                 ImplType = typeof(THook),
                 DbContextType = typeof(TContext),
                 HookedType = hookedType,
-                Important = important
+                Importance = importance
             };
         }
     }

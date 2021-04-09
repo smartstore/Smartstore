@@ -11,6 +11,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Rules
 {
@@ -47,7 +48,7 @@ namespace Smartstore.Core.Catalog.Rules
                 : null;
 
             // Hooks are enabled because search index needs to be updated.
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, hooksEnabled: true, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Normal, deferCommit: true))
             {
                 // Delete existing system mappings.
                 var deleteQuery = _db.ProductCategories.Where(x => x.IsSystemMapping);

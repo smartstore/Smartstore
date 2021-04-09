@@ -53,7 +53,7 @@ namespace Smartstore.Data
         private void ResetState()
         {
             // Instance is returned to pool: reset state.
-            HooksEnabled = true;
+            MinHookImportance = HookImportance.Normal;
             SuppressCommit = false;
             DeferCommit = false;
             _currentSaveOperation = null;
@@ -67,7 +67,11 @@ namespace Smartstore.Data
 
         #region Save
 
-        public bool HooksEnabled { get; set; } = true;
+        /// <summary>
+        /// Gets or sets the minimum importance level of executable hooks. Only hooks
+        /// with level equal or higher than the current value will be executed.
+        /// </summary>
+        public HookImportance MinHookImportance { get; set; } = HookImportance.Normal;
 
         /// <summary>
         /// DON'T SET THIS TO TRUE. It's only meant to be working within a <see cref="DbContextScope"/> instance.
