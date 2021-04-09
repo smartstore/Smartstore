@@ -1,0 +1,37 @@
+﻿@model CustomerReturnRequestsModel
+
+@using Smartstore.Web.Models.Customers;
+
+@{
+    Assets.AppendTitleParts(T("PageTitle.Account"));
+
+    Layout = "_MyAccount";
+    ViewBag.PageClassToken = "returnrequests";
+    ViewBag.PageTitle = T("Account.CustomerReturnRequests").Value;
+}
+
+<div class="card-deck card-cols-sm-1 return-request-grid">
+    @foreach (var item in Model.Items)
+    {
+        <div class="card shadow-sm return-request-item">
+            <div class="card-body">
+                <h4 class="card-title mb-4">@T("Account.CustomerReturnRequests.Title", item.Id, item.ReturnRequestStatus)</h4>
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Item")</dt>
+                    <dd class="col-sm-8">
+                        <span>@item.Quantity x</span>
+                        <a href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                    </dd>
+                    <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Reason")</dt>
+                    <dd class="col-sm-8">@item.ReturnReason</dd>
+                    <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Action")</dt>
+                    <dd class="col-sm-8">@item.ReturnAction</dd>
+                    <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Date")</dt>
+                    <dd class="col-sm-8">@item.CreatedOn.ToNativeString()</dd>
+                    <dt class="col-sm-4 font-weight-400 text-muted">@T("Account.CustomerReturnRequests.Comments")</dt>
+                    <dd class="col-sm-8" dir="auto">@Html.Raw(Smartstore.Utilities.Html.HtmlUtils.ConvertPlainTextToHtml(item.Comments))</dd>
+                </dl>
+            </div>
+        </div>
+    }
+</div>

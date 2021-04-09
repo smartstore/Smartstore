@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
@@ -20,6 +21,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messages;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Common;
@@ -43,6 +45,7 @@ namespace Smartstore.Web.Controllers
         private readonly IProviderManager _providerManager;
         private readonly ICacheManager _cache;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly ProductUrlHelper _productUrlHelper;
         private readonly DateTimeSettings _dateTimeSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
@@ -65,6 +68,7 @@ namespace Smartstore.Web.Controllers
             IProviderManager providerManager,
             ICacheManager cache,
             IDateTimeHelper dateTimeHelper,
+            ProductUrlHelper productUrlHelper,
             DateTimeSettings dateTimeSettings,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
@@ -86,6 +90,7 @@ namespace Smartstore.Web.Controllers
             _providerManager = providerManager;
             _cache = cache;
             _dateTimeHelper = dateTimeHelper;
+            _productUrlHelper = productUrlHelper;
             _dateTimeSettings = dateTimeSettings;
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
@@ -533,6 +538,57 @@ namespace Smartstore.Web.Controllers
             }
 
             return RedirectToAction("Orders");
+        }
+
+        #endregion
+
+        #region Return request
+
+        [RequireSsl]
+        public async Task<IActionResult> ReturnRequests()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            var model = new CustomerReturnRequestsModel();
+            var returnRequests = await _db.ReturnRequests
+                .AsNoTracking()
+                .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id, customerId: customer.Id)
+                .ToListAsync();
+            
+            foreach (var returnRequest in returnRequests)
+            {
+                var orderItem = await _db.OrderItems
+                    .Include(x => x.Product)
+                    .FindByIdAsync(returnRequest.OrderItemId, false);
+
+                if (orderItem != null)
+                {
+                    var itemModel = new CustomerReturnRequestsModel.ReturnRequestModel
+                    {
+                        Id = returnRequest.Id,
+                        ReturnRequestStatus = await returnRequest.ReturnRequestStatus.GetLocalizedEnumAsync(Services.WorkContext.WorkingLanguage.Id),
+                        ProductId = orderItem.Product.Id,
+                        ProductName = orderItem.Product.GetLocalized(x => x.Name),
+                        ProductSeName = await orderItem.Product.GetActiveSlugAsync(),
+                        Quantity = returnRequest.Quantity,
+                        ReturnAction = returnRequest.RequestedAction,
+                        ReturnReason = returnRequest.ReasonForReturn,
+                        Comments = returnRequest.CustomerComments,
+                        CreatedOn = _dateTimeHelper.ConvertToUserTime(returnRequest.CreatedOnUtc, DateTimeKind.Utc)
+                    };
+
+                    itemModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(itemModel.ProductSeName, orderItem);
+
+                    model.Items.Add(itemModel);
+                }
+            }
+
+            return View(model);
         }
 
         #endregion
