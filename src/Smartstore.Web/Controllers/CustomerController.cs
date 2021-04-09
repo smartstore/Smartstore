@@ -747,7 +747,7 @@ namespace Smartstore.Web.Controllers
             int rewardPointsBalance = customer.GetRewardPointsBalance();
             var rewardPointsAmountBase = _orderCalculationService.ConvertRewardPointsToAmount(rewardPointsBalance);
             var rewardPointsAmount = _currencyService.ConvertFromPrimaryCurrency(rewardPointsAmountBase.Amount, Services.WorkContext.WorkingCurrency);
-            model.RewardPointsBalance = T("RewardPoints.CurrentBalance", rewardPointsBalance, rewardPointsAmount.ToString());
+            model.RewardPointsBalanceFormatted = T("RewardPoints.CurrentBalance", rewardPointsBalance, rewardPointsAmount.ToString());
 
             return View(model);
         }

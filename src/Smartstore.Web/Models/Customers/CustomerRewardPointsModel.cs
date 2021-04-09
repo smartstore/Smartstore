@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Smartstore.Core.Common;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Customers
@@ -7,18 +8,21 @@ namespace Smartstore.Web.Models.Customers
     public partial class CustomerRewardPointsModel : ModelBase
     {
         public List<RewardPointsHistoryModel> RewardPoints { get; set; } = new();
-        public string RewardPointsBalance { get; set; }
+        public Money RewardPointsBalance { get; set; } // TODO: (mh) (core) Put raw MONEY here
+        public string RewardPointsBalanceFormatted { get; set; }
 
         #region Nested classes
+
+        [LocalizedDisplay("RewardPoints.Fields.")]
         public partial class RewardPointsHistoryModel : EntityModelBase
         {
-            [LocalizedDisplay("RewardPoints.Fields.Points")]
+            [LocalizedDisplay("*Points")]
             public int Points { get; set; }
 
-            [LocalizedDisplay("RewardPoints.Fields.PointsBalance")]
+            [LocalizedDisplay("*PointsBalance")]
             public int PointsBalance { get; set; }
 
-            [LocalizedDisplay("RewardPoints.Fields.Message")]
+            [LocalizedDisplay("*Message")]
             public string Message { get; set; }
 
             [LocalizedDisplay("Common.CreatedOn")]
