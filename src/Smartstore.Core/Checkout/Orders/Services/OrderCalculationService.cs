@@ -299,7 +299,7 @@ namespace Smartstore.Core.Checkout.Orders
             };
         }
 
-        public virtual async Task<(Money Amount, TaxRatesDictionary TaxRates)> GetShoppingCartTaxTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includePaymentFee = true)
+        public virtual async Task<(Money Price, TaxRatesDictionary TaxRates)> GetShoppingCartTaxTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includePaymentFee = true)
         {
             var (amount, taxRates) = await GetCartTaxTotalAsync(cart, includePaymentFee);
 

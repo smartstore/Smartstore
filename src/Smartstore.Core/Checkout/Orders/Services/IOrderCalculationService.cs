@@ -51,7 +51,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="cart">Shopping cart.</param>
         /// <param name="includePaymentFee">A value indicating whether to include payment additional fee of the selected payment method.</param>
         /// <returns>The tax total amount in the primary currency and applied tax rates.</returns>
-        Task<(Money Amount, TaxRatesDictionary TaxRates)> GetShoppingCartTaxTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includePaymentFee = true);
+        Task<(Money Price, TaxRatesDictionary TaxRates)> GetShoppingCartTaxTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includePaymentFee = true);
 
         /// <summary>
         /// Gets a value indicating whether shipping is free.
