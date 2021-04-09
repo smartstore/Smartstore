@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -47,7 +48,8 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string SkipActiveStateAttributeName = "sm-skip-active-state";
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
         const string QueryParamNameAttributeName = "sm-query-param";
-        
+        const string CurrentQueryAttributeName = "sm-current-query";
+
         [HtmlAttributeName(ListItemsAttributeName)]
         public IPageable ListItems { get; set; }
 
@@ -84,8 +86,15 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(ItemTitleFormatStringAttributeName)]
         public string ItemTitleFormatString { get; set; }
 
+
         [HtmlAttributeName(QueryParamNameAttributeName)]
         public string QueryParamName { get; set; } = "page";
+
+        /// <summary>
+        /// Current <see cref="IQueryCollection"/>. Must be set if there is more then one paginator on a page.
+        /// </summary>
+        [HtmlAttributeName(CurrentQueryAttributeName)]
+        public IQueryCollection CurrentQuery { get; set; }
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -140,7 +149,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         }
 
         /// <summary>
-        /// Creates complete item list by adding navigation items for
+        /// Creates complete item list by adding navigation items for.
         /// </summary>
         /// <returns></returns>
         protected List<PagerItem> CreateItemList()
@@ -362,9 +371,9 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
             if ((ListItems.PageIndex + (MaxPagesToDisplay / 2)) >= ListItems.TotalPages)
             {
-                return (ListItems.TotalPages - MaxPagesToDisplay);
+                return ListItems.TotalPages - MaxPagesToDisplay;
             }
-            return (ListItems.PageIndex - (MaxPagesToDisplay / 2));
+            return ListItems.PageIndex - (MaxPagesToDisplay / 2);
         }
 
         /// <summary>
@@ -381,13 +390,13 @@ namespace Smartstore.Web.TagHelpers.Shared
             if ((ListItems.TotalPages < MaxPagesToDisplay) ||
                 ((ListItems.PageIndex + num) >= ListItems.TotalPages))
             {
-                return (ListItems.TotalPages - 1);
+                return ListItems.TotalPages - 1;
             }
             if ((ListItems.PageIndex - (MaxPagesToDisplay / 2)) < 0)
             {
-                return (MaxPagesToDisplay - 1);
+                return MaxPagesToDisplay - 1;
             }
-            return (ListItems.PageIndex + num);
+            return ListItems.PageIndex + num;
         }
 
         /// <summary>
@@ -400,6 +409,17 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 [QueryParamName.NullEmpty() ?? "page"] = pageNumber
             };
+
+            if (CurrentQuery != null && CurrentQuery.Count > 0)
+            {
+                foreach (var item in CurrentQuery)
+                {
+                    if (!newValues.Keys.Contains(item.Key))
+                    {
+                        newValues.Add(item.Key, item.Value);
+                    }
+                }
+            }
 
             return UrlHelper.RouteUrl(newValues);
         }

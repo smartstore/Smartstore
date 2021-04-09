@@ -627,6 +627,8 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
+
+
         [NonAction]
         protected async Task PrepareCustomerInfoModelAsync(CustomerInfoModel model, Customer customer, bool excludeProperties)
         {
@@ -846,6 +848,8 @@ namespace Smartstore.Web.Controllers
             // Recurring payments.
             var recurringPayments = await _db.RecurringPayments
                 .AsNoTracking()
+                .Include(x => x.InitialOrder.Customer)
+                .Include(x => x.RecurringPaymentHistory)
                 .ApplyStandardFilter(customerId: customer.Id, storeId: store.Id)
                 .ToPagedList(recurringPaymentPageIndex, _orderSettings.RecurringPaymentListPageSize)
                 .LoadAsync();
