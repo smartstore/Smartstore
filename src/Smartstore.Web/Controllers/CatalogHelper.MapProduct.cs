@@ -207,7 +207,7 @@ namespace Smartstore.Web.Controllers
                 using var scope = new DbContextScope(_db, retainConnection: true, deferCommit: true);
 
                 // PERF!!
-                var calculationOptions = _priceCalculationService.CreateDefaultOptions(true);
+                var calculationOptions = _priceCalculationService2.CreateDefaultOptions(true);
                 var language = calculationOptions.Language;
                 var customer = calculationOptions.Customer;
                 var allowPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
@@ -703,7 +703,7 @@ namespace Smartstore.Web.Controllers
             };
 
             // -----> Perform calculation <-------
-            var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+            var calculatedPrice = await _priceCalculationService2.CalculatePriceAsync(calculationContext);
 
             priceModel.Price = calculatedPrice.FinalPrice;
             priceModel.HasDiscount = calculatedPrice.HasDiscount;

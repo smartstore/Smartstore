@@ -847,6 +847,7 @@ namespace Smartstore.Web.Controllers
         private async Task MgPricingCalculationTests(StringBuilder content)
         {
             var pcs = Services.Resolve<IPriceCalculationService>();
+            var pcs2 = Services.Resolve<IPriceCalculationService2>();
             var ps = Services.Resolve<IProductService>();
             var scs = Services.Resolve<IShoppingCartService>();
             var customer = await _db.Customers.FindByIdAsync(2666330, false);
@@ -900,31 +901,31 @@ namespace Smartstore.Web.Controllers
                     : new ProductVariantAttributeSelection(string.Empty);
 
                 var finalPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalCharge, customer, true, 1, null, batchContext);
-                var cpFinalOptions = pcs.CreateDefaultOptions(false);
+                var cpFinalOptions = pcs2.CreateDefaultOptions(false);
                 var cpFinalContext = new PriceCalculationContext(product, cpFinalOptions);
                 cpFinalContext.AddSelectedAttributes(attributeSelection, product.Id);
-                var cpFinal = await pcs.CalculatePriceAsync(cpFinalContext);
+                var cpFinal = await pcs2.CalculatePriceAsync(cpFinalContext);
 
                 var finalPriceTierPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalChargeTierPrice, customer, true, tierPriceTestQuantity, null, batchContext);
-                var cpFinalTpOptions = pcs.CreateDefaultOptions(false);
+                var cpFinalTpOptions = pcs2.CreateDefaultOptions(false);
                 var cpFinalTpContext = new PriceCalculationContext(product, tierPriceTestQuantity, cpFinalTpOptions);
                 cpFinalTpContext.AddSelectedAttributes(attributeSelection, product.Id);
-                var cpFinalTierPrice = await pcs.CalculatePriceAsync(cpFinalTpContext);
+                var cpFinalTierPrice = await pcs2.CalculatePriceAsync(cpFinalTpContext);
 
 
                 var lowestPrice = isGrouped
                     ? (await pcs.GetLowestPriceAsync(product, customer, batchContext, associatedProducts)).LowestPrice ?? new()
                     : (await pcs.GetLowestPriceAsync(product, customer, batchContext)).LowestPrice;
-                var cpLowestOptions = pcs.CreateDefaultOptions(true);
+                var cpLowestOptions = pcs2.CreateDefaultOptions(true);
                 cpLowestOptions.DetermineLowestPrice = true;
                 cpLowestOptions.ApplyPreselectedAttributes = cpLowestOptions.DeterminePreselectedPrice = false;
-                var cpLowest = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpLowestOptions));
+                var cpLowest = await pcs2.CalculatePriceAsync(new PriceCalculationContext(product, cpLowestOptions));
 
                 var preselectedPrice = await pcs.GetPreselectedPriceAsync(isGrouped ? associatedProducts.First() : product, customer, batchContext);
-                var cpPreselectedOptions = pcs.CreateDefaultOptions(true);
+                var cpPreselectedOptions = pcs2.CreateDefaultOptions(true);
                 cpPreselectedOptions.DetermineLowestPrice = false;
                 cpPreselectedOptions.ApplyPreselectedAttributes = cpPreselectedOptions.DeterminePreselectedPrice = true;
-                var cpPreselected = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpPreselectedOptions));
+                var cpPreselected = await pcs2.CalculatePriceAsync(new PriceCalculationContext(product, cpPreselectedOptions));
 
 
                 var hasDifferingAmount =
@@ -949,8 +950,8 @@ namespace Smartstore.Web.Controllers
             content.AppendLine($"Cart         ");
             foreach (var item in cart)
             {
-                var cpCartContext = new PriceCalculationContext(item, pcs.CreateDefaultOptions(false));
-                var cpCart = await pcs.CalculatePriceAsync(cpCartContext);
+                var cpCartContext = new PriceCalculationContext(item, pcs2.CreateDefaultOptions(false));
+                var cpCart = await pcs2.CalculatePriceAsync(cpCartContext);
                 var cartPrice = await pcs.GetUnitPriceAsync(item, true);
 
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(cartPrice, cpCart.FinalPrice)}");

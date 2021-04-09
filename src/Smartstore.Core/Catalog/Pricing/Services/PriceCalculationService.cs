@@ -22,64 +22,44 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
-    public partial class PriceCalculationService : IPriceCalculationService
+    public partial class PriceCalculationService2 : IPriceCalculationService2
     {
-        private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly IPriceCalculatorFactory _calculatorFactory;
-        private readonly IProductService _productService;
-        private readonly ICategoryService _categoryService;
-        private readonly IManufacturerService _manufacturerService;
         private readonly ITaxCalculator _taxCalculator;
+        private readonly IProductService _productService;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IDiscountService _discountService;
         private readonly CatalogSettings _catalogSettings;
         private readonly TaxSettings _taxSettings;
         private readonly Currency _primaryCurrency;
-        private readonly Currency _workingCurrency;
 
-        public PriceCalculationService(
-            SmartDbContext db,
+        public PriceCalculationService2(
             IWorkContext workContext,
             IStoreContext storeContext,
             IPriceCalculatorFactory calculatorFactory,
-            IProductService productService,
-            ICategoryService categoryService,
-            IManufacturerService manufacturerService,
             ITaxCalculator taxCalculator,
+            IProductService productService,
             ITaxService taxService,
             ICurrencyService currencyService,
-            IProductAttributeMaterializer productAttributeMaterializer,
-            IDiscountService discountService,
             CatalogSettings catalogSettings,
             TaxSettings taxSettings)
         {
-            _db = db;
             _workContext = workContext;
             _storeContext = storeContext;
             _calculatorFactory = calculatorFactory;
-            _productService = productService;
-            _categoryService = categoryService;
-            _manufacturerService = manufacturerService;
             _taxCalculator = taxCalculator;
+            _productService = productService;
             _taxService = taxService;
             _currencyService = currencyService;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _discountService = discountService;
             _catalogSettings = catalogSettings;
             _taxSettings = taxSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
-            _workingCurrency = workContext.WorkingCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
-
-
-        #region New
 
         public PriceCalculationOptions CreateDefaultOptions(bool forListing, ProductBatchContext batchContext = null)
         {
@@ -92,7 +72,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var determinePreselectedPrice = forListing && priceDisplay == PriceDisplayType.PreSelectedPrice;
 
             batchContext ??= _productService.CreateProductBatchContext(null, store, customer, false);
-            
+
             var options = new PriceCalculationOptions(batchContext, customer, store, language, targetCurrency)
             {
                 IsGrossPrice = _taxSettings.PricesIncludeTax,
@@ -108,23 +88,6 @@ namespace Smartstore.Core.Catalog.Pricing
             };
 
             return options;
-        }
-
-        public async Task<CalculatedPrice> CalculatePriceLegacyAsync(PriceCalculationContext context)
-        {
-            Guard.NotNull(context, nameof(context));
-
-            //var product = context.Product;
-            //var batchContext = context.BatchContext;
-
-            //if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing && !batchContext.ProductBundleItems.FullyLoaded)
-            //{
-            //    await batchContext.ProductBundleItems.LoadAllAsync();
-            //}
-
-            await Task.Delay(1);
-            var result = new CalculatedPrice(null);
-            return result;
         }
 
         public async Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context)
@@ -169,17 +132,17 @@ namespace Smartstore.Core.Catalog.Pricing
                     _currencyService.ConvertFromPrimaryCurrency(tax.Value.Amount, context.Options.TargetCurrency).Amount,
                     // Price
                     result.FinalPrice.Amount,
-                    tax.Value.IsGrossPrice, 
+                    tax.Value.IsGrossPrice,
                     tax.Value.Inclusive);
             }
-            
+
             return result;
         }
 
-        private Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax)
+        protected virtual Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax)
         {
             tax = null;
-            
+
             if (amount == null)
             {
                 return null;
@@ -218,8 +181,57 @@ namespace Smartstore.Core.Catalog.Pricing
 
             return money;
         }
+    }
 
-        #endregion
+
+    #region OLD
+
+    public partial class PriceCalculationService : IPriceCalculationService
+    {
+        private readonly SmartDbContext _db;
+        private readonly IWorkContext _workContext;
+        private readonly IStoreContext _storeContext;
+        private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
+        private readonly IManufacturerService _manufacturerService;
+        private readonly ITaxService _taxService;
+        private readonly ICurrencyService _currencyService;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
+        private readonly IDiscountService _discountService;
+        private readonly CatalogSettings _catalogSettings;
+        private readonly Currency _primaryCurrency;
+        private readonly Currency _workingCurrency;
+
+        public PriceCalculationService(
+            SmartDbContext db,
+            IWorkContext workContext,
+            IStoreContext storeContext,
+            IProductService productService,
+            ICategoryService categoryService,
+            IManufacturerService manufacturerService,
+            ITaxService taxService,
+            ICurrencyService currencyService,
+            IProductAttributeMaterializer productAttributeMaterializer,
+            IDiscountService discountService,
+            CatalogSettings catalogSettings)
+        {
+            _db = db;
+            _workContext = workContext;
+            _storeContext = storeContext;
+            _productService = productService;
+            _categoryService = categoryService;
+            _manufacturerService = manufacturerService;
+            _taxService = taxService;
+            _currencyService = currencyService;
+            _productAttributeMaterializer = productAttributeMaterializer;
+            _discountService = discountService;
+            _catalogSettings = catalogSettings;
+
+            _primaryCurrency = currencyService.PrimaryCurrency;
+            _workingCurrency = workContext.WorkingCurrency;
+        }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public virtual Money? GetSpecialPrice(Product product)
         {
@@ -1167,4 +1179,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
         #endregion
     }
+
+    #endregion
 }

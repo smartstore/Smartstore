@@ -39,7 +39,6 @@ namespace Smartstore.Core.Catalog.Pricing
             Store = store;
             Language = language;
             TargetCurrency = targetCurrency;
-            CashRounding = new();
         }
 
         /// <summary>
@@ -135,7 +134,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// Gets cash rounding options.
         /// </summary>
-        public CashRoundingOptions CashRounding { get; init; }
+        //public CashRoundingOptions CashRounding { get; init; } = new();
 
         /// <summary>
         /// Gets or sets the optional tax format string (e.g. "{0} *", "{0} incl. tax")

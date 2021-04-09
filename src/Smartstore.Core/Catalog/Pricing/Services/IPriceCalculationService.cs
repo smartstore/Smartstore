@@ -12,10 +12,8 @@ namespace Smartstore.Core.Catalog.Pricing
     /// <summary>
     /// Price calculation service.
     /// </summary>
-    public partial interface IPriceCalculationService
+    public partial interface IPriceCalculationService2
     {
-        #region NEW
-
         /// <summary>
         /// Creates a new <see cref="PriceCalculationOptions"/> instance with predefined options. 
         /// The returned object is ready to be passed to <see cref="PriceCalculationContext"/> constructors.
@@ -35,9 +33,16 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="context">The context that contains the input product, the calculation options and some cargo data.</param>
         /// <returns>A new <see cref="CalculatedPrice"/> instance.</returns>
         Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context);
+    }
 
-        #endregion
 
+    #region OLD
+
+    /// <summary>
+    /// Price calculation service.
+    /// </summary>
+    public partial interface IPriceCalculationService
+    {
         /// <summary>
         /// Gets the special price in the primary currency. <c>null</c> if not available.
         /// </summary>
@@ -207,4 +212,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <returns>Shopping cart item sub total in the primary currency.</returns>
         Task<Money> GetSubTotalAsync(OrganizedShoppingCartItem shoppingCartItem, bool includeDiscounts);
     }
+
+    #endregion
 }

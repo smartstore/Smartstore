@@ -60,6 +60,7 @@ namespace Smartstore.Web.Controllers
         private readonly IMediaService _mediaService;
         private readonly ILocalizationService _localizationService;
         private readonly IPriceCalculationService _priceCalculationService;
+        private readonly IPriceCalculationService2 _priceCalculationService2;
         //private readonly IPriceFormatter _priceFormatter;
         //private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IDateTimeHelper _dateTimeHelper;
@@ -101,6 +102,7 @@ namespace Smartstore.Web.Controllers
             ICurrencyService currencyService,
             IMediaService mediaService,
             IPriceCalculationService priceCalculationService,
+            IPriceCalculationService2 priceCalculationService2,
             //IPriceFormatter priceFormatter,
             //ISpecificationAttributeService specificationAttributeService,
             IDateTimeHelper dateTimeHelper,
@@ -143,6 +145,7 @@ namespace Smartstore.Web.Controllers
             _mediaService = mediaService;
             _localizationService = _services.Localization;
             _priceCalculationService = priceCalculationService;
+            _priceCalculationService2 = priceCalculationService2;
             //_priceFormatter = priceFormatter;
             //_specificationAttributeService = specificationAttributeService;
             _dateTimeHelper = dateTimeHelper;
