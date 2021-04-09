@@ -93,6 +93,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <summary>
         /// Current <see cref="IQueryCollection"/>. Must be set if there is more then one paginator on a page.
         /// </summary>
+        // TODO: (mh) (core) I don't like this AT ALL! Why should caller pass this? We can always access the current query.
         [HtmlAttributeName(CurrentQueryAttributeName)]
         public IQueryCollection CurrentQuery { get; set; }
 
