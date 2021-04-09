@@ -72,10 +72,8 @@ namespace Smartstore.Web.Controllers
         private readonly TaxSettings _taxSettings;
         private readonly PerformanceSettings _performanceSettings;
         private readonly IMeasureService _measureService;
-        //private readonly IQuantityUnitService _quantityUnitService;
         private readonly MeasureSettings _measureSettings;
         private readonly IDeliveryTimeService _deliveryTimeService;
-        private readonly IQuantityUnitService _quantityUnitService;
         private readonly Lazy<IDataExporter> _dataExporter;
         private readonly ICatalogSearchService _catalogSearchService;
         private readonly ICatalogSearchQueryFactory _catalogSearchQueryFactory;
@@ -113,12 +111,10 @@ namespace Smartstore.Web.Controllers
             CustomerSettings customerSettings,
             CaptchaSettings captchaSettings,
             IMeasureService measureService,
-            //IQuantityUnitService quantityUnitService,
             MeasureSettings measureSettings,
             TaxSettings taxSettings,
             PerformanceSettings performanceSettings,
             IDeliveryTimeService deliveryTimeService,
-            IQuantityUnitService quantityUnitService,
             Lazy<IDataExporter> dataExporter,
             ICatalogSearchService catalogSearchService,
             ICatalogSearchQueryFactory catalogSearchQueryFactory,
@@ -153,12 +149,10 @@ namespace Smartstore.Web.Controllers
             _stockSubscriptionService = stockSubscriptionService;
             _downloadService = downloadService;
             _measureService = measureService;
-            //_quantityUnitService = quantityUnitService;
             _measureSettings = measureSettings;
             _taxSettings = taxSettings;
             _performanceSettings = performanceSettings;
             _deliveryTimeService = deliveryTimeService;
-            _quantityUnitService = quantityUnitService;
             _mediaSettings = mediaSettings;
             _catalogSettings = catalogSettings;
             _customerSettings = customerSettings;
@@ -1470,7 +1464,7 @@ namespace Smartstore.Web.Controllers
                 model.DeliveryTimeName = T("ShoppingCart.NotAvailable");
             }
 
-            var quantityUnit = await _quantityUnitService.GetQuantityUnitByIdAsync(product.QuantityUnitId);
+            var quantityUnit = await _db.QuantityUnits.GetQuantityUnitByIdAsync(product.QuantityUnitId ?? 0, _catalogSettings.ShowDefaultQuantityUnit);
             if (quantityUnit != null)
             {
                 model.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);

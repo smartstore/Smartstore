@@ -47,7 +47,6 @@ namespace Smartstore.Web.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ILocalizationService _localizationService;
         private readonly IDeliveryTimeService _deliveryTimeService;
-        private readonly IQuantityUnitService _quantityUnitService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
@@ -75,7 +74,6 @@ namespace Smartstore.Web.Controllers
             IShoppingCartService shoppingCartService,
             ILocalizationService localizationService,
             IDeliveryTimeService deliveryTimeService,
-            IQuantityUnitService quantityUnitService,
             IPriceCalculationService priceCalculationService,
             IOrderCalculationService orderCalculationService,
             IShoppingCartValidator shoppingCartValidator,
@@ -102,7 +100,6 @@ namespace Smartstore.Web.Controllers
             _shoppingCartService = shoppingCartService;
             _localizationService = localizationService;
             _deliveryTimeService = deliveryTimeService;
-            _quantityUnitService = quantityUnitService;
             _priceCalculationService = priceCalculationService;
             _orderCalculationService = orderCalculationService;
             _shoppingCartValidator = shoppingCartValidator;
@@ -896,7 +893,7 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
-            var quantityUnit = await _quantityUnitService.GetQuantityUnitByIdAsync(product.QuantityUnitId);
+            var quantityUnit = await _db.QuantityUnits.GetQuantityUnitByIdAsync(product.QuantityUnitId ?? 0, _catalogSettings.ShowDefaultQuantityUnit);
             if (quantityUnit != null)
             {
                 model.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);

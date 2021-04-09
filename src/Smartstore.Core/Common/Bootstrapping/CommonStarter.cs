@@ -17,7 +17,6 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<AddressService>().As<IAddressService>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             builder.RegisterType<DeliveryTimeService>().As<IDeliveryTimeService>().InstancePerLifetimeScope();
-            builder.RegisterType<QuantityUnitService>().As<IQuantityUnitService>().InstancePerLifetimeScope();
             builder.RegisterType<MeasureService>().As<IMeasureService>().InstancePerLifetimeScope();
             builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultWebHelper>().As<IWebHelper>().InstancePerLifetimeScope();
