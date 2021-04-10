@@ -66,7 +66,7 @@ namespace Smartstore.Scheduling
         {
             Guard.NotEmpty(name, nameof(name));
             Guard.NotNull(type, nameof(type));
-            Guard.Implements<ITask>(type);
+            Guard.IsAssignableFrom<ITask>(type);
 
             return new TaskDescriptor
             {

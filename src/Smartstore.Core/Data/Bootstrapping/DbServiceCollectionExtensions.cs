@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Smartstore.Core.Data;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
@@ -36,6 +37,16 @@ namespace Smartstore.Core.Bootstrapping
                     storeContext?.IsSingleStoreMode() ?? false);
             });
 
+            return services;
+        }
+
+        /// <summary>
+        /// Registers the open generic <see cref="DbMigrator{TContext}" /> as transient dependency.
+        /// </summary>
+        public static IServiceCollection AddDbMigrator(this IServiceCollection services)
+        {
+            services.AddTransient<IDatabaseInitializer, DatabaseInitializer>();
+            services.AddTransient(typeof(DbMigrator<>));
             return services;
         }
 
@@ -259,10 +270,10 @@ namespace Smartstore.Core.Bootstrapping
             {
                 if (appConfig.DbCommandTimeout.HasValue)
                 {
-                    relationalOptions.WithCommandTimeout(appConfig.DbCommandTimeout.Value);
+                    relationalOptions = relationalOptions.WithCommandTimeout(appConfig.DbCommandTimeout.Value);
                 }
 
-                relationalOptions.WithMigrationsHistoryTableName("__EFMigrationsHistory_" + options.ContextType.Name);
+                relationalOptions = relationalOptions.WithMigrationsHistoryTableName("__EFMigrationsHistory_" + options.ContextType.Name);
             }
 
             if (enableCaching)

@@ -6,6 +6,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.DependencyInjection;
 using Smartstore.Data;
 using Smartstore.Engine;
@@ -22,16 +23,25 @@ namespace Smartstore.Core.Bootstrapping
             var appConfig = appContext.AppConfiguration;
 
             RegisterTypeConverters();
-
-            services.AddDbQuerySettings();
-
-            // Application DbContext as pooled factory
-            services.AddPooledApplicationDbContextFactory<SmartDbContext>(
-                DataSettings.Instance.DbFactory.SmartDbContextType,
-                appContext.AppConfiguration.DbContextPoolSize);
+            services.AddDbMigrator();
 
             if (appContext.IsInstalled)
             {
+                // Application DbContext as pooled factory
+                services.AddPooledApplicationDbContextFactory<SmartDbContext>(
+                    DataSettings.Instance.DbFactory.SmartDbContextType,
+                    appContext.AppConfiguration.DbContextPoolSize,
+                    optionsBuilder: (c, o, rel) => 
+                    {
+                        // TODO: (core) Why does WithMigrationsHistoryTableName() not work?
+                        rel.WithMigrationsHistoryTableName("__EFMigrationsHistory_Core");
+                    });
+
+                // TODO: (core) Move this as extension to OptionBuilder (e.g. o.IsMigratable())
+                DbMigrationManager.Instance.RegisterMigratableDbContext(typeof(SmartDbContext));
+
+                services.AddDbQuerySettings();
+
                 services.AddMiniProfiler(o =>
                 {
                     // TODO: (more) Move MiniProfiler start to module and configure

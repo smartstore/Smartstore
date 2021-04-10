@@ -245,16 +245,16 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Implements<TInterface>(Type type, string message = ImplementsMessage)
+        public static void IsAssignableFrom<TBase>(Type type, string message = ImplementsMessage)
         {
-            if (!typeof(TInterface).IsAssignableFrom(type))
+            if (!typeof(TBase).IsAssignableFrom(type))
             {
-                throw new InvalidOperationException(message.FormatInvariant(type.FullName, typeof(TInterface).FullName));
+                throw new InvalidOperationException(message.FormatInvariant(type.FullName, typeof(TBase).FullName));
             }
         }
 
         [DebuggerStepThrough]
-        public static void IsSubclassOf<TBase>(Type type)
+        public static void IsDerivedFrom<TBase>(Type type)
         {
             var baseType = typeof(TBase);
             if (!baseType.IsSubClass(type))

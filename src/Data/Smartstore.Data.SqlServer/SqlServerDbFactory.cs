@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Engine;
 
+// Add-Migration Initial -Context SqlServerSmartDbContext -Project Smartstore.Data.SqlServer
+
 namespace Smartstore.Data.SqlServer
 {
     // TODO: (core) Find a way to deploy provider projects unreferenced.
@@ -19,9 +21,11 @@ namespace Smartstore.Data.SqlServer
             return new SqlServerDataProvider(database);
         }
 
-        public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString, IApplicationContext appContext)
+        public override DbContextOptionsBuilder ConfigureDbContext(
+            DbContextOptionsBuilder builder, 
+            string connectionString, 
+            IApplicationContext appContext)
         {
-            //// Add-Migration Initial -Context SqlServerSmartDbContext -Project Smartstore.Data.SqlServer
             return builder.UseSqlServer(connectionString, sql =>
             {
                 //sql.EnableRetryOnFailure(3, TimeSpan.FromMilliseconds(100), null);

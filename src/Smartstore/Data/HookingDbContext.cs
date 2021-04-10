@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -64,6 +65,10 @@ namespace Smartstore.Data
                 _dataProvider = null;
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual Type GetInvariantType()
+            => GetType();
 
         #region Save
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 
@@ -10,5 +11,9 @@ namespace Smartstore.Data.SqlServer
             : base(options)
         {
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override Type GetInvariantType()
+            => typeof(SmartDbContext);
     }
 }

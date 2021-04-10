@@ -16,4 +16,9 @@ namespace Smartstore.Core.Data.Migrations
         /// </summary>
         bool RollbackOnFailure { get; }
     }
+
+    public interface ILocaleResourcesProvider
+    {
+        void MigrateLocaleResources(LocaleResourcesBuilder builder);
+    }
 }

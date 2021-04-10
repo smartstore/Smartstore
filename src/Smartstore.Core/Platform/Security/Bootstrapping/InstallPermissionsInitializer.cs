@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Data;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Security;
 using Smartstore.Engine;
 using Smartstore.Engine.Initialization;
@@ -37,8 +38,8 @@ namespace Smartstore.Core.Bootstrapping
             var removeUnusedPermissions = true;
             var providers = new List<IPermissionProvider>();
 
-            // TODO: (core) PluginManager.PluginChangeDetected and GetAppliedMigrations().Any() are still required in InstallPermissionsInitializer?
-            if (/*PluginManager.PluginChangeDetected || DbMigrationContext.Current.GetAppliedMigrations().Any() ||*/ !await _db.PermissionRecords.AnyAsync())
+            // TODO: (core) PluginManager.PluginChangeDetected is still required in InstallPermissionsInitializer?
+            if (/*PluginManager.PluginChangeDetected ||*/ DbMigrationManager.Instance.GetAppliedMigrations().Any() || !await _db.PermissionRecords.AnyAsync())
             {
                 // INFO: even if no module has changed: directly after a DB migration this code block MUST run. It seems awkward
                 // that pending migrations exist when binaries has not changed. But after a manual DB reset for a migration rerun

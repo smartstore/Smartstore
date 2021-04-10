@@ -20,7 +20,7 @@ namespace Smartstore.Core.Data
         public SaveChangesAttribute(Type dbContextType)
         {
             Guard.NotNull(dbContextType, nameof(dbContextType));
-            Guard.Implements<DbContext>(dbContextType);
+            Guard.IsAssignableFrom<DbContext>(dbContextType);
 
             DbContextType = dbContextType;
         }

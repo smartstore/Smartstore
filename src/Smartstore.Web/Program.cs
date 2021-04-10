@@ -17,6 +17,7 @@ using Serilog.Events;
 using Serilog.Extensions.Logging;
 using Serilog.Filters;
 using Smartstore.Core.Data;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Engine;
 using MsHost = Microsoft.Extensions.Hosting.Host;
@@ -52,14 +53,14 @@ namespace Smartstore.Web
         {
             var host = BuildWebHost(args);
 
-            //// Migrate database
-            //await MigrateDatabase(host);
+            // Initialize databases
+            await InitializeDatabases(host);
 
             // Run host
             await host.RunAsync();
         }
 
-        private static async Task MigrateDatabase(IHost host)
+        private static async Task InitializeDatabases(IHost host)
         {
             var appContext = host.Services.GetRequiredService<IApplicationContext>();
             if (!appContext.IsInstalled)
@@ -67,10 +68,13 @@ namespace Smartstore.Web
                 return;
             }
 
-            using var scope = host.Services.CreateScope();
-            using var db = scope.ServiceProvider.GetRequiredService<SmartDbContext>();
+            //using var scope = host.Services.CreateScope();
+            //using var db = scope.ServiceProvider.GetRequiredService<SmartDbContext>();
+            //await db.Database.EnsureCreatedAsync();
 
-            await db.Database.EnsureCreatedAsync();
+            using var scope = host.Services.CreateScope();
+            var initializer = scope.ServiceProvider.GetRequiredService<IDatabaseInitializer>();
+            await initializer.InitializeDatabasesAsync();
         }
 
         public static IHost BuildWebHost(string[] args)
