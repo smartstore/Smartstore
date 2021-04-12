@@ -1,0 +1,71 @@
+﻿@using Smartstore.Web.Models.ShoppingCart;
+
+@model WishlistEmailAFriendModel
+
+@{
+    Layout = "_Layout";
+    Assets.AppendTitleParts(T("PageTitle.WishlistEmailAFriend").Value);
+    Assets.AppendHeadScriptParts("<meta name=\"robots\" content=\"noindex\">");
+}
+
+<div class="page email-a-friend-page">
+    <div class="page-title">
+        <h1>@T("Wishlist.EmailAFriend.Title")</h1>
+    </div>
+    <div class="page-body">
+        @if (Model.SuccessfullySent)
+        {
+            <div class="result">
+                @Model.Result
+            </div>
+        }
+        else
+        {
+            <form asp-route="Wishlist" method="post" id="pd-form">
+                <fieldset>
+                    <p class="message-error">
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            @Html.ValidationSummary(true)
+                        }
+                    </p>
+
+                    <div class="form-group">
+                        <label asp-for="FriendEmail" class="col-form-label required"></label>
+                        <textbox asp-for="FriendEmail" class = "friend-email form-control" placeholder="@T("Wishlist.EmailAFriend.FriendEmail.Hint")"></textbox>
+                        <span asp-validation-for="FriendEmail"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="YourEmailAddress" class="col-form-label required"></label>
+                        <textbox asp-for="YourEmailAddress" class="your-email form-control" placeholder="@T("Wishlist.EmailAFriend.YourEmailAddress.Hint")"></textbox>
+                        <span asp-validation-for="YourEmailAddress"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="PersonalMessage" class="col-form-label"></label>
+                        <textarea asp-for="PersonalMessage" placeholder="@T("Wishlist.EmailAFriend.PersonalMessage.Hint")" class="personal-message form-control"></textarea>
+                        <span asp-validation-for="PersonalMessage"></span>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-12 text-muted">
+                            @T("Common.FormFields.Required.Hint")
+                        </div>
+                    </div>
+
+                    <zone name="gdpr_consent" />
+
+                    <captcha sm-enabled="Model.DisplayCaptcha" class="form-group" />
+
+                    <input type="hidden" name="send-email" value="send-email">
+
+                    <div class="form-group">
+                        <button type="submit" name="send-email" class="btn btn-primary send-email-a-friend-button">@T("Wishlist.EmailAFriend.Button")</button>
+                    </div>
+
+                </fieldset>
+            </form>
+        }
+    </div>
+</div>

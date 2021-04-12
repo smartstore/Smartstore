@@ -1,0 +1,94 @@
+﻿@using Smartstore.Web.Models.ShoppingCart;
+
+@model WishlistModel
+
+@{
+    Layout = "_Layout";
+    Assets.AppendCssFileParts("no-offcanvas-cart");
+    Assets.AppendTitleParts(T("PageTitle.Wishlist").Value);
+    Assets.AppendHeadScriptParts("<meta name=\"robots\" content=\"noindex\">");
+    var modelItemsCount = Model.Items.Count();
+}
+
+<div class="page wishlist-page">
+    <div class="page-title">
+        <h1>@(Model.IsEditable ? T("Wishlist") : T("Wishlist.WishlistOf", Model.CustomerFullname))</h1>
+    </div>
+    <div class="page-body">
+        <div class="wishlist-content cart-content" data-empty-text=@T("Wishlist.CartIsEmpty").JsValue>
+
+            <zone name="wishlist_items_top" />
+
+            @if (modelItemsCount > 0)
+            {
+                <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger">
+                    @for (int i = 0; i < Model.Warnings.Count; i++)
+                    {
+                        <p>@Model.Warnings[i]</p>
+                    }
+                </div>
+
+                <form asp-route="Wishlist" method="post" id="pd-form">
+                    <div class="card mb-4">
+                        <div id="cart-items" class="cart cart-editable mb-0">
+                            <div class="cart-head">
+                                <div class="cart-row">
+                                    <div class="cart-col cart-col-main">
+                                        @T("ShoppingCart.Product(s)")
+                                    </div>
+                                    <div class="cart-col cart-col-price">
+                                        @T("ShoppingCart.UnitPrice")
+                                    </div>
+                                    <div class="cart-col cart-col-qty">
+                                        @T("ShoppingCart.Quantity")
+                                    </div>
+                                    <div class="cart-col cart-col-price cart-col-subtotal">
+                                        @T("ShoppingCart.ItemTotal")
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cart-body">
+                                <partial name="WishlistItems" model="Model" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="common-buttons clearfix">
+                        <a sm-if="Model.IsEditable && Model.EmailWishlistEnabled"
+                           asp-route="EmailWishlist" rel="nofollow"
+                           class="btn btn-secondary email-a-friend-wishlist-button">
+                            <i class="fa fa-envelope"></i>
+                            <span>@T("Wishlist.EmailAFriend")</span>
+                        </a>
+                        <button sm-if="Model.DisplayAddToCart && !Model.IsEditable"
+                                type="submit" name="addtocartbutton" value="addtocartbutton"
+                                class="btn btn-primary wishlist-add-to-cart-button">
+                            <i class="fa fa-cart-arrow-down"></i>
+                            <span>@T("ShoppingCart.AddToCart")</span>
+                        </button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-warning fade show">
+                    @T("Wishlist.CartIsEmpty")
+                </div>
+            }
+        </div>
+        <div sm-if="Model.IsEditable && modelItemsCount > 0" class="share-info my-5">
+            <h4 class="share-label">
+                <i class="far fa-share-square"></i>
+                @T("Wishlist.YourWishlistURL")
+            </h4>
+            <a href="@Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid })" class="share-link">
+                @Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, "http")
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (Model.IsEditable)
+{
+    <partial name="_RefreshCartScript" />
+}
