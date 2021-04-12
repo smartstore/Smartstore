@@ -159,7 +159,7 @@ namespace Smartstore.Web.Infrastructure
                     Id = "backinstock",
                     Text = T("Account.BackInStockSubscriptions"),
                     Icon = "fal fa-truck-loading",
-                    ActionName = "BackInStockSubscriptions",
+                    ActionName = "StockSubscriptions",
                     ControllerName = "Customer"
                 });
             }

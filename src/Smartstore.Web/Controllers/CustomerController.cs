@@ -501,12 +501,12 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        // TODO: (mh) (core) Test this.
         [HttpPost, ActionName("Orders")]
         [FormValueRequired(FormValueRequirementOperator.StartsWith, "cancelRecurringPayment")]
-        public async Task<IActionResult> CancelRecurringPayment(FormCollection form)
+        public async Task<IActionResult> CancelRecurringPayment()
         {
             var customer = Services.WorkContext.CurrentCustomer;
+            var form = HttpContext.Request.Form;
 
             if (!customer.IsRegistered())
             {
@@ -523,7 +523,11 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            var recurringPayment = await _db.RecurringPayments.FindByIdAsync(recurringPaymentId, false);
+            var recurringPayment = await _db.RecurringPayments
+                .Include(x => x.InitialOrder)
+                .Include(x => x.InitialOrder.Customer)
+                .FindByIdAsync(recurringPaymentId, false);
+
             if (recurringPayment == null)
             {
                 return RedirectToAction("Orders");
@@ -733,7 +737,7 @@ namespace Smartstore.Web.Controllers
         #region Reward points
 
         [RequireSsl]
-        public ActionResult RewardPoints()
+        public IActionResult RewardPoints()
         {
             var customer = Services.WorkContext.CurrentCustomer;
 
@@ -769,8 +773,99 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
-        #region Back in stock subscriptions
-        // TODO: (mh) (core) 
+        #region Stock subscriptions
+
+        public async Task<IActionResult> StockSubscriptions(int? page)
+        {
+            if (_customerSettings.HideBackInStockSubscriptionsTab)
+            {
+                return RedirectToAction("Info");
+            }
+
+            int pageIndex = 0;
+            if (page > 0)
+            {
+                pageIndex = page.Value - 1;
+            }
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            var pageSize = 10;
+            var list = await _db.BackInStockSubscriptions
+                .AsNoTracking()
+                .Include(x => x.Product)
+                .ApplyStandardFilter(customerId: customer.Id, storeId: Services.StoreContext.CurrentStore.Id)
+                .ToPagedList(pageIndex, pageSize)
+                .LoadAsync();
+
+            var model = new CustomerStockSubscriptionsModel(list);
+
+            foreach (var subscription in list)
+            {
+                var product = subscription.Product;
+
+                if (product != null)
+                {
+                    var subscriptionModel = new StockSubscriptionModel()
+                    {
+                        Id = subscription.Id,
+                        ProductId = product.Id,
+                        ProductName = product.GetLocalized(x => x.Name),
+                        SeName = await product.GetActiveSlugAsync()
+                    };
+                    model.Subscriptions.Add(subscriptionModel);
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("StockSubscriptions")]
+        public async Task<IActionResult> StockSubscriptionsPOST()
+        {
+            var form = HttpContext.Request.Form;
+            var customerId = Services.WorkContext.CurrentCustomer.Id;
+            
+            foreach (var key in form.Keys)
+            {
+                var value = form[key];
+
+                if (value.Equals("on") && key.StartsWith("biss", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var id = key.Replace("biss", "").Trim();
+
+                    if (int.TryParse(id, out var subscriptionId))
+                    {
+                        var subscription = await _db.BackInStockSubscriptions.FindByIdAsync(subscriptionId);
+                        if (subscription != null && subscription.CustomerId == customerId)
+                        {
+                            _db.BackInStockSubscriptions.Remove(subscription);
+                        }
+                    }
+                }
+            }
+
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction("StockSubscriptions");
+        }
+
+        /// <summary>
+        /// INFO: (mh) (core) This action is obsolete. Won't get called anymore.
+        /// TODO: (mh) (core) Remove it.
+        /// </summary>
+        /// <param name="id"><see cref="BackInStockSubscription.Id"/></param>
+        //public async Task<IActionResult> DeleteBackInStockSubscription(int id)
+        //{
+        //    var subscription = await _db.BackInStockSubscriptions.FindByIdAsync(id);
+        //    if (subscription != null && subscription.CustomerId == Services.WorkContext.CurrentCustomer.Id)
+        //    {
+        //        _db.BackInStockSubscriptions.Remove(subscription);
+        //        await _db.SaveChangesAsync();
+        //    }
+
+        //    return RedirectToAction("BackInStockSubscriptions");
+        //}
+
         #endregion
 
         #region Utilities

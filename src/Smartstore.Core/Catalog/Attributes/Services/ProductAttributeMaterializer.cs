@@ -114,7 +114,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 // Only consider values of list control types. Otherwise for instance text entered in a text-box is misinterpreted as an attribute value id.
                 var query = _db.ProductVariantAttributeValues
                     .Include(x => x.ProductVariantAttribute)
-                        .ThenInclude(x => x.ProductAttribute)
+                    .ThenInclude(x => x.ProductAttribute)
                     .AsNoTracking()
                     .ApplyValueFilter(ids);
 
