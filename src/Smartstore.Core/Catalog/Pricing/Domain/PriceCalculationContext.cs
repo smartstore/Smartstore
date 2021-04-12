@@ -34,11 +34,27 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="cartItem">Shopping cart item.</param>
         /// <param name="options">The calculation options.</param>
         public PriceCalculationContext(OrganizedShoppingCartItem cartItem, PriceCalculationOptions options)
-            : this(cartItem?.Item?.Product, 1, options)
+            : this(cartItem?.Item?.Product, cartItem?.Item?.Quantity ?? 1, options)
         {
             Guard.NotNull(cartItem, nameof(cartItem));
 
+            // Include attributes selected for this cart item in price calculation.
             this.AddSelectedAttributes(cartItem);
+
+            // Include bundle item data if the cart item is a bundle item.
+            if (cartItem?.BundleItemData?.Item != null)
+            {
+                BundleItem = cartItem.BundleItemData;
+            }
+
+            // Perf: we already have the bundle items of a bundled product. No need to load them again during calculation.
+            if (cartItem.ChildItems?.Any() ?? false)
+            {
+                BundleItems = cartItem.ChildItems
+                    .Where(x => x.BundleItemData?.Item != null)
+                    .Select(x => x.BundleItemData)
+                    .ToList();
+            }
         }
 
         /// <summary>
@@ -67,6 +83,7 @@ namespace Smartstore.Core.Catalog.Pricing
             // but no intermediate data determined by the pipeline itself.
             Product = context.Product;
             Quantity = context.Quantity;
+            UnitPrice = context.UnitPrice;
             Options = context.Options;
             Metadata = context.Metadata;
             SelectedAttributes = context.SelectedAttributes;
@@ -91,6 +108,12 @@ namespace Smartstore.Core.Catalog.Pricing
         /// The product quantity. May have impact on final price, e.g. because of tier prices etc.
         /// </summary>
         public int Quantity { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to calculate the unit price (default).
+        /// If <c>false</c> then the final price is multiplied by <see cref="Quantity"/>.
+        /// </summary>
+        public bool UnitPrice { get; init; } = true;
 
         /// <summary>
         /// The calculation options/settings.

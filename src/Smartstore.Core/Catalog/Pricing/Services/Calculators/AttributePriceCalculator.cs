@@ -130,7 +130,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             // Apply attributes selected by customer.
             var selections = context.SelectedAttributes
-                .Where(x => x.ProductId == context.Product.Id && x.BundleItemId == context.BundleItem?.Item?.Id)
+                .Where(x => x.ProductId == context.Product.Id && x.BundleItemId == bundleItem?.Id)
                 .Select(x => x.Selection)
                 .ToList();
 

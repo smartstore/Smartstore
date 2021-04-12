@@ -20,12 +20,18 @@ namespace Smartstore.Core.Catalog.Pricing
         /// This method builds options with context defaults from <see cref="IWorkContext"/>, <see cref="CatalogSettings"/> etc.
         /// </summary>
         /// <param name="forListing">
-        /// If <c>false</c>, <see cref="PriceCalculationOptions.DetermineLowestPrice" /> and <see cref="PriceCalculationOptions.DeterminePreselectedPrice" />
+        /// If <c>false</c>, <see cref="PriceCalculationOptions.DetermineLowestPrice" /> and <see cref="PriceCalculationOptions.DeterminePreselectedPrice"/>
         /// will also be <c>false</c>.
         /// </param>
+        /// <param name="customer">The customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <param name="targetCurrency">The target currency to use for money conversion. Obtained from <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c>.</param>
         /// <param name="batchContext">The product batch context to use during calculation. Will be created internally if <c>null</c>.</param>
         /// <returns>A new <see cref="PriceCalculationOptions"/> instance.</returns>
-        PriceCalculationOptions CreateDefaultOptions(bool forListing, ProductBatchContext batchContext = null);
+        PriceCalculationOptions CreateDefaultOptions(
+            bool forListing,
+            Customer customer = null,
+            Currency targetCurrency = null,
+            ProductBatchContext batchContext = null);
 
         /// <summary>
         /// Calculates the price for a given product.
@@ -33,6 +39,32 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="context">The context that contains the input product, the calculation options and some cargo data.</param>
         /// <returns>A new <see cref="CalculatedPrice"/> instance.</returns>
         Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context);
+
+        /// <summary>
+        /// Calculates the price for a shopping cart item in the primary currency.
+        /// </summary>
+        /// <param name="shoppingCartItem">Shopping cart item.</param>
+        /// <param name="ignoreDiscounts">A value indicating whether to ignore discounts.</param>
+        /// <param name="unitPrice"><c>true</c> to calculate the unit price. <c>false</c> to calculate the subtotal price (unit price * <see cref="ShoppingCartItem.Quantity"/>).</param>
+        /// <returns>A new <see cref="CalculatedPrice"/> instance.</returns>
+        Task<CalculatedPrice> CalculatePriceAsync(OrganizedShoppingCartItem shoppingCartItem, bool ignoreDiscounts, bool unitPrice = true);
+
+        /// <summary>
+        /// Calculates the product cost in the primary currency.
+        /// </summary>
+        /// <param name="product">Product.</param>
+        /// <param name="selection">Attribute selection.</param>
+        /// <returns>Product cost in the primary currency.</returns>
+        Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection);
+
+        /// <summary>
+        /// Gets the base price info for a product.
+        /// </summary>
+        /// <param name="product">Product entity.</param>
+        /// <param name="price">The calculated product price.</param>
+        /// <param name="targetCurrency">The currency to be used for the formatting. Obtained from <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c>.</param>
+        /// <returns>The base price info.</returns>
+        string GetBasePriceInfo(Product product, Money price, Currency targetCurrency = null);
     }
 
 

@@ -24,11 +24,13 @@ namespace Smartstore.Core.Catalog.Pricing
 {
     public partial class PriceCalculationService2 : IPriceCalculationService2
     {
+        private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly IPriceCalculatorFactory _calculatorFactory;
         private readonly ITaxCalculator _taxCalculator;
         private readonly IProductService _productService;
+        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
         private readonly CatalogSettings _catalogSettings;
@@ -36,21 +38,25 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly Currency _primaryCurrency;
 
         public PriceCalculationService2(
+            SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,
             IPriceCalculatorFactory calculatorFactory,
             ITaxCalculator taxCalculator,
             IProductService productService,
+            IProductAttributeMaterializer productAttributeMaterializer,
             ITaxService taxService,
             ICurrencyService currencyService,
             CatalogSettings catalogSettings,
             TaxSettings taxSettings)
         {
+            _db = db;
             _workContext = workContext;
             _storeContext = storeContext;
             _calculatorFactory = calculatorFactory;
             _taxCalculator = taxCalculator;
             _productService = productService;
+            _productAttributeMaterializer = productAttributeMaterializer;
             _taxService = taxService;
             _currencyService = currencyService;
             _catalogSettings = catalogSettings;
@@ -61,16 +67,21 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public PriceCalculationOptions CreateDefaultOptions(bool forListing, ProductBatchContext batchContext = null)
+        public virtual PriceCalculationOptions CreateDefaultOptions(
+            bool forListing,
+            Customer customer = null,
+            Currency targetCurrency = null,
+            ProductBatchContext batchContext = null)
         {
+            customer ??= batchContext?.Customer ?? _workContext.CurrentCustomer;
+
             var store = batchContext?.Store ?? _storeContext.CurrentStore;
-            var customer = batchContext?.Customer ?? _workContext.CurrentCustomer;
             var language = _workContext.WorkingLanguage;
-            var targetCurrency = _workContext.WorkingCurrency;
             var priceDisplay = _catalogSettings.PriceDisplayType;
             var taxInclusive = _workContext.GetTaxDisplayTypeFor(customer, store.Id) == TaxDisplayType.IncludingTax;
             var determinePreselectedPrice = forListing && priceDisplay == PriceDisplayType.PreSelectedPrice;
 
+            targetCurrency ??= _workContext.WorkingCurrency;
             batchContext ??= _productService.CreateProductBatchContext(null, store, customer, false);
 
             var options = new PriceCalculationOptions(batchContext, customer, store, language, targetCurrency)
@@ -84,13 +95,14 @@ namespace Smartstore.Core.Catalog.Pricing
                 DeterminePreselectedPrice = determinePreselectedPrice,
                 ApplyPreselectedAttributes = determinePreselectedPrice,
                 TaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: taxInclusive, target: PricingTarget.Product, language: language),
-                PriceRangeFormat = T("Products.PriceRangeFrom").Value
+                PriceRangeFormat = T("Products.PriceRangeFrom").Value,
+                RoundingCurrency = targetCurrency == _primaryCurrency ? _workContext.WorkingCurrency : targetCurrency
             };
 
             return options;
         }
 
-        public async Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context)
+        public virtual async Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context)
         {
             Guard.NotNull(context, nameof(context));
 
@@ -104,27 +116,141 @@ namespace Smartstore.Core.Catalog.Pricing
             // Run all collected calculators
             await _calculatorFactory.RunCalculators(calculators, calculatorContext);
 
-            // A product price cannot be less than zero.
-            calculatorContext.FinalPrice = Math.Max(calculatorContext.FinalPrice, decimal.Zero);
+            var result = await CreateCalculatedPrice(calculatorContext, sourceProduct);
+            return result;
+        }
 
-            // Determine tax rate for product
+        public virtual async Task<CalculatedPrice> CalculatePriceAsync(OrganizedShoppingCartItem shoppingCartItem, bool ignoreDiscounts, bool unitPrice = true)
+        {
+            Guard.NotNull(shoppingCartItem, nameof(shoppingCartItem));
+            Guard.NotNull(shoppingCartItem.Item.Product, nameof(shoppingCartItem.Item.Product));
+
+            var cartItem = shoppingCartItem.Item;
+            var product = cartItem.Product;
+
+            // Never convert to working currency while calculating. We would get wrong results.
+            var options = CreateDefaultOptions(false, cartItem.Customer, _primaryCurrency);
+            options.IgnoreDiscounts = ignoreDiscounts || _catalogSettings.IgnoreDiscounts;
+
+            var context = new PriceCalculationContext(shoppingCartItem, options)
+            {
+                UnitPrice = unitPrice
+            };
+
+            CalculatedPrice finalPrice;
+            if (product.CustomerEntersPrice)
+            {
+                finalPrice = await CreateCalculatedPrice(new CalculatorContext(context, cartItem.CustomerEnteredPrice));
+            }
+            else if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
+            {
+                Guard.NotNull(shoppingCartItem.ChildItems, nameof(shoppingCartItem.ChildItems));
+
+                foreach (var bundleItem in shoppingCartItem.ChildItems)
+                {
+                    await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Item.Product, bundleItem.Item.AttributeSelection);
+                }
+
+                finalPrice = await CalculatePriceAsync(context);
+            }
+            else
+            {
+                await _productAttributeMaterializer.MergeWithCombinationAsync(product, cartItem.AttributeSelection);
+
+                finalPrice = await CalculatePriceAsync(context);
+            }
+
+            return finalPrice;
+        }
+
+        public virtual async Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection)
+        {
+            Guard.NotNull(product, nameof(product));
+            Guard.NotNull(selection, nameof(selection));
+
+            var productCost = product.ProductCost;
+            var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
+
+            var productLinkageValues = attributeValues
+                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
+                .ToList();
+            var linkedProductIds = productLinkageValues
+                .Select(x => x.LinkedProductId)
+                .Distinct()
+                .ToArray();
+
+            if (linkedProductIds.Any())
+            {
+                var linkedProducts = await _db.Products
+                    .AsNoTracking()
+                    .Where(x => linkedProductIds.Contains(x.Id))
+                    .Select(x => new { x.Id, x.ProductCost })
+                    .ToListAsync();
+                var linkedProductsDic = linkedProducts.ToDictionarySafe(x => x.Id, x => x.ProductCost);
+
+                foreach (var value in productLinkageValues)
+                {
+                    if (linkedProductsDic.TryGetValue(value.LinkedProductId, out var linkedProductCost))
+                    {
+                        productCost += linkedProductCost * value.Quantity;
+                    }
+                }
+            }
+
+            return new(productCost, _primaryCurrency);
+        }
+
+        public virtual string GetBasePriceInfo(Product product, Money price, Currency targetCurrency = null)
+        {
+            Guard.NotNull(product, nameof(product));
+
+            if (!product.BasePriceHasValue || product.BasePriceAmount == 0)
+            {
+                return string.Empty;
+            }
+
+            var packageContentPerUnit = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
+            var basePrice = Convert.ToDecimal((price / product.BasePriceAmount) * product.BasePriceBaseAmount);
+            var basePriceAmount = _currencyService.ApplyTaxFormat(new Money(basePrice, targetCurrency ?? _workContext.WorkingCurrency));
+
+            return T("Products.BasePriceInfo").Value.FormatInvariant(
+                packageContentPerUnit,
+                product.BasePriceMeasureUnit,
+                basePriceAmount,
+                product.BasePriceBaseAmount);
+        }
+
+        #region Utilities
+
+        private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null)
+        {
+            // A product price cannot be less than zero.
+            context.FinalPrice = Math.Max(context.FinalPrice, decimal.Zero);
+
+            // Calculate the subtotal price instead of the unit price if requested.
+            if (!context.UnitPrice && context.Quantity > 1)
+            {
+                context.FinalPrice = context.Options.RoundingCurrency.RoundIfEnabledFor(context.FinalPrice) * context.Quantity;
+            }
+
+            // Determine tax rate for product.
             var taxRate = await _taxService.GetTaxRateAsync(context.Product, null, context.Options.Customer);
 
-            // Prepare result by converting price amounts
-            var result = new CalculatedPrice(calculatorContext)
+            // Prepare result by converting price amounts.
+            var result = new CalculatedPrice(context)
             {
-                Product = sourceProduct,
-                RegularPrice = ConvertAmount(calculatorContext.RegularPrice, calculatorContext, taxRate, false, out _).Value,
-                OfferPrice = ConvertAmount(calculatorContext.OfferPrice, calculatorContext, taxRate, false, out _),
-                PreselectedPrice = ConvertAmount(calculatorContext.PreselectedPrice, calculatorContext, taxRate, false, out _),
-                LowestPrice = ConvertAmount(calculatorContext.LowestPrice, calculatorContext, taxRate, false, out _),
-                FinalPrice = ConvertAmount(calculatorContext.FinalPrice, calculatorContext, taxRate, true, out var tax).Value,
+                Product = product ?? context.Product,
+                RegularPrice = ConvertAmount(context.RegularPrice, context, taxRate, false, out _).Value,
+                OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
+                PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
+                LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _),
+                FinalPrice = ConvertAmount(context.FinalPrice, context, taxRate, true, out var tax).Value,
                 Tax = tax
             };
 
             if (tax.HasValue && _primaryCurrency != context.Options.TargetCurrency)
             {
-                // Exchange tax amounts
+                // Exchange tax amounts.
                 // TODO: (mg) (core) Check for rounding issues thoroughly!
                 result.Tax = new Tax(
                     tax.Value.Rate,
@@ -139,7 +265,7 @@ namespace Smartstore.Core.Catalog.Pricing
             return result;
         }
 
-        protected virtual Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax)
+        private Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax)
         {
             tax = null;
 
@@ -152,9 +278,9 @@ namespace Smartstore.Core.Catalog.Pricing
 
             if (amount != 0 && !options.IgnoreTax)
             {
-                tax = context.Options.IsGrossPrice
-                     ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.TargetCurrency)
-                     : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, options.TaxInclusive, options.TargetCurrency);
+                tax = options.IsGrossPrice
+                     ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency)
+                     : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency);
 
                 amount = tax.Value.Price;
             }
@@ -181,6 +307,8 @@ namespace Smartstore.Core.Catalog.Pricing
 
             return money;
         }
+
+        #endregion
     }
 
 

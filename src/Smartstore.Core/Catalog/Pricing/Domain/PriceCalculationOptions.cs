@@ -39,6 +39,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Store = store;
             Language = language;
             TargetCurrency = targetCurrency;
+            RoundingCurrency = targetCurrency;
         }
 
         /// <summary>
@@ -85,6 +86,13 @@ namespace Smartstore.Core.Catalog.Pricing
             get => _targetCurrency;
             set => _targetCurrency = value ?? throw new ArgumentNullException(nameof(TargetCurrency));
         }
+
+        /// <summary>
+        /// Gets or sets the currency used for rounding.
+        /// Generally this is the working currency (default), Order.CustomerCurrencyCode (for existing orders) 
+        /// or DataExporterContext.ContextCurrency (for exports).
+        /// </summary>
+        internal Currency RoundingCurrency { get; init; }
 
         /// <summary>
         /// Gets or sets product batch context for nested pipelines (grouped or bundled products).
