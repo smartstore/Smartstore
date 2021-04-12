@@ -1,0 +1,25 @@
+﻿@using Smartstore.Web.Models.ShoppingCart;
+@using Smartstore.Web.Models.Checkout;
+
+@model ShoppingCartModel
+
+@{
+    Layout = "_Checkout";
+    Assets.AppendCssFileParts("order-summary-page no-offcanvas-cart");
+    Assets.AppendTitleParts(T("PageTitle.ShoppingCart").Value);
+    Assets.AppendHeadScriptParts("<meta name=\"robots\" content=\"noindex\">");
+}
+
+<widget target-zone="left">
+    @*@await Component.InvokeAsync("CheckoutProgress", new { step = CheckoutProgressStep.Cart });*@
+    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Cart }" />
+</widget>
+
+<div class="page shopping-cart-page">
+    <div class="page-title">
+        <h1 class="h3">@T("ShoppingCart")</h1>
+    </div>
+    <div class="page-body">
+        <partial name="OrderSummary" model="Model" />
+    </div>
+</div>
