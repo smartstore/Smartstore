@@ -962,10 +962,12 @@ namespace Smartstore.Web.Controllers
             foreach (var item in cart)
             {
                 var oldCartPrice = await pcs.GetUnitPriceAsync(item, true);
-                var newCartPrice = await pcs2.CalculatePriceAsync(item, true);
+                var cpCartPriceOptions = pcs2.CreateDefaultOptions(false);
+                var newCartPrice = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartPriceOptions));
 
                 var oldCartSubtotal = await pcs.GetSubTotalAsync(item, true);
-                var newCartSubtotal = await pcs2.CalculatePriceAsync(item, true, false);
+                var cpCartSubtotalOptions = pcs2.CreateDefaultOptions(false);
+                var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartSubtotalOptions) { CalculateUnitPrice = false });
 
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldCartPrice, newCartPrice.FinalPrice)} {Fmt(oldCartSubtotal, newCartSubtotal.FinalPrice)}");
             }
@@ -976,8 +978,8 @@ namespace Smartstore.Web.Controllers
             {
                 var oldCartPrice = await pcs.GetUnitPriceAsync(item, true);
                 var oldConvertedCardPrice = cs.ConvertFromPrimaryCurrency(oldCartPrice.Amount, usd);
-                var cpCartOptions = pcs2.CreateDefaultOptions(false);
-                cpCartOptions.TargetCurrency = usd;
+
+                var cpCartOptions = pcs2.CreateDefaultOptions(false, targetCurrency: usd);
                 var cpCartContext = new PriceCalculationContext(item, cpCartOptions);
                 var newConvertedCartPrice = await pcs2.CalculatePriceAsync(cpCartContext);
 

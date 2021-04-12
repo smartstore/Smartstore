@@ -41,15 +41,6 @@ namespace Smartstore.Core.Catalog.Pricing
         Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context);
 
         /// <summary>
-        /// Calculates the price for a shopping cart item in the primary currency.
-        /// </summary>
-        /// <param name="shoppingCartItem">Shopping cart item.</param>
-        /// <param name="ignoreDiscounts">A value indicating whether to ignore discounts.</param>
-        /// <param name="unitPrice"><c>true</c> to calculate the unit price. <c>false</c> to calculate the subtotal price (unit price * <see cref="ShoppingCartItem.Quantity"/>).</param>
-        /// <returns>A new <see cref="CalculatedPrice"/> instance.</returns>
-        Task<CalculatedPrice> CalculatePriceAsync(OrganizedShoppingCartItem shoppingCartItem, bool ignoreDiscounts, bool unitPrice = true);
-
-        /// <summary>
         /// Calculates the product cost in the primary currency.
         /// </summary>
         /// <param name="product">Product.</param>

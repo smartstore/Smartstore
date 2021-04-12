@@ -29,7 +29,6 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// Creates a new context instance for given <paramref name="cartItem"/> and <paramref name="options"/>.
-        /// Also adds selected product attributes to be taken into account in the price calculation.
         /// </summary>
         /// <param name="cartItem">Shopping cart item.</param>
         /// <param name="options">The calculation options.</param>
@@ -38,23 +37,7 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(cartItem, nameof(cartItem));
 
-            // Include attributes selected for this cart item in price calculation.
-            this.AddSelectedAttributes(cartItem);
-
-            // Include bundle item data if the cart item is a bundle item.
-            if (cartItem?.BundleItemData?.Item != null)
-            {
-                BundleItem = cartItem.BundleItemData;
-            }
-
-            // Perf: we already have the bundle items of a bundled product. No need to load them again during calculation.
-            if (cartItem.ChildItems?.Any() ?? false)
-            {
-                BundleItems = cartItem.ChildItems
-                    .Where(x => x.BundleItemData?.Item != null)
-                    .Select(x => x.BundleItemData)
-                    .ToList();
-            }
+            CartItem = cartItem;
         }
 
         /// <summary>
@@ -83,7 +66,7 @@ namespace Smartstore.Core.Catalog.Pricing
             // but no intermediate data determined by the pipeline itself.
             Product = context.Product;
             Quantity = context.Quantity;
-            UnitPrice = context.UnitPrice;
+            CalculateUnitPrice = context.CalculateUnitPrice;
             Options = context.Options;
             Metadata = context.Metadata;
             SelectedAttributes = context.SelectedAttributes;
@@ -97,6 +80,12 @@ namespace Smartstore.Core.Catalog.Pricing
             get => _product;
             set => _product = value ?? throw new ArgumentNullException(nameof(Product));
         }
+
+        /// <summary>
+        /// The shopping cart item to calculate price for, if any.
+        /// The selected product attributes are taken into account when calculating the price.
+        /// </summary>
+        public OrganizedShoppingCartItem CartItem { get; private set; }
 
         /// <summary>
         /// An explicit list of calculator instances that define the pipeline. A non-null array
@@ -113,7 +102,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Gets or sets a value indicating whether to calculate the unit price (default).
         /// If <c>false</c> then the final price is multiplied by <see cref="Quantity"/>.
         /// </summary>
-        public bool UnitPrice { get; init; } = true;
+        public bool CalculateUnitPrice { get; init; } = true;
 
         /// <summary>
         /// The calculation options/settings.
