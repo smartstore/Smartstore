@@ -20,7 +20,7 @@ namespace Smartstore.Web.Components
     /// <summary>
     /// Component for rendering order totals.
     /// </summary>
-    public class OrderTotalsViewComponents : SmartViewComponent
+    public class OrderTotalsViewComponent : SmartViewComponent
     {
         private readonly SmartDbContext _db;
         private readonly ITaxService _taxService;
@@ -34,7 +34,7 @@ namespace Smartstore.Web.Components
         private readonly MeasureSettings _measureSettings;
         private readonly TaxSettings _taxSettings;
 
-        public OrderTotalsViewComponents(
+        public OrderTotalsViewComponent(
             SmartDbContext db,
             ITaxService taxService,
             IPaymentService paymentService,
@@ -45,8 +45,7 @@ namespace Smartstore.Web.Components
             IOrderCalculationService orderCalculationService,
             ShoppingCartSettings shoppingCartSettings,
             MeasureSettings measureSettings,
-            TaxSettings taxSettings
-            )
+            TaxSettings taxSettings)
         {
             _db = db;
             _taxService = taxService;
@@ -185,11 +184,10 @@ namespace Smartstore.Web.Components
                 var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
                 if (cartTotal.ConvertedAmount.Total.HasValue)
                 {
-                    var convertedTotal = cartTotal.ConvertedAmount.Total.Value;
-                    model.OrderTotal = convertedTotal.ToString(true);
-                    if (convertedTotal.RoundedAmount != decimal.Zero)
+                    model.OrderTotal = cartTotal.ConvertedAmount.Total.Value.ToString(true);
+                    if (cartTotal.ConvertedAmount.ToNearestRounding != decimal.Zero)
                     {
-                        model.OrderTotalRounding = new Money(convertedTotal.RoundedAmount, convertedTotal.Currency).ToString(true);
+                        model.OrderTotalRounding = cartTotal.ConvertedAmount.ToNearestRounding.ToString(true); ;
                     }
                 }
 
@@ -238,7 +236,7 @@ namespace Smartstore.Web.Components
                 if (cartTotal.CreditBalance > decimal.Zero)
                 {
                     var convertedCreditBalance = _currencyService.ConvertFromPrimaryCurrency(cartTotal.CreditBalance.Amount, currency);
-                    model.CreditBalance = (convertedCreditBalance*-1).ToString(true);
+                    model.CreditBalance = (convertedCreditBalance * -1).ToString(true);
                 }
             }
 
