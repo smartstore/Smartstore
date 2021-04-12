@@ -660,7 +660,7 @@ namespace Smartstore.Web.Controllers
                     if (downloads.Any())
                     {
                         // TODO: (mh) (core) WTF bro??!! Why do I have to do this for you?! This is a SHITTY port!
-                        // TODO: (mh) (core) Make an extension method for this part: .OrderByVersion(this IEnumerable<Download>...)
+                        // TODO: (mh) (core) Make an extension method for this part: .OrderByVersion(this IList<Download>...)
                         var idsOrderedByVersion = downloads
                             .Select(x => new { x.Id, Version = SemanticVersion.Parse(x.FileVersion.NullEmpty() ?? "1.0.0.0") })
                             .OrderByDescending(x => x.Version)
@@ -762,7 +762,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadAvatarAsync()
+        public async Task<IActionResult> UploadAvatar()
         {
             var customer = Services.WorkContext.CurrentCustomer;
             var success = false;
