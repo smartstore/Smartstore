@@ -1,0 +1,42 @@
+﻿@model CustomerAvatarModel
+
+@using Smartstore.Web.Models.Customers;
+
+@{
+    if (!Model.AvatarColor.HasValue())
+    {
+        Model.AvatarColor = "light";
+    }
+
+    async Task Avatar()
+    {
+        var textColor = Model.AvatarColor == "light" ? "text-muted" : "text-light";
+
+        if ((Model.FileId ?? 0) != 0)
+        {
+            <img class="avatar-img" src="@await Url.MediaAsync(Model.FileId, Model.AvatarPictureSize, null, false)" title="@Model.UserName" />
+            <span class="avatar-letter d-none bg-@(Model.AvatarColor) @(textColor)" title="@Model.UserName">
+                @Model.AvatarLetter
+            </span>
+        }
+        else
+        {
+            <img class="avatar-img d-none" src="#" title="@Model.UserName" />
+            <span class="avatar-letter bg-@(Model.AvatarColor) @(textColor)" title="@Model.UserName">
+                @Model.AvatarLetter
+            </span>
+        }
+    }
+}
+
+<div class="@(Model.Large ? "customer-avatar-lg" : "customer-avatar")">
+    @if (Model.AllowViewingProfiles)
+    {
+        <a class="avatar-link" asp-route="CustomerProfile" asp-route-id="@Model.Id">@{await Avatar();}</a>
+    }
+    else
+    {
+        await Avatar();
+    }
+</div>
+

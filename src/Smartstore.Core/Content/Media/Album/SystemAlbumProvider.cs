@@ -18,7 +18,7 @@ using Smartstore.Data;
 
 namespace Smartstore.Core.Content.Media
 {
-    internal class SystemAlbumProvider : IAlbumProvider, IMediaTrackDetector
+    public class SystemAlbumProvider : IAlbumProvider, IMediaTrackDetector
     {
         private readonly SmartDbContext _db;
 

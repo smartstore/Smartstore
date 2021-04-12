@@ -24,6 +24,7 @@ using Smartstore.Core.Messages;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
+using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
@@ -39,6 +40,7 @@ namespace Smartstore.Web.Controllers
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IOrderService _orderService;
+        private readonly IMediaService _mediaService;
         private readonly IDownloadService _downloadService;
         private readonly ICurrencyService _currencyService;
         private readonly IMessageFactory _messageFactory;
@@ -54,6 +56,7 @@ namespace Smartstore.Web.Controllers
         private readonly LocalizationSettings _localizationSettings;
         private readonly OrderSettings _orderSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
+        private readonly MediaSettings _mediaSettings;
 
         public CustomerController(
             SmartDbContext db,
@@ -63,6 +66,7 @@ namespace Smartstore.Web.Controllers
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
             IOrderService orderService,
+            IMediaService mediaService,
             IDownloadService downloadService,
             ICurrencyService currencyService,
             IMessageFactory messageFactory,
@@ -77,7 +81,8 @@ namespace Smartstore.Web.Controllers
             TaxSettings taxSettings,
             LocalizationSettings localizationSettings,
             OrderSettings orderSettings,
-            RewardPointsSettings rewardPointsSettings)
+            RewardPointsSettings rewardPointsSettings,
+            MediaSettings mediaSettings)
         {
             _db = db;
             _newsletterSubscriptionService = newsletterSubscriptionService;
@@ -86,6 +91,7 @@ namespace Smartstore.Web.Controllers
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
             _orderService = orderService;
+            _mediaService = mediaService;
             _downloadService = downloadService;
             _currencyService = currencyService;
             _messageFactory = messageFactory;
@@ -101,6 +107,7 @@ namespace Smartstore.Web.Controllers
             _localizationSettings = localizationSettings;
             _orderSettings = orderSettings;
             _rewardPointsSettings = rewardPointsSettings;
+            _mediaSettings = mediaSettings;
         }
 
         // TODO: (mh) (core) Something's wrong with localized routes.
@@ -729,7 +736,102 @@ namespace Smartstore.Web.Controllers
         // TODO: (mh) (core) Change password must be implemented in IdentityController.
 
         #region Avatar
-        // TODO: (mh) (core) 
+
+        [RequireSsl]
+        public IActionResult Avatar()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (!customer.IsRegistered())
+            {
+                return new UnauthorizedResult();
+            }
+
+            if (!_customerSettings.AllowCustomersToUploadAvatars)
+            {
+                return RedirectToAction("Info");
+            }
+
+            var model = new CustomerAvatarEditModel
+            {
+                Avatar = customer.ToAvatarModel(null, true),
+                MaxFileSize = Prettifier.HumanizeBytes(_customerSettings.AvatarMaximumSizeBytes)
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadAvatarAsync()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            var success = false;
+            string avatarUrl = null;
+
+            try
+            {
+                if (customer.IsRegistered() && _customerSettings.AllowCustomersToUploadAvatars)
+                {
+                    var uploadedFile = Request.Form.Files["file[0]"];
+
+                    if (uploadedFile != null && uploadedFile.FileName.HasValue())
+                    {
+                        if (uploadedFile.Length > _customerSettings.AvatarMaximumSizeBytes)
+                        {
+                            throw new SmartException(T("Account.Avatar.MaximumUploadedFileSize", Prettifier.HumanizeBytes(_customerSettings.AvatarMaximumSizeBytes)));
+                        }
+
+                        var oldAvatar = await _db.MediaFiles.FindByIdAsync((int)customer.GenericAttributes.AvatarPictureId);
+                        if (oldAvatar != null)
+                        {
+                            _db.MediaFiles.Remove(oldAvatar);
+                            await _db.SaveChangesAsync();
+                        }
+
+                        var path = _mediaService.CombinePaths(SystemAlbumProvider.Customers, uploadedFile.FileName.ToValidFileName());
+                        using var stream = uploadedFile.OpenReadStream();
+                        var newAvatar = await _mediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
+                        if (newAvatar != null)
+                        {
+                            customer.GenericAttributes.AvatarPictureId = newAvatar.Id;
+                            await _db.SaveChangesAsync();
+
+                            avatarUrl = _mediaService.GetUrl(newAvatar, _mediaSettings.AvatarPictureSize, null, false);
+                            success = avatarUrl.HasValue();
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                throw;
+            }
+
+            return Json(new { success, avatarUrl });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveAvatar()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (customer.IsRegistered() && _customerSettings.AllowCustomersToUploadAvatars)
+            {
+                var avatar = await _db.MediaFiles.FindByIdAsync((int)customer.GenericAttributes.AvatarPictureId);
+                if (avatar != null)
+                {
+                    _db.MediaFiles.Remove(avatar);
+                }
+
+                customer.GenericAttributes.AvatarPictureId = 0;
+                customer.GenericAttributes.AvatarColor = null;
+
+                await _db.SaveChangesAsync();
+            }
+
+            return Json(new { success = true });
+        }
+
         #endregion
 
         // TODO: (mh) (core) Password recovery must be implemented in IdentityController.
