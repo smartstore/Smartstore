@@ -46,7 +46,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="product">Product.</param>
         /// <param name="selection">Attribute selection.</param>
         /// <returns>Product cost in the primary currency.</returns>
-        Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection);
+        Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection); // TODO: (mg) (core) What is the product COST? Describe!
 
         /// <summary>
         /// Gets the base price info for a product.
