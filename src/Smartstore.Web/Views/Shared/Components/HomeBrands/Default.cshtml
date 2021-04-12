@@ -12,15 +12,11 @@
         {
             var url = Url.RouteUrl("Manufacturer", new { SeName = item.SeName });
             <article class="art" data-id="@item.Id">
-                @if (Model.DisplayImages && item.Image != null && item.Image.HasImage())
-                {
-                    var image = item.Image;
-                    <div class="art-picture-block">
-                        <a href="@url" class="art-picture img-center-container">
-                            <img sm-model="image" loading="lazy" />
-                        </a>
-                    </div>
-                }
+                <div sm-if="Model.DisplayImages && item.Image != null && item.Image.HasImage()" class="art-picture-block">
+                    <a href="@url" class="art-picture img-center-container">
+                        <img sm-model="item.Image" loading="lazy" />
+                    </a>
+                </div>
                 <div class="art-genericname">
                     <a href="@url" title="@item.Name">
                         <span sm-language-attributes-for="item.Name">@item.Name</span>
@@ -29,14 +25,11 @@
             </article>
         }
 
-        @if (Model.DisplayAllBrandsLink)
-        {
-            <div class="art show-all-items d-flex p-0">
-                <a asp-route="ManufacturerList" class="show-all-items-link">
-                    <i class="fa fa-ellipsis-h fa-lg"></i>
-                    <span>@T("Homepage.Brands.ShowAll")</span>
-                </a>
-            </div>
-        }
+        <div sm-if="Model.DisplayAllBrandsLink" class="art show-all-items d-flex p-0">
+            <a asp-route="ManufacturerList" class="show-all-items-link">
+                <i class="fa fa-ellipsis-h fa-lg"></i>
+                <span>@T("Homepage.Brands.ShowAll")</span>
+            </a>
+        </div>
     </div>
 </div>

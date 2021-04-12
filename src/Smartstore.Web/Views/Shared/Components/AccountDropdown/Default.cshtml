@@ -8,12 +8,9 @@
     <zone name="account_dropdown_before"></zone>
 
     @foreach (var item in Model.MenuItems)
-    {
-        if (item.IsGroupHeader)
-        {
-            <div class="dropdown-divider"></div>
-        }
-
+    {    
+        <div sm-if="item.IsGroupHeader" class="dropdown-divider"></div>
+    
         <a href="@item.GenerateUrl(Url)" attrs="item.LinkHtmlAttributes">
             <i class="@item.Icon"></i>
             <span>@item.Text</span>

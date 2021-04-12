@@ -103,6 +103,8 @@ namespace Smartstore.Web.Controllers
             _rewardPointsSettings = rewardPointsSettings;
         }
 
+        // TODO: (mh) (core) Something's wrong with localized routes.
+
         [RequireSsl]
         public async Task<IActionResult> Info()
         {
