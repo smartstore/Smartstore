@@ -189,7 +189,7 @@ namespace Smartstore.Web.Components
                     model.OrderTotal = convertedTotal.ToString(true);
                     if (convertedTotal.RoundedAmount != decimal.Zero)
                     {
-                        model.OrderTotalRounding = new Money(convertedTotal.RoundedAmount, convertedTotal.Currency).ToString(true); ;
+                        model.OrderTotalRounding = new Money(convertedTotal.RoundedAmount, convertedTotal.Currency).ToString(true);
                     }
                 }
 

@@ -893,12 +893,11 @@ namespace Smartstore.Web.Controllers
             }
 
             var customer = Services.WorkContext.CurrentCustomer;
-            var pageSize = 10;
             var list = await _db.BackInStockSubscriptions
                 .AsNoTracking()
                 .Include(x => x.Product)
                 .ApplyStandardFilter(customerId: customer.Id, storeId: Services.StoreContext.CurrentStore.Id)
-                .ToPagedList(pageIndex, pageSize)
+                .ToPagedList(pageIndex, 10)
                 .LoadAsync();
 
             var model = new CustomerStockSubscriptionsModel(list);
@@ -909,7 +908,7 @@ namespace Smartstore.Web.Controllers
 
                 if (product != null)
                 {
-                    var subscriptionModel = new StockSubscriptionModel()
+                    var subscriptionModel = new StockSubscriptionModel
                     {
                         Id = subscription.Id,
                         ProductId = product.Id,

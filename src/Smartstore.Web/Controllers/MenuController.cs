@@ -31,7 +31,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="currentNodeId">Id of currently selected node/page from sm:pagedata meta tag</param>
         /// <param name="targetNodeId">Id of the parent node to which should be navigated in the OffCanvasMenu (actually the node which was clicked)</param>
         [HttpPost]
-        public async Task<IActionResult> OffCanvasAsync(string currentNodeId, string targetNodeId)
+        public async Task<IActionResult> OffCanvas(string currentNodeId, string targetNodeId)
         {
             bool allowNavigation = await Services.Permissions.AuthorizeAsync(Permissions.System.AccessShop);
 
@@ -61,7 +61,14 @@ namespace Smartstore.Web.Controllers
                 // Render a submenu
                 : "OffCanvas.Menu";
 
-            return View(templateName, model);
+            return PartialView(templateName, model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> OffCanvasBrands()
+        {
+            var model = await _catalogHelper.PrepareBrandNavigationModelAsync(_catalogSettings.ManufacturerItemsToDisplayInOffcanvasMenu);
+            return PartialView("OffCanvas.Brands", model);
         }
 
         /// <summary>
@@ -85,7 +92,9 @@ namespace Smartstore.Web.Controllers
             {
                 Name = "offcanvas",
                 Root = root,
-                SelectedNode = IsNullNode(nodeId) ? root : root.SelectNodeById(nodeId)
+                SelectedNode = IsNullNode(nodeId) 
+                    ? root 
+                    : root.SelectNodeById(nodeId)
             };
 
             await menu.ResolveElementCountAsync(model.SelectedNode, false);
@@ -105,17 +114,6 @@ namespace Smartstore.Web.Controllers
 
             return model;
         }
-
-        [HttpPost]
-        public async Task<IActionResult> OffCanvasBrandsAsync()
-        {
-            var model = await _catalogHelper.PrepareBrandNavigationModelAsync(_catalogSettings.ManufacturerItemsToDisplayInOffcanvasMenu);
-            return View("OffCanvas.Brands", model);
-        }
-
-        #endregion
-
-        #region Utils
 
         private static object ConvertNodeId(string source)
         {

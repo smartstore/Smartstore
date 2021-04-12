@@ -4,6 +4,8 @@
 @model MenuModel
 
 @{
+    //Layout = "";
+
     // targetNode is the node (with children) which was clicked. Means: we gonna navigate to its children.
     var targetNode = Model.SelectedNode ?? Model.Root;
     if (targetNode.IsLeaf && !targetNode.IsRoot)
@@ -17,6 +19,7 @@
 
 <div class="ocm-menu" data-depth="@targetNode.Depth">
     <div sm-if="targetNode.Depth > 0" class="ocm-info">
+        @* TODO: (mh) (core) sm-language-attributes-for either expects LocalizedValue OR Language. This won't run! TBD with mc. *@
         <h3 class="ocm-name" sm-language-attributes-for="targetNode.Value">@targetNode.Value.Text</h3>
     </div>
     
@@ -63,7 +66,10 @@
             // A attributes
             var linkAttrs = new AttributeDictionary();
             linkAttrs.Merge(item.LinkHtmlAttributes);
-            linkAttrs.Add("data-id", node.Id != null ? node.Id.ToString() : null);
+            if (node.Id != null)
+            {
+                linkAttrs.Add("data-id", node.Id.ToString());
+            }
             linkAttrs.PrependCssClass("ocm-link has-count");
 
             if (node.HasChildren)
@@ -78,6 +84,7 @@
 
             <li attrs="attrs">
                 <a href="@item.GenerateUrl(this.Url)" attrs="linkAttrs">
+                    @* TODO: (mh) (core) sm-language-attributes-for either expects LocalizedValue OR Language. This won't run! TBD with mc. *@
                     <span sm-language-attributes-for="item">@item.Text</span>
                 </a>
             </li>
