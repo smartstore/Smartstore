@@ -10,7 +10,7 @@ namespace Smartstore.Web.Models.Customers
     public static class CustomerMappingExtensions
     {
         /// <summary>
-        /// TODO: (mh) (core) Find proper place & Describe
+        /// TODO: (mh) (core) Find proper place & describe
         /// </summary>
         /// <param name="customer"></param>
         /// <param name="userName"></param>
@@ -84,7 +84,7 @@ namespace Smartstore.Web.Models.Customers
         public bool Large { get; set; }
         public int? FileId { get; set; }
 
-        public string CurrentFileName { get; set; }
+        public string CurrentFileName { get; set; } // TODO: (mh) (core) What's this for?
 
         public string AvatarColor { get; set; }
         public char AvatarLetter { get; set; }

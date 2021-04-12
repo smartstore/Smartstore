@@ -32,7 +32,9 @@
 <div class="@(Model.Large ? "customer-avatar-lg" : "customer-avatar")">
     @if (Model.AllowViewingProfiles)
     {
-        <a class="avatar-link" asp-route="CustomerProfile" asp-route-id="@Model.Id">@{await Avatar();}</a>
+        <a class="avatar-link" asp-route="CustomerProfile" asp-route-id="@Model.Id">
+            @{ await Avatar(); }
+        </a>
     }
     else
     {

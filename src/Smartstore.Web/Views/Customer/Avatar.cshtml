@@ -3,6 +3,8 @@
 @using Smartstore.Web.Models.Customers;
 @using Smartstore.Engine;
 
+@inject IMediaService MediaService 
+
 @{
     Assets.AppendTitleParts(T("PageTitle.Account"));
 
@@ -11,8 +13,7 @@
     ViewBag.PageTitle = T("Account.Avatar").Value;
 
     var fileId = Model?.Avatar?.FileId ?? 0;
-    var mediaService = EngineContext.Current.Scope.Resolve<IMediaService>();
-    var currentFile = await mediaService.GetFileByIdAsync(fileId, MediaLoadFlags.AsNoTracking);
+    var currentFile = await MediaService.GetFileByIdAsync(fileId, MediaLoadFlags.AsNoTracking);
 }
 
 <div asp-validation-summary="ModelOnly"></div>
@@ -27,7 +28,7 @@
             
             <div class="fu-controls ml-3">
 
-                FileUploader: Not implemented yet.
+                @* TODO: (mh) (core) FileUploader: Not implemented yet. *@
 
                 @*@(Html.SmartStore().FileUploader()
                 .Name("uploadedFile")
