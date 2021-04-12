@@ -1,0 +1,39 @@
+﻿@using  Smartstore.Web.Models.Catalog;
+
+@model BrandNavigationModel
+
+@{
+    if (Model.Brands.Count == 0)
+    {
+        return;
+    }
+}
+
+<div class="manufacturer-container">
+    <ul class="ocm-nav list-unstyled">
+        @foreach (var brand in Model.Brands)
+        {
+            <li class="ocm-item" data-ajax="false" data-id="@brand.Id">
+                <div class="row sm-gutters align-items-center">
+                    <div sm-if="Model.DisplayImages" class="col col-img">
+                        @if (brand.Image.HasImage() && !Model.HideBrandDefaultPictures)
+                        {
+                            <a asp-route="Manufacturer" asp-route-SeName="@brand.SeName" class="ocm-img-link">
+                                <img sm-model="brand.Image" sm-size="Model.BrandThumbImageSize" />
+                            </a>
+                        }
+                    </div>
+                    <div class="col col-data">
+                        <a asp-route="Manufacturer" asp-route-SeName="@brand.SeName" class="ocm-link">
+                            <span sm-language-attributes-for="brand.Name">@brand.Name</span>
+                        </a>
+                    </div>
+                </div>
+            </li>
+        }
+
+        <li sm-if="Model.DisplayAllBrandsLink" class="show-all-manufacturers" data-ajax="false">
+            <a asp-route="ManufacturerList" class="btn btn-block btn-warning">@T("Manufacturers.ViewAll")</a>
+        </li>
+    </ul>
+</div>

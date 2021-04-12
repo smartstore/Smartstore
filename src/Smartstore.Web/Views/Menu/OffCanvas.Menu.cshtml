@@ -1,0 +1,86 @@
+﻿@using Smartstore.Collections
+@using Smartstore.Web.Rendering.Menus
+
+@model MenuModel
+
+@{
+    // targetNode is the node (with children) which was clicked. Means: we gonna navigate to its children.
+    var targetNode = Model.SelectedNode ?? Model.Root;
+    if (targetNode.IsLeaf && !targetNode.IsRoot)
+    {
+        targetNode = targetNode.Parent;
+    }
+
+    // currentNode represents the current page.
+    var currentNode = ViewBag.CurrentNode as TreeNode<MenuItem>;
+}
+
+<div class="ocm-menu" data-depth="@targetNode.Depth">
+    <div sm-if="targetNode.Depth > 0" class="ocm-info">
+        <h3 class="ocm-name" sm-language-attributes-for="targetNode.Value">@targetNode.Value.Text</h3>
+    </div>
+    
+    <ul class="ocm-nav list-unstyled">
+        @if (targetNode.Depth > 0)
+        {
+            <li class="ocm-back ocm-item">
+                <a href="@targetNode.Parent.Value.GenerateUrl(this.Url)" class="ocm-link" data-id="@(targetNode.Parent.IsRoot ? 0 : targetNode.Parent.Id)" data-ajax="true">
+                    <i class="fa fa-angle-left"></i>
+                    <span>@T("Common.Back")</span>
+                </a>
+            </li>
+            <li sm-if="!targetNode.Value.IsVoid()" class="show-current-node ocm-item">
+                <a href="@targetNode.Value.GenerateUrl(this.Url)" class="ocm-link" data-id="@targetNode.Id" data-ajax="false">
+                    @T("Offcanvas.Menu.ShowCurrentCat", targetNode.Value.Text)
+                </a>
+            </li>
+        }
+
+        @foreach (var node in targetNode.Children)
+        {
+            var item = node.Value;
+
+            if (!item.Visible || item.IsGroupHeader)
+            {
+                continue;
+            }
+
+            // LI attributes
+            var cssClass = "ocm-item";
+            if (node.HasChildren)
+            {
+                cssClass += " has-children";
+            }
+            if (node == currentNode)
+            {
+                cssClass += " selected";
+            }
+
+            var attrs = new AttributeDictionary();
+            attrs.Merge(item.HtmlAttributes);
+            attrs.PrependCssClass(cssClass);
+
+            // A attributes
+            var linkAttrs = new AttributeDictionary();
+            linkAttrs.Merge(item.LinkHtmlAttributes);
+            linkAttrs.Add("data-id", node.Id != null ? node.Id.ToString() : null);
+            linkAttrs.PrependCssClass("ocm-link has-count");
+
+            if (node.HasChildren)
+            {
+                linkAttrs.Add("data-ajax", "true");
+            }
+
+            if (item.ElementsCount > 0)
+            {
+                linkAttrs.Add("data-count", item.ElementsCount.ToString());
+            }
+
+            <li attrs="attrs">
+                <a href="@item.GenerateUrl(this.Url)" attrs="linkAttrs">
+                    <span sm-language-attributes-for="item">@item.Text</span>
+                </a>
+            </li>
+        }
+    </ul>
+</div>
