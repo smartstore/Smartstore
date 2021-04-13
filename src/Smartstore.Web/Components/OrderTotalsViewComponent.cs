@@ -13,7 +13,6 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.ShoppingCart;
-using StackExchange.Profiling.Internal;
 
 namespace Smartstore.Web.Components
 {
@@ -103,7 +102,7 @@ namespace Smartstore.Web.Components
                     model.SubTotalDiscount = (subTotalDiscountAmountConverted * -1m).ToString();
                     model.AllowRemovingSubTotalDiscount = cartSubTotal.AppliedDiscount != null
                         && cartSubTotal.AppliedDiscount.RequiresCouponCode
-                        && !cartSubTotal.AppliedDiscount.CouponCode.IsNullOrWhiteSpace()
+                        && cartSubTotal.AppliedDiscount.CouponCode.HasValue()
                         && model.IsEditable;
                 }
 
