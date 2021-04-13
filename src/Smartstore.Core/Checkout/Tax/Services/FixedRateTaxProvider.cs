@@ -5,7 +5,7 @@ using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Tax
 {
-    // TODO: (ms) (core) complete FixedRateTaxProvider when IConfigurable for modules is available.
+    // TODO: (mg) (core) move FixedRateTaxProvider to tax module and complete it when IConfigurable is available.
     [SystemName("Tax.FixedRate")]
     [FriendlyName("Fixed tax rate provider")]
     [Display(Order = 5)]
