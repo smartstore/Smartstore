@@ -431,7 +431,7 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     cartItems = await _db.ShoppingCartItems
                          .Include(x => x.Product)
-                             .ThenInclude(x => x.ProductVariantAttributes)
+                         .ThenInclude(x => x.ProductVariantAttributes)
                          .ApplyStandardFilter(cartType, storeId, customer)
                          .ToListAsync();
 

@@ -57,39 +57,39 @@ namespace Smartstore.Web.Controllers
         /// <summary>
         /// Invokes a view component and returns its html content.
         /// </summary>
-        /// <param name="viewData">View name</param>
         /// <param name="componentName">The view component name.</param>
+        /// <param name="viewData">View name</param>
         /// <param name="arguments">
         /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
         /// method. Alternatively, an <see cref="System.Collections.Generic.IDictionary{String, Object}"/> instance
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        public static Task<string> InvokeViewComponentAsync(this ControllerBase controller, ViewDataDictionary viewData, string componentName, object arguments)
+        public static Task<string> InvokeViewComponentAsync(this ControllerBase controller, string componentName, ViewDataDictionary viewData, object arguments)
         {
             Guard.NotNull(controller, nameof(controller));
 
             var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
-            return renderer.InvokeViewComponentAsync(viewData, componentName, arguments);
+            return renderer.InvokeViewComponentAsync(componentName, viewData, arguments);
         }
 
         /// <summary>
         /// Invokes a view component and returns its html content.
         /// </summary>
-        /// <param name="viewData">View name</param>
         /// <param name="componentType">The view component type.</param>
+        /// <param name="viewData">View name</param>
         /// <param name="arguments">
         /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
         /// method. Alternatively, an <see cref="System.Collections.Generic.IDictionary{String, Object}"/> instance
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        public static Task<string> InvokeViewComponentAsync(this ControllerBase controller, ViewDataDictionary viewData, Type componentType, object arguments)
+        public static Task<string> InvokeViewComponentAsync(this ControllerBase controller, Type componentType, ViewDataDictionary viewData, object arguments)
         {
             Guard.NotNull(controller, nameof(controller));
 
             var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
-            return renderer.InvokeViewComponentAsync(viewData, componentType, arguments);
+            return renderer.InvokeViewComponentAsync(componentType, viewData, arguments);
         }
     }
 }

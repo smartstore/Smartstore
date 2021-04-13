@@ -91,13 +91,13 @@ namespace Smartstore.Web.Razor
             }
         }
 
-        public Task<string> InvokeViewComponentAsync(ViewDataDictionary viewData, string componentName, object arguments)
+        public Task<string> InvokeViewComponentAsync(string componentName, ViewDataDictionary viewData, object arguments)
         {
             Guard.NotEmpty(componentName, nameof(componentName));
             return InvokeViewComponentInternal(viewData, () => _viewComponentHelper.InvokeAsync(componentName, arguments));
         }
 
-        public Task<string> InvokeViewComponentAsync(ViewDataDictionary viewData, Type componentType, object arguments)
+        public Task<string> InvokeViewComponentAsync(Type componentType, ViewDataDictionary viewData, object arguments)
         {
             Guard.NotNull(componentType, nameof(componentType));
             return InvokeViewComponentInternal(viewData, () => _viewComponentHelper.InvokeAsync(componentType, arguments));

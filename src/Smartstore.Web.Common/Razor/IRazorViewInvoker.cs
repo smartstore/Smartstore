@@ -28,27 +28,27 @@ namespace Smartstore.Web.Razor
         /// <summary>
         /// Invokes a view component and returns its html content.
         /// </summary>
-        /// <param name="viewData">View name</param>
         /// <param name="componentName">The view component name.</param>
+        /// <param name="viewData">View name</param>
         /// <param name="arguments">
         /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
         /// method. Alternatively, an <see cref="System.Collections.Generic.IDictionary{String, Object}"/> instance
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        Task<string> InvokeViewComponentAsync(ViewDataDictionary viewData, string componentName, object arguments);
+        Task<string> InvokeViewComponentAsync(string componentName, ViewDataDictionary viewData, object arguments);
 
         /// <summary>
         /// Invokes a view component and returns its html content.
         /// </summary>
-        /// <param name="viewData">View name</param>
         /// <param name="componentType">The view component type.</param>
+        /// <param name="viewData">View name</param>
         /// <param name="arguments">
         /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
         /// method. Alternatively, an <see cref="System.Collections.Generic.IDictionary{String, Object}"/> instance
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        Task<string> InvokeViewComponentAsync(ViewDataDictionary viewData, Type componentType, object arguments);
+        Task<string> InvokeViewComponentAsync(Type componentType, ViewDataDictionary viewData, object arguments);
     }
 }

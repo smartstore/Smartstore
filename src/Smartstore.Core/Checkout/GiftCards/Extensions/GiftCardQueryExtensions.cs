@@ -73,7 +73,7 @@ namespace Smartstore
         /// <summary>
         /// Applies coupon code filter to gift cards query
         /// </summary>
-        public static IQueryable<GiftCard> ApplyCouponFilter(this IQueryable<GiftCard> query, string[] couponCodes)
+        public static IQueryable<GiftCard> ApplyCouponFilter(this IQueryable<GiftCard> query, params string[] couponCodes)
         {
             Guard.NotNull(query, nameof(query));
             Guard.NotNull(couponCodes, nameof(couponCodes));
