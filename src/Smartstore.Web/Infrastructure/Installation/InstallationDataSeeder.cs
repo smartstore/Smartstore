@@ -7,16 +7,18 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 
 namespace Smartstore.Web.Infrastructure.Installation
 {
-    public partial class InstallDataSeeder : IDataSeeder<SmartDbContext>
+    public partial class InstallationDataSeeder : IDataSeeder<SmartDbContext>
     {
         private readonly SeedDataConfiguration _config;
         private readonly ILogger _logger;
@@ -30,7 +32,7 @@ namespace Smartstore.Web.Infrastructure.Installation
         private IUrlService _urlService;
         private int _defaultStoreId;
 
-        public InstallDataSeeder(SeedDataConfiguration configuration, ILogger logger, IHttpContextAccessor httpContextAccessor)
+        public InstallationDataSeeder(SeedDataConfiguration configuration, ILogger logger, IHttpContextAccessor httpContextAccessor)
         {
             Guard.NotNull(configuration, nameof(configuration));
             Guard.NotNull(configuration.Language, "SeedDataConfiguration.Language");
@@ -70,9 +72,81 @@ namespace Smartstore.Web.Infrastructure.Installation
 
         public bool RollbackOnFailure => false;
 
-        public Task SeedAsync(SmartDbContext context)
+        public async Task SeedAsync(SmartDbContext context)
         {
-            throw new NotImplementedException();
+            Guard.NotNull(context, nameof(context));
+
+            _ctx = context;
+            _data.Initialize(_ctx);
+
+            _ctx.ChangeTracker.AutoDetectChangesEnabled = false;
+            _ctx.MinHookImportance = HookImportance.Essential;
+
+            _config.ProgressMessageCallback("Progress.CreatingRequiredData");
+
+            // special mandatory (non-visible) settings
+            await _ctx.MigrateSettingsAsync(x =>
+            {
+                x.Add("Media.Storage.Provider", _config.StoreMediaInDB ? DatabaseMediaStorageProvider.SystemName : FileSystemMediaStorageProvider.SystemName);
+            });
+
+            await Populate("PopulatePictures", _data.Pictures);
+            await Populate("PopulateCurrencies", PopulateCurrencies);
+            await Populate("PopulateStores", PopulateStores);
+            await Populate("InstallLanguages", () => PopulateLanguage(_config.Language));
+            await Populate("PopulateMeasureDimensions", _data.MeasureDimensions());
+            await Populate("PopulateMeasureWeights", _data.MeasureWeights());
+            await Populate("PopulateTaxCategories", PopulateTaxCategories);
+            //await Populate("PopulateCountriesAndStates", PopulateCountriesAndStates);
+            //await Populate("PopulateShippingMethods", PopulateShippingMethods);
+            await Populate("PopulateDeliveryTimes", _data.DeliveryTimes());
+            await Populate("PopulateQuantityUnits", _data.QuantityUnits());
+            //await Populate("PopulateCustomersAndUsers", () => PopulateCustomersAndUsers(_config.DefaultUserName, _config.DefaultUserPassword));
+            await Populate("PopulateEmailAccounts", _data.EmailAccounts());
+            //await Populate("PopulateMessageTemplates", PopulateMessageTemplates);
+            //await Populate("PopulateTopics", PopulateTopics);
+            //await Populate("PopulateSettings", PopulateSettings);
+            await Populate("PopulateActivityLogTypes", _data.ActivityLogTypes());
+            //await Populate("PopulateCustomersAndUsers", () => HashDefaultCustomerPassword(_config.DefaultUserName, _config.DefaultUserPassword));
+            await Populate("PopulateProductTemplates", _data.ProductTemplates());
+            await Populate("PopulateCategoryTemplates", _data.CategoryTemplates());
+            //await Populate("PopulateManufacturerTemplates", PopulateManufacturerTemplates);
+            await Populate("PopulateScheduleTasks", _data.TaskDescriptors());
+            await Populate("PopulateLocaleResources", PopulateLocaleResources);
+            //await Populate("PopulateMenus", PopulateMenus);
+
+            if (_config.SeedSampleData)
+            {
+                _logger.Info("Seeding sample data");
+
+                _config.ProgressMessageCallback("Progress.CreatingSampleData");
+
+                await Populate("PopulateSpecificationAttributes", _data.SpecificationAttributes());
+                await Populate("PopulateProductAttributes", _data.ProductAttributes());
+                await Populate("PopulateProductAttributeOptionsSets", _data.ProductAttributeOptionsSets);
+                await Populate("PopulateProductAttributeOptions", _data.ProductAttributeOptions);
+                await Populate("PopulateCampaigns", _data.Campaigns());
+                await Populate("PopulateRuleSets", _data.RuleSets);
+                await Populate("PopulateDiscounts", _data.Discounts);
+                //await Populate("PopulateCategories", PopulateCategories);
+                //await Populate("PopulateManufacturers", PopulateManufacturers);
+                //await Populate("PopulateProducts", PopulateProducts);
+                await Populate("PopulateProductBundleItems", _data.ProductBundleItems);
+                await Populate("PopulateProductVariantAttributes", _data.ProductVariantAttributes);
+                await Populate("ProductVariantAttributeCombinations", _data.ProductVariantAttributeCombinations);
+                await Populate("PopulateProductTags", _data.ProductTags);
+                //////await Populate("PopulateForumsGroups", _data.ForumGroups());
+                //////await Populate("PopulateForums", _data.Forums());
+                //////await Populate("PopulateBlogPosts", PopulateBlogPosts);
+                //////await Populate("PopulateNews", PopulateNewsItems);
+                //////await Populate("PopulatePolls", _data.Polls());
+                await Populate("FinalizeSamples", _data.FinalizeSamples);
+            }
+
+            //Populate("MovePictures", MoveMedia);
+
+            // Perf
+            _ctx.DetachEntities<BaseEntity>();
         }
 
         #endregion

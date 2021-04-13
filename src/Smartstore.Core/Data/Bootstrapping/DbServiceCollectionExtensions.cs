@@ -67,7 +67,7 @@ namespace Smartstore.Core.Bootstrapping
             Guard.NotNull(services, nameof(services));
 
             services.AddDbContext<TContext>(
-                (p, o) => ConfigureDbContext(p, o, enableCache, optionsBuilder),
+                (p, o) => ConfigureDbContext(p, o, typeof(TContext), enableCache, optionsBuilder),
                 ServiceLifetime.Scoped, 
                 ServiceLifetime.Singleton);
 
@@ -92,7 +92,7 @@ namespace Smartstore.Core.Bootstrapping
             Guard.NotNull(services, nameof(services));
 
             services.AddDbContext<TContext, TContextImpl>(
-                (p, o) => ConfigureDbContext(p, o, enableCache, optionsBuilder),
+                (p, o) => ConfigureDbContext(p, o, typeof(TContext), enableCache, optionsBuilder),
                 ServiceLifetime.Scoped, 
                 ServiceLifetime.Singleton);
 
@@ -120,7 +120,7 @@ namespace Smartstore.Core.Bootstrapping
             Guard.NotNull(services, nameof(services));
 
             services.AddDbContextPool<TContext>(
-                (p, o) => ConfigureDbContext(p, o, enableCaching, optionsBuilder),
+                (p, o) => ConfigureDbContext(p, o, typeof(TContext), enableCaching, optionsBuilder),
                 appContext.AppConfiguration.DbContextPoolSize);
 
             return services;
@@ -146,7 +146,7 @@ namespace Smartstore.Core.Bootstrapping
             Guard.NotNull(services, nameof(services));
 
             services.AddDbContextPool<TContext, TContextImpl>(
-                (p, o) => ConfigureDbContext(p, o, enableCaching, optionsBuilder),
+                (p, o) => ConfigureDbContext(p, o, typeof(TContext), enableCaching, optionsBuilder),
                 poolSize);
 
             return services;
@@ -173,7 +173,7 @@ namespace Smartstore.Core.Bootstrapping
             Guard.NotNull(services, nameof(services));
 
             services.AddPooledDbContextFactory<TContext>(
-                (p, o) => ConfigureDbContext(p, o, enableCaching, optionsBuilder), 
+                (p, o) => ConfigureDbContext(p, o, typeof(TContext), enableCaching, optionsBuilder), 
                 poolSize);
 
             services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<TContext>>().CreateDbContext());
@@ -233,7 +233,7 @@ namespace Smartstore.Core.Bootstrapping
 
             void DbProviderConfigurer(IServiceProvider p, DbContextOptionsBuilder o)
             {
-                ConfigureDbContext(p, o, enableCaching, optionsBuilder);
+                ConfigureDbContext(p, o, typeof(TContext), enableCaching, optionsBuilder);
             }
         }
 
@@ -242,6 +242,7 @@ namespace Smartstore.Core.Bootstrapping
         private static void ConfigureDbContext(
             IServiceProvider p,
             DbContextOptionsBuilder builder,
+            Type invariantDbContextType,
             bool enableCaching,
             Action<IServiceProvider, DbContextOptionsBuilder, RelationalOptionsExtension> customOptionsBuilder)
         {
@@ -256,9 +257,9 @@ namespace Smartstore.Core.Bootstrapping
                     // EF throws when query is untracked otherwise
                     w.Ignore(CoreEventId.DetachedLazyLoadingWarning);
 
-                    // To identify the query that's triggering MultipleCollectionIncludeWarning.
-                    //w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
-                    //w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
+                    //// To identify the query that's triggering MultipleCollectionIncludeWarning.
+                    ////w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
+                    ////w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
                 })
                 // Replace default ConventionSet builder with a custom one that removes
                 // "ServicePropertyDiscoveryConvention" convention. See INFO in FixedRuntimeConventionSetBuilder class.
@@ -268,6 +269,7 @@ namespace Smartstore.Core.Bootstrapping
             var relationalOptions = options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault();
             if (relationalOptions != null)
             {
+                // TODO: (core) RelationalOptionsExtension is always cloned and cannot be modified this way. Find another way.
                 if (appConfig.DbCommandTimeout.HasValue)
                 {
                     relationalOptions = relationalOptions.WithCommandTimeout(appConfig.DbCommandTimeout.Value);
@@ -283,6 +285,9 @@ namespace Smartstore.Core.Bootstrapping
 
             // Custom action from module or alike
             customOptionsBuilder?.Invoke(p, builder, relationalOptions);
+
+            // Enables us to initialize/migrate all active contexts during app startup.
+            DbMigrationManager.Instance.RegisterDbContext(invariantDbContextType);
         }
     }
 }

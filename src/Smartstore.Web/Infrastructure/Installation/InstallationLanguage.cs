@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Smartstore.Web.Infrastructure.Installation
 {
@@ -28,9 +29,9 @@ namespace Smartstore.Web.Infrastructure.Installation
         public bool IsRightToLeft { get; set; }
 
         /// <summary>
-        /// List of all language resources that will be installed during the setup.
+        /// List of all language resources for the installation.
         /// </summary>
-        public List<InstallationLocaleResource> Resources { get; protected set; } = new();
+        public Dictionary<string, InstallationLocaleResource> Resources { get; protected set; } = new(StringComparer.OrdinalIgnoreCase);
     }
 
     public partial class InstallationLocaleResource

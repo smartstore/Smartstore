@@ -44,7 +44,7 @@ namespace Smartstore.Core.Logging.Serilog
         {
             var engine = EngineContext.Current;
 
-            if (engine == null && !engine.IsStarted)
+            if (engine == null || !engine.IsStarted)
             {
                 // App not initialized yet
                 return null;

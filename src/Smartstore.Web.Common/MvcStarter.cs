@@ -24,6 +24,7 @@ using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Web;
+using Smartstore.Data;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.IO;
@@ -47,8 +48,25 @@ namespace Smartstore.Web
             // Add action context accessor
             services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
 
-            // Configure Cookie Policy Options
-            services.AddSingleton<IConfigureOptions<CookiePolicyOptions>, CookiePolicyOptionsConfigurer>();
+            if (appContext.IsInstalled)
+            {
+                // Configure Cookie Policy Options
+                services.AddSingleton<IConfigureOptions<CookiePolicyOptions>, CookiePolicyOptionsConfigurer>();
+
+                services.Configure<RazorViewEngineOptions>(o =>
+                {
+                    o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
+                    o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
+                    o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
+
+                    if (appContext.AppConfiguration.EnableLocalizedViews)
+                    {
+                        o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
+                    }
+
+                    // TODO: (core) Implement ModuleViewLocationExpander
+                });
+            }
 
             // Add AntiForgery
             services.AddAntiforgery(o => 
@@ -69,20 +87,6 @@ namespace Smartstore.Web
 
             // Detailed database related error notifications
             services.AddDatabaseDeveloperPageExceptionFilter();
-
-            services.Configure<RazorViewEngineOptions>(o =>
-            {
-                o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
-                o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
-                o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
-
-                if (appContext.AppConfiguration.EnableLocalizedViews)
-                {
-                    o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
-                }
-
-                // TODO: (core) Implement ModuleViewLocationExpander
-            });
 
             services.Configure<WebEncoderOptions>(o =>
             {
@@ -112,7 +116,7 @@ namespace Smartstore.Web
                 {
                     // TODO: (core) FileProvider
                 })
-                .AddFluentValidation(c => 
+                .AddFluentValidation(c =>
                 {
                     c.LocalizationEnabled = true;
                     c.ImplicitlyValidateChildProperties = true;
@@ -160,8 +164,11 @@ namespace Smartstore.Web
                 {
                     // TODO: (core) More MVC config?
 
-                    // Register custom metadata provider
-                    o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
+                    if (DataSettings.DatabaseIsInstalled())
+                    {
+                        // Register custom metadata provider
+                        o.ModelMetadataDetailsProviders.Add(new SmartDisplayMetadataProvider());
+                    }
                 });
 
             // Add TempData feature
@@ -185,8 +192,6 @@ namespace Smartstore.Web
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)
         {
-            builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
-            builder.RegisterDecorator<SmartRouteValuesAddressScheme, IEndpointAddressScheme<RouteValuesAddress>>();
             builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
 
             // Convenience: Register IUrlHelper as transient dependency.
@@ -207,6 +212,12 @@ namespace Smartstore.Web
 
                 return null;
             }).InstancePerDependency();
+
+            if (DataSettings.DatabaseIsInstalled())
+            {
+                builder.RegisterDecorator<SmartLinkGenerator, LinkGenerator>();
+                builder.RegisterDecorator<SmartRouteValuesAddressScheme, IEndpointAddressScheme<RouteValuesAddress>>();
+            }
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

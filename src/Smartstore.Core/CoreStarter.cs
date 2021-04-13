@@ -33,12 +33,9 @@ namespace Smartstore.Core.Bootstrapping
                     appContext.AppConfiguration.DbContextPoolSize,
                     optionsBuilder: (c, o, rel) => 
                     {
-                        // TODO: (core) Why does WithMigrationsHistoryTableName() not work?
+                        // TODO: (core) RelationalOptionsExtension is always cloned and cannot be modified this way. Find another way.
                         rel.WithMigrationsHistoryTableName("__EFMigrationsHistory_Core");
                     });
-
-                // TODO: (core) Move this as extension to OptionBuilder (e.g. o.IsMigratable())
-                DbMigrationManager.Instance.RegisterMigratableDbContext(typeof(SmartDbContext));
 
                 services.AddDbQuerySettings();
 

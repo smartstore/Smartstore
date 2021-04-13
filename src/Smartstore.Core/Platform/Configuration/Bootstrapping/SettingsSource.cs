@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Autofac;
 using Autofac.Builder;
 using Autofac.Core;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
+using Smartstore.Data;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -24,7 +26,7 @@ namespace Smartstore.Core.Bootstrapping
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051", Justification = "Called by reflection")]
+        [SuppressMessage("CodeQuality", "IDE0051", Justification = "Called by reflection")]
         static IComponentRegistration BuildRegistration<TSettings>() where TSettings : ISettings, new()
         {
             return RegistrationBuilder
@@ -32,11 +34,14 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     TSettings settings = default;
 
-                    int currentStoreId = c.ResolveOptional<IStoreContext>()?.CurrentStore?.Id ?? 0;
-                    var settingFactory = c.ResolveOptional<ISettingFactory>();
-                    if (settingFactory != null)
+                    if (DataSettings.DatabaseIsInstalled())
                     {
-                        settings = settingFactory.LoadSettings<TSettings>(currentStoreId);
+                        int currentStoreId = c.ResolveOptional<IStoreContext>()?.CurrentStore?.Id ?? 0;
+                        var settingFactory = c.ResolveOptional<ISettingFactory>();
+                        if (settingFactory != null)
+                        {
+                            settings = settingFactory.LoadSettings<TSettings>(currentStoreId);
+                        }
                     }
 
                     return settings ?? new TSettings();

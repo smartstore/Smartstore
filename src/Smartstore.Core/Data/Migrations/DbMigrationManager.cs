@@ -13,7 +13,7 @@ namespace Smartstore.Core.Data.Migrations
     public class DbMigrationManager
     {
         private static DbMigrationManager _instance;
-        private List<Type> _migratableDbContextTypes = new();
+        private List<Type> _dbContextTypes = new();
         private readonly ConcurrentDictionary<Type, bool> _suppressMap = new();
         private Multimap<Type, string> _appliedMigrations;
         private readonly object _lock = new();
@@ -27,19 +27,19 @@ namespace Smartstore.Core.Data.Migrations
             get => _instance ??= new DbMigrationManager();
         }
 
-        public void RegisterMigratableDbContext(Type dbContextType)
+        public void RegisterDbContext(Type dbContextType)
         {
             Guard.NotNull(dbContextType, nameof(dbContextType));
             Guard.IsAssignableFrom<HookingDbContext>(dbContextType);
 
-            if (!_migratableDbContextTypes.Contains(dbContextType))
+            if (!_dbContextTypes.Contains(dbContextType))
             {
-                _migratableDbContextTypes.Add(dbContextType);
+                _dbContextTypes.Add(dbContextType);
             }
         }
 
-        public IReadOnlyCollection<Type> GetMigratableDbContextTypes()
-            => _migratableDbContextTypes.AsReadOnly();
+        public IReadOnlyCollection<Type> GetDbContextTypes()
+            => _dbContextTypes.AsReadOnly();
 
         internal void SetSuppressInitialCreate<TContext>(bool suppress) where TContext : DbContext
         {

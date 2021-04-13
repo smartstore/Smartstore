@@ -31,7 +31,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public virtual async Task InitializeDatabasesAsync()
         {
-            var migratableDbContextTypes = DbMigrationManager.Instance.GetMigratableDbContextTypes();
+            var migratableDbContextTypes = DbMigrationManager.Instance.GetDbContextTypes();
 
             foreach (var dbContextType in migratableDbContextTypes)
             {

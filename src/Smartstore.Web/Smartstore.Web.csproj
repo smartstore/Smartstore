@@ -23,8 +23,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="App_Data\icons.json" />
-    <Content Remove="App_Data\widgetzones.json" />
+    <None Remove="App_Data\AddressFormats.xml" />
+    <None Remove="App_Data\Localization\App\de\all.smres.xml" />
+    <None Remove="App_Data\Localization\App\de\head.txt" />
+    <None Remove="App_Data\Localization\App\en\all.smres.xml" />
+    <None Remove="App_Data\Localization\App\en\head.txt" />
+    <None Remove="App_Data\Localization\Installation\installation.de.xml" />
+    <None Remove="App_Data\Localization\Installation\installation.en.xml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,8 +55,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="App_Data\icons.json" />
-    <None Include="App_Data\widgetzones.json" />
     <None Include="wwwroot\fontastic\fonts\fontastic.svg" />
     <None Include="wwwroot\lib\fa5\scss\brands.scss" />
     <None Include="wwwroot\lib\fa5\scss\fontawesome.scss" />
@@ -92,9 +95,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="App_Data\AddressFormats.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="App_Data\Geo\COPYRIGHT.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -155,6 +155,18 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>Smartstore.Web.Tests</_Parameter1>
 		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="App_Data\AddressFormats.xml">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="App_Data\Localization\App\de\all.smres.xml" />
+	  <Content Include="App_Data\Localization\App\de\head.txt" />
+	  <Content Include="App_Data\Localization\App\en\all.smres.xml" />
+	  <Content Include="App_Data\Localization\App\en\head.txt" />
+	  <Content Include="App_Data\Localization\Installation\installation.de.xml" />
+	  <Content Include="App_Data\Localization\Installation\installation.en.xml" />
 	</ItemGroup>
 
 </Project>

@@ -26,6 +26,11 @@ namespace Smartstore.Web.Razor
         private IUserAgent _userAgent;
         private ILinkResolver _linkResolver;
 
+        public SmartRazorPage()
+        {
+
+        }
+
         protected IDisplayHelper Display 
         { 
             get => _display ??= base.Context.RequestServices.GetRequiredService<IDisplayHelper>(); 

@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -63,18 +64,20 @@ namespace Smartstore.Web
         private static async Task InitializeDatabases(IHost host)
         {
             var appContext = host.Services.GetRequiredService<IApplicationContext>();
-            if (!appContext.IsInstalled)
+            
+            if (appContext.IsInstalled)
             {
-                return;
+                //using var scope = host.Services.CreateScope();
+                //using var db = scope.ServiceProvider.GetRequiredService<SmartDbContext>();
+                //await db.Database.EnsureCreatedAsync();
+
+                var scopeAccessor = host.Services.GetRequiredService<ILifetimeScopeAccessor>();
+                using (scopeAccessor.BeginContextAwareScope(out var scope))
+                {
+                    var initializer = scope.Resolve<IDatabaseInitializer>();
+                    await initializer.InitializeDatabasesAsync();
+                }
             }
-
-            //using var scope = host.Services.CreateScope();
-            //using var db = scope.ServiceProvider.GetRequiredService<SmartDbContext>();
-            //await db.Database.EnsureCreatedAsync();
-
-            using var scope = host.Services.CreateScope();
-            var initializer = scope.ServiceProvider.GetRequiredService<IDatabaseInitializer>();
-            await initializer.InitializeDatabasesAsync();
         }
 
         public static IHost BuildWebHost(string[] args)

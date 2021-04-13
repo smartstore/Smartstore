@@ -20,7 +20,6 @@ namespace Smartstore.Data.SqlServer
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString, IApplicationContext appContext)
         {
-            //// Add-Migration Initial -Context MySqlSmartDbContext -Project Smartstore.Data.MySql
             return builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), mySql =>
             {
                 //sql.EnableRetryOnFailure(3, TimeSpan.FromMilliseconds(100), null);
