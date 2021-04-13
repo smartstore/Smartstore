@@ -3,7 +3,7 @@
 @model WishlistModel
 
 @{
-    Assets.AppendCssFileParts("no-offcanvas-cart");
+    Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
     Assets.AppendTitleParts(T("PageTitle.Wishlist").Value);
     Assets.AddMetaRobots();
 
@@ -22,7 +22,7 @@
             @if (modelHasItems)
             {
                 <div sm-if="Model.Warnings.Any()" class="alert alert-danger">
-                    @foreach(var warning in Model.Warnings) 
+                    @foreach (var warning in Model.Warnings)
                     {
                         <p>@warning</p>
                     }
@@ -87,5 +87,5 @@
 
 @if (Model.IsEditable)
 {
-    <partial name="_RefreshCartScript" />
+    <script src="~/js/public.refresh-cart.js" sm-target-zone="scripts"></script>
 }
