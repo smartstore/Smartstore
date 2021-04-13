@@ -4,15 +4,18 @@
 @model ShoppingCartModel
 
 @{
+    // INFO: (ms) (core) Don't use Layouts which aren't available yet. 
+    // TODO: (ms) (core) Remove comment.
     Layout = "_Checkout";
-    Assets.AppendCssFileParts("order-summary-page no-offcanvas-cart");
+    Assets.BodyAttributes.AppendCssClass("order-summary-page no-offcanvas-cart");
     Assets.AppendTitleParts(T("PageTitle.ShoppingCart").Value);
-    Assets.AppendHeadScriptParts("<meta name=\"robots\" content=\"noindex\">");
+    Assets.AddMetaRobots();
 }
 
-<widget target-zone="left">
+<widget target-zone="orderProgress">
     @*@await Component.InvokeAsync("CheckoutProgress", new { step = CheckoutProgressStep.Cart });*@
-    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Cart }" />
+    @*TODO: (ms) (core) Don't include partials that aren't available yet. Instead: Comment them out and write another comment to include them when available*@
+    @*<partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Cart }" />*@
 </widget>
 
 <div class="page shopping-cart-page">
@@ -20,6 +23,7 @@
         <h1 class="h3">@T("ShoppingCart")</h1>
     </div>
     <div class="page-body">
-        <partial name="OrderSummary" model="Model" />
+        @*TODO: (ms) (core) Don't include partials that aren't available yet. Instead: Comment them out and write another comment to include them when available*@
+        @*<partial name="OrderSummary" model="Model" />*@
     </div>
 </div>

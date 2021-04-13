@@ -1,6 +1,7 @@
 ﻿@using Smartstore.Web.Models.ShoppingCart;
 
 @model OrderTotalsModel
+@*TODO: (ms) (core) Views for viewcomponents belong into Shared/Components/Component/Default.cshtml *@
 
 <div sm-if="Model.ShowConfirmOrderLegalHint && !Model.IsEditable" class="alert alert-warning confirm-order-legal-hint">
     @T("OrderSummary.ConfirmOrderLegalHint")
@@ -123,17 +124,17 @@
             </tr>
         }
     }
-    
+
     <tr sm-if="Model.RedeemedRewardPoints > 0" class="cart-summary-rewardpoints cart-summary-pos">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.RewardPoints", Model.RedeemedRewardPoints):</td>
         <td class="cart-summary-value">@Model.RedeemedRewardPointsAmount</td>
     </tr>
-    
+
     <tr sm-if="Model.CreditBalance.HasValue()" class="cart-summary-credit-balance cart-summary-pos">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.CreditBalance"):</td>
         <td class="cart-summary-value">@Model.CreditBalance</td>
     </tr>
-    
+
     <tr sm-if="Model.OrderTotalRounding.HasValue()" class="cart-summary-totalrounding cart-summary-pos">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.Rounding"):</td>
         <td class="cart-summary-value">

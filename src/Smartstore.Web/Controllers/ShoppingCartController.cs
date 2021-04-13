@@ -26,6 +26,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -160,12 +161,6 @@ namespace Smartstore.Web.Controllers
         [NonAction]
         protected async Task PrepareButtonPaymentMethodModelAsync(ButtonPaymentMethodModel model, IList<OrganizedShoppingCartItem> cart)
         {
-            // TODO: (ms) (core) There was no throwing in the original code. I suggest to return if model is null or query IsNullOrEmpty().
-            // Answer: Model / Cart should never be null. The internal/protected methods are only accessed within ShoppingCartController
-            // and the caller instaniates model in this case, so it cannot be null.
-            // However, in further development this method could be accessed differently; to ensure integrity, check the objects for null.
-            // This applies also to other Guard checks in ShoppingCartController
-
             Guard.NotNull(model, nameof(model));
             Guard.NotNull(cart, nameof(cart));
 
@@ -1187,6 +1182,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [RequireSsl]
+        [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> Cart(ProductVariantQuery query)
         {
             Guard.NotNull(query, nameof(query));
@@ -1209,12 +1205,17 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
+        // INFO: (ms) (core) You can find this information in 1_StoreRoutes in classic code. It should be checked for every action you implement.
+        // TODO: (ms) (core) Remove this comment.
         [RequireSsl]
+        [LocalizedRoute("/wishlist/{customerGuid:guid?}", Name = "Wishlist")]
         public async Task<IActionResult> Wishlist(Guid? customerGuid)
         {
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
+            {
                 return RedirectToRoute("HomePage");
-
+            }
+            
             var customer = customerGuid.HasValue
                 ? await _db.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.CustomerGuid == customerGuid.Value)
                 : Services.WorkContext.CurrentCustomer;

@@ -3,11 +3,11 @@
 @model WishlistModel
 
 @{
-    Layout = "_Layout";
     Assets.AppendCssFileParts("no-offcanvas-cart");
     Assets.AppendTitleParts(T("PageTitle.Wishlist").Value);
-    Assets.AppendHeadScriptParts("<meta name=\"robots\" content=\"noindex\">");
-    var modelItemsCount = Model.Items.Count();
+    Assets.AddMetaRobots();
+
+    var modelHasItems = Model.Items.Any();
 }
 
 <div class="page wishlist-page">
@@ -19,16 +19,16 @@
 
             <zone name="wishlist_items_top" />
 
-            @if (modelItemsCount > 0)
+            @if (modelHasItems)
             {
-                <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger">
-                    @for (int i = 0; i < Model.Warnings.Count; i++)
+                <div sm-if="Model.Warnings.Any()" class="alert alert-danger">
+                    @foreach(var warning in Model.Warnings) 
                     {
-                        <p>@Model.Warnings[i]</p>
+                        <p>@warning</p>
                     }
                 </div>
 
-                <form asp-route="Wishlist" method="post" id="pd-form">
+                <form asp-route="Wishlist" method="post">
                     <div class="card mb-4">
                         <div id="cart-items" class="cart cart-editable mb-0">
                             <div class="cart-head">
@@ -48,21 +48,18 @@
                                 </div>
                             </div>
                             <div class="cart-body">
-                                <partial name="WishlistItems" model="Model" />
+                                @*TODO: (ms) (core) Don't include partials that aren't available yet. Instead: Comment them out and write another comment to include them when available*@
+                                @*<partial name="WishlistItems" model="Model" />*@
                             </div>
                         </div>
                     </div>
 
                     <div class="common-buttons clearfix">
-                        <a sm-if="Model.IsEditable && Model.EmailWishlistEnabled"
-                           asp-route="EmailWishlist" rel="nofollow"
-                           class="btn btn-secondary email-a-friend-wishlist-button">
+                        <a sm-if="Model.IsEditable && Model.EmailWishlistEnabled" asp-action="EmailWishlist" rel="nofollow" class="btn btn-secondary email-a-friend-wishlist-button">
                             <i class="fa fa-envelope"></i>
                             <span>@T("Wishlist.EmailAFriend")</span>
                         </a>
-                        <button sm-if="Model.DisplayAddToCart && !Model.IsEditable"
-                                type="submit" name="addtocartbutton" value="addtocartbutton"
-                                class="btn btn-primary wishlist-add-to-cart-button">
+                        <button sm-if="Model.DisplayAddToCart && !Model.IsEditable" type="submit" name="addtocartbutton" value="addtocartbutton" class="btn btn-primary wishlist-add-to-cart-button">
                             <i class="fa fa-cart-arrow-down"></i>
                             <span>@T("ShoppingCart.AddToCart")</span>
                         </button>
@@ -76,13 +73,13 @@
                 </div>
             }
         </div>
-        <div sm-if="Model.IsEditable && modelItemsCount > 0" class="share-info my-5">
+        <div sm-if="Model.IsEditable && modelHasItems" class="share-info my-5">
             <h4 class="share-label">
                 <i class="far fa-share-square"></i>
                 @T("Wishlist.YourWishlistURL")
             </h4>
-            <a href="@Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid })" class="share-link">
-                @Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, "http")
+            <a asp-route="Wishlist" asp-route-customerGuid="@Model.CustomerGuid" class="share-link">
+                @Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, Context.Request.IsHttps ? "https" : "http", Context.Request.Host.Value)
             </a>
         </div>
     </div>

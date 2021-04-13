@@ -3,9 +3,11 @@
 @model WishlistEmailAFriendModel
 
 @{
-    Layout = "_Layout";
+
+    // TODO: (ms) (core) Corresponding actions are missing :-/
+
     Assets.AppendTitleParts(T("PageTitle.WishlistEmailAFriend").Value);
-    Assets.AppendHeadScriptParts("<meta name=\"robots\" content=\"noindex\">");
+    Assets.AddMetaRobots();
 }
 
 <div class="page email-a-friend-page">
@@ -21,24 +23,19 @@
         }
         else
         {
-            <form asp-route="Wishlist" method="post" id="pd-form">
+            <form asp-route="EmailWishlist" method="post" class="form-horizontal">
                 <fieldset>
-                    <p class="message-error">
-                        @if (!ViewData.ModelState.IsValid)
-                        {
-                            @Html.ValidationSummary(true)
-                        }
-                    </p>
+                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
 
                     <div class="form-group">
                         <label asp-for="FriendEmail" class="col-form-label required"></label>
-                        <textbox asp-for="FriendEmail" class = "friend-email form-control" placeholder="@T("Wishlist.EmailAFriend.FriendEmail.Hint")"></textbox>
+                        <input asp-for="FriendEmail" sm-required="true" class = "friend-email form-control" placeholder="@T("Wishlist.EmailAFriend.FriendEmail.Hint")" />
                         <span asp-validation-for="FriendEmail"></span>
                     </div>
 
                     <div class="form-group">
                         <label asp-for="YourEmailAddress" class="col-form-label required"></label>
-                        <textbox asp-for="YourEmailAddress" class="your-email form-control" placeholder="@T("Wishlist.EmailAFriend.YourEmailAddress.Hint")"></textbox>
+                        <input asp-for="YourEmailAddress" sm-required="true" class="your-email form-control" placeholder="@T("Wishlist.EmailAFriend.YourEmailAddress.Hint")" />
                         <span asp-validation-for="YourEmailAddress"></span>
                     </div>
 
