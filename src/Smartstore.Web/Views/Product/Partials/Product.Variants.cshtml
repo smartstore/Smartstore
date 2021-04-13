@@ -1,6 +1,6 @@
-﻿@model IList<ProductDetailsModel.ProductVariantAttributeModel>
+﻿@using Smartstore.Web.Models.Catalog;
 
-@using Smartstore.Web.Models.Catalog;
+@model IList<ProductDetailsModel.ProductVariantAttributeModel>
 
 @{
     var attributes = Model.Where(x => x.ShouldBeRendered()).ToList();

@@ -1,6 +1,7 @@
 ﻿@using Smartstore.Core.Search.Facets
 
 @model FacetGroup
+
 @{
     var facets = Model.Facets.Where(x => x.Published).Reverse().Skip(1);
     if (!facets.Any())

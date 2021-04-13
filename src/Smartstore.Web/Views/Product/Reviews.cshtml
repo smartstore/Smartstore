@@ -1,6 +1,6 @@
-﻿@model ProductReviewsModel
+﻿@using Smartstore.Web.Models.Catalog;
 
-@using Smartstore.Web.Models.Catalog;
+@model ProductReviewsModel
 
 @{
     Assets.AppendTitleParts(Model.ProductName);
@@ -43,7 +43,7 @@
                             <div class="review-rating star-rating star-rating-large">
                                 @{
                                     // TODO: (mh) (core) A click on the stars scrolls to top. Remove the following css and replace it with display:none once scss files are available.
-                                    // 
+                                    //
                                     //.star-rating:not(:checked) > input {
                                     //    position: absolute;
                                     //    top: -9999px;
@@ -62,7 +62,7 @@
                     <div class="form-group row">
                         <label asp-for="Title" class="form-control-label col-form-label col-md-3 required"></label>
                         <div class="col-md-9">
-                            <input asp-for="Title" type="text" attr-disabled='(!Model.CanCurrentCustomerLeaveReview, "disabled")'/>
+                            <input asp-for="Title" type="text" attr-disabled='(!Model.CanCurrentCustomerLeaveReview, "disabled")' />
                             <span asp-validation-for="Title"></span>
                         </div>
                     </div>

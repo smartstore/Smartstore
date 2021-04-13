@@ -1,9 +1,8 @@
-﻿@model CustomerAvatarEditModel
+﻿@using Smartstore.Web.Models.Customers;
 
-@using Smartstore.Web.Models.Customers;
-@using Smartstore.Engine;
+@model CustomerAvatarEditModel
 
-@inject IMediaService MediaService 
+@inject IMediaService MediaService
 
 @{
     Assets.AppendTitleParts(T("PageTitle.Account"));
@@ -25,23 +24,23 @@
                 <partial name="Customer.Avatar" model="Model.Avatar" />
             </div>
             <input type="hidden" asp-for="@fileId" class="hidden" />
-            
+
             <div class="fu-controls ml-3">
 
                 @* TODO: (mh) (core) FileUploader: Not implemented yet. *@
 
                 @*@(Html.SmartStore().FileUploader()
-                .Name("uploadedFile")
-                .UploadUrl(Url.Action("UploadAvatar", "Customer"))
-                .TypeFilter("image")
-                .ShowBrowseMedia(false)
-                .ShowRemoveButton(fileId != 0)
-                .ShowRemoveButtonAfterUpload(true)
-                .UploadText(T("Common.FileUploader.UploadAvatar"))
-                .OnUploadCompletedHandlerName("onAvatarUploaded")
-                .OnFileRemoveHandlerName("onAvatarRemoved")
-                .Multifile(false)
-                .HasTemplatePreview(true))*@
+                    .Name("uploadedFile")
+                    .UploadUrl(Url.Action("UploadAvatar", "Customer"))
+                    .TypeFilter("image")
+                    .ShowBrowseMedia(false)
+                    .ShowRemoveButton(fileId != 0)
+                    .ShowRemoveButtonAfterUpload(true)
+                    .UploadText(T("Common.FileUploader.UploadAvatar"))
+                    .OnUploadCompletedHandlerName("onAvatarUploaded")
+                    .OnFileRemoveHandlerName("onAvatarRemoved")
+                    .Multifile(false)
+                    .HasTemplatePreview(true))*@
 
             </div>
         </div>

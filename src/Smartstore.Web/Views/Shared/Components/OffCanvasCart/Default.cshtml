@@ -1,13 +1,13 @@
-﻿@model OffCanvasCartModel
+﻿@using Smartstore.Web.Models.ShoppingCart;
 
-@using Smartstore.Web.Models.ShoppingCart;
+@model OffCanvasCartModel
 
 @{
     var labelStyle = Display.GetThemeVariable<string>("shopbar-label", "warning");
 }
 
 <div class="offcanvas-cart-header offcanvas-tabs">
-    <ul class="nav nav-tabs nav-tabs-line row no-gutters" role="tablist">        
+    <ul class="nav nav-tabs nav-tabs-line row no-gutters" role="tablist">
         <li sm-if="Model.ShoppingCartEnabled" class="nav-item col">
             <a id="cart-tab" class="nav-link" data-toggle="tab" href="#occ-cart" role="tab" data-url="@Url.Action("OffCanvasShoppingCart", "ShoppingCart")">
                 <span class="title">@T("PageTitle.ShoppingCart")</span>
