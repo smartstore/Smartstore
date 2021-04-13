@@ -17,8 +17,6 @@ namespace Smartstore.Web.Models.Orders
 
         public OrderDetailsModel Order { get; set; }
 
-        #region Nested Classes
-
         public partial class ShipmentItemModel : EntityModelBase
         {
             public string Sku { get; set; }
@@ -39,7 +37,5 @@ namespace Smartstore.Web.Models.Orders
             public string Country { get; set; }
             public DateTime? Date { get; set; }
         }
-
-        #endregion
     }
 }

@@ -65,12 +65,7 @@ namespace Smartstore.Web.Controllers
         [RequireSsl]
         public async Task<IActionResult> ShipmentDetails(int id)
         {
-            var shipment = await _db.Shipments
-                .Include(x => x.Order)
-                .Include(x => x.ShipmentItems)
-                .Include(x => x.Order.ShippingAddress)
-                .Include(x => x.Order.BillingAddress)
-                .FindByIdAsync(id, false);
+            var shipment = await _db.Shipments.FindByIdAsync(id);
                 
             if (shipment == null)
             {
@@ -104,8 +99,11 @@ namespace Smartstore.Web.Controllers
             {
                 throw new SmartException(T("Order.NotFound", shipment.OrderId));
             }
-            
-            var store = await _db.Stores.FindByIdAsync(order.StoreId, false) ?? Services.StoreContext.CurrentStore;
+
+            var currentStore = Services.StoreContext.CurrentStore;
+            var store = currentStore.Id != order.StoreId 
+                ? (await _db.Stores.FindByIdAsync(order.StoreId, false) ?? currentStore)
+                : currentStore;
             var settingFactory = Services.SettingFactory;
             var catalogSettings = await settingFactory.LoadSettingsAsync<CatalogSettings>(store.Id);
             var shippingSettings = await settingFactory.LoadSettingsAsync<ShippingSettings>(store.Id);
