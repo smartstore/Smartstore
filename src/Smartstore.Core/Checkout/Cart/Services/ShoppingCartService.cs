@@ -150,6 +150,9 @@ namespace Smartstore.Core.Checkout.Cart
             // Checks whether attributes have been selected
             if (ctx.VariantQuery != null)
             {
+                // TODO: (ms) (core) fix wrong porting of attribute selection processing in AddToCartAsync.
+                // Use _productAttributeMaterializer.CreateAttributeSelectionAsync to process them in context of VariantQuery.
+
                 // Create attribute selection from product attributes
                 var attributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(ctx.Item.AttributeSelection);
 

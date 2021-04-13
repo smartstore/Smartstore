@@ -851,6 +851,7 @@ namespace Smartstore.Web.Controllers
             var ps = Services.Resolve<IProductService>();
             var scs = Services.Resolve<IShoppingCartService>();
             var cs = Services.Resolve<ICurrencyService>();
+            var ts = Services.Resolve<ITaxService>();
             var customer = await _db.Customers.FindByIdAsync(2666330, false);
             var primaryCurrency = cs.PrimaryCurrency;
             var workingCurrency = Services.WorkContext.WorkingCurrency;
@@ -883,6 +884,7 @@ namespace Smartstore.Web.Controllers
                 if (isGrouped && !associatedProducts.Any())
                     continue;
 
+                var asscociatedProduct = isGrouped ? associatedProducts.First() : product;
                 var additionalCharge = new Money(primaryCurrency);
                 var additionalChargeTierPrice = new Money(primaryCurrency);
                 var attributeValues = product.Id == 1751
@@ -903,13 +905,15 @@ namespace Smartstore.Web.Controllers
                     ? new ProductVariantAttributeSelection(rawAttributes)
                     : new ProductVariantAttributeSelection(string.Empty);
 
-                var oldFinalPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalCharge, customer, true, 1, null, batchContext);
+                var oldFinalPrice = await pcs.GetFinalPriceAsync(asscociatedProduct, null, additionalCharge, customer, true, 1, null, batchContext);
+                var (oldFinalPriceTax, _) = await ts.GetProductPriceAsync(asscociatedProduct, oldFinalPrice, customer: customer);
                 var cpFinalOptions = pcs2.CreateDefaultOptions(false);
                 var cpFinalContext = new PriceCalculationContext(product, cpFinalOptions);
                 cpFinalContext.AddSelectedAttributes(attributeSelection, product.Id);
                 var newFinalPrice = await pcs2.CalculatePriceAsync(cpFinalContext);
 
-                var oldFinalInclTierPrice = await pcs.GetFinalPriceAsync(isGrouped ? associatedProducts.First() : product, null, additionalChargeTierPrice, customer, true, tierPriceTestQuantity, null, batchContext);
+                var oldFinalInclTierPrice = await pcs.GetFinalPriceAsync(asscociatedProduct, null, additionalChargeTierPrice, customer, true, tierPriceTestQuantity, null, batchContext);
+                var (oldFinalInclTierPriceTax, _) = await ts.GetProductPriceAsync(asscociatedProduct, oldFinalInclTierPrice, customer: customer);
                 var cpFinalTpOptions = pcs2.CreateDefaultOptions(false);
                 var cpFinalTpContext = new PriceCalculationContext(product, tierPriceTestQuantity, cpFinalTpOptions);
                 cpFinalTpContext.AddSelectedAttributes(attributeSelection, product.Id);
@@ -919,12 +923,14 @@ namespace Smartstore.Web.Controllers
                 var oldLowestPrice = isGrouped
                     ? (await pcs.GetLowestPriceAsync(product, customer, batchContext, associatedProducts)).LowestPrice ?? new()
                     : (await pcs.GetLowestPriceAsync(product, customer, batchContext)).LowestPrice;
+                var (oldLowestPriceTax, _) = await ts.GetProductPriceAsync(product, oldLowestPrice, customer: customer);
                 var cpLowestOptions = pcs2.CreateDefaultOptions(true);
                 cpLowestOptions.DetermineLowestPrice = true;
                 cpLowestOptions.ApplyPreselectedAttributes = cpLowestOptions.DeterminePreselectedPrice = false;
                 var newLowestPrice = await pcs2.CalculatePriceAsync(new PriceCalculationContext(product, cpLowestOptions));
 
-                var oldPreselectedPrice = await pcs.GetPreselectedPriceAsync(isGrouped ? associatedProducts.First() : product, customer, batchContext);
+                var oldPreselectedPrice = await pcs.GetPreselectedPriceAsync(asscociatedProduct, customer, batchContext);
+                var (oldPreselectedPriceTax, _) = await ts.GetProductPriceAsync(asscociatedProduct, oldPreselectedPrice, customer: customer);
                 var cpPreselectedOptions = pcs2.CreateDefaultOptions(true);
                 cpPreselectedOptions.DetermineLowestPrice = false;
                 cpPreselectedOptions.ApplyPreselectedAttributes = cpPreselectedOptions.DeterminePreselectedPrice = true;
@@ -945,10 +951,10 @@ namespace Smartstore.Web.Controllers
                 {
                     renderedIds.Add(product.Id);
                     content.AppendLine($"Prices       {"old".PadRight(12)} {"new".PadRight(12)} {product.Id}, {product.ProductType}");
-                    content.AppendLine($"Final      : {Fmt(oldFinalPrice, newFinalPrice.FinalPrice)}");
-                    content.AppendLine($"Final {tierPriceTestQuantity} qty: {Fmt(oldFinalInclTierPrice, newFinalInclTierPrice.FinalPrice)}");
-                    content.AppendLine($"Lowest     : {Fmt(oldLowestPrice, newLowestPrice.FinalPrice)}");
-                    content.AppendLine($"Preselected: {Fmt(oldPreselectedPrice, newPreselectedPrice.FinalPrice)}");
+                    content.AppendLine($"Final      : {Fmt(oldFinalPriceTax, newFinalPrice.FinalPrice)}");
+                    content.AppendLine($"Final {tierPriceTestQuantity} qty: {Fmt(oldFinalInclTierPriceTax, newFinalInclTierPrice.FinalPrice)}");
+                    content.AppendLine($"Lowest     : {Fmt(oldLowestPriceTax, newLowestPrice.FinalPrice)}");
+                    content.AppendLine($"Preselected: {Fmt(oldPreselectedPriceTax, newPreselectedPrice.FinalPrice)}");
                     if (oldBasePriceInfo.HasValue() || newBasePriceInfo.HasValue())
                     {
                         content.AppendLine($"Base Price : {oldBasePriceInfo} {newBasePriceInfo}" + (oldBasePriceInfo != newBasePriceInfo ? " !!" : ""));
@@ -962,14 +968,18 @@ namespace Smartstore.Web.Controllers
             foreach (var item in cart)
             {
                 var oldCartPrice = await pcs.GetUnitPriceAsync(item, true);
+                var (oldCartPriceTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldCartPrice, customer: customer);
+                //var newCartPrice = await pcs2.CalculateUnitPriceAsync(item);
                 var cpCartPriceOptions = pcs2.CreateDefaultOptions(false);
                 var newCartPrice = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartPriceOptions));
 
                 var oldCartSubtotal = await pcs.GetSubTotalAsync(item, true);
+                var (oldCartSubtotalTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldCartSubtotal, customer: customer);
+                //var newCartSubtotal = await pcs2.CalculateSubtotalAsync(item);
                 var cpCartSubtotalOptions = pcs2.CreateDefaultOptions(false);
                 var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartSubtotalOptions) { CalculateUnitPrice = false });
 
-                content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldCartPrice, newCartPrice.FinalPrice)} {Fmt(oldCartSubtotal, newCartSubtotal.FinalPrice)}");
+                content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldCartPriceTax, newCartPrice.FinalPrice)} {Fmt(oldCartSubtotalTax, newCartSubtotal.FinalPrice)}");
             }
 
             content.AppendLine("");
@@ -977,8 +987,10 @@ namespace Smartstore.Web.Controllers
             foreach (var item in cart)
             {
                 var oldCartPrice = await pcs.GetUnitPriceAsync(item, true);
-                var oldConvertedCardPrice = cs.ConvertFromPrimaryCurrency(oldCartPrice.Amount, usd);
+                var (oldCartPriceTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldCartPrice, customer: customer);
+                var oldConvertedCardPrice = cs.ConvertFromPrimaryCurrency(oldCartPriceTax.Amount, usd);
 
+                //var newConvertedCartPrice = await pcs2.CalculateUnitPriceAsync(item, false, usd);
                 var cpCartOptions = pcs2.CreateDefaultOptions(false, targetCurrency: usd);
                 var cpCartContext = new PriceCalculationContext(item, cpCartOptions);
                 var newConvertedCartPrice = await pcs2.CalculatePriceAsync(cpCartContext);
@@ -986,12 +998,27 @@ namespace Smartstore.Web.Controllers
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldConvertedCardPrice, newConvertedCartPrice.FinalPrice)}");
             }
 
+            content.AppendLine("");
+            content.AppendLine($"Tax          {"excluding".PadRight(11)}  {"including".PadRight(11)}");
+            foreach (var item in cart)
+            {
+                var oldSubTotal = await pcs.GetSubTotalAsync(item, true);
+                var (oldExclTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldSubTotal, false, customer: customer);
+                var (oldInclTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldSubTotal, true, customer: customer);
+
+                var cpCartSubtotalOptions = pcs2.CreateDefaultOptions(false);
+                var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartSubtotalOptions) { CalculateUnitPrice = false });
+                var tax = newCartSubtotal.Tax.Value;
+                
+                content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldExclTax, oldInclTax, false)} {tax.PriceNet} {tax.PriceGross} {tax.Price}");
+            }
+
             content.Insert(0, "productIds: " + string.Join(", ", renderedIds) + "\r\n\r\n");
 
-            string Fmt(Money m1, Money m2)
+            string Fmt(Money m1, Money m2, bool check = true)
             {
                 var str = $"{m1.ToString().PadRight(12)} {m2.ToString().PadRight(12)}";
-                if (m1 != m2)
+                if (m1 != m2 && check)
                     str += " !!";
                 return str;
             }

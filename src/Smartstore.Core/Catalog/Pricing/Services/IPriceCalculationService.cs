@@ -41,12 +41,14 @@ namespace Smartstore.Core.Catalog.Pricing
         Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context);
 
         /// <summary>
-        /// Calculates the product cost in the primary currency.
+        /// Calculates the product cost as specified by <see cref="Product.ProductCost"/> in the primary currency.
+        /// The product cost is the cost of all the different components which make up the product. This may either be the purchase price if the components are bought from outside suppliers, 
+        /// or the combined cost of materials and manufacturing processes if the component is made in-house.
         /// </summary>
         /// <param name="product">Product.</param>
-        /// <param name="selection">Attribute selection.</param>
-        /// <returns>Product cost in the primary currency.</returns>
-        Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection); // TODO: (mg) (core) What is the product COST? Describe!
+        /// <param name="selection">Selected attributes, if any. Used to include the costs of products linked by attributes (see <see cref="ProductVariantAttributeValue.LinkedProductId"/>).</param>
+        /// <returns>Product costs in the primary currency.</returns>
+        Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection = null);
 
         /// <summary>
         /// Gets the base price info for a product.

@@ -90,7 +90,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 TaxInclusive = taxInclusive,
                 IgnorePercentageDiscountOnTierPrices = !_catalogSettings.ApplyPercentageDiscountOnTierPrice,
                 IgnorePercentageTierPricesOnAttributePriceAdjustments = !_catalogSettings.ApplyTierPricePercentageToAttributePriceAdjustments,
-                IgnoreDiscounts = (forListing && priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes) || _catalogSettings.IgnoreDiscounts,
+                IgnoreDiscounts = forListing && priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
                 DetermineLowestPrice = forListing && priceDisplay == PriceDisplayType.LowestPrice,
                 DeterminePreselectedPrice = determinePreselectedPrice,
                 ApplyPreselectedAttributes = determinePreselectedPrice,
@@ -162,36 +162,40 @@ namespace Smartstore.Core.Catalog.Pricing
             return result;
         }
 
-        public virtual async Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection)
+        public virtual async Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection = null)
         {
             Guard.NotNull(product, nameof(product));
             Guard.NotNull(selection, nameof(selection));
 
             var productCost = product.ProductCost;
-            var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
 
-            var productLinkageValues = attributeValues
-                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
-                .ToList();
-            var linkedProductIds = productLinkageValues
-                .Select(x => x.LinkedProductId)
-                .Distinct()
-                .ToArray();
-
-            if (linkedProductIds.Any())
+            if (selection != null)
             {
-                var linkedProducts = await _db.Products
-                    .AsNoTracking()
-                    .Where(x => linkedProductIds.Contains(x.Id))
-                    .Select(x => new { x.Id, x.ProductCost })
-                    .ToListAsync();
-                var linkedProductsDic = linkedProducts.ToDictionarySafe(x => x.Id, x => x.ProductCost);
+                var attributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
 
-                foreach (var value in productLinkageValues)
+                var productLinkageValues = attributeValues
+                    .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
+                    .ToList();
+                var linkedProductIds = productLinkageValues
+                    .Select(x => x.LinkedProductId)
+                    .Distinct()
+                    .ToArray();
+
+                if (linkedProductIds.Any())
                 {
-                    if (linkedProductsDic.TryGetValue(value.LinkedProductId, out var linkedProductCost))
+                    var linkedProducts = await _db.Products
+                        .AsNoTracking()
+                        .Where(x => linkedProductIds.Contains(x.Id))
+                        .Select(x => new { x.Id, x.ProductCost })
+                        .ToListAsync();
+                    var linkedProductsDic = linkedProducts.ToDictionarySafe(x => x.Id, x => x.ProductCost);
+
+                    foreach (var value in productLinkageValues)
                     {
-                        productCost += linkedProductCost * value.Quantity;
+                        if (linkedProductsDic.TryGetValue(value.LinkedProductId, out var linkedProductCost))
+                        {
+                            productCost += linkedProductCost * value.Quantity;
+                        }
                     }
                 }
             }

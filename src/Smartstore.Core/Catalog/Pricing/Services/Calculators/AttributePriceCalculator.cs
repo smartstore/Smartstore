@@ -85,7 +85,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 {
                     var childCalculation = await CalculateChildPriceAsync(linkedProduct, context, c =>
                     {
-                        c.Options.IgnoreDiscounts = false;
                         c.Quantity = 1;
                     });
 

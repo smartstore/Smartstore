@@ -31,6 +31,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         private readonly SmartDbContext _db;
         private readonly IPriceCalculationService _priceCalculationService;
+        private readonly IPriceCalculationService2 _priceCalculationService2;
         private readonly IDiscountService _discountService;
         private readonly IShippingService _shippingService;
         private readonly IGiftCardService _giftCardService;
@@ -51,6 +52,7 @@ namespace Smartstore.Core.Checkout.Orders
         public OrderCalculationService(
             SmartDbContext db,
             IPriceCalculationService priceCalculationService,
+            IPriceCalculationService2 priceCalculationService2,
             IDiscountService discountService,
             IShippingService shippingService,
             IGiftCardService giftCardService,
@@ -68,6 +70,7 @@ namespace Smartstore.Core.Checkout.Orders
         {
             _db = db;
             _priceCalculationService = priceCalculationService;
+            _priceCalculationService2 = priceCalculationService2;
             _discountService = discountService;
             _shippingService = shippingService;
             _giftCardService = giftCardService;
@@ -723,6 +726,7 @@ namespace Smartstore.Core.Checkout.Orders
                 // Calculate all subtotals.
                 foreach (var item in cart)
                 {
+                    //GetTaxingInfo(item).SubTotalWithoutDiscount = (await _priceCalculationService2.CalculateSubtotalAsync(item, true, _primaryCurrency)).FinalPrice;
                     GetTaxingInfo(item).SubTotalWithoutDiscount = await _priceCalculationService.GetSubTotalAsync(item, false);
                 }
 
