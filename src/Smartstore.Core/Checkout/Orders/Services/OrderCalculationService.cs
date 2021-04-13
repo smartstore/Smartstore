@@ -30,8 +30,7 @@ namespace Smartstore.Core.Checkout.Orders
         private const string CART_TAXING_INFO_KEY = "CartTaxingInfos";
 
         private readonly SmartDbContext _db;
-        private readonly IPriceCalculationService _priceCalculationService;
-        private readonly IPriceCalculationService2 _priceCalculationService2;
+        private readonly IPriceCalculationService2 _priceCalculationService;
         private readonly IDiscountService _discountService;
         private readonly IShippingService _shippingService;
         private readonly IGiftCardService _giftCardService;
@@ -42,6 +41,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ITaxService _taxService;
+        private readonly ITaxCalculator _taxCalculator;
         private readonly TaxSettings _taxSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly CatalogSettings _catalogSettings;
@@ -51,8 +51,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public OrderCalculationService(
             SmartDbContext db,
-            IPriceCalculationService priceCalculationService,
-            IPriceCalculationService2 priceCalculationService2,
+            IPriceCalculationService2 priceCalculationService,
             IDiscountService discountService,
             IShippingService shippingService,
             IGiftCardService giftCardService,
@@ -63,6 +62,7 @@ namespace Smartstore.Core.Checkout.Orders
             IWorkContext workContext,
             IStoreContext storeContext,
             ITaxService taxService,
+            ITaxCalculator taxCalculator,
             TaxSettings taxSettings,
             RewardPointsSettings rewardPointsSettings,
             CatalogSettings catalogSettings,
@@ -70,7 +70,6 @@ namespace Smartstore.Core.Checkout.Orders
         {
             _db = db;
             _priceCalculationService = priceCalculationService;
-            _priceCalculationService2 = priceCalculationService2;
             _discountService = discountService;
             _shippingService = shippingService;
             _giftCardService = giftCardService;
@@ -81,6 +80,7 @@ namespace Smartstore.Core.Checkout.Orders
             _workContext = workContext;
             _storeContext = storeContext;
             _taxService = taxService;
+            _taxCalculator = taxCalculator;
             _taxSettings = taxSettings;
             _rewardPointsSettings = rewardPointsSettings;
             _catalogSettings = catalogSettings;
@@ -439,26 +439,22 @@ namespace Smartstore.Core.Checkout.Orders
                 if (_workingCurrency.RoundOrderItemsEnabled)
                 {
                     // Gross > Net RoundFix.
-                    var unitPrice = await _priceCalculationService.GetUnitPriceAsync(cartItem, true);
+                    var unitPrice2 = await _priceCalculationService.CalculateUnitPriceAsync(cartItem, false, _primaryCurrency);
+                    var tax = unitPrice2.Tax.Value;
 
                     // Adaption to eliminate rounding issues.
-                    var (exclTax, _) = await _taxService.GetProductPriceAsync(item.Product, unitPrice, false, customer: customer);
-                    itemExclTax = _workingCurrency.RoundIfEnabledFor(exclTax.Amount) * item.Quantity;
-
-                    var (inclTax, rate) = await _taxService.GetProductPriceAsync(item.Product, unitPrice, true, customer: customer);
-                    itemInclTax = _workingCurrency.RoundIfEnabledFor(inclTax.Amount) * item.Quantity;
-                    taxRate = rate;
+                    itemExclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceNet) * item.Quantity;
+                    itemInclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceGross) * item.Quantity;
+                    taxRate = tax.Rate.Rate;
                 }
                 else
                 {
-                    var itemSubTotal = await _priceCalculationService.GetSubTotalAsync(cartItem, true);
+                    var itemSubtotal = await _priceCalculationService.CalculateSubtotalAsync(cartItem, false, _primaryCurrency);
+                    var tax = itemSubtotal.Tax.Value;
 
-                    var (exclTax, _) = await _taxService.GetProductPriceAsync(item.Product, itemSubTotal, false, customer: customer);
-                    itemExclTax = exclTax.Amount;
-
-                    var (inclTax, rate) = await _taxService.GetProductPriceAsync(item.Product, itemSubTotal, true, customer: customer);
-                    itemInclTax = inclTax.Amount;
-                    taxRate = rate;
+                    itemExclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceNet);
+                    itemInclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceGross);
+                    taxRate = tax.Rate.Rate;
                 }
 
                 subTotalExclTaxWithoutDiscount += itemExclTax;
@@ -675,6 +671,10 @@ namespace Smartstore.Core.Checkout.Orders
                     var (paymentFeeExclTax, _) = await _taxService.GetPaymentMethodFeeAsync(paymentFee, false, taxCategoryId, customer);
                     var (paymentFeeInclTax, taxRate) = await _taxService.GetPaymentMethodFeeAsync(paymentFee, true, taxCategoryId, customer);
 
+                    // TODO: (mg) (core) rounding differences on tax amounts!
+                    //var feeTax = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentFee.Amount, null, taxCategoryId, customer);
+                    //paymentFeeTax = feeTax.PriceGross - feeTax.
+
                     // Can be less zero (taxRates code differs)!
                     paymentFeeTax = paymentFeeInclTax.Amount - paymentFeeExclTax.Amount;
 
@@ -726,8 +726,7 @@ namespace Smartstore.Core.Checkout.Orders
                 // Calculate all subtotals.
                 foreach (var item in cart)
                 {
-                    //GetTaxingInfo(item).SubTotalWithoutDiscount = (await _priceCalculationService2.CalculateSubtotalAsync(item, true, _primaryCurrency)).FinalPrice;
-                    GetTaxingInfo(item).SubTotalWithoutDiscount = await _priceCalculationService.GetSubTotalAsync(item, false);
+                    GetTaxingInfo(item).SubTotalWithoutDiscount = (await _priceCalculationService.CalculateSubtotalAsync(item, true, _primaryCurrency)).FinalPrice;
                 }
 
                 // Items with the highest subtotal.

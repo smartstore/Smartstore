@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Smartstore.Core.Catalog.Pricing;
+﻿using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
@@ -76,6 +74,7 @@ namespace Smartstore.Core.Checkout.Tax
         public virtual Task<Tax> CalculatePaymentFeeTaxAsync(
             decimal price,
             bool? inclusive = null,
+            int? taxCategoryId = null,
             Customer customer = null,
             Currency currency = null)
         {
@@ -86,7 +85,8 @@ namespace Smartstore.Core.Checkout.Tax
 
             return CalculateTaxAsync(null, price,
                 _taxSettings.PaymentMethodAdditionalFeeIncludesTax,
-                _taxSettings.PaymentMethodAdditionalFeeTaxClassId, inclusive, customer, currency);
+                taxCategoryId ?? _taxSettings.PaymentMethodAdditionalFeeTaxClassId,
+                inclusive, customer, currency);
         }
 
         protected virtual async Task<Tax> CalculateTaxAsync(

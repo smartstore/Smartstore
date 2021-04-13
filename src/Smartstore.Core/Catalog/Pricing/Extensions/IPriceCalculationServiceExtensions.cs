@@ -8,8 +8,6 @@ namespace Smartstore.Core.Catalog.Pricing
 {
     public static partial class IPriceCalculationServiceExtensions
     {
-        // TODO: (mg) (core) uncomment IPriceCalculationService extensions if required later.
-
         /// <summary>
         /// Calculates the unit price for a given shopping cart item.
         /// </summary>
@@ -18,21 +16,21 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="ignoreDiscounts">A value indicating whether to ignore discounts.</param>
         /// <param name="targetCurrency">The target currency to use for money conversion. Obtained from <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c>.</param>
         /// <returns>Calculated unit price.</returns>
-        //public static async Task<CalculatedPrice> CalculateUnitPriceAsync(
-        //    this IPriceCalculationService2 priceCalculationService,
-        //    OrganizedShoppingCartItem cartItem,
-        //    bool ignoreDiscounts = false,
-        //    Currency targetCurrency = null)
-        //{
-        //    Guard.NotNull(priceCalculationService, nameof(priceCalculationService));
-        //    Guard.NotNull(cartItem, nameof(cartItem));
+        public static async Task<CalculatedPrice> CalculateUnitPriceAsync(
+            this IPriceCalculationService2 priceCalculationService,
+            OrganizedShoppingCartItem cartItem,
+            bool ignoreDiscounts = false,
+            Currency targetCurrency = null)
+        {
+            Guard.NotNull(priceCalculationService, nameof(priceCalculationService));
+            Guard.NotNull(cartItem, nameof(cartItem));
 
-        //    var options = priceCalculationService.CreateDefaultOptions(false, cartItem.Item.Customer, targetCurrency);
-        //    options.IgnoreDiscounts = ignoreDiscounts;
-        //    var context = new PriceCalculationContext(cartItem, options);
+            var options = priceCalculationService.CreateDefaultOptions(false, cartItem.Item.Customer, targetCurrency);
+            options.IgnoreDiscounts = ignoreDiscounts;
+            var context = new PriceCalculationContext(cartItem, options);
 
-        //    return await priceCalculationService.CalculatePriceAsync(context);
-        //}
+            return await priceCalculationService.CalculatePriceAsync(context);
+        }
 
         /// <summary>
         /// Calculates the subtotal (unit price multiplied by <see cref="ShoppingCartItem.Quantity"/>) for a given shopping cart item.
@@ -42,24 +40,24 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="ignoreDiscounts">A value indicating whether to ignore discounts.</param>
         /// <param name="targetCurrency">The target currency to use for money conversion. Obtained from <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c>.</param>
         /// <returns>Calculated subtotal.</returns>
-        //public static async Task<CalculatedPrice> CalculateSubtotalAsync(
-        //    this IPriceCalculationService2 priceCalculationService,
-        //    OrganizedShoppingCartItem cartItem,
-        //    bool ignoreDiscounts = false,
-        //    Currency targetCurrency = null)
-        //{
-        //    Guard.NotNull(priceCalculationService, nameof(priceCalculationService));
-        //    Guard.NotNull(cartItem, nameof(cartItem));
+        public static async Task<CalculatedPrice> CalculateSubtotalAsync(
+            this IPriceCalculationService2 priceCalculationService,
+            OrganizedShoppingCartItem cartItem,
+            bool ignoreDiscounts = false,
+            Currency targetCurrency = null)
+        {
+            Guard.NotNull(priceCalculationService, nameof(priceCalculationService));
+            Guard.NotNull(cartItem, nameof(cartItem));
 
-        //    var options = priceCalculationService.CreateDefaultOptions(false, cartItem.Item.Customer, targetCurrency);
-        //    options.IgnoreDiscounts = ignoreDiscounts;
-        //    var context = new PriceCalculationContext(cartItem, options)
-        //    {
-        //        CalculateUnitPrice = false
-        //    };
+            var options = priceCalculationService.CreateDefaultOptions(false, cartItem.Item.Customer, targetCurrency);
+            options.IgnoreDiscounts = ignoreDiscounts;
+            var context = new PriceCalculationContext(cartItem, options)
+            {
+                CalculateUnitPrice = false
+            };
 
-        //    return await priceCalculationService.CalculatePriceAsync(context);
-        //}
+            return await priceCalculationService.CalculatePriceAsync(context);
+        }
 
         /// <summary>
         /// Gets the base price info for a product.

@@ -81,11 +81,13 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="price">The payment fee.</param>
         /// <param name="inclusive">A value indicating whether the calculated price should include tax. Obtained from <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/> if <c>null</c>.</param>
         /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
+        /// <param name="taxCategoryId">Tax category identifier. If <c>null</c>, <see cref="TaxSettings.PaymentMethodAdditionalFeeTaxClassId"/> will be used.</param>
         /// <param name="currency">Optional currency instance for cash rounding.</param>
         /// <returns>A <see cref="Tax"/> structure containing the calculation result.</returns>
         Task<Tax> CalculatePaymentFeeTaxAsync(
             decimal price,
             bool? inclusive = null,
+            int? taxCategoryId = null,
             Customer customer = null,
             Currency currency = null);
     }

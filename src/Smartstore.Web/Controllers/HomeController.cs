@@ -852,6 +852,7 @@ namespace Smartstore.Web.Controllers
             var scs = Services.Resolve<IShoppingCartService>();
             var cs = Services.Resolve<ICurrencyService>();
             var ts = Services.Resolve<ITaxService>();
+            var tc = Services.Resolve<ITaxCalculator>();
             var customer = await _db.Customers.FindByIdAsync(2666330, false);
             var primaryCurrency = cs.PrimaryCurrency;
             var workingCurrency = Services.WorkContext.WorkingCurrency;
@@ -962,6 +963,7 @@ namespace Smartstore.Web.Controllers
                     content.AppendLine("");
                 }
             }
+            content.AppendLine("-----------------------------------------------------------------------------------------------------\r\n");
 
             var cart = await scs.GetCartItemsAsync(customer);
             content.AppendLine($"Cart         {"unit prices".PadRight(24)}  {"subtotals".PadRight(24)}");
@@ -969,15 +971,15 @@ namespace Smartstore.Web.Controllers
             {
                 var oldCartPrice = await pcs.GetUnitPriceAsync(item, true);
                 var (oldCartPriceTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldCartPrice, customer: customer);
-                //var newCartPrice = await pcs2.CalculateUnitPriceAsync(item);
-                var cpCartPriceOptions = pcs2.CreateDefaultOptions(false);
-                var newCartPrice = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartPriceOptions));
+                var newCartPrice = await pcs2.CalculateUnitPriceAsync(item, false, primaryCurrency);
+                //var cpCartPriceOptions = pcs2.CreateDefaultOptions(false);
+                //var newCartPrice = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartPriceOptions));
 
                 var oldCartSubtotal = await pcs.GetSubTotalAsync(item, true);
                 var (oldCartSubtotalTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldCartSubtotal, customer: customer);
-                //var newCartSubtotal = await pcs2.CalculateSubtotalAsync(item);
-                var cpCartSubtotalOptions = pcs2.CreateDefaultOptions(false);
-                var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartSubtotalOptions) { CalculateUnitPrice = false });
+                var newCartSubtotal = await pcs2.CalculateSubtotalAsync(item, false, primaryCurrency);
+                //var cpCartSubtotalOptions = pcs2.CreateDefaultOptions(false);
+                //var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartSubtotalOptions) { CalculateUnitPrice = false });
 
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldCartPriceTax, newCartPrice.FinalPrice)} {Fmt(oldCartSubtotalTax, newCartSubtotal.FinalPrice)}");
             }
@@ -990,28 +992,36 @@ namespace Smartstore.Web.Controllers
                 var (oldCartPriceTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldCartPrice, customer: customer);
                 var oldConvertedCardPrice = cs.ConvertFromPrimaryCurrency(oldCartPriceTax.Amount, usd);
 
-                //var newConvertedCartPrice = await pcs2.CalculateUnitPriceAsync(item, false, usd);
-                var cpCartOptions = pcs2.CreateDefaultOptions(false, targetCurrency: usd);
-                var cpCartContext = new PriceCalculationContext(item, cpCartOptions);
-                var newConvertedCartPrice = await pcs2.CalculatePriceAsync(cpCartContext);
+                var newConvertedCartPrice = await pcs2.CalculateUnitPriceAsync(item, false, usd);
+                //var cpCartOptions = pcs2.CreateDefaultOptions(false, targetCurrency: usd);
+                //var cpCartContext = new PriceCalculationContext(item, cpCartOptions);
+                //var newConvertedCartPrice = await pcs2.CalculatePriceAsync(cpCartContext);
 
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldConvertedCardPrice, newConvertedCartPrice.FinalPrice)}");
             }
 
-            content.AppendLine("");
-            content.AppendLine($"Tax          {"excluding".PadRight(11)}  {"including".PadRight(11)}");
+            content.AppendLine($"\r\nTax          {"excluding".PadRight(11)}  {"including".PadRight(11)}");
             foreach (var item in cart)
             {
                 var oldSubTotal = await pcs.GetSubTotalAsync(item, true);
                 var (oldExclTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldSubTotal, false, customer: customer);
                 var (oldInclTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldSubTotal, true, customer: customer);
 
-                var cpCartSubtotalOptions = pcs2.CreateDefaultOptions(false);
-                var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartSubtotalOptions) { CalculateUnitPrice = false });
+                //var cpCartSubtotalOptions = pcs2.CreateDefaultOptions(false);
+                //var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartSubtotalOptions) { CalculateUnitPrice = false });
+                var newCartSubtotal = await pcs2.CalculateSubtotalAsync(item, false, primaryCurrency);
                 var tax = newCartSubtotal.Tax.Value;
                 
-                content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldExclTax, oldInclTax, false)} {tax.PriceNet} {tax.PriceGross} {tax.Price}");
+                content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldExclTax, oldInclTax, false)} {FmtTax(tax)}");
             }
+
+            var paymentFee = new Money(3.2m, primaryCurrency);
+            var (oldPaymentFeeExclTax, _) = await ts.GetPaymentMethodFeeAsync(paymentFee, false, null, customer);
+            var (oldPaymentFeeInclTax, taxRate) = await ts.GetPaymentMethodFeeAsync(paymentFee, true, null, customer);
+            var newPaymentFeeTax = await tc.CalculatePaymentFeeTaxAsync(paymentFee.Amount, null, null, customer);
+            content.AppendLine($"\r\nPayment tax: {Fmt(oldPaymentFeeExclTax, oldPaymentFeeInclTax, false)} {FmtTax(newPaymentFeeTax)}");
+            content.AppendLine($"           : {oldPaymentFeeInclTax - oldPaymentFeeExclTax} {workingCurrency.RoundIfEnabledFor(newPaymentFeeTax.Amount)}");
+
 
             content.Insert(0, "productIds: " + string.Join(", ", renderedIds) + "\r\n\r\n");
 
@@ -1021,6 +1031,10 @@ namespace Smartstore.Web.Controllers
                 if (m1 != m2 && check)
                     str += " !!";
                 return str;
+            }
+            string FmtTax(Tax tax)
+            {
+                return $"{tax.PriceNet} {tax.PriceGross} {tax.Amount} {tax.Rate.Rate}%";
             }
             async Task<List<int>> GetRandomProductIds(int num)
             {
