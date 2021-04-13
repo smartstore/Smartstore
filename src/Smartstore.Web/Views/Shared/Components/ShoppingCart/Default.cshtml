@@ -23,13 +23,16 @@
 
     <tr sm-if="Model.SubTotalDiscount.HasValue()" class="cart-summary-subtotaldiscount cart-summary-pos">
         <td class="cart-summary-label">
-            <a sm-if="Model.AllowRemovingSubTotalDiscount"
-               href="#"
-               data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
-               class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
-               title="@T("Common.Remove")">
-                <i class="fa">&times;</i>
-            </a>
+            @if (Model.AllowRemovingSubTotalDiscount)
+            {
+                <a href="#"
+                   data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
+                   class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
+                   title="@T("Common.Remove")">
+                    <i class="fa">&times;</i>
+                </a>
+            }
+
             <span class="text-nowrap">
                 @T("ShoppingCart.Totals.SubTotalDiscount"):
             </span>
@@ -85,13 +88,15 @@
 
     <tr sm-if="Model.OrderTotalDiscount.HasValue()" class="cart-summary-totaldiscount cart-summary-pos">
         <td class="cart-summary-label">
-            <a sm-if="Model.AllowRemovingOrderTotalDiscount"
-               href="#"
-               data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
-               class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
-               title="@T("Common.Remove")">
-                <i class="fa">&times;</i>
-            </a>
+            @if (Model.AllowRemovingOrderTotalDiscount)
+            {
+                <a href="#"
+                   data-href='@Url.Action("RemoveDiscountCoupon", "ShoppingCart")'
+                   class="btn-remove remove-discount-button pretty-link mr-1 ajax-action-link"
+                   title="@T("Common.Remove")">
+                    <i class="fa">&times;</i>
+                </a>
+            }
             <span class="text-nowrap">
                 @T("ShoppingCart.Totals.OrderTotalDiscount"):
             </span>

@@ -16,7 +16,6 @@
     </div>
     <div class="page-body">
         <div class="wishlist-content cart-content" data-empty-text=@T("Wishlist.CartIsEmpty").JsValue>
-
             <zone name="wishlist_items_top" />
 
             @if (modelHasItems)
@@ -55,14 +54,20 @@
                     </div>
 
                     <div class="common-buttons clearfix">
-                        <a sm-if="Model.IsEditable && Model.EmailWishlistEnabled" asp-action="EmailWishlist" rel="nofollow" class="btn btn-secondary email-a-friend-wishlist-button">
-                            <i class="fa fa-envelope"></i>
-                            <span>@T("Wishlist.EmailAFriend")</span>
-                        </a>
-                        <button sm-if="Model.DisplayAddToCart && !Model.IsEditable" type="submit" name="addtocartbutton" value="addtocartbutton" class="btn btn-primary wishlist-add-to-cart-button">
-                            <i class="fa fa-cart-arrow-down"></i>
-                            <span>@T("ShoppingCart.AddToCart")</span>
-                        </button>
+                        @if (Model.IsEditable && Model.EmailWishlistEnabled)
+                        {
+                            <a asp-action="EmailWishlist" rel="nofollow" class="btn btn-secondary email-a-friend-wishlist-button">
+                                <i class="fa fa-envelope"></i>
+                                <span>@T("Wishlist.EmailAFriend")</span>
+                            </a>
+                        }
+                        @if (!Model.IsEditable && Model.DisplayAddToCart)
+                        {
+                            <button type="submit" name="addtocartbutton" value="addtocartbutton" class="btn btn-primary wishlist-add-to-cart-button">
+                                <i class="fa fa-cart-arrow-down"></i>
+                                <span>@T("ShoppingCart.AddToCart")</span>
+                            </button>
+                        }
                     </div>
                 </form>
             }
