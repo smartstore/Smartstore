@@ -175,6 +175,7 @@ namespace Smartstore.Web.Controllers
 
                 var bundleProducts = await _db.ProductBundleItem
                     .AsNoTracking()
+                    .Include(x => x.Product)
                     .ApplyBundledProductsFilter(new int[] { orderItem.ProductId })
                     .Select(x => new ProductBundleItemData(x))
                     .ToListAsync();
