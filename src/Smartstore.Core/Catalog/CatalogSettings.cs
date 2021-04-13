@@ -414,7 +414,8 @@ namespace Smartstore.Core.Catalog
         //public bool DisplayTierPricesWithDiscounts { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to always ignore discounts except for bundle items.
+        /// Gets or sets a value indicating whether to always ignore discounts.
+        /// Discounts explicitly offered for bundle items are excluded from this. They are always applied.
         /// </summary>
         public bool IgnoreDiscounts { get; set; }
 
