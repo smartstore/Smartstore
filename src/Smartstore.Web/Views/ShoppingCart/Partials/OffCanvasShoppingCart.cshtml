@@ -1,0 +1,204 @@
+﻿@using Smartstore.Web.Models.ShoppingCart;
+@using Smartstore.Core.Checkout.Cart;
+
+@model MiniShoppingCartModel
+
+@{
+    int descMaxLength = Model.ShowProductImages ? 100 : 140;
+    int attrMaxLength = Model.ShowProductImages ? 50 : 70;
+
+    var checkoutUrl = "";
+    if (Model.AnonymousCheckoutAllowed && Model.CurrentCustomerIsGuest)
+    {
+        checkoutUrl = Url.Action("Login", "Identity", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") });
+    }
+    else
+    {
+        // TODO: (ms) (core) Implement corresponding action
+        checkoutUrl = Url.RouteUrl("Checkout");
+    }
+}
+
+<div class="offcanvas-cart-body offcanvas-scrollable">
+    <div sm-if="Model.TotalProducts == 0" class="no-items">
+        <h4 class="no-item-title">
+            @T("ShoppingCart.Mini.EmptyCart.Title")
+        </h4>
+        <p class="no-item-icon">
+            <i class="fa fa-shopping-basket fa-4x"></i>
+        </p>
+        <p class="no-item-info text-muted">
+            @T("ShoppingCart.Mini.EmptyCart.Info", "fa fa-lg fa-cart-arrow-down")
+        </p>
+    </div>
+
+    @if (Model.TotalProducts > 0)
+    {
+        // Items added in the last 2 seconds are considered to be current
+        var currentItem = Model.Items.FirstOrDefault(x => x.CreatedOnUtc >= DateTime.UtcNow.AddSeconds(-2));
+
+        <div sm-if="currentItem != null" class="alert alert-success alert-dismissible rounded-0 fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <span sm-language-attributes-for="currentItem.ProductName">
+                @Html.Raw(T("ShoppingCart.Mini.AddedItemToCart", $"<strong>{currentItem.ProductName.Value.Truncate(50, "...")}</strong>"))
+            </span>
+        </div>
+
+        <div class="offcanvas-cart-items">
+            @foreach (var item in Model.Items)
+            {
+                <div class="offcanvas-cart-item">
+                    <div class="row sm-gutters">
+
+                        <div sm-if="Model.ShowProductImages" class="col col-alpha">
+                            @if (item.Image.HasImage())
+                            {
+                                <a class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
+                                    <img sm-model="item.Image" />
+                                </a>
+                            }
+                        </div>
+
+                        <div class="col col-data">
+                            <a class="name font-weight-medium" href="@item.ProductUrl" title="@item.ProductName" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                            <div class="short-desc text-muted" sm-language-attributes-for="item.ShortDesc">
+                                @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))
+                            </div>
+                            <div sm-if="item.AttributeInfo.HasValue()" class="attributes">
+                                @Html.Raw(item.AttributeInfo)
+                            </div>
+                            <div sm-if="item.BundleItems.Count > 0" class="mb-bundle-pictures mt-3">
+                                @for (int j = 0, bundlelength = item.BundleItems.Count; j < bundlelength; j++)
+                                {
+                                    var bundleItem = item.BundleItems[j];
+
+                                    <a sm-if="bundleItem.PictureUrl.HasValue()" href="@bundleItem.ProductUrl" title="@bundleItem.ProductName">
+                                        @*TODO: (ms) (core) Use ImageModel *@
+                                        <img alt="@bundleItem.ProductName" src="@bundleItem.PictureUrl" title="@bundleItem.ProductName" />
+                                    </a>
+                                    <i sm-if="bundlelength != (j + 1)" class="fa fa-plus"></i>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row sm-gutters flex-wrap align-items-center mt-2">
+                        <div class="col col-alpha">
+                            @Html.EditorFor(x => item, "QtyInput", new
+                            {
+                                htmlAttributes = new
+                                {
+                                    // TODO: (ms) (core) Implement corresponding action.
+                                    data_update_url = Url.Action("UpdateCartItem", "ShoppingCart"),
+                                    data_type = "cart",
+                                    data_sci_id = item.Id,
+                                }
+                            })
+                        </div>
+                        <div class="col">
+                            <span class="price unit-price">
+                                @item.UnitPrice
+                            </span>
+
+                            @if (Model.ShowBasePrice && item.BasePriceInfo.HasValue())
+                            {
+                                <div class="pangv" attr-title="(item.BasePriceInfo.HasValue(), item.BasePriceInfo)">
+                                    @Html.Raw(LocalizedValue.FixBrackets(item.BasePriceInfo, WorkContext.WorkingLanguage) ?? "&nbsp;")
+                                </div>
+                            }
+                        </div>
+
+                        @*TODO: (ms) (core) Implement corresponding actions.*@
+                        <div class="ml-auto text-nowrap">
+                            @if (Model.DisplayMoveToWishlistButton)
+                            {
+                                <a class="btn btn-secondary btn-sm btn-icon ajax-cart-link" title="@T("ShoppingCart.MoveToWishlist")"
+                                   href="#"
+                                   rel="nofollow"
+                                   data-href="@Url.Action("MoveItemBetweenCartAndWishlist", "ShoppingCart", new { cartItemId = item.Id, cartType = ShoppingCartType.ShoppingCart })"
+                                   data-name="@item.ProductName"
+                                   data-type="cart"
+                                   data-action="addfromcart">
+                                    <i class="fal fa-heart"></i>
+                                </a>
+                            }
+                            <a class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link" title="@T("Common.Remove")"
+                               href="#"
+                               rel="nofollow"
+                               data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
+                               data-name="@item.ProductName"
+                               data-type="cart"
+                               data-action="remove">
+                                <i class="fal fa-trash-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <zone name="offcanvas_cart_items_after"></zone>
+</div>
+
+@if (Model.TotalProducts == 0)
+{
+    return;
+}
+
+<div class="offcanvas-cart-footer">
+    <div class="offcanvas-cart-footer-row">
+        <div class="offcanvas-cart-footer-col mr-3">
+            <div>
+                <div class="sub-total-caption">
+                    @T("ShoppingCart.Totals.SubTotal"):
+                </div>
+                <div class="sub-total price">
+                    @Model.SubTotal
+                </div>
+            </div>
+        </div>
+        <div class="offcanvas-cart-footer-col row sm-gutters d-flex flex-wrap">
+            @if (Model.DisplayCheckoutButton)
+            {
+                <div class="col">
+                    @*TODO: (ms) (core) Implement corresponding action*@
+                    <a class="btn btn-success btn-flat btn-flat-light btn-block btn-action" asp-route="ShoppingCart">
+                        @T("ShoppingCart.Mini.ViewCart")
+                    </a>
+                </div>
+                <div class="col">
+                    <a class="btn btn-clear btn-block btn-action" href="@checkoutUrl">
+                        <i class="fa fa-check"></i>
+                        <span>@T("Checkout.Button")</span>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="col">
+                    <a class="btn btn-clear btn-block btn-action" asp-route="ShoppingCart">
+                        <i class="fa fa-check"></i>
+                        <span>@T("ShoppingCart.Mini.ViewCart")</span>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <zone name="offcanvas_cart_footer_after"></zone>
+
+    @{
+        // TODO: (ms) (core) What to do here?
+        //var summaryHtml = Html.Widget("offcanvas_cart_summary").ToHtmlString();
+        var summaryHtml = string.Empty;
+    }
+
+    <div sm-if="summaryHtml.HasValue()" class="offcanvas-cart-external-checkout">
+        <div class="d-flex justify-content-center align-items-center flex-wrap">
+            @Html.Raw(summaryHtml)
+        </div>
+    </div>
+</div>

@@ -66,7 +66,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
         public partial class ShoppingCartItemBundleItem : ModelBase
         {
-            public string PictureUrl { get; set; } // TODO: (mh) (core) Use ImageModel
+            public string PictureUrl { get; set; } // TODO: (ms) (core) Use ImageModel
             public LocalizedValue<string> ProductName { get; set; }
             public string ProductSeName { get; set; }
             public string ProductUrl { get; set; }
