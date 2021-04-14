@@ -253,6 +253,11 @@ namespace Smartstore.Core.Catalog.Pricing
                 Tax = tax
             };
 
+            foreach (var attributePrice in context.AttributePrices)
+            {
+                // TODO: (mg) (core) Convert and provide attribute prices.
+            }
+
             if (tax.HasValue && _primaryCurrency != context.Options.TargetCurrency)
             {
                 // Exchange tax amounts.
@@ -281,7 +286,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var options = context.Options;
 
-            if (amount != 0 && !options.IgnoreTax)
+            if (amount != 0)
             {
                 tax = options.IsGrossPrice
                      ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency)

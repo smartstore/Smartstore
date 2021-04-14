@@ -135,11 +135,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public bool TaxInclusive { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to ignore sales taxes.
-        /// </summary>
-        public bool IgnoreTax { get; set; }
-
-        /// <summary>
         /// Gets cash rounding options.
         /// </summary>
         //public CashRoundingOptions CashRounding { get; init; } = new();

@@ -42,7 +42,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly IOrderCalculationService _orderCalculationService;
-        private readonly ITaxService _taxService;
+        private readonly ITaxCalculator _taxCalculator;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IShippingService _shippingService;
@@ -73,7 +73,7 @@ namespace Smartstore.Core.Checkout.Orders
             IProductAttributeMaterializer productAttributeMaterializer,
             IProductAttributeFormatter productAttributeFormatter,
             IOrderCalculationService orderCalculationService,
-            ITaxService taxService,
+            ITaxCalculator taxCalculator,
             IShoppingCartService shoppingCartService,
             IShoppingCartValidator shoppingCartValidator,
             IShippingService shippingService,
@@ -101,7 +101,7 @@ namespace Smartstore.Core.Checkout.Orders
             _productAttributeMaterializer = productAttributeMaterializer;
             _productAttributeFormatter = productAttributeFormatter;
             _orderCalculationService = orderCalculationService;
-            _taxService = taxService;
+            _taxCalculator = taxCalculator;
             _shoppingCartService = shoppingCartService;
             _shoppingCartValidator = shoppingCartValidator;
             _shippingService = shippingService;

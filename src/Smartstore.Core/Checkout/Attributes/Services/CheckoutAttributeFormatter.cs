@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Attributes
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ICurrencyService _currencyService;
         private readonly IWorkContext _workContext;
-        private readonly ITaxService _taxService;
+        private readonly ITaxCalculator _taxCalculator;
         private readonly IWebHelper _webHelper;
         private readonly SmartDbContext _db;
 
@@ -28,14 +28,14 @@ namespace Smartstore.Core.Checkout.Attributes
             ICheckoutAttributeMaterializer attributeMaterializer,
             ICurrencyService currencyService,
             IWorkContext workContext,
-            ITaxService taxService,
+            ITaxCalculator taxCalculator,
             IWebHelper webHelper,
             SmartDbContext db)
         {
             _checkoutAttributeMaterializer = attributeMaterializer;
             _currencyService = currencyService;
             _workContext = workContext;
-            _taxService = taxService;
+            _taxCalculator = taxCalculator;
             _webHelper = webHelper;
             _db = db;
         }
@@ -146,7 +146,6 @@ namespace Smartstore.Core.Checkout.Attributes
                                 attributeStr = HttpUtility.HtmlEncode(attributeStr);
                             }
                         }
-
                     }
                     else
                     {
@@ -162,11 +161,11 @@ namespace Smartstore.Core.Checkout.Attributes
                                 
                                 if (renderPrices)
                                 {
-                                    var (priceAdjustment, _) = await _taxService.GetCheckoutAttributePriceAsync(attributeValue, customer: customer);
-                                    if (priceAdjustment > decimal.Zero)
+                                    var adjustment = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(attributeValue, customer: customer);
+                                    if (adjustment.Price > 0m)
                                     {
-                                        var priceAdjustmentConverted = _currencyService.ConvertToWorkingCurrency(priceAdjustment);
-                                        attributeStr += " [+{0}]".FormatInvariant(_currencyService.ApplyTaxFormat(priceAdjustmentConverted).ToString());
+                                        var convertedAdjustment = _currencyService.ConvertToWorkingCurrency(adjustment.Price);
+                                        attributeStr += " [+{0}]".FormatInvariant(_currencyService.ApplyTaxFormat(convertedAdjustment).ToString());
                                     }
                                 }
                             }

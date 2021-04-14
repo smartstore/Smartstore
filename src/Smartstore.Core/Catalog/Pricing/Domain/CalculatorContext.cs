@@ -62,6 +62,11 @@ namespace Smartstore.Core.Catalog.Pricing
         public decimal? MinTierPrice { get; set; }
 
         /// <summary>
+        /// TODO: (mg) (core) Describe AttributePrices when ready
+        /// </summary>
+        public Dictionary<int, decimal> AttributePrices { get; set; } = new();
+
+        /// <summary>
         /// Copies all data from current context to given <paramref name="target"/> context.
         /// Mostly called in nested calculation pipelines to merge child with root data.
         /// </summary>

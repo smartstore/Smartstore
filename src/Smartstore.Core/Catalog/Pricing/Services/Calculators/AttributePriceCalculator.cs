@@ -68,20 +68,20 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             {
                 var adjustment = decimal.Zero;
 
-                if (value.LinkedProductId == 0)
+                if (value.ValueType == ProductVariantAttributeValueType.Simple)
                 {
-                    if (includeTierPriceAttributePriceAdjustment && value.PriceAdjustment > decimal.Zero)
+                    if (includeTierPriceAttributePriceAdjustment && value.PriceAdjustment > 0m)
                     {
                         var tierPrices = await context.GetTierPricesAsync();
                         adjustment = GetTierPriceAttributeAdjustment(product, tierPrices, context.Quantity, value.PriceAdjustment);
                     }
 
-                    if (adjustment == decimal.Zero)
+                    if (adjustment == 0m)
                     {
                         adjustment = value.PriceAdjustment;
                     }
                 }
-                else if (linkedProducts.TryGetValue(value.LinkedProductId, out var linkedProduct))
+                else if (value.ValueType == ProductVariantAttributeValueType.ProductLinkage && linkedProducts.TryGetValue(value.LinkedProductId, out var linkedProduct))
                 {
                     var childCalculation = await CalculateChildPriceAsync(linkedProduct, context, c =>
                     {
@@ -92,8 +92,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     adjustment = decimal.Multiply(childCalculation.FinalPrice, value.Quantity);
                 }
 
-                context.FinalPrice += adjustment;
-                context.AdditionalCharge += adjustment;
+                if (adjustment != 0m)
+                {
+                    context.FinalPrice += adjustment;
+                    context.AdditionalCharge += adjustment;
+                    context.AttributePrices[value.Id] = adjustment;
+                }
             }
 
             await next(context);

@@ -168,7 +168,7 @@ namespace Smartstore.Core.Checkout.Tax
                 attributeValue.PriceAdjustment,
                 includingTax,
                 _taxSettings.PricesIncludeTax,
-                attributeValue.CheckoutAttribute.TaxCategoryId, 
+                attributeValue.CheckoutAttribute.TaxCategoryId,
                 customer);
 
             return (new(amount, _primaryCurrency), taxRate);

@@ -489,12 +489,11 @@ namespace Smartstore.Core.Checkout.Orders
 
                 // Payment total.
                 var paymentFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(ctx.Cart, ctx.PaymentRequest.PaymentMethodSystemName);
-                var (paymentFeeInclTax, paymentFeeTaxRate) = await _taxService.GetPaymentMethodFeeAsync(paymentFee, true, null, ctx.Customer);
-                var (paymentFeeExclTax, _) = await _taxService.GetPaymentMethodFeeAsync(paymentFee, false, null, ctx.Customer);
+                var paymentFeeTax = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentFee.Amount, customer: ctx.Customer);
 
-                order.PaymentMethodAdditionalFeeInclTax = paymentFeeInclTax.Amount;
-                order.PaymentMethodAdditionalFeeExclTax = paymentFeeExclTax.Amount;
-                order.PaymentMethodAdditionalFeeTaxRate = paymentFeeTaxRate;
+                order.PaymentMethodAdditionalFeeInclTax = paymentFeeTax.PriceGross;
+                order.PaymentMethodAdditionalFeeExclTax = paymentFeeTax.PriceNet;
+                order.PaymentMethodAdditionalFeeTaxRate = paymentFeeTax.Rate.Rate;
 
                 // Tax total.
                 var (taxTotal, taxRates) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(ctx.Cart);

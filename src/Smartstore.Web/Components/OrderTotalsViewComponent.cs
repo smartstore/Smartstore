@@ -5,9 +5,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
@@ -23,7 +21,7 @@ namespace Smartstore.Web.Components
     {
         private readonly SmartDbContext _db;
         private readonly ITaxService _taxService;
-        private readonly IPaymentService _paymentService;
+        private readonly ITaxCalculator _taxCalculator;
         private readonly ICurrencyService _currencyService;
         private readonly IGiftCardService _giftCardService;
         private readonly IShoppingCartService _shoppingCartService;
@@ -36,7 +34,7 @@ namespace Smartstore.Web.Components
         public OrderTotalsViewComponent(
             SmartDbContext db,
             ITaxService taxService,
-            IPaymentService paymentService,
+            ITaxCalculator taxCalculator,
             ICurrencyService currencyService,
             IGiftCardService giftCardService,
             IShoppingCartService shoppingCartService,
@@ -48,7 +46,7 @@ namespace Smartstore.Web.Components
         {
             _db = db;
             _taxService = taxService;
-            _paymentService = paymentService;
+            _taxCalculator = taxCalculator;
             _currencyService = currencyService;
             _giftCardService = giftCardService;
             _shoppingCartService = shoppingCartService;
@@ -124,15 +122,12 @@ namespace Smartstore.Web.Components
                 }
 
                 // Payment method fee
-                var paymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
-                var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
-                var paymentMethodAdditionalFee = await paymentMethod.Value.GetPaymentFeeInfoAsync(cart);
-                var paymentMethodAdditionalFeeWithTax = await _taxService.GetPaymentMethodFeeAsync(new Money(paymentMethodAdditionalFee.FixedFeeOrPercentage, currency));
-
-                if (paymentMethodAdditionalFeeWithTax.Price != decimal.Zero)
+                var paymentFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(cart, customer.GenericAttributes.SelectedPaymentMethod);
+                var paymentFeeTax = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentFee.Amount, customer: customer);
+                if (paymentFeeTax.Price != 0m)
                 {
-                    var paymentMethodAdditionalFeeWithTaxConverted = _currencyService.ConvertFromPrimaryCurrency(paymentMethodAdditionalFeeWithTax.Price.Amount, currency);
-                    model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeWithTaxConverted.ToString();
+                    var convertedPaymentFeeTax = _currencyService.ConvertFromPrimaryCurrency(paymentFeeTax.Price, currency);
+                    model.PaymentMethodAdditionalFee = convertedPaymentFeeTax.ToString();
                 }
 
                 // Tax

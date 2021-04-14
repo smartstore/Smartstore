@@ -963,8 +963,8 @@ namespace Smartstore.Web.Controllers
                     content.AppendLine("");
                 }
             }
-            content.AppendLine("-----------------------------------------------------------------------------------------------------\r\n");
 
+            content.AppendLine("-----------------------------------------------------------------------------------------------------\r\n");
             var cart = await scs.GetCartItemsAsync(customer);
             content.AppendLine($"Cart         {"unit prices".PadRight(24)}  {"subtotals".PadRight(24)}");
             foreach (var item in cart)
@@ -1015,12 +1015,20 @@ namespace Smartstore.Web.Controllers
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldExclTax, oldInclTax, false)} {FmtTax(tax)}");
             }
 
+            content.AppendLine("-----------------------------------------------------------------------------------------------------\r\n");
             var paymentFee = new Money(3.2m, primaryCurrency);
             var (oldPaymentFeeExclTax, _) = await ts.GetPaymentMethodFeeAsync(paymentFee, false, null, customer);
-            var (oldPaymentFeeInclTax, taxRate) = await ts.GetPaymentMethodFeeAsync(paymentFee, true, null, customer);
+            var (oldPaymentFeeInclTax, _) = await ts.GetPaymentMethodFeeAsync(paymentFee, true, null, customer);
             var newPaymentFeeTax = await tc.CalculatePaymentFeeTaxAsync(paymentFee.Amount, null, null, customer);
-            content.AppendLine($"\r\nPayment tax: {Fmt(oldPaymentFeeExclTax, oldPaymentFeeInclTax, false)} {FmtTax(newPaymentFeeTax)}");
-            content.AppendLine($"           : {oldPaymentFeeInclTax - oldPaymentFeeExclTax} {workingCurrency.RoundIfEnabledFor(newPaymentFeeTax.Amount)}");
+            content.AppendLine($"\r\nPayment tax: {oldPaymentFeeExclTax.Amount} {oldPaymentFeeInclTax.Amount} {FmtTax(newPaymentFeeTax)}");
+            content.AppendLine($"Compare    : {Math.Round(oldPaymentFeeInclTax.Amount - oldPaymentFeeExclTax.Amount, 4)} {Math.Round(newPaymentFeeTax.Amount, 4)}");
+
+            var shippingTotal = new Money(6.9m, primaryCurrency);
+            var (oldShippingExclTax, _) = await ts.GetShippingPriceAsync(shippingTotal, false, null, customer);
+            var (oldShippingInclTax, _) = await ts.GetShippingPriceAsync(shippingTotal, true, null, customer);
+            var newShippingTax = await tc.CalculateShippingTaxAsync(shippingTotal.Amount, null, null, customer);
+            content.AppendLine($"\r\nShipping tax: {oldShippingExclTax.Amount} {oldShippingInclTax.Amount} {FmtTax(newShippingTax)}");
+            content.AppendLine($"Compare     : {Math.Round(oldShippingInclTax.Amount - oldShippingExclTax.Amount, 4)} {Math.Round(newShippingTax.Amount, 4)}\r\n");
 
 
             content.Insert(0, "productIds: " + string.Join(", ", renderedIds) + "\r\n\r\n");
@@ -1034,7 +1042,7 @@ namespace Smartstore.Web.Controllers
             }
             string FmtTax(Tax tax)
             {
-                return $"{tax.PriceNet} {tax.PriceGross} {tax.Amount} {tax.Rate.Rate}%";
+                return $"- {tax.PriceNet} {tax.PriceGross} ({tax.Price}) {tax.Amount} {tax.Rate.Rate}%";
             }
             async Task<List<int>> GetRandomProductIds(int num)
             {

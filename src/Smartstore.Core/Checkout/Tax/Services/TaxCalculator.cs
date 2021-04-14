@@ -58,6 +58,7 @@ namespace Smartstore.Core.Checkout.Tax
         public virtual Task<Tax> CalculateShippingTaxAsync(
             decimal price,
             bool? inclusive = null,
+            int? taxCategoryId = null,
             Customer customer = null,
             Currency currency = null)
         {
@@ -68,7 +69,8 @@ namespace Smartstore.Core.Checkout.Tax
 
             return CalculateTaxAsync(null, price,
                 _taxSettings.ShippingPriceIncludesTax,
-                _taxSettings.ShippingTaxClassId, inclusive, customer, currency);
+                taxCategoryId ?? _taxSettings.ShippingTaxClassId, 
+                inclusive, customer, currency);
         }
 
         public virtual Task<Tax> CalculatePaymentFeeTaxAsync(
