@@ -24,8 +24,6 @@ namespace Smartstore.Web.Models.Orders
 
         public string Result { get; set; }
 
-        #region Nested classes
-
         public partial class OrderItemModel : EntityModelBase
         {
             public int ProductId { get; set; }
@@ -42,7 +40,5 @@ namespace Smartstore.Web.Models.Orders
 
             public int Quantity { get; set; }
         }
-
-        #endregion
     }
 }

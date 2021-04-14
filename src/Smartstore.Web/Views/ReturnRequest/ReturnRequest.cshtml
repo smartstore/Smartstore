@@ -72,7 +72,7 @@
                 <div class="mt-5">
                     <div class="form-group row">
                         <div class="col-md-3">
-                            <label asp-for="ReturnReason"></label>
+                            <label asp-for="ReturnReason" class="col-form-label"></label>
                         </div>
                         <div class="col-md-9">
                             <select asp-for="ReturnReason" asp-items="ViewBag.AvailableReturnReasons" sm-required="true" class="return-reasons"></select>
@@ -80,7 +80,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-md-3">
-                            <label asp-for="ReturnAction"></label>
+                            <label asp-for="ReturnAction" class="col-form-label"></label>
                         </div>
                         <div class="col-md-9">
                             <select asp-for="ReturnAction" asp-items="ViewBag.AvailableReturnActions" sm-required="true" class="return-actions"></select>
@@ -88,7 +88,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-md-3">
-                            <label asp-for="Comments"></label>
+                            <label asp-for="Comments" class="col-form-label"></label>
                         </div>
                         <div class="col-md-9">
                             <textarea asp-for="Comments" class="comment"></textarea>

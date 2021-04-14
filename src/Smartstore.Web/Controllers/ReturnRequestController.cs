@@ -46,11 +46,13 @@ namespace Smartstore.Web.Controllers
             _localizationSettings = localizationSettings;
         }
 
-        /// <param name="id"><see cref="Order.Id"/></param>
         [RequireSsl]
-        public async Task<IActionResult> ReturnRequest(int id)
+        public async Task<IActionResult> ReturnRequest(int id /* orderId */)
         {
-            var order = await _db.Orders.FindByIdAsync(id, false);
+            var order = await _db.Orders
+                .Include(x => x.OrderItems)
+                .ThenInclude(x => x.Product)
+                .FindByIdAsync(id);
 
             if (order == null || Services.WorkContext.CurrentCustomer.Id != order.CustomerId)
             {
@@ -67,9 +69,8 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        /// <param name="id"><see cref="Order.Id"/></param>
         [HttpPost, ActionName("ReturnRequest")]
-        public async Task<IActionResult> ReturnRequestSubmit(int id, SubmitReturnRequestModel model)
+        public async Task<IActionResult> ReturnRequestSubmit(int id /* orderId */, SubmitReturnRequestModel model)
         {
             var order = await _db.Orders
                 .Include(x => x.BillingAddress)
@@ -177,13 +178,7 @@ namespace Smartstore.Web.Controllers
             }
             ViewBag.AvailableReturnActions = availableReturnActions;
 
-            // Products.
-            var orderItems = await _db.OrderItems
-                .Include(x => x.Product)
-                .ApplyStandardFilter(order.Id)
-                .ToListAsync();
-            
-            foreach (var orderItem in orderItems)
+            foreach (var orderItem in order.OrderItems)
             {
                 var orderItemModel = new SubmitReturnRequestModel.OrderItemModel
                 {
@@ -198,10 +193,10 @@ namespace Smartstore.Web.Controllers
                 orderItemModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(orderItemModel.ProductSeName, orderItem);
 
                 // TODO: (mh) (core) Reconsider when pricing is available.
-                var customerCurrency = await _db
-                    .Currencies
+                var customerCurrency = await _db.Currencies
+                    .AsNoTracking()
                     .Where(x => x.CurrencyCode == order.CustomerCurrencyCode)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync() ?? new Currency { CurrencyCode = order.CustomerCurrencyCode };
 
                 // Unit price.
                 switch (order.CustomerTaxDisplayType)
