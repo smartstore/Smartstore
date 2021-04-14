@@ -58,7 +58,7 @@ namespace Smartstore.Core.Seo.Routing
                     };
             }
 
-            return null;
+            //return null;
         }
 
         public override void MapRoutes(IEndpointRouteBuilder routes)

@@ -9,9 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Net;
 using Smartstore.Core.Web;
-using Microsoft.AspNetCore.Authentication;
 
 namespace Smartstore.Core.Seo.Routing
 {
