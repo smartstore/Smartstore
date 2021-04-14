@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -1673,16 +1674,15 @@ namespace Smartstore.Web.Controllers
                     _currencyService.ConvertToWorkingCurrency(maximumCustomerEnteredPrice));
             }
 
-            // TODO: (mh) (core) Create Product extension or mayby helper method to get AllowedQuatities.
-            //var allowedQuantities = product.ParseAllowedQuatities();
-            //foreach (var qty in allowedQuantities)
-            //{
-            //    model.AddToCart.AllowedQuantities.Add(new SelectListItem
-            //    {
-            //        Text = qty.ToString(),
-            //        Value = qty.ToString()
-            //    });
-            //}
+            var allowedQuantities = product.ParseAllowedQuantities();
+            foreach (var qty in allowedQuantities)
+            {
+                model.AddToCart.AllowedQuantities.Add(new SelectListItem
+                {
+                    Text = qty.ToString(),
+                    Value = qty.ToString()
+                });
+            }
         }
 
         protected void PrepareProductGiftCardsModel(ProductDetailsModel model, ProductDetailsModelContext modelContext)

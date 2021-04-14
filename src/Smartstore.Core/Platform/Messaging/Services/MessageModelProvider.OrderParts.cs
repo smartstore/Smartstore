@@ -17,6 +17,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 
 namespace Smartstore.Core.Messages
@@ -71,14 +72,13 @@ namespace Smartstore.Core.Messages
             d.CreatedOn = ToUserDate(part.CreatedOnUtc, messageContext);
             d.PaidOn = ToUserDate(part.PaidDateUtc, messageContext);
 
-            // TODO: (mh) (core) Uncomment when available.
             // Payment method
             var paymentMethodName = part.PaymentMethodSystemName;
-            //var paymentMethod = _services.Resolve<IProviderManager>().GetProvider<IPaymentMethod>(part.PaymentMethodSystemName);
-            //if (paymentMethod != null)
-            //{
-            //    paymentMethodName = GetLocalizedValue(messageContext, paymentMethod.Metadata, nameof(paymentMethod.Metadata.FriendlyName), x => x.FriendlyName);
-            //}
+            var paymentMethod = _services.Resolve<IProviderManager>().GetProvider<IPaymentMethod>(part.PaymentMethodSystemName);
+            if (paymentMethod != null)
+            {
+                paymentMethodName = GetLocalizedValue(messageContext, paymentMethod.Metadata, nameof(paymentMethod.Metadata.FriendlyName), x => x.FriendlyName);
+            }
             d.PaymentMethod = paymentMethodName.NullEmpty();
 
             d.Url = part.Customer != null && !part.Customer.IsGuest()

@@ -8,6 +8,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
 using Smartstore.Domain;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Content.Topics
 {
@@ -140,13 +141,11 @@ namespace Smartstore.Core.Content.Topics
         /// </summary>
         public bool IsPublished { get; set; } = true;
 
-        // TODO: (mh) (core) Uncomment when ICookiePublisher is available.
         /// <summary>
         /// Gets or sets a value indicating whether the topic set a cookie and the cookie type.
         /// </summary>
-        //public CookieType? CookieType { get; set; }
-        public int? CookieType { get; set; }
-
+        public CookieType? CookieType { get; set; }
+        
         /// <summary>
         /// Helper function which gets the comma-separated <c>WidgetZone</c> property as list of strings.
         /// </summary>

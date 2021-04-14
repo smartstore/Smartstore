@@ -31,7 +31,8 @@
                     <span class="review-meta-label">@T("Reviews.From"):</span>
                     @if (review.AllowViewingProfiles)
                     {
-                        <a class="review-meta-value" href="@Url.RouteUrl("CustomerProfile", new { id = review.CustomerId })" rel="nofollow" dir="auto" itemprop="name">
+                        // TODO: (mh) (core) Implement action
+                        <a class="review-meta-value" asp-route="CustomerProfile" asp-route-id="@review.CustomerId" rel="nofollow" dir="auto" itemprop="name">
                             @(review.CustomerName)
                         </a>
                     }
@@ -69,7 +70,7 @@
 @if (Model.TotalReviewsCount > Model.Items.Count)
 {
     <div class="text-center">
-        <a class="btn btn-secondary" href="@Url.Action("Reviews", new { id = Model.ProductId })#review-item-11">
+        <a class="btn btn-secondary" asp-action="Reviews" asp-route-id="@Model.ProductId" asp-fragment="review-item-11">
             <span>@T("Reviews.Overview.ReadAll")</span>
         </a>
     </div>
