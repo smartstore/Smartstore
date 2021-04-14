@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Tax;
@@ -19,6 +20,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Product = context.Product;
             AppliedDiscounts = context.AppliedDiscounts;
             HasPriceRange = context.HasPriceRange;
+            AttributePrices = context.AttributePrices;
         }
 
         /// <summary>
@@ -69,7 +71,13 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// The additional charge in the target currency, if any. Usually <see cref=">"/>
         /// </summary>
-        public Money? AdditionalCharge { get; set; }
+        //public Money? AdditionalCharge { get; set; }
+
+        /// <summary>
+        /// Gets a list of calculated product attribute prices, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
+        /// Only returned if <see cref="PriceCalculationOptions.DetermineAttributePrices"/> is activated.
+        /// </summary>
+        public ICollection<CalculatedAttributePrice> AttributePrices { get; init; }
 
         /// <summary>
         /// Tax for <see cref="FinalPrice"/>.

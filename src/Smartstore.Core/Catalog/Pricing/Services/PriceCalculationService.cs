@@ -253,10 +253,8 @@ namespace Smartstore.Core.Catalog.Pricing
                 Tax = tax
             };
 
-            foreach (var attributePrice in context.AttributePrices)
-            {
-                // TODO: (mg) (core) Convert and provide attribute prices.
-            }
+            // Convert attribute price adjustments.
+            context.AttributePrices.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _) ?? new());
 
             if (tax.HasValue && _primaryCurrency != context.Options.TargetCurrency)
             {

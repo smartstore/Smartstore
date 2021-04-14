@@ -972,20 +972,17 @@ namespace Smartstore.Web.Controllers
                 var oldCartPrice = await pcs.GetUnitPriceAsync(item, true);
                 var (oldCartPriceTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldCartPrice, customer: customer);
                 var newCartPrice = await pcs2.CalculateUnitPriceAsync(item, false, primaryCurrency);
-                //var cpCartPriceOptions = pcs2.CreateDefaultOptions(false);
-                //var newCartPrice = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartPriceOptions));
+                //var newCartPrice = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, pcs2.CreateDefaultOptions(false)));
 
                 var oldCartSubtotal = await pcs.GetSubTotalAsync(item, true);
                 var (oldCartSubtotalTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldCartSubtotal, customer: customer);
                 var newCartSubtotal = await pcs2.CalculateSubtotalAsync(item, false, primaryCurrency);
-                //var cpCartSubtotalOptions = pcs2.CreateDefaultOptions(false);
-                //var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartSubtotalOptions) { CalculateUnitPrice = false });
+                //var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, pcs2.CreateDefaultOptions(false)) { CalculateUnitPrice = false });
 
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldCartPriceTax, newCartPrice.FinalPrice)} {Fmt(oldCartSubtotalTax, newCartSubtotal.FinalPrice)}");
             }
 
-            content.AppendLine("");
-            content.AppendLine("Cart in USD");
+            content.AppendLine("\r\nCart in USD");
             foreach (var item in cart)
             {
                 var oldCartPrice = await pcs.GetUnitPriceAsync(item, true);
@@ -1000,6 +997,23 @@ namespace Smartstore.Web.Controllers
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldConvertedCardPrice, newConvertedCartPrice.FinalPrice)}");
             }
 
+            content.AppendLine("\r\nCart attribute prices");
+            foreach (var item in cart)
+            {
+                var cpCartOptions = pcs2.CreateDefaultOptions(false);
+                cpCartOptions.DetermineAttributePrices = true;
+                var newCartPrice = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartOptions));
+
+                foreach (var price in newCartPrice.AttributePrices)
+                {
+                    var product = await _db.Products.FindByIdAsync(price.ProductId, false);
+                    var oldAttributePriceBase = await pcs.GetProductVariantAttributeValuePriceAdjustmentAsync(price.Value, product, customer, null, 1);
+                    var (oldAttributePrice, _) = await ts.GetProductPriceAsync(product, oldAttributePriceBase, customer: customer);
+
+                    content.AppendLine($"{price.ProductId.ToString().PadRight(11)}: {Fmt(oldAttributePrice, price.Price)}");
+                }
+            }
+
             content.AppendLine($"\r\nTax          {"excluding".PadRight(11)}  {"including".PadRight(11)}");
             foreach (var item in cart)
             {
@@ -1007,8 +1021,7 @@ namespace Smartstore.Web.Controllers
                 var (oldExclTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldSubTotal, false, customer: customer);
                 var (oldInclTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldSubTotal, true, customer: customer);
 
-                //var cpCartSubtotalOptions = pcs2.CreateDefaultOptions(false);
-                //var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartSubtotalOptions) { CalculateUnitPrice = false });
+                //var newCartSubtotal = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, pcs2.CreateDefaultOptions(false)) { CalculateUnitPrice = false });
                 var newCartSubtotal = await pcs2.CalculateSubtotalAsync(item, false, primaryCurrency);
                 var tax = newCartSubtotal.Tax.Value;
                 

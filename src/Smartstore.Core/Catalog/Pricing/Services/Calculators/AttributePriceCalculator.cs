@@ -63,9 +63,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 ? await _db.Products.AsNoTracking().Where(x => linkedProductIds.Contains(x.Id)).ToDictionaryAsync(x => x.Id)
                 : new Dictionary<int, Product>();
 
-            // Add attribute price adjustment to final price.
             foreach (var value in attributeValues)
             {
+                // Calculate price adjustment.
                 var adjustment = decimal.Zero;
 
                 if (value.ValueType == ProductVariantAttributeValueType.Simple)
@@ -92,11 +92,22 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     adjustment = decimal.Multiply(childCalculation.FinalPrice, value.Quantity);
                 }
 
+                // Add attribute price adjustment to final price.
                 if (adjustment != 0m)
                 {
                     context.FinalPrice += adjustment;
                     context.AdditionalCharge += adjustment;
-                    context.AttributePrices[value.Id] = adjustment;
+
+                    if (options.DetermineAttributePrices)
+                    {
+                        context.AttributePrices.Add(new CalculatedAttributePrice
+                        {
+                            RawPriceAdjustment = adjustment,
+                            Value = value,
+                            ProductId = product.Id,
+                            BundleItemId = context?.BundleItem?.Item?.Id
+                        });
+                    }
                 }
             }
 

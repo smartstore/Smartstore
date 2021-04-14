@@ -62,9 +62,9 @@ namespace Smartstore.Core.Catalog.Pricing
         public decimal? MinTierPrice { get; set; }
 
         /// <summary>
-        /// TODO: (mg) (core) Describe AttributePrices when ready
+        /// Gets or sets a list of calculated product attribute prices, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
         /// </summary>
-        public Dictionary<int, decimal> AttributePrices { get; set; } = new();
+        public ICollection<CalculatedAttributePrice> AttributePrices { get; set; } = new List<CalculatedAttributePrice>();
 
         /// <summary>
         /// Copies all data from current context to given <paramref name="target"/> context.
@@ -85,6 +85,9 @@ namespace Smartstore.Core.Catalog.Pricing
 
             target.AppliedDiscounts.Clear();
             target.AppliedDiscounts.AddRange(AppliedDiscounts);
+
+            target.AttributePrices.Clear();
+            target.AttributePrices.AddRange(AttributePrices);
         }
     }
 }

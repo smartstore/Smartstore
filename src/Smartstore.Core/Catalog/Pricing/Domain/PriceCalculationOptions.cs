@@ -1,4 +1,5 @@
 ﻿using System;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
@@ -168,6 +169,12 @@ namespace Smartstore.Core.Catalog.Pricing
         /// May have impact on performance.
         /// </summary>
         public bool DeterminePreselectedPrice { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to determine prices of product attributes, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
+        /// Attribute prices are returned through <see cref="CalculatedPrice.AttributePrices"/>.
+        /// </summary>
+        public bool DetermineAttributePrices { get; set; }
 
         /// <inheritdoc/>
         public PriceCalculationOptions Clone()
