@@ -113,7 +113,6 @@
                 </a>
                 @if (order.IsReturnRequestAllowed)
                 {
-                    // TODO: (mh) (core) Implement corresponding action.
                     <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@order.Id" class="btn btn-secondary btn-flat rounded-0" rel="nofollow">
                         <i class="fa fa-reply"></i>
                         <span>@T("Account.CustomerOrders.ReturnItems")</span>

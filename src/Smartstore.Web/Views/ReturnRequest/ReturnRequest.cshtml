@@ -1,0 +1,112 @@
+﻿@using Smartstore.Web.Models.Orders;
+
+@model SubmitReturnRequestModel
+
+@{
+    Assets.AppendTitleParts(T("PageTitle.ReturnItems"));
+}
+
+<div class="page return-request-page">
+    <div class="page-title">
+        <h1 class="h3">@T("ReturnRequests.Title", Model.OrderId)</h1>
+    </div>
+
+    <div class="page-body">
+        @if (Model.Result.HasValue())
+        {
+            <div class="alert alert-success">
+                @Model.Result
+            </div>
+        }
+        else
+        {
+            <form asp-action="ReturnRequest">
+                <input type="hidden" asp-for="OrderId" />
+
+                <h2 class="h4 font-weight-normal text-muted mb-4">@T("ReturnRequests.SelectProduct(s)")</h2>
+
+                <zone name="returnrequest_wish_before" />
+
+                <div class="card">
+                    <div class="cart cart-editable mb-0">
+                        <div class="cart-head">
+                            <div class="cart-row">
+                                <div class="cart-col cart-col-main">
+                                    @T("ReturnRequests.Products.Name")
+                                </div>
+                                <div class="cart-col cart-col-price">
+                                    @T("ReturnRequests.Products.Price")
+                                </div>
+                                <div class="cart-col cart-col-price">
+                                    @T("ReturnRequests.Products.Quantity")
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cart-body">
+                            @foreach (var item in Model.Items)
+                            {
+                                <div class="cart-row">
+                                    <div class="cart-col cart-col-main">
+                                        <a class="cart-item-link fs-h6" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                                        <div sm-if="item.AttributeInfo.HasValue()" class="cart-item-attrs text-muted">
+                                            @Html.Raw(item.AttributeInfo)
+                                        </div>
+                                    </div>
+                                    <div class="cart-col cart-col-price" data-caption="@T("ReturnRequests.Products.Price")">
+                                        <span class="price">@item.UnitPrice</span>
+                                    </div>
+                                    <div class="cart-col cart-col-price" data-caption="@T("ReturnRequests.Products.Quantity")">
+                                        <select name="quantity@(item.Id)" class="form-control">
+                                            @for (int i = 0; i <= item.Quantity; i++)
+                                            {
+                                                <option value="@(i)">@(i)</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <label asp-for="ReturnReason"></label>
+                        </div>
+                        <div class="col-md-9">
+                            <select asp-for="ReturnReason" asp-items="ViewBag.AvailableReturnReasons" sm-required="true" class="return-reasons"></select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <label asp-for="ReturnAction"></label>
+                        </div>
+                        <div class="col-md-9">
+                            <select asp-for="ReturnAction" asp-items="ViewBag.AvailableReturnActions" sm-required="true" class="return-actions"></select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <label asp-for="Comments"></label>
+                        </div>
+                        <div class="col-md-9">
+                            <textarea asp-for="Comments" class="comment"></textarea>
+                            <span asp-validation-for="Comments"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <zone name="returnrequest_wish_after" />
+
+                <div class="buttons row justify-content-end">
+                    <div class="col-md-9 mt-3">
+                        <button type="submit" name="submit-return-request" value="save" class="btn btn-primary btn-lg">
+                            @T("ReturnRequests.Submit")
+                        </button>
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>
