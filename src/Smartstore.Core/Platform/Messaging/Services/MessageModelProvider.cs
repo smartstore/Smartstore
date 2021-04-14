@@ -555,7 +555,7 @@ namespace Smartstore.Core.Messages
             var slug = await part.GetActiveSlugAsync(messageContext.Language.Id);
             var productUrl = await productUrlHelper.GetProductUrlAsync(part.Id, slug, attrSelection);
             var url = BuildUrl(productUrl, messageContext);
-            var file = await GetMediaFileForAsync(part, attrSelection);
+            var file = await GetMediaFileFor(part, attrSelection);
             var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;
             var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).Value;
 
