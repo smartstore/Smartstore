@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -48,8 +47,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string SkipActiveStateAttributeName = "sm-skip-active-state";
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
         const string QueryParamNameAttributeName = "sm-query-param";
-        const string CurrentQueryAttributeName = "sm-current-query";
-
+        
         [HtmlAttributeName(ListItemsAttributeName)]
         public IPageable ListItems { get; set; }
 
@@ -86,16 +84,8 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeName(ItemTitleFormatStringAttributeName)]
         public string ItemTitleFormatString { get; set; }
 
-
         [HtmlAttributeName(QueryParamNameAttributeName)]
         public string QueryParamName { get; set; } = "page";
-
-        /// <summary>
-        /// Current <see cref="IQueryCollection"/>. Must be set if there is more then one paginator on a page.
-        /// </summary>
-        // TODO: (mh) (core) I don't like this AT ALL! Why should caller pass this? We can always access the current query.
-        [HtmlAttributeName(CurrentQueryAttributeName)]
-        public IQueryCollection CurrentQuery { get; set; }
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
@@ -411,9 +401,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                 [QueryParamName.NullEmpty() ?? "page"] = pageNumber
             };
 
-            if (CurrentQuery != null && CurrentQuery.Count > 0)
+            var query = ActionContextAccessor.ActionContext.HttpContext.Request.Query;
+            if (query != null && query.Count > 0)
             {
-                foreach (var item in CurrentQuery)
+                foreach (var item in query)
                 {
                     if (!newValues.Keys.Contains(item.Key))
                     {
