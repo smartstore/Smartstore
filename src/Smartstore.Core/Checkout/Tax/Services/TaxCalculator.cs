@@ -67,10 +67,8 @@ namespace Smartstore.Core.Checkout.Tax
                 return Task.FromResult(new Tax(TaxRate.Zero, 0m, price, true, true, currency));
             }
 
-            return CalculateTaxAsync(null, price,
-                _taxSettings.ShippingPriceIncludesTax,
-                taxCategoryId ?? _taxSettings.ShippingTaxClassId, 
-                inclusive, customer, currency);
+            taxCategoryId ??= _taxSettings.ShippingTaxClassId;
+            return CalculateTaxAsync(null, price, _taxSettings.ShippingPriceIncludesTax, taxCategoryId.Value,  inclusive, customer, currency);
         }
 
         public virtual Task<Tax> CalculatePaymentFeeTaxAsync(
@@ -85,10 +83,8 @@ namespace Smartstore.Core.Checkout.Tax
                 return Task.FromResult(new Tax(TaxRate.Zero, 0m, price, true, true, currency));
             }
 
-            return CalculateTaxAsync(null, price,
-                _taxSettings.PaymentMethodAdditionalFeeIncludesTax,
-                taxCategoryId ?? _taxSettings.PaymentMethodAdditionalFeeTaxClassId,
-                inclusive, customer, currency);
+            taxCategoryId ??= _taxSettings.PaymentMethodAdditionalFeeTaxClassId;
+            return CalculateTaxAsync(null, price, _taxSettings.PaymentMethodAdditionalFeeIncludesTax, taxCategoryId.Value, inclusive, customer, currency);
         }
 
         protected virtual async Task<Tax> CalculateTaxAsync(

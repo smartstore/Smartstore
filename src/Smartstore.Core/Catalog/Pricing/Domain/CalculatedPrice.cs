@@ -69,7 +69,7 @@ namespace Smartstore.Core.Catalog.Pricing
         public Money? LowestPrice { get; set; }
 
         /// <summary>
-        /// The additional charge in the target currency, if any. Usually <see cref=">"/>
+        /// The additional charge in the target currency, if any.
         /// </summary>
         //public Money? AdditionalCharge { get; set; }
 
