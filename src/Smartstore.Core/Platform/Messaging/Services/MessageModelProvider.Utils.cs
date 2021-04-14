@@ -152,7 +152,7 @@ namespace Smartstore.Core.Messages
             return new(price, currency);
         }
 
-        private async Task<MediaFileInfo> GetMediaFileFor(Product product, ProductVariantAttributeSelection attrSelection = null)
+        private async Task<MediaFileInfo> GetMediaFileForAsync(Product product, ProductVariantAttributeSelection attrSelection = null)
         {
             var attrParser = _services.Resolve<IProductAttributeMaterializer>();
             var mediaService = _services.Resolve<IMediaService>();

@@ -392,7 +392,7 @@ namespace Smartstore.Core.Messages
         protected virtual async Task<object> CreateCompanyModelPartAsync(MessageContext messageContext)
         {
             var settings = await _services.SettingFactory.LoadSettingsAsync<CompanyInformationSettings>(messageContext.Store.Id);
-            var country = await _db.Countries.FindByIdAsync(settings.CountryId);
+            var country = await _db.Countries.FindByIdAsync(settings.CountryId, false);
 
             dynamic m = new HybridExpando(settings, true);
 
@@ -548,13 +548,14 @@ namespace Smartstore.Core.Messages
             var currencyService = _services.Resolve<ICurrencyService>();
             var productUrlHelper = _services.Resolve<ProductUrlHelper>();
 
-            var quantityUnit = await _db.QuantityUnits.FindByIdAsync(part.QuantityUnitId ?? 0);
-            var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(part.DeliveryTimeId ?? 0);
+            var quantityUnit = await _db.QuantityUnits.FindByIdAsync(part.QuantityUnitId ?? 0, false);
+            var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(part.DeliveryTimeId ?? 0, false);
             var additionalShippingCharge = currencyService.ConvertToWorkingCurrency(part.AdditionalShippingCharge).WithSymbol(false);
 
-            var productUrl = await productUrlHelper.GetProductUrlAsync(part.Id, await part.GetActiveSlugAsync(messageContext.Language.Id), attrSelection);
+            var slug = await part.GetActiveSlugAsync(messageContext.Language.Id);
+            var productUrl = await productUrlHelper.GetProductUrlAsync(part.Id, slug, attrSelection);
             var url = BuildUrl(productUrl, messageContext);
-            var file = await GetMediaFileFor(part, attrSelection);
+            var file = await GetMediaFileForAsync(part, attrSelection);
             var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;
             var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).Value;
 
@@ -969,7 +970,7 @@ namespace Smartstore.Core.Messages
 
             var salutation = part.Salutation.NullEmpty();
             var title = part.Title.NullEmpty();
-            var fullSalutation = string.Format("{0}{1}", salutation, title.HasValue() ? " " + title : string.Empty).NullEmpty();
+            var fullSalutation = $"{salutation}{(title.HasValue() ? " " + title : string.Empty)}".NullEmpty();
             var company = settings.CompanyEnabled ? part.Company : null;
             var firstName = part.FirstName.NullEmpty();
             var lastName = part.LastName.NullEmpty();

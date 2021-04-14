@@ -255,7 +255,7 @@ namespace Smartstore.Core.Messages
             }
         }
 
-        private string BuildTemplateKey(MessageContext messageContext)
+        private static string BuildTemplateKey(MessageContext messageContext)
         {
             var prefix = messageContext.MessageTemplate.IsTransientRecord() ? "TransientTemplate/" : "MessageTemplate/";
             return prefix + messageContext.MessageTemplate.Name + '/' + messageContext.Language.Id + "/Body";
@@ -296,7 +296,7 @@ namespace Smartstore.Core.Messages
 
             if (fileIds.Any())
             {
-                var files = await _mediaService.GetFilesByIdsAsync(fileIds);
+                var files = await _mediaService.GetFilesByIdsAsync(fileIds, MediaLoadFlags.AsNoTracking);
                 foreach (var file in files)
                 {
                     queuedEmail.Attachments.Add(new QueuedEmailAttachment

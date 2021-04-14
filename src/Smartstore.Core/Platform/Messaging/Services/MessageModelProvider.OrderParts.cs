@@ -61,13 +61,13 @@ namespace Smartstore.Core.Messages
             d.Billing = await CreateModelPartAsync(part.BillingAddress, messageContext);
             if (part.ShippingAddress != null)
             {
-                d.Shipping = part.ShippingAddress == part.BillingAddress ? null : await CreateModelPartAsync(part.ShippingAddress, messageContext);
+                d.Shipping = part.ShippingAddress == part.BillingAddress ? null : (await CreateModelPartAsync(part.ShippingAddress, messageContext));
             }
             d.CustomerEmail = part.BillingAddress.Email.NullEmpty();
             d.CustomerComment = part.CustomerOrderComment.NullEmpty();
-            d.Disclaimer = GetTopicAsync("Disclaimer", messageContext);
-            d.ConditionsOfUse = GetTopicAsync("ConditionsOfUse", messageContext);
-            d.Status = part.OrderStatus.GetLocalizedEnum(messageContext.Language.Id);
+            d.Disclaimer = await GetTopicAsync("Disclaimer", messageContext);
+            d.ConditionsOfUse = await GetTopicAsync("ConditionsOfUse", messageContext);
+            d.Status = await part.OrderStatus.GetLocalizedEnumAsync(messageContext.Language.Id);
             d.CreatedOn = ToUserDate(part.CreatedOnUtc, messageContext);
             d.PaidOn = ToUserDate(part.PaidDateUtc, messageContext);
 
@@ -90,7 +90,7 @@ namespace Smartstore.Core.Messages
             m.Properties["AcceptThirdPartyEmailHandOver"] = GetBoolResource(part.AcceptThirdPartyEmailHandOver, messageContext);
 
             // Items, Totals & Co.
-            d.Items = part.OrderItems.Where(x => x.Product != null).Select(async x => await CreateModelPartAsync(x, messageContext)).ToList();
+            d.Items = await part.OrderItems.Where(x => x.Product != null).SelectAsync(async x => await CreateModelPartAsync(x, messageContext)).AsyncToList();
             d.Totals = await CreateOrderTotalsPartAsync(part, messageContext);
 
             // Checkout Attributes
@@ -122,10 +122,10 @@ namespace Smartstore.Core.Messages
             Money cusRounding = new();
             Money cusTotal = new();
 
-            var customerCurrency = await _db.Currencies
+            var customerCurrency = (await _db.Currencies
                 .AsNoTracking()
                 .Where(x => x.CurrencyCode == order.CustomerCurrencyCode)
-                .FirstOrDefaultAsync() ?? new Currency { CurrencyCode = order.CustomerCurrencyCode };
+                .FirstOrDefaultAsync()) ?? new Currency { CurrencyCode = order.CustomerCurrencyCode };
 
             var subTotals = GetSubTotals(order, messageContext);
 
@@ -303,7 +303,7 @@ namespace Smartstore.Core.Messages
                         .ToList();
                 }
             }
-
+            
             var m = new Dictionary<string, object>
             {
                 { "DownloadUrl", !downloadService.IsDownloadAllowed(part) ? null : BuildActionUrl("GetDownload", "Download", new { id = part.OrderItemGuid, area = "" }, messageContext) },
@@ -321,7 +321,7 @@ namespace Smartstore.Core.Messages
 
             if (part.DeliveryTimeId.HasValue)
             {
-                var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(part.DeliveryTimeId ?? 0);
+                var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(part.DeliveryTimeId ?? 0, false);
                 if (deliveryTime is DeliveryTime dt)
                 {
                     m["DeliveryTime"] = new Dictionary<string, object>
