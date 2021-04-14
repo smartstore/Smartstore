@@ -4,8 +4,6 @@
 @model ShoppingCartModel
 
 @{
-    // INFO: (ms) (core) Don't use Layouts which aren't available yet. 
-    // TODO: (ms) (core) Remove comment.
     Layout = "_Checkout";
     Assets.BodyAttributes.AppendCssClass("order-summary-page no-offcanvas-cart");
     Assets.AppendTitleParts(T("PageTitle.ShoppingCart").Value);
@@ -13,9 +11,7 @@
 }
 
 <widget target-zone="orderProgress">
-    @*@await Component.InvokeAsync("CheckoutProgress", new { step = CheckoutProgressStep.Cart });*@
-    @*TODO: (ms) (core) Don't include partials that aren't available yet. Instead: Comment them out and write another comment to include them when available*@
-    @*<partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Cart }" />*@
+    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Cart }" />
 </widget>
 
 <div class="page shopping-cart-page">
@@ -25,5 +21,6 @@
     <div class="page-body">
         @*TODO: (ms) (core) Don't include partials that aren't available yet. Instead: Comment them out and write another comment to include them when available*@
         @*<partial name="OrderSummary" model="Model" />*@
+        @Component.InvokeAsync("OrderSummary")
     </div>
 </div>

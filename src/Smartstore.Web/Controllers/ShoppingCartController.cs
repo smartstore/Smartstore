@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
@@ -1134,7 +1135,16 @@ namespace Smartstore.Web.Controllers
 
                         if (file?.MediaFile != null)
                         {
-                            bundleItemModel.PictureUrl = _mediaService.GetUrl(file.MediaFile, MediaSettings.ThumbnailSizeXxs);
+                            var fileInfo = await _mediaService.GetFileByIdAsync(file.MediaFileId, MediaLoadFlags.AsNoTracking);
+
+                            bundleItemModel.ImageModel = new ImageModel
+                            {
+                                File = fileInfo,
+                                ThumbSize = MediaSettings.ThumbnailSizeXxs,
+                                Title = file.MediaFile.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? T("Media.Manufacturer.ImageLinkTitleFormat", bundleItemModel.ProductName),
+                                Alt = file.MediaFile.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? T("Media.Manufacturer.ImageAlternateTextFormat", bundleItemModel.ProductName),
+                                NoFallback = _catalogSettings.HideProductDefaultPictures,
+                            };
                         }
 
                         cartItemModel.BundleItems.Add(bundleItemModel);
@@ -1187,10 +1197,10 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> Cart(ProductVariantQuery query)
         {
-            Guard.NotNull(query, nameof(query));
-
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart))
+            {
                 return RedirectToRoute("Homepage");
+            }
 
             var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
 
@@ -1199,9 +1209,9 @@ namespace Smartstore.Web.Controllers
             {
                 await ParseAndSaveCheckoutAttributesAsync(cart, query);
             }
-
-            // TODO: (ms) (core) replace this with mapping
-            var model = new ShoppingCartModel();// await PrepareShoppingCartModelAsync(cart);
+                        
+            var model = new ShoppingCartModel();
+            await cart.MapAsync(model);
 
             HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
 
@@ -1260,13 +1270,12 @@ namespace Smartstore.Web.Controllers
             {
                 return Content(string.Empty);
             }
-                
 
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart))
             {
                 return Content(string.Empty);
             }
-            
+
             var model = await PrepareMiniShoppingCartModelAsync();
 
             HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
@@ -1310,127 +1319,133 @@ namespace Smartstore.Web.Controllers
         //    });
         //}
 
-        ///// <summary>
-        ///// Updates cart item quantity in shopping cart.
-        ///// </summary>
-        ///// <param name="cartItemId">Identifier of <see cref="ShoppingCartItem"/>.</param>
-        ///// <param name="newQuantity">The new quantity to set.</param>
-        ///// <param name="isCartPage">A value indicating whether the customer is on the cart page or another.</param>
-        ///// <param name="isWishlist">A value indicating whether the <see cref="ShoppingCartType"/> is Wishlist or ShoppingCart.</param>        
-        //[HttpPost]
-        //public async Task<IActionResult> UpdateCartItem(int cartItemId, int newQuantity, bool isCartPage = false, bool isWishlist = false)
-        //{
-        //    if (!await Services.Permissions.AuthorizeAsync(isWishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart))
-        //        return RedirectToRoute("Homepage");
+        /// <summary>
+        /// Updates cart item quantity in shopping cart.
+        /// </summary>
+        /// <param name="cartItemId">Identifier of <see cref="ShoppingCartItem"/>.</param>
+        /// <param name="newQuantity">The new quantity to set.</param>
+        /// <param name="isCartPage">A value indicating whether the customer is on the cart page or another.</param>
+        /// <param name="isWishlist">A value indicating whether the <see cref="ShoppingCartType"/> is Wishlist or ShoppingCart.</param>        
+        [HttpPost]
+        public async Task<IActionResult> UpdateCartItem(int cartItemId, int newQuantity, bool isCartPage = false, bool isWishlist = false)
+        {
+            if (!await Services.Permissions.AuthorizeAsync(isWishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart))
+                return RedirectToRoute("Homepage");
 
-        //    var warnings = new List<string>();
-        //    warnings.AddRange(
-        //        await _shoppingCartService.UpdateCartItemAsync(
-        //            Services.WorkContext.CurrentCustomer,
-        //            cartItemId,
-        //            newQuantity,
-        //            false));
+            var warnings = new List<string>();
+            warnings.AddRange(
+                await _shoppingCartService.UpdateCartItemAsync(
+                    Services.WorkContext.CurrentCustomer,
+                    cartItemId,
+                    newQuantity,
+                    false));
 
-        //    var cartHtml = string.Empty;
-        //    var totalsHtml = string.Empty;
+            var cartHtml = string.Empty;
+            var totalsHtml = string.Empty;
 
-        //    var cart = await _shoppingCartService.GetCartItemsAsync(
-        //        null,
-        //        isWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart,
-        //        Services.StoreContext.CurrentStore.Id);
+            var cart = await _shoppingCartService.GetCartItemsAsync(
+                null,
+                isWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart,
+                Services.StoreContext.CurrentStore.Id);
 
-        //    if (isCartPage)
-        //    {
-        //        if (isWishlist)
-        //        {
-        //            var model = await PrepareWishlistModelAsync(cart);
-        //            cartHtml = await this.InvokeViewAsync("WishlistItems", model);
-        //        }
-        //        else
-        //        {
-        //            var model = PrepareShoppingCartModelAsync(cart);
-        //            cartHtml = await this.InvokeViewAsync("CartItems", model);
-        //            totalsHtml = await this.InvokeViewComponentAsync(ViewData, "OrderTotals", new { isEditable = true });
-        //        }
-        //    }
+            if (isCartPage)
+            {
+                if (isWishlist)
+                {
+                    var model = new WishlistModel();
+                    await cart.MapAsync(model);
+                    cartHtml = await this.InvokeViewAsync("WishlistItems", model);
+                }
+                else
+                {
+                    var model = new ShoppingCartModel();
+                    await cart.MapAsync(model);
+                    cartHtml = await this.InvokeViewAsync("CartItems", model);
+                    totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
+                }
+            }
 
-        //    var subTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
+            var subTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
 
-        //    return Json(new
-        //    {
-        //        success = warnings.Count <= 0,
-        //        SubTotal = subTotal.SubTotalWithoutDiscount.ToString(),
-        //        message = warnings,
-        //        cartHtml,
-        //        totalsHtml,
-        //        displayCheckoutButtons = true
-        //    });
-        //}
+            return Json(new
+            {
+                success = warnings.Count <= 0,
+                SubTotal = subTotal.SubTotalWithoutDiscount.ToString(),
+                message = warnings,
+                cartHtml,
+                totalsHtml,
+                displayCheckoutButtons = true
+            });
+        }
 
-        ///// <summary>
-        ///// Removes cart item with identifier <paramref name="cartItemId"/> from either the shopping cart or the wishlist.
-        ///// </summary>
-        ///// <param name="cartItemId">Identifier of <see cref="ShoppingCartItem"/> to remove.</param>
-        ///// <param name="isWishlistItem">A value indicating whether to remove the cart item from wishlist or shopping cart.</param>        
-        //[HttpPost]
-        //public async Task<IActionResult> DeleteCartItem(int cartItemId, bool isWishlistItem = false)
-        //{
-        //    if (!await Services.Permissions.AuthorizeAsync(isWishlistItem ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart))
-        //    {
-        //        return Json(new { success = false, displayCheckoutButtons = true });
-        //    }
+        /// <summary>
+        /// Removes cart item with identifier <paramref name="cartItemId"/> from either the shopping cart or the wishlist.
+        /// </summary>
+        /// <param name="cartItemId">Identifier of <see cref="ShoppingCartItem"/> to remove.</param>
+        /// <param name="isWishlistItem">A value indicating whether to remove the cart item from wishlist or shopping cart.</param>        
+        [HttpPost]
+        public async Task<IActionResult> DeleteCartItem(int cartItemId, bool isWishlistItem = false)
+        {
+            if (!await Services.Permissions.AuthorizeAsync(isWishlistItem ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart))
+            {
+                return Json(new { success = false, displayCheckoutButtons = true });
+            }
 
-        //    // Get shopping cart item.
-        //    var customer = Services.WorkContext.CurrentCustomer;
-        //    var cartType = isWishlistItem ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
-        //    var item = customer.ShoppingCartItems.FirstOrDefault(x => x.Id == cartItemId && x.ShoppingCartType == cartType);
+            // Get shopping cart item.
+            var customer = Services.WorkContext.CurrentCustomer;
+            var cartType = isWishlistItem ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
+            var item = customer.ShoppingCartItems.FirstOrDefault(x => x.Id == cartItemId && x.ShoppingCartType == cartType);
 
-        //    if (item == null)
-        //    {
-        //        return Json(new
-        //        {
-        //            success = false,
-        //            displayCheckoutButtons = true,
-        //            message = T("ShoppingCart.DeleteCartItem.Failed").Value
-        //        });
-        //    }
+            if (item == null)
+            {
+                return Json(new
+                {
+                    success = false,
+                    displayCheckoutButtons = true,
+                    message = T("ShoppingCart.DeleteCartItem.Failed").Value
+                });
+            }
 
-        //    // Remove the cart item.
-        //    await _shoppingCartService.DeleteCartItemsAsync(new[] { item }, removeInvalidCheckoutAttributes: true);
+            // Remove the cart item.
+            await _shoppingCartService.DeleteCartItemsAsync(new[] { item }, removeInvalidCheckoutAttributes: true);
 
-        //    var storeId = Services.StoreContext.CurrentStore.Id;
-        //    // Create updated cart model.
-        //    var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
-        //    var wishlist = await _shoppingCartService.GetCartItemsAsync(cartType: ShoppingCartType.Wishlist, storeId: storeId);
-        //    var cartHtml = string.Empty;
-        //    var totalsHtml = string.Empty;
-        //    var cartItemCount = 0;
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            // Create updated cart model.
+            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
+            var wishlist = await _shoppingCartService.GetCartItemsAsync(cartType: ShoppingCartType.Wishlist, storeId: storeId);
+            var cartHtml = string.Empty;
+            var totalsHtml = string.Empty;
+            var cartItemCount = 0;
 
-        //    if (cartType == ShoppingCartType.Wishlist)
-        //    {
-        //        var model = PrepareWishlistModelAsync(wishlist);
-        //        cartHtml = await this.InvokeViewAsync("WishlistItems", model);
-        //        cartItemCount = wishlist.Count;
-        //    }
-        //    else
-        //    {
-        //        var model = PrepareShoppingCartModelAsync(cart);
-        //        cartHtml = await this.InvokeViewAsync("CartItems", model);
-        //        totalsHtml = await this.InvokeViewComponentAsync(ViewData, "OrderTotals", new { isEditable = true });
-        //        cartItemCount = cart.Count;
-        //    }
+            if (cartType == ShoppingCartType.Wishlist)
+            {
+                var model = new WishlistModel();
+                await wishlist.MapAsync(model);
 
-        //    // Updated cart.
-        //    return Json(new
-        //    {
-        //        success = true,
-        //        displayCheckoutButtons = true,
-        //        message = T("ShoppingCart.DeleteCartItem.Success").Value,
-        //        cartHtml,
-        //        totalsHtml,
-        //        cartItemCount
-        //    });
-        //}
+                cartHtml = await this.InvokeViewAsync("WishlistItems", model);
+                cartItemCount = wishlist.Count;
+            }
+            else
+            {
+                var model = new ShoppingCartModel();
+                await cart.MapAsync(model);
+
+                cartHtml = await this.InvokeViewAsync("CartItems", model);
+                totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
+                cartItemCount = cart.Count;
+            }
+
+            // Updated cart.
+            return Json(new
+            {
+                success = true,
+                displayCheckoutButtons = true,
+                message = T("ShoppingCart.DeleteCartItem.Success").Value,
+                cartHtml,
+                totalsHtml,
+                cartItemCount
+            });
+        }
 
         //// TODO: (ms) (core) Add dev docu to all ajax action methods
         //[HttpPost]
@@ -1641,111 +1656,118 @@ namespace Smartstore.Web.Controllers
         //        });
         //}
 
-        //// Ajax.
-        //[HttpPost]
-        //[ActionName("MoveItemBetweenCartAndWishlist")]
-        //public async Task<IActionResult> MoveItemBetweenCartAndWishlistAjax(int cartItemId, ShoppingCartType cartType, bool isCartPage = false)
-        //{
-        //    if (await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
-        //        || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
-        //    {
-        //        return Json(new
-        //        {
-        //            success = false,
-        //            message = T("Common.NoProcessingSecurityIssue").Value
-        //        });
-        //    }
+        /// <summary>
+        /// Moves item from either Wishlist to ShoppingCart or vice versa.
+        /// </summary>
+        /// <param name="cartItemId">The identifier of <see cref="OrganizedShoppingCartItem"/>.</param>
+        /// <param name="cartType">The <see cref="ShoppingCartType"/> from which to move the item from.</param>
+        /// <param name="isCartPage">A value indicating whether the user is on cart page (prepares model).</param>        
+        [HttpPost]
+        [ActionName("MoveItemBetweenCartAndWishlist")]
+        public async Task<IActionResult> MoveItemBetweenCartAndWishlistAjax(int cartItemId, ShoppingCartType cartType, bool isCartPage = false)
+        {
+            if (await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
+                || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = T("Common.NoProcessingSecurityIssue").Value
+                });
+            }
 
-        //    var customer = Services.WorkContext.CurrentCustomer;
-        //    var storeId = Services.StoreContext.CurrentStore.Id;
-        //    var cart = await _shoppingCartService.GetCartItemsAsync(customer, cartType, storeId);
-        //    var cartItem = cart.Where(x => x.Item.Id == cartItemId).FirstOrDefault();
+            var customer = Services.WorkContext.CurrentCustomer;
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var cart = await _shoppingCartService.GetCartItemsAsync(customer, cartType, storeId);
+            var cartItem = cart.Where(x => x.Item.Id == cartItemId).FirstOrDefault();
 
-        //    if (cartItem != null)
-        //    {
-        //        var addToCartContext = new AddToCartContext
-        //        {
-        //            Item = cartItem.Item,
-        //            Customer = customer,
-        //            CartType = cartType == ShoppingCartType.Wishlist ? ShoppingCartType.ShoppingCart : ShoppingCartType.Wishlist,
-        //            StoreId = storeId,
-        //            AutomaticallyAddRequiredProducts = true,
-        //            Product = cartItem.Item.Product,
-        //            RawAttributes = cartItem.Item.RawAttributes,
-        //            CustomerEnteredPrice = new(cartItem.Item.CustomerEnteredPrice, Services.WorkContext.WorkingCurrency),
-        //            Quantity = cartItem.Item.Quantity,
-        //            ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList(),
-        //            BundleItem = cartItem.Item.BundleItem
-        //        };
+            if (cartItem != null)
+            {
+                var addToCartContext = new AddToCartContext
+                {
+                    Item = cartItem.Item,
+                    Customer = customer,
+                    CartType = cartType == ShoppingCartType.Wishlist ? ShoppingCartType.ShoppingCart : ShoppingCartType.Wishlist,
+                    StoreId = storeId,
+                    AutomaticallyAddRequiredProducts = true,
+                    Product = cartItem.Item.Product,
+                    RawAttributes = cartItem.Item.RawAttributes,
+                    CustomerEnteredPrice = new(cartItem.Item.CustomerEnteredPrice, Services.WorkContext.WorkingCurrency),
+                    Quantity = cartItem.Item.Quantity,
+                    ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList(),
+                    BundleItem = cartItem.Item.BundleItem
+                };
 
-        //        var warnings = await _shoppingCartService.CopyAsync(addToCartContext);
+                var warnings = await _shoppingCartService.CopyAsync(addToCartContext);
 
-        //        if (_shoppingCartSettings.MoveItemsFromWishlistToCart && addToCartContext.Warnings.Count == 0)
-        //        {
-        //            // No warnings (already in cart). Let's remove the item from origin.
-        //            await _shoppingCartService.DeleteCartItemsAsync(new[] { cartItem.Item });
-        //        }
+                if (_shoppingCartSettings.MoveItemsFromWishlistToCart && addToCartContext.Warnings.Count == 0)
+                {
+                    // No warnings (already in cart). Let's remove the item from origin.
+                    await _shoppingCartService.DeleteCartItemsAsync(new[] { cartItem.Item });
+                }
 
-        //        if (addToCartContext.Warnings.Count == 0)
-        //        {
-        //            var cartHtml = string.Empty;
-        //            var totalsHtml = string.Empty;
-        //            var message = string.Empty;
-        //            var cartItemCount = 0;
+                if (addToCartContext.Warnings.Count == 0)
+                {
+                    var cartHtml = string.Empty;
+                    var totalsHtml = string.Empty;
+                    var message = string.Empty;
+                    var cartItemCount = 0;
 
-        //            if (_shoppingCartSettings.DisplayCartAfterAddingProduct && cartType == ShoppingCartType.Wishlist)
-        //            {
-        //                // Redirect to the shopping cart page.
-        //                return Json(new
-        //                {
-        //                    redirect = Url.RouteUrl("ShoppingCart")
-        //                });
-        //            }
+                    if (_shoppingCartSettings.DisplayCartAfterAddingProduct && cartType == ShoppingCartType.Wishlist)
+                    {
+                        // Redirect to the shopping cart page.
+                        return Json(new
+                        {
+                            redirect = Url.RouteUrl("ShoppingCart")
+                        });
+                    }
 
-        //            if (isCartPage)
-        //            {
-        //                if (cartType == ShoppingCartType.Wishlist)
-        //                {
-        //                    var wishlist = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.Wishlist, storeId);
+                    if (isCartPage)
+                    {
+                        if (cartType == ShoppingCartType.Wishlist)
+                        {
+                            var wishlist = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.Wishlist, storeId);
 
-        //                    var model = await PrepareWishlistModelAsync(wishlist);
+                            var model = new WishlistModel();
+                            await wishlist.MapAsync(model);
 
-        //                    cartHtml = await this.InvokeViewAsync("WishlistItems", model);
-        //                    message = T("Products.ProductHasBeenAddedToTheCart");
-        //                    cartItemCount = wishlist.Count;
-        //                }
-        //                else
-        //                {
-        //                    cart = await _shoppingCartService.GetCartItemsAsync(customer, cartType, storeId);
+                            cartHtml = await this.InvokeViewAsync("WishlistItems", model);
+                            message = T("Products.ProductHasBeenAddedToTheCart");
+                            cartItemCount = wishlist.Count;
+                        }
+                        else
+                        {
+                            cart = await _shoppingCartService.GetCartItemsAsync(customer, cartType, storeId);
 
-        //                    var model = await PrepareShoppingCartModelAsync(cart);
+                            var model = new ShoppingCartModel();
+                            await cart.MapAsync(model);
 
-        //                    cartHtml = await this.InvokeViewAsync("CartItems", model);
-        //                    totalsHtml = await this.InvokeViewComponentAsync(ViewData, "OrderTotals", new { isEditable = true });
-        //                    message = T("Products.ProductHasBeenAddedToTheWishlist");
-        //                    cartItemCount = cart.Count;
-        //                }
-        //            }
+                            cartHtml = await this.InvokeViewAsync("CartItems", model);
+                            totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
+                            message = T("Products.ProductHasBeenAddedToTheWishlist");
+                            cartItemCount = cart.Count;
+                        }
+                    }
 
-        //            return Json(new
-        //            {
-        //                success = true,
-        //                wasMoved = _shoppingCartSettings.MoveItemsFromWishlistToCart,
-        //                message,
-        //                cartHtml,
-        //                totalsHtml,
-        //                cartItemCount,
-        //                displayCheckoutButtons = true
-        //            });
-        //        }
-        //    }
+                    return Json(new
+                    {
+                        success = true,
+                        wasMoved = _shoppingCartSettings.MoveItemsFromWishlistToCart,
+                        message,
+                        cartHtml,
+                        totalsHtml,
+                        cartItemCount,
+                        displayCheckoutButtons = true
+                    });
+                }
+            }
 
-        //    return Json(new
-        //    {
-        //        success = false,
-        //        message = T("Products.ProductNotAddedToTheCart").Value
-        //    });
-        //}
+            return Json(new
+            {
+                success = false,
+                message = T("Products.ProductNotAddedToTheCart").Value
+            });
+        }
 
         //[HttpPost, ActionName("Wishlist")]
         //[FormValueRequired("addtocartbutton")]
