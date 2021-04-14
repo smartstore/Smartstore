@@ -10,7 +10,7 @@
     var checkoutUrl = "";
     if (Model.AnonymousCheckoutAllowed && Model.CurrentCustomerIsGuest)
     {
-        checkoutUrl = Url.Action("Login", "Identity", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") });
+        checkoutUrl = Url.RouteUrl("Login", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") });
     }
     else
     {
@@ -63,12 +63,15 @@
 
                         <div class="col col-data">
                             <a class="name font-weight-medium" href="@item.ProductUrl" title="@item.ProductName" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
+                            
                             <div class="short-desc text-muted" sm-language-attributes-for="item.ShortDesc">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))
                             </div>
+
                             <div sm-if="item.AttributeInfo.HasValue()" class="attributes">
                                 @Html.Raw(item.AttributeInfo)
                             </div>
+
                             <div sm-if="item.BundleItems.Count > 0" class="mb-bundle-pictures mt-3">
                                 @for (int j = 0, bundlelength = item.BundleItems.Count; j < bundlelength; j++)
                                 {
@@ -190,15 +193,9 @@
 
     <zone name="offcanvas_cart_footer_after"></zone>
 
-    @{
-        // TODO: (ms) (core) What to do here?
-        //var summaryHtml = Html.Widget("offcanvas_cart_summary").ToHtmlString();
-        var summaryHtml = string.Empty;
-    }
-
-    <div sm-if="summaryHtml.HasValue()" class="offcanvas-cart-external-checkout">
+    <div sm-if="@Display.ZoneHasContent("offcanvas_cart_summary")" class="offcanvas-cart-external-checkout">
         <div class="d-flex justify-content-center align-items-center flex-wrap">
-            @Html.Raw(summaryHtml)
+            <zone name="offcanvas_cart_summary"></zone>
         </div>
     </div>
 </div>
