@@ -41,7 +41,17 @@ namespace Smartstore.Core.Localization.Routing
             if (address.RouteName.HasValue() && endpoints.Any())
             {
                 var urlPolicy = _httpContextAccessor.HttpContext?.RequestServices?.GetService<UrlPolicy>();
-                var localizationSettings = urlPolicy?.LocalizationSettings;
+                if (urlPolicy == null)
+                {
+                    return true;
+                }
+
+                var localizationSettings = urlPolicy.LocalizationSettings;
+                if (!localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
+                {
+                    return true;
+                }
+
                 var explicitCulture = address.ExplicitValues.GetCultureCode();
                 var hasExplicitCulture = explicitCulture.HasValue();
 
@@ -49,7 +59,7 @@ namespace Smartstore.Core.Localization.Routing
                     ? explicitCulture.EqualsNoCase(urlPolicy.DefaultCultureCode)
                     : urlPolicy.IsDefaultCulture;
 
-                if (localizationSettings?.SeoFriendlyUrlsForLanguagesEnabled == true && isDefaultCulture)
+                if (localizationSettings.SeoFriendlyUrlsForLanguagesEnabled && isDefaultCulture)
                 {
                     var localizedRouteMetadata = endpoints.FirstOrDefault()?.Metadata?.OfType<LocalizedRouteMetadata>().FirstOrDefault();
                     if (localizedRouteMetadata != null && !localizedRouteMetadata.IsCultureNeutralRoute)
