@@ -73,6 +73,7 @@ using Smartstore.Core.Common.Settings;
 using System.Runtime.InteropServices;
 using Smartstore.Core.Catalog;
 using Smartstore.Utilities;
+using Smartstore.ComponentModel;
 
 namespace Smartstore.Web.Controllers
 {

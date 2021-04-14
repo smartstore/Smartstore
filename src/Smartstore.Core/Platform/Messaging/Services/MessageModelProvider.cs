@@ -1167,7 +1167,6 @@ namespace Smartstore.Core.Messages
                 yield break;
             }
 
-            // TODO: (mh) (core) will fail for customer because GenericAttributes are there twice somehow.
             foreach (var prop in FastProperty.GetProperties(type).Values)
             {
                 var pi = prop.Property;

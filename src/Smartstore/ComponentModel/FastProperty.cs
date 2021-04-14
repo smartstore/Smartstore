@@ -436,7 +436,12 @@ namespace Smartstore.ComponentModel
             IDictionary<string, FastProperty> Get(Type t)
             {
                 var candidates = GetCandidateProperties(t);
-                var fastProperties = candidates.Select(p => Create(p)).ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+                var fastProperties = candidates
+                    // Polymorphic base properties come last, exclude them to avoid duplicate prop names.
+                    .DistinctBy(p => p.Name)
+                    .Select(p => Create(p))
+                    .ToDictionarySafe(x => x.Name, StringComparer.OrdinalIgnoreCase);
+
                 CleanDuplicates(t, fastProperties.Keys);
                 return fastProperties;
             }
