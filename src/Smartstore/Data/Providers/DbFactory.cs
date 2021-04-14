@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Engine;
 
-namespace Smartstore.Data
+namespace Smartstore.Data.Providers
 {
     /// <summary>
     /// TODO: (core) Describe everything when completed.
@@ -21,9 +22,19 @@ namespace Smartstore.Data
 
         public abstract Type SmartDbContextType { get; }
 
+        public abstract DbConnectionStringBuilder CreateConnectionStringBuilder(string connectionString);
+
+        public abstract DbConnectionStringBuilder CreateConnectionStringBuilder(
+            string server, 
+            string database,
+            string userName,
+            string password);
+
         public abstract DataProvider CreateDataProvider(DatabaseFacade database);
 
         public abstract DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString, IApplicationContext appContext);
+
+        public abstract DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString);
 
         internal static DbFactory Load(string provider, ITypeScanner typeScanner)
         {

@@ -1,33 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using FluentValidation;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Infrastructure.Installation
 {
     public partial class InstallationModel : ModelBase
     {
-        [Required, DataType(DataType.EmailAddress)]
+        [DataType(DataType.EmailAddress)]
         public string AdminEmail { get; set; }
 
-        [Required, DataType(DataType.Password)]
+        [DataType(DataType.Password)]
         public string AdminPassword { get; set; }
 
-        [Required, DataType(DataType.Password), Compare(nameof(AdminPassword))]
+        [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
 
-        [Required]
         public string DataProvider { get; set; } = "sqlserver";
 
         public string DatabaseConnectionString { get; set; }
 
-        [Required]
         public string PrimaryLanguage { get; set; }
 
         public string MediaStorage { get; set; }
 
         public bool CreateDatabase { get; set; } = true;
+
+        public bool UseCustomCollation { get; set; }
+
+        public string Collation { get; set; } = "SQL_Latin1_General_CP1_CI_AS";
 
         public bool InstallSampleData { get; set; }
 
@@ -46,10 +48,6 @@ namespace Smartstore.Web.Infrastructure.Installation
 
         public string SqlAuthenticationType { get; set; } = "sqlauthentication";
 
-        public bool UseCustomCollation { get; set; }
-
-        public string Collation { get; set; } = "SQL_Latin1_General_CP1_CI_AS";
-
         #endregion
 
         #region MySql
@@ -57,5 +55,19 @@ namespace Smartstore.Web.Infrastructure.Installation
         // ...
 
         #endregion
+    }
+
+    public class InstallationModelValidator : SmartValidator<InstallationModel>
+    {
+        public InstallationModelValidator(IInstallationService installService)
+        {
+            RuleFor(x => x.AdminEmail).NotEmpty();
+            RuleFor(x => x.AdminEmail).EmailAddress();
+            RuleFor(x => x.AdminPassword).NotEmpty();
+            RuleFor(x => x.ConfirmPassword).NotEmpty();
+            RuleFor(x => x.AdminPassword).Equal(x => x.ConfirmPassword).WithMessage(installService.GetResource("PasswordsDoNotMatch"));
+            RuleFor(x => x.DataProvider).NotEmpty();
+            RuleFor(x => x.PrimaryLanguage).NotEmpty();
+        }
     }
 }

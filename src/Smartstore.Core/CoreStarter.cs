@@ -6,9 +6,10 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
-using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.DependencyInjection;
 using Smartstore.Data;
+using Smartstore.Data.Caching;
+using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
@@ -27,11 +28,25 @@ namespace Smartstore.Core.Bootstrapping
 
             if (appContext.IsInstalled)
             {
+                //// Application DbContext as pooled factory
+                //services.AddPooledDbContextFactory<SmartDbContext>(
+                //    DataSettings.Instance.DbFactory.SmartDbContextType,
+                //    appContext.AppConfiguration.DbContextPoolSize,
+                //    (c, builder) =>
+                //    {
+                //        builder
+                //            .UseSecondLevelCache()
+                //            .UseDbFactory(f =>
+                //            {
+                //                f.MaxBatchSize(222).MigrationsHistoryTable("__EFMigrationsHistory_Core");
+                //            });
+                //    });
+
                 // Application DbContext as pooled factory
                 services.AddPooledApplicationDbContextFactory<SmartDbContext>(
                     DataSettings.Instance.DbFactory.SmartDbContextType,
                     appContext.AppConfiguration.DbContextPoolSize,
-                    optionsBuilder: (c, o, rel) => 
+                    optionsBuilder: (c, o, rel) =>
                     {
                         // TODO: (core) RelationalOptionsExtension is always cloned and cannot be modified this way. Find another way.
                         rel.WithMigrationsHistoryTableName("__EFMigrationsHistory_Core");

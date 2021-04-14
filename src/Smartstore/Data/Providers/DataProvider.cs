@@ -7,14 +7,13 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
-//using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Smartstore.Domain;
 
-namespace Smartstore.Data
+namespace Smartstore.Data.Providers
 {
     [Flags]
     public enum DataProviderFeatures

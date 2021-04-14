@@ -12,6 +12,18 @@ namespace Smartstore.Data.Caching
         /// </summary>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
+        public static DbContextOptionsBuilder UseSecondLevelCache<TContext>(
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            Action<CachingDbContextOptionsBuilder> optionsAction = null)
+            where TContext : HookingDbContext
+            => (DbContextOptionsBuilder<TContext>)UseSecondLevelCache(
+                (DbContextOptionsBuilder)optionsBuilder, optionsAction);
+
+        /// <summary>
+        /// Configures the context to support second level query caching.
+        /// </summary>
+        /// <param name="optionsBuilder">The builder being used to configure the context.</param>
+        /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder UseSecondLevelCache(
             this DbContextOptionsBuilder optionsBuilder,
             Action<CachingDbContextOptionsBuilder> optionsAction = null)
@@ -20,7 +32,8 @@ namespace Smartstore.Data.Caching
 
             optionsBuilder.ReplaceService<IAsyncQueryProvider, CachingQueryProvider>();
 
-            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension(optionsBuilder));
+            var extension = GetOrCreateExtension(optionsBuilder);
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             optionsAction?.Invoke(new CachingDbContextOptionsBuilder(optionsBuilder));
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
+using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Threading;

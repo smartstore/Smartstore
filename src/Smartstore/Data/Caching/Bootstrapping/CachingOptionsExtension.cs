@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -109,6 +110,9 @@ namespace Smartstore.Data.Caching
 
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
+            private long? _serviceProviderHash;
+            private string _logFragment;
+
             public ExtensionInfo(CachingOptionsExtension extension)
                 : base(extension)
             {
@@ -116,15 +120,32 @@ namespace Smartstore.Data.Caching
 
             private new CachingOptionsExtension Extension => (CachingOptionsExtension)base.Extension;
 
-            public override long GetServiceProviderHashCode() => 0L;
-
-            public override bool IsDatabaseProvider => true;
+            public override bool IsDatabaseProvider => false;
 
             // TODO: (core) What to return as LogFragment?
             public override string LogFragment => $"Using '{nameof(CachingOptionsExtension)}'";
 
+
+            public override long GetServiceProviderHashCode()
+            {
+                if (_serviceProviderHash == null)
+                {
+                    var hashCode = new HashCode();
+                    hashCode.Add(Extension.EnableLogging);
+                    hashCode.Add(Extension.DefaultExpirationTimeout);
+                    hashCode.Add(Extension.DefaultMaxRows);
+
+                    _serviceProviderHash = hashCode.ToHashCode();
+                }
+
+                return _serviceProviderHash.Value;
+            }
+
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {
+                debugInfo["Smartstore.Data.Caching:" + nameof(Extension.EnableLogging)] = HashCode.Combine(Extension.EnableLogging).ToString(CultureInfo.InvariantCulture);
+                debugInfo["Smartstore.Data.Caching:" + nameof(Extension.DefaultExpirationTimeout)] = HashCode.Combine(Extension.DefaultExpirationTimeout).ToString(CultureInfo.InvariantCulture);
+                debugInfo["Smartstore.Data.Caching:" + nameof(Extension.DefaultMaxRows)] = HashCode.Combine(Extension.DefaultMaxRows).ToString(CultureInfo.InvariantCulture);
             }
         }
 

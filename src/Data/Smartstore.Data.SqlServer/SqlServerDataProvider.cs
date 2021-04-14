@@ -10,6 +10,7 @@ using Dasync.Collections;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.SqlServer
 {

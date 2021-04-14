@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.SqlServer
 {
