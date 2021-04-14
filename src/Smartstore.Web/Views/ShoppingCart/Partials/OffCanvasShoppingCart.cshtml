@@ -77,11 +77,10 @@
                                 {
                                     var bundleItem = item.BundleItems[j];
 
-                                    <a sm-if="bundleItem.PictureUrl.HasValue()" href="@bundleItem.ProductUrl" title="@bundleItem.ProductName">
-                                        @*TODO: (ms) (core) Use ImageModel *@
-                                        <img alt="@bundleItem.ProductName" src="@bundleItem.PictureUrl" title="@bundleItem.ProductName" />
+                                    <a sm-if="bundleItem.ImageModel.HasImage()" href="@bundleItem.ProductUrl" title="@bundleItem.ProductName">
+                                        <img sm-model="bundleItem.ImageModel" />
                                     </a>
-                                    <i sm-if="bundlelength != (j + 1)" class="fa fa-plus"></i>
+                                    <i sm-if="(j + 1) < bundlelength" class="fa fa-plus"></i>
                                 }
                             </div>
                         </div>
@@ -93,7 +92,6 @@
                             {
                                 htmlAttributes = new
                                 {
-                                    // TODO: (ms) (core) Implement corresponding action.
                                     data_update_url = Url.Action("UpdateCartItem", "ShoppingCart"),
                                     data_type = "cart",
                                     data_sci_id = item.Id,
@@ -127,13 +125,13 @@
                                     <i class="fal fa-heart"></i>
                                 </a>
                             }
-                            <a class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link" title="@T("Common.Remove")"
-                               href="#"
-                               rel="nofollow"
-                               data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
-                               data-name="@item.ProductName"
-                               data-type="cart"
-                               data-action="remove">
+                                <a class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link" title="@T("Common.Remove")"
+                                   href="#"
+                                   rel="nofollow"
+                                   data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
+                                   data-name="@item.ProductName"
+                                   data-type="cart"
+                                   data-action="remove">
                                 <i class="fal fa-trash-alt"></i>
                             </a>
                         </div>
