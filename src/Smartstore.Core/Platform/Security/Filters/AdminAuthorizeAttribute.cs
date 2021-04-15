@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -7,20 +8,20 @@ using Smartstore.Data;
 namespace Smartstore.Core.Security
 {
     /// <summary>
-    /// Checks whether the current user has the permission to access the shop.
+    /// Checks whether the current user has the permission to access the administration backend.
     /// </summary>
-    public sealed class AuthorizeShopAccessAttribute : TypeFilterAttribute
+    public sealed class AdminAuthorizeAttribute : TypeFilterAttribute
     {
-        public AuthorizeShopAccessAttribute()
-            : base(typeof(AccessShopFilter))
+        public AdminAuthorizeAttribute()
+            : base(typeof(AdminAuthorizeFilter))
         {
         }
 
-        class AccessShopFilter : IAsyncAuthorizationFilter
+        class AdminAuthorizeFilter : IAsyncAuthorizationFilter
         {
             private readonly IPermissionService _permissionService;
 
-            public AccessShopFilter(IPermissionService permissionService)
+            public AdminAuthorizeFilter(IPermissionService permissionService)
             {
                 _permissionService = permissionService;
             }
@@ -45,20 +46,23 @@ namespace Smartstore.Core.Security
                     return;
                 }
 
-                if (!await HasStoreAccess())
+                if (context.Filters.Any(x => x is AdminAuthorizeFilter))
                 {
-                    context.Result = new ChallengeResult();
+                    if (!await HasAdminAccess())
+                    {
+                        context.Result = new ChallengeResult();
+                    }
                 }
             }
 
-            private async Task<bool> HasStoreAccess()
+            private async Task<bool> HasAdminAccess()
             {
-                if (await _permissionService.AuthorizeAsync(Permissions.System.AccessShop))
+                if (await _permissionService.AuthorizeAsync(Permissions.System.AccessBackend))
                 {
                     return true;
                 }
 
-                if (await _permissionService.AuthorizeByAliasAsync(Permissions.System.AccessShop))
+                if (await _permissionService.AuthorizeByAliasAsync(Permissions.System.AccessBackend))
                 {
                     return true;
                 }

@@ -90,9 +90,7 @@ namespace Smartstore.Web.Controllers
             return PrintCore(new List<OrderDetailsModel> { model }, pdf, fileName);
         }
 
-
-        // TODO: (mh) (core) Uncomment when AdminAuthorize is available.
-        //[AdminAuthorize]
+        [AdminAuthorize]
         [Permission(Permissions.Order.Read)]
         public async Task<IActionResult> PrintMany(string ids = null, bool pdf = false)
         {
@@ -111,13 +109,12 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                var pagedOrders = await _db.Orders
+                var pagedOrders = _db.Orders
                     .AsNoTracking()
                     .ApplyStandardFilter()
-                    .ToPagedList(0, 1)
-                    .LoadAsync();
+                    .ToPagedList(0, 1);
                     
-                totalCount = pagedOrders.TotalCount;
+                totalCount = await pagedOrders.GetTotalCountAsync();
 
                 if (totalCount > 0 && totalCount <= maxOrders)
                 {
@@ -141,7 +138,9 @@ namespace Smartstore.Web.Controllers
                 return RedirectToReferrer();
             }
 
-            var listModel = await orders.SelectAsync(async x => await _orderHelper.PrepareOrderDetailsModelAsync(x)).AsyncToList();
+            var listModel = await orders
+                .SelectAsync(async x => await _orderHelper.PrepareOrderDetailsModelAsync(x))
+                .AsyncToList();
 
             return PrintCore(listModel, pdf, "orders.pdf");
         }

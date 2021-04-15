@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Widgets;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -11,6 +12,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 	public class ZoneTagHelper : SmartTagHelper
 	{
 		const string NameAttributeName = "name";
+		const string ModelAttributeName = "model";
 		const string ReplaceContentAttributeName = "replace-content";
 		const string RemoveIfEmptyAttributeName = "remove-if-empty";
 
@@ -23,6 +25,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
 		[HtmlAttributeName(NameAttributeName)]
 		public virtual string ZoneName { get; set; }
+
+		[HtmlAttributeName(ModelAttributeName)]
+		public object Model { get; set; }
 
 		/// <summary>
 		/// Specifies whether any default zone content should be removed if at least one 
@@ -63,7 +68,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 				foreach (var widget in widgets)
 				{
 					var target = widget.Prepend ? output.PreContent : output.PostContent;
-					target.AppendHtml(await widget.InvokeAsync(ViewContext));
+					var viewContext = Model == null ? ViewContext : ViewContext.Clone(Model);
+
+					target.AppendHtml(await widget.InvokeAsync(viewContext));
 				}
 			}
 			else

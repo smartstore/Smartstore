@@ -99,9 +99,7 @@
         var address = order.BillingAddress;
 
         <div class="document">
-            @*TODO: (mh) (core) How to pass items? TODO for this whole view *@
-            <zone name="invoice_top"></zone>
-            @*@{ Html.RenderWidget("invoice_top", order); }*@
+            <zone name="invoice_top" model="@order"></zone>
 
             <!-- Address & Info -->
             <div class="clearfix" style="margin-bottom: 100px">
@@ -120,8 +118,7 @@
                     </div>
                 </div>
 
-                <zone name="invoice_orderinfo_top"></zone>
-                @*@Html.Widget("invoice_orderinfo_top", order)*@
+                <zone name="invoice_orderinfo_top" model="@order"></zone>
 
                 <div class="order-info text-small pull-right float-right">
                     <table>
@@ -172,18 +169,15 @@
 
                     </table>
 
-                    <zone name="invoice_orderinfotable_after"></zone>
-                    @*@{ Html.RenderWidget("invoice_orderinfotable_after", order); }*@
+                    <zone name="invoice_orderinfotable_after" model="@order"></zone>
 
                 </div>
 
-                <zone name="invoice_orderinfo_bottom"></zone>
-                @*@{ Html.RenderWidget("invoice_orderinfo_bottom", order); }*@
+                <zone name="invoice_orderinfo_bottom" model="@order"></zone>
             </div>
 
             <!-- Order lines -->
-            <zone name="invoice_lines_before"></zone>
-            @*@{ Html.RenderWidget("invoice_lines_before", order); }*@
+            <zone name="invoice_lines_before" model="@order"></zone>
 
             <h3>@T("PDFInvoice.Product(s)")</h3>
 
@@ -215,16 +209,14 @@
             </div>
 
             <!-- Checkout attributes -->
-            <zone name="invoice_checkoutattributes_before"></zone>
-            @*@{ Html.RenderWidget("invoice_checkoutattributes_before", order); }*@
+            <zone name="invoice_checkoutattributes_before" model="@order"></zone>
 
             <div sm-if="order.CheckoutAttributeInfo.HasValue()" class="checkout-attributes mb-5">
                 @Html.Raw(order.CheckoutAttributeInfo)
             </div>
 
             <!-- Order totals -->
-            <zone name="invoice_ordertotals_before"></zone>
-            @*@{ Html.RenderWidget("invoice_ordertotals_before", order); }*@
+            <zone name="invoice_ordertotals_before" model="@order"></zone>
 
             <div class="order-totals clearfix">
                 <div class="pull-right float-right table-responsive" style="width: 40%; page-break-inside: avoid">
@@ -295,14 +287,12 @@
                         </tr>
                     </table>
 
-                    <zone name="invoice_aftertotal"></zone>
-                    @*@{ Html.RenderWidget("invoice_aftertotal", order); }*@
+                    <zone name="invoice_aftertotal" model="@order"></zone>
                 </div>
             </div>
 
             <!-- Order notes -->
-            <zone name="invoice_ordernotes_before"></zone>
-            @*@{ Html.RenderWidget("invoice_ordernotes_before", order); }*@
+            <zone name="invoice_ordernotes_before" model="@order"></zone>
 
             @if (order.RenderOrderNotes && order.OrderNotes.Any())
             {
@@ -337,8 +327,7 @@
                 </div>
             }
 
-            <zone name="invoice_bottom"></zone>
-            @*@{ Html.RenderWidget("invoice_bottom", order); }*@
+            <zone name="invoice_bottom" model="@order"></zone>
         </div>
     }
 </div>

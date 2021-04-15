@@ -36,14 +36,14 @@ namespace Smartstore.Core.Catalog.Pricing
         public ICollection<Discount> AppliedDiscounts { get; init; }
 
         /// <summary>
-        /// The old price of the input <see cref="Product"/>, in the target currency, usually <see cref="Product.OldPrice"/>.
-        /// </summary>
-        public Money OldPrice { get; set; }
-
-        /// <summary>
         /// The regular price of the input <see cref="Product"/>, in the target currency, usually <see cref="Product.Price"/>.
         /// </summary>
         public Money RegularPrice { get; set; }
+
+        /// <summary>
+        /// The old price of the input <see cref="Product"/>, in the target currency, usually <see cref="Product.OldPrice"/>.
+        /// </summary>
+        public Money OldPrice { get; set; }
 
         /// <summary>
         /// The final price of the product.
