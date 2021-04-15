@@ -172,33 +172,6 @@ namespace Smartstore.Web.Controllers
         //}
 
         [NonAction]
-        protected async Task PrepareButtonPaymentMethodModelAsync(ButtonPaymentMethodModel model, IList<OrganizedShoppingCartItem> cart)
-        {
-            Guard.NotNull(model, nameof(model));
-            Guard.NotNull(cart, nameof(cart));
-
-            model.Items.Clear();
-
-            var paymentTypes = new PaymentMethodType[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton };
-
-            var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(
-                Services.WorkContext.CurrentCustomer,
-                cart,
-                Services.StoreContext.CurrentStore.Id,
-                paymentTypes,
-                false);
-
-            foreach (var paymentMethod in boundPaymentMethods)
-            {
-                if (cart.IncludesMatchingItems(x => x.IsRecurring) && paymentMethod.Value.RecurringPaymentType == RecurringPaymentType.NotSupported)
-                    continue;
-
-                var widgetInvoker = paymentMethod.Value.GetPaymentInfoWidget();
-                model.Items.Add(widgetInvoker);
-            }
-        }
-
-        [NonAction]
         protected async Task ParseAndSaveCheckoutAttributesAsync(List<OrganizedShoppingCartItem> cart, ProductVariantQuery query)
         {
             Guard.NotNull(cart, nameof(cart));

@@ -369,7 +369,7 @@ namespace Smartstore.Core.Checkout.Cart
             {
                 customer.ResetCheckoutData(cartItems.Select(x => x.StoreId).FirstOrDefault());
             }
-
+                        
             _db.ShoppingCartItems.RemoveRange(cartItems);
             _requestCache.RemoveByPattern(CartItemsPatternKey);
 

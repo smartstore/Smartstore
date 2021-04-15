@@ -1,5 +1,4 @@
-﻿// File should be marged with other shopping cart scripts
-;
+﻿;
 $(function () {
     var orderSummary = $(".cart-content");
     var isWishlist = orderSummary.is('.wishlist-content');

@@ -63,7 +63,7 @@
 
                         <div class="col col-data">
                             <a class="name font-weight-medium" href="@item.ProductUrl" title="@item.ProductName" sm-language-attributes-for="item.ProductName">@item.ProductName</a>
-                            
+
                             <div class="short-desc text-muted" sm-language-attributes-for="item.ShortDesc">
                                 @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))
                             </div>
@@ -125,12 +125,12 @@
                                 </a>
                             }
                             <a class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link" title="@T("Common.Remove")"
-                                href="#"
-                                rel="nofollow"
-                                data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
-                                data-name="@item.ProductName"
-                                data-type="cart"
-                                data-action="remove">
+                               href="#"
+                               rel="nofollow"
+                               data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
+                               data-name="@item.ProductName"
+                               data-type="cart"
+                               data-action="remove">
                                 <i class="fal fa-trash-alt"></i>
                             </a>
                         </div>
@@ -164,7 +164,6 @@
             @if (Model.DisplayCheckoutButton)
             {
                 <div class="col">
-                    @*TODO: (ms) (core) Implement corresponding action*@
                     <a class="btn btn-success btn-flat btn-flat-light btn-block btn-action" asp-route="ShoppingCart">
                         @T("ShoppingCart.Mini.ViewCart")
                     </a>
