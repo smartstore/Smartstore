@@ -16,9 +16,7 @@ namespace Smartstore.Core.Catalog.Categories
         private readonly SmartDbContext _db;
         private readonly IRequestCache _requestCache;
 
-        public CategoryHook(
-            SmartDbContext db,
-            IRequestCache requestCache)
+        public CategoryHook(SmartDbContext db, IRequestCache requestCache)
         {
             _db = db;
             _requestCache = requestCache;

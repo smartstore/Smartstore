@@ -15,9 +15,7 @@ namespace Smartstore.Core.Catalog.Brands
         private readonly SmartDbContext _db;
         private readonly IRequestCache _requestCache;
 
-        public ManufacturerHook(
-            SmartDbContext db,
-            IRequestCache requestCache)
+        public ManufacturerHook(SmartDbContext db, IRequestCache requestCache)
         {
             _db = db;
             _requestCache = requestCache;

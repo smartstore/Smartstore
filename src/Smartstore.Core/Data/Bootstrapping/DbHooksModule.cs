@@ -28,12 +28,21 @@ namespace Smartstore.Core.Bootstrapping
                 .As<IDbHookHandler>()
                 .InstancePerLifetimeScope();
 
+            var appInstalled = _appContext.IsInstalled;
             var hookTypes = _appContext.TypeScanner.FindTypes<IDbSaveHook>(ignoreInactiveModules: true);
 
             foreach (var hookType in hookTypes)
             {
-                var types = DiscoverHookTypes(hookType);
                 var importantAttribute = hookType.GetAttribute<ImportantAttribute>(false);
+
+                // Essential hooks must run during installation
+                var shouldRegister = appInstalled || importantAttribute.Importance == HookImportance.Essential;
+                if (!shouldRegister)
+                {
+                    continue;
+                }
+
+                var types = DiscoverHookTypes(hookType);
 
                 var registration = builder.RegisterType(hookType)
                     .As<IDbSaveHook>()

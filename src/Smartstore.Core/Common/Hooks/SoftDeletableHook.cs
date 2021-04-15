@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Data.Hooks;
@@ -11,6 +12,7 @@ using Smartstore.Engine.Modularity;
 namespace Smartstore.Core.Common.Hooks
 {
     [Important, Order(int.MinValue)]
+    [ServiceLifetime(ServiceLifetime.Singleton)]
     internal class SoftDeletableHook : AsyncDbSaveHook<ISoftDeletable>
     {
         private readonly List<IHookedEntity> _softDeletedEntries = new();

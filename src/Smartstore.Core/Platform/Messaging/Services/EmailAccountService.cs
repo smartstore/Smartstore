@@ -13,9 +13,7 @@ namespace Smartstore.Core.Messages
         private readonly SmartDbContext _db;
         private readonly EmailAccountSettings _emailAccountSettings;
 
-        public EmailAccountService(
-            SmartDbContext db,
-            EmailAccountSettings emailAccountSettings)
+        public EmailAccountService(SmartDbContext db, EmailAccountSettings emailAccountSettings)
         {
             _db = db;
             _emailAccountSettings = emailAccountSettings;

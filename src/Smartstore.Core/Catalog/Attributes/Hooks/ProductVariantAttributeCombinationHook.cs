@@ -18,9 +18,7 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly SmartDbContext _db;
         private readonly IRequestCache _requestCache;
 
-        public ProductVariantAttributeCombinationHook(
-            SmartDbContext db,
-            IRequestCache requestCache)
+        public ProductVariantAttributeCombinationHook(SmartDbContext db, IRequestCache requestCache)
         {
             _db = db;
             _requestCache = requestCache;

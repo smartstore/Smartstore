@@ -1,11 +1,13 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Menus.Hooks
 {
+    [ServiceLifetime(ServiceLifetime.Singleton)]
     internal class MenuItemHook : AsyncDbSaveHook<MenuItemEntity>
     {
         private readonly ICacheManager _cache;

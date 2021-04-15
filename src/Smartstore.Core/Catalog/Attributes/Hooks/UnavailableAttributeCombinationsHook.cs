@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Settings;
@@ -13,6 +14,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
+    [ServiceLifetime(ServiceLifetime.Singleton)]
     internal class UnavailableAttributeCombinationsHook : AsyncDbSaveHook<BaseEntity>
     {
         private readonly ICacheManager _cache;
