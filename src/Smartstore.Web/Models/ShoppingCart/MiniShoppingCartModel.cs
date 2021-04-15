@@ -22,8 +22,6 @@ namespace Smartstore.Web.Models.ShoppingCart
         public bool DisplayMoveToWishlistButton { get; set; }
         public bool ShowBasePrice { get; set; }
 
-        #region Nested Classes
-
         public partial class ShoppingCartItemModel : EntityModelBase, IQuantityInput
         {
             public int ProductId { get; set; }
@@ -71,7 +69,5 @@ namespace Smartstore.Web.Models.ShoppingCart
             public string ProductSeName { get; set; }
             public string ProductUrl { get; set; }
         }
-
-        #endregion
     }
 }

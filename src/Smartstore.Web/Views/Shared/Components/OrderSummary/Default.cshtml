@@ -30,7 +30,7 @@
         <form asp-route="ShoppingCart" method="post" asp-route-enctype="multipart/form-data">
 
             <div class="card">
-                <div id="cart-items" class="cart mb-0@(Model.IsEditable ? " cart-editable" : "")">
+                <div id="cart-items" class="cart mb-0" attr-class='(Model.IsEditable, "cart-editable")'>
                     <div class="cart-head">
                         <div class="cart-row">
                             <div class="cart-col cart-col-main">
@@ -62,9 +62,9 @@
 
                                 @*TODO: (ms) (core) Implement missing partials*@
                                 @*<partial name="_DiscountBox" model="Model.DiscountBox" />
-                                <partial name="_GiftCardBox" model="Model.GiftCardBox" />
-                                <partial name="_RewardPointsBox" model="Model.RewardPoints" />
-                                <partial name="EstimateShipping" model="Model.EstimateShipping" />*@
+                                    <partial name="_GiftCardBox" model="Model.GiftCardBox" />
+                                    <partial name="_RewardPointsBox" model="Model.RewardPoints" />
+                                    <partial name="EstimateShipping" model="Model.EstimateShipping" />*@
 
                                 <zone name="order_summary_actions_after" />
                             }
@@ -111,8 +111,8 @@
                             <div class="checkout-buttons">
                                 <input type="submit" name="startcheckout" value="startcheckout" id="startcheckout" class="d-none" />
                                 <button type="button" id="checkout" name="checkout"
-                                    class="btn btn-danger btn-lg btn-block btn-checkout"
-                                    onclick="$('#startcheckout').trigger('click'); return false;">
+                                        class="btn btn-danger btn-lg btn-block btn-checkout"
+                                        onclick="$('#startcheckout').trigger('click'); return false;">
                                     <span>@T("Checkout.Button")</span>
                                     <i class="fa fa-angle-right ml-3"></i>
                                 </button>
@@ -127,8 +127,7 @@
                                     @*Payment method buttons (e.g. GoogleCheckoutButton, Paypal Express, Pay with Amazon)*@
                                     @foreach (var item in Model.ButtonPaymentMethods.Items)
                                     {
-                                        // TODO: (ms) (core) Implement corresponding action/View component
-                                        // Html.RenderAction(item.ActionName, item.ControllerName, item.RouteValues);
+                                        @await item.InvokeAsync(ViewContext)
                                     }
                                 </div>
                             </div>
@@ -138,14 +137,13 @@
 
                 <zone name="order_summary_buttons_after" />
             }
-            
+
             <zone name="order_summary_content_after" />
         </form>
 
         if (Model.IsEditable)
         {
-            @*TODO: (ms) (core) Implement corresponding action/View component*@
-            @*Html.RenderAction("CrossSellProducts", "Product");*@
+            @await Component.InvokeAsync("CrossSellProducts")
         }
     }
     else
@@ -158,36 +156,32 @@
 
 @if (!Model.IsEditable && Model.Items.Any(x => x.IsDownload && x.HasUserAgreement))
 {
-    <widget target-zone="end" key="user-agreement-modal">
+    <modal id="user-agreement-modal" sm-render-at-page-end="true" sm-center-vertically="true" sm-size="FlexSmall">
+        <modal-header sm-title="Modal Title" sm-show-close="true"></modal-header>
+        <modal-body></modal-body>
+        <modal-footer>
+            <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
+        </modal-footer>
+    </modal>
 
-        @*TODO: (ms) (core) I'm not sure if the body tag is needed. And if the footer will display nicely. Please check!*@
-        <modal id="user-agreement-modal" sm-render-at-page-end="true" sm-center-vertically="true" sm-size="FlexSmall">
-            <modal-header sm-title="Modal Title" sm-show-close="true"></modal-header>
-            <modal-body></modal-body>
-            <modal-footer>
-                <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
-            </modal-footer>
-        </modal>
+    <script sm-target-zone="scripts" data-origin="order-summary">
+        $(function () {
+            $('a.download-user-agreement').on("click", function () {
+                var url = '@(Url.Action("GetUserAgreement", "Download"))?productId=' + $(this).attr('data-id'),
+                    dialog = $('#user-agreement-modal');
 
-        <script sm-target-zone="scripts" data-origin="order-summary">
-                $(function () {
-                    $('a.download-user-agreement').on("click", function () {
-                        var url = '@(Url.Action("GetUserAgreement", "Download"))?productId=' + $(this).attr('data-id'),
-                            dialog = $('#user-agreement-modal');
+                dialog.find('.modal-body').empty();
 
-                        dialog.find('.modal-body').empty();
-
-                        $.get(url, function (html) {
-                            dialog.find('.modal-body').html(html);
-                        });
-
-                        dialog.modal();
-
-                        return false;
-                    });
+                $.get(url, function (html) {
+                    dialog.find('.modal-body').html(html);
                 });
-        </script>
-    </widget>
+
+                dialog.modal();
+
+                return false;
+            });
+        });
+    </script>
 }
 
 @if (Model.IsEditable)

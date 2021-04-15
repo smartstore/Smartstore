@@ -80,7 +80,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// Gets a list of calculated attribute price adjustments, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
-        /// Only returned if <see cref="PriceCalculationOptions.DeterminePriceAdjustments"/> is activated.
+        /// Only filled if <see cref="PriceCalculationOptions.DeterminePriceAdjustments"/> is activated.
         /// </summary>
         public ICollection<CalculatedPriceAdjustment> AttributePriceAdjustments { get; init; }
 
