@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
@@ -28,10 +29,10 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Smartstore.Web.Models.ShoppingCart
-{   
+{
     public static class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this List<OrganizedShoppingCartItem> entity,
+        public static async Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity,
             ShoppingCartModel model,
             bool isEditable = true,
             bool validateCheckoutAttributes = false,
@@ -58,6 +59,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         private readonly IPaymentService _paymentService;
         private readonly IDiscountService _discountService;
         private readonly ICurrencyService _currencyService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
@@ -75,6 +77,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             IPaymentService paymentService,
             IDiscountService discountService,
             ICurrencyService currencyService,
+            IHttpContextAccessor httpContextAccessor,
             IShoppingCartValidator shoppingCartValidator,
             IOrderCalculationService orderCalculationService,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
@@ -85,8 +88,9 @@ namespace Smartstore.Web.Models.ShoppingCart
             OrderSettings orderSettings,
             MeasureSettings measureSettings,
             ShippingSettings shippingSettings,
-            RewardPointsSettings rewardPointsSettings)
-            : base(services, shoppingCartSettings, catalogSettings, mediaSettings)
+            RewardPointsSettings rewardPointsSettings,
+            Localizer T)
+            : base(services, shoppingCartSettings, catalogSettings, mediaSettings, T)
         {
             _db = db;
             _taxService = taxService;
@@ -94,6 +98,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             _paymentService = paymentService;
             _discountService = discountService;
             _currencyService = currencyService;
+            _httpContextAccessor = httpContextAccessor;
             _shoppingCartValidator = shoppingCartValidator;
             _orderCalculationService = orderCalculationService;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
@@ -104,15 +109,15 @@ namespace Smartstore.Web.Models.ShoppingCart
             _rewardPointsSettings = rewardPointsSettings;
         }
 
-        protected override void Map(List<OrganizedShoppingCartItem> from, ShoppingCartModel to, dynamic parameters = null)
+        protected override void Map(IEnumerable<OrganizedShoppingCartItem> from, ShoppingCartModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override async Task MapAsync(List<OrganizedShoppingCartItem> from, ShoppingCartModel to, dynamic parameters = null)
+        public override async Task MapAsync(IEnumerable<OrganizedShoppingCartItem> from, ShoppingCartModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
 
-            if (from.Count == 0)
+            if (!from.Any())
             {
                 return;
             }
@@ -129,33 +134,30 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             #region Simple properties
 
-            var model = new ShoppingCartModel
-            {
-                MediaDimensions = _mediaSettings.CartThumbPictureSize,
-                DeliveryTimesPresentation = _shoppingCartSettings.DeliveryTimesInShoppingCart,
-                DisplayBasePrice = _shoppingCartSettings.ShowBasePrice,
-                DisplayWeight = _shoppingCartSettings.ShowWeight,
-                DisplayMoveToWishlistButton = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist),
-                TermsOfServiceEnabled = _orderSettings.TermsOfServiceEnabled,
-                DisplayCommentBox = _shoppingCartSettings.ShowCommentBox,
-                DisplayEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox,
-                IsEditable = isEditable
-            };
+            to.MediaDimensions = _mediaSettings.CartThumbPictureSize;
+            to.DeliveryTimesPresentation = _shoppingCartSettings.DeliveryTimesInShoppingCart;
+            to.DisplayBasePrice = _shoppingCartSettings.ShowBasePrice;
+            to.DisplayWeight = _shoppingCartSettings.ShowWeight;
+            to.DisplayMoveToWishlistButton = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
+            to.TermsOfServiceEnabled = _orderSettings.TermsOfServiceEnabled;
+            to.DisplayCommentBox = _shoppingCartSettings.ShowCommentBox;
+            to.DisplayEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox;
+            to.IsEditable = isEditable;
 
             await base.MapAsync(from, to, null);
 
             var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             if (measure != null)
             {
-                model.MeasureUnitName = measure.GetLocalized(x => x.Name);
+                to.MeasureUnitName = measure.GetLocalized(x => x.Name);
             }
 
-            model.CheckoutAttributeInfo = HtmlUtils.ConvertPlainTextToTable(
+            to.CheckoutAttributeInfo = HtmlUtils.ConvertPlainTextToTable(
                 HtmlUtils.ConvertHtmlToPlainText(
                     await _checkoutAttributeFormatter.FormatAttributesAsync(customer.GenericAttributes.CheckoutAttributes, customer)));
 
             // Gift card and gift card boxes.
-            model.DiscountBox.Display = _shoppingCartSettings.ShowDiscountBox;
+            to.DiscountBox.Display = _shoppingCartSettings.ShowDiscountBox;
             var discountCouponCode = customer.GenericAttributes.DiscountCouponCode;
             var discount = await _db.Discounts
                 .AsNoTracking()
@@ -166,10 +168,10 @@ namespace Smartstore.Web.Models.ShoppingCart
                 && discount.RequiresCouponCode
                 && await _discountService.IsDiscountValidAsync(discount, customer))
             {
-                model.DiscountBox.CurrentCode = discount.CouponCode;
+                to.DiscountBox.CurrentCode = discount.CouponCode;
             }
 
-            model.GiftCardBox.Display = _shoppingCartSettings.ShowGiftCardBox;
+            to.GiftCardBox.Display = _shoppingCartSettings.ShowGiftCardBox;
 
             // Reward points.
             if (_rewardPointsSettings.Enabled && !from.IncludesMatchingItems(x => x.IsRecurring) && !customer.IsGuest())
@@ -180,10 +182,10 @@ namespace Smartstore.Web.Models.ShoppingCart
 
                 if (rewardPointsAmount > decimal.Zero)
                 {
-                    model.RewardPoints.DisplayRewardPoints = true;
-                    model.RewardPoints.RewardPointsAmount = rewardPointsAmount.ToString(true);
-                    model.RewardPoints.RewardPointsBalance = rewardPointsBalance;
-                    model.RewardPoints.UseRewardPoints = customer.GenericAttributes.UseRewardPointsDuringCheckout;
+                    to.RewardPoints.DisplayRewardPoints = true;
+                    to.RewardPoints.RewardPointsAmount = rewardPointsAmount.ToString(true);
+                    to.RewardPoints.RewardPointsBalance = rewardPointsBalance;
+                    to.RewardPoints.UseRewardPoints = customer.GenericAttributes.UseRewardPointsDuringCheckout;
                 }
             }
 
@@ -192,7 +194,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             var cartIsValid = await _shoppingCartValidator.ValidateCartItemsAsync(from, warnings, validateCheckoutAttributes, customer.GenericAttributes.CheckoutAttributes);
             if (!cartIsValid)
             {
-                model.Warnings.AddRange(warnings);
+                to.Warnings.AddRange(warnings);
             }
 
             #endregion
@@ -349,7 +351,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                         break;
                 }
 
-                model.CheckoutAttributes.Add(caModel);
+                to.CheckoutAttributes.Add(caModel);
             }
 
             #endregion
@@ -358,16 +360,16 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             if (prepareEstimateShippingIfEnabled)
             {
-                model.EstimateShipping.Enabled = _shippingSettings.EstimateShippingEnabled
+                to.EstimateShipping.Enabled = _shippingSettings.EstimateShippingEnabled
                     && from.Any()
                     && from.IncludesMatchingItems(x => x.IsShippingEnabled);
 
-                if (model.EstimateShipping.Enabled)
+                if (to.EstimateShipping.Enabled)
                 {
                     // Countries.
                     var defaultEstimateCountryId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
                         ? customer.ShippingAddress.CountryId
-                        : model.EstimateShipping.CountryId;
+                        : to.EstimateShipping.CountryId;
 
                     var countriesForShipping = await _db.Countries
                         .AsNoTracking()
@@ -377,7 +379,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
                     foreach (var countries in countriesForShipping)
                     {
-                        model.EstimateShipping.AvailableCountries.Add(new SelectListItem
+                        to.EstimateShipping.AvailableCountries.Add(new SelectListItem
                         {
                             Text = countries.GetLocalized(x => x.Name),
                             Value = countries.Id.ToString(),
@@ -394,11 +396,11 @@ namespace Smartstore.Web.Models.ShoppingCart
                     {
                         var defaultEstimateStateId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
                             ? customer.ShippingAddress.StateProvinceId
-                            : model.EstimateShipping.StateProvinceId;
+                            : to.EstimateShipping.StateProvinceId;
 
                         foreach (var s in states)
                         {
-                            model.EstimateShipping.AvailableStates.Add(new SelectListItem
+                            to.EstimateShipping.AvailableStates.Add(new SelectListItem
                             {
                                 Text = s.GetLocalized(x => x.Name),
                                 Value = s.Id.ToString(),
@@ -408,12 +410,12 @@ namespace Smartstore.Web.Models.ShoppingCart
                     }
                     else
                     {
-                        model.EstimateShipping.AvailableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
+                        to.EstimateShipping.AvailableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
                     }
 
                     if (setEstimateShippingDefaultAddress && customer.ShippingAddress != null)
                     {
-                        model.EstimateShipping.ZipPostalCode = customer.ShippingAddress.ZipPostalCode;
+                        to.EstimateShipping.ZipPostalCode = customer.ShippingAddress.ZipPostalCode;
                     }
                 }
             }
@@ -434,64 +436,61 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             if (prepareAndDisplayOrderReviewData)
             {
-                // TODO: (ms) (core) Access HttpContext.Session
-                //HttpContext.Session.TryGetObject(CheckoutState.CheckoutStateSessionKey, out CheckoutState checkoutState);
+                var checkoutState = _httpContextAccessor.HttpContext?.GetCheckoutState();
 
-                model.OrderReviewData.Display = true;
+                to.OrderReviewData.Display = true;
 
                 // Billing info.
                 var billingAddress = customer.BillingAddress;
                 if (billingAddress != null)
                 {
-                    await MapperFactory.MapAsync(billingAddress, model.OrderReviewData.BillingAddress);
+                    await MapperFactory.MapAsync(billingAddress, to.OrderReviewData.BillingAddress);
                 }
 
                 // Shipping info.
                 if (from.IsShippingRequired())
                 {
-                    model.OrderReviewData.IsShippable = true;
+                    to.OrderReviewData.IsShippable = true;
 
                     var shippingAddress = customer.ShippingAddress;
                     if (shippingAddress != null)
                     {
-                        await MapperFactory.MapAsync(shippingAddress, model.OrderReviewData.ShippingAddress);
+                        await MapperFactory.MapAsync(shippingAddress, to.OrderReviewData.ShippingAddress);
                     }
 
                     // Selected shipping method.
                     var shippingOption = customer.GenericAttributes.SelectedShippingOption;
                     if (shippingOption != null)
                     {
-                        model.OrderReviewData.ShippingMethod = shippingOption.Name;
+                        to.OrderReviewData.ShippingMethod = shippingOption.Name;
                     }
 
-                    // TODO: (ms) (core) Implement httpContext checkoutState
-                    //if(checkoutState.CustomProperties.ContainsKey("HasOnlyOneActiveShippingMethod"))
-                    ////if (_httpContext.Session.TryGetValue("HasOnlyOneActiveShippingMethod", out var _))
-                    //{
-                    //    model.OrderReviewData.DisplayShippingMethodChangeOption = !(bool)checkoutState.CustomProperties.Get("HasOnlyOneActiveShippingMethod");
-                    //}
+                    if (checkoutState != null && checkoutState.CustomProperties.ContainsKey("HasOnlyOneActiveShippingMethod"))
+                    {
+                        to.OrderReviewData.DisplayShippingMethodChangeOption = !(bool)checkoutState.CustomProperties.Get("HasOnlyOneActiveShippingMethod");
+                    }
                 }
+
+                if (checkoutState != null && checkoutState.CustomProperties.ContainsKey("HasOnlyOneActivePaymentMethod"))
+                {
+                    to.OrderReviewData.DisplayPaymentMethodChangeOption = !(bool)checkoutState.CustomProperties.Get("HasOnlyOneActivePaymentMethod");
+                }
+
+                var selectedPaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
+                var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(selectedPaymentMethodSystemName);
+
+                // TODO: (ms) (core) Wait for PluginMediator.GetLocalizedFriendlyName implementation
+                //model.OrderReviewData.PaymentMethod = paymentMethod != null ? _pluginMediator.GetLocalizedFriendlyName(paymentMethod.Metadata) : "";
+                to.OrderReviewData.PaymentSummary = checkoutState.PaymentSummary;
+                to.OrderReviewData.IsPaymentSelectionSkipped = checkoutState.IsPaymentSelectionSkipped;
             }
-
-            //if (checkoutState.CustomProperties.ContainsKey("HasOnlyOneActivePaymentMethod"))
-            //{
-            //    model.OrderReviewData.DisplayPaymentMethodChangeOption = !(bool)checkoutState.CustomProperties.Get("HasOnlyOneActivePaymentMethod");
-            //}
-
-            var selectedPaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
-            var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(selectedPaymentMethodSystemName);
-
-            //// TODO: (ms) (core) Wait for PluginMediator.GetLocalizedFriendlyName implementation
-            ////model.OrderReviewData.PaymentMethod = paymentMethod != null ? _pluginMediator.GetLocalizedFriendlyName(paymentMethod.Metadata) : "";
-            //model.OrderReviewData.PaymentSummary = checkoutState.PaymentSummary;
-            //model.OrderReviewData.IsPaymentSelectionSkipped = checkoutState.IsPaymentSelectionSkipped;
 
             #endregion
 
             var paymentTypes = new PaymentMethodType[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton };
             var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(
                 customer,
-                from,
+                from.ToList(),
                 store.Id,
                 paymentTypes,
                 false);
@@ -506,6 +505,8 @@ namespace Smartstore.Web.Models.ShoppingCart
                 var widgetInvoker = boundPaymentMethod.Value.GetPaymentInfoWidget();
                 bpmModel.Items.Add(widgetInvoker);
             }
+
+            to.ButtonPaymentMethods = bpmModel;
         }
     }
 }

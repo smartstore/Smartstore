@@ -4,6 +4,7 @@ using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 {
     public static class WishlistMappingExtensions
     {
-        public static async Task MapAsync(this IList<OrganizedShoppingCartItem> entity, WishlistModel model, bool isEditable = true)
+        public static async Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity, WishlistModel model, bool isEditable = true)
         {
             dynamic parameters = new ExpandoObject();
             parameters.IsEditable = isEditable;
@@ -35,34 +36,32 @@ namespace Smartstore.Web.Models.ShoppingCart
             IProductAttributeFormatter productAttributeFormatter,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings,
-            MediaSettings mediaSettings)
-            : base(services, shoppingCartSettings, catalogSettings, mediaSettings)
+            MediaSettings mediaSettings,
+            Localizer T)
+            : base(services, shoppingCartSettings, catalogSettings, mediaSettings, T)
         {
             _shoppingCartValidator = shoppingCartValidator;
             _productAttributeFormatter = productAttributeFormatter;
         }
 
-        protected override void Map(List<OrganizedShoppingCartItem> from, WishlistModel to, dynamic parameters = null)
+        protected override void Map(IEnumerable<OrganizedShoppingCartItem> from, WishlistModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override async Task MapAsync(List<OrganizedShoppingCartItem> from, WishlistModel to, dynamic parameters = null)
+        public override async Task MapAsync(IEnumerable<OrganizedShoppingCartItem> from, WishlistModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
 
-            var model = new WishlistModel
-            {
-                IsEditable = parameters?.IsEditable == true,
-                EmailWishlistEnabled = _shoppingCartSettings.EmailWishlistEnabled,
-                DisplayAddToCart = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
-            };
+            to.IsEditable = parameters?.IsEditable == true;
+            to.EmailWishlistEnabled = _shoppingCartSettings.EmailWishlistEnabled;
+            to.DisplayAddToCart = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);           
 
-            if (from.Count == 0)
+            if (!from.Any())
                 return;
 
             var customer = from.FirstOrDefault().Item.Customer;
-            model.CustomerGuid = customer.CustomerGuid;
-            model.CustomerFullname = customer.GetFullName();
-            model.ShowItemsFromWishlistToCartButton = _shoppingCartSettings.ShowItemsFromWishlistToCartButton;
+            to.CustomerGuid = customer.CustomerGuid;
+            to.CustomerFullname = customer.GetFullName();
+            to.ShowItemsFromWishlistToCartButton = _shoppingCartSettings.ShowItemsFromWishlistToCartButton;
 
             await base.MapAsync(from, to, null);
 
@@ -71,7 +70,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             var cartIsValid = await _shoppingCartValidator.ValidateCartItemsAsync(from, warnings);
             if (!cartIsValid)
             {
-                model.Warnings.AddRange(warnings);
+                to.Warnings.AddRange(warnings);
             }
 
             foreach (var item in from)
@@ -80,7 +79,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 // model.AddItems(await PrepareWishlistItemModelAsync(item));
             }
 
-            model.Items.Each(async x =>
+            to.Items.Each(async x =>
             {
                 // Do not display QuantityUnitName in OffCanvasWishlist
                 x.QuantityUnitName = null;
