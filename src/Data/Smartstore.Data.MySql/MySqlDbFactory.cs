@@ -10,7 +10,7 @@ using Smartstore.Data.Providers;
 
 // Add-Migration Initial -Context MySqlSmartDbContext -Project Smartstore.Data.MySql
 
-namespace Smartstore.Data.SqlServer
+namespace Smartstore.Data.MySql
 {
     internal class MySqlDbFactory : DbFactory
     {

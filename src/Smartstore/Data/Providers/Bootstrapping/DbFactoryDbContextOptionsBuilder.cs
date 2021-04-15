@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Smartstore.Data.Migrations;
 
 namespace Smartstore.Data.Providers
 {
@@ -80,22 +79,5 @@ namespace Smartstore.Data.Providers
         /// <param name="schema">The schema of the table.</param>
         public virtual DbFactoryDbContextOptionsBuilder MigrationsHistoryTable(string tableName, string schema = null)
             => WithOption(e => e.WithMigrationsHistoryTable(tableName, schema));
-
-        /// <summary>
-        /// The type of the data seeder implementation that is responsible for seeding data to the database.
-        /// The given seeder will ALWAYS run during app initialization, regardless of whether pending migrations
-        /// have been applied or not.
-        /// <para>
-        /// The type must implement <see cref="IDataSeeder{TContext}"/>, where <c>TContext</c> must be
-        /// assignable from the currently configured <see cref="DbContext" /> type.
-        /// </para>
-        /// <para>
-        /// The global data seeder sort of replaces the old <c>MigrationsConfiguration</c> class from EF 6.
-        /// </para>
-        /// </summary>
-        public virtual DbFactoryDbContextOptionsBuilder WithDataSeeder<TSeeder, TContext>()
-            where TSeeder : IDataSeeder<TContext>, new()
-            where TContext : HookingDbContext
-            => WithOption(e => e.WithDataSeeder(typeof(TSeeder)));
     }
 }

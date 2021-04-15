@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Smartstore.Collections;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
-using Smartstore.Data.Providers;
 using Smartstore.Engine;
 
 namespace Smartstore.Core.Data.Migrations
@@ -29,25 +30,27 @@ namespace Smartstore.Core.Data.Migrations
         private static readonly SyncedCollection<Type> _initializedContextTypes = new List<Type>().AsSynchronized();
         private readonly ILifetimeScope _scope;
         private readonly SmartConfiguration _appConfig;
+        private readonly ITypeScanner _typeScanner;
+        private readonly Multimap<Type, Type> _seedersMap;
 
-        public DatabaseInitializer(ILifetimeScope scope, SmartConfiguration appConfig)
+        public DatabaseInitializer(ILifetimeScope scope, ITypeScanner typeScanner, SmartConfiguration appConfig)
         {
             _scope = scope;
             _appConfig = appConfig;
+            _typeScanner = typeScanner;
+            _seedersMap = DiscoverDataSeeders().ToMultimap(key => key.ContextType, value => value.SeederType);
         }
 
         public virtual async Task InitializeDatabasesAsync()
         {
-            var migratableDbContextTypes = DbMigrationManager.Instance.GetDbContextTypes();
-
-            foreach (var dbContextType in migratableDbContextTypes)
+            foreach (var dbContextType in DbMigrationManager.Instance.GetDbContextTypes())
             {
                 var migrator = _scope.Resolve(typeof(DbMigrator<>).MakeGenericType(dbContextType)) as DbMigrator;
-                await InitializeDatabaseAsync(migrator);
+                await InitializeDatabaseAsync(migrator, _seedersMap[dbContextType]);
             }
         }
 
-        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator)
+        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, IEnumerable<Type> seederTypes)
         {
             Guard.NotNull(migrator, nameof(migrator));
 
@@ -76,9 +79,9 @@ namespace Smartstore.Core.Data.Migrations
                 // Run all pending migrations
                 await migrator.RunPendingMigrationsAsync();
                 
-                // Call the global Seed method anyway (on every startup),
+                // Execute the global seeders anyway (on every startup),
                 // we could have locale resources or settings to add/update.
-                await GlobalSeed(migrator);
+                await RunGlobalSeeders(context, seederTypes);
 
                 // Restore standard command timeout
                 context.Database.SetCommandTimeout(prevCommandTimeout);
@@ -87,20 +90,44 @@ namespace Smartstore.Core.Data.Migrations
             }
         }
 
-        private static async Task GlobalSeed(DbMigrator migrator)
+        private static async Task RunGlobalSeeders(HookingDbContext dbContext, IEnumerable<Type> seederTypes)
         {
-            var extension = migrator.Context.Options?.FindExtension<DbFactoryOptionsExtension>();
-            if (extension?.DataSeederType != null)
+            foreach (var seederType in seederTypes)
             {
-                var seeder = Activator.CreateInstance(extension.DataSeederType);
+                var seeder = Activator.CreateInstance(seederType);
                 if (seeder != null)
                 {
-                    var seedMethod = extension.DataSeederType.GetMethod(nameof(IDataSeeder<HookingDbContext>.SeedAsync), BindingFlags.Public | BindingFlags.Instance);
+                    var seedMethod = seederType.GetMethod(nameof(IDataSeeder<HookingDbContext>.SeedAsync), BindingFlags.Public | BindingFlags.Instance);
                     if (seedMethod != null)
                     {
-                        await (Task)seedMethod.Invoke(seeder, new object[] { migrator.Context });
-                        await migrator.Context.SaveChangesAsync();
+                        await (Task)seedMethod.Invoke(seeder, new object[] { dbContext });
+                        await dbContext.SaveChangesAsync();
                     }
+                }
+            }
+        }
+
+        protected virtual IEnumerable<(Type SeederType, Type ContextType)> DiscoverDataSeeders()
+        {
+            var seederTypes = _typeScanner.FindTypes(typeof(IDataSeeder<>), ignoreInactiveModules: true);
+
+            foreach (var seederType in seederTypes)
+            {
+                if (!seederType.HasDefaultConstructor())
+                {
+                    // Skip data seeders that are not constructible.
+                    continue;
+                }
+
+                if (typeof(Migration).IsAssignableFrom(seederType))
+                {
+                    // Skip data seeders that are bound to specific migrations.
+                    continue;
+                }
+
+                if (seederType.IsSubClass(typeof(IDataSeeder<>), out var intf))
+                {
+                    yield return (seederType, intf.GetGenericArguments()[0]);
                 }
             }
         }

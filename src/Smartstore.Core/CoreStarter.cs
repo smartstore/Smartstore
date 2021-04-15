@@ -37,11 +37,9 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     builder
                         .UseSecondLevelCache()
-                        .UseDbFactory(factoryOptionsBuilder =>
+                        .UseDbFactory(f =>
                         {
-                            factoryOptionsBuilder
-                                .MigrationsHistoryTable("__EFMigrationsHistory_Core")
-                                .WithDataSeeder<SmartDbContextDataSeeder, SmartDbContext>();
+                            f.MigrationsHistoryTable("__EFMigrationsHistory_Core");
                         });
                 });
 

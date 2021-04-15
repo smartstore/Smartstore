@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Data.Providers;
 
-namespace Smartstore.Data.SqlServer
+namespace Smartstore.Data.MySql
 {
     public class MySqlDataProvider : DataProvider
     {

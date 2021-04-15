@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 
-namespace Smartstore.Data.SqlServer
+namespace Smartstore.Data.MySql
 {
     public class MySqlSmartDbContext : SmartDbContext
     {

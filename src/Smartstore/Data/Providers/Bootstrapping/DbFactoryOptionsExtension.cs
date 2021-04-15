@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Data.Migrations;
 using Smartstore.Engine;
 
 namespace Smartstore.Data.Providers
@@ -42,7 +39,6 @@ namespace Smartstore.Data.Providers
             MigrationsAssembly = copyFrom.MigrationsAssembly;
             MigrationsHistoryTableName = copyFrom.MigrationsHistoryTableName;
             MigrationsHistoryTableSchema = copyFrom.MigrationsHistoryTableSchema;
-            DataSeederType = copyFrom.DataSeederType;
         }
 
         public DbContextOptionsExtensionInfo Info
@@ -58,23 +54,7 @@ namespace Smartstore.Data.Providers
 
         public void Validate(IDbContextOptions options)
         {
-            if (DataSeederType != null)
-            {
-                // DataSeeder generic argument must match the configured DbContext type.
-                if (DataSeederType.IsSubClass(typeof(IDataSeeder<>), out var intf)) 
-                {
-                    var contextType = ((DbContextOptions)options).ContextType;
-                    var seederContextType = intf.GetGenericArguments()[0];
-                    if (!seederContextType.IsAssignableFrom(contextType))
-                    {
-                        throw new InvalidOperationException($"The data seeder '{DataSeederType}' cannot seed data to context type '{contextType}'.");
-                    }
-                }
-                else
-                {
-                    throw new InvalidOperationException($"The data seeder '{DataSeederType}' must implement '{typeof(IDataSeeder<>)}'.");
-                }
-            }
+            // Nothing to validate
         }
 
         #region Options
@@ -152,19 +132,6 @@ namespace Smartstore.Data.Providers
             return clone;
         }
 
-        public Type DataSeederType { get; private set; }
-        public DbFactoryOptionsExtension WithDataSeeder(Type dataSeederType)
-        {
-            if (dataSeederType != null)
-            {
-                Guard.HasDefaultConstructor(dataSeederType);
-            }
-            
-            var clone = Clone();
-            clone.DataSeederType = dataSeederType;
-            return clone;
-        }
-
         #endregion
 
         #region Nested ExtensionInfo
@@ -198,7 +165,6 @@ namespace Smartstore.Data.Providers
                     hashCode.Add(Extension.MigrationsAssembly);
                     hashCode.Add(Extension.MigrationsHistoryTableName);
                     hashCode.Add(Extension.MigrationsHistoryTableSchema);
-                    hashCode.Add(Extension.DataSeederType);
 
                     _serviceProviderHash = hashCode.ToHashCode();
                 }
@@ -206,29 +172,10 @@ namespace Smartstore.Data.Providers
                 return _serviceProviderHash.Value;
             }
 
-            public override string LogFragment
-            {
-                get
-                {
-                    if (_logFragment == null)
-                    {
-                        var builder = new StringBuilder();
-
-                        if (Extension.DataSeederType != null)
-                        {
-                            builder.Append("DataSeederType=").Append(Extension.DataSeederType.FullName).Append(' ');
-                        }
-
-                        _logFragment = builder.ToString();
-                    }
-
-                    return _logFragment;
-                }
-            }
+            public override string LogFragment => $"Using '{nameof(DbFactoryOptionsExtension)}'";
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {
-                debugInfo["Smartstore.Data.Providers:" + nameof(Extension.DataSeederType)] = HashCode.Combine(Extension.DataSeederType).ToString(CultureInfo.InvariantCulture);
             }
         }
 
