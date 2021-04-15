@@ -171,10 +171,10 @@ namespace Smartstore.Core.Catalog.Pricing
         public bool DeterminePreselectedPrice { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to determine prices of product attributes, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
-        /// Attribute prices are returned through <see cref="CalculatedPrice.AttributePrices"/>.
+        /// Gets or sets a value indicating whether to determine price adjustments of product attributes, see <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
+        /// Price adjustments are returned through <see cref="CalculatedPrice.AttributePriceAdjustments"/>.
         /// </summary>
-        public bool DetermineAttributePrices { get; set; }
+        public bool DeterminePriceAdjustments { get; set; }
 
         /// <inheritdoc/>
         public PriceCalculationOptions Clone()

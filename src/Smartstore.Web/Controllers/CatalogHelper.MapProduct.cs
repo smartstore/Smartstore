@@ -614,18 +614,9 @@ namespace Smartstore.Web.Controllers
         /// <returns>The final price</returns>
         private async Task<(Money FinalPrice, Product ContextProduct)> MapSummaryItemPrice(Product product, ProductSummaryModel.SummaryItem item, MapProductSummaryItemContext ctx)
         {
-            //return (new Money(0, ctx.WorkingCurrency), product);
             var options = ctx.CalculationOptions;
             var batchContext = ctx.BatchContext;
-            var contextProduct = product;
-            var displayFromMessage = false;
-            var taxRate = decimal.Zero;
-            var oldPriceBase = default(Money);
-            var oldPrice = default(Money);
-            var finalPriceBase = default(Money);
-            var finalPrice = new Money(ctx.PrimaryCurrency);
-            var displayPrice = (Money?)null;
-            
+            var contextProduct = product;            
             ICollection<Product> associatedProducts = null;
 
             var priceModel = new ProductSummaryModel.PriceModel();
@@ -695,8 +686,6 @@ namespace Smartstore.Web.Controllers
                 return (new Money(options.TargetCurrency).WithPostFormat(ctx.Resources["Products.CallForPrice"]), contextProduct);
             }
 
-            #region Test NEW
-
             var calculationContext = new PriceCalculationContext(product, options)
             {
                 AssociatedProducts = associatedProducts
@@ -706,7 +695,10 @@ namespace Smartstore.Web.Controllers
             var calculatedPrice = await _priceCalculationService2.CalculatePriceAsync(calculationContext);
 
             priceModel.Price = calculatedPrice.FinalPrice;
+
+            // TODO: (mg) (core) Check and add code in MapSummaryItemPrice.
             priceModel.HasDiscount = calculatedPrice.HasDiscount;
+            
             if (calculatedPrice.HasDiscount)
             {
                 priceModel.RegularPrice = calculatedPrice.RegularPrice;
@@ -716,9 +708,16 @@ namespace Smartstore.Web.Controllers
 
             return (calculatedPrice.FinalPrice, contextProduct);
 
-            #endregion
-
+            /*
             // Calculate prices.
+            var displayFromMessage = false;
+            var taxRate = decimal.Zero;
+            var oldPriceBase = default(Money);
+            var oldPrice = default(Money);
+            var finalPriceBase = default(Money);
+            var finalPrice = new Money(ctx.PrimaryCurrency);
+            var displayPrice = (Money?)null;
+
             batchContext = product.ProductType == ProductType.GroupedProduct ? ctx.AssociatedProductBatchContext : ctx.BatchContext;
 
             if (_catalogSettings.PriceDisplayType == PriceDisplayType.PreSelectedPrice)
@@ -805,6 +804,7 @@ namespace Smartstore.Web.Controllers
             }
 
             return (finalPrice, contextProduct);
+            */
         }
 
         private IEnumerable<ProductSpecificationModel> MapProductSpecificationModels(IEnumerable<ProductSpecificationAttribute> attributes)

@@ -95,6 +95,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// The product quantity. May have impact on final price, e.g. because of tier prices etc.
+        /// Note that the calculated price is always the unit price, unless <see cref="CalculateUnitPrice"/> is deactivated.
         /// </summary>
         public int Quantity { get; set; } = 1;
 

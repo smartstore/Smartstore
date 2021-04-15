@@ -6,8 +6,6 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
-using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -23,10 +21,8 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly IWorkContext _workContext;
         private readonly IWebHelper _webHelper;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly ITaxService _taxService;
-        private readonly ICurrencyService _currencyService;
         private readonly ILocalizationService _localizationService;
-        private readonly IPriceCalculationService _priceCalculationService;
+        private readonly IPriceCalculationService2 _priceCalculationService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CatalogSettings _catalogSettings;
 
@@ -35,10 +31,8 @@ namespace Smartstore.Core.Catalog.Attributes
             IWorkContext workContext,
             IWebHelper webHelper,
             IProductAttributeMaterializer productAttributeMaterializer,
-            ITaxService taxService,
-            ICurrencyService currencyService,
             ILocalizationService localizationService,
-            IPriceCalculationService priceCalculationService,
+            IPriceCalculationService2 priceCalculationService,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
         {
@@ -46,8 +40,6 @@ namespace Smartstore.Core.Catalog.Attributes
             _workContext = workContext;
             _webHelper = webHelper;
             _productAttributeMaterializer = productAttributeMaterializer;
-            _taxService = taxService;
-            _currencyService = currencyService;
             _localizationService = localizationService;
             _priceCalculationService = priceCalculationService;
             _shoppingCartSettings = shoppingCartSettings;
@@ -78,6 +70,12 @@ namespace Smartstore.Core.Catalog.Attributes
                 var attributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(selection);
                 var attributesDic = attributes.ToDictionary(x => x.Id);
 
+                // Key: ProductVariantAttributeValue.Id, value: calculated attribute price adjustment.
+                var priceAdjustments = includePrices && _catalogSettings.ShowVariantCombinationPriceAdjustment
+                    ? await _priceCalculationService.CalculateAttributePriceAdjustmentsAsync(product, selection, customer)
+                    : null;
+                CalculatedPriceAdjustment adjustment = null;
+
                 foreach (var kvp in selection.AttributesMap)
                 {
                     if (!attributesDic.TryGetValue(kvp.Key, out var pva))
@@ -101,10 +99,6 @@ namespace Smartstore.Core.Catalog.Attributes
 
                                 if (includePrices)
                                 {
-                                    var attributeValuePriceAdjustment = await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, customer, null, 1);
-                                    var (priceAdjustmentBase, _) = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment, customer: customer);
-                                    var priceAdjustment = _currencyService.ConvertToWorkingCurrency(priceAdjustmentBase);
-
                                     if (_shoppingCartSettings.ShowLinkedAttributeValueQuantity &&
                                         pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
                                         pvaValue.Quantity > 1)
@@ -112,15 +106,15 @@ namespace Smartstore.Core.Catalog.Attributes
                                         pvaAttribute = pvaAttribute + " × " + pvaValue.Quantity;
                                     }
 
-                                    if (_catalogSettings.ShowVariantCombinationPriceAdjustment)
+                                    if (priceAdjustments?.TryGetValue(pvaValue.Id, out adjustment) ?? false)
                                     {
-                                        if (priceAdjustmentBase > decimal.Zero)
+                                        if (adjustment.Price > decimal.Zero)
                                         {
-                                            pvaAttribute += $" (+{priceAdjustment})";
+                                            pvaAttribute += $" (+{adjustment.Price})";
                                         }
-                                        else if (priceAdjustmentBase < decimal.Zero)
+                                        else if (adjustment.Price < decimal.Zero)
                                         {
-                                            pvaAttribute += $" (+{priceAdjustment * -1})";
+                                            pvaAttribute += $" (-{adjustment.Price * -1})";
                                         }
                                     }
                                 }

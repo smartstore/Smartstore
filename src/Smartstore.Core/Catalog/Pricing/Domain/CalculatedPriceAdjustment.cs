@@ -4,9 +4,9 @@ using Smartstore.Core.Common;
 namespace Smartstore.Core.Catalog.Pricing
 {
     /// <summary>
-    /// Represents a calculated product attribute price, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
+    /// Represents a calculated product attribute price adjustment, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
     /// </summary>
-    public partial class CalculatedAttributePrice
+    public partial class CalculatedPriceAdjustment
     {
         /// <summary>
         /// The raw calculated price adjustment in primary currency without tax.
@@ -21,7 +21,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// Gets the product attribute value.
         /// </summary>
-        public ProductVariantAttributeValue Value { get; init; }
+        public ProductVariantAttributeValue AttributeValue { get; init; }
 
         /// <summary>
         /// Gets the identifier of the related product.

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 
 namespace Smartstore.Core.Catalog.Pricing
@@ -62,9 +63,9 @@ namespace Smartstore.Core.Catalog.Pricing
         public decimal? MinTierPrice { get; set; }
 
         /// <summary>
-        /// Gets or sets a list of calculated product attribute prices, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
+        /// Gets or sets a list of calculated product attribute price adjustments, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
         /// </summary>
-        public ICollection<CalculatedAttributePrice> AttributePrices { get; set; } = new List<CalculatedAttributePrice>();
+        public ICollection<CalculatedPriceAdjustment> AttributePriceAdjustments { get; set; } = new List<CalculatedPriceAdjustment>();
 
         /// <summary>
         /// Copies all data from current context to given <paramref name="target"/> context.
@@ -86,8 +87,8 @@ namespace Smartstore.Core.Catalog.Pricing
             target.AppliedDiscounts.Clear();
             target.AppliedDiscounts.AddRange(AppliedDiscounts);
 
-            target.AttributePrices.Clear();
-            target.AttributePrices.AddRange(AttributePrices);
+            target.AttributePriceAdjustments.Clear();
+            target.AttributePriceAdjustments.AddRange(AttributePriceAdjustments);
         }
     }
 }

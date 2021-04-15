@@ -850,6 +850,7 @@ namespace Smartstore.Web.Controllers
             var pcs = Services.Resolve<IPriceCalculationService>();
             var pcs2 = Services.Resolve<IPriceCalculationService2>();
             var ps = Services.Resolve<IProductService>();
+            var paf = Services.Resolve<IProductAttributeFormatter>();
             var scs = Services.Resolve<IShoppingCartService>();
             var cs = Services.Resolve<ICurrencyService>();
             var ts = Services.Resolve<ITaxService>();
@@ -991,9 +992,7 @@ namespace Smartstore.Web.Controllers
                 var oldConvertedCardPrice = cs.ConvertFromPrimaryCurrency(oldCartPriceTax.Amount, usd);
 
                 var newConvertedCartPrice = await pcs2.CalculateUnitPriceAsync(item, false, usd);
-                //var cpCartOptions = pcs2.CreateDefaultOptions(false, targetCurrency: usd);
-                //var cpCartContext = new PriceCalculationContext(item, cpCartOptions);
-                //var newConvertedCartPrice = await pcs2.CalculatePriceAsync(cpCartContext);
+                //var newConvertedCartPrice = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, pcs2.CreateDefaultOptions(false, targetCurrency: usd)));
 
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldConvertedCardPrice, newConvertedCartPrice.FinalPrice)}");
             }
@@ -1002,16 +1001,22 @@ namespace Smartstore.Web.Controllers
             foreach (var item in cart)
             {
                 var cpCartOptions = pcs2.CreateDefaultOptions(false);
-                cpCartOptions.DetermineAttributePrices = true;
+                cpCartOptions.DeterminePriceAdjustments = true;
                 var newCartPrice = await pcs2.CalculatePriceAsync(new PriceCalculationContext(item, cpCartOptions));
 
-                foreach (var price in newCartPrice.AttributePrices)
+                foreach (var price in newCartPrice.AttributePriceAdjustments)
                 {
                     var product = await _db.Products.FindByIdAsync(price.ProductId, false);
-                    var oldAttributePriceBase = await pcs.GetProductVariantAttributeValuePriceAdjustmentAsync(price.Value, product, customer, null, 1);
+                    var oldAttributePriceBase = await pcs.GetProductVariantAttributeValuePriceAdjustmentAsync(price.AttributeValue, product, customer, null, 1);
                     var (oldAttributePrice, _) = await ts.GetProductPriceAsync(product, oldAttributePriceBase, customer: customer);
 
                     content.AppendLine($"{price.ProductId.ToString().PadRight(11)}: {Fmt(oldAttributePrice, price.Price)}");
+                }
+
+                var formattedAttributes = await paf.FormatAttributesAsync(item.Item.AttributeSelection, item.Item.Product, customer, ", ", false);
+                if (formattedAttributes.HasValue())
+                {
+                    content.AppendLine(formattedAttributes);
                 }
             }
 

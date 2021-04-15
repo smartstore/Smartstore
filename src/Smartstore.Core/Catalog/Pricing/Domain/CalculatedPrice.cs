@@ -20,7 +20,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Product = context.Product;
             AppliedDiscounts = context.AppliedDiscounts;
             HasPriceRange = context.HasPriceRange;
-            AttributePrices = context.AttributePrices;
+            AttributePriceAdjustments = context.AttributePriceAdjustments;
         }
 
         /// <summary>
@@ -36,7 +36,12 @@ namespace Smartstore.Core.Catalog.Pricing
         public ICollection<Discount> AppliedDiscounts { get; init; }
 
         /// <summary>
-        /// The regular price of the input <see cref="Product"/>, in the target currency, usually <see cref="Product.Price"/>
+        /// The old price of the input <see cref="Product"/>, in the target currency, usually <see cref="Product.OldPrice"/>.
+        /// </summary>
+        public Money OldPrice { get; set; }
+
+        /// <summary>
+        /// The regular price of the input <see cref="Product"/>, in the target currency, usually <see cref="Product.Price"/>.
         /// </summary>
         public Money RegularPrice { get; set; }
 
@@ -74,38 +79,41 @@ namespace Smartstore.Core.Catalog.Pricing
         //public Money? AdditionalCharge { get; set; }
 
         /// <summary>
-        /// Gets a list of calculated product attribute prices, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
-        /// Only returned if <see cref="PriceCalculationOptions.DetermineAttributePrices"/> is activated.
+        /// Gets a list of calculated attribute price adjustments, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
+        /// Only returned if <see cref="PriceCalculationOptions.DeterminePriceAdjustments"/> is activated.
         /// </summary>
-        public ICollection<CalculatedAttributePrice> AttributePrices { get; init; }
+        public ICollection<CalculatedPriceAdjustment> AttributePriceAdjustments { get; init; }
 
         /// <summary>
         /// Tax for <see cref="FinalPrice"/>.
         /// </summary>
         public Tax? Tax { get; set; }
 
+        // TODO: (mg) (core) Describe savings properties when ready.
+        // TODO: (mg) (core) Rename HasDiscount -> HasSavings.
+
         /// <summary>
         /// A value indicating whether the final price includes any discounts.
         /// </summary>
-        public bool HasDiscount 
-        {
-            get => FinalPrice < RegularPrice;
-        }
+        public bool HasDiscount { get; set; }
+        //{
+        //    get => FinalPrice < RegularPrice;
+        //}
 
         /// <summary>
         /// The saving, in percent, compared to the regular price.
         /// </summary>
-        public float SavingPercent 
-        { 
-            get => FinalPrice < RegularPrice ?  (float)((RegularPrice - FinalPrice) / RegularPrice) * 100 : 0f;
-        }
+        public float SavingPercent { get; set; }
+        //{
+        //    get => FinalPrice < RegularPrice ?  (float)((RegularPrice - FinalPrice) / RegularPrice) * 100 : 0f;
+        //}
 
         /// <summary>
         /// The saving, as money amount, if any discount was applied.
         /// </summary>
-        public Money? SavingAmount 
-        {
-            get => HasDiscount ? (RegularPrice - FinalPrice).WithPostFormat(null) : null;
-        }
+        public Money? SavingAmount { get; set; }
+        //{
+        //    get => HasDiscount ? (RegularPrice - FinalPrice).WithPostFormat(null) : null;
+        //}
     }
 }

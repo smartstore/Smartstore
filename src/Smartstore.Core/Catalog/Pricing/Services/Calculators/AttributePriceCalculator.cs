@@ -98,12 +98,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     context.FinalPrice += adjustment;
                     context.AdditionalCharge += adjustment;
 
-                    if (options.DetermineAttributePrices)
+                    if (options.DeterminePriceAdjustments)
                     {
-                        context.AttributePrices.Add(new CalculatedAttributePrice
+                        context.AttributePriceAdjustments.Add(new CalculatedPriceAdjustment
                         {
                             RawPriceAdjustment = adjustment,
-                            Value = value,
+                            AttributeValue = value,
                             ProductId = product.Id,
                             BundleItemId = context?.BundleItem?.Item?.Id
                         });

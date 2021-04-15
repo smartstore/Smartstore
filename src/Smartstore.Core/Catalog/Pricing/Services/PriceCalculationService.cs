@@ -245,6 +245,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var result = new CalculatedPrice(context)
             {
                 Product = product,
+                OldPrice = ConvertAmount(product.OldPrice, context, taxRate, false, out _).Value,
                 RegularPrice = ConvertAmount(context.RegularPrice, context, taxRate, false, out _).Value,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
@@ -254,7 +255,7 @@ namespace Smartstore.Core.Catalog.Pricing
             };
 
             // Convert attribute price adjustments.
-            context.AttributePrices.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _) ?? new());
+            context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
 
             if (tax.HasValue && _primaryCurrency != context.Options.TargetCurrency)
             {
@@ -268,6 +269,17 @@ namespace Smartstore.Core.Catalog.Pricing
                     result.FinalPrice.Amount,
                     tax.Value.IsGrossPrice,
                     tax.Value.Inclusive);
+            }
+
+            // Calculate savings.
+            // FinalPrice (discounted) has priority over OldPrice.
+            // Avoids differing percentage discount in product lists and detail page.
+            var savingsReferencePrice = result.FinalPrice < result.RegularPrice ? result.RegularPrice : result.OldPrice;
+            if (savingsReferencePrice > 0m && result.FinalPrice > 0m && result.FinalPrice < savingsReferencePrice)
+            {
+                result.HasDiscount = true;
+                result.SavingPercent = (float)((savingsReferencePrice - result.FinalPrice) / savingsReferencePrice) * 100;
+                result.SavingAmount = (savingsReferencePrice - result.FinalPrice).WithPostFormat(null);
             }
 
             return result;
