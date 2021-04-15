@@ -31,7 +31,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 {   
     public static class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this IList<OrganizedShoppingCartItem> entity,
+        public static async Task MapAsync(this List<OrganizedShoppingCartItem> entity,
             ShoppingCartModel model,
             bool isEditable = true,
             bool validateCheckoutAttributes = false,
@@ -41,7 +41,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         {
             dynamic parameters = new ExpandoObject();
             parameters.IsEditable = isEditable;
-            parameters.ValidateCheckoutAttribute = validateCheckoutAttributes;
+            parameters.ValidateCheckoutAttributes = validateCheckoutAttributes;
             parameters.PrepareEstimateShippingIfEnabled = prepareEstimateShippingIfEnabled;
             parameters.SetEstimateShippingDefaultAddress = setEstimateShippingDefaultAddress;
             parameters.PrepareAndDisplayOrderReviewData = prepareAndDisplayOrderReviewData;
@@ -440,12 +440,10 @@ namespace Smartstore.Web.Models.ShoppingCart
                 model.OrderReviewData.Display = true;
 
                 // Billing info.
-                // TODO: (mh)(core)Implement AddressModels PrepareModel()
                 var billingAddress = customer.BillingAddress;
                 if (billingAddress != null)
                 {
-                    // TODO: (ms) (core) Wait for AddressModels.PrepareModel() implementation
-                    //model.OrderReviewData.BillingAddressPrepareModel(billingAddress, false, _addressSettings);
+                    await MapperFactory.MapAsync(billingAddress, model.OrderReviewData.BillingAddress);
                 }
 
                 // Shipping info.
@@ -453,12 +451,10 @@ namespace Smartstore.Web.Models.ShoppingCart
                 {
                     model.OrderReviewData.IsShippable = true;
 
-                    // TODO: (mh) (core) Implement AddressModels PrepareModel()
                     var shippingAddress = customer.ShippingAddress;
                     if (shippingAddress != null)
                     {
-                        // TODO: (ms)(core)Wait for AddressModels.PrepareModel() implementation
-                        //model.OrderReviewData.ShippingAddress.PrepareModel(shippingAddress, false, _addressSettings);
+                        await MapperFactory.MapAsync(shippingAddress, model.OrderReviewData.ShippingAddress);
                     }
 
                     // Selected shipping method.
@@ -494,9 +490,9 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             var paymentTypes = new PaymentMethodType[] { PaymentMethodType.Button, PaymentMethodType.StandardAndButton };
             var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(
-                _services.WorkContext.CurrentCustomer,
+                customer,
                 from,
-                _services.StoreContext.CurrentStore.Id,
+                store.Id,
                 paymentTypes,
                 false);
 

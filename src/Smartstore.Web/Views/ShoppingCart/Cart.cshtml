@@ -11,7 +11,8 @@
 }
 
 <widget target-zone="orderProgress">
-    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Cart }" />
+    @*TODO: (ms) (core) Don't include partials that aren't available yet. Instead: Comment them out and write another comment to include them when available*@
+    @*<partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Cart }" />*@
 </widget>
 
 <div class="page shopping-cart-page">
@@ -21,6 +22,6 @@
     <div class="page-body">
         @*TODO: (ms) (core) Don't include partials that aren't available yet. Instead: Comment them out and write another comment to include them when available*@
         @*<partial name="OrderSummary" model="Model" />*@
-        @Component.InvokeAsync("OrderSummary")
+        @{ await Component.InvokeAsync("OrderSummary"); }
     </div>
 </div>

@@ -43,5 +43,4 @@ namespace Smartstore.Web.Models.ShoppingCart
             return Task.CompletedTask;
         }
     }
-
 }

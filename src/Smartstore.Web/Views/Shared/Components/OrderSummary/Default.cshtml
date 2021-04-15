@@ -7,25 +7,25 @@
     <zone name="order_summary_content_before" />
 
     @*TODO: (ms) (core) Implement _OrderReviewData partial*@
-    <partial name="_OrderReviewData" model="Model.OrderReviewData" />
+    @*<partial name="_OrderReviewData" model="Model.OrderReviewData" />*@
 
     @if (Model.DisplayCommentBox && !Model.IsEditable)
     {
         @*TODO: (ms) (core) Implement _CommentBox partial*@
-        <partial name="_CommentBox" model="Model" />
+        @*<partial name="_CommentBox" model="Model" />*@
     }
 
     @if (Model.Items.Any())
     {
-        <div sm-if="Model.Warnings.Count > 0" class="alert alert-danger">
+        <div sm-if="Model.Warnings.Any()" class="alert alert-danger">
             <ul>
+                @*TODO: (ms) (core) Let's use foreach here*@
                 @for (int i = 0; i < Model.Warnings.Count; i++)
                 {
                     <li>@Model.Warnings[i]</li>
                 }
             </ul>
         </div>
-
 
         @* "File upload" attribute control type requries "multipart/form-data" *@
         <form asp-route="ShoppingCart" method="post" asp-route-enctype="multipart/form-data">
@@ -50,7 +50,7 @@
                     </div>
                     <div class="cart-body">
                         @*TODO: (ms) (core) Implement CartItems partial*@
-                        <partial name="CartItems" , model="Model" />
+                        @*<partial name="CartItems" model="Model" />*@
                     </div>
                 </div>
 
@@ -62,10 +62,10 @@
                                 <zone name="order_summary_actions_before" />
 
                                 @*TODO: (ms) (core) Implement missing partials*@
-                                <partial name="_DiscountBox" model="Model.DiscountBox" />
+                                @*<partial name="_DiscountBox" model="Model.DiscountBox" />
                                 <partial name="_GiftCardBox" model="Model.GiftCardBox" />
                                 <partial name="_RewardPointsBox" model="Model.RewardPoints" />
-                                <partial name="EstimateShipping" model="Model.EstimateShipping" />
+                                <partial name="EstimateShipping" model="Model.EstimateShipping" />*@
 
                                 <zone name="order_summary_actions_after" />
                             }
@@ -80,13 +80,13 @@
                             @{
                                 if (Model.IsEditable)
                                 {
-                                    <partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />
+                                    @*<partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />*@
                                 }
 
                                 <zone name="order_summary_totals_before" />
 
                                 <div id="order-totals">
-                                    Component.InvokeAsync("OrderTotals", new { isEditable = Model.IsEditable })
+                                    @*@{ await Component.InvokeAsync("OrderTotals", new { isEditable = Model.IsEditable }); }*@
                                 </div>
 
                                 <zone name="order_summary_totals_after" />
@@ -96,32 +96,34 @@
                 </div>
             </div>
 
-            if (Model.IsEditable)
+            @*
+                INFO: This was very sloppy!
+                TODO: (ms) (core)  remove comment...
+            *@
+            @if (Model.IsEditable)
             {
-            Html.RenderWidget("order_summary_buttons_before");
+                <zone name="order_summary_buttons_before" />
 
-            <div class="cart-buttons my-4 row">
-                <div class="col-sm-6 col-lg-4 order-last order-sm-first mt-3 mt-sm-0">
-                    <button class="btn btn-secondary btn-block btn-lg btn-continue-shopping" type="submit" name="continueshopping" value="continueshopping">
-                        <i class="fa fa-angle-left mr-3"></i>
-                        <span>@T("ShoppingCart.ContinueShopping")</span>
-                    </button>
-                </div>
-                <div class="col-sm-6 col-lg-4 ml-lg-auto">
-                    <div id="start-checkout-buttons">
-                        <div class="checkout-buttons">
-                            <input type="submit" name="startcheckout" value="startcheckout" id="startcheckout" class="d-none" />
-                            <button type="button" id="checkout" name="checkout"
-                                class="btn btn-danger btn-lg btn-block btn-checkout"
-                                onclick="$('#startcheckout').trigger('click'); return false;">
-                                <span>@T("Checkout.Button")</span>
-                                <i class="fa fa-angle-right ml-3"></i>
-                            </button>
-                        </div>
+                <div class="cart-buttons my-4 row">
+                    <div class="col-sm-6 col-lg-4 order-last order-sm-first mt-3 mt-sm-0">
+                        <button class="btn btn-secondary btn-block btn-lg btn-continue-shopping" type="submit" name="continueshopping" value="continueshopping">
+                            <i class="fa fa-angle-left mr-3"></i>
+                            <span>@T("ShoppingCart.ContinueShopping")</span>
+                        </button>
+                    </div>
+                    <div class="col-sm-6 col-lg-4 ml-lg-auto">
+                        <div id="start-checkout-buttons">
+                            <div class="checkout-buttons">
+                                <input type="submit" name="startcheckout" value="startcheckout" id="startcheckout" class="d-none" />
+                                <button type="button" id="checkout" name="checkout"
+                                    class="btn btn-danger btn-lg btn-block btn-checkout"
+                                    onclick="$('#startcheckout').trigger('click'); return false;">
+                                    <span>@T("Checkout.Button")</span>
+                                    <i class="fa fa-angle-right ml-3"></i>
+                                </button>
+                            </div>
 
-                        @if (Model.ButtonPaymentMethods.Items.Any())
-                        {
-                            <div class="addon-buttons">
+                            <div sm-if="Model.ButtonPaymentMethods.Items.Any()" class="addon-buttons">
                                 <div class="d-flex justify-content-sm-end justify-content-center flex-wrap">
                                     <div class="mt-3 mb-1 d-block col-12 text-center text-sm-right">
                                         <span>@T("ShoppingCart.AlternativePaymentButtons")</span>
@@ -135,18 +137,16 @@
                                     }
                                 </div>
                             </div>
-                        }
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <zone name="order_summary_buttons_after" />
+                <zone name="order_summary_buttons_after" />
             }
-            }
-
-            <zone name="order_summary_content_after" />
             
+            <zone name="order_summary_content_after" />
         </form>
+
         if (Model.IsEditable)
         {
             @*TODO: (ms) (core) Implement corresponding action/View component*@
@@ -163,37 +163,36 @@
 
 @if (!Model.IsEditable && Model.Items.Any(x => x.IsDownload && x.HasUserAgreement))
 {
-    // TODO: (ms) (core) What do we do here?
-   @* using (Html.BeginZoneContent("end", key: "user-agreement-modal"))
-    {
-        Html.SmartStore().Window()
-            .Name("user-agreement-modal")
-            .Size(WindowSize.FlexSmall)
-            .FooterContent(
-@<text><button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button></text>
-)
-.Render();
-    }
+    <widget target-zone="end" key="user-agreement-modal">
 
-    <script>
-        $(function () {
-            $('a.download-user-agreement').on("click", function () {
-                var url = '@(Url.Action("GetUserAgreement", "Download"))?productId=' + $(this).attr('data-id'),
-                    dialog = $('#user-agreement-modal');
+        @*TODO: (ms) (core) I'm not sure if the body tag is needed. And if the footer will display nicely. Please check!*@
+        <modal id="user-agreement-modal" sm-render-at-page-end="true" sm-center-vertically="true" sm-size="FlexSmall">
+            <modal-header sm-title="Modal Title" sm-show-close="true"></modal-header>
+            <modal-body></modal-body>
+            <modal-footer>
+                <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
+            </modal-footer>
+        </modal>
 
-                dialog.find('.modal-body').empty();
+        <script sm-target-zone="scripts" data-origin="order-summary">
+                $(function () {
+                    $('a.download-user-agreement').on("click", function () {
+                        var url = '@(Url.Action("GetUserAgreement", "Download"))?productId=' + $(this).attr('data-id'),
+                            dialog = $('#user-agreement-modal');
 
-                $.get(url, function (html) {
-                    dialog.find('.modal-body').html(html);
+                        dialog.find('.modal-body').empty();
+
+                        $.get(url, function (html) {
+                            dialog.find('.modal-body').html(html);
+                        });
+
+                        dialog.modal();
+
+                        return false;
+                    });
                 });
-
-                dialog.modal();
-
-                return false;
-            });
-        });
-    </script>
-*@
+        </script>
+    </widget>
 }
 
 @if (Model.IsEditable)

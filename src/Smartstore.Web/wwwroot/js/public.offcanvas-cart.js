@@ -381,8 +381,6 @@ var ShopBar = (function ($) {
             var tool = _.isString(type) ? tools[type] : type;
             if (!tool || tool.data("url") == undefined) return;
 
-            console.log("c");
-
             var cnt = $(".tab-content " + tool.attr("href"), offcanvasCart);
             tool.removeClass("loaded").addClass("loading");
 

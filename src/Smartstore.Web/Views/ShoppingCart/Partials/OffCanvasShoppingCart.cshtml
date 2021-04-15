@@ -28,7 +28,7 @@
             <i class="fa fa-shopping-basket fa-4x"></i>
         </p>
         <p class="no-item-info text-muted">
-            @T("ShoppingCart.Mini.EmptyCart.Info", "fa fa-lg fa-cart-arrow-down")
+            @Html.Raw(T("ShoppingCart.Mini.EmptyCart.Info", "fa fa-lg fa-cart-arrow-down"))
         </p>
     </div>
 
@@ -111,7 +111,6 @@
                             }
                         </div>
 
-                        @*TODO: (ms) (core) Implement corresponding actions.*@
                         <div class="ml-auto text-nowrap">
                             @if (Model.DisplayMoveToWishlistButton)
                             {
@@ -125,13 +124,13 @@
                                     <i class="fal fa-heart"></i>
                                 </a>
                             }
-                                <a class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link" title="@T("Common.Remove")"
-                                   href="#"
-                                   rel="nofollow"
-                                   data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
-                                   data-name="@item.ProductName"
-                                   data-type="cart"
-                                   data-action="remove">
+                            <a class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link" title="@T("Common.Remove")"
+                                href="#"
+                                rel="nofollow"
+                                data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
+                                data-name="@item.ProductName"
+                                data-type="cart"
+                                data-action="remove">
                                 <i class="fal fa-trash-alt"></i>
                             </a>
                         </div>

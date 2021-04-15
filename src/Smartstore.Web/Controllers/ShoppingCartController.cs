@@ -1249,21 +1249,6 @@ namespace Smartstore.Web.Controllers
 
         //#region Offcanvas
 
-        //public async Task<IActionResult> OffCanvasCart()
-        //{
-        //    var model = new OffCanvasCartModel();
-
-        //    if (await Services.Permissions.AuthorizeAsync(Permissions.System.AccessShop))
-        //    {
-        //        model.ShoppingCartEnabled = _shoppingCartSettings.MiniShoppingCartEnabled
-        //            && await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);
-        //        model.WishlistEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist);
-        //        model.CompareProductsEnabled = _catalogSettings.CompareProductsEnabled;
-        //    }
-
-        //    return PartialView(model);
-        //}
-
         public async Task<IActionResult> OffCanvasShoppingCart()
         {
             if (!_shoppingCartSettings.MiniShoppingCartEnabled)
@@ -1350,21 +1335,23 @@ namespace Smartstore.Web.Controllers
 
             if (isCartPage)
             {
+                // TODO: (ms) (core) Don't include stuff that doesn't exist.
                 if (isWishlist)
                 {
                     var model = new WishlistModel();
                     await cart.MapAsync(model);
-                    cartHtml = await this.InvokeViewAsync("WishlistItems", model);
+                    //cartHtml = await this.InvokeViewAsync("WishlistItems", model);
                 }
                 else
                 {
                     var model = new ShoppingCartModel();
                     await cart.MapAsync(model);
-                    cartHtml = await this.InvokeViewAsync("CartItems", model);
-                    totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
+                    //cartHtml = await this.InvokeViewAsync("CartItems", model);
+                    //totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
                 }
             }
 
+            // TODO: (ms) (core) subtotal is always 0. Check again when pricing was fully implmented.
             var subTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
 
             return Json(new
@@ -1417,12 +1404,13 @@ namespace Smartstore.Web.Controllers
             var totalsHtml = string.Empty;
             var cartItemCount = 0;
 
+            // TODO: (ms) (core) Don't include stuff that doesn't exist.
             if (cartType == ShoppingCartType.Wishlist)
             {
                 var model = new WishlistModel();
                 await wishlist.MapAsync(model);
 
-                cartHtml = await this.InvokeViewAsync("WishlistItems", model);
+                //cartHtml = await this.InvokeViewAsync("WishlistItems", model);
                 cartItemCount = wishlist.Count;
             }
             else
@@ -1430,8 +1418,8 @@ namespace Smartstore.Web.Controllers
                 var model = new ShoppingCartModel();
                 await cart.MapAsync(model);
 
-                cartHtml = await this.InvokeViewAsync("CartItems", model);
-                totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
+                //cartHtml = await this.InvokeViewAsync("CartItems", model);
+                //totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
                 cartItemCount = cart.Count;
             }
 
@@ -1666,7 +1654,9 @@ namespace Smartstore.Web.Controllers
         [ActionName("MoveItemBetweenCartAndWishlist")]
         public async Task<IActionResult> MoveItemBetweenCartAndWishlistAjax(int cartItemId, ShoppingCartType cartType, bool isCartPage = false)
         {
-            if (await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
+            // INFO: Test what you're implementing if you can! Then this mistake could have been easily avoided.
+            // TODO: (ms) (core) Remove comments
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
                 || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
             {
                 return Json(new
@@ -1724,6 +1714,7 @@ namespace Smartstore.Web.Controllers
 
                     if (isCartPage)
                     {
+                        // TODO: (ms) (core) Don't include stuff that doesn't exist yet.
                         if (cartType == ShoppingCartType.Wishlist)
                         {
                             var wishlist = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.Wishlist, storeId);
@@ -1731,7 +1722,7 @@ namespace Smartstore.Web.Controllers
                             var model = new WishlistModel();
                             await wishlist.MapAsync(model);
 
-                            cartHtml = await this.InvokeViewAsync("WishlistItems", model);
+                            //cartHtml = await this.InvokeViewAsync("WishlistItems", model);
                             message = T("Products.ProductHasBeenAddedToTheCart");
                             cartItemCount = wishlist.Count;
                         }
@@ -1742,8 +1733,8 @@ namespace Smartstore.Web.Controllers
                             var model = new ShoppingCartModel();
                             await cart.MapAsync(model);
 
-                            cartHtml = await this.InvokeViewAsync("CartItems", model);
-                            totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
+                            //cartHtml = await this.InvokeViewAsync("CartItems", model);
+                            //totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
                             message = T("Products.ProductHasBeenAddedToTheWishlist");
                             cartItemCount = cart.Count;
                         }
