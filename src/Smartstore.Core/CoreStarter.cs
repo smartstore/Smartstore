@@ -6,9 +6,11 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
+using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.DependencyInjection;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
+using Smartstore.Data.Migrations;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
@@ -24,36 +26,27 @@ namespace Smartstore.Core.Bootstrapping
             var appConfig = appContext.AppConfiguration;
 
             RegisterTypeConverters();
-            services.AddDbMigrator();
 
             if (appContext.IsInstalled)
             {
-                //// Application DbContext as pooled factory
-                //services.AddPooledDbContextFactory<SmartDbContext>(
-                //    DataSettings.Instance.DbFactory.SmartDbContextType,
-                //    appContext.AppConfiguration.DbContextPoolSize,
-                //    (c, builder) =>
-                //    {
-                //        builder
-                //            .UseSecondLevelCache()
-                //            .UseDbFactory(f =>
-                //            {
-                //                f.MaxBatchSize(222).MigrationsHistoryTable("__EFMigrationsHistory_Core");
-                //            });
-                //    });
+                var contextImplType = DataSettings.Instance.DbFactory.SmartDbContextType;
+                var poolSize = appContext.AppConfiguration.DbContextPoolSize;
 
                 // Application DbContext as pooled factory
-                services.AddPooledApplicationDbContextFactory<SmartDbContext>(
-                    DataSettings.Instance.DbFactory.SmartDbContextType,
-                    appContext.AppConfiguration.DbContextPoolSize,
-                    optionsBuilder: (c, o, rel) =>
-                    {
-                        // TODO: (core) RelationalOptionsExtension is always cloned and cannot be modified this way. Find another way.
-                        rel.WithMigrationsHistoryTableName("__EFMigrationsHistory_Core");
-                    });
+                services.AddPooledDbContextFactory<SmartDbContext>(contextImplType, poolSize, (c, builder) =>
+                {
+                    builder
+                        .UseSecondLevelCache()
+                        .UseDbFactory(factoryOptionsBuilder =>
+                        {
+                            factoryOptionsBuilder
+                                .MigrationsHistoryTable("__EFMigrationsHistory_Core")
+                                .WithDataSeeder<SmartDbContextDataSeeder, SmartDbContext>();
+                        });
+                });
 
+                services.AddDbMigrator();
                 services.AddDbQuerySettings();
-
                 services.AddMiniProfiler(o =>
                 {
                     // TODO: (more) Move MiniProfiler start to module and configure

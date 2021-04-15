@@ -138,7 +138,7 @@ namespace Smartstore.Data
 
         public Version AppVersion { get; set; }
 
-        public DbFactory DbFactory { get; internal set; }
+        public DbFactory DbFactory { get; set; } // TODO: (core) Make internal again
 
         public string ConnectionString { get; set; }
 

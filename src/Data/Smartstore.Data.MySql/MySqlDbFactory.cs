@@ -2,9 +2,11 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using MySqlConnector;
+using Smartstore.Core.Data;
 using Smartstore.Data.Providers;
-using Smartstore.Engine;
 
 // Add-Migration Initial -Context MySqlSmartDbContext -Project Smartstore.Data.MySql
 
@@ -47,12 +49,19 @@ namespace Smartstore.Data.SqlServer
         public override DataProvider CreateDataProvider(DatabaseFacade database)
             => new MySqlDataProvider(database);
 
-        public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString, IApplicationContext appContext)
+        public override HookingDbContext CreateApplicationDbContext(string connectionString, int? commandTimeout = null, string migrationHistoryTableName = null)
         {
-            return builder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), mySql =>
-            {
-                //sql.EnableRetryOnFailure(3, TimeSpan.FromMilliseconds(100), null);
-            });
+            Guard.NotEmpty(connectionString, nameof(connectionString));
+
+            var optionsBuilder = new DbContextOptionsBuilder<MySqlSmartDbContext>()
+                .ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>()
+                .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), sql => 
+                {
+                    sql.CommandTimeout(commandTimeout);
+                    sql.MigrationsHistoryTable(migrationHistoryTableName);
+                });
+
+            return new MySqlSmartDbContext(optionsBuilder.Options);
         }
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
@@ -63,12 +72,8 @@ namespace Smartstore.Data.SqlServer
 
                 if (extension != null)
                 {
-                    sql
-                        .CommandTimeout(extension.CommandTimeout)
-                        .ExecutionStrategy(extension.ExecutionStrategyFactory)
-                        .MigrationsAssembly(extension.MigrationsAssembly)
-                        .MigrationsHistoryTable(extension.MigrationsHistoryTableName, extension.MigrationsHistoryTableSchema)
-                        .UseRelationalNulls(extension.UseRelationalNulls);
+                    if (extension.CommandTimeout.HasValue)
+                        sql.CommandTimeout(extension.CommandTimeout.Value);
 
                     if (extension.MinBatchSize.HasValue)
                         sql.MinBatchSize(extension.MinBatchSize.Value);
@@ -78,6 +83,15 @@ namespace Smartstore.Data.SqlServer
 
                     if (extension.QuerySplittingBehavior.HasValue)
                         sql.UseQuerySplittingBehavior(extension.QuerySplittingBehavior.Value);
+
+                    if (extension.UseRelationalNulls.HasValue)
+                        sql.UseRelationalNulls(extension.UseRelationalNulls.Value);
+
+                    if (extension.MigrationsAssembly.HasValue())
+                        sql.MigrationsAssembly(extension.MigrationsAssembly);
+
+                    if (extension.MigrationsHistoryTableName.HasValue())
+                        sql.MigrationsHistoryTable(extension.MigrationsHistoryTableName, extension.MigrationsHistoryTableSchema);
                 }
             });
         }

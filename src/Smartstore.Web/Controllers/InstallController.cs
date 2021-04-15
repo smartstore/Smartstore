@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Core.Web;
 using Smartstore.Engine;
 using Smartstore.Threading;
 using Smartstore.Web.Infrastructure.Installation;
@@ -23,12 +22,11 @@ namespace Smartstore.Web.Controllers
         private readonly IAsyncState _asyncState;
 
         public InstallController(
-            IInstallationService installService,
             IHostApplicationLifetime hostApplicationLifetime,
             IApplicationContext appContext,
             IAsyncState asyncState)
         {
-            _installService = installService;
+            _installService = EngineContext.Current.Scope.ResolveOptional<IInstallationService>();
             _hostApplicationLifetime = hostApplicationLifetime;
             _appContext = appContext;
             _asyncState = asyncState;
@@ -102,7 +100,7 @@ namespace Smartstore.Web.Controllers
         [IgnoreAntiforgeryToken]
         public async Task<JsonResult> Install(InstallationModel model)
         {
-            var result = await _installService.Install(model);
+            var result = await _installService.InstallAsync(model);
             return Json(result);
         }
 

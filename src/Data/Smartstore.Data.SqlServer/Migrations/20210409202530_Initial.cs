@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Smartstore.Core.Data;
-using Smartstore.Core.Data.Migrations;
+using Smartstore.Data.Migrations;
 
 namespace Smartstore.Data.SqlServer.Migrations
 {

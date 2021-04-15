@@ -35,7 +35,7 @@ namespace Smartstore.Data.Caching
         }
 
         protected CachingOptionsExtension Clone()
-            => new CachingOptionsExtension(this);
+            => new(this);
 
         #region IDbContextOptionsExtension
 
@@ -56,6 +56,7 @@ namespace Smartstore.Data.Caching
 
         #region Options
 
+        public bool EnableLogging { get; private set; } = true;
         /// <summary>
         /// Should the debug level logging be enabled? Default is true.
         /// </summary>
@@ -66,6 +67,7 @@ namespace Smartstore.Data.Caching
             return clone;
         }
 
+        public TimeSpan DefaultExpirationTimeout { get; private set; } = TimeSpan.FromHours(3);
         /// <summary>
         /// The default (fallback) expiration timeout for cacheable entities.
         /// Default is 3 hours.
@@ -82,6 +84,7 @@ namespace Smartstore.Data.Caching
             return clone;
         }
 
+        public int DefaultMaxRows { get; private set; } = 1000;
         /// <summary>
         /// The default (fallback) max rows limit.
         /// Default is 1000 rows.
@@ -98,12 +101,6 @@ namespace Smartstore.Data.Caching
             return clone;
         }
 
-        public bool EnableLogging { set; get; } = true;
-
-        public TimeSpan DefaultExpirationTimeout { get; set; } = TimeSpan.FromHours(3);
-
-        public int DefaultMaxRows { get; set; } = 1000;
-
         #endregion
 
         #region Nested ExtensionInfo
@@ -118,12 +115,11 @@ namespace Smartstore.Data.Caching
             {
             }
 
-            private new CachingOptionsExtension Extension => (CachingOptionsExtension)base.Extension;
+            public override bool IsDatabaseProvider 
+                => false;
 
-            public override bool IsDatabaseProvider => false;
-
-            // TODO: (core) What to return as LogFragment?
-            public override string LogFragment => $"Using '{nameof(CachingOptionsExtension)}'";
+            private new CachingOptionsExtension Extension 
+                => (CachingOptionsExtension)base.Extension;
 
 
             public override long GetServiceProviderHashCode()
@@ -140,6 +136,9 @@ namespace Smartstore.Data.Caching
 
                 return _serviceProviderHash.Value;
             }
+
+            // TODO: (core) What to return as LogFragment?
+            public override string LogFragment => $"Using '{nameof(CachingOptionsExtension)}'";
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {

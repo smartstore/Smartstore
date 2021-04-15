@@ -9,7 +9,8 @@ namespace Smartstore.Data.Providers
     public static class DbFactoryDbContextOptionsExtensions
     {
         /// <summary>
-        /// TODO: (core) Describe
+        /// Configures the context to resolve database connection settings from the current <see cref="DbFactory"/>
+        /// provider (either SqlServer or MySql).
         /// </summary>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
@@ -17,16 +18,29 @@ namespace Smartstore.Data.Providers
             this DbContextOptionsBuilder optionsBuilder,
             Action<DbFactoryDbContextOptionsBuilder> optionsAction = null)
         {
-            // TODO: (core) ErrHandling
+            Guard.NotNull(optionsBuilder, nameof(optionsBuilder));
+
             var settings = DataSettings.Instance;
+
+            if (settings.ConnectionString.IsEmpty())
+            {
+                throw new InvalidOperationException("No database connection string found in current data settings.");
+            }
+
+            if (settings.DbFactory == null)
+            {
+                throw new InvalidOperationException("No database factory instance found in current data settings");
+            }
+
             return UseDbFactory(optionsBuilder, settings.DbFactory, settings.ConnectionString, optionsAction);
         }
 
         /// <summary>
-        /// TODO: (core) Describe
+        /// Configures the context to resolve database connection settings from the given <see cref="DbFactory"/>
+        /// provider (either SqlServer or MySql).
         /// </summary>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
-        /// <param name="factory">Describe</param>
+        /// <param name="factory">The factory instance</param>
         /// <param name="connectionString">Describe</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder UseDbFactory(
@@ -46,12 +60,14 @@ namespace Smartstore.Data.Providers
                     // EF throws when query is untracked otherwise
                     w.Ignore(CoreEventId.DetachedLazyLoadingWarning);
 
+                    #region Test
                     //// To identify the query that's triggering MultipleCollectionIncludeWarning.
                     ////w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
                     ////w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
+                    #endregion
                 });
 
-            var extension = GetOrCreateExtension(optionsBuilder).WithSomething(true);
+            var extension = GetOrCreateExtension(optionsBuilder);
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
             
             if (optionsAction != null)
@@ -66,6 +82,6 @@ namespace Smartstore.Data.Providers
 
         private static DbFactoryOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.Options.FindExtension<DbFactoryOptionsExtension>() 
-                ?? new DbFactoryOptionsExtension();
+                ?? new DbFactoryOptionsExtension(optionsBuilder.Options);
     }
 }

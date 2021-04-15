@@ -8,7 +8,7 @@ using Smartstore.Domain;
 namespace Smartstore.Core.Common.Hooks
 {
     [Important(HookImportance.Essential)]
-    internal class AuditableHook : AsyncDbSaveHook<IAuditable>
+    public class AuditableHook : AsyncDbSaveHook<IAuditable>
     {
         protected override Task<HookResult> OnInsertingAsync(IAuditable entity, IHookedEntity entry, CancellationToken cancelToken)
         {

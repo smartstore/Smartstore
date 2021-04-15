@@ -21,11 +21,15 @@ namespace Smartstore.Data
     {
         private DbSaveChangesOperation _currentSaveOperation;
         private DataProvider _dataProvider;
+        private IDbHookHandler _hookHandler;
 
         public HookingDbContext(DbContextOptions options)
             : base(options)
         {
+            Options = options;
         }
+
+        protected internal virtual DbContextOptions Options { get; }
 
         public DataProvider DataProvider
         {
@@ -59,6 +63,7 @@ namespace Smartstore.Data
             SuppressCommit = false;
             DeferCommit = false;
             _currentSaveOperation = null;
+            _hookHandler = null;
 
             if (_dataProvider != null)
             {
@@ -92,7 +97,8 @@ namespace Smartstore.Data
         [SuppressMessage("Performance", "CA1822:Member can be static", Justification = "Seriously?")]
         protected internal IDbHookHandler DbHookHandler
         {
-            get => EngineContext.Current.Scope.ResolveOptional<IDbHookHandler>() ?? NullDbHookHandler.Instance;
+            get => _hookHandler ?? EngineContext.Current.Scope.ResolveOptional<IDbHookHandler>() ?? NullDbHookHandler.Instance;
+            set => _hookHandler = value;
         }
 
         protected internal bool IsInSaveOperation => _currentSaveOperation != null;

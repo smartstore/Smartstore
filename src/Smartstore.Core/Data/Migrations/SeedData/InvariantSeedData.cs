@@ -100,7 +100,7 @@ namespace Smartstore.Core.Data.Migrations
                     Hosts = "yourstore.com,www.yourstore.com",
                     SslEnabled = false,
                     DisplayOrder = 1,
-                    LogoMediaFileId = imgCompanyLogo.Id,
+                    LogoMediaFileId = imgCompanyLogo?.Id ?? 0,
                     PrimaryStoreCurrencyId = currency.Id,
                     PrimaryExchangeRateCurrencyId = currency.Id
                 }

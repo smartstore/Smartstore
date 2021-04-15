@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
+using Smartstore.Data.Migrations;
+using Smartstore.Data.Providers;
+using Smartstore.Engine;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -23,10 +28,12 @@ namespace Smartstore.Core.Data.Migrations
     {
         private static readonly SyncedCollection<Type> _initializedContextTypes = new List<Type>().AsSynchronized();
         private readonly ILifetimeScope _scope;
+        private readonly SmartConfiguration _appConfig;
 
-        public DatabaseInitializer(ILifetimeScope scope)
+        public DatabaseInitializer(ILifetimeScope scope, SmartConfiguration appConfig)
         {
             _scope = scope;
+            _appConfig = appConfig;
         }
 
         public virtual async Task InitializeDatabasesAsync()
@@ -59,25 +66,42 @@ namespace Smartstore.Core.Data.Migrations
 
             using (new DbContextScope(context, minHookImportance: HookImportance.Essential))
             {
-                // run all pending migrations
-                var appliedCount = await migrator.RunPendingMigrationsAsync();
+                // Set (usually longer) command timeout for migrations
+                var prevCommandTimeout = context.Database.GetCommandTimeout();
+                if (_appConfig.DbMigrationCommandTimeout.HasValue && _appConfig.DbMigrationCommandTimeout.Value > 15)
+                {
+                    context.Database.SetCommandTimeout(_appConfig.DbMigrationCommandTimeout.Value);
+                }
+                
+                // Run all pending migrations
+                await migrator.RunPendingMigrationsAsync();
+                
+                // Call the global Seed method anyway (on every startup),
+                // we could have locale resources or settings to add/update.
+                await GlobalSeed(migrator);
 
-                if (appliedCount > 0)
-                {
-                    // Seed(context);
-                }
-                else
-                {
-                    // DB is up-to-date and no migration ran.
-                    if (context is SmartDbContext db)
-                    {
-                        //// Call the main Seed method anyway (on every startup),
-                        //// we could have locale resources or settings to add/update.
-                        //coreConfig.SeedDatabase(ctx);
-                    }
-                }
+                // Restore standard command timeout
+                context.Database.SetCommandTimeout(prevCommandTimeout);
 
                 _initializedContextTypes.Add(type);
+            }
+        }
+
+        private static async Task GlobalSeed(DbMigrator migrator)
+        {
+            var extension = migrator.Context.Options?.FindExtension<DbFactoryOptionsExtension>();
+            if (extension?.DataSeederType != null)
+            {
+                var seeder = Activator.CreateInstance(extension.DataSeederType);
+                if (seeder != null)
+                {
+                    var seedMethod = extension.DataSeederType.GetMethod(nameof(IDataSeeder<HookingDbContext>.SeedAsync), BindingFlags.Public | BindingFlags.Instance);
+                    if (seedMethod != null)
+                    {
+                        await (Task)seedMethod.Invoke(seeder, new object[] { migrator.Context });
+                        await migrator.Context.SaveChangesAsync();
+                    }
+                }
             }
         }
     }

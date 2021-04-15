@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 namespace Smartstore.Data.Providers
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Must fix ServicePropertyDiscoveryConvention")]
-    internal class FixedRuntimeConventionSetBuilder : RuntimeConventionSetBuilder
+    public class FixedRuntimeConventionSetBuilder : RuntimeConventionSetBuilder
     {
         public FixedRuntimeConventionSetBuilder(
             IProviderConventionSetBuilder providerConventionSetBuilder, 

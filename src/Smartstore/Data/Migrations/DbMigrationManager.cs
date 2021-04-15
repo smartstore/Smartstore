@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
-using Smartstore.Data;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Data.Migrations
 {
     public class DbMigrationManager
     {
@@ -56,6 +55,9 @@ namespace Smartstore.Core.Data.Migrations
 
         internal void AddAppliedMigration(Type contextType, string migrationName)
         {
+            Guard.NotNull(contextType, nameof(contextType));
+            Guard.NotEmpty(migrationName, nameof(migrationName));
+
             if (_appliedMigrations == null)
             {
                 lock (_lock)

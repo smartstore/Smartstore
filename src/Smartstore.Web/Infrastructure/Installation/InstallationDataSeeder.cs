@@ -14,6 +14,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Data.Hooks;
+using Smartstore.Data.Migrations;
 using Smartstore.Domain;
 
 namespace Smartstore.Web.Infrastructure.Installation

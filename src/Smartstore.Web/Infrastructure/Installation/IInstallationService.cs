@@ -10,7 +10,7 @@ namespace Smartstore.Web.Infrastructure.Installation
     /// </summary>
     public partial interface IInstallationService
     {
-        Task<InstallationResult> Install(InstallationModel model);
+        Task<InstallationResult> InstallAsync(InstallationModel model);
 
         string GetResource(string resourceName);
 

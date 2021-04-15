@@ -1,9 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Data.Migrations
 {
-    public interface IDataSeeder<in TContext> where TContext : DbContext
+    /// <summary>
+    /// Data seeder interface. This interface is usually applied to auto-generated migration classes.
+    /// </summary>
+    /// <typeparam name="TContext">Concrete type of <see cref="DbContext"/> that the seeder can provide data to.</typeparam>
+    public interface IDataSeeder<in TContext> where TContext : HookingDbContext
     {
         /// <summary>
         /// Seeds data
@@ -15,10 +19,5 @@ namespace Smartstore.Core.Data.Migrations
         /// when an error occurs during migration seeding.
         /// </summary>
         bool RollbackOnFailure { get; }
-    }
-
-    public interface ILocaleResourcesProvider
-    {
-        void MigrateLocaleResources(LocaleResourcesBuilder builder);
     }
 }

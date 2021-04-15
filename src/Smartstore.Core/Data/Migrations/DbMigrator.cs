@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Smartstore.Data;
+using Smartstore.Data.Migrations;
 using Smartstore.Events;
 
 namespace Smartstore.Core.Data.Migrations
@@ -22,27 +19,17 @@ namespace Smartstore.Core.Data.Migrations
     
     public class DbMigrator<TContext> : DbMigrator where TContext : HookingDbContext
     {
-        //private static readonly Regex _migrationIdPattern = new(@"\d{14}_.+");
-        //const string _migrationTypeFormat = "{0}.{1}, {2}";
-        //const string _automaticMigration = "AutomaticMigration";
-
         private readonly TContext _db;
         private readonly SmartDbContext _dbCore;
         private readonly IEventPublisher _eventPublisher;
-        private readonly DbContextOptions<TContext> _options;
 
         private Exception _lastSeedException;
 
-        public DbMigrator(
-            TContext db,
-            SmartDbContext dbCore,
-            IEventPublisher eventPublisher, 
-            IOptions<DbContextOptions<TContext>> options)
+        public DbMigrator(TContext db, SmartDbContext dbCore, IEventPublisher eventPublisher)
         {
             _db = Guard.NotNull(db, nameof(db));
             _dbCore = Guard.NotNull(dbCore, nameof(dbCore));
             _eventPublisher = Guard.NotNull(eventPublisher, nameof(eventPublisher));
-            _options = Guard.NotNull(options, nameof(options)).Value;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -130,7 +117,7 @@ namespace Smartstore.Core.Data.Migrations
                     });
 
                 lastSuccessfulMigration = migrationId;
-                //DbMigrationContext.Current.AddAppliedMigration(typeof(TContext), migrationId); // TODO: (core) ???
+                DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migrationId);
             }
 
             if (coreSeeders.Any())
@@ -198,104 +185,5 @@ namespace Smartstore.Core.Data.Migrations
             public string MigrationName { get; set; }
             public object DataSeeder { get; set; }
         }
-
-        #region Utils
-
-        private static DbContextOptions GetOptions(DbContext context)
-        {
-            Guard.NotNull(context, nameof(context));
-            return (context as IInfrastructure<IServiceProvider>).Instance.GetService<DbContextOptions>();
-        }
-
-        ///// <summary>
-        ///// Creates a full type instance for the migration id by using the current migrations namespace
-        ///// ie: Smartstore.Data.SqlServer.Migrations.20201109094533_Initial
-        ///// </summary>
-        ///// <param name="migrationId">The migration id from the migrations list of the migrator</param>
-        ///// <returns>The full DbMigration instance</returns>
-        //private static Migration CreateMigrationInstanceByMigrationId(string migrationId, DbContext context)
-        //{
-        //    var options = GetOptions(context);
-        //    var relationalOptions = options.FindExtension<RelationalOptionsExtension>();
-
-        //    if (relationalOptions == null)
-        //    {
-        //        // TODO: (core) Throw exception proper message.
-        //        throw new Exception("Null");
-        //    }
-
-        //    var assemblyName = 
-        //        relationalOptions.MigrationsAssembly.NullEmpty() ?? 
-        //        context.GetType().Assembly.FullName;
-            
-        //    string migrationTypeName =
-        //        string.Format(_migrationTypeFormat,
-        //                      "", // TODO: (core) Resolve migration namespace
-        //                      GetMigrationClassName(migrationId),
-        //                      assemblyName);
-
-        //    return CreateTypeInstance<Migration>(migrationTypeName);
-        //}
-
-        ///// <summary>
-        ///// Checks if the migration id is valid
-        ///// </summary>
-        ///// <param name="migrationId">The migration id from the migrations list of the migrator</param>
-        ///// <returns>true if valid, otherwise false</returns>
-        //private static bool IsValidMigrationId(string migrationId)
-        //{
-        //    if (string.IsNullOrWhiteSpace(migrationId))
-        //        return false;
-
-        //    return _migrationIdPattern.IsMatch(migrationId) || migrationId == Migration.InitialDatabase;
-        //}
-
-        ///// <summary>
-        ///// Checks if the the migration id belongs to an automatic migration
-        ///// </summary>
-        ///// <param name="migrationId">The migration id from the migrations list of the migrator</param>
-        ///// <returns>true if automatic, otherwise false</returns>
-        //private static bool IsAutomaticMigration(string migrationId)
-        //{
-        //    if (string.IsNullOrWhiteSpace(migrationId))
-        //        return false;
-
-        //    return migrationId.EndsWith(_automaticMigration, StringComparison.Ordinal);
-        //}
-
-        ///// <summary>
-        ///// Gets the ClassName from a migration id
-        ///// </summary>
-        ///// <param name="migrationId">The migration id from the migrations list of the migrator</param>
-        ///// <returns>The class name for this migration id</returns>
-        //private static string GetMigrationClassName(string migrationId)
-        //{
-        //    if (string.IsNullOrWhiteSpace(migrationId))
-        //        return string.Empty;
-
-        //    return migrationId[15..];
-        //}
-
-        ///// <summary>
-        ///// Creates a new instance of a typename
-        ///// </summary>
-        ///// <typeparam name="TType">The type of the return instance</typeparam>
-        ///// <param name="typeName">The full name (including assembly and namespaces) of the type to create</param>
-        ///// <returns>
-        ///// A new instance of the type if it is (or boxable to) <typeparamref name="TType"/>, 
-        ///// otherwise the default of <typeparamref name="TType"/>
-        ///// </returns>
-        //private static TType CreateTypeInstance<TType>(string typeName) where TType : class
-        //{
-        //    Type classType = Type.GetType(typeName, false);
-
-        //    if (classType == null)
-        //        return default;
-
-        //    object instance = Activator.CreateInstance(classType);
-        //    return instance as TType;
-        //}
-
-        #endregion
     }
 }

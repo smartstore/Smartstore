@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Security;
+using Smartstore.Data.Migrations;
 using Smartstore.Engine;
 using Smartstore.Engine.Initialization;
 

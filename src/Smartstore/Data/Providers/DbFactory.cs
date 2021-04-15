@@ -32,11 +32,14 @@ namespace Smartstore.Data.Providers
 
         public abstract DataProvider CreateDataProvider(DatabaseFacade database);
 
-        public abstract DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString, IApplicationContext appContext);
+        public abstract HookingDbContext CreateApplicationDbContext(
+            string connectionString, 
+            int? commandTimeout = null, 
+            string migrationHistoryTableName = null);
 
         public abstract DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString);
 
-        internal static DbFactory Load(string provider, ITypeScanner typeScanner)
+        public static DbFactory Load(string provider, ITypeScanner typeScanner)
         {
             Guard.NotEmpty(provider, nameof(provider));
             Guard.NotNull(typeScanner, nameof(typeScanner));
@@ -53,9 +56,9 @@ namespace Smartstore.Data.Providers
                     case "mysql":
                         assemblyName = "Smartstore.Data.MySql.dll";
                         break;
-                    case "sqlite":
-                        assemblyName = "Smartstore.Data.Sqlite.dll";
-                        break;
+                    //case "sqlite":
+                    //    assemblyName = "Smartstore.Data.Sqlite.dll";
+                    //    break;
                 }
 
                 if (assemblyName.IsEmpty())

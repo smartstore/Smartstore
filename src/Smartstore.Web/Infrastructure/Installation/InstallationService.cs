@@ -1,13 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core;
+using Smartstore.Core.Common.Hooks;
+using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
+using Smartstore.Core.Localization;
+using Smartstore.Data;
+using Smartstore.Data.Hooks;
+using Smartstore.Data.Providers;
+using Smartstore.Domain;
 using Smartstore.Engine;
+using Smartstore.Threading;
 
 namespace Smartstore.Web.Infrastructure.Installation
 {
@@ -19,23 +34,274 @@ namespace Smartstore.Web.Infrastructure.Installation
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IApplicationContext _appContext;
+        private readonly IAsyncState _asyncState;
+        private readonly IUrlHelper _urlHelper;
         private readonly IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> _seedDatas;
 
         public InstallationService(
             IHttpContextAccessor httpContextAccessor,
             IApplicationContext appContext,
+            IAsyncState asyncState,
+            IUrlHelper urlHelper,
             IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> seedDatas)
         {
             _httpContextAccessor = httpContextAccessor;
             _appContext = appContext;
+            _asyncState = asyncState;
+            _urlHelper = urlHelper;
             _seedDatas = seedDatas;
         }
 
+        public ILogger Logger { get; set; } = NullLogger.Instance;
+
         #region Installation
 
-        public virtual Task<InstallationResult> Install(InstallationModel model)
+        public virtual async Task<InstallationResult> InstallAsync(InstallationModel model)
         {
-            throw new NotImplementedException();
+            // TODO: (core) CancellationToken
+            Guard.NotNull(model, nameof(model));
+
+            UpdateResult(x =>
+            {
+                x.ProgressMessage = GetResource("Progress.CheckingRequirements");
+                x.Completed = false;
+                Logger.Info(x.ProgressMessage);
+            });
+
+            if (DataSettings.DatabaseIsInstalled())
+            {
+                return UpdateResult(x =>
+                {
+                    x.Success = true;
+                    x.RedirectUrl = _urlHelper.Action("Index", "Home");
+                    Logger.Info("Application already installed");
+                });
+            }
+
+            //// set page timeout to 5 minutes
+            //this.Server.ScriptTimeout = 300;
+
+            DbFactory dbFactory = null;
+
+            try
+            {
+                dbFactory = DbFactory.Load(model.DataProvider, _appContext.TypeScanner);
+            }
+            catch
+            {
+                return UpdateResult(x =>
+                {
+                    x.Errors.Add(GetResource("ConnectionStringRequired")); // TODO: (core) ErrMessage
+                    Logger.Error(x.Errors.Last());
+                });
+            }
+
+            model.DatabaseConnectionString = model.DatabaseConnectionString?.Trim();
+
+            DbConnectionStringBuilder conStringBuilder = null;
+
+            if (model.SqlConnectionInfo.EqualsNoCase("sqlconnectioninfo_raw"))
+            {
+                // Raw connection string
+                if (string.IsNullOrEmpty(model.DatabaseConnectionString))
+                {
+                    return UpdateResult(x =>
+                    {
+                        x.Errors.Add(GetResource("ConnectionStringRequired"));
+                        Logger.Error(x.Errors.Last());
+                    });
+                }
+
+                try
+                {
+                    // Try to create connection string
+                    conStringBuilder = dbFactory.CreateConnectionStringBuilder(model.DatabaseConnectionString);
+                }
+                catch (Exception ex)
+                {
+                    return UpdateResult(x =>
+                    {
+                        x.Errors.Add(GetResource("ConnectionStringWrongFormat"));
+                        Logger.Error(ex, x.Errors.Last());
+                    });
+                }
+            }
+            else
+            {
+                // Structural connection string
+                // TODO: (core) ...
+            }
+
+            // TODO: (core) Access rights check ...
+
+            if (GetInstallResult().HasErrors)
+            {
+                return UpdateResult(x =>
+                {
+                    x.Completed = true;
+                    x.Success = false;
+                    x.RedirectUrl = null;
+                    Logger.Error("Aborting installation.");
+                });
+            }
+
+            SmartDbContext dbContext = null;
+            var shouldDeleteDbOnFailure = false;
+
+            try
+            {
+                var conString = conStringBuilder.ConnectionString;
+                var settings = DataSettings.Instance;
+
+                settings.AppVersion = SmartstoreVersion.Version;
+                settings.DbFactory = dbFactory;
+                settings.ConnectionString = conString;
+                settings.Save();
+
+                // resolve SeedData instance from primary language
+                var lazyLanguage = GetAppLanguage(model.PrimaryLanguage);
+                if (lazyLanguage == null)
+                {
+                    return UpdateResult(x =>
+                    {
+                        x.Errors.Add(GetResource("Install.LanguageNotRegistered").FormatInvariant(model.PrimaryLanguage));
+                        x.Completed = true;
+                        x.Success = false;
+                        x.RedirectUrl = null;
+                        Logger.Error(x.Errors.Last());
+                    });
+                }
+
+                // Create the DataContext
+                dbContext = (SmartDbContext)dbFactory.CreateApplicationDbContext(
+                    conString, 
+                    _appContext.AppConfiguration.DbMigrationCommandTimeout, 
+                    HistoryRepository.DefaultTableName + "_Core"); // TODO: (core) Make const for core migration table name
+
+                // AuditableHook must run during install
+                dbContext.DbHookHandler = new DefaultDbHookHandler(new[]
+                {
+                    new Lazy<IDbSaveHook, HookMetadata>(() => new AuditableHook(), HookMetadata.Create<AuditableHook, SmartDbContext>(typeof(IAuditable), HookImportance.Essential), false)
+                });
+
+                // Create Language domain object from lazyLanguage
+                var languages = dbContext.Languages;
+                var primaryLanguage = new Language 
+                {
+                    Name = lazyLanguage.Metadata.Name,
+                    LanguageCulture = lazyLanguage.Metadata.Culture,
+                    UniqueSeoCode = lazyLanguage.Metadata.UniqueSeoCode,
+                    FlagImageFileName = lazyLanguage.Metadata.FlagImageFileName
+                };
+
+                // Build the seed configuration model
+                var seedConfiguration = new SeedDataConfiguration
+                {
+                    DefaultUserName = model.AdminEmail,
+                    DefaultUserPassword = model.AdminPassword,
+                    SeedSampleData = model.InstallSampleData,
+                    Data = lazyLanguage.Value,
+                    Language = primaryLanguage,
+                    StoreMediaInDB = model.MediaStorage == "db",
+                    ProgressMessageCallback = msg => UpdateResult(x => x.ProgressMessage = GetResource(msg))
+                };
+
+                var seeder = new InstallationDataSeeder(seedConfiguration, Logger, _httpContextAccessor);
+
+                UpdateResult(x =>
+                {
+                    x.ProgressMessage = GetResource("Progress.BuildingDatabase");
+                    Logger.Info(x.ProgressMessage);
+                });
+
+                // ===>>> Actually performs database creation.
+                await dbContext.Database.MigrateAsync();
+
+                // ===>>> Seeds data.
+                await seeder.SeedAsync(dbContext);
+
+                // ...
+
+                UpdateResult(x =>
+                {
+                    x.ProgressMessage = GetResource("Progress.Finalizing");
+                    Logger.Info(x.ProgressMessage);
+                });
+
+                // SUCCESS: Redirect to home page
+                return UpdateResult(x =>
+                {
+                    x.Completed = true;
+                    x.Success = true;
+                    x.RedirectUrl = _urlHelper.Action("Index", "Home");
+                    Logger.Info("Installation completed successfully");
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+
+                // Delete Db if it was auto generated
+                if (dbContext != null && shouldDeleteDbOnFailure)
+                {
+                    try
+                    {
+                        Logger.Debug("Deleting database");
+                        await dbContext.Database.EnsureDeletedAsync();
+                    }
+                    catch { }
+                }
+
+                // Clear provider settings if something got wrong
+                DataSettings.Delete();
+
+                var msg = ex.Message;
+                var realException = ex;
+                while (realException.InnerException != null)
+                {
+                    realException = realException.InnerException;
+                }
+
+                if (!object.Equals(ex, realException))
+                {
+                    msg += " (" + realException.Message + ")";
+                }
+
+                return UpdateResult(x =>
+                {
+                    x.Errors.Add(string.Format(GetResource("SetupFailed"), msg));
+                    x.Success = false;
+                    x.Completed = true;
+                    x.RedirectUrl = null;
+                });
+            }
+            finally
+            {
+                if (dbContext != null)
+                {
+                    dbContext.Dispose();
+                }
+            }
+        }
+
+        private InstallationResult GetInstallResult()
+        {
+            var result = _asyncState.Get<InstallationResult>();
+            if (result == null)
+            {
+                result = new InstallationResult();
+                _asyncState.Create<InstallationResult>(result);
+            }
+            return result;
+        }
+
+        private InstallationResult UpdateResult(Action<InstallationResult> fn)
+        {
+            var result = GetInstallResult();
+            fn(result);
+            _asyncState.Create<InstallationResult>(result);
+
+            return result;
         }
 
         #endregion

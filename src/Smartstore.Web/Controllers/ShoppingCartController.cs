@@ -1187,11 +1187,11 @@ namespace Smartstore.Web.Controllers
         //#endregion
 
 
-        //public IActionResult CartSummary()
-        //{
-        //    // Stop annoying MiniProfiler report.
-        //    return new EmptyResult();
-        //}
+        public IActionResult CartSummary()
+        {
+            // Stop annoying MiniProfiler report.
+            return new EmptyResult();
+        }
 
         [RequireSsl]
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
