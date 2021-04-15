@@ -203,11 +203,10 @@
 
                                 if (Model.CanRePostProcessPayment)
                                 {
-                                    using (Html.BeginForm()) @* TODO: (mh) (core) Use form tag *@
-                                    {
+                                    <form asp-action="Details">
                                         <input type="submit" name="repost-payment" value="@T("Order.CompletePayment")" class="btn btn-primary btn-sm btn-block re-order-button btn-above" />
                                         <div class="small text-muted pt-2">@T("Order.CompletePayment.Hint")</div>
-                                    }
+                                    </form>
                                 }
                             }
                             @if (Model.VatNumber.HasValue())
@@ -341,7 +340,6 @@
 
         <zone name="orderdetails_page_afterproducts" />
 
-        @*TODO: (mh) (core) Implement corresponding actions*@
         <div sm-if="Model.IsReturnRequestAllowed || Model.IsReOrderAllowed" class="cart-actions row sm-gutters mb-2 justify-content-lg-end">
             <div sm-if="Model.IsReturnRequestAllowed" class="col-12 col-sm-6 col-lg-3">
                 <a asp-action="ReturnRequest" asp-controller="ReturnRequest" asp-route-id="@Model.Id" class="btn btn-secondary btn-block" rel="nofollow">
@@ -377,7 +375,6 @@
                         {
                             <tr>
                                 <td>
-                                    @*TODO: (mh) (core) Implement corresponding action*@
                                     <a asp-action="ShipmentDetails" asp-route-id="@item.Id" title="@T("Order.Shipments.ViewDetails")">
                                         @item.Id
                                     </a>

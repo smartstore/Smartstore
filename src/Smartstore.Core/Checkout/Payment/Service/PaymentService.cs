@@ -282,19 +282,19 @@ namespace Smartstore.Core.Checkout.Payment
             var paymentMethod = await LoadPaymentMethodBySystemNameAsync(order.PaymentMethodSystemName);
             if (paymentMethod == null)
             {
-                // Payment method couldn't be loaded (for example, was uninstalled)
+                // Payment method couldn't be loaded (for example, was uninstalled).
                 return false;
             }
 
             if (paymentMethod.Value.PaymentMethodType is not PaymentMethodType.Redirection and not PaymentMethodType.StandardAndRedirection)
             {
-                // This option is available only for redirection payment methods
+                // This option is available only for redirection payment methods.
                 return false;
             }
 
             if (order.Deleted || order.OrderStatus == OrderStatus.Cancelled || order.PaymentStatus != PaymentStatus.Pending)
             {
-                // Do not allow for deleted, cancelled or pending orders
+                // Do not allow for deleted, cancelled or pending orders.
                 return false;
             }
 

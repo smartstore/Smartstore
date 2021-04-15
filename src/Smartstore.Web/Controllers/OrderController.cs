@@ -9,6 +9,7 @@ using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
@@ -25,6 +26,8 @@ namespace Smartstore.Web.Controllers
     public class OrderController : PublicControllerBase
     {
         private readonly SmartDbContext _db;
+        private readonly IOrderProcessingService _orderProcessingService;
+        private readonly IPaymentService _paymentService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly OrderHelper _orderHelper;
         private readonly IDateTimeHelper _dateTimeHelper;
@@ -34,6 +37,8 @@ namespace Smartstore.Web.Controllers
         
         public OrderController(
             SmartDbContext db,
+            IOrderProcessingService orderProcessingService,
+            IPaymentService paymentService,
             IProductAttributeMaterializer productAttributeMaterializer,
             OrderHelper orderHelper, 
             IDateTimeHelper dateTimeHelper, 
@@ -42,6 +47,8 @@ namespace Smartstore.Web.Controllers
             PdfSettings pdfSettings)
         {
             _db = db;
+            _orderProcessingService = orderProcessingService;
+            _paymentService = paymentService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _orderHelper = orderHelper;
             _dateTimeHelper = dateTimeHelper;
@@ -177,8 +184,59 @@ namespace Smartstore.Web.Controllers
             return View(viewName, model);
         }
 
-        // TODO: (mh) (core) ReOrder
-        // TODO: (mh) (core) RePostPayment
+        public async Task<IActionResult> ReOrder(int id)
+        {
+            // INFO: (mh) (core) Better load this tracked as ReOrderAsync expects some navigation properties.
+            var order = await _db.Orders.FindByIdAsync(id);
+
+            if (await IsNonExistentOrderAsync(order))
+                return NotFound();
+
+            if (await IsUnauthorizedOrderAsync(order))
+                return new UnauthorizedResult();
+
+            await _orderProcessingService.ReOrderAsync(order);
+            return RedirectToRoute("ShoppingCart");
+        }
+
+        // TODO: (mh) (core) || TODO: (mg) (core) Untested :-o Test when payment methods are available which permit RePostPayment.
+        [HttpPost, ActionName("Details")]
+        [FormValueRequired("repost-payment")]
+        public async Task<IActionResult> RePostPayment(int id /* orderId */)
+        {
+            var order = await _db.Orders.FindByIdAsync(id);
+
+            if (await IsNonExistentOrderAsync(order))
+                return NotFound();
+
+            if (await IsUnauthorizedOrderAsync(order))
+                return new UnauthorizedResult();
+
+            try
+            {
+                if (await _paymentService.CanRePostProcessPaymentAsync(order))
+                {
+                    var postProcessPaymentRequest = new PostProcessPaymentRequest
+                    {
+                        Order = order,
+                        IsRePostProcessPayment = true
+                    };
+
+                    await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
+
+                    if (postProcessPaymentRequest.RedirectUrl.HasValue())
+                    {
+                        return Redirect(postProcessPaymentRequest.RedirectUrl);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToAction("Details", "Order", new { id = order.Id });
+        }
 
         [RequireSsl]
         public async Task<IActionResult> ShipmentDetails(int id /* shipmentId */)
