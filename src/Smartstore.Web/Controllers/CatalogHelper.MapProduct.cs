@@ -693,105 +693,16 @@ namespace Smartstore.Web.Controllers
 
             // -----> Perform calculation <-------
             var calculatedPrice = await _priceCalculationService2.CalculatePriceAsync(calculationContext);
+            var savings = calculatedPrice.PriceSaving;
 
             priceModel.Price = calculatedPrice.FinalPrice;
+            priceModel.HasDiscount = savings.HasSavings;
 
-            // TODO: (mg) (core) Check and add code in MapSummaryItemPrice.
-            priceModel.HasDiscount = calculatedPrice.HasDiscount;
-            
-            if (calculatedPrice.HasDiscount)
+            if (savings.HasSavings)
             {
-                priceModel.RegularPrice = calculatedPrice.RegularPrice;
-                priceModel.SavingAmount = calculatedPrice.SavingAmount;
-                priceModel.SavingPercent = calculatedPrice.SavingPercent;
-            }
-
-            return (calculatedPrice.FinalPrice, contextProduct);
-
-            /*
-            // Calculate prices.
-            var displayFromMessage = false;
-            var taxRate = decimal.Zero;
-            var oldPriceBase = default(Money);
-            var oldPrice = default(Money);
-            var finalPriceBase = default(Money);
-            var finalPrice = new Money(ctx.PrimaryCurrency);
-            var displayPrice = (Money?)null;
-
-            batchContext = product.ProductType == ProductType.GroupedProduct ? ctx.AssociatedProductBatchContext : ctx.BatchContext;
-
-            if (_catalogSettings.PriceDisplayType == PriceDisplayType.PreSelectedPrice)
-            {
-                displayPrice = await _priceCalculationService.GetPreselectedPriceAsync(contextProduct, options.Customer, batchContext);
-            }
-            else if (_catalogSettings.PriceDisplayType == PriceDisplayType.PriceWithoutDiscountsAndAttributes)
-            {
-                displayPrice = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, options.Customer, false, 1, null, batchContext);
-            }
-            else
-            {
-                // Display lowest price.
-                if (product.ProductType == ProductType.GroupedProduct)
-                {
-                    displayFromMessage = true;
-                    (displayPrice, contextProduct) = await _priceCalculationService.GetLowestPriceAsync(product, options.Customer, batchContext, associatedProducts);
-                }
-                else
-                {
-                    (displayPrice, displayFromMessage) = await _priceCalculationService.GetLowestPriceAsync(product, options.Customer, batchContext);
-                }
-            }
-
-            (oldPriceBase, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, new Money(contextProduct.OldPrice, ctx.PrimaryCurrency));
-            (finalPriceBase, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, displayPrice ?? new Money(ctx.PrimaryCurrency));
-
-            oldPrice = ToWorkingCurrency(oldPriceBase, ctx);
-            finalPrice = ToWorkingCurrency(finalPriceBase, ctx).WithPostFormat(options.TaxFormat);
-
-            string finalPricePostFormat = finalPrice.PostFormat;
-            if (displayFromMessage)
-            {
-                finalPricePostFormat = finalPricePostFormat == null
-                    ? ctx.Resources["Products.PriceRangeFrom"]
-                    : string.Format(ctx.Resources["Products.PriceRangeFrom"], finalPricePostFormat);
-            }
-
-            priceModel.Price = finalPrice.WithPostFormat(finalPricePostFormat);
-
-            priceModel.HasDiscount = oldPriceBase > decimal.Zero && oldPriceBase > finalPriceBase;
-            if (priceModel.HasDiscount)
-            {
-                priceModel.RegularPrice = oldPrice.WithPostFormat(options.TaxFormat);
-            }
-
-            // Calculate saving.
-            var finalPriceWithDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, options.Customer, true, 1, null, batchContext);
-            (finalPriceWithDiscount, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, finalPriceWithDiscount);
-            finalPriceWithDiscount = ToWorkingCurrency(finalPriceWithDiscount, ctx);
-
-            var finalPriceWithoutDiscount = finalPrice;
-            if (_catalogSettings.PriceDisplayType != PriceDisplayType.PriceWithoutDiscountsAndAttributes)
-            {
-                finalPriceWithoutDiscount = await _priceCalculationService.GetFinalPriceAsync(contextProduct, null, null, options.Customer, false, 1, null, batchContext);
-                (finalPriceWithoutDiscount, taxRate) = await _taxService.GetProductPriceAsync(contextProduct, finalPriceWithoutDiscount);
-                finalPriceWithoutDiscount = ToWorkingCurrency(finalPriceWithoutDiscount, ctx);
-            }
-
-            // Discounted price has priority over the old price (avoids differing percentage discount in product lists and detail page).
-            var regularPrice = finalPriceWithDiscount < finalPriceWithoutDiscount
-                ? finalPriceWithoutDiscount
-                : oldPrice;
-
-            if (regularPrice > 0 && regularPrice > finalPriceWithDiscount)
-            {
-                priceModel.HasDiscount = true;
-                priceModel.SavingPercent = (float)((regularPrice - finalPriceWithDiscount) / regularPrice) * 100;
-                priceModel.SavingAmount = (regularPrice - finalPriceWithDiscount).WithPostFormat(null);
-
-                if (priceModel.RegularPrice == null)
-                {
-                    priceModel.RegularPrice = regularPrice.WithPostFormat(options.TaxFormat);
-                }
+                priceModel.RegularPrice = savings.SavingPrice;
+                priceModel.SavingAmount = savings.SavingAmount;
+                priceModel.SavingPercent = savings.SavingPercent;
 
                 if (ctx.Model.ShowDiscountBadge)
                 {
@@ -803,8 +714,7 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            return (finalPrice, contextProduct);
-            */
+            return (calculatedPrice.FinalPrice, contextProduct);
         }
 
         private IEnumerable<ProductSpecificationModel> MapProductSpecificationModels(IEnumerable<ProductSpecificationAttribute> attributes)

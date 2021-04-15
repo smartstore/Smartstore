@@ -8,7 +8,7 @@ using Smartstore.Core.Common;
 namespace Smartstore.Core.Catalog.Pricing
 {
     /// <summary>
-    /// Represents the result of a price calculation process for a single product. All monetray amounts
+    /// Represents the result of a price calculation process for a single product. All monetary amounts
     /// are in the target currency and have been exchanged and converted according to input options.
     /// </summary>
     public class CalculatedPrice
@@ -89,31 +89,10 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public Tax? Tax { get; set; }
 
-        // TODO: (mg) (core) Describe savings properties when ready.
-        // TODO: (mg) (core) Rename HasDiscount -> HasSavings.
-
+        // TODO: (mg) (core) Describe PriceSaving more when ready
         /// <summary>
-        /// A value indicating whether the final price includes any discounts.
+        /// Gets or sets a price saving in relation to <see cref="FinalPrice"/>.
         /// </summary>
-        public bool HasDiscount { get; set; }
-        //{
-        //    get => FinalPrice < RegularPrice;
-        //}
-
-        /// <summary>
-        /// The saving, in percent, compared to the regular price.
-        /// </summary>
-        public float SavingPercent { get; set; }
-        //{
-        //    get => FinalPrice < RegularPrice ?  (float)((RegularPrice - FinalPrice) / RegularPrice) * 100 : 0f;
-        //}
-
-        /// <summary>
-        /// The saving, as money amount, if any discount was applied.
-        /// </summary>
-        public Money? SavingAmount { get; set; }
-        //{
-        //    get => HasDiscount ? (RegularPrice - FinalPrice).WithPostFormat(null) : null;
-        //}
+        public PriceSaving PriceSaving { get; set; }
     }
 }

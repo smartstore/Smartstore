@@ -271,16 +271,8 @@ namespace Smartstore.Core.Catalog.Pricing
                     tax.Value.Inclusive);
             }
 
-            // Calculate savings.
-            // FinalPrice (discounted) has priority over OldPrice.
-            // Avoids differing percentage discount in product lists and detail page.
-            var savingsReferencePrice = result.FinalPrice < result.RegularPrice ? result.RegularPrice : result.OldPrice;
-            if (savingsReferencePrice > 0m && result.FinalPrice > 0m && result.FinalPrice < savingsReferencePrice)
-            {
-                result.HasDiscount = true;
-                result.SavingPercent = (float)((savingsReferencePrice - result.FinalPrice) / savingsReferencePrice) * 100;
-                result.SavingAmount = (savingsReferencePrice - result.FinalPrice).WithPostFormat(null);
-            }
+            // Price saving.
+            result.PriceSaving = new PriceSaving(result);
 
             return result;
         }
