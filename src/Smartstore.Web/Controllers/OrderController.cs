@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -8,11 +11,13 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
+using Smartstore.Pdf;
 using Smartstore.Web.Models.Orders;
 
 namespace Smartstore.Web.Controllers
@@ -25,14 +30,16 @@ namespace Smartstore.Web.Controllers
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly IProviderManager _providerManager;
-
+        private readonly PdfSettings _pdfSettings;
+        
         public OrderController(
             SmartDbContext db,
             IProductAttributeMaterializer productAttributeMaterializer,
             OrderHelper orderHelper, 
             IDateTimeHelper dateTimeHelper, 
             IProviderManager providerManager,
-            ProductUrlHelper productUrlHelper)
+            ProductUrlHelper productUrlHelper,
+            PdfSettings pdfSettings)
         {
             _db = db;
             _productAttributeMaterializer = productAttributeMaterializer;
@@ -40,6 +47,7 @@ namespace Smartstore.Web.Controllers
             _dateTimeHelper = dateTimeHelper;
             _providerManager = providerManager;
             _productUrlHelper = productUrlHelper;
+            _pdfSettings = pdfSettings;
         }
 
         [RequireSsl]
@@ -61,9 +69,120 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        /// <param name="id"><see cref="Shipment.Id"/></param>
         [RequireSsl]
-        public async Task<IActionResult> ShipmentDetails(int id)
+        public async Task<IActionResult> Print(int id, bool pdf = false)
+        {
+            var order = await _db.Orders
+                .Include(x => x.ShippingAddress)
+                .Include(x => x.BillingAddress)
+                .Include(x => x.Shipments)
+                .FindByIdAsync(id, false);
+
+            if (await IsNonExistentOrderAsync(order))
+                return NotFound();
+            
+            if (await IsUnauthorizedOrderAsync(order))
+                return new UnauthorizedResult();
+            
+            var model = await _orderHelper.PrepareOrderDetailsModelAsync(order);
+            var fileName = T("Order.PdfInvoiceFileName", order.Id);
+
+            return PrintCore(new List<OrderDetailsModel> { model }, pdf, fileName);
+        }
+
+
+        // TODO: (mh) (core) Uncomment when AdminAuthorize is available.
+        //[AdminAuthorize]
+        [Permission(Permissions.Order.Read)]
+        public async Task<IActionResult> PrintMany(string ids = null, bool pdf = false)
+        {
+            const int maxOrders = 500;
+            IList<Order> orders = null;
+            var totalCount = 0;
+
+            if (ids != null)
+            {
+                orders = await _db.Orders
+                    .AsNoTracking()
+                    .Where(x => ids.ToIntArray().Contains(x.Id))
+                    .ToListAsync();
+
+                totalCount = orders.Count;
+            }
+            else
+            {
+                var pagedOrders = await _db.Orders
+                    .AsNoTracking()
+                    .ApplyStandardFilter()
+                    .ToPagedList(0, 1)
+                    .LoadAsync();
+                    
+                totalCount = pagedOrders.TotalCount;
+
+                if (totalCount > 0 && totalCount <= maxOrders)
+                {
+                    orders = await _db.Orders
+                        .AsNoTracking()
+                        .ApplyStandardFilter()
+                        .ToPagedList(0, int.MaxValue)
+                        .LoadAsync();
+                }
+            }
+
+            if (totalCount == 0)
+            {
+                NotifyInfo(T("Admin.Common.ExportNoData"));
+                return RedirectToReferrer();
+            }
+
+            if (totalCount > maxOrders)
+            {
+                NotifyWarning(T("Admin.Common.ExportToPdf.TooManyItems"));
+                return RedirectToReferrer();
+            }
+
+            var listModel = await orders.SelectAsync(async x => await _orderHelper.PrepareOrderDetailsModelAsync(x)).AsyncToList();
+
+            return PrintCore(listModel, pdf, "orders.pdf");
+        }
+
+        [NonAction]
+        private ActionResult PrintCore(List<OrderDetailsModel> model, bool pdf, string pdfFileName)
+        {
+            ViewBag.PdfMode = pdf;
+            var viewName = "Details.Print";
+
+            // TODO: (mh) (core) Finish PDF printing when PdfResult is available.
+            if (pdf)
+            {
+                // TODO: (mc) this is bad for multi-document processing, where orders can originate from different stores.
+                var storeId = model[0].StoreId;
+                var routeValues = new RouteValueDictionary
+                {
+                    ["storeId"] = storeId,
+                    ["lid"] = Services.WorkContext.WorkingLanguage.Id
+                };
+                
+                var settings = new PdfConvertSettings
+                {
+                    Size = _pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
+                    Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
+                    //Page = new PdfViewContent(viewName, model, this.ControllerContext),
+                    //Header = new PdfRouteContent("PdfReceiptHeader", "Common", routeValues, ControllerContext),
+                    //Footer = new PdfRouteContent("PdfReceiptFooter", "Common", routeValues, ControllerContext)
+                };
+
+                //return new PdfResult(_pdfConverter, settings) { FileName = pdfFileName };
+            }
+
+            return View(viewName, model);
+        }
+
+        // TODO: (mh) (core) ReOrder
+        // TODO: (mh) (core) RePostPayment
+
+        [RequireSsl]
+        public async Task<IActionResult> ShipmentDetails(int id /* shipmentId */)
         {
             var shipment = await _db.Shipments.FindByIdAsync(id);
                 
@@ -172,7 +291,7 @@ namespace Smartstore.Web.Controllers
             {
                 var orderItem = await _db.OrderItems
                     .Include(x => x.Product)
-                    .FindByIdAsync(shipmentItem.OrderItemId);
+                    .FindByIdAsync(shipmentItem.OrderItemId, false);
                     
                 if (orderItem == null)
                     continue;

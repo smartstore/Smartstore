@@ -1,0 +1,22 @@
+﻿@model dynamic
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html sm-language-attributes-for="WorkContext.WorkingLanguage">
+<head>
+    <meta charset="utf-8">
+    <title>@Assets.GetDocumentTitle(false)</title>
+    <link rel="stylesheet" type="text/css" href="~/css/print.css" />
+    <link sm-if="WorkContext.WorkingLanguage.Rtl" rel="stylesheet" type="text/css" href="~/css/print-rtl.css" />
+
+    <zone name="head_stylesheets"></zone>
+    <zone name="head"></zone>
+</head>
+<body>
+    @RenderBody()
+    <zone name="stylesheets"></zone>
+</body>
+</html>
