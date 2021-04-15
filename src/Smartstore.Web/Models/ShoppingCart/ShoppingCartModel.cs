@@ -26,7 +26,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         public DiscountBoxModel DiscountBox { get; set; } = new();
         public GiftCardBoxModel GiftCardBox { get; set; } = new();
         public RewardPointsBoxModel RewardPoints { get; set; } = new();
-        public OrderReviewDataModel OrderReviewData { get; set; }
+        public OrderReviewDataModel OrderReviewData { get; set; } = new();
         public int MediaDimensions { get; set; }
         public DeliveryTimesPresentation DeliveryTimesPresentation { get; set; }
         public ButtonPaymentMethodModel ButtonPaymentMethods { get; set; } = new();

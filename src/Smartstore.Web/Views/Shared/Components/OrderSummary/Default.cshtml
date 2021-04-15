@@ -5,9 +5,8 @@
 <div class="order-summary-content cart-content" data-empty-text="@T("ShoppingCart.CartIsEmpty")">
 
     <zone name="order_summary_content_before" />
-
-    @*TODO: (ms) (core) Implement _OrderReviewData partial*@
-    @*<partial name="_OrderReviewData" model="Model.OrderReviewData" />*@
+    
+    <partial name="_OrderReviewData" model="Model.OrderReviewData" />
 
     @if (Model.DisplayCommentBox && !Model.IsEditable)
     {
