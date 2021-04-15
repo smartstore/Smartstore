@@ -7,16 +7,10 @@
     int descMaxLength = Model.ShowProductImages ? 100 : 140;
     int attrMaxLength = Model.ShowProductImages ? 50 : 70;
 
-    var checkoutUrl = "";
-    if (Model.AnonymousCheckoutAllowed && Model.CurrentCustomerIsGuest)
-    {
-        checkoutUrl = Url.RouteUrl("Login", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") });
-    }
-    else
-    {
+    var checkoutUrl = Model.AnonymousCheckoutAllowed && Model.CurrentCustomerIsGuest
+        ? Url.RouteUrl("Login", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") })
         // TODO: (ms) (core) Implement corresponding action
-        checkoutUrl = Url.RouteUrl("Checkout");
-    }
+        : Url.RouteUrl("Checkout");
 }
 
 <div class="offcanvas-cart-body offcanvas-scrollable">

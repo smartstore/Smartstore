@@ -19,8 +19,6 @@
         <h1 class="h3">@T("ShoppingCart")</h1>
     </div>
     <div class="page-body">
-        @*TODO: (ms) (core) Don't include partials that aren't available yet. Instead: Comment them out and write another comment to include them when available*@
-        @*<partial name="OrderSummary" model="Model" />*@
-        @{ await Component.InvokeAsync("OrderSummary"); }
+        @{ await Component.InvokeAsync("OrderSummary", new { prepareAndDisplayOrderReviewData = true }); }
     </div>
 </div>
