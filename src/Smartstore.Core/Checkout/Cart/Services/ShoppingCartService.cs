@@ -422,7 +422,7 @@ namespace Smartstore.Core.Checkout.Cart
 
                     if (storeId > 0)
                     {
-                        filteredCartItems = cartItems.Where(x => x.StoreId == storeId);
+                        filteredCartItems = filteredCartItems.Where(x => x.StoreId == storeId);
                     }
 
                     cartItems = filteredCartItems.ToList();

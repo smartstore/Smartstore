@@ -1,7 +1,6 @@
 ﻿@using Smartstore.Web.Models.ShoppingCart;
 
 @model OrderTotalsModel
-@*TODO: (ms) (core) Views for viewcomponents belong into Shared/Components/Component/Default.cshtml *@
 
 <div sm-if="Model.ShowConfirmOrderLegalHint && !Model.IsEditable" class="alert alert-warning confirm-order-legal-hint">
     @T("OrderSummary.ConfirmOrderLegalHint")
@@ -71,7 +70,7 @@
         <td class="cart-summary-value">@Model.PaymentMethodAdditionalFee</td>
     </tr>
 
-    @if (Model.DisplayTaxRates && Model.TaxRates.Count > 0)
+    @if (Model.DisplayTaxRates)
     {
         foreach (var taxRate in Model.TaxRates)
         {
@@ -81,6 +80,7 @@
             </tr>
         }
     }
+
     <tr sm-if="Model.DisplayTax" class="cart-summary-tax">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.Tax"):</td>
         <td class="cart-summary-value">@Model.Tax</td>
@@ -104,30 +104,27 @@
         <td class="cart-summary-value">@Model.OrderTotalDiscount</td>
     </tr>
 
-    @if (Model.GiftCards.Count > 0)
+    @foreach (var gc in Model.GiftCards)
     {
-        foreach (var gc in Model.GiftCards)
-        {
-            <tr class="cart-summary-giftcard">
-                <td class="cart-summary-label">
-                    <div class="row xs-gutters">
-                        <div sm-if="Model.IsEditable" class="col col-auto">
-                            <a href="#"
-                               data-href='@Url.Action("RemoveGiftCardCode", "ShoppingCart", new { giftCardId = gc.Id })'
-                               class="btn-remove remove-discount-button pretty-link ajax-action-link"
-                               title="@T("Common.Remove")">
-                                <i class="fa">&times;</i>
-                            </a>
-                        </div>
-                        <div class="col cart-summary-pos">
-                            @T("ShoppingCart.Totals.GiftCardInfo", gc.CouponCode)
-                            <span class="text-muted text-nowrap small">@T("ShoppingCart.Totals.GiftCardInfo.Remaining", gc.Remaining)</span>
-                        </div>
+        <tr class="cart-summary-giftcard">
+            <td class="cart-summary-label">
+                <div class="row xs-gutters">
+                    <div sm-if="Model.IsEditable" class="col col-auto">
+                        <a href="#"
+                            data-href='@Url.Action("RemoveGiftCardCode", "ShoppingCart", new { giftCardId = gc.Id })'
+                            class="btn-remove remove-discount-button pretty-link ajax-action-link"
+                            title="@T("Common.Remove")">
+                            <i class="fa">&times;</i>
+                        </a>
                     </div>
-                </td>
-                <td class="cart-summary-value cart-summary-pos">@gc.Amount</td>
-            </tr>
-        }
+                    <div class="col cart-summary-pos">
+                        @T("ShoppingCart.Totals.GiftCardInfo", gc.CouponCode)
+                        <span class="text-muted text-nowrap small">@T("ShoppingCart.Totals.GiftCardInfo.Remaining", gc.Remaining)</span>
+                    </div>
+                </div>
+            </td>
+            <td class="cart-summary-value cart-summary-pos">@gc.Amount</td>
+        </tr>
     }
 
     <tr sm-if="Model.RedeemedRewardPoints > 0" class="cart-summary-rewardpoints cart-summary-pos">

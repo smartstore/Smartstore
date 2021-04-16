@@ -14,7 +14,7 @@
 }
 
 <div class="offcanvas-cart-body offcanvas-scrollable">
-    <div sm-if="Model.TotalProducts == 0" class="no-items">
+    <div sm-if="Model.TotalProducts <= 0" class="no-items">
         <h4 class="no-item-title">
             @T("ShoppingCart.Mini.EmptyCart.Title")
         </h4>
@@ -28,7 +28,7 @@
 
     @if (Model.TotalProducts > 0)
     {
-        // Items added in the last 2 seconds are considered to be current
+        // Items added in the last 2 seconds are considered to be current.
         var currentItem = Model.Items.FirstOrDefault(x => x.CreatedOnUtc >= DateTime.UtcNow.AddSeconds(-2));
 
         <div sm-if="currentItem != null" class="alert alert-success alert-dismissible rounded-0 fade show" role="alert">
@@ -46,13 +46,10 @@
                 <div class="offcanvas-cart-item">
                     <div class="row sm-gutters">
 
-                        <div sm-if="Model.ShowProductImages" class="col col-alpha">
-                            @if (item.Image.HasImage())
-                            {
-                                <a class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
+                        <div sm-if="Model.ShowProductImages" class="col col-alpha">                            
+                                <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
                                     <img sm-model="item.Image" />
-                                </a>
-                            }
+                                </a>                            
                         </div>
 
                         <div class="col col-data">
@@ -66,7 +63,7 @@
                                 @Html.Raw(item.AttributeInfo)
                             </div>
 
-                            <div sm-if="item.BundleItems.Count > 0" class="mb-bundle-pictures mt-3">
+                            <div sm-if="item.BundleItems.Any()" class="mb-bundle-pictures mt-3">
                                 @for (int j = 0, bundlelength = item.BundleItems.Count; j < bundlelength; j++)
                                 {
                                     var bundleItem = item.BundleItems[j];
@@ -134,15 +131,10 @@
         </div>
     }
 
-    <zone name="offcanvas_cart_items_after"></zone>
+    <zone name="offcanvas_cart_items_after" />
 </div>
 
-@if (Model.TotalProducts == 0)
-{
-    return;
-}
-
-<div class="offcanvas-cart-footer">
+<div sm-if="Model.TotalProducts > 0" class="offcanvas-cart-footer">
     <div class="offcanvas-cart-footer-row">
         <div class="offcanvas-cart-footer-col mr-3">
             <div>
@@ -181,7 +173,7 @@
         </div>
     </div>
 
-    <zone name="offcanvas_cart_footer_after"></zone>
+    <zone name="offcanvas_cart_footer_after" />
 
     <div sm-if="@Display.ZoneHasContent("offcanvas_cart_summary")" class="offcanvas-cart-external-checkout">
         <div class="d-flex justify-content-center align-items-center flex-wrap">

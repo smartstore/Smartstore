@@ -20,8 +20,6 @@ namespace Smartstore.Web.Models.ShoppingCart
         public int ThumbSize { get; set; }
         public bool ShowItemsFromWishlistToCartButton { get; set; }
 
-        #region Nested Classes
-
         public partial class WishlistItemModel : CartEntityModelBase, IQuantityInput
         {
             public override IEnumerable<WishlistItemModel> ChildItems { get; } = new List<WishlistItemModel>();
@@ -33,7 +31,5 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             public bool DisableBuyButton { get; set; }
         }
-
-        #endregion
     }
 }

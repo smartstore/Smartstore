@@ -1,4 +1,5 @@
-﻿;
+﻿// TODO (core) File should be merged/bundled with other shopping cart scripts
+;
 $(function () {
     var orderSummary = $(".cart-content");
     var isWishlist = orderSummary.is('.wishlist-content');
