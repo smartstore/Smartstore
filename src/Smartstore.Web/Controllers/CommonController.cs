@@ -288,7 +288,7 @@ namespace Smartstore.Web.Controllers
                 return new EmptyResult();
             }
 
-            // If current country doesnt need cookie consent, don't display cookie manager.
+            // If current country doesn't need cookie consent, don't display cookie manager.
             if (!await DisplayForCountryAsync())
             {
                 return new EmptyResult();
@@ -305,6 +305,7 @@ namespace Smartstore.Web.Controllers
 
             await PrepareCookieManagerModelAsync(model);
 
+            // TODO: (mh) (core) Why is this a partial? Are you sure? Please analyze CookieConsentFilter in classic.
             return PartialView(model);
         }
 
@@ -312,7 +313,7 @@ namespace Smartstore.Web.Controllers
         {
             var ipAddress = _webHelper.GetClientIpAddress();
             var lookUpCountryResponse = _countryLookup.LookupCountry(ipAddress);
-            if (lookUpCountryResponse == null || lookUpCountryResponse.IsoCode == null)
+            if (lookUpCountryResponse?.IsoCode == null)
             {
                 // No country was found (e.g. localhost), so we better return true.
                 return true;
