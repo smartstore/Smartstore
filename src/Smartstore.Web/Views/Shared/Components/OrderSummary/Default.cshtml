@@ -157,7 +157,6 @@
 @if (!Model.IsEditable && Model.Items.Any(x => x.IsDownload && x.HasUserAgreement))
 {
     <modal id="user-agreement-modal" sm-render-at-page-end="true" sm-center-vertically="true" sm-size="FlexSmall">
-        <modal-header sm-title="Modal Title" sm-show-close="true"></modal-header>
         <modal-body></modal-body>
         <modal-footer>
             <button class="btn btn-secondary" data-dismiss="modal">@T("Common.Confirm")</button>
