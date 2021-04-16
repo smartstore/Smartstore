@@ -16,7 +16,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         protected readonly ShoppingCartSettings _shoppingCartSettings;
         protected readonly CatalogSettings _catalogSettings;
         protected readonly MediaSettings _mediaSettings;
-        protected readonly Localizer T = NullLocalizer.Instance;
+        protected readonly Localizer T;
 
         protected CartMapperBase(
             ICommonServices services,
@@ -31,6 +31,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             _mediaSettings = mediaSettings;
             T = t;
         }
+
 
         public override Task MapAsync(IEnumerable<OrganizedShoppingCartItem> from, TModel to, dynamic parameters = null)
         {

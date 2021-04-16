@@ -41,22 +41,23 @@ namespace Smartstore.Web.Models.ShoppingCart
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly CatalogSettings _catalogSettings;
         private readonly MediaSettings _mediaSettings;
+        private readonly Localizer T;
 
         public CartItemImageMapper(
             SmartDbContext db,
             IMediaService mediaService,
             IProductAttributeMaterializer productAttributeMaterializer,
             CatalogSettings catalogSettings,
-            MediaSettings mediaSettings)
+            MediaSettings mediaSettings,
+            Localizer t)
         {
             _db = db;
             _mediaService = mediaService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _catalogSettings = catalogSettings;
             _mediaSettings = mediaSettings;
+            T = t;
         }
-
-        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         protected override void Map(OrganizedShoppingCartItem from, ImageModel to, dynamic parameters = null)
             => throw new NotImplementedException();

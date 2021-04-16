@@ -21,19 +21,19 @@ namespace Smartstore.Web.Models.ShoppingCart
        where TModel : CartEntityModelBase
     {
         private readonly SmartDbContext _db;
-        protected readonly ICommonServices _services;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
-        protected readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
-        protected readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly MediaSettings _mediaSettings;
         private readonly ProductUrlHelper _productUrlHelper;
+        private readonly Localizer T;
+
+        protected readonly ICommonServices _services;
+        protected readonly IPriceCalculationService _priceCalculationService;
+        protected readonly IProductAttributeMaterializer _productAttributeMaterializer;
         protected readonly ShoppingCartSettings _shoppingCartSettings;
         protected readonly CatalogSettings _catalogSettings;
-
-        private readonly Localizer T = NullLocalizer.Instance;
 
         protected CartItemMapperBase(
             SmartDbContext db,
