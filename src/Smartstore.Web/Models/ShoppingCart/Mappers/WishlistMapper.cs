@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
-    public static class WishlistMappingExtensions
+    public static partial class WishlistMappingExtensions
     {
         public static async Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity, WishlistModel model, bool isEditable = true)
         {
@@ -51,20 +51,19 @@ namespace Smartstore.Web.Models.ShoppingCart
         {
             Guard.NotNull(from, nameof(from));
 
+            if (!from.Any())
+                return;
+
+            await base.MapAsync(from, to, null);
+
             to.IsEditable = parameters?.IsEditable == true;
             to.EmailWishlistEnabled = _shoppingCartSettings.EmailWishlistEnabled;
             to.DisplayAddToCart = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);           
-
-            if (!from.Any())
-                return;
 
             var customer = from.FirstOrDefault().Item.Customer;
             to.CustomerGuid = customer.CustomerGuid;
             to.CustomerFullname = customer.GetFullName();
             to.ShowItemsFromWishlistToCartButton = _shoppingCartSettings.ShowItemsFromWishlistToCartButton;
-
-            await base.MapAsync(from, to, null);
-
             // Cart warnings
             var warnings = new List<string>();
             var cartIsValid = await _shoppingCartValidator.ValidateCartItemsAsync(from, warnings);
@@ -73,12 +72,18 @@ namespace Smartstore.Web.Models.ShoppingCart
                 to.Warnings.AddRange(warnings);
             }
 
-            foreach (var item in from)
+            foreach (var cartItem in from)
             {
-                // TODO: (ms) (core) Implement WishlistItemModelMapper
-                // model.AddItems(await PrepareWishlistItemModelAsync(item));
-            }
+                var model = new WishlistModel.WishlistItemModel
+                {
+                    DisableBuyButton = cartItem.Item.Product.DisableBuyButton
+                };
 
+                await cartItem.MapAsync(model);
+
+                to.AddItems(model);
+            }
+            
             to.Items.Each(async x =>
             {
                 // Do not display QuantityUnitName in OffCanvasWishlist

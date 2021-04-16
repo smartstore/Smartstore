@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
-    public static class ShoppingCartMappingExtensions
+    public static partial class ShoppingCartMappingExtensions
     {
         public static async Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity,
             ShoppingCartModel model,
@@ -122,6 +122,8 @@ namespace Smartstore.Web.Models.ShoppingCart
                 return;
             }
 
+            await base.MapAsync(from, to, null);
+
             var store = _services.StoreContext.CurrentStore;
             var customer = _services.WorkContext.CurrentCustomer;
             var currency = _services.WorkContext.WorkingCurrency;
@@ -143,8 +145,6 @@ namespace Smartstore.Web.Models.ShoppingCart
             to.DisplayCommentBox = _shoppingCartSettings.ShowCommentBox;
             to.DisplayEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox;
             to.IsEditable = isEditable;
-
-            await base.MapAsync(from, to, null);
 
             var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             if (measure != null)
@@ -424,10 +424,13 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             #region Cart items
 
-            foreach (var item in from)
+            foreach (var cartItem in from)
             {
-                // TODO: (ms) (core) Implement ShoppingCartItemMapper
-                //model.AddItems(await PrepareShoppingCartItemModelAsync(item));
+                var model = new ShoppingCartModel.ShoppingCartItemModel();
+
+                await cartItem.MapAsync(model);
+
+                to.AddItems(model);
             }
 
             #endregion
