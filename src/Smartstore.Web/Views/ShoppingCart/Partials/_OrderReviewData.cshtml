@@ -8,152 +8,6 @@
     return;
 }
 
-<div class="card card-body order-review-data-box mb-3">
-    <div class="row">
-        <div class="col-md-8">
-            <div class="row">
-                <div class="col mb-4 mb-lg-0 billinginfo">
-                    <div class="row sm-gutters">
-                        <div class="col">
-                            <div class="heading">
-                                <h5 class="heading-title font-weight-medium">@T("Order.BillingAddress")</h5>
-                            </div>
-                        </div>
-                        <div class="col col-auto">
-                            <a asp-action="BillingAddress" asp-controller="Checkout" asp-area="" class="btn btn-primary btn-sm change-checkout-data">
-                                @T("Common.Change")
-                            </a>
-                        </div>
-                    </div>
-                    @{
-                        await RenderAddress(Model.BillingAddress);
-                    }
-                </div>
-                <div sm-if="Model.IsShippable && Model.ShippingAddress != null" class="col mb-4 mb-lg-0 shippinginfo">
-                    <div class="row sm-gutters">
-                        <div class="col">
-                            <div class="heading">
-                                <h5 class="heading-title font-weight-medium">@T("Order.ShippingAddress")</h5>
-                            </div>
-                        </div>
-                        <div class="col col-auto">
-                            <a asp-action="ShippingAddress" asp-controller="Checkout" asp-area="" class="btn btn-primary btn-sm change-checkout-data">
-                                @T("Common.Change")
-                            </a>
-                        </div>
-                    </div>
-                    @{
-                        await RenderAddress(Model.ShippingAddress);
-                    }
-                </div>
-            </div>
-        </div>
-        <div sm-if="Model.PaymentMethod.HasValue() || (Model.IsShippable && Model.ShippingMethod.HasValue())" class="col-md-4">
-            <div class="row">
-                <div class="col">
-                    @if (Model.IsShippable && Model.ShippingMethod.HasValue())
-                    {
-                        <div class="row sm-gutters">
-                            <div class="col">
-                                <div class="heading">
-                                    <h5 class="heading-title font-weight-medium">@T("Order.ShippingMethod")</h5>
-                                </div>
-                            </div>
-                            <div sm-if="Model.DisplayShippingMethodChangeOption" class="col col-auto">
-                                <a asp-action="ShippingMethod" asp-controller="Checkout" asp-area="" class="btn btn-primary btn-sm change-checkout-data">
-                                    @T("Common.Change")
-                                </a>
-                            </div>
-                        </div>
-                        <p>@Model.ShippingMethod</p>
-                    }
-                    @if (Model.PaymentMethod.HasValue() && !Model.IsPaymentSelectionSkipped)
-                    {
-                        <div class="row sm-gutters">
-                            <div class="col">
-                                <div class="heading">
-                                    <h5 class="heading-title font-weight-medium">@T("Order.PaymentMethod")</h5>
-                                </div>
-                            </div>
-                            <div sm-if="Model.DisplayPaymentMethodChangeOption" class="col col-auto">
-                                <a asp-action="PaymentMethod" asp-controller="Checkout" asp-area="" class="btn btn-primary btn-sm change-checkout-data">
-                                    @T("Common.Change")
-                                </a>
-                            </div>
-                        </div>
-                        <p>@Model.PaymentMethod</p>
-                        <div sm-if="Model.PaymentSummary.HasValue()" class="text-muted">@Model.PaymentSummary</div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row d-none">
-        <div class="billinginfo col-md-6 mb-3">
-            <div class="card">
-                <div class="card-header d-flex flex-nowrap justify-content-between">
-                    <h5 class="m-0">@T("Order.BillingAddress")</h5>
-                    <a asp-action="BillingAddress" asp-controller="Checkout" asp-area="" class="change-checkout-data">
-                        @T("Common.Change")
-                    </a>
-                </div>
-                <div class="card-body">
-                    @{
-                        await RenderAddress(Model.BillingAddress);
-                    }
-                </div>
-            </div>
-        </div>
-
-        <div sm-if="Model.IsShippable" class="shippinginfo col-md-6 mb-3">
-            <div class="card">
-                <div class="card-header d-flex flex-nowrap justify-content-between">
-                    <h5 class="m-0">@T("Order.ShippingAddress")</h5>
-                    <a asp-action="ShippingAddress" asp-controller="Checkout" asp-area="" class="change-checkout-data">
-                        @T("Common.Change")
-                    </a>
-                </div>
-                <div class="card-body">
-                    @{
-                        await RenderAddress(Model.ShippingAddress);
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div sm-if="Model.PaymentMethod.HasValue()" class="payment-method mb-3 d-none">
-        <div class="card">
-            <div class="card-header d-flex flex-nowrap justify-content-between">
-                <h5 class="m-0">@T("Order.PaymentMethod")</h5>
-                @if (!Model.IsPaymentSelectionSkipped)
-                {
-                    <a asp-action="PaymentMethod" asp-controller="Checkout" asp-area="" class="change-checkout-data">
-                        @T("Common.Change")
-                    </a>
-                }
-            </div>
-            <div class="card-body">
-                @Model.PaymentMethod
-                <span sm-if="Model.PaymentSummary.HasValue()" class="text-muted">@Model.PaymentSummary</span>
-            </div>
-        </div>
-    </div>
-    <div sm-if="Model.ShippingMethod.HasValue()" class="shipping-method mb-3 d-none">
-        <div class="card">
-            <div class="card-header d-flex flex-nowrap justify-content-between">
-                <h5 class="m-0">@T("Order.ShippingMethod")</h5>
-                <a asp-action="ShippingMethod" asp-controller="Checkout" asp-area="" class="change-checkout-data">
-                    @T("Common.Change")
-                </a>
-            </div>
-            <div class="card-body">
-                @Model.ShippingMethod
-            </div>
-        </div>
-    </div>
-</div>
 @{
     async Task RenderAddress(AddressModel address)
     {
@@ -196,3 +50,142 @@
         </div>
     }
 }
+
+<div class="card card-body order-review-data-box mb-3">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col mb-4 mb-lg-0 billinginfo">
+                    <div class="row sm-gutters">
+                        <div class="col">
+                            <div class="heading">
+                                <h5 class="heading-title font-weight-medium">@T("Order.BillingAddress")</h5>
+                            </div>
+                        </div>
+                        <div class="col col-auto">
+                            <a asp-action="BillingAddress" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data">
+                                @T("Common.Change")
+                            </a>
+                        </div>
+                    </div>
+                    @{ await RenderAddress(Model.BillingAddress); }
+                </div>
+                <div sm-if="Model.IsShippable && Model.ShippingAddress != null" class="col mb-4 mb-lg-0 shippinginfo">
+                    <div class="row sm-gutters">
+                        <div class="col">
+                            <div class="heading">
+                                <h5 class="heading-title font-weight-medium">@T("Order.ShippingAddress")</h5>
+                            </div>
+                        </div>
+                        <div class="col col-auto">
+                            <a asp-action="ShippingAddress" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data">
+                                @T("Common.Change")
+                            </a>
+                        </div>
+                    </div>
+                    @{ await RenderAddress(Model.ShippingAddress); }
+                </div>
+            </div>
+        </div>
+        <div sm-if="Model.PaymentMethod.HasValue() || (Model.IsShippable && Model.ShippingMethod.HasValue())" class="col-md-4">
+            <div class="row">
+                <div class="col">
+                    @if (Model.IsShippable && Model.ShippingMethod.HasValue())
+                    {
+                        <div class="row sm-gutters">
+                            <div class="col">
+                                <div class="heading">
+                                    <h5 class="heading-title font-weight-medium">@T("Order.ShippingMethod")</h5>
+                                </div>
+                            </div>
+                            <div sm-if="Model.DisplayShippingMethodChangeOption" class="col col-auto">
+                                <a asp-action="ShippingMethod" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data">
+                                    @T("Common.Change")
+                                </a>
+                            </div>
+                        </div>
+                        <p>@Model.ShippingMethod</p>
+                    }
+                    @if (Model.PaymentMethod.HasValue() && !Model.IsPaymentSelectionSkipped)
+                    {
+                        <div class="row sm-gutters">
+                            <div class="col">
+                                <div class="heading">
+                                    <h5 class="heading-title font-weight-medium">@T("Order.PaymentMethod")</h5>
+                                </div>
+                            </div>
+                            <div sm-if="Model.DisplayPaymentMethodChangeOption" class="col col-auto">
+                                <a asp-action="PaymentMethod" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data">
+                                    @T("Common.Change")
+                                </a>
+                            </div>
+                        </div>
+                        <p>@Model.PaymentMethod</p>
+                        <div sm-if="Model.PaymentSummary.HasValue()" class="text-muted">@Model.PaymentSummary</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row d-none">
+        <div class="billinginfo col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header d-flex flex-nowrap justify-content-between">
+                    <h5 class="m-0">@T("Order.BillingAddress")</h5>
+                    <a asp-action="BillingAddress" asp-controller="Checkout" class="change-checkout-data">
+                        @T("Common.Change")
+                    </a>
+                </div>
+                <div class="card-body">
+                    @{ await RenderAddress(Model.BillingAddress); }
+                </div>
+            </div>
+        </div>
+
+        <div sm-if="Model.IsShippable" class="shippinginfo col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header d-flex flex-nowrap justify-content-between">
+                    <h5 class="m-0">@T("Order.ShippingAddress")</h5>
+                    <a asp-action="ShippingAddress" asp-controller="Checkout" class="change-checkout-data">
+                        @T("Common.Change")
+                    </a>
+                </div>
+                <div class="card-body">
+                    @{ await RenderAddress(Model.ShippingAddress); }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div sm-if="Model.PaymentMethod.HasValue()" class="payment-method mb-3 d-none">
+        <div class="card">
+            <div class="card-header d-flex flex-nowrap justify-content-between">
+                <h5 class="m-0">@T("Order.PaymentMethod")</h5>
+                @if (!Model.IsPaymentSelectionSkipped)
+                {
+                    <a asp-action="PaymentMethod" asp-controller="Checkout" class="change-checkout-data">
+                        @T("Common.Change")
+                    </a>
+                }
+            </div>
+            <div class="card-body">
+                @Model.PaymentMethod
+                <span sm-if="Model.PaymentSummary.HasValue()" class="text-muted">@Model.PaymentSummary</span>
+            </div>
+        </div>
+    </div>
+    <div sm-if="Model.ShippingMethod.HasValue()" class="shipping-method mb-3 d-none">
+        <div class="card">
+            <div class="card-header d-flex flex-nowrap justify-content-between">
+                <h5 class="m-0">@T("Order.ShippingMethod")</h5>
+                <a asp-action="ShippingMethod" asp-controller="Checkout" class="change-checkout-data">
+                    @T("Common.Change")
+                </a>
+            </div>
+            <div class="card-body">
+                @Model.ShippingMethod
+            </div>
+        </div>
+    </div>
+</div>
