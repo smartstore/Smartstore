@@ -1,0 +1,32 @@
+﻿@using Smartstore.Web.Models.Profiles;
+
+@model ProfileIndexModel
+
+@{
+    Layout = "_Layout";
+    Assets.AppendTitleParts(T("PageTitle.Profile"));
+}
+
+<div class="page profile-page">
+    <div class="page-title">
+        <h1 class="h2">@Model.ProfileTitle</h1>
+    </div>
+    <div class="page-body">
+        @*TODO: (mh) (core) is &lt;md correct? Found it in Product.Tab *@
+        <tabstrip id="profile-tabs" class="profile-tabs" sm-nav-style="Material" sm-smart-tab-selection="false" sm-breakpoint="&lt;md">
+            <tab-content-header>
+                <a href="javascript:void()" class="btn btn-secondary btn-no-border btn-flat offcanvas-closer rounded-0" title="@T("Common.Close")">
+                    <i class="fa fa-chevron-left"></i>
+                    <span>@T("Common.Close")</span>
+                </a>
+            </tab-content-header>
+            <tab sm-title="@T("Profile.PersonalInfo")" sm-selected="true">
+                @*INFO: (mh) (core) No need to call an action here. It was only called from here, so I merged models and render a partial*@
+                <partial name="Info" model="Model.ProfileInfo" />
+            </tab>
+
+            @*TODO: (mh) (core) Inject latest post tab from forum module *@
+
+        </tabstrip>
+    </div>
+</div>

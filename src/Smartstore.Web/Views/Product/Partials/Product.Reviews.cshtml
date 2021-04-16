@@ -31,7 +31,6 @@
                     <span class="review-meta-label">@T("Reviews.From"):</span>
                     @if (review.AllowViewingProfiles)
                     {
-                        // TODO: (mh) (core) Implement action
                         <a class="review-meta-value" asp-route="CustomerProfile" asp-route-id="@review.CustomerId" rel="nofollow" dir="auto" itemprop="name">
                             @(review.CustomerName)
                         </a>
