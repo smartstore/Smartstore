@@ -6,14 +6,18 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Theming;
+using Smartstore.Core.Web;
 using Smartstore.Utilities;
+using Smartstore.Web.Models.Common;
 using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Controllers
@@ -21,33 +25,44 @@ namespace Smartstore.Web.Controllers
     public class CommonController : SmartController
     {
         private readonly SmartDbContext _db;
+        private readonly IGeoCountryLookup _countryLookup;
+        private readonly ICookieConsentManager _cookieConsentManager;
         private readonly Lazy<IMediaService> _mediaService;
         private readonly UrlPolicy _urlPolicy;
+        private readonly IWebHelper _webHelper;
         private readonly IThemeContext _themeContext;
         private readonly IThemeRegistry _themeRegistry;
         private readonly ThemeSettings _themeSettings;
         private readonly SeoSettings _seoSettings;
         private readonly LocalizationSettings _localizationSettings;
+        private readonly PrivacySettings _privacySettings;
         
-
         public CommonController(
             SmartDbContext db,
+            IGeoCountryLookup countryLookup,
+            ICookieConsentManager cookieConsentManager,
             Lazy<IMediaService> mediaService,
             UrlPolicy urlPolicy,
+            IWebHelper webHelper,
             IThemeContext themeContext, 
             IThemeRegistry themeRegistry, 
             ThemeSettings themeSettings,
             SeoSettings seoSettings,
-            LocalizationSettings localizationSettings)
+            LocalizationSettings localizationSettings,
+            PrivacySettings privacySettings)
         {
             _db = db;
+            _countryLookup = countryLookup;
+            _cookieConsentManager = cookieConsentManager;
             _mediaService = mediaService;
             _urlPolicy = urlPolicy;
+            _webHelper = webHelper;
             _themeContext = themeContext;
             _themeRegistry = themeRegistry;
             _themeSettings = themeSettings;
             _seoSettings = seoSettings;
             _localizationSettings = localizationSettings;
+            _privacySettings = privacySettings;
         }
 
         [Route("browserconfig.xml")]
@@ -262,6 +277,91 @@ namespace Smartstore.Web.Controllers
 
         // TODO: (mh) (core) PdfReceiptHeader, PdfReceiptFooter, PreparePdfReceiptHeaderFooterModel
 
-        // TODO: (mh) (core) CookieManager
+        #region CookieManager
+
+        [LocalizedRoute("/cookiemanager", Name = "CookieManager")]
+        public async Task<IActionResult> CookieManager()
+        {
+            if (!_privacySettings.EnableCookieConsent)
+            {
+                return new EmptyResult();
+            }
+
+            // If current country doesnt need cookie consent, don't display cookie manager.
+            if (!await DisplayForCountryAsync())
+            {
+                return new EmptyResult();
+            }
+
+            var cookieData = _cookieConsentManager.GetCookieData();
+
+            if (cookieData != null && !HttpContext.Request.IsAjaxRequest())
+            {
+                return new EmptyResult();
+            }
+
+            var model = new CookieManagerModel();
+
+            await PrepareCookieManagerModelAsync(model);
+
+            return PartialView(model);
+        }
+
+        private async Task<bool> DisplayForCountryAsync()
+        {
+            var ipAddress = _webHelper.GetClientIpAddress();
+            var lookUpCountryResponse = _countryLookup.LookupCountry(ipAddress);
+            if (lookUpCountryResponse == null || lookUpCountryResponse.IsoCode == null)
+            {
+                // No country was found (e.g. localhost), so we better return true.
+                return true;
+            }
+
+            var country = await _db.Countries
+                .AsNoTracking()
+                .ApplyIsoCodeFilter(lookUpCountryResponse.IsoCode)
+                .FirstOrDefaultAsync();
+            
+            if (country != null && country.DisplayCookieManager)
+            {
+                // Country was configured to display cookie manager.
+                return true;
+            }
+
+            return false;
+        }
+
+        private async Task PrepareCookieManagerModelAsync(CookieManagerModel model)
+        {
+            // Get cookie infos from plugins.
+            model.CookiesInfos = (await _cookieConsentManager.GetAllCookieInfosAsync(true)).ToList();
+
+            var cookie = _cookieConsentManager.GetCookieData();
+
+            model.AnalyticsConsent = cookie != null && cookie.AllowAnalytics;
+            model.ThirdPartyConsent = cookie != null && cookie.AllowThirdParty;
+            model.ModalCookieConsent = _privacySettings.ModalCookieConsent;
+        }
+
+        [HttpPost]
+        public ActionResult SetCookieManagerConsent(CookieManagerModel model)
+        {
+            if (model.AcceptAll)
+            {
+                model.AnalyticsConsent = true;
+                model.ThirdPartyConsent = true;
+            }
+
+            _cookieConsentManager.SetConsentCookie(model.AnalyticsConsent, model.ThirdPartyConsent);
+
+            if (!HttpContext.Request.IsAjaxRequest())
+            {
+                return RedirectToReferrer();
+            }
+
+            return Json(new { Success = true });
+        }
+
+        #endregion
     }
 }
