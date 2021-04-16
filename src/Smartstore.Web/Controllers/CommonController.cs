@@ -101,7 +101,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [Route("robots.txt")]
-        public async Task<ActionResult> RobotsTextFile()
+        public async Task<IActionResult> RobotsTextFile()
         {
             #region DisallowPaths
 
@@ -187,6 +187,7 @@ namespace Smartstore.Web.Controllers
                 // URLs are localizable. Append SEO code
                 foreach (var language in languages)
                 {
+                    // TODO: (mh) (core) Master language may not have SEO prefixes if localization settings say so. This way a bug in classic also. Please fix.
                     disallows = disallows.Concat(localizableDisallowPaths.Select(x => $"/{language.UniqueSeoCode}{x}"));
                 }
             }
