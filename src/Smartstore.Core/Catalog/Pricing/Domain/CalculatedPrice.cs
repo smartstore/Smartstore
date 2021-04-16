@@ -51,6 +51,11 @@ namespace Smartstore.Core.Catalog.Pricing
         public Money FinalPrice { get; set; }
 
         /// <summary>
+        /// The final price of the product without applied discounts and tier prices.
+        /// </summary>
+        public Money FinalPriceWithoutDiscount { get; set; }
+
+        /// <summary>
         /// A value indicating whether the price has a range, which is mostly the case if the lowest price
         /// was determined or any tier price was applied.
         /// </summary>
@@ -74,11 +79,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public Money? LowestPrice { get; set; }
 
         /// <summary>
-        /// The additional charge in the target currency, if any.
-        /// </summary>
-        //public Money? AdditionalCharge { get; set; }
-
-        /// <summary>
         /// Gets a list of calculated attribute price adjustments, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
         /// Only filled if <see cref="PriceCalculationOptions.DeterminePriceAdjustments"/> is activated.
         /// </summary>
@@ -89,9 +89,10 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         public Tax? Tax { get; set; }
 
-        // TODO: (mg) (core) Describe PriceSaving more when ready
         /// <summary>
         /// Gets or sets a price saving in relation to <see cref="FinalPrice"/>.
+        /// The saving results from the difference between the <see cref="FinalPrice"/> and the <see cref="Product.OldPrice"/> 
+        /// or, if present, the <see cref="FinalPriceWithoutDiscount"/>.
         /// </summary>
         public PriceSaving PriceSaving { get; set; }
     }

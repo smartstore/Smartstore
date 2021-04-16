@@ -1,12 +1,12 @@
-﻿using Smartstore.Core.Common;
+﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
-    // TODO: (mg) (core) Check saving price. Actually undiscounted price required. Former code compared the undiscounted with the discounted final price, not the regular price (can be 0).
-    // TODO: (mg) (core) Describe PriceSaving more when ready
-
     /// <summary>
     /// Represents a price saving in relation to the calculated final price of a product.
+    /// The saving results from the difference between the <see cref="CalculatedPrice.FinalPrice"/> and the <see cref="Product.OldPrice"/> 
+    /// or, if present, the <see cref="CalculatedPrice.FinalPriceWithoutDiscount"/>.
     /// </summary>
     public partial class PriceSaving
     {
@@ -16,9 +16,9 @@ namespace Smartstore.Core.Catalog.Pricing
 
             // Final price (discounted) has priority over the old price.
             // Avoids differing percentage discount in product lists and detail page.
-            SavingPrice = price.FinalPrice < price.RegularPrice ? price.RegularPrice : price.OldPrice;
+            SavingPrice = price.FinalPrice < price.FinalPriceWithoutDiscount ? price.FinalPriceWithoutDiscount : price.OldPrice;
 
-            HasSavings = SavingPrice > 0m && price.FinalPrice < SavingPrice;
+            HasSavings = SavingPrice > 0 && price.FinalPrice < SavingPrice;
 
             if (HasSavings)
             {
@@ -34,7 +34,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// The price that represents the saving. Often displayed as a crossed-out price.
-        /// It is greater than the final price if <see cref="HasSavings"/> is <c>true</c>.
+        /// Always greater than the final price if <see cref="HasSavings"/> is <c>true</c>.
         /// </summary>
         public Money SavingPrice { get; private set; }
 

@@ -229,11 +229,8 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             product ??= context.Product;
 
-            // A product price cannot be less than zero.
-            context.FinalPrice = Math.Max(context.FinalPrice, decimal.Zero);
-
             // Calculate the subtotal price instead of the unit price if requested.
-            if (!context.CalculateUnitPrice && context.Quantity > 1)
+            if (!context.CalculateUnitPrice && context.Quantity > 1 && context.FinalPrice > 0)
             {
                 context.FinalPrice = context.Options.RoundingCurrency.RoundIfEnabledFor(context.FinalPrice) * context.Quantity;
             }
@@ -253,6 +250,10 @@ namespace Smartstore.Core.Catalog.Pricing
                 FinalPrice = ConvertAmount(context.FinalPrice, context, taxRate, true, out var tax).Value,
                 Tax = tax
             };
+
+            result.FinalPriceWithoutDiscount = context.DiscountAmount != 0
+                ? ConvertAmount(context.FinalPrice + context.DiscountAmount, context, taxRate, true, out _).Value
+                : result.FinalPrice;
 
             // Convert attribute price adjustments.
             context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
@@ -287,6 +288,12 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             var options = context.Options;
+
+            // A product price cannot be less than zero.
+            if (amount < 0)
+            {
+                amount = 0;
+            }
 
             if (amount != 0)
             {

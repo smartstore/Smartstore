@@ -37,8 +37,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             var product = context.Product;
             var bundleItem = context.BundleItem?.Item;
+            var discountAmount = 0m;
             Discount appliedDiscount = null;
 
+            // Calculate discount amount.
             if (bundleItem != null)
             {
                 if (bundleItem.Discount.HasValue && bundleItem.BundleProduct.BundlePerItemPricing)
@@ -51,8 +53,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     };
 
                     context.AppliedDiscounts.Add(appliedDiscount);
-                    var discountAmount = appliedDiscount.GetDiscountAmount(context.FinalPrice);
-                    context.FinalPrice -= discountAmount;
+                    discountAmount += appliedDiscount.GetDiscountAmount(context.FinalPrice);
                 }
             }
             else if (!_catalogSettings.IgnoreDiscounts && !product.CustomerEntersPrice)
@@ -62,12 +63,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 if (applicableDiscounts.Any())
                 {
                     appliedDiscount = applicableDiscounts.GetPreferredDiscount(context.FinalPrice);
-
                     if (appliedDiscount != null)
                     {
                         context.AppliedDiscounts.Add(appliedDiscount);
-                        var discountAmount = appliedDiscount.GetDiscountAmount(context.FinalPrice);
-                        context.FinalPrice -= discountAmount;
+                        discountAmount += appliedDiscount.GetDiscountAmount(context.FinalPrice);
                     }
                 }
             }
@@ -79,9 +78,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 appliedDiscount != null &&
                 appliedDiscount.UsePercentage)
             {
-                var discountAmount = appliedDiscount.GetDiscountAmount(context.MinTierPrice.Value);
-                context.FinalPrice -= discountAmount;
+                discountAmount += appliedDiscount.GetDiscountAmount(context.MinTierPrice.Value);
             }
+
+            // Apply discount amount, if any.
+            context.DiscountAmount += discountAmount;
+            context.FinalPrice -= discountAmount;
 
             await next(context);
         }

@@ -152,7 +152,9 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// Gets or sets a value indicating whether discount validity checks should be performed.
-        /// Turning this on in larger listings can have heavy impact on calculation performance.
+        /// Turning this on in larger listings can have heavy impact on calculation performance!
+        /// Note, if <c>false</c> then all discounts with requirements (such as coupon code, date range, 
+        /// usage history limitation or rule fulfilment) are ignored during price calculation.
         /// </summary>
         public bool CheckDiscountValidity { get; set; } = true;
 

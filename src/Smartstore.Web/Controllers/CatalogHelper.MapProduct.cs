@@ -576,7 +576,7 @@ namespace Smartstore.Web.Controllers
 
             if (finalPrice != decimal.Zero && model.ShowBasePrice)
             {
-                item.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(contextProduct, null, options.TargetCurrency);
+                item.BasePriceInfo = _priceCalculationService2.GetBasePriceInfo(contextProduct, finalPrice, options.TargetCurrency);
             }
 
             if (settings.MapPrices)
