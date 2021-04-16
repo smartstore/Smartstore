@@ -1,13 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Theming;
+using Smartstore.Utilities;
 using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Controllers
@@ -20,6 +26,9 @@ namespace Smartstore.Web.Controllers
         private readonly IThemeContext _themeContext;
         private readonly IThemeRegistry _themeRegistry;
         private readonly ThemeSettings _themeSettings;
+        private readonly SeoSettings _seoSettings;
+        private readonly LocalizationSettings _localizationSettings;
+        
 
         public CommonController(
             SmartDbContext db,
@@ -28,6 +37,7 @@ namespace Smartstore.Web.Controllers
             IThemeContext themeContext, 
             IThemeRegistry themeRegistry, 
             ThemeSettings themeSettings,
+            SeoSettings seoSettings,
             LocalizationSettings localizationSettings)
         {
             _db = db;
@@ -36,6 +46,8 @@ namespace Smartstore.Web.Controllers
             _themeContext = themeContext;
             _themeRegistry = themeRegistry;
             _themeSettings = themeSettings;
+            _seoSettings = seoSettings;
+            _localizationSettings = localizationSettings;
         }
 
         [Route("browserconfig.xml")]
@@ -71,6 +83,124 @@ namespace Smartstore.Web.Controllers
             var doc = new XDocument(root);
             var xml = doc.ToString(SaveOptions.DisableFormatting);
             return Content(xml, "text/xml");
+        }
+
+        [Route("robots.txt")]
+        public async Task<ActionResult> RobotsTextFile()
+        {
+            #region DisallowPaths
+
+            // TODO: (mh) (core) Check if routes are still the same, when everything is finished. 
+            var disallowPaths = new List<string>()
+            {
+                "/bin/",
+                "/Exchange/",
+                "/Country/GetStatesByCountryId",    
+                "/Install$",
+                "/Product/SetReviewHelpfulness",
+            };
+
+            // TODO: (mh) (core) Check if routes are still the same, when everything is finished. 
+            // TODO: (mh) (core) Some kind of provider is needed here to include module paths here (e.g. Boards, Polls etc.). 
+            var localizableDisallowPaths = new List<string>()
+            {
+                "/Boards/ForumWatch",
+                "/Boards/PostEdit",
+                "/Boards/PostDelete",
+                "/Boards/PostCreate",
+                "/Boards/TopicEdit",
+                "/Boards/TopicDelete",
+                "/Boards/TopicCreate",
+                "/Boards/TopicMove",
+                "/Boards/TopicWatch",
+                "/Cart$",
+                "/Checkout",
+                "/Product/ClearCompareList",
+                "/CompareProducts",
+                "/Customer/Avatar",
+                "/Customer/Activation",
+                "/Customer/Addresses",
+                "/Customer/BackInStockSubscriptions",
+                "/Customer/ChangePassword",
+                "/Customer/CheckUsernameAvailability",
+                "/Customer/DownloadableProducts",
+                "/Customer/ForumSubscriptions",
+                "/Customer/DeleteForumSubscriptions",
+                "/Customer/Info",
+                "/Customer/Orders",
+                "/Customer/ReturnRequests",
+                "/Customer/RewardPoints",
+                "/PrivateMessages",
+                "/Newsletter/SubscriptionActivation",
+                "/Order$",
+                "/PasswordRecovery",
+                "/Poll/Vote",
+                "/ReturnRequest",
+                "/Newsletter/Subscribe",
+                "/Topic/Authenticate",
+                "/Wishlist",
+                "/Product/AskQuestion",
+                "/Product/EmailAFriend",
+                "/Cookiemanager",
+				//"/Search",
+				"/Config$",
+                "/Settings$",
+                "/Login$",
+                "/Login?*",
+                "/Register$",
+                "/Register?*"
+            };
+
+            #endregion
+
+            const string newLine = "\r\n"; //Environment.NewLine
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            sb.Append("User-agent: *");
+            sb.Append(newLine);
+            sb.AppendFormat("Sitemap: {0}", Url.RouteUrl("XmlSitemap", null, Services.StoreContext.CurrentStore.ForceSslForAllPages ? "https" : "http"));
+            sb.AppendLine();
+
+            var disallows = disallowPaths.Concat(localizableDisallowPaths);
+
+            if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
+            {
+                var languages = await _db.Languages
+                    .AsNoTracking()
+                    .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
+                    .ToListAsync();
+
+                // URLs are localizable. Append SEO code
+                foreach (var language in languages)
+                {
+                    disallows = disallows.Concat(localizableDisallowPaths.Select(x => $"/{language.UniqueSeoCode}{x}"));
+                }
+            }
+
+            // Append extra allows & disallows.
+            disallows = disallows.Concat(_seoSettings.ExtraRobotsDisallows.Select(x => x.Trim()));
+
+            AddRobotsLines(sb, disallows, false);
+            AddRobotsLines(sb, _seoSettings.ExtraRobotsAllows.Select(x => x.Trim()), true);
+
+            return Content(sb.ToString(), "text/plain");
+        }
+
+        /// <summary>
+        /// Adds Allow & Disallow lines to robots.txt .
+        /// </summary>
+        /// <param name="lines">Lines to add.</param>
+        /// <param name="allow">Specifies whether new lines are Allows or Disallows.</param>
+        [NonAction]
+        private static void AddRobotsLines(StringBuilder sb, IEnumerable<string> lines, bool allow)
+        {
+            // Append all lowercase variants (at least Google is case sensitive).
+            lines = lines.Union(lines.Select(x => x.ToLower()));
+
+            foreach (var line in lines)
+            {
+                sb.AppendFormat($"{(allow ? "Allow" : "Disallow")}: {line}");
+                sb.Append("\r\n");
+            }
         }
 
         [HttpPost]
@@ -127,5 +257,11 @@ namespace Smartstore.Web.Controllers
 
             return RedirectToReferrer(returnUrl);
         }
+
+        // TODO: (mh) (core) Implement GetUnreadPrivateMessages in forum module
+
+        // TODO: (mh) (core) PdfReceiptHeader, PdfReceiptFooter, PreparePdfReceiptHeaderFooterModel
+
+        // TODO: (mh) (core) CookieManager
     }
 }
