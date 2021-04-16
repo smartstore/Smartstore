@@ -280,6 +280,11 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
+        public IActionResult Sitemap()
+        {
+            return RedirectPermanent(Services.StoreContext.CurrentStore.Url);
+        }
+
         #region Testing area
 
         public async Task<IActionResult> ClearCache()
