@@ -215,7 +215,7 @@
                                             <div class="form-group row">
                                                 <label class="col-md-3 col-form-label" asp-for="DatabaseConnectionString">@InstallService.GetResource("ConnectionString")</label>
                                                 <div class="col-md-9">
-                                                    <input asp-for="DatabaseConnectionString" class="form-control remember" />
+                                                    <textarea asp-for="DatabaseConnectionString" rows="3" class="form-control remember" />
                                                     <small class="form-text text-muted mt-2">
                                                         @InstallService.GetResource("Example"):
                                                         Data Source=sqlServerName;Initial Catalog=dbName;Persist Security Info=True;User

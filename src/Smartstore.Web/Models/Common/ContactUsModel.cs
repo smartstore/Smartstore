@@ -35,8 +35,7 @@ namespace Smartstore.Web.Models.Common
     {
         public ContactUsValidator(PrivacySettings privacySettings)
         {
-            RuleFor(x => x.Email).NotEmpty();
-            RuleFor(x => x.Email).EmailAddress();
+            RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.Enquiry).NotEmpty();
 
             if (privacySettings.FullNameOnContactUsRequired)

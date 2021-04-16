@@ -11,6 +11,8 @@
         <h1 class="h2">@T("PageTitle.ContactUs")</h1>
     </div>
 
+    @await Component.InvokeAsync("TopicBlock", new { systemName = "ContactUs", isLead = true, bodyOnly = true }) 
+
     <div class="page-body">
         <zone name="contactus_top"></zone>
 
