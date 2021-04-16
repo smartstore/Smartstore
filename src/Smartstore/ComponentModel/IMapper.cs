@@ -62,14 +62,14 @@ namespace Smartstore.ComponentModel
         /// <param name="from">The source collection.</param>
         /// <param name="parameters">Custom parameters</param>
         /// <returns>An array of <typeparamref name="TTo"/>.</returns>
-        public static Task<TTo[]> MapArrayAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, IEnumerable<TFrom> from, dynamic parameters = null)
+        public static async Task<TTo[]> MapArrayAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, IEnumerable<TFrom> from, dynamic parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
             Guard.NotNull(mapper, nameof(mapper));
             Guard.NotNull(from, nameof(from));
 
-            return from
+            return await from
                 .SelectAsync<TFrom, TTo>(async x => await MapAsync(mapper, x, parameters))
                 .AsyncToArray();
         }
@@ -83,14 +83,14 @@ namespace Smartstore.ComponentModel
         /// <param name="from">The source collection.</param>
         /// <param name="parameters">Custom parameters</param>
         /// <returns>A list of <typeparamref name="TTo"/>.</returns>
-        public static Task<List<TTo>> MapListAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, IEnumerable<TFrom> from, dynamic parameters = null)
+        public static async Task<List<TTo>> MapListAsync<TFrom, TTo>(this IMapper<TFrom, TTo> mapper, IEnumerable<TFrom> from, dynamic parameters = null)
             where TFrom : class
             where TTo : class, new()
         {
             Guard.NotNull(mapper, nameof(mapper));
             Guard.NotNull(from, nameof(from));
 
-            return from
+            return await from
                 .SelectAsync<TFrom, TTo>(async x => await MapAsync<TFrom, TTo>(mapper, x, parameters))
                 .AsyncToList();
         }
