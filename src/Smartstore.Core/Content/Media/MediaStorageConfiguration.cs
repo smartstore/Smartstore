@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Data;
 using Smartstore.Engine;
@@ -22,8 +18,8 @@ namespace Smartstore.Core.Content.Media
             _httpContextAccessor = httpContextAccessor;
 
             IsCloudStorage = false;
-            PublicPath = GetPublicPath(appContext.AppConfiguration);
-            StoragePath = GetStoragePath(appContext.AppConfiguration, out var pathIsAbsolute);
+            PublicPath = GetPublicPath(appContext);
+            StoragePath = GetStoragePath(appContext, out var pathIsAbsolute);
             StoragePathIsAbsolute = pathIsAbsolute;
             RootPath = pathIsAbsolute 
                 ? StoragePath.Replace('/', '\\')
@@ -36,9 +32,9 @@ namespace Smartstore.Core.Content.Media
         public bool StoragePathIsAbsolute { get; }
         public bool IsCloudStorage { get; }
 
-        private static string GetPublicPath(SmartConfiguration appConfig)
+        private static string GetPublicPath(IApplicationContext appContext)
         {
-            var path = appConfig.MediaPublicPath?.Trim().NullEmpty() ?? "media";
+            var path = appContext.AppConfiguration.MediaPublicPath?.Trim().NullEmpty() ?? "media";
 
             if (path.IsWebUrl())
             {
@@ -48,9 +44,9 @@ namespace Smartstore.Core.Content.Media
             return path.TrimStart('~', '/').Replace('\\', '/').ToLower().EnsureEndsWith('/');
         }
 
-        private static string GetStoragePath(SmartConfiguration appConfig, out bool pathIsAbsolute)
+        private static string GetStoragePath(IApplicationContext appContext, out bool pathIsAbsolute)
         {
-            var path = appConfig.MediaStoragePath?.Trim().NullEmpty();
+            var path = appContext.AppConfiguration.MediaStoragePath?.Trim().NullEmpty();
             if (path == null)
             {
                 path = "App_Data/Tenants/" + DataSettings.Instance.TenantName + "/Media";

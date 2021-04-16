@@ -1,11 +1,12 @@
-﻿using Smartstore.IO;
+﻿using Smartstore.Engine;
+using Smartstore.IO;
 
 namespace Smartstore.Core.Content.Media
 {
     public partial class LocalMediaFileSystem : LocalFileSystem, IMediaFileSystem
     {
-        public LocalMediaFileSystem(IMediaStorageConfiguration storageConfiguration)
-            : base(storageConfiguration.RootPath)
+        public LocalMediaFileSystem(IMediaStorageConfiguration storageConfiguration, IApplicationContext appContext)
+            : base(EnsureRootDirectoryCreated(storageConfiguration, appContext))
         {
             StorageConfiguration = storageConfiguration;
 
@@ -18,5 +19,15 @@ namespace Smartstore.Core.Content.Media
         public IMediaStorageConfiguration StorageConfiguration { get; }
 
         public bool IsCloudStorage => StorageConfiguration.IsCloudStorage;
+
+        private static string EnsureRootDirectoryCreated(IMediaStorageConfiguration storageConfiguration, IApplicationContext appContext)
+        {
+            if (!storageConfiguration.StoragePathIsAbsolute)
+            {
+                appContext.ContentRoot.TryCreateDirectory(storageConfiguration.StoragePath);
+            }
+            
+            return storageConfiguration.RootPath;
+        }
     }
 }

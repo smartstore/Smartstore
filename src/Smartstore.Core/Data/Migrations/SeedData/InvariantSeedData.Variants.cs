@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
 
 namespace Smartstore.Core.Data.Migrations
 {
     public abstract partial class InvariantSeedData
     {
-        public List<ProductAttribute> ProductAttributes()
+        public IList<ProductAttribute> ProductAttributes()
         {
             var entities = new List<ProductAttribute>
             {
@@ -159,10 +157,10 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public async Task<List<ProductAttributeOptionsSet>> ProductAttributeOptionsSets()
+        public IList<ProductAttributeOptionsSet> ProductAttributeOptionsSets()
         {
             var entities = new List<ProductAttributeOptionsSet>();
-            var colorAttribute = await _db.ProductAttributes.FirstAsync(x => x.Alias == "color");
+            var colorAttribute = _db.ProductAttributes.First(x => x.Alias == "color");
 
             entities.Add(new ProductAttributeOptionsSet
             {
@@ -174,11 +172,11 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public async Task<List<ProductAttributeOption>> ProductAttributeOptions()
+        public IList<ProductAttributeOption> ProductAttributeOptions()
         {
             var entities = new List<ProductAttributeOption>();
-            var colorAttribute = await _db.ProductAttributes.FirstAsync(x => x.Alias == "color");
-            var sets = await _db.ProductAttributeOptionsSets.ToListAsync();
+            var colorAttribute = _db.ProductAttributes.First(x => x.Alias == "color");
+            var sets = _db.ProductAttributeOptionsSets.ToList();
 
             var generalColors = new[]
             {
@@ -210,30 +208,30 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public async Task<List<ProductVariantAttribute>> ProductVariantAttributes()
+        public IList<ProductVariantAttribute> ProductVariantAttributes()
         {
             var entities = new List<ProductVariantAttribute>();
-            var attrColor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "color");
-            var attrController = await _db.ProductAttributes.FirstAsync(x => x.Alias == "controller");
-            var attrSize = await _db.ProductAttributes.FirstAsync(x => x.Alias == "size");
-            var attrGames = await _db.ProductAttributes.FirstAsync(x => x.Alias == "game");
-            var attrBallsize = await _db.ProductAttributes.FirstAsync(x => x.Alias == "ballsize");
-            var attrMemoryCapacity = await _db.ProductAttributes.FirstAsync(x => x.Alias == "memory-capacity");
-            var attrLensType = await _db.ProductAttributes.FirstAsync(x => x.Alias == "lenstype");
-            var attrFramecolor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "framecolor");
-            var attrLenscolor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "lenscolor");
-            var attrIphoneColor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "iphone-color");
-            var attr97iPadColor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "ipad-color");
-            var attrWidth = await _db.ProductAttributes.FirstAsync(x => x.Alias == "width");
-            var attrLength = await _db.ProductAttributes.FirstAsync(x => x.Alias == "length");
-            var attrPlate = await _db.ProductAttributes.FirstAsync(x => x.Alias == "plate");
-            var attrPlateThickness = await _db.ProductAttributes.FirstAsync(x => x.Alias == "plate-thickness");
-            var attrLeatherColor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "leather-color");
-            var attrSeatShell = await _db.ProductAttributes.FirstAsync(x => x.Alias == "seat-shell");
-            var attrBase = await _db.ProductAttributes.FirstAsync(x => x.Alias == "base");
-            var attrMaterial = await _db.ProductAttributes.FirstAsync(x => x.Alias == "material");
-            var attrWayfarerLenscolor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "wayfarerlenscolor");
-            var attrWayfarerFramecolor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "wayfarerframecolor");
+            var attrColor = _db.ProductAttributes.First(x => x.Alias == "color");
+            var attrController = _db.ProductAttributes.First(x => x.Alias == "controller");
+            var attrSize = _db.ProductAttributes.First(x => x.Alias == "size");
+            var attrGames = _db.ProductAttributes.First(x => x.Alias == "game");
+            var attrBallsize = _db.ProductAttributes.First(x => x.Alias == "ballsize");
+            var attrMemoryCapacity = _db.ProductAttributes.First(x => x.Alias == "memory-capacity");
+            var attrLensType = _db.ProductAttributes.First(x => x.Alias == "lenstype");
+            var attrFramecolor = _db.ProductAttributes.First(x => x.Alias == "framecolor");
+            var attrLenscolor = _db.ProductAttributes.First(x => x.Alias == "lenscolor");
+            var attrIphoneColor = _db.ProductAttributes.First(x => x.Alias == "iphone-color");
+            var attr97iPadColor = _db.ProductAttributes.First(x => x.Alias == "ipad-color");
+            var attrWidth = _db.ProductAttributes.First(x => x.Alias == "width");
+            var attrLength = _db.ProductAttributes.First(x => x.Alias == "length");
+            var attrPlate = _db.ProductAttributes.First(x => x.Alias == "plate");
+            var attrPlateThickness = _db.ProductAttributes.First(x => x.Alias == "plate-thickness");
+            var attrLeatherColor = _db.ProductAttributes.First(x => x.Alias == "leather-color");
+            var attrSeatShell = _db.ProductAttributes.First(x => x.Alias == "seat-shell");
+            var attrBase = _db.ProductAttributes.First(x => x.Alias == "base");
+            var attrMaterial = _db.ProductAttributes.First(x => x.Alias == "material");
+            var attrWayfarerLenscolor = _db.ProductAttributes.First(x => x.Alias == "wayfarerlenscolor");
+            var attrWayfarerFramecolor = _db.ProductAttributes.First(x => x.Alias == "wayfarerframecolor");
 
             var generalColors = new[]
             {
@@ -258,7 +256,7 @@ namespace Smartstore.Core.Data.Migrations
                 new { Name = "Dark red", Color = "#5e0000" }
             };
 
-            var products = (await _db.Products.ToListAsync()).ToDictionarySafe(x => x.Sku, x => x);
+            var products = (_db.Products.ToList()).ToDictionarySafe(x => x.Sku, x => x);
 
             #region Oakley custom flak
 
@@ -473,7 +471,7 @@ namespace Smartstore.Core.Data.Migrations
             #region Wayfarer
 
             var productWayfarer = products["P-3003"];
-            var wayfarerFramePictures = await _db.MediaFiles.Where(x => x.Name.StartsWith("wayfarer-")).ToListAsync();
+            var wayfarerFramePictures = _db.MediaFiles.Where(x => x.Name.StartsWith("wayfarer-")).ToList();
 
             var attributeWayfarerLenscolor = new ProductVariantAttribute()
             {
@@ -1053,7 +1051,7 @@ namespace Smartstore.Core.Data.Migrations
 
             var productAllStar = products["Fashion-112355"];
             var allStarColors = new string[] { "Charcoal", "Maroon", "Navy", "Purple", "White" };
-            var allStarPictures = await _db.MediaFiles.Where(x => x.Name.StartsWith("allstar-")).ToListAsync();
+            var allStarPictures = _db.MediaFiles.Where(x => x.Name.StartsWith("allstar-")).ToList();
 
             var attrAllStarColor = new ProductVariantAttribute
             {
@@ -1708,38 +1706,38 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public async Task<List<ProductVariantAttributeCombination>> ProductVariantAttributeCombinations()
+        public IList<ProductVariantAttributeCombination> ProductVariantAttributeCombinations()
         {
             var entities = new List<ProductVariantAttributeCombination>();
-            var attrColor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "color");
-            var attrController = await _db.ProductAttributes.FirstAsync(x => x.Alias == "controller");
-            var attrSize = await _db.ProductAttributes.FirstAsync(x => x.Alias == "size");
-            var attrMemoryCapacity = await _db.ProductAttributes.FirstAsync(x => x.Alias == "memory-capacity");
-            var attrColorIphoneColors = await _db.ProductAttributes.FirstAsync(x => x.Alias == "iphone-color");
-            var attr97iPadColors = await _db.ProductAttributes.FirstAsync(x => x.Alias == "ipad-color");
-            var attrPlate = await _db.ProductAttributes.FirstAsync(x => x.Alias == "plate");
-            var attrPlateThickness = await _db.ProductAttributes.FirstAsync(x => x.Alias == "plate-thickness");
-            var attrMaterial = await _db.ProductAttributes.FirstAsync(x => x.Alias == "material");
-            var attrLeatherColor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "leather-color");
-            var attrSeatShell = await _db.ProductAttributes.FirstAsync(x => x.Alias == "seat-shell");
-            var attrBase = await _db.ProductAttributes.FirstAsync(x => x.Alias == "base");
-            var attrFlakLenstype = await _db.ProductAttributes.FirstAsync(x => x.Alias == "lenstype");
-            var attrFlakFramecolor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "framecolor");
-            var attrFlakLenscolor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "lenscolor");
-            var attrWayfarerLenscolor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "wayfarerlenscolor");
-            var attrWayfarerFramecolor = await _db.ProductAttributes.FirstAsync(x => x.Alias == "wayfarerframecolor");
+            var attrColor = _db.ProductAttributes.First(x => x.Alias == "color");
+            var attrController = _db.ProductAttributes.First(x => x.Alias == "controller");
+            var attrSize = _db.ProductAttributes.First(x => x.Alias == "size");
+            var attrMemoryCapacity = _db.ProductAttributes.First(x => x.Alias == "memory-capacity");
+            var attrColorIphoneColors = _db.ProductAttributes.First(x => x.Alias == "iphone-color");
+            var attr97iPadColors = _db.ProductAttributes.First(x => x.Alias == "ipad-color");
+            var attrPlate = _db.ProductAttributes.First(x => x.Alias == "plate");
+            var attrPlateThickness = _db.ProductAttributes.First(x => x.Alias == "plate-thickness");
+            var attrMaterial = _db.ProductAttributes.First(x => x.Alias == "material");
+            var attrLeatherColor = _db.ProductAttributes.First(x => x.Alias == "leather-color");
+            var attrSeatShell = _db.ProductAttributes.First(x => x.Alias == "seat-shell");
+            var attrBase = _db.ProductAttributes.First(x => x.Alias == "base");
+            var attrFlakLenstype = _db.ProductAttributes.First(x => x.Alias == "lenstype");
+            var attrFlakFramecolor = _db.ProductAttributes.First(x => x.Alias == "framecolor");
+            var attrFlakLenscolor = _db.ProductAttributes.First(x => x.Alias == "lenscolor");
+            var attrWayfarerLenscolor = _db.ProductAttributes.First(x => x.Alias == "wayfarerlenscolor");
+            var attrWayfarerFramecolor = _db.ProductAttributes.First(x => x.Alias == "wayfarerframecolor");
 
             #region ORIGINAL WAYFARER AT COLLECTION
 
-            var productWayfarer = await _db.Products.FirstAsync(x => x.Sku == "P-3003");
+            var productWayfarer = _db.Products.First(x => x.Sku == "P-3003");
             var wayfarerPictureIds = productWayfarer.ProductPictures.Select(pp => pp.MediaFileId).ToList();
-            var picturesWayfarer = await _db.MediaFiles.Where(x => wayfarerPictureIds.Contains(x.Id)).ToListAsync();
+            var picturesWayfarer = _db.MediaFiles.Where(x => wayfarerPictureIds.Contains(x.Id)).ToList();
 
-            var wayfarerLenscolor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productWayfarer.Id && x.ProductAttributeId == attrWayfarerLenscolor.Id);
-            var wayfarerLenscolorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == wayfarerLenscolor.Id).ToListAsync();
+            var wayfarerLenscolor = _db.ProductVariantAttributes.First(x => x.ProductId == productWayfarer.Id && x.ProductAttributeId == attrWayfarerLenscolor.Id);
+            var wayfarerLenscolorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == wayfarerLenscolor.Id).ToList();
 
-            var wayfarerFramecolor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productWayfarer.Id && x.ProductAttributeId == attrWayfarerFramecolor.Id);
-            var wayfarerFramecolorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == wayfarerFramecolor.Id).ToListAsync();
+            var wayfarerFramecolor = _db.ProductVariantAttributes.First(x => x.ProductId == productWayfarer.Id && x.ProductAttributeId == attrWayfarerFramecolor.Id);
+            var wayfarerFramecolorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == wayfarerFramecolor.Id).ToList();
 
             #region blue-gray-classic-black
 
@@ -1985,20 +1983,20 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Custom Flak
 
-            var productFlak = await _db.Products.FirstAsync(x => x.Sku == "P-3002");
+            var productFlak = _db.Products.First(x => x.Sku == "P-3002");
             var flakPictureIds = productFlak.ProductPictures.Select(pp => pp.MediaFileId).ToList();
-            var picturesFlak = await _db.MediaFiles.Where(x => flakPictureIds.Contains(x.Id)).ToListAsync();
+            var picturesFlak = _db.MediaFiles.Where(x => flakPictureIds.Contains(x.Id)).ToList();
 
             //var attributeColorIphone7Plus = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrColor.Id);
 
-            var flakLenscolor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productFlak.Id && x.ProductAttributeId == attrFlakLenscolor.Id);
-            var flakLenscolorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == flakLenscolor.Id).ToListAsync();
+            var flakLenscolor = _db.ProductVariantAttributes.First(x => x.ProductId == productFlak.Id && x.ProductAttributeId == attrFlakLenscolor.Id);
+            var flakLenscolorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == flakLenscolor.Id).ToList();
 
-            var flakLenstype = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productFlak.Id && x.ProductAttributeId == attrFlakLenstype.Id);
-            var flakLenstypeValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == flakLenstype.Id).ToListAsync();
+            var flakLenstype = _db.ProductVariantAttributes.First(x => x.ProductId == productFlak.Id && x.ProductAttributeId == attrFlakLenstype.Id);
+            var flakLenstypeValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == flakLenstype.Id).ToList();
 
-            var flakFramecolor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productFlak.Id && x.ProductAttributeId == attrFlakFramecolor.Id);
-            var flakFramecolorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == flakFramecolor.Id).ToListAsync();
+            var flakFramecolor = _db.ProductVariantAttributes.First(x => x.ProductId == productFlak.Id && x.ProductAttributeId == attrFlakFramecolor.Id);
+            var flakFramecolorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == flakFramecolor.Id).ToList();
 
             //#region matteblack-gray-standard
 
@@ -2042,12 +2040,12 @@ namespace Smartstore.Core.Data.Migrations
 
             #region ps3
 
-            var productPs3 = await _db.Products.FirstAsync(x => x.Sku == "Sony-PS399000");
+            var productPs3 = _db.Products.First(x => x.Sku == "Sony-PS399000");
             var ps3PictureIds = productPs3.ProductPictures.Select(pp => pp.MediaFileId).ToList();
-            var picturesPs3 = await _db.MediaFiles.Where(x => ps3PictureIds.Contains(x.Id)).ToListAsync();
+            var picturesPs3 = _db.MediaFiles.Where(x => ps3PictureIds.Contains(x.Id)).ToList();
 
-            var productAttributeColor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productPs3.Id && x.ProductAttributeId == attrController.Id);
-            var attributeColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == productAttributeColor.Id).ToListAsync();
+            var productAttributeColor = _db.ProductVariantAttributes.First(x => x.ProductId == productPs3.Id && x.ProductAttributeId == attrController.Id);
+            var attributeColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == productAttributeColor.Id).ToList();
 
             entities.Add(new ProductVariantAttributeCombination()
             {
@@ -2081,12 +2079,12 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Apple Airpod
 
-            var productAirpod = await _db.Products.FirstAsync(x => x.Sku == "P-2003");
+            var productAirpod = _db.Products.First(x => x.Sku == "P-2003");
             var airpodPictureIds = productAirpod.ProductPictures.Select(pp => pp.MediaFileId).ToList();
-            var picturesAirpod = await _db.MediaFiles.Where(x => airpodPictureIds.Contains(x.Id)).ToListAsync();
+            var picturesAirpod = _db.MediaFiles.Where(x => airpodPictureIds.Contains(x.Id)).ToList();
 
-            var airpodAttributeColor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productAirpod.Id && x.ProductAttributeId == attrColor.Id);
-            var airpodAttributeColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == airpodAttributeColor.Id).ToListAsync();
+            var airpodAttributeColor = _db.ProductVariantAttributes.First(x => x.ProductId == productAirpod.Id && x.ProductAttributeId == attrColor.Id);
+            var airpodAttributeColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == airpodAttributeColor.Id).ToList();
 
             entities.Add(new ProductVariantAttributeCombination()
             {
@@ -2171,17 +2169,17 @@ namespace Smartstore.Core.Data.Migrations
 
             #region 9,7 Ipad
 
-            var productiPad97 = await _db.Products.FirstAsync(x => x.Sku == "P-2004");
+            var productiPad97 = _db.Products.First(x => x.Sku == "P-2004");
             var iPad97PictureIds = productiPad97.ProductPictures.Select(pp => pp.MediaFileId).ToList();
-            var picturesiPad97 = await _db.MediaFiles.Where(x => iPad97PictureIds.Contains(x.Id)).ToListAsync();
+            var picturesiPad97 = _db.MediaFiles.Where(x => iPad97PictureIds.Contains(x.Id)).ToList();
 
             //var attributeColorIphone7Plus = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrColor.Id);
 
-            var iPad97Color = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productiPad97.Id && x.ProductAttributeId == attr97iPadColors.Id);
-            var iPad97ColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == iPad97Color.Id).ToListAsync();
+            var iPad97Color = _db.ProductVariantAttributes.First(x => x.ProductId == productiPad97.Id && x.ProductAttributeId == attr97iPadColors.Id);
+            var iPad97ColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == iPad97Color.Id).ToList();
 
-            var ipad97Capacity = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productiPad97.Id && x.ProductAttributeId == attrMemoryCapacity.Id);
-            var iPad97CapacityValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ipad97Capacity.Id).ToListAsync();
+            var ipad97Capacity = _db.ProductVariantAttributes.First(x => x.ProductId == productiPad97.Id && x.ProductAttributeId == attrMemoryCapacity.Id);
+            var iPad97CapacityValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ipad97Capacity.Id).ToList();
 
             #region silver
             entities.Add(new ProductVariantAttributeCombination()
@@ -2478,17 +2476,17 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Iphone 7 plus
 
-            var productIphone7Plus = await _db.Products.FirstAsync(x => x.Sku == "P-2001");
+            var productIphone7Plus = _db.Products.First(x => x.Sku == "P-2001");
             var Iphone7PlusPictureIds = productIphone7Plus.ProductPictures.Select(pp => pp.MediaFileId).ToList();
-            var picturesIphone7Plus = await _db.MediaFiles.Where(x => Iphone7PlusPictureIds.Contains(x.Id)).ToListAsync();
+            var picturesIphone7Plus = _db.MediaFiles.Where(x => Iphone7PlusPictureIds.Contains(x.Id)).ToList();
 
             //var attributeColorIphone7Plus = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrColor.Id);
 
-            var Iphone7PlusColor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrColorIphoneColors.Id);
-            var Iphone7PlusColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == Iphone7PlusColor.Id).ToListAsync();
+            var Iphone7PlusColor = _db.ProductVariantAttributes.First(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrColorIphoneColors.Id);
+            var Iphone7PlusColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == Iphone7PlusColor.Id).ToList();
 
-            var Iphone7PlusCapacity = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrMemoryCapacity.Id);
-            var Iphone7PlusCapacityValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == Iphone7PlusCapacity.Id).ToListAsync();
+            var Iphone7PlusCapacity = _db.ProductVariantAttributes.First(x => x.ProductId == productIphone7Plus.Id && x.ProductAttributeId == attrMemoryCapacity.Id);
+            var Iphone7PlusCapacityValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == Iphone7PlusCapacity.Id).ToList();
 
 
             entities.Add(new ProductVariantAttributeCombination()
@@ -2646,15 +2644,15 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Fashion - Converse All Star
 
-            var productAllStar = await _db.Products.FirstAsync(x => x.Sku == "Fashion-112355");
+            var productAllStar = _db.Products.First(x => x.Sku == "Fashion-112355");
             var allStarPictureIds = productAllStar.ProductPictures.Select(x => x.MediaFileId).ToList();
-            var allStarPictures = await _db.MediaFiles.Where(x => allStarPictureIds.Contains(x.Id)).ToListAsync();
+            var allStarPictures = _db.MediaFiles.Where(x => allStarPictureIds.Contains(x.Id)).ToList();
 
-            var allStarColor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productAllStar.Id && x.ProductAttributeId == attrColor.Id);
-            var allStarColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == allStarColor.Id).ToListAsync();
+            var allStarColor = _db.ProductVariantAttributes.First(x => x.ProductId == productAllStar.Id && x.ProductAttributeId == attrColor.Id);
+            var allStarColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == allStarColor.Id).ToList();
 
-            var allStarSize = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productAllStar.Id && x.ProductAttributeId == attrSize.Id);
-            var allStarSizeValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == allStarSize.Id).ToListAsync();
+            var allStarSize = _db.ProductVariantAttributes.First(x => x.ProductId == productAllStar.Id && x.ProductAttributeId == attrSize.Id);
+            var allStarSizeValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == allStarSize.Id).ToList();
 
             var allStarCombinations = new[]
             {
@@ -2698,15 +2696,15 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Fashion - Shirt Meccanica
 
-            var productShirtMeccanica = await _db.Products.FirstAsync(x => x.Sku == "Fashion-987693502");
+            var productShirtMeccanica = _db.Products.First(x => x.Sku == "Fashion-987693502");
             var shirtMeccanicaPictureIds = productShirtMeccanica.ProductPictures.Select(x => x.MediaFileId).ToList();
-            var shirtMeccanicaPictures = await _db.MediaFiles.Where(x => shirtMeccanicaPictureIds.Contains(x.Id)).ToListAsync();
+            var shirtMeccanicaPictures = _db.MediaFiles.Where(x => shirtMeccanicaPictureIds.Contains(x.Id)).ToList();
 
-            var shirtMeccanicaColor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productShirtMeccanica.Id && x.ProductAttributeId == attrColor.Id);
-            var shirtMeccanicaColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == shirtMeccanicaColor.Id).ToListAsync();
+            var shirtMeccanicaColor = _db.ProductVariantAttributes.First(x => x.ProductId == productShirtMeccanica.Id && x.ProductAttributeId == attrColor.Id);
+            var shirtMeccanicaColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == shirtMeccanicaColor.Id).ToList();
 
-            var shirtMeccanicaSize = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productShirtMeccanica.Id && x.ProductAttributeId == attrSize.Id);
-            var shirtMeccanicaSizeValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == shirtMeccanicaSize.Id).ToListAsync();
+            var shirtMeccanicaSize = _db.ProductVariantAttributes.First(x => x.ProductId == productShirtMeccanica.Id && x.ProductAttributeId == attrSize.Id);
+            var shirtMeccanicaSizeValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == shirtMeccanicaSize.Id).ToList();
 
             var shirtMeccanicaCombinations = new[]
             {
@@ -2748,15 +2746,15 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Fashion - Ladies Jacket
 
-            var productLadiesJacket = await _db.Products.FirstAsync(x => x.Sku == "Fashion-JN1107");
+            var productLadiesJacket = _db.Products.First(x => x.Sku == "Fashion-JN1107");
             var ladiesJacketPictureIds = productLadiesJacket.ProductPictures.Select(x => x.MediaFileId).ToList();
-            var ladiesJacketPictures = await _db.MediaFiles.Where(x => ladiesJacketPictureIds.Contains(x.Id)).ToListAsync();
+            var ladiesJacketPictures = _db.MediaFiles.Where(x => ladiesJacketPictureIds.Contains(x.Id)).ToList();
 
-            var ladiesJacketColor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productLadiesJacket.Id && x.ProductAttributeId == attrColor.Id);
-            var ladiesJacketColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ladiesJacketColor.Id).ToListAsync();
+            var ladiesJacketColor = _db.ProductVariantAttributes.First(x => x.ProductId == productLadiesJacket.Id && x.ProductAttributeId == attrColor.Id);
+            var ladiesJacketColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ladiesJacketColor.Id).ToList();
 
-            var ladiesJacketSize = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productLadiesJacket.Id && x.ProductAttributeId == attrSize.Id);
-            var ladiesJacketSizeValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ladiesJacketSize.Id).ToListAsync();
+            var ladiesJacketSize = _db.ProductVariantAttributes.First(x => x.ProductId == productLadiesJacket.Id && x.ProductAttributeId == attrSize.Id);
+            var ladiesJacketSizeValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ladiesJacketSize.Id).ToList();
 
             var ladiesJacketCombinations = new[]
             {
@@ -2822,13 +2820,13 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Furniture - Le Corbusier LC 6 table
 
-            var productCorbusierTable = await _db.Products.FirstAsync(x => x.Sku == "Furniture-lc6");
+            var productCorbusierTable = _db.Products.First(x => x.Sku == "Furniture-lc6");
 
-            var corbusierTablePlate = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productCorbusierTable.Id && x.ProductAttributeId == attrPlate.Id);
-            var corbusierTablePlateValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == corbusierTablePlate.Id).ToListAsync();
+            var corbusierTablePlate = _db.ProductVariantAttributes.First(x => x.ProductId == productCorbusierTable.Id && x.ProductAttributeId == attrPlate.Id);
+            var corbusierTablePlateValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == corbusierTablePlate.Id).ToList();
 
-            var corbusierTablePlateThickness = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productCorbusierTable.Id && x.ProductAttributeId == attrPlateThickness.Id);
-            var corbusierTablePlateThicknessValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == corbusierTablePlateThickness.Id).ToListAsync();
+            var corbusierTablePlateThickness = _db.ProductVariantAttributes.First(x => x.ProductId == productCorbusierTable.Id && x.ProductAttributeId == attrPlateThickness.Id);
+            var corbusierTablePlateThicknessValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == corbusierTablePlateThickness.Id).ToList();
 
             entities.Add(new ProductVariantAttributeCombination
             {
@@ -2891,15 +2889,15 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Soccer Adidas TANGO SALA BALL
 
-            var productAdidasTANGOSALABALL = await _db.Products.FirstAsync(x => x.Sku == "P-5001");
+            var productAdidasTANGOSALABALL = _db.Products.First(x => x.Sku == "P-5001");
             var adidasTANGOSALABALLPictureIds = productAdidasTANGOSALABALL.ProductPictures.Select(x => x.MediaFileId).ToList();
-            var adidasTANGOSALABALLJacketPictures = await _db.MediaFiles.Where(x => adidasTANGOSALABALLPictureIds.Contains(x.Id)).ToListAsync();
+            var adidasTANGOSALABALLJacketPictures = _db.MediaFiles.Where(x => adidasTANGOSALABALLPictureIds.Contains(x.Id)).ToList();
 
-            var adidasTANGOSALABALLColor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productAdidasTANGOSALABALL.Id && x.ProductAttributeId == attrColor.Id);
-            var adidasTANGOSALABALLColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == adidasTANGOSALABALLColor.Id).ToListAsync();
+            var adidasTANGOSALABALLColor = _db.ProductVariantAttributes.First(x => x.ProductId == productAdidasTANGOSALABALL.Id && x.ProductAttributeId == attrColor.Id);
+            var adidasTANGOSALABALLColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == adidasTANGOSALABALLColor.Id).ToList();
 
-            var adidasTANGOSALABALLSize = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productAdidasTANGOSALABALL.Id && x.ProductAttributeId == attrSize.Id);
-            var adidasTANGOSALABALLSizeValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == adidasTANGOSALABALLSize.Id).ToListAsync();
+            var adidasTANGOSALABALLSize = _db.ProductVariantAttributes.First(x => x.ProductId == productAdidasTANGOSALABALL.Id && x.ProductAttributeId == attrSize.Id);
+            var adidasTANGOSALABALLSizeValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == adidasTANGOSALABALLSize.Id).ToList();
 
             var adidasTANGOSALABALLCombinations = new[]
             {
@@ -2958,15 +2956,15 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Soccer Torfabrik official game ball
 
-            var productTorfabrikBall = await _db.Products.FirstAsync(x => x.Sku == "P-5002");
+            var productTorfabrikBall = _db.Products.First(x => x.Sku == "P-5002");
             var torfabrikBallPictureIds = productTorfabrikBall.ProductPictures.Select(x => x.MediaFileId).ToList();
-            var torfabrikBallPictures = await _db.MediaFiles.Where(x => torfabrikBallPictureIds.Contains(x.Id)).ToListAsync();
+            var torfabrikBallPictures = _db.MediaFiles.Where(x => torfabrikBallPictureIds.Contains(x.Id)).ToList();
 
-            var torfabrikBallColor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productTorfabrikBall.Id && x.ProductAttributeId == attrColor.Id);
-            var torfabrikBallColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == torfabrikBallColor.Id).ToListAsync();
+            var torfabrikBallColor = _db.ProductVariantAttributes.First(x => x.ProductId == productTorfabrikBall.Id && x.ProductAttributeId == attrColor.Id);
+            var torfabrikBallColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == torfabrikBallColor.Id).ToList();
 
-            var torfabrikBallSize = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productTorfabrikBall.Id && x.ProductAttributeId == attrSize.Id);
-            var torfabrikBallSizeValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == torfabrikBallSize.Id).ToListAsync();
+            var torfabrikBallSize = _db.ProductVariantAttributes.First(x => x.ProductId == productTorfabrikBall.Id && x.ProductAttributeId == attrSize.Id);
+            var torfabrikBallSizeValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == torfabrikBallSize.Id).ToList();
 
             var torfabrikBallSizeCombinations = new[]
             {
@@ -3017,18 +3015,18 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Furniture - Ball chair
 
-            var productBallChair = await _db.Products.FirstAsync(x => x.Sku == "Furniture-ball-chair");
+            var productBallChair = _db.Products.First(x => x.Sku == "Furniture-ball-chair");
             var ballChairPictureIds = productBallChair.ProductPictures.Select(x => x.MediaFileId).ToList();
-            var ballChairPictures = await _db.MediaFiles.Where(x => ballChairPictureIds.Contains(x.Id)).ToListAsync();
+            var ballChairPictures = _db.MediaFiles.Where(x => ballChairPictureIds.Contains(x.Id)).ToList();
 
-            var ballChairMaterial = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productBallChair.Id && x.ProductAttributeId == attrMaterial.Id);
-            var ballChairMaterialValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ballChairMaterial.Id).ToListAsync();
+            var ballChairMaterial = _db.ProductVariantAttributes.First(x => x.ProductId == productBallChair.Id && x.ProductAttributeId == attrMaterial.Id);
+            var ballChairMaterialValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ballChairMaterial.Id).ToList();
 
-            var ballChairColor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productBallChair.Id && x.ProductAttributeId == attrColor.Id);
-            var ballChairColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ballChairColor.Id).ToListAsync();
+            var ballChairColor = _db.ProductVariantAttributes.First(x => x.ProductId == productBallChair.Id && x.ProductAttributeId == attrColor.Id);
+            var ballChairColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ballChairColor.Id).ToList();
 
-            var ballChairLeatherColor = await _db.ProductVariantAttributes.FirstAsync(x => x.ProductId == productBallChair.Id && x.ProductAttributeId == attrLeatherColor.Id);
-            var ballChairLeatherColorValues = await _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ballChairLeatherColor.Id).ToListAsync();
+            var ballChairLeatherColor = _db.ProductVariantAttributes.First(x => x.ProductId == productBallChair.Id && x.ProductAttributeId == attrLeatherColor.Id);
+            var ballChairLeatherColorValues = _db.ProductVariantAttributeValues.Where(x => x.ProductVariantAttributeId == ballChairLeatherColor.Id).ToList();
 
             foreach (var materialValue in ballChairMaterialValues)
             {

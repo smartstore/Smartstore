@@ -100,7 +100,7 @@ namespace Smartstore.Web.Controllers
         [IgnoreAntiforgeryToken]
         public async Task<JsonResult> Install(InstallationModel model)
         {
-            var result = await _installService.InstallAsync(model);
+            var result = await _installService.InstallAsync(model, HttpContext.RequestServices.AsLifetimeScope());
             return Json(result);
         }
 

@@ -5,7 +5,7 @@ namespace Smartstore.Core.Data.Migrations
 {
     public abstract partial class InvariantSeedData
     {
-        public List<Country> Countries()
+        public IList<Country> Countries()
         {
             var usa = new Country
             {

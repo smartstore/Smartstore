@@ -97,68 +97,76 @@ namespace Smartstore.Core.Configuration
         /// <inheritdoc/>
         public async Task<int> SaveSettingsAsync<T>(T settings, int storeId = 0) where T : ISettings, new()
         {
-            Guard.NotNull(settings, nameof(settings));
-
             // INFO: Let SettingService's hook handler handle cache invalidation
-
-            var settingsType = typeof(T);
-            var prefix = settingsType.Name;
-            var hasChanges = false;
-
             using (GetOrCreateDbContext(out var db))
             {
-                var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, false, true);
-
-                foreach (var prop in FastProperty.GetProperties(settingsType).Values)
-                {
-                    // Get only properties we can read and write to
-                    if (!prop.IsPublicSettable)
-                        continue;
-
-                    var converter = TypeConverterFactory.GetConverter(prop.Property.PropertyType);
-                    if (converter == null || !converter.CanConvertFrom(typeof(string)))
-                        continue;
-
-                    string key = prefix + "." + prop.Name;
-                    string currentValue = prop.GetValue(settings).Convert<string>();
-
-                    if (rawSettings.TryGetValue(key, out var setting))
-                    {
-                        if (setting.Value != currentValue)
-                        {
-                            // Update
-                            setting.Value = currentValue;
-                            hasChanges = true;
-                        }
-                    }
-                    else
-                    {
-                        // Insert
-                        setting = new Setting
-                        {
-                            Name = key.ToLowerInvariant(),
-                            Value = currentValue,
-                            StoreId = storeId
-                        };
-
-                        hasChanges = true;
-                        db.Settings.Add(setting);
-                    }
-                }
-
-                var numSaved = hasChanges ? await db.SaveChangesAsync() : 0;
-
+                var numSaved = await SaveSettingsAsync(db, settings, storeId);
                 if (numSaved > 0)
                 {
                     // Prevent reloading from DB on next hit
                     await _cache.PutAsync(
-                        SettingService.BuildCacheKeyForClassAccess(settingsType, storeId),
+                        SettingService.BuildCacheKeyForClassAccess(typeof(T), storeId),
                         settings,
                         new CacheEntryOptions().ExpiresIn(SettingService.DefaultExpiry));
                 }
 
                 return numSaved;
             }
+        }
+
+        /// <summary>
+        /// Internal API.
+        /// </summary>
+        public static async Task<int> SaveSettingsAsync(SmartDbContext db, ISettings settings, int storeId = 0)
+        {
+            Guard.NotNull(db, nameof(db));
+            Guard.NotNull(settings, nameof(settings));
+
+            var settingsType = settings.GetType();
+            var prefix = settingsType.Name;
+            var hasChanges = false;
+
+            var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, false, true);
+
+            foreach (var prop in FastProperty.GetProperties(settingsType).Values)
+            {
+                // Get only properties we can read and write to
+                if (!prop.IsPublicSettable)
+                    continue;
+
+                var converter = TypeConverterFactory.GetConverter(prop.Property.PropertyType);
+                if (converter == null || !converter.CanConvertFrom(typeof(string)))
+                    continue;
+
+                string key = prefix + "." + prop.Name;
+                string currentValue = prop.GetValue(settings).Convert<string>();
+
+                if (rawSettings.TryGetValue(key, out var setting))
+                {
+                    if (setting.Value != currentValue)
+                    {
+                        // Update
+                        setting.Value = currentValue;
+                        hasChanges = true;
+                    }
+                }
+                else
+                {
+                    // Insert
+                    setting = new Setting
+                    {
+                        Name = key.ToLowerInvariant(),
+                        Value = currentValue,
+                        StoreId = storeId
+                    };
+
+                    hasChanges = true;
+                    db.Settings.Add(setting);
+                }
+            }
+
+            var numSaved = hasChanges ? await db.SaveChangesAsync() : 0;
+            return numSaved;
         }
 
         #region Utils

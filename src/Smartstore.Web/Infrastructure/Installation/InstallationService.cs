@@ -6,17 +6,24 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Caching;
 using Smartstore.Core;
 using Smartstore.Core.Common.Hooks;
+using Smartstore.Core.Configuration;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Providers;
@@ -56,7 +63,7 @@ namespace Smartstore.Web.Infrastructure.Installation
 
         #region Installation
 
-        public virtual async Task<InstallationResult> InstallAsync(InstallationModel model)
+        public virtual async Task<InstallationResult> InstallAsync(InstallationModel model, ILifetimeScope scope)
         {
             // TODO: (core) CancellationToken
             Guard.NotNull(model, nameof(model));
@@ -178,11 +185,8 @@ namespace Smartstore.Web.Infrastructure.Installation
                     _appContext.AppConfiguration.DbMigrationCommandTimeout, 
                     HistoryRepository.DefaultTableName + "_Core"); // TODO: (core) Make const for core migration table name
 
-                // AuditableHook must run during install
-                dbContext.DbHookHandler = new DefaultDbHookHandler(new[]
-                {
-                    new Lazy<IDbSaveHook, HookMetadata>(() => new AuditableHook(), HookMetadata.Create<AuditableHook, SmartDbContext>(typeof(IAuditable), HookImportance.Essential), false)
-                });
+                // Delete only on failure if WE created the database.
+                shouldDeleteDbOnFailure = !await dbContext.Database.CanConnectAsync();
 
                 // Create Language domain object from lazyLanguage
                 var languages = dbContext.Languages;
@@ -221,6 +225,27 @@ namespace Smartstore.Web.Infrastructure.Installation
                 await seeder.SeedAsync(dbContext);
 
                 // ...
+
+                // Detect media file tracks (must come after plugins installation)
+                UpdateResult(x =>
+                {
+                    x.ProgressMessage = GetResource("Progress.ProcessingMedia");
+                    Logger.Info(x.ProgressMessage);
+                });
+
+                using (var scope2 = scope.BeginLifetimeScope(c => 
+                { 
+                    c.RegisterInstance(dbContext);
+                    c.Register<IStoreContext>(cc => new StoreContext(cc.Resolve<ICacheFactory>(), null, _httpContextAccessor, cc.Resolve<IActionContextAccessor>()));
+                    c.Register<ISettingFactory>(cc => new SettingFactory(cc.Resolve<ICacheManager>(), null, _httpContextAccessor));
+                }))
+                {
+                    var mediaTracker = scope2.Resolve<IMediaTracker>();
+                    foreach (var album in scope2.Resolve<IAlbumRegistry>().GetAlbumNames(true))
+                    {
+                        await mediaTracker.DetectAllTracksAsync(album);
+                    }
+                }
 
                 UpdateResult(x =>
                 {

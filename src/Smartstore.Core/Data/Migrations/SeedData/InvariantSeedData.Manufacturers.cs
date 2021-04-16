@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Discounts;
 
@@ -9,13 +7,13 @@ namespace Smartstore.Core.Data.Migrations
 {
     public abstract partial class InvariantSeedData
     {
-        public async Task<List<Manufacturer>> Manufacturers()
+        public IList<Manufacturer> Manufacturers()
         {
             var imagesPath = _sampleImagesPath;
             var gridOrLinesTemplate = ManufacturerTemplates().Where(x => x.ViewPath == "ManufacturerTemplate.ProductsInGridOrLines").FirstOrDefault();
-            var discounts = await _db.Discounts
+            var discounts = _db.Discounts
                 .Where(x => x.DiscountTypeId == (int)DiscountType.AssignedToManufacturers)
-                .ToListAsync();
+                .ToList();
 
             var manufacturerJackWolfskin = new Manufacturer
             {

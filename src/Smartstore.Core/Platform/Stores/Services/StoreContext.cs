@@ -4,12 +4,14 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Stores
 {
@@ -118,7 +120,7 @@ namespace Smartstore.Core.Stores
                 
                 var entry = new StoreEntityCache();
 
-                using (var db = _dbContextFactory.CreateDbContext())
+                using (GetOrCreateDbContext(out var db))
                 {
                     db.ChangeTracker.LazyLoadingEnabled = false;
 
@@ -199,6 +201,21 @@ namespace Smartstore.Core.Stores
         {
             _httpContextAccessor.HttpContext.SetPreviewModeValueInCookie(OverriddenStoreIdKey, storeId.HasValue ? storeId.Value.ToString() : null);
             _currentStore = null;
+        }
+
+        private IDisposable GetOrCreateDbContext(out SmartDbContext db)
+        {
+            db = _httpContextAccessor.HttpContext?.RequestServices?.GetService<SmartDbContext>();
+
+            if (db != null)
+            {
+                // Don't dispose request scoped main db instance.
+                return ActionDisposable.Empty;
+            }
+
+            db = _dbContextFactory.CreateDbContext();
+
+            return db;
         }
     }
 }

@@ -5,7 +5,7 @@ namespace Smartstore.Core.Data.Migrations
 {
     public abstract partial class InvariantSeedData
     {
-        public List<SpecificationAttribute> SpecificationAttributes()
+        public IList<SpecificationAttribute> SpecificationAttributes()
         {
             #region sa1 CPU-Manufacturer
 

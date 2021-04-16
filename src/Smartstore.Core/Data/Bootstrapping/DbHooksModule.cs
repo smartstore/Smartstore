@@ -36,7 +36,7 @@ namespace Smartstore.Core.Bootstrapping
                 var importantAttribute = hookType.GetAttribute<ImportantAttribute>(false);
 
                 // Essential hooks must run during installation
-                var shouldRegister = appInstalled || importantAttribute.Importance == HookImportance.Essential;
+                var shouldRegister = appInstalled || importantAttribute?.Importance == HookImportance.Essential;
                 if (!shouldRegister)
                 {
                     continue;

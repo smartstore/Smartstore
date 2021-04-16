@@ -31,6 +31,7 @@ namespace Smartstore.Core.Identity
             Guard.NotNull(query, nameof(query));
 
             var includableQuery = query
+                .AsSplitQuery()
                 .Include(x => x.ShoppingCartItems)
                     .ThenInclude(x => x.Product)
                     .ThenInclude(x => x.AppliedDiscounts)

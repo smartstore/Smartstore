@@ -1903,7 +1903,7 @@ namespace Smartstore.Web.Infrastructure.Installation
                     "imprint" => "impressum",
                     "disclaimer" => "widerrufsrecht",
                     "paymentinfo" => "zahlungsarten",
-                    _ => throw new NotImplementedException(),
+                    _ => entity.Slug,
                 };
             }
         }
@@ -1913,9 +1913,9 @@ namespace Smartstore.Web.Infrastructure.Installation
         {
             base.Alter(settings);
 
-            var defaultDimensionId = DbContext.Set<MeasureDimension>().FirstOrDefault(x => x.SystemKeyword == "m")?.Id;
-            var defaultWeightId = DbContext.Set<MeasureWeight>().FirstOrDefault(x => x.SystemKeyword == "kg")?.Id;
-            var defaultCountryId = DbContext.Set<Country>().FirstOrDefault(x => x.TwoLetterIsoCode == "DE")?.Id;
+            var defaultDimensionId = DbContext.MeasureDimensions.FirstOrDefault(x => x.SystemKeyword == "m")?.Id;
+            var defaultWeightId = DbContext.MeasureWeights.FirstOrDefault(x => x.SystemKeyword == "kg")?.Id;
+            var defaultCountryId = DbContext.Countries.FirstOrDefault(x => x.TwoLetterIsoCode == "DE")?.Id;
 
             settings
                 .Alter<MeasureSettings>(x =>

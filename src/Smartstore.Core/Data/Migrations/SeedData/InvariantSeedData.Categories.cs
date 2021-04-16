@@ -11,7 +11,7 @@ namespace Smartstore.Core.Data.Migrations
 {
     public abstract partial class InvariantSeedData
     {
-        public async Task<List<Category>> CategoriesFirstLevel()
+        public IList<Category> CategoriesFirstLevel()
         {
             var imagesPath = _sampleImagesPath;
             var gridOrLinesTemplate = CategoryTemplates().Where(pt => pt.ViewPath == "CategoryTemplate.ProductsInGridOrLines").FirstOrDefault();
@@ -138,7 +138,7 @@ namespace Smartstore.Core.Data.Migrations
                 BadgeStyle = 5
             };
 
-            var saleRuleSet = await _db.RuleSets.FirstOrDefaultAsync(x => x.Scope == RuleScope.Product && x.Name == "Sale");
+            var saleRuleSet = _db.RuleSets.FirstOrDefault(x => x.Scope == RuleScope.Product && x.Name == "Sale");
             if (saleRuleSet != null)
             {
                 categorySale.RuleSets.Add(saleRuleSet);
@@ -177,12 +177,12 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public async Task<List<Category>> CategoriesSecondLevel()
+        public IList<Category> CategoriesSecondLevel()
         {
             var imagesPath = _sampleImagesPath;
             var gridOrLinesTemplate = CategoryTemplates().Where(pt => pt.ViewPath == "CategoryTemplate.ProductsInGridOrLines").FirstOrDefault();
-            var categories = (await _db.Categories.ToListAsync()).ToDictionarySafe(x => x.Alias, x => x);
-            var discounts = await _db.Discounts.Where(x => x.DiscountTypeId == (int)DiscountType.AssignedToCategories).ToListAsync();
+            var categories = (_db.Categories.ToList()).ToDictionarySafe(x => x.Alias, x => x);
+            var discounts = _db.Discounts.Where(x => x.DiscountTypeId == (int)DiscountType.AssignedToCategories).ToList();
 
             var categoryFashionJackets = new Category
             {

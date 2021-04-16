@@ -1,7 +1,5 @@
 ﻿using System.Linq;
 using Smartstore.Core.Catalog.Brands;
-using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Pricing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core.Identity;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Autofac;
 using Smartstore.Core.Data.Migrations;
 
 namespace Smartstore.Web.Infrastructure.Installation
@@ -10,7 +11,7 @@ namespace Smartstore.Web.Infrastructure.Installation
     /// </summary>
     public partial interface IInstallationService
     {
-        Task<InstallationResult> InstallAsync(InstallationModel model);
+        Task<InstallationResult> InstallAsync(InstallationModel model, ILifetimeScope scope);
 
         string GetResource(string resourceName);
 

@@ -63,10 +63,12 @@ namespace Smartstore.Core.Bootstrapping
             }
             else
             {
-                builder.Register<Func<IMediaStorageProvider>>(c => () =>
-                    new FileSystemMediaStorageProvider(
-                        c.ResolveNamed<IMediaFileSystem>("local"),
-                        c.Resolve<AsyncRunner>()));
+                builder.Register<Func<IMediaStorageProvider>>(c =>
+                {
+                    var fs = c.ResolveNamed<IMediaFileSystem>("local");
+                    var asyncRunner = c.Resolve<AsyncRunner>();
+                    return () => new FileSystemMediaStorageProvider(fs, asyncRunner);
+                });
             }
 
             // Register all album providers

@@ -15,9 +15,6 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal sealed class IdentityStarter : StarterBase
     {
-        public override bool Matches(IApplicationContext appContext)
-            => appContext.IsInstalled;
-
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext, bool isActiveModule)
         {
             services.AddIdentity<Customer, CustomerRole>()
@@ -30,23 +27,26 @@ namespace Smartstore.Core.Bootstrapping
 
             services.AddSingleton<IConfigureOptions<IdentityOptions>, IdentityOptionsConfigurer>();
 
-            services.ConfigureApplicationCookie(options =>
+            if (appContext.IsInstalled)
             {
-                options.Cookie.Name = CookieNames.Identity;
-                options.LoginPath = "/login";
-                options.LogoutPath = "/logout";
-                options.AccessDeniedPath = "/access-denied";
-                options.ReturnUrlParameter = "returnUrl";
-            });
+                services.ConfigureApplicationCookie(options =>
+                {
+                    options.Cookie.Name = CookieNames.Identity;
+                    options.LoginPath = "/login";
+                    options.LogoutPath = "/logout";
+                    options.AccessDeniedPath = "/access-denied";
+                    options.ReturnUrlParameter = "returnUrl";
+                });
 
-            services.ConfigureExternalCookie(options =>
-            {
-                options.Cookie.Name = CookieNames.ExternalAuthentication;
-                options.LoginPath = "/login";
-                options.LogoutPath = "/logout";
-                options.AccessDeniedPath = "/access-denied";
-                options.ReturnUrlParameter = "returnUrl";
-            });
+                services.ConfigureExternalCookie(options =>
+                {
+                    options.Cookie.Name = CookieNames.ExternalAuthentication;
+                    options.LoginPath = "/login";
+                    options.LogoutPath = "/logout";
+                    options.AccessDeniedPath = "/access-denied";
+                    options.ReturnUrlParameter = "returnUrl";
+                });
+            }
 
             // TODO: (core) // Add Identity IEmailSender and ISmsSender to service collection.
         }
@@ -73,16 +73,19 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.AuthenticationMiddleware, app =>
+            if (builder.ApplicationContext.IsInstalled)
             {
-                // TODO: (core) Check whether it's ok to run authentication middleware before routing. We desperately need auth before any RouteValueTransformer.
-                app.UseAuthentication();
-            });
+                builder.Configure(StarterOrdering.AuthenticationMiddleware, app =>
+                {
+                    // TODO: (core) Check whether it's ok to run authentication middleware before routing. We desperately need auth before any RouteValueTransformer.
+                    app.UseAuthentication();
+                });
 
-            builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
-            {
-                app.UseAuthorization();
-            });
+                builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
+                {
+                    app.UseAuthorization();
+                });
+            }
         }
     }
 }

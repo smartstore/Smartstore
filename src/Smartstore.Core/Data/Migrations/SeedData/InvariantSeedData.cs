@@ -25,6 +25,7 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Tasks;
 using Smartstore.Core.Content.Topics;
+using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
@@ -38,6 +39,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
 using Smartstore.Domain;
+using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
@@ -61,9 +63,8 @@ namespace Smartstore.Core.Data.Migrations
 
         #region Mandatory data creators
 
-        public Task<List<MediaFile>> Pictures()
+        public IList<MediaFile> Pictures()
         {
-            // TODO: (ms) (core) Make ALL methods either async or sync. Don't mix up, it's unpredictable. Make them return Task<T>.
             var entities = new List<MediaFile>
             {
                 CreatePicture("company-logo.png"),
@@ -78,22 +79,22 @@ namespace Smartstore.Core.Data.Migrations
             };
 
             Alter(entities);
-            return Task.FromResult(entities);
+            return entities;
         }
 
-        public async Task<List<Store>> Stores()
+        public IList<Store> Stores()
         {
-            var imgCompanyLogo = await _db.MediaFiles.Where(x => x.Name == "company-logo.png").FirstOrDefaultAsync();
+            var imgCompanyLogo = _db.MediaFiles.Where(x => x.Name == "company-logo.png").FirstOrDefault();
 
-            var currency = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == "EUR");
+            var currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == "EUR");
             if (currency == null)
             {
-                currency = await _db.Currencies.FirstAsync();
+                currency = _db.Currencies.First();
             }
 
             var entities = new List<Store>()
             {
-                new Store()
+                new Store
                 {
                     Name = "Your store name",
                     Url = "http://www.yourStore.com/",
@@ -110,7 +111,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public List<MeasureDimension> MeasureDimensions()
+        public IList<MeasureDimension> MeasureDimensions()
         {
             var entities = new List<MeasureDimension>()
             {
@@ -155,7 +156,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public List<MeasureWeight> MeasureWeights()
+        public IList<MeasureWeight> MeasureWeights()
         {
             var entities = new List<MeasureWeight>()
             {
@@ -217,7 +218,7 @@ namespace Smartstore.Core.Data.Migrations
         protected virtual string TaxNameTaxFree => "Tax free";
         public virtual decimal[] FixedTaxRates => new decimal[] { 0, 0, 0, 0, 0 };
 
-        public List<TaxCategory> TaxCategories()
+        public IList<TaxCategory> TaxCategories()
         {
             var entities = new List<TaxCategory>
             {
@@ -257,7 +258,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public List<Currency> Currencies()
+        public IList<Currency> Currencies()
         {
             var entities = new List<Currency>()
             {
@@ -279,7 +280,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public List<ShippingMethod> ShippingMethods(bool includeSamples)
+        public IList<ShippingMethod> ShippingMethods(bool includeSamples)
         {
             var entities = new List<ShippingMethod>
             {
@@ -311,7 +312,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public List<CustomerRole> CustomerRoles(bool includeSamples)
+        public IList<CustomerRole> CustomerRoles(bool includeSamples)
         {
             var entities = new List<CustomerRole>
             {
@@ -361,9 +362,9 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public async Task<Address> AdminAddress()
+        public Address AdminAddress()
         {
-            var country = await _db.Countries.Where(x => x.ThreeLetterIsoCode == "USA").FirstOrDefaultAsync();
+            var country = _db.Countries.Where(x => x.ThreeLetterIsoCode == "USA").FirstOrDefault();
 
             var entity = new Address()
             {
@@ -443,7 +444,7 @@ namespace Smartstore.Core.Data.Migrations
             return entity;
         }
 
-        public List<EmailAccount> EmailAccounts()
+        public IList<EmailAccount> EmailAccounts()
         {
             var entities = new List<EmailAccount>()
             {
@@ -464,7 +465,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public List<Topic> Topics()
+        public IList<Topic> Topics()
         {
             var entities = new List<Topic>()
             {
@@ -581,111 +582,94 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public async Task<List<ISettings>> Settings()
+        public IList<MenuEntity> Menus()
         {
-            var defaultDimensionId = (await _db.MeasureDimensions.FirstOrDefaultAsync(x => x.SystemKeyword == "inch"))?.Id ?? 0;
-            var defaultWeightId = (await _db.MeasureWeights.FirstOrDefaultAsync(x => x.SystemKeyword == "lb"))?.Id ?? 0;
-            var defaultLanguageId = (await _db.Languages.FirstOrDefaultAsync())?.Id ?? 0;
-            var defaultEmailAccountId = (await _db.EmailAccounts.FirstOrDefaultAsync())?.Id ?? 0;
+            const string entityProvider = "entity";
+            const string routeProvider = "route";
+            const string routeTemplate = "{{\"routename\":\"{0}\"}}";
 
-            var entities = new List<ISettings>
-            {
-                new PdfSettings
-                {
-                },
-                new CommonSettings
-                {
-                },
-                new SeoSettings
-                {
-                },
-                new SocialSettings
-                {
-                },
-                new AdminAreaSettings
-                {
-                },
-                new CatalogSettings
-                {
-                },
-                new LocalizationSettings
-                {
-                    DefaultAdminLanguageId = defaultLanguageId
-                },
-                new CustomerSettings
-                {
-                },
-                new AddressSettings
-                {
-                },
-                new MediaSettings
-                {
-                },
-                new StoreInformationSettings
-                {
-                },
-                new RewardPointsSettings
-                {
-                },
-                new CurrencySettings
-                {
-                },
-                new MeasureSettings
-                {
-                    BaseDimensionId = defaultDimensionId,
-                    BaseWeightId = defaultWeightId,
-                },
-                new ShoppingCartSettings
-                {
-                },
-                new OrderSettings
-                {
-                },
-                new SecuritySettings
-                {
-                },
-                new ShippingSettings
-                {
-                },
-                new PaymentSettings
-                {
-                    ActivePaymentMethodSystemNames = new List<string>
-                    {
-                        "Payments.CashOnDelivery",
-                        "Payments.Manual",
-                        "Payments.PayInStore",
-                        "Payments.Prepayment"
-                    }
-                },
-                new TaxSettings
-                {
-                },
-                //new BlogSettings
-                //{
-                //},
-                //new NewsSettings
-                //{
-                //},
-                //new ForumSettings
-                //{
-                //},
-                new EmailAccountSettings
-                {
-                    DefaultEmailAccountId = defaultEmailAccountId
-                },
-                new ThemeSettings
-                {
-                },
-                new HomePageSettings
-                {
-                }
+            var resourceNames = new string[] {
+                "Footer.Info",
+                "Footer.Service",
+                "Footer.Company",
+                "Manufacturers.List",
+                "Admin.Catalog.Categories",
+                "Products.NewProducts",
+                "Products.RecentlyViewedProducts",
+                "Products.Compare.List",
+                "ContactUs",
+                "Blog",
+                "Forum.Forums",
+                "Account.Login",
+                "Menu.ServiceMenu"
             };
 
-            Alter(entities);
-            return entities;
+            var settingNames = new string[]
+            {
+                "CatalogSettings.RecentlyAddedProductsEnabled",
+                "CatalogSettings.RecentlyViewedProductsEnabled",
+                "CatalogSettings.CompareProductsEnabled",
+                //"BlogSettings.Enabled",
+                //"ForumSettings.ForumsEnabled",
+                "CustomerSettings.UserRegistrationType"
+            };
+
+            Dictionary<string, string> resources = null;
+            Dictionary<string, string> settings = null;
+
+            // ...
+
+            return new List<MenuEntity>();
         }
 
-        public List<ProductTemplate> ProductTemplates()
+        public IList<ISettings> Settings()
+        {
+            var typeScanner = EngineContext.Current.Application.TypeScanner;
+            var settings = typeScanner.FindTypes<ISettings>(ignoreInactiveModules: true)
+                .Select(x => Activator.CreateInstance(x))
+                .OfType<ISettings>()
+                .ToList();
+
+            var defaultLanguageId = (_db.Languages.FirstOrDefault())?.Id ?? 0;
+            var localizationSettings = settings.OfType<LocalizationSettings>().FirstOrDefault();
+            if (localizationSettings != null)
+            {
+                localizationSettings.DefaultAdminLanguageId = defaultLanguageId;
+            }
+
+            var defaultDimensionId = (_db.MeasureDimensions.FirstOrDefault(x => x.SystemKeyword == "inch"))?.Id ?? 0;
+            var defaultWeightId = (_db.MeasureWeights.FirstOrDefault(x => x.SystemKeyword == "lb"))?.Id ?? 0;
+            var measureSettings = settings.OfType<MeasureSettings>().FirstOrDefault();
+            if (measureSettings != null)
+            {
+                measureSettings.BaseDimensionId = defaultDimensionId;
+                measureSettings.BaseWeightId = defaultWeightId;
+            }
+
+            var paymentSettings = settings.OfType<PaymentSettings>().FirstOrDefault();
+            if (paymentSettings != null)
+            {
+                paymentSettings.ActivePaymentMethodSystemNames = new List<string>
+                {
+                    "Payments.CashOnDelivery",
+                    "Payments.Manual",
+                    "Payments.PayInStore",
+                    "Payments.Prepayment"
+                };
+            }
+
+            var defaultEmailAccountId = (_db.EmailAccounts.FirstOrDefault())?.Id ?? 0;
+            var emailAccountSettings = settings.OfType<EmailAccountSettings>().FirstOrDefault();
+            if (emailAccountSettings != null)
+            {
+                emailAccountSettings.DefaultEmailAccountId = defaultEmailAccountId;
+            }
+
+            Alter(settings);
+            return settings;
+        }
+
+        public IList<ProductTemplate> ProductTemplates()
         {
             var entities = new List<ProductTemplate>
             {
@@ -701,7 +685,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public List<CategoryTemplate> CategoryTemplates()
+        public IList<CategoryTemplate> CategoryTemplates()
         {
             var entities = new List<CategoryTemplate>
             {
@@ -717,7 +701,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public List<ManufacturerTemplate> ManufacturerTemplates()
+        public IList<ManufacturerTemplate> ManufacturerTemplates()
         {
             var entities = new List<ManufacturerTemplate>
             {
@@ -733,7 +717,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public List<TaskDescriptor> TaskDescriptors()
+        public IList<TaskDescriptor> TaskDescriptors()
         {
             var entities = new List<TaskDescriptor>
             {
@@ -894,7 +878,7 @@ namespace Smartstore.Core.Data.Migrations
         //    return entities;
         //}
 
-        public async Task<List<Discount>> Discounts()
+        public IList<Discount> Discounts()
         {
             var ruleSets = _db.RuleSets.Include(x => x.Rules).AsQueryable();
 
@@ -919,7 +903,7 @@ namespace Smartstore.Core.Data.Migrations
                 StartDateUtc = new DateTime(2020, 2, 1),
                 EndDateUtc = new DateTime(2020, 2, 10)
             };
-            orderTotalDiscount.RuleSets.Add(await ruleSets.FirstOrDefaultAsync(x => x.Rules.Any(y => y.RuleType == "CartOrderCount")));
+            orderTotalDiscount.RuleSets.Add(ruleSets.FirstOrDefault(x => x.Rules.Any(y => y.RuleType == "CartOrderCount")));
 
             var weekendDiscount = new Discount
             {
@@ -931,7 +915,7 @@ namespace Smartstore.Core.Data.Migrations
                 StartDateUtc = new DateTime(2020, 3, 1),
                 EndDateUtc = new DateTime(2020, 3, 10)
             };
-            weekendDiscount.RuleSets.Add(await ruleSets.FirstOrDefaultAsync(x => x.Rules.Any(y => y.RuleType == "Weekday")));
+            weekendDiscount.RuleSets.Add(ruleSets.FirstOrDefault(x => x.Rules.Any(y => y.RuleType == "Weekday")));
 
             var manufacturersDiscount = new Discount
             {
@@ -1185,7 +1169,7 @@ namespace Smartstore.Core.Data.Migrations
         //    return entities;
         //}
 
-        public List<Campaign> Campaigns()
+        public IList<Campaign> Campaigns()
         {
             var entities = new List<Campaign>
             {
@@ -1203,7 +1187,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public async Task<List<RuleSetEntity>> RuleSets()
+        public IList<RuleSetEntity> RuleSets()
         {
             // Cart: weekends.
             var weekends = new RuleSetEntity
@@ -1278,7 +1262,7 @@ namespace Smartstore.Core.Data.Migrations
 
 
             // Offer free shipping method for major customers.
-            var freeShipping = await _db.ShippingMethods.FirstOrDefaultAsync(x => x.DisplayOrder == 2);
+            var freeShipping = _db.ShippingMethods.FirstOrDefault(x => x.DisplayOrder == 2);
             if (freeShipping != null)
             {
                 freeShipping.RuleSets.Add(majorCustomers);
@@ -1286,7 +1270,7 @@ namespace Smartstore.Core.Data.Migrations
 
             // Assign rule conditions for inactive new customers to the related customer role.
             // We later bind the reminder campaign to it.
-            var inactiveNewCustomersRole = await _db.CustomerRoles.FirstOrDefaultAsync(x => x.SystemName == "InactiveNewCustomers");
+            var inactiveNewCustomersRole = _db.CustomerRoles.FirstOrDefault(x => x.SystemName == "InactiveNewCustomers");
             if (inactiveNewCustomersRole != null)
             {
                 inactiveNewCustomersRole.RuleSets.Add(inactiveNewCustomers);
@@ -1302,16 +1286,16 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public async Task FinalizeSamples()
+        public void FinalizeSamples()
         {
             // Bind the reminder campaign to the rule conditions for inactive new customers.
-            var reminderCampaign = await _db.Campaigns.FirstOrDefaultAsync(x => x.SubjectToAcl);
+            var reminderCampaign = _db.Campaigns.FirstOrDefault(x => x.SubjectToAcl);
             if (reminderCampaign != null)
             {
-                var inactiveNewCustomersRole = await _db.CustomerRoles.FirstOrDefaultAsync(x => x.SystemName == "InactiveNewCustomers");
+                var inactiveNewCustomersRole = _db.CustomerRoles.FirstOrDefault(x => x.SystemName == "InactiveNewCustomers");
                 if (inactiveNewCustomersRole != null)
                 {
-                    await _db.AclRecords.AddAsync(new AclRecord
+                    _db.AclRecords.Add(new AclRecord
                     {
                         EntityId = reminderCampaign.Id,
                         EntityName = nameof(Campaign),
@@ -1532,13 +1516,16 @@ namespace Smartstore.Core.Data.Migrations
 
         public virtual UrlRecord CreateUrlRecordFor<T>(T entity) where T : BaseEntity, ISlugSupported, new()
         {
-            var name = entity switch
+            var name = string.Empty;
+
+            if (entity is Topic topic)
             {
-                var x when x is Category or Manufacturer or Product => GetSeName(x.GetDisplayName()).Truncate(400),
-                //BlogPost or NewsItem => x.Title, // TODO: (core) Make InstallSeeder for Blog, News and Forum
-                Topic y => GetSeName(y.SystemName).Truncate(400),
-                _ => string.Empty
-            };
+                name = GetSeName(topic.SystemName).Truncate(400);
+            }
+            else
+            {
+                name = GetSeName(entity.GetDisplayName()).Truncate(400);
+            }
 
             if (name.HasValue())
             {

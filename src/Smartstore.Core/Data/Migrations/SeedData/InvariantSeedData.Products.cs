@@ -17,7 +17,7 @@ namespace Smartstore.Core.Data.Migrations
 {
     public abstract partial class InvariantSeedData
     {
-        public async Task<List<ProductTag>> ProductTags()
+        public IList<ProductTag> ProductTags()
         {
             #region tag apple
 
@@ -26,7 +26,7 @@ namespace Smartstore.Core.Data.Migrations
                 Name = "apple"
             };
 
-            (await _db.Products.Where(pt => pt.MetaTitle == "iPhone Plus").FirstAsync()).ProductTags.Add(productTagApple);
+            (_db.Products.Where(pt => pt.MetaTitle == "iPhone Plus").First()).ProductTags.Add(productTagApple);
 
             #endregion tag apple
 
@@ -37,10 +37,10 @@ namespace Smartstore.Core.Data.Migrations
                 Name = "gift"
             };
 
-            (await _db.Products.Where(pt => pt.MetaTitle == "$10 Virtual Gift Card").FirstAsync()).ProductTags.Add(productTagGift);
-            (await _db.Products.Where(pt => pt.MetaTitle == "$25 Virtual Gift Card").FirstAsync()).ProductTags.Add(productTagGift);
-            (await _db.Products.Where(pt => pt.MetaTitle == "$50 Virtual Gift Card").FirstAsync()).ProductTags.Add(productTagGift);
-            (await _db.Products.Where(pt => pt.MetaTitle == "$100 Virtual Gift Card").FirstAsync()).ProductTags.Add(productTagGift);
+            (_db.Products.Where(pt => pt.MetaTitle == "$10 Virtual Gift Card").First()).ProductTags.Add(productTagGift);
+            (_db.Products.Where(pt => pt.MetaTitle == "$25 Virtual Gift Card").First()).ProductTags.Add(productTagGift);
+            (_db.Products.Where(pt => pt.MetaTitle == "$50 Virtual Gift Card").First()).ProductTags.Add(productTagGift);
+            (_db.Products.Where(pt => pt.MetaTitle == "$100 Virtual Gift Card").First()).ProductTags.Add(productTagGift);
 
             #endregion tag gift
 
@@ -51,13 +51,13 @@ namespace Smartstore.Core.Data.Migrations
                 Name = "book"
             };
 
-            (await _db.Products.Where(pt => pt.MetaTitle == "Überman: The novel").FirstAsync()).ProductTags.Add(productTagBook);
-            (await _db.Products.Where(pt => pt.MetaTitle == "Best Grilling Recipes").FirstAsync()).ProductTags.Add(productTagBook);
-            (await _db.Products.Where(pt => pt.MetaTitle == "Car of superlatives").FirstAsync()).ProductTags.Add(productTagBook);
-            (await _db.Products.Where(pt => pt.MetaTitle == "Picture Atlas Motorcycles").FirstAsync()).ProductTags.Add(productTagBook);
-            (await _db.Products.Where(pt => pt.MetaTitle == "The Car Book").FirstAsync()).ProductTags.Add(productTagBook);
-            (await _db.Products.Where(pt => pt.MetaTitle == "Fast Cars").FirstAsync()).ProductTags.Add(productTagBook);
-            (await _db.Products.Where(pt => pt.MetaTitle == "Motorcycle Adventures").FirstAsync()).ProductTags.Add(productTagBook);
+            (_db.Products.Where(pt => pt.MetaTitle == "Überman: The novel").First()).ProductTags.Add(productTagBook);
+            (_db.Products.Where(pt => pt.MetaTitle == "Best Grilling Recipes").First()).ProductTags.Add(productTagBook);
+            (_db.Products.Where(pt => pt.MetaTitle == "Car of superlatives").First()).ProductTags.Add(productTagBook);
+            (_db.Products.Where(pt => pt.MetaTitle == "Picture Atlas Motorcycles").First()).ProductTags.Add(productTagBook);
+            (_db.Products.Where(pt => pt.MetaTitle == "The Car Book").First()).ProductTags.Add(productTagBook);
+            (_db.Products.Where(pt => pt.MetaTitle == "Fast Cars").First()).ProductTags.Add(productTagBook);
+            (_db.Products.Where(pt => pt.MetaTitle == "Motorcycle Adventures").First()).ProductTags.Add(productTagBook);
 
             #endregion tag book
 
@@ -68,8 +68,8 @@ namespace Smartstore.Core.Data.Migrations
                 Name = "cooking"
             };
 
-            (await _db.Products.Where(pt => pt.MetaTitle == "Überman: The novel").FirstOrDefaultAsync()).ProductTags.Add(productTagCooking);
-            (await _db.Products.Where(pt => pt.MetaTitle == "Best Grilling Recipes").FirstOrDefaultAsync()).ProductTags.Add(productTagCooking);
+            (_db.Products.Where(pt => pt.MetaTitle == "Überman: The novel").FirstOrDefault()).ProductTags.Add(productTagCooking);
+            (_db.Products.Where(pt => pt.MetaTitle == "Best Grilling Recipes").FirstOrDefault()).ProductTags.Add(productTagCooking);
 
             #endregion tag cooking
 
@@ -80,8 +80,8 @@ namespace Smartstore.Core.Data.Migrations
                 Name = "cars"
             };
 
-            (await _db.Products.Where(pt => pt.MetaTitle == "The Car Book").FirstOrDefaultAsync()).ProductTags.Add(productTagCars);
-            (await _db.Products.Where(pt => pt.MetaTitle == "Fast Cars").FirstOrDefaultAsync()).ProductTags.Add(productTagCars);
+            (_db.Products.Where(pt => pt.MetaTitle == "The Car Book").FirstOrDefault()).ProductTags.Add(productTagCars);
+            (_db.Products.Where(pt => pt.MetaTitle == "Fast Cars").FirstOrDefault()).ProductTags.Add(productTagCars);
 
             #endregion tag cars
 
@@ -92,8 +92,8 @@ namespace Smartstore.Core.Data.Migrations
                 Name = "motorbikes"
             };
 
-            (await _db.Products.Where(pt => pt.MetaTitle == "Fast Cars").FirstOrDefaultAsync()).ProductTags.Add(productTagMotorbikes);
-            (await _db.Products.Where(pt => pt.MetaTitle == "Motorcycle Adventures").FirstOrDefaultAsync()).ProductTags.Add(productTagMotorbikes);
+            (_db.Products.Where(pt => pt.MetaTitle == "Fast Cars").FirstOrDefault()).ProductTags.Add(productTagMotorbikes);
+            (_db.Products.Where(pt => pt.MetaTitle == "Motorcycle Adventures").FirstOrDefault()).ProductTags.Add(productTagMotorbikes);
 
             #endregion tag motorbikes
 
@@ -104,8 +104,8 @@ namespace Smartstore.Core.Data.Migrations
                 Name = "mp3"
             };
 
-            (await _db.Products.Where(pt => pt.MetaTitle == "Antonio Vivaldi: spring").FirstOrDefaultAsync()).ProductTags.Add(productTagMP3);
-            (await _db.Products.Where(pt => pt.MetaTitle == "Ludwig van Beethoven: Für Elise").FirstOrDefaultAsync()).ProductTags.Add(productTagMP3);
+            (_db.Products.Where(pt => pt.MetaTitle == "Antonio Vivaldi: spring").FirstOrDefault()).ProductTags.Add(productTagMP3);
+            (_db.Products.Where(pt => pt.MetaTitle == "Ludwig van Beethoven: Für Elise").FirstOrDefault()).ProductTags.Add(productTagMP3);
 
             #endregion tag mp3
 
@@ -116,8 +116,8 @@ namespace Smartstore.Core.Data.Migrations
                 Name = "download"
             };
 
-            (await _db.Products.Where(pt => pt.MetaTitle == "Antonio Vivaldi: spring").FirstOrDefaultAsync()).ProductTags.Add(productTagDownload);
-            (await _db.Products.Where(pt => pt.MetaTitle == "Ludwig van Beethoven: Für Elise").FirstOrDefaultAsync()).ProductTags.Add(productTagDownload);
+            (_db.Products.Where(pt => pt.MetaTitle == "Antonio Vivaldi: spring").FirstOrDefault()).ProductTags.Add(productTagDownload);
+            (_db.Products.Where(pt => pt.MetaTitle == "Ludwig van Beethoven: Für Elise").FirstOrDefault()).ProductTags.Add(productTagDownload);
 
             #endregion tag download
 
@@ -128,7 +128,7 @@ namespace Smartstore.Core.Data.Migrations
                 Name = "watches"
             };
 
-            (await _db.Products.Where(pt => pt.MetaTitle == "Certina DS Podium Big Size").FirstOrDefaultAsync()).ProductTags.Add(productTagWatches);
+            (_db.Products.Where(pt => pt.MetaTitle == "Certina DS Podium Big Size").FirstOrDefault()).ProductTags.Add(productTagWatches);
 
             #endregion Tag Watches
 
@@ -139,9 +139,10 @@ namespace Smartstore.Core.Data.Migrations
                 Name = "Furniture"
             };
 
-            await _db.Products
+            _db.Products
                 .Where(x => x.ProductCategories.Any(x => x.Category.ParentCategoryId == 4))
-                .ForEachAsync(y => y.ProductTags.Add(productTagFurniture));
+                .ToList()
+                .Each(y => y.ProductTags.Add(productTagFurniture));
 
             #endregion Tag Furniture
 
@@ -155,19 +156,19 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        private async Task<List<Product>> GetFashionProducts(
+        private IList<Product> GetFashionProducts(
             Dictionary<string, Category> categories,
             Dictionary<string, Manufacturer> manufacturers,
             Dictionary<int, SpecificationAttribute> specAttributes)
         {
             var specialPriceEndDate = DateTime.UtcNow.AddMonths(1);
 
-            var productTemplate = await _db.ProductTemplates.FirstAsync(x => x.ViewPath == "Product");
-            var firstDeliveryTime = await _db.DeliveryTimes.FirstAsync(x => x.DisplayOrder == 0);
-            var thirdDeliveryTime = await _db.DeliveryTimes.FirstAsync(x => x.DisplayOrder == 2);
+            var productTemplate = _db.ProductTemplates.First(x => x.ViewPath == "Product");
+            var firstDeliveryTime = _db.DeliveryTimes.First(x => x.DisplayOrder == 0);
+            var thirdDeliveryTime = _db.DeliveryTimes.First(x => x.DisplayOrder == 2);
 
-            var specOptionCotton = (await _db.SpecificationAttributes.FirstAsync(x => x.DisplayOrder == 8)).SpecificationAttributeOptions.First(x => x.DisplayOrder == 9);
-            var taxCategoryIdApparel = (await _db.TaxCategories.FirstAsync(x => x.Name.Equals(TaxNameApparel))).Id;
+            var specOptionCotton = (_db.SpecificationAttributes.First(x => x.DisplayOrder == 8)).SpecificationAttributeOptions.First(x => x.DisplayOrder == 9);
+            var taxCategoryIdApparel = (_db.TaxCategories.First(x => x.Name.Equals(TaxNameApparel))).Id;
 
             #region Category Shoes
 
@@ -669,12 +670,12 @@ namespace Smartstore.Core.Data.Migrations
             };
         }
 
-        private async Task<List<Product>> GetFurnitureProducts(Dictionary<string, Category> categories, Dictionary<int, SpecificationAttribute> specAttributes)
+        private IList<Product> GetFurnitureProducts(Dictionary<string, Category> categories, Dictionary<int, SpecificationAttribute> specAttributes)
         {
-            var productTemplateSimple = await _db.ProductTemplates.FirstAsync(x => x.ViewPath == "Product");
-            var thirdDeliveryTime = await _db.DeliveryTimes.FirstAsync(x => x.DisplayOrder == 2);
-            var taxCategoryIdElectronics = (await _db.TaxCategories.FirstAsync(x => x.Name.Equals(TaxNameElectronics))).Id;
-            var discounts = await _db.Discounts.Where(x => x.DiscountTypeId == (int)DiscountType.AssignedToSkus && !x.RequiresCouponCode).ToListAsync();
+            var productTemplateSimple = _db.ProductTemplates.First(x => x.ViewPath == "Product");
+            var thirdDeliveryTime = _db.DeliveryTimes.First(x => x.DisplayOrder == 2);
+            var taxCategoryIdElectronics = (_db.TaxCategories.First(x => x.Name.Equals(TaxNameElectronics))).Id;
+            var discounts = _db.Discounts.Where(x => x.DiscountTypeId == (int)DiscountType.AssignedToSkus && !x.RequiresCouponCode).ToList();
 
             #region Category Sofas
 
@@ -1276,19 +1277,19 @@ namespace Smartstore.Core.Data.Migrations
             };
         }
 
-        public async Task<List<Product>> Products()
+        public IList<Product> Products()
         {
             var specialPriceEndDate = DateTime.UtcNow.AddMonths(1);
 
-            var productTemplate = await _db.ProductTemplates.FirstAsync(x => x.ViewPath == "Product");
-            var firstDeliveryTime = await _db.DeliveryTimes.FirstAsync(x => x.DisplayOrder == 0);
-            var secondDeliveryTime = await _db.DeliveryTimes.FirstAsync(x => x.DisplayOrder == 1);
-            var thirdDeliveryTime = await _db.DeliveryTimes.FirstAsync(x => x.DisplayOrder == 2);
+            var productTemplate = _db.ProductTemplates.First(x => x.ViewPath == "Product");
+            var firstDeliveryTime = _db.DeliveryTimes.First(x => x.DisplayOrder == 0);
+            var secondDeliveryTime = _db.DeliveryTimes.First(x => x.DisplayOrder == 1);
+            var thirdDeliveryTime = _db.DeliveryTimes.First(x => x.DisplayOrder == 2);
 
-            var manufacturers = (await _db.Manufacturers.ToListAsync()).ToDictionarySafe(x => x.Name, x => x);
-            var categories = (await _db.Categories.ToListAsync()).ToDictionarySafe(x => x.Alias, x => x);
-            var specAttributes = (await _db.SpecificationAttributes.ToListAsync()).ToDictionarySafe(x => x.DisplayOrder, x => x);
-            var taxCategories = (await _db.TaxCategories.ToListAsync()).ToDictionarySafe(x => x.Name, x => x);
+            var manufacturers = (_db.Manufacturers.ToList()).ToDictionarySafe(x => x.Name, x => x);
+            var categories = (_db.Categories.ToList()).ToDictionarySafe(x => x.Alias, x => x);
+            var specAttributes = (_db.SpecificationAttributes.ToList()).ToDictionarySafe(x => x.DisplayOrder, x => x);
+            var taxCategories = (_db.TaxCategories.ToList()).ToDictionarySafe(x => x.Name, x => x);
 
             #region Category Sports
 
@@ -3651,20 +3652,20 @@ namespace Smartstore.Core.Data.Migrations
                 gamingLegoWorlds, gamingHorizonZeroDown, gamingFifa17, xBoxOneS
             };
 
-            entities.AddRange(await GetFashionProducts(categories, manufacturers, specAttributes));
-            entities.AddRange(await GetFurnitureProducts(categories, specAttributes));
+            entities.AddRange(GetFashionProducts(categories, manufacturers, specAttributes));
+            entities.AddRange(GetFurnitureProducts(categories, specAttributes));
 
             Alter(entities);
             return entities;
         }
 
-        public async Task<List<ProductBundleItem>> ProductBundleItems()
+        public IList<ProductBundleItem> ProductBundleItems()
         {
-            var products = (await _db.Products.ToListAsync()).ToDictionarySafe(x => x.Sku, x => x);
+            var products = (_db.Products.ToList()).ToDictionarySafe(x => x.Sku, x => x);
 
             #region Bundles Apple
 
-            var BundleAppleProHipster = await _db.Products.FirstAsync(x => x.Sku == "P-2005-Bundle");
+            var BundleAppleProHipster = _db.Products.First(x => x.Sku == "P-2005-Bundle");
 
             var bundleItemIphonePlus = new ProductBundleItem()
             {
@@ -3794,7 +3795,7 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public async Task AddDownloads(IList<Product> savedProducts)
+        public void AddDownloads(IList<Product> savedProducts)
         {
             // Sample downloads.
             var sampleDownloadSkus = new List<string> { "P-1017", "P-1016", "P-6001" };
@@ -3874,10 +3875,10 @@ namespace Smartstore.Core.Data.Migrations
                 }
             }
 
-            await _db.SaveChangesAsync();
+            _db.SaveChanges();
         }
 
-        public async Task AssignGroupedProducts(IList<Product> savedProducts)
+        public void AssignGroupedProducts(IList<Product> savedProducts)
         {
             var productGamingAccessoriesId = savedProducts.First(x => x.Sku == "Sony-GroupAccessories").Id;
             var gamingAccessoriesSkus = new List<string>() { "Sony-PS399004", "PD-Minecraft4ps4", "Sony-PS410037", "Sony-PS410040" };
@@ -3887,7 +3888,7 @@ namespace Smartstore.Core.Data.Migrations
                 .ToList()
                 .Each(x => x.ParentGroupedProductId = productGamingAccessoriesId);
 
-            await _db.SaveChangesAsync();
+            _db.SaveChanges();
         }
     }
 }

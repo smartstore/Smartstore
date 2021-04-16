@@ -76,11 +76,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterModule(new LocalizationModule());
             builder.RegisterModule(new CommonServicesModule());
             builder.RegisterModule(new DbHooksModule(appContext));
-
-            if (appContext.IsInstalled)
-            {
-                builder.RegisterModule(new StoresModule());
-            }
+            builder.RegisterModule(new StoresModule());
         }
     }
 }

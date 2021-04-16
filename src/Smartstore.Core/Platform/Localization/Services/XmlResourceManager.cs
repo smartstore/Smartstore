@@ -161,14 +161,16 @@ namespace Smartstore.Core.Localization
             if (!directory.Exists)
                 return;
 
-            if (targetList == null && updateTouchedResources)
+            if (targetList == null && updateTouchedResources && _localizationService != null)
             {
                 await _localizationService.DeleteLocaleStringResourcesAsync(moduleDescriptor.ResourceRootKey);
             }
 
             var unprocessedLanguages = new List<Language>();
-
-            var defaultLanguageId = await _languageService.GetMasterLanguageIdAsync();
+            
+            var defaultLanguageId = _languageService != null 
+                ? await _languageService.GetMasterLanguageIdAsync()
+                : (await _db.Languages.FirstOrDefaultAsync()).Id;
             var languages = filterLanguages ?? await _requestCache.GetAsync("db.lang.all.tracked", () => _db.Languages.ToListAsync());
 
             string code = null;
