@@ -1,0 +1,56 @@
+﻿@inject Smartstore.Core.Stores.IStoreContext StoreContext
+
+@{
+    Layout = "_Document";
+
+    <zone name="body_start_html_tag_after"></zone>
+
+    Assets.BodyAttributes.AppendCssClass("lyt-cols-1");
+
+    if (Display.GetThemeVariable<bool>("boxed"))
+    {
+        Assets.BodyAttributes.AppendCssClass("boxed");
+    }
+}
+
+<div id="page">
+    <div class="page-main">
+        <header id="header">
+            <div class="container text-center p-5">
+                @await Component.InvokeAsync("ShopLogo")
+            </div>
+        </header>
+
+        <div id="content-wrapper">
+
+            <partial name="JavaScriptDisabledWarning" />
+
+            <zone name="content-before"></zone>
+
+            <section id="content" class="container">
+                <div id="content-body" class="row">
+                    <div id="content-center" class="col-12 text-center">
+                        @{
+                            <zone name="main_column_before"></zone>
+                            @RenderBody();
+                            <zone name="main_column_after"></zone>
+                        }
+                    </div>
+                    <zone name="content_after"></zone>
+                </div>
+            </section>
+        </div>
+
+        <zone name="footer_before"></zone>
+
+        <footer id="footer" class="p-5 text-center @(Display.GetThemeVariable<bool>("inverse-footer") ? "footer-inverse" : "footer-light")">
+            @Html.Raw(T("Content.CopyrightNotice", DateTime.Now.Year.ToString(), StoreContext.CurrentStore.Name))
+        </footer>
+
+        <zone name="page-end"></zone>
+    </div>
+</div>
+
+<partial name="Notifications" />
+
+<zone name="body_end_html_tag_before"></zone>

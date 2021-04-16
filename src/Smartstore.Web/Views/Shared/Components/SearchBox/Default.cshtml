@@ -3,11 +3,6 @@
 @model SearchBoxModel
 
 @{
-    if (Display.IsStoreClosed())
-    {
-        return;
-    }
-
     var labelStyle = Display.GetThemeVariable<string>("search-button-style", "primary");
     if (Display.GetThemeVariable<bool>("search-button-flat"))
     {

@@ -1,11 +1,6 @@
 ﻿@model ShopBarModel
 
 @{
-    if (Display.IsStoreClosed())
-    {
-        return;
-    }
-
     string accountUrl = Model.IsAuthenticated ? Url.Action("Info", "Customer") : Url.RouteUrl("Login", new { returnUrl = Context.Request.Query["returnUrl"].ToString() });
     var labelStyle = Display.GetThemeVariable<string>("shopbar-label", "warning");
     var isRtl = this.WorkContext.WorkingLanguage.Rtl;

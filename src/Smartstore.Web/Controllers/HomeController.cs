@@ -77,6 +77,7 @@ using Smartstore.ComponentModel;
 
 namespace Smartstore.Web.Controllers
 {
+    // TODO: (mh) (core) Remove this.
     public class MyProgress
     {
         public int Percent { get; set; }
@@ -92,6 +93,7 @@ namespace Smartstore.Web.Controllers
 
     public class HomeController : SmartController
     {
+        // TODO: (mh) (core) Clean this.
         private static CancellationTokenSource _cancelTokenSource = new();
 
         private readonly SmartDbContext _db;
@@ -170,92 +172,9 @@ namespace Smartstore.Web.Controllers
             var currentStore = _storeContext.CurrentStore;
         }
 
-        public async Task<IActionResult> ClearCache()
-        {
-            // TODO: (core) Remove HomeController.ClearCache() later.
-            await _cache.ClearAsync();
-            return RedirectToReferrer();
-        }
-
         [LocalizedRoute("/", Name = "Homepage")]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-
-            #region Settings Test
-            ////var xxx = await Services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
-
-            ////await Services.SettingFactory.SaveSettingsAsync(new TestSettings(), 1);
-            ////await _db.SaveChangesAsync();
-
-            ////await Services.Settings.ApplySettingAsync("yodele.gut", "yodele");
-            ////await Services.Settings.ApplySettingAsync("yodele.schlecht", "yodele");
-            ////await Services.Settings.ApplySettingAsync("yodele.prop3", "yodele");
-            ////await Services.Settings.ApplySettingAsync("yodele.prop4", "yodele");
-            ////await _db.SaveChangesAsync();
-
-            ////var yodele1 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
-            ////var yodele2 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
-            ////var yodele3 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
-            ////var yodele4 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
-            //////await Services.Settings.DeleteSettingsAsync("yodele");
-            ////yodele1 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
-
-            ////await _db.SaveChangesAsync();
-
-            //var testSettings = await Services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
-            //testSettings.Prop1 = CommonHelper.GenerateRandomDigitCode(10);
-            //testSettings.Prop2 = CommonHelper.GenerateRandomDigitCode(10);
-            //testSettings.Prop3 = CommonHelper.GenerateRandomDigitCode(10);
-            //var numSaved = await Services.SettingFactory.SaveSettingsAsync(testSettings, 1);
-            #endregion
-
-            //_cancelTokenSource = new CancellationTokenSource();
-            //await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
-
-            //var result = await Services.Resolve<IDbLogService>().ClearLogsAsync(new DateTime(2016, 12, 31), LogLevel.Fatal);
-
-            //var count = await _db.Countries
-            //    .AsNoTracking()
-            //    .Where(x => x.SubjectToVat)
-            //    .AsCaching()
-            //    .CountAsync();
-
-            //var langService = Services.Resolve<ILanguageService>();
-            //for (var i = 0; i < 50; i++)
-            //{
-            //    var lid = await langService.GetDefaultLanguageIdAsync();
-            //    var storeCache = _storeContext.GetCachedStores();
-            //    var anon = await _db.Countries
-            //        .AsNoTracking()
-            //        .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)
-            //        .AsCaching()
-            //        .Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
-            //        .ToListAsync();
-            //}
-
-            //var anon = await _db.Countries
-            //    .AsNoTracking()
-            //    .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)
-            //    .AsCaching()
-            //    .Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
-            //    .ToListAsync();
-
-            //var anon2 = _db.Countries
-            //    .AsNoTracking()
-            //    .Where(x => x.SubjectToVat == true && x.DisplayOrder > 1)
-            //    .AsCaching()
-            //    //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
-            //    .ToList();
-
-            //var noResult = _db.Countries
-            //    .AsNoTracking()
-            //    .Where(x => x.Name == "fsdfsdfsdfsfsdfd")
-            //    .AsCaching()
-            //    //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
-            //    .FirstOrDefault();
-
-            await Task.Delay(1);
-
             var storeId = _storeContext.CurrentStore.Id;
 
             ViewBag.MetaTitle = _homePageSettings.GetLocalizedSetting(x => x.MetaTitle, storeId);
@@ -265,12 +184,108 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
-        [GdprConsent]
-        [HttpPost]
-        public IActionResult Index(TestModel model)
+        [LocalizedRoute("/storeclosed", Name = "StoreClosed")]
+        public IActionResult StoreClosed()
         {
-            return View(model);
+            return View();
         }
+
+        #region Testing area
+
+        public async Task<IActionResult> ClearCache()
+        {
+            // TODO: (core) Remove HomeController.ClearCache() later.
+            await _cache.ClearAsync();
+            return RedirectToReferrer();
+        }
+
+        //[LocalizedRoute("/", Name = "Homepage")]
+        //public async Task<IActionResult> Index()
+        //{
+
+        //    #region Settings Test
+        //    ////var xxx = await Services.Settings.GetSettingByKeyAsync<bool>("CatalogSettings.ShowPopularProductTagsOnHomepage", true, 2, true);
+
+        //    ////await Services.SettingFactory.SaveSettingsAsync(new TestSettings(), 1);
+        //    ////await _db.SaveChangesAsync();
+
+        //    ////await Services.Settings.ApplySettingAsync("yodele.gut", "yodele");
+        //    ////await Services.Settings.ApplySettingAsync("yodele.schlecht", "yodele");
+        //    ////await Services.Settings.ApplySettingAsync("yodele.prop3", "yodele");
+        //    ////await Services.Settings.ApplySettingAsync("yodele.prop4", "yodele");
+        //    ////await _db.SaveChangesAsync();
+
+        //    ////var yodele1 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+        //    ////var yodele2 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.schlecht");
+        //    ////var yodele3 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.prop3");
+        //    ////var yodele4 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.prop4");
+        //    //////await Services.Settings.DeleteSettingsAsync("yodele");
+        //    ////yodele1 = await Services.Settings.GetSettingByKeyAsync<string>("yodele.gut");
+
+        //    ////await _db.SaveChangesAsync();
+
+        //    //var testSettings = await Services.SettingFactory.LoadSettingsAsync<TestSettings>(1);
+        //    //testSettings.Prop1 = CommonHelper.GenerateRandomDigitCode(10);
+        //    //testSettings.Prop2 = CommonHelper.GenerateRandomDigitCode(10);
+        //    //testSettings.Prop3 = CommonHelper.GenerateRandomDigitCode(10);
+        //    //var numSaved = await Services.SettingFactory.SaveSettingsAsync(testSettings, 1);
+        //    #endregion
+
+        //    //_cancelTokenSource = new CancellationTokenSource();
+        //    //await _asyncState.CreateAsync(new MyProgress(), cancelTokenSource: _cancelTokenSource);
+
+        //    //var result = await Services.Resolve<IDbLogService>().ClearLogsAsync(new DateTime(2016, 12, 31), LogLevel.Fatal);
+
+        //    //var count = await _db.Countries
+        //    //    .AsNoTracking()
+        //    //    .Where(x => x.SubjectToVat)
+        //    //    .AsCaching()
+        //    //    .CountAsync();
+
+        //    //var langService = Services.Resolve<ILanguageService>();
+        //    //for (var i = 0; i < 50; i++)
+        //    //{
+        //    //    var lid = await langService.GetDefaultLanguageIdAsync();
+        //    //    var storeCache = _storeContext.GetCachedStores();
+        //    //    var anon = await _db.Countries
+        //    //        .AsNoTracking()
+        //    //        .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)
+        //    //        .AsCaching()
+        //    //        .Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+        //    //        .ToListAsync();
+        //    //}
+
+        //    //var anon = await _db.Countries
+        //    //    .AsNoTracking()
+        //    //    .Where(x => x.SubjectToVat == true && x.DisplayOrder > 0)
+        //    //    .AsCaching()
+        //    //    .Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+        //    //    .ToListAsync();
+
+        //    //var anon2 = _db.Countries
+        //    //    .AsNoTracking()
+        //    //    .Where(x => x.SubjectToVat == true && x.DisplayOrder > 1)
+        //    //    .AsCaching()
+        //    //    //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+        //    //    .ToList();
+
+        //    //var noResult = _db.Countries
+        //    //    .AsNoTracking()
+        //    //    .Where(x => x.Name == "fsdfsdfsdfsfsdfd")
+        //    //    .AsCaching()
+        //    //    //.Select(x => new { x.Id, x.Name, x.TwoLetterIsoCode })
+        //    //    .FirstOrDefault();
+
+        //    await Task.Delay(1);
+
+        //    var storeId = _storeContext.CurrentStore.Id;
+
+        //    ViewBag.MetaTitle = _homePageSettings.GetLocalizedSetting(x => x.MetaTitle, storeId);
+        //    ViewBag.MetaDescription = _homePageSettings.GetLocalizedSetting(x => x.MetaDescription, storeId);
+        //    ViewBag.MetaKeywords = _homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, storeId);
+
+        //    return View();
+        //}
 
         [GdprConsent]
         [LocalizedRoute("/controls", Name = "Controls")]
@@ -833,6 +848,8 @@ namespace Smartstore.Web.Controllers
 
             return Content("");
         }
+
+        #endregion
 
         public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*//*ProductVariantQuery query*/)
         {
