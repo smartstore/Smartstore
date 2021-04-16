@@ -606,12 +606,12 @@ namespace Smartstore.Core.Data.Migrations
 
             var settingNames = new string[]
             {
-                "CatalogSettings.RecentlyAddedProductsEnabled",
-                "CatalogSettings.RecentlyViewedProductsEnabled",
-                "CatalogSettings.CompareProductsEnabled",
+               TypeHelper.NameOf<CatalogSettings>(x => x.RecentlyAddedProductsEnabled, true),
+               TypeHelper.NameOf<CatalogSettings>(x => x.RecentlyViewedProductsEnabled, true),
+               TypeHelper.NameOf<CatalogSettings>(x => x.CompareProductsEnabled, true),
+               TypeHelper.NameOf<CustomerSettings>(x => x.UserRegistrationType, true)
                 //"BlogSettings.Enabled",
-                //"ForumSettings.ForumsEnabled",
-                "CustomerSettings.UserRegistrationType"
+                //"ForumSettings.ForumsEnabled"
             };
 
             Dictionary<string, string> resources = null;

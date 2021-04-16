@@ -5,8 +5,6 @@ namespace Smartstore.Utilities
 {
     public static class TypeHelper
     {
-        public delegate T Creator<T>();
-
         public static Type GetElementType(Type type)
         {
             if (!type.IsPredefinedSimpleType())
