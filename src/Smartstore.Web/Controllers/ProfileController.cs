@@ -11,6 +11,7 @@ using Smartstore.Web.Models.Profiles;
 
 namespace Smartstore.Web.Controllers
 {
+    // TODO: (mh) (core) This belongs to IdentityController IMHO. Discuss.
     public class ProfileController : SmartController
     {
         private readonly SmartDbContext _db;
@@ -56,7 +57,7 @@ namespace Smartstore.Web.Controllers
             {
                 model.ProfileInfo.LocationEnabled = true;
 
-                var country = await _db.Countries.FindByIdAsync((int)customer.GenericAttributes.CountryId);
+                var country = await _db.Countries.FindByIdAsync(customer.GenericAttributes.CountryId ?? 0);
                     
                 if (country != null)
                 {
