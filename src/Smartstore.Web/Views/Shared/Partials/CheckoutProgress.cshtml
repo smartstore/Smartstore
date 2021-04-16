@@ -3,10 +3,10 @@
 @model CheckoutProgressModel
 
 @{
-    var progresses = new List<dynamic> 
+    var progresses = new List<dynamic>
     {
         // Cart
-        new 
+        new
         {
             Step = CheckoutProgressStep.Cart,
             StepName = "cart",
@@ -16,7 +16,7 @@
             Href = Url.RouteUrl("ShoppingCart")
         },
         // Address
-        new 
+        new
         {
             Step = CheckoutProgressStep.Address,
             StepName = "address",
@@ -26,7 +26,7 @@
             Href = Url.Action("BillingAddress")
         },
         // Shipping
-        new 
+        new
         {
             Step = CheckoutProgressStep.Shipping,
             StepName = "shipping",
@@ -36,7 +36,7 @@
             Href = Url.Action("ShippingMethod")
         },
         // Payment
-        new 
+        new
         {
             Step = CheckoutProgressStep.Payment,
             StepName = "payment",
@@ -46,7 +46,7 @@
             Href = Url.Action("PaymentMethod")
         },
         // Confirm
-        new 
+        new
         {
             Step = CheckoutProgressStep.Confirm,
             StepName = "confirm",
@@ -56,7 +56,7 @@
             Href = Url.Action("Confirm")
         },
         // Complete
-        new 
+        new
         {
             Step = CheckoutProgressStep.Complete,
             StepName = "complete",
