@@ -1,13 +1,17 @@
 ﻿EntityController
-ExternalAuthenticationController
-MediaController
-TaskSchedulerController
 ThemeController
-WidgetController (for TabWidgets?)
+ExternalAuthenticationController (will be merged with IdentityController using stuff from SignInManager)
+WidgetController (for TabWidgets? Will probably be removed)
 
 Implement in corresponding modules:
+------------------------------------
 BlogController
 BoardsController
 NewsController
 PollController
 PrivateMessagesController (Forum module)
+
+Not required anymore:
+------------------------------------
+MediaController (--> MediaMiddleware)
+TaskSchedulerController (--> TaskSchedulerMiddleware)
