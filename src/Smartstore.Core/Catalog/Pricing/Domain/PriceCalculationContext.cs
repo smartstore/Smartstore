@@ -66,7 +66,6 @@ namespace Smartstore.Core.Catalog.Pricing
             // but no intermediate data determined by the pipeline itself.
             Product = context.Product;
             Quantity = context.Quantity;
-            CalculateUnitPrice = context.CalculateUnitPrice;
             Options = context.Options;
             Metadata = context.Metadata;
             SelectedAttributes = context.SelectedAttributes;
@@ -95,15 +94,8 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// The product quantity. May have impact on final price, e.g. because of tier prices etc.
-        /// Note that the calculated price is always the unit price, unless <see cref="CalculateUnitPrice"/> is deactivated.
         /// </summary>
         public int Quantity { get; set; } = 1;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to calculate the unit price (default).
-        /// If <c>false</c> then the final price is multiplied by <see cref="Quantity"/>.
-        /// </summary>
-        public bool CalculateUnitPrice { get; init; } = true;
 
         /// <summary>
         /// The calculation options/settings.

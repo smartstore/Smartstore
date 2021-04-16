@@ -109,57 +109,32 @@ namespace Smartstore.Core.Catalog.Pricing
             // Remember source product.
             var product = context.Product;
 
-            // Prepare context.
-            var cartItem = context.CartItem;
-            if (cartItem != null)
-            {
-                if (product.CustomerEntersPrice)
-                {
-                    return await CreateCalculatedPrice(new CalculatorContext(context, cartItem.Item.CustomerEnteredPrice));
-                }
+            var calculatorContext = context.CartItem != null && product.CustomerEntersPrice
+                ? new CalculatorContext(context, context.CartItem.Item.CustomerEnteredPrice)
+                : await RunCalculators(context);
 
-                // Include attributes selected for this cart item in price calculation.
-                context.AddSelectedAttributes(cartItem);
+            var unitPrice = await CreateCalculatedPrice(calculatorContext, product);
+            return unitPrice;
+        }
 
-                // Include bundle item data if the cart item is a bundle item.
-                if (cartItem.BundleItemData?.Item != null)
-                {
-                    context.BundleItem = cartItem.BundleItemData;
-                }
+        public virtual async Task<(CalculatedPrice UnitPrice, CalculatedPrice Subtotal)> CalculateSubtotalAsync(PriceCalculationContext context)
+        {
+            Guard.NotNull(context, nameof(context));
 
-                // Perf: we already have the bundle items of a bundled product. No need to load them again during calculation.
-                if (cartItem.ChildItems?.Any() ?? false)
-                {
-                    context.BundleItems = cartItem.ChildItems
-                        .Where(x => x.BundleItemData?.Item != null)
-                        .Select(x => x.BundleItemData)
-                        .ToList();
-                }
+            // Remember source product.
+            var product = context.Product;
 
-                if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
-                {
-                    Guard.NotNull(cartItem.ChildItems, nameof(cartItem.ChildItems));
+            var calculatorContext = context.CartItem != null && product.CustomerEntersPrice
+                ? new CalculatorContext(context, context.CartItem.Item.CustomerEnteredPrice)
+                : await RunCalculators(context);
 
-                    foreach (var bundleItem in cartItem.ChildItems)
-                    {
-                        await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Item.Product, bundleItem.Item.AttributeSelection);
-                    }
-                }
-                else
-                {
-                    await _productAttributeMaterializer.MergeWithCombinationAsync(product, cartItem.Item.AttributeSelection);
-                }
-            }
+            var unitPrice = await CreateCalculatedPrice(calculatorContext, product);
 
-            // Collect calculators
-            var calculators = _calculatorFactory.GetCalculators(context);
-            var calculatorContext = new CalculatorContext(context, product.Price);
+            var subtotal = context.Quantity > 1
+                ? await CreateCalculatedPrice(calculatorContext, product, context.Quantity)
+                : unitPrice;
 
-            // Run all collected calculators
-            await _calculatorFactory.RunCalculators(calculators, calculatorContext);
-
-            var result = await CreateCalculatedPrice(calculatorContext, product);
-            return result;
+            return (unitPrice, subtotal);
         }
 
         public virtual async Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection = null)
@@ -225,18 +200,74 @@ namespace Smartstore.Core.Catalog.Pricing
 
         #region Utilities
 
-        private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null)
+        private async Task<CalculatorContext> RunCalculators(PriceCalculationContext context)
+        {
+            Guard.NotNull(context, nameof(context));
+
+            // Remember source product.
+            var product = context.Product;
+
+            // Prepare context.
+            var cartItem = context.CartItem;
+            if (cartItem != null)
+            {
+                // Include attributes selected for this cart item in price calculation.
+                context.AddSelectedAttributes(cartItem);
+
+                // Include bundle item data if the cart item is a bundle item.
+                if (cartItem.BundleItemData?.Item != null)
+                {
+                    context.BundleItem = cartItem.BundleItemData;
+                }
+
+                // Perf: we already have the bundle items of a bundled product. No need to load them again during calculation.
+                if (cartItem.ChildItems?.Any() ?? false)
+                {
+                    context.BundleItems = cartItem.ChildItems
+                        .Where(x => x.BundleItemData?.Item != null)
+                        .Select(x => x.BundleItemData)
+                        .ToList();
+                }
+
+                if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
+                {
+                    Guard.NotNull(cartItem.ChildItems, nameof(cartItem.ChildItems));
+
+                    foreach (var bundleItem in cartItem.ChildItems)
+                    {
+                        await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Item.Product, bundleItem.Item.AttributeSelection);
+                    }
+                }
+                else
+                {
+                    await _productAttributeMaterializer.MergeWithCombinationAsync(product, cartItem.Item.AttributeSelection);
+                }
+            }
+
+            // Collect calculators
+            var calculators = _calculatorFactory.GetCalculators(context);
+            var calculatorContext = new CalculatorContext(context, product.Price);
+
+            // Run all collected calculators
+            await _calculatorFactory.RunCalculators(calculators, calculatorContext);
+
+            return calculatorContext;
+        }
+
+        private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null, int quantity = 1)
         {
             product ??= context.Product;
 
-            // Calculate the subtotal price instead of the unit price if requested.
-            if (!context.CalculateUnitPrice && context.Quantity > 1 && context.FinalPrice > 0)
+            var options = context.Options;
+
+            // Calculate the subtotal price instead of the unit price. Do not round here if the unit price is requested!
+            if (quantity > 1 && context.FinalPrice > 0)
             {
-                context.FinalPrice = context.Options.RoundingCurrency.RoundIfEnabledFor(context.FinalPrice) * context.Quantity;
+                context.FinalPrice = options.RoundingCurrency.RoundIfEnabledFor(context.FinalPrice) * quantity;
             }
 
             // Determine tax rate for product.
-            var taxRate = await _taxService.GetTaxRateAsync(product, null, context.Options.Customer);
+            var taxRate = await _taxService.GetTaxRateAsync(product, null, options.Customer);
 
             // Prepare result by converting price amounts.
             var result = new CalculatedPrice(context)
@@ -258,14 +289,14 @@ namespace Smartstore.Core.Catalog.Pricing
             // Convert attribute price adjustments.
             context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
 
-            if (tax.HasValue && _primaryCurrency != context.Options.TargetCurrency)
+            if (tax.HasValue && _primaryCurrency != options.TargetCurrency)
             {
                 // Exchange tax amounts.
                 // TODO: (mg) (core) Check for rounding issues thoroughly!
                 result.Tax = new Tax(
                     tax.Value.Rate,
                     // Amount
-                    _currencyService.ConvertFromPrimaryCurrency(tax.Value.Amount, context.Options.TargetCurrency).Amount,
+                    _currencyService.ConvertFromPrimaryCurrency(tax.Value.Amount, options.TargetCurrency).Amount,
                     // Price
                     result.FinalPrice.Amount,
                     tax.Value.IsGrossPrice,

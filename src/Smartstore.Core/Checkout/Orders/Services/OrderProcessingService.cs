@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
@@ -41,6 +42,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IProductService _productService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
+        private readonly IPriceCalculationService2 _priceCalculationService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ITaxCalculator _taxCalculator;
         private readonly IShoppingCartService _shoppingCartService;
@@ -72,6 +74,7 @@ namespace Smartstore.Core.Checkout.Orders
             IProductService productService,
             IProductAttributeMaterializer productAttributeMaterializer,
             IProductAttributeFormatter productAttributeFormatter,
+            IPriceCalculationService2 priceCalculationService,
             IOrderCalculationService orderCalculationService,
             ITaxCalculator taxCalculator,
             IShoppingCartService shoppingCartService,
@@ -100,6 +103,7 @@ namespace Smartstore.Core.Checkout.Orders
             _productService = productService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _productAttributeFormatter = productAttributeFormatter;
+            _priceCalculationService = priceCalculationService;
             _orderCalculationService = orderCalculationService;
             _taxCalculator = taxCalculator;
             _shoppingCartService = shoppingCartService;

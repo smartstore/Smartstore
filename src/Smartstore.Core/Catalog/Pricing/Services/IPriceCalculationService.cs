@@ -34,11 +34,19 @@ namespace Smartstore.Core.Catalog.Pricing
             ProductBatchContext batchContext = null);
 
         /// <summary>
-        /// Calculates the price for a given product.
+        /// Calculates the unit price for a given product.
         /// </summary>
         /// <param name="context">The context that contains the input product, the calculation options and some cargo data.</param>
         /// <returns>A new <see cref="CalculatedPrice"/> instance.</returns>
         Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context);
+
+        /// <summary>
+        /// Calculates both the unit price and the subtotal for a given product.
+        /// The subtotal is calculated by multiplying the unit price by <see cref="PriceCalculationContext.Quantity"/>.
+        /// </summary>
+        /// <param name="context">The context that contains the input product, the calculation options and some cargo data.</param>
+        /// <returns>The unit price and the subtotal.</returns>
+        Task<(CalculatedPrice UnitPrice, CalculatedPrice Subtotal)> CalculateSubtotalAsync(PriceCalculationContext context);
 
         /// <summary>
         /// Calculates the product cost as specified by <see cref="Product.ProductCost"/> in the primary currency.

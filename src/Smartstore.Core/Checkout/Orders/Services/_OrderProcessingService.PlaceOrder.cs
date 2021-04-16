@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
@@ -713,12 +714,12 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 foreach (var cartItem in ctx.Cart)
                 {
-                    var itm = cartItem.Item;
-                    var product = itm.Product;
+                    var item = cartItem.Item;
+                    var product = item.Product;
 
-                    await _productAttributeMaterializer.MergeWithCombinationAsync(product, itm.AttributeSelection);
+                    await _productAttributeMaterializer.MergeWithCombinationAsync(product, item.AttributeSelection);
 
-                    var attributeDescription = await _productAttributeFormatter.FormatAttributesAsync(itm.AttributeSelection, product, ctx.Customer);
+                    var attributeDescription = await _productAttributeFormatter.FormatAttributesAsync(item.AttributeSelection, product, ctx.Customer);
                     var itemWeight = await _shippingService.GetCartItemWeightAsync(cartItem, false);
                     var displayDeliveryTime =
                         _shoppingCartSettings.DeliveryTimesInShoppingCart != DeliveryTimesPresentation.None &&
@@ -726,9 +727,10 @@ namespace Smartstore.Core.Checkout.Orders
                         product.IsShippingEnabled &&
                         product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
 
-                    //var productCost = _priceCalculationService.GetProductCost(sc.Item.Product, sc.Item.AttributesXml);
-                    var productCost = decimal.Zero;
+                    var productCost = await _priceCalculationService.CalculateProductCostAsync(item.Product, item.AttributeSelection);
 
+                    // TODO: (mg) (core) rename variable names in AddOrderItems when ready.
+                    //var scUnitPrice = await _priceCalculationService.CalculateUnitPriceAsync(cartItem, false, _primaryCurrency);
                     var scUnitPriceExclTax = decimal.Zero;
 
                     // TODO: (mg) (core) Use price calculation when adding order items.
@@ -736,7 +738,7 @@ namespace Smartstore.Core.Checkout.Orders
                     {
                         OrderItemGuid = Guid.NewGuid(),
                         Order = ctx.Order,
-                        ProductId = itm.ProductId,
+                        ProductId = item.ProductId,
                         //UnitPriceInclTax = scUnitPriceInclTax,
                         UnitPriceExclTax = scUnitPriceExclTax,
                         //PriceInclTax = scSubTotalInclTax,
@@ -745,13 +747,13 @@ namespace Smartstore.Core.Checkout.Orders
                         //DiscountAmountInclTax = discountAmountInclTax,
                         //DiscountAmountExclTax = discountAmountExclTax,
                         AttributeDescription = attributeDescription,
-                        RawAttributes = itm.RawAttributes,
-                        Quantity = itm.Quantity,
+                        RawAttributes = item.RawAttributes,
+                        Quantity = item.Quantity,
                         DownloadCount = 0,
                         IsDownloadActivated = false,
                         LicenseDownloadId = 0,
                         ItemWeight = itemWeight,
-                        ProductCost = productCost,
+                        ProductCost = productCost.Amount,
                         DeliveryTimeId = product.GetDeliveryTimeIdAccordingToStock(_catalogSettings),
                         DisplayDeliveryTime = displayDeliveryTime
                     };
@@ -783,7 +785,7 @@ namespace Smartstore.Core.Checkout.Orders
                     // Gift cards.
                     if (product.IsGiftCard)
                     {
-                        var giftCardInfo = itm.AttributeSelection.GiftCardInfo;
+                        var giftCardInfo = item.AttributeSelection.GiftCardInfo;
                         if (giftCardInfo != null)
                         {
                             _db.GiftCards.AddRange(Enumerable.Repeat(new GiftCard
@@ -800,7 +802,7 @@ namespace Smartstore.Core.Checkout.Orders
                                 Message = giftCardInfo.Message,
                                 IsRecipientNotified = false,
                                 CreatedOnUtc = ctx.Now
-                            }, itm.Quantity));
+                            }, item.Quantity));
                         }
                     }
 

@@ -13,6 +13,8 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
+    // TODO: (mg) (core) ProductBundleItemData.AdditionalCharge is obsolete. But this also means that the entire ProductBundleItemData class becomes obsolete. Remove it later.
+
     /// <summary>
     /// Encapsulates data of a product bundle item.
     /// </summary>

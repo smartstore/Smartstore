@@ -53,12 +53,11 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var options = priceCalculationService.CreateDefaultOptions(false, cartItem.Item.Customer, targetCurrency);
             options.IgnoreDiscounts = ignoreDiscounts;
-            var context = new PriceCalculationContext(cartItem, options)
-            {
-                CalculateUnitPrice = false
-            };
 
-            return await priceCalculationService.CalculatePriceAsync(context);
+            var context = new PriceCalculationContext(cartItem, options);
+            var (_, subtotal) = await priceCalculationService.CalculateSubtotalAsync(context);
+
+            return subtotal;
         }
 
         /// <summary>
