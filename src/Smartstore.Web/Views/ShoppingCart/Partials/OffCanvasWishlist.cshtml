@@ -1,0 +1,137 @@
+﻿@using Smartstore.Web.Models.ShoppingCart;
+@using Smartstore.Core.Checkout.Cart;
+
+@model WishlistModel
+
+@{
+    int descMaxLength = Model.ShowProductImages ? 120 : 140;
+    int attrMaxLength = Model.ShowProductImages ? 50 : 70;
+}
+
+<div class="offcanvas-cart-body offcanvas-scrollable">
+
+    <div sm-if="!Model.Items.Any()" class="no-items">
+        <h4 class="no-item-title">
+            @T("ShoppingCart.Mini.EmptyWishlist.Title")
+        </h4>
+        <p class="no-item-icon">
+            <i class="fal fa-heart fa-4x"></i>
+        </p>
+        <p class="no-item-info text-muted">
+            @Html.Raw(T("ShoppingCart.Mini.EmptyWishlist.Info", "fal fa-lg fa-heart"))
+        </p>
+    </div>
+
+    @if (Model.Items.Any())
+    {
+        // Items added in the last 2 seconds are considered to be current
+        var currentItem = Model.Items.FirstOrDefault(x => x.CreatedOnUtc >= DateTime.UtcNow.AddSeconds(-2));
+
+        <div sm-if="currentItem != null" class="alert alert-success alert-dismissible rounded-0 fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <span sm-language-attributes-for="currentItem.ProductName">
+                @Html.Raw(T("ShoppingCart.Mini.AddedItemToWishlist", "<strong>" + currentItem.ProductName.Value.Truncate(50, "...") + "</strong>"))
+            </span>
+        </div>
+
+        <div class="offcanvas-cart-items">
+            @foreach (var item in Model.Items)
+            {
+                <div class="offcanvas-cart-item">
+                    <div class="row sm-gutters">
+
+                        <div sm-if="Model.ShowProductImages" class="col col-alpha">
+                            <a sm-if="item.Image.HasImage()" class="img-center-container" href="@item.ProductUrl" title="@item.Image.Title">
+                                <img sm-model="item.Image" />
+                            </a>
+                        </div>
+
+                        <div class="col col-data">
+                            <a sm-language-attributes-for="item.ProductName" class="name font-weight-medium" href="@item.ProductUrl" title="@item.ProductName">@item.ProductName</a>
+                            <div sm-language-attributes-for="item.ShortDesc" class="short-desc text-muted">
+                                @Html.Raw(item.ShortDesc.Value.Truncate(descMaxLength, "..."))
+                            </div>
+
+                            <div sm-if="item.AttributeInfo.HasValue()" class="attributes">
+                                @Html.Raw(item.AttributeInfo)
+                            </div>
+
+                            <div sm-if="item.ChildItems.Any()" class="mb-bundle-pictures mt-3">
+                                @{
+                                    var childItems = item.ChildItems.ToList();
+                                    for (int i = 0; i < childItems.Count; i++)
+                                    {
+                                        var bundleItem = childItems[i];
+                                        <a sm-if="bundleItem.Image.HasImage()" href="@bundleItem.ProductUrl" title="@bundleItem.ProductName">
+                                            <img sm-model="bundleItem.Image" />
+                                        </a>
+
+                                        <i sm-if="(i + 1) < childItems.Count" class="fa fa-plus"></i>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row sm-gutters flex-wrap align-items-center mt-2">
+                        <div class="col col-alpha">
+                            @Html.EditorFor(x => item, "QtyInput", new 
+                            { 
+                                htmlAttributes = new 
+                                { 
+                                    data_update_url = Url.Action("UpdateCartItem", "ShoppingCart", new { isWishlist = true }), 
+                                    data_type = "wishlist", data_sci_id = item.Id 
+                                }
+                            })
+                        </div>
+                        <div class="col">
+                            <span class="price unit-price">
+                                @item.UnitPrice
+                            </span>
+                        </div>
+
+                        <div class="ml-auto text-nowrap">
+                            @if (Model.ShowItemsFromWishlistToCartButton)
+                            {
+                                <a class="btn btn-secondary btn-sm btn-icon ajax-cart-link" title='@T("ShoppingCart.AddToCart")'
+                                   href="#"
+                                   rel="nofollow"
+                                   data-href="@Url.Action("MoveItemBetweenCartAndWishlist", "ShoppingCart", new { cartItemId = item.Id, cartType = ShoppingCartType.Wishlist })"
+                                   data-name="@item.ProductName"
+                                   data-type="cart"
+                                   data-action="addfromwishlist">
+                                    <i class="fa fa-cart-arrow-down"></i>
+                                </a>
+                            }
+                            <a class="btn btn-secondary btn-to-danger btn-sm btn-icon remove ajax-cart-link"
+                               href="#"
+                               rel="nofollow"
+                               data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id, isWishlistItem = true })'
+                               data-name="@item.ProductName"
+                               data-type="wishlist"
+                               data-action="remove"
+                               title='@T("Common.Remove")'>
+                                <i class="far fa-trash-alt"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+    
+    <zone name="offcanvas_wishlist_items_after" />
+</div>
+
+<div sm-if="Model.Items.Any()" class="offcanvas-cart-footer">
+    <div class="offcanvas-cart-footer-row">
+        <a class="btn btn-clear btn-block btn-action" href="@Url.RouteUrl("Wishlist")">
+            <i class="fa fa-check"></i>
+            <span>@T("Wishlist.Mini.ViewWishlist")</span>
+        </a>
+    </div>
+</div>
