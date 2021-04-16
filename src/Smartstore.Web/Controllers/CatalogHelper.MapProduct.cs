@@ -696,9 +696,9 @@ namespace Smartstore.Web.Controllers
             var savings = calculatedPrice.PriceSaving;
 
             priceModel.Price = calculatedPrice.FinalPrice;
-            priceModel.HasDiscount = savings.HasSavings;
+            priceModel.HasDiscount = savings.HasSaving;
 
-            if (savings.HasSavings)
+            if (savings.HasSaving)
             {
                 priceModel.RegularPrice = savings.SavingPrice;
                 priceModel.SavingAmount = savings.SavingAmount;

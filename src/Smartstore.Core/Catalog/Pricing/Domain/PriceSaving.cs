@@ -10,6 +10,9 @@ namespace Smartstore.Core.Catalog.Pricing
     /// </summary>
     public partial class PriceSaving
     {
+        // TODO: (mg) (core) Make this a readonly struct
+        // TODO: (mg) (core) Extremely confusing API design and naming strategy. CalculatedPrice.FinalPrice IS the ultimate end price. TBD with mc please.
+
         public PriceSaving(CalculatedPrice price)
         {
             Guard.NotNull(price, nameof(price));
@@ -18,9 +21,9 @@ namespace Smartstore.Core.Catalog.Pricing
             // Avoids differing percentage discount in product lists and detail page.
             SavingPrice = price.FinalPrice < price.FinalPriceWithoutDiscount ? price.FinalPriceWithoutDiscount : price.OldPrice;
 
-            HasSavings = SavingPrice > 0 && price.FinalPrice < SavingPrice;
+            HasSaving = SavingPrice > 0 && price.FinalPrice < SavingPrice;
 
-            if (HasSavings)
+            if (HasSaving)
             {
                 SavingPercent = (float)((SavingPrice - price.FinalPrice) / SavingPrice) * 100;
                 SavingAmount = (SavingPrice - price.FinalPrice).WithPostFormat(null);
@@ -30,11 +33,11 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// A value indicating whether there is a price saving on the calculated final price.
         /// </summary>
-        public bool HasSavings { get; private set; }
+        public bool HasSaving { get; private set; }
 
         /// <summary>
         /// The price that represents the saving. Often displayed as a crossed-out price.
-        /// Always greater than the final price if <see cref="HasSavings"/> is <c>true</c>.
+        /// Always greater than the final price if <see cref="HasSaving"/> is <c>true</c>.
         /// </summary>
         public Money SavingPrice { get; private set; }
 
