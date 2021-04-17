@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching.Tasks;
-using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -25,7 +23,6 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Tasks;
 using Smartstore.Core.Content.Topics;
-using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
@@ -37,27 +34,31 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Core.Theming;
 using Smartstore.Domain;
 using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
+using Smartstore.Imaging;
+using Smartstore.Core.Content.Menus;
+using Smartstore.Core.Data;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Core.Installation
 {
     public abstract partial class InvariantSeedData
     {
         private SmartDbContext _db;
+        private Language _language;
         private string _sampleImagesPath;
 
         protected InvariantSeedData()
         {
         }
 
-        public void Initialize(SmartDbContext db)
+        public void Initialize(SmartDbContext db, Language primaryLanguage)
         {
             _db = db;
+            _language = primaryLanguage;
             _sampleImagesPath = CommonHelper.MapPath("~/App_Data/Samples/");
         }
 
@@ -582,46 +583,6 @@ namespace Smartstore.Core.Data.Migrations
             return entities;
         }
 
-        public IList<MenuEntity> Menus()
-        {
-            const string entityProvider = "entity";
-            const string routeProvider = "route";
-            const string routeTemplate = "{{\"routename\":\"{0}\"}}";
-
-            var resourceNames = new string[] {
-                "Footer.Info",
-                "Footer.Service",
-                "Footer.Company",
-                "Manufacturers.List",
-                "Admin.Catalog.Categories",
-                "Products.NewProducts",
-                "Products.RecentlyViewedProducts",
-                "Products.Compare.List",
-                "ContactUs",
-                "Blog",
-                "Forum.Forums",
-                "Account.Login",
-                "Menu.ServiceMenu"
-            };
-
-            var settingNames = new string[]
-            {
-               TypeHelper.NameOf<CatalogSettings>(x => x.RecentlyAddedProductsEnabled, true),
-               TypeHelper.NameOf<CatalogSettings>(x => x.RecentlyViewedProductsEnabled, true),
-               TypeHelper.NameOf<CatalogSettings>(x => x.CompareProductsEnabled, true),
-               TypeHelper.NameOf<CustomerSettings>(x => x.UserRegistrationType, true)
-                //"BlogSettings.Enabled",
-                //"ForumSettings.ForumsEnabled"
-            };
-
-            Dictionary<string, string> resources = null;
-            Dictionary<string, string> settings = null;
-
-            // ...
-
-            return new List<MenuEntity>();
-        }
-
         public IList<ISettings> Settings()
         {
             var typeScanner = EngineContext.Current.Application.TypeScanner;
@@ -629,8 +590,8 @@ namespace Smartstore.Core.Data.Migrations
                 .Select(x => Activator.CreateInstance(x))
                 .OfType<ISettings>()
                 .ToList();
-
-            var defaultLanguageId = (_db.Languages.FirstOrDefault())?.Id ?? 0;
+            
+            var defaultLanguageId = _language.Id;
             var localizationSettings = settings.OfType<LocalizationSettings>().FirstOrDefault();
             if (localizationSettings != null)
             {
@@ -1364,6 +1325,10 @@ namespace Smartstore.Core.Data.Migrations
         {
         }
 
+        protected virtual void Alter(IList<MenuEntity> entities)
+        {
+        }
+
         protected virtual void Alter(IList<Store> entities)
         {
         }
@@ -1553,6 +1518,7 @@ namespace Smartstore.Core.Data.Migrations
                 var path = Path.Combine(_sampleImagesPath, fileName).Replace('/', '\\');
                 var mimeType = MimeTypes.MapNameToMimeType(ext);
                 var buffer = File.ReadAllBytes(path);
+                var pixelSize = ImageHeader.GetPixelSize(buffer, mimeType);
                 var now = DateTime.UtcNow;
 
                 var name = seoFilename.HasValue()
@@ -1571,6 +1537,12 @@ namespace Smartstore.Core.Data.Migrations
                     MediaStorage = new MediaStorage { Data = buffer },
                     Version = 1 // so that FolderId is set later during track detection
                 };
+
+                if (!pixelSize.IsEmpty)
+                {
+                    file.Width = pixelSize.Width;
+                    file.Height = pixelSize.Height;
+                }
 
                 return file;
             }

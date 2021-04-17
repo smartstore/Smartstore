@@ -49,13 +49,13 @@ namespace Smartstore.Core.Localization
         /// <summary>
         /// Gets or sets the locale key group
         /// </summary>
-        [Required, StringLength(400)]
+        [Required, StringLength(150)]
         public string LocaleKeyGroup { get; set; }
 
         /// <summary>
         /// Gets or sets the locale key
         /// </summary>
-        [Required, StringLength(400)]
+        [Required, StringLength(255)]
         public string LocaleKey { get; set; }
 
         /// <summary>

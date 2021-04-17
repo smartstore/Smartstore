@@ -22,7 +22,7 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Scheduling;
 
-namespace Smartstore.Web.Infrastructure.Installation
+namespace Smartstore.Core.Installation
 {
     public class DeDESeedData : InvariantSeedData
     {
@@ -2815,8 +2815,7 @@ namespace Smartstore.Web.Infrastructure.Installation
                 })
                 .Alter("Ebook 'Stone of the Wise' in 'Lorem ipsum'", x =>
                 {
-                    x.Name = "Ludwig van Beethoven: Für Elise";
-                    x.ShortDescription = "E-Book, 465 pages";
+                    x.ShortDescription = "E-Book, 465 Seiten";
                 })
 
                 #endregion Category Digital Goods & Instant Downloads

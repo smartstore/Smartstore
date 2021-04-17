@@ -40,7 +40,7 @@ namespace Smartstore.Core.Seo
 
         private UrlPolicy _urlPolicy;
 
-        private IDictionary<string, UrlRecord> _extraSlugLookup;
+        internal IDictionary<string, UrlRecord> _extraSlugLookup;
         private IDictionary<string, UrlRecordCollection> _prefetchedCollections;
         private static int _lastCacheSegmentSize = -1;
 
@@ -449,6 +449,11 @@ namespace Smartstore.Core.Seo
                     LanguageId = languageId,
                     IsActive = true,
                 };
+            }
+
+            if (entry != null && entry.IsTransientRecord())
+            {
+                // It's a freshly created record, add to set.
                 _db.UrlRecords.Add(entry);
 
                 // When we gonna save deferred, adding the new entry to our extra lookup

@@ -138,13 +138,13 @@ namespace Smartstore.Core.Content.Media.Storage
             if (mediaFile.MediaStorageId == null)
             {
                 // Insert new blob
-                var sql = "INSERT INTO [MediaStorage] (Data) Values(@p0)";
+                var sql = "INSERT INTO MediaStorage (Data) Values(@p0)";
                 mediaFile.MediaStorageId = await _db.DataProvider.InsertIntoAsync(sql, sourceStream);
             }
             else
             {
                 // Update existing blob
-                var sql = "UPDATE [MediaStorage] SET [Data] = @p0 WHERE Id = @p1";
+                var sql = "UPDATE MediaStorage SET Data = @p0 WHERE Id = @p1";
                 await _db.Database.ExecuteSqlRawAsync(sql, sourceStream, mediaFile.MediaStorageId.Value);
             }
 

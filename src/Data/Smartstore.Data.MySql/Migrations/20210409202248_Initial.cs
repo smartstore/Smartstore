@@ -571,7 +571,7 @@ namespace Smartstore.Data.MySql.Migrations
                     Name = table.Column<string>(type: "varchar(500) CHARACTER SET utf8mb4", maxLength: 500, nullable: false),
                     Alias = table.Column<string>(type: "varchar(500) CHARACTER SET utf8mb4", maxLength: 500, nullable: true),
                     CronExpression = table.Column<string>(type: "varchar(1000) CHARACTER SET utf8mb4", maxLength: 1000, nullable: true),
-                    Type = table.Column<string>(type: "varchar(800) CHARACTER SET utf8mb4", maxLength: 800, nullable: false),
+                    Type = table.Column<string>(type: "varchar(400) CHARACTER SET utf8mb4", maxLength: 400, nullable: false),
                     Enabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Priority = table.Column<int>(type: "int", nullable: false),
                     StopOnError = table.Column<bool>(type: "tinyint(1)", nullable: false),
@@ -710,7 +710,7 @@ namespace Smartstore.Data.MySql.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     EntityId = table.Column<int>(type: "int", nullable: false),
                     EntityName = table.Column<string>(type: "varchar(400) CHARACTER SET utf8mb4", maxLength: 400, nullable: false),
-                    Slug = table.Column<string>(type: "varchar(400) CHARACTER SET utf8mb4", maxLength: 400, nullable: false),
+                    Slug = table.Column<string>(type: "varchar(450) CHARACTER SET utf8mb4", maxLength: 450, nullable: false),
                     IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     LanguageId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -725,7 +725,7 @@ namespace Smartstore.Data.MySql.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
+                    Name = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", maxLength: 4000, nullable: true),
                     AllowsBilling = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     AllowsShipping = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     TwoLetterIsoCode = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: true),
@@ -798,7 +798,7 @@ namespace Smartstore.Data.MySql.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     EntityId = table.Column<int>(type: "int", nullable: false),
-                    EntityName = table.Column<string>(type: "varchar(400) CHARACTER SET utf8mb4", maxLength: 400, nullable: false),
+                    EntityName = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", maxLength: 255, nullable: false),
                     CustomerRoleId = table.Column<int>(type: "int", nullable: false),
                     IsIdle = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
@@ -875,8 +875,8 @@ namespace Smartstore.Data.MySql.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     EntityId = table.Column<int>(type: "int", nullable: false),
                     LanguageId = table.Column<int>(type: "int", nullable: false),
-                    LocaleKeyGroup = table.Column<string>(type: "varchar(400) CHARACTER SET utf8mb4", maxLength: 400, nullable: false),
-                    LocaleKey = table.Column<string>(type: "varchar(400) CHARACTER SET utf8mb4", maxLength: 400, nullable: false),
+                    LocaleKeyGroup = table.Column<string>(type: "varchar(150) CHARACTER SET utf8mb4", maxLength: 150, nullable: false),
+                    LocaleKey = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", maxLength: 255, nullable: false),
                     LocaleValue = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", nullable: false)
                 },
                 constraints: table =>
@@ -1774,7 +1774,7 @@ namespace Smartstore.Data.MySql.Migrations
                     Title = table.Column<string>(type: "varchar(100) CHARACTER SET utf8mb4", maxLength: 100, nullable: true),
                     FirstName = table.Column<string>(type: "varchar(225) CHARACTER SET utf8mb4", maxLength: 225, nullable: true),
                     LastName = table.Column<string>(type: "varchar(225) CHARACTER SET utf8mb4", maxLength: 225, nullable: true),
-                    FullName = table.Column<string>(type: "varchar(450) CHARACTER SET utf8mb4", maxLength: 450, nullable: true),
+                    FullName = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", maxLength: 255, nullable: true),
                     Company = table.Column<string>(type: "varchar(255) CHARACTER SET utf8mb4", maxLength: 255, nullable: true),
                     CustomerNumber = table.Column<string>(type: "varchar(100) CHARACTER SET utf8mb4", maxLength: 100, nullable: true),
                     BirthDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -2435,7 +2435,7 @@ namespace Smartstore.Data.MySql.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     ProductVariantAttributeId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "longtext CHARACTER SET utf8mb4", maxLength: 4000, nullable: true),
+                    Name = table.Column<string>(type: "varchar(450) CHARACTER SET utf8mb4", maxLength: 450, nullable: true),
                     Alias = table.Column<string>(type: "varchar(100) CHARACTER SET utf8mb4", maxLength: 100, nullable: true),
                     MediaFileId = table.Column<int>(type: "int", nullable: false),
                     Color = table.Column<string>(type: "varchar(100) CHARACTER SET utf8mb4", maxLength: 100, nullable: true),

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Smartstore.Core.Catalog.Attributes;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Core.Installation
 {
     public abstract partial class InvariantSeedData
     {

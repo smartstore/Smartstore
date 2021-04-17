@@ -11,27 +11,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Core;
-using Smartstore.Core.Common.Hooks;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
-using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Data.Hooks;
 using Smartstore.Data.Providers;
-using Smartstore.Domain;
 using Smartstore.Engine;
 using Smartstore.Threading;
 
-namespace Smartstore.Web.Infrastructure.Installation
+namespace Smartstore.Core.Installation
 {
     public partial class InstallationService : IInstallationService
     {
@@ -163,7 +158,9 @@ namespace Smartstore.Web.Infrastructure.Installation
                 settings.AppVersion = SmartstoreVersion.Version;
                 settings.DbFactory = dbFactory;
                 settings.ConnectionString = conString;
-                settings.Save();
+
+                // So that DataSettings.DatabaseIsInstalled() returns false during installation.
+                DataSettings.SetTestMode(true);
 
                 // resolve SeedData instance from primary language
                 var lazyLanguage = GetAppLanguage(model.PrimaryLanguage);
@@ -252,6 +249,9 @@ namespace Smartstore.Web.Infrastructure.Installation
                     x.ProgressMessage = GetResource("Progress.Finalizing");
                     Logger.Info(x.ProgressMessage);
                 });
+
+                // Now persist settings
+                settings.Save();
 
                 // SUCCESS: Redirect to home page
                 return UpdateResult(x =>

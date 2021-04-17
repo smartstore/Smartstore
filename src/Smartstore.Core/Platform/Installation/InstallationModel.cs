@@ -1,12 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.Validation;
 
-namespace Smartstore.Web.Infrastructure.Installation
+namespace Smartstore.Core.Installation
 {
-    public partial class InstallationModel : ModelBase
+    public partial class InstallationModel
     {
         [DataType(DataType.EmailAddress)]
         public string AdminEmail { get; set; }
@@ -57,12 +54,11 @@ namespace Smartstore.Web.Infrastructure.Installation
         #endregion
     }
 
-    public class InstallationModelValidator : SmartValidator<InstallationModel>
+    public class InstallationModelValidator : AbstractValidator<InstallationModel>
     {
         public InstallationModelValidator(IInstallationService installService)
         {
-            RuleFor(x => x.AdminEmail).NotEmpty();
-            RuleFor(x => x.AdminEmail).EmailAddress();
+            RuleFor(x => x.AdminEmail).NotEmpty().EmailAddress();
             RuleFor(x => x.AdminPassword).NotEmpty();
             RuleFor(x => x.ConfirmPassword).NotEmpty();
             RuleFor(x => x.AdminPassword).Equal(x => x.ConfirmPassword).WithMessage(installService.GetResource("PasswordsDoNotMatch"));

@@ -71,27 +71,28 @@ namespace Smartstore.Core.Seo
             var numAffected = await _urlService._db.SaveChangesAsync(cancelToken);
             _batch.Clear();
             return numAffected;
-
-            //return 0;
         }
 
         private async Task<List<ValidateSlugResult>> ValidateBatchAsync(IList<ValidateSlugResult> batch, CancellationToken cancelToken = default)
         {
             var batch2 = batch.Where(x => x.Source != null && x.Slug.HasValue());
 
+            // TODO: (core) Refactor UrlServiceBatchScope.ValidateBatchAsync > uniqueness is not guaranteed within a large batch.
+            // Idea: Catch UniquenessViolationException and validate only then.
+
             var unvalidatedSlugsMap = batch2
                 .Where(x => !x.WasValidated)
-                .Select(x => x.Slug)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToDictionary(x => x, x => (UrlRecord)null, StringComparer.OrdinalIgnoreCase);
+                //.ToDictionarySafe(x => x.Slug, x => x.Found, StringComparer.OrdinalIgnoreCase);
+                //.Select(x => x.Slug)
+                .DistinctBy(x => x.Slug)
+                .ToDictionary(x => x.Slug, x => x.Found, StringComparer.OrdinalIgnoreCase);
 
             var unvalidatedSlugs = unvalidatedSlugsMap.Keys;
 
             var foundRecords = await _dbSet.Where(x => unvalidatedSlugs.Contains(x.Slug)).ToListAsync();
-            foreach (var record in foundRecords)
-            {
-                unvalidatedSlugsMap[record.Slug] = record;
-            }
+
+            foundRecords.Each(x => unvalidatedSlugsMap[x.Slug] = x);
+            _urlService._extraSlugLookup.Each(x => unvalidatedSlugsMap[x.Key] = x.Value);
 
             var validatedBatch = batch2
                 .SelectAsync(async (slug) =>

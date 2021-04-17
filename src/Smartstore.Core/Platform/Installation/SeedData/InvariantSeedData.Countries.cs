@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Smartstore.Core.Common;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Core.Installation
 {
     public abstract partial class InvariantSeedData
     {

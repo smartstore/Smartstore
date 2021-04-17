@@ -57,7 +57,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Gets or sets the product variant attribute name.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(450)]
         public string Name { get; set; }
 
         /// <inheritdoc/>

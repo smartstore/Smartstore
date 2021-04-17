@@ -48,6 +48,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the name
         /// </summary>
+        [MaxLength(4000)]
         public string Name { get; set; }
 
         /// <summary>

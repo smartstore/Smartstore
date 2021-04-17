@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Smartstore.Web.Infrastructure.Installation
+namespace Smartstore.Core.Installation
 {
     /// <summary>
     /// Language class for installation process.

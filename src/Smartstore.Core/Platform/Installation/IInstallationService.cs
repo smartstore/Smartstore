@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Autofac;
-using Smartstore.Core.Data.Migrations;
 
-namespace Smartstore.Web.Infrastructure.Installation
+namespace Smartstore.Core.Installation
 {
     /// <summary>
     /// Responsible for installing the application

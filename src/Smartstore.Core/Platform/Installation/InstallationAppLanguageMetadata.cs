@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Infrastructure.Installation
+﻿namespace Smartstore.Core.Installation
 {
     public class InstallationAppLanguageMetadata
     {

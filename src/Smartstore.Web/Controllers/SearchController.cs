@@ -46,7 +46,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
-        [Route("/instantsearch", Name = "InstantSearch")]
+        [LocalizedRoute("/instantsearch", Name = "InstantSearch")]
         public async Task<IActionResult> InstantSearch(CatalogSearchQuery query)
         {
             if (!query.Term.HasValue() || query.Term.Length < _searchSettings.InstantSearchTermMinLength)

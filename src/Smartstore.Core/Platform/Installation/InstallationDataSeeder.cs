@@ -25,7 +25,7 @@ using Smartstore.Data.Migrations;
 using Smartstore.Domain;
 using Smartstore.Engine;
 
-namespace Smartstore.Web.Infrastructure.Installation
+namespace Smartstore.Core.Installation
 {
     public partial class InstallationDataSeeder : IDataSeeder<SmartDbContext>
     {
@@ -103,7 +103,7 @@ namespace Smartstore.Web.Infrastructure.Installation
             Guard.NotNull(context, nameof(context));
 
             _db = context;
-            _data.Initialize(_db);
+            _data.Initialize(_db, _config.Language);
 
             _db.ChangeTracker.AutoDetectChangesEnabled = false;
             _db.MinHookImportance = HookImportance.Essential;
@@ -156,11 +156,11 @@ namespace Smartstore.Web.Infrastructure.Installation
                 await Populate("PopulateDiscounts", _data.Discounts());
                 await Populate("PopulateCategories", PopulateCategories);
                 await Populate("PopulateManufacturers", PopulateManufacturers);
-                //await Populate("PopulateProducts", PopulateProducts);
-                //await Populate("PopulateProductBundleItems", _data.ProductBundleItems());
-                //await Populate("PopulateProductVariantAttributes", _data.ProductVariantAttributes());
-                //await Populate("ProductVariantAttributeCombinations", _data.ProductVariantAttributeCombinations());
-                //await Populate("PopulateProductTags", _data.ProductTags());
+                await Populate("PopulateProducts", PopulateProducts);
+                await Populate("PopulateProductBundleItems", _data.ProductBundleItems());
+                await Populate("PopulateProductVariantAttributes", _data.ProductVariantAttributes());
+                await Populate("ProductVariantAttributeCombinations", _data.ProductVariantAttributeCombinations());
+                await Populate("PopulateProductTags", _data.ProductTags());
                 ////////await Populate("PopulateForumsGroups", _data.ForumGroups());
                 ////////await Populate("PopulateForums", _data.Forums());
                 ////////await Populate("PopulateBlogPosts", PopulateBlogPosts);
@@ -471,7 +471,8 @@ namespace Smartstore.Web.Infrastructure.Installation
                             Source = entity,
                             Found = ur,
                             Slug = ur.Slug,
-                            FoundIsSelf = true
+                            LanguageId = 0,
+                            FoundIsSelf = true,
                         });
                     }
                 }

@@ -25,7 +25,8 @@ namespace Smartstore.Core.Logging
                 .HasOne(x => x.Customer)
                 .WithOne(navigationName: null)
                 .IsRequired(false)
-                .HasForeignKey<ActivityLog>(x => x.CustomerId);
+                .HasForeignKey<ActivityLog>(x => x.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

@@ -14,7 +14,7 @@ namespace Smartstore.Scheduling
             builder.Ignore(x => x.LastExecution);
 
             builder.Property(x => x.Name).IsRequired().HasMaxLength(500);
-            builder.Property(x => x.Type).IsRequired().HasMaxLength(800);
+            builder.Property(x => x.Type).IsRequired().HasMaxLength(400);
             builder.Property(x => x.Alias).HasMaxLength(500);
             builder.Property(x => x.CronExpression).HasMaxLength(1000);
 

@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Rules;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Core.Installation
 {
     public abstract partial class InvariantSeedData
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Core.Data.Migrations
+namespace Smartstore.Core.Installation
 {
     public class SeedDataConfiguration
     {

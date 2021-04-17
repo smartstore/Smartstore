@@ -24,36 +24,36 @@ namespace Smartstore.Core.Identity
     {
 		#region Raw SQL
 		const string SqlGenericAttributes = @"
-DELETE TOP(50000) [g]
-  FROM [dbo].[GenericAttribute] AS [g]
-  LEFT OUTER JOIN [dbo].[Customer] AS [c] ON c.Id = g.EntityId
-  LEFT OUTER JOIN [dbo].[Order] AS [o] ON c.Id = o.CustomerId
-  LEFT OUTER JOIN [dbo].[CustomerContent] AS [cc] ON c.Id = cc.CustomerId
-  LEFT OUTER JOIN [dbo].[Forums_PrivateMessage] AS [pm] ON c.Id = pm.ToCustomerId
-  LEFT OUTER JOIN [dbo].[Forums_Post] AS [fp] ON c.Id = fp.CustomerId
-  LEFT OUTER JOIN [dbo].[Forums_Topic] AS [ft] ON c.Id = ft.CustomerId
+DELETE TOP(50000) g
+  FROM GenericAttribute AS g
+  LEFT OUTER JOIN Customer AS c ON c.Id = g.EntityId
+  LEFT OUTER JOIN Order AS o ON c.Id = o.CustomerId
+  LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
+  LEFT OUTER JOIN Forums_PrivateMessage AS pm ON c.Id = pm.ToCustomerId
+  LEFT OUTER JOIN Forums_Post AS fp ON c.Id = fp.CustomerId
+  LEFT OUTER JOIN Forums_Topic AS ft ON c.Id = ft.CustomerId
   WHERE g.KeyGroup = 'Customer' AND c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{0}
-	AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[Order] AS [o1] WHERE c.Id = o1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[CustomerContent] AS [cc1] WHERE c.Id = cc1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[Forums_PrivateMessage] AS [pm1] WHERE c.Id = pm1.ToCustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[Forums_Post] AS [fp1] WHERE c.Id = fp1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[Forums_Topic] AS [ft1] WHERE c.Id = ft1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS C1 FROM Order AS o1 WHERE c.Id = o1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS C1 FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS C1 FROM Forums_PrivateMessage AS pm1 WHERE c.Id = pm1.ToCustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS C1 FROM Forums_Post AS fp1 WHERE c.Id = fp1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS C1 FROM Forums_Topic AS ft1 WHERE c.Id = ft1.CustomerId ))
 ";
 
 		const string SqlGuestCustomers = @"
-DELETE TOP(20000) [c]
-  FROM [dbo].[Customer] AS [c]
-  LEFT OUTER JOIN [dbo].[Order] AS [o] ON c.Id = o.CustomerId
-  LEFT OUTER JOIN [dbo].[CustomerContent] AS [cc] ON c.Id = cc.CustomerId
-  LEFT OUTER JOIN [dbo].[Forums_PrivateMessage] AS [pm] ON c.Id = pm.ToCustomerId
-  LEFT OUTER JOIN [dbo].[Forums_Post] AS [fp] ON c.Id = fp.CustomerId
-  LEFT OUTER JOIN [dbo].[Forums_Topic] AS [ft] ON c.Id = ft.CustomerId
+DELETE TOP(20000) c
+  FROM Customer AS c
+  LEFT OUTER JOIN Order AS o ON c.Id = o.CustomerId
+  LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
+  LEFT OUTER JOIN Forums_PrivateMessage AS pm ON c.Id = pm.ToCustomerId
+  LEFT OUTER JOIN Forums_Post AS fp ON c.Id = fp.CustomerId
+  LEFT OUTER JOIN Forums_Topic AS ft ON c.Id = ft.CustomerId
   WHERE c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{0}
-	AND (NOT EXISTS (SELECT 1 AS x FROM [dbo].[Order] AS [o1] WHERE c.Id = o1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS x FROM [dbo].[CustomerContent] AS [cc1] WHERE c.Id = cc1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS x FROM [dbo].[Forums_PrivateMessage] AS [pm1] WHERE c.Id = pm1.ToCustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS x FROM [dbo].[Forums_Post] AS [fp1] WHERE c.Id = fp1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS x FROM [dbo].[Forums_Topic] AS [ft1] WHERE c.Id = ft1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM Order AS o1 WHERE c.Id = o1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM Forums_PrivateMessage AS pm1 WHERE c.Id = pm1.ToCustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Post AS fp1 WHERE c.Id = fp1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Topic AS ft1 WHERE c.Id = ft1.CustomerId ))
 ";
 		#endregion
 
@@ -184,7 +184,7 @@ DELETE TOP(20000) [c]
 			}
 			if (onlyWithoutShoppingCart)
 			{
-				paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS [C1] FROM [dbo].[ShoppingCartItem] AS [sci] WHERE c.Id = sci.CustomerId ))");
+				paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS C1 FROM ShoppingCartItem AS sci WHERE c.Id = sci.CustomerId ))");
 			}
 
 			var sqlGenericAttributes = SqlGenericAttributes.FormatInvariant(paramClauses.ToString());

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
 using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
@@ -81,7 +82,7 @@ namespace Smartstore.Core.Data.Utilities
             var pageIndex = -1;
             while (true)
             {
-                var products = await query.ToPagedList(++pageIndex, 1000).LoadAsync();
+                var products = await query.ToPagedList(++pageIndex, 500).LoadAsync();
                 var map = await GetPoductPictureMap(db, products.Select(x => x.Id).ToArray());
 
                 foreach (var p in products)
@@ -90,7 +91,7 @@ namespace Smartstore.Core.Data.Utilities
                     if (map.ContainsKey(p.Id))
                     {
                         // Product has still a pic.
-                        fixedPictureId = map[p.Id];
+                        fixedPictureId = map[p.Id].FirstOrDefault();
                     }
 
                     // Update only if fixed PictureId differs from current
@@ -113,7 +114,7 @@ namespace Smartstore.Core.Data.Utilities
 
                 foreach (var kvp in chunk)
                 {
-                    db.Database.ExecuteSqlRaw("Update [Product] Set [MainPictureId] = {0} WHERE [Id] = {1}", kvp.Value, kvp.Key);
+                    db.Database.ExecuteSqlRaw("Update Product Set MainPictureId = {0} WHERE Id = {1}", kvp.Value, kvp.Key);
                 }
 
                 await db.SaveChangesAsync();
@@ -123,22 +124,16 @@ namespace Smartstore.Core.Data.Utilities
             return toUpdate.Count;
         }
 
-        private static async Task<IDictionary<int, int>> GetPoductPictureMap(SmartDbContext db, IEnumerable<int> productIds)
+        private static async Task<Multimap<int, int>> GetPoductPictureMap(SmartDbContext db, IEnumerable<int> productIds)
         {
-            var query = 
-                from pp in db.ProductMediaFiles.AsNoTracking()
-                where productIds.Contains(pp.ProductId)
-                group pp by pp.ProductId into g
-                select new
-                {
-                    ProductId = g.Key,
-                    PictureIds = g.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Id)
-                        .Take(1)
-                        .Select(x => x.MediaFileId)
-                };
+            var query =
+                from x in db.ProductMediaFiles.AsNoTracking()
+                where productIds.Contains(x.ProductId)
+                orderby x.ProductId, x.DisplayOrder
+                select new { x.ProductId, x.MediaFileId };
 
             var files = await query.ToListAsync();
-            var map = files.ToDictionary(x => x.ProductId, x => x.PictureIds.First());
+            var map = files.ToMultimap(x => x.ProductId, x => x.MediaFileId);
             return map;
         }
 

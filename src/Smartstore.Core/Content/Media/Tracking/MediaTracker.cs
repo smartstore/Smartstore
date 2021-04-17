@@ -17,6 +17,7 @@ using Smartstore.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
+using Smartstore.Engine;
 using Smartstore.Utilities;
 using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
@@ -213,6 +214,12 @@ namespace Smartstore.Core.Content.Media
                     .Include(x => x.Tracks)
                     .Where(x => mediaFileIds.Contains(x.Id));
 
+                var isInstallation = !EngineContext.Current.Application.IsInstalled;
+                if (isInstallation)
+                {
+                    query = query.Where(x => x.Version == 1);
+                }
+
                 var files = await query.ToDictionaryAsync(x => x.Id);
 
                 // for each media file relation to an entity...
@@ -221,6 +228,15 @@ namespace Smartstore.Core.Content.Media
                     // fetch the file from local dictionary by its id...
                     if (files.TryGetValue(track.MediaFileId, out var file))
                     {
+                        if (isInstallation)
+                        {
+                            // set album id as folder id (during installation there are no sub-folders)
+                            file.FolderId = albumNode?.Id;
+
+                            // remember that we processed tracks for this file already
+                            file.Version = 2;
+                        }
+
                         if (track.Album.IsEmpty())
                         {
                             if (albumNode != null)
@@ -309,8 +325,12 @@ namespace Smartstore.Core.Content.Media
                 .Select(x => _trackDetectorFactory[x])
                 .ToArray();
 
-            // First delete all tracks for current album...
-            await DeleteAllTracksAsync(albumName);
+            var isInstallation = !EngineContext.Current.Application.IsInstalled;
+            if (!isInstallation)
+            {
+                // First delete all tracks for current album...
+                await DeleteAllTracksAsync(albumName);
+            }
 
             IAsyncEnumerable<MediaTrack> allTracks = null;
 
