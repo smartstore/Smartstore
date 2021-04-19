@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MessageTemplate>
+	<To>{{ Email.DisplayName }} &lt;{{ Email.Email }}&gt;</To>
+	<ReplyTo>{% if Message.SenderEmail %}{{ Message.SenderName }} &lt;{{ Message.SenderEmail }}&gt;{% endif %}</ReplyTo>
+	<Subject>{{ Store.Name }} - {% if Message.IsQuoteRequest %} Preisanfrage für {% else %} Frage zu {% endif %}'{{ Product.Name | Truncate:30 }}' von {{ Message.SenderName }}</Subject>
+	<ModelTypes>Customer, Product</ModelTypes>
+	<Body>
+	  <![CDATA[{% extends 'master' %}
+
+{% block 'body' %}
+<h1>
+  {% if Message.IsQuoteRequest %}
+    Preisanfrage
+  {% else %}
+    Produktanfrage,
+  {% endif %}
+</h1>
+
+<p class="mb-1">
+  {% if Customer.IsRegistered %}
+  	<b>{{ Customer.FullName }}</b>
+  {% elsif Message.SenderName %}
+  	<b>{{ Message.SenderName }}</b>
+  {% else %}
+  	<b>{{ Message.SenderEmail }}</b>
+  {% endif %}
+  
+  {% if Message.IsQuoteRequest %}
+    hat eine Preisanfrage für folgendes Produkt gesendet:
+  {% else %}
+    hat eine Frage zu folgendem Produkt:
+  {% endif %}
+</p>
+<p>
+  <a href="{{ Message.ProductUrl }}">{{ Product.Name }}</a>
+  <span class="ml-1 small">{{ Message.ProductAttributes }}</span>
+</p>
+
+<p>
+  <b>E-Mail:</b><br />
+  <a href="mailto:{{ Message.SenderEmail }}">{{ Message.SenderEmail }}</a>
+</p>
+
+{% if Message.SenderPhone %}
+<p>
+  <b>Telefonnr.:</b><br />
+  <span>{{ Message.SenderPhone }}</span>
+</p>
+{% endif %}
+
+<table class="w-100 brd bg-light">
+  <tr>
+  	<td class="p-3">
+  		{{ Message.Message }}
+    </td>
+  </tr>
+</table>
+
+{% if Customer.IsRegistered %}
+<div class="mt-4">
+  <p class="text-center">
+    <a class="btn btn-primary" href="{{ Customer.EditUrl }}">Zum Kundenprofil</a>
+  </p>
+</div>
+{% endif %}
+
+{% endblock %}]]></Body>
+</MessageTemplate>

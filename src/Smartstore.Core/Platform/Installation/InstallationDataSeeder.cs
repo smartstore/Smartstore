@@ -16,6 +16,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Messages.Utilities;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Theming;
@@ -373,10 +374,8 @@ namespace Smartstore.Core.Installation
 
         private async Task PopulateMessageTemplates()
         {
-            // TODO: (core) Implement MessageTemplateConverter for installation
-            //var converter = new MessageTemplateConverter(_ctx);
-            //converter.ImportAll(_config.Language);
-            await Task.Delay(50);
+            var converter = new MessageTemplateConverter(_db, EngineContext.Current.Application);
+            await converter.ImportAllAsync(_config.Language);
         }
 
         private async Task PopulateCategories()
