@@ -207,7 +207,7 @@ namespace Smartstore.Web.Controllers
                 using var scope = new DbContextScope(_db, retainConnection: true, deferCommit: true);
 
                 // PERF!!
-                var calculationOptions = _priceCalculationService2.CreateDefaultOptions(true);
+                var calculationOptions = _priceCalculationService.CreateDefaultOptions(true);
                 var language = calculationOptions.Language;
                 var customer = calculationOptions.Customer;
                 var allowPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
@@ -576,7 +576,7 @@ namespace Smartstore.Web.Controllers
 
             if (finalPrice != decimal.Zero && model.ShowBasePrice)
             {
-                item.BasePriceInfo = _priceCalculationService2.GetBasePriceInfo(contextProduct, finalPrice, options.TargetCurrency);
+                item.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(contextProduct, finalPrice, options.TargetCurrency);
             }
 
             if (settings.MapPrices)
@@ -692,7 +692,7 @@ namespace Smartstore.Web.Controllers
             };
 
             // -----> Perform calculation <-------
-            var calculatedPrice = await _priceCalculationService2.CalculatePriceAsync(calculationContext);
+            var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
             var savings = calculatedPrice.PriceSaving;
 
             priceModel.Price = calculatedPrice.FinalPrice;

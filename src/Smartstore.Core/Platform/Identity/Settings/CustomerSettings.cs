@@ -92,7 +92,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets a value indicating whether 'New customer' notification message should be sent to a store owner.
         /// </summary>
-        public bool NotifyNewCustomerRegistration { get; set; }
+        public bool NotifyNewCustomerRegistration { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to hide 'Downloable products' tab on 'My account' page.

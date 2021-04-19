@@ -2,9 +2,6 @@
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Common;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
@@ -69,24 +66,23 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="priceCalculationService">Price calculation service.</param>
         /// <param name="product">The product.</param>
         /// <param name="selection">Attribute selection.</param>
-        /// <param name="customer">The customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
-        /// <param name="targetCurrency">The target currency to use for money conversion. Obtained from <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c>.</param>
         /// <param name="quantity">
         /// The product quantity. May have impact on the price, e.g. if tier prices are applied to price adjustments.
-        /// Note that the calculated price is always the unit price.</param>
+        /// Note that the calculated price is always the unit price.
+        /// </param>
+        /// <param name="options">Price calculation options. The default options are used if <c>null</c>.</param>
         /// <returns>Price adjustments of selected attributes. Key: <see cref="ProductVariantAttributeValue.Id"/>, value: attribute price adjustment.</returns>
         public static async Task<IDictionary<int, CalculatedPriceAdjustment>> CalculateAttributePriceAdjustmentsAsync(
             this IPriceCalculationService2 priceCalculationService,
             Product product,
             ProductVariantAttributeSelection selection,
-            Customer customer = null,
-            Currency targetCurrency = null,
-            int quantity = 1)
+            int quantity = 1,
+            PriceCalculationOptions options = null)
         {
             Guard.NotNull(priceCalculationService, nameof(priceCalculationService));
             Guard.NotNull(selection, nameof(selection));
 
-            var options = priceCalculationService.CreateDefaultOptions(false, customer, targetCurrency);
+            options ??= priceCalculationService.CreateDefaultOptions(false);
             options.DeterminePriceAdjustments = true;
 
             var pricingContext = new PriceCalculationContext(product, quantity, options);
@@ -101,14 +97,9 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         /// <param name="priceCalculationService">Price calculation service.</param>
         /// <param name="product">The product to get the base price info for.</param>
-        /// <param name="customer">The customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
-        /// <param name="targetCurrency">The target currency to use for money conversion. Obtained from <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c>.</param>
-        /// <returns></returns>
-        public static async Task<string> GetBasePriceInfoAsync(
-            this IPriceCalculationService2 priceCalculationService,
-            Product product,
-            Customer customer = null,
-            Currency targetCurrency = null)
+        /// <param name="options">Price calculation options. The default options are used if <c>null</c>.</param>
+        /// <returns>Base price info.</returns>
+        public static async Task<string> GetBasePriceInfoAsync(this IPriceCalculationService2 priceCalculationService, Product product, PriceCalculationOptions options = null)
         {
             Guard.NotNull(priceCalculationService, nameof(priceCalculationService));
             Guard.NotNull(product, nameof(product));
@@ -118,7 +109,8 @@ namespace Smartstore.Core.Catalog.Pricing
                 return string.Empty;
             }
 
-            var options = priceCalculationService.CreateDefaultOptions(false, customer, targetCurrency);
+            options ??= priceCalculationService.CreateDefaultOptions(false);
+
             var context = new PriceCalculationContext(product, options);
             var price = await priceCalculationService.CalculatePriceAsync(context);
 

@@ -72,7 +72,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
                 // Key: ProductVariantAttributeValue.Id, value: calculated attribute price adjustment.
                 var priceAdjustments = includePrices && _catalogSettings.ShowVariantCombinationPriceAdjustment
-                    ? await _priceCalculationService.CalculateAttributePriceAdjustmentsAsync(product, selection, customer)
+                    ? await _priceCalculationService.CalculateAttributePriceAdjustmentsAsync(product, selection, 1, _priceCalculationService.CreateDefaultOptions(false, customer))
                     : null;
                 CalculatedPriceAdjustment adjustment = null;
 

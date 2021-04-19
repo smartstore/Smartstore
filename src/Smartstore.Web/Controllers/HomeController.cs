@@ -1053,8 +1053,7 @@ namespace Smartstore.Web.Controllers
                 var newPreselectedPrice = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, cpPreselectedOptions));
 
                 var oldBasePriceInfo = await pcsLegacy.GetBasePriceInfoAsync(product, customer);
-                var cpBasePriceOptions = pcs.CreateDefaultOptions(false);
-                var newBasePriceInfo = await pcs.GetBasePriceInfoAsync(product, customer);
+                var newBasePriceInfo = await pcs.GetBasePriceInfoAsync(product);
 
                 var hasDifferingAmount =
                     (oldFinalPrice != newFinalPrice.FinalPrice) ||

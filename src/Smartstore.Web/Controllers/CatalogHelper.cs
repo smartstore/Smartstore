@@ -60,8 +60,8 @@ namespace Smartstore.Web.Controllers
         private readonly ICurrencyService _currencyService;
         private readonly IMediaService _mediaService;
         private readonly ILocalizationService _localizationService;
-        private readonly IPriceCalculationService _priceCalculationService;
-        private readonly IPriceCalculationService2 _priceCalculationService2;
+        private readonly IPriceCalculationService _priceCalculationServiceLegacy;
+        private readonly IPriceCalculationService2 _priceCalculationService;
         //private readonly IPriceFormatter _priceFormatter;
         //private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IDateTimeHelper _dateTimeHelper;
@@ -145,8 +145,8 @@ namespace Smartstore.Web.Controllers
             _currencyService = currencyService;
             _mediaService = mediaService;
             _localizationService = _services.Localization;
-            _priceCalculationService = priceCalculationService;
-            _priceCalculationService2 = priceCalculationService2;
+            _priceCalculationServiceLegacy = priceCalculationService;
+            _priceCalculationService = priceCalculationService2;
             //_priceFormatter = priceFormatter;
             //_specificationAttributeService = specificationAttributeService;
             _dateTimeHelper = dateTimeHelper;
@@ -1077,7 +1077,7 @@ namespace Smartstore.Web.Controllers
                     // Display price if allowed.
                     if (displayPrices && !isBundlePricing)
                     {
-                        var attributeValuePriceAdjustment = await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, modelContext.Customer, null, selectedQuantity);
+                        var attributeValuePriceAdjustment = await _priceCalculationServiceLegacy.GetProductVariantAttributeValuePriceAdjustmentAsync(pvaValue, product, modelContext.Customer, null, selectedQuantity);
                         var priceAdjustmentBase = new Money();
                         (priceAdjustmentBase, _) = await _taxService.GetProductPriceAsync(product, attributeValuePriceAdjustment);
                         var priceAdjustment = _currencyService.ConvertToWorkingCurrency(priceAdjustmentBase);
@@ -1346,12 +1346,14 @@ namespace Smartstore.Web.Controllers
             model.HasSampleDownload = product.IsDownload && product.HasSampleDownload;
             model.IsCurrentCustomerRegistered = customer.IsRegistered();
             model.IsBasePriceEnabled = product.BasePriceEnabled && !(isBundle && product.BundlePerItemPricing);
-            model.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(product, customer, currency);
             model.ShowLegalInfo = !model.IsBundlePart && _taxSettings.ShowLegalHintsInProductDetails;
             model.BundleTitleText = product.GetLocalized(x => x.BundleTitleText);
             model.BundlePerItemPricing = product.BundlePerItemPricing;
             model.BundlePerItemShipping = product.BundlePerItemShipping;
             model.BundlePerItemShoppingCart = product.BundlePerItemShoppingCart;
+
+            var basePricePricingOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
+            model.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(product, basePricePricingOptions);
 
             var taxDisplayType = _services.WorkContext.GetTaxDisplayTypeFor(customer, store.Id);
             string taxInfo = T(taxDisplayType == TaxDisplayType.IncludingTax ? "Tax.InclVAT" : "Tax.ExclVAT");
@@ -1543,10 +1545,10 @@ namespace Smartstore.Web.Controllers
                             if (selectedAttributeValues != null)
                             {
                                 selectedAttributeValues.Each(async x => attributesTotalPriceBase += 
-                                    await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(x,product, customer, null, selectedQuantity));
+                                    await _priceCalculationServiceLegacy.GetProductVariantAttributeValuePriceAdjustmentAsync(x,product, customer, null, selectedQuantity));
 
                                 selectedAttributeValues.Each(async x => attributesTotalPriceBaseOrig += 
-                                    await _priceCalculationService.GetProductVariantAttributeValuePriceAdjustmentAsync(x, product, customer, null, 1));
+                                    await _priceCalculationServiceLegacy.GetProductVariantAttributeValuePriceAdjustmentAsync(x, product, customer, null, 1));
                             }
                             else
                             {
@@ -1560,10 +1562,10 @@ namespace Smartstore.Web.Controllers
                         }
 
                         // TODO: (mh) (core) GetFinalPriceAsync doesn't return the correct price. Check again when pricing chain is ready.
-                        finalPriceWithoutDiscountBase = await _priceCalculationService.GetFinalPriceAsync(
+                        finalPriceWithoutDiscountBase = await _priceCalculationServiceLegacy.GetFinalPriceAsync(
                             product, modelContext.BundleItemDatas, attributesTotalPriceBaseOrig, customer, false, selectedQuantity, productBundleItem);
 
-                        finalPriceWithDiscountBase = await _priceCalculationService.GetFinalPriceAsync(
+                        finalPriceWithDiscountBase = await _priceCalculationServiceLegacy.GetFinalPriceAsync(
                             product, modelContext.BundleItemDatas, attributesTotalPriceBase, customer, true, selectedQuantity, productBundleItem);
 
                         var basePriceAdjustment = finalPriceWithDiscountBase - finalPriceWithoutDiscountBase;
@@ -1595,7 +1597,7 @@ namespace Smartstore.Web.Controllers
 
                         model.ProductPrice.Price = finalPriceWithoutDiscount.WithPostFormat(taxFormat);
                         model.ProductPrice.PriceWithDiscount = finalPriceWithDiscount.WithPostFormat(taxFormat);
-                        model.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(product, customer, currency, attributesTotalPriceBase);
+                        model.BasePriceInfo = await _priceCalculationServiceLegacy.GetBasePriceInfoAsync(product, customer, currency, attributesTotalPriceBase);
                             
                         if (model.ProductPrice.OldPrice > 0 || model.ProductPrice.PriceWithDiscount > 0)
                         {
@@ -1609,7 +1611,7 @@ namespace Smartstore.Web.Controllers
                                 model.ProductPrice.NoteWithDiscount = T("Products.Bundle.PriceWithDiscount.Note");
                             }
 
-                            model.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(product, customer, currency, basePriceAdjustment);
+                            model.BasePriceInfo = await _priceCalculationServiceLegacy.GetBasePriceInfoAsync(product, customer, currency, basePriceAdjustment);
                         }
 
                         // Calculate saving.
@@ -1623,7 +1625,7 @@ namespace Smartstore.Web.Controllers
                             model.ProductPrice.SavingAmount = regularPrice - finalPriceWithDiscount;
                         }
 
-                        model.TierPrices = await CreateTierPriceModelAsync(product, 0);
+                        model.TierPrices = await CreateTierPriceModelAsync(modelContext, product);
                     }
                 }
             }
@@ -1919,42 +1921,38 @@ namespace Smartstore.Web.Controllers
             });
         }
 
-        public async Task<List<ProductDetailsModel.TierPriceModel>> CreateTierPriceModelAsync(Product product, decimal adjustment = decimal.Zero)
+        protected async Task<List<ProductDetailsModel.TierPriceModel>> CreateTierPriceModelAsync(ProductDetailsModelContext modelContext, Product product)
         {
-            var model = await product.TierPrices
-                .FilterByStore(_services.StoreContext.CurrentStore.Id)
-                .FilterForCustomer(_services.WorkContext.CurrentCustomer)
+            var tierPrices = product.TierPrices
+                .FilterByStore(_storeContext.CurrentStore.Id)
+                .FilterForCustomer(_workContext.CurrentCustomer)
+                .OrderBy(x => x.Quantity)
                 .ToList()
-                .RemoveDuplicatedQuantities()
+                .RemoveDuplicatedQuantities();
+
+            if (!tierPrices.Any())
+            {
+                return new List<ProductDetailsModel.TierPriceModel>();
+            }
+
+            var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, modelContext.Customer, modelContext.Currency, modelContext.BatchContext);
+            pricingOptions.TaxFormat = null;
+
+            var model = await tierPrices
                 .SelectAsync(async (tierPrice) =>
                 {
-                    var m = new ProductDetailsModel.TierPriceModel
+                    // TODO: (mg) (core) selected product attributes missing in CatalogHelper.CreateTierPriceModelAsync.
+                    // Tier prices table must be updated when an attribute with an price adjustment is selected. See PriceCalculationContext.AddSelectedAttributes.
+                    var pricingContext = new PriceCalculationContext(product, tierPrice.Quantity, pricingOptions);
+                    var price = await _priceCalculationService.CalculatePriceAsync(pricingContext);
+
+                    var tierPriceModel = new ProductDetailsModel.TierPriceModel
                     {
                         Quantity = tierPrice.Quantity,
+                        Price = price.FinalPrice
                     };
 
-                    if (adjustment != 0 && tierPrice.CalculationMethod == TierPriceCalculationMethod.Percental && _catalogSettings.ApplyTierPricePercentageToAttributePriceAdjustments)
-                    {
-                        adjustment -= (adjustment / 100 * tierPrice.Price);
-                    }
-                    else
-                    {
-                        adjustment = decimal.Zero;
-                    }
-                    
-                    var adjustmentAmount = adjustment == 0 ? (Money?)null : new Money(adjustment, _currencyService.PrimaryCurrency);
-                    var priceBase = default(Money);
-                    var taxRate = decimal.Zero;
-                    var finalPriceBase = await _priceCalculationService.GetFinalPriceAsync(product,
-                        adjustmentAmount, 
-                        _services.WorkContext.CurrentCustomer, 
-                        true, 
-                        tierPrice.Quantity, null, null, true);
-
-                    (priceBase, taxRate) = await _taxService.GetProductPriceAsync(product, finalPriceBase);
-                    m.Price = _currencyService.ConvertToWorkingCurrency(priceBase);
-
-                    return m;
+                    return tierPriceModel;
                 })
                 .AsyncToList();
 
