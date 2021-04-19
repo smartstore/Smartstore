@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="App_Data\AddressFormats.xml" />
     <None Remove="App_Data\Localization\App\de\all.smres.xml" />
     <None Remove="App_Data\Localization\App\de\head.txt" />
     <None Remove="App_Data\Localization\App\en\all.smres.xml" />
@@ -157,9 +156,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="App_Data\AddressFormats.xml">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-	  </Content>
 	  <Content Include="App_Data\Localization\App\de\all.smres.xml" />
 	  <Content Include="App_Data\Localization\App\de\head.txt" />
 	  <Content Include="App_Data\Localization\App\en\all.smres.xml" />

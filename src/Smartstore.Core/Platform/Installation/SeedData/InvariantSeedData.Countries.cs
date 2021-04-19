@@ -18,6 +18,12 @@ namespace Smartstore.Core.Installation
                 SubjectToVat = false,
                 DisplayOrder = 1,
                 Published = true,
+                AddressFormat = @"{{ Salutation }} {{ FirstName }} {{ LastName }}
+{{ Company }}
+{{ Street1 }}
+{{ Street2 }}
+{{ City }}, {{ StateAbbrev | Upcase }} {{ ZipCode }}
+{{ Country | Upcase }}"
             };
 
             #region US Regions
@@ -470,6 +476,10 @@ namespace Smartstore.Core.Installation
                 SubjectToVat = false,
                 DisplayOrder = 2,
                 Published = true,
+                AddressFormat = @"{{ Salutation }} {{ FirstName }} {{ LastName }}
+{{ Company }}
+{{ City }}, {{ State }} {{ ZipCode }}
+{{ Country | Upcase }}"
             };
 
             #region CA Regions
@@ -579,7 +589,13 @@ namespace Smartstore.Core.Installation
                     NumericIsoCode = 276,
                     SubjectToVat = true,
                     DisplayOrder = -10,
-                    Published = true
+                    Published = true,
+                    AddressFormat = @"{{ Company }}
+{{ Salutation }} {{ Title }} {{ FirstName }} {{ LastName }}
+{{ Street1 }}
+{{ Street2 }}
+{{ ZipCode }} {{ City }}
+{{ Country | Upcase }}"
                 },
 
                 new Country
@@ -592,7 +608,13 @@ namespace Smartstore.Core.Installation
                     NumericIsoCode = 40,
                     SubjectToVat = true,
                     DisplayOrder = -5,
-                    Published = true
+                    Published = true,
+                    AddressFormat = @"{{ Salutation }} {{ FirstName }} {{ LastName }}
+{{ Company }}
+{{ Street1 }}
+{{ Street2 }}
+{{ ZipCode }} {{ City }}
+{{ Country | Upcase }}"
                 },
                 new Country
                 {
@@ -604,7 +626,13 @@ namespace Smartstore.Core.Installation
                     NumericIsoCode = 756,
                     SubjectToVat = false,
                     DisplayOrder = -1,
-                    Published = true
+                    Published = true,
+                    AddressFormat = @"{{ Company }}
+{{ Salutation }} {{ Title }} {{ FirstName }} {{ LastName }}
+{{ Street1 }}
+{{ Street2 }}
+{{ ZipCode }} {{ City }}
+{{ Country | Upcase }}"
                 },
                 usa,
                 canada,
@@ -776,7 +804,12 @@ namespace Smartstore.Core.Installation
                     NumericIsoCode = 76,
                     SubjectToVat = false,
                     DisplayOrder = 100,
-                    Published = true
+                    Published = true,
+                    AddressFormat = @"{{ Company }}
+{{ Salutation }} {{ FirstName }} {{ LastName }}
+{{ Street1 }}
+{{ ZipCode }} {{ City }} {{ State }}
+{{ Country | Upcase }}"
                 },
                 new Country
                 {
@@ -824,7 +857,11 @@ namespace Smartstore.Core.Installation
                     NumericIsoCode = 156,
                     SubjectToVat = false,
                     DisplayOrder = 100,
-                    Published = true
+                    Published = true,
+                    AddressFormat = @"{{ Country }}
+{{ State }} {{ City }}
+{{ Street1 }}
+{{ LastName }} {{ FirstName }} {{ Salutation }}"
                 },
                 new Country
                 {
@@ -968,7 +1005,13 @@ namespace Smartstore.Core.Installation
                     NumericIsoCode = 250,
                     SubjectToVat = true,
                     DisplayOrder = 100,
-                    Published = true
+                    Published = true,
+                    AddressFormat = @"{{ Salutation }} {{ FirstName }} {{ LastName }}
+{{ Company }}
+{{ Street1 }}
+{{ Street2 }}
+{{ ZipCode }} {{ City }}
+{{ Country | Upcase }}"
                 },
                 new Country
                 {
@@ -1100,7 +1143,14 @@ namespace Smartstore.Core.Installation
                     NumericIsoCode = 380,
                     SubjectToVat = true,
                     DisplayOrder = 100,
-                    Published = true
+                    Published = true,
+                    AddressFormat = @"{{ Title }} {{ FirstName }} {{ LastName }}
+{{ Company }}
+{{ Street1 }}
+{{ Street2 }}
+~!
+{{ CountryAbbrev2 }} {{ ZipCode }} {{ City }} {{ State }}
+{{ Country | Upcase }}"
                 },
                 new Country
                 {
@@ -1124,7 +1174,12 @@ namespace Smartstore.Core.Installation
                     NumericIsoCode = 392,
                     SubjectToVat = false,
                     DisplayOrder = 100,
-                    Published = true
+                    Published = true,
+                    AddressFormat = @"{{ Country | Upcase }}
+{{ ZipCode }} {{ State }} {{ City }}
+{{ Street1 }}
+{{ Company }}
+{{ LastName }} {{ FirstName }} {{ Salutation }}"
                 },
                 new Country
                 {
@@ -1352,7 +1407,14 @@ namespace Smartstore.Core.Installation
                     NumericIsoCode = 643,
                     SubjectToVat = false,
                     DisplayOrder = 100,
-                    Published = true
+                    Published = true,
+                    AddressFormat = @"{{ Country }}
+{{ ZipCode }}
+{{ State }} {{ City }}
+{{ Street1 }}
+{{ Street2 }}
+{{ Company }}
+{{ LastName }} {{ FirstName | Slice: 1 | Upcase }}"
                 },
                 new Country
                 {

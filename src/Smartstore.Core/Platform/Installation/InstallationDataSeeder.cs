@@ -266,8 +266,6 @@ namespace Smartstore.Core.Installation
         private async Task PopulateCountriesAndStates()
         {
             await SaveRange(_data.Countries().Where(x => x != null));
-            // TODO: (core) Implement DataMigrator.ImportAddressFormats
-            //DataMigrator.ImportAddressFormats(_ctx); // TODO
         }
 
         private Task PopulateShippingMethods()
