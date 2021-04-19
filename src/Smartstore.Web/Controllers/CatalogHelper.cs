@@ -946,6 +946,139 @@ namespace Smartstore.Web.Controllers
 
         #region PrepareProductDetailModelAsync helper methods
 
+        protected async Task PrepareProductAttributesModelAsync_New(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
+        {
+            var product = modelContext.Product;
+
+            if (product.ProductType == ProductType.BundledProduct)
+            {
+                // Bundles doesn't have attributes.
+                return;
+            }
+
+            var productBundleItem = modelContext.ProductBundleItem;
+            var bundleItemId = productBundleItem?.Item?.Id ?? 0;
+            var selectedAttributes = modelContext.VariantQuery.Variants;
+            var attributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(product.Id);
+
+            var linkedProductIds = attributes
+                .SelectMany(x => x.ProductVariantAttributeValues)
+                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
+                .Select(x => x.LinkedProductId)
+                .Distinct()
+                .ToArray();
+            var linkedProducts = await _db.Products
+                .AsNoTracking()
+                .Where(x => linkedProductIds.Contains(x.Id) && x.Visibility != ProductVisibility.Hidden)
+                .ToDictionaryAsync(x => x.Id);
+
+            foreach (var attribute in attributes)
+            {
+                var preSelectedValueId = 0;
+                var attributeValues = attribute.IsListTypeAttribute()
+                    ? attribute.ProductVariantAttributeValues.OrderBy(x => x.DisplayOrder).ToList()
+                    : new List<ProductVariantAttributeValue>();
+
+                var pvaModel = new ProductDetailsModel.ProductVariantAttributeModel
+                {
+                    Id = attribute.Id,
+                    ProductId = attribute.ProductId,
+                    BundleItemId = bundleItemId,
+                    ProductAttributeId = attribute.ProductAttributeId,
+                    ProductAttribute = attribute,
+                    Alias = attribute.ProductAttribute.Alias,
+                    Name = attribute.ProductAttribute.GetLocalized(x => x.Name),
+                    Description = attribute.ProductAttribute.GetLocalized(x => x.Description),
+                    TextPrompt = attribute.TextPrompt,
+                    CustomData = attribute.CustomData,
+                    IsRequired = attribute.IsRequired,
+                    AttributeControlType = attribute.AttributeControlType,
+                    AllowedFileExtensions = _catalogSettings.FileUploadAllowedExtensions
+                };
+
+                // Copy attribute data entered by customer to model.
+                if (selectedAttributes.Any())
+                {
+                    var selectedAttribute = selectedAttributes.FirstOrDefault(x =>
+                        x.ProductId == product.Id &&
+                        x.BundleItemId == bundleItemId &&
+                        x.AttributeId == attribute.ProductAttributeId &&
+                        x.VariantAttributeId == attribute.Id);
+
+                    if (selectedAttribute != null)
+                    {
+                        switch (attribute.AttributeControlType)
+                        {
+                            case AttributeControlType.Datepicker:
+                                if (selectedAttribute.Date.HasValue)
+                                {
+                                    pvaModel.SelectedDay = selectedAttribute.Date.Value.Day;
+                                    pvaModel.SelectedMonth = selectedAttribute.Date.Value.Month;
+                                    pvaModel.SelectedYear = selectedAttribute.Date.Value.Year;
+                                }
+                                break;
+                            case AttributeControlType.FileUpload:
+                                pvaModel.UploadedFileGuid = selectedAttribute.Value;
+
+                                if (selectedAttribute.Value.HasValue() && Guid.TryParse(selectedAttribute.Value, out var guid))
+                                {
+                                    pvaModel.UploadedFileName = await _db.Downloads
+                                        .AsNoTracking()
+                                        .Where(x => x.DownloadGuid == guid)
+                                        .Select(x => x.MediaFile.Name)
+                                        .FirstOrDefaultAsync();
+                                }
+                                break;
+                            case AttributeControlType.TextBox:
+                            case AttributeControlType.MultilineTextbox:
+                                pvaModel.TextValue = selectedAttribute.Value;
+                                break;
+                        }
+                    }
+                }
+
+                // TODO: obsolete? Alias field is not used for custom values anymore, only for URL as URL variant alias.
+                if (attribute.AttributeControlType == AttributeControlType.Datepicker && pvaModel.Alias.HasValue() && RegularExpressions.IsYearRange.IsMatch(pvaModel.Alias))
+                {
+                    var match = RegularExpressions.IsYearRange.Match(pvaModel.Alias);
+                    pvaModel.BeginYear = match.Groups[1].Value.ToInt();
+                    pvaModel.EndYear = match.Groups[2].Value.ToInt();
+                }
+
+                foreach (var pvaValue in attributeValues)
+                {
+                    ProductBundleItemAttributeFilter attributeFilter = null;
+                    if (productBundleItem?.Item?.IsFilteredOut(pvaValue, out attributeFilter) ?? false)
+                    {
+                        continue;
+                    }
+                    if (preSelectedValueId == 0 && attributeFilter != null && attributeFilter.IsPreSelected)
+                    {
+                        preSelectedValueId = attributeFilter.AttributeValueId;
+                    }
+
+                    var pvaValueModel = new ProductDetailsModel.ProductVariantAttributeValueModel
+                    {
+                        Id = pvaValue.Id,
+                        ProductAttributeValue = pvaValue,
+                        PriceAdjustment = string.Empty,
+                        Name = pvaValue.GetLocalized(x => x.Name),
+                        Alias = pvaValue.Alias,
+                        Color = pvaValue.Color, // Used with "Boxes" attribute type.
+                        IsPreSelected = pvaValue.IsPreSelected
+                    };
+
+                    if (pvaValue.ValueType == ProductVariantAttributeValueType.ProductLinkage &&
+                        linkedProducts.TryGetValue(pvaValue.LinkedProductId, out var linkedProduct))
+                    {
+                        pvaValueModel.SeName = await linkedProduct.GetActiveSlugAsync();
+                    }
+
+
+                }
+            }
+        }
+
         protected async Task<(Money, decimal)> PrepareProductAttributesModelAsync(
             ProductDetailsModel model, 
             ProductDetailsModelContext modelContext, 
