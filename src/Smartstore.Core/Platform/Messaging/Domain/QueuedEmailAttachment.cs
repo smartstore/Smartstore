@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Content.Media;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     internal class QueuedEmailAttachmentMap : IEntityTypeConfiguration<QueuedEmailAttachment>
     {

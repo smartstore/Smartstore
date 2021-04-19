@@ -4,7 +4,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
 using Smartstore.Domain;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     /// <summary>
     /// Represents a message template.

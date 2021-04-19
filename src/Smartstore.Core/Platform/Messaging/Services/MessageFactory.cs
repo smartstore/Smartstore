@@ -18,7 +18,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
-using Smartstore.Core.Messages.Events;
+using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
 using Smartstore.Events;
@@ -26,7 +26,7 @@ using Smartstore.Net.Mail;
 using Smartstore.Templating;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public partial class MessageFactory : IMessageFactory
     {

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Smartstore.Collections;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     /// <summary>
     /// Responsible for building the message template model.

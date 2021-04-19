@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Smartstore.ComponentModel;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public class TemplateModel : HybridExpando
     {

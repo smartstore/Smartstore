@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Smartstore.Core.Messages.Events
+namespace Smartstore.Core.Messaging.Events
 {
     public class NewsletterSubscribedEvent : IEquatable<NewsletterSubscribedEvent>
     {

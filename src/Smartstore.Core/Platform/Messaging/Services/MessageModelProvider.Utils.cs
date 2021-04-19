@@ -13,13 +13,13 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messages.Events;
+using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public partial class MessageModelProvider
     {

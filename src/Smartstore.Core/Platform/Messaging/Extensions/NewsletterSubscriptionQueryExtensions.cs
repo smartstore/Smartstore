@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
-using Smartstore.Core.Messages;
+using Smartstore.Core.Messaging;
 
 namespace Smartstore
 {

@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Configuration;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public class EmailAccountSettings : ISettings
     {

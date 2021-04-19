@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Messages
+﻿namespace Smartstore.Core.Messaging
 {
     public enum EmailAttachmentStorageLocation
     {

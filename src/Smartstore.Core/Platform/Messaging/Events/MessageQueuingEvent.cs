@@ -1,6 +1,6 @@
-﻿using Smartstore.Core.Messages;
+﻿using Smartstore.Core.Messaging;
 
-namespace Smartstore.Core.Messages.Events
+namespace Smartstore.Core.Messaging.Events
 {
     /// <summary>
     /// An event message which gets published just before a new instance of <see cref="QueuedEmail"/> is persisted to the database.

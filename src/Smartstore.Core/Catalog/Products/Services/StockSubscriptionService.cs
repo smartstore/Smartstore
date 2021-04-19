@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messages;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 

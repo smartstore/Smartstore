@@ -2,7 +2,7 @@
 using Smartstore.Core.Identity;
 using Smartstore.Net.Mail;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     /// <summary>
     /// Contains the result data of a <see cref="IMessageFactory.CreateMessageAsync(MessageContext, bool, object[])"/> call.

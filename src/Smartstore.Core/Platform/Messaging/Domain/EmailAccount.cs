@@ -6,7 +6,7 @@ using Smartstore.Data.Caching;
 using Smartstore.Domain;
 using Smartstore.Net.Mail;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     /// <summary>
     /// Represents an email account.

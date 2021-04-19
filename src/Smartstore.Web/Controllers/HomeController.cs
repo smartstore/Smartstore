@@ -55,7 +55,7 @@ using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Web;
 using Microsoft.AspNetCore.Authorization;
 using StackExchange.Profiling.Internal;
-using Smartstore.Core.Messages;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Rules;
 using SixLabors.ImageSharp.ColorSpaces;

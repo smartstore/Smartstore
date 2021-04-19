@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     [Important]
     public partial class EmailAccountService : AsyncDbSaveHook<EmailAccount>, IEmailAccountService

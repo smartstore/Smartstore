@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public partial interface IQueuedEmailService
     {

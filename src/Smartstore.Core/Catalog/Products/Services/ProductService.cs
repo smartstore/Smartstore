@@ -11,7 +11,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messages;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Products

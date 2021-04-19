@@ -12,7 +12,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Data.Batching;
 using Smartstore.Net.Mail;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public partial class QueuedEmailService : IQueuedEmailService
     {

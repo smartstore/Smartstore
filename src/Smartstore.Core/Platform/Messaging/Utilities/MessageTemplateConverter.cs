@@ -12,7 +12,7 @@ using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Messages.Utilities
+namespace Smartstore.Core.Messaging.Utilities
 {
     public sealed class MessageTemplateConverter
     {

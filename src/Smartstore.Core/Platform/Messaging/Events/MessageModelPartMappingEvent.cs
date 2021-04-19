@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Messages.Events
+﻿namespace Smartstore.Core.Messaging.Events
 {
     /// <summary>
     /// Published when a system mapper is missing for a particular model type (e.g. a custom entity in a plugin).

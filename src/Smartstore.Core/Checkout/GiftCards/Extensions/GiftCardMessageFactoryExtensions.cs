@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Smartstore.Core.Messages;
+using Smartstore.Core.Messaging;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {

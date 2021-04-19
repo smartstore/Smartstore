@@ -7,7 +7,7 @@ using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public class NewsletterSubscriptionService : AsyncDbSaveHook<NewsletterSubscription>, INewsletterSubscriptionService
     {

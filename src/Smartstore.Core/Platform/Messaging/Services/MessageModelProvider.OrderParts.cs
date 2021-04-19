@@ -20,7 +20,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public partial class MessageModelProvider
     {

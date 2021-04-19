@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messages.Events;
+using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Events;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public partial class CampaignService : ICampaignService
     {

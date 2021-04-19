@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public static class NewsletterMessageFactoryExtensions
     {

@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Messages.Events
+﻿namespace Smartstore.Core.Messaging.Events
 {
     /// <summary>
     /// Published after the creation of a single message model part has been completed.

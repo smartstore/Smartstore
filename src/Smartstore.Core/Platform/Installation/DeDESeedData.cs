@@ -16,7 +16,7 @@ using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
-using Smartstore.Core.Messages;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;

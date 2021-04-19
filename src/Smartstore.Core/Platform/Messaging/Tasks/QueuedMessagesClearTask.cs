@@ -7,7 +7,7 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Data.Batching;
 
-namespace Smartstore.Core.Messages.Tasks
+namespace Smartstore.Core.Messaging.Tasks
 {
     /// <summary>
     /// A task that periodically deletes sent emails from the message queue.

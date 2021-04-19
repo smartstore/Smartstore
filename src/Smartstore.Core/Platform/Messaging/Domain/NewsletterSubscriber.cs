@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Identity;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     /// <summary>
     /// Represents a newsletter subscriber with associated subscription and customer.

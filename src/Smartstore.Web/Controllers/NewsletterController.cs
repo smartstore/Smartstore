@@ -7,7 +7,7 @@ using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization.Routing;
-using Smartstore.Core.Messages;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Newsletter;

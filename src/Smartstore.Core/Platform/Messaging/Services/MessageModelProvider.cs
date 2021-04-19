@@ -28,7 +28,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messages.Events;
+using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
@@ -37,7 +37,7 @@ using Smartstore.Imaging;
 using Smartstore.Templating;
 using Smartstore.Utilities.Html;
 
-namespace Smartstore.Core.Messages
+namespace Smartstore.Core.Messaging
 {
     public enum ModelTreeMemberKind
     {

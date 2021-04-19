@@ -12,7 +12,7 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
-using Smartstore.Core.Messages;
+using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 

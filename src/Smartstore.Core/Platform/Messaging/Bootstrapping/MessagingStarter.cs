@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using Smartstore.Core.Messages;
+using Smartstore.Core.Messaging;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 

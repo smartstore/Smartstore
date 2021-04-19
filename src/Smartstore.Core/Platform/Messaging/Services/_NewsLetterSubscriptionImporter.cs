@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Smartstore.Core.Messages.Services
+namespace Smartstore.Core.Messaging.Services
 {
     public class NewsletterSubscriptionImporter
     {

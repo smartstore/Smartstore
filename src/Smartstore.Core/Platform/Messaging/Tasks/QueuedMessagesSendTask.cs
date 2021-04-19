@@ -5,7 +5,7 @@ using Smartstore.Scheduling;
 using Smartstore.Core.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Smartstore.Core.Messages.Tasks
+namespace Smartstore.Core.Messaging.Tasks
 {
     /// <summary>
     /// A task that periodically send queued messages.
