@@ -434,34 +434,33 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        //// INFO: (ms) (core) You can find this information in 1_StoreRoutes in classic code. It should be checked for every action you implement.
-        //// TODO: (ms) (core) Remove this comment.
-        //[RequireSsl]
-        //[LocalizedRoute("/wishlist/{customerGuid:guid?}", Name = "Wishlist")]
-        //public async Task<IActionResult> Wishlist(Guid? customerGuid)
-        //{
-        //    if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
-        //    {
-        //        return RedirectToRoute("Homepage");
-        //    }
+        [RequireSsl]
+        [LocalizedRoute("/wishlist/{customerGuid:guid?}", Name = "Wishlist")]
+        public async Task<IActionResult> Wishlist(Guid? customerGuid)
+        {
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
+            {
+                return RedirectToRoute("Homepage");
+            }
 
-        //    // Check customer controllers
+            // Check customer controllers
 
-        //    var customer = customerGuid.HasValue
-        //        ? await _db.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.CustomerGuid == customerGuid.Value)
-        //        : Services.WorkContext.CurrentCustomer;
+            var customer = customerGuid.HasValue
+                ? await _db.Customers.AsNoTracking().FirstOrDefaultAsync(x => x.CustomerGuid == customerGuid.Value)
+                : Services.WorkContext.CurrentCustomer;
 
-        //    if (customer == null)
-        //    {
-        //        return RedirectToRoute("Homepage");
-        //    }
+            if (customer == null)
+            {
+                return RedirectToRoute("Homepage");
+            }
 
-        //    var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.Wishlist, Services.StoreContext.CurrentStore.Id);
+            var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.Wishlist, Services.StoreContext.CurrentStore.Id);
 
-        //    var model = await PrepareWishlistModelAsync(cart, !customerGuid.HasValue);
+            var model = new WishlistModel();
+            await cart.AsEnumerable().MapAsync(model);
 
-        //    return View(model);
-        //}
+            return View(model);
+        }
 
         #region Offcanvas
 
@@ -908,7 +907,7 @@ namespace Smartstore.Web.Controllers
                 BundleItem = cartItem.Item.BundleItem
             };
 
-            var warnings = await _shoppingCartService.CopyAsync(addToCartContext);
+            var isValid = await _shoppingCartService.CopyAsync(addToCartContext);
 
             if (_shoppingCartSettings.MoveItemsFromWishlistToCart && addToCartContext.Warnings.Count == 0)
             {

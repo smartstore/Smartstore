@@ -32,13 +32,15 @@
                 <span aria-hidden="true">&times;</span>
             </button>
             <span sm-language-attributes-for="currentItem.ProductName">
-                @Html.Raw(T("ShoppingCart.Mini.AddedItemToWishlist", "<strong>" + currentItem.ProductName.Value.Truncate(50, "...") + "</strong>"))
+                @Html.Raw(T("ShoppingCart.Mini.AddedItemToWishlist", $"<strong>{currentItem.ProductName.Value.Truncate(50, "...")}</strong>"))
             </span>
         </div>
 
         <div class="offcanvas-cart-items">
             @foreach (var item in Model.Items)
             {
+                // TODO: (ms) (core) This code seems to be nearly identical with rendering code for OffCanvasShoppingCartItem.
+                // Maybe we can create another partial for this. Lets discuss with mc...
                 <div class="offcanvas-cart-item">
                     <div class="row sm-gutters">
 
@@ -82,7 +84,8 @@
                                 htmlAttributes = new 
                                 { 
                                     data_update_url = Url.Action("UpdateCartItem", "ShoppingCart", new { isWishlist = true }), 
-                                    data_type = "wishlist", data_sci_id = item.Id 
+                                    data_type = "wishlist", 
+                                    data_sci_id = item.Id 
                                 }
                             })
                         </div>
@@ -129,7 +132,8 @@
 
 <div sm-if="Model.Items.Any()" class="offcanvas-cart-footer">
     <div class="offcanvas-cart-footer-row">
-        <a class="btn btn-clear btn-block btn-action" href="@Url.RouteUrl("Wishlist")">
+        @*TODO: Implement corresponding action*@ 
+        <a class="btn btn-clear btn-block btn-action" asp-route="Wishlist">
             <i class="fa fa-check"></i>
             <span>@T("Wishlist.Mini.ViewWishlist")</span>
         </a>
