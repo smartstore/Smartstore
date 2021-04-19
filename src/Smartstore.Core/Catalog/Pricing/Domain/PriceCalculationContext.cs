@@ -65,6 +65,7 @@ namespace Smartstore.Core.Catalog.Pricing
             // For reasons of practicability, we only copy the data provided by the caller
             // but no intermediate data determined by the pipeline itself.
             Product = context.Product;
+            CartItem = context.CartItem;
             Quantity = context.Quantity;
             Options = context.Options;
             Metadata = context.Metadata;

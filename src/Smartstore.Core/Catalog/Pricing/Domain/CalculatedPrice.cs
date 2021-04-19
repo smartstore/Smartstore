@@ -31,29 +31,14 @@ namespace Smartstore.Core.Catalog.Pricing
         public Product Product { get; init; }
 
         /// <summary>
-        /// List of discount entities that have been applied during calculation.
-        /// </summary>
-        public ICollection<Discount> AppliedDiscounts { get; init; }
-
-        /// <summary>
         /// The regular price of the input <see cref="Product"/>, in the target currency, usually <see cref="Product.Price"/>.
         /// </summary>
         public Money RegularPrice { get; set; }
 
         /// <summary>
-        /// The old price of the input <see cref="Product"/>, in the target currency, usually <see cref="Product.OldPrice"/>.
-        /// </summary>
-        public Money OldPrice { get; set; }
-
-        /// <summary>
         /// The final price of the product.
         /// </summary>
         public Money FinalPrice { get; set; }
-
-        /// <summary>
-        /// The final price of the product without applied discounts and tier prices.
-        /// </summary>
-        public Money FinalPriceWithoutDiscount { get; set; }
 
         /// <summary>
         /// A value indicating whether the price has a range, which is mostly the case if the lowest price
@@ -79,6 +64,16 @@ namespace Smartstore.Core.Catalog.Pricing
         public Money? LowestPrice { get; set; }
 
         /// <summary>
+        /// List of discount entities that have been applied during calculation.
+        /// </summary>
+        public ICollection<Discount> AppliedDiscounts { get; init; }
+
+        /// <summary>
+        /// The discount amount applied to <see cref="FinalPrice"/>.
+        /// </summary>
+        public Money DiscountAmount { get; set; }
+
+        /// <summary>
         /// Gets a list of calculated attribute price adjustments, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
         /// Only filled if <see cref="PriceCalculationOptions.DeterminePriceAdjustments"/> is activated.
         /// </summary>
@@ -91,8 +86,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// Gets or sets a price saving in relation to <see cref="FinalPrice"/>.
-        /// The saving results from the difference between the <see cref="FinalPrice"/> and the <see cref="Product.OldPrice"/> 
-        /// or, if present, the <see cref="FinalPriceWithoutDiscount"/>.
+        /// The saving results from the applied discounts, if any, otherwise from the difference to the <see cref="Product.OldPrice"/>.
         /// </summary>
         public PriceSaving PriceSaving { get; set; }
     }

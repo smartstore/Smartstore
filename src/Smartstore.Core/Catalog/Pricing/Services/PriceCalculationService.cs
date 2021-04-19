@@ -254,16 +254,17 @@ namespace Smartstore.Core.Catalog.Pricing
             return calculatorContext;
         }
 
-        private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null, int quantity = 1)
+        private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null, int subtotalQuantity = 1)
         {
             product ??= context.Product;
 
             var options = context.Options;
 
             // Calculate the subtotal price instead of the unit price. Do not round here if the unit price is requested!
-            if (quantity > 1 && context.FinalPrice > 0)
+            if (subtotalQuantity > 1 && context.FinalPrice > 0)
             {
-                context.FinalPrice = options.RoundingCurrency.RoundIfEnabledFor(context.FinalPrice) * quantity;
+                context.FinalPrice = options.RoundingCurrency.RoundIfEnabledFor(context.FinalPrice) * subtotalQuantity;
+                context.DiscountAmount = options.RoundingCurrency.RoundIfEnabledFor(context.DiscountAmount) * subtotalQuantity;
             }
 
             // Determine tax rate for product.
@@ -273,21 +274,14 @@ namespace Smartstore.Core.Catalog.Pricing
             var result = new CalculatedPrice(context)
             {
                 Product = product,
-                OldPrice = ConvertAmount(product.OldPrice, context, taxRate, false, out _).Value,
                 RegularPrice = ConvertAmount(context.RegularPrice, context, taxRate, false, out _).Value,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
                 LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _),
+                DiscountAmount = ConvertAmount(context.DiscountAmount, context, taxRate, false, out _).Value,
                 FinalPrice = ConvertAmount(context.FinalPrice, context, taxRate, true, out var tax).Value,
                 Tax = tax
             };
-
-            result.FinalPriceWithoutDiscount = context.DiscountAmount != 0
-                ? ConvertAmount(context.FinalPrice + context.DiscountAmount, context, taxRate, true, out _).Value
-                : result.FinalPrice;
-
-            // Convert attribute price adjustments.
-            context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
 
             if (tax.HasValue && _primaryCurrency != options.TargetCurrency)
             {
@@ -303,8 +297,27 @@ namespace Smartstore.Core.Catalog.Pricing
                     tax.Value.Inclusive);
             }
 
-            // Price saving.
-            result.PriceSaving = new PriceSaving(result);
+            // Convert attribute price adjustments.
+            context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
+
+            // Calculate price saving.
+            // The final price without discounts has priority over the old price.
+            // This avoids differing percentage discount in product lists and detail page.
+            var priceWithoutDiscount = result.FinalPrice + result.DiscountAmount;
+            
+            var savingPrice = result.FinalPrice < priceWithoutDiscount 
+                ? priceWithoutDiscount 
+                : ConvertAmount(product.OldPrice, context, taxRate, false, out _).Value;
+
+            var hasSaving = savingPrice > 0 && result.FinalPrice < savingPrice;
+
+            result.PriceSaving = new PriceSaving
+            {
+                HasSaving = hasSaving,
+                SavingPrice = savingPrice,
+                SavingPercent = hasSaving ? (float)((savingPrice - result.FinalPrice) / savingPrice) * 100 : 0f,
+                SavingAmount = hasSaving ? (savingPrice - result.FinalPrice).WithPostFormat(null) : null
+            };
 
             return result;
         }

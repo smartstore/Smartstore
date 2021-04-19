@@ -712,6 +712,10 @@ namespace Smartstore.Core.Checkout.Orders
         {
             if (!ctx.PaymentRequest.IsRecurringPayment)
             {
+                var cartProducts = ctx.Cart.Select(x => x.Item.Product).ToArray();
+                var batchContext = _productService.CreateProductBatchContext(cartProducts, null, ctx.Customer, false);
+                var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, _primaryCurrency, batchContext);
+
                 foreach (var cartItem in ctx.Cart)
                 {
                     var item = cartItem.Item;
@@ -727,25 +731,26 @@ namespace Smartstore.Core.Checkout.Orders
                         product.IsShippingEnabled &&
                         product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
 
-                    var productCost = await _priceCalculationService.CalculateProductCostAsync(item.Product, item.AttributeSelection);
+                    // Product cost always in primary currency without tax.
+                    var productCost = await _priceCalculationService.CalculateProductCostAsync(product, item.AttributeSelection);
 
-                    // TODO: (mg) (core) rename variable names in AddOrderItems when ready.
-                    //var scUnitPrice = await _priceCalculationService.CalculateUnitPriceAsync(cartItem, false, _primaryCurrency);
-                    var scUnitPriceExclTax = decimal.Zero;
+                    var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(new PriceCalculationContext(cartItem, pricingOptions));
+                    var discountTax = await _taxCalculator.CalculateProductTaxAsync(product, subtotal.DiscountAmount.Amount, null, ctx.Customer);
 
-                    // TODO: (mg) (core) Use price calculation when adding order items.
+                    subtotal.AppliedDiscounts.Each(x => ctx.AddDiscount(x));
+
                     var orderItem = new OrderItem
                     {
                         OrderItemGuid = Guid.NewGuid(),
                         Order = ctx.Order,
                         ProductId = item.ProductId,
-                        //UnitPriceInclTax = scUnitPriceInclTax,
-                        UnitPriceExclTax = scUnitPriceExclTax,
-                        //PriceInclTax = scSubTotalInclTax,
-                        //PriceExclTax = scSubTotalExclTax,
-                        //TaxRate = unitPriceTaxRate,
-                        //DiscountAmountInclTax = discountAmountInclTax,
-                        //DiscountAmountExclTax = discountAmountExclTax,
+                        UnitPriceInclTax = unitPrice.Tax.Value.PriceGross,
+                        UnitPriceExclTax = unitPrice.Tax.Value.PriceNet,
+                        PriceInclTax = subtotal.Tax.Value.PriceGross,
+                        PriceExclTax = subtotal.Tax.Value.PriceNet,
+                        TaxRate = unitPrice.Tax.Value.Rate.Rate,
+                        DiscountAmountInclTax = discountTax.PriceGross,
+                        DiscountAmountExclTax = discountTax.PriceNet,
                         AttributeDescription = attributeDescription,
                         RawAttributes = item.RawAttributes,
                         Quantity = item.Quantity,
@@ -761,11 +766,13 @@ namespace Smartstore.Core.Checkout.Orders
                     if (product.ProductType == ProductType.BundledProduct && cartItem.ChildItems != null)
                     {
                         var listBundleData = new List<ProductBundleItemOrderData>();
+                        var childProducts = cartItem.ChildItems.Select(x => x.Item.Product).ToArray();
+                        var childBatchContext = _productService.CreateProductBatchContext(childProducts, null, ctx.Customer, false);
+                        var childPricingOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, _primaryCurrency, childBatchContext);
 
                         foreach (var childItem in cartItem.ChildItems)
                         {
-                            //var bundleItemSubTotal = _taxService.GetProductPrice(childItem.Item.Product, _priceCalculationService.GetSubTotal(childItem, true), out taxRate);
-                            var bundleItemSubTotal = decimal.Zero;
+                            var (childUnitPrice, childSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(new PriceCalculationContext(childItem, childPricingOptions));
 
                             var attributesInfo = await _productAttributeFormatter.FormatAttributesAsync(
                                 childItem.Item.AttributeSelection, 
@@ -774,7 +781,7 @@ namespace Smartstore.Core.Checkout.Orders
                                 includePrices: false,
                                 includeHyperlinks: true);
 
-                            childItem.BundleItemData.ToOrderData(listBundleData, bundleItemSubTotal, childItem.Item.RawAttributes, attributesInfo);
+                            childItem.BundleItemData.ToOrderData(listBundleData, childSubtotal.FinalPrice.Amount, childItem.Item.RawAttributes, attributesInfo);
                         }
 
                         orderItem.SetBundleData(listBundleData);
@@ -792,7 +799,7 @@ namespace Smartstore.Core.Checkout.Orders
                             {
                                 GiftCardType = product.GiftCardType,
                                 PurchasedWithOrderItem = orderItem,
-                                Amount = scUnitPriceExclTax,
+                                Amount = unitPrice.Tax.Value.PriceNet,
                                 IsGiftCardActivated = false,
                                 GiftCardCouponCode = await _giftCardService.GenerateGiftCardCodeAsync(),
                                 RecipientName = giftCardInfo.RecipientName,
