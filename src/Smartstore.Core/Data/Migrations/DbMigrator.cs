@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,12 +14,24 @@ namespace Smartstore.Core.Data.Migrations
 {
     public abstract class DbMigrator
     {
-        public abstract Task<int> RunPendingMigrationsAsync();
         public abstract HookingDbContext Context { get; }
+
+        /// <summary>
+        /// Migrates the database to the latest version
+        /// </summary>
+        /// <returns>The number of applied migrations</returns>
+        public abstract Task<int> RunPendingMigrationsAsync();
+
+        /// <summary>
+        /// Seeds locale resources which are ahead of given <paramref name="currentHead"/> migration.
+        /// </summary>
+        public abstract Task SeedPendingLocaleResources(string currentHead);
     }
     
     public class DbMigrator<TContext> : DbMigrator where TContext : HookingDbContext
     {
+        private static readonly Regex _migrationIdPattern = new Regex(@"\d{15}_.+");
+
         private readonly TContext _db;
         private readonly SmartDbContext _dbCore;
         private readonly IEventPublisher _eventPublisher;
@@ -36,10 +49,6 @@ namespace Smartstore.Core.Data.Migrations
 
         public override TContext Context => _db;
 
-        /// <summary>
-        /// Migrates the database to the latest version
-        /// </summary>
-        /// <returns>The number of applied migrations</returns>
         public override async Task<int> RunPendingMigrationsAsync()
         {
             if (_lastSeedException != null)
@@ -170,6 +179,74 @@ namespace Smartstore.Core.Data.Migrations
 
                     Logger.Warn(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", seederEntry.MigrationId);
                 }
+            }
+        }
+
+        public override async Task SeedPendingLocaleResources(string currentHead)
+        {
+            Guard.NotEmpty(currentHead, nameof(currentHead));
+
+            var db = _db as SmartDbContext;
+            if (db == null)
+            {
+                return;
+            }
+
+            if (!_migrationIdPattern.IsMatch(currentHead))
+            {
+                return;
+            }
+
+            var migrations = GetPendingResourceMigrations(currentHead).ToArray();
+
+            if (migrations.Any())
+            {
+                var migrationsAssembly = db.Database.GetMigrationsAssembly();
+
+                foreach (var id in migrations)
+                {
+                    // Resolve and instantiate the Migration instance from the assembly
+                    var migrationType = migrationsAssembly.Migrations[id];
+                    var migration = migrationsAssembly.CreateMigration(migrationType, db.Database.ProviderName);
+
+                    var provider = migration as ILocaleResourcesProvider;
+                    if (provider == null)
+                        continue;
+
+                    var builder = new LocaleResourcesBuilder();
+                    provider.MigrateLocaleResources(builder);
+
+                    var resEntries = builder.Build();
+                    var resMigrator = new LocaleResourcesMigrator(db);
+                    await resMigrator.MigrateAsync(resEntries);
+                }
+            }
+        }
+
+        private IEnumerable<string> GetPendingResourceMigrations(string currentHead)
+        {
+            var localMigrations = _db.Database.GetMigrations();
+            var atHead = false;
+
+            if (localMigrations.Last().EqualsNoCase(currentHead))
+                yield break;
+
+            foreach (var id in localMigrations)
+            {
+                if (!atHead)
+                {
+                    if (!id.EqualsNoCase(currentHead))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        atHead = true;
+                        continue;
+                    }
+                }
+
+                yield return id;
             }
         }
 

@@ -25,6 +25,8 @@ using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
 using Smartstore.Domain;
 using Smartstore.Engine;
+using Smartstore.Events;
+using Smartstore.IO;
 
 namespace Smartstore.Core.Installation
 {
@@ -224,11 +226,16 @@ namespace Smartstore.Core.Installation
         {
             var appDataRoot = EngineContext.Current.Application.AppDataRoot;
 
-            var locPath = appDataRoot.PathCombine("Localization/App/" + language.LanguageCulture);
-            if (!appDataRoot.DirectoryExists(locPath))
+            var locDir = appDataRoot.GetDirectory(appDataRoot.PathCombine("Localization/App/" + language.LanguageCulture));
+            if (!locDir.Exists)
             {
                 // Fallback to neutral language folder (de, en etc.)
-                locPath = appDataRoot.PathCombine("Localization/App/" + language.UniqueSeoCode);
+                locDir = appDataRoot.GetDirectory(appDataRoot.PathCombine("Localization/App/" + language.UniqueSeoCode));
+            }
+
+            if (!locDir.Exists)
+            {
+                return;
             }
 
             var xmlResourceManager = XmlResourceManager;
@@ -237,7 +244,7 @@ namespace Smartstore.Core.Installation
             _db.DetachEntities<BaseEntity>();
 
             // Save resources
-            foreach (var file in appDataRoot.EnumerateFiles(locPath, "*.smres.xml"))
+            foreach (var file in appDataRoot.EnumerateFiles(locDir.SubPath, "*.smres.xml"))
             {
                 var doc = new XmlDocument();
                 doc.Load(file.PhysicalPath);
@@ -255,8 +262,25 @@ namespace Smartstore.Core.Installation
                 _db.DetachEntities<LocaleStringResource>();
             }
 
-            // TODO: (core) Implement MigratorUtils.ExecutePendingResourceMigrations for installation
-            //MigratorUtils.ExecutePendingResourceMigrations(locPath, _ctx);
+            await SeedPendingLocaleResources(locDir);
+        }
+
+        private async Task SeedPendingLocaleResources(IDirectory locDir)
+        {
+            var fs = locDir.FileSystem;
+            var headFile = fs.GetFile(fs.PathCombine(locDir.SubPath, "head.txt"));
+
+            if (!headFile.Exists)
+            {
+                return;
+            }
+
+            string resHead = headFile.ReadAllText().Trim();
+            if (resHead.HasValue())
+            {
+                var migrator = new DbMigrator<SmartDbContext>(_db, _db, NullEventPublisher.Instance);
+                await migrator.SeedPendingLocaleResources(resHead);
+            }
         }
 
         private async Task PopulateCurrencies()
