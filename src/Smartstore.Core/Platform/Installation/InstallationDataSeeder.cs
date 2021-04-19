@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
+using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
-using Smartstore.Core.Data.Utilities;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -405,7 +405,7 @@ namespace Smartstore.Core.Installation
             _data.AddDownloads(products);
 
             // Fix MainPictureId
-            await DataMigrator.FixProductMainPictureIds(_db);
+            await ProductPictureHelper.FixProductMainPictureIds(_db);
 
             await PopulateUrlRecordsFor(products);
 

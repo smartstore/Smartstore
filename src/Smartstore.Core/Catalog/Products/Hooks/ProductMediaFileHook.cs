@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Data;
-using Smartstore.Core.Data.Utilities;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
@@ -21,22 +21,19 @@ namespace Smartstore.Core.Catalog.Products
 
         protected override Task<HookResult> OnInsertingAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            DataMigrator.FixProductMainPictureId(_db, entity.Product);
-
+            ProductPictureHelper.FixProductMainPictureId(_db, entity.Product);
             return Task.FromResult(HookResult.Ok);
         }
 
         protected override Task<HookResult> OnUpdatingAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            DataMigrator.FixProductMainPictureId(_db, entity.Product);
-
+            ProductPictureHelper.FixProductMainPictureId(_db, entity.Product);
             return Task.FromResult(HookResult.Ok);
         }
 
         protected override Task<HookResult> OnDeletingAsync(ProductMediaFile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            DataMigrator.FixProductMainPictureId(_db, entity.Product);
-
+            ProductPictureHelper.FixProductMainPictureId(_db, entity.Product);
             return Task.FromResult(HookResult.Ok);
         }
 

@@ -5,16 +5,13 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
-using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Data;
 using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
-namespace Smartstore.Core.Data.Utilities
+namespace Smartstore.Core.Catalog.Products.Utilities
 {
-    // TODO: (core) Find a better place for data utility "DataMigrator".
-    public static class DataMigrator
+    public static class ProductPictureHelper
     {
-        #region Product.MainPicture
-
         /// <summary>
         /// Fixes 'MainPictureId' property of a single product entity.
         /// </summary>
@@ -69,7 +66,7 @@ namespace Smartstore.Core.Data.Utilities
         /// <returns>The total count of fixed and updated product entities.</returns>
         internal static async Task<int> FixProductMainPictureIds(SmartDbContext db, bool initial, DateTime? ifModifiedSinceUtc = null)
         {
-            var query = 
+            var query =
                 from p in db.Products.AsNoTracking()
                 where (!initial || p.MainPictureId == null) && (ifModifiedSinceUtc == null || p.UpdatedOnUtc >= ifModifiedSinceUtc.Value)
                 orderby p.Id
@@ -136,7 +133,5 @@ namespace Smartstore.Core.Data.Utilities
             var map = files.ToMultimap(x => x.ProductId, x => x.MediaFileId);
             return map;
         }
-
-        #endregion
     }
 }
