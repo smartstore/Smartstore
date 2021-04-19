@@ -69,6 +69,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             var customer = ctx.Customer ?? _workContext.CurrentCustomer;
             customer.ShoppingCartItems.Add(ctx.Item);
+
             _db.TryUpdate(customer);
             await _db.SaveChangesAsync();
 
@@ -154,10 +155,18 @@ namespace Smartstore.Core.Checkout.Cart
                 // TODO: (ms) (core) fix wrong porting of attribute selection processing in AddToCartAsync.
                 // Use _productAttributeMaterializer.CreateAttributeSelectionAsync to process them in context of VariantQuery.
 
-                // Create attribute selection from product attributes
-                var attributes = await _productAttributeMaterializer.MaterializeProductVariantAttributesAsync(ctx.Item.AttributeSelection);
+                var attributes = await _db.ProductVariantAttributes
+                    //.Include(x => x.ProductAttribute)
+                    .ApplyProductFilter(new[] { ctx.Product.Id })
+                    .ToListAsync();
 
-                ctx.RawAttributes = ctx.Item.RawAttributes;
+                var attributeSelection = await _productAttributeMaterializer.CreateAttributeSelectionAsync(
+                    ctx.VariantQuery, 
+                    attributes, 
+                    ctx.Product.Id, 
+                    ctx.BundleItemId);
+                                
+                ctx.RawAttributes = attributeSelection.Selection.AsJson();
 
                 // Check context for bundle item errors
                 if (ctx.Product.ProductType == ProductType.BundledProduct && ctx.RawAttributes.HasValue())
@@ -317,6 +326,7 @@ namespace Smartstore.Core.Checkout.Cart
                     if (!await AddToCartAsync(bundleItemContext))
                     {
                         ctx.ChildItems.Clear();
+                        // TODO: (ms) (core) Add warning for bundle products that are unable to be added to the cart.
                         break;
                     }
                 }
