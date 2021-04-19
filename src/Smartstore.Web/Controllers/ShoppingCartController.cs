@@ -530,6 +530,8 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateCartItem(int cartItemId, int newQuantity, bool isCartPage = false, bool isWishlist = false)
         {
+            // TODO: (ms) (core) Rename parameter and still retrieve value selected from input field
+
             if (!await Services.Permissions.AuthorizeAsync(isWishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart))
                 return RedirectToRoute("Homepage");
 

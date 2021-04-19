@@ -137,6 +137,7 @@ namespace Smartstore.Core.Checkout.Cart
         }
 
         // TODO: (ms) (core) TESTING! Make sure it works in any case - Works for ReOrder().
+        // TODO: (ms) (core) Test this for bundle & grouped products. Test for items with variants!
         public virtual async Task<bool> AddToCartAsync(AddToCartContext ctx)
         {
             Guard.NotNull(ctx, nameof(ctx));

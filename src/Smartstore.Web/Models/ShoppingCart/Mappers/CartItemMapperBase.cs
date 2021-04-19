@@ -20,6 +20,8 @@ namespace Smartstore.Web.Models.ShoppingCart
     public abstract class CartItemMapperBase<TModel> : Mapper<OrganizedShoppingCartItem, TModel>
        where TModel : CartEntityModelBase
     {
+        // TODO: (ms) (core) Apply property injection to mapper base classes
+
         private readonly SmartDbContext _db;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
@@ -68,6 +70,10 @@ namespace Smartstore.Web.Models.ShoppingCart
         public override async Task MapAsync(OrganizedShoppingCartItem from, TModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
+
+            // TODO: (ms) (core) Be certain that product is null if it is removed from cart.
+            if (from.Item.Product == null)
+                return;
 
             var item = from.Item;
             var product = from.Item.Product;
