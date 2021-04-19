@@ -283,7 +283,7 @@ namespace Smartstore.Core.Checkout.Cart
             var product = cartItem.Product;
             if (product == null)
             {
-                warnings.Add(T("Products.NotFound", cartItem.ProductId));
+                warnings.Add(T("Products.NotFound", cartItem.Product.Id));
                 return false;
             }
 
