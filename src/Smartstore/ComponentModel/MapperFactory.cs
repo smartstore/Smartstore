@@ -90,9 +90,11 @@ namespace Smartstore.ComponentModel
             var implType = _mapperTypes.Get(key);
             if (implType != null)
             {
-                var instance = EngineContext.Current.Scope?.ResolveUnregistered(implType);
+                var scope = EngineContext.Current.Scope;
+                var instance = scope?.ResolveUnregistered(implType);
                 if (instance != null)
                 {
+                    scope.InjectUnsetProperties(instance);
                     return (IMapper<TFrom, TTo>)instance;
                 }
             }
