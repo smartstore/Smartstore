@@ -61,7 +61,7 @@ namespace Smartstore.Core.Checkout.Cart
                 }
                 else
                 {
-                    Add(taxRate, taxAmount);
+                    base.Add(taxRate, taxAmount);
                 }
             }
         }
