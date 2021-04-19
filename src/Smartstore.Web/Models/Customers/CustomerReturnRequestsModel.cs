@@ -9,8 +9,6 @@ namespace Smartstore.Web.Models.Customers
     {
         public List<ReturnRequestModel> Items { get; set; } = new();
 
-        #region Nested classes
-
         public partial class ReturnRequestModel : EntityModelBase
         {
             public string ReturnRequestStatus { get; set; }
@@ -26,7 +24,5 @@ namespace Smartstore.Web.Models.Customers
 
             public DateTime CreatedOn { get; set; }
         }
-
-        #endregion
     }
 }

@@ -72,17 +72,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost, ActionName("ReturnRequest")]
         public async Task<IActionResult> ReturnRequestSubmit(int id /* orderId */, SubmitReturnRequestModel model)
         {
-            var order = await _db.Orders
-                .Include(x => x.BillingAddress)
-                .Include(x => x.ShippingAddress)
-                .Include(x => x.OrderItems)
-                .ThenInclude(x => x.Product)
-                .FindByIdAsync(id, false);
-
-            // TODO: (mh) (core) Will fail on sending message because Customer entity is included.
-            //var order = await _db.Orders
-            //    .FindByIdAsync(id);
-
+            var order = await _db.Orders.FindByIdAsync(id);
             var customer = Services.WorkContext.CurrentCustomer;
             
             if (order == null || customer.Id != order.CustomerId)

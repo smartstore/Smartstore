@@ -534,7 +534,7 @@ namespace Smartstore.Web.Controllers
 
             var recurringPayment = await _db.RecurringPayments
                 .Include(x => x.InitialOrder)
-                .Include(x => x.InitialOrder.Customer)
+                .ThenInclude(x => x.Customer)
                 .FindByIdAsync(recurringPaymentId, false);
 
             if (recurringPayment == null)
@@ -1192,7 +1192,8 @@ namespace Smartstore.Web.Controllers
             // Recurring payments.
             var recurringPayments = await _db.RecurringPayments
                 .AsNoTracking()
-                .Include(x => x.InitialOrder.Customer)
+                .Include(x => x.InitialOrder)
+                .ThenInclude(x => x.Customer)
                 .Include(x => x.RecurringPaymentHistory)
                 .ApplyStandardFilter(customerId: customer.Id, storeId: store.Id)
                 .ToPagedList(recurringPaymentPageIndex, _orderSettings.RecurringPaymentListPageSize)

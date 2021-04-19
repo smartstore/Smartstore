@@ -86,8 +86,6 @@ namespace Smartstore.Web.Models.Search
             return input.HighlightKeywords(query.Term, preMatch, postMatch);
         }
 
-        #region Nested classes
-
         public class HitGroup : IOrdered
         {
             public HitGroup(SearchResultModelBase parent)
@@ -111,7 +109,5 @@ namespace Smartstore.Web.Models.Search
             public string Url { get; set; }
             public bool NoHighlight { get; set; }
         }
-
-        #endregion
     }
 }

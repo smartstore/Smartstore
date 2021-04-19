@@ -186,8 +186,6 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> ReOrder(int id)
         {
-            // INFO: (mh) (core) Better load this tracked as ReOrderAsync expects some navigation properties.
-            // RE: Yeah, but OrderItems collection can be large, so preloading the most important navigation props here is the better choice.
             var order = await _db.Orders
                 .Include(x => x.OrderItems)
                 .ThenInclude(x => x.Product)

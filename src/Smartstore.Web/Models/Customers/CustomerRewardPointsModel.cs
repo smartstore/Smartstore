@@ -11,8 +11,6 @@ namespace Smartstore.Web.Models.Customers
         public Money RewardPointsBalance { get; set; } // TODO: (mh) (core) Put raw MONEY here
         public string RewardPointsBalanceFormatted { get; set; }
 
-        #region Nested classes
-
         [LocalizedDisplay("RewardPoints.Fields.")]
         public partial class RewardPointsHistoryModel : EntityModelBase
         {
@@ -28,7 +26,5 @@ namespace Smartstore.Web.Models.Customers
             [LocalizedDisplay("Common.CreatedOn")]
             public DateTime CreatedOn { get; set; }
         }
-
-        #endregion
     }
 }

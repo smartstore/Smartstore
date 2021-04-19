@@ -117,16 +117,12 @@ namespace Smartstore.Web.Models.Customers
         [LocalizedDisplay("Account.AssociatedExternalAuth")]
         public List<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = new();
 
-        #region Nested classes
-
         public partial class AssociatedExternalAuthModel : EntityModelBase
         {
             public string Email { get; set; }
             public string ExternalIdentifier { get; set; }
             public string AuthMethodName { get; set; }
         }
-
-        #endregion
     }
 
     public class CustomerInfoValidator : SmartValidator<CustomerInfoModel>
