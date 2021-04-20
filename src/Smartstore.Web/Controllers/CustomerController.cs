@@ -110,8 +110,6 @@ namespace Smartstore.Web.Controllers
             _mediaSettings = mediaSettings;
         }
 
-        // TODO: (mh) (core) Something's wrong with localized routes. RE: What is wrong?
-
         [RequireSsl]
         public async Task<IActionResult> Info()
         {

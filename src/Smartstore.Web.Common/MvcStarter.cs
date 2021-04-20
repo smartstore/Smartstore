@@ -299,7 +299,7 @@ namespace Smartstore.Web
 
                 routes.MapControllers();
 
-                routes.MapControllerRoute(
+                routes.MapLocalizedControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
