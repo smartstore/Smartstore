@@ -22,6 +22,7 @@ namespace Smartstore.Web.Infrastructure
         private readonly OrderSettings _orderSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
 
+        protected TreeNode<MenuItem> _root;
         private TreeNode<MenuItem> _currentNode;
         private bool _currentNodeResolved;
 
@@ -51,11 +52,11 @@ namespace Smartstore.Web.Infrastructure
 
         public virtual async Task<TreeNode<MenuItem>> GetRootNodeAsync()
         {
-            var root = await BuildAsync();
+            _root = await BuildAsync();
 
-            await _services.EventPublisher.PublishAsync(new MenuBuiltEvent(Name, root));
+            await _services.EventPublisher.PublishAsync(new MenuBuiltEvent(Name, _root));
 
-            return root;
+            return _root;
         }
 
         public virtual Task ResolveElementCountAsync(TreeNode<MenuItem> curNode, bool deep = false)
@@ -63,15 +64,15 @@ namespace Smartstore.Web.Infrastructure
             return Task.CompletedTask;
         }
 
-        public virtual async Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionContext actionContext)
+        public virtual Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionContext actionContext)
         {
             if (!_currentNodeResolved)
             {
-                _currentNode = (await GetRootNodeAsync()).SelectNode(x => x.Value.IsCurrent(actionContext), true);
+                _currentNode = _root.SelectNode(x => x.Value.IsCurrent(actionContext), true);
                 _currentNodeResolved = true;
             }
 
-            return _currentNode;
+            return Task.FromResult(_currentNode);
         }
 
         public IDictionary<string, TreeNode<MenuItem>> GetAllCachedMenus()
