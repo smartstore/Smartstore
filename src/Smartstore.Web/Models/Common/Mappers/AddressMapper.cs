@@ -18,11 +18,12 @@ namespace Smartstore.Web.Models.Common
     public static class AddressMappingExtensions
     {
         /// <summary>
-        /// TODO: (mh) (core) Describe
+        /// Extension method to map an <see cref="Address"/> entity to the corresponding <see cref="AddressModel"/>.
         /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="excludeProperties"></param>
-        /// <param name="countries"></param>
+        /// <param name="entity">The <see cref="Address"/> entity that should be mapped.</param>
+        /// <param name="model">The <see cref="AddressModel"/> to which the entity should be mapped to.</param>
+        /// <param name="excludeProperties">Specifies whether to exclude entity properties from being mapped to the model.</param>
+        /// <param name="countries">List of countries which should be included in the model.</param>
         public static async Task MapAsync(this Address entity, AddressModel model, bool excludeProperties = false, List<Country> countries = null)
         {
             dynamic parameters = new ExpandoObject();

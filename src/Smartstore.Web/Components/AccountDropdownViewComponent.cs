@@ -71,7 +71,6 @@ namespace Smartstore.Web.Components
 
             model.MenuItems.Add(new MenuItem().ToBuilder().IsGroupHeader(true).AsItem());
 
-            // TODO: (mh) (core) Working with asp-action & asp-controller might be better
             model.MenuItems.Add(new MenuItem().ToBuilder()
                 .Route("Logout")
                 .LinkHtmlAttributes(new { @class = "dropdown-item", rel = "nofollow" })

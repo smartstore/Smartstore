@@ -3,18 +3,18 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Engine;
 using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Web.Models.Customers
 {
     public static class CustomerMappingExtensions
     {
+        // TODO: (mh) (core) Find proper place => Maybe a CustomerMapper with a method MapToAvatar?
         /// <summary>
-        /// TODO: (mh) (core) Find proper place & describe
+        ///  Maps a <see cref="Customer"/> to a <see cref="CustomerAvatarModel"/>.
         /// </summary>
-        /// <param name="customer"></param>
-        /// <param name="userName"></param>
-        /// <param name="large"></param>
+        /// <param name="customer">The <see cref="Customer"/> entity which should be mapped to <see cref="CustomerAvatarModel"/></param>
+        /// <param name="userName">The username which should be displayed for this avatar.</param>
+        /// <param name="large">Specifies the size of the displayed avatar.</param>
         public static CustomerAvatarModel ToAvatarModel(this Customer customer, string userName = null, bool large = false)
         {
             Guard.NotNull(customer, nameof(customer));
@@ -83,13 +83,9 @@ namespace Smartstore.Web.Models.Customers
     {
         public bool Large { get; set; }
         public int? FileId { get; set; }
-
-        public string CurrentFileName { get; set; } // TODO: (mh) (core) What's this for?
-
         public string AvatarColor { get; set; }
         public char AvatarLetter { get; set; }
         public string UserName { get; set; }
-
         public bool AllowViewingProfiles { get; set; }
         public int AvatarPictureSize { get; set; }
     }

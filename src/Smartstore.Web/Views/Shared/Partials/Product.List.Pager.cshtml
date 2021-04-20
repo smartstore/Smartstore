@@ -45,7 +45,7 @@
     }
 }
 
-<div sm-if="Model.AvailablePageSizes != null && Model.AvailablePageSizes.Count() > 1" class="artlist-action artlist-action--pagesize ml-auto">
+<div sm-if="Model.AvailablePageSizes != null && Model.AvailablePageSizes.Any()" class="artlist-action artlist-action--pagesize ml-auto">
     <div class="mf-dropdown">
         <button class="btn btn-secondary btn-artlist-action">
             <em>@Html.Raw(T("Pager.XPerPage", $"<span>{pageable.PageSize}</span>"))</em>

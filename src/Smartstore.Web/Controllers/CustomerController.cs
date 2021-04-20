@@ -952,23 +952,6 @@ namespace Smartstore.Web.Controllers
             return RedirectToAction("StockSubscriptions");
         }
 
-        /// <summary>
-        /// INFO: (mh) (core) This action is obsolete. Won't get called anymore.
-        /// TODO: (mh) (core) Remove it.
-        /// </summary>
-        /// <param name="id"><see cref="BackInStockSubscription.Id"/></param>
-        //public async Task<IActionResult> DeleteBackInStockSubscription(int id)
-        //{
-        //    var subscription = await _db.BackInStockSubscriptions.FindByIdAsync(id);
-        //    if (subscription != null && subscription.CustomerId == Services.WorkContext.CurrentCustomer.Id)
-        //    {
-        //        _db.BackInStockSubscriptions.Remove(subscription);
-        //        await _db.SaveChangesAsync();
-        //    }
-
-        //    return RedirectToAction("BackInStockSubscriptions");
-        //}
-
         #endregion
 
         #region Utilities

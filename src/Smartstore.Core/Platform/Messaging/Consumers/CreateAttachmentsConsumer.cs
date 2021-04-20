@@ -49,7 +49,6 @@ namespace Smartstore.Core.Messaging
 
         private async Task<QueuedEmailAttachment> CreatePdfInvoiceAttachmentAsync(int orderId, IUrlHelper urlHelper)
         {
-            // TODO: (mh) (core) Ensure that this path is correct after all routes has been ported.
             var path = urlHelper.Action("Print", "Order", new { id = orderId, pdf = true, area = "" });
             var downloadManager = new DownloadManager(urlHelper.ActionContext.HttpContext.Request);
             var fileResponse = await downloadManager.DownloadFileAsync(path, true, 5000);
