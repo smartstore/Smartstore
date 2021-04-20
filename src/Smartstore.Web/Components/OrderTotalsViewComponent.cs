@@ -1,11 +1,13 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
@@ -108,7 +110,8 @@ namespace Smartstore.Web.Components
             }
 
             // Shipping info
-            model.RequiresShipping = cart.IsShippingRequired();
+            // TODO: (ms) (core) Re-implement when any payment method has been implemented
+            model.RequiresShipping = false;// cart.IsShippingRequired();
             if (model.RequiresShipping)
             {
                 var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
@@ -143,7 +146,7 @@ namespace Smartstore.Web.Components
             }
             else
             {
-                var cartTaxBase = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+                (Money Price, TaxRatesDictionary TaxRates) cartTaxBase = (new Money(1.19m, currency), new TaxRatesDictionary());//await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
                 var cartTax = _currencyService.ConvertFromPrimaryCurrency(cartTaxBase.Price.Amount, currency);
 
                 if (cartTaxBase.Price == decimal.Zero && _taxSettings.HideZeroTax)
@@ -178,7 +181,26 @@ namespace Smartstore.Web.Components
             model.ShowConfirmOrderLegalHint = _shoppingCartSettings.ShowConfirmOrderLegalHint;
 
             // Cart total
-            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+            // TODO: (ms) (core) Re-implement when any payment method has been implemented
+            //var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+
+            var cartTotal = new ShoppingCartTotal
+            {
+                Total = new(decimal.Zero, currency),
+                ToNearestRounding = new(decimal.Zero, currency),
+                DiscountAmount = new(decimal.Zero, currency),
+                AppliedDiscount = new(),
+                RedeemedRewardPoints = 0,
+                RedeemedRewardPointsAmount = new(decimal.Zero, currency),
+                CreditBalance = new(decimal.Zero, currency),
+                AppliedGiftCards = new(),
+                ConvertedAmount = new ShoppingCartTotal.ConvertedAmounts
+                {
+                    Total = new(decimal.Zero, currency),
+                    ToNearestRounding = new(decimal.Zero, currency)
+                }
+            };
+
             if (cartTotal.ConvertedAmount.Total.HasValue)
             {
                 model.OrderTotal = cartTotal.ConvertedAmount.Total.Value.ToString(true);
@@ -195,7 +217,7 @@ namespace Smartstore.Web.Components
                 model.OrderTotalDiscount = (orderTotalDiscountAmount * -1).ToString(true);
                 model.AllowRemovingOrderTotalDiscount = cartTotal.AppliedDiscount != null
                     && cartTotal.AppliedDiscount.RequiresCouponCode
-                    && !string.IsNullOrEmpty(cartTotal.AppliedDiscount.CouponCode)
+                    && cartTotal.AppliedDiscount.CouponCode.HasValue()
                     && model.IsEditable;
             }
 
