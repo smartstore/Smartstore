@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
 
@@ -28,11 +27,12 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 // Render meta accept-language right before the title tag
                 var acceptLang = CultureInfo.CurrentUICulture.ToString();
-                output.PreElement.AppendHtml(string.Format("<meta name=\"accept-language\" content=\"{0}\"/>", acceptLang));
+                output.PreElement.AppendHtml($"<meta name='accept-language' content='{acceptLang}'/>");
             }
             else if (context.TagName == BodyTagName && !output.Attributes.ContainsName(DirAttributeName))
             {
                 // Add dir attribute to body
+                // TODO: (mc) (core) IsRightToLeft always returns false no matter what. Also this attribute was set on html-tag level prior.
                 var isRtl = CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
                 var val = isRtl ? "rtl" : "ltr";
                 output.Attributes.Add(DirAttributeName, val);
