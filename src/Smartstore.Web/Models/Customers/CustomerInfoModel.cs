@@ -10,7 +10,6 @@ namespace Smartstore.Web.Models.Customers
     [LocalizedDisplay("Account.Fields.")]
     public partial class CustomerInfoModel : ModelBase
     {
-        [Required]
         [LocalizedDisplay("*Email")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
@@ -129,6 +128,8 @@ namespace Smartstore.Web.Models.Customers
     {
         public CustomerInfoValidator(CustomerSettings customerSettings)
         {
+            RuleFor(x => x.Email).NotEmpty().EmailAddress();
+
             //form fields
             if (customerSettings.FirstNameRequired)
             {

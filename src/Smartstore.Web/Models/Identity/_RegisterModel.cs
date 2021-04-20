@@ -15,7 +15,6 @@ namespace Smartstore.Web.Models.Identity
     {
         public bool UserNamesEnabled { get; set; }
 
-        [Required]
         [LocalizedDisplay("Email")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
@@ -23,12 +22,10 @@ namespace Smartstore.Web.Models.Identity
         [LocalizedDisplay("*Username")]
         public string UserName { get; set; }
 
-        [Required]
         [DataType(DataType.Password)]
         [LocalizedDisplay("*Password")]
         public string Password { get; set; }
 
-        [Required]
         [DataType(DataType.Password)]
         [LocalizedDisplay("*ConfirmPassword")]
         public string ConfirmPassword { get; set; }
@@ -38,8 +35,10 @@ namespace Smartstore.Web.Models.Identity
     {
         public RegisterModelValidator(Localizer T, CustomerSettings customerSettings, TaxSettings taxSettings, SmartDbContext db)
         {
-            RuleFor(x => x.ConfirmPassword).Equal(x => x.Password).WithMessage(T("Account.Fields.Password.EnteredPasswordsDoNotMatch"));
-
+            RuleFor(x => x.Email).NotEmpty().EmailAddress();
+            RuleFor(x => x.Password).NotEmpty();
+            RuleFor(x => x.ConfirmPassword).NotEmpty().Equal(x => x.Password).WithMessage(T("Account.Fields.Password.EnteredPasswordsDoNotMatch"));
+            
             //// Form fields.
             //if (customerSettings.FirstNameRequired)
             //{

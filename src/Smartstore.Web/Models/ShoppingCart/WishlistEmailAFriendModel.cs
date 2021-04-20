@@ -1,17 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
     [LocalizedDisplay("Wishlist.EmailAFriend.")]
     public partial class WishlistEmailAFriendModel : ModelBase
     {
-        [Required]
         [DataType(DataType.EmailAddress)]
         [LocalizedDisplay("*FriendEmail")]
         public string FriendEmail { get; set; }
 
-        [Required]
         [DataType(DataType.EmailAddress)]
         [LocalizedDisplay("*YourEmailAddress")]
         public string YourEmailAddress { get; set; }
@@ -23,5 +23,14 @@ namespace Smartstore.Web.Models.ShoppingCart
         public bool SuccessfullySent { get; set; }
         public bool DisplayCaptcha { get; set; }
         public string Result { get; set; }
+    }
+
+    public class WishlistEmailAFriendValidator : SmartValidator<WishlistEmailAFriendModel>
+    {
+        public WishlistEmailAFriendValidator()
+        {
+            RuleFor(x => x.FriendEmail).NotEmpty().EmailAddress();
+            RuleFor(x => x.YourEmailAddress).NotEmpty().EmailAddress();
+        }
     }
 }

@@ -13,7 +13,6 @@ namespace Smartstore.Web.Models.Catalog
 
         public string ProductSeName { get; set; }
 
-        [Required]
         [DataType(DataType.EmailAddress)]
         [LocalizedDisplay("Account.Fields.Email")]
         public string SenderEmail { get; set; }
@@ -25,7 +24,6 @@ namespace Smartstore.Web.Models.Catalog
         [LocalizedDisplay("Account.Fields.Phone")]
         public string SenderPhone { get; set; }
 
-        [Required]
         [SanitizeHtml]
         [LocalizedDisplay("Common.Question")]
         public string Question { get; set; }
@@ -41,6 +39,9 @@ namespace Smartstore.Web.Models.Catalog
     {
         public ProductAskQuestionValidator(PrivacySettings privacySettings)
         {
+            RuleFor(x => x.SenderEmail).NotEmpty().EmailAddress();
+            RuleFor(x => x.Question).NotEmpty();
+
             if (privacySettings.FullNameOnProductRequestRequired)
             {
                 RuleFor(x => x.SenderName).NotEmpty();

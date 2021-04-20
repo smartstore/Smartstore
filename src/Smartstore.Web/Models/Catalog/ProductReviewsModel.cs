@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.Catalog
 {
@@ -26,11 +28,10 @@ namespace Smartstore.Web.Models.Catalog
 
         #region Add
 
-        [Required, StringLength(200, MinimumLength = 1)]
         [LocalizedDisplay("*Title")]
         public string Title { get; set; }
 
-        [SanitizeHtml, Required]
+        [SanitizeHtml]
         [LocalizedDisplay("*ReviewText")]
         public string ReviewText { get; set; }
 
@@ -64,5 +65,14 @@ namespace Smartstore.Web.Models.Catalog
         public int ProductReviewId { get; set; }
         public int HelpfulYesTotal { get; set; }
         public int HelpfulNoTotal { get; set; }
+    }
+
+    public class ProductReviewsValidator : SmartValidator<ProductReviewsModel>
+    {
+        public ProductReviewsValidator()
+        {
+            RuleFor(x => x.Title).NotEmpty().Length(1, 200);
+            RuleFor(x => x.ReviewText).NotEmpty();
+        }
     }
 }
