@@ -52,9 +52,11 @@ namespace Smartstore.Web.Infrastructure
 
         public virtual async Task<TreeNode<MenuItem>> GetRootNodeAsync()
         {
-            _root = await BuildAsync();
-
-            await _services.EventPublisher.PublishAsync(new MenuBuiltEvent(Name, _root));
+            if (_root == null)
+            {
+                _root = await BuildAsync();
+                await _services.EventPublisher.PublishAsync(new MenuBuiltEvent(Name, _root));
+            }
 
             return _root;
         }
