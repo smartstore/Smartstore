@@ -957,7 +957,6 @@ namespace Smartstore.Web.Controllers
             var productBundleItem = modelContext.ProductBundleItem;
             var bundleItemId = productBundleItem?.Item?.Id ?? 0;
             var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
-            var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
             var attributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(product.Id);
             var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, modelContext.Customer, null, modelContext.BatchContext);
             var linkedProducts = new Dictionary<int, Product>();
@@ -965,7 +964,7 @@ namespace Smartstore.Web.Controllers
             var preselectedWeightAdjustment = 0m;
 
             // Key: ProductVariantAttributeValue.Id, value: attribute price adjustment.
-            var priceAdjustments = displayPrices && !isBundlePricing
+            var priceAdjustments = modelContext.DisplayPrices && !isBundlePricing
                 ? await _priceCalculationService.CalculateAttributePriceAdjustmentsAsync(product, null, selectedQuantity, pricingOptions)
                 : new Dictionary<int, CalculatedPriceAdjustment>();
 
@@ -1099,7 +1098,7 @@ namespace Smartstore.Web.Controllers
                         valueModel.SeName = await linkedProduct.GetActiveSlugAsync();
                     }
 
-                    if (displayPrices && !isBundlePricing)
+                    if (modelContext.DisplayPrices && !isBundlePricing)
                     {
                         if (priceAdjustments.TryGetValue(value.Id, out var priceAdjustment))
                         {
@@ -1194,39 +1193,124 @@ namespace Smartstore.Web.Controllers
                 model.ProductVariantAttributes.Add(attributeModel);
             }
 
-            // Apply attribute combination.
-            List<ProductVariantAttributeValue> selectedAttributeValues = await PrepareProductAttributeCombinationsModel_New(model, modelContext);
-
-            // Apply weight adjustments.
-            if (selectedAttributeValues != null)
+            if (query.Variants.Any() || query.VariantCombinationId != 0)
             {
-                selectedAttributeValues.Each(x => model.WeightValue += x.WeightAdjustment);
+                // Apply attribute combination if any.
+                var hasSelectedAttributesValues = await PrepareProductAttributeCombinationsModel_New(model, modelContext);               
             }
             else
             {
+                // Apply weight adjustment of preselected attributes.
                 model.WeightValue += preselectedWeightAdjustment;
-            }
+            }            
         }
 
-        protected async Task<List<ProductVariantAttributeValue>> PrepareProductAttributeCombinationsModel_New(ProductDetailsModel model, ProductDetailsModelContext modelContext)
+        protected async Task<bool> PrepareProductAttributeCombinationsModel_New(ProductDetailsModel model, ProductDetailsModelContext modelContext)
         {
-            List<ProductVariantAttributeValue> selectedAttributeValues = null;
             var product = modelContext.Product;
             var query = modelContext.VariantQuery;
+            var productBundleItem = modelContext.ProductBundleItem;
+            var bundleItemId = productBundleItem?.Item?.Id ?? 0;
+            var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
+            var checkAvailability = product.AttributeChoiceBehaviour == AttributeChoiceBehaviour.GrayOutUnavailable;
+            var attributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(product.Id);
 
-            if (query.Variants.Any() || query.VariantCombinationId != 0)
+            var res = new Dictionary<string, LocalizedString>(StringComparer.OrdinalIgnoreCase)
             {
-                // Merge with combination data if there's a match.
-                var warnings = new List<string>();
-                //ProductVariantAttributeSelection selection;
-                var checkAvailability = product.AttributeChoiceBehaviour == AttributeChoiceBehaviour.GrayOutUnavailable;
+                { "Products.Availability.IsNotActive", T("Products.Availability.IsNotActive") },
+                { "Products.Availability.OutOfStock", T("Products.Availability.OutOfStock") },
+                { "Products.Availability.Backordering", T("Products.Availability.Backordering") },
+            };
 
+            ProductVariantAttributeSelection selection;
+            if (query.VariantCombinationId != 0)
+            {
                 var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
-
-                // TODO: (mg) (core) Complete PrepareProductAttributeCombinationsModel
+                selection = new ProductVariantAttributeSelection(combination?.RawAttributes ?? string.Empty);
+            }
+            else
+            {
+                var attributeSelection = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId, false);
+                selection = attributeSelection.Selection;
             }
 
-            return selectedAttributeValues;
+            var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
+            var hasSelectedValues = selection.AttributesMap.Any();
+
+            if (isBundlePricing)
+            {
+                model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
+                    selection,
+                    product,
+                    modelContext.Customer,
+                    separator: ", ",
+                    includePrices: false,
+                    includeGiftCardAttributes: false,
+                    includeHyperlinks: false);
+            }
+
+            model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
+
+            if (model.SelectedCombination != null && !model.SelectedCombination.IsActive)
+            {
+                model.IsAvailable = false;
+                model.StockAvailability = res["Products.Availability.IsNotActive"];
+            }
+
+            // INFO: MergeWithCombination is required here because we call product.IsAvailableByStock() later in PrepareProductPropertiesModelAsync.
+            product.MergeWithCombination(model.SelectedCombination);
+
+            // Explicitly selected values always discards values preselected by merchant.
+            var selectedValueIds = selectedValues.Select(x => x.Id).ToArray();
+
+            foreach (var attribute in model.ProductVariantAttributes)
+            {
+                var updatePreSelection = selectedValueIds.Any() && selectedValueIds.Intersect(attribute.Values.Select(x => x.Id)).Any();
+
+                foreach (ProductDetailsModel.ProductVariantAttributeValueModel value in attribute.Values)
+                {
+                    if (updatePreSelection)
+                    {
+                        value.IsPreSelected = selectedValueIds.Contains(value.Id);
+                    }
+
+                    if (!_catalogSettings.ShowVariantCombinationPriceAdjustment)
+                    {
+                        value.PriceAdjustment = string.Empty;
+                    }
+
+                    if (checkAvailability)
+                    {
+                        var availabilityInfo = await _productAttributeMaterializer.IsCombinationAvailableAsync(
+                            product,
+                            attributes,
+                            selectedValues,
+                            value.ProductAttributeValue);
+
+                        if (availabilityInfo != null)
+                        {
+                            value.IsUnavailable = true;
+
+                            // Set title attribute for unavailable option.
+                            if (product.DisplayStockAvailability && availabilityInfo.IsOutOfStock && availabilityInfo.IsActive)
+                            {
+                                value.Title = product.BackorderMode == BackorderMode.NoBackorders || product.BackorderMode == BackorderMode.AllowQtyBelow0
+                                    ? res["Products.Availability.OutOfStock"]
+                                    : res["Products.Availability.Backordering"];
+                            }
+                            else
+                            {
+                                value.Title = res["Products.Availability.IsNotActive"];
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Apply weight adjustments.
+            selectedValues.Each(x => model.WeightValue += x.WeightAdjustment);
+
+            return hasSelectedValues;
         }
 
         protected async Task<(Money, decimal)> PrepareProductAttributesModelAsync(
@@ -1595,9 +1679,12 @@ namespace Smartstore.Web.Controllers
                 // Cases where stock inventory is not functional (what ShoppingCartService.GetStandardWarnings and ProductService.AdjustInventory does not handle).
                 model.IsAvailable = true;
 
-                // TODO: (mh) (core) Test this!!
-                //var hasAttributeCombinations = _services.DbContext.QueryForCollection(product, (Product p) => p.ProductVariantAttributeCombinations).Any();
-                model.StockAvailability = !hasSelectedAttributesValues ? product.FormatStockMessage(_localizationService) : string.Empty;
+                var hasAttributeCombinations = await _db.Entry(product)
+                    .Collection(x => x.ProductVariantAttributeCombinations)
+                    .Query()
+                    .AnyAsync();
+
+                model.StockAvailability = !hasAttributeCombinations ? product.FormatStockMessage(_localizationService) : string.Empty;
             }
             else if (model.IsAvailable)
             {
@@ -2252,6 +2339,8 @@ namespace Smartstore.Web.Controllers
 
             if (!collectionLoaded)
             {
+                // TODO: (core) DbContext.Attach in PrepareProductReviewsModelAsync may throw InvalidOperationException.
+                // "The instance of entity type 'Product' cannot be tracked because another instance with the same key value for {'Id'} is already being tracked."
                 _db.Attach(product);
             }
 
