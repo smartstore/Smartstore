@@ -1065,54 +1065,56 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        //[HttpPost, ActionName("EmailWishlist")]
-        //[FormValueRequired("send-email")]
-        //[ValidateCaptcha]
-        //[GdprConsent]
-        //public async Task<IActionResult> EmailWishlistSend(WishlistEmailAFriendModel model, string captchaError)
-        //{
-        //    if (!_shoppingCartSettings.EmailWishlistEnabled || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
-        //        return RedirectToRoute("Homepage");
+        [HttpPost, ActionName("EmailWishlist")]
+        [FormValueRequired("send-email")]
+        [ValidateCaptcha]
+        [GdprConsent]
+        public async Task<IActionResult> EmailWishlistSend(WishlistEmailAFriendModel model, string captchaError)
+        {
+            if (!_shoppingCartSettings.EmailWishlistEnabled || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
+                return RedirectToRoute("Homepage");
 
-        //    var customer = Services.WorkContext.CurrentCustomer;
+            var customer = Services.WorkContext.CurrentCustomer;
 
-        //    var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.Wishlist, Services.StoreContext.CurrentStore.Id);
-        //    if (cart.Count == 0)
-        //    {
-        //        return RedirectToRoute("Homepage");
-        //    }
+            var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.Wishlist, Services.StoreContext.CurrentStore.Id);
+            if (cart.Count == 0)
+            {
+                return RedirectToRoute("Homepage");
+            }
 
-        //    if (_captchaSettings.ShowOnEmailWishlistToFriendPage && captchaError.HasValue())
-        //    {
-        //        ModelState.AddModelError("", captchaError);
-        //    }
+            if (_captchaSettings.ShowOnEmailWishlistToFriendPage && captchaError.HasValue())
+            {
+                ModelState.AddModelError("", captchaError);
+            }
 
-        //    // Check whether the current customer is guest and ia allowed to email wishlist.
-        //    if (customer.IsGuest() && !_shoppingCartSettings.AllowAnonymousUsersToEmailWishlist)
-        //    {
-        //        ModelState.AddModelError("", T("Wishlist.EmailAFriend.OnlyRegisteredUsers"));
-        //    }
+            // Check whether the current customer is guest and is allowed to email wishlist.
+            if (customer.IsGuest() && !_shoppingCartSettings.AllowAnonymousUsersToEmailWishlist)
+            {
+                ModelState.AddModelError("", T("Wishlist.EmailAFriend.OnlyRegisteredUsers"));
+            }
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        await _messageFactory.SendShareWishlistMessageAsync(
-        //            customer,
-        //            model.YourEmailAddress,
-        //            model.FriendEmail,
-        //            HtmlUtils.ConvertPlainTextToHtml(model.PersonalMessage.HtmlEncode()));
+            if (!ModelState.IsValid)
+            {
+                // If we got this far, something failed, redisplay form.
+                ModelState.AddModelError("", T("Common.Error.Sendmail"));
+                model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnEmailWishlistToFriendPage;
 
-        //        model.SuccessfullySent = true;
-        //        model.Result = T("Wishlist.EmailAFriend.SuccessfullySent");
+                return View(model);
+            }
 
-        //        return View(model);
-        //    }
+            await _messageFactory.SendShareWishlistMessageAsync(
+                customer,
+                model.YourEmailAddress,
+                model.FriendEmail,
+                HtmlUtils.ConvertPlainTextToHtml(model.PersonalMessage.HtmlEncode()));
 
-        //    // If we got this far, something failed, redisplay form.
-        //    ModelState.AddModelError("", T("Common.Error.Sendmail"));
-        //    model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnEmailWishlistToFriendPage;
+            model.SuccessfullySent = true;
+            model.Result = T("Wishlist.EmailAFriend.SuccessfullySent");
 
-        //    return View(model);
-        //}
+            // TODO: (ms) (core) Make sure that the wishlist template works as intended
+
+            return View(model);
+        }
 
         //[HttpPost, ActionName("Cart")]
         //[FormValueRequired("estimateshipping")]
