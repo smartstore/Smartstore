@@ -529,6 +529,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> UpdateCartItem(int sciItemId, int newQuantity, bool isCartPage = false, bool isWishlist = false)
         {
             // TODO: (ms) (core) Rename parameter and still retrieve value selected from input field
+            // TODO: (ms) (core) Item order is beeing altered on update
 
             if (!await Services.Permissions.AuthorizeAsync(isWishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart))
                 return RedirectToRoute("Homepage");
@@ -562,6 +563,8 @@ namespace Smartstore.Web.Controllers
                     var model = new ShoppingCartModel();
                     await cart.AsEnumerable().MapAsync(model);
                     cartHtml = await this.InvokeViewAsync("CartItems", model);
+
+                    // TODO: (ms) (core) InvokeViewComponentAsync "OrderTotals" returns string.empty ?
                     totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
                 }
             }
@@ -619,7 +622,6 @@ namespace Smartstore.Web.Controllers
             var totalsHtml = string.Empty;
             var cartItemCount = cart.Count;
 
-            // TODO: (ms) (core) Don't include stuff that doesn't exist.
             if (cartType == ShoppingCartType.Wishlist)
             {
                 var model = new WishlistModel();
@@ -633,6 +635,8 @@ namespace Smartstore.Web.Controllers
                 await cart.AsEnumerable().MapAsync(model);
 
                 cartHtml = await this.InvokeViewAsync("CartItems", model);
+
+                // TODO: (ms) (core) InvokeViewComponentAsync "OrderTotals" returns string.empty ?
                 totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
             }
 
@@ -858,6 +862,10 @@ namespace Smartstore.Web.Controllers
         [ActionName("MoveItemBetweenCartAndWishlist")]
         public async Task<IActionResult> MoveItemBetweenCartAndWishlistAjax(int cartItemId, ShoppingCartType cartType, bool isCartPage = false)
         {
+            // TODO: (ms) (core) Investigate error message for: Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException:
+            // Database operation expected to affect 1 row(s) but actually affected 0 row(s). Data may have been modified or deleted since entities were loaded.
+            // See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.
+
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
                 || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
             {
@@ -942,6 +950,8 @@ namespace Smartstore.Web.Controllers
                     await cart.AsEnumerable().MapAsync(model);
 
                     cartHtml = await this.InvokeViewAsync("CartItems", model);
+
+                    // TODO: (ms) (core) InvokeViewComponentAsync "OrderTotals" returns string.empty ?
                     totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
                     message = T("Products.ProductHasBeenAddedToTheWishlist");
                 }
