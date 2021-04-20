@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
@@ -376,7 +375,8 @@ namespace Smartstore.Web.Controllers
                 BundleItemDatas = bundleItemDatas,
                 Customer = batchContext.Customer,
                 Store = batchContext.Store,
-                Currency = Services.WorkContext.WorkingCurrency
+                Currency = Services.WorkContext.WorkingCurrency,
+                DisplayPrices = await Services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice)
             };
 
             // Get merged model data.

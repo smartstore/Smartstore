@@ -46,6 +46,8 @@ namespace Smartstore.Web.Models.Catalog
 
         public bool IsAssociatedProduct { get; set; }
         public ProductBundleItemData ProductBundleItem { get; set; }
+
+        public bool DisplayPrices { get; set; }
     }
     
     public partial class ProductDetailsModel : EntityModelBase

@@ -543,7 +543,7 @@ namespace Smartstore.Web.Controllers
 
         #region Product
 
-        public Task<ProductDetailsModel> MapProductDetailsPageModelAsync(Product product, ProductVariantQuery query)
+        public async Task<ProductDetailsModel> MapProductDetailsPageModelAsync(Product product, ProductVariantQuery query)
         {
             Guard.NotNull(product, nameof(product));
 
@@ -556,10 +556,11 @@ namespace Smartstore.Web.Controllers
                 Customer = customer,
                 Store = store,
                 Currency = _services.WorkContext.WorkingCurrency,
-                BatchContext = _productService.CreateProductBatchContext(new[] { product }, store, customer, false)
+                BatchContext = _productService.CreateProductBatchContext(new[] { product }, store, customer, false),
+                DisplayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice)
             };
 
-            return MapProductDetailsPageModelAsync(modelContext);
+            return await MapProductDetailsPageModelAsync(modelContext);
         }
 
         protected internal virtual async Task<ProductDetailsModel> MapProductDetailsPageModelAsync(ProductDetailsModelContext modelContext)
@@ -888,12 +889,7 @@ namespace Smartstore.Web.Controllers
             var product = modelContext.Product;
             var preSelectedPriceAdjustmentBase = new Money();
             var preSelectedWeightAdjustment = decimal.Zero;
-            //var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
             var isBundle = product.ProductType == ProductType.BundledProduct;
-            //var isBundleItemPricing = productBundleItem != null && productBundleItem.Item.BundleProduct.BundlePerItemPricing;
-            //var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
-            //var bundleItemId = productBundleItem == null ? 0 : productBundleItem.Item.Id;
-
             var variantAttributes = isBundle
                 ? new List<ProductVariantAttribute>() 
                 : await modelContext.BatchContext.Attributes.GetOrLoadAsync(product.Id);
@@ -922,7 +918,7 @@ namespace Smartstore.Web.Controllers
             await PrepareProductPriceModelAsync(model, modelContext, selectedAttributeValues, selectedQuantity, preSelectedPriceAdjustmentBase);
 
             // AddToCart
-            await PrepareProductCartModelAsync(model, modelContext, selectedQuantity);
+            PrepareProductCartModel(model, modelContext, selectedQuantity);
 
             // GiftCards
             PrepareProductGiftCardsModel(model, modelContext);
@@ -1245,8 +1241,7 @@ namespace Smartstore.Web.Controllers
             var bundleItemId = productBundleItem == null ? 0 : productBundleItem.Item.Id;
             var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
             var hasSelectedAttributes = query.Variants.Any();
-
-            var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
+            var displayPrices = modelContext.DisplayPrices;
             var preSelectedPriceAdjustmentBase = new Money();
             var preSelectedWeightAdjustment = decimal.Zero;
 
@@ -1788,7 +1783,7 @@ namespace Smartstore.Web.Controllers
             var isBundleItemPricing = productBundleItem != null && productBundleItem.Item.BundleProduct.BundlePerItemPricing;
             var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
             var isBundle = product.ProductType == ProductType.BundledProduct;
-            var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
+            var displayPrices = modelContext.DisplayPrices;
 
             model.ProductPrice.ProductId = product.Id;
             model.ProductPrice.HidePrices = !displayPrices;
@@ -1921,13 +1916,13 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        protected async Task PrepareProductCartModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
+        protected void PrepareProductCartModel(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
         {
             var product = modelContext.Product;
             var productBundleItem = modelContext.ProductBundleItem;
             var customer = modelContext.Customer;
             var currency = modelContext.Currency;
-            var displayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
+            var displayPrices = modelContext.DisplayPrices;
 
             model.AddToCart.ProductId = product.Id;
             model.AddToCart.EnteredQuantity = product.OrderMinimumQuantity > selectedQuantity ? product.OrderMinimumQuantity : selectedQuantity;
