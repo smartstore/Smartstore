@@ -28,6 +28,7 @@ namespace Smartstore.Web.Controllers
         private readonly IGeoCountryLookup _countryLookup;
         private readonly ICookieConsentManager _cookieConsentManager;
         private readonly Lazy<IMediaService> _mediaService;
+        private readonly ILanguageService _languageService;
         private readonly UrlPolicy _urlPolicy;
         private readonly IWebHelper _webHelper;
         private readonly IThemeContext _themeContext;
@@ -42,6 +43,7 @@ namespace Smartstore.Web.Controllers
             IGeoCountryLookup countryLookup,
             ICookieConsentManager cookieConsentManager,
             Lazy<IMediaService> mediaService,
+            ILanguageService languageService,
             UrlPolicy urlPolicy,
             IWebHelper webHelper,
             IThemeContext themeContext, 
@@ -55,6 +57,7 @@ namespace Smartstore.Web.Controllers
             _countryLookup = countryLookup;
             _cookieConsentManager = cookieConsentManager;
             _mediaService = mediaService;
+            _languageService = languageService;
             _urlPolicy = urlPolicy;
             _webHelper = webHelper;
             _themeContext = themeContext;
@@ -184,11 +187,18 @@ namespace Smartstore.Web.Controllers
                     .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
                     .ToListAsync();
 
-                // URLs are localizable. Append SEO code
+                var masterLanguageId = await _languageService.GetMasterLanguageIdAsync();
+
+                // URLs are localizable. Append SEO code.
                 foreach (var language in languages)
                 {
-                    // TODO: (mh) (core) Master language may not have SEO prefixes if localization settings say so. This way a bug in classic also. Please fix.
-                    disallows = disallows.Concat(localizableDisallowPaths.Select(x => $"/{language.UniqueSeoCode}{x}"));
+                    // TODO: (mh) (core) Remove comments once reviewed.
+                    // INFO: (mh) (core) This was not a real bug as prefixless URLs were also included.
+                    // INFO: (mh) (core) StripSeoCode doesn't work (yet?).
+                    if (!(_localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode && language.Id == masterLanguageId))
+                    {
+                        disallows = disallows.Concat(localizableDisallowPaths.Select(x => $"/{language.UniqueSeoCode}{x}"));
+                    }
                 }
             }
 
