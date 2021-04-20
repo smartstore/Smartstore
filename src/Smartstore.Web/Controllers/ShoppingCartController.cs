@@ -551,7 +551,6 @@ namespace Smartstore.Web.Controllers
 
             if (isCartPage)
             {
-                // TODO: (ms) (core) Don't include stuff that doesn't exist.
                 if (isWishlist)
                 {
                     var model = new WishlistModel();
@@ -650,12 +649,13 @@ namespace Smartstore.Web.Controllers
         }
 
         //// TODO: (ms) (core) Add dev docu to all ajax action methods
+        /// <summary>
+        /// Adds a product without variants to the cart or redirects user to product details page.
+        /// This method is used in product lists on catalog pages (category/manufacturer etc...).
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> AddProductSimple(int productId, int shoppingCartTypeId = 1, bool forceRedirection = false)
         {
-            // Adds products without variants to the cart or redirects user to product details page.
-            // This method is used on catalog pages (category/manufacturer etc...).
-
             var product = await _db.Products.FindByIdAsync(productId, false);
             if (product == null)
             {
@@ -666,7 +666,7 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
-            // Filter out cases where a product cannot be added to the cart
+            // Filter out cases where a product cannot be added to the cart.
             if (product.ProductType == ProductType.GroupedProduct || product.CustomerEntersPrice || product.IsGiftCard)
             {
                 return Json(new
@@ -676,29 +676,28 @@ namespace Smartstore.Web.Controllers
             }
 
             var allowedQuantities = product.ParseAllowedQuantities();
-            if (allowedQuantities.Length > 0)
+            if (allowedQuantities.Any())
             {
-                // The user must select a quantity from the dropdown list, therefore the product cannot be added to the cart
+                // The user must select a quantity from the dropdown list, therefore the product cannot be added to the cart.
                 return Json(new
                 {
                     redirect = Url.RouteUrl("Product", new { SeName = await product.GetActiveSlugAsync() }),
                 });
             }
 
-            // Get product warnings without attribute validations.
             var storeId = Services.StoreContext.CurrentStore.Id;
             var cartType = (ShoppingCartType)shoppingCartTypeId;
 
-            // Get existing shopping cart items. Then, tries to find a cart item with the corresponding product.
+            // Get existing shopping cart items. Then, try to find a cart item with the corresponding product.
             var cart = await _shoppingCartService.GetCartItemsAsync(null, cartType, storeId);
             var cartItem = cart.FindItemInCart(cartType, product);
 
             var quantityToAdd = product.OrderMinimumQuantity > 0 ? product.OrderMinimumQuantity : 1;
 
-            // If we already have the same product in the cart, then use the total quantity to validate
+            // If we already have the same product in the cart, then use the total quantity to validate.
             quantityToAdd = cartItem != null ? cartItem.Item.Quantity + quantityToAdd : quantityToAdd;
 
-            // Product looks good so far, let's try adding the product to the cart (with product attribute validation etc.)
+            // Product looks good so far, let's try adding the product to the cart (with product attribute validation etc.).
             var addToCartContext = new AddToCartContext
             {
                 Item = cartItem?.Item,
@@ -710,7 +709,7 @@ namespace Smartstore.Web.Controllers
 
             if (!await _shoppingCartService.AddToCartAsync(addToCartContext))
             {
-                // Item could not be added to the cart. Most likely, the customer has to select product variant attributes.
+                // Item could not be added to the cart. Most likely, the customer has to select something on the product detail page e.g. variant attributes, giftcard infos, etc..
                 return Json(new
                 {
                     redirect = Url.RouteUrl("Product", new { SeName = await product.GetActiveSlugAsync() }),
@@ -718,14 +717,11 @@ namespace Smartstore.Web.Controllers
             }
 
             // Product has been added to the cart. Add to activity log.
-            _activityLogger.LogActivity(
-                "PublicStore.AddToShoppingCart",
-                T("ActivityLog.PublicStore.AddToShoppingCart"),
-                product.Name);
+            _activityLogger.LogActivity("PublicStore.AddToShoppingCart", T("ActivityLog.PublicStore.AddToShoppingCart"), product.Name);
 
             if (_shoppingCartSettings.DisplayCartAfterAddingProduct || forceRedirection)
             {
-                // Redirect to the shopping cart page
+                // Redirect to the shopping cart page.
                 return Json(new
                 {
                     redirect = Url.RouteUrl("ShoppingCart"),
@@ -1043,9 +1039,11 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
 
             var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.Wishlist, Services.StoreContext.CurrentStore.Id);
-            if (cart.Count == 0)
+            if (!cart.Any())
+            {
                 return RedirectToRoute("Homepage");
-
+            }
+            
             var model = new WishlistEmailAFriendModel
             {
                 YourEmailAddress = customer.Email,

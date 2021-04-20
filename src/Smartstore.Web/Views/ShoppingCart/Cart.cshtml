@@ -19,6 +19,6 @@
         <h1 class="h3">@T("ShoppingCart")</h1>
     </div>
     <div class="page-body">
-        @{ await Component.InvokeAsync("OrderSummary", new { prepareAndDisplayOrderReviewData = true }); }
+        @await Component.InvokeAsync("OrderSummary", new { prepareAndDisplayOrderReviewData = false })
     </div>
 </div>

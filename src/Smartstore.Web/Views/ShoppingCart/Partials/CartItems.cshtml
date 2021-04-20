@@ -1,7 +1,5 @@
 ﻿@using Smartstore.Web.Models.ShoppingCart;
 @using Smartstore.Core.Catalog.Products;
-@using Smartstore.Core.Catalog;
-@using Smartstore.Core.Checkout.Orders;
 @using Smartstore.Core.Checkout.Cart;
 @using Smartstore.Core.Common;
 
@@ -51,14 +49,14 @@
                             @if (deliveryPresentation != DeliveryTimesPresentation.None && item.IsShipEnabled)
                             {
                                 var showDeliveryName =
-                                item.DeliveryTimeName.HasValue() && item.DeliveryTimeHexValue.HasValue() &&
-                                (deliveryPresentation == DeliveryTimesPresentation.LabelOnly ||
-                                deliveryPresentation == DeliveryTimesPresentation.LabelAndDate ||
-                                !item.DeliveryTimeDate.HasValue());
+                                    item.DeliveryTimeName.HasValue() && item.DeliveryTimeHexValue.HasValue() &&
+                                    (deliveryPresentation == DeliveryTimesPresentation.LabelOnly ||
+                                    deliveryPresentation == DeliveryTimesPresentation.LabelAndDate ||
+                                    !item.DeliveryTimeDate.HasValue());
 
                                 var showDeliveryDate =
-                                (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) &&
-                                item.DeliveryTimeDate.HasValue();
+                                    (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate) &&
+                                    item.DeliveryTimeDate.HasValue();
 
                                 <div sm-if="showDeliveryName" class="row cart-item-attr deliverytime-group">
                                     <div class="col-3">@T("Products.DeliveryTime")</div>
@@ -72,13 +70,12 @@
 
                                 <div sm-if="showDeliveryDate" class="row cart-item-attr deliverytime-group">
                                     <div class="col-3">
-                                        @Html.Raw(!showDeliveryName ? T("Products.DeliveryDate") : "&nbsp;")
+                                        @Html.Raw(!showDeliveryName ? T("Products.DeliveryDate").Value : "&nbsp;")
                                     </div>
                                     <div class="col-9">
                                         <span class="delivery-date">@Html.Raw(item.DeliveryTimeDate)</span>
                                     </div>
                                 </div>
-
                             }
 
                             <div sm-if="Model.ShowSku && item.Sku.HasValue()" class="row cart-item-attr text-nowrap">
@@ -120,40 +117,38 @@
                         </div>
 
                         <div sm-if="item.Warnings.Any()" class="alert alert-danger">
-                            @for (int i = 0; i < item.Warnings.Count; i++)
+                            @foreach(var warning in item.Warnings)
                             {
-                                <p>@item.Warnings[i]</p>
+                                <p>@warning</p>
                             }
                         </div>
-
                     </div>
 
                     <div sm-if="Model.IsEditable" class="col col-auto">
                         <div class="cart-row-actions btn-group-vertical">
                             <a class="btn btn-gray btn-to-danger btn-sm btn-icon ajax-action-link" title="@T("Common.Remove")"
-                           href="#"
-                           rel="nofollow"
-                           data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
-                           data-name="@item.ProductName"
-                           data-type="cart"
-                           data-action="remove">
+                               href="#"
+                               rel="nofollow"
+                               data-href='@Url.Action("DeleteCartItem", "ShoppingCart", new { cartItemId = item.Id })'
+                               data-name="@item.ProductName"
+                               data-type="cart"
+                               data-action="remove">
                                 <i class="fa fa-2x">×</i>
                             </a>
                             @if (Model.DisplayMoveToWishlistButton && !item.DisableWishlistButton)
                             {
                                 <a class="btn btn-secondary btn-sm btn-icon ajax-action-link" title="@T("ShoppingCart.MoveToWishlist")"
-                           href="#"
-                           rel="nofollow"
-                           data-href='@Url.Action("MoveItemBetweenCartAndWishlist", "ShoppingCart", new { cartItemId = item.Id, cartType = ShoppingCartType.ShoppingCart, isCartPage = true })'
-                           data-name="@item.ProductName"
-                           data-type="wishlist"
-                           data-action="addfromcart">
+                                   href="#"
+                                   rel="nofollow"
+                                   data-href='@Url.Action("MoveItemBetweenCartAndWishlist", "ShoppingCart", new { cartItemId = item.Id, cartType = ShoppingCartType.ShoppingCart, isCartPage = true })'
+                                   data-name="@item.ProductName"
+                                   data-type="wishlist"
+                                   data-action="addfromcart">
                                     <i class="fal fa-heart"></i>
                                 </a>
                             }
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -165,16 +160,16 @@
                 @if (Model.IsEditable)
                 {
                     @Html.EditorFor(x => item, "QtyInput", new
-        {
-        htmlAttributes = new
-        {
-        @class = "ajax-action-link",
-        data_href= Url.Action("UpdateCartItem", "ShoppingCart", new { sciItemId = item.Id, isCartPage = true }),
-        data_sci_item = item.Id,
-        id = $"itemquantity{item.Id}",
-        Name = $"itemquantity{item.Id}"
-        }
-        })
+                    {
+                        htmlAttributes = new
+                        {
+                            @class = "ajax-action-link",
+                            data_href= Url.Action("UpdateCartItem", "ShoppingCart", new { sciItemId = item.Id, isCartPage = true }),
+                            data_sci_item = item.Id,
+                            id = $"itemquantity{item.Id}",
+                            Name = $"itemquantity{item.Id}"
+                        }
+                    })
 
                 }
                 else
@@ -190,7 +185,6 @@
                     <div>@T("ShoppingCart.ItemYouSave"):</div>
                     <div>@item.Discount</div>
                 </div>
-
             </div>
         </div>
     }
@@ -204,12 +198,12 @@
                     <div class="row sm-gutters">
                         <div class="col cart-item-img">
                             <!-- Spacer -->
-                </div>
+                        </div>
                         <div class="col">
                             <div class="d-flex w-100 align-items-center justify-content-start flex-nowrap">
                                 @if (Model.ShowProductBundleImages)
                                 {
-                                    <div class="mr-3" style=$"width: { Math.Min(Model.BundleThumbSize, 60) }px;">
+                                    <div class="mr-3" style="width:@Math.Min(Model.BundleThumbSize, 60)px;">
                                         @if (item.Image != null && item.Image.HasImage() && !item.BundleItem.HideThumbnail)
                                         {
                                             <img sm-model="item.Image" class="img-fluid" />
@@ -224,8 +218,7 @@
                                     
                                     @if (item.VisibleIndividually)
                                     {
-                                        <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" 
-                                        sm-language-attributes-for="item.ProductName">
+                                        <a class="cart-item-link" href="@item.ProductUrl" title="@T("Products.Details")" sm-language-attributes-for="item.ProductName">
                                             @item.ProductName
                                         </a>
                                     }
@@ -257,7 +250,6 @@
                                     <p>@warning</p>
                                 }
                             </div>
-               
                         </div>
                     </div>
                 </div>
