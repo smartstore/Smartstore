@@ -575,7 +575,7 @@ namespace Smartstore.Web.Controllers
 
             return Json(new
             {
-                success = warnings.Count <= 0,
+                success = !warnings.Any(),
                 SubTotal = subTotal,// subTotal.SubTotalWithoutDiscount.ToString(),
                 message = warnings,
                 cartHtml,
@@ -620,7 +620,6 @@ namespace Smartstore.Web.Controllers
             var cart = await _shoppingCartService.GetCartItemsAsync(cartType: cartType, storeId: storeId);
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
-            var cartItemCount = cart.Count;
 
             if (cartType == ShoppingCartType.Wishlist)
             {
@@ -648,7 +647,7 @@ namespace Smartstore.Web.Controllers
                 message = T("ShoppingCart.DeleteCartItem.Success").Value,
                 cartHtml,
                 totalsHtml,
-                cartItemCount
+                cartItemCount = cart.Count
             });
         }
 
