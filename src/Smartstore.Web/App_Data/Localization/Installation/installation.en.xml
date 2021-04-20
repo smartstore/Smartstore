@@ -6,7 +6,7 @@
     <Value>Admin user password</Value>
   </LocaleResource>
   <LocaleResource Name="ConfigureDirectoryPermissions">
-    <Value>The '{0}' account is not granted with Modify permission on folder '{1}'. Please configure these permissions.</Value>
+    <Value>The '{0}' account is not granted with Modify permission on directory '{1}'. Please configure these permissions.</Value>
   </LocaleResource>
   <LocaleResource Name="ConfigureFilePermissions">
     <Value>The '{0}' account is not granted with Modify permission on file '{1}'. Please configure these permissions.</Value>
@@ -14,7 +14,7 @@
   <LocaleResource Name="ConfirmPassword">
     <Value>Confirm the password</Value>
   </LocaleResource>
-  <LocaleResource Name="ConnectionString">
+  <LocaleResource Name="DbRawConnectionString">
     <Value>Connection string</Value>
   </LocaleResource>
   <LocaleResource Name="ConnectionStringValues">
@@ -30,7 +30,7 @@
     <Value>Create sample data</Value>
   </LocaleResource>
   <LocaleResource Name="CustomCollation">
-    <Value>Specify custom SQL Server collation</Value>
+    <Value>Specify custom database collation</Value>
   </LocaleResource>
   <LocaleResource Name="DatabaseCreationError">
     <Value>An error occurred while creating the database: {0}</Value>
@@ -38,7 +38,7 @@
   <LocaleResource Name="DatabaseInformation">
     <Value>Database information</Value>
   </LocaleResource>
-  <LocaleResource Name="DatabaseName">
+  <LocaleResource Name="DbName">
     <Value>Database name</Value>
   </LocaleResource>
   <LocaleResource Name="DatabaseNotExists">
@@ -72,22 +72,25 @@
     <Value>Setup failed: {0}</Value>
   </LocaleResource>
   <LocaleResource Name="SqlAuthentication">
-    <Value>Use SQL Server account</Value>
+    <Value>SQL Server-Authentication</Value>
   </LocaleResource>
-  <LocaleResource Name="SqlServerName">
-    <Value>SQL Server name</Value>
+	<LocaleResource Name="WindowsAuthentication">
+		<Value>Windows-Authentication</Value>
+	</LocaleResource>
+  <LocaleResource Name="DbServer">
+    <Value>Server name</Value>
   </LocaleResource>
-  <LocaleResource Name="SqlServerPassword">
-    <Value>SQL Password</Value>
+  <LocaleResource Name="DbPassword">
+    <Value>Password</Value>
   </LocaleResource>
-  <LocaleResource Name="SqlServerUsername">
-    <Value>SQL Username</Value>
+  <LocaleResource Name="DbUserId">
+    <Value>Username</Value>
   </LocaleResource>
 	<LocaleResource Name="UseSqlServer">
-		<Value>Use SQL Server (or SQL Express) database</Value>
+		<Value>Microsoft SQL Server (Express)</Value>
 	</LocaleResource>
 	<LocaleResource Name="UseMySql">
-		<Value>Use MySql database</Value>
+		<Value>MySql</Value>
 	</LocaleResource>
   <LocaleResource Name="StoreInformation">
     <Value>Store information</Value>
@@ -101,7 +104,7 @@
   <LocaleResource Name="Tooltip2">
     <Value>To complete this wizard, you must know some information regarding your database server ("connection string"). Please contact your ISP if necessary. If you're installing on a local machine or server, you might need information from your System Admin</Value>
   </LocaleResource>
-  <LocaleResource Name="WindowsAuthentication">
+  <LocaleResource Name="UseIntegratedAuthentication">
     <Value>Use integrated Windows authentication</Value>
   </LocaleResource>
   
@@ -145,7 +148,7 @@
     <Value>Building database</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.InstallingPlugins">
-    <Value>Installing plugin {0} of {1}</Value>
+    <Value>Installing module {0} of {1}</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.ProcessingMedia">
     <Value>Processing media files</Value>
@@ -164,14 +167,17 @@
     <Value>Options</Value>
   </LocaleResource>
 
-  <LocaleResource Name="Database">
-	<Value>Database</Value>
+  <LocaleResource Name="DbSystem">
+	  <Value>Database system</Value>
   </LocaleResource>
   <LocaleResource Name="Connection">
-	<Value>Connection</Value>
+	  <Value>Connection</Value>
   </LocaleResource>
+	<LocaleResource Name="Server">
+		<Value>Server</Value>
+	</LocaleResource>
   <LocaleResource Name="Authentication">
-	<Value>Authentication</Value>
+	  <Value>Authentication</Value>
   </LocaleResource>
 
 </Language>

@@ -4,6 +4,7 @@
 @inherits RazorPage<InstallationModel>
 @removeTagHelper Smartstore.Web.TagHelpers.*, Smartstore.Web.Common
 @addTagHelper Smartstore.Web.TagHelpers.Shared.AjaxFormTagHelper, Smartstore.Web.Common
+@addTagHelper Smartstore.Web.TagHelpers.Shared.ValidationTagHelper, Smartstore.Web.Common
 @inject IInstallationService InstallService
 
 @{
@@ -100,7 +101,7 @@
                                     @InstallService.GetResource("Tooltip2").
                                 </p>
 
-                                <!-- General -->
+                                <!-- GENERAL -->
                                 <fieldset class="mb-5">
                                     <div class="heading mb-3">
                                         <h2 class="heading-title text-muted">@InstallService.GetResource("StoreInformation")</h2>
@@ -128,13 +129,13 @@
                                     </div>
                                 </fieldset>
 
-                                <!-- Database -->
+                                <!-- DATABASE -->
                                 <fieldset class="mb-5">
                                     <div class="heading mb-3">
                                         <h2 class="heading-title text-muted">@InstallService.GetResource("DatabaseInformation")</h2>
                                     </div>
                                     <div class="form-group row">
-                                        <label class="col-md-3 col-form-label" asp-for="DataProvider">@InstallService.GetResource("Database")</label>
+                                        <label class="col-md-3 col-form-label" asp-for="DataProvider">@InstallService.GetResource("DbSystem")</label>
                                         <div class="col-md-9">
                                             <select name="DataProvider" id="DataProvider" class="form-control remember">
                                                 <option value="sqlserver">@InstallService.GetResource("UseSqlServer")</option>
@@ -143,67 +144,65 @@
                                             <span asp-validation-for="DataProvider"></span>
                                         </div>
                                     </div>
-                                    <div id="sqlConnectionInfo" style="display: none">
+                                    <div id="ConnectionPanel" style="x-display: none">
                                         <div class="form-group row">
-                                            <label class="col-md-3 col-form-label" asp-for="DataProvider">@InstallService.GetResource("Connection")</label>
+                                            <label class="col-md-3 col-form-label" asp-for="UseRawConnectionString">@InstallService.GetResource("Connection")</label>
                                             <div class="col-md-9">
-                                                <select name="SqlConnectionInfo" id="SqlConnectionInfo" class="form-control remember">
-                                                    <option value="sqlconnectioninfo_values">@InstallService.GetResource("ConnectionStringValues")</option>
-                                                    <option value="sqlconnectioninfo_raw">@InstallService.GetResource("RawConnectionString")</option>
+                                                <select asp-for="UseRawConnectionString" class="form-control remember">
+                                                    <option value="False">@InstallService.GetResource("ConnectionStringValues")</option>
+                                                    <option value="True">@InstallService.GetResource("RawConnectionString")</option>
                                                 </select>
-                                                <span asp-validation-for="SqlConnectionInfo"></span>
                                             </div>
                                         </div>
 
-                                        <div id="sqlDatabaseInfo">
+                                        <div id="ConnectionInfoPanel">
                                             <div class="form-group row">
-                                                <label class="col-md-3 col-form-label" asp-for="SqlServerName">@InstallService.GetResource("SqlServerName")</label>
-                                                <div class="col-md-9">
-                                                    <input asp-for="SqlServerName" class="form-control remember" />
-                                                </div>
-                                            </div>
-                                            <div class="form-group row">
-                                                <label class="col-md-3 col-form-label" asp-for="SqlDatabaseName">@InstallService.GetResource("DatabaseName")</label>
+                                                <label class="col-md-3 col-form-label" asp-for="DbServer">@InstallService.GetResource("Server")</label>
                                                 <div class="col-md-9">
                                                     <div class="form-row">
-                                                        <div class="col">
-                                                            <input asp-for="SqlDatabaseName" class="form-control remember" />
-                                                        </div>
-                                                        <div class="col-auto">
-                                                            <div class="form-check form-control-plaintext">
-                                                                <input type="checkbox" asp-for="CreateDatabase" class="form-check-input remember" />
-                                                                <label class="form-check-label" asp-for="CreateDatabase">@InstallService.GetResource("CreateDatabaseIfDoesNotExist")</label>
+                                                        <div class="col-6">
+                                                            <div class="has-icon">
+                                                                <input asp-for="DbServer" class="form-control" placeholder="@InstallService.GetResource("DbServer")" />
+                                                                <span class="input-group-icon text-muted"><i class="icm icm-server" style="line-height: inherit"></i></span>
                                                             </div>
+                                                            <span asp-validation-for="DbServer"></span>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="has-icon">
+                                                                <input asp-for="DbName" class="form-control" placeholder="@InstallService.GetResource("DbName")" />
+                                                                <span class="input-group-icon text-muted"><i class="icm icm-database" style="line-height: inherit"></i></span>
+                                                            </div>
+                                                            <span asp-validation-for="DbName"></span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="form-group row">
-                                                <label class="col-md-3 col-form-label" asp-for="SqlAuthenticationType">@InstallService.GetResource("Authentication")</label>
+                                                <label class="col-md-3 col-form-label">@InstallService.GetResource("Authentication")</label>
                                                 <div class="col-md-9">
-                                                    <select name="SqlAuthenticationType" id="SqlAuthenticationType" class="form-control remember">
-                                                        <option value="sqlauthentication">@InstallService.GetResource("SqlAuthentication")</option>
-                                                        <option value="windowsauthentication">@InstallService.GetResource("WindowsAuthentication")</option>
+                                                    <select asp-for="DbAuthType" class="form-control remember">
+                                                        <option value="sqlserver">@InstallService.GetResource("SqlAuthentication")</option>
+                                                        <option value="windows">@InstallService.GetResource("WindowsAuthentication")</option>
                                                     </select>
-                                                    <span asp-validation-for="SqlAuthenticationType"></span>
                                                 </div>
                                             </div>
-                                            <div id="pnlSqlAuth">
-                                                <div class="form-group row">
-                                                    <div class="col-md-9 offset-md-3">
-                                                        <div class="form-row">
-                                                            <div class="col-6">
-                                                                <div class="has-icon">
-                                                                    <input asp-for="SqlServerUsername" class="form-control" placeholder="@InstallService.GetResource("SqlServerUsername")" />
-                                                                    <span class="input-group-icon text-muted"><i class="icm icm-user" style="line-height: inherit"></i></span>
-                                                                </div>
+
+                                            <div class="form-group row">
+                                                <div class="col-md-9 offset-md-3">
+                                                    <div class="form-row">
+                                                        <div class="col-6">
+                                                            <div class="has-icon">
+                                                                <input asp-for="DbUserId" class="form-control" placeholder="@InstallService.GetResource("DbUserId")" />
+                                                                <span class="input-group-icon text-muted"><i class="icm icm-user" style="line-height: inherit"></i></span>
                                                             </div>
-                                                            <div class="col-6">
-                                                                <div class="has-icon">
-                                                                    <input asp-for="SqlServerPassword" class="form-control" placeholder="@InstallService.GetResource("SqlServerPassword")" />
-                                                                    <span class="input-group-icon text-muted"><i class="icm icm-shield" style="line-height: inherit"></i></span>
-                                                                </div>
+                                                            <span asp-validation-for="DbUserId"></span>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="has-icon">
+                                                                <input asp-for="DbPassword" class="form-control" placeholder="@InstallService.GetResource("DbPassword")" />
+                                                                <span class="input-group-icon text-muted"><i class="icm icm-shield" style="line-height: inherit"></i></span>
                                                             </div>
+                                                            <span asp-validation-for="DbPassword"></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -211,11 +210,11 @@
 
                                         </div>
 
-                                        <div id="sqlDatabaseConnectionString">
+                                        <div id="RawConnectionStringPanel">
                                             <div class="form-group row">
-                                                <label class="col-md-3 col-form-label" asp-for="DatabaseConnectionString">@InstallService.GetResource("ConnectionString")</label>
+                                                <label class="col-md-3 col-form-label" asp-for="DbRawConnectionString">@InstallService.GetResource("DbRawConnectionString")</label>
                                                 <div class="col-md-9">
-                                                    <textarea asp-for="DatabaseConnectionString" rows="3" class="form-control remember"></textarea>
+                                                    <textarea asp-for="DbRawConnectionString" rows="3" class="form-control remember"></textarea>
                                                     <small class="form-text text-muted mt-2">
                                                         @InstallService.GetResource("Example"):
                                                         Data Source=sqlServerName;Initial Catalog=dbName;Persist Security Info=True;User
@@ -244,7 +243,7 @@
                                     </div>
                                 </fieldset>
 
-                                <!-- Options -->
+                                <!-- OPTIONS -->
                                 <fieldset class="mb-5">
                                     <div class="heading mb-3">
                                         <h2 class="heading-title text-muted">@InstallService.GetResource("InstallOptions")</h2>
@@ -291,7 +290,7 @@
                                 </div>
                             </div>
                         </div>
-                    
+
                     </form>
                 </div>
             </div>
@@ -314,22 +313,26 @@
 		}
 
 		function toggleProvider(e) {
-			var selectedProvider = $(this).val();
+            var selectedProvider = $(this).val();
+            var elDbAuthType = $('#DbAuthType');
 			if (selectedProvider == 'mysql') {
-				hide('#sqlConnectionInfo');
+                elDbAuthType.attr("disabled", "disabled");
+                $('#DbUserId').removeAttr("disabled");
+                $('#DbPassword').removeAttr("disabled");
 			}
 			else if (selectedProvider == 'sqlserver') {
-				show('#sqlConnectionInfo');
+                elDbAuthType.removeAttr("disabled");
+                //toggleSqlAuthenticationType();
 			}
 		}
 
-		function toggleSqlConnectionInfo(e) {
-			var selectedProvider = $(this).val();
-			if (selectedProvider == 'sqlconnectioninfo_values') {
-				hide('#sqlDatabaseConnectionString', '#sqlDatabaseInfo');
+		function toggleConnectionInfo(e) {
+			var useRaw = $(this).val();
+            if (useRaw === 'True') {
+                hide('#ConnectionInfoPanel', '#RawConnectionStringPanel');
 			}
-			else if (selectedProvider == 'sqlconnectioninfo_raw') {
-				hide('#sqlDatabaseInfo', '#sqlDatabaseConnectionString');
+			else {
+                hide('#RawConnectionStringPanel', '#ConnectionInfoPanel');
 			}
 		}
 
@@ -354,11 +357,11 @@
 
 		$(function () {
 			$('#DataProvider').on('change', toggleProvider).trigger('change');
-			$('#SqlConnectionInfo').on('change', toggleSqlConnectionInfo).trigger('change');
-			$('#SqlAuthenticationType').on('change', toggleSqlAuthenticationType).trigger('change');
-			$("#UseCustomCollation").on('click', toggleCollation);
+			$('#UseRawConnectionString').on('change', toggleConnectionInfo).trigger('change');
+			//$('#SqlAuthenticationType').on('change', toggleSqlAuthenticationType).trigger('change');
+			//$("#UseCustomCollation").on('click', toggleCollation);
 
-            setRememberedFormFields("installPrefs");
+   //         setRememberedFormFields("installPrefs");
 		});
 
         var Installation = (function () {

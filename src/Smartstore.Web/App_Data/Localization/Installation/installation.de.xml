@@ -14,14 +14,14 @@
   <LocaleResource Name="ConfirmPassword">
     <Value>Passwort bestätigen</Value>
   </LocaleResource>
-  <LocaleResource Name="ConnectionString">
+  <LocaleResource Name="DbRawConnectionString">
     <Value>Verbindungszeichenfolge</Value>
   </LocaleResource>
   <LocaleResource Name="ConnectionStringValues">
     <Value>Verbindungsdaten angeben</Value>
   </LocaleResource>
   <LocaleResource Name="ConnectionStringWrongFormat">
-    <Value>Falsches Format für SQL Server Verbindungszeichenfolge</Value>
+    <Value>Falsches Format für Datenbank-Verbindungszeichenfolge</Value>
   </LocaleResource>
   <LocaleResource Name="CreateDatabaseIfDoesNotExist">
     <Value>Datenbank anlegen, wenn sie noch nicht existiert</Value>
@@ -30,16 +30,16 @@
     <Value>Beispieldaten erzeugen</Value>
   </LocaleResource>
   <LocaleResource Name="CustomCollation">
-    <Value>SQL Server Collation</Value>
+    <Value>Datenbank Collation</Value>
   </LocaleResource>
   <LocaleResource Name="DatabaseCreationError">
-    <Value>Beim Anlegen der SQL Server Datenbank ist ein Fehler aufgetreten: {0}</Value>
+    <Value>Beim Anlegen der Datenbank ist ein Fehler aufgetreten: {0}</Value>
   </LocaleResource>
   <LocaleResource Name="DatabaseInformation">
     <Value>Datenbank</Value>
   </LocaleResource>
-  <LocaleResource Name="DatabaseName">
-    <Value>Datenbank Name</Value>
+  <LocaleResource Name="DbName">
+    <Value>Datenbankname</Value>
   </LocaleResource>
   <LocaleResource Name="DatabaseNotExists">
     <Value>Die Datenbank existiert nicht oder der Verbindungsaufbau ist nicht möglich</Value>
@@ -75,22 +75,25 @@
     <Value>Installation schlug fehl: {0}</Value>
   </LocaleResource>
   <LocaleResource Name="SqlAuthentication">
-    <Value>SQL Server Authentifizierung</Value>
+    <Value>SQL Server-Authentifizierung</Value>
   </LocaleResource>
-  <LocaleResource Name="SqlServerName">
-    <Value>SQL Server Name</Value>
+	<LocaleResource Name="WindowsAuthentication">
+		<Value>Windows-Authentifizierung</Value>
+	</LocaleResource>
+  <LocaleResource Name="DbServer">
+    <Value>Servername</Value>
   </LocaleResource>
-  <LocaleResource Name="SqlServerPassword">
-    <Value>Passwort</Value>
+  <LocaleResource Name="DbPassword">
+    <Value>Kennwort</Value>
   </LocaleResource>
-  <LocaleResource Name="SqlServerUsername">
-    <Value>Benutzername</Value>
+  <LocaleResource Name="DbUserId">
+    <Value>Anmeldename</Value>
   </LocaleResource>
   <LocaleResource Name="UseSqlServer">
-    <Value>SQL Server (Express) Datenbank verwenden</Value>
+    <Value>Microsoft SQL Server (Express)</Value>
   </LocaleResource>
 	<LocaleResource Name="UseMySql">
-		<Value>MySql Datenbank verwenden</Value>
+		<Value>MySql</Value>
 	</LocaleResource>
   <LocaleResource Name="StoreInformation">
     <Value>Allgemein</Value>
@@ -103,9 +106,6 @@
   </LocaleResource>
   <LocaleResource Name="Tooltip2">
  <Value>Um den Assistenten abzuschliessen, müssen Sie u.U. Verbindungsdaten zu Ihrem Datenbankserver angeben. Bitte kontaktieren Sie hierfür gegebenenfalls Ihren ISP. Falls Sie auf einem lokalen Computer installieren, benötigen Sie eventuell Informationen von Ihrem Systemadministrator</Value> 
-  </LocaleResource>
-  <LocaleResource Name="WindowsAuthentication">
-    <Value>Integrierte Windows Authentifizierung</Value>
   </LocaleResource>
   
   <LocaleResource Name="PrimaryLanguage">
@@ -145,7 +145,7 @@
     <Value>Erzeuge Datenbank</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.InstallingPlugins">
-    <Value>Installiere Plugin {0} von {1}</Value>
+    <Value>Installiere Modul {0} von {1}</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.ProcessingMedia">
     <Value>Verarbeite Mediendateien</Value>
@@ -164,14 +164,17 @@
     <Value>Optionen</Value>
   </LocaleResource>
 
-  <LocaleResource Name="Database">
-	<Value>Datenbank</Value>
+  <LocaleResource Name="DbSystem">
+	  <Value>Datenbanksystem</Value>
   </LocaleResource>
   <LocaleResource Name="Connection">
-	<Value>Verbindung</Value>
+	  <Value>Verbindung</Value>
   </LocaleResource>
+	<LocaleResource Name="Server">
+		<Value>Server</Value>
+	</LocaleResource>
   <LocaleResource Name="Authentication">
-	<Value>Authentifizierung</Value>
+	  <Value>Authentifizierung</Value>
   </LocaleResource>
   
 </Language>

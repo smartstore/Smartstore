@@ -192,11 +192,6 @@ namespace Smartstore.Core.Data.Migrations
                 return;
             }
 
-            if (!_migrationIdPattern.IsMatch(currentHead))
-            {
-                return;
-            }
-
             var migrations = GetPendingResourceMigrations(currentHead).ToArray();
 
             if (migrations.Any())
@@ -228,14 +223,13 @@ namespace Smartstore.Core.Data.Migrations
             var localMigrations = _db.Database.GetMigrations();
             var atHead = false;
 
-            if (localMigrations.Last().EqualsNoCase(currentHead))
-                yield break;
-
             foreach (var id in localMigrations)
             {
+                var name = id[15..]; // First part is {Timestamp:14}_
+                
                 if (!atHead)
                 {
-                    if (!id.EqualsNoCase(currentHead))
+                    if (!name.EqualsNoCase(currentHead))
                     {
                         continue;
                     }

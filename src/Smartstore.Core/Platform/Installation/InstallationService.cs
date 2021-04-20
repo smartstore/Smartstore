@@ -98,14 +98,14 @@ namespace Smartstore.Core.Installation
                 });
             }
 
-            model.DatabaseConnectionString = model.DatabaseConnectionString?.Trim();
+            model.DbRawConnectionString = model.DbRawConnectionString?.Trim();
 
             DbConnectionStringBuilder conStringBuilder = null;
 
-            if (model.SqlConnectionInfo.EqualsNoCase("sqlconnectioninfo_raw"))
+            if (model.UseRawConnectionString)
             {
                 // Raw connection string
-                if (string.IsNullOrEmpty(model.DatabaseConnectionString))
+                if (string.IsNullOrEmpty(model.DbRawConnectionString))
                 {
                     return UpdateResult(x =>
                     {
@@ -117,7 +117,7 @@ namespace Smartstore.Core.Installation
                 try
                 {
                     // Try to create connection string
-                    conStringBuilder = dbFactory.CreateConnectionStringBuilder(model.DatabaseConnectionString);
+                    conStringBuilder = dbFactory.CreateConnectionStringBuilder(model.DbRawConnectionString);
                 }
                 catch (Exception ex)
                 {
@@ -214,6 +214,20 @@ namespace Smartstore.Core.Installation
                     x.ProgressMessage = GetResource("Progress.BuildingDatabase");
                     Logger.Info(x.ProgressMessage);
                 });
+
+
+
+
+                // SUCCESS: Redirect to home page
+                return UpdateResult(x =>
+                {
+                    x.Completed = true;
+                    x.Success = true;
+                    //x.RedirectUrl = _urlHelper.Action("Index", "Home");
+                    Logger.Info("Installation completed successfully");
+                });
+
+
 
                 // ===>>> Actually performs database creation.
                 await dbContext.Database.MigrateAsync();
