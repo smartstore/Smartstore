@@ -30,10 +30,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             var options = context.Options;
             var product = context.Product;
 
-            if (!context.SelectedAttributes.Any() && !options.ApplyPreselectedAttributes)
+            if (!context.SelectedAttributes.Any() && !options.ApplyPreselectedAttributes && !options.DeterminePriceAdjustments)
             {
-                // Proceed with pipeline and omit this calculator.
-                // The caller has not provided selected attributes and preselected attributes should not be applied.
+                // No selected attributes provided and no preselected attributes should be applied and no price adjustments should be determined,
+                // then proceed with pipeline and omit this calculator.
                 await next(context);
                 return;
             }
@@ -47,6 +47,13 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
             var attributes = await options.BatchContext.Attributes.GetOrLoadAsync(product.Id);
             var attributeValues = await GetSelectedAttributeValuesAsync(context, attributes);
+            var hasSelectedValues = attributeValues.Any();
+
+            if (!hasSelectedValues && options.DeterminePriceAdjustments)
+            {
+                // Get price adjustments of ALL attribute values. Do not apply anything to FinalPrice, just return them via context.AttributePriceAdjustments.
+                attributeValues = attributes.SelectMany(x => x.ProductVariantAttributeValues).ToList();
+            }
 
             // Ignore attributes that have no relevance for pricing.
             attributeValues = attributeValues
@@ -92,11 +99,14 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     adjustment = decimal.Multiply(childCalculation.FinalPrice, value.Quantity);
                 }
 
-                // Add attribute price adjustment to final price.
                 if (adjustment != 0m)
                 {
-                    context.FinalPrice += adjustment;
-                    context.AdditionalCharge += adjustment;
+                    // Apply the adjustment only if selected attributes have been provided.
+                    if (hasSelectedValues)
+                    {
+                        context.FinalPrice += adjustment;
+                        context.AdditionalCharge += adjustment;
+                    }
 
                     if (options.DeterminePriceAdjustments)
                     {

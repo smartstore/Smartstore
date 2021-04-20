@@ -65,7 +65,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </summary>
         /// <param name="priceCalculationService">Price calculation service.</param>
         /// <param name="product">The product.</param>
-        /// <param name="selection">Attribute selection.</param>
+        /// <param name="selection">Attribute selection. If <c>null</c> then the price adjustments of all attributes of <paramref name="product"/> are determined.</param>
         /// <param name="quantity">
         /// The product quantity. May have impact on the price, e.g. if tier prices are applied to price adjustments.
         /// Note that the calculated price is always the unit price.
@@ -75,12 +75,11 @@ namespace Smartstore.Core.Catalog.Pricing
         public static async Task<IDictionary<int, CalculatedPriceAdjustment>> CalculateAttributePriceAdjustmentsAsync(
             this IPriceCalculationService2 priceCalculationService,
             Product product,
-            ProductVariantAttributeSelection selection,
+            ProductVariantAttributeSelection selection = null,
             int quantity = 1,
             PriceCalculationOptions options = null)
         {
             Guard.NotNull(priceCalculationService, nameof(priceCalculationService));
-            Guard.NotNull(selection, nameof(selection));
 
             options ??= priceCalculationService.CreateDefaultOptions(false);
             options.DeterminePriceAdjustments = true;

@@ -108,11 +108,11 @@ namespace Smartstore.Core.Catalog.Attributes
 
                                     if (priceAdjustments?.TryGetValue(pvaValue.Id, out adjustment) ?? false)
                                     {
-                                        if (adjustment.Price > decimal.Zero)
+                                        if (adjustment.Price > 0)
                                         {
                                             pvaAttribute += $" (+{adjustment.Price})";
                                         }
-                                        else if (adjustment.Price < decimal.Zero)
+                                        else if (adjustment.Price < 0)
                                         {
                                             pvaAttribute += $" (-{adjustment.Price * -1})";
                                         }

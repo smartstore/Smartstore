@@ -78,7 +78,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 appliedDiscount != null &&
                 appliedDiscount.UsePercentage)
             {
-                discountAmount += appliedDiscount.GetDiscountAmount(context.MinTierPrice.Value);
+                // TODO: (core) calculation pipeline do not work in all cases for percentage discounts together with tier prices.
+                //discountAmount += appliedDiscount.GetDiscountAmount(context.MinTierPrice.Value);
             }
 
             // Apply discount amount, if any.

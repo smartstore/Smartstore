@@ -957,6 +957,27 @@ namespace Smartstore.Web.Controllers
             //return View();
         }
 
+        private async Task MgPricingCalculationTests2(StringBuilder content)
+        {
+            var pcsLegacy = Services.Resolve<IPriceCalculationService>();
+            var pcs = Services.Resolve<IPriceCalculationService2>();
+            var ps = Services.Resolve<IProductService>();
+            var ts = Services.Resolve<ITaxService>();
+            var customer = await _db.Customers.FindByIdAsync(2666330, false);
+            var product = await _db.Products.FindByIdAsync(1751, false);
+            var batchContext = ps.CreateProductBatchContext(new[] { product }, null, customer);
+            var tierPriceTestQuantity = 8;
+
+            var oldFinalInclTierPrice = await pcsLegacy.GetFinalPriceAsync(product, null, null, customer, true, tierPriceTestQuantity, null, batchContext);
+            var (oldFinalInclTierPriceTax, _) = await ts.GetProductPriceAsync(product, oldFinalInclTierPrice, customer: customer);
+            var cpFinalTpOptions = pcs.CreateDefaultOptions(false);
+            var cpFinalTpContext = new PriceCalculationContext(product, tierPriceTestQuantity, cpFinalTpOptions);
+
+            var newFinalInclTierPrice = await pcs.CalculatePriceAsync(cpFinalTpContext);
+
+            content.AppendLine($"Final {tierPriceTestQuantity} qty: {oldFinalInclTierPriceTax} {newFinalInclTierPrice.FinalPrice}");
+        }
+
         private async Task MgPricingCalculationTests(StringBuilder content)
         {
             var pcsLegacy = Services.Resolve<IPriceCalculationService>();
@@ -1016,6 +1037,7 @@ namespace Smartstore.Web.Controllers
                     additionalChargeTierPrice += await pcsLegacy.GetProductVariantAttributeValuePriceAdjustmentAsync(attributeValue, product, customer, batchContext, tierPriceTestQuantity);
                 }
 
+                // green, long.
                 var rawAttributes = "<Attributes><ProductVariantAttribute ID=\"1015\"><ProductVariantAttributeValue><Value>4300</Value></ProductVariantAttributeValue></ProductVariantAttribute><ProductVariantAttribute ID=\"1016\" ><ProductVariantAttributeValue><Value>4303</Value></ProductVariantAttributeValue></ProductVariantAttribute></Attributes>";
                 var attributeSelection = product.ProductType == ProductType.SimpleProduct
                     ? new ProductVariantAttributeSelection(rawAttributes)
@@ -1054,6 +1076,7 @@ namespace Smartstore.Web.Controllers
 
                 var oldBasePriceInfo = await pcsLegacy.GetBasePriceInfoAsync(product, customer);
                 var newBasePriceInfo = await pcs.GetBasePriceInfoAsync(product);
+                var priceAdjustments = await pcs.CalculateAttributePriceAdjustmentsAsync(product, null, 1, pcs.CreateDefaultOptions(false, customer));
 
                 var hasDifferingAmount =
                     (oldFinalPrice != newFinalPrice.FinalPrice) ||
@@ -1073,6 +1096,11 @@ namespace Smartstore.Web.Controllers
                     if (oldBasePriceInfo.HasValue() || newBasePriceInfo.HasValue())
                     {
                         content.AppendLine($"Base Price : {oldBasePriceInfo} {newBasePriceInfo}" + (oldBasePriceInfo != newBasePriceInfo ? " !!" : ""));
+                    }
+                    if (priceAdjustments.Any())
+                    {
+                        var adjustments = priceAdjustments.Select(x => x.Value).Select(x => $"{x.AttributeValue.Name}: {x.Price}");
+                        content.AppendLine("All adjustments: " + string.Join(", ", adjustments));
                     }
                     content.AppendLine("");
                 }
