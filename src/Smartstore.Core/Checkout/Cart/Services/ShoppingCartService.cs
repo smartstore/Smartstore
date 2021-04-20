@@ -380,8 +380,10 @@ namespace Smartstore.Core.Checkout.Cart
             {
                 customer.ResetCheckoutData(cartItems.Select(x => x.StoreId).FirstOrDefault());
             }
-                        
+
             _db.ShoppingCartItems.RemoveRange(cartItems);
+            await _db.SaveChangesAsync();
+
             _requestCache.RemoveByPattern(CartItemsPatternKey);
 
             var cartItemIds = cartItems.Select(x => x.Id).ToList();
