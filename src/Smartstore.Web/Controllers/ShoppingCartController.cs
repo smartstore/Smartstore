@@ -648,12 +648,14 @@ namespace Smartstore.Web.Controllers
             });
         }
 
+        //// TODO: (ms) (core) Maybe we should rename this to AddProductToCartAjax > discuss with mc.
         //// TODO: (ms) (core) Add dev docu to all ajax action methods
         /// <summary>
         /// Adds a product without variants to the cart or redirects user to product details page.
         /// This method is used in product lists on catalog pages (category/manufacturer etc...).
         /// </summary>
         [HttpPost]
+        [LocalizedRoute("/cart/addproductsimple/{productId:int}", Name = "AddProductToCartSimple")]
         public async Task<IActionResult> AddProductSimple(int productId, int shoppingCartTypeId = 1, bool forceRedirection = false)
         {
             var product = await _db.Products.FindByIdAsync(productId, false);
@@ -736,6 +738,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
+        [LocalizedRoute("/cart/addproduct/{productId:int}/{shoppingCartTypeId:int}", Name = "AddProductToCart")]
         public async Task<IActionResult> AddProduct(int productId, int shoppingCartTypeId, ProductVariantQuery query)
         {
             // TODO: (ms) (core) Redirect to product details page if product has selectable variants.
