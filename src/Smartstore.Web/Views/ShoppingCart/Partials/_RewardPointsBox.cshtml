@@ -1,0 +1,36 @@
+﻿@using Smartstore.Web.Models.ShoppingCart;
+
+@model ShoppingCartModel.RewardPointsBoxModel
+
+@{
+    if (!Model.DisplayRewardPoints)
+    {
+        return;
+    }
+
+    var isExpanded = Model.UseRewardPoints;
+}
+
+<div class="cart-action cart-action-rewardpoints">
+    <h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-rewardpoints-body" aria-controls="cart-action-rewardpoints-body" aria-expanded="@isExpanded">
+        @T("ShoppingCart.RewardPoints")
+    </h5>
+
+    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-rewardpoints-body" aria-expanded="@isExpanded">
+        <div class="reward-points alert alert-info">
+            <div class="form-check">
+                <input type="checkbox" asp-for="UseRewardPoints"/>                
+                <label asp-for="UseRewardPoints" class="form-check-label"> 
+                    @Html.Raw(T("Checkout.UseRewardPoints", "<strong>" + Model.RewardPointsBalance + "</strong>", "<strong>" + Model.RewardPointsAmount + "</strong>"))
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" name="applyrewardpoints" value="applyrewardpoints" class="btn btn-primary">
+                <i class="fa fa-check"></i>
+                <span>@T("ShoppingCart.RewardPoints.Button")</span>
+            </button>
+        </div>
+    </div>
+</div>

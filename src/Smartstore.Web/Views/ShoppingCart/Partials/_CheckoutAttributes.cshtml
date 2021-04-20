@@ -1,0 +1,17 @@
+﻿@using Smartstore.Web.Models.ShoppingCart;
+
+@model IList<ShoppingCartModel.CheckoutAttributeModel>
+
+@{
+	if (!Model.Any())
+	{
+		return;
+	}
+}
+
+<div class="cart-checkout-attributes">
+	@foreach (var attribute in Model)
+	{
+		<partial name="ChoiceTemplates/Choice" model="attribute" />
+	}
+</div>

@@ -1,0 +1,83 @@
+﻿@using Smartstore.Web.Models.ShoppingCart;
+@using System.Web;
+
+@model EstimateShippingModel
+
+@{ 
+	if (!Model.Enabled)
+	{
+		return;
+	}
+
+	var isExpanded = Model.ShippingOptions.Any();
+}
+
+<div class="cart-action cart-action-shipping">
+	<h5 class="cart-action-title" attr-class='(isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-shipping-body" aria-controls="cart-action-shipping-body" aria-expanded="@isExpanded">
+		@T("ShoppingCart.EstimateShipping")
+	</h5>
+
+    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-shipping-body" aria-expanded="@isExpanded">
+		@if (Model.Warnings.Any())
+		{
+			<div class="alert alert-danger">
+				@foreach(var warning in Model.Warnings)
+				{
+					<p>@warning</p>
+				}
+			</div>
+		}
+		else if (Model.ShippingOptions.Any())
+		{
+			<div class="alert alert-info">@T("ShoppingCart.EstimateShipping.Tooltip")</div>
+		}
+
+		<div sm-if="Model.ShippingOptions.Any()" class="alert alert-success">
+			@foreach (var shippingOption in Model.ShippingOptions)
+			{
+				<div class="shipping-option-item mb-2">
+					<div class="option-name font-weight-medium">
+						@Html.Raw(HttpUtility.HtmlDecode(shippingOption.Name))
+						@shippingOption.Price
+					</div>
+					<div class="option-description">
+						@Html.Raw(shippingOption.Description)
+					</div>
+				</div>
+			}
+		</div>
+		
+        <div class="shipping-options">
+            <div class="form-group">
+				<label asp-for="CountryId" />
+				@Html.DropDownList("CountryId", Model.AvailableCountries,
+				new
+				{
+					@class = "form-control noskin country-input country-selector",
+					data_region_control_selector = "#StateProvinceId",
+					data_states_ajax_url = Url.Action("GetStatesByCountryId", "Country"),
+					data_addEmptyStateIfRequired = "true"
+				})
+				<span asp-validation-for="CountryId"></span>
+            </div>
+            <div class="form-group">
+				<label asp-for="StateProvinceId" />
+                @Html.DropDownListFor(model => model.StateProvinceId, Model.AvailableStates, new { @class = "form-control noskin state-input" })
+				<span asp-validation-for="StateProvinceId"></span>
+            </div>
+            <div class="form-group">
+				<label asp-for="ZipPostalCode" />
+				<input type="text" asp-for="ZipPostalCode" class="zip-input form-control" />
+				<span asp-validation-for="ZipPostalCode"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" name="estimateshipping" value="@T("ShoppingCart.EstimateShipping.Button")" class="btn btn-warning estimate-shipping-button" />
+            </div>
+        </div>
+
+        <div sm-if="Model.ShippingInfoUrl.HasValue()" class="text-muted">
+            @Html.Raw(T("ShoppingCart.ShippingInfoLink", Model.ShippingInfoUrl))
+        </div>
+
+    </div>
+</div>

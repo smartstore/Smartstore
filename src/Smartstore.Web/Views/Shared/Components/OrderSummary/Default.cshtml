@@ -10,8 +10,7 @@
 
     @if (Model.DisplayCommentBox && !Model.IsEditable)
     {
-        @*TODO: (ms) (core) Implement _CommentBox partial*@
-        @*<partial name="_CommentBox" model="Model" />*@
+        <partial name="_CommentBox" model="Model" />
     }
 
     @if (Model.Items.Any())
@@ -58,11 +57,10 @@
                             {
                                 <zone name="order_summary_actions_before" />
 
-                                @*TODO: (ms) (core) Implement missing partials*@
-                                @*<partial name="_DiscountBox" model="Model.DiscountBox" />
-                                    <partial name="_GiftCardBox" model="Model.GiftCardBox" />
-                                    <partial name="_RewardPointsBox" model="Model.RewardPoints" />
-                                    <partial name="EstimateShipping" model="Model.EstimateShipping" />*@
+                                <partial name="_DiscountBox" model="Model.DiscountBox" />
+                                <partial name="_GiftCardBox" model="Model.GiftCardBox" />
+                                <partial name="_RewardPointsBox" model="Model.RewardPoints" />
+                                <partial name="EstimateShipping" model="Model.EstimateShipping" />
 
                                 <zone name="order_summary_actions_after" />
                             }
@@ -77,7 +75,7 @@
                             @{
                                 if (Model.IsEditable)
                                 {
-                                    @*<partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />*@
+                                    <partial name="_CheckoutAttributes" model="Model.CheckoutAttributes" view-data="new ViewDataDictionary(ViewData)" />
                                 }
 
                                 <zone name="order_summary_totals_before" />
