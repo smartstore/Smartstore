@@ -19,16 +19,24 @@ namespace Smartstore.Web.Components
             _shoppingCartService = shoppingCartService;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(bool prepareAndDisplayOrderReviewData = false, Customer customer = null, int? storeId = null)
+        public async Task<IViewComponentResult> InvokeAsync(
+            ShoppingCartModel model = null,
+            bool prepareAndDisplayOrderReviewData = false,
+            Customer customer = null,
+            int? storeId = null)
         {
-            customer ??= Services.WorkContext.CurrentCustomer;
-            var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId ?? Services.StoreContext.CurrentStore.Id);
-            var model = new ShoppingCartModel();
+            if (model == null)
+            {
+                customer ??= Services.WorkContext.CurrentCustomer;
+                storeId ??= Services.StoreContext.CurrentStore.Id;
+                var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId.Value);
+                model = new ShoppingCartModel();
 
-            await cart.AsEnumerable().MapAsync(model,
-                isEditable: false,
-                prepareEstimateShippingIfEnabled: false,
-                prepareAndDisplayOrderReviewData: prepareAndDisplayOrderReviewData);
+                await cart.AsEnumerable().MapAsync(model,
+                    isEditable: false,
+                    prepareEstimateShippingIfEnabled: false,
+                    prepareAndDisplayOrderReviewData: prepareAndDisplayOrderReviewData);
+            }
 
             return View(model);
         }
