@@ -33,6 +33,7 @@ namespace Smartstore.Web.Models.Catalog
             Customer = other.Customer;
             Store = other.Store;
             Currency = other.Currency;
+            DisplayPrices = other.DisplayPrices;
         }
 
         public Product Product { get; set; }
@@ -48,6 +49,11 @@ namespace Smartstore.Web.Models.Catalog
         public ProductBundleItemData ProductBundleItem { get; set; }
 
         public bool DisplayPrices { get; set; }
+
+        /// <summary>
+        /// The selected attributes based on <see cref="VariantQuery"/>. <c>null</c> if none have been selected (then the preselected attributes are used).
+        /// </summary>
+        public ProductVariantAttributeSelection SelectedAttributes { get; set; }
     }
     
     public partial class ProductDetailsModel : EntityModelBase

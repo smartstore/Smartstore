@@ -58,6 +58,7 @@ namespace Smartstore.Web.Controllers
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly ITaxService _taxService;
+        private readonly ITaxCalculator _taxCalculator;
         private readonly ICurrencyService _currencyService;
         private readonly IMediaService _mediaService;
         private readonly ILocalizationService _localizationService;
@@ -101,6 +102,7 @@ namespace Smartstore.Web.Controllers
             IProductAttributeMaterializer productAttributeMaterializer,
             IProductAttributeFormatter productAttributeFormatter,
             ITaxService taxService,
+            ITaxCalculator taxCalculator,
             ICurrencyService currencyService,
             IMediaService mediaService,
             IPriceCalculationService priceCalculationService,
@@ -143,6 +145,7 @@ namespace Smartstore.Web.Controllers
             _productAttributeMaterializer = productAttributeMaterializer;
             _productAttributeFormatter = productAttributeFormatter;
             _taxService = taxService;
+            _taxCalculator = taxCalculator;
             _currencyService = currencyService;
             _mediaService = mediaService;
             _localizationService = _services.Localization;
@@ -1196,7 +1199,7 @@ namespace Smartstore.Web.Controllers
             if (query.Variants.Any() || query.VariantCombinationId != 0)
             {
                 // Apply attribute combination if any.
-                var hasSelectedAttributesValues = await PrepareProductAttributeCombinationsModel_New(model, modelContext);               
+                await PrepareProductAttributeCombinationsModelAsync_New(model, modelContext);               
             }
             else
             {
@@ -1205,7 +1208,7 @@ namespace Smartstore.Web.Controllers
             }            
         }
 
-        protected async Task<bool> PrepareProductAttributeCombinationsModel_New(ProductDetailsModel model, ProductDetailsModelContext modelContext)
+        protected async Task PrepareProductAttributeCombinationsModelAsync_New(ProductDetailsModel model, ProductDetailsModelContext modelContext)
         {
             var product = modelContext.Product;
             var query = modelContext.VariantQuery;
@@ -1222,25 +1225,24 @@ namespace Smartstore.Web.Controllers
                 { "Products.Availability.Backordering", T("Products.Availability.Backordering") },
             };
 
-            ProductVariantAttributeSelection selection;
             if (query.VariantCombinationId != 0)
             {
                 var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
-                selection = new ProductVariantAttributeSelection(combination?.RawAttributes ?? string.Empty);
+                modelContext.SelectedAttributes = new ProductVariantAttributeSelection(combination?.RawAttributes ?? string.Empty);
             }
             else
             {
-                var attributeSelection = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId, false);
-                selection = attributeSelection.Selection;
+                var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId, false);
+                modelContext.SelectedAttributes = selection;
             }
 
-            var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(selection);
-            var hasSelectedValues = selection.AttributesMap.Any();
+            var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(modelContext.SelectedAttributes);
+            //var hasSelectedValues = modelContext.AttributeSelection.AttributesMap.Any();
 
             if (isBundlePricing)
             {
                 model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
-                    selection,
+                    modelContext.SelectedAttributes,
                     product,
                     modelContext.Customer,
                     separator: ", ",
@@ -1249,7 +1251,7 @@ namespace Smartstore.Web.Controllers
                     includeHyperlinks: false);
             }
 
-            model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
+            model.SelectedCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, modelContext.SelectedAttributes);
 
             if (model.SelectedCombination != null && !model.SelectedCombination.IsActive)
             {
@@ -1309,8 +1311,299 @@ namespace Smartstore.Web.Controllers
 
             // Apply weight adjustments.
             selectedValues.Each(x => model.WeightValue += x.WeightAdjustment);
+        }
 
-            return hasSelectedValues;
+        protected async Task PrepareProductPropertiesModelAsync_New(ProductDetailsModel model, ProductDetailsModelContext modelContext)
+        {
+            var store = modelContext.Store;
+            var customer = modelContext.Customer;
+            var currency = modelContext.Currency;
+            var product = modelContext.Product;
+            var productBundleItem = modelContext.ProductBundleItem;
+            var isBundle = product.ProductType == ProductType.BundledProduct;
+            var hasSelectedAttributes = modelContext.SelectedAttributes.AttributesMap.Any();
+
+            if ((productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemShoppingCart) ||
+                (product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes && !hasSelectedAttributes))
+            {
+                // Cases where stock inventory is not functional (what ShoppingCartService.GetStandardWarnings and ProductService.AdjustInventory does not handle).
+                model.IsAvailable = true;
+
+                var hasAttributeCombinations = await _db.Entry(product)
+                    .Collection(x => x.ProductVariantAttributeCombinations)
+                    .Query()
+                    .AnyAsync();
+
+                model.StockAvailability = !hasAttributeCombinations ? product.FormatStockMessage(_localizationService) : string.Empty;
+            }
+            else if (model.IsAvailable)
+            {
+                model.IsAvailable = product.IsAvailableByStock();
+                model.StockAvailability = product.FormatStockMessage(_localizationService);
+            }
+
+            model.Id = product.Id;
+            model.Name = product.GetLocalized(x => x.Name);
+            model.Condition = product.Condition;
+            model.ShowCondition = _catalogSettings.ShowProductCondition;
+            model.LocalizedCondition = await product.Condition.GetLocalizedEnumAsync(_services.WorkContext.WorkingLanguage.Id);
+            model.ShowSku = _catalogSettings.ShowProductSku;
+            model.Sku = product.Sku;
+            model.ShortDescription = product.GetLocalized(x => x.ShortDescription);
+            model.FullDescription = product.GetLocalized(x => x.FullDescription, detectEmptyHtml: true);
+            model.MetaKeywords = product.GetLocalized(x => x.MetaKeywords);
+            model.MetaDescription = product.GetLocalized(x => x.MetaDescription);
+            model.MetaTitle = product.GetLocalized(x => x.MetaTitle);
+            model.SeName = await product.GetActiveSlugAsync();
+            model.ShowManufacturerPartNumber = _catalogSettings.ShowManufacturerPartNumber;
+            model.ManufacturerPartNumber = product.ManufacturerPartNumber;
+            model.ShowDimensions = _catalogSettings.ShowDimensions;
+            model.ShowWeight = _catalogSettings.ShowWeight;
+            model.ShowGtin = _catalogSettings.ShowGtin;
+            model.Gtin = product.Gtin;
+            model.HasSampleDownload = product.IsDownload && product.HasSampleDownload;
+            model.IsCurrentCustomerRegistered = customer.IsRegistered();
+            model.IsBasePriceEnabled = product.BasePriceEnabled && !(isBundle && product.BundlePerItemPricing);
+            model.ShowLegalInfo = !model.IsBundlePart && _taxSettings.ShowLegalHintsInProductDetails;
+            model.BundleTitleText = product.GetLocalized(x => x.BundleTitleText);
+            model.BundlePerItemPricing = product.BundlePerItemPricing;
+            model.BundlePerItemShipping = product.BundlePerItemShipping;
+            model.BundlePerItemShoppingCart = product.BundlePerItemShoppingCart;
+
+            var basePricePricingOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
+            model.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(product, basePricePricingOptions);
+
+            var taxDisplayType = _services.WorkContext.GetTaxDisplayTypeFor(customer, store.Id);
+            string taxInfo = T(taxDisplayType == TaxDisplayType.IncludingTax ? "Tax.InclVAT" : "Tax.ExclVAT");
+
+            var defaultTaxRate = string.Empty;
+            if (_taxSettings.DisplayTaxRates)
+            {
+                // INFO: (mh) (core) Taxrate always contains a Rate of 0 because not all TaxProviders are implemented yet.
+                var taxRate = await _taxService.GetTaxRateAsync(product, customer: customer);
+                if (taxRate.Rate != 0)
+                {
+                    var formattedTaxRate = _taxService.FormatTaxRate(taxRate.Rate);
+                    defaultTaxRate = $"({formattedTaxRate}%)";
+                }
+            }
+
+            var additionalShippingCosts = string.Empty;
+            var addShippingPrice = _currencyService.ConvertFromPrimaryCurrency(product.AdditionalShippingCharge, currency);
+
+            if (addShippingPrice > 0)
+            {
+                // TODO: (mh) (core) Debug & Test!!!
+                //additionalShippingCosts = T("Common.AdditionalShippingSurcharge").Text.FormatInvariant(_priceFormatter.FormatPrice(addShippingPrice, true, false)) + ", ";
+                additionalShippingCosts = T("Common.AdditionalShippingSurcharge", addShippingPrice.ToString(true)) + ", ";
+            }
+
+            if (!product.IsShippingEnabled || (addShippingPrice == 0 && product.IsFreeShipping))
+            {
+                model.LegalInfo += "{0} {1}, {2}".FormatInvariant(
+                    product.IsTaxExempt ? string.Empty : taxInfo,
+                    product.IsTaxExempt ? string.Empty : defaultTaxRate,
+                    T("Common.FreeShipping"));
+            }
+            else
+            {
+                var shippingInfoUrl = await _urlHelper.TopicAsync("ShippingInfo");
+
+                if (shippingInfoUrl.IsEmpty())
+                {
+                    model.LegalInfo = T("Tax.LegalInfoProductDetail2",
+                        product.IsTaxExempt ? string.Empty : taxInfo,
+                        product.IsTaxExempt ? string.Empty : defaultTaxRate,
+                        additionalShippingCosts);
+                }
+                else
+                {
+                    model.LegalInfo = T("Tax.LegalInfoProductDetail",
+                        product.IsTaxExempt ? string.Empty : taxInfo,
+                        product.IsTaxExempt ? string.Empty : defaultTaxRate,
+                        additionalShippingCosts,
+                        shippingInfoUrl);
+                }
+            }
+
+            var dimension = await _db.MeasureDimensions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _measureSettings.BaseDimensionId);
+            var weight = await _db.MeasureWeights.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _measureSettings.BaseDimensionId);
+            var dimensionSystemKeyword = dimension?.SystemKeyword ?? string.Empty;
+            var weightSystemKeyword = dimension?.SystemKeyword ?? string.Empty;
+
+            // INFO: model.WeightValue already calculated in previous helper methods.
+            model.Weight = (model.WeightValue > 0) ? $"{model.WeightValue:N2} {weightSystemKeyword}" : string.Empty;
+            model.Height = (product.Height > 0) ? $"{product.Height:N2} {dimensionSystemKeyword}" : string.Empty;
+            model.Length = (product.Length > 0) ? $"{product.Length:N2} {dimensionSystemKeyword}" : string.Empty;
+            model.Width = (product.Width > 0) ? $"{product.Width:N2} {dimensionSystemKeyword}" : string.Empty;
+
+            if (productBundleItem != null)
+            {
+                model.ThumbDimensions = _mediaSettings.BundledProductPictureSize;
+            }
+            else if (modelContext.IsAssociatedProduct)
+            {
+                model.ThumbDimensions = _mediaSettings.AssociatedProductPictureSize;
+            }
+
+            // Delivery Time.
+            var deliveryPresentation = _catalogSettings.DeliveryTimesInProductDetail;
+
+            if (model.IsAvailable)
+            {
+                var deliveryTime = await _deliveryTimeService.GetDeliveryTimeAsync(product, _catalogSettings);
+                if (deliveryTime != null)
+                {
+                    model.DeliveryTimeName = deliveryTime.GetLocalized(x => x.Name);
+                    model.DeliveryTimeHexValue = deliveryTime.ColorHexValue;
+
+                    if (deliveryPresentation == DeliveryTimesPresentation.DateOnly || deliveryPresentation == DeliveryTimesPresentation.LabelAndDate)
+                    {
+                        model.DeliveryTimeDate = _deliveryTimeService.GetFormattedDeliveryDate(deliveryTime);
+                    }
+                }
+            }
+
+            model.IsShippingEnabled = product.IsShippingEnabled;
+            model.DeliveryTimesPresentation = deliveryPresentation;
+            model.DisplayDeliveryTimeAccordingToStock = product.DisplayDeliveryTimeAccordingToStock(_catalogSettings);
+
+            if (model.DeliveryTimeName.IsEmpty() && deliveryPresentation != DeliveryTimesPresentation.None)
+            {
+                model.DeliveryTimeName = T("ShoppingCart.NotAvailable");
+            }
+
+            var quantityUnit = await _db.QuantityUnits.GetQuantityUnitByIdAsync(product.QuantityUnitId ?? 0, _catalogSettings.ShowDefaultQuantityUnit);
+            if (quantityUnit != null)
+            {
+                model.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);
+            }
+
+            // Back in stock subscriptions.
+            if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock &&
+                product.BackorderMode == BackorderMode.NoBackorders &&
+                product.AllowBackInStockSubscriptions &&
+                product.StockQuantity <= 0)
+            {
+                // Out of stock.
+                model.DisplayBackInStockSubscription = true;
+                model.BackInStockAlreadySubscribed = await _stockSubscriptionService.IsSubscribedAsync(product, customer, store.Id);
+            }
+        }
+
+        // TODO: (mh) (core) Check again when PricingChain is ready.
+        protected async Task PrepareProductPriceModelAsync_New(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
+        {
+            var customer = modelContext.Customer;
+            var currency = modelContext.Currency;
+            var product = modelContext.Product;
+            var productBundleItem = modelContext.ProductBundleItem;
+            var bundleItemId = productBundleItem?.Item?.Id;
+            var isBundleItemPricing = productBundleItem != null && productBundleItem.Item.BundleProduct.BundlePerItemPricing;
+            var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
+            var isBundle = product.ProductType == ProductType.BundledProduct;
+
+            model.ProductPrice.ProductId = product.Id;
+            model.ProductPrice.HidePrices = !modelContext.DisplayPrices;
+            model.ProductPrice.ShowLoginNote = !modelContext.DisplayPrices && productBundleItem == null && _catalogSettings.ShowLoginForPriceNote;
+
+            if (!modelContext.DisplayPrices)
+            {
+                model.ProductPrice.OldPrice = new();
+                model.ProductPrice.Price = new();
+                return;
+            }
+
+            if (product.CustomerEntersPrice && !isBundleItemPricing)
+            {
+                model.ProductPrice.CustomerEntersPrice = true;
+                return;
+            }
+
+            if (product.CallForPrice && !isBundleItemPricing)
+            {
+                model.ProductPrice.CallForPrice = true;
+                model.HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty();
+                return;
+            }
+
+            var taxFormat = _currencyService.GetTaxFormat();
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, batchContext: modelContext.BatchContext);
+            var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
+            {
+                AssociatedProducts = modelContext.AssociatedProducts,
+                BundleItems = modelContext.BundleItemDatas,
+                BundleItem = productBundleItem
+            };
+            
+            if (!isBundlePricing)
+            {
+                if (modelContext.SelectedAttributes != null)
+                {
+                    // Apply price adjustments of selected attributes.
+                    calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, bundleItemId);
+                }
+                else
+                {
+                    // Apply price adjustments of preselected attributes.
+                    calculationOptions.ApplyPreselectedAttributes = true;
+                }
+            }
+
+            var priceWithDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+
+            // INFO: original code difference. Adjustments of priceWithoutDiscount were calculated with quantity of 1. Why? Makes little sense to me.
+            calculationOptions.IgnoreDiscounts = true;
+            var priceWithoutDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+
+            var oldPriceBase = await _taxCalculator.CalculateProductTaxAsync(product, product.OldPrice, null, customer, currency);
+            var oldPrice = _currencyService.ConvertFromPrimaryCurrency(oldPriceBase.Price, currency);
+
+            if (productBundleItem == null || isBundleItemPricing)
+            {
+                if (oldPrice > 0 && oldPrice > priceWithoutDiscount.FinalPrice)
+                {
+                    model.ProductPrice.OldPrice = oldPrice.WithPostFormat(taxFormat);
+                }
+
+                model.ProductPrice.Price = priceWithoutDiscount.FinalPrice.WithPostFormat(taxFormat);
+
+                if (priceWithoutDiscount.FinalPrice != priceWithDiscount.FinalPrice)
+                {
+                    model.ProductPrice.PriceWithDiscount = priceWithDiscount.FinalPrice.WithPostFormat(taxFormat);
+                }
+            }
+
+            if (product.SpecialPriceEndDateTimeUtc.HasValue && product.SpecialPriceEndDateTimeUtc > DateTime.UtcNow)
+            {
+                model.ProductPrice.PriceValidUntilUtc = product.SpecialPriceEndDateTimeUtc.Value.ToString("u");
+            }
+
+            model.ProductPrice.Price = priceWithoutDiscount.FinalPrice;
+            model.ProductPrice.PriceWithDiscount = priceWithDiscount.FinalPrice;
+
+            // INFO: original code difference. For base price info, the final price was calculated again. Why? We have already calculated a final price.
+            model.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, priceWithDiscount.FinalPrice, currency);
+
+            if (model.ProductPrice.OldPrice > 0 || model.ProductPrice.PriceWithDiscount > 0)
+            {
+                model.ProductPrice.NoteWithoutDiscount = T(isBundle && product.BundlePerItemPricing ? "Products.Bundle.PriceWithoutDiscount.Note" : "Products.Price");
+            }
+
+            if (isBundle && product.BundlePerItemPricing && model.ProductPrice.PriceWithDiscount > 0 && !product.HasTierPrices)
+            {
+                model.ProductPrice.NoteWithDiscount = T("Products.Bundle.PriceWithDiscount.Note");
+            }
+
+            // Calculate saving.
+            var savings = priceWithDiscount.PriceSaving;
+            if (savings.HasSaving)
+            {
+                model.ProductPrice.SavingAmount = savings.SavingAmount.Value;
+                model.ProductPrice.SavingPercent = savings.SavingPercent;
+            }
+
+            model.TierPrices = await CreateTierPriceModelAsync(modelContext, product);
         }
 
         protected async Task<(Money, decimal)> PrepareProductAttributesModelAsync(
@@ -2291,8 +2584,8 @@ namespace Smartstore.Web.Controllers
         protected async Task<List<ProductDetailsModel.TierPriceModel>> CreateTierPriceModelAsync(ProductDetailsModelContext modelContext, Product product)
         {
             var tierPrices = product.TierPrices
-                .FilterByStore(_storeContext.CurrentStore.Id)
-                .FilterForCustomer(_workContext.CurrentCustomer)
+                .FilterByStore(modelContext.Store.Id)
+                .FilterForCustomer(modelContext.Customer)
                 .OrderBy(x => x.Quantity)
                 .ToList()
                 .RemoveDuplicatedQuantities();
@@ -2302,16 +2595,24 @@ namespace Smartstore.Web.Controllers
                 return new List<ProductDetailsModel.TierPriceModel>();
             }
 
-            var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, modelContext.Customer, modelContext.Currency, modelContext.BatchContext);
-            pricingOptions.TaxFormat = null;
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, modelContext.Customer, modelContext.Currency, modelContext.BatchContext);
+            calculationOptions.TaxFormat = null;
+
+            var calculationContext = new PriceCalculationContext(product, 1, calculationOptions)
+            {
+                AssociatedProducts = modelContext.AssociatedProducts,
+                BundleItems = modelContext.BundleItemDatas,
+                BundleItem = modelContext.ProductBundleItem
+            };
+            
+            calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, modelContext.ProductBundleItem?.Item?.Id);
 
             var model = await tierPrices
                 .SelectAsync(async (tierPrice) =>
                 {
-                    // TODO: (mg) (core) selected product attributes missing in CatalogHelper.CreateTierPriceModelAsync.
-                    // Tier prices table must be updated when an attribute with an price adjustment is selected. See PriceCalculationContext.AddSelectedAttributes.
-                    var pricingContext = new PriceCalculationContext(product, tierPrice.Quantity, pricingOptions);
-                    var price = await _priceCalculationService.CalculatePriceAsync(pricingContext);
+                    calculationContext.Quantity = tierPrice.Quantity;
+
+                    var price = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
                     var tierPriceModel = new ProductDetailsModel.TierPriceModel
                     {
