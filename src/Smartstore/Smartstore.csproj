@@ -67,6 +67,7 @@
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.6" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
   </ItemGroup>

@@ -18,10 +18,10 @@
     <Value>Connection string</Value>
   </LocaleResource>
   <LocaleResource Name="ConnectionStringValues">
-    <Value>Enter SQL connection values</Value>
+    <Value>Enter connection values</Value>
   </LocaleResource>
   <LocaleResource Name="ConnectionStringWrongFormat">
-    <Value>Wrong SQL connection string format</Value>
+    <Value>Wrong connection string format</Value>
   </LocaleResource>
   <LocaleResource Name="CreateDatabaseIfDoesNotExist">
     <Value>Create database if it doesn't exist</Value>
@@ -179,5 +179,27 @@
   <LocaleResource Name="Authentication">
 	  <Value>Authentication</Value>
   </LocaleResource>
+
+	<LocaleResource Name="AdminEmailRequired">
+		<Value>'Admin user email' is required</Value>
+	</LocaleResource>
+	<LocaleResource Name="AdminPasswordRequired">
+		<Value>'Admin user password' is required</Value>
+	</LocaleResource>
+	<LocaleResource Name="ConfirmPasswordRequired">
+		<Value>'Passwort confirmation' is required</Value>
+	</LocaleResource>
+	<LocaleResource Name="DbRawConnectionStringRequired">
+		<Value>'Connection string' is required</Value>
+	</LocaleResource>
+	<LocaleResource Name="DbServerRequired">
+		<Value>'Server name' is required</Value>
+	</LocaleResource>
+	<LocaleResource Name="DbNameRequired">
+		<Value>'Database name' is required</Value>
+	</LocaleResource>
+	<LocaleResource Name="DbUserIdRequired">
+		<Value>'Username' is required</Value>
+	</LocaleResource>
 
 </Language>

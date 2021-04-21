@@ -12,15 +12,15 @@ namespace Smartstore.Core.Security
     public sealed class AuthorizeShopAccessAttribute : TypeFilterAttribute
     {
         public AuthorizeShopAccessAttribute()
-            : base(typeof(AccessShopFilter))
+            : base(typeof(AuthorizeShopAccessFilter))
         {
         }
 
-        class AccessShopFilter : IAsyncAuthorizationFilter
+        class AuthorizeShopAccessFilter : IAsyncAuthorizationFilter
         {
             private readonly IPermissionService _permissionService;
 
-            public AccessShopFilter(IPermissionService permissionService)
+            public AuthorizeShopAccessFilter(IPermissionService permissionService)
             {
                 _permissionService = permissionService;
             }

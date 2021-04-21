@@ -14,6 +14,11 @@ namespace Smartstore.Core.Data.Migrations
 {
     public abstract class DbMigrator
     {
+        /// <summary>
+        /// The default name for the Migrations history table.
+        /// </summary>
+        public const string DefaultHistoryTableName = "__EFMigrationsHistory";
+
         public abstract HookingDbContext Context { get; }
 
         /// <summary>

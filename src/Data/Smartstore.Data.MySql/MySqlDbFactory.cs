@@ -28,7 +28,6 @@ namespace Smartstore.Data.MySql
             string password)
         {
             Guard.NotEmpty(server, nameof(server));
-            Guard.NotEmpty(database, nameof(database));
 
             var builder = new MySqlConnectionStringBuilder
             {

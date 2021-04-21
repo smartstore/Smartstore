@@ -29,7 +29,6 @@ namespace Smartstore.Data.SqlServer
             string password)
         {
             Guard.NotEmpty(server, nameof(server));
-            Guard.NotEmpty(database, nameof(database));
 
             var builder = new SqlConnectionStringBuilder 
             {

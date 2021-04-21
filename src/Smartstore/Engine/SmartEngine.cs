@@ -15,6 +15,7 @@ using Smartstore.DependencyInjection;
 using Smartstore.Diagnostics;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Initialization;
+using Smartstore.IO;
 using Smartstore.Pdf;
 
 namespace Smartstore.Engine
@@ -86,6 +87,7 @@ namespace Smartstore.Engine
                 services.AddOptions();
                 services.AddSingleton(app.AppConfiguration);
                 services.AddSingleton(app.TypeScanner);
+                services.AddSingleton(app.OSIdentity);
                 services.AddSingleton<IEngine>(_engine);
                 services.AddSingleton(app);
 
@@ -103,6 +105,7 @@ namespace Smartstore.Engine
 
                 services.AddSingleton(x => NullChronometer.Instance);
                 services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
+                services.AddSingleton<IFilePermissionChecker, GenericFilePermissionChecker>();
                 services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
                 services.AddSingleton<IPdfConverter, NullPdfConverter>();
                 services.AddHttpContextAccessor();

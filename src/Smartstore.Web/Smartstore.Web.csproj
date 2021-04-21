@@ -81,6 +81,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Modules\placeholder.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Themes\Flex\grippy.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

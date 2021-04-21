@@ -54,8 +54,9 @@ namespace Smartstore.Web
         {
             var host = BuildWebHost(args);
 
-            // Initialize databases
-            await InitializeDatabases(host);
+            //// TODO: (core) Does not run when published (IIS). Check and fix!
+            //// Initialize databases
+            //await InitializeDatabases(host);
 
             // Run host
             await host.RunAsync();

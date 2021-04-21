@@ -18,6 +18,11 @@ namespace Smartstore.Core.Data
 
     public partial class SmartDbContext : HookingDbContext
     {
+        /// <summary>
+        /// The name for the Migrations history table.
+        /// </summary>
+        public const string MigrationHistoryTableName = "__EFMigrationsHistory_Core";
+
         public SmartDbContext(DbContextOptions<SmartDbContext> options)
             : base(options)
         {

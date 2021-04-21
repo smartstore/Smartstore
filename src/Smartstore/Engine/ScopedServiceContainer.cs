@@ -146,13 +146,4 @@ namespace Smartstore.Engine
         public T InjectUnsetProperties<T>(T instance)
             => RequestContainer.InjectUnsetProperties(instance);
     }
-
-    //// TODO: (core) Do we really need this?
-    //public static class ServiceContainerExtensions
-    //{
-    //    public static IRegistrationBuilder<TLimit, TReflectionActivatorData, TStyle> WithNullCache<TLimit, TReflectionActivatorData, TStyle>(this IRegistrationBuilder<TLimit, TReflectionActivatorData, TStyle> registration) where TReflectionActivatorData : ReflectionActivatorData
-    //    {
-    //        return registration.WithParameter(Autofac.Core.ResolvedParameter.ForNamed<ICache>("null"));
-    //    }
-    //}
 }

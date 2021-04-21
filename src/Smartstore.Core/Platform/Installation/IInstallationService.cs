@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 
@@ -10,7 +11,7 @@ namespace Smartstore.Core.Installation
     /// </summary>
     public partial interface IInstallationService
     {
-        Task<InstallationResult> InstallAsync(InstallationModel model, ILifetimeScope scope);
+        Task<InstallationResult> InstallAsync(InstallationModel model, ILifetimeScope scope, CancellationToken cancelToken = default);
 
         string GetResource(string resourceName);
 

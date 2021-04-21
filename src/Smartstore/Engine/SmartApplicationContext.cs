@@ -44,6 +44,7 @@ namespace Smartstore.Engine
 
             ModuleCatalog = new ModuleCatalog();
             TypeScanner = new DefaultTypeScanner(ModuleCatalog, logger, coreAssemblies);
+            OSIdentity = new GenericOSIdentity();
 
             // Create app configuration
             // TODO: (core) Try to incorporate IOptionsMonitor<SmartConfiguration> somehow.
@@ -118,6 +119,8 @@ namespace Smartstore.Engine
 
         // Use the current host and the process id as two servers could run on the same machine
         public string EnvironmentIdentifier => Environment.MachineName + "-" + Environment.ProcessId;
+
+        public IOSIdentity OSIdentity { get; }
 
         public IFileSystem ContentRoot => (IFileSystem)HostEnvironment.ContentRootFileProvider;
         public IFileSystem WebRoot { get; private set; }

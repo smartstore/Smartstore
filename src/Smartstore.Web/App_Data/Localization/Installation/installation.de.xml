@@ -1,15 +1,15 @@
 ﻿<Language Name="Deutsch" IsDefault="false" IsRightToLeft="false" LanguageCulture="de-DE" FlagImageFileName="de.png">
-  <LocaleResource Name="AdminEmail">
+	<LocaleResource Name="AdminEmail">
     <Value>Administrator E-Mail</Value>
   </LocaleResource>
   <LocaleResource Name="AdminPassword">
     <Value>Administrator Passwort</Value>
   </LocaleResource>
   <LocaleResource Name="ConfigureDirectoryPermissions">
-     <Value>Das Konto '{0}' hat keine 'Ändern' Rechte für den Ordner '{1}'. Bitte richten Sie entpr. Berechtigungen ein.</Value> 
+     <Value>Das Benutzerkonto '{0}' hat keine 'Ändern' Rechte für das Verzeichnis '{1}'. Bitte richten Sie entpr. Berechtigungen ein.</Value> 
   </LocaleResource>
   <LocaleResource Name="ConfigureFilePermissions">
-    <Value>Das Konto '{0}' hat keine 'Ändern' Rechte für die Datei '{1}'. Bitte richten Sie entpr. Berechtigungen ein.</Value>
+    <Value>Das Benutzerkonto '{0}' hat keine 'Ändern' Rechte für die Datei '{1}'. Bitte richten Sie entpr. Berechtigungen ein.</Value>
   </LocaleResource>
   <LocaleResource Name="ConfirmPassword">
     <Value>Passwort bestätigen</Value>
@@ -176,5 +176,27 @@
   <LocaleResource Name="Authentication">
 	  <Value>Authentifizierung</Value>
   </LocaleResource>
+
+	<LocaleResource Name="AdminEmailRequired">
+		<Value>'Administrator E-Mail' darf nicht leer sein</Value>
+	</LocaleResource>
+	<LocaleResource Name="AdminPasswordRequired">
+		<Value>'Administrator Passwort' darf nicht leer sein</Value>
+	</LocaleResource>
+	<LocaleResource Name="ConfirmPasswordRequired">
+		<Value>'Passwort Bestätigung' darf nicht leer sein</Value>
+	</LocaleResource>
+	<LocaleResource Name="DbRawConnectionStringRequired">
+		<Value>'Verbindungszeichenfolge' darf nicht leer sein</Value>
+	</LocaleResource>
+	<LocaleResource Name="DbServerRequired">
+		<Value>'Servername' darf nicht leer sein</Value>
+	</LocaleResource>
+	<LocaleResource Name="DbNameRequired">
+		<Value>'Datenbankname' darf nicht leer sein</Value>
+	</LocaleResource>
+	<LocaleResource Name="DbUserIdRequired">
+		<Value>'Anmeldename' darf nicht leer sein</Value>
+	</LocaleResource>
   
 </Language>

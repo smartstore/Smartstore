@@ -59,6 +59,11 @@ namespace Smartstore.Engine
         string EnvironmentIdentifier { get; }
 
         /// <summary>
+        /// Gets information about current OS user.
+        /// </summary>
+        IOSIdentity OSIdentity { get; }
+
+        /// <summary>
         /// Gets a <see cref="IFileSystem"/> pointing at the path that contains application content files.
         /// </summary>
         IFileSystem ContentRoot { get; }

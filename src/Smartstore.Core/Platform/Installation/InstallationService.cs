@@ -24,6 +24,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
+using Smartstore.IO;
 using Smartstore.Threading;
 
 namespace Smartstore.Core.Installation
@@ -36,6 +37,7 @@ namespace Smartstore.Core.Installation
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IApplicationContext _appContext;
+        private readonly IFilePermissionChecker _filePermissionChecker;
         private readonly IAsyncState _asyncState;
         private readonly IUrlHelper _urlHelper;
         private readonly IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> _seedDatas;
@@ -43,12 +45,14 @@ namespace Smartstore.Core.Installation
         public InstallationService(
             IHttpContextAccessor httpContextAccessor,
             IApplicationContext appContext,
+            IFilePermissionChecker filePermissionChecker,
             IAsyncState asyncState,
             IUrlHelper urlHelper,
             IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> seedDatas)
         {
             _httpContextAccessor = httpContextAccessor;
             _appContext = appContext;
+            _filePermissionChecker = filePermissionChecker;
             _asyncState = asyncState;
             _urlHelper = urlHelper;
             _seedDatas = seedDatas;
@@ -58,9 +62,8 @@ namespace Smartstore.Core.Installation
 
         #region Installation
 
-        public virtual async Task<InstallationResult> InstallAsync(InstallationModel model, ILifetimeScope scope)
+        public virtual async Task<InstallationResult> InstallAsync(InstallationModel model, ILifetimeScope scope, CancellationToken cancelToken = default)
         {
-            // TODO: (core) CancellationToken
             Guard.NotNull(model, nameof(model));
 
             UpdateResult(x =>
@@ -80,21 +83,18 @@ namespace Smartstore.Core.Installation
                 });
             }
 
-            //// set page timeout to 5 minutes
-            //this.Server.ScriptTimeout = 300;
-
             DbFactory dbFactory = null;
 
             try
             {
                 dbFactory = DbFactory.Load(model.DataProvider, _appContext.TypeScanner);
             }
-            catch
+            catch (Exception ex)
             {
                 return UpdateResult(x =>
                 {
-                    x.Errors.Add(GetResource("ConnectionStringRequired")); // TODO: (core) ErrMessage
-                    Logger.Error(x.Errors.Last());
+                    x.Errors.Add(ex.Message);
+                    Logger.Error(ex);
                 });
             }
 
@@ -102,39 +102,37 @@ namespace Smartstore.Core.Installation
 
             DbConnectionStringBuilder conStringBuilder = null;
 
-            if (model.UseRawConnectionString)
+            try
             {
-                // Raw connection string
-                if (string.IsNullOrEmpty(model.DbRawConnectionString))
+                // Try to create connection string
+                if (model.UseRawConnectionString)
                 {
-                    return UpdateResult(x =>
-                    {
-                        x.Errors.Add(GetResource("ConnectionStringRequired"));
-                        Logger.Error(x.Errors.Last());
-                    });
-                }
-
-                try
-                {
-                    // Try to create connection string
                     conStringBuilder = dbFactory.CreateConnectionStringBuilder(model.DbRawConnectionString);
                 }
-                catch (Exception ex)
+                else
                 {
-                    return UpdateResult(x =>
+                    // Structural connection string
+                    var userId = model.DbUserId;
+                    var password = model.DbPassword;
+                    if (model.DataProvider == "sqlserver" && model.DbAuthType == "windows")
                     {
-                        x.Errors.Add(GetResource("ConnectionStringWrongFormat"));
-                        Logger.Error(ex, x.Errors.Last());
-                    });
+                        userId = null;
+                        password = null;
+                    }
+                    conStringBuilder = dbFactory.CreateConnectionStringBuilder(model.DbServer, model.DbName, userId, password);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                // Structural connection string
-                // TODO: (core) ...
+                return UpdateResult(x =>
+                {
+                    x.Errors.Add(GetResource("ConnectionStringWrongFormat"));
+                    Logger.Error(ex, x.Errors.Last());
+                });
             }
 
-            // TODO: (core) Access rights check ...
+            // Check FS access rights
+            CheckFileSystemAccessRights(GetInstallResult().Errors);
 
             if (GetInstallResult().HasErrors)
             {
@@ -147,11 +145,14 @@ namespace Smartstore.Core.Installation
                 });
             }
 
+            ILifetimeScope richScope = null;
             SmartDbContext dbContext = null;
             var shouldDeleteDbOnFailure = false;
 
             try
             {
+                cancelToken.ThrowIfCancellationRequested();
+
                 var conString = conStringBuilder.ConnectionString;
                 var settings = DataSettings.Instance;
 
@@ -162,7 +163,7 @@ namespace Smartstore.Core.Installation
                 // So that DataSettings.DatabaseIsInstalled() returns false during installation.
                 DataSettings.SetTestMode(true);
 
-                // resolve SeedData instance from primary language
+                // Resolve SeedData instance from primary language
                 var lazyLanguage = GetAppLanguage(model.PrimaryLanguage);
                 if (lazyLanguage == null)
                 {
@@ -179,11 +180,14 @@ namespace Smartstore.Core.Installation
                 // Create the DataContext
                 dbContext = (SmartDbContext)dbFactory.CreateApplicationDbContext(
                     conString, 
-                    _appContext.AppConfiguration.DbMigrationCommandTimeout, 
-                    HistoryRepository.DefaultTableName + "_Core"); // TODO: (core) Make const for core migration table name
+                    _appContext.AppConfiguration.DbMigrationCommandTimeout,
+                    SmartDbContext.MigrationHistoryTableName);
 
                 // Delete only on failure if WE created the database.
-                shouldDeleteDbOnFailure = !await dbContext.Database.CanConnectAsync();
+                var canConnectDatabase = await dbContext.Database.CanConnectAsync(cancelToken);
+                shouldDeleteDbOnFailure = !canConnectDatabase;
+
+                cancelToken.ThrowIfCancellationRequested();
 
                 // Create Language domain object from lazyLanguage
                 var languages = dbContext.Languages;
@@ -215,27 +219,24 @@ namespace Smartstore.Core.Installation
                     Logger.Info(x.ProgressMessage);
                 });
 
-
-
-
-                // SUCCESS: Redirect to home page
-                return UpdateResult(x =>
-                {
-                    x.Completed = true;
-                    x.Success = true;
-                    //x.RedirectUrl = _urlHelper.Action("Index", "Home");
-                    Logger.Info("Installation completed successfully");
-                });
-
-
+                //// TEST
+                //return UpdateResult(x =>
+                //{
+                //    x.Completed = true;
+                //    x.Success = true;
+                //    //x.RedirectUrl = _urlHelper.Action("Index", "Home");
+                //    Logger.Info("Installation completed successfully");
+                //});
 
                 // ===>>> Actually performs database creation.
-                await dbContext.Database.MigrateAsync();
+                await dbContext.Database.MigrateAsync(cancelToken);
+                cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Seeds data.
                 await seeder.SeedAsync(dbContext);
+                cancelToken.ThrowIfCancellationRequested();
 
-                // ...
+                // ... Install modules
 
                 // Detect media file tracks (must come after plugins installation)
                 UpdateResult(x =>
@@ -244,19 +245,22 @@ namespace Smartstore.Core.Installation
                     Logger.Info(x.ProgressMessage);
                 });
 
-                using (var scope2 = scope.BeginLifetimeScope(c => 
-                { 
+                richScope = scope.BeginLifetimeScope(c =>
+                {
+                    // At this stage (after the database has been created and seeded completely) we can create a richer service scope
+                    // to minimize the risk of dependency resolution exceptions during more complex install operations.
                     c.RegisterInstance(dbContext);
                     c.Register<IStoreContext>(cc => new StoreContext(cc.Resolve<ICacheFactory>(), null, _httpContextAccessor, cc.Resolve<IActionContextAccessor>()));
                     c.Register<ISettingFactory>(cc => new SettingFactory(cc.Resolve<ICacheManager>(), null, _httpContextAccessor));
-                }))
+                });
+
+                var mediaTracker = richScope.Resolve<IMediaTracker>();
+                foreach (var album in richScope.Resolve<IAlbumRegistry>().GetAlbumNames(true))
                 {
-                    var mediaTracker = scope2.Resolve<IMediaTracker>();
-                    foreach (var album in scope2.Resolve<IAlbumRegistry>().GetAlbumNames(true))
-                    {
-                        await mediaTracker.DetectAllTracksAsync(album);
-                    }
+                    await mediaTracker.DetectAllTracksAsync(album, cancelToken);
                 }
+
+                cancelToken.ThrowIfCancellationRequested();
 
                 UpdateResult(x =>
                 {
@@ -319,6 +323,47 @@ namespace Smartstore.Core.Installation
                 if (dbContext != null)
                 {
                     dbContext.Dispose();
+                }
+
+                if (richScope != null)
+                {
+                    richScope.Dispose();
+                }
+            }
+        }
+
+        private void CheckFileSystemAccessRights(List<string> errors)
+        {
+            // TODO: (core) Complete CheckFileSystemAccessRights > dirsToCheck
+            var dirsToCheck = new[] 
+            { 
+                "App_Data",
+                $"App_Data/Tenants/{DataSettings.Instance.TenantName}",
+                $"App_Data/Tenants/{DataSettings.Instance.TenantName}/Media",
+                "Modules" 
+            };
+
+            foreach (var subpath in dirsToCheck)
+            {
+                var entry = _appContext.ContentRoot.GetDirectory(subpath);
+                if (entry.Exists && !_filePermissionChecker.CanAccess(entry, FileEntryRights.Write | FileEntryRights.Modify))
+                {
+                    errors.Add(string.Format(GetResource("ConfigureDirectoryPermissions"), _appContext.OSIdentity.Name, entry.PhysicalPath));
+                }
+            }
+
+            // TODO: (core) Complete CheckFileSystemAccessRights > dirsToCheck
+            var filesToCheck = new[] { 
+                $"App_Data/Tenants/{DataSettings.Instance.TenantName}/InstalledPlugins.txt",
+                $"App_Data/Tenants/{DataSettings.Instance.TenantName}/Settings.txt",
+            };
+
+            foreach (var subpath in filesToCheck)
+            {
+                var entry = _appContext.ContentRoot.GetFile(subpath);
+                if (entry.Exists && !_filePermissionChecker.CanAccess(entry, FileEntryRights.Write | FileEntryRights.Modify | FileEntryRights.Delete))
+                {
+                    errors.Add(string.Format(GetResource("ConfigureFilePermissions"), _appContext.OSIdentity.Name, entry.PhysicalPath));
                 }
             }
         }

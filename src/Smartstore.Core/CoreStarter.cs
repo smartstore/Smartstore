@@ -39,7 +39,7 @@ namespace Smartstore.Core.Bootstrapping
                         .UseSecondLevelCache()
                         .UseDbFactory(f =>
                         {
-                            f.MigrationsHistoryTable("__EFMigrationsHistory_Core");
+                            f.MigrationsHistoryTable(SmartDbContext.MigrationHistoryTableName);
                         });
                 });
 

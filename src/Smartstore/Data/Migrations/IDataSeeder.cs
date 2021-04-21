@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 namespace Smartstore.Data.Migrations
@@ -12,7 +13,7 @@ namespace Smartstore.Data.Migrations
         /// <summary>
         /// Seeds data
         /// </summary>
-        Task SeedAsync(TContext context);
+        Task SeedAsync(TContext context, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Gets a value indicating whether migration should be completely rolled back

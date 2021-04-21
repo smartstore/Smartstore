@@ -144,6 +144,8 @@
                                             <span asp-validation-for="DataProvider"></span>
                                         </div>
                                     </div>
+
+                                    <!-- Connection root -->
                                     <div id="ConnectionPanel" style="x-display: none">
                                         <div class="form-group row">
                                             <label class="col-md-3 col-form-label" asp-for="UseRawConnectionString">@InstallService.GetResource("Connection")</label>
@@ -155,6 +157,7 @@
                                             </div>
                                         </div>
 
+                                        <!-- Structural connection info -->
                                         <div id="ConnectionInfoPanel">
                                             <div class="form-group row">
                                                 <label class="col-md-3 col-form-label" asp-for="DbServer">@InstallService.GetResource("Server")</label>
@@ -210,34 +213,24 @@
 
                                         </div>
 
-                                        <div id="RawConnectionStringPanel">
+                                        <!-- Raw connection string -->
+                                        <div id="RawConnectionStringPanel" style="display: none">
                                             <div class="form-group row">
                                                 <label class="col-md-3 col-form-label" asp-for="DbRawConnectionString">@InstallService.GetResource("DbRawConnectionString")</label>
                                                 <div class="col-md-9">
                                                     <textarea asp-for="DbRawConnectionString" rows="3" class="form-control remember"></textarea>
-                                                    <small class="form-text text-muted mt-2">
+                                                    <small id="RawConnectionStringHelp" class="form-text text-muted mt-2">
                                                         @InstallService.GetResource("Example"):
-                                                        Data Source=sqlServerName;Initial Catalog=dbName;Persist Security Info=True;User
-                                                        ID=userName;Password=password
+                                                        <span data-for-provider="sqlserver">
+                                                            Data Source=MyServerName; Initial Catalog=MyDatabaseName; Persist Security Info=True; User Id=MyUserName; Password=MyPassword
+                                                        </span>
+                                                        <span data-for-provider="mysql" style="display: none">
+                                                            Server=MyServerName; Database=MyDatabaseName; Uid=root; Pwd=MyPassword
+                                                        </span>
                                                         <br />
                                                         Find more info <a href="http://www.connectionstrings.com/" rel="nofollow" target="_blank">here</a>
                                                     </small>
                                                 </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row">
-                                            <div class="col-12">
-                                                <hr />
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <div class="col-md-9 offset-md-3">
-                                                <div class="form-check mb-2">
-                                                    <input type="checkbox" asp-for="UseCustomCollation" class="form-check-input remember" />
-                                                    <label class="form-check-label" asp-for="UseCustomCollation">@InstallService.GetResource("CustomCollation")</label>
-                                                </div>
-                                                <input asp-for="Collation" class="form-control remember" disabled />
                                             </div>
                                         </div>
                                     </div>
@@ -300,69 +293,77 @@
     <script src="~/bundles/js/site.js"></script>
 
     <script>
-		function hide(el, thenShow) {
+        var dataProvider = $('#DataProvider');
+        var useRawConString = $('#UseRawConnectionString');
+        var connection = $('#UseRawConnectionString');
+        var connectionInfo = $('#ConnectionInfoPanel');
+        var rawConString = $('#RawConnectionStringPanel');
+        var rawConStringHelp = $('#RawConnectionStringHelp');
+        var authType = $('#DbAuthType');
+        var userId = $('#DbUserId');
+        var password = $('#DbPassword');
+
+        $(function () {
+            dataProvider.on('change', toggleDataProvider).trigger('change');
+            useRawConString.on('change', toggleConnectionInfo).trigger('change');
+            authType.on('change', toggleAuthType).trigger('change');
+
+            setRememberedFormFields("installPrefs");
+        });
+
+        function hide(el, thenShow, callback) {
 			$(el).slideUp(300, "ease-in-out", function () {
-				if (thenShow) {
-					show($(thenShow));
-				}
+                if (thenShow) {
+                    show($(thenShow), callback);
+                }
+                else if (callback) {
+                    callback();
+                }
 			});
 		}
 
-		function show(el) {
-			$(el).slideDown(300, "ease-in-out");
+		function show(el, callback) {
+			$(el).slideDown(300, "ease-in-out", callback);
 		}
 
-		function toggleProvider(e) {
-            var selectedProvider = $(this).val();
-            var elDbAuthType = $('#DbAuthType');
-			if (selectedProvider == 'mysql') {
-                elDbAuthType.attr("disabled", "disabled");
-                $('#DbUserId').removeAttr("disabled");
-                $('#DbPassword').removeAttr("disabled");
+		function toggleDataProvider() {
+            var selectedProvider = dataProvider.val();
+			if (selectedProvider === 'mysql') {
+                authType.attr("disabled", "disabled");
+                userId.removeAttr("disabled");
+                password.removeAttr("disabled");
+                rawConStringHelp.find('> [data-for-provider=sqlserver]').hide();
+                rawConStringHelp.find('> [data-for-provider=mysql]').show();
 			}
-			else if (selectedProvider == 'sqlserver') {
-                elDbAuthType.removeAttr("disabled");
-                //toggleSqlAuthenticationType();
+			else if (selectedProvider === 'sqlserver') {
+                authType.removeAttr("disabled");
+                toggleAuthType.apply(authType.get(0), arguments);
+                rawConStringHelp.find('> [data-for-provider=sqlserver]').show();
+                rawConStringHelp.find('> [data-for-provider=mysql]').hide();
 			}
 		}
 
-		function toggleConnectionInfo(e) {
-			var useRaw = $(this).val();
-            if (useRaw === 'True') {
-                hide('#ConnectionInfoPanel', '#RawConnectionStringPanel');
+		function toggleConnectionInfo() {
+			var useRaw = $(this).val() === 'True';
+            if (useRaw) {
+                hide(connectionInfo, rawConString);
 			}
 			else {
-                hide('#RawConnectionStringPanel', '#ConnectionInfoPanel');
+                hide(rawConString, connectionInfo);
 			}
 		}
 
-		function toggleSqlAuthenticationType(e) {
-			var selectedProvider = $(this).val();
-			if (selectedProvider == 'sqlauthentication') {
-				$('#pnlSqlAuth input').removeAttr("disabled");
+		function toggleAuthType() {
+			var selectedType = $(this).val();
+            if (selectedType == 'sqlserver') {
+                userId.removeAttr("disabled");
+                password.removeAttr("disabled");
 			}
-			else if (selectedProvider == 'windowsauthentication') {
-				$('#pnlSqlAuth input').attr("disabled", "disabled");
-			}
-		}
-
-		function toggleCollation(e) {
-			if ($('#UseCustomCollation').is(':checked')) {
-				$('#Collation').removeAttr("disabled");
-			}
-			else {
-				$('#Collation').attr("disabled", "disabled");
+            else if (selectedType == 'windows') {
+                userId.attr("disabled", "disabled");
+                password.attr("disabled", "disabled");
 			}
 		}
-
-		$(function () {
-			$('#DataProvider').on('change', toggleProvider).trigger('change');
-			$('#UseRawConnectionString').on('change', toggleConnectionInfo).trigger('change');
-			//$('#SqlAuthenticationType').on('change', toggleSqlAuthenticationType).trigger('change');
-			//$("#UseCustomCollation").on('click', toggleCollation);
-
-   //         setRememberedFormFields("installPrefs");
-		});
 
         var Installation = (function () {
             var progressIntervall;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.AspNetCore.Http;
@@ -38,8 +39,7 @@ namespace Smartstore.Core.Installation
         
         private SmartDbContext _db;
         private InvariantSeedData _data;
-        //private IGenericAttributeService _gaService;
-        private ILocalizationService _locService;
+        private CancellationToken _cancelToken;
         private IXmlResourceManager _xmlResourceManager;
         private IUrlService _urlService;
         private int _defaultStoreId;
@@ -101,12 +101,13 @@ namespace Smartstore.Core.Installation
 
         public bool RollbackOnFailure => false;
 
-        public async Task SeedAsync(SmartDbContext context)
+        public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
             Guard.NotNull(context, nameof(context));
 
             _db = context;
             _data.Initialize(_db, _config.Language);
+            _cancelToken = cancelToken;
 
             _db.ChangeTracker.AutoDetectChangesEnabled = false;
             _db.MinHookImportance = HookImportance.Essential;
@@ -507,6 +508,7 @@ namespace Smartstore.Core.Installation
         {
             try
             {
+                _cancelToken.ThrowIfCancellationRequested();
                 _logger.Debug("Populate: {0}", stage);
                 await SaveRange(entities);
             }
@@ -522,6 +524,7 @@ namespace Smartstore.Core.Installation
         {
             try
             {
+                _cancelToken.ThrowIfCancellationRequested();
                 _logger.Debug("Populate: {0}", stage);
                 await populateAction();
             }
@@ -537,6 +540,7 @@ namespace Smartstore.Core.Installation
         {
             try
             {
+                _cancelToken.ThrowIfCancellationRequested();
                 _logger.Debug("Populate: {0}", stage);
                 populateAction();
             }
