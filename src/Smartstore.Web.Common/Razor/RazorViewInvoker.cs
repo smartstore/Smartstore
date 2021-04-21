@@ -74,20 +74,18 @@ namespace Smartstore.Web.Razor
             var view = FindView(actionContext, viewName, isPartial);
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
-            using (var output = new StringWriter(sb))
-            {
-                var viewContext = new ViewContext(
-                    actionContext,
-                    view,
-                    viewData,
-                    _tempDataFactory.GetTempData(actionContext.HttpContext),
-                    output,
-                    _mvcViewOptions.Value.HtmlHelperOptions
-                );
+            using var output = new StringWriter(sb);
+            var viewContext = new ViewContext(
+                actionContext,
+                view,
+                viewData,
+                _tempDataFactory.GetTempData(actionContext.HttpContext),
+                output,
+                _mvcViewOptions.Value.HtmlHelperOptions
+            );
 
-                await view.RenderAsync(viewContext);
-                return output.ToString();
-            }
+            await view.RenderAsync(viewContext);
+            return output.ToString();
         }
 
         public Task<string> InvokeViewComponentAsync(string componentName, ViewDataDictionary viewData, object arguments)
@@ -109,25 +107,23 @@ namespace Smartstore.Web.Razor
             var actionContext = GetActionContext();
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
-            using (var output = new StringWriter(sb))
+            using var output = new StringWriter(sb);
+            var viewContext = new ViewContext(
+                actionContext,
+                NullView.Instance,
+                viewData,
+                _tempDataFactory.GetTempData(actionContext.HttpContext),
+                output,
+                _mvcViewOptions.Value.HtmlHelperOptions
+            );
+
+            if (_viewComponentHelper is IViewContextAware viewContextAware)
             {
-                var viewContext = new ViewContext(
-                    actionContext,
-                    NullView.Instance,
-                    viewData,
-                    _tempDataFactory.GetTempData(actionContext.HttpContext),
-                    output,
-                    _mvcViewOptions.Value.HtmlHelperOptions
-                );
-
-                if (_viewComponentHelper is IViewContextAware viewContextAware)
-                {
-                    viewContextAware.Contextualize(viewContext);
-                }
-
-                await invoker();
-                return output.ToString();
+                viewContextAware.Contextualize(viewContext);
             }
+
+            await invoker();
+            return output.ToString();
         }
 
         private ActionContext GetActionContext()

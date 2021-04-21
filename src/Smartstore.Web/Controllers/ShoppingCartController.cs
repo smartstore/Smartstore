@@ -565,7 +565,7 @@ namespace Smartstore.Web.Controllers
                     cartHtml = await this.InvokeViewAsync("CartItems", model);
 
                     // TODO: (ms) (core) InvokeViewComponentAsync "OrderTotals" returns string.empty ?
-                    totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
+                    totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                 }
             }
 
