@@ -161,11 +161,11 @@ namespace Smartstore.Core.Checkout.Cart
                     .ToListAsync();
 
                 var attributeSelection = await _productAttributeMaterializer.CreateAttributeSelectionAsync(
-                    ctx.VariantQuery, 
-                    attributes, 
-                    ctx.Product.Id, 
+                    ctx.VariantQuery,
+                    attributes,
+                    ctx.Product.Id,
                     ctx.BundleItemId);
-                                
+
                 ctx.RawAttributes = attributeSelection.Selection.AsJson();
 
                 // Check context for bundle item errors
@@ -427,29 +427,18 @@ namespace Smartstore.Core.Checkout.Cart
             var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId);
             var result = _requestCache.Get(cacheKey, async () =>
             {
-                var cartItems = new List<ShoppingCartItem>();
-                if (_db.IsCollectionLoaded(customer, x => x.ShoppingCartItems))
-                {
-                    var filteredCartItems = customer.ShoppingCartItems
-                        .Where(x => x.CustomerId == customer.Id && x.ShoppingCartTypeId == (int)cartType);
-
-                    if (storeId > 0)
-                    {
-                        filteredCartItems = filteredCartItems.Where(x => x.StoreId == storeId);
-                    }
-
-                    cartItems = filteredCartItems.ToList();
-                }
-                else
-                {
-                    cartItems = await _db.ShoppingCartItems
+                if (!_db.IsCollectionLoaded(customer, x => x.ShoppingCartItems))
+                {                    
+                    var query = _db.ShoppingCartItems                    
+                         .Include(x => x.Customer)
                          .Include(x => x.Product)
                          .ThenInclude(x => x.ProductVariantAttributes)
-                         .ApplyStandardFilter(cartType, storeId, customer)
-                         .ToListAsync();
+                         .Where(x => x.CustomerId == customer.Id);
 
-                    customer.ShoppingCartItems = cartItems;
+                    customer.ShoppingCartItems = await query.ToListAsync();
                 }
+                
+                var cartItems = customer.ShoppingCartItems.GetFilteredItems(cartType, storeId);                
 
                 // Prefetch all product variant attributes
                 var allAttributes = new ProductVariantAttributeSelection(string.Empty);

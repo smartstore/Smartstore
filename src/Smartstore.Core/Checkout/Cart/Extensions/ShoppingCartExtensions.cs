@@ -200,5 +200,26 @@ namespace Smartstore
 
             return cart.Count > 0 ? cart[0].Item.Customer : null;
         }
+
+        /// <summary>
+        /// Returns filtered list of <see cref="ShoppingCartItem"/>s by <see cref="ShoppingCartType"/> and <paramref name="storeId"/>.
+        /// </summary>
+        /// <param name="cart">The cart collection the filter gets applied on.</param>
+        /// <param name="cartType"><see cref="ShoppingCartType"/> to filter by.</param>
+        /// <param name="storeId">Store identifier to filter by.</param>
+        /// <returns><see cref="List{T}"/> of <see cref="ShoppingCartItem"/>.</returns>
+        public static List<ShoppingCartItem> GetFilteredItems(this ICollection<ShoppingCartItem> cart, ShoppingCartType cartType, int storeId = 0)
+        {
+            Guard.NotNull(cart, nameof(cart));
+
+            var filteredCartItems = cart.Where(x => x.ShoppingCartTypeId == (int)cartType);
+
+            if (storeId > 0)
+            {
+                filteredCartItems = filteredCartItems.Where(x => x.StoreId == storeId);
+            }
+
+            return filteredCartItems.ToList();
+        }
     }
 }
