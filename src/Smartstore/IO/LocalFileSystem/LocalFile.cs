@@ -22,7 +22,7 @@ namespace Smartstore.IO
             _fi = info;
 
             FileSystem = fileSystem;
-            SubPath = FileSystemBase.NormalizePath(subpath);
+            SubPath = subpath;
         }
 
         public FileInfo AsFileInfo() => _fi;

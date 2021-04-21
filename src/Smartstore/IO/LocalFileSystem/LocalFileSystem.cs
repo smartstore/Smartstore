@@ -78,15 +78,17 @@ namespace Smartstore.IO
             set => _provider.UsePollingFileWatcher = value;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string MapPath(string subpath)
         {
-            return MapPathInternal(subpath, false);
+            var fullPath = MapPathInternal(ref subpath, false);
+            return fullPath == null
+                ? null
+                : Path.GetFullPath(fullPath);
         }
 
         public override bool FileExists(string subpath)
         {
-            var fullPath = MapPathInternal(subpath, false);
+            var fullPath = MapPathInternal(ref subpath, false);
             if (string.IsNullOrEmpty(fullPath))
             {
                 return false;
@@ -97,7 +99,7 @@ namespace Smartstore.IO
 
         public override bool DirectoryExists(string subpath)
         {
-            var fullPath = MapPathInternal(subpath, false);
+            var fullPath = MapPathInternal(ref subpath, false);
             if (string.IsNullOrEmpty(fullPath))
             {
                 return false;
@@ -108,7 +110,7 @@ namespace Smartstore.IO
 
         public override IFile GetFile(string subpath)
         {
-            var fullPath = MapPathInternal(subpath, false);
+            var fullPath = MapPathInternal(ref subpath, false);
             return fullPath.HasValue()
                 ? new LocalFile(subpath, new FileInfo(fullPath), this)
                 : new NotFoundFile(subpath, this);
@@ -116,7 +118,7 @@ namespace Smartstore.IO
 
         public override IDirectory GetDirectory(string subpath)
         {
-            var fullPath = MapPathInternal(subpath, false);
+            var fullPath = MapPathInternal(ref subpath, false);
             return fullPath.HasValue()
                 ? new LocalDirectory(subpath, new DirectoryInfo(fullPath), this)
                 : new NotFoundDirectory(subpath, this);
@@ -141,7 +143,7 @@ namespace Smartstore.IO
 
         public override IEnumerable<IFileEntry> EnumerateEntries(string subpath = null, string pattern = "*", bool deep = false)
         {
-            var directoryInfo = new DirectoryInfo(MapPathInternal(subpath, true));
+            var directoryInfo = new DirectoryInfo(MapPathInternal(ref subpath, true));
             if (!directoryInfo.Exists)
             {
                 throw new DirectoryNotFoundException($"Directory '{subpath}' does not exist.");
@@ -167,7 +169,7 @@ namespace Smartstore.IO
 
         public override IEnumerable<IDirectory> EnumerateDirectories(string subpath = null, string pattern = "*", bool deep = false)
         {
-            var directoryInfo = new DirectoryInfo(MapPathInternal(subpath, true));
+            var directoryInfo = new DirectoryInfo(MapPathInternal(ref subpath, true));
             if (!directoryInfo.Exists)
             {
                 throw new DirectoryNotFoundException($"Directory '{subpath}' does not exist.");
@@ -180,7 +182,7 @@ namespace Smartstore.IO
 
         public override IEnumerable<IFile> EnumerateFiles(string subpath = null, string pattern = "*", bool deep = false)
         {
-            var directoryInfo = new DirectoryInfo(MapPathInternal(subpath, true));
+            var directoryInfo = new DirectoryInfo(MapPathInternal(ref subpath, true));
             if (!directoryInfo.Exists)
             {
                 throw new DirectoryNotFoundException($"Directory '{subpath}' does not exist.");
@@ -193,7 +195,7 @@ namespace Smartstore.IO
 
         public override bool TryCreateDirectory(string subpath)
         {
-            var fullPath = MapPathInternal(subpath, false);
+            var fullPath = MapPathInternal(ref subpath, false);
             if (fullPath.IsEmpty())
             {
                 return false;
@@ -222,7 +224,7 @@ namespace Smartstore.IO
 
         public override bool TryDeleteDirectory(string subpath)
         {
-            var fullPath = MapPathInternal(subpath, false);
+            var fullPath = MapPathInternal(ref subpath, false);
             if (fullPath.IsEmpty())
             {
                 return false;
@@ -263,7 +265,7 @@ namespace Smartstore.IO
                 throw new FileSystemException($"Cannot move file system entry '{entry.SubPath}' because it does not exist.");
             }
 
-            var fullTargetPath = MapPathInternal(newPath, true);
+            var fullTargetPath = MapPathInternal(ref newPath, true);
 
             if (entry.IsDirectory)
             {
@@ -325,7 +327,7 @@ namespace Smartstore.IO
 
         public override bool TryDeleteFile(string subpath)
         {
-            var fullPath = MapPathInternal(subpath, false);
+            var fullPath = MapPathInternal(ref subpath, false);
             if (fullPath.IsEmpty())
             {
                 return false;
@@ -382,7 +384,7 @@ namespace Smartstore.IO
         {
             Guard.NotNull(subpath, nameof(subpath));
 
-            var fullSrcPath = MapPathInternal(subpath, true);
+            var fullSrcPath = MapPathInternal(ref subpath, true);
             var sourceFileInfo = new FileInfo(fullSrcPath);
 
             if (!sourceFileInfo.Exists)
@@ -390,7 +392,7 @@ namespace Smartstore.IO
                 throw new FileSystemException($"The file '{subpath}' does not exist.");
             }
 
-            var fullDstPath = MapPathInternal(newPath, true);
+            var fullDstPath = MapPathInternal(ref newPath, true);
 
             if (Directory.Exists(fullDstPath))
             {
@@ -416,42 +418,21 @@ namespace Smartstore.IO
 
         #region Utils
 
-        private string MapPathInternal(string subpath, bool throwOnFailure)
+        private string MapPathInternal(ref string subpath, bool throwOnFailure)
         {
             if (string.IsNullOrEmpty(subpath))
                 return Root;
 
-            if (PathHelper.HasInvalidPathChars(subpath) || Path.IsPathRooted(subpath) || PathHelper.PathNavigatesAboveRoot(subpath))
-            {
-                if (throwOnFailure)
-                {
-                    throw new DirectoryNotFoundException($"Directory '${subpath}' does not exist.");
-                }
-                else
-                {
-                    return null;
-                }
-            }
+            subpath = NormalizePath(subpath);
 
-            var sepChar = Path.DirectorySeparatorChar; // --> '\\'
-
-            // Check if path ends with / or \
-            var hasTrailingSlash = subpath[^1] is ('/' or '\\');
-
-            // Convert "/myshop/file.png" --> "/file.png"
-            if (WebHelper.IsAbsolutePath(subpath, out var relativePath))
-            {
-                subpath = relativePath.Value;
-            }
-
-            var mappedPath = Root + subpath.Trim('~').Replace('/', sepChar).Trim(sepChar);
+            var mappedPath = Path.Combine(Root, subpath);
 
             // Verify that the resulting path is inside the root file system path.
             if (!IsUnderneathRoot(mappedPath))
             {
                 if (throwOnFailure)
                 {
-                    throw new DirectoryNotFoundException($"Directory '${subpath}' does not exist.");
+                    throw new FileSystemException($"The path '{subpath}' resolves to a physical path outside the file system store root.");
                 }
                 else
                 {
@@ -459,13 +440,59 @@ namespace Smartstore.IO
                 }
             }
 
-            if (hasTrailingSlash)
-            {
-                mappedPath += sepChar;
-            }
-
             return mappedPath;
         }
+
+        //private string MapPathInternal(string subpath, bool throwOnFailure)
+        //{
+        //    if (string.IsNullOrEmpty(subpath))
+        //        return Root;
+
+        //    if (PathHelper.HasInvalidPathChars(subpath) || Path.IsPathRooted(subpath) || PathHelper.PathNavigatesAboveRoot(subpath))
+        //    {
+        //        if (throwOnFailure)
+        //        {
+        //            throw new DirectoryNotFoundException($"Directory '${subpath}' does not exist.");
+        //        }
+        //        else
+        //        {
+        //            return null;
+        //        }
+        //    }
+
+        //    var sepChar = Path.DirectorySeparatorChar; // --> '\\'
+
+        //    // Check if path ends with / or \
+        //    var hasTrailingSlash = subpath[^1] is ('/' or '\\');
+
+        //    // Convert "/myshop/file.png" --> "/file.png"
+        //    if (WebHelper.IsAbsolutePath(subpath, out var relativePath))
+        //    {
+        //        subpath = relativePath.Value;
+        //    }
+
+        //    var mappedPath = Root + subpath.Trim('~').Replace('/', sepChar).Trim(sepChar);
+
+        //    // Verify that the resulting path is inside the root file system path.
+        //    if (!IsUnderneathRoot(mappedPath))
+        //    {
+        //        if (throwOnFailure)
+        //        {
+        //            throw new DirectoryNotFoundException($"Directory '${subpath}' does not exist.");
+        //        }
+        //        else
+        //        {
+        //            return null;
+        //        }
+        //    }
+
+        //    if (hasTrailingSlash)
+        //    {
+        //        mappedPath += sepChar;
+        //    }
+
+        //    return mappedPath;
+        //}
 
         private static bool IsExcluded(FileSystemInfo fileSystemInfo, ExclusionFilters filters) => filters != ExclusionFilters.None && (fileSystemInfo.Name.StartsWith(".", StringComparison.Ordinal) && (filters & ExclusionFilters.DotPrefixed) != ExclusionFilters.None || fileSystemInfo.Exists && ((fileSystemInfo.Attributes & FileAttributes.Hidden) != (FileAttributes)0 && (filters & ExclusionFilters.Hidden) != ExclusionFilters.None || (fileSystemInfo.Attributes & FileAttributes.System) != (FileAttributes)0 && (filters & ExclusionFilters.System) != ExclusionFilters.None));
 
@@ -490,7 +517,7 @@ namespace Smartstore.IO
         {
             Guard.NotNull(subpath, nameof(subpath));
 
-            var fullPath = MapPathInternal(subpath, true);
+            var fullPath = MapPathInternal(ref subpath, true);
 
             if (!overwrite && File.Exists(fullPath))
             {

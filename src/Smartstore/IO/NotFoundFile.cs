@@ -9,7 +9,7 @@ namespace Smartstore.IO
     {
         public NotFoundFile(string subpath, IFileSystem fs)
         {
-            SubPath = FileSystemBase.NormalizePath(subpath);
+            SubPath = subpath;
             FileSystem = fs;
         }
 

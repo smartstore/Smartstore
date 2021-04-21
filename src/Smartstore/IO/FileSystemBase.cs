@@ -15,6 +15,10 @@ namespace Smartstore.IO
     /// </summary>
     public abstract class FileSystemBase : Disposable, IFileSystem
     {
+        public static readonly char[] PathSeparators = new[] { '/', '\\' };
+        private const string CurrentDirectoryToken = ".";
+        private const string ParentDirectoryToken = "..";
+
         public abstract IDirectoryContents GetDirectoryContents(string subpath);
         public abstract IFileInfo GetFileInfo(string subpath);
         public abstract IChangeToken Watch(string filter);
@@ -28,22 +32,74 @@ namespace Smartstore.IO
             if (paths.Length == 0)
                 return null;
 
-            var normalizedParts =
-                paths
-                    .Select(x => NormalizePath(x))
-                    .Where(x => !string.IsNullOrEmpty(x))
-                    .ToArray();
+            var result = paths[0];
 
-            var combined = string.Join('/', normalizedParts);
+            if (paths.Length == 1)
+                return result;
 
-            // Preserve the leading '/' if it is present or if OS is Unix.
-            if (paths[0].StartsWith('/') || (Environment.OSVersion.Platform == PlatformID.Unix && !paths[0].StartsWith('~')))
+            for (var i = 1; i < paths.Length; i++)
             {
-                combined = '/' + combined;
+                result = Combine(result, paths[i]);
             }
 
-            return combined;
+            return result;
         }
+
+        /// <summary>
+        /// Combines two path parts
+        /// </summary>
+        private static string Combine(string path, string other = null)
+        {
+            if (string.IsNullOrWhiteSpace(other))
+            {
+                return path;
+            }
+
+            if (other.StartsWith('/') || other.StartsWith('\\'))
+            {
+                // "other" is already an app-rooted path. Return it as-is.
+                return other;
+            }
+
+            string result;
+
+            var index = path.LastIndexOfAny(PathSeparators);
+
+            if (index != path.Length - 1)
+            {
+                // If the first ends in a trailing slash e.g. "/Home/", assume it's a directory.
+                result = path + "/" + other;
+            }
+            else
+            {
+                result = path.Substring(0, index + 1) + other;
+            }
+
+            return result;
+        }
+
+        ///// <inheritdoc/>
+        //public virtual string PathCombine(params string[] paths)
+        //{
+        //    if (paths.Length == 0)
+        //        return null;
+
+        //    var normalizedParts =
+        //        paths
+        //            .Select(x => NormalizePath(x))
+        //            .Where(x => !string.IsNullOrEmpty(x))
+        //            .ToArray();
+
+        //    var combined = string.Join('/', normalizedParts);
+
+        //    // Preserve the leading '/' if it is present or if OS is Unix.
+        //    if (paths[0].StartsWith('/') || (Environment.OSVersion.Platform == PlatformID.Unix && !paths[0].StartsWith('~')))
+        //    {
+        //        combined = '/' + combined;
+        //    }
+
+        //    return combined;
+        //}
 
         /// <inheritdoc/>
         public abstract string MapPath(string subpath);
@@ -183,7 +239,7 @@ namespace Smartstore.IO
         /// </remarks>
         protected internal static string NormalizePath(string path)
         {
-            return path?.Replace('\\', '/').Trim('/');
+            return path?.Trim('~').Replace('\\', '/').Trim('/', ' ');
         }
 
         #endregion
