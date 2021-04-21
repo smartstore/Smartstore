@@ -1902,18 +1902,16 @@ namespace Smartstore.Web.Controllers
             model.ProductName = product.GetLocalized(x => x.Name);
             model.ProductSeName = await product.GetActiveSlugAsync();
 
-            var collectionLoaded = _db.IsCollectionLoaded(product, x => x.ProductReviews);
+            product = _db.FindTracked<Product>(product.Id) ?? product;
+            var collectionLoaded = _db.IsCollectionLoaded(product, x => x.ProductReviews, out var collectionEntry);
 
             if (!collectionLoaded)
             {
-                // TODO: (core) DbContext.Attach in PrepareProductReviewsModelAsync may throw InvalidOperationException.
-                // "The instance of entity type 'Product' cannot be tracked because another instance with the same key value for {'Id'} is already being tracked."
                 _db.Attach(product);
             }
 
             // We need the query for total count resolution.
-            var query = _db.Entry(product)
-                .Collection(x => x.ProductReviews)
+            var query = collectionEntry
                 .Query()
                 .Where(x => x.IsApproved);
 
