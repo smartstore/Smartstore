@@ -136,7 +136,7 @@ namespace Smartstore.Core.Widgets
                 result = string.Join(", ", _metaDescriptionParts.Distinct(StringComparer.CurrentCultureIgnoreCase).Reverse().ToArray());
             }
 
-            return new HtmlString(result.NullEmpty() ?? _seoSettings.GetLocalizedSetting(x => x.MetaDescription).Value);
+            return new HtmlString(result?.AttributeEncode()?.NullEmpty() ?? _seoSettings.GetLocalizedSetting(x => x.MetaDescription).Value);
         }
 
         public virtual IHtmlContent GetMetaKeywords()
@@ -148,7 +148,7 @@ namespace Smartstore.Core.Widgets
                 result = string.Join(", ", _metaKeywordParts.Distinct(StringComparer.CurrentCultureIgnoreCase).Reverse().ToArray());
             }
 
-            return new HtmlString(result.NullEmpty() ?? _seoSettings.GetLocalizedSetting(x => x.MetaKeywords).Value);
+            return new HtmlString(result?.AttributeEncode()?.NullEmpty() ?? _seoSettings.GetLocalizedSetting(x => x.MetaKeywords).Value);
         }
 
         /// <summary>
