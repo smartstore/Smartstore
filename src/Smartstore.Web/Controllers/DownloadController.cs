@@ -189,7 +189,9 @@ namespace Smartstore.Web.Controllers
                     return RedirectToAction("UserAgreement", "Customer", new { id });
                 }
 
-                stream.Close();
+                // TODO: (mh) (core) Why did you close the stream? Because now the result cannot be executed, it needs an open stream and will close it after done executing.
+                // Did you observe a mem leak?
+                //stream.Close();
 
                 orderItem.DownloadCount++;
                 await _db.SaveChangesAsync();

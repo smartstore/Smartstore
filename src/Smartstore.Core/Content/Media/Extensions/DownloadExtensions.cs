@@ -7,7 +7,7 @@ namespace Smartstore.Core.Content.Media
     public static class DownloadExtensions
     {
         /// <summary>
-        /// Orders the given download collection by semantic <see cref="Download.FileVersion"/>
+        /// Orders the given download collection by <see cref="Download.FileVersion"/>
         /// </summary>
         /// <param name="downloads">The source collection.</param>
         public static IList<Download> OrderByVersion(this ICollection<Download> downloads, bool descending = true)
