@@ -23,7 +23,7 @@ namespace Smartstore.Web.Bootstrapping
             
             builder.RegisterType<DefaultThemeFileResolver>().As<IThemeFileResolver>().SingleInstance();
             builder.RegisterType<DefaultThemeContext>().As<IThemeContext>().InstancePerLifetimeScope();
-            builder.RegisterType<RazorViewInvoker>().As<IRazorViewInvoker>().InstancePerDependency();
+            builder.RegisterType<RazorViewInvoker>().As<IRazorViewInvoker>().InstancePerLifetimeScope();
         }
     }
 }

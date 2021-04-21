@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 using Smartstore.Utilities;
+using System.Text.Encodings.Web;
 
 namespace Smartstore.Web.Razor
 {
@@ -25,7 +27,6 @@ namespace Smartstore.Web.Razor
         private readonly ITempDataDictionaryFactory _tempDataFactory;
         private readonly IActionContextAccessor _actionContextAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IViewComponentHelper _viewComponentHelper;
         private readonly IModelMetadataProvider _metadataProvider;
         private readonly IOptions<MvcViewOptions> _mvcViewOptions;
 
@@ -35,7 +36,6 @@ namespace Smartstore.Web.Razor
             ITempDataDictionaryFactory tempDataFactory,
             IActionContextAccessor actionContextAccessor,
             IHttpContextAccessor httpContextAccessor,
-            IViewComponentHelper viewComponentHelper,
             IModelMetadataProvider metadataProvider,
             IOptions<MvcViewOptions> mvcViewOptions)
         {
@@ -44,7 +44,6 @@ namespace Smartstore.Web.Razor
             _tempDataFactory = tempDataFactory;
             _actionContextAccessor = actionContextAccessor;
             _httpContextAccessor = httpContextAccessor;
-            _viewComponentHelper = viewComponentHelper;
             _metadataProvider = metadataProvider;
             _mvcViewOptions = mvcViewOptions;
         }
@@ -91,20 +90,27 @@ namespace Smartstore.Web.Razor
         public Task<string> InvokeViewComponentAsync(string componentName, ViewDataDictionary viewData, object arguments)
         {
             Guard.NotEmpty(componentName, nameof(componentName));
-            return InvokeViewComponentInternal(viewData, () => _viewComponentHelper.InvokeAsync(componentName, arguments));
+            return InvokeViewComponentInternal(viewData, helper => helper.InvokeAsync(componentName, arguments));
         }
 
         public Task<string> InvokeViewComponentAsync(Type componentType, ViewDataDictionary viewData, object arguments)
         {
             Guard.NotNull(componentType, nameof(componentType));
-            return InvokeViewComponentInternal(viewData, () => _viewComponentHelper.InvokeAsync(componentType, arguments));
+            return InvokeViewComponentInternal(viewData, helper => helper.InvokeAsync(componentType, arguments));
         }
 
-        private async Task<string> InvokeViewComponentInternal(ViewDataDictionary viewData, Func<Task<IHtmlContent>> invoker)
+        private async Task<string> InvokeViewComponentInternal(
+            ViewDataDictionary viewData, 
+            Func<IViewComponentHelper, Task<IHtmlContent>> invoker)
         {
             Guard.NotNull(viewData, nameof(viewData));
 
             var actionContext = GetActionContext();
+            var helper = actionContext.HttpContext.RequestServices?.GetService<IViewComponentHelper>();
+            if (helper == null)
+            {
+                return null;
+            }
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             using var output = new StringWriter(sb);
@@ -117,12 +123,10 @@ namespace Smartstore.Web.Razor
                 _mvcViewOptions.Value.HtmlHelperOptions
             );
 
-            if (_viewComponentHelper is IViewContextAware viewContextAware)
-            {
-                viewContextAware.Contextualize(viewContext);
-            }
+            (helper as IViewContextAware)?.Contextualize(viewContext);
 
-            await invoker();
+            var result = await invoker(helper);
+            result.WriteTo(output, HtmlEncoder.Default);
             return output.ToString();
         }
 

@@ -65,7 +65,7 @@ namespace Smartstore.Web.Controllers
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        public static Task<string> InvokeViewComponentAsync(this ControllerBase controller, string componentName, ViewDataDictionary viewData, object arguments)
+        public static Task<string> InvokeViewComponentAsync(this ControllerBase controller, string componentName, ViewDataDictionary viewData, object arguments = null)
         {
             Guard.NotNull(controller, nameof(controller));
 
@@ -84,7 +84,7 @@ namespace Smartstore.Web.Controllers
         /// containing the invocation arguments.
         /// </param>
         /// <returns>View component rendering result</returns>
-        public static Task<string> InvokeViewComponentAsync(this ControllerBase controller, Type componentType, ViewDataDictionary viewData, object arguments)
+        public static Task<string> InvokeViewComponentAsync(this ControllerBase controller, Type componentType, ViewDataDictionary viewData, object arguments = null)
         {
             Guard.NotNull(controller, nameof(controller));
 
