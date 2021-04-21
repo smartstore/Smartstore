@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.Core.Catalog.Search.Modelling
 {
@@ -13,7 +14,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         CatalogSearchQuery Current { get; }
 
         /// <summary>
-        /// Creates a <see cref="CatalogSearchQuery"/> instance from the current <see cref="IHttpContextAccessor"/> 
+        /// Creates a <see cref="CatalogSearchQuery"/> instance from the current <see cref="HttpContext"/> 
         /// by looking up corresponding keys in posted form and/or query string.
         /// </summary>
         /// <returns>The query object.</returns>

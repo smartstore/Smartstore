@@ -298,7 +298,7 @@ namespace Smartstore.Web
 
                 routes.MapXmlSitemap();
 
-                routes.MapControllers();
+                //routes.MapControllers();
 
                 routes.MapLocalizedControllerRoute(
                     name: "default",

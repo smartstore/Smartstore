@@ -74,8 +74,8 @@ namespace Smartstore.Core.Catalog.Search
         {
             if (_hits == null)
             {
-                var products = TotalHitsCount > 0 && _dbSet != null && Query.HitsFactory != null
-                    ? await Query.HitsFactory.Invoke(_dbSet, HitsEntityIds)
+                var products = TotalHitsCount > 0 && _dbSet != null && Query.GetHitsFactory() != null
+                    ? await Query.GetHitsFactory().Invoke(_dbSet, HitsEntityIds)
                     : Enumerable.Empty<Product>();
 
                 _hits = products.ToPagedList(Query.PageIndex, Query.Take, TotalHitsCount);
