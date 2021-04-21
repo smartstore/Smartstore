@@ -27,12 +27,12 @@
 				}
 			</div>
 		}
-		else if (Model.ShippingOptions.Any())
+		else if (isExpanded)
 		{
 			<div class="alert alert-info">@T("ShoppingCart.EstimateShipping.Tooltip")</div>
 		}
 
-		<div sm-if="Model.ShippingOptions.Any()" class="alert alert-success">
+		<div sm-if="isExpanded" class="alert alert-success">
 			@foreach (var shippingOption in Model.ShippingOptions)
 			{
 				<div class="shipping-option-item mb-2">
