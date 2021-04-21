@@ -32,6 +32,7 @@ namespace Smartstore.Web.Components
                 var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId.Value);
                 model = new ShoppingCartModel();
 
+                // TODO: (ms) (core) isEditable & prepareEstimateShippingIfEnabled must be parameters.
                 await cart.AsEnumerable().MapAsync(model,
                     isEditable: false,
                     prepareEstimateShippingIfEnabled: false,

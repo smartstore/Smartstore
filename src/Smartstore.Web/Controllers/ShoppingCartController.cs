@@ -1111,8 +1111,6 @@ namespace Smartstore.Web.Controllers
             model.SuccessfullySent = true;
             model.Result = T("Wishlist.EmailAFriend.SuccessfullySent");
 
-            // TODO: (ms) (core) Make sure that the wishlist template works as intended
-
             return View(model);
         }
 
