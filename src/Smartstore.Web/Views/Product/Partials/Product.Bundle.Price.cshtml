@@ -3,12 +3,11 @@
 @model ProductDetailsModel
 
 <div class="pd-bundle-price alert alert-success m-b-0">
-    @*TODO: (mh) (core) Verify that this is correct to check for existing value *@
-    @if (Model.ProductPrice.PriceWithDiscount > 0)
+    @if (Model.ProductPrice.PriceWithDiscount != Model.ProductPrice.Price)
     {
         @Html.Raw(T("Products.Bundle.YouSave",
-                    $"<span class='pd-bundle-price-offer lrm'>{Model.ProductPrice.PriceWithDiscount}</span>",
-                    $"<span class='pd-bundle-price-regular lrm'>{Model.ProductPrice.Price}</span>"));
+            $"<span class='pd-bundle-price-offer lrm'>{Model.ProductPrice.PriceWithDiscount}</span>",
+            $"<span class='pd-bundle-price-regular lrm'>{Model.ProductPrice.Price}</span>"));
     }
     else
     {
