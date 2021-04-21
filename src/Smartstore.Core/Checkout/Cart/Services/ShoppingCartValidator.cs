@@ -460,6 +460,9 @@ namespace Smartstore.Core.Checkout.Cart
                 }
             }
 
+            // TODO: (ms) (core) Add existing product attributes checking
+            //cartItem.Product.ProductVariantAttributes
+
             var currentWarnings = new List<string>();
 
             // Get existing product variant attributes
