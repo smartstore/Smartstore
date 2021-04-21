@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.Common;
@@ -22,10 +23,8 @@ namespace Smartstore.Web.Components
                 DisplayAdminLink = await Services.Permissions.AuthorizeAsync(Permissions.System.AccessBackend),
                 ShoppingCartEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart),
                 WishlistEnabled = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist),
-
-                // TODO: (mh) (core) Why were these commented out? RE: for perf reasons.
-                //ShoppingCartItems = customer.CountProductsInCart(ShoppingCartType.ShoppingCart, Services.StoreContext.CurrentStore.Id),
-                //WishlistItems = customer.CountProductsInCart(ShoppingCartType.Wishlist, _serServicesvices.StoreContext.CurrentStore.Id)
+                //ShoppingCartItems = await Services.DbContext.ShoppingCartItems.CountCartItemsAsync(customer, ShoppingCartType.ShoppingCart, Services.StoreContext.CurrentStore.Id),
+                //WishlistItems = await Services.DbContext.ShoppingCartItems.CountCartItemsAsync(customer, ShoppingCartType.Wishlist, Services.StoreContext.CurrentStore.Id)
             };
 
             model.MenuItems.Add(new MenuItem().ToBuilder()

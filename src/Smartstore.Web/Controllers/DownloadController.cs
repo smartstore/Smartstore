@@ -142,12 +142,13 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                // TODO: (mh) (core) Sorting is missing: see previous commit.
-                download = await _db.Downloads
+                download = (await _db.Downloads
                     .AsNoTracking()
                     .ApplyEntityFilter(nameof(product), product.Id)
                     .Include(x => x.MediaFile)
-                    .FirstOrDefaultAsync();
+                    .ToListAsync())
+                    .OrderByVersion()
+                    .FirstOrDefault();
             }
 
             if (download == null)
@@ -187,6 +188,8 @@ namespace Smartstore.Web.Controllers
                     NotifyError(T("Common.Download.NoDataAvailable"));
                     return RedirectToAction("UserAgreement", "Customer", new { id });
                 }
+
+                stream.Close();
 
                 orderItem.DownloadCount++;
                 await _db.SaveChangesAsync();

@@ -648,24 +648,13 @@ namespace Smartstore.Web.Controllers
 
                 if (itemModel.IsDownloadAllowed)
                 {
-                    var downloads = await _db.Downloads
+                    var downloads = (await _db.Downloads
                         .AsNoTracking()
                         .ApplyEntityFilter(item.Product)
                         .ApplyVersionFilter()
                         .Include(x => x.MediaFile)
-                        .ToListAsync();
-
-                    if (downloads.Any())
-                    {
-                        // TODO: (mh) (core) WTF bro??!! Why do I have to do this for you?! This is a SHITTY port!
-                        // TODO: (mh) (core) Make an extension method for this part: .OrderByVersion(this IList<Download>...)
-                        var idsOrderedByVersion = downloads
-                            .Select(x => new { x.Id, Version = SemanticVersion.Parse(x.FileVersion.NullEmpty() ?? "1.0.0.0") })
-                            .OrderByDescending(x => x.Version)
-                            .Select(x => x.Id);
-
-                        downloads = new List<Download>(downloads.OrderBySequence(idsOrderedByVersion));
-                    }
+                        .ToListAsync())
+                        .OrderByVersion();
 
                     itemModel.DownloadVersions = downloads
                         .Select(x => new DownloadVersion
