@@ -38,7 +38,7 @@
 				<div class="shipping-option-item mb-2">
 					<div class="option-name font-weight-medium">
 						@Html.Raw(HttpUtility.HtmlDecode(shippingOption.Name))
-						@shippingOption.Price
+						(@shippingOption.Price)
 					</div>
 					<div class="option-description">
 						@Html.Raw(shippingOption.Description)
