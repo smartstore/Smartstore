@@ -1288,8 +1288,8 @@ namespace Smartstore.Web.Controllers
                 // Cases where stock inventory is not functional (what ShoppingCartService.GetStandardWarnings and ProductService.AdjustInventory does not handle).
                 model.IsAvailable = true;
 
-                var hasAttributeCombinations = await _db.Entry(product)
-                    .Collection(x => x.ProductVariantAttributeCombinations)
+                _db.IsCollectionLoaded(product, x => x.ProductVariantAttributeCombinations, out var collectionEntry);
+                var hasAttributeCombinations = await collectionEntry
                     .Query()
                     .AnyAsync();
 

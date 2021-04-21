@@ -359,14 +359,25 @@ namespace Smartstore
 
             var entry = ctx.Entry(entity);
             collectionEntry = entry.Collection(navigationProperty);
+            var isLoaded = collectionEntry.CurrentValue != null || collectionEntry.IsLoaded;
 
             // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
-            if (entry.State == EfState.Detached || entry.State == EfState.Added)
+            if (!isLoaded && (entry.State == EfState.Detached))
             {
-                return collectionEntry.CurrentValue != null;
+                // Attaching an entity while another instance with same primary key is attached will throw.
+                // First we gonna try to locate an already attached entity.
+                var other = ctx.FindTracked<TEntity>(entity.Id);
+                if (other != null)
+                {
+                    collectionEntry = ctx.Entry(entity).Collection(navigationProperty);
+                }
+                else
+                {
+                    ctx.Attach(entity);
+                }
             }
 
-            return collectionEntry.IsLoaded;
+            return isLoaded;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -399,14 +410,25 @@ namespace Smartstore
 
             var entry = ctx.Entry(entity);
             referenceEntry = entry.Reference(navigationProperty);
+            var isLoaded = referenceEntry.CurrentValue != null || referenceEntry.IsLoaded;
 
             // Avoid System.InvalidOperationException: Member 'IsLoaded' cannot be called for property...
-            if (entry.State == EfState.Detached || entry.State == EfState.Added)
+            if (!isLoaded && (entry.State == EfState.Detached))
             {
-                return referenceEntry.CurrentValue != null;
+                // Attaching an entity while another instance with same primary key is attached will throw.
+                // First we gonna try to locate an already attached entity.
+                var other = ctx.FindTracked<TEntity>(entity.Id);
+                if (other != null)
+                {
+                    referenceEntry = ctx.Entry(entity).Reference(navigationProperty);
+                }
+                else
+                {
+                    ctx.Attach(entity);
+                }
             }
 
-            return referenceEntry.IsLoaded;
+            return isLoaded;
         }
 
         /// <summary>

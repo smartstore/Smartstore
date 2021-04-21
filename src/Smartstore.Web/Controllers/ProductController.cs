@@ -113,8 +113,7 @@ namespace Smartstore.Web.Controllers
             var product = await _db.Products
                 .IncludeMedia()
                 .IncludeManufacturers()
-                .Where(x => x.Id == productId)
-                .FirstOrDefaultAsync();
+                .FindByIdAsync(productId);
 
             if (product == null || product.IsSystemProduct)
                 return NotFound();
