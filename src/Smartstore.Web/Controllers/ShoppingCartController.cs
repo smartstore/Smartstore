@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
@@ -33,12 +27,15 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.Core.Stores;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Components;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Models.ShoppingCart;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Smartstore.Web.Controllers
 {
@@ -545,13 +542,13 @@ namespace Smartstore.Web.Controllers
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
 
-            var cart = await _shoppingCartService.GetCartItemsAsync(
-                null,
-                isWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart,
-                Services.StoreContext.CurrentStore.Id);
-
             if (isCartPage)
             {
+                var cart = await _shoppingCartService.GetCartItemsAsync(
+                    null,
+                    isWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart,
+                    Services.StoreContext.CurrentStore.Id);
+
                 if (isWishlist)
                 {
                     var model = new WishlistModel();
@@ -600,7 +597,10 @@ namespace Smartstore.Web.Controllers
             // Get shopping cart item.
             var customer = Services.WorkContext.CurrentCustomer;
             var cartType = isWishlistItem ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart;
-            var item = customer.ShoppingCartItems.FirstOrDefault(x => x.Id == cartItemId && x.ShoppingCartType == cartType);
+            var item = (await _shoppingCartService
+                .GetCartItemsAsync(customer, cartType, Services.StoreContext.CurrentStore.Id))
+                .Select(x => x.Item)
+                .FirstOrDefault(x => x.Id == cartItemId);
 
             if (item == null)
             {
@@ -616,11 +616,12 @@ namespace Smartstore.Web.Controllers
             await _shoppingCartService.DeleteCartItemsAsync(new[] { item }, removeInvalidCheckoutAttributes: true);
 
             var storeId = Services.StoreContext.CurrentStore.Id;
-            // Create updated cart model.
-            var cart = await _shoppingCartService.GetCartItemsAsync(cartType: cartType, storeId: storeId);
-            var cartHtml = string.Empty;
+
+            // Get updated cart model.
+            var cart = await _shoppingCartService.GetCartItemsAsync(customer, cartType, storeId);
             var totalsHtml = string.Empty;
 
+            string cartHtml;
             if (cartType == ShoppingCartType.Wishlist)
             {
                 var model = new WishlistModel();
@@ -636,7 +637,7 @@ namespace Smartstore.Web.Controllers
                 cartHtml = await this.InvokeViewAsync("CartItems", model);
 
                 // TODO: (ms) (core) InvokeViewComponentAsync "OrderTotals" returns string.empty ?
-                totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
+                totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
             }
 
             // Updated cart.
@@ -861,10 +862,6 @@ namespace Smartstore.Web.Controllers
         [ActionName("MoveItemBetweenCartAndWishlist")]
         public async Task<IActionResult> MoveItemBetweenCartAndWishlistAjax(int cartItemId, ShoppingCartType cartType, bool isCartPage = false)
         {
-            // TODO: (ms) (core) Investigate error message for: Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException:
-            // Database operation expected to affect 1 row(s) but actually affected 0 row(s). Data may have been modified or deleted since entities were loaded.
-            // See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.
-
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
                 || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
             {
@@ -877,8 +874,9 @@ namespace Smartstore.Web.Controllers
 
             var customer = Services.WorkContext.CurrentCustomer;
             var storeId = Services.StoreContext.CurrentStore.Id;
-            var cart = await _shoppingCartService.GetCartItemsAsync(customer, cartType, storeId);
-            var cartItem = cart.Where(x => x.Item.Id == cartItemId).FirstOrDefault();
+            var cartItem = (await _shoppingCartService
+                .GetCartItemsAsync(customer, cartType, storeId))
+                .FirstOrDefault(x => x.Item.Id == cartItemId);
 
             if (cartItem == null)
             {
@@ -907,7 +905,7 @@ namespace Smartstore.Web.Controllers
 
             if (_shoppingCartSettings.MoveItemsFromWishlistToCart && isValid)
             {
-                // No warnings (already in cart). Let's remove the item from origin.
+                // No warnings (item is already in cart). Remove the item from origin.
                 await _shoppingCartService.DeleteCartItemsAsync(new[] { cartItem.Item });
             }
 
@@ -920,10 +918,6 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
-            var cartHtml = string.Empty;
-            var totalsHtml = string.Empty;
-            var message = string.Empty;
-
             if (_shoppingCartSettings.DisplayCartAfterAddingProduct && cartType == ShoppingCartType.Wishlist)
             {
                 // Redirect to the shopping cart page.
@@ -933,8 +927,17 @@ namespace Smartstore.Web.Controllers
                 });
             }
 
+            var cartHtml = string.Empty;
+            var totalsHtml = string.Empty;
+            var message = string.Empty;
+            var cartItemCount = 0;
+
             if (isCartPage)
             {
+                // Get updated cart
+                var cart = await _shoppingCartService.GetCartItemsAsync(customer, cartType, storeId);
+                cartItemCount = cart.Count;
+
                 if (cartType == ShoppingCartType.Wishlist)
                 {
                     var model = new WishlistModel();
@@ -951,7 +954,7 @@ namespace Smartstore.Web.Controllers
                     cartHtml = await this.InvokeViewAsync("CartItems", model);
 
                     // TODO: (ms) (core) InvokeViewComponentAsync "OrderTotals" returns string.empty ?
-                    totalsHtml = await this.InvokeViewComponentAsync("OrderTotals", ViewData, new { isEditable = true });
+                    totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                     message = T("Products.ProductHasBeenAddedToTheWishlist");
                 }
             }
@@ -963,7 +966,7 @@ namespace Smartstore.Web.Controllers
                 message,
                 cartHtml,
                 totalsHtml,
-                cart.Count,
+                cartItemCount,
                 displayCheckoutButtons = true
             });
         }
@@ -1055,7 +1058,7 @@ namespace Smartstore.Web.Controllers
             {
                 return RedirectToRoute("Homepage");
             }
-            
+
             var model = new WishlistEmailAFriendModel
             {
                 YourEmailAddress = customer.Email,
@@ -1114,87 +1117,87 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        //[HttpPost, ActionName("Cart")]
-        //[FormValueRequired("estimateshipping")]
-        //public async Task<IActionResult> GetEstimateShipping(EstimateShippingModel shippingModel, ProductVariantQuery query)
-        //{
-        //    var customer = Services.WorkContext.CurrentCustomer;
-        //    var storeId = Services.StoreContext.CurrentStore.Id;
-        //    var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
+        [HttpPost, ActionName("Cart")]
+        [FormValueRequired("estimateshipping")]
+        public async Task<IActionResult> GetEstimateShipping(EstimateShippingModel shippingModel, ProductVariantQuery query)
+        {
+            // TODO: (ms) (core) Testing when there are payment / shipping methods ready
 
-        //    await ParseAndSaveCheckoutAttributesAsync(cart, query);
+            var customer = Services.WorkContext.CurrentCustomer;
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
 
-        //    var model = await PrepareShoppingCartModelAsync(cart, setEstimateShippingDefaultAddress: false);
+            await ParseAndSaveCheckoutAttributesAsync(cart, query);
 
-        //    model.EstimateShipping.CountryId = shippingModel.CountryId;
-        //    model.EstimateShipping.StateProvinceId = shippingModel.StateProvinceId;
-        //    model.EstimateShipping.ZipPostalCode = shippingModel.ZipPostalCode;
+            var model = new ShoppingCartModel();
+            await cart.AsEnumerable().MapAsync(model);
+            
+            model.EstimateShipping.CountryId = shippingModel.CountryId;
+            model.EstimateShipping.StateProvinceId = shippingModel.StateProvinceId;
+            model.EstimateShipping.ZipPostalCode = shippingModel.ZipPostalCode;
 
-        //    if (cart.IsShippingRequired())
-        //    {
-        //        var shippingInfoUrl = Url.TopicAsync("ShippingInfo").ToString();
-        //        if (shippingInfoUrl.HasValue())
-        //        {
-        //            model.EstimateShipping.ShippingInfoUrl = shippingInfoUrl;
-        //        }
+            if (cart.IncludesMatchingItems(x=>x.IsShippingEnabled))
+            {
+                var shippingInfoUrl = Url.TopicAsync("ShippingInfo").ToString();
+                if (shippingInfoUrl.HasValue())
+                {
+                    model.EstimateShipping.ShippingInfoUrl = shippingInfoUrl;
+                }
 
-        //        var address = new Address
-        //        {
-        //            CountryId = shippingModel.CountryId,
-        //            Country = await _db.Countries.FindByIdAsync(shippingModel.CountryId.GetValueOrDefault(), false),
-        //            StateProvinceId = shippingModel.StateProvinceId,
-        //            StateProvince = await _db.StateProvinces.FindByIdAsync(shippingModel.StateProvinceId.GetValueOrDefault(), false),
-        //            ZipPostalCode = shippingModel.ZipPostalCode,
-        //        };
+                var address = new Address
+                {
+                    CountryId = shippingModel.CountryId,
+                    Country = await _db.Countries.FindByIdAsync(shippingModel.CountryId.GetValueOrDefault(), false),
+                    StateProvinceId = shippingModel.StateProvinceId,
+                    StateProvince = await _db.StateProvinces.FindByIdAsync(shippingModel.StateProvinceId.GetValueOrDefault(), false),
+                    ZipPostalCode = shippingModel.ZipPostalCode,
+                };
 
-        //        var getShippingOptionResponse = _shippingService.GetShippingOptions(cart, address, storeId: storeId);
-        //        if (!getShippingOptionResponse.Success)
-        //        {
-        //            foreach (var error in getShippingOptionResponse.Errors)
-        //            {
-        //                model.EstimateShipping.Warnings.Add(error);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if (getShippingOptionResponse.ShippingOptions.Count > 0)
-        //            {
-        //                var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId: storeId);
+                var getShippingOptionResponse = _shippingService.GetShippingOptions(cart, address, storeId: storeId);
+                if (!getShippingOptionResponse.Success)
+                {
+                    model.EstimateShipping.Warnings.AddRange(getShippingOptionResponse.Errors);
+                }
+                else
+                {
+                    if (getShippingOptionResponse.ShippingOptions.Any())
+                    {
+                        var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId: storeId);
 
-        //                foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
-        //                {
-        //                    var soModel = new EstimateShippingModel.ShippingOptionModel
-        //                    {
-        //                        ShippingMethodId = shippingOption.ShippingMethodId,
-        //                        Name = shippingOption.Name,
-        //                        Description = shippingOption.Description
-        //                    };
+                        foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
+                        {
+                            var soModel = new EstimateShippingModel.ShippingOptionModel
+                            {
+                                ShippingMethodId = shippingOption.ShippingMethodId,
+                                Name = shippingOption.Name,
+                                Description = shippingOption.Description
+                            };
 
-        //                    var currency = Services.WorkContext.WorkingCurrency;
+                            var currency = Services.WorkContext.WorkingCurrency;
 
-        //                    var shippingTotal = await _orderCalculationService.AdjustShippingRateAsync(
-        //                        cart,
-        //                        new(shippingOption.Rate, currency),
-        //                        shippingOption,
-        //                        shippingMethods);
+                            var shippingTotal = await _orderCalculationService.AdjustShippingRateAsync(
+                                cart,
+                                new(shippingOption.Rate, currency),
+                                shippingOption,
+                                shippingMethods);
 
-        //                    var rate = await _taxService.GetShippingPriceAsync(shippingTotal.Amount);
-        //                    soModel.Price = rate.Price.ToString(true);
+                            var rate = await _taxService.GetShippingPriceAsync(shippingTotal.Amount);
+                            soModel.Price = rate.Price.ToString(true);
 
-        //                    model.EstimateShipping.ShippingOptions.Add(soModel);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                model.EstimateShipping.Warnings.Add(T("Checkout.ShippingIsNotAllowed"));
-        //            }
-        //        }
-        //    }
+                            model.EstimateShipping.ShippingOptions.Add(soModel);
+                        }
+                    }
+                    else
+                    {
+                        model.EstimateShipping.Warnings.Add(T("Checkout.ShippingIsNotAllowed"));
+                    }
+                }
+            }
 
-        //    return View(model);
-        //}
+            return View(model);
+        }
 
-        //#endregion
+        #endregion
 
         //#region Upload
 
@@ -1351,73 +1354,78 @@ namespace Smartstore.Web.Controllers
         //    return RedirectToReferrer(returnUrl);
         //}
 
-        //#region Discount/GiftCard coupon codes & Reward points
+        #region Discount/GiftCard coupon codes & Reward points
 
-        ///// <summary>
-        ///// Tries to apply <paramref name="discountCouponcode"/> as <see cref="Discount"/> and applies 
-        ///// selected checkout attributes.
-        ///// </summary>
-        ///// <param name="query">The <see cref="ProductVariantQuery"/></param>
-        ///// <param name="discountCouponcode">The <see cref="Discount.CouponCode"/> to apply.</param>
-        ///// <returns></returns>
-        //[HttpPost, ActionName("Cart")]
-        //[FormValueRequired("applydiscountcouponcode")]
-        //public async Task<IActionResult> ApplyDiscountCoupon(ProductVariantQuery query, string discountCouponcode)
-        //{
-        //    var customer = Services.WorkContext.CurrentCustomer;
-        //    var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
-        //    var model = await PrepareShoppingCartModelAsync(cart);
-        //    model.DiscountBox.IsWarning = true;
+        /// <summary>
+        /// Tries to apply <paramref name="discountCouponcode"/> as <see cref="Discount"/> and applies 
+        /// selected checkout attributes.
+        /// </summary>
+        /// <param name="query">The <see cref="ProductVariantQuery"/></param>
+        /// <param name="discountCouponcode">The <see cref="Discount.CouponCode"/> to apply.</param>
+        /// <returns></returns>
+        [HttpPost, ActionName("Cart")]
+        [FormValueRequired("applydiscountcouponcode")]
+        public async Task<IActionResult> ApplyDiscountCoupon(ProductVariantQuery query, string discountCouponcode)
+        {
+            // TODO: (ms) (core) Testing & Remove action
 
-        //    await ParseAndSaveCheckoutAttributesAsync(cart, query);
+            var customer = Services.WorkContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
 
-        //    if (discountCouponcode.HasValue())
-        //    {
-        //        var discount = await _db.Discounts
-        //            .AsNoTracking()
-        //            .FirstOrDefaultAsync(x => x.CouponCode == discountCouponcode);
+            var model = new ShoppingCartModel();
+            await cart.AsEnumerable().MapAsync(model);
 
-        //        var isDiscountValid = discount != null
-        //            && discount.RequiresCouponCode
-        //            && await _discountService.IsDiscountValidAsync(discount, customer, discountCouponcode);
+            model.DiscountBox.IsWarning = true;
 
-        //        if (isDiscountValid)
-        //        {
-        //            var discountApplied = true;
-        //            var oldCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+            await ParseAndSaveCheckoutAttributesAsync(cart, query);
 
-        //            customer.GenericAttributes.DiscountCouponCode = discountCouponcode;
+            if (discountCouponcode.HasValue())
+            {
+                var discount = await _db.Discounts
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.CouponCode == discountCouponcode);
 
-        //            if (oldCartTotal.Total.HasValue)
-        //            {
-        //                var newCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
-        //                discountApplied = oldCartTotal.Total != newCartTotal.Total;
-        //            }
+                var isDiscountValid = discount != null
+                    && discount.RequiresCouponCode
+                    && await _discountService.IsDiscountValidAsync(discount, customer, discountCouponcode);
 
-        //            if (discountApplied)
-        //            {
-        //                model.DiscountBox.Message = T("ShoppingCart.DiscountCouponCode.Applied");
-        //                model.DiscountBox.IsWarning = false;
-        //            }
-        //            else
-        //            {
-        //                model.DiscountBox.Message = T("ShoppingCart.DiscountCouponCode.NoMoreDiscount");
+                if (isDiscountValid)
+                {
+                    var discountApplied = true;
+                    var oldCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
-        //                customer.GenericAttributes.DiscountCouponCode = null;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            model.DiscountBox.Message = T("ShoppingCart.DiscountCouponCode.WrongDiscount");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        model.DiscountBox.Message = T("ShoppingCart.DiscountCouponCode.WrongDiscount");
-        //    }
+                    customer.GenericAttributes.DiscountCouponCode = discountCouponcode;
 
-        //    return View(model);
-        //}
+                    if (oldCartTotal.Total.HasValue)
+                    {
+                        var newCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+                        discountApplied = oldCartTotal.Total != newCartTotal.Total;
+                    }
+
+                    if (discountApplied)
+                    {
+                        model.DiscountBox.Message = T("ShoppingCart.DiscountCouponCode.Applied");
+                        model.DiscountBox.IsWarning = false;
+                    }
+                    else
+                    {
+                        model.DiscountBox.Message = T("ShoppingCart.DiscountCouponCode.NoMoreDiscount");
+
+                        customer.GenericAttributes.DiscountCouponCode = null;
+                    }
+                }
+                else
+                {
+                    model.DiscountBox.Message = T("ShoppingCart.DiscountCouponCode.WrongDiscount");
+                }
+            }
+            else
+            {
+                model.DiscountBox.Message = T("ShoppingCart.DiscountCouponCode.WrongDiscount");
+            }
+
+            return View(model);
+        }
 
         ///// <summary>
         ///// Removes the applied discount coupon code from current customer.
@@ -1433,7 +1441,7 @@ namespace Smartstore.Web.Controllers
         //    var model = await PrepareShoppingCartModelAsync(cart);
 
         //    var discountHtml = await this.InvokeViewAsync("_DiscountBox", model.DiscountBox);
-        //    var totalsHtml = await this.InvokeViewComponentAsync(ViewData, typeof(OrderTotalsViewComponent), new { isEditable = true });
+        //    var totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
         //    // Updated cart.
         //    return Json(new
@@ -1445,65 +1453,69 @@ namespace Smartstore.Web.Controllers
         //    });
         //}
 
-        ///// <summary>
-        ///// Applies gift card by coupon code to cart.
-        ///// </summary>
-        ///// <param name="query">The <see cref="ProductVariantQuery"/>.</param>
-        ///// <param name="giftCardCouponCode">The <see cref="GiftCard.GiftCardCouponCode"/> to apply.</param>
-        //[HttpPost, ActionName("Cart")]
-        //[FormValueRequired("applygiftcardcouponcode")]
-        //public async Task<IActionResult> ApplyGiftCard(ProductVariantQuery query, string giftCardCouponCode)
-        //{
-        //    var customer = Services.WorkContext.CurrentCustomer;
-        //    var storeId = Services.StoreContext.CurrentStore.Id;
+        /// <summary>
+        /// Applies gift card by coupon code to cart.
+        /// </summary>
+        /// <param name="query">The <see cref="ProductVariantQuery"/>.</param>
+        /// <param name="giftCardCouponCode">The <see cref="GiftCard.GiftCardCouponCode"/> to apply.</param>
+        [HttpPost, ActionName("Cart")]
+        [FormValueRequired("applygiftcardcouponcode")]
+        public async Task<IActionResult> ApplyGiftCard(ProductVariantQuery query, string giftCardCouponCode)
+        {
+            // TODO: (ms) (core) Testing & Remove action
 
-        //    var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
+            var customer = Services.WorkContext.CurrentCustomer;
+            var storeId = Services.StoreContext.CurrentStore.Id;
 
-        //    await ParseAndSaveCheckoutAttributesAsync(cart, query);
+            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
 
-        //    var model = await PrepareShoppingCartModelAsync(cart);
-        //    model.GiftCardBox.IsWarning = true;
+            await ParseAndSaveCheckoutAttributesAsync(cart, query);
 
-        //    if (!cart.ContainsRecurringItem())
-        //    {
-        //        if (giftCardCouponCode.HasValue())
-        //        {
-        //            var giftCard = await _db.GiftCards
-        //                .AsNoTracking()
-        //                .ApplyCouponFilter(new[] { giftCardCouponCode })
-        //                .FirstOrDefaultAsync();
+            var model = new ShoppingCartModel();
+            await cart.AsEnumerable().MapAsync(model);
 
-        //            var isGiftCardValid = giftCard != null && _giftCardService.ValidateGiftCard(giftCard, storeId);
-        //            if (isGiftCardValid)
-        //            {
-        //                var couponCodes = new List<GiftCardCouponCode>(customer.GenericAttributes.GiftCardCouponCodes);
-        //                if (couponCodes.Select(x => x.Value).Contains(giftCardCouponCode))
-        //                {
-        //                    var giftCardCoupon = new GiftCardCouponCode(giftCardCouponCode);
-        //                    couponCodes.Add(giftCardCoupon);
-        //                    customer.GenericAttributes.GiftCardCouponCodes = couponCodes;
-        //                }
+            model.GiftCardBox.IsWarning = true;
 
-        //                model.GiftCardBox.Message = T("ShoppingCart.GiftCardCouponCode.Applied");
-        //                model.GiftCardBox.IsWarning = false;
-        //            }
-        //            else
-        //            {
-        //                model.GiftCardBox.Message = T("ShoppingCart.GiftCardCouponCode.WrongGiftCard");
-        //            }
-        //        }
-        //        else
-        //        {
-        //            model.GiftCardBox.Message = T("ShoppingCart.GiftCardCouponCode.WrongGiftCard");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        model.GiftCardBox.Message = T("ShoppingCart.GiftCardCouponCode.DontWorkWithAutoshipProducts");
-        //    }
+            if (!cart.IncludesMatchingItems(x => x.IsRecurring))
+            {
+                if (giftCardCouponCode.HasValue())
+                {
+                    var giftCard = await _db.GiftCards
+                        .AsNoTracking()
+                        .ApplyCouponFilter(new[] { giftCardCouponCode })
+                        .FirstOrDefaultAsync();
 
-        //    return View(model);
-        //}
+                    var isGiftCardValid = giftCard != null && _giftCardService.ValidateGiftCard(giftCard, storeId);
+                    if (isGiftCardValid)
+                    {
+                        var couponCodes = new List<GiftCardCouponCode>(customer.GenericAttributes.GiftCardCouponCodes);
+                        if (couponCodes.Select(x => x.Value).Contains(giftCardCouponCode))
+                        {
+                            var giftCardCoupon = new GiftCardCouponCode(giftCardCouponCode);
+                            couponCodes.Add(giftCardCoupon);
+                            customer.GenericAttributes.GiftCardCouponCodes = couponCodes;
+                        }
+
+                        model.GiftCardBox.Message = T("ShoppingCart.GiftCardCouponCode.Applied");
+                        model.GiftCardBox.IsWarning = false;
+                    }
+                    else
+                    {
+                        model.GiftCardBox.Message = T("ShoppingCart.GiftCardCouponCode.WrongGiftCard");
+                    }
+                }
+                else
+                {
+                    model.GiftCardBox.Message = T("ShoppingCart.GiftCardCouponCode.WrongGiftCard");
+                }
+            }
+            else
+            {
+                model.GiftCardBox.Message = T("ShoppingCart.GiftCardCouponCode.DontWorkWithAutoshipProducts");
+            }
+
+            return View(model);
+        }
 
         ///// <summary>
         ///// Removes applied gift card by <paramref name="giftCardId"/> from customer.
@@ -1529,7 +1541,7 @@ namespace Smartstore.Web.Controllers
         //        }
         //    }
 
-        //    var totalsHtml = await this.InvokeViewComponentAsync(ViewData, "OrderTotals", new { isEditable = true });
+        //var totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
 
         //    // Updated cart.
         //    return Json(new
@@ -1540,22 +1552,26 @@ namespace Smartstore.Web.Controllers
         //    });
         //}
 
-        //[HttpPost, ActionName("Cart")]
-        //[FormValueRequired("applyrewardpoints")]
-        //public async Task<IActionResult> ApplyRewardPoints(ProductVariantQuery query, bool useRewardPoints = false)
-        //{
-        //    var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
+        [HttpPost, ActionName("Cart")]
+        [FormValueRequired("applyrewardpoints")]
+        public async Task<IActionResult> ApplyRewardPoints(ProductVariantQuery query, bool useRewardPoints = false)
+        {
+            // TODO: (ms) (core) Testing
 
-        //    await ParseAndSaveCheckoutAttributesAsync(cart, query);
+            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
 
-        //    var model = await PrepareShoppingCartModelAsync(cart);
-        //    model.RewardPoints.UseRewardPoints = useRewardPoints;
+            await ParseAndSaveCheckoutAttributesAsync(cart, query);
 
-        //    var customer = Services.WorkContext.CurrentCustomer;
-        //    customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints;
+            var model = new ShoppingCartModel();
+            await cart.AsEnumerable().MapAsync(model);
 
-        //    return View(model);
-        //}
+            model.RewardPoints.UseRewardPoints = useRewardPoints;
+
+            var customer = Services.WorkContext.CurrentCustomer;
+            customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints;
+
+            return View(model);
+        }
 
         #endregion
     }
