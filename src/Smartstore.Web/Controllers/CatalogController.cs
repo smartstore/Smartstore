@@ -634,7 +634,7 @@ namespace Smartstore.Web.Controllers
             return Json(new
             {
                 success = true,
-                message = string.Format(T("AddProductToCompareList.ProductWasAdded"), product.Name)
+                message = T("AddProductToCompareList.ProductWasAdded", product.Name).Value
             });
         }
 
@@ -705,7 +705,25 @@ namespace Smartstore.Web.Controllers
             });
         }
 
-        // TODO: (mh) (core) OffCanvasCompare
+        public async Task<IActionResult> OffCanvasCompare()
+        {
+            if (!_catalogSettings.CompareProductsEnabled)
+            {
+                return PartialView(ProductSummaryModel.Empty);
+            }
+
+            var products = await _productCompareService.GetCompareListAsync();
+            var settings = _helper.GetBestFitProductSummaryMappingSettings(ProductSummaryViewMode.Grid, x =>
+            {
+                x.MapAttributes = false;
+                x.MapColorAttributes = false;
+                x.MapManufacturers = false;
+            });
+
+            var model = await _helper.MapProductSummaryModelAsync(products, settings);
+
+            return PartialView(model);
+        }
 
         #endregion
     }
