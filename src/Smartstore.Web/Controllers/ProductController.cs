@@ -523,7 +523,7 @@ namespace Smartstore.Web.Controllers
                 GalleryHtml = galleryHtml
             };
 
-            return new JsonResult(new { Data = data });
+            return new JsonResult(data);
         }
 
         #endregion
@@ -756,10 +756,7 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            return new JsonResult(new
-            {
-                Data = new { redirect = Url.Action("AskQuestion", new { id }) }
-            });
+            return new JsonResult(new { redirect = Url.Action("AskQuestion", new { id })});
         }
 
         [HttpPost, ActionName("AskQuestion")]
