@@ -86,8 +86,15 @@ namespace Smartstore.Core.Localization
             }
             else
             {
-                var formattableString = new HtmlFormattableString(Value, Arguments);
-                formattableString.WriteTo(writer, encoder);
+                try
+                {
+                    var formattableString = new HtmlFormattableString(Value, Arguments);
+                    formattableString.WriteTo(writer, encoder);
+                }
+                catch
+                {
+                    writer.Write(Value);
+                }
             }
         }
 
@@ -99,19 +106,26 @@ namespace Smartstore.Core.Localization
                 return string.Empty;
             }
 
-            return Arguments.Length == 0
-                ? Value
-                : string.Format(Value, Arguments);
+            if (Arguments.Length == 0)
+            {
+                return Value;
+            }
+            else
+            {
+                try
+                {
+                    return string.Format(Value, Arguments);
+                }
+                catch
+                {
+                    return Value;
+                }
+            }
         }
 
         /// <inheritdoc />
         public override int GetHashCode()
-        {
-            return HashCodeCombiner.Start()
-                .Add(Value)
-                .Add(Arguments)
-                .CombinedHash;
-        }
+            => HashCode.Combine(Value, Arguments);
 
         /// <inheritdoc />
         public override bool Equals(object obj)
