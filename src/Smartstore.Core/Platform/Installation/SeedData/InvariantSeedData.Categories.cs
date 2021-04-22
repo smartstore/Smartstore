@@ -11,7 +11,6 @@ namespace Smartstore.Core.Installation
     {
         public IList<Category> CategoriesFirstLevel()
         {
-            var imagesPath = _sampleImagesPath;
             var gridOrLinesTemplate = CategoryTemplates().Where(pt => pt.ViewPath == "CategoryTemplate.ProductsInGridOrLines").FirstOrDefault();
 
             var categoryFurniture = new Category
@@ -177,7 +176,6 @@ namespace Smartstore.Core.Installation
 
         public IList<Category> CategoriesSecondLevel()
         {
-            var imagesPath = _sampleImagesPath;
             var gridOrLinesTemplate = CategoryTemplates().Where(pt => pt.ViewPath == "CategoryTemplate.ProductsInGridOrLines").FirstOrDefault();
             var categories = (_db.Categories.ToList()).ToDictionarySafe(x => x.Alias, x => x);
             var discounts = _db.Discounts.Where(x => x.DiscountTypeId == (int)DiscountType.AssignedToCategories).ToList();

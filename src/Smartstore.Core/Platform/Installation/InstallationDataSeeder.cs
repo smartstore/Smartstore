@@ -106,7 +106,7 @@ namespace Smartstore.Core.Installation
             Guard.NotNull(context, nameof(context));
 
             _db = context;
-            _data.Initialize(_db, _config.Language);
+            _data.Initialize(_db, _config.Language, EngineContext.Current.Application);
             _cancelToken = cancelToken;
 
             _db.ChangeTracker.AutoDetectChangesEnabled = false;
@@ -510,7 +510,7 @@ namespace Smartstore.Core.Installation
             {
                 _cancelToken.ThrowIfCancellationRequested();
                 _logger.Debug("Populate: {0}", stage);
-                entities = entities.Where(x => x != null);
+                //entities = entities.Where(x => x != null);
                 await SaveRange(entities);
             }
             catch (Exception ex)

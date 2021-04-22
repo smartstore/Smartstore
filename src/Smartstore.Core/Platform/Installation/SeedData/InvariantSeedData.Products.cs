@@ -3807,7 +3807,7 @@ namespace Smartstore.Core.Installation
             {
                 if (product.Sku.EqualsNoCase("P-1017"))
                 {
-                    var buffer = File.ReadAllBytes(_sampleImagesPath.EnsureEndsWith("/") + "download/beethoven-fur-elise.mp3");
+                    var buffer = _sampleImagesRoot.ReadAllBytes("download/beethoven-fur-elise.mp3");
                     product.SampleDownload = new Download
                     {
                         EntityId = product.Id,
@@ -3829,7 +3829,7 @@ namespace Smartstore.Core.Installation
                 }
                 else if (product.Sku.EqualsNoCase("P-1016"))
                 {
-                    var buffer = File.ReadAllBytes(_sampleImagesPath.EnsureEndsWith("/") + "download/vivaldi-four-seasons-spring.mp3");
+                    var buffer = _sampleImagesRoot.ReadAllBytes("download/vivaldi-four-seasons-spring.mp3");
                     product.SampleDownload = new Download
                     {
                         EntityId = product.Id,
@@ -3851,7 +3851,7 @@ namespace Smartstore.Core.Installation
                 }
                 else if (product.Sku.EqualsNoCase("P-6001"))
                 {
-                    var buffer = File.ReadAllBytes(_sampleImagesPath.EnsureEndsWith("/") + "download/Stone_of_the_wise_preview.pdf");
+                    var buffer = _sampleImagesRoot.ReadAllBytes("download/Stone_of_the_wise_preview.pdf");
                     product.SampleDownload = new Download
                     {
                         EntityId = product.Id,

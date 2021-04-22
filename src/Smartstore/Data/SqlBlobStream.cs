@@ -52,7 +52,7 @@ namespace Smartstore.Data
 
             command.Connection = _connection;
             command.CommandType = CommandType.Text;
-            command.CommandText = $"SELECT [{BlobColumnName}] FROM [{TableName}] WHERE [{PrimaryKey.ParameterName[1..]}] = {PrimaryKey.Value}";
+            command.CommandText = $"SELECT {BlobColumnName} FROM {TableName} WHERE {PrimaryKey.ParameterName[1..]} = {PrimaryKey.Value}";
             command.Parameters.Add(PrimaryKey);
 
             _reader = command.ExecuteReader(CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection);

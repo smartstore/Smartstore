@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
 
-namespace Smartstore.Utilities
+namespace Smartstore.IO
 {
     public static class PathHelper
     {
-        internal static readonly char[] PathSeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        public static readonly char[] PathSeparators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        public const string CurrentDirectoryToken = ".";
+        public const string ParentDirectoryToken = "..";
 
         private static readonly char[] _invalidPathChars;
         private static readonly char[] _invalidFileNameChars;
@@ -147,7 +149,7 @@ namespace Smartstore.Utilities
         {
             if (!string.IsNullOrEmpty(path) && path[path.Length - 1] != Path.DirectorySeparatorChar)
             {
-                return path + Path.DirectorySeparatorChar;
+                return path.TrimEnd(' ', Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
             }
 
             return path;
@@ -160,11 +162,11 @@ namespace Smartstore.Utilities
 
             foreach (StringSegment segment in tokenizer)
             {
-                if (segment.Equals(".") || segment.Equals(string.Empty))
+                if (segment.Equals(CurrentDirectoryToken) || segment.Equals(string.Empty))
                 {
                     continue;
                 }
-                else if (segment.Equals(".."))
+                else if (segment.Equals(ParentDirectoryToken))
                 {
                     depth--;
 
@@ -189,12 +191,12 @@ namespace Smartstore.Utilities
         /// <returns><c>true</c> if path is fully qualified</returns>
         public static bool IsAbsolutePhysicalPath(string path)
         {
-            if ((path == null) || (path.Length < 3))
+            if (path == null)
             {
                 return false;
             }
 
-            return (((path[1] == ':') && IsDirectorySeparatorChar(path[2])) || IsUncSharePath(path));
+            return Path.IsPathFullyQualified(path);
         }
 
         internal static bool IsUncSharePath(string path) =>
@@ -202,13 +204,6 @@ namespace Smartstore.Utilities
 
 
         private static bool IsDirectorySeparatorChar(char ch)
-        {
-            if (ch != '\\')
-            {
-                return (ch == '/');
-            }
-
-            return true;
-        }
+            => ch == Path.DirectorySeparatorChar || ch == Path.AltDirectorySeparatorChar;
     }
 }

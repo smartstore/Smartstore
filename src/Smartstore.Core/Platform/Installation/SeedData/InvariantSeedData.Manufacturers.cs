@@ -9,7 +9,6 @@ namespace Smartstore.Core.Installation
     {
         public IList<Manufacturer> Manufacturers()
         {
-            var imagesPath = _sampleImagesPath;
             var gridOrLinesTemplate = ManufacturerTemplates().Where(x => x.ViewPath == "ManufacturerTemplate.ProductsInGridOrLines").FirstOrDefault();
             var discounts = _db.Discounts
                 .Where(x => x.DiscountTypeId == (int)DiscountType.AssignedToManufacturers)
@@ -60,7 +59,7 @@ namespace Smartstore.Core.Installation
             {
                 Name = "Tissot",
                 ManufacturerTemplateId = gridOrLinesTemplate.Id,
-                MediaFile = CreatePicture("brand/Tissot.png"),
+                MediaFile = CreatePicture("brand/tissot.png"),
                 Published = true,
                 DisplayOrder = 1
             };

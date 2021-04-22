@@ -290,7 +290,7 @@ namespace Smartstore.Core.Installation
                     try
                     {
                         Logger.Debug("Deleting database");
-                        await dbContext.Database.EnsureDeletedAsync();
+                        await dbContext.Database.EnsureDeletedAsync(cancelToken);
                     }
                     catch { }
                 }

@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Data;
 using Smartstore.Engine;
+using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media
@@ -22,8 +23,8 @@ namespace Smartstore.Core.Content.Media
             StoragePath = GetStoragePath(appContext, out var pathIsAbsolute);
             StoragePathIsAbsolute = pathIsAbsolute;
             RootPath = pathIsAbsolute 
-                ? StoragePath.Replace('/', '\\')
-                : Path.Combine(appContext.ContentRoot.Root, StoragePath.Replace('/', '\\'));
+                ? Path.GetFullPath(StoragePath)
+                : Path.GetFullPath(Path.Combine(appContext.ContentRoot.Root, StoragePath));
         }
 
         public string PublicPath { get; }
@@ -46,10 +47,10 @@ namespace Smartstore.Core.Content.Media
 
         private static string GetStoragePath(IApplicationContext appContext, out bool pathIsAbsolute)
         {
-            var path = appContext.AppConfiguration.MediaStoragePath?.Trim().NullEmpty();
+            var path = appContext.AppConfiguration.MediaStoragePath?.Trim()?.NullEmpty();
             if (path == null)
             {
-                path = "App_Data/Tenants/" + DataSettings.Instance.TenantName + "/Media";
+                path = "App_Data/Tenants/" + DataSettings.Instance.TenantName + "/Media/";
             }
 
             pathIsAbsolute = PathHelper.IsAbsolutePhysicalPath(path);

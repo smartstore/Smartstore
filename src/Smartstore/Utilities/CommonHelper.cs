@@ -71,7 +71,10 @@ namespace Smartstore.Utilities
                 // TODO: (core) Test thoroughly!
                 // Not hosted. For example, running in unit tests or EF tooling
                 string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                path = path.TrimStart('~').TrimStart('/', '\\').Replace('/', '\\');
+                path = path
+                    .TrimStart('~')
+                    .TrimStart(PathHelper.PathSeparators)
+                    .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
                 var testPath = Path.Combine(baseDirectory, path);
 
@@ -84,12 +87,12 @@ namespace Smartstore.Utilities
                     // concat the web root
                     if (dir != null)
                     {
-                        baseDirectory = Path.Combine(dir.FullName, "src\\Smartstore.Web");
+                        baseDirectory = Path.Combine(dir.FullName, "src", "Smartstore.Web");
                         testPath = Path.Combine(baseDirectory, path);
                     }
                 }
 
-                return testPath;
+                return Path.GetFullPath(testPath);
             }
         }
 

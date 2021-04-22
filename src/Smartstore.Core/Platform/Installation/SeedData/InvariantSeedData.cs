@@ -38,10 +38,10 @@ using Smartstore.Domain;
 using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Scheduling;
-using Smartstore.Utilities;
 using Smartstore.Imaging;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using System.Diagnostics;
 
 namespace Smartstore.Core.Installation
 {
@@ -49,17 +49,19 @@ namespace Smartstore.Core.Installation
     {
         private SmartDbContext _db;
         private Language _language;
-        private string _sampleImagesPath;
+        private IApplicationContext _appContext;
+        private IFileSystem _sampleImagesRoot;
 
         protected InvariantSeedData()
         {
         }
 
-        public void Initialize(SmartDbContext db, Language primaryLanguage)
+        public void Initialize(SmartDbContext db, Language primaryLanguage, IApplicationContext appContext)
         {
             _db = db;
             _language = primaryLanguage;
-            _sampleImagesPath = CommonHelper.MapPath("~/App_Data/Samples/");
+            _appContext = appContext;
+            _sampleImagesRoot = new LocalFileSystem(appContext.AppDataRoot.MapPath("Samples/"));
         }
 
         #region Mandatory data creators
@@ -1477,7 +1479,7 @@ namespace Smartstore.Core.Installation
 
         protected SmartDbContext DbContext => _db;
 
-        protected string SampleImagesPath => _sampleImagesPath;
+        protected IFileSystem SampleImagesRoot => _sampleImagesRoot;
 
         public virtual UrlRecord CreateUrlRecordFor<T>(T entity) where T : BaseEntity, ISlugSupported, new()
         {
@@ -1512,20 +1514,27 @@ namespace Smartstore.Core.Installation
 
         protected MediaFile CreatePicture(string fileName, string seoFilename = null)
         {
+            var file = _sampleImagesRoot.GetFile(fileName);
+
+            if (!file.Exists)
+            {
+                throw new FileNotFoundException($"Sample image file '{fileName}' does not exist.");
+            }
+
             try
             {
-                var ext = Path.GetExtension(fileName);
-                var path = Path.Combine(_sampleImagesPath, fileName).Replace('/', '\\');
+                var ext = file.Extension;
+                var path = file.PhysicalPath;
                 var mimeType = MimeTypes.MapNameToMimeType(ext);
-                var buffer = File.ReadAllBytes(path);
+                var buffer = file.ReadAllBytes();
                 var pixelSize = ImageHeader.GetPixelSize(buffer, mimeType);
                 var now = DateTime.UtcNow;
 
                 var name = seoFilename.HasValue()
                     ? seoFilename.Truncate(100) + ext
-                    : Path.GetFileName(fileName).ToLower().Replace('_', '-');
+                    : file.Name.ToLower().Replace('_', '-');
 
-                var file = new MediaFile
+                var mediaFile = new MediaFile
                 {
                     Name = name,
                     MediaType = "image",
@@ -1540,17 +1549,16 @@ namespace Smartstore.Core.Installation
 
                 if (!pixelSize.IsEmpty)
                 {
-                    file.Width = pixelSize.Width;
-                    file.Height = pixelSize.Height;
+                    mediaFile.Width = pixelSize.Width;
+                    mediaFile.Height = pixelSize.Height;
                 }
 
-                return file;
+                return mediaFile;
             }
             catch (Exception ex)
             {
-                //throw ex;
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                return null;
+                Debug.WriteLine(ex.Message);
+                throw;
             }
         }
 
@@ -1570,7 +1578,7 @@ namespace Smartstore.Core.Installation
             {
                 product.ProductPictures.Add(new ProductMediaFile
                 {
-                    MediaFile = CreatePicture(imageName, seName),
+                    MediaFile = picture,
                     DisplayOrder = displayOrder
                 });
             }

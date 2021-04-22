@@ -15,10 +15,6 @@ namespace Smartstore.IO
     /// </summary>
     public abstract class FileSystemBase : Disposable, IFileSystem
     {
-        public static readonly char[] PathSeparators = new[] { '/', '\\' };
-        private const string CurrentDirectoryToken = ".";
-        private const string ParentDirectoryToken = "..";
-
         public abstract IDirectoryContents GetDirectoryContents(string subpath);
         public abstract IFileInfo GetFileInfo(string subpath);
         public abstract IChangeToken Watch(string filter);
@@ -63,7 +59,7 @@ namespace Smartstore.IO
 
             string result;
 
-            var index = path.LastIndexOfAny(PathSeparators);
+            var index = path.LastIndexOfAny(PathHelper.PathSeparators);
 
             if (index != path.Length - 1)
             {
