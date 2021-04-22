@@ -32,8 +32,6 @@ namespace Smartstore.Web.Components
                 var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId.Value);
                 model = new ShoppingCartModel();
 
-                // TODO: (ms) (core) isEditable & prepareEstimateShippingIfEnabled must be parameters.
-                // Note: I dont think so, the only parameter used in classic was prepareAndDisplayOrderReviewData, the others were just simply set like here.
                 await cart.AsEnumerable().MapAsync(model,
                     isEditable: false,
                     prepareEstimateShippingIfEnabled: false,
