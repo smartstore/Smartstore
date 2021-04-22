@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Core.Catalog.Attributes;
@@ -21,7 +22,8 @@ namespace Smartstore.Core.Checkout.Attributes
         {
         }
 
-        public CheckoutAttribute(ILazyLoader lazyLoader)
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
+        private CheckoutAttribute(ILazyLoader lazyLoader)
             : base(lazyLoader)
         {
         }
