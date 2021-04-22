@@ -292,11 +292,9 @@ namespace Smartstore.Web.Models.ShoppingCart
                     case AttributeControlType.MultilineTextbox:
                         if (selectedCheckoutAttributes.AttributesMap.Any())
                         {
-                            var enteredText = selectedCheckoutAttributes.AttributesMap
-                                .Where(x => x.Key == attribute.Id)
-                                .SelectMany(x => x.Value)
-                                .FirstOrDefault()
-                                .ToString();
+                            var enteredText = selectedCheckoutAttributes.GetAttributeValues(attribute.Id)?
+                                .Select(x => x.ToString())
+                                .FirstOrDefault();
 
                             if (enteredText.HasValue())
                             {

@@ -20,17 +20,6 @@ namespace Smartstore.Web.Models.ShoppingCart
     public abstract class CartItemMapperBase<TModel> : Mapper<OrganizedShoppingCartItem, TModel>
        where TModel : CartEntityModelBase
     {
-        // TODO: (ms) (core) Apply property injection to mapper base classes
-
-        private readonly SmartDbContext _db;
-        private readonly ITaxService _taxService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IProductAttributeFormatter _productAttributeFormatter;
-        private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly MediaSettings _mediaSettings;
-        private readonly ProductUrlHelper _productUrlHelper;
-        private readonly Localizer T;
-
         protected readonly ICommonServices _services;
         protected readonly IPriceCalculationService _priceCalculationService;
         protected readonly IProductAttributeMaterializer _productAttributeMaterializer;
@@ -38,42 +27,33 @@ namespace Smartstore.Web.Models.ShoppingCart
         protected readonly CatalogSettings _catalogSettings;
 
         protected CartItemMapperBase(
-            SmartDbContext db,
             ICommonServices services,
-            ITaxService taxService,
-            ICurrencyService currencyService,
             IPriceCalculationService priceCalculationService,
-            IProductAttributeFormatter productAttributeFormatter,
             IProductAttributeMaterializer productAttributeMaterializer,
-            IShoppingCartValidator shoppingCartValidator,
             ShoppingCartSettings shoppingCartSettings,
-            CatalogSettings catalogSettings,
-            MediaSettings mediaSettings,
-            ProductUrlHelper productUrlHelper,
-            Localizer t)
+            CatalogSettings catalogSettings)
         {
-            _db = db;
-            _services = services;
-            _taxService = taxService;
-            _currencyService = currencyService;
-            _priceCalculationService = priceCalculationService;
-            _productAttributeFormatter = productAttributeFormatter;
-            _productAttributeMaterializer = productAttributeMaterializer;
-            _shoppingCartValidator = shoppingCartValidator;
+            _services = services;         
+            _priceCalculationService = priceCalculationService;            
+            _productAttributeMaterializer = productAttributeMaterializer;            
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
-            _mediaSettings = mediaSettings;
-            _productUrlHelper = productUrlHelper;
-            T = t;
         }
+
+        public SmartDbContext Db { get; set; }
+        public ITaxService TaxService { get; set; }
+        public ICurrencyService CurrencyService { get; set; }
+        public IShoppingCartService ShoppingCartService { get; set; }
+        public IProductAttributeFormatter ProductAttributeFormatter { get; set; }
+        public IShoppingCartValidator ShoppingCartValidator { get; set; }
+        public MediaSettings MediaSettings { get; set; }
+        public ProductUrlHelper ProductUrlHelper { get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public override async Task MapAsync(OrganizedShoppingCartItem from, TModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
-
-            // TODO: (ms) (core) Be certain that product is null if it is removed from cart.
-            if (from.Item.Product == null)
-                return;
+            Guard.NotNull(to, nameof(to));
 
             var item = from.Item;
             var product = from.Item.Product;
@@ -91,7 +71,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             to.ProductId = product.Id;
             to.ProductName = product.GetLocalized(x => x.Name);
             to.ProductSeName = productSeName;
-            to.ProductUrl = await _productUrlHelper.GetProductUrlAsync(productSeName, from);
+            to.ProductUrl = await ProductUrlHelper.GetProductUrlAsync(productSeName, from);
             to.EnteredQuantity = item.Quantity;
             to.MinOrderAmount = product.OrderMinimumQuantity;
             to.MaxOrderAmount = product.OrderMaximumQuantity;
@@ -108,7 +88,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 to.BundleItem.HideThumbnail = item.BundleItem.HideThumbnail;
                 to.BundlePerItemPricing = item.BundleItem.BundleProduct.BundlePerItemPricing;
                 to.BundlePerItemShoppingCart = item.BundleItem.BundleProduct.BundlePerItemShoppingCart;
-                to.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
+                to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(
                     item.AttributeSelection,
                     product,
                     customer,
@@ -130,14 +110,14 @@ namespace Smartstore.Web.Models.ShoppingCart
 
                 if (to.BundlePerItemPricing && to.BundlePerItemShoppingCart)
                 {
-                    var bundleItemSubTotalWithDiscountBase = await _taxService.GetProductPriceAsync(product, await _priceCalculationService.GetSubTotalAsync(from, true));
-                    var bundleItemSubTotalWithDiscount = _currencyService.ConvertFromPrimaryCurrency(bundleItemSubTotalWithDiscountBase.Price.Amount, currency);
+                    var bundleItemSubTotalWithDiscountBase = await TaxService.GetProductPriceAsync(product, await _priceCalculationService.GetSubTotalAsync(from, true));
+                    var bundleItemSubTotalWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(bundleItemSubTotalWithDiscountBase.Price.Amount, currency);
                     to.BundleItem.PriceWithDiscount = bundleItemSubTotalWithDiscount.ToString();
                 }
             }
             else
             {
-                to.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(item.AttributeSelection, product, customer);
+                to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(item.AttributeSelection, product, customer);
             }
 
             var allowedQuantities = product.ParseAllowedQuantities();
@@ -151,7 +131,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 });
             }
 
-            var quantityUnit = await _db.QuantityUnits.GetQuantityUnitByIdAsync(product.QuantityUnitId ?? 0, _catalogSettings.ShowDefaultQuantityUnit);
+            var quantityUnit = await Db.QuantityUnits.GetQuantityUnitByIdAsync(product.QuantityUnitId ?? 0, _catalogSettings.ShowDefaultQuantityUnit);
             if (quantityUnit != null)
             {
                 to.QuantityUnitName = quantityUnit.GetLocalized(x => x.Name);
@@ -168,8 +148,8 @@ namespace Smartstore.Web.Models.ShoppingCart
             }
             else
             {
-                var unitPriceWithDiscountBase = await _taxService.GetProductPriceAsync(product, await _priceCalculationService.GetUnitPriceAsync(from, true));
-                var unitPriceWithDiscount = _currencyService.ConvertFromPrimaryCurrency(unitPriceWithDiscountBase.Price.Amount, currency);
+                var unitPriceWithDiscountBase = await TaxService.GetProductPriceAsync(product, await _priceCalculationService.GetUnitPriceAsync(from, true));
+                var unitPriceWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(unitPriceWithDiscountBase.Price.Amount, currency);
                 to.UnitPrice = unitPriceWithDiscount.ToString();
             }
 
@@ -181,19 +161,19 @@ namespace Smartstore.Web.Models.ShoppingCart
             else
             {
                 var cartItemSubTotalWithDiscount = await _priceCalculationService.GetSubTotalAsync(from, true);
-                var cartItemSubTotalWithDiscountBase = await _taxService.GetProductPriceAsync(product, cartItemSubTotalWithDiscount);
-                cartItemSubTotalWithDiscount = _currencyService.ConvertFromPrimaryCurrency(cartItemSubTotalWithDiscountBase.Price.Amount, currency);
+                var cartItemSubTotalWithDiscountBase = await TaxService.GetProductPriceAsync(product, cartItemSubTotalWithDiscount);
+                cartItemSubTotalWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(cartItemSubTotalWithDiscountBase.Price.Amount, currency);
 
                 to.SubTotal = cartItemSubTotalWithDiscount.ToString();
 
                 // Display an applied discount amount.
                 var cartItemSubTotalWithoutDiscount = await _priceCalculationService.GetSubTotalAsync(from, false);
-                var cartItemSubTotalWithoutDiscountBase = await _taxService.GetProductPriceAsync(product, cartItemSubTotalWithoutDiscount);
+                var cartItemSubTotalWithoutDiscountBase = await TaxService.GetProductPriceAsync(product, cartItemSubTotalWithoutDiscount);
                 var cartItemSubTotalDiscountBase = cartItemSubTotalWithoutDiscountBase.Price - cartItemSubTotalWithDiscountBase.Price;
 
                 if (cartItemSubTotalDiscountBase > decimal.Zero)
                 {
-                    var itemDiscount = _currencyService.ConvertFromPrimaryCurrency(cartItemSubTotalDiscountBase.Amount, currency);
+                    var itemDiscount = CurrencyService.ConvertFromPrimaryCurrency(cartItemSubTotalDiscountBase.Amount, currency);
                     to.Discount = itemDiscount.ToString();
                 }
             }
@@ -202,22 +182,31 @@ namespace Smartstore.Web.Models.ShoppingCart
             {
                 if (_shoppingCartSettings.ShowProductBundleImagesOnShoppingCart)
                 {
-                    await from.MapAsync(to.Image, _mediaSettings.CartThumbBundleItemPictureSize, to.ProductName);
+                    await from.MapAsync(to.Image, MediaSettings.CartThumbBundleItemPictureSize, to.ProductName);
                 }
             }
             else
             {
                 if (_shoppingCartSettings.ShowProductImagesOnShoppingCart)
                 {
-                    await from.MapAsync(to.Image, _mediaSettings.CartThumbPictureSize, to.ProductName);                    
+                    await from.MapAsync(to.Image, MediaSettings.CartThumbPictureSize, to.ProductName);                    
                 }
             }
 
             var itemWarnings = new List<string>();
-            var isItemValid = await _shoppingCartValidator.ValidateCartItemsAsync(new[] { from }, itemWarnings);
-            if (!isItemValid)
+            var isValid = await ShoppingCartValidator.ValidateCartItemsAsync(new[] { from }, itemWarnings);
+            if (!isValid)
             {
-                itemWarnings.Each(x => to.Warnings.Add(x));
+                to.Warnings.AddRange(itemWarnings);
+            }
+
+            var cart = await ShoppingCartService.GetCartItemsAsync(customer, shoppingCartType, _services.StoreContext.CurrentStore.Id);
+
+            var attrWarnings = new List<string>();
+            isValid = await ShoppingCartValidator.ValidateProductAttributesAsync(item, cart, attrWarnings);
+            if (!isValid)
+            {
+                to.Warnings.AddRange(attrWarnings);
             }
         }
     }

@@ -50,9 +50,12 @@ namespace Smartstore.Web.Models.ShoppingCart
         public override async Task MapAsync(IEnumerable<OrganizedShoppingCartItem> from, WishlistModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
+            Guard.NotNull(to, nameof(to));
 
             if (!from.Any())
+            {
                 return;
+            }
 
             await base.MapAsync(from, to, null);
 
@@ -64,6 +67,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             to.CustomerGuid = customer.CustomerGuid;
             to.CustomerFullname = customer.GetFullName();
             to.ShowItemsFromWishlistToCartButton = _shoppingCartSettings.ShowItemsFromWishlistToCartButton;
+
             // Cart warnings
             var warnings = new List<string>();
             var cartIsValid = await _shoppingCartValidator.ValidateCartItemsAsync(from, warnings);

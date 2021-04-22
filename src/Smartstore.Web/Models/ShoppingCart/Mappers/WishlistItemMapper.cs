@@ -3,13 +3,7 @@ using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common.Services;
-using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
-using Smartstore.Core.Localization;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,21 +21,12 @@ namespace Smartstore.Web.Models.ShoppingCart
     public class WishlistItemModelMapper : CartItemMapperBase<WishlistModel.WishlistItemModel>
     {
         public WishlistItemModelMapper(
-            SmartDbContext db,
             ICommonServices services,
-            ITaxService taxService,
-            ICurrencyService currencyService,
             IPriceCalculationService priceCalculationService,
-            IProductAttributeFormatter productAttributeFormatter,
             IProductAttributeMaterializer productAttributeMaterializer,
-            IShoppingCartValidator shoppingCartValidator,
             ShoppingCartSettings shoppingCartSettings,
-            CatalogSettings catalogSettings,
-            MediaSettings mediaSettings,
-            ProductUrlHelper productUrlHelper,
-            Localizer t)
-            : base(db, services, taxService, currencyService, priceCalculationService, productAttributeFormatter, productAttributeMaterializer, 
-                  shoppingCartValidator, shoppingCartSettings, catalogSettings, mediaSettings, productUrlHelper, t)
+            CatalogSettings catalogSettings)
+            : base(services, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
         {
         }
 

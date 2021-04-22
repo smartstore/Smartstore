@@ -5,11 +5,8 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using System;
 using System.Linq;
@@ -30,22 +27,13 @@ namespace Smartstore.Web.Models.ShoppingCart
         private readonly IDeliveryTimeService _deliveryTimeService;
 
         public ShoppingCartItemMapper(
-            SmartDbContext db,
             ICommonServices services,
-            ITaxService taxService,
-            ICurrencyService currencyService,
-            IPriceCalculationService priceCalculationService,
             IDeliveryTimeService deliveryTimeService,
-            IProductAttributeFormatter productAttributeFormatter,
+            IPriceCalculationService priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
-            IShoppingCartValidator shoppingCartValidator,
             ShoppingCartSettings shoppingCartSettings,
-            CatalogSettings catalogSettings,
-            MediaSettings mediaSettings,
-            ProductUrlHelper productUrlHelper,
-            Localizer t)
-            : base(db, services, taxService, currencyService, priceCalculationService, productAttributeFormatter, productAttributeMaterializer,
-                  shoppingCartValidator, shoppingCartSettings, catalogSettings, mediaSettings, productUrlHelper, t)
+            CatalogSettings catalogSettings)
+            : base(services, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
         {
             _deliveryTimeService = deliveryTimeService;
         }
