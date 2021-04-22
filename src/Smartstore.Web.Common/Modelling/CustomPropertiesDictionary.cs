@@ -25,13 +25,12 @@ namespace Smartstore.Web.Modelling
             _modelBinderFactory = modelBinderFactory;
         }
 
-        public Task BindModelAsync(ModelBindingContext bindingContext)
+        public async Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            bindingContext.Result = ModelBindingResult.Success(BindCore(bindingContext));
-            return Task.CompletedTask;
+            bindingContext.Result = ModelBindingResult.Success(await BindCore(bindingContext));
         }
 
-        private CustomPropertiesDictionary BindCore(ModelBindingContext bindingContext)
+        private async Task<CustomPropertiesDictionary> BindCore(ModelBindingContext bindingContext)
         {
             var model = bindingContext.Model as CustomPropertiesDictionary ?? new CustomPropertiesDictionary();
 
@@ -46,9 +45,6 @@ namespace Smartstore.Web.Modelling
                 var keyName = GetKeyName(key);
                 if (keyName == null || model.ContainsKey(keyName))
                     continue;
-
-                //var modelMetadata = bindingContext.ModelMetadata.get(type);
-                //var valueBinder = this.Binders.DefaultBinder;
 
                 var subPropertyName = GetSubPropertyName(key);
                 if (subPropertyName.EqualsNoCase("__Type__"))
@@ -66,8 +62,11 @@ namespace Smartstore.Web.Modelling
 
                     var factoryContext = new ModelBinderFactoryContext { Metadata = metadata };
                     var valueBinder = _modelBinderFactory.CreateBinder(factoryContext);
-
-                    //
+                    await valueBinder.BindModelAsync(simpleBindingContext);
+                    if (simpleBindingContext.Result.IsModelSet)
+                    {
+                        model[keyName] = simpleBindingContext.Result.Model;
+                    }
                 }
                 else
                 {
