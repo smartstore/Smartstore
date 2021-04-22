@@ -111,7 +111,7 @@ namespace Smartstore.Web.Controllers
             // 'Continue shopping' URL.
             if (!customer.IsSystemAccount)
             {
-                customer.GenericAttributes.LastContinueShoppingPage = Services.WebHelper.GetCurrentPageUrl(false);
+                customer.GenericAttributes.LastContinueShoppingPage = HttpContext.Request.RawUrl();
             }
 
             var model = await _helper.PrepareCategoryModelAsync(category);
@@ -253,7 +253,7 @@ namespace Smartstore.Web.Controllers
             // 'Continue shopping' URL.
             if (!customer.IsSystemAccount)
             {
-                customer.GenericAttributes.LastContinueShoppingPage = Services.WebHelper.GetCurrentPageUrl(false);
+                customer.GenericAttributes.LastContinueShoppingPage = HttpContext.Request.RawUrl();
             }
 
             var model = await _helper.PrepareBrandModelAsync(manufacturer);

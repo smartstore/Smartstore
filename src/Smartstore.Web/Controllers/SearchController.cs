@@ -110,7 +110,7 @@ namespace Smartstore.Web.Controllers
                 return View(model);
             }
 
-            Services.WorkContext.CurrentCustomer.GenericAttributes.LastContinueShoppingPage = Services.WebHelper.GetCurrentPageUrl(false);
+            Services.WorkContext.CurrentCustomer.GenericAttributes.LastContinueShoppingPage = HttpContext.Request.RawUrl();
 
             try
             {
