@@ -189,12 +189,10 @@ namespace Smartstore.Web.Controllers
                     return RedirectToAction("UserAgreement", "Customer", new { id });
                 }
 
-                // TODO: (mh) (core) Why did you close the stream? Because now the result cannot be executed, it needs an open stream and will close it after done executing.
-                // Did you observe a mem leak?
-                // RE: If the stream isn't closed it throws on await _db.SaveChangesAsync(); two lines later
+                // TODO: (core) If the stream isn't closed it throws on await _db.SaveChangesAsync(); two lines later
                 // with: "There is already an open DataReader associated with this Connection which must be closed first"
                 // the stream is valid even if it's closed here. File will be downloaded correctly. Tested...
-                //stream.Close();
+                stream.Close();
 
                 orderItem.DownloadCount++;
                 await _db.SaveChangesAsync();

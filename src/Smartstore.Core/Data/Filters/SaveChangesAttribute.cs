@@ -29,6 +29,7 @@ namespace Smartstore.Core.Data
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            // TODO: (core) Make option to suppress SaveChanges for a single action
             var actionExecuted = await next();
 
             if (actionExecuted.Exception == null)
