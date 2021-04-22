@@ -14,7 +14,7 @@ namespace Smartstore
     /// <summary>
     /// Shopping cart extension methods
     /// </summary>
-    public static class ShoppingCartExtensions
+    public static class ShoppingCartItemExtensions
     {
         /// <summary>
         /// Finds and returns first matching product from shopping cart.
@@ -208,15 +208,15 @@ namespace Smartstore
         /// <param name="cartType"><see cref="ShoppingCartType"/> to filter by.</param>
         /// <param name="storeId">Store identifier to filter by.</param>
         /// <returns><see cref="List{T}"/> of <see cref="ShoppingCartItem"/>.</returns>
-        public static List<ShoppingCartItem> GetFilteredItems(this ICollection<ShoppingCartItem> cart, ShoppingCartType cartType, int storeId = 0)
+        public static IList<ShoppingCartItem> FilterByCartType(this ICollection<ShoppingCartItem> cart, ShoppingCartType cartType, int? storeId = null)
         {
             Guard.NotNull(cart, nameof(cart));
 
             var filteredCartItems = cart.Where(x => x.ShoppingCartTypeId == (int)cartType);
 
-            if (storeId > 0)
+            if (storeId != null)
             {
-                filteredCartItems = filteredCartItems.Where(x => x.StoreId == storeId);
+                filteredCartItems = filteredCartItems.Where(x => x.StoreId == storeId.Value);
             }
 
             return filteredCartItems.ToList();

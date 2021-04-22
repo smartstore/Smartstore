@@ -427,18 +427,14 @@ namespace Smartstore.Core.Checkout.Cart
             var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId);
             var result = _requestCache.Get(cacheKey, async () =>
             {
-                if (!_db.IsCollectionLoaded(customer, x => x.ShoppingCartItems))
-                {                    
-                    var query = _db.ShoppingCartItems                    
-                         .Include(x => x.Customer)
-                         .Include(x => x.Product)
-                         .ThenInclude(x => x.ProductVariantAttributes)
-                         .Where(x => x.CustomerId == customer.Id);
-
-                    customer.ShoppingCartItems = await query.ToListAsync();
-                }
+                await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, false, q => 
+                {
+                    return q
+                        .Include(x => x.Product)
+                        .ThenInclude(x => x.ProductVariantAttributes);
+                });
                 
-                var cartItems = customer.ShoppingCartItems.GetFilteredItems(cartType, storeId);                
+                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId);                
 
                 // Prefetch all product variant attributes
                 var allAttributes = new ProductVariantAttributeSelection(string.Empty);
