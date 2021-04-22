@@ -71,9 +71,10 @@ namespace Smartstore.Core.Checkout.GiftCards
                 return false;
             }
 
-            if (storeId != 0 &&
-                giftCard.PurchasedWithOrderItemId.HasValue &&
-                giftCard.PurchasedWithOrderItem?.Order?.StoreId != storeId)
+            if (storeId != 0 
+                && giftCard.PurchasedWithOrderItemId.HasValue 
+                && giftCard.PurchasedWithOrderItem?.Order != null 
+                && giftCard.PurchasedWithOrderItem.Order.StoreId != storeId)
             {
                 return false;
             }

@@ -167,10 +167,9 @@ namespace Smartstore.Core.Checkout.Cart
                     existingAttributesQuery = existingAttributesQuery.Where(x => !x.ShippableProductRequired);
                 }
 
-                var selectedAttributes = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection);
+                var selectedAttributes = (await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(attributeSelection));
                 var notSelectedAttributes = await existingAttributesQuery
-                    .Where(x => x.IsRequired)
-                    .Except(selectedAttributes)
+                    .Where(x => x.IsRequired && !selectedAttributes.Contains(x))
                     .ToListAsync();
 
                 // Check for not selected attributes
@@ -446,7 +445,7 @@ namespace Smartstore.Core.Checkout.Cart
                     warnings.Add(T("ShoppingCart.Bundle.NoAttributes"));
                 }
 
-                return false;
+                return true;
             }
 
             // Get selected product variant attributes and check for product errors
@@ -459,9 +458,6 @@ namespace Smartstore.Core.Checkout.Cart
                     return false;
                 }
             }
-
-            // TODO: (ms) (core) Add existing product attributes checking
-            //cartItem.Product.ProductVariantAttributes
 
             var currentWarnings = new List<string>();
 
@@ -477,7 +473,10 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     if (selectedAttribute.Id == existingAttribute.Id)
                     {
-                        var values = cartItem.AttributeSelection.GetAttributeValues(selectedAttribute.Id).Select(x => x.ToString()).ToList();
+                        var values = cartItem.AttributeSelection.GetAttributeValues(selectedAttribute.Id)
+                            .Select(x => x.ToString())
+                            .ToList();
+
                         found = values.Find(x => x.HasValue()).HasValue();
 
                         if (found)
@@ -486,9 +485,12 @@ namespace Smartstore.Core.Checkout.Cart
                 }
 
                 // If attribute is filtered out by bundle item, it cannot be selected by the customer
-                found = found
-                    || !(cartItem.BundleItem?.FilterAttributes ?? false)
-                    || !cartItem.BundleItem.AttributeFilters.Any(x => x.AttributeId == existingAttribute.ProductAttributeId);
+                if(!found 
+                    && (cartItem.BundleItem?.FilterAttributes ?? false) 
+                    && !cartItem.BundleItem.AttributeFilters.Any(x => x.AttributeId == existingAttribute.ProductAttributeId))
+                {
+                    found = true;
+                }
 
                 if (!found)
                 {
@@ -536,7 +538,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             // Validate each linkedProduct, create shopping cart item from linkedProduct and run validation
             foreach (var linkedProductId in linkedProductIds)
-            {                
+            {
                 var linkedProduct = linkedProducts.FirstOrDefault(x => x.Id == linkedProductId);
                 var linkedAttributeValue = attributeValues.FirstOrDefault(x => x.LinkedProductId == linkedProductId);
 
