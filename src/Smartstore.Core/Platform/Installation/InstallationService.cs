@@ -334,16 +334,7 @@ namespace Smartstore.Core.Installation
 
         private void CheckFileSystemAccessRights(List<string> errors)
         {
-            // TODO: (core) Complete CheckFileSystemAccessRights > dirsToCheck
-            var dirsToCheck = new[] 
-            { 
-                "App_Data",
-                $"App_Data/Tenants/{DataSettings.Instance.TenantName}",
-                $"App_Data/Tenants/{DataSettings.Instance.TenantName}/Media",
-                "Modules" 
-            };
-
-            foreach (var subpath in dirsToCheck)
+            foreach (var subpath in FilePermissionChecker.WrittenDirectories)
             {
                 var entry = _appContext.ContentRoot.GetDirectory(subpath);
                 if (entry.Exists && !_filePermissionChecker.CanAccess(entry, FileEntryRights.Write | FileEntryRights.Modify))
@@ -352,13 +343,7 @@ namespace Smartstore.Core.Installation
                 }
             }
 
-            // TODO: (core) Complete CheckFileSystemAccessRights > dirsToCheck
-            var filesToCheck = new[] { 
-                $"App_Data/Tenants/{DataSettings.Instance.TenantName}/InstalledPlugins.txt",
-                $"App_Data/Tenants/{DataSettings.Instance.TenantName}/Settings.txt",
-            };
-
-            foreach (var subpath in filesToCheck)
+            foreach (var subpath in FilePermissionChecker.WrittenFiles)
             {
                 var entry = _appContext.ContentRoot.GetFile(subpath);
                 if (entry.Exists && !_filePermissionChecker.CanAccess(entry, FileEntryRights.Write | FileEntryRights.Modify | FileEntryRights.Delete))

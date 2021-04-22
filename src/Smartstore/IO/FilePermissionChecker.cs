@@ -6,15 +6,38 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using Smartstore.Data;
 using Smartstore.Engine;
 
 namespace Smartstore.IO
 {
-    public class GenericFilePermissionChecker : IFilePermissionChecker
+    public class FilePermissionChecker : IFilePermissionChecker
     {
+        // TODO: (core) Complete FilePermissionChecker.Written(Directories|Files)
+
+        /// <summary>
+        /// Gets the relative paths of all directories that require write access.
+        /// </summary>
+        public static readonly string[] WrittenDirectories = new[]
+        {
+            "App_Data",
+            $"App_Data/Tenants/{DataSettings.Instance.TenantName}",
+            $"App_Data/Tenants/{DataSettings.Instance.TenantName}/Media",
+            "Modules"
+        };
+
+        /// <summary>
+        /// Gets the relative paths of all files that require write access.
+        /// </summary>
+        public static readonly string[] WrittenFiles = new[]
+        {
+            $"App_Data/Tenants/{DataSettings.Instance.TenantName}/InstalledPlugins.txt",
+            $"App_Data/Tenants/{DataSettings.Instance.TenantName}/Settings.txt",
+        };
+
         private readonly IOSIdentity _osIdentity;
 
-        public GenericFilePermissionChecker(IOSIdentity osIdentity)
+        public FilePermissionChecker(IOSIdentity osIdentity)
         {
             _osIdentity = osIdentity;
         }

@@ -105,7 +105,7 @@ namespace Smartstore.Engine
 
                 services.AddSingleton(x => NullChronometer.Instance);
                 services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
-                services.AddSingleton<IFilePermissionChecker, GenericFilePermissionChecker>();
+                services.AddSingleton<IFilePermissionChecker, FilePermissionChecker>();
                 services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
                 services.AddSingleton<IPdfConverter, NullPdfConverter>();
                 services.AddHttpContextAccessor();
