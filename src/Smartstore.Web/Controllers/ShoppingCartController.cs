@@ -1352,10 +1352,6 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public ActionResult ContinueShopping()
         {
-            // TODO: (ms) (core) This did not work correctly in classic.
-            // Since Url.IsLocalUrl(referrer) (in method RedirectToReferrer(string, string)) consideres absolute urls 
-            // with host part as non-local urls (example: https://localhost:5001/de/fussball/).
-            // Therefore, the fallback ("Homepage" route) is (always) used.
             var returnUrl = Services.WorkContext.CurrentCustomer.GenericAttributes.LastContinueShoppingPage;
             return RedirectToReferrer(returnUrl);
         }
