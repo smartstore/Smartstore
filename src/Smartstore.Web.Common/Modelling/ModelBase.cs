@@ -113,8 +113,4 @@ namespace Smartstore.Web.Modelling
     public sealed class CustomModelPartAttribute : Attribute
     {
     }
-
-    public sealed class CustomPropertiesDictionary : Dictionary<string, object>
-    {
-    }
 }

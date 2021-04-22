@@ -164,7 +164,6 @@ namespace Smartstore.Web
                 .AddMvcOptions(o =>
                 {
                     // TODO: (core) More MVC config?
-
                     if (DataSettings.DatabaseIsInstalled())
                     {
                         // Register custom metadata provider
