@@ -120,7 +120,7 @@ namespace Smartstore.Core.Installation
                 x.Add("Media.Storage.Provider", _config.StoreMediaInDB ? DatabaseMediaStorageProvider.SystemName : FileSystemMediaStorageProvider.SystemName);
             });
 
-            await Populate("PopulatePictures", _data.Pictures());
+            await Populate("PopulatePictures", _data.Pictures().Where(x => x != null));
             await Populate("PopulateCurrencies", PopulateCurrencies);
             await Populate("PopulateStores", PopulateStores);
             await Populate("InstallLanguages", () => PopulateLanguage(_config.Language));
@@ -510,6 +510,7 @@ namespace Smartstore.Core.Installation
             {
                 _cancelToken.ThrowIfCancellationRequested();
                 _logger.Debug("Populate: {0}", stage);
+                entities = entities.Where(x => x != null);
                 await SaveRange(entities);
             }
             catch (Exception ex)

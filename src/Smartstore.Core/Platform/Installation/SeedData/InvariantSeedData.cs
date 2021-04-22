@@ -1565,11 +1565,15 @@ namespace Smartstore.Core.Installation
                 seName = GetSeName(Path.GetFileNameWithoutExtension(imageName));
             }
 
-            product.ProductPictures.Add(new ProductMediaFile
+            var picture = CreatePicture(imageName, seName);
+            if (picture != null)
             {
-                MediaFile = CreatePicture(imageName, seName),
-                DisplayOrder = displayOrder
-            });
+                product.ProductPictures.Add(new ProductMediaFile
+                {
+                    MediaFile = CreatePicture(imageName, seName),
+                    DisplayOrder = displayOrder
+                });
+            }
         }
 
         protected string GetSeName(string name)
