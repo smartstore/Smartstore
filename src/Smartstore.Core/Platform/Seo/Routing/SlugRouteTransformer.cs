@@ -38,6 +38,7 @@ namespace Smartstore.Core.Seo.Routing
         #region Static
 
         public const string SlugRouteKey = "slug";
+        public const string UrlRecordRouteKey = "__UrlRecord";
 
         // Key = Prefix, Value = EntityType
         private static readonly Multimap<string, string> _urlPrefixes = new(StringComparer.OrdinalIgnoreCase);
@@ -220,13 +221,13 @@ namespace Smartstore.Core.Seo.Routing
             }
 
             transformedValues[SlugRouteKey] = slug;
-            httpContext.GetRouteData().DataTokens["UrlRecord"] = urlRecord;
+            transformedValues[UrlRecordRouteKey] = urlRecord;
 
             return transformedValues;
 
             async Task<string> GetSlugCulture()
             {
-                return (_slugCulture ??= (await _db.Languages.FindByIdAsync(urlRecord.LanguageId))?.GetTwoLetterISOLanguageName().EmptyNull()).NullEmpty();
+                return (_slugCulture ??= (await _db.Languages.FindByIdAsync(urlRecord.LanguageId, false))?.GetTwoLetterISOLanguageName().EmptyNull()).NullEmpty();
             }
         }
     }

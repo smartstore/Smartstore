@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Localization.Routing;
+using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore.Core.Localization
 {
@@ -26,8 +27,9 @@ namespace Smartstore.Core.Localization
                 return;
             }
 
+            var routeData = httpContext.GetRouteData();
             var localizedRouteMetadata = policy.Endpoint.Metadata.OfType<LocalizedRouteMetadata>().FirstOrDefault();
-            if (localizedRouteMetadata == null)
+            if (localizedRouteMetadata == null && !routeData.Values.ContainsKey(SlugRouteTransformer.UrlRecordRouteKey))
             {
                 // Handle only localizable routes
                 return;
@@ -59,7 +61,7 @@ namespace Smartstore.Core.Localization
                             : workingLanguage.GetTwoLetterISOLanguageName());
                     }
                 }
-                else // Not a published language
+                else // Published language
                 {
                     // Redirect default language (if desired)
                     if (policy.Culture == policy.DefaultCultureCode && defaultBehavior == DefaultLanguageRedirectBehaviour.StripSeoCode)

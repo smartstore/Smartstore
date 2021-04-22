@@ -31,9 +31,6 @@ namespace Smartstore.Web.Controllers
             _asyncState = asyncState;
         }
 
-        // TODO: (core) Use InstallLogger
-        public ILogger Logger { get; set; } = NullLogger.Instance;
-
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (_appContext.IsInstalled)
