@@ -18,9 +18,8 @@
 
     <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-rewardpoints-body" aria-expanded="@isExpanded">
         <div class="reward-points alert alert-info">
-            @*TODO: (ms) (core) Fix: Checkbox is not selectable.*@
             <div class="form-check">
-                <input type="checkbox" asp-for="UseRewardPoints"/>                
+                <input asp-for="UseRewardPoints" type="checkbox" sm-ignore-label="true" sm-switch="false" class="form-check-input"/>                
                 <label asp-for="UseRewardPoints" class="form-check-label"> 
                     @Html.Raw(T("Checkout.UseRewardPoints", $"<strong>{Model.RewardPointsBalance}</strong>", $"<strong>{Model.RewardPointsAmount}</strong>"))
                 </label>

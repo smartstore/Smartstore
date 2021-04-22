@@ -116,7 +116,7 @@
                     </div>
                     
                     <div class="col cart-summary-pos">
-                        @T("ShoppingCart.Totals.GiftCardInfo", gc.CouponCode)
+                        @Html.Raw(T("ShoppingCart.Totals.GiftCardInfo", gc.CouponCode))
                         <span class="text-muted text-nowrap small">@T("ShoppingCart.Totals.GiftCardInfo.Remaining", gc.Remaining)</span>
                     </div>
                 </div>
