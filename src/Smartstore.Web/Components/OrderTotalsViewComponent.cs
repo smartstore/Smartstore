@@ -188,12 +188,12 @@ namespace Smartstore.Web.Components
             {
                 Total = new(decimal.Zero, currency),
                 ToNearestRounding = new(decimal.Zero, currency),
-                DiscountAmount = new(decimal.Zero, currency),
-                AppliedDiscount = new(),
-                RedeemedRewardPoints = 0,
-                RedeemedRewardPointsAmount = new(decimal.Zero, currency),
+                DiscountAmount = new(15, currency),
+                AppliedDiscount = await _db.Discounts.FindByIdAsync(7, false),
+                RedeemedRewardPoints = 10,
+                RedeemedRewardPointsAmount = new(10, currency),
                 CreditBalance = new(decimal.Zero, currency),
-                AppliedGiftCards = new(),
+                AppliedGiftCards = new() { new() { GiftCard = await _db.GiftCards.FindByIdAsync(7, false), UsableAmount = new(50m, _currencyService.PrimaryCurrency) } },
                 ConvertedAmount = new ShoppingCartTotal.ConvertedAmounts
                 {
                     Total = new(decimal.Zero, currency),
