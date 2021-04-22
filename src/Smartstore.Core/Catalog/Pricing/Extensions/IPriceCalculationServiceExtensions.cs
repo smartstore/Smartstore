@@ -82,12 +82,14 @@ namespace Smartstore.Core.Catalog.Pricing
             Guard.NotNull(priceCalculationService, nameof(priceCalculationService));
 
             options ??= priceCalculationService.CreateDefaultOptions(false);
-            options.DeterminePriceAdjustments = true;
 
-            var pricingContext = new PriceCalculationContext(product, quantity, options);
-            pricingContext.AddSelectedAttributes(selection, product.Id);
+            var context = new PriceCalculationContext(product, quantity, options);
+            context.Options.DeterminePriceAdjustments = true;
+            context.Options.TaxFormat = null;
 
-            var price = await priceCalculationService.CalculatePriceAsync(pricingContext);
+            context.AddSelectedAttributes(selection, product.Id);
+
+            var price = await priceCalculationService.CalculatePriceAsync(context);
             return price.AttributePriceAdjustments.ToDictionarySafe(x => x.AttributeValue.Id);
         }
 

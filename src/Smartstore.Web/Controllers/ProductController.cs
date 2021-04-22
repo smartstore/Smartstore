@@ -314,6 +314,8 @@ namespace Smartstore.Web.Controllers
             string galleryHtml = null;
             string dynamicThumbUrl = null;
             var isAssociated = itemType.EqualsNoCase("associateditem");
+            var currency = Services.WorkContext.WorkingCurrency;
+            var displayPrices = await Services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice);
 
             var product = await _db.Products.FindByIdAsync(productId);
             var batchContext = _productService.CreateProductBatchContext(new[] { product }, includeHidden: false);
@@ -358,7 +360,11 @@ namespace Smartstore.Web.Controllers
                             Product = itemData.Item.Product,
                             BatchContext = batchContext,
                             VariantQuery = query,
-                            ProductBundleItem = itemData
+                            ProductBundleItem = itemData,
+                            Customer = batchContext.Customer,
+                            Store = batchContext.Store,
+                            Currency = currency,
+                            DisplayPrices = displayPrices
                         });
                     }
                 }
@@ -374,8 +380,8 @@ namespace Smartstore.Web.Controllers
                 BundleItemDatas = bundleItemDatas,
                 Customer = batchContext.Customer,
                 Store = batchContext.Store,
-                Currency = Services.WorkContext.WorkingCurrency,
-                DisplayPrices = await Services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice)
+                Currency = currency,
+                DisplayPrices = displayPrices
             };
 
             // Get merged model data.
@@ -482,25 +488,6 @@ namespace Smartstore.Web.Controllers
             {
                 var dataDictAddToCart = new ViewDataDictionary(ViewData) { Model = model };
                 dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
-
-                decimal adjustment = decimal.Zero;
-                decimal taxRate = decimal.Zero;
-
-                // TODO: (mh) (core) Implement when pricing is available.
-                //var finalPriceWithDiscountBase = _taxService.GetProductPrice(product, product.Price, Services.WorkContext.CurrentCustomer, out taxRate);
-
-                //if (!_taxSettings.Value.PricesIncludeTax && Services.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax)
-                //{
-                //    adjustment = (m.ProductPrice.PriceValue - finalPriceWithDiscountBase) / (taxRate / 100 + 1);
-                //}
-                //else if (_taxSettings.Value.PricesIncludeTax && Services.WorkContext.TaxDisplayType == TaxDisplayType.ExcludingTax)
-                //{
-                //    adjustment = (m.ProductPrice.PriceValue - finalPriceWithDiscountBase) * (taxRate / 100 + 1);
-                //}
-                //else
-                //{
-                //    adjustment = m.ProductPrice.PriceValue - finalPriceWithDiscountBase;
-                //}
 
                 partials = new
                 {

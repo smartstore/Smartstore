@@ -1537,8 +1537,6 @@ namespace Smartstore.Web.Controllers
 
             model.ProductPrice.Price = priceWithoutDiscount.FinalPrice;
             model.ProductPrice.PriceWithDiscount = priceWithDiscount.FinalPrice;
-
-            // INFO: original code difference. For base price info, the final price was calculated again. Why? We have already calculated a final price.
             model.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, priceWithDiscount.FinalPrice, currency);
 
             if (model.ProductPrice.OldPrice > 0 || applyDiscountNote)

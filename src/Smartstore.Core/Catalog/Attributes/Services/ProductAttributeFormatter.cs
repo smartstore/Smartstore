@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -73,8 +74,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 // Key: ProductVariantAttributeValue.Id, value: calculated attribute price adjustment.
                 var priceAdjustments = includePrices && _catalogSettings.ShowVariantCombinationPriceAdjustment
                     ? await _priceCalculationService.CalculateAttributePriceAdjustmentsAsync(product, selection, 1, _priceCalculationService.CreateDefaultOptions(false, customer))
-                    : null;
-                CalculatedPriceAdjustment adjustment = null;
+                    : new Dictionary<int, CalculatedPriceAdjustment>();
 
                 foreach (var kvp in selection.AttributesMap)
                 {
@@ -106,7 +106,7 @@ namespace Smartstore.Core.Catalog.Attributes
                                         pvaAttribute = pvaAttribute + " × " + pvaValue.Quantity;
                                     }
 
-                                    if (priceAdjustments?.TryGetValue(pvaValue.Id, out adjustment) ?? false)
+                                    if (priceAdjustments.TryGetValue(pvaValue.Id, out var adjustment))
                                     {
                                         if (adjustment.Price > 0)
                                         {

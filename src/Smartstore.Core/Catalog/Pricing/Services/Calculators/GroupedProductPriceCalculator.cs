@@ -49,15 +49,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             {
                 foreach (var associatedProduct in context.AssociatedProducts)
                 {
-                    // Get the final price of associated product
-                    var childCalculation = await CalculateChildPriceAsync(associatedProduct, context, c => 
-                    { 
-                        c.Quantity = quantity;
-                    });
+                    // Get the final price of associated product.
+                    var childCalculation = await CalculateAssociatedProductPrice(associatedProduct, context, quantity);
 
                     if (lowestPriceCalculation == null || childCalculation.FinalPrice < lowestPriceCalculation.FinalPrice)
                     {
-                        // Set the lowest price calculation
+                        // Set the lowest price calculation.
                         lowestPriceCalculation = childCalculation;
                     }
                 }
@@ -66,15 +63,25 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             }
             else
             {
-                // Get the final price of first associated product
-                lowestPriceCalculation = await CalculateChildPriceAsync(context.AssociatedProducts.First(), context, c => 
-                { 
-                    c.Quantity = quantity;
-                });
+                // Get the final price of first associated product.
+                lowestPriceCalculation = await CalculateAssociatedProductPrice(context.AssociatedProducts.First(), context, quantity);
             }
 
-            // Copy data from child context to this context
+            // Copy data from child context to this context.
             lowestPriceCalculation.CopyTo(context);
+        }
+
+        private async Task<CalculatorContext> CalculateAssociatedProductPrice(Product associatedProduct, CalculatorContext context, int quantity)
+        {
+            var childCalculation = await CalculateChildPriceAsync(associatedProduct, context, c =>
+            {
+                c.Quantity = quantity;
+                c.AssociatedProducts = null;
+                c.BundleItems = null;
+                c.BundleItem = null;
+            });
+
+            return childCalculation;
         }
 
         private async Task EnsureAssociatedProductsAreLoaded(Product product, CalculatorContext context)

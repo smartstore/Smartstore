@@ -62,10 +62,11 @@ namespace Smartstore.Core.Catalog.Pricing
         {
             Guard.NotNull(context, nameof(context));
 
-            // For reasons of practicability, we only copy the data provided by the caller
-            // but no intermediate data determined by the pipeline itself.
             Product = context.Product;
             CartItem = context.CartItem;
+            AssociatedProducts = context.AssociatedProducts;
+            BundleItems = context.BundleItems;
+            BundleItem = context.BundleItem;
             Quantity = context.Quantity;
             Options = context.Options;
             Metadata = context.Metadata;

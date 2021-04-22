@@ -96,7 +96,7 @@ namespace Smartstore.Core.Catalog.Attributes
             return result;
         }
 
-        // TODO: (mg) (core) Check caller's return value handling of MaterializeProductVariantAttributeValuesAsync (now returns IList instead of ICollection).
+        // TODO: (mg) (core) Check DynamicEntityHelper return value handling of MaterializeProductVariantAttributeValuesAsync (now returns IList instead of ICollection).
         public virtual async Task<IList<ProductVariantAttributeValue>> MaterializeProductVariantAttributeValuesAsync(ProductVariantAttributeSelection selection)
         {
             Guard.NotNull(selection, nameof(selection));
@@ -290,7 +290,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             var cacheKey = ATTRIBUTECOMBINATION_BY_IDJSON_KEY.FormatInvariant(productId, selection.AsJson());
 
-            var combinations = await _requestCache.GetAsync(cacheKey, async () =>
+            var combination = await _requestCache.GetAsync(cacheKey, async () =>
             {
                 var combinations = await _db.ProductVariantAttributeCombinations
                     .AsNoTracking()
@@ -309,7 +309,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 return null;
             });
 
-            return null;
+            return combination;
         }
 
         public virtual async Task<ProductVariantAttributeCombination> MergeWithCombinationAsync(Product product, ProductVariantAttributeSelection selection)
