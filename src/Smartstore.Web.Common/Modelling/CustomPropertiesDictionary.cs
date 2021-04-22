@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -50,23 +49,18 @@ namespace Smartstore.Web.Modelling
                 if (subPropertyName.EqualsNoCase("__Type__"))
                     continue;
 
+                ModelMetadata valueMetadata;
+                ModelBindingContext valueBindingContext;
+
                 if (subPropertyName == null)
                 {
-                    var metadata = _modelMetadataProvider.GetMetadataForType(GetValueType(keys, key, bindingContext.ValueProvider));
-                    var simpleBindingContext = DefaultModelBindingContext.CreateBindingContext(
+                    valueMetadata = _modelMetadataProvider.GetMetadataForType(GetValueType(keys, key, bindingContext.ValueProvider));
+                    valueBindingContext = DefaultModelBindingContext.CreateBindingContext(
                         bindingContext.ActionContext,
                         bindingContext.ValueProvider,
-                        metadata,
+                        valueMetadata,
                         bindingInfo: null,
                         modelName: key);
-
-                    var factoryContext = new ModelBinderFactoryContext { Metadata = metadata };
-                    var valueBinder = _modelBinderFactory.CreateBinder(factoryContext);
-                    await valueBinder.BindModelAsync(simpleBindingContext);
-                    if (simpleBindingContext.Result.IsModelSet)
-                    {
-                        model[keyName] = simpleBindingContext.Result.Model;
-                    }
                 }
                 else
                 {
@@ -80,18 +74,30 @@ namespace Smartstore.Web.Modelling
                             typeof(CustomModelPartAttribute).AssemblyQualifiedNameWithoutVersion()));
                     }
 
-                    var metadata = _modelMetadataProvider.GetMetadataForType(valueType);
-                    var complexBindingContext = DefaultModelBindingContext.CreateBindingContext(
+                    valueMetadata = _modelMetadataProvider.GetMetadataForType(valueType);
+                    valueBindingContext = DefaultModelBindingContext.CreateBindingContext(
                         bindingContext.ActionContext, 
                         bindingContext.ValueProvider,
-                        metadata,
+                        valueMetadata,
                         bindingInfo: null,
                         modelName: key.Substring(0, key.Length - subPropertyName.Length - 1));
+                }
 
-                    var factoryContext = new ModelBinderFactoryContext { Metadata = metadata };
+                if (valueBindingContext != null)
+                {
+                    valueBindingContext.PropertyFilter = bindingContext.PropertyFilter;
+
+                    var factoryContext = new ModelBinderFactoryContext { Metadata = valueMetadata };
                     var valueBinder = _modelBinderFactory.CreateBinder(factoryContext);
 
-                    //
+                    if (valueBinder != null)
+                    {
+                        await valueBinder.BindModelAsync(valueBindingContext);
+                        if (valueBindingContext.Result.IsModelSet)
+                        {
+                            model[keyName] = valueBindingContext.Result.Model;
+                        }
+                    }
                 }
             }
 
@@ -144,7 +150,7 @@ namespace Smartstore.Web.Modelling
                 return type;
             }
 
-            return typeof(object);
+            return typeof(string);
         }
     }
 }
