@@ -128,7 +128,8 @@ namespace Smartstore.Data.Providers
         {
             Guard.NotEmpty(tableName, nameof(tableName));
 
-            return Database.ExecuteQueryInterpolatedAsync<string>($"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_name = {tableName}").AnyAsync(x => true);
+            return Database.ExecuteQueryInterpolatedAsync<string>(
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_name = {tableName}").AnyAsync(x => true);
         }
 
         public virtual bool HasColumn(string tableName, string columnName)
@@ -147,6 +148,18 @@ namespace Smartstore.Data.Providers
 
             return Database.ExecuteQueryInterpolatedAsync<string>(
                 $"SELECT column_name From INFORMATION_SCHEMA.COLUMNS WHERE table_name = {tableName} And column_name = {columnName}").AnyAsync(x => true);
+        }
+
+        public virtual string[] GetTableNames()
+        {
+            return Database.ExecuteQueryRaw<string>(
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE'").ToArray();
+        }
+
+        public virtual async Task<string[]> GetTableNamesAsync()
+        {
+            return await Database.ExecuteQueryRawAsync<string>(
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE'").AsyncToArray();
         }
 
         #endregion
@@ -305,7 +318,7 @@ namespace Smartstore.Data.Providers
         public int TruncateTable<T>() where T : BaseEntity
         {
             var tableName = Context.Model.FindEntityType(typeof(T)).GetTableName();
-            return Database.ExecuteSqlRaw($"TRUNCATE TABLE [{tableName}]");
+            return Database.ExecuteSqlRaw($"TRUNCATE TABLE {tableName}");
         }
 
         /// <summary>
@@ -314,7 +327,7 @@ namespace Smartstore.Data.Providers
         public Task<int> TruncateTableAsync<T>() where T : BaseEntity
         {
             var tableName = Context.Model.FindEntityType(typeof(T)).GetTableName();
-            return Database.ExecuteSqlRawAsync($"TRUNCATE TABLE [{tableName}]");
+            return Database.ExecuteSqlRawAsync($"TRUNCATE TABLE {tableName}");
         }
 
         /// <summary>

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using MySqlConnector;
 using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.MySql
@@ -139,14 +140,10 @@ namespace Smartstore.Data.MySql
 
         public override Stream OpenBlobStream(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
-            // TODO: (core) Check if MySql can stream blobs this way.
             return new SqlBlobStream(Database.GetDbConnection(), tableName, blobColumnName, pkColumnName, pkColumnValue);
         }
 
         public override DbParameter CreateParameter()
-        {
-            // TODO: (core) Return MySql DbParameter
-            throw new NotImplementedException();
-        }
+            => new MySqlParameter();
     }
 }
