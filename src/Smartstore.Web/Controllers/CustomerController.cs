@@ -335,8 +335,6 @@ namespace Smartstore.Web.Controllers
             return Json(new { Available = usernameAvailable, Text = statusText.Value });
         }
 
-        // TODO: (mh) (core) Login / logout / register must be implemented in IdentityController.
-
         #region Addresses
 
         [RequireSsl]
@@ -720,8 +718,6 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
-        // TODO: (mh) (core) Change password must be implemented in IdentityController.
-
         #region Avatar
 
         [RequireSsl]
@@ -820,8 +816,6 @@ namespace Smartstore.Web.Controllers
         }
 
         #endregion
-
-        // TODO: (mh) (core) Password recovery must be implemented in IdentityController.
 
         // TODO: (mh) (core) Forum subscriptions must be implemented in Forum module.
 

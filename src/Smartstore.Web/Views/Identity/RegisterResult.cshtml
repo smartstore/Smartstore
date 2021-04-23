@@ -1,0 +1,27 @@
+﻿@{
+    Assets.AppendTitleParts(T("PageTitle.Register"));
+
+    var continueUrl = Context.Request.Query["returnUrl"].ToString();
+    if (!continueUrl.HasValue())
+    {
+        continueUrl = Url.RouteUrl("Homepage");
+    }
+}
+
+<div class="page registration-result-page">
+    <div class="page-title">
+        <h1>@T("Account.Register")</h1>
+    </div>
+
+    <div class="page-body">
+        <p class="section-body">
+            @Html.Raw(ViewBag.RegisterResult)
+        </p>
+
+        <div class="buttons">
+            <a class="btn btn-secondary register-continue-button" href="@continueUrl">
+                @T("Account.Register.Result.Continue")
+            </a>
+        </div>
+    </div>
+</div>

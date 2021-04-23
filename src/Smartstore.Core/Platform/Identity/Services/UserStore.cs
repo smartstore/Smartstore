@@ -457,14 +457,13 @@ namespace Smartstore.Core.Identity
 
         public Task SetTwoFactorEnabledAsync(Customer user, bool enabled, CancellationToken cancellationToken)
         {
-            //throw new NotImplementedException();
+            // TODO: (mh) (core) This isn't handled on Customer level. It's a global setting which can't be changed here. 
             return Task.CompletedTask;
         }
 
         public Task<bool> GetTwoFactorEnabledAsync(Customer user, CancellationToken cancellationToken)
         {
-            //throw new NotImplementedException();
-            return Task.FromResult(false);
+            return Task.FromResult(_customerSettings.UserRegistrationType == UserRegistrationType.EmailValidation);
         }
 
         #endregion
@@ -473,20 +472,21 @@ namespace Smartstore.Core.Identity
 
         public Task ReplaceCodesAsync(Customer user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
         {
-            //throw new NotImplementedException();
+            Guard.NotNull(user, nameof(user));
+            user.GenericAttributes.PasswordRecoveryToken = recoveryCodes.FirstOrDefault();
             return Task.CompletedTask;
         }
 
         public Task<bool> RedeemCodeAsync(Customer user, string code, CancellationToken cancellationToken)
         {
-            //throw new NotImplementedException();
-            return Task.FromResult(true);
+            Guard.NotNull(user, nameof(user));
+            return Task.FromResult(user.GenericAttributes.PasswordRecoveryToken == code);
         }
 
         public Task<int> CountCodesAsync(Customer user, CancellationToken cancellationToken)
         {
-            //throw new NotImplementedException();
-            return Task.FromResult(0);
+            Guard.NotNull(user, nameof(user));
+            return Task.FromResult(user.GenericAttributes.PasswordRecoveryToken.HasValue() ? 1 : 0);
         }
 
         #endregion

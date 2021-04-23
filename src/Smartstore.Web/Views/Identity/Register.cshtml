@@ -9,51 +9,290 @@
     var returnUrl = Context.Request.Query["returnUrl"];
 }
 
-<h1>@T("Account.Register")</h1>
+<form asp-route="Register" asp-route-returnurl="@returnUrl" id="register-form" method="post" class="form-horizontal" role="form">
+    <div class="page registration-page">
+        <div class="page-title">
+            <h1 class="h3">@T("Account.Register")</h1>
+        </div>
+        <div class="page-body row">
+            <div class="col-12 col-lg-9 col-xl-8">
 
-<form asp-route="Register" asp-route-returnurl="@returnUrl" method="post" class="form-horizontal" role="form">
-    <honeypot sm-enabled="true" />
-    <input asp-for="UserNamesEnabled" type="hidden" />
-    <h4>Create a new account.</h4>
-    <hr />
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="Email" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Email" />
-            <span asp-validation-for="Email"></span>
-        </div>
-    </div>
-    @if (Model.UserNamesEnabled)
-    {
-        <div class="form-group">
-            <label asp-for="UserName" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <input asp-for="UserName" />
-                <span asp-validation-for="UserName"></span>
+                <div asp-validation-summary="ModelOnly"></div>
+
+                @*TODO: (mh) (core) Create partial *@
+                @*@{ Html.RenderPartial("_ExternalAuthentication.AssociateMessage"); }*@
+
+                <fieldset class="content-group">
+                    <legend><span>@T("Account.YourPersonalDetails")</span></legend>
+
+                    <honeypot sm-enabled="true" />
+
+                    <div sm-if="Model.GenderEnabled" class="form-group row">
+                        <label class="col-md-3 col-form-label">@T("Account.Fields.Gender")</label>
+                        <div class="col-md-9 form-inline">
+                            <div class="form-check form-check-inline">
+                                <input type="radio" asp-for="Gender" sm-ignore-label="true" class="form-check-input remember" id="gender-male" value="M" attr-checked='(Model.Gender == "M", "checked")' />
+                                <label class="form-check-label" for="gender-male">@T("Account.Fields.Gender.Male")</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" asp-for="Gender" sm-ignore-label="true" class="form-check-input remember" id="gender-female" value="F" attr-checked='(Model.Gender == "F", "checked")' />
+                                <label class="form-check-label" for="gender-female">@T("Account.Fields.Gender.Female")</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label asp-for="FirstName" class="col-md-3 col-form-label" attr-class='(Model.FirstNameRequired, "required")'></label>
+                        <div class="col-md-9">
+                            <input asp-for="FirstName" sm-required="Model.FirstNameRequired" class="remember" />
+                            <span asp-validation-for="FirstName"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="LastName" class="col-md-3 col-form-label" attr-class='(Model.LastNameRequired, "required")'></label>
+                        <div class="col-md-9">
+                            <input asp-for="LastName" sm-required="Model.LastNameRequired" class="remember" />
+                            <span asp-validation-for="LastName"></span>
+                        </div>
+                    </div>
+
+                    <div sm-if="Model.DateOfBirthEnabled" class="form-group row">
+                        <div class="col-md-3">
+                            <label asp-for="DateOfBirthDay" class="col-form-label"></label>
+                        </div>
+                        <div class="col-md-9">
+                            <triple-date-picker day-name="@Html.NameFor(x => x.DateOfBirthDay)" month-name="@Html.NameFor(x => x.DateOfBirthMonth)" year-name="@Html.NameFor(x => x.DateOfBirthYear)"
+                                                day="@Model.DateOfBirthDay" month="@Model.DateOfBirthMonth" year="@Model.DateOfBirthYear"
+                                                begin-year="DateTime.Now.Year - 110" end-year="DateTime.Now.Year" disabled="false" />
+                            <span asp-validation-for="DateOfBirthDay"></span>
+                            <span asp-validation-for="DateOfBirthMonth"></span>
+                            <span asp-validation-for="DateOfBirthYear"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label asp-for="Email" class="col-md-3 col-form-label required"></label>
+                        <div class="col-md-9">
+                            <input asp-for="Email" sm-required="true" class="remember" />
+                            <span asp-validation-for="Email"></span>
+                        </div>
+                    </div>
+
+                    <div sm-if="Model.UsernamesEnabled" class="form-group row">
+                        <label asp-for="UserName" class="col-md-3 col-form-label required"></label>
+                        <div class="col-md-9">
+                            @if (Model.CheckUsernameAvailabilityEnabled)
+                            {
+                                <div class="input-group">
+                                    <input asp-for="UserName" class="remember" />
+                                    <partial name="_CheckUsernameAvailability" />
+                                </div>
+                            }
+                            else
+                            {
+                                <input asp-for="UserName" class="remember" />
+                            }
+                            <span asp-validation-for="UserName"></span>
+                        </div>
+                    </div>
+
+                    <zone name="gdpr_consent" />
+                </fieldset>
+
+                <fieldset class="content-group">
+                    <legend><span>@T("Account.YourPassword")</span></legend>
+
+                    <div class="form-group row">
+                        <label asp-for="Password" class="col-md-3 col-form-label required"></label>
+                        <div class="col-md-9">
+                            <input asp-for="Password" sm-required="true" />
+                            <span asp-validation-for="Password"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="ConfirmPassword" class="col-md-3 col-form-label required"></label>
+                        <div class="col-md-9">
+                            <input asp-for="ConfirmPassword" sm-required="true" />
+                            <span asp-validation-for="ConfirmPassword"></span>
+                        </div>
+                    </div>
+
+                    <div sm-if="Model.DisplayCaptcha" class="form-group row justify-content-end">
+                        <div class="captcha-box col-md-9">
+                            <captcha />
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset sm-if="Model.StreetAddressEnabled || Model.StreetAddress2Enabled || Model.ZipPostalCodeEnabled || Model.CityEnabled || Model.CountryEnabled" class="content-group">
+                    <legend><span>@T("Account.YourAddress")</span></legend>
+
+                    <div sm-if="Model.StreetAddressEnabled" class="form-group row">
+                        <label asp-for="StreetAddress" class="col-md-3 col-form-label" attr-class='(Model.StreetAddressRequired, "required")'></label>
+                        <div class="col-md-9">
+                            <input asp-for="StreetAddress" sm-required="Model.StreetAddressRequired" />
+                            <span asp-validation-for="StreetAddress"></span>
+                        </div>
+                    </div>
+                    <div sm-if="Model.StreetAddress2Enabled" class="form-group row">
+                        <label asp-for="StreetAddress2" class="col-md-3 col-form-label" attr-class='(Model.StreetAddress2Required, "required")'></label>
+                        <div class="col-md-9">
+                            <input asp-for="StreetAddress2" sm-required="Model.StreetAddress2Required" />
+                            <span asp-validation-for="StreetAddress2"></span>
+                        </div>
+                    </div>
+                    <div sm-if="Model.ZipPostalCodeEnabled" class="form-group row">
+                        <label asp-for="ZipPostalCode" class="col-md-3 col-form-label" attr-class='(Model.ZipPostalCodeRequired, "required")'></label>
+                        <div class="col-md-9">
+                            <input asp-for="ZipPostalCode" sm-required="Model.ZipPostalCodeRequired" />
+                            <span asp-validation-for="ZipPostalCode"></span>
+                        </div>
+                    </div>
+                    <div sm-if="Model.CityEnabled" class="form-group row">
+                        <label asp-for="City" class="col-md-3 col-form-label" attr-class='(Model.CityRequired, "required")'></label>
+                        <div class="col-md-9">
+                            <input asp-for="City" sm-required="Model.CityRequired" />
+                            <span asp-validation-for="City"></span>
+                        </div>
+                    </div>
+
+                    <div sm-if="Model.CountryEnabled" class="form-group row">
+                        <label asp-for="CountryId" class="col-md-3 col-form-label"></label>
+                        <div class="col-md-9">
+                            <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
+                                    class="country-input country-selector remember"
+                                    data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
+                                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
+                                    data-addEmptyStateIfRequired="true"></select>
+                        </div>
+                    </div>
+
+                    <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
+                        <label asp-for="StateProvinceId" class="col-md-3 col-form-label"></label>
+                        <div class="col-md-9">
+                            <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates" class="remember"></select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset sm-if="Model.PhoneEnabled || Model.FaxEnabled" class="content-group">
+                    <legend><span>@T("Account.YourContactInformation")</span></legend>
+                    <div sm-if="Model.PhoneEnabled" class="form-group row">
+                        <label asp-for="Phone" class="col-md-3 col-form-label" attr-class='(Model.PhoneRequired, "required")'></label>
+                        <div class="col-md-9">
+                            <input asp-for="Phone" sm-required="Model.PhoneRequired" />
+                            <span asp-validation-for="Phone"></span>
+                        </div>
+                    </div>
+                    <div sm-if="Model.FaxEnabled" class="form-group row">
+                        <label asp-for="Fax" class="col-md-3 col-form-label" attr-class='(Model.FaxRequired, "required")'></label>
+                        <div class="col-md-9">
+                            <input asp-for="Fax" sm-required="Model.FaxRequired" />
+                            <span asp-validation-for="Fax"></span>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset sm-if="Model.NewsletterEnabled" class="content-group">
+                    <legend><span>@T("Account.Options")</span></legend>
+                    <div class="form-group row">
+                        <div class="col">
+                            <div class="form-check">
+                                <input asp-for="Newsletter" sm-ignore-label="true" sm-switch="false" class="remember" />
+                                <label class="form-check-label" for="Newsletter">
+                                    @Html.Raw(T("Account.Fields.Newsletter", await Url.TopicAsync("PrivacyInfo")))
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset sm-if="Model.AllowCustomersToSetTimeZone" class="content-group">
+                    <legend><span>@T("Account.Preferences")</span></legend>
+                    <div class="form-group row">
+                        <label asp-for="TimeZoneId" class="col-md-3 col-form-label"></label>
+                        <div class="col-md-9">
+                            <select asp-for="TimeZoneId" asp-items="ViewBag.AvailableTimeZones" class="remember"></select>
+                            <span asp-validation-for="TimeZoneId"></span>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="form-group row">
+                    <div class="col-12 text-muted">
+                        @T("Common.FormFields.Required.Hint")
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary btn-lg" name="register-button" id="register-button">
+                            @T("Account.Register.Button")
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>        
-    }
-    <div class="form-group">
-        <label asp-for="Password" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="Password" />
-            <span asp-validation-for="Password"></span>
         </div>
     </div>
-    <div class="form-group">
-        <label asp-for="ConfirmPassword" class="col-md-2 control-label"></label>
-        <div class="col-md-10">
-            <input asp-for="ConfirmPassword" />
-            <span asp-validation-for="ConfirmPassword"></span>
+
+    @*<honeypot sm-enabled="true" />
+        <input asp-for="UserNamesEnabled" type="hidden" />
+
+        <h4>Create a new account.</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Email" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Email" />
+                <span asp-validation-for="Email"></span>
+            </div>
         </div>
-    </div>
-    <div class="form-group row">
-        <captcha sm-enabled="true" class="col-md-10 offset-md-2" />
-	</div>
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <button type="submit" class="btn btn-default">Register</button>
+        @if (Model.UserNamesEnabled)
+        {
+            <div class="form-group">
+                <label asp-for="UserName" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="UserName" />
+                    <span asp-validation-for="UserName"></span>
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <label asp-for="Password" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Password" />
+                <span asp-validation-for="Password"></span>
+            </div>
         </div>
-    </div>
+        <div class="form-group">
+            <label asp-for="ConfirmPassword" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ConfirmPassword" />
+                <span asp-validation-for="ConfirmPassword"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <captcha sm-enabled="true" class="col-md-10 offset-md-2" />
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" class="btn btn-default">Register</button>
+            </div>
+        </div>*@
 </form>
+
+<script sm-target-zone="scripts">
+    $(function () {
+        setRememberedFormFields("registerVals");
+
+        _.delay(function () {
+            $(".country-selector").trigger("change");
+        }, 50);
+    });
+
+    const form = document.getElementById('register-form');
+    form.addEventListener('focusout', (event) => {
+        rememberFormFields("register-form", "registerVals");
+    });
+</script>

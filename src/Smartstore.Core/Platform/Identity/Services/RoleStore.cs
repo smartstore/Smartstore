@@ -63,7 +63,7 @@ namespace Smartstore.Core.Identity
         public Task<CustomerRole> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            return _roles.FirstOrDefaultAsync(x => x.Name == normalizedRoleName);
+            return _roles.FirstOrDefaultAsync(x => x.Name == normalizedRoleName, cancellationToken: cancellationToken);
         }
 
         public async Task<IdentityResult> CreateAsync(CustomerRole role, CancellationToken cancellationToken = default)

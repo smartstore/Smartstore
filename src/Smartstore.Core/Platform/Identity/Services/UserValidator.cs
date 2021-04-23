@@ -2,17 +2,22 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Data.Caching;
 
 namespace Smartstore.Core.Identity
 {
     public class UserValidator : PasswordValidator<Customer>, IUserValidator<Customer>
     {
+        private readonly SmartDbContext _db;
         private readonly CustomerSettings _customerSettings;
 
-        public UserValidator(CustomerSettings customerSettings, IdentityErrorDescriber errors = null)
+        public UserValidator(SmartDbContext db, CustomerSettings customerSettings, IdentityErrorDescriber errors = null)
             : base(errors)
         {
+            _db = db;
             _customerSettings = customerSettings;
         }
 
@@ -24,12 +29,15 @@ namespace Smartstore.Core.Identity
             Guard.NotNull(manager, nameof(manager));
             Guard.NotNull(user, nameof(user));
 
-            // TODO: (core) Check this very early (?)
-            //var registeredRole = _customerService.GetCustomerRoleBySystemName(SystemCustomerRoleNames.Registered);
-            //if (registeredRole == null)
-            //{
-            //    throw new SmartException(T("Admin.Customers.CustomerRoles.CannotFoundRole", "Registered"));
-            //}
+            var registeredRole = _db.CustomerRoles
+                .AsNoTracking()
+                .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
+                .FirstOrDefault();
+
+            if (registeredRole == null)
+            {
+                throw new SmartException(T("Admin.Customers.CustomerRoles.CannotFoundRole", "Registered"));
+            }
 
             if (user.IsSearchEngineAccount())
             {
@@ -51,35 +59,30 @@ namespace Smartstore.Core.Identity
                 return Failed(Describer.InvalidEmail(user.Email));
             }
 
-            if (manager.Options.User.RequireUniqueEmail)
+            // INFO: Unique emails & usernames are always required, because CustomerLoginType can be switched any time.
+            var owner = await manager.FindByEmailAsync(user.Email);
+            if (owner != null && owner.Id != user.Id)
             {
-                var owner = await manager.FindByEmailAsync(user.Email);
-                if (owner != null && owner.Id != user.Id)
-                {
-                    return Failed(Describer.DuplicateEmail(user.Email));
-                }
+                return Failed(Describer.DuplicateEmail(user.Email));
+            }
+
+            var userName = user.Username;
+            owner = await manager.FindByNameAsync(userName);
+            if (owner != null && owner.Id != user.Id)
+            {
+                return Failed(Describer.DuplicateUserName(userName));
             }
 
             if (_customerSettings.CustomerLoginType != CustomerLoginType.Email)
             {
-                var userName = user.Username;
-
                 if (userName.IsEmpty())
                 {
                     return Failed(Describer.InvalidUserName(userName));
                 }
-                else if (!string.IsNullOrEmpty(manager.Options.User.AllowedUserNameCharacters) && 
+                else if (manager.Options.User.AllowedUserNameCharacters.HasValue() && 
                     userName.Any(c => !manager.Options.User.AllowedUserNameCharacters.Contains(c)))
                 {
                     return Failed(Describer.InvalidUserName(userName));
-                }
-                else
-                {
-                    var owner = await manager.FindByNameAsync(userName);
-                    if (owner != null && owner.Id != user.Id)
-                    {
-                        return Failed(Describer.DuplicateUserName(userName));
-                    }
                 }
             }
 
