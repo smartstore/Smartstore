@@ -12,11 +12,11 @@
 }
 
 <div class="cart-action cart-action-coupon">
-    <h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-coupon-body" aria-controls="cart-action-coupon-body" aria-expanded="@isExpanded">
+    <h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-coupon-body" aria-controls="cart-action-coupon-body" aria-expanded="@isExpanded.ToString().ToLower()">
 		@T("ShoppingCart.DiscountCouponCode")
 	</h5>
         
-    <div class="cart-action-body collapse" id="cart-action-coupon-body" aria-expanded="@isExpanded" attr-class='(isExpanded, "show")'>
+    <div class="cart-action-body collapse" id="cart-action-coupon-body" aria-expanded="@isExpanded.ToString().ToLower()" attr-class='(isExpanded, "show")'>
         @if (Model.Message.HasValue())
         {
             <div class="alert d-flex justify-content-between alert-@(Model.IsWarning ? "danger" : "success") fade show">

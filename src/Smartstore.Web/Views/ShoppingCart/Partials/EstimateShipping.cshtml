@@ -13,11 +13,11 @@
 }
 
 <div class="cart-action cart-action-shipping">
-	<h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-shipping-body" aria-controls="cart-action-shipping-body" aria-expanded="@isExpanded">
+	<h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-shipping-body" aria-controls="cart-action-shipping-body" aria-expanded="@isExpanded.ToString().ToLower()">
 		@T("ShoppingCart.EstimateShipping")
 	</h5>
 
-    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-shipping-body" aria-expanded="@isExpanded">
+    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-shipping-body" aria-expanded="@isExpanded.ToString().ToLower()">
 		@if (Model.Warnings.Any())
 		{
 			<div class="alert alert-danger">

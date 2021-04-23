@@ -12,11 +12,11 @@
 }
 
 <div class="cart-action cart-action-rewardpoints">
-    <h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-rewardpoints-body" aria-controls="cart-action-rewardpoints-body" aria-expanded="@isExpanded">
+    <h5 class="cart-action-title" attr-class='(!isExpanded, "collapsed")' data-toggle="collapse" data-target="#cart-action-rewardpoints-body" aria-controls="cart-action-rewardpoints-body" aria-expanded="@isExpanded.ToString().ToLower()">
         @T("ShoppingCart.RewardPoints")
     </h5>
 
-    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-rewardpoints-body" aria-expanded="@isExpanded">
+    <div class="cart-action-body collapse" attr-class='(isExpanded, "show")' id="cart-action-rewardpoints-body" aria-expanded="@isExpanded.ToString().ToLower()">
         <div class="reward-points alert alert-info">
             <div class="form-check">
                 <input asp-for="UseRewardPoints" type="checkbox" sm-ignore-label="true" sm-switch="false" class="form-check-input"/>                

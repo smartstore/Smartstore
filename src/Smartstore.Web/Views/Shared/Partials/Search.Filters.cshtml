@@ -30,14 +30,14 @@
                 <a class="facet-group-header facet-toggle@(!expanded ? " collapsed" : "")@(selectedCount > 0 ? " has-selection" : "")"
                    data-toggle="collapse"
                    href="#facet-body-@(group.Key)"
-                   aria-expanded="@expanded"
+                   aria-expanded="@expanded.ToString().ToLower()"
                    aria-controls="facet-body-@(group.Key)"
                    attr-data-selections="(selectedCount > 0, selectedCount.ToString())">
 
                     <span sm-if="selectedCount > 0" class="facet-selection">@T("Search.Facet.SelectedCount", selectedCount)</span>
                     @(group.Label ?? group.Key)
                 </a>
-                <div id="facet-body-@(group.Key)" class="facet-body collapse@(expanded ? " show" : "")" aria-expanded="@expanded">
+                <div id="facet-body-@(group.Key)" class="facet-body collapse@(expanded ? " show" : "")" aria-expanded="@expanded.ToString().ToLower()">
                     @* TODO: (core) Find a way to check view components and partials for emptiness *@
                     @await templateProvider.GetTemplateWidget(group).InvokeAsync(ViewContext)
                     @if (selectedCount > 0)
