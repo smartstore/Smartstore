@@ -78,7 +78,7 @@ namespace Smartstore.Core.Data.Migrations
                 }
                 
                 // Run all pending migrations
-                await migrator.RunPendingMigrationsAsync();
+                await migrator.RunPendingMigrationsAsync(cancelToken);
                 
                 // Execute the global seeders anyway (on every startup),
                 // we could have locale resources or settings to add/update.

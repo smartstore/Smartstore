@@ -55,6 +55,19 @@ namespace Smartstore.Core.Data.Migrations
 
         public override TContext Context => _db;
 
+        private async Task<bool> ShouldSuppressInitialCreate()
+        {
+            var shouldSuppress = false;
+            var tablesToCheck = _db.GetInvariantType().GetAttribute<CheckTablesAttribute>(true)?.TableNames;
+            if (tablesToCheck != null && tablesToCheck.Length > 0)
+            {
+                var dbTables = await _db.DataProvider.GetTableNamesAsync();
+                shouldSuppress = dbTables.Intersect(tablesToCheck, StringComparer.InvariantCultureIgnoreCase).Count() == tablesToCheck.Length;
+            }
+
+            return shouldSuppress;
+        }
+
         public override async Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default)
         {
             if (_lastSeedException != null)
@@ -68,9 +81,6 @@ namespace Smartstore.Core.Data.Migrations
             if (!pendingMigrations.Any())
                 return 0;
 
-            // Never run initial migration except during installation.
-            DbMigrationManager.Instance.SetSuppressInitialCreate<TContext>(true);
-
             var migrationsAssembly = _db.Database.GetMigrationsAssembly();
             var coreSeeders = new List<SeederEntry>();
             var externalSeeders = new List<SeederEntry>();
@@ -79,6 +89,11 @@ namespace Smartstore.Core.Data.Migrations
             var initialMigration = appliedMigrations.LastOrDefault() ?? "[Initial]";
             var lastSuccessfulMigration = appliedMigrations.FirstOrDefault();
             int result = 0;
+
+            if (appliedMigrations.Length == 0 && await ShouldSuppressInitialCreate())
+            {
+                DbMigrationManager.Instance.SetSuppressInitialCreate<TContext>(true);
+            }
 
             // Apply migrations
             foreach (var migrationId in pendingMigrations)

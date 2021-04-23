@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
+using Smartstore.Data.Migrations;
 using Smartstore.Engine;
 
 namespace Smartstore.Core.Data
@@ -16,6 +17,7 @@ namespace Smartstore.Core.Data
     {
     }
 
+    [CheckTables("Customer", "Discount", "Order", "Product", "ShoppingCartItem", "QueuedEmailAttachment", "ExportProfile")]
     public partial class SmartDbContext : HookingDbContext
     {
         /// <summary>
