@@ -27,7 +27,6 @@ namespace Smartstore.Web.Models.Catalog
         {
             Product = other.Product;
             AssociatedProducts = other.AssociatedProducts;
-            BundleItemDatas = other.BundleItemDatas;
             BatchContext = other.BatchContext;
             VariantQuery = other.VariantQuery;
             Customer = other.Customer;
@@ -38,7 +37,6 @@ namespace Smartstore.Web.Models.Catalog
 
         public Product Product { get; set; }
         public IList<Product> AssociatedProducts { get; set; }
-        public IList<ProductBundleItemData> BundleItemDatas { get; set; }
         public ProductBatchContext BatchContext { get; set; }
         public ProductVariantQuery VariantQuery { get; set; }
         public Customer Customer { get; set; }

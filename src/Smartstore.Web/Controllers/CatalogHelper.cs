@@ -618,54 +618,49 @@ namespace Smartstore.Web.Controllers
                 }
                 else if (product.ProductType == ProductType.BundledProduct && !isBundleItem)
                 {
-                    // Bundled items.
                     var bundleItems = await batchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
+                    var bundleItemData = bundleItems
+                        .Where(x => x.Product.CanBeBundleItem())
+                        .Select(x => new ProductBundleItemData(x))
+                        .ToList();
 
-                    if (bundleItems.Count > 0)
+                    // Push Ids of bundle items to batch context to save roundtrips
+                    batchContext.Collect(bundleItemData.Select(x => x.Item.ProductId).ToArray());
+
+                    foreach (var itemData in bundleItemData)
                     {
-                        modelContext.BundleItemDatas = bundleItems
-                            .Where(x => x.Product.CanBeBundleItem())
-                            .Select(x => new ProductBundleItemData(x))
-                            .ToList();
-
-                        // Push Ids of bundle items to batch context to save roundtrips
-                        batchContext.Collect(modelContext.BundleItemDatas.Select(x => x.Item.ProductId).ToArray());
-
-                        foreach (var itemData in modelContext.BundleItemDatas)
+                        var item = itemData.Item;
+                        var childModelContext = new ProductDetailsModelContext(modelContext)
                         {
-                            var item = itemData.Item;
-                            var childModelContext = new ProductDetailsModelContext(modelContext)
-                            {
-                                Product = item.Product,
-                                IsAssociatedProduct = false,
-                                ProductBundleItem = itemData
-                            };
+                            Product = item.Product,
+                            IsAssociatedProduct = false,
+                            ProductBundleItem = itemData
+                        };
 
-                            var bundledProductModel = await MapProductDetailsPageModelAsync(childModelContext);
+                        var bundledProductModel = await MapProductDetailsPageModelAsync(childModelContext);
 
-                            bundledProductModel.ShowLegalInfo = false;
-                            bundledProductModel.DeliveryTimesPresentation = DeliveryTimesPresentation.None;
+                        bundledProductModel.ShowLegalInfo = false;
+                        bundledProductModel.DeliveryTimesPresentation = DeliveryTimesPresentation.None;
 
-                            bundledProductModel.BundleItem.Id = item.Id;
-                            bundledProductModel.BundleItem.Quantity = item.Quantity;
-                            bundledProductModel.BundleItem.HideThumbnail = item.HideThumbnail;
-                            bundledProductModel.BundleItem.Visible = item.Visible;
-                            bundledProductModel.BundleItem.IsBundleItemPricing = item.BundleProduct.BundlePerItemPricing;
+                        bundledProductModel.BundleItem.Id = item.Id;
+                        bundledProductModel.BundleItem.Quantity = item.Quantity;
+                        bundledProductModel.BundleItem.HideThumbnail = item.HideThumbnail;
+                        bundledProductModel.BundleItem.Visible = item.Visible;
+                        bundledProductModel.BundleItem.IsBundleItemPricing = item.BundleProduct.BundlePerItemPricing;
 
-                            var bundleItemName = item.GetLocalized(x => x.Name);
-                            if (bundleItemName.Value.HasValue())
-                            {
-                                bundledProductModel.Name = bundleItemName;
-                            }
-                                
-                            var bundleItemShortDescription = item.GetLocalized(x => x.ShortDescription);
-                            if (bundleItemShortDescription.Value.HasValue())
-                            {
-                                bundledProductModel.ShortDescription = bundleItemShortDescription;
-                            }
-
-                            model.BundledItems.Add(bundledProductModel);
+                        var bundleItemName = item.GetLocalized(x => x.Name);
+                        if (bundleItemName.Value.HasValue())
+                        {
+                            bundledProductModel.Name = bundleItemName;
                         }
+                                
+                        var bundleItemShortDescription = item.GetLocalized(x => x.ShortDescription);
+                        if (bundleItemShortDescription.Value.HasValue())
+                        {
+                            bundledProductModel.ShortDescription = bundleItemShortDescription;
+                        }
+
+                        model.BundledItems.Add(bundledProductModel);
                     }
                 }
 
@@ -1493,7 +1488,6 @@ namespace Smartstore.Web.Controllers
             var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
             {
                 AssociatedProducts = modelContext.AssociatedProducts,
-                BundleItems = modelContext.BundleItemDatas,
                 BundleItem = productBundleItem
             };
 
@@ -1509,6 +1503,11 @@ namespace Smartstore.Web.Controllers
                 {
                     // Apply price adjustments of selected bundle items attributes.
                     // INFO: bundles themselves don't have attributes, that's why modelContext.SelectedAttributes is null.
+                    var bundleItems = await modelContext.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
+                    calculationContext.BundleItems = bundleItems.Select(x => new ProductBundleItemData(x)).ToList();
+
+                    modelContext.BatchContext.Collect(bundleItems.Select(x => x.ProductId).ToArray());
+
                     foreach (var bundleItem in calculationContext.BundleItems.Select(x => x.Item))
                     {
                         var bundleItemAttributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(bundleItem.ProductId);
@@ -1516,6 +1515,7 @@ namespace Smartstore.Web.Controllers
 
                         calculationContext.AddSelectedAttributes(selection, bundleItem.ProductId, bundleItem.Id);
 
+                        // Apply attribute combination price if any.
                         await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Product, selection);
                     }
                 }
@@ -1881,7 +1881,6 @@ namespace Smartstore.Web.Controllers
             var calculationContext = new PriceCalculationContext(product, 1, calculationOptions)
             {
                 AssociatedProducts = modelContext.AssociatedProducts,
-                BundleItems = modelContext.BundleItemDatas,
                 BundleItem = modelContext.ProductBundleItem
             };
             

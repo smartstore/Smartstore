@@ -323,7 +323,6 @@ namespace Smartstore.Web.Controllers
                 .Include(x => x.BundleProduct)
                 .FindByIdAsync(bundleItemId, false);
 
-            IList<ProductBundleItemData> bundleItemDatas = null;
             ProductBundleItemData bundleItem = bItem == null ? null : new ProductBundleItemData(bItem);
 
             // Quantity required for tier prices.
@@ -333,46 +332,6 @@ namespace Smartstore.Web.Controllers
                 _ = int.TryParse(form[quantityKey], out quantity);
             }
 
-            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
-            {
-                var bundleItems = await batchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
-                bundleItemDatas = bundleItems.Select(x => new ProductBundleItemData(x)).ToList();
-
-                //if (query.Variants.Any())
-                //{
-                //    batchContext.Collect(bundleItemDatas.Select(x => x.Item.Product.Id).ToArray());
-
-                //    foreach (var itemData in bundleItemDatas)
-                //    {
-                //        // Important, apply\merge attribute combination price to itemData.Item.Product.
-                //        await _helper.PrepareProductAttributesModelAsync(new ProductDetailsModel(), new ProductDetailsModelContext
-                //        {
-                //            Product = itemData.Item.Product,
-                //            BatchContext = batchContext,
-                //            VariantQuery = query,
-                //            ProductBundleItem = itemData,
-                //            Customer = batchContext.Customer,
-                //            Store = batchContext.Store,
-                //            Currency = currency,
-                //            DisplayPrices = displayPrices
-                //        }, 1);
-
-                //        //await _helper.MapProductDetailsPageModelAsync(new ProductDetailsModelContext
-                //        //{
-                //        //    // Apply\merge attribute combination price to bundle item product.
-                //        //    Product = itemData.Item.Product,
-                //        //    BatchContext = batchContext,
-                //        //    VariantQuery = query,
-                //        //    ProductBundleItem = itemData,
-                //        //    Customer = batchContext.Customer,
-                //        //    Store = batchContext.Store,
-                //        //    Currency = currency,
-                //        //    DisplayPrices = displayPrices
-                //        //});
-                //    }
-                //}
-            }
-
             var modelContext = new ProductDetailsModelContext
             {
                 Product = product,
@@ -380,8 +339,6 @@ namespace Smartstore.Web.Controllers
                 VariantQuery = query,
                 IsAssociatedProduct = isAssociated,
                 ProductBundleItem = bundleItem,
-                // Pass bundle items with merged attribute combination prices so that they are included in price calculation.
-                BundleItemDatas = bundleItemDatas,
                 Customer = batchContext.Customer,
                 Store = batchContext.Store,
                 Currency = currency,

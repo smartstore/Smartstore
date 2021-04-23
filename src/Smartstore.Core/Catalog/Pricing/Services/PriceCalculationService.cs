@@ -219,6 +219,7 @@ namespace Smartstore.Core.Catalog.Pricing
             return calculatorContext;
         }
 
+        // TODO: (mg) (core) PrepareContext is executed every time CalculatePriceAsync is called, instead of exactly one time. Something like 'CreateCalculationContext' actually required.
         private async Task PrepareContext(PriceCalculationContext context)
         {
             var product = context.Product;
