@@ -178,11 +178,11 @@ namespace Smartstore.Web.Controllers
                 // Already registered customer. 
                 await _signInManager.SignOutAsync();
 
-                // Save a new record.
                 customer = null;
+                Services.WorkContext.CurrentCustomer = null;
             }
 
-            // TODO: (mh) (core) AddCaptcha error to model state?
+            // TODO: (mh) (core) AddCaptcha error to model state? RE: Yes, absolutely!
 
             ViewData["ReturnUrl"] = returnUrl;
 
@@ -196,7 +196,7 @@ namespace Smartstore.Web.Controllers
 
                 // INFO: (mh) (core) CustomerRegistrationService > RegisterCustomer is complete with the following TODOs.
                 // TODO: (mh) (core) Service method for the following TODOs? Nah, better just a helper method for now.
-                // TODO: (mh) (core) Add customer to role _customerSettings.RegisterCustomerRoleId 
+                // TODO: (mh) (core) Add customer to role _customerSettings.RegisterCustomerRoleId
                 // TODO: (mh) (core) Add customer to role Registered
                 // TODO: (mh) (core) Remove customer from role Guests
                 // TODO: (mh) (core) AddRewardPoints
@@ -218,6 +218,7 @@ namespace Smartstore.Web.Controllers
 
                 if (result.Succeeded)
                 {
+                    // TODO: (mh) (core) Bad API design (naming). Find a better name for this important "MAPPING" stuff.
                     await UpdateCustomerAsync(customer, model, isApproved);
 
                     // Notifications
@@ -277,9 +278,9 @@ namespace Smartstore.Web.Controllers
         [HttpGet]
         [RequireSsl, AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/registerresult/{resultId:int}", Name = "RegisterResult")]
-        public ActionResult RegisterResult(int resultId)
+        public IActionResult RegisterResult(int resultId)
         {
-            var resultText = "";
+            var resultText = string.Empty;
             switch ((UserRegistrationType)resultId)
             {
                 case UserRegistrationType.Disabled:
@@ -367,8 +368,10 @@ namespace Smartstore.Web.Controllers
                 ViewBag.AvailableTimeZones.Add(new SelectListItem { Text = tzi.DisplayName, Value = tzi.Id, Selected = (tzi.Id == _dateTimeHelper.DefaultStoreTimeZone.Id) });
             }
 
-            await AddCountriesAndStatesToViewBagAsync(_customerSettings.CountryEnabled, model.CountryId, _customerSettings.StateProvinceEnabled, (int)model.StateProvinceId);
-
+            if (_customerSettings.CountryEnabled)
+            {
+                await AddCountriesAndStatesToViewBagAsync(model.CountryId, _customerSettings.StateProvinceEnabled, (int)model.StateProvinceId);
+            }
         }
 
         private async Task UpdateCustomerAsync(Customer customer, RegisterModel model, bool isApproved)
@@ -406,7 +409,9 @@ namespace Smartstore.Web.Controllers
                 {
                     customer.BirthDate = new DateTime(model.DateOfBirthYear.Value, model.DateOfBirthMonth.Value, model.DateOfBirthDay.Value);
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
 
             if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.AutomaticallySet && customer.CustomerNumber.IsEmpty())
@@ -453,9 +458,9 @@ namespace Smartstore.Web.Controllers
             // Newsletter subscription
             if (_customerSettings.NewsletterEnabled && model.Newsletter)
             {
-                var subscription = _db.NewsletterSubscriptions
+                var subscription = await _db.NewsletterSubscriptions
                     .ApplyMailAddressFilter(model.Email, Services.StoreContext.CurrentStore.Id)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
 
                 if (subscription != null)
                 {
@@ -472,6 +477,7 @@ namespace Smartstore.Web.Controllers
                         StoreId = Services.StoreContext.CurrentStore.Id,
                         WorkingLanguageId = Services.WorkContext.WorkingLanguage.Id
                     };
+
                     _db.NewsletterSubscriptions.Add(subscription);
                 }
 
@@ -496,9 +502,9 @@ namespace Smartstore.Web.Controllers
                 LastName = customer.LastName,
                 Email = customer.Email,
                 Company = customer.Company,
-                CountryId = customer.GenericAttributes.CountryId > 0 ? customer.GenericAttributes.CountryId : null,
+                CountryId = customer.GenericAttributes.CountryId,
                 ZipPostalCode = customer.GenericAttributes.ZipPostalCode,
-                StateProvinceId = customer.GenericAttributes.StateProvinceId > 0 ? customer.GenericAttributes.StateProvinceId : null,
+                StateProvinceId = customer.GenericAttributes.StateProvinceId,
                 City = customer.GenericAttributes.City,
                 Address1 = customer.GenericAttributes.StreetAddress,
                 Address2 = customer.GenericAttributes.StreetAddress2,
@@ -527,60 +533,57 @@ namespace Smartstore.Web.Controllers
         }
 
         // TODO: (mh) (core) Find globally accessable place for this.
-        private async Task AddCountriesAndStatesToViewBagAsync(bool countryEnabled, int selectedCountryId, bool statesEnabled, int selectedStateId)
+        private async Task AddCountriesAndStatesToViewBagAsync(int selectedCountryId, bool statesEnabled, int selectedStateId)
         {
-            if (countryEnabled)
+            var availableCountries = new List<SelectListItem>
             {
-                var availableCountries = new List<SelectListItem>
-                {
-                    new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" }
-                };
+                new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" }
+            };
 
-                var countries = await _db.Countries
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter()
+                .ToListAsync();
+
+            foreach (var c in countries)
+            {
+                availableCountries.Add(new SelectListItem
+                {
+                    Text = c.GetLocalized(x => x.Name),
+                    Value = c.Id.ToString(),
+                    Selected = c.Id == selectedCountryId
+                });
+            }
+
+            ViewBag.AvailableCountries = availableCountries;
+
+            if (statesEnabled)
+            {
+                var availableStates = new List<SelectListItem>();
+
+                var states = await _db.StateProvinces
                     .AsNoTracking()
-                    .ApplyStandardFilter()
+                    .ApplyCountryFilter(selectedStateId)
                     .ToListAsync();
 
-                foreach (var c in countries)
+                if (states.Any())
                 {
-                    availableCountries.Add(new SelectListItem
+                    foreach (var s in states)
                     {
-                        Text = c.GetLocalized(x => x.Name),
-                        Value = c.Id.ToString(),
-                        Selected = c.Id == selectedCountryId
-                    });
-                }
-
-                ViewBag.AvailableCountries = availableCountries;
-
-                if (statesEnabled)
-                {
-                    var availableStates = new List<SelectListItem>();
-
-                    var states = await _db.StateProvinces
-                        .AsNoTracking()
-                        .ApplyCountryFilter(selectedStateId)
-                        .ToListAsync();
-
-                    if (states.Any())
-                    {
-                        foreach (var s in states)
+                        availableStates.Add(new SelectListItem
                         {
-                            availableStates.Add(new SelectListItem
-                            {
-                                Text = s.GetLocalized(x => x.Name),
-                                Value = s.Id.ToString(),
-                                Selected = s.Id == selectedStateId
-                            });
-                        }
+                            Text = s.GetLocalized(x => x.Name),
+                            Value = s.Id.ToString(),
+                            Selected = s.Id == selectedStateId
+                        });
                     }
-                    else
-                    {
-                        availableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
-                    }
-
-                    ViewBag.AvailableStates = availableStates;
                 }
+                else
+                {
+                    availableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
+                }
+
+                ViewBag.AvailableStates = availableStates;
             }
         }
 

@@ -6,10 +6,10 @@
 
 @{
     Assets.AppendTitleParts(T("PageTitle.Register"));
-    var returnUrl = Context.Request.Query["returnUrl"];
+    var returnUrl = Context.Request.Query["returnUrl"].ToString();
 }
 
-<form asp-route="Register" asp-route-returnurl="@returnUrl" id="register-form" method="post" class="form-horizontal" role="form">
+<form asp-route="Register" asp-route-returnUrl="@returnUrl" id="register-form" method="post" class="form-horizontal" role="form">
     <div class="page registration-page">
         <div class="page-title">
             <h1 class="h3">@T("Account.Register")</h1>
@@ -124,6 +124,8 @@
                     </div>
                 </fieldset>
 
+                @* TODO: (mh) (core) Company & VatNumber part is missing  *@
+
                 <fieldset sm-if="Model.StreetAddressEnabled || Model.StreetAddress2Enabled || Model.ZipPostalCodeEnabled || Model.CityEnabled || Model.CountryEnabled" class="content-group">
                     <legend><span>@T("Account.YourAddress")</span></legend>
 
@@ -160,16 +162,18 @@
                         <label asp-for="CountryId" class="col-md-3 col-form-label"></label>
                         <div class="col-md-9">
                             <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
-                                    class="country-input country-selector remember"
-                                    data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
-                                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
-                                    data-addEmptyStateIfRequired="true"></select>
+                                class="country-input country-selector remember"
+                                data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
+                                data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
+                                data-addEmptyStateIfRequired="true">
+                            </select>
                         </div>
                     </div>
 
                     <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
                         <label asp-for="StateProvinceId" class="col-md-3 col-form-label"></label>
                         <div class="col-md-9">
+                            @* TODO: (mh) (core) What about option-label T("Common.PleaseSelect")? *@
                             <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates" class="remember"></select>
                         </div>
                     </div>

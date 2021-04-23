@@ -18,9 +18,6 @@ namespace Smartstore
             {
                 email = email.Trim();
 
-                if (!email.IsEmail())
-                    return null;
-
                 query = query.Where(x => x.Email == email);
 
                 if (storeId > 0)

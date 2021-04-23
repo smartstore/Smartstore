@@ -480,6 +480,7 @@ namespace Smartstore.Core.Identity
         public Task<bool> RedeemCodeAsync(Customer user, string code, CancellationToken cancellationToken)
         {
             Guard.NotNull(user, nameof(user));
+            // TODO: (mh) (core) Please check if contract requires that code must be removed from store.
             return Task.FromResult(user.GenericAttributes.PasswordRecoveryToken == code);
         }
 
