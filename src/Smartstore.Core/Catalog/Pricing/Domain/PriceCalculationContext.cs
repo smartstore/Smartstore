@@ -84,7 +84,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// The shopping cart item to calculate price for, if any.
-        /// The selected product attributes are taken into account when calculating the price.
+        /// The selected product attributes and attribute combinations are taken into account when calculating the price.
         /// </summary>
         public OrganizedShoppingCartItem CartItem { get; private set; }
 

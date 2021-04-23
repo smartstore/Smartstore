@@ -207,8 +207,23 @@ namespace Smartstore.Core.Catalog.Pricing
             // Remember source product.
             var product = context.Product;
 
-            // Prepare context.
+            await PrepareContext(context);
+
+            // Collect calculators
+            var calculators = _calculatorFactory.GetCalculators(context);
+            var calculatorContext = new CalculatorContext(context, product.Price);
+
+            // Run all collected calculators
+            await _calculatorFactory.RunCalculators(calculators, calculatorContext);
+
+            return calculatorContext;
+        }
+
+        private async Task PrepareContext(PriceCalculationContext context)
+        {
+            var product = context.Product;
             var cartItem = context.CartItem;
+
             if (cartItem != null)
             {
                 // Include attributes selected for this cart item in price calculation.
@@ -243,15 +258,6 @@ namespace Smartstore.Core.Catalog.Pricing
                     await _productAttributeMaterializer.MergeWithCombinationAsync(product, cartItem.Item.AttributeSelection);
                 }
             }
-
-            // Collect calculators
-            var calculators = _calculatorFactory.GetCalculators(context);
-            var calculatorContext = new CalculatorContext(context, product.Price);
-
-            // Run all collected calculators
-            await _calculatorFactory.RunCalculators(calculators, calculatorContext);
-
-            return calculatorContext;
         }
 
         private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null, int subtotalQuantity = 1)

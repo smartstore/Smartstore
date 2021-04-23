@@ -309,8 +309,8 @@ namespace Smartstore.Web.Controllers
         {
             // TODO: (core) UpdateProductDetails action needs some decent refactoring.
             var form = HttpContext.Request.Form;
-            int quantity = 1;
-            int galleryStartIndex = -1;
+            var quantity = 1;
+            var galleryStartIndex = -1;
             string galleryHtml = null;
             string dynamicThumbUrl = null;
             var isAssociated = itemType.EqualsNoCase("associateditem");
@@ -335,39 +335,42 @@ namespace Smartstore.Web.Controllers
 
             if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
             {
-                var bundleItemQuery = await _db.ProductBundleItem
-                    .AsNoTracking()
-                    .ApplyBundledProductsFilter(new[] { product.Id })
-                    .Include(x => x.Product)
-                    .Include(x => x.BundleProduct)
-                    .ToListAsync();
+                var bundleItems = await batchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
+                bundleItemDatas = bundleItems.Select(x => new ProductBundleItemData(x)).ToList();
 
-                if (bundleItemQuery.Count > 0)
-                {
-                    bundleItemDatas = new List<ProductBundleItemData>();
-                    bundleItemQuery.Each(x => bundleItemDatas.Add(new ProductBundleItemData(x)));
-                }
+                //if (query.Variants.Any())
+                //{
+                //    batchContext.Collect(bundleItemDatas.Select(x => x.Item.Product.Id).ToArray());
 
-                if (query.Variants.Count > 0)
-                {
-                    batchContext.Collect(bundleItemDatas.Select(x => x.Item.Product.Id).ToArray());
+                //    foreach (var itemData in bundleItemDatas)
+                //    {
+                //        // Important, apply\merge attribute combination price to itemData.Item.Product.
+                //        await _helper.PrepareProductAttributesModelAsync(new ProductDetailsModel(), new ProductDetailsModelContext
+                //        {
+                //            Product = itemData.Item.Product,
+                //            BatchContext = batchContext,
+                //            VariantQuery = query,
+                //            ProductBundleItem = itemData,
+                //            Customer = batchContext.Customer,
+                //            Store = batchContext.Store,
+                //            Currency = currency,
+                //            DisplayPrices = displayPrices
+                //        }, 1);
 
-                    // May add elements to query object if they are preselected by bundle item filter.
-                    foreach (var itemData in bundleItemDatas)
-                    {
-                        await _helper.MapProductDetailsPageModelAsync(new ProductDetailsModelContext
-                        {
-                            Product = itemData.Item.Product,
-                            BatchContext = batchContext,
-                            VariantQuery = query,
-                            ProductBundleItem = itemData,
-                            Customer = batchContext.Customer,
-                            Store = batchContext.Store,
-                            Currency = currency,
-                            DisplayPrices = displayPrices
-                        });
-                    }
-                }
+                //        //await _helper.MapProductDetailsPageModelAsync(new ProductDetailsModelContext
+                //        //{
+                //        //    // Apply\merge attribute combination price to bundle item product.
+                //        //    Product = itemData.Item.Product,
+                //        //    BatchContext = batchContext,
+                //        //    VariantQuery = query,
+                //        //    ProductBundleItem = itemData,
+                //        //    Customer = batchContext.Customer,
+                //        //    Store = batchContext.Store,
+                //        //    Currency = currency,
+                //        //    DisplayPrices = displayPrices
+                //        //});
+                //    }
+                //}
             }
 
             var modelContext = new ProductDetailsModelContext
@@ -377,6 +380,7 @@ namespace Smartstore.Web.Controllers
                 VariantQuery = query,
                 IsAssociatedProduct = isAssociated,
                 ProductBundleItem = bundleItem,
+                // Pass bundle items with merged attribute combination prices so that they are included in price calculation.
                 BundleItemDatas = bundleItemDatas,
                 Customer = batchContext.Customer,
                 Store = batchContext.Store,

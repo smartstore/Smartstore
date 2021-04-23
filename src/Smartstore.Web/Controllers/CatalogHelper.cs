@@ -905,7 +905,7 @@ namespace Smartstore.Web.Controllers
 
         #region PrepareProductDetailModelAsync helper methods
 
-        protected async Task PrepareProductAttributesModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
+        protected internal async Task PrepareProductAttributesModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
         {
             var product = modelContext.Product;
 
@@ -1187,7 +1187,7 @@ namespace Smartstore.Web.Controllers
             if (query.VariantCombinationId != 0)
             {
                 var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(query.VariantCombinationId, false);
-                modelContext.SelectedAttributes = new ProductVariantAttributeSelection(combination?.RawAttributes ?? string.Empty);
+                modelContext.SelectedAttributes = new ProductVariantAttributeSelection(combination?.RawAttributes);
             }
             else
             {
@@ -1218,7 +1218,8 @@ namespace Smartstore.Web.Controllers
                 model.StockAvailability = res["Products.Availability.IsNotActive"];
             }
 
-            // INFO: MergeWithCombination is required here because we call product.IsAvailableByStock() later in PrepareProductPropertiesModelAsync.
+            // INFO: MergeWithCombination is required to apply attribute combination prices
+            // and for product.IsAvailableByStock() call in PrepareProductPropertiesModelAsync.
             product.MergeWithCombination(model.SelectedCombination);
 
             // Explicitly selected values always discards values preselected by merchant.
@@ -1226,11 +1227,11 @@ namespace Smartstore.Web.Controllers
 
             foreach (var attribute in model.ProductVariantAttributes)
             {
-                var updatePreSelection = selectedValueIds.Any() && selectedValueIds.Intersect(attribute.Values.Select(x => x.Id)).Any();
+                var updatePreselection = selectedValueIds.Any() && selectedValueIds.Intersect(attribute.Values.Select(x => x.Id)).Any();
 
                 foreach (ProductDetailsModel.ProductVariantAttributeValueModel value in attribute.Values)
                 {
-                    if (updatePreSelection)
+                    if (updatePreselection)
                     {
                         value.IsPreSelected = selectedValueIds.Contains(value.Id);
                     }
@@ -1495,7 +1496,8 @@ namespace Smartstore.Web.Controllers
                 BundleItems = modelContext.BundleItemDatas,
                 BundleItem = productBundleItem
             };
-            
+
+            // Apply price adjustments of attributes.
             if (!isBundlePricing)
             {
                 if (modelContext.SelectedAttributes != null)
@@ -1503,9 +1505,23 @@ namespace Smartstore.Web.Controllers
                     // Apply price adjustments of selected attributes.
                     calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, bundleItemId);
                 }
+                else if (isBundle && product.BundlePerItemPricing && modelContext.VariantQuery.Variants.Any())
+                {
+                    // Apply price adjustments of selected bundle items attributes.
+                    // INFO: bundles themselves don't have attributes, that's why modelContext.SelectedAttributes is null.
+                    foreach (var bundleItem in calculationContext.BundleItems.Select(x => x.Item))
+                    {
+                        var bundleItemAttributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(bundleItem.ProductId);
+                        var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(modelContext.VariantQuery, bundleItemAttributes, bundleItem.ProductId, bundleItem.Id, false);
+
+                        calculationContext.AddSelectedAttributes(selection, bundleItem.ProductId, bundleItem.Id);
+
+                        await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Product, selection);
+                    }
+                }
                 else
                 {
-                    // Apply price adjustments of preselected attributes.
+                    // Apply price adjustments of attributes preselected by merchant.
                     calculationContext.Options.ApplyPreselectedAttributes = true;
                 }
             }
