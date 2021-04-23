@@ -327,9 +327,8 @@ namespace Smartstore.Web.Models.ShoppingCart
                         {
                             var FileValue = selectedCheckoutAttributes.AttributesMap
                                 .Where(x => x.Key == attribute.Id)
-                                .SelectMany(x => x.Value)
-                                .FirstOrDefault()
-                                .ToString();
+                                .Select(x => x.Value.ToString())
+                                .FirstOrDefault();
 
                             if (FileValue.HasValue() && caModel.UploadedFileGuid.HasValue() && Guid.TryParse(caModel.UploadedFileGuid, out var guid))
                             {

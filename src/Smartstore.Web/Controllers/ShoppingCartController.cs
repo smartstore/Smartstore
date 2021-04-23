@@ -499,23 +499,23 @@ namespace Smartstore.Web.Controllers
 
         #region Shopping Cart
 
-        ///// <summary>
-        ///// Validates and saves cart data.
-        ///// </summary>
-        ///// <param name="query">The <see cref="ProductVariantQuery"/>.</param>
-        ///// <param name="useRewardPoints">A value indicating whether to use reward points.</param>        
-        //[HttpPost]
-        //public async Task<IActionResult> SaveCartData(ProductVariantQuery query, bool useRewardPoints = false)
-        //{
-        //    var warnings = new List<string>();
-        //    var success = await ValidateAndSaveCartDataAsync(query, warnings, useRewardPoints);
+        /// <summary>
+        /// Validates and saves cart data.
+        /// </summary>
+        /// <param name="query">The <see cref="ProductVariantQuery"/>.</param>
+        /// <param name="useRewardPoints">A value indicating whether to use reward points.</param>        
+        [HttpPost]
+        public async Task<IActionResult> SaveCartData(ProductVariantQuery query, bool useRewardPoints = false)
+        {
+            var warnings = new List<string>();
+            var success = await ValidateAndSaveCartDataAsync(query, warnings, useRewardPoints);
 
-        //    return Json(new
-        //    {
-        //        success,
-        //        message = string.Join(Environment.NewLine, warnings)
-        //    });
-        //}
+            return Json(new
+            {
+                success,
+                message = string.Join(Environment.NewLine, warnings)
+            });
+        }
 
         /// <summary>
         /// Updates cart item quantity in shopping cart.
