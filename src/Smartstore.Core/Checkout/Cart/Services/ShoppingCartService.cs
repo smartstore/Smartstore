@@ -69,7 +69,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             var customer = ctx.Customer ?? _workContext.CurrentCustomer;
             customer.ShoppingCartItems.Add(ctx.Item);
-
+            
             _db.TryUpdate(customer);
             await _db.SaveChangesAsync();
 
@@ -81,8 +81,6 @@ namespace Smartstore.Core.Checkout.Cart
                 }
 
                 customer.ShoppingCartItems.AddRange(ctx.ChildItems);
-                _db.TryUpdate(customer);
-                await _db.SaveChangesAsync();
             }
         }
 
@@ -137,8 +135,7 @@ namespace Smartstore.Core.Checkout.Cart
             return result;
         }
 
-        // TODO: (ms) (core) TESTING! Make sure it works in any case - Works for ReOrder().
-        // TODO: (ms) (core) Test this for bundle & grouped products. Test for items with variants!
+        // TODO: (ms) (core) Test this for bundle & grouped products.
         public virtual async Task<bool> AddToCartAsync(AddToCartContext ctx)
         {
             Guard.NotNull(ctx, nameof(ctx));
@@ -152,21 +149,15 @@ namespace Smartstore.Core.Checkout.Cart
             // Checks whether attributes have been selected
             if (ctx.VariantQuery != null)
             {
-                // TODO: (ms) (core) fix wrong porting of attribute selection processing in AddToCartAsync.
-                // Use _productAttributeMaterializer.CreateAttributeSelectionAsync to process them in context of VariantQuery.
+                await _db.LoadCollectionAsync(ctx.Product, x => x.ProductVariantAttributes, false);
 
-                var attributes = await _db.ProductVariantAttributes
-                    //.Include(x => x.ProductAttribute)
-                    .ApplyProductFilter(new[] { ctx.Product.Id })
-                    .ToListAsync();
-
-                var attributeSelection = await _productAttributeMaterializer.CreateAttributeSelectionAsync(
+                var (Selection, Warnings) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(
                     ctx.VariantQuery,
-                    attributes,
+                    ctx.Product.ProductVariantAttributes,
                     ctx.Product.Id,
                     ctx.BundleItemId);
 
-                ctx.RawAttributes = attributeSelection.Selection.AsJson();
+                ctx.RawAttributes = Selection.AttributesMap.Any() ? Selection.AsJson() : string.Empty;
 
                 // Check context for bundle item errors
                 if (ctx.Product.ProductType == ProductType.BundledProduct && ctx.RawAttributes.HasValue())
@@ -193,7 +184,7 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     var cartProductIds = cartItems.Select(x => x.Item.ProductId);
                     var missingRequiredProductIds = requiredProductIds.Except(cartProductIds);
-                    var missingRequiredProducts = await _db.Products.GetManyAsync(missingRequiredProductIds);
+                    var missingRequiredProducts = await _db.Products.GetManyAsync(missingRequiredProductIds, false);
 
                     foreach (var product in missingRequiredProducts)
                     {
@@ -298,6 +289,7 @@ namespace Smartstore.Core.Checkout.Cart
                 && ctx.Warnings.Count == 0)
             {
                 var bundleItems = await _db.ProductBundleItem
+                    .AsNoTracking()
                     .Include(x => x.Product)
                     .Include(x => x.BundleProduct)
                     .ApplyBundledProductsFilter(new[] { ctx.Product.Id }, true)
@@ -308,7 +300,7 @@ namespace Smartstore.Core.Checkout.Cart
                     var bundleItemContext = new AddToCartContext
                     {
                         Warnings = new(),
-                        Item = ctx.Item,
+                        //Item = ctx.Item,
                         StoreId = ctx.StoreId,
                         Customer = ctx.Customer,
                         CartType = ctx.CartType,
@@ -325,9 +317,8 @@ namespace Smartstore.Core.Checkout.Cart
                     // If bundleItem could not be added to the shopping cart, remove child items
                     if (!await AddToCartAsync(bundleItemContext))
                     {
+                        ctx.Warnings.AddRange(bundleItemContext.Warnings);
                         ctx.ChildItems.Clear();
-                        // TODO: (ms) (core) Add warning for bundle products that are unable to be added to the cart.
-                        break;
                     }
                 }
             }
@@ -339,7 +330,7 @@ namespace Smartstore.Core.Checkout.Cart
                 await AddItemToCartAsync(ctx);
             }
 
-            return true;
+            return !ctx.Warnings.Any();
         }
 
         public virtual async Task<bool> CopyAsync(AddToCartContext ctx)
@@ -427,14 +418,14 @@ namespace Smartstore.Core.Checkout.Cart
             var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId);
             var result = _requestCache.Get(cacheKey, async () =>
             {
-                await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, false, q => 
+                await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, false, q =>
                 {
                     return q
                         .Include(x => x.Product)
                         .ThenInclude(x => x.ProductVariantAttributes);
                 });
-                
-                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId);                
+
+                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId);
 
                 // Prefetch all product variant attributes
                 var allAttributes = new ProductVariantAttributeSelection(string.Empty);

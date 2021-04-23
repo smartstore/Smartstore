@@ -660,6 +660,9 @@ namespace Smartstore.Web.Controllers
         /// Adds a product without variants to the cart or redirects user to product details page.
         /// This method is used in product lists on catalog pages (category/manufacturer etc...).
         /// </summary>
+        /// <param name="productId">Identifier of the <see cref="Product"/> to add.</param>
+        /// <param name="shoppingCartTypeId"><see cref="ShoppingCartType"/> identifier. 1 = <see cref="ShoppingCartType.ShoppingCart"/>; 2 = <see cref="ShoppingCartType.Wishlist"/> </param>
+        /// <param name="forceRedirection">A value indicating whether to force a redirection to the shopping cart.</param>
         [HttpPost]
         [LocalizedRoute("/cart/addproductsimple/{productId:int}", Name = "AddProductToCartSimple")]
         public async Task<IActionResult> AddProductSimple(int productId, int shoppingCartTypeId = 1, bool forceRedirection = false)
@@ -712,7 +715,8 @@ namespace Smartstore.Web.Controllers
                 Product = product,
                 CartType = cartType,
                 Quantity = quantityToAdd,
-                AutomaticallyAddRequiredProducts = true
+                AutomaticallyAddRequiredProducts = true,
+                AutomaticallyAddBundleProducts = true
             };
 
             if (!await _shoppingCartService.AddToCartAsync(addToCartContext))
@@ -743,15 +747,19 @@ namespace Smartstore.Web.Controllers
             });
         }
 
+        /// <summary>
+        /// Adds a product to the cart from the product details page.
+        /// </summary>
+        /// <param name="productId">Identifier of the <see cref="Product"/> to add.</param>
+        /// <param name="shoppingCartTypeId"><see cref="ShoppingCartType"/> identifier. 1 = <see cref="ShoppingCartType.ShoppingCart"/>; 2 = <see cref="ShoppingCartType.Wishlist"/>.</param>
+        /// <param name="query">The <see cref="ProductVariantQuery"/> of selected attributes.</param>
         [HttpPost]
         [LocalizedRoute("/cart/addproduct/{productId:int}/{shoppingCartTypeId:int}", Name = "AddProductToCart")]
         public async Task<IActionResult> AddProduct(int productId, int shoppingCartTypeId, ProductVariantQuery query)
         {
-            // TODO: (ms) (core) Redirect to product details page if product has selectable variants.
-
             // Adds a product to cart. This method is used on product details page.
             var form = HttpContext.Request.Form;
-            var product = await _db.Products.FindByIdAsync(productId);
+            var product = await _db.Products.FindByIdAsync(productId, false);
             if (product == null)
             {
                 return Json(new
@@ -800,7 +808,8 @@ namespace Smartstore.Web.Controllers
                 CartType = cartType,
                 CustomerEnteredPrice = customerEnteredPriceConverted,
                 Quantity = quantity,
-                AutomaticallyAddRequiredProducts = true
+                AutomaticallyAddRequiredProducts = true,
+                AutomaticallyAddBundleProducts = true
             };
 
             if (!await _shoppingCartService.AddToCartAsync(addToCartContext))
@@ -1261,9 +1270,10 @@ namespace Smartstore.Web.Controllers
         //    });
         //}
 
+        // TODO: (ms) (core) Wait for FileUpload ChoiceTemplate implementation before adding file upload action(s).
         //[HttpPost]
         //[MaxMediaFileSize]
-        //// TODO: (ms) (core) TEST that IFormFile is beeing
+        //// TODO: (ms) (core) TEST that IFormFile is beeing used
         //public async Task<IActionResult> UploadFileCheckoutAttribute(IFormFile formFile)
         //{
         //    if (formFile == null || !formFile.FileName.HasValue())

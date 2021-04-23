@@ -459,6 +459,8 @@ namespace Smartstore.Core.Checkout.Cart
                 }
             }
 
+            await _db.LoadCollectionAsync(cartItem.Product, x => x.ProductVariantAttributes, false, q => q.Include(x => x.ProductAttribute));
+
             var currentWarnings = new List<string>();
 
             // Get existing product variant attributes
