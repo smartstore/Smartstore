@@ -105,7 +105,7 @@ namespace Smartstore.Web.Models.Common
                         .Where(x => x.CountryId == (to.CountryId ?? 0))
                         .ToListAsync();
 
-                    if (states.Count > 0)
+                    if (states.Any())
                     {
                         foreach (var s in states)
                         {

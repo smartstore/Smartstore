@@ -60,7 +60,7 @@
             <div class="col-lg-9">
                 <triple-date-picker day-name="@Html.NameFor(x => x.DateOfBirthDay)" month-name="@Html.NameFor(x => x.DateOfBirthMonth)" year-name="@Html.NameFor(x => x.DateOfBirthYear)"
                                     day="@Model.DateOfBirthDay" month="@Model.DateOfBirthMonth" year="@Model.DateOfBirthYear"
-                                    begin-year="1970" end-year="2020" disabled="false" />
+                                    begin-year="DateTime.Now.Year - 110" end-year="DateTime.Now.Year" disabled="false" />
                 @*TODO: (mh) (core) Test this*@
                 <span asp-validation-for="DateOfBirthDay"></span>
                 <span asp-validation-for="DateOfBirthMonth"></span>
@@ -148,7 +148,7 @@
         <legend><span>@T("Account.CompanyDetails")</span></legend>
 
         <div sm-if="Model.CompanyEnabled" class="form-group row">
-            <label asp-for="Company" class="col-lg-3 col-form-label@(Model.CompanyRequired ? " required" : "")"></label>
+            <label asp-for="Company" class="col-lg-3 col-form-label" attr-class='(Model.CompanyRequired, "required")'></label>
             <div class="col-lg-9">
                 <input asp-for="Company" sm-required="Model.CompanyRequired" />
                 <span asp-validation-for="Company"></span>
@@ -170,28 +170,28 @@
         <legend><span>@T("Account.YourAddress")</span></legend>
 
         <div sm-if="Model.StreetAddressEnabled" class="form-group row">
-            <label asp-for="StreetAddress" class="col-lg-3 col-form-label@(Model.StreetAddressRequired ? " required" : "")"></label>
+            <label asp-for="StreetAddress" class="col-lg-3 col-form-label" attr-class='(Model.StreetAddressRequired, "required")'></label>
             <div class="col-lg-9">
                 <input asp-for="StreetAddress" sm-required="Model.StreetAddressRequired" />
                 <span asp-validation-for="StreetAddress"></span>
             </div>
         </div>
         <div sm-if="Model.StreetAddress2Enabled" class="form-group row">
-            <label asp-for="StreetAddress2" class="col-lg-3 col-form-label@(Model.StreetAddress2Required ? " required" : "")"></label>
+            <label asp-for="StreetAddress2" class="col-lg-3 col-form-label" attr-class='(Model.StreetAddress2Required, "required")'></label>
             <div class="col-lg-9">
                 <input asp-for="StreetAddress2" sm-required="Model.StreetAddress2Required" />
                 <span asp-validation-for="StreetAddress2"></span>
             </div>
         </div>
         <div sm-if="Model.ZipPostalCodeEnabled" class="form-group row">
-            <label asp-for="ZipPostalCode" class="col-lg-3 col-form-label@(Model.ZipPostalCodeRequired ? " required" : "")"></label>
+            <label asp-for="ZipPostalCode" class="col-lg-3 col-form-label" attr-class='(Model.ZipPostalCodeRequired, "required")'></label>
             <div class="col-lg-9">
                 <input asp-for="ZipPostalCode" sm-required="Model.ZipPostalCodeRequired" />
                 <span asp-validation-for="ZipPostalCode"></span>
             </div>
         </div>
         <div sm-if="Model.CityEnabled" class="form-group row">
-            <label asp-for="City" class="col-lg-3 col-form-label@(Model.CityRequired ? " required" : "")"></label>
+            <label asp-for="City" class="col-lg-3 col-form-label" attr-class='(Model.CityRequired, "required")'></label>
             <div class="col-lg-9">
                 <input asp-for="City" sm-required="Model.CityRequired" />
                 <span asp-validation-for="City"></span>
@@ -220,14 +220,14 @@
     <fieldset sm-if="Model.PhoneEnabled || Model.FaxEnabled" class="content-group">
         <legend><span>@T("Account.YourContactInformation")</span></legend>
         <div sm-if="Model.PhoneEnabled" class="form-group row">
-            <label asp-for="Phone" class="col-lg-3 col-form-label@(Model.PhoneRequired ? " required" : "")"></label>
+            <label asp-for="Phone" class="col-lg-3 col-form-label" attr-class='(Model.PhoneRequired, "required")'></label>
             <div class="col-lg-9">
                 <input asp-for="Phone" sm-required="Model.PhoneRequired" />
                 <span asp-validation-for="Phone"></span>
             </div>
         </div>
         <div sm-if="Model.FaxEnabled" class="form-group row">
-            <label asp-for="Fax" class="col-lg-3 col-form-label@(Model.FaxRequired ? " required" : "")"></label>
+            <label asp-for="Fax" class="col-lg-3 col-form-label" attr-class='(Model.PhoneRequired, "required")'></label>
             <div class="col-lg-9">
                 <input asp-for="Fax" sm-required="Model.FaxRequired" />
                 <span asp-validation-for="Fax"></span>
