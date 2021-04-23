@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ namespace Smartstore.Core.Data.Migrations
         /// <summary>
         /// Initializes / migrates all migratable <see cref="DbContext"/> instances.
         /// </summary>
-        Task InitializeDatabasesAsync();
+        Task InitializeDatabasesAsync(CancellationToken cancelToken);
     }
     
     public class DatabaseInitializer : IDatabaseInitializer
@@ -41,16 +42,16 @@ namespace Smartstore.Core.Data.Migrations
             _seedersMap = DiscoverDataSeeders().ToMultimap(key => key.ContextType, value => value.SeederType);
         }
 
-        public virtual async Task InitializeDatabasesAsync()
+        public virtual async Task InitializeDatabasesAsync(CancellationToken cancelToken = default)
         {
             foreach (var dbContextType in DbMigrationManager.Instance.GetDbContextTypes())
             {
                 var migrator = _scope.Resolve(typeof(DbMigrator<>).MakeGenericType(dbContextType)) as DbMigrator;
-                await InitializeDatabaseAsync(migrator, _seedersMap[dbContextType]);
+                await InitializeDatabaseAsync(migrator, _seedersMap[dbContextType], cancelToken);
             }
         }
 
-        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, IEnumerable<Type> seederTypes)
+        protected virtual async Task InitializeDatabaseAsync(DbMigrator migrator, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
         {
             Guard.NotNull(migrator, nameof(migrator));
 
@@ -62,7 +63,7 @@ namespace Smartstore.Core.Data.Migrations
                 return;
             }
 
-            if (!await context.Database.CanConnectAsync())
+            if (!await context.Database.CanConnectAsync(cancelToken))
             {
                 throw new InvalidOperationException($"Database migration failed because the target database does not exist. Ensure the database was initialized and properly seeded with data.");
             }
@@ -81,7 +82,7 @@ namespace Smartstore.Core.Data.Migrations
                 
                 // Execute the global seeders anyway (on every startup),
                 // we could have locale resources or settings to add/update.
-                await RunGlobalSeeders(context, seederTypes);
+                await RunGlobalSeeders(context, seederTypes, cancelToken);
 
                 // Restore standard command timeout
                 context.Database.SetCommandTimeout(prevCommandTimeout);
@@ -90,17 +91,20 @@ namespace Smartstore.Core.Data.Migrations
             }
         }
 
-        private static async Task RunGlobalSeeders(HookingDbContext dbContext, IEnumerable<Type> seederTypes)
+        private static async Task RunGlobalSeeders(HookingDbContext dbContext, IEnumerable<Type> seederTypes, CancellationToken cancelToken = default)
         {
             foreach (var seederType in seederTypes)
             {
+                if (cancelToken.IsCancellationRequested)
+                    break;
+                
                 var seeder = Activator.CreateInstance(seederType);
                 if (seeder != null)
                 {
                     var seedMethod = seederType.GetMethod(nameof(IDataSeeder<HookingDbContext>.SeedAsync), BindingFlags.Public | BindingFlags.Instance);
                     if (seedMethod != null)
                     {
-                        await (Task)seedMethod.Invoke(seeder, new object[] { dbContext });
+                        await (Task)seedMethod.Invoke(seeder, new object[] { dbContext, cancelToken });
                         await dbContext.SaveChangesAsync();
                     }
                 }

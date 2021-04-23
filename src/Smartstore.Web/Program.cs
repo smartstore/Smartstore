@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -54,9 +55,9 @@ namespace Smartstore.Web
         {
             var host = BuildWebHost(args);
 
-            //// TODO: (core) Does not run when published (IIS). Check and fix!
-            //// Initialize databases
-            //await InitializeDatabases(host);
+            // TODO: (core) Does not run when published (IIS). Check and fix!
+            // Initialize databases
+            await InitializeDatabases(host);
 
             // Run host
             await host.RunAsync();
@@ -68,15 +69,15 @@ namespace Smartstore.Web
             
             if (appContext.IsInstalled)
             {
-                //using var scope = host.Services.CreateScope();
-                //using var db = scope.ServiceProvider.GetRequiredService<SmartDbContext>();
-                //await db.Database.EnsureCreatedAsync();
-
                 var scopeAccessor = host.Services.GetRequiredService<ILifetimeScopeAccessor>();
                 using (scopeAccessor.BeginContextAwareScope(out var scope))
                 {
-                    var initializer = scope.Resolve<IDatabaseInitializer>();
-                    await initializer.InitializeDatabasesAsync();
+                    var initializer = scope.ResolveOptional<IDatabaseInitializer>();
+                    if (initializer != null)
+                    {
+                        var appLifetime = scope.ResolveOptional<IHostApplicationLifetime>();
+                        await initializer.InitializeDatabasesAsync(appLifetime?.ApplicationStopping ?? CancellationToken.None);
+                    }
                 }
             }
         }

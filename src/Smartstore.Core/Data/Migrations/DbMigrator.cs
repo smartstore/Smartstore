@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -25,12 +26,12 @@ namespace Smartstore.Core.Data.Migrations
         /// Migrates the database to the latest version
         /// </summary>
         /// <returns>The number of applied migrations</returns>
-        public abstract Task<int> RunPendingMigrationsAsync();
+        public abstract Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default);
 
         /// <summary>
         /// Seeds locale resources which are ahead of given <paramref name="currentHead"/> migration.
         /// </summary>
-        public abstract Task SeedPendingLocaleResources(string currentHead);
+        public abstract Task SeedPendingLocaleResources(string currentHead, CancellationToken cancelToken = default);
     }
     
     public class DbMigrator<TContext> : DbMigrator where TContext : HookingDbContext
@@ -54,7 +55,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public override TContext Context => _db;
 
-        public override async Task<int> RunPendingMigrationsAsync()
+        public override async Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default)
         {
             if (_lastSeedException != null)
             {
@@ -63,7 +64,7 @@ namespace Smartstore.Core.Data.Migrations
                 throw _lastSeedException;
             }
 
-            var pendingMigrations = (await _db.Database.GetPendingMigrationsAsync()).ToList();
+            var pendingMigrations = (await _db.Database.GetPendingMigrationsAsync(cancelToken)).ToList();
             if (!pendingMigrations.Any())
                 return 0;
 
@@ -74,7 +75,7 @@ namespace Smartstore.Core.Data.Migrations
             var coreSeeders = new List<SeederEntry>();
             var externalSeeders = new List<SeederEntry>();
             var isCoreMigration = _db is SmartDbContext;
-            var appliedMigrations = (await _db.Database.GetAppliedMigrationsAsync()).ToArray();
+            var appliedMigrations = (await _db.Database.GetAppliedMigrationsAsync(cancelToken)).ToArray();
             var initialMigration = appliedMigrations.LastOrDefault() ?? "[Initial]";
             var lastSuccessfulMigration = appliedMigrations.FirstOrDefault();
             int result = 0;
@@ -82,6 +83,9 @@ namespace Smartstore.Core.Data.Migrations
             // Apply migrations
             foreach (var migrationId in pendingMigrations)
             {
+                if (cancelToken.IsCancellationRequested)
+                    break;
+                
                 // Resolve and instantiate the Migration instance from the assembly
                 var migrationType = migrationsAssembly.Migrations[migrationId];
                 var migration = migrationsAssembly.CreateMigration(migrationType, _db.Database.ProviderName);
@@ -101,8 +105,11 @@ namespace Smartstore.Core.Data.Migrations
                 try
                 {
                     // Call the actual Migrate() to execute this migration
-                    await _db.Database.MigrateAsync(migrationId);
+                    await _db.Database.MigrateAsync(migrationId, cancelToken);
                     result++;
+
+                    if (cancelToken.IsCancellationRequested)
+                        break;
                 }
                 catch (Exception ex)
                 {
@@ -134,6 +141,8 @@ namespace Smartstore.Core.Data.Migrations
                 DbMigrationManager.Instance.AddAppliedMigration(typeof(TContext), migrationId);
             }
 
+            cancelToken.ThrowIfCancellationRequested();
+
             if (coreSeeders.Any())
             {
                 // Apply core data seeders first
@@ -148,10 +157,13 @@ namespace Smartstore.Core.Data.Migrations
             return result;
         }
 
-        private async Task RunSeedersAsync<T>(IEnumerable<SeederEntry> seederEntries, T ctx) where T : HookingDbContext
+        private async Task RunSeedersAsync<T>(IEnumerable<SeederEntry> seederEntries, T ctx, CancellationToken cancelToken = default) where T : HookingDbContext
         {
             foreach (var seederEntry in seederEntries)
             {
+                if (cancelToken.IsCancellationRequested)
+                    break;
+                
                 var seeder = (IDataSeeder<T>)seederEntry.DataSeeder;
 
                 try
@@ -160,7 +172,7 @@ namespace Smartstore.Core.Data.Migrations
                     await _eventPublisher.PublishAsync(new SeedingDbMigrationEvent { MigrationName = seederEntry.MigrationName, DbContext = ctx });
 
                     // Seed
-                    await seeder.SeedAsync(ctx);
+                    await seeder.SeedAsync(ctx, cancelToken);
 
                     // Post seed event
                     await _eventPublisher.PublishAsync(new SeededDbMigrationEvent { MigrationName = seederEntry.MigrationName, DbContext = ctx });
@@ -171,12 +183,15 @@ namespace Smartstore.Core.Data.Migrations
                     {
                         _lastSeedException = new DbMigrationException(seederEntry.PreviousMigrationId, seederEntry.MigrationId, ex.InnerException ?? ex, true);
 
-                        try
+                        if (!cancelToken.IsCancellationRequested)
                         {
-                            await _db.Database.MigrateAsync(seederEntry.PreviousMigrationId);
-                        }
-                        catch 
-                        { 
+                            try
+                            {
+                                await _db.Database.MigrateAsync(seederEntry.PreviousMigrationId, cancelToken);
+                            }
+                            catch
+                            {
+                            }
                         }
 
                         throw _lastSeedException;
@@ -187,7 +202,7 @@ namespace Smartstore.Core.Data.Migrations
             }
         }
 
-        public override async Task SeedPendingLocaleResources(string currentHead)
+        public override async Task SeedPendingLocaleResources(string currentHead, CancellationToken cancelToken = default)
         {
             Guard.NotEmpty(currentHead, nameof(currentHead));
 
@@ -205,6 +220,9 @@ namespace Smartstore.Core.Data.Migrations
 
                 foreach (var id in migrations)
                 {
+                    if (cancelToken.IsCancellationRequested)
+                        break;
+                    
                     // Resolve and instantiate the Migration instance from the assembly
                     var migrationType = migrationsAssembly.Migrations[id];
                     var migration = migrationsAssembly.CreateMigration(migrationType, db.Database.ProviderName);
