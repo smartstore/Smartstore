@@ -1,0 +1,27 @@
+﻿@using Smartstore.Core.Widgets;
+
+@model TopicWidget
+
+@if (!Model.WrapContent)
+{
+    @Html.Raw(Model.Body)
+    return;
+}
+
+<div class="block topic-widget topic-widget-@Model.SystemName" attr-class='(Model.Bordered, "block-boxed")'>
+    <div sm-if="Model.ShowTitle && Model.Title.HasValue()" class="block-title">
+        <h3 sm-tagname="@Model.TitleTag" attr-dir='(Model.TitleRtl != WorkContext.WorkingLanguage.Rtl, Model.TitleRtl ? "rtl" : "ltr")'>
+            @Html.Raw(Model.Title)
+        </h3>
+    </div>
+
+    <div class="block-body" attr-class='(Model.Bordered, "px-4")' attr-dir='(Model.BodyRtl != WorkContext.WorkingLanguage.Rtl, Model.BodyRtl ? "rtl" : "ltr")'>
+        <p sm-if="Model.Intro.HasValue()" class="lead">
+            @Html.Raw(Model.Intro)
+        </p>
+
+        <collapsed-content>
+            @Html.Raw(Model.Body)
+        </collapsed-content>
+    </div>
+</div>

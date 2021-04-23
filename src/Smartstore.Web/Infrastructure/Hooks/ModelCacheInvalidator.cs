@@ -106,17 +106,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 		public const string TOPIC_PATTERN_KEY = "pres:topic:page*";
 
 		/// <summary>
-		/// Key for TopicWidget caching
-		/// </summary>
-		/// <remarks>
-		/// {0} : store id
-		/// {1} : language id
-		/// {2} : role ids
-		/// </remarks>
-		public const string TOPIC_WIDGET_ALL_MODEL_KEY = "pres:topic:widget-all-{0}-{1}-{2}";
-		public const string TOPIC_WIDGET_PATTERN_KEY = "pres:topic:widget*";
-
-		/// <summary>
 		/// Key for CategoryTemplate caching
 		/// </summary>
 		/// <remarks>
@@ -333,7 +322,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 			}
 			else if (entity is Topic)
 			{
-				await _cache.RemoveByPatternAsync(TOPIC_WIDGET_PATTERN_KEY);
 				if (state != EntityState.Added)
 				{
 					await _cache.RemoveByPatternAsync(TOPIC_PATTERN_KEY);
@@ -395,7 +383,6 @@ namespace Smartstore.Web.Infrastructure.Hooks
 			{
 				if (lp.LocaleKeyGroup == nameof(Topic))
 				{
-					await _cache.RemoveByPatternAsync(TOPIC_WIDGET_PATTERN_KEY);
 					if (state != EntityState.Added)
 					{
 						await _cache.RemoveByPatternAsync(TOPIC_PATTERN_KEY);
