@@ -462,6 +462,7 @@ namespace Smartstore
             }
 
             var collection = entry.Collection(navigationProperty);
+            // TODO: (Core) Entities with hashSets as collections always return true here, as they are never null (for example: Product.ProductVariantAttributes).
             var isLoaded = collection.CurrentValue != null || collection.IsLoaded;
 
             if (!isLoaded && entry.State == EfState.Detached)
