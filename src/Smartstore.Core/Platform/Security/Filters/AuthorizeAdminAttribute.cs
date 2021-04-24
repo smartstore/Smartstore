@@ -1,9 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Data;
 
 namespace Smartstore.Core.Security
 {
@@ -53,11 +51,6 @@ namespace Smartstore.Core.Security
             private async Task<bool> HasAdminAccess()
             {
                 if (await _permissionService.AuthorizeAsync(Permissions.System.AccessBackend))
-                {
-                    return true;
-                }
-
-                if (await _permissionService.AuthorizeByAliasAsync(Permissions.System.AccessBackend))
                 {
                     return true;
                 }

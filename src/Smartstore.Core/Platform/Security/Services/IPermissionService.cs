@@ -34,15 +34,6 @@ namespace Smartstore.Core.Security
         Task<bool> AuthorizeAsync(string permissionSystemName, Customer customer = null, bool allowByChildPermission = false);
 
         /// <summary>
-        /// Authorize permission by alias permission name. Required if granular permission migration has not yet run.
-        /// Functional only if the old permission resources still exist in the database.
-        /// </summary>
-        /// <param name="permissionSystemName">Permission record system name.</param>
-        /// <remarks>This method is for backward compatibility and will probably be removed in the future.</remarks>
-        /// <returns><c>true</c> if authorized, otherwise <c>false</c>.</returns>
-        Task<bool> AuthorizeByAliasAsync(string permissionSystemName);
-
-        /// <summary>
         /// Gets the permission tree for a customer role from cache.
         /// </summary>
         /// <param name="role">Customer role.</param>

@@ -58,11 +58,6 @@ namespace Smartstore.Core.Security
                     return true;
                 }
 
-                if (await _permissionService.AuthorizeByAliasAsync(Permissions.System.AccessShop))
-                {
-                    return true;
-                }
-
                 return false;
             }
         }

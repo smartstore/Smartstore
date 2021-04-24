@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
@@ -8,15 +9,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Collections;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
-using System.Threading;
 using EState = Smartstore.Data.EntityState;
-using Org.BouncyCastle.Asn1.Sec;
 
 namespace Smartstore.Core.Security
 {
@@ -25,12 +24,6 @@ namespace Smartstore.Core.Security
         // {0} = roleId
         internal const string PERMISSION_TREE_KEY = "permission:tree-{0}";
         internal const string PERMISSION_TREE_PATTERN_KEY = "permission:tree-*";
-
-        private static readonly Dictionary<string, string> _permissionAliases = new()
-        {
-            { Permissions.System.AccessShop, "PublicStoreAllowNavigation" },
-            { Permissions.System.AccessBackend, "AccessAdminPanel" }
-        };
 
         private static readonly Dictionary<string, string> _displayNameResourceKeys = new()
         {
@@ -112,7 +105,6 @@ namespace Smartstore.Core.Security
         private readonly ICacheManager _cache;
 
         private string _hookErrorMessage;
-        private static bool? _hasLegacyMappingTable;
 
         public PermissionService(
             SmartDbContext db,
@@ -124,12 +116,6 @@ namespace Smartstore.Core.Security
             _workContext = workContext;
             _localizationService = localizationService;
             _cache = cache;
-
-            if (_hasLegacyMappingTable == null)
-            {
-                // Don't bother locking something here
-                _hasLegacyMappingTable = _db.DataProvider.HasTable("PermissionRecord_Role_Mapping");
-            }
         }
 
         #region Hook
@@ -253,49 +239,6 @@ namespace Smartstore.Core.Security
             });
 
             return authorized;
-        }
-
-        public async Task<bool> AuthorizeByAliasAsync(string permissionSystemName)
-        {
-            if (string.IsNullOrEmpty(permissionSystemName) || !_permissionAliases.TryGetValue(permissionSystemName, out var alias))
-            {
-                return false;
-            }
-
-            var aliasPermission = await _db.PermissionRecords
-                .AsNoTracking()
-                .ApplySystemNameFilter(permissionSystemName)
-                .FirstOrDefaultAsync();
-
-            if (aliasPermission == null)
-            {
-                return false;
-            }
-
-            // SQL required because the old mapping was only accessible via navigation property but it no longer exists.
-            if (_hasLegacyMappingTable == true)
-            {
-                var aliasCutomerRoleIds = await _db.Database
-                    .ExecuteQueryRawAsync<int>("SELECT CustomerRole_Id from PermissionRecord_Role_Mapping where PermissionRecord_Id = " + aliasPermission.Id)
-                    .ToListAsync();
-
-                if (aliasCutomerRoleIds.Any())
-                {
-                    var roles = _workContext.CurrentCustomer.CustomerRoleMappings
-                        .Select(x => x.CustomerRole)
-                        .Where(x => x.Active);
-
-                    foreach (var role in roles)
-                    {
-                        if (aliasCutomerRoleIds.Contains(role.Id))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            return false;
         }
 
         private TreeNode<IPermissionNode> GetPermissionTree(CustomerRole role)
