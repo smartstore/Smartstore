@@ -214,7 +214,7 @@ namespace Smartstore
 
             var filteredCartItems = cart.Where(x => x.ShoppingCartTypeId == (int)cartType);
 
-            if (storeId != null)
+            if (storeId.GetValueOrDefault() > 0)
             {
                 filteredCartItems = filteredCartItems.Where(x => x.StoreId == storeId.Value);
             }
