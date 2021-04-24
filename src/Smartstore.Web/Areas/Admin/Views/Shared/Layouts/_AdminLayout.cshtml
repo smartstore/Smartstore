@@ -1,0 +1,74 @@
+﻿@* Please keep in mind that this layout view is also referenced and used by plugins! *@
+
+@{
+    Layout = "_AdminRoot";
+
+    var hasLeftSideBar = Display.ZoneHasContent("sidebar_left");
+    if (hasLeftSideBar)
+    {
+        Assets.BodyAttributes.AppendCssClass("has-left-sidebar");
+    }
+}
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+		try {
+			window.parent.document.forms['@(ViewBag.formId)'].@(ViewBag.btnId).click();
+		}
+		catch (e) {
+			try { window.parent.document.getElementById('@(ViewBag.btnId)').click(); }
+			catch (e2) { }
+		}
+
+		@if (!(ViewBag.CloseWindow == false))
+		{
+			<text>window.parent.closePopup();</text>
+		}
+    </script>
+}
+
+<div id="page">
+    <div sm-if="@(ViewData["warning.panel.message"] != null)" class="alert warning-panel-message">
+        @Html.Raw(ViewData["warning.panel.message"])
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+
+    <div class="page-main">
+        <header id="header">
+            <zone name="header" replace-content="true">
+                <zone name="admin_navbar_before"></zone>
+                @await Component.InvokeAsync("AdminNavbar") 
+                <zone name="admin_navbar_after"></zone>
+            </zone>
+
+            <div id="breadcrumb">
+                <zone name="admin_breadcrumb"></zone>
+            </div>
+        </header>
+
+        <aside sm-if="hasLeftSideBar" class="sidebar-left">
+            <zone name="sidebar_left"></zone>
+        </aside>
+
+        <zone name="beforemaincontent"></zone>
+
+        <div id="content">
+            <div class="cph">
+                <zone name="admin_content_before"></zone>
+                @RenderBody()
+            </div>
+            <div id="ajax-busy">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+
+        <zone name="aftermaincontent"></zone>
+    </div>
+
+    <zone name="admin_content_after"></zone>
+</div>
+
+<partial name="Notifications" />

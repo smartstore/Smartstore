@@ -1,0 +1,64 @@
+﻿@using Smartstore.Core;
+
+@{
+    // Page title
+    string adminPageTitle = string.Empty;
+    if (!string.IsNullOrWhiteSpace(ViewBag.Title))
+    {
+        adminPageTitle = ViewBag.Title + " / ";
+    }
+    adminPageTitle += T("Admin.PageTitle").Value;
+}
+<!DOCTYPE html>
+<html sm-language-attributes-for="WorkContext.WorkingLanguage" class="no-js not-ready loading" data-pnotify-firstpos1="0">
+<head>
+    <title>@adminPageTitle</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no" />
+    <meta name="HandheldFriendly" content="true">
+    <meta property="sm:root" content="@Url.Content("~/")" />
+
+    <partial name="_HeadScripts" />
+
+    <zone name="head_stylesheets">
+        <link rel="stylesheet" href="~/admin/bundles/css/common.css" />
+        <link rel="stylesheet" href="~/admin/bundles/css/theme.css" />
+    </zone>
+
+    <zone name="head_scripts">
+        <script src="~/admin/bundles/js/common.js"></script>
+    </zone>
+
+    <link rel="shortcut icon" href="~/admin/favicon.ico?v=@SmartstoreVersion.CurrentVersion" />
+
+    <partial name="_GlobalizationScripts" />
+
+    @* Preload web font files to avoid FOIT (Flash of Invisible Text) and FOUT (Flash of Unstyled Text) *@
+    <link as="font" rel="preload" href="~/fontastic/fonts/fontastic.woff" crossorigin />
+    <link as="font" rel="preload" href="~/lib/fa5/webfonts/fa-solid-900.woff2" crossorigin />
+    <link as="font" rel="preload" href="~/lib/fa5/webfonts/fa-regular-400.woff2" crossorigin />
+
+    <zone name="head_links"></zone>
+    <zone name="head"></zone>
+
+    <script src="~/js/smartstore.globalization.adapter.js"></script>
+
+    <mini-profiler />
+</head>
+
+<body>
+    <zone name="start" />
+    @RenderBody()
+    <zone name="aftercontent" />
+
+    <zone name="scripts">
+        <script src="~/admin/bundles/js/admin.js"></script>
+        <script src="~/admin/bundles/js/charting.js"></script>
+        <script src="~/lib/select2/js/i18n/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+        <script src="~/lib/moment/locale/{lang}.js" sm-locale-for="WorkContext.WorkingLanguage"></script>
+    </zone>
+    <zone name="end" />
+</body>
+</html>

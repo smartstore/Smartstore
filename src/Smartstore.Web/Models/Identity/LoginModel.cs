@@ -7,7 +7,7 @@ using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.Identity
 {
-    // TODO: (mh) (core) One property of Email, Username or UsernameOrEmail must be required. Validate in POST action.
+    // TODO: (mh) (core) One property of Email, Username or UsernameOrEmail is required. Validate in POST action.
     [LocalizedDisplay("Account.Login.Fields.")]
     public partial class LoginModel : ModelBase
     {
@@ -37,9 +37,14 @@ namespace Smartstore.Web.Models.Identity
 
     public class LoginValidator : SmartValidator<LoginModel>
     {
-        public LoginValidator()
+        public LoginValidator(CustomerSettings customerSettings)
         {
-            RuleFor(x => x.Email).NotEmpty().EmailAddress();
+            var loginType = customerSettings.CustomerLoginType;
+
+            RuleFor(x => x.Email).NotEmpty().EmailAddress().When(x => loginType == CustomerLoginType.Email);
+            RuleFor(x => x.Username).NotEmpty().When(x => loginType == CustomerLoginType.Username);
+            RuleFor(x => x.UsernameOrEmail).NotEmpty().When(x => loginType == CustomerLoginType.UsernameOrEmail);
+
             RuleFor(x => x.Password).NotEmpty();
         }
     }

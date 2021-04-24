@@ -123,7 +123,7 @@ namespace Smartstore.Web.Controllers
                 {
                     if (returnUrl.IsEmpty() || !Url.IsLocalUrl(returnUrl))
                     {
-                        return RedirectToRoute("Login");
+                        return RedirectToRoute("Homepage");
                     }
 
                     return RedirectToReferrer(returnUrl);

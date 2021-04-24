@@ -16,6 +16,7 @@ using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 using System.Threading;
 using EState = Smartstore.Data.EntityState;
+using Org.BouncyCastle.Asn1.Sec;
 
 namespace Smartstore.Core.Security
 {
@@ -111,6 +112,7 @@ namespace Smartstore.Core.Security
         private readonly ICacheManager _cache;
 
         private string _hookErrorMessage;
+        private static bool? _hasLegacyMappingTable;
 
         public PermissionService(
             SmartDbContext db,
@@ -122,6 +124,12 @@ namespace Smartstore.Core.Security
             _workContext = workContext;
             _localizationService = localizationService;
             _cache = cache;
+
+            if (_hasLegacyMappingTable == null)
+            {
+                // Don't bother locking something here
+                _hasLegacyMappingTable = _db.DataProvider.HasTable("PermissionRecord_Role_Mapping");
+            }
         }
 
         #region Hook
@@ -255,6 +263,7 @@ namespace Smartstore.Core.Security
             }
 
             var aliasPermission = await _db.PermissionRecords
+                .AsNoTracking()
                 .ApplySystemNameFilter(permissionSystemName)
                 .FirstOrDefaultAsync();
 
@@ -264,10 +273,10 @@ namespace Smartstore.Core.Security
             }
 
             // SQL required because the old mapping was only accessible via navigation property but it no longer exists.
-            if (await _db.DataProvider.HasTableAsync("PermissionRecord_Role_Mapping"))
+            if (_hasLegacyMappingTable == true)
             {
                 var aliasCutomerRoleIds = await _db.Database
-                    .ExecuteQueryRawAsync<int>("select [CustomerRole_Id] from [dbo].[PermissionRecord_Role_Mapping] where [PermissionRecord_Id] = " + aliasPermission.Id)
+                    .ExecuteQueryRawAsync<int>("SELECT CustomerRole_Id from PermissionRecord_Role_Mapping where PermissionRecord_Id = " + aliasPermission.Id)
                     .ToListAsync();
 
                 if (aliasCutomerRoleIds.Any())
@@ -286,7 +295,7 @@ namespace Smartstore.Core.Security
                 }
             }
 
-            return true;
+            return false;
         }
 
         private TreeNode<IPermissionNode> GetPermissionTree(CustomerRole role)

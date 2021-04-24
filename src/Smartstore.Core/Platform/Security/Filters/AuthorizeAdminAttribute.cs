@@ -10,18 +10,18 @@ namespace Smartstore.Core.Security
     /// <summary>
     /// Checks whether the current user has the permission to access the administration backend.
     /// </summary>
-    public sealed class AdminAuthorizeAttribute : TypeFilterAttribute
+    public sealed class AuthorizeAdminAttribute : TypeFilterAttribute
     {
-        public AdminAuthorizeAttribute()
-            : base(typeof(AdminAuthorizeFilter))
+        public AuthorizeAdminAttribute()
+            : base(typeof(AuthorizeAdminFilter))
         {
         }
 
-        class AdminAuthorizeFilter : IAsyncAuthorizationFilter
+        class AuthorizeAdminFilter : IAsyncAuthorizationFilter
         {
             private readonly IPermissionService _permissionService;
 
-            public AdminAuthorizeFilter(IPermissionService permissionService)
+            public AuthorizeAdminFilter(IPermissionService permissionService)
             {
                 _permissionService = permissionService;
             }
@@ -29,11 +29,6 @@ namespace Smartstore.Core.Security
             public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
             {
                 Guard.NotNull(context, nameof(context));
-
-                if (!DataSettings.DatabaseIsInstalled())
-                {
-                    return;
-                }
 
                 var overrideFilter = context.ActionDescriptor.FilterDescriptors
                     .Where(x => x.Scope == FilterScope.Action)
@@ -46,7 +41,7 @@ namespace Smartstore.Core.Security
                     return;
                 }
 
-                if (context.Filters.Any(x => x is AdminAuthorizeFilter))
+                if (context.Filters.Any(x => x is AuthorizeAdminFilter))
                 {
                     if (!await HasAdminAccess())
                     {

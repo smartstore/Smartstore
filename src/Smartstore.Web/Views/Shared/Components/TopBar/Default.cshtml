@@ -66,7 +66,7 @@
     </nav>
 
     <nav sm-if="Model.DisplayAdminLink" class="menubar-group menubar-group--special d-none d-xl-block">
-        <a class="menubar-link" href="@Url.Content("~/admin")" target="_admin" rel="nofollow">
+        <a class="menubar-link" asp-area="Admin" asp-controller="Home" asp-action="Index" target="_admin" rel="nofollow">
             <i class="fal fa-cog menubar-icon"></i>
             <span>@T("Account.Administration")</span>
         </a>

@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
+using Smartstore.Core.Security;
+using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Controllers
 {
@@ -22,5 +21,17 @@ namespace Smartstore.Web.Controllers
         {
             context.HttpContext.RequestServices.GetRequiredService<IWorkContext>().IsAdminArea = false;
         }
+    }
+
+    [Area("Admin")]
+    [AuthorizeAdmin]
+    [AutoValidateAntiforgeryToken]
+    //[AdminValidateIpAddress]
+    [RequireSsl]
+    //[CustomerLastActivity(Order = int.MaxValue)]
+    //[StoreIpAddress(Order = int.MaxValue)]
+    [AdminThemed]
+    public abstract class AdminControllerBase : ManageController
+    {
     }
 }

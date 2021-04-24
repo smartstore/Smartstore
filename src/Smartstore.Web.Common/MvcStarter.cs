@@ -291,9 +291,9 @@ namespace Smartstore.Web
         {
             builder.MapRoutes(StarterOrdering.EarlyRoute, routes =>
             {
-                //routes.MapControllerRoute(
-                //    name: "areas",
-                //    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+                routes.MapControllerRoute(
+                    name: "areas",
+                    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
                 routes.MapXmlSitemap();
 

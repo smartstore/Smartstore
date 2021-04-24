@@ -167,7 +167,7 @@ namespace Smartstore.Core.Content.Menus
                 var permitted = await item
                     .PermissionNames
                     .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .AnyAsync(async x => await Services.Permissions.AuthorizeByAliasAsync(x.Trim()));
+                    .AnyAsync(async x => await Services.Permissions.AuthorizeAsync(x.Trim(), allowByChildPermission: true));
 
                 if (!permitted)
                 {

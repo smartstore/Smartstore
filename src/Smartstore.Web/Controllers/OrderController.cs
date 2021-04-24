@@ -97,7 +97,7 @@ namespace Smartstore.Web.Controllers
             return PrintCore(new List<OrderDetailsModel> { model }, pdf, fileName);
         }
 
-        [AdminAuthorize]
+        [AuthorizeAdmin]
         [Permission(Permissions.Order.Read)]
         public async Task<IActionResult> PrintMany(string ids = null, bool pdf = false)
         {

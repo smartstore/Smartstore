@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Smartstore.Core.Content.Menus;
 
 namespace Smartstore.Web.Rendering.Builders
@@ -22,9 +23,9 @@ namespace Smartstore.Web.Rendering.Builders
             return this;
         }
 
-        public MenuItemBuilder PermissionNames(string value)
+        public MenuItemBuilder PermissionNames(params string[] names)
         {
-            Item.PermissionNames = value;
+            Item.PermissionNames = string.Join(',', names.Select(x => x.Trim()));
             return this;
         }
 

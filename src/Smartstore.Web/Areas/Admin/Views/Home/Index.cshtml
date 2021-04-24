@@ -1,0 +1,42 @@
+﻿@{
+    Layout = "_AdminLayout";
+    //Assets.BodyAttributes.AppendCssClass("minimal-admin"); // TODO: (ms) (core) uncomment later
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="far fa-chart-bar"></i>
+        @T("Admin.Dashboard.StoreStatistics")
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <zone name="admin_dashboard_top"></zone>
+
+    <div class="report-incomplete-orders">
+        @*@{ Html.RenderAction("OrdersIncompleteDashboardReport", "Order"); }*@
+    </div>
+    <div class="report-orders">
+        @*@{ Html.RenderAction("OrdersDashboardReport", "Order"); }*@
+    </div>
+    <div class="report-bestsellers">
+        @*@{ Html.RenderAction("BestsellersDashboardReport", "Order"); }*@
+    </div>
+    <div class="report-top-customers">
+        @*@{ Html.RenderAction("TopCustomersDashboardReport", "Customer"); }*@
+    </div>
+    <div class="report-customer-registrations">
+        @*@{ Html.RenderAction("RegisteredCustomersDashboardReport", "Customer"); }*@
+    </div>
+    <div class="report-latest-orders">
+        @*@{ Html.RenderAction("LatestOrdersDashboardReport", "Order"); }*@
+    </div>
+    <div class="report-store-statistics">
+        @*@{ Html.RenderPartial("~/Administration/Views/Store/StoreDashboardReport.cshtml"); }*@
+    </div>
+    <div class="marketplace-feed">
+        @*@{ Html.RenderAction("MarketplaceFeed"); }*@
+    </div>
+
+    <zone name="admin_dashboard_bottom"></zone>
+</div>
