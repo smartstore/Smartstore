@@ -209,9 +209,11 @@ namespace Smartstore
         /// <param name="cartType"><see cref="ShoppingCartType"/> to filter by.</param>
         /// <param name="storeId">Store identifier to filter by.</param>
         /// <returns><see cref="List{T}"/> of <see cref="ShoppingCartItem"/>.</returns>
-        public static IOrderedEnumerable<ShoppingCartItem> FilterByCartType(this IEnumerable<ShoppingCartItem> cart, ShoppingCartType cartType, int? storeId = null)
+        public static IList<ShoppingCartItem> FilterByCartType(this ICollection<ShoppingCartItem> cart, ShoppingCartType cartType, int? storeId = null)
         {
             Guard.NotNull(cart, nameof(cart));
+
+            // INFO: ICollection<ShoppingCartItem> indicates that this is a POST-query filter.
 
             var filteredCartItems = cart.Where(x => x.ShoppingCartTypeId == (int)cartType);
 
@@ -220,7 +222,7 @@ namespace Smartstore
                 filteredCartItems = filteredCartItems.Where(x => x.StoreId == storeId.Value);
             }
 
-            return filteredCartItems.OrderByDescending(x => x.Id);
+            return filteredCartItems.OrderByDescending(x => x.Id).ToList();
         }
     }
 }

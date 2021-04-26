@@ -425,7 +425,7 @@ namespace Smartstore.Core.Checkout.Cart
                         .ThenInclude(x => x.ProductVariantAttributes);
                 });
 
-                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId).ToList();
+                var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId);
 
                 // Prefetch all product variant attributes
                 var allAttributes = new ProductVariantAttributeSelection(string.Empty);
