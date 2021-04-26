@@ -41,9 +41,18 @@ namespace Smartstore.Web.Models.Identity
         {
             var loginType = customerSettings.CustomerLoginType;
 
-            RuleFor(x => x.Email).NotEmpty().EmailAddress().When(x => loginType == CustomerLoginType.Email);
-            RuleFor(x => x.Username).NotEmpty().When(x => loginType == CustomerLoginType.Username);
-            RuleFor(x => x.UsernameOrEmail).NotEmpty().When(x => loginType == CustomerLoginType.UsernameOrEmail);
+            if (loginType == CustomerLoginType.Email)
+            {
+                RuleFor(x => x.Email).NotEmpty().EmailAddress();
+            }
+            else if (loginType == CustomerLoginType.Username)
+            {
+                RuleFor(x => x.Username).NotEmpty();
+            }
+            else
+            {
+                RuleFor(x => x.UsernameOrEmail).NotEmpty();
+            }
 
             RuleFor(x => x.Password).NotEmpty();
         }
