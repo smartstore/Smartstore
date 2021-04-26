@@ -959,8 +959,8 @@ namespace Smartstore.Web.Controllers
 
         private async Task MgPricingCalculationTests2(StringBuilder content)
         {
-            var pcsLegacy = Services.Resolve<IPriceCalculationService>();
-            var pcs = Services.Resolve<IPriceCalculationService2>();
+            var pcsLegacy = Services.Resolve<IPriceCalculationServiceLegacy>();
+            var pcs = Services.Resolve<IPriceCalculationService>();
             var ps = Services.Resolve<IProductService>();
             var ts = Services.Resolve<ITaxService>();
             var customer = await _db.Customers.FindByIdAsync(2666330, false);
@@ -980,8 +980,8 @@ namespace Smartstore.Web.Controllers
 
         private async Task MgPricingCalculationTests(StringBuilder content)
         {
-            var pcsLegacy = Services.Resolve<IPriceCalculationService>();
-            var pcs = Services.Resolve<IPriceCalculationService2>();
+            var pcsLegacy = Services.Resolve<IPriceCalculationServiceLegacy>();
+            var pcs = Services.Resolve<IPriceCalculationService>();
             var ps = Services.Resolve<IProductService>();
             var paf = Services.Resolve<IProductAttributeFormatter>();
             var scs = Services.Resolve<IShoppingCartService>();

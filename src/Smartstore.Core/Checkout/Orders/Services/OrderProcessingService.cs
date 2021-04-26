@@ -42,7 +42,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IProductService _productService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
-        private readonly IPriceCalculationService2 _priceCalculationService;
+        private readonly IPriceCalculationService _priceCalculationService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ITaxCalculator _taxCalculator;
         private readonly IShoppingCartService _shoppingCartService;
@@ -74,7 +74,7 @@ namespace Smartstore.Core.Checkout.Orders
             IProductService productService,
             IProductAttributeMaterializer productAttributeMaterializer,
             IProductAttributeFormatter productAttributeFormatter,
-            IPriceCalculationService2 priceCalculationService,
+            IPriceCalculationService priceCalculationService,
             IOrderCalculationService orderCalculationService,
             ITaxCalculator taxCalculator,
             IShoppingCartService shoppingCartService,

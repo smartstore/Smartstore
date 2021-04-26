@@ -22,7 +22,7 @@ using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
-    public partial class PriceCalculationService2 : IPriceCalculationService2
+    public partial class PriceCalculationService : IPriceCalculationService
     {
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
@@ -37,7 +37,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly TaxSettings _taxSettings;
         private readonly Currency _primaryCurrency;
 
-        public PriceCalculationService2(
+        public PriceCalculationService(
             SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,
@@ -384,9 +384,9 @@ namespace Smartstore.Core.Catalog.Pricing
     }
 
 
-    #region OLD
+    #region Legacy
 
-    public partial class PriceCalculationService : IPriceCalculationService
+    public partial class PriceCalculationServiceLegacy : IPriceCalculationServiceLegacy
     {
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
@@ -402,7 +402,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly Currency _primaryCurrency;
         private readonly Currency _workingCurrency;
 
-        public PriceCalculationService(
+        public PriceCalculationServiceLegacy(
             SmartDbContext db,
             IWorkContext workContext,
             IStoreContext storeContext,

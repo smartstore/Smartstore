@@ -16,7 +16,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="targetCurrency">The target currency to use for money conversion. Obtained from <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c>.</param>
         /// <returns>Calculated unit price.</returns>
         //public static async Task<CalculatedPrice> CalculateUnitPriceAsync(
-        //    this IPriceCalculationService2 priceCalculationService,
+        //    this IPriceCalculationService priceCalculationService,
         //    OrganizedShoppingCartItem cartItem,
         //    bool ignoreDiscounts = false,
         //    Currency targetCurrency = null)
@@ -42,7 +42,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="targetCurrency">The target currency to use for money conversion. Obtained from <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c>.</param>
         /// <returns>Calculated subtotal.</returns>
         //public static async Task<(CalculatedPrice UnitPrice, CalculatedPrice Subtotal)> CalculateSubtotalAsync(
-        //    this IPriceCalculationService2 priceCalculationService,
+        //    this IPriceCalculationService priceCalculationService,
         //    OrganizedShoppingCartItem cartItem,
         //    bool ignoreDiscounts = false,
         //    Currency targetCurrency = null)
@@ -73,7 +73,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="options">Price calculation options. The default options are used if <c>null</c>.</param>
         /// <returns>Price adjustments of selected attributes. Key: <see cref="ProductVariantAttributeValue.Id"/>, value: attribute price adjustment.</returns>
         public static async Task<IDictionary<int, CalculatedPriceAdjustment>> CalculateAttributePriceAdjustmentsAsync(
-            this IPriceCalculationService2 priceCalculationService,
+            this IPriceCalculationService priceCalculationService,
             Product product,
             ProductVariantAttributeSelection selection = null,
             int quantity = 1,
@@ -100,7 +100,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="product">The product to get the base price info for.</param>
         /// <param name="options">Price calculation options. The default options are used if <c>null</c>.</param>
         /// <returns>Base price info.</returns>
-        public static async Task<string> GetBasePriceInfoAsync(this IPriceCalculationService2 priceCalculationService, Product product, PriceCalculationOptions options = null)
+        public static async Task<string> GetBasePriceInfoAsync(this IPriceCalculationService priceCalculationService, Product product, PriceCalculationOptions options = null)
         {
             Guard.NotNull(priceCalculationService, nameof(priceCalculationService));
             Guard.NotNull(product, nameof(product));

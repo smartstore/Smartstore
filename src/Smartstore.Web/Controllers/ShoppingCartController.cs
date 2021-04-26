@@ -55,7 +55,7 @@ namespace Smartstore.Web.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ILocalizationService _localizationService;
         private readonly IDeliveryTimeService _deliveryTimeService;
-        private readonly IPriceCalculationService2 _priceCalculationService;
+        private readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductService _productService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
@@ -88,7 +88,7 @@ namespace Smartstore.Web.Controllers
             IShoppingCartService shoppingCartService,
             ILocalizationService localizationService,
             IDeliveryTimeService deliveryTimeService,
-            IPriceCalculationService2 priceCalculationService,
+            IPriceCalculationService priceCalculationService,
             IProductService productService,
             IOrderCalculationService orderCalculationService,
             IShoppingCartValidator shoppingCartValidator,

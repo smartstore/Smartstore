@@ -21,14 +21,14 @@ namespace Smartstore.Web.Models.ShoppingCart
        where TModel : CartEntityModelBase
     {
         protected readonly ICommonServices _services;
-        protected readonly IPriceCalculationService _priceCalculationService;
+        protected readonly IPriceCalculationServiceLegacy _priceCalculationService;
         protected readonly IProductAttributeMaterializer _productAttributeMaterializer;
         protected readonly ShoppingCartSettings _shoppingCartSettings;
         protected readonly CatalogSettings _catalogSettings;
 
         protected CartItemMapperBase(
             ICommonServices services,
-            IPriceCalculationService priceCalculationService,
+            IPriceCalculationServiceLegacy priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)

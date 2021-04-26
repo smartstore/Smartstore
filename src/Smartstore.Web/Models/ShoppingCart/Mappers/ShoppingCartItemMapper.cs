@@ -29,7 +29,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         public ShoppingCartItemMapper(
             ICommonServices services,
             IDeliveryTimeService deliveryTimeService,
-            IPriceCalculationService priceCalculationService,
+            IPriceCalculationServiceLegacy priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)

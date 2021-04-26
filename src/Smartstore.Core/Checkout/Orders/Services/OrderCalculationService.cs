@@ -29,7 +29,7 @@ namespace Smartstore.Core.Checkout.Orders
         private const string CART_TAXING_INFO_KEY = "CartTaxingInfos";
 
         private readonly SmartDbContext _db;
-        private readonly IPriceCalculationService2 _priceCalculationService;
+        private readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductService _productService;
         private readonly IDiscountService _discountService;
         private readonly IShippingService _shippingService;
@@ -50,7 +50,7 @@ namespace Smartstore.Core.Checkout.Orders
 
         public OrderCalculationService(
             SmartDbContext db,
-            IPriceCalculationService2 priceCalculationService,
+            IPriceCalculationService priceCalculationService,
             IProductService productService,
             IDiscountService discountService,
             IShippingService shippingService,

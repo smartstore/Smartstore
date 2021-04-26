@@ -71,7 +71,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// The shopping cart item to calculate price for, if any.
-        /// Use <see cref="IPriceCalculationService2.CreateCalculationContextAsync(OrganizedShoppingCartItem, PriceCalculationOptions)"/>
+        /// Use <see cref="IPriceCalculationService.CreateCalculationContextAsync(OrganizedShoppingCartItem, PriceCalculationOptions)"/>
         /// to include selected product attributes and attribute combination prices in the price calculation.
         /// </summary>
         public OrganizedShoppingCartItem CartItem { get; init; }

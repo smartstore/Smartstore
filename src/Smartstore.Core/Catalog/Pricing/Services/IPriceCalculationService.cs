@@ -12,7 +12,7 @@ namespace Smartstore.Core.Catalog.Pricing
     /// <summary>
     /// Price calculation service.
     /// </summary>
-    public partial interface IPriceCalculationService2
+    public partial interface IPriceCalculationService
     {
         /// <summary>
         /// Creates a new <see cref="PriceCalculationOptions"/> instance with predefined options. 
@@ -83,7 +83,7 @@ namespace Smartstore.Core.Catalog.Pricing
     /// <summary>
     /// Price calculation service.
     /// </summary>
-    public partial interface IPriceCalculationService
+    public partial interface IPriceCalculationServiceLegacy
     {
         /// <summary>
         /// Gets the special price in the primary currency. <c>null</c> if not available.

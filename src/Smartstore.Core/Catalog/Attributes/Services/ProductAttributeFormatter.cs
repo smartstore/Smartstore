@@ -23,7 +23,7 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly IWebHelper _webHelper;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ILocalizationService _localizationService;
-        private readonly IPriceCalculationService2 _priceCalculationService;
+        private readonly IPriceCalculationService _priceCalculationService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CatalogSettings _catalogSettings;
 
@@ -33,7 +33,7 @@ namespace Smartstore.Core.Catalog.Attributes
             IWebHelper webHelper,
             IProductAttributeMaterializer productAttributeMaterializer,
             ILocalizationService localizationService,
-            IPriceCalculationService2 priceCalculationService,
+            IPriceCalculationService priceCalculationService,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
         {

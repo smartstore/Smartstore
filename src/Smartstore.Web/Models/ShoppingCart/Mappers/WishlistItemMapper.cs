@@ -22,7 +22,7 @@ namespace Smartstore.Web.Models.ShoppingCart
     {
         public WishlistItemModelMapper(
             ICommonServices services,
-            IPriceCalculationService priceCalculationService,
+            IPriceCalculationServiceLegacy priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)

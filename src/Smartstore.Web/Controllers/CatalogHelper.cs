@@ -57,7 +57,7 @@ namespace Smartstore.Web.Controllers
         private readonly ICurrencyService _currencyService;
         private readonly IMediaService _mediaService;
         private readonly ILocalizationService _localizationService;
-        private readonly IPriceCalculationService2 _priceCalculationService;
+        private readonly IPriceCalculationService _priceCalculationService;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IStockSubscriptionService _stockSubscriptionService;
         private readonly MediaSettings _mediaSettings;
@@ -93,7 +93,7 @@ namespace Smartstore.Web.Controllers
             ITaxCalculator taxCalculator,
             ICurrencyService currencyService,
             IMediaService mediaService,
-            IPriceCalculationService2 priceCalculationService,
+            IPriceCalculationService priceCalculationService,
             IDateTimeHelper dateTimeHelper,
             IStockSubscriptionService stockSubscriptionService,
             MediaSettings mediaSettings,
