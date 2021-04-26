@@ -714,7 +714,7 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 var cartProducts = ctx.Cart.Select(x => x.Item.Product).ToArray();
                 var batchContext = _productService.CreateProductBatchContext(cartProducts, null, ctx.Customer, false);
-                var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, _primaryCurrency, batchContext);
+                var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, _primaryCurrency, batchContext);
 
                 foreach (var cartItem in ctx.Cart)
                 {
@@ -734,7 +734,8 @@ namespace Smartstore.Core.Checkout.Orders
                     // Product cost always in primary currency without tax.
                     var productCost = await _priceCalculationService.CalculateProductCostAsync(product, item.AttributeSelection);
 
-                    var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(new PriceCalculationContext(cartItem, pricingOptions));
+                    var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
+                    var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
                     var discountTax = await _taxCalculator.CalculateProductTaxAsync(product, subtotal.DiscountAmount.Amount, null, ctx.Customer);
 
                     subtotal.AppliedDiscounts.Each(x => ctx.AddDiscount(x));
@@ -768,11 +769,12 @@ namespace Smartstore.Core.Checkout.Orders
                         var listBundleData = new List<ProductBundleItemOrderData>();
                         var childProducts = cartItem.ChildItems.Select(x => x.Item.Product).ToArray();
                         var childBatchContext = _productService.CreateProductBatchContext(childProducts, null, ctx.Customer, false);
-                        var childPricingOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, _primaryCurrency, childBatchContext);
+                        var childCalculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, _primaryCurrency, childBatchContext);
 
                         foreach (var childItem in cartItem.ChildItems)
                         {
-                            var (childUnitPrice, childSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(new PriceCalculationContext(childItem, childPricingOptions));
+                            var childCalculationContext = await _priceCalculationService.CreateCalculationContextAsync(childItem, childCalculationOptions);
+                            var (childUnitPrice, childSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(childCalculationContext);
 
                             var attributesInfo = await _productAttributeFormatter.FormatAttributesAsync(
                                 childItem.Item.AttributeSelection, 

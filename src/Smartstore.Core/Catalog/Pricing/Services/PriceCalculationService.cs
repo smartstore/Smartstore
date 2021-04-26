@@ -102,6 +102,52 @@ namespace Smartstore.Core.Catalog.Pricing
             return options;
         }
 
+        public virtual async Task<PriceCalculationContext> CreateCalculationContextAsync(OrganizedShoppingCartItem cartItem, PriceCalculationOptions options)
+        {
+            Guard.NotNull(cartItem, nameof(cartItem));
+            Guard.NotNull(options, nameof(options));
+
+            var product = cartItem.Item.Product;
+            var context = new PriceCalculationContext(product, cartItem.Item.Quantity, options)
+            {
+                CartItem = cartItem
+            };
+
+            // Include attributes selected for this cart item in price calculation.
+            context.AddSelectedAttributes(cartItem);
+
+            // Include bundle item data if the cart item is a bundle item.
+            if (cartItem.BundleItemData?.Item != null)
+            {
+                context.BundleItem = cartItem.BundleItemData;
+            }
+
+            // Perf: we already have the bundle items of a bundled product. No need to load them again during calculation.
+            if (cartItem.ChildItems?.Any() ?? false)
+            {
+                context.BundleItems = cartItem.ChildItems
+                    .Where(x => x.BundleItemData?.Item != null)
+                    .Select(x => x.BundleItemData)
+                    .ToList();
+            }
+
+            if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
+            {
+                Guard.NotNull(cartItem.ChildItems, nameof(cartItem.ChildItems));
+
+                foreach (var bundleItem in cartItem.ChildItems)
+                {
+                    await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Item.Product, bundleItem.Item.AttributeSelection);
+                }
+            }
+            else
+            {
+                await _productAttributeMaterializer.MergeWithCombinationAsync(product, cartItem.Item.AttributeSelection);
+            }
+        
+            return context;
+        }
+
         public virtual async Task<CalculatedPrice> CalculatePriceAsync(PriceCalculationContext context)
         {
             Guard.NotNull(context, nameof(context));
@@ -207,8 +253,6 @@ namespace Smartstore.Core.Catalog.Pricing
             // Remember source product.
             var product = context.Product;
 
-            await PrepareContext(context);
-
             // Collect calculators
             var calculators = _calculatorFactory.GetCalculators(context);
             var calculatorContext = new CalculatorContext(context, product.Price);
@@ -217,48 +261,6 @@ namespace Smartstore.Core.Catalog.Pricing
             await _calculatorFactory.RunCalculators(calculators, calculatorContext);
 
             return calculatorContext;
-        }
-
-        // TODO: (mg) (core) PrepareContext is executed every time CalculatePriceAsync is called, instead of exactly one time. Something like 'CreateCalculationContext' actually required.
-        private async Task PrepareContext(PriceCalculationContext context)
-        {
-            var product = context.Product;
-            var cartItem = context.CartItem;
-
-            if (cartItem != null)
-            {
-                // Include attributes selected for this cart item in price calculation.
-                context.AddSelectedAttributes(cartItem);
-
-                // Include bundle item data if the cart item is a bundle item.
-                if (cartItem.BundleItemData?.Item != null)
-                {
-                    context.BundleItem = cartItem.BundleItemData;
-                }
-
-                // Perf: we already have the bundle items of a bundled product. No need to load them again during calculation.
-                if (cartItem.ChildItems?.Any() ?? false)
-                {
-                    context.BundleItems = cartItem.ChildItems
-                        .Where(x => x.BundleItemData?.Item != null)
-                        .Select(x => x.BundleItemData)
-                        .ToList();
-                }
-
-                if (product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing)
-                {
-                    Guard.NotNull(cartItem.ChildItems, nameof(cartItem.ChildItems));
-
-                    foreach (var bundleItem in cartItem.ChildItems)
-                    {
-                        await _productAttributeMaterializer.MergeWithCombinationAsync(bundleItem.Item.Product, bundleItem.Item.AttributeSelection);
-                    }
-                }
-                else
-                {
-                    await _productAttributeMaterializer.MergeWithCombinationAsync(product, cartItem.Item.AttributeSelection);
-                }
-            }
         }
 
         private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null, int subtotalQuantity = 1)

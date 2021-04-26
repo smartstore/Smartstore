@@ -21,6 +21,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <param name="includeProductAttributes">A value indicating whether to include product attributes.</param>
         /// <param name="includeGiftCardAttributes">A value indicating whether to include gift card attributes.</param>
         /// <param name="includeHyperlinks">A value indicating whether to include HTML hyperlinks.</param>
+        /// <param name="batchContext">The product batch context. For example used to load all products of a shopping cart in one go. Will be created internally if <c>null</c>.</param>
         /// <returns>Formatted attributes.</returns>
         Task<string> FormatAttributesAsync(
             ProductVariantAttributeSelection attributes,
@@ -31,6 +32,7 @@ namespace Smartstore.Core.Catalog.Attributes
             bool includePrices = true,
             bool includeProductAttributes = true,
             bool includeGiftCardAttributes = true,
-            bool includeHyperlinks = true);
+            bool includeHyperlinks = true,
+            ProductBatchContext batchContext = null);
     }
 }

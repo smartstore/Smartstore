@@ -30,7 +30,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 return;
             }
 
-            var selectedValues = (await context.GetPreSelectedAttributeValuesAsync())
+            var selectedValues = (await context.GetPreselectedAttributeValuesAsync())
                 .Where(x => x.ProductVariantAttribute.IsListTypeAttribute())
                 .ToList();
 

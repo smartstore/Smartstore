@@ -1124,7 +1124,7 @@ namespace Smartstore.Web.Controllers
                 var (oldDiscountAmount, _) = await pcsLegacy.GetDiscountAmountAsync(item);
                 var (oldDiscountAmountTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldDiscountAmount, customer: customer);
 
-                var (newCartPrice, newCartSubtotal) = await pcs.CalculateSubtotalAsync(new PriceCalculationContext(item, cartPricingOptions));
+                var (newCartPrice, newCartSubtotal) = await pcs.CalculateSubtotalAsync(await pcs.CreateCalculationContextAsync(item, cartPricingOptions));
 
                 str = $"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldCartPriceTax, newCartPrice.FinalPrice)} {Fmt(oldCartSubtotalTax, newCartSubtotal.FinalPrice)} ";
                 str += Fmt(oldDiscountAmountTax, newCartSubtotal.DiscountAmount);
@@ -1148,7 +1148,7 @@ namespace Smartstore.Web.Controllers
                 var (oldCartPriceTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldCartPrice, customer: customer);
                 var oldConvertedCardPrice = cs.ConvertFromPrimaryCurrency(oldCartPriceTax.Amount, usd);
 
-                var (newCartPrice, newCartSubtotal) = await pcs.CalculateSubtotalAsync(new PriceCalculationContext(item, cartPricingOptions2));
+                var (newCartPrice, newCartSubtotal) = await pcs.CalculateSubtotalAsync(await pcs.CreateCalculationContextAsync(item, cartPricingOptions2));
 
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldConvertedCardPrice, newCartPrice.FinalPrice)}");
             }
@@ -1160,7 +1160,7 @@ namespace Smartstore.Web.Controllers
             content.AppendLine("\r\nCart attribute prices");
             foreach (var item in cart)
             {
-                var newCartPrice = await pcs.CalculatePriceAsync(new PriceCalculationContext(item, cartPricingOptions3));
+                var newCartPrice = await pcs.CalculatePriceAsync(await pcs.CreateCalculationContextAsync(item, cartPricingOptions3));
 
                 foreach (var price in newCartPrice.AttributePriceAdjustments)
                 {
@@ -1188,7 +1188,7 @@ namespace Smartstore.Web.Controllers
                 var (oldExclTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldSubTotal, false, customer: customer);
                 var (oldInclTax, _) = await ts.GetProductPriceAsync(item.Item.Product, oldSubTotal, true, customer: customer);
 
-                var (_, newCartSubtotal) = await pcs.CalculateSubtotalAsync(new PriceCalculationContext(item, cartPricingOptions4));
+                var (_, newCartSubtotal) = await pcs.CalculateSubtotalAsync(await pcs.CreateCalculationContextAsync(item, cartPricingOptions4));
                 var tax = newCartSubtotal.Tax.Value;
                 
                 content.AppendLine($"{item.Item.ProductId.ToString().PadRight(11)}: {Fmt(oldExclTax, oldInclTax, false)} {FmtTax(tax)}");

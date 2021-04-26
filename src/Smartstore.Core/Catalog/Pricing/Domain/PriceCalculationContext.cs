@@ -15,7 +15,7 @@ namespace Smartstore.Core.Catalog.Pricing
     {
         private Product _product;
         private ICollection<TierPrice> _tierPrices;
-        private List<ProductVariantAttributeValue> _preSelectedAttributeValues;
+        private List<ProductVariantAttributeValue> _preselectedAttributeValues;
 
         /// <summary>
         /// Creates a new context instance for given <paramref name="product"/> and <paramref name="options"/>.
@@ -25,19 +25,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public PriceCalculationContext(Product product, PriceCalculationOptions options)
             : this(product, 1, options)
         {
-        }
-
-        /// <summary>
-        /// Creates a new context instance for given <paramref name="cartItem"/> and <paramref name="options"/>.
-        /// </summary>
-        /// <param name="cartItem">Shopping cart item.</param>
-        /// <param name="options">The calculation options.</param>
-        public PriceCalculationContext(OrganizedShoppingCartItem cartItem, PriceCalculationOptions options)
-            : this(cartItem?.Item?.Product, cartItem?.Item?.Quantity ?? 1, options)
-        {
-            Guard.NotNull(cartItem, nameof(cartItem));
-
-            CartItem = cartItem;
         }
 
         /// <summary>
@@ -84,9 +71,10 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// The shopping cart item to calculate price for, if any.
-        /// The selected product attributes and attribute combinations are taken into account when calculating the price.
+        /// Use <see cref="IPriceCalculationService2.CreateCalculationContextAsync(OrganizedShoppingCartItem, PriceCalculationOptions)"/>
+        /// to include selected product attributes and attribute combination prices in the price calculation.
         /// </summary>
-        public OrganizedShoppingCartItem CartItem { get; private set; }
+        public OrganizedShoppingCartItem CartItem { get; init; }
 
         /// <summary>
         /// An explicit list of calculator instances that define the pipeline. A non-null array
@@ -168,11 +156,11 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// Gets the product attribute values preselected by the merchant.
         /// </summary>
-        public async Task<List<ProductVariantAttributeValue>> GetPreSelectedAttributeValuesAsync()
+        public async Task<List<ProductVariantAttributeValue>> GetPreselectedAttributeValuesAsync()
         {
-            if (_preSelectedAttributeValues == null)
+            if (_preselectedAttributeValues == null)
             {
-                _preSelectedAttributeValues = new List<ProductVariantAttributeValue>();
+                _preselectedAttributeValues = new List<ProductVariantAttributeValue>();
 
                 var bundleItem = BundleItem?.Item;
                 var attributes = await Options.BatchContext.Attributes.GetOrLoadAsync(Product.Id);
@@ -195,16 +183,16 @@ namespace Smartstore.Core.Catalog.Pricing
                     // A value preselected by a bundle item attribute filter always discards the default preselection.
                     if (defaultValue != null)
                     {
-                        _preSelectedAttributeValues.Add(defaultValue);
+                        _preselectedAttributeValues.Add(defaultValue);
                     }
                     else
                     {
-                        _preSelectedAttributeValues.AddRange(attribute.ProductVariantAttributeValues.Where(x => x.IsPreSelected));
+                        _preselectedAttributeValues.AddRange(attribute.ProductVariantAttributeValues.Where(x => x.IsPreSelected));
                     }
                 }
             }
 
-            return _preSelectedAttributeValues;
+            return _preselectedAttributeValues;
         }
     }
 }

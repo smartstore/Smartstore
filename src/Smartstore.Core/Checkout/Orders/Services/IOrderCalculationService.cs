@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
@@ -33,8 +34,9 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="cart">Shopping cart.</param>
         /// <param name="includeTax">A value indicating whether the calculated price should include tax.
         /// If <c>null</c>, will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.</param>
+        /// <param name="batchContext">The product batch context used to load all cart products in one go. Will be created internally if <c>null</c>.</param>
         /// <returns>Shopping cart subtotal.</returns>
-        Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null);
+        Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null, ProductBatchContext batchContext = null);
 
         /// <summary>
         /// Gets the shopping cart shipping total.

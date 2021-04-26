@@ -55,12 +55,12 @@ namespace Smartstore.Web.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly ILocalizationService _localizationService;
         private readonly IDeliveryTimeService _deliveryTimeService;
-        private readonly IPriceCalculationService _priceCalculationService;
+        private readonly IPriceCalculationService2 _priceCalculationService;
+        private readonly IProductService _productService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -88,12 +88,12 @@ namespace Smartstore.Web.Controllers
             IShoppingCartService shoppingCartService,
             ILocalizationService localizationService,
             IDeliveryTimeService deliveryTimeService,
-            IPriceCalculationService priceCalculationService,
+            IPriceCalculationService2 priceCalculationService,
+            IProductService productService,
             IOrderCalculationService orderCalculationService,
             IShoppingCartValidator shoppingCartValidator,
             IProductAttributeFormatter productAttributeFormatter,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
-            IProductAttributeMaterializer productAttributeMaterializer,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             ProductUrlHelper productUrlHelper,
             ShoppingCartSettings shoppingCartSettings,
@@ -120,12 +120,12 @@ namespace Smartstore.Web.Controllers
             _shoppingCartService = shoppingCartService;
             _localizationService = localizationService;
             _deliveryTimeService = deliveryTimeService;
+            _productService = productService;
             _priceCalculationService = priceCalculationService;
             _orderCalculationService = orderCalculationService;
             _shoppingCartValidator = shoppingCartValidator;
             _productAttributeFormatter = productAttributeFormatter;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
-            _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _productUrlHelper = productUrlHelper;
             _shoppingCartSettings = shoppingCartSettings;
@@ -258,6 +258,7 @@ namespace Smartstore.Web.Controllers
         [NonAction]
         protected async Task<MiniShoppingCartModel> PrepareMiniShoppingCartModelAsync()
         {
+            var currency = Services.WorkContext.WorkingCurrency;
             var customer = Services.WorkContext.CurrentCustomer;
             var storeId = Services.StoreContext.CurrentStore.Id;
 
@@ -274,14 +275,17 @@ namespace Smartstore.Web.Controllers
             var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
             model.TotalProducts = cart.GetTotalQuantity();
 
-            if (cart.Count == 0)
+            if (!cart.Any())
             {
                 return model;
             }
 
-            // TODO: (ms) (core) subtotal is always 0. Check again when pricing is fully implmented.
-            //model.SubTotal = (await _orderCalculationService.GetShoppingCartSubTotalAsync(cart)).SubTotalWithoutDiscount.ToString();
-            model.SubTotal = "99 €";
+            var cartProducts = cart.Select(x => x.Item.Product).ToArray();
+            var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, batchContext);
+
+            var subtotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart, null, batchContext);
+            model.SubTotal = subtotal.SubTotalWithoutDiscount.ToString();
 
             // A customer should visit the shopping cart page before going to checkout if:
             //1. There is at least one checkout attribute that is reqired
@@ -317,11 +321,10 @@ namespace Smartstore.Web.Controllers
                         product,
                         null,
                         ", ",
-                        false,
-                        false,
-                        false,
-                        false,
-                        false)
+                        includePrices: false,
+                        includeGiftCardAttributes: false,
+                        includeHyperlinks: false,
+                        batchContext: batchContext)
                 };
 
                 if (cartItem.ChildItems != null && _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart)
@@ -375,17 +378,18 @@ namespace Smartstore.Web.Controllers
                 }
                 else
                 {
-                    var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(item.ProductId, item.AttributeSelection);
-                    product.MergeWithCombination(attributeCombination);
+                    // INFO: merging for pricing not required anymore. Internally done by CreateCalculationContextAsync.
+                    //var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(item.ProductId, item.AttributeSelection);
+                    //product.MergeWithCombination(attributeCombination);
 
-                    var unitPriceWithDiscountBase = await _taxService.GetProductPriceAsync(product, await _priceCalculationService.GetUnitPriceAsync(cartItem, true));
-                    var unitPriceWithDiscount = _currencyService.ConvertFromPrimaryCurrency(unitPriceWithDiscountBase.Price.Amount, Services.WorkContext.WorkingCurrency);
+                    var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
+                    var unitPriceWithDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
-                    cartItemModel.UnitPrice = unitPriceWithDiscount.ToString();
+                    cartItemModel.UnitPrice = unitPriceWithDiscount.FinalPrice.ToString();
 
-                    if (unitPriceWithDiscount != decimal.Zero && model.ShowBasePrice)
+                    if (unitPriceWithDiscount.FinalPrice != 0 && model.ShowBasePrice)
                     {
-                        cartItemModel.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(item.Product);
+                        cartItemModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(item.Product, unitPriceWithDiscount.FinalPrice, currency);
                     }
                 }
 

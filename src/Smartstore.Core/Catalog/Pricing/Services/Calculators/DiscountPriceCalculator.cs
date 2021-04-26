@@ -35,12 +35,43 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 return;
             }
 
-            var product = context.Product;
-            var bundleItem = context.BundleItem?.Item;
+            var minTierPrice = context.MinTierPrice ?? 0;
+
+            // Percentage discount on minimum tier price.
+            // TODO: (mg) (core) PercentageDiscountOnTierPrices must be tested thoroughly. It is not entirely clear whether this works correctly in all cases.
+            if (!context.Options.IgnorePercentageDiscountOnTierPrices && minTierPrice != 0)
+            {
+                var (discountAmountOnTierPrice, discountOnTierPrice) = await GetDiscountAmountAsync(minTierPrice, context);
+                if (discountOnTierPrice != null && discountOnTierPrice.UsePercentage)
+                {
+                    context.AppliedDiscounts.Add(discountOnTierPrice);
+                    context.DiscountAmount += discountAmountOnTierPrice;
+                    context.FinalPrice -= discountAmountOnTierPrice;
+
+                    await next(context);
+                    return;
+                }
+            }
+
+            // Discount on final price.
+            var (discountAmount, appliedDiscount) = await GetDiscountAmountAsync(context.FinalPrice, context);
+            if (appliedDiscount != null)
+            {
+                context.AppliedDiscounts.Add(appliedDiscount);
+                context.DiscountAmount += discountAmount;
+                context.FinalPrice -= discountAmount;
+            }
+
+            await next(context);
+        }
+
+        protected virtual async Task<(decimal DiscountAmount, Discount AppliedDiscount)> GetDiscountAmountAsync(decimal price, CalculatorContext context)
+        {
             var discountAmount = 0m;
             Discount appliedDiscount = null;
+            var product = context.Product;
+            var bundleItem = context.BundleItem?.Item;
 
-            // Calculate discount amount.
             if (bundleItem != null)
             {
                 if (bundleItem.Discount.HasValue && bundleItem.BundleProduct.BundlePerItemPricing)
@@ -52,44 +83,27 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                         DiscountAmount = bundleItem.Discount.Value
                     };
 
-                    context.AppliedDiscounts.Add(appliedDiscount);
-                    discountAmount += appliedDiscount.GetDiscountAmount(context.FinalPrice);
+                    discountAmount = appliedDiscount.GetDiscountAmount(price);
                 }
             }
             else if (!_catalogSettings.IgnoreDiscounts && !product.CustomerEntersPrice)
             {
                 // Don't calculate when customer entered price or discounts should be ignored in any case (except for bundle items).
-                var applicableDiscounts = await GetApplicableDiscounts(product, context);
+                var applicableDiscounts = await GetApplicableDiscountsAsync(product, context);
                 if (applicableDiscounts.Any())
                 {
-                    appliedDiscount = applicableDiscounts.GetPreferredDiscount(context.FinalPrice);
+                    appliedDiscount = applicableDiscounts.GetPreferredDiscount(price);
                     if (appliedDiscount != null)
                     {
-                        context.AppliedDiscounts.Add(appliedDiscount);
-                        discountAmount += appliedDiscount.GetDiscountAmount(context.FinalPrice);
+                        discountAmount = appliedDiscount.GetDiscountAmount(price);
                     }
                 }
             }
 
-            // Percentage discount on minimum tier price.
-            if (!context.Options.IgnorePercentageDiscountOnTierPrices &&
-                context.MinTierPrice.HasValue &&
-                context.MinTierPrice != decimal.Zero &&
-                appliedDiscount != null &&
-                appliedDiscount.UsePercentage)
-            {
-                // TODO: (mg) (core) Price calculation pipeline do not work for percentage discounts together with tier prices (requires a completely different solution approach).
-                //discountAmount += appliedDiscount.GetDiscountAmount(context.MinTierPrice.Value);
-            }
-
-            // Apply discount amount, if any.
-            context.DiscountAmount += discountAmount;
-            context.FinalPrice -= discountAmount;
-
-            await next(context);
+            return (discountAmount, appliedDiscount);
         }
 
-        protected virtual async Task<ICollection<Discount>> GetApplicableDiscounts(Product product, CalculatorContext context)
+        protected virtual async Task<ICollection<Discount>> GetApplicableDiscountsAsync(Product product, CalculatorContext context)
         {
             var result = new HashSet<Discount>();
             var batchContext = context.Options.BatchContext;

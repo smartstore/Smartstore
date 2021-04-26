@@ -202,13 +202,14 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Returns filtered list of <see cref="ShoppingCartItem"/>s by <see cref="ShoppingCartType"/> and <paramref name="storeId"/>.
+        /// Returns a filtered list of <see cref="ShoppingCartItem"/>s by <see cref="ShoppingCartType"/> and <paramref name="storeId"/>
+        /// and sorts by <see cref="ShoppingCartItem.Id"/> descending.
         /// </summary>
         /// <param name="cart">The cart collection the filter gets applied on.</param>
         /// <param name="cartType"><see cref="ShoppingCartType"/> to filter by.</param>
         /// <param name="storeId">Store identifier to filter by.</param>
         /// <returns><see cref="List{T}"/> of <see cref="ShoppingCartItem"/>.</returns>
-        public static IList<ShoppingCartItem> FilterByCartType(this ICollection<ShoppingCartItem> cart, ShoppingCartType cartType, int? storeId = null)
+        public static IOrderedEnumerable<ShoppingCartItem> FilterByCartType(this IEnumerable<ShoppingCartItem> cart, ShoppingCartType cartType, int? storeId = null)
         {
             Guard.NotNull(cart, nameof(cart));
 
@@ -219,7 +220,7 @@ namespace Smartstore
                 filteredCartItems = filteredCartItems.Where(x => x.StoreId == storeId.Value);
             }
 
-            return filteredCartItems.ToList();
+            return filteredCartItems.OrderByDescending(x => x.Id);
         }
     }
 }

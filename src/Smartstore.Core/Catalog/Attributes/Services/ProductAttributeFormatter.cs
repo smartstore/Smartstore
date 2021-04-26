@@ -56,7 +56,8 @@ namespace Smartstore.Core.Catalog.Attributes
             bool includePrices = true,
             bool includeProductAttributes = true,
             bool includeGiftCardAttributes = true,
-            bool includeHyperlinks = true)
+            bool includeHyperlinks = true,
+            ProductBatchContext batchContext = null)
         {
             Guard.NotNull(selection, nameof(selection));
             Guard.NotNull(product, nameof(product));
@@ -73,7 +74,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
                 // Key: ProductVariantAttributeValue.Id, value: calculated attribute price adjustment.
                 var priceAdjustments = includePrices && _catalogSettings.ShowVariantCombinationPriceAdjustment
-                    ? await _priceCalculationService.CalculateAttributePriceAdjustmentsAsync(product, selection, 1, _priceCalculationService.CreateDefaultOptions(false, customer))
+                    ? await _priceCalculationService.CalculateAttributePriceAdjustmentsAsync(product, selection, 1, _priceCalculationService.CreateDefaultOptions(false, customer, null, batchContext))
                     : new Dictionary<int, CalculatedPriceAdjustment>();
 
                 foreach (var kvp in selection.AttributesMap)

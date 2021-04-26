@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog;
-using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -37,7 +36,6 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly IGiftCardService _giftCardService;
         private readonly ICurrencyService _currencyService;
         private readonly IProviderManager _providerManager;
-        private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
@@ -59,7 +57,6 @@ namespace Smartstore.Core.Checkout.Orders
             IGiftCardService giftCardService,
             ICurrencyService currencyService,
             IProviderManager providerManager,
-            IProductAttributeMaterializer productAttributeMaterializer,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             IWorkContext workContext,
             IStoreContext storeContext,
@@ -78,7 +75,6 @@ namespace Smartstore.Core.Checkout.Orders
             _giftCardService = giftCardService;
             _currencyService = currencyService;
             _providerManager = providerManager;
-            _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _workContext = workContext;
             _storeContext = storeContext;
@@ -273,11 +269,11 @@ namespace Smartstore.Core.Checkout.Orders
             return result;
         }
 
-        public virtual async Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null)
+        public virtual async Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null, ProductBatchContext batchContext = null)
         {
             includeTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
 
-            var (subTotalWithoutDiscount, subTotalWithDiscount, discountAmount, appliedDiscount, taxRates) = await GetCartSubTotalAsync(cart, includeTax.Value);
+            var (subTotalWithoutDiscount, subTotalWithDiscount, discountAmount, appliedDiscount, taxRates) = await GetCartSubTotalAsync(cart, includeTax.Value, batchContext);
 
             var result = new ShoppingCartSubTotal
             {
@@ -413,7 +409,7 @@ namespace Smartstore.Core.Checkout.Orders
             decimal SubTotalWithDiscount,
             decimal DiscountAmount,
             Discount AppliedDiscount,
-            TaxRatesDictionary TaxRates)> GetCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includeTax)
+            TaxRatesDictionary TaxRates)> GetCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool includeTax, ProductBatchContext batchContext = null)
         {
             Guard.NotNull(cart, nameof(cart));
 
@@ -423,13 +419,13 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             var customer = cart.GetCustomer();
-            var subtotalExclTaxWithoutDiscount = decimal.Zero;
-            var subtotalInclTaxWithoutDiscount = decimal.Zero;
+            var subtotalExclTaxWithoutDiscount = 0m;
+            var subtotalInclTaxWithoutDiscount = 0m;
             var taxRates = new TaxRatesDictionary();
 
-            var cartProducts = cart.Select(x => x.Item.Product).ToArray();
-            var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
-            var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, customer, _primaryCurrency, batchContext);
+            batchContext ??= _productService.CreateProductBatchContext(cart.Select(x => x.Item.Product).ToArray(), null, customer, false);
+
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, _primaryCurrency, batchContext);
 
             foreach (var cartItem in cart)
             {
@@ -439,14 +435,13 @@ namespace Smartstore.Core.Checkout.Orders
                 }
 
                 var item = cartItem.Item;
-                decimal taxRate, itemExclTax, itemInclTax = decimal.Zero;
-
-                await _productAttributeMaterializer.MergeWithCombinationAsync(item.Product, item.AttributeSelection);
+                decimal taxRate, itemExclTax, itemInclTax = 0m;
+                var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
 
                 if (_workingCurrency.RoundOrderItemsEnabled)
                 {
                     // Gross > Net RoundFix.
-                    var unitPrice = await _priceCalculationService.CalculatePriceAsync(new PriceCalculationContext(cartItem, pricingOptions));
+                    var unitPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
                     var tax = unitPrice.Tax.Value;
 
                     // Adaption to eliminate rounding issues.
@@ -456,7 +451,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
                 else
                 {
-                    var (_, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(new PriceCalculationContext(cartItem, pricingOptions));
+                    var (_, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
                     var tax = subtotal.Tax.Value;
 
                     itemExclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceNet);
@@ -732,12 +727,13 @@ namespace Smartstore.Core.Checkout.Orders
                 // Calculate all subtotals.
                 var cartProducts = cart.Select(x => x.Item.Product).ToArray();
                 var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
-                var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, customer, _primaryCurrency, batchContext);
-                pricingOptions.IgnoreDiscounts = true;
+                var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, _primaryCurrency, batchContext);
+                calculationOptions.IgnoreDiscounts = true;
 
                 foreach (var item in cart)
                 {
-                    var (_, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(new PriceCalculationContext(item, pricingOptions));
+                    var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(item, calculationOptions);
+                    var (_, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
                     GetTaxingInfo(item).SubtotalWithoutDiscount = subtotal.FinalPrice;
                 }
 

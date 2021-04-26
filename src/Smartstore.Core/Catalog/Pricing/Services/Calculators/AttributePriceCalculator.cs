@@ -181,9 +181,9 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             {
                 // Ignore already applied values.
                 var appliedValueIds = result.Select(x => x.Id).ToArray();
-                var preSelectedValues = await context.GetPreSelectedAttributeValuesAsync();
+                var preselectedValues = await context.GetPreselectedAttributeValuesAsync();
                 
-                result.AddRange(preSelectedValues.Where(x => !appliedValueIds.Contains(x.Id)));
+                result.AddRange(preselectedValues.Where(x => !appliedValueIds.Contains(x.Id)));
             }
 
             return result;
