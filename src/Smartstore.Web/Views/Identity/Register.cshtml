@@ -1,6 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using Smartstore.Core.Identity
-@using Smartstore.Web.Models.Identity
+﻿@using Smartstore.Web.Models.Identity
 
 @model RegisterModel
 
@@ -124,36 +122,60 @@
                     </div>
                 </fieldset>
 
-                @* TODO: (mh) (core) Company & VatNumber part is missing  *@
+                <fieldset sm-if="Model.CompanyEnabled || Model.DisplayVatNumber" class="content-group">
+                    <legend><span>@T("Account.CompanyDetails")</span></legend>
 
+                    <div sm-if="Model.CompanyEnabled" class="form-group row">
+                        <label asp-for="Company" class="col-md-3 col-form-label" attr-class='(Model.CompanyRequired, "required")'></label>
+                        <div class="col-md-9">
+                            <input asp-for="Company" sm-required="Model.CompanyRequired" class="remember" />
+                            <span asp-validation-for="Company"></span>
+                        </div>
+                    </div>
+
+                    <div sm-if="Model.DisplayVatNumber" class="form-group row">
+                        <label asp-for="VatNumber" class="col-md-3 col-form-label" attr-class='(Model.VatRequired, "required")'></label>
+                        <div class="col-md-9">
+                            <div class="input-group">
+                                <input asp-for="Company" sm-required="Model.VatRequired" class="remember" />
+                                <span asp-validation-for="VatNumber"></span>
+
+                                <div sm-if="Model.VatNumberStatusNote.HasValue()" class="input-group-append"><span class="input-group-text">@Model.VatNumberStatusNote</span></div>
+                            </div>
+                            <div class="form-text text-muted vat-note">@T("Account.Fields.VatNumber.Note")</div>
+                        </div>
+                    </div>
+                    
+                </fieldset>
+                
                 <fieldset sm-if="Model.StreetAddressEnabled || Model.StreetAddress2Enabled || Model.ZipPostalCodeEnabled || Model.CityEnabled || Model.CountryEnabled" class="content-group">
                     <legend><span>@T("Account.YourAddress")</span></legend>
 
                     <div sm-if="Model.StreetAddressEnabled" class="form-group row">
                         <label asp-for="StreetAddress" class="col-md-3 col-form-label" attr-class='(Model.StreetAddressRequired, "required")'></label>
                         <div class="col-md-9">
-                            <input asp-for="StreetAddress" sm-required="Model.StreetAddressRequired" />
+                            <input asp-for="StreetAddress" sm-required="Model.StreetAddressRequired" class="remember" />
                             <span asp-validation-for="StreetAddress"></span>
                         </div>
                     </div>
                     <div sm-if="Model.StreetAddress2Enabled" class="form-group row">
                         <label asp-for="StreetAddress2" class="col-md-3 col-form-label" attr-class='(Model.StreetAddress2Required, "required")'></label>
                         <div class="col-md-9">
-                            <input asp-for="StreetAddress2" sm-required="Model.StreetAddress2Required" />
+                            <input asp-for="StreetAddress2" sm-required="Model.StreetAddress2Required" class="remember" />
                             <span asp-validation-for="StreetAddress2"></span>
                         </div>
                     </div>
                     <div sm-if="Model.ZipPostalCodeEnabled" class="form-group row">
                         <label asp-for="ZipPostalCode" class="col-md-3 col-form-label" attr-class='(Model.ZipPostalCodeRequired, "required")'></label>
                         <div class="col-md-9">
-                            <input asp-for="ZipPostalCode" sm-required="Model.ZipPostalCodeRequired" />
+                            <input asp-for="ZipPostalCode" sm-required="Model.ZipPostalCodeRequired" class="remember" />
                             <span asp-validation-for="ZipPostalCode"></span>
                         </div>
                     </div>
                     <div sm-if="Model.CityEnabled" class="form-group row">
                         <label asp-for="City" class="col-md-3 col-form-label" attr-class='(Model.CityRequired, "required")'></label>
                         <div class="col-md-9">
-                            <input asp-for="City" sm-required="Model.CityRequired" />
+                            <input asp-for="City" sm-required="Model.CityRequired" class="remember" />
                             <span asp-validation-for="City"></span>
                         </div>
                     </div>
@@ -162,10 +184,10 @@
                         <label asp-for="CountryId" class="col-md-3 col-form-label"></label>
                         <div class="col-md-9">
                             <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
-                                class="country-input country-selector remember"
-                                data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
-                                data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
-                                data-addEmptyStateIfRequired="true">
+                                    class="country-input country-selector remember"
+                                    data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
+                                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
+                                    data-addEmptyStateIfRequired="true">
                             </select>
                         </div>
                     </div>
@@ -184,14 +206,14 @@
                     <div sm-if="Model.PhoneEnabled" class="form-group row">
                         <label asp-for="Phone" class="col-md-3 col-form-label" attr-class='(Model.PhoneRequired, "required")'></label>
                         <div class="col-md-9">
-                            <input asp-for="Phone" sm-required="Model.PhoneRequired" />
+                            <input asp-for="Phone" sm-required="Model.PhoneRequired" class="remember" />
                             <span asp-validation-for="Phone"></span>
                         </div>
                     </div>
                     <div sm-if="Model.FaxEnabled" class="form-group row">
                         <label asp-for="Fax" class="col-md-3 col-form-label" attr-class='(Model.FaxRequired, "required")'></label>
                         <div class="col-md-9">
-                            <input asp-for="Fax" sm-required="Model.FaxRequired" />
+                            <input asp-for="Fax" sm-required="Model.FaxRequired" class="remember" />
                             <span asp-validation-for="Fax"></span>
                         </div>
                     </div>

@@ -16,11 +16,13 @@ namespace Smartstore.Core.Identity
     public interface IUserStore : 
         IQueryableUserStore<Customer>,
         IUserEmailStore<Customer>,
+        IUserPhoneNumberStore<Customer>,
         IUserRoleStore<Customer>,
         IUserPasswordStore<Customer>,
         IUserLoginStore<Customer>,
         IUserTwoFactorStore<Customer>,
-        IUserTwoFactorRecoveryCodeStore<Customer>
+        IUserTwoFactorRecoveryCodeStore<Customer>,
+        IUserAuthenticatorKeyStore<Customer>
     {
         /// <summary>
         /// Gets or sets a flag indicating if changes should be persisted after CreateAsync, UpdateAsync and DeleteAsync are called.
@@ -463,17 +465,19 @@ namespace Smartstore.Core.Identity
 
         public Task<bool> GetTwoFactorEnabledAsync(Customer user, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_customerSettings.UserRegistrationType == UserRegistrationType.EmailValidation);
+            return Task.FromResult(!user.Active && _customerSettings.UserRegistrationType == UserRegistrationType.EmailValidation);
         }
 
         #endregion
 
         #region IUserTwoFactorRecoveryCodeStore
 
+        // TODO: (mh) (core) PasswordRecoveryToken || AccountActivationToken > Debug
         public Task ReplaceCodesAsync(Customer user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
         {
             Guard.NotNull(user, nameof(user));
-            user.GenericAttributes.PasswordRecoveryToken = recoveryCodes.FirstOrDefault();
+            //user.GenericAttributes.PasswordRecoveryToken = recoveryCodes.FirstOrDefault();
+            user.GenericAttributes.AccountActivationToken = recoveryCodes.FirstOrDefault();
             return Task.CompletedTask;
         }
 
@@ -481,13 +485,61 @@ namespace Smartstore.Core.Identity
         {
             Guard.NotNull(user, nameof(user));
             // TODO: (mh) (core) Please check if contract requires that code must be removed from store.
-            return Task.FromResult(user.GenericAttributes.PasswordRecoveryToken == code);
+            // INFO: (mh) (core) Token are only valid once by definition of Identity Framework and our action reset these anyway once they're redeemed.
+            // TODO: (mh) (core) Remove comments once reviewed.
+            //return Task.FromResult(user.GenericAttributes.PasswordRecoveryToken == code);
+            return Task.FromResult(user.GenericAttributes.AccountActivationToken == code);
         }
 
         public Task<int> CountCodesAsync(Customer user, CancellationToken cancellationToken)
         {
             Guard.NotNull(user, nameof(user));
-            return Task.FromResult(user.GenericAttributes.PasswordRecoveryToken.HasValue() ? 1 : 0);
+            //return Task.FromResult(user.GenericAttributes.PasswordRecoveryToken.HasValue() ? 1 : 0);
+            return Task.FromResult(user.GenericAttributes.AccountActivationToken.HasValue() ? 1 : 0);
+        }
+
+        #endregion
+
+        #region IUserPhoneNumberStore
+
+        // INFO: (mh) (core) These should never return values. Currently we use emails for two factor auth only.
+        // But Identity Framework complains when they are missing and TwoFactor authentification is enabled.
+
+        public Task SetPhoneNumberAsync(Customer user, string phoneNumber, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task<string> GetPhoneNumberAsync(Customer user, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(string.Empty);
+        }
+
+        public Task<bool> GetPhoneNumberConfirmedAsync(Customer user, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(false);
+        }
+
+        public Task SetPhoneNumberConfirmedAsync(Customer user, bool confirmed, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        #endregion
+
+        #region IUserAuthenticatorKeyStore
+
+        public Task SetAuthenticatorKeyAsync(Customer user, string key, CancellationToken cancellationToken)
+        {
+            Guard.NotNull(user, nameof(user));
+            user.GenericAttributes.AccountActivationToken = key;
+            return Task.CompletedTask;
+        }
+
+        public Task<string> GetAuthenticatorKeyAsync(Customer user, CancellationToken cancellationToken)
+        {
+            Guard.NotNull(user, nameof(user));
+            return Task.FromResult(user.GenericAttributes.AccountActivationToken);
         }
 
         #endregion

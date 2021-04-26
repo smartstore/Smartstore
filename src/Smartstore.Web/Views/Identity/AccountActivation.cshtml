@@ -1,0 +1,14 @@
+﻿@{
+    Assets.AppendTitleParts(T("PageTitle.AccountActivation"));
+}
+
+<div class="page account-activation-page">
+    <div class="page-title">
+        <h1>@T("Account.AccountActivation")</h1>
+    </div>
+    <div class="page-body">
+        <div class="alert alert-success">
+            @ViewBag.ActivationResult
+        </div>
+    </div>
+</div>

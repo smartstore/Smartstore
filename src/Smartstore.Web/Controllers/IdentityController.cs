@@ -194,17 +194,13 @@ namespace Smartstore.Web.Controllers
 
                 bool isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
 
-                // INFO: (mh) (core) CustomerRegistrationService > RegisterCustomer is complete with the following TODOs.
-                // TODO: (mh) (core) Service method for the following TODOs? Nah, better just a helper method for now.
-                // TODO: (mh) (core) Add customer to role _customerSettings.RegisterCustomerRoleId
-                // TODO: (mh) (core) Add customer to role Registered
-                // TODO: (mh) (core) Remove customer from role Guests
+                await AssignCustomerRolesAsync(customer);
+
                 // TODO: (mh) (core) AddRewardPoints
-                // TODO: (mh) (core) Publish CustomerRegisteredEvent
 
-                // TODO: (mh) (core) Finish the job!
+                await Services.EventPublisher.PublishAsync(new CustomerRegisteredEvent { Customer = customer });
 
-                var user = new Customer 
+                customer = new Customer 
                 { 
                     Username = model.UserName, 
                     Email = model.Email, 
@@ -214,7 +210,7 @@ namespace Smartstore.Web.Controllers
                     LastActivityDateUtc = DateTime.UtcNow
                 };
 
-                var result = await _userManager.CreateAsync(user, model.Password);
+                var result = await _userManager.CreateAsync(customer, model.Password);
 
                 if (result.Succeeded)
                 {
@@ -235,7 +231,7 @@ namespace Smartstore.Web.Controllers
                             // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
 
                             // Send an email with generated token.
-                            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                            var code = await _userManager.GenerateEmailConfirmationTokenAsync(customer);
                             customer.GenericAttributes.AccountActivationToken = code;
                             await _db.SaveChangesAsync();
                             await _messageFactory.SendCustomerEmailValidationMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
@@ -250,7 +246,7 @@ namespace Smartstore.Web.Controllers
                         {
                             // Send customer welcome message.
                             await _messageFactory.SendCustomerWelcomeMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
-                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            await _signInManager.SignInAsync(customer, isPersistent: false);
 
                             var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
                             if (returnUrl.HasValue())
@@ -332,6 +328,41 @@ namespace Smartstore.Web.Controllers
             }
         }
 
+        [HttpGet]
+        [RequireSsl, AllowAnonymous, NeverAuthorize]
+        [LocalizedRoute("/customer/activation", Name = "AccountActivation")]
+        public async Task<IActionResult> AccountActivation(string token, string email)
+        {
+            var customer = await _db.Customers
+                .Where(x => x.Email == email)
+                .FirstOrDefaultAsync();
+                
+            if (customer == null)
+            {
+                NotifyError(T("Account.AccountActivation.InvalidEmailOrToken"));
+                return RedirectToRoute("Homepage");
+            }
+
+            var cToken = customer.GenericAttributes.AccountActivationToken;
+            if (cToken.IsEmpty() || !cToken.Equals(token, StringComparison.InvariantCultureIgnoreCase))
+            {
+                NotifyError(T("Account.AccountActivation.InvalidEmailOrToken"));
+                return RedirectToRoute("HomePage");
+            }
+
+            // Activate user account.
+            customer.Active = true;
+            customer.GenericAttributes.AccountActivationToken = string.Empty;
+            await _db.SaveChangesAsync();
+
+            // Send welcome message.
+            await _messageFactory.SendCustomerWelcomeMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
+
+            ViewBag.ActivationResult = T("Account.AccountActivation.Activated");
+
+            return View();
+        }
+
         #endregion
 
         // TODO: (mh) (core) Change password must be implemented in IdentityController.
@@ -363,6 +394,7 @@ namespace Smartstore.Web.Controllers
             model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnRegistrationPage;
 
+            ViewBag.AvailableTimeZones = new List<SelectListItem>();
             foreach (var tzi in _dateTimeHelper.GetSystemTimeZones())
             {
                 ViewBag.AvailableTimeZones.Add(new SelectListItem { Text = tzi.DisplayName, Value = tzi.Id, Selected = (tzi.Id == _dateTimeHelper.DefaultStoreTimeZone.Id) });
@@ -370,7 +402,7 @@ namespace Smartstore.Web.Controllers
 
             if (_customerSettings.CountryEnabled)
             {
-                await AddCountriesAndStatesToViewBagAsync(model.CountryId, _customerSettings.StateProvinceEnabled, (int)model.StateProvinceId);
+                await AddCountriesAndStatesToViewBagAsync(model.CountryId, _customerSettings.StateProvinceEnabled, model.StateProvinceId ?? 0);
             }
         }
 
@@ -530,6 +562,30 @@ namespace Smartstore.Web.Controllers
 
             _db.TryUpdate(customer);
             await _db.SaveChangesAsync();
+        }
+
+        private async Task AssignCustomerRolesAsync(Customer customer)
+        {
+            // Add customer to 'Registered' role.
+            var registeredRole = await _db.CustomerRoles
+                .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
+                .FirstOrDefaultAsync();
+
+            await _db.CustomerRoleMappings.AddAsync(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = registeredRole.Id });
+
+            // Add customer to custom configured role.
+            if (_customerSettings.RegisterCustomerRoleId != 0 && _customerSettings.RegisterCustomerRoleId != registeredRole.Id)
+            {
+                var customerRole = await _db.CustomerRoles.FindByIdAsync(_customerSettings.RegisterCustomerRoleId, false);
+                if (customerRole != null && customerRole.Id != registeredRole.Id)
+                {
+                    await _db.CustomerRoleMappings.AddAsync(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = customerRole.Id });
+                }    
+            }
+
+            // Remove customer from 'Guests' role.
+            var mappings = customer.CustomerRoleMappings.Where(x => !x.IsSystemMapping && x.CustomerRole.SystemName == SystemCustomerRoleNames.Guests).ToList();
+            _db.CustomerRoleMappings.RemoveRange(mappings);
         }
 
         // TODO: (mh) (core) Find globally accessable place for this.

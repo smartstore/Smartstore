@@ -69,6 +69,7 @@ namespace Smartstore.Core.Identity
 
             if (!user.Active)
             {
+                // TODO: (mh) (core) We should return an error message for the user saying "Please check you email account for an activation link".
                 return SignInResult.NotAllowed;
             }
 
