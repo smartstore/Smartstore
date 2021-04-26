@@ -904,15 +904,17 @@ namespace Smartstore.Web.Controllers
                 CartType = cartType == ShoppingCartType.Wishlist ? ShoppingCartType.ShoppingCart : ShoppingCartType.Wishlist,
                 StoreId = storeId,
                 AutomaticallyAddRequiredProducts = true,
+                AutomaticallyAddBundleProducts = true,
                 Product = cartItem.Item.Product,
                 RawAttributes = cartItem.Item.RawAttributes,
                 CustomerEnteredPrice = new(cartItem.Item.CustomerEnteredPrice, Services.WorkContext.WorkingCurrency),
                 Quantity = cartItem.Item.Quantity,
-                ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList(),
                 BundleItem = cartItem.Item.BundleItem
             };
 
-            var isValid = await _shoppingCartService.CopyAsync(addToCartContext);
+            // TODO: (ms) (core) Have bundle products child items hand over selected attributes.
+
+            var isValid = await _shoppingCartService.AddToCartAsync(addToCartContext);
 
             if (_shoppingCartSettings.MoveItemsFromWishlistToCart && isValid)
             {
@@ -1347,8 +1349,8 @@ namespace Smartstore.Web.Controllers
                 {
                     return RedirectToRoute("Login", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") });
                 }
-                
-                return new UnauthorizedResult();                
+
+                return new UnauthorizedResult();
             }
 
             return RedirectToRoute("Checkout");

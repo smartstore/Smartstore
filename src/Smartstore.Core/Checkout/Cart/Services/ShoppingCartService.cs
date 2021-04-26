@@ -72,6 +72,7 @@ namespace Smartstore.Core.Checkout.Cart
             
             _db.TryUpdate(customer);
             await _db.SaveChangesAsync();
+            _db.DetachEntities<Product>();
 
             if (ctx.ChildItems.Any())
             {
@@ -147,7 +148,9 @@ namespace Smartstore.Core.Checkout.Cart
             ctx.Customer.ResetCheckoutData(ctx.StoreId.Value);
 
             // Checks whether attributes have been selected
-            if (ctx.VariantQuery != null)
+            if (ctx.VariantQuery != null || ctx.RawAttributes.HasValue())
+            {
+                if (!ctx.RawAttributes.HasValue())
             {
                 await _db.LoadCollectionAsync(ctx.Product, x => x.ProductVariantAttributes, false);
 
@@ -158,6 +161,7 @@ namespace Smartstore.Core.Checkout.Cart
                     ctx.BundleItemId);
 
                 ctx.RawAttributes = Selection.AttributesMap.Any() ? Selection.AsJson() : string.Empty;
+                }
 
                 // Check context for bundle item errors
                 if (ctx.Product.ProductType == ProductType.BundledProduct && ctx.RawAttributes.HasValue())
@@ -261,6 +265,8 @@ namespace Smartstore.Core.Checkout.Cart
                     BundleItemId = ctx.BundleItem?.Id
                 };
 
+                // TODO: (core) (ms) Fix bundle attributes of child items & customer selected price
+
                 if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cartItems))
                 {
                     return false;
@@ -323,9 +329,8 @@ namespace Smartstore.Core.Checkout.Cart
                 }
             }
 
-            // If context is no bundleItem, add item (parent) and its children (grouped product)
-            if ((ctx.Product.ProductType == ProductType.SimpleProduct || ctx.AutomaticallyAddBundleProducts)
-                && ctx.BundleItem == null && ctx.Warnings.Count == 0)
+            // If context has no bundle item, add item (parent) and its children (grouped product) to the cart
+            if (ctx.BundleItem == null && ctx.Warnings.Count == 0)
             {
                 await AddItemToCartAsync(ctx);
             }
