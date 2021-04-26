@@ -280,19 +280,20 @@ namespace Smartstore.Web.Controllers
                 return model;
             }
 
-            var cartProducts = cart.Select(x => x.Item.Product).ToArray();
-            var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
-            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, batchContext);
+            var taxFormat = _currencyService.GetTaxFormat();
+            var batchContext = _productService.CreateProductBatchContext(cart.Select(x => x.Item.Product).ToArray(), null, customer, false);
 
             var subtotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart, null, batchContext);
-            model.SubTotal = subtotal.SubTotalWithoutDiscount.ToString();
+            var lineItems = subtotal.LineItems.ToDictionarySafe(x => x.Item.Item.Id);
+
+            var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(subtotal.SubTotalWithoutDiscount.Amount, currency);
+            model.SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat).ToString();
 
             // A customer should visit the shopping cart page before going to checkout if:
             //1. There is at least one checkout attribute that is reqired
             //2. Min order sub total is OK
 
             var checkoutAttributes = await _checkoutAttributeMaterializer.GetValidCheckoutAttributesAsync(cart);
-
             model.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired);
 
             // Products sort descending (recently added products)
@@ -376,20 +377,15 @@ namespace Smartstore.Web.Controllers
                 {
                     cartItemModel.UnitPrice = T("Products.CallForPrice");
                 }
-                else
+                else if (lineItems.TryGetValue(item.Id, out var lineItem))
                 {
-                    // INFO: merging for pricing not required anymore. Internally done by CreateCalculationContextAsync.
-                    //var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(item.ProductId, item.AttributeSelection);
-                    //product.MergeWithCombination(attributeCombination);
+                    var unitPriceWithDiscount = _currencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
 
-                    var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
-                    var unitPriceWithDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+                    cartItemModel.UnitPrice = unitPriceWithDiscount.WithPostFormat(taxFormat).ToString();
 
-                    cartItemModel.UnitPrice = unitPriceWithDiscount.FinalPrice.ToString();
-
-                    if (unitPriceWithDiscount.FinalPrice != 0 && model.ShowBasePrice)
+                    if (unitPriceWithDiscount != 0 && model.ShowBasePrice)
                     {
-                        cartItemModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(item.Product, unitPriceWithDiscount.FinalPrice, currency);
+                        cartItemModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(item.Product, unitPriceWithDiscount, currency);
                     }
                 }
 

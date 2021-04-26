@@ -51,7 +51,8 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// Calculates both the unit price and the subtotal for a given product.
-        /// The subtotal is calculated by multiplying the unit price by <see cref="PriceCalculationContext.Quantity"/>.
+        /// The subtotal is calculated by multiplying the unit price (rounded if enabled for <see cref="PriceCalculationOptions.RoundingCurrency"/>)
+        /// by <see cref="PriceCalculationContext.Quantity"/>.
         /// </summary>
         /// <param name="context">The context that contains the input product, the calculation options and some cargo data.</param>
         /// <returns>The unit price and the subtotal.</returns>

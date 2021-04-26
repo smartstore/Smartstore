@@ -37,6 +37,9 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public TaxRatesDictionary TaxRates { get; init; }
 
+        // TODO: (mg) (core) describe ShoppingCartLineItem when ready.
+        public List<ShoppingCartLineItem> LineItems { get; init; }
+
         /// <summary>
         /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="SubTotalWithDiscount"/>.
         /// </summary>
