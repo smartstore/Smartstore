@@ -30,15 +30,7 @@ namespace Smartstore.Core.Content.Menus
         /// </summary>
         public string Id
         {
-            get
-            {
-                if (_id == null)
-                {
-                    _id = CommonHelper.GenerateRandomDigitCode(10).TrimStart('0');
-                }
-
-                return _id;
-            }
+            get => _id ??= CommonHelper.GenerateRandomDigitCode(10).TrimStart('0');
             set => _id = value;
         }
 
