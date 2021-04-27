@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Brands;
@@ -215,7 +216,7 @@ namespace Smartstore.Core.Content.Menus
             return currentNode;
         }
 
-        protected override async Task<TreeNode<MenuItem>> BuildAsync()
+        protected override async Task<TreeNode<MenuItem>> BuildAsync(CacheEntryOptions cacheEntryOptions)
         {
             var db = Services.DbContext;
             var entities = await db.MenuItems

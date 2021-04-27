@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Diagnostics;
 
@@ -36,17 +37,18 @@ namespace Smartstore.Core.Content.Menus
         {
             var cacheKey = MENU_KEY.FormatInvariant(Name, GetCacheKey());
 
-            var rootNode = await Services.Cache.GetAsync(cacheKey, async () =>
+            var rootNode = await Services.Cache.GetAsync(cacheKey, async (o) =>
             {
                 using (Services.Chronometer.Step($"Build menu '{Name}'"))
                 {
-                    var root = await BuildAsync();
-
+                    var root = await BuildAsync(o);
+                    
                     MenuPublisher.RegisterMenus(root, Name);
 
                     if (ApplyPermissions)
                     {
-                        await DoApplyPermissionsAsync(root);
+                        // TODO: (mg) (core) Uncomment after permission check has been fixed.
+                        //await DoApplyPermissionsAsync(root);
                     }
 
                     await Services.EventPublisher.PublishAsync(new MenuBuiltEvent(Name, root));
@@ -87,7 +89,7 @@ namespace Smartstore.Core.Content.Menus
 
         protected abstract string GetCacheKey();
 
-        protected abstract Task<TreeNode<MenuItem>> BuildAsync();
+        protected abstract Task<TreeNode<MenuItem>> BuildAsync(CacheEntryOptions cacheEntryOptions);
 
         public virtual Task ResolveElementCountAsync(TreeNode<MenuItem> curNode, bool deep = false)
         {

@@ -23,6 +23,10 @@
 		<None Include="App_Data\Samples\**" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Remove="Areas\Admin\sitemap.xml" />
+	</ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
@@ -146,6 +150,10 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>Smartstore.Web.Tests</_Parameter1>
 		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Areas\Admin\sitemap.xml" />
 	</ItemGroup>
 
 </Project>

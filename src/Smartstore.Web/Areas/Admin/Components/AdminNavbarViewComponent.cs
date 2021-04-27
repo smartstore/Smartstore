@@ -25,7 +25,7 @@ namespace Smartstore.Web.Areas.Admin.Components
             ViewBag.Stores = Services.StoreContext.GetAllStores();
             if (await Services.Permissions.AuthorizeAsync(Permissions.System.Maintenance.Read))
             {
-                // TODO: (mh) (core) Implement and uncomment later
+                // TODO: (mh) (core) CheckUpdateResult: implement and uncomment later
                 //ViewBag.CheckUpdateResult = AsyncRunner.RunSync(() => CheckUpdateInternalAsync(false));
             }
 
