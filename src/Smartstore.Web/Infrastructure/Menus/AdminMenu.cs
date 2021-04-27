@@ -11,13 +11,6 @@ namespace Smartstore.Web.Infrastructure
 {
     public partial class AdminMenu : MenuBase
     {
-        private readonly ICacheFactory _cacheFactory;
-
-        public AdminMenu(ICacheFactory cacheFactory)
-        {
-            _cacheFactory = cacheFactory;
-        }
-
         public Localizer T { get; set; }
 
         public override string Name => "Admin";

@@ -47,8 +47,7 @@ namespace Smartstore.Core.Content.Menus
 
                     if (ApplyPermissions)
                     {
-                        // TODO: (mg) (core) Uncomment after permission check has been fixed.
-                        //await DoApplyPermissionsAsync(root);
+                        await DoApplyPermissionsAsync(root);
                     }
 
                     await Services.EventPublisher.PublishAsync(new MenuBuiltEvent(Name, root));
