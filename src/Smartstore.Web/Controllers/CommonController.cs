@@ -22,7 +22,7 @@ using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Controllers
 {
-    public class CommonController : SmartController
+    public class CommonController : PublicControllerBase
     {
         private readonly SmartDbContext _db;
         private readonly IGeoCountryLookup _countryLookup;

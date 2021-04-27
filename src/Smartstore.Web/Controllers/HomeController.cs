@@ -95,7 +95,7 @@ namespace Smartstore.Web.Controllers
         public string Prop3 { get; set; } = "Prop3";
     }
 
-    public class HomeController : SmartController
+    public class HomeController : PublicControllerBase
     {
         // TODO: (mh) (core) Clean this.
         private static CancellationTokenSource _cancelTokenSource = new();

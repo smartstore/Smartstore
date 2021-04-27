@@ -24,7 +24,7 @@ using Smartstore.Web.Models.Identity;
 
 namespace Smartstore.Web.Controllers
 {
-    public class IdentityController : SmartController
+    public class IdentityController : PublicControllerBase
     {
         private readonly SmartDbContext _db;
         private readonly UserManager<Customer> _userManager;

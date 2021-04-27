@@ -13,7 +13,7 @@ using Smartstore.Utilities.Html;
 
 namespace Smartstore.Web.Controllers
 {
-    public class DownloadController : SmartController
+    public class DownloadController : PublicControllerBase
     {
         private readonly SmartDbContext _db;
         private readonly IDownloadService _downloadService;

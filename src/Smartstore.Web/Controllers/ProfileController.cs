@@ -12,7 +12,7 @@ using Smartstore.Web.Models.Profiles;
 namespace Smartstore.Web.Controllers
 {
     // TODO: (mh) (core) This belongs to IdentityController IMHO. Discuss.
-    public class ProfileController : SmartController
+    public class ProfileController : PublicControllerBase
     {
         private readonly SmartDbContext _db;
         private readonly IDateTimeHelper _dateTimeHelper;

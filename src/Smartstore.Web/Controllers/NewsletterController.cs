@@ -14,7 +14,7 @@ using Smartstore.Web.Models.Newsletter;
 
 namespace Smartstore.Web.Controllers
 {
-    public class NewsletterController : SmartController
+    public class NewsletterController : PublicControllerBase
     {
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;

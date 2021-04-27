@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
+using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Web.Theming;
 
@@ -28,9 +30,9 @@ namespace Smartstore.Web.Controllers
     [AutoValidateAntiforgeryToken]
     //[AdminValidateIpAddress]
     [RequireSsl]
-    //[CustomerLastActivity(Order = int.MaxValue)]
-    //[StoreIpAddress(Order = int.MaxValue)]
     [AdminThemed]
+    [TrackActivity(Order = 100)]
+    [SaveChanges(typeof(SmartDbContext), Order = int.MaxValue)]
     public abstract class AdminControllerBase : ManageController
     {
     }

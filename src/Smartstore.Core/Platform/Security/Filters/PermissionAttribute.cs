@@ -13,7 +13,6 @@ namespace Smartstore.Core.Security
     /// <summary>
     /// Checks request permission for the current user.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
     public partial class PermissionAttribute : TypeFilterAttribute
     {
         /// <summary>
