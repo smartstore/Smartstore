@@ -55,6 +55,7 @@ namespace Smartstore.Data.Providers
 
             optionsBuilder
                 .ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>()
+                //.EnableSensitiveDataLogging(true)
                 .ConfigureWarnings(w =>
                 {
                     // EF throws when query is untracked otherwise
