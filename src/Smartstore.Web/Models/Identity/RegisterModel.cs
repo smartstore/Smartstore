@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
@@ -16,7 +14,7 @@ namespace Smartstore.Web.Models.Identity
     {
         public bool UserNamesEnabled { get; set; }
 
-        [LocalizedDisplay("Email")]
+        [LocalizedDisplay("*Email")]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 

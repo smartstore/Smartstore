@@ -18,7 +18,10 @@ namespace Smartstore.Core.Bootstrapping
         {
             var usr = options.User;
             usr.RequireUniqueEmail = false;
-            
+            // INFO: (mh) (core) This is the default value plus empty space.
+            // TODO: (mh) (core) Remove comments once reviewed.
+            usr.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
+
             var pwd = options.Password;
             // TODO: (core) Convert MinDigitsInPassword & MinUppercaseCharsInPassword & MinSpecialCharsInPassword to Identity somehow.
             pwd.RequiredLength = _customerSettings.PasswordMinLength;

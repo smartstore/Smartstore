@@ -185,7 +185,7 @@ namespace Smartstore.Web.Infrastructure
                 Text = T("Account.ChangePassword"),
                 Icon = "fal fa-unlock-alt",
                 ActionName = "ChangePassword",
-                ControllerName = "Customer" // TODO: (mh) (core) Will change --> Identity
+                ControllerName = "Identity"
             });
 
             if (_customerSettings.AllowCustomersToUploadAvatars)

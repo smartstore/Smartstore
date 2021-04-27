@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
@@ -181,7 +180,6 @@ namespace Smartstore.Web.Controllers
                 // Already registered customer. 
                 await _signInManager.SignOutAsync();
 
-                customer = null;
                 Services.WorkContext.CurrentCustomer = null;
             }
 
@@ -235,6 +233,8 @@ namespace Smartstore.Web.Controllers
 
                             // Send an email with generated token.
                             var code = await _userManager.GenerateEmailConfirmationTokenAsync(customer);
+
+                            // TODO: (mh) (core) The next can surely be done with _userManager. Find out how!
                             customer.GenericAttributes.AccountActivationToken = code;
                             await _db.SaveChangesAsync();
                             await _messageFactory.SendCustomerEmailValidationMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
@@ -337,9 +337,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/customer/activation", Name = "AccountActivation")]
         public async Task<IActionResult> AccountActivation(string token, string email)
         {
-            var customer = await _db.Customers
-                .Where(x => x.Email == email)
-                .FirstOrDefaultAsync();
+            var customer = await _userManager.FindByEmailAsync(email);
                 
             if (customer == null)
             {
@@ -356,6 +354,8 @@ namespace Smartstore.Web.Controllers
 
             // Activate user account.
             customer.Active = true;
+
+            // TODO: (mh) (core) Reset can probably be handled via user manager.
             customer.GenericAttributes.AccountActivationToken = string.Empty;
             await _db.SaveChangesAsync();
 
@@ -369,7 +369,48 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
-        // TODO: (mh) (core) Change password must be implemented in IdentityController.
+        #region Change password
+
+        [RequireSsl]
+        public IActionResult ChangePassword()
+        {
+            if (!Services.WorkContext.CurrentCustomer.IsRegistered())
+                return new UnauthorizedResult();
+
+            var model = new ChangePasswordModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            if (!customer.IsRegistered())
+                return new UnauthorizedResult();
+
+            if (ModelState.IsValid)
+            {
+                var changePasswordResult = await _userManager.ChangePasswordAsync(customer, model.OldPassword, model.NewPassword);
+                
+                if (changePasswordResult.Succeeded)
+                {
+                    model.Result = T("Account.ChangePassword.Success");
+                    return View(model);
+                }
+                else
+                {
+                    foreach (var error in changePasswordResult.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+            }
+
+            return View(model);
+        }
+
+        #endregion
 
         #region Password recovery
 
@@ -388,8 +429,8 @@ namespace Smartstore.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var customer = await _db.Customers.Where(x => x.Email == model.Email).FirstOrDefaultAsync();
-                    
+                var customer = await _userManager.FindByEmailAsync(model.Email);
+
                 if (customer != null && customer.Active)
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(customer);
@@ -440,7 +481,7 @@ namespace Smartstore.Web.Controllers
         [FormValueRequired("set-password")]
         public async Task<ActionResult> PasswordRecoveryConfirmPOST(PasswordRecoveryConfirmModel model)
         {
-            var customer = await _db.Customers.Where(x => x.Email == model.Email).FirstOrDefaultAsync();
+            var customer = await _userManager.FindByEmailAsync(model.Email);
             var customerToken = customer.GenericAttributes.PasswordRecoveryToken;
             if (customer == null || customerToken.IsEmpty() || customerToken != model.Token)
             {
@@ -632,7 +673,7 @@ namespace Smartstore.Web.Controllers
             // Associated with external account (if possible)
             //TryAssociateAccountWithExternalAccount(customer);
 
-            // Insert default address (if possible)
+            // Insert default address (if possible).
             var defaultAddress = new Address
             {
                 Title = customer.Title,
@@ -653,14 +694,7 @@ namespace Smartstore.Web.Controllers
 
             if (await _addressService.IsAddressValidAsync(defaultAddress))
             {
-                // TODO: (mh) (core) This validation was made inside some hook? Check & remove!
-                // Some validation
-                if (defaultAddress.CountryId == 0)
-                    defaultAddress.CountryId = null;
-                if (defaultAddress.StateProvinceId == 0)
-                    defaultAddress.StateProvinceId = null;
-
-                // Set default address
+                // Set default addresses.
                 customer.Addresses.Add(defaultAddress);
                 customer.BillingAddress = defaultAddress;
                 customer.ShippingAddress = defaultAddress;
