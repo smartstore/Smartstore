@@ -56,10 +56,10 @@ namespace Smartstore
                 var currentProduct = cartItem.Item.Product;
 
                 // Compare attribute selection, if not null
-                if (selection != null)
+                if (selection != null && selection.AttributesMap.Any())
                 {
                     var cartItemSelection = cartItem.Item.AttributeSelection;
-                    if (cartItemSelection != selection)
+                    if (!cartItemSelection.Equals(selection))
                     {
                         continue;
                     }
