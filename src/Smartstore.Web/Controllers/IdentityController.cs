@@ -30,6 +30,7 @@ namespace Smartstore.Web.Controllers
         private readonly SmartDbContext _db;
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
+        private readonly RoleManager<CustomerRole> _roleManager;
         private readonly ITaxService _taxService;
         private readonly IAddressService _addressService;
         private readonly IMessageFactory _messageFactory;
@@ -45,6 +46,7 @@ namespace Smartstore.Web.Controllers
             SmartDbContext db,
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
+            RoleManager<CustomerRole> roleManager,
             ITaxService taxService,
             IAddressService addressService,
             IMessageFactory messageFactory,
@@ -59,6 +61,7 @@ namespace Smartstore.Web.Controllers
             _db = db;
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _taxService = taxService;
             _addressService = addressService;
             _messageFactory = messageFactory;
@@ -194,12 +197,6 @@ namespace Smartstore.Web.Controllers
 
                 bool isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
 
-                await AssignCustomerRolesAsync(customer);
-
-                // TODO: (mh) (core) AddRewardPoints
-
-                await Services.EventPublisher.PublishAsync(new CustomerRegisteredEvent { Customer = customer });
-
                 customer = new Customer 
                 { 
                     Username = model.UserName, 
@@ -216,6 +213,12 @@ namespace Smartstore.Web.Controllers
                 {
                     // TODO: (mh) (core) Bad API design (naming). Find a better name for this important "MAPPING" stuff.
                     await UpdateCustomerAsync(customer, model, isApproved);
+
+                    await AssignCustomerRolesAsync(customer);
+
+                    // TODO: (mh) (core) AddRewardPoints
+
+                    await Services.EventPublisher.PublishAsync(new CustomerRegisteredEvent { Customer = customer });
 
                     // Notifications
                     if (_customerSettings.NotifyNewCustomerRegistration)
@@ -328,6 +331,7 @@ namespace Smartstore.Web.Controllers
             }
         }
 
+        // TODO: (mh) (core) Change to /identity/activation ?
         [HttpGet]
         [RequireSsl, AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/customer/activation", Name = "AccountActivation")]
@@ -366,7 +370,109 @@ namespace Smartstore.Web.Controllers
         #endregion
 
         // TODO: (mh) (core) Change password must be implemented in IdentityController.
-        // TODO: (mh) (core) Password recovery must be implemented in IdentityController.
+
+        #region Password recovery
+
+        [RequireSsl]
+        [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
+        public IActionResult PasswordRecovery()
+        {
+            var model = new PasswordRecoveryModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
+        [FormValueRequired("send-email")]
+        public async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var customer = await _db.Customers.Where(x => x.Email == model.Email).FirstOrDefaultAsync();
+                    
+                if (customer != null && customer.Active)
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(customer);
+                    
+                    // TODO: (mh) (core) Why isn't this handled by UserStore?
+                    customer.GenericAttributes.PasswordRecoveryToken = token;
+                    await _db.SaveChangesAsync();
+
+                    await _messageFactory.SendCustomerPasswordRecoveryMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
+
+                    model.ResultMessage = T("Account.PasswordRecovery.EmailHasBeenSent");
+                    model.ResultState = PasswordRecoveryResultState.Success;
+                }
+                else
+                {
+                    model.ResultMessage = T("Account.PasswordRecovery.EmailNotFound");
+                    model.ResultState = PasswordRecoveryResultState.Error;
+                }
+
+                return View(model);
+            }
+
+            // If we got this far something failed. Redisplay form.
+            return View(model);
+        }
+
+        [RequireSsl]
+        public IActionResult PasswordRecoveryConfirm(string token, string email)
+        {
+            // INFO: (mh) (core) Lets validate in POST.
+            //var customer = await _db.Customers.Where(x => x.Email == email).FirstOrDefaultAsync();
+            //var customerToken = customer.GenericAttributes.PasswordRecoveryToken;
+            //if (customer == null || customerToken.IsEmpty() || customerToken != token)
+            //{
+            //    NotifyError(T("Account.PasswordRecoveryConfirm.InvalidEmailOrToken"));
+            //}
+
+            var model = new PasswordRecoveryConfirmModel
+            {
+                Email = email,
+                Token = token
+            };
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("PasswordRecoveryConfirm")]
+        [FormValueRequired("set-password")]
+        public async Task<ActionResult> PasswordRecoveryConfirmPOST(PasswordRecoveryConfirmModel model)
+        {
+            var customer = await _db.Customers.Where(x => x.Email == model.Email).FirstOrDefaultAsync();
+            var customerToken = customer.GenericAttributes.PasswordRecoveryToken;
+            if (customer == null || customerToken.IsEmpty() || customerToken != model.Token)
+            {
+                NotifyError(T("Account.PasswordRecoveryConfirm.InvalidEmailOrToken"));
+                return RedirectToAction("PasswordRecoveryConfirm", new { token = model.Token, email = model.Email });
+            }
+
+            if (ModelState.IsValid)
+            {
+                var response = await _userManager.ResetPasswordAsync(customer, model.Token, model.NewPassword);
+                
+                if (response.Succeeded)
+                {
+                    customer.GenericAttributes.PasswordRecoveryToken = string.Empty;
+                    await _db.SaveChangesAsync();
+                    model.SuccessfullyChanged = true;
+                    model.Result = T("Account.PasswordRecovery.PasswordHasBeenChanged");
+                }
+                else
+                {
+                    // TODO: (mh) (core) Change this to display all errors. 
+                    model.Result = response.Errors.FirstOrDefault().Description;
+                }
+
+                return View(model);
+            }
+
+            // If we got this far something failed. Redisplay form.
+            return View(model);
+        }
+
+        #endregion
 
         #region Access
 
@@ -571,22 +677,54 @@ namespace Smartstore.Web.Controllers
                 .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
                 .FirstOrDefaultAsync();
 
-            await _db.CustomerRoleMappings.AddAsync(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = registeredRole.Id });
+            await _userManager.AddToRoleAsync(customer, registeredRole.Name);
 
             // Add customer to custom configured role.
             if (_customerSettings.RegisterCustomerRoleId != 0 && _customerSettings.RegisterCustomerRoleId != registeredRole.Id)
             {
-                var customerRole = await _db.CustomerRoles.FindByIdAsync(_customerSettings.RegisterCustomerRoleId, false);
-                if (customerRole != null && customerRole.Id != registeredRole.Id)
+                // TODO: (mh) (core) Use extension method to pass id without casting, once available.
+                var customerRole = await _roleManager.FindByIdAsync(_customerSettings.RegisterCustomerRoleId.ToString());
+                if (customerRole != null)
                 {
-                    await _db.CustomerRoleMappings.AddAsync(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = customerRole.Id });
-                }    
+                    await _userManager.AddToRoleAsync(customer, customerRole.Name);
+                }
             }
 
             // Remove customer from 'Guests' role.
-            var mappings = customer.CustomerRoleMappings.Where(x => !x.IsSystemMapping && x.CustomerRole.SystemName == SystemCustomerRoleNames.Guests).ToList();
-            _db.CustomerRoleMappings.RemoveRange(mappings);
+            var mappings = customer
+                .CustomerRoleMappings
+                .Where(x => !x.IsSystemMapping && x.CustomerRole.SystemName == SystemCustomerRoleNames.Guests)
+                .Select(x => x.CustomerRole.Name)
+                .ToList();
+
+            await _userManager.RemoveFromRolesAsync(customer, mappings);
+            await _db.SaveChangesAsync();
         }
+
+        //private async Task AssignCustomerRolesAsync(Customer customer)
+        //{
+        //    // Add customer to 'Registered' role.
+        //    var registeredRole = await _db.CustomerRoles
+        //        .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
+        //        .FirstOrDefaultAsync();
+
+        //    await _db.CustomerRoleMappings.AddAsync(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = registeredRole.Id });
+
+        //    // Add customer to custom configured role.
+        //    if (_customerSettings.RegisterCustomerRoleId != 0 && _customerSettings.RegisterCustomerRoleId != registeredRole.Id)
+        //    {
+        //        var customerRole = await _db.CustomerRoles.FindByIdAsync(_customerSettings.RegisterCustomerRoleId, false);
+        //        if (customerRole != null && customerRole.Id != registeredRole.Id)
+        //        {
+        //            await _db.CustomerRoleMappings.AddAsync(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = customerRole.Id });
+        //        }    
+        //    }
+
+        //    // Remove customer from 'Guests' role.
+        //    var mappings = customer.CustomerRoleMappings.Where(x => !x.IsSystemMapping && x.CustomerRole.SystemName == SystemCustomerRoleNames.Guests).ToList();
+        //    _db.CustomerRoleMappings.RemoveRange(mappings);
+        //    await _db.SaveChangesAsync();
+        //}
 
         // TODO: (mh) (core) Find globally accessable place for this.
         private async Task AddCountriesAndStatesToViewBagAsync(int selectedCountryId, bool statesEnabled, int selectedStateId)

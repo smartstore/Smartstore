@@ -49,10 +49,13 @@ namespace Smartstore.Core.Identity
                 return Failed(T("Account.Register.Errors.CannotRegisterTaskAccount"));
             }
 
-            if (user.IsRegistered())
-            {
-                return Failed(T("Account.Register.Errors.AlreadyRegistered"));
-            }
+            // INFO: (mh) (core) Will fail for _userManager.ResetPasswordAsync 
+            // In this case the customer is IsRegistered = true
+            // TODO: (mh) (core) Remove comment once reviewed by mc
+            //if (user.IsRegistered())
+            //{
+            //    return Failed(T("Account.Register.Errors.AlreadyRegistered"));
+            //}
 
             if (user.Email.IsEmpty() || !user.Email.IsEmail())
             {

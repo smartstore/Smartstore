@@ -54,6 +54,7 @@ namespace Smartstore.Core.Identity
 
         public IQueryable<CustomerRole> Roles => _roles;
 
+        // TODO: (mh) (core) Create extension methods to pass roleId as int directly.
         public Task<CustomerRole> FindByIdAsync(string roleId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
