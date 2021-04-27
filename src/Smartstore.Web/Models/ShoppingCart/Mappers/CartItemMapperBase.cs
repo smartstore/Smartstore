@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Catalog;
@@ -12,8 +15,6 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
@@ -21,21 +22,24 @@ namespace Smartstore.Web.Models.ShoppingCart
        where TModel : CartEntityModelBase
     {
         protected readonly ICommonServices _services;
-        protected readonly IPriceCalculationServiceLegacy _priceCalculationService;
+        protected readonly IPriceCalculationServiceLegacy _priceCalculationServiceLegacy;
+        protected readonly IPriceCalculationService _priceCalculationService;
         protected readonly IProductAttributeMaterializer _productAttributeMaterializer;
         protected readonly ShoppingCartSettings _shoppingCartSettings;
         protected readonly CatalogSettings _catalogSettings;
 
         protected CartItemMapperBase(
             ICommonServices services,
-            IPriceCalculationServiceLegacy priceCalculationService,
+            IPriceCalculationServiceLegacy priceCalculationServiceLegacy,
+            IPriceCalculationService priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
         {
-            _services = services;         
-            _priceCalculationService = priceCalculationService;            
-            _productAttributeMaterializer = productAttributeMaterializer;            
+            _services = services;
+            _priceCalculationServiceLegacy = priceCalculationServiceLegacy;
+            _priceCalculationService = priceCalculationService;
+            _productAttributeMaterializer = productAttributeMaterializer;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
         }
@@ -60,10 +64,13 @@ namespace Smartstore.Web.Models.ShoppingCart
             var customer = item.Customer;
             var currency = _services.WorkContext.WorkingCurrency;
             var shoppingCartType = item.ShoppingCartType;
+            var productSeName = await product.GetActiveSlugAsync();
+
+            var taxFormat = parameters?.TaxFormat as string;
+            var batchContext = parameters?.BatchContext as ProductBatchContext;
+            var subtotal = parameters?.CartSubtotal as ShoppingCartSubTotal;
 
             await _productAttributeMaterializer.MergeWithCombinationAsync(product, item.AttributeSelection);
-
-            var productSeName = await product.GetActiveSlugAsync();
 
             // General model data
             to.Id = item.Id;
@@ -88,6 +95,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 to.BundleItem.HideThumbnail = item.BundleItem.HideThumbnail;
                 to.BundlePerItemPricing = item.BundleItem.BundleProduct.BundlePerItemPricing;
                 to.BundlePerItemShoppingCart = item.BundleItem.BundleProduct.BundlePerItemShoppingCart;
+
                 to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(
                     item.AttributeSelection,
                     product,
@@ -110,14 +118,16 @@ namespace Smartstore.Web.Models.ShoppingCart
 
                 if (to.BundlePerItemPricing && to.BundlePerItemShoppingCart)
                 {
-                    var bundleItemSubTotalWithDiscountBase = await TaxService.GetProductPriceAsync(product, await _priceCalculationService.GetSubTotalAsync(from, true));
-                    var bundleItemSubTotalWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(bundleItemSubTotalWithDiscountBase.Price.Amount, currency);
-                    to.BundleItem.PriceWithDiscount = bundleItemSubTotalWithDiscount.ToString();
+                    var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, null, batchContext);
+                    var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(from, calculationOptions);
+                    var (_, bundleItemSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
+
+                    to.BundleItem.PriceWithDiscount = bundleItemSubtotal.FinalPrice.ToString();
                 }
             }
             else
             {
-                to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(item.AttributeSelection, product, customer);
+                to.AttributeInfo = await ProductAttributeFormatter.FormatAttributesAsync(item.AttributeSelection, product, customer, batchContext: batchContext);
             }
 
             var allowedQuantities = product.ParseAllowedQuantities();
@@ -145,36 +155,43 @@ namespace Smartstore.Web.Models.ShoppingCart
             if (product.CallForPrice)
             {
                 to.UnitPrice = T("Products.CallForPrice");
+                to.SubTotal = to.UnitPrice;
             }
-            else
+            else if (item.BundleItem == null)
             {
-                var unitPriceWithDiscountBase = await TaxService.GetProductPriceAsync(product, await _priceCalculationService.GetUnitPriceAsync(from, true));
-                var unitPriceWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(unitPriceWithDiscountBase.Price.Amount, currency);
-                to.UnitPrice = unitPriceWithDiscount.ToString();
-            }
+                var lineItem = subtotal.LineItems.FirstOrDefault(x => x.Item.Item.Id == item.Id);
 
-            // Subtotal and discount.
-            if (product.CallForPrice)
-            {
-                to.SubTotal = T("Products.CallForPrice");
-            }
-            else
-            {
-                var cartItemSubTotalWithDiscount = await _priceCalculationService.GetSubTotalAsync(from, true);
-                var cartItemSubTotalWithDiscountBase = await TaxService.GetProductPriceAsync(product, cartItemSubTotalWithDiscount);
-                cartItemSubTotalWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(cartItemSubTotalWithDiscountBase.Price.Amount, currency);
+                //var unitPriceWithDiscountBase = await TaxService.GetProductPriceAsync(product, await _priceCalculationServiceLegacy.GetUnitPriceAsync(from, true));
+                //var unitPriceWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(unitPriceWithDiscountBase.Price.Amount, currency);
+                //to.UnitPrice = unitPriceWithDiscount.ToString();
 
-                to.SubTotal = cartItemSubTotalWithDiscount.ToString();
+                var unitPriceWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
+                to.UnitPrice = unitPriceWithDiscount.WithPostFormat(taxFormat).ToString();
+
+                // Subtotal and discount.
+                //var cartItemSubTotalWithDiscount = await _priceCalculationServiceLegacy.GetSubTotalAsync(from, true);
+                //var cartItemSubTotalWithDiscountBase = await TaxService.GetProductPriceAsync(product, cartItemSubTotalWithDiscount);
+                //cartItemSubTotalWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(cartItemSubTotalWithDiscountBase.Price.Amount, currency);
+                //to.SubTotal = cartItemSubTotalWithDiscount.ToString();
+
+                var cartItemSubTotalWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(lineItem.Subtotal.FinalPrice.Amount, currency);
+                to.SubTotal = cartItemSubTotalWithDiscount.WithPostFormat(taxFormat).ToString();
 
                 // Display an applied discount amount.
-                var cartItemSubTotalWithoutDiscount = await _priceCalculationService.GetSubTotalAsync(from, false);
-                var cartItemSubTotalWithoutDiscountBase = await TaxService.GetProductPriceAsync(product, cartItemSubTotalWithoutDiscount);
-                var cartItemSubTotalDiscountBase = cartItemSubTotalWithoutDiscountBase.Price - cartItemSubTotalWithDiscountBase.Price;
+                //var cartItemSubTotalWithoutDiscount = await _priceCalculationServiceLegacy.GetSubTotalAsync(from, false);
+                //var cartItemSubTotalWithoutDiscountBase = await TaxService.GetProductPriceAsync(product, cartItemSubTotalWithoutDiscount);
+                //var cartItemSubTotalDiscountBase = cartItemSubTotalWithoutDiscountBase.Price - cartItemSubTotalWithDiscountBase.Price;
 
-                if (cartItemSubTotalDiscountBase > decimal.Zero)
+                //if (cartItemSubTotalDiscountBase > decimal.Zero)
+                //{
+                //    var itemDiscount = CurrencyService.ConvertFromPrimaryCurrency(cartItemSubTotalDiscountBase.Amount, currency);
+                //    to.Discount = itemDiscount.ToString();
+                //}
+
+                if (lineItem.Subtotal.DiscountAmount > 0)
                 {
-                    var itemDiscount = CurrencyService.ConvertFromPrimaryCurrency(cartItemSubTotalDiscountBase.Amount, currency);
-                    to.Discount = itemDiscount.ToString();
+                    var itemDiscount = CurrencyService.ConvertFromPrimaryCurrency(lineItem.Subtotal.DiscountAmount.Amount, currency);
+                    to.Discount = itemDiscount.WithPostFormat(taxFormat).ToString();
                 }
             }
 

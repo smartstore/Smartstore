@@ -1,4 +1,7 @@
-﻿using Smartstore.ComponentModel;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -8,17 +11,14 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
     public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this OrganizedShoppingCartItem entity, ShoppingCartModel.ShoppingCartItemModel model)
+        public static async Task MapAsync(this OrganizedShoppingCartItem entity, ShoppingCartModel.ShoppingCartItemModel model, dynamic parameters = null)
         {
-            await MapperFactory.MapAsync(entity, model, null);
+            await MapperFactory.MapAsync(entity, model, parameters);
         }
     }
 
@@ -29,11 +29,12 @@ namespace Smartstore.Web.Models.ShoppingCart
         public ShoppingCartItemMapper(
             ICommonServices services,
             IDeliveryTimeService deliveryTimeService,
-            IPriceCalculationServiceLegacy priceCalculationService,
+            IPriceCalculationServiceLegacy priceCalculationServiceLegacy,
+            IPriceCalculationService priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
-            : base(services, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
+            : base(services, priceCalculationServiceLegacy, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
         {
             _deliveryTimeService = deliveryTimeService;
         }
@@ -49,7 +50,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             var item = from.Item;
             var product = item.Product;
 
-            await base.MapAsync(from, to);
+            await base.MapAsync(from, to, (object)parameters);
 
             to.Weight = product.Weight;
             to.IsShipEnabled = product.IsShippingEnabled;
@@ -74,10 +75,10 @@ namespace Smartstore.Web.Models.ShoppingCart
                 }
             }
 
-            var basePriceAdjustment = (await _priceCalculationService.GetFinalPriceAsync(product, null)
-                - await _priceCalculationService.GetUnitPriceAsync(from, true)) * -1;
+            var basePriceAdjustment = (await _priceCalculationServiceLegacy.GetFinalPriceAsync(product, null)
+                - await _priceCalculationServiceLegacy.GetUnitPriceAsync(from, true)) * -1;
 
-            to.BasePrice = await _priceCalculationService.GetBasePriceInfoAsync(product, item.Customer, _services.WorkContext.WorkingCurrency, basePriceAdjustment);
+            to.BasePrice = await _priceCalculationServiceLegacy.GetBasePriceInfoAsync(product, item.Customer, _services.WorkContext.WorkingCurrency, basePriceAdjustment);
 
             if (from.Item.BundleItem == null)
             {
@@ -100,7 +101,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 {
                     var model = new ShoppingCartModel.ShoppingCartItemModel();
 
-                    await childItem.MapAsync(model);
+                    await childItem.MapAsync(model, (object)parameters);
 
                     to.AddChildItems(model);
                 }

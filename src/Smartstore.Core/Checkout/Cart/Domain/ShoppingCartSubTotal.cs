@@ -38,6 +38,7 @@ namespace Smartstore.Core.Checkout.Cart
         public TaxRatesDictionary TaxRates { get; init; }
 
         // TODO: (mg) (core) describe ShoppingCartLineItem when ready.
+        // bundle items are never included in line items.
         public List<ShoppingCartLineItem> LineItems { get; init; }
 
         /// <summary>

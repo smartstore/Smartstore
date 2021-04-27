@@ -6,6 +6,8 @@ using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
@@ -55,6 +57,8 @@ namespace Smartstore.Web.Models.ShoppingCart
     {
         private readonly SmartDbContext _db;
         private readonly ITaxService _taxService;
+        private readonly IProductService _productService;
+        private readonly IPriceCalculationService _priceCalculationService;
         private readonly IMediaService _mediaService;
         private readonly IPaymentService _paymentService;
         private readonly IDiscountService _discountService;
@@ -71,8 +75,10 @@ namespace Smartstore.Web.Models.ShoppingCart
 
         public ShoppingCartModelMapper(
             SmartDbContext db,
-            ITaxService taxService,
             ICommonServices services,
+            ITaxService taxService,
+            IProductService productService,
+            IPriceCalculationService priceCalculationService,
             IMediaService mediaService,
             IPaymentService paymentService,
             IDiscountService discountService,
@@ -94,6 +100,8 @@ namespace Smartstore.Web.Models.ShoppingCart
         {
             _db = db;
             _taxService = taxService;
+            _productService = productService;
+            _priceCalculationService = priceCalculationService;
             _mediaService = mediaService;
             _paymentService = paymentService;
             _discountService = discountService;
@@ -421,11 +429,24 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             #region Cart items
 
+            var allProducts = from
+                .Select(x => x.Item.Product)
+                .Union(from.Select(x => x.ChildItems).SelectMany(child => child.Select(x => x.Item.Product)))
+                .ToArray();
+
+            var batchContext = _productService.CreateProductBatchContext(allProducts, null, customer, false);
+            var subtotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(from.ToList(), null, batchContext);
+
+            dynamic itemParameters = new ExpandoObject();
+            itemParameters.TaxFormat = _currencyService.GetTaxFormat();
+            itemParameters.BatchContext = batchContext;
+            itemParameters.CartSubtotal = subtotal;
+
             foreach (var cartItem in from)
             {
                 var model = new ShoppingCartModel.ShoppingCartItemModel();
 
-                await cartItem.MapAsync(model);
+                await cartItem.MapAsync(model, (object)itemParameters);
 
                 to.AddItems(model);
             }

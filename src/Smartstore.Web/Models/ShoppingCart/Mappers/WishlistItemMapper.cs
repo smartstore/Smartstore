@@ -1,12 +1,12 @@
-﻿using Smartstore.ComponentModel;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.Models.ShoppingCart
 {
@@ -22,11 +22,12 @@ namespace Smartstore.Web.Models.ShoppingCart
     {
         public WishlistItemModelMapper(
             ICommonServices services,
-            IPriceCalculationServiceLegacy priceCalculationService,
+            IPriceCalculationServiceLegacy priceCalculationServiceLegacy,
+            IPriceCalculationService priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
-            : base(services, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
+            : base(services, priceCalculationServiceLegacy, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
         {
         }
 
@@ -38,7 +39,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
 
-            await base.MapAsync(from, to);
+            await base.MapAsync(from, to, (object)parameters);
 
             if (from.ChildItems != null)
             {
