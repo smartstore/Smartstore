@@ -49,7 +49,6 @@ namespace Smartstore.Web.Models.ShoppingCart
             public string DeliveryTimeHexValue { get; set; }
             public string DeliveryTimeDate { get; set; }
 
-            public string BasePrice { get; set; }
             public bool IsDownload { get; set; }
             public bool HasUserAgreement { get; set; }
             public bool IsEsd { get; set; }

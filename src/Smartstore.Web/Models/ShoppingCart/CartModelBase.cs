@@ -36,6 +36,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         public string UnitPrice { get; set; }
         public string SubTotal { get; set; }
         public string Discount { get; set; }
+        public string BasePrice { get; set; }
 
         public int EnteredQuantity { get; set; }
         public LocalizedValue<string> QuantityUnitName { get; set; }

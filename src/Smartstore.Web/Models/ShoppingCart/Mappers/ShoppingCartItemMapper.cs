@@ -29,12 +29,11 @@ namespace Smartstore.Web.Models.ShoppingCart
         public ShoppingCartItemMapper(
             ICommonServices services,
             IDeliveryTimeService deliveryTimeService,
-            IPriceCalculationServiceLegacy priceCalculationServiceLegacy,
             IPriceCalculationService priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
-            : base(services, priceCalculationServiceLegacy, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
+            : base(services, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
         {
             _deliveryTimeService = deliveryTimeService;
         }
@@ -75,24 +74,10 @@ namespace Smartstore.Web.Models.ShoppingCart
                 }
             }
 
-            var basePriceAdjustment = (await _priceCalculationServiceLegacy.GetFinalPriceAsync(product, null)
-                - await _priceCalculationServiceLegacy.GetUnitPriceAsync(from, true)) * -1;
-
-            to.BasePrice = await _priceCalculationServiceLegacy.GetBasePriceInfoAsync(product, item.Customer, _services.WorkContext.WorkingCurrency, basePriceAdjustment);
-
             if (from.Item.BundleItem == null)
             {
-                var selectedAttributeValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(item.AttributeSelection);
-                if (selectedAttributeValues != null)
-                {
-                    var weight = decimal.Zero;
-                    foreach (var attributeValue in selectedAttributeValues)
-                    {
-                        weight += attributeValue.WeightAdjustment;
-                    }
-
-                    to.Weight += weight;
-                }
+                var selectedValues = await _productAttributeMaterializer.MaterializeProductVariantAttributeValuesAsync(item.AttributeSelection);
+                selectedValues.Each(x => to.Weight += x.WeightAdjustment);
             }
 
             if (from.ChildItems != null)

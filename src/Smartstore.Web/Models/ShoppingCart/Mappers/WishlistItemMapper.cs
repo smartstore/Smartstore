@@ -12,9 +12,9 @@ namespace Smartstore.Web.Models.ShoppingCart
 {
     public static partial class WishlistMappingExtensions
     {
-        public static async Task MapAsync(this OrganizedShoppingCartItem entity, WishlistModel.WishlistItemModel model)
+        public static async Task MapAsync(this OrganizedShoppingCartItem entity, WishlistModel.WishlistItemModel model, dynamic parameters = null)
         {
-            await MapperFactory.MapAsync(entity, model, null);
+            await MapperFactory.MapAsync(entity, model, parameters);
         }
     }
 
@@ -22,12 +22,11 @@ namespace Smartstore.Web.Models.ShoppingCart
     {
         public WishlistItemModelMapper(
             ICommonServices services,
-            IPriceCalculationServiceLegacy priceCalculationServiceLegacy,
             IPriceCalculationService priceCalculationService,
             IProductAttributeMaterializer productAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings)
-            : base(services, priceCalculationServiceLegacy, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
+            : base(services, priceCalculationService, productAttributeMaterializer, shoppingCartSettings, catalogSettings)
         {
         }
 
@@ -50,7 +49,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                         DisableBuyButton = childItem.Item.Product.DisableBuyButton
                     };
 
-                    await childItem.MapAsync(model);
+                    await childItem.MapAsync(model, (object)parameters);
 
                     to.AddChildItems(model);
                 }
