@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Localization
@@ -42,20 +45,21 @@ namespace Smartstore.Core.Localization
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
 
-            if (culture.Name != "en-US")
+            var widgetProvider = context.RequestServices.GetService<IWidgetProvider>();
+
+            if (widgetProvider != null && culture.Name != "en-US")
             {
                 // Write globalization script
                 var json = CreateCultureJson(culture, language);
 
                 using var psb = StringBuilderPool.Instance.Get(out var sb);
-                sb.Append("<script>");
+                sb.Append("<script data-origin='globalization'>");
                 sb.Append("jQuery(function () { if (SmartStore.globalization) { SmartStore.globalization.culture = ");
                 sb.Append(json);
                 sb.Append("; }; });");
                 sb.Append("</script>");
 
-                // TODO: (core) Implement IPageAssetsBuilder and register globalization script (SetWorkingCultureAttribute.OnActionExecuted())
-                //builder.AppendCustomHeadParts(sb.ToString());
+                widgetProvider.RegisterHtml("head", new HtmlString(sb.ToString()));
             }
 
             await _next(context);
@@ -65,6 +69,8 @@ namespace Smartstore.Core.Localization
         {
             var nf = ci.NumberFormat;
             var df = ci.DateTimeFormat;
+
+            // TODO: (core) Determine view result type somehonw and render glob script only when html view.
 
             var dict = new Dictionary<string, object>
             {
