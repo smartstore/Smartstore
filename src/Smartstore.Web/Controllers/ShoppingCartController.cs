@@ -699,19 +699,11 @@ namespace Smartstore.Web.Controllers
             var storeId = Services.StoreContext.CurrentStore.Id;
             var cartType = (ShoppingCartType)shoppingCartTypeId;
 
-            // Get existing shopping cart items. Then, try to find a cart item with the corresponding product.
-            var cart = await _shoppingCartService.GetCartItemsAsync(null, cartType, storeId);
-            var cartItem = cart.FindItemInCart(cartType, product);
-
             var quantityToAdd = product.OrderMinimumQuantity > 0 ? product.OrderMinimumQuantity : 1;
-
-            // If we already have the same product in the cart, then use the total quantity to validate.
-            quantityToAdd = cartItem != null ? cartItem.Item.Quantity + quantityToAdd : quantityToAdd;
 
             // Product looks good so far, let's try adding the product to the cart (with product attribute validation etc.).
             var addToCartContext = new AddToCartContext
             {
-                Item = cartItem?.Item,
                 Product = product,
                 CartType = cartType,
                 Quantity = quantityToAdd,
@@ -903,18 +895,17 @@ namespace Smartstore.Web.Controllers
                 Customer = customer,
                 CartType = cartType == ShoppingCartType.Wishlist ? ShoppingCartType.ShoppingCart : ShoppingCartType.Wishlist,
                 StoreId = storeId,
-                AutomaticallyAddRequiredProducts = true,
-                AutomaticallyAddBundleProducts = true,
                 Product = cartItem.Item.Product,
                 RawAttributes = cartItem.Item.RawAttributes,
                 CustomerEnteredPrice = new(cartItem.Item.CustomerEnteredPrice, Services.WorkContext.WorkingCurrency),
                 Quantity = cartItem.Item.Quantity,
-                BundleItem = cartItem.Item.BundleItem
+                BundleItem = cartItem.Item.BundleItem,
+                ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList()
             };
 
             // TODO: (ms) (core) Have bundle products child items hand over selected attributes.
 
-            var isValid = await _shoppingCartService.AddToCartAsync(addToCartContext);
+            var isValid = await _shoppingCartService.CopyAsync(addToCartContext);
 
             if (_shoppingCartSettings.MoveItemsFromWishlistToCart && isValid)
             {
