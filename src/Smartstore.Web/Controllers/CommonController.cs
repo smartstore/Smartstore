@@ -195,9 +195,6 @@ namespace Smartstore.Web.Controllers
                 // URLs are localizable. Append SEO code.
                 foreach (var language in languages)
                 {
-                    // TODO: (mh) (core) Remove comments once reviewed.
-                    // INFO: (mh) (core) This was not a real bug as prefixless URLs were also included.
-                    // INFO: (mh) (core) StripSeoCode doesn't work (yet?).
                     if (!(_localizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.StripSeoCode && language.Id == masterLanguageId))
                     {
                         disallows = disallows.Concat(localizableDisallowPaths.Select(x => $"/{language.UniqueSeoCode}{x}"));
@@ -319,11 +316,6 @@ namespace Smartstore.Web.Controllers
 
             await PrepareCookieManagerModelAsync(model);
 
-            // TODO: (mh) (core) Why is this a partial? Are you sure? Please analyze CookieConsentFilter in classic.
-            // INFO: The registration of this action in classic CookieConsentFilter probably was a relict of a former implementation (this was rebuilt several times).
-            //       The call from consent filter always returned EmptyResult() as can be seen in line 309 of this action > !HttpContext.Request.IsAjaxRequest()
-            //       The current call of this action comes from public.common.js line 137 ff.
-            // TODO: (mh) (core) Remove comments once reviewed.
             return PartialView(model);
         }
 

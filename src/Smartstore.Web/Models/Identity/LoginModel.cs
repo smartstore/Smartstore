@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Identity;
 using Smartstore.Web.Modelling;
@@ -7,7 +6,6 @@ using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.Identity
 {
-    // TODO: (mh) (core) One property of Email, Username or UsernameOrEmail is required. Validate in POST action.
     [LocalizedDisplay("Account.Login.Fields.")]
     public partial class LoginModel : ModelBase
     {
