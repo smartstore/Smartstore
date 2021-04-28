@@ -952,15 +952,28 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            await MgPricingCalculationTests(content);
+            var pcsLegacy = new PriceCalculationServiceLegacy(
+                _db,
+                Services.WorkContext,
+                Services.StoreContext,
+                Services.Resolve<IProductService>(),
+                Services.Resolve<Core.Catalog.Categories.ICategoryService>(),
+                Services.Resolve<Core.Catalog.Brands.IManufacturerService>(),
+                Services.Resolve<ITaxCalculator>(),
+                Services.Resolve<ICurrencyService>(),
+                Services.Resolve<IProductAttributeMaterializer>(),
+                Services.Resolve<Core.Catalog.Discounts.IDiscountService>(),
+                Services.Resolve<CatalogSettings>(),
+                T);
+
+            await MgPricingCalculationTests(content, pcsLegacy);
 
             return Content(content.ToString());
             //return View();
         }
 
-        private async Task MgPricingCalculationTests2(StringBuilder content)
+        private async Task MgPricingCalculationTests2(StringBuilder content, PriceCalculationServiceLegacy pcsLegacy)
         {
-            var pcsLegacy = Services.Resolve<IPriceCalculationServiceLegacy>();
             var pcs = Services.Resolve<IPriceCalculationService>();
             var ps = Services.Resolve<IProductService>();
             var ts = Services.Resolve<ITaxService>();
@@ -979,9 +992,8 @@ namespace Smartstore.Web.Controllers
             content.AppendLine($"Final {tierPriceTestQuantity} qty: {oldFinalInclTierPriceTax} {newFinalInclTierPrice.FinalPrice}");
         }
 
-        private async Task MgPricingCalculationTests(StringBuilder content)
+        private async Task MgPricingCalculationTests(StringBuilder content, PriceCalculationServiceLegacy pcsLegacy)
         {
-            var pcsLegacy = Services.Resolve<IPriceCalculationServiceLegacy>();
             var pcs = Services.Resolve<IPriceCalculationService>();
             var ps = Services.Resolve<IProductService>();
             var paf = Services.Resolve<IProductAttributeFormatter>();

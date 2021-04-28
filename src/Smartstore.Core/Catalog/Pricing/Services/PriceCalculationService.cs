@@ -386,7 +386,8 @@ namespace Smartstore.Core.Catalog.Pricing
 
     #region Legacy
 
-    public partial class PriceCalculationServiceLegacy : IPriceCalculationServiceLegacy
+    // TODO: (mg) (core) delete PriceCalculationServiceLegacy later. Still needed for testing.
+    public partial class PriceCalculationServiceLegacy
     {
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
@@ -394,7 +395,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
         private readonly IManufacturerService _manufacturerService;
-        private readonly ITaxService _taxService;
+        private readonly ITaxCalculator _taxCalculator;
         private readonly ICurrencyService _currencyService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IDiscountService _discountService;
@@ -409,11 +410,12 @@ namespace Smartstore.Core.Catalog.Pricing
             IProductService productService,
             ICategoryService categoryService,
             IManufacturerService manufacturerService,
-            ITaxService taxService,
+            ITaxCalculator taxCalculator,
             ICurrencyService currencyService,
             IProductAttributeMaterializer productAttributeMaterializer,
             IDiscountService discountService,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            Localizer localizer)
         {
             _db = db;
             _workContext = workContext;
@@ -421,11 +423,13 @@ namespace Smartstore.Core.Catalog.Pricing
             _productService = productService;
             _categoryService = categoryService;
             _manufacturerService = manufacturerService;
-            _taxService = taxService;
+            _taxCalculator = taxCalculator;
             _currencyService = currencyService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _discountService = discountService;
             _catalogSettings = catalogSettings;
+            
+            T = localizer;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
             _workingCurrency = workContext.WorkingCurrency;
@@ -716,8 +720,8 @@ namespace Smartstore.Core.Catalog.Pricing
                     currentPrice += priceAdjustment.Value.Amount;
                 }
 
-                var (price, _) = await _taxService.GetProductPriceAsync(product, new(currentPrice, _primaryCurrency), customer: customer);
-                var convertedPrice = _currencyService.ConvertToCurrency(price, currency);
+                var price = await _taxCalculator.CalculateProductTaxAsync(product, currentPrice, customer: customer);
+                var convertedPrice = _currencyService.ConvertToCurrency(new(price.Price, _primaryCurrency), currency);
 
                 return GetBasePriceInfo(product, convertedPrice, currency);
             }
@@ -1019,9 +1023,9 @@ namespace Smartstore.Core.Catalog.Pricing
                     {
                         var attributeValuePriceAdjustment = await GetVariantPriceAdjustmentAsync(pvaValue, product, customer, context, 1);
                         // We cannot avoid money usage in calls between interfaces.
-                        var (priceAdjustmentBase, _) = await _taxService.GetProductPriceAsync(product, new(attributeValuePriceAdjustment, _primaryCurrency), customer: customer);
+                        var priceAdjustmentBase = await _taxCalculator.CalculateProductTaxAsync(product, attributeValuePriceAdjustment, customer: customer);
 
-                        preSelectedPriceAdjustmentBase += priceAdjustmentBase.Amount;
+                        preSelectedPriceAdjustmentBase += priceAdjustmentBase.Price;
                     }
                 }
 
