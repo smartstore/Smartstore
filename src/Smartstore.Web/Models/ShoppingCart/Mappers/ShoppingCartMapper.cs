@@ -435,7 +435,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 .ToArray();
 
             var batchContext = _productService.CreateProductBatchContext(allProducts, null, customer, false);
-            var subtotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(from.ToList(), null, batchContext);
+            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from.ToList(), null, batchContext);
 
             dynamic itemParameters = new ExpandoObject();
             itemParameters.TaxFormat = _currencyService.GetTaxFormat();

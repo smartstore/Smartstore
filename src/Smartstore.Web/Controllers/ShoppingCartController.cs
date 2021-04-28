@@ -283,10 +283,10 @@ namespace Smartstore.Web.Controllers
             var taxFormat = _currencyService.GetTaxFormat();
             var batchContext = _productService.CreateProductBatchContext(cart.Select(x => x.Item.Product).ToArray(), null, customer, false);
 
-            var subtotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart, null, batchContext);
+            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, null, batchContext);
             var lineItems = subtotal.LineItems.ToDictionarySafe(x => x.Item.Item.Id);
 
-            var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(subtotal.SubTotalWithoutDiscount.Amount, currency);
+            var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(subtotal.SubtotalWithoutDiscount.Amount, currency);
             model.SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat).ToString();
 
             // A customer should visit the shopping cart page before going to checkout if:

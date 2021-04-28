@@ -56,6 +56,12 @@ namespace Smartstore.Core.Checkout.Cart
         public List<AppliedGiftCard> AppliedGiftCards { get; init; }
 
         /// <summary>
+        /// Shopping cart line items. A line item represents a single line in the shopping cart.
+        /// At the moment this is always a product. Bundle items are not included as line items.
+        /// </summary>
+        public List<ShoppingCartLineItem> LineItems { get; init; }
+
+        /// <summary>
         /// Total converted from the primary currency.
         /// </summary>
         public ConvertedAmounts ConvertedAmount { get; init; }

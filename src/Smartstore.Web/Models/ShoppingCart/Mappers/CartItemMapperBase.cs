@@ -158,7 +158,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             {
                 if (shoppingCartType == ShoppingCartType.ShoppingCart)
                 {
-                    var subtotal = parameters?.CartSubtotal as ShoppingCartSubTotal;
+                    var subtotal = parameters?.CartSubtotal as ShoppingCartSubtotal;
                     var lineItem = subtotal.LineItems.FirstOrDefault(x => x.Item.Item.Id == item.Id);
 
                     var unitPrice = CurrencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);

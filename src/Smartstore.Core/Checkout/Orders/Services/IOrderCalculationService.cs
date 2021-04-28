@@ -38,7 +38,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// If <c>null</c>, will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.</param>
         /// <param name="batchContext">The product batch context used to load all cart products in one go. Will be created internally if <c>null</c>.</param>
         /// <returns>Shopping cart subtotal.</returns>
-        Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null, ProductBatchContext batchContext = null);
+        Task<ShoppingCartSubtotal> GetShoppingCartSubtotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null, ProductBatchContext batchContext = null);
 
         /// <summary>
         /// Gets the shopping cart shipping total.

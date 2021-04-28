@@ -7,20 +7,20 @@ namespace Smartstore.Core.Checkout.Cart
     /// <summary>
     /// Represents a calculated shopping cart subtotal.
     /// </summary>
-    public partial class ShoppingCartSubTotal
+    public partial class ShoppingCartSubtotal
     {
-        public static implicit operator Money(ShoppingCartSubTotal obj)
-            => obj.SubTotalWithDiscount;
+        public static implicit operator Money(ShoppingCartSubtotal obj)
+            => obj.SubtotalWithDiscount;
 
         /// <summary>
         /// Cart subtotal excluding discount in the primary currency.
         /// </summary>
-        public Money SubTotalWithoutDiscount { get; init; }
+        public Money SubtotalWithoutDiscount { get; init; }
 
         /// <summary>
         /// Cart subtotal including discount in the primary currency.
         /// </summary>
-        public Money SubTotalWithDiscount { get; init; }
+        public Money SubtotalWithDiscount { get; init; }
 
         /// <summary>
         /// Discount amount in the primary currency.
@@ -37,15 +37,17 @@ namespace Smartstore.Core.Checkout.Cart
         /// </summary>
         public TaxRatesDictionary TaxRates { get; init; }
 
-        // TODO: (mg) (core) describe ShoppingCartLineItem when ready.
-        // bundle items are never included in line items.
+        /// <summary>
+        /// Shopping cart line items. A line item represents a single line in the shopping cart.
+        /// At the moment this is always a product. Bundle items are not included as line items.
+        /// </summary>
         public List<ShoppingCartLineItem> LineItems { get; init; }
 
         /// <summary>
-        /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="SubTotalWithDiscount"/>.
+        /// Overrides default <see cref="object.ToString()"/>. Returns formatted <see cref="SubtotalWithDiscount"/>.
         /// </summary>
         public override string ToString()
-            => SubTotalWithDiscount.ToString();
+            => SubtotalWithDiscount.ToString();
     }
 
     public partial class TaxRatesDictionary : SortedDictionary<decimal, decimal>

@@ -391,16 +391,16 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (cart.Any() && (orderTotalMin > decimal.Zero || orderTotalMax > decimal.Zero))
             {
-                var cartSubTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
+                var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
 
                 if (orderTotalMin > decimal.Zero)
                 {
-                    isAboveMin = cartSubTotal.SubTotalWithoutDiscount >= orderTotalMin;
+                    isAboveMin = cartSubTotal.SubtotalWithoutDiscount >= orderTotalMin;
                 }
 
                 if (orderTotalMax > decimal.Zero)
                 {
-                    isBelowMax = cartSubTotal.SubTotalWithoutDiscount <= orderTotalMax;
+                    isBelowMax = cartSubTotal.SubtotalWithoutDiscount <= orderTotalMax;
                 }
             }
 

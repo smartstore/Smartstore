@@ -468,11 +468,11 @@ namespace Smartstore.Core.Checkout.Orders
             if (!ctx.PaymentRequest.IsRecurringPayment)
             {
                 // Sub total.
-                var subTotalInclTax = await _orderCalculationService.GetShoppingCartSubTotalAsync(ctx.Cart, true);
-                var subTotalExclTax = await _orderCalculationService.GetShoppingCartSubTotalAsync(ctx.Cart, false);
+                var subTotalInclTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(ctx.Cart, true);
+                var subTotalExclTax = await _orderCalculationService.GetShoppingCartSubtotalAsync(ctx.Cart, false);
 
-                order.OrderSubtotalInclTax = subTotalInclTax.SubTotalWithoutDiscount.Amount;
-                order.OrderSubtotalExclTax = subTotalExclTax.SubTotalWithoutDiscount.Amount;
+                order.OrderSubtotalInclTax = subTotalInclTax.SubtotalWithoutDiscount.Amount;
+                order.OrderSubtotalExclTax = subTotalExclTax.SubtotalWithoutDiscount.Amount;
                 order.OrderSubTotalDiscountInclTax = subTotalInclTax.DiscountAmount.Amount;
                 order.OrderSubTotalDiscountExclTax = subTotalExclTax.DiscountAmount.Amount;
 

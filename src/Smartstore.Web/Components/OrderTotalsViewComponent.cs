@@ -93,8 +93,8 @@ namespace Smartstore.Web.Components
             }
 
             // SubTotal
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubTotalWithoutDiscount.Amount, currency);
+            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
+            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
 
             model.SubTotal = subTotalConverted.ToString();
 
