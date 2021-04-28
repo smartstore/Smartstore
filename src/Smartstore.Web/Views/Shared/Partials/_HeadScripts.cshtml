@@ -1,0 +1,101 @@
+﻿@*
+    TODO: (mh) (core) Finish _HeadScripts.cshtml (_ClientRes + ConditionalComments + Localization)
+    RE: What's meant by + Localization?
+*@
+
+<script>
+    try {
+        if (typeof navigator === 'undefined') navigator = {};
+        html = document.documentElement;
+        if (/Edge\/\d+/.test(navigator.userAgent)) { html.className += ' edge' }
+        else if ('mozMatchesSelector' in html) { html.className += ' moz' }
+        else if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) { html.className += ' ios' }
+        else if ('webkitMatchesSelector' in html) { html.className += ' wkit' }
+        else if (/constructor/i.test(window.HTMLElement)) { html.className += ' safari' };
+        html.className += (this.top === this.window ? ' not-' : ' ') + 'framed';
+    } catch (e) { }
+</script>
+<!--[if !IE]>-->
+<script>var ieMode = 0; try { if (document.documentMode) { ieMode = document.documentMode; html.className += ' ie iepost8 ie' + document.documentMode } else { html.className += ' not-ie' }; } catch (e) { }; navigator.isIE = ieMode</script>
+<!-- <![endif]-->
+
+<script>
+    if (navigator.isIE) {
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add html alert after header, before content.
+            const alert = document.createElement('div');
+            alert.className = 'container alert alert-warning mt-3';
+            alert.innerText = @T("Common.UnsupportedBrowser").JsValue;
+            const page = document.getElementsByClassName('page-main');
+            if (page.length < 1) return;
+
+            const content = document.getElementById('content-wrapper');
+            if (!content) return;
+
+            page[0].insertBefore(alert, content);
+        });
+    }
+</script>
+
+@{
+    var clientResKeys = new[]
+    {
+        "Common.Notification",
+        "Common.Close",
+        "Common.On",
+        "Common.OK",
+        "Common.Cancel",
+        "Common.Off",
+        "Common.CtrlKey",
+        "Common.ShiftKey",
+        "Common.AltKey",
+        "Common.DelKey",
+        "Common.EnterKey",
+        "Common.EscKey",
+        "Products.Longdesc.More",
+        "Products.Longdesc.Less",
+        "Jquery.Validate.Email",
+        "Jquery.Validate.Required",
+        "Jquery.Validate.Remote",
+        "Jquery.Validate.Url",
+        "Jquery.Validate.Date",
+        "Jquery.Validate.DateISO",
+        "Jquery.Validate.Number",
+        "Jquery.Validate.Digits",
+        "Jquery.Validate.Creditcard",
+        "Jquery.Validate.Equalto",
+        "Jquery.Validate.Maxlength",
+        "Jquery.Validate.Minlength",
+        "Jquery.Validate.Rangelength",
+        "jquery.Validate.Range",
+        "Jquery.Validate.Max",
+        "Jquery.Validate.Min",
+        "Admin.Common.AreYouSure",
+        "FileUploader.Dropzone.Message",
+        "FileUploader.Dropzone.DictDefaultMessage",
+        "FileUploader.Dropzone.DictFallbackMessage",
+        "FileUploader.Dropzone.DictFallbackText",
+        "FileUploader.Dropzone.DictFileTooBig",
+        "FileUploader.Dropzone.DictInvalidFileType",
+        "FileUploader.Dropzone.DictResponseError",
+        "FileUploader.Dropzone.DictCancelUpload",
+        "FileUploader.Dropzone.DictUploadCanceled",
+        "FileUploader.Dropzone.DictCancelUploadConfirmation",
+        "FileUploader.Dropzone.DictRemoveFile",
+        "FileUploader.Dropzone.DictMaxFilesExceeded",
+        "FileUploader.StatusWindow.Uploading.File",
+        "FileUploader.StatusWindow.Uploading.Files",
+        "FileUploader.StatusWindow.Complete.File",
+        "FileUploader.StatusWindow.Complete.Files",
+        "FileUploader.StatusWindow.Canceled.File",
+        "FileUploader.StatusWindow.Canceled.Files"
+    };
+}
+
+<script>
+	window.Res = {
+		@foreach (var key in clientResKeys) { <text>"@(Html.Raw(key))": @(T(key).JsValue),</text> }
+    };
+
+    window.ClientId = "@WorkContext.CurrentCustomer.CustomerGuid";
+</script>
