@@ -9,7 +9,7 @@
 
 @if (Model.IsPasswordProtected)
 {
-    <script sm-target-zone="scripts">
+    <script sm-target-zone="scripts" data-origin="topic-block">
         $(function () {
             $('#ph-topic-@Model.Id').hide();            
             $('#ph-password-@Model.Id #password-@Model.Id').select().focus();

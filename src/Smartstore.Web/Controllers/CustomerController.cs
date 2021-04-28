@@ -987,8 +987,8 @@ namespace Smartstore.Web.Controllers
                 model.StreetAddress2 = customer.GenericAttributes.StreetAddress2;
                 model.City = customer.GenericAttributes.City;
                 model.ZipPostalCode = customer.GenericAttributes.ZipPostalCode;
-                model.CountryId = (int)customer.GenericAttributes.CountryId;
-                model.StateProvinceId = (int)customer.GenericAttributes.StateProvinceId;
+                model.CountryId = Convert.ToInt32(customer.GenericAttributes.CountryId);
+                model.StateProvinceId = Convert.ToInt32(customer.GenericAttributes.StateProvinceId);
                 model.Phone = customer.GenericAttributes.Phone;
                 model.Fax = customer.GenericAttributes.Fax;
                 model.Signature = customer.GenericAttributes.Signature;
