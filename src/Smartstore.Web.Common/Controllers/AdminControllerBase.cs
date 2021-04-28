@@ -26,9 +26,9 @@ namespace Smartstore.Web.Controllers
     }
 
     [Area("Admin")]
-    [AuthorizeAdmin]
     [AutoValidateAntiforgeryToken]
-    //[AdminValidateIpAddress]
+    [AuthorizeAdmin]
+    [ValidateAdminIpAddress]
     [RequireSsl]
     [AdminThemed]
     [TrackActivity(Order = 100)]
