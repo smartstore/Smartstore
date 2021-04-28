@@ -23,20 +23,16 @@ namespace Smartstore.Core.Bootstrapping
             usr.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
 
             var pwd = options.Password;
-            // TODO: (core) Convert MinDigitsInPassword & MinUppercaseCharsInPassword & MinSpecialCharsInPassword to Identity somehow.
             pwd.RequiredLength = _customerSettings.PasswordMinLength;
-            pwd.RequireDigit = _customerSettings.MinDigitsInPassword > 0;
-            pwd.RequireUppercase = _customerSettings.MinUppercaseCharsInPassword > 0;
-            pwd.RequiredUniqueChars = 1;
-            pwd.RequireLowercase = true;
-            pwd.RequireNonAlphanumeric = false;
+            pwd.RequireDigit = _customerSettings.PasswordRequireDigit;
+            pwd.RequireUppercase = _customerSettings.PasswordRequireUppercase;
+            pwd.RequiredUniqueChars = _customerSettings.PasswordRequiredUniqueChars;
+            pwd.RequireLowercase = _customerSettings.PasswordRequireLowercase;
+            pwd.RequireNonAlphanumeric = _customerSettings.PasswordRequireNonAlphanumeric;
 
             var signIn = options.SignIn;
             signIn.RequireConfirmedAccount = false;
             signIn.RequireConfirmedPhoneNumber = false;
-            signIn.RequireConfirmedEmail =
-                _customerSettings.UserRegistrationType == UserRegistrationType.EmailValidation ||
-                _customerSettings.UserRegistrationType == UserRegistrationType.AdminApproval;
             signIn.RequireConfirmedEmail = false;
 
             // TODO: (core) Read and apply more IdentityOptions from settings.

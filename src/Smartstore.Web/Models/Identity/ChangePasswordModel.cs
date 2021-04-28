@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 
@@ -26,13 +25,9 @@ namespace Smartstore.Web.Models.Identity
 
     public class ChangePasswordValidator : AbstractValidator<ChangePasswordModel>
     {
-        public ChangePasswordValidator(Localizer T, CustomerSettings customerSettings)
+        public ChangePasswordValidator(Localizer T)
         {
             RuleFor(x => x.OldPassword).NotEmpty();
-
-            // TODO: (mh) (core) Use Identity Infrastructure to validate.
-            //RuleFor(x => x.NewPassword).Password(T, customerSettings);
-
             RuleFor(x => x.ConfirmNewPassword)
                 .NotEmpty()
                 .Equal(x => x.NewPassword)

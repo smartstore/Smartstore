@@ -29,6 +29,8 @@ namespace Smartstore.Core.Identity
         /// </summary>
         public bool AllowUsersToChangeUsernames { get; set; }
 
+
+        // TODO: (mh) (core) Find a new place for these settings when porting admin area. Maybe another tab?
         /// <summary>
         /// Default password format for customers
         /// </summary>
@@ -45,19 +47,45 @@ namespace Smartstore.Core.Identity
         public int PasswordMinLength { get; set; } = 6;
 
         /// <summary>
-        /// Specifies the minimum number of digits for a password.
+        /// Gets or sets a minimum password length.
         /// </summary>
-        public int MinDigitsInPassword { get; set; }
+        public bool PasswordRequireDigit { get; set; } = true;
 
         /// <summary>
-        /// Specifies the minimum number of special characters for a password (not numeric and not alphabetic).
+        /// Gets or sets a minimum password length.
         /// </summary>
-        public int MinSpecialCharsInPassword { get; set; }
+        public bool PasswordRequireUppercase { get; set; } = true;
 
         /// <summary>
-        /// Specifies the minimum number of uppercase characters for a password.
+        /// Gets or sets a minimum password length.
         /// </summary>
-        public int MinUppercaseCharsInPassword { get; set; }
+        public int PasswordRequiredUniqueChars { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets a minimum password length.
+        /// </summary>
+        public bool PasswordRequireLowercase { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a minimum password length.
+        /// </summary>
+        public bool PasswordRequireNonAlphanumeric { get; set; } = true;
+
+        // TODO: (mh) (core) Remove these settings from database in the first migration after shop update.
+        ///// <summary>
+        ///// Specifies the minimum number of digits for a password.
+        ///// </summary>
+        //public int MinDigitsInPassword { get; set; }
+
+        ///// <summary>
+        ///// Specifies the minimum number of special characters for a password (not numeric and not alphabetic).
+        ///// </summary>
+        //public int MinSpecialCharsInPassword { get; set; }
+
+        ///// <summary>
+        ///// Specifies the minimum number of uppercase characters for a password.
+        ///// </summary>
+        //public int MinUppercaseCharsInPassword { get; set; }
 
         /// <summary>
         /// User registration type
