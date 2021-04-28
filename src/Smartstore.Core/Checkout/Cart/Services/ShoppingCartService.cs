@@ -113,17 +113,8 @@ namespace Smartstore.Core.Checkout.Cart
                         && (parent.Product?.BundlePerItemPricing ?? false)
                         && child.BundleItem != null)
                     {
-                        var selection = new ProductVariantAttributeSelection(child.RawAttributes);
-
-                        await _productAttributeMaterializer.MergeWithCombinationAsync(child.Product, selection);
-
-                        var attributeValues = await _productAttributeMaterializer
-                            .MaterializeProductVariantAttributeValuesAsync(selection);
-
-                        if (!attributeValues.IsNullOrEmpty())
-                        {
-                            childItem.BundleItemData.AdditionalCharge = attributeValues.Sum(x => x.PriceAdjustment);
-                        }
+                        // Consider attribute combination prices of bundle items.
+                        await _productAttributeMaterializer.MergeWithCombinationAsync(child.Product, new ProductVariantAttributeSelection(child.RawAttributes));
                     }
 
                     parentItem.ChildItems.Add(childItem);
