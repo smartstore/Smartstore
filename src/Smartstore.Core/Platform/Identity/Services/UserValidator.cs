@@ -52,6 +52,7 @@ namespace Smartstore.Core.Identity
             // INFO: (mh) (core) Will fail for _userManager.ResetPasswordAsync 
             // In this case the customer is IsRegistered = true
             // TODO: (mh) (core) Remove comment once reviewed by mc
+            // RE: Reviewing this takes too much. Must discuss in personal. Please TBD.
             //if (user.IsRegistered())
             //{
             //    return Failed(T("Account.Register.Errors.AlreadyRegistered"));

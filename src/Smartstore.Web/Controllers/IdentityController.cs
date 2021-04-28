@@ -333,6 +333,7 @@ namespace Smartstore.Web.Controllers
         }
 
         // TODO: (mh) (core) Change to /identity/activation ?
+        // RE: No, better not to. We'll keep routes for compat and SEO reasons intact.
         [HttpGet]
         [RequireSsl, AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/customer/activation", Name = "AccountActivation")]
@@ -419,8 +420,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/passwordrecovery", Name = "PasswordRecovery")]
         public IActionResult PasswordRecovery()
         {
-            var model = new PasswordRecoveryModel();
-            return View(model);
+            return View(new PasswordRecoveryModel());
         }
 
         [HttpPost]
@@ -435,8 +435,9 @@ namespace Smartstore.Web.Controllers
                 if (customer != null && customer.Active)
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(customer);
-                    
+
                     // TODO: (mh) (core) Why isn't this handled by UserStore?
+                    // RE: It obviously is not saved anywhere (https://stackoverflow.com/questions/27039953/resetpassword-token-how-and-where-is-it-stored)
                     customer.GenericAttributes.PasswordRecoveryToken = token;
                     await _db.SaveChangesAsync();
 
