@@ -5,14 +5,11 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Tax
@@ -26,13 +23,11 @@ namespace Smartstore.Core.Checkout.Tax
         private readonly IWorkContext _workContext;
         private readonly TaxSettings _taxSettings;
         private readonly SmartDbContext _db;
-        private readonly Currency _primaryCurrency;
 
         public TaxService(
             IGeoCountryLookup geoCountryLookup,
             IProviderManager providerManager,
             IWorkContext workContext,
-            IStoreContext storeContext,
             TaxSettings taxSettings,
             SmartDbContext db)
         {
@@ -41,8 +36,6 @@ namespace Smartstore.Core.Checkout.Tax
             _workContext = workContext;
             _taxSettings = taxSettings;
             _db = db;
-
-            _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -92,86 +85,6 @@ namespace Smartstore.Core.Checkout.Tax
             };
 
             return await activeTaxProvider.Value.GetTaxRateAsync(request);
-        }
-
-        public virtual async Task<(Money Price, decimal TaxRate)> GetProductPriceAsync(
-            Product product,
-            Money price,
-            bool? includingTax = null,
-            bool? priceIncludesTax = null,
-            int? taxCategoryId = null,
-            Customer customer = null)
-        {
-            var (amount, taxRate) = await GetProductPriceAmountAsync(product, price.Amount, includingTax, priceIncludesTax, taxCategoryId, customer);
-
-            return (new(amount, _primaryCurrency), taxRate);
-        }
-
-        public virtual Task<(Money Price, decimal TaxRate)> GetShippingPriceAsync(
-            Money price,
-            bool? includingTax = null,
-            int? taxCategoryId = null,
-            Customer customer = null)
-        {
-            if (!_taxSettings.ShippingIsTaxable)
-            {
-                return Task.FromResult((price, decimal.Zero));
-            }
-
-            return GetProductPriceAsync(
-                null,
-                price,
-                includingTax,
-                _taxSettings.ShippingPriceIncludesTax,
-                taxCategoryId ?? _taxSettings.ShippingTaxClassId,
-                customer);
-        }
-
-        public virtual Task<(Money Price, decimal TaxRate)> GetPaymentMethodFeeAsync(
-            Money price,
-            bool? includingTax = null,
-            int? taxCategoryId = null,
-            Customer customer = null)
-        {
-            if (!_taxSettings.PaymentMethodAdditionalFeeIsTaxable)
-            {
-                return Task.FromResult((price, decimal.Zero));
-            }
-
-            return GetProductPriceAsync(
-                null,
-                price,
-                includingTax,
-                _taxSettings.PaymentMethodAdditionalFeeIncludesTax,
-                taxCategoryId ?? _taxSettings.PaymentMethodAdditionalFeeTaxClassId,
-                customer);
-        }
-
-        public virtual async Task<(Money Price, decimal TaxRate)> GetCheckoutAttributePriceAsync(
-            CheckoutAttributeValue attributeValue,
-            bool? includingTax = null,
-            Customer customer = null)
-        {
-            Guard.NotNull(attributeValue, nameof(attributeValue));
-
-            await _db.LoadReferenceAsync(attributeValue, x => x.CheckoutAttribute);
-
-            // TODO: (ms) (core) Check this for NULLReferenceException.....
-
-            if (attributeValue.CheckoutAttribute.IsTaxExempt)
-            {
-                return (new(attributeValue.PriceAdjustment, _primaryCurrency), decimal.Zero);
-            }
-
-            var (amount, taxRate) = await GetProductPriceAmountAsync(
-                null,
-                attributeValue.PriceAdjustment,
-                includingTax,
-                _taxSettings.PricesIncludeTax,
-                attributeValue.CheckoutAttribute.TaxCategoryId,
-                customer);
-
-            return (new(amount, _primaryCurrency), taxRate);
         }
 
         // TODO: (ms) (core) implement EuropeCheckVatService and check for async

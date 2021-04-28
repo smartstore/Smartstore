@@ -191,7 +191,7 @@ namespace Smartstore
             if (source == 0)
                 return source;
 
-            var format = currencyService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, PricingTarget.ShippingCharge, language);
+            var format = currencyService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, PricingTarget.PaymentFee, language);
             return source.WithPostFormat(format);
         }
 

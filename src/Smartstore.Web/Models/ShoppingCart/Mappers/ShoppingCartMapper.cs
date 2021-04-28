@@ -56,7 +56,7 @@ namespace Smartstore.Web.Models.ShoppingCart
     public class ShoppingCartModelMapper : CartMapperBase<ShoppingCartModel>
     {
         private readonly SmartDbContext _db;
-        private readonly ITaxService _taxService;
+        private readonly ITaxCalculator _taxCalculator;
         private readonly IProductService _productService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IMediaService _mediaService;
@@ -76,7 +76,7 @@ namespace Smartstore.Web.Models.ShoppingCart
         public ShoppingCartModelMapper(
             SmartDbContext db,
             ICommonServices services,
-            ITaxService taxService,
+            ITaxCalculator taxCalculator,
             IProductService productService,
             IPriceCalculationService priceCalculationService,
             IMediaService mediaService,
@@ -99,7 +99,7 @@ namespace Smartstore.Web.Models.ShoppingCart
             : base(services, shoppingCartSettings, catalogSettings, mediaSettings, T)
         {
             _db = db;
-            _taxService = taxService;
+            _taxCalculator = taxCalculator;
             _productService = productService;
             _priceCalculationService = priceCalculationService;
             _mediaService = mediaService;
@@ -224,6 +224,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
                 if (attribute.IsListTypeAttribute)
                 {
+                    var taxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.Product);
                     var caValues = await _db.CheckoutAttributeValues
                         .AsNoTracking()
                         .Where(x => x.CheckoutAttributeId == attribute.Id)
@@ -250,16 +251,16 @@ namespace Smartstore.Web.Models.ShoppingCart
                         // Display price if allowed.
                         if (await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice))
                         {
-                            var priceAdjustmentBase = await _taxService.GetCheckoutAttributePriceAsync(caValue);
-                            var priceAdjustment = _currencyService.ConvertFromPrimaryCurrency(priceAdjustmentBase.Price.Amount, currency);
+                            var priceAdjustmentBase = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(caValue);
+                            var priceAdjustment = _currencyService.ConvertFromPrimaryCurrency(priceAdjustmentBase.Price, currency);
 
-                            if (priceAdjustmentBase.Price > decimal.Zero)
+                            if (priceAdjustment > 0)
                             {
-                                pvaValueModel.PriceAdjustment = "+" + priceAdjustmentBase.Price.ToString();
+                                pvaValueModel.PriceAdjustment = "+" + priceAdjustment.WithPostFormat(taxFormat).ToString();
                             }
-                            else if (priceAdjustmentBase.Price < decimal.Zero)
+                            else if (priceAdjustment < 0)
                             {
-                                pvaValueModel.PriceAdjustment = "-" + priceAdjustmentBase.Price.ToString();
+                                pvaValueModel.PriceAdjustment = "-" + (priceAdjustment * -1).WithPostFormat(taxFormat).ToString();
                             }
                         }
                     }
