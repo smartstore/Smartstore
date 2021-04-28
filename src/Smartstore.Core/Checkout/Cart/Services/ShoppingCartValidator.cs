@@ -205,7 +205,10 @@ namespace Smartstore.Core.Checkout.Cart
             if (ctx.BundleItem != null || !ctx.ChildItems.IsNullOrEmpty())
             {
                 var bundleItem = ctx.BundleItem ?? ctx.ChildItems.Select(x => x.BundleItem).FirstOrDefault();
-                ValidateBundleItem(bundleItem, warnings);
+                if (bundleItem != null)
+                {
+                    ValidateBundleItem(bundleItem, warnings);
+                }
             }
 
             ctx.Warnings.AddRange(warnings);
@@ -438,7 +441,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             // Check if the product is a bundle. Since bundles have no attributes, the customer has nothing to select
             if (cartItem.Product.ProductType == ProductType.BundledProduct
-                || cartItem.BundleItem != null && !cartItem.BundleItem.BundleProduct.BundlePerItemPricing)
+                || cartItem.BundleItem?.BundleProduct != null && !cartItem.BundleItem.BundleProduct.BundlePerItemPricing)
             {
                 if (cartItem.RawAttributes.HasValue())
                 {
@@ -487,8 +490,8 @@ namespace Smartstore.Core.Checkout.Cart
                 }
 
                 // If attribute is filtered out by bundle item, it cannot be selected by the customer
-                if(!found 
-                    && (cartItem.BundleItem?.FilterAttributes ?? false) 
+                if (!found
+                    && (cartItem.BundleItem?.FilterAttributes ?? false)
                     && !cartItem.BundleItem.AttributeFilters.Any(x => x.AttributeId == existingAttribute.ProductAttributeId))
                 {
                     found = true;

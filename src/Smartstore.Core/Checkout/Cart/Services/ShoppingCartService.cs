@@ -71,7 +71,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             customer.ShoppingCartItems.Add(ctx.Item);
             await _db.SaveChangesAsync();
-            
+
             if (ctx.ChildItems.Any())
             {
                 foreach (var childItem in ctx.ChildItems)
@@ -286,25 +286,19 @@ namespace Smartstore.Core.Checkout.Cart
                 && ctx.Warnings.Count == 0)
             {
                 var bundleItems = await _db.ProductBundleItem
-                    .AsNoTracking()
                     .ApplyBundledProductsFilter(new[] { ctx.Product.Id }, true)
+                    .Include(x => x.Product)
                     .ToListAsync();
 
                 foreach (var bundleItem in bundleItems)
                 {
-                    // TODO: (ms) (core) have additional child products loaded once (crashes, if bundle is already once in cart)
-                    //if(!_db.IsReferenceLoaded(bundleItem, x => x.Product))
-                    //{
-                    //    await _db.LoadReferenceAsync(bundleItem, x => x.Product, false);
-                    //}
-                    
                     bundleItem.BundleProduct = ctx.Item.Product;
 
                     var bundleItemContext = new AddToCartContext
                     {
                         StoreId = ctx.StoreId,
                         Customer = ctx.Customer,
-                        CartType = ctx.CartType,                        
+                        CartType = ctx.CartType,
                         BundleItem = bundleItem,
                         ChildItems = ctx.ChildItems,
                         Product = bundleItem.Product,
@@ -444,9 +438,11 @@ namespace Smartstore.Core.Checkout.Cart
             var cacheKey = CartItemsKey.FormatInvariant(customer.Id, (int)cartType, storeId);
             var result = _requestCache.Get(cacheKey, async () =>
             {
-                await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, false, q =>
+                await _db.LoadCollectionAsync(customer, x => x.ShoppingCartItems, false, x =>
                 {
-                    return q.AsNoTracking();
+                    return x
+                        .Include(x => x.Product)
+                        .ThenInclude(x => x.ProductVariantAttributes);
                 });
 
                 var cartItems = customer.ShoppingCartItems.FilterByCartType(cartType, storeId);
@@ -554,7 +550,7 @@ namespace Smartstore.Core.Checkout.Cart
                 {
                     cartItem.Quantity = newQuantity;
                     cartItem.UpdatedOnUtc = DateTime.UtcNow;
-                    _db.TryUpdate(customer);
+
                     await _db.SaveChangesAsync();
                 }
                 else

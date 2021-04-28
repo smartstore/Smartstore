@@ -544,13 +544,13 @@ namespace Smartstore.Web.Controllers
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
 
+            var cart = await _shoppingCartService.GetCartItemsAsync(
+                null,
+                isWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart,
+                Services.StoreContext.CurrentStore.Id);
+
             if (isCartPage)
             {
-                var cart = await _shoppingCartService.GetCartItemsAsync(
-                    null,
-                    isWishlist ? ShoppingCartType.Wishlist : ShoppingCartType.ShoppingCart,
-                    Services.StoreContext.CurrentStore.Id);
-
                 if (isWishlist)
                 {
                     var model = new WishlistModel();
@@ -568,14 +568,12 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            // TODO: (ms) (core) subtotal is always 0. Check again when pricing was fully implmented.
-            //var subTotal = await _orderCalculationService.GetShoppingCartSubTotalAsync(cart);
-            var subTotal = "99 €";
+            var subTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
 
             return Json(new
             {
                 success = !warnings.Any(),
-                SubTotal = subTotal,// subTotal.SubTotalWithoutDiscount.ToString(),
+                SubTotal = subTotal.SubtotalWithoutDiscount.ToString(),
                 message = warnings,
                 cartHtml,
                 totalsHtml,
