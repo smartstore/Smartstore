@@ -1,7 +1,7 @@
 ﻿@model ContactUsModel
 
 @{
-    Assets.AppendTitleParts(Model.MetaTitle.HasValue() ? Model.MetaTitle : T("PageTitle.ContactUs"));
+    Assets.AppendTitleParts(Model.MetaTitle.HasValue() ? Model.MetaTitle : T("PageTitle.ContactUs").Value);
     Assets.AppendMetaDescriptionParts(Model.MetaDescription);
     Assets.AppendMetaKeywordsParts(Model.MetaKeywords);
 }
@@ -24,7 +24,7 @@
 		}
 		else
 		{
-            <form asp-route="ContactUs" method="post" class="contact-form">
+            <form asp-route="ContactUs" method="post" id="contact-form" class="contact-form">
                 <div asp-validation-summary="ModelOnly"></div>
 
                 <honeypot />
@@ -32,21 +32,21 @@
                 <div class="form-group row">
                     <label asp-for="FullName" class="col-sm-3 col-form-label" attr-class='(Model.FullNameRequired, "required")'></label>
                     <div class="col-sm-9">
-                        <input asp-for="FullName" sm-required="Model.FullNameRequired" />
+                        <input asp-for="FullName" sm-required="Model.FullNameRequired" class="remember" />
                         <span asp-validation-for="FullName"></span>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label asp-for="Email" class="col-sm-3 col-form-label required"></label>
                     <div class="col-sm-9">
-                        <input asp-for="Email" sm-required="true" />
+                        <input asp-for="Email" sm-required="true" class="remember" />
                         <span asp-validation-for="Email"></span>
                     </div>
                 </div>
                 <div class="form-group row">
                     <label asp-for="Enquiry" class="col-sm-3 col-form-label required"></label>
                     <div class="col-sm-9">
-                        <textarea asp-for="Enquiry" placeholder="@T("ContactUs.Enquiry.Hint")" class="personal-message" rows="6"></textarea>
+                        <textarea asp-for="Enquiry" placeholder="@T("ContactUs.Enquiry.Hint")" class="personal-message remember" rows="6"></textarea>
                         <span asp-validation-for="Enquiry"></span>
                     </div>
                 </div>
@@ -78,3 +78,14 @@
         <zone name="contactus_bottom"></zone>
     </div>
 </div>
+
+<script sm-target-zone="scripts" data-origin="contact-us">
+    $(function () {
+        setRememberedFormFields("registerVals");
+    });
+
+    const form = document.getElementById('contact-form');
+    form.addEventListener('focusout', (event) => {
+        rememberFormFields("contact-form", "registerVals");
+    });
+</script>

@@ -186,8 +186,6 @@ namespace Smartstore.Web.Controllers
             _privacySettings = privacySettings;
             _captchaSettings = captchaSettings;
             _commonSettings = commonSettings;
-
-            var currentStore = _storeContext.CurrentStore;
         }
 
         [LocalizedRoute("/", Name = "Homepage")]
@@ -209,9 +207,8 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
-        // TODO: (mh) (core) Original route probably interfers with generic Topic routing.
         [GdprConsent]
-        [LocalizedRoute("/contactus-temp", Name = "ContactUs")]
+        [LocalizedRoute("/contactus", Name = "ContactUs")]
         public async Task<IActionResult> ContactUs()
         {
             var topic = await _db.Topics.AsNoTracking()
@@ -233,10 +230,9 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        // TODO: (mh) (core) Original route probably interfers with generic Topic routing. Test when this was clarified.
         [HttpPost, ActionName("ContactUs")]
-        [ValidateCaptcha, ValidateHoneypot]
-        [GdprConsent]
+        [ValidateCaptcha, ValidateHoneypot, GdprConsent]
+        [LocalizedRoute("/contactus", Name = "ContactUs")]
         public async Task<IActionResult> ContactUsSend(ContactUsModel model, string captchaError)
         {
             if (_captchaSettings.ShowOnContactUsPage && captchaError.HasValue())
