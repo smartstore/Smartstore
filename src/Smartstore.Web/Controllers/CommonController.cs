@@ -14,6 +14,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
 using Smartstore.Core.Web;
 using Smartstore.Utilities;
@@ -68,6 +69,7 @@ namespace Smartstore.Web.Controllers
             _privacySettings = privacySettings;
         }
 
+        [CheckStoreClosed(false)]
         [Route("browserconfig.xml")]
         public async Task<IActionResult> BrowserConfigXmlFile()
         {
@@ -103,6 +105,7 @@ namespace Smartstore.Web.Controllers
             return Content(xml, "text/xml");
         }
 
+        [CheckStoreClosed(false)]
         [Route("robots.txt")]
         public async Task<IActionResult> RobotsTextFile()
         {
@@ -259,6 +262,7 @@ namespace Smartstore.Web.Controllers
             return RedirectToReferrer(returnUrl);
         }
 
+        [CheckStoreClosed(false)]
         [LocalizedRoute("/set-language/{langid:int}", Name = "ChangeLanguage")]
         public async Task<IActionResult> SetLanguage(int langid, string returnUrl = "")
         {

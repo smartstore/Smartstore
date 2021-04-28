@@ -202,6 +202,7 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
+        [CheckStoreClosed(false)]
         [LocalizedRoute("/storeclosed", Name = "StoreClosed")]
         public IActionResult StoreClosed()
         {

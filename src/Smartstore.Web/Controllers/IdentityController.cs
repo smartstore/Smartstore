@@ -19,6 +19,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Web.Models.Identity;
 
@@ -76,7 +77,7 @@ namespace Smartstore.Web.Controllers
         #region Login / Logout / Register
 
         [HttpGet]
-        [RequireSsl, AllowAnonymous, NeverAuthorize]
+        [RequireSsl, AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
         public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
         {
@@ -94,7 +95,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost]
         [AllowAnonymous, NeverAuthorize]
-        [ValidateAntiForgeryToken, ValidateCaptcha]
+        [ValidateAntiForgeryToken, ValidateCaptcha, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
         public async Task<IActionResult> Login(LoginModel model, string returnUrl, string captchaError)
         {
@@ -303,7 +304,7 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
-        [NeverAuthorize]
+        [NeverAuthorize, CheckStoreClosed(false)]
         [LocalizedRoute("/logout", Name = "Logout")]
         public async Task<IActionResult> Logout()
         {
