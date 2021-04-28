@@ -423,6 +423,8 @@ namespace Smartstore.Core.Checkout.Cart
                         customer.GenericAttributes.CheckoutAttributes = attributeSelection;
                     }
                 }
+
+                await _db.SaveChangesAsync();
             }
 
             return deletedCount;
