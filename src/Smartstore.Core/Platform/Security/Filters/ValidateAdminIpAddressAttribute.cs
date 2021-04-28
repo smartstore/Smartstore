@@ -9,6 +9,10 @@ namespace Smartstore.Core.Security
 {
     public sealed class ValidateAdminIpAddressAttribute : TypeFilterAttribute
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="ValidateAdminIpAddressAttribute"/>.
+        /// </summary>
+        /// <param name="validate">Set to <c>false</c> to override any controller-level <see cref="ValidateAdminIpAddressAttribute"/>.</param>
         public ValidateAdminIpAddressAttribute(bool validate = true)
             : base(typeof(ValidateAdminIpAddressFilter))
         {
@@ -42,7 +46,7 @@ namespace Smartstore.Core.Security
                 if (context.HttpContext.Connection.IsLocal())
                 {
                     return;
-                }    
+                }
 
                 var overrideFilter = context.ActionDescriptor.FilterDescriptors
                     .Where(x => x.Scope == FilterScope.Action)
