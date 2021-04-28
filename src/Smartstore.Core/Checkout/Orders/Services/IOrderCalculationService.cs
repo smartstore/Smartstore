@@ -11,6 +11,8 @@ namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
     /// Order calculation service.
+    /// OrderCalculationService internally calculates in the primary currency, 
+    /// consequently currency values are also returned in the primary currency by default.
     /// </summary>
     public partial interface IOrderCalculationService
     {

@@ -43,7 +43,7 @@ namespace Smartstore.Web.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IMessageFactory _messageFactory;
-        private readonly ITaxService _taxService;
+        private readonly ITaxCalculator _taxCalculator;
         private readonly IMediaService _mediaService;
         private readonly IActivityLogger _activityLogger;
         private readonly IPaymentService _paymentService;
@@ -76,7 +76,7 @@ namespace Smartstore.Web.Controllers
         public ShoppingCartController(
             SmartDbContext db,
             IMessageFactory messageFactory,
-            ITaxService taxService,
+            ITaxCalculator taxCalculator,
             IMediaService mediaService,
             IActivityLogger activityLogger,
             IPaymentService paymentService,
@@ -108,7 +108,7 @@ namespace Smartstore.Web.Controllers
         {
             _db = db;
             _messageFactory = messageFactory;
-            _taxService = taxService;
+            _taxCalculator = taxCalculator;
             _mediaService = mediaService;
             _activityLogger = activityLogger;
             _paymentService = paymentService;
@@ -379,13 +379,12 @@ namespace Smartstore.Web.Controllers
                 }
                 else if (lineItems.TryGetValue(item.Id, out var lineItem))
                 {
-                    var unitPriceWithDiscount = _currencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
+                    var unitPrice = _currencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
+                    cartItemModel.UnitPrice = unitPrice.WithPostFormat(taxFormat).ToString();
 
-                    cartItemModel.UnitPrice = unitPriceWithDiscount.WithPostFormat(taxFormat).ToString();
-
-                    if (unitPriceWithDiscount != 0 && model.ShowBasePrice)
+                    if (unitPrice != 0 && model.ShowBasePrice)
                     {
-                        cartItemModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(item.Product, unitPriceWithDiscount, currency);
+                        cartItemModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(item.Product, unitPrice, currency);
                     }
                 }
 
@@ -473,6 +472,7 @@ namespace Smartstore.Web.Controllers
                 return Content(string.Empty);
             }
 
+            // TODO: (ms) (core) why does OffCanvasWishlist use a model mapper but OffCanvasShoppingCart does not?
             var model = await PrepareMiniShoppingCartModelAsync();
 
             HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
@@ -1128,6 +1128,7 @@ namespace Smartstore.Web.Controllers
         {
             // TODO: (ms) (core) Testing when there are payment / shipping methods ready
             var storeId = Services.StoreContext.CurrentStore.Id;
+            var currency = Services.WorkContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
 
             if (query.CheckoutAttributes.Any())
@@ -1169,6 +1170,7 @@ namespace Smartstore.Web.Controllers
                     if (getShippingOptionResponse.ShippingOptions.Any())
                     {
                         var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId: storeId);
+                        var shippingTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
 
                         foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
                         {
@@ -1179,16 +1181,15 @@ namespace Smartstore.Web.Controllers
                                 Description = shippingOption.Description
                             };
 
-                            var currency = Services.WorkContext.WorkingCurrency;
-
-                            var shippingTotal = await _orderCalculationService.AdjustShippingRateAsync(
+                            var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(
                                 cart,
                                 new(shippingOption.Rate, currency),
                                 shippingOption,
                                 shippingMethods);
 
-                            var rate = await _taxService.GetShippingPriceAsync(shippingTotal.Amount);
-                            soModel.Price = rate.Price.ToString(true);
+                            var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount.Amount);
+                            var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, currency);
+                            soModel.Price = rate.WithPostFormat(shippingTaxFormat).ToString();
 
                             model.EstimateShipping.ShippingOptions.Add(soModel);
                         }

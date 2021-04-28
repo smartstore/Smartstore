@@ -9,7 +9,6 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
@@ -42,7 +41,6 @@ namespace Smartstore.Web.Models.ShoppingCart
         }
 
         public SmartDbContext Db { get; set; }
-        public ITaxService TaxService { get; set; }
         public ICurrencyService CurrencyService { get; set; }
         public IShoppingCartService ShoppingCartService { get; set; }
         public IProductAttributeFormatter ProductAttributeFormatter { get; set; }
@@ -163,11 +161,11 @@ namespace Smartstore.Web.Models.ShoppingCart
                     var subtotal = parameters?.CartSubtotal as ShoppingCartSubTotal;
                     var lineItem = subtotal.LineItems.FirstOrDefault(x => x.Item.Item.Id == item.Id);
 
-                    var unitPriceWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
-                    to.UnitPrice = unitPriceWithDiscount.WithPostFormat(taxFormat).ToString();
+                    var unitPrice = CurrencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
+                    to.UnitPrice = unitPrice.WithPostFormat(taxFormat).ToString();
 
-                    var cartItemSubTotalWithDiscount = CurrencyService.ConvertFromPrimaryCurrency(lineItem.Subtotal.FinalPrice.Amount, currency);
-                    to.SubTotal = cartItemSubTotalWithDiscount.WithPostFormat(taxFormat).ToString();
+                    var itemSubtotal = CurrencyService.ConvertFromPrimaryCurrency(lineItem.Subtotal.FinalPrice.Amount, currency);
+                    to.SubTotal = itemSubtotal.WithPostFormat(taxFormat).ToString();
 
                     if (lineItem.Subtotal.DiscountAmount > 0)
                     {
@@ -175,11 +173,21 @@ namespace Smartstore.Web.Models.ShoppingCart
                         to.Discount = itemDiscount.WithPostFormat(taxFormat).ToString();
                     }
 
-                    to.BasePrice = _priceCalculationService.GetBasePriceInfo(product, unitPriceWithDiscount);
+                    to.BasePrice = _priceCalculationService.GetBasePriceInfo(product, unitPrice);
                 }
                 else
                 {
-                    // TODO: (mg) (core) Don't forget wishlist in CartItemMapperBase (it has no cart subtotal).
+                    var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, null, batchContext);
+                    var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(from, calculationOptions);
+                    var (unitPrice, itemSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
+
+                    to.UnitPrice = unitPrice.FinalPrice.ToString();
+                    to.SubTotal = itemSubtotal.FinalPrice.ToString();
+
+                    if (itemSubtotal.DiscountAmount > 0)
+                    {
+                        to.Discount = itemSubtotal.DiscountAmount.ToString();
+                    }
                 }
             }
 

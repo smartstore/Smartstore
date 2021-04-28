@@ -87,7 +87,9 @@ namespace Smartstore.Web.Models.ShoppingCart
 
                 to.AddItems(model);
             }
-            
+
+            // TODO: (ms) (core) This is incorrectly applied to the wishlist although it is intended exclusively for the OffCanvas wishlist.
+            // Perf: can be done in above foreach iteration.
             to.Items.Each(async x =>
             {
                 // Do not display QuantityUnitName in OffCanvasWishlist

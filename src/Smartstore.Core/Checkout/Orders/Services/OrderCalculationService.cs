@@ -267,7 +267,6 @@ namespace Smartstore.Core.Checkout.Orders
             return result;
         }
 
-        // TODO: (mg) (core) Extend GetShoppingCartSubTotalAsync. Default: primary currency, no currency conversion. Optional: targetCurrency with conversion.
         public virtual async Task<ShoppingCartSubTotal> GetShoppingCartSubTotalAsync(IList<OrganizedShoppingCartItem> cart, bool? includeTax = null, ProductBatchContext batchContext = null)
         {
             includeTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;

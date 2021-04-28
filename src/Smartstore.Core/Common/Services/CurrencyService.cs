@@ -20,7 +20,6 @@ namespace Smartstore.Core.Common.Services
         private readonly ILocalizationService _localizationService;
         private readonly IProviderManager _providerManager;
         private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
         private readonly CurrencySettings _currencySettings;
         private readonly TaxSettings _taxSettings;
         private readonly ISettingFactory _settingFactory;
@@ -33,7 +32,6 @@ namespace Smartstore.Core.Common.Services
             ILocalizationService localizationService,
             IProviderManager providerManager,
             IWorkContext workContext,
-            IStoreContext storeContext,
             CurrencySettings currencySettings,
             TaxSettings taxSettings,
             ISettingFactory settingFactory)
@@ -42,7 +40,6 @@ namespace Smartstore.Core.Common.Services
             _localizationService = localizationService;
             _providerManager = providerManager;
             _workContext = workContext;
-            _storeContext = storeContext;
             _currencySettings = currencySettings;
             _taxSettings = taxSettings;
             _settingFactory = settingFactory;

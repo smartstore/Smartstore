@@ -43,7 +43,7 @@ namespace Smartstore.Core.Catalog.Pricing
         Task<PriceCalculationContext> CreateCalculationContextAsync(OrganizedShoppingCartItem cartItem, PriceCalculationOptions options);
 
         /// <summary>
-        /// Calculates the unit price for a given product.
+        /// Calculates the unit price for a given product. Prices are returned in the currency specified by <see cref="PriceCalculationOptions.TargetCurrency"/>.
         /// </summary>
         /// <param name="context">The context that contains the input product, the calculation options and some cargo data.</param>
         /// <returns>A new <see cref="CalculatedPrice"/> instance.</returns>
