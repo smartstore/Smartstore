@@ -70,7 +70,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             var discountAmount = 0m;
             Discount appliedDiscount = null;
             var product = context.Product;
-            var bundleItem = context.BundleItem?.Item;
+            var bundleItem = context.BundleItem;
 
             if (bundleItem != null)
             {

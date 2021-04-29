@@ -39,7 +39,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 // Create attribute selection of preselected values.
                 var query = new ProductVariantQuery();
                 var product = context.Product;
-                var bundleItemId = context.BundleItem?.Item?.Id ?? 0;
+                var bundleItemId = context.BundleItem?.Id ?? 0;
                 var attributes = await options.BatchContext.Attributes.GetOrLoadAsync(product.Id);
                 var combinations = await options.BatchContext.AttributeCombinations.GetOrLoadAsync(product.Id);
 

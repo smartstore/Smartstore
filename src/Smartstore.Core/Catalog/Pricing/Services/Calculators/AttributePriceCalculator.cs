@@ -42,7 +42,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 !options.IgnoreTierPrices &&
                 !options.IgnorePercentageTierPricesOnAttributePriceAdjustments &&
                 product.HasTierPrices &&
-                context.BundleItem?.Item == null &&
+                context.BundleItem == null &&
                 context.Quantity > 1;
 
             var attributes = await options.BatchContext.Attributes.GetOrLoadAsync(product.Id);
@@ -115,7 +115,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                             RawPriceAdjustment = adjustment,
                             AttributeValue = value,
                             ProductId = product.Id,
-                            BundleItemId = context?.BundleItem?.Item?.Id
+                            BundleItemId = context?.BundleItem?.Id
                         });
                     }
                 }
@@ -150,7 +150,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         protected virtual async Task<List<ProductVariantAttributeValue>> GetSelectedAttributeValuesAsync(CalculatorContext context, IEnumerable<ProductVariantAttribute> attributes)
         {
             var result = new List<ProductVariantAttributeValue>();
-            var bundleItem = context?.BundleItem?.Item;
+            var bundleItem = context?.BundleItem;
 
             // Apply attributes selected by customer.
             var selections = context.SelectedAttributes

@@ -16,7 +16,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         {
             var product = context.Product;
             var options = context.Options;
-            var processTierPrices = !options.IgnoreTierPrices && !options.IgnoreDiscounts && product.HasTierPrices && context.BundleItem?.Item == null;
+            var processTierPrices = !options.IgnoreTierPrices && !options.IgnoreDiscounts && product.HasTierPrices && context.BundleItem == null;
 
             if (processTierPrices)
             {

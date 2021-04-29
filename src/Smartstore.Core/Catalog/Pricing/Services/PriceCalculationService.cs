@@ -114,7 +114,7 @@ namespace Smartstore.Core.Catalog.Pricing
             // Include bundle item data if the cart item is a bundle item.
             if (cartItem.BundleItemData?.Item != null)
             {
-                context.BundleItem = cartItem.BundleItemData;
+                context.BundleItem = cartItem.BundleItemData.Item;
             }
 
             // Perf: we already have the bundle items of a bundled product. No need to load them again during calculation.
@@ -122,7 +122,7 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 context.BundleItems = cartItem.ChildItems
                     .Where(x => x.BundleItemData?.Item != null)
-                    .Select(x => x.BundleItemData)
+                    .Select(x => x.BundleItemData.Item)
                     .ToList();
             }
 

@@ -112,12 +112,12 @@ namespace Smartstore.Core.Catalog.Pricing
         /// For performance reasons, it is advisable that in batch calculation scenarios ALL bundle parts of ALL root products are loaded
         /// in one roundtrip.
         /// </summary>
-        public ICollection<ProductBundleItemData> BundleItems { get; set; }
+        public ICollection<ProductBundleItem> BundleItems { get; set; }
 
         /// <summary>
         /// A single bundle part. Used by bundle price calculator in nested calculation pipeline.
         /// </summary>
-        public ProductBundleItemData BundleItem { get; set; }
+        public ProductBundleItem BundleItem { get; set; }
 
         /// <summary>
         /// Gets or sets the selected product attributes to be included in the price calculation.
@@ -162,7 +162,6 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 _preselectedAttributeValues = new List<ProductVariantAttributeValue>();
 
-                var bundleItem = BundleItem?.Item;
                 var attributes = await Options.BatchContext.Attributes.GetOrLoadAsync(Product.Id);
 
                 foreach (var attribute in attributes.Where(x => x.IsListTypeAttribute()))
@@ -170,10 +169,10 @@ namespace Smartstore.Core.Catalog.Pricing
                     ProductVariantAttributeValue defaultValue = null;
 
                     // Get the attribute value preselected by a bundle item attribute filter.
-                    if (bundleItem?.FilterAttributes ?? false)
+                    if (BundleItem?.FilterAttributes ?? false)
                     {
                         // Only a single value can be preselected for an attribute filter (that's why we use FirstOrDefault).
-                        var valueId = bundleItem.AttributeFilters.FirstOrDefault(x => x.AttributeId == attribute.Id && x.IsPreSelected)?.AttributeValueId ?? 0;
+                        var valueId = BundleItem.AttributeFilters.FirstOrDefault(x => x.AttributeId == attribute.Id && x.IsPreSelected)?.AttributeValueId ?? 0;
                         if (valueId != 0)
                         {
                             defaultValue = attribute.ProductVariantAttributeValues.FirstOrDefault(x => x.Id == valueId);

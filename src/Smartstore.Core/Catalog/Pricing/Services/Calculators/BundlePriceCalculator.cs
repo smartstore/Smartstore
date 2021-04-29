@@ -45,7 +45,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 {
                     // Get the final unit price of bundle item part product.
                     // No need to pass bundleItem.Item.Quantity. The pipline always calculates a unit price.
-                    var childCalculation = await CalculateChildPriceAsync(bundleItem.Item.Product, context, c => 
+                    var childCalculation = await CalculateChildPriceAsync(bundleItem.Product, context, c => 
                     { 
                         c.Quantity = 1;
                         c.AssociatedProducts = null;
@@ -54,7 +54,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     });
 
                     // Add price of part to root final price (unit price * contained quantity in this bundle).
-                    context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice, bundleItem.Item.Quantity);
+                    context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice, bundleItem.Quantity);
 
                     // TODO: (mg) (core) Is it not better to continue the pipeline here (unlike in Smartstore classic)? Continuation could
                     // apply OfferPrice and/or further discounts to the automatically calculated final price here. TBD with MC please.
@@ -74,15 +74,14 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             if (context.BundleItems == null)
             {
                 context.BundleItems = (await options.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id))
-                    .Select(x => new ProductBundleItemData(x))
-                    .Where(x => x.Item != null)
+                    .Where(x => x != null)
                     .ToList();
             }
 
             if (options.ChildProductsBatchContext == null && context.BundleItems.Any())
             {
                 // Create a batch context with all bundle item products.
-                var bundleItemProducts = context.BundleItems.Select(x => x.Item.Product);
+                var bundleItemProducts = context.BundleItems.Select(x => x.Product);
 
                 options.ChildProductsBatchContext = _productService.CreateProductBatchContext(bundleItemProducts, options.Store, options.Customer, false);
             }

@@ -1488,7 +1488,7 @@ namespace Smartstore.Web.Controllers
             var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
             {
                 AssociatedProducts = modelContext.AssociatedProducts,
-                BundleItem = productBundleItem
+                BundleItem = productBundleItem.Item
             };
 
             // Apply price adjustments of attributes.
@@ -1503,12 +1503,11 @@ namespace Smartstore.Web.Controllers
                 {
                     // Apply price adjustments of selected bundle items attributes.
                     // INFO: bundles themselves don't have attributes, that's why modelContext.SelectedAttributes is null.
-                    var bundleItems = await modelContext.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
-                    calculationContext.BundleItems = bundleItems.Select(x => new ProductBundleItemData(x)).ToList();
+                    calculationContext.BundleItems = await modelContext.BatchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
 
-                    modelContext.BatchContext.Collect(bundleItems.Select(x => x.ProductId).ToArray());
+                    modelContext.BatchContext.Collect(calculationContext.BundleItems.Select(x => x.ProductId).ToArray());
 
-                    foreach (var bundleItem in calculationContext.BundleItems.Select(x => x.Item))
+                    foreach (var bundleItem in calculationContext.BundleItems)
                     {
                         var bundleItemAttributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(bundleItem.ProductId);
                         var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(modelContext.VariantQuery, bundleItemAttributes, bundleItem.ProductId, bundleItem.Id, false);
@@ -1881,7 +1880,7 @@ namespace Smartstore.Web.Controllers
             var calculationContext = new PriceCalculationContext(product, 1, calculationOptions)
             {
                 AssociatedProducts = modelContext.AssociatedProducts,
-                BundleItem = modelContext.ProductBundleItem
+                BundleItem = modelContext.ProductBundleItem.Item
             };
             
             calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, modelContext.ProductBundleItem?.Item?.Id);
