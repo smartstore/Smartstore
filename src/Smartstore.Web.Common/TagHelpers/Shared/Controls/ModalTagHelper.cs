@@ -16,9 +16,9 @@ namespace Smartstore.Web.TagHelpers.Shared
         FlexSmall
     }
 
+    [HtmlTargetElement("modal", Attributes = "id")]
     [OutputElementHint("div")]
     [RestrictChildren("modal-header", "modal-body", "modal-footer")]
-    [HtmlTargetElement("modal", Attributes = "id")]
     public class ModalTagHelper : SmartTagHelper
     {
         const string SizeAttributeName = "sm-size";

@@ -36,8 +36,8 @@ namespace Smartstore.Web.TagHelpers.Shared
     }
 
     [OutputElementHint("div")]
-    [RestrictChildren("tab", "tab-content-header")]
     [HtmlTargetElement("tabstrip", Attributes = "id")]
+    [RestrictChildren("tab", "tab-content-header")]
     public class TabStripTagHelper : SmartTagHelper
     {   
         const string HideSingleItemAttributeName = "sm-hide-single-item";
