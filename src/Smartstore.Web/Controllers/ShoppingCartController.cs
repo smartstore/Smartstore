@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
@@ -11,17 +10,14 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
@@ -30,7 +26,6 @@ using Smartstore.Core.Seo;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Components;
 using Smartstore.Web.Filters;
-using Smartstore.Web.Models.Media;
 using Smartstore.Web.Models.ShoppingCart;
 using System;
 using System.Collections.Generic;
@@ -44,97 +39,58 @@ namespace Smartstore.Web.Controllers
         private readonly SmartDbContext _db;
         private readonly IMessageFactory _messageFactory;
         private readonly ITaxCalculator _taxCalculator;
-        private readonly IMediaService _mediaService;
         private readonly IActivityLogger _activityLogger;
-        private readonly IPaymentService _paymentService;
         private readonly IShippingService _shippingService;
         private readonly ICurrencyService _currencyService;
         private readonly IDiscountService _discountService;
         private readonly IGiftCardService _giftCardService;
-        private readonly IDownloadService _downloadService;
         private readonly IShoppingCartService _shoppingCartService;
-        private readonly ILocalizationService _localizationService;
-        private readonly IDeliveryTimeService _deliveryTimeService;
-        private readonly IPriceCalculationService _priceCalculationService;
-        private readonly IProductService _productService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
-        private readonly IProductAttributeFormatter _productAttributeFormatter;
-        private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        private readonly ProductUrlHelper _productUrlHelper;
         private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly CatalogSettings _catalogSettings;
-        private readonly MeasureSettings _measureSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly OrderSettings _orderSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly CustomerSettings _customerSettings;
-        private readonly ShippingSettings _shippingSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
 
         public ShoppingCartController(
             SmartDbContext db,
             IMessageFactory messageFactory,
             ITaxCalculator taxCalculator,
-            IMediaService mediaService,
             IActivityLogger activityLogger,
-            IPaymentService paymentService,
             IShippingService shippingService,
             ICurrencyService currencyService,
             IDiscountService discountService,
             IGiftCardService giftCardService,
-            IDownloadService downloadService,
             IShoppingCartService shoppingCartService,
-            ILocalizationService localizationService,
-            IDeliveryTimeService deliveryTimeService,
-            IPriceCalculationService priceCalculationService,
-            IProductService productService,
             IOrderCalculationService orderCalculationService,
             IShoppingCartValidator shoppingCartValidator,
-            IProductAttributeFormatter productAttributeFormatter,
-            ICheckoutAttributeFormatter checkoutAttributeFormatter,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
-            ProductUrlHelper productUrlHelper,
             ShoppingCartSettings shoppingCartSettings,
-            CatalogSettings catalogSettings,
-            MeasureSettings measureSettings,
             CaptchaSettings captchaSettings,
             OrderSettings orderSettings,
             MediaSettings mediaSettings,
-            ShippingSettings shippingSettings,
             CustomerSettings customerSettings,
             RewardPointsSettings rewardPointsSettings)
         {
             _db = db;
             _messageFactory = messageFactory;
             _taxCalculator = taxCalculator;
-            _mediaService = mediaService;
             _activityLogger = activityLogger;
-            _paymentService = paymentService;
             _shippingService = shippingService;
             _currencyService = currencyService;
             _discountService = discountService;
             _giftCardService = giftCardService;
-            _downloadService = downloadService;
-            _shoppingCartService = shoppingCartService;
-            _localizationService = localizationService;
-            _deliveryTimeService = deliveryTimeService;
-            _productService = productService;
-            _priceCalculationService = priceCalculationService;
+            _shoppingCartService = shoppingCartService;            
             _orderCalculationService = orderCalculationService;
             _shoppingCartValidator = shoppingCartValidator;
-            _productAttributeFormatter = productAttributeFormatter;
-            _checkoutAttributeFormatter = checkoutAttributeFormatter;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            _productUrlHelper = productUrlHelper;
             _shoppingCartSettings = shoppingCartSettings;
-            _catalogSettings = catalogSettings;
-            _measureSettings = measureSettings;
             _captchaSettings = captchaSettings;
             _orderSettings = orderSettings;
             _mediaSettings = mediaSettings;
-            _shippingSettings = shippingSettings;
             _customerSettings = customerSettings;
             _rewardPointsSettings = rewardPointsSettings;
         }
@@ -255,152 +211,9 @@ namespace Smartstore.Web.Controllers
             await _db.SaveChangesAsync();
         }
 
-        [NonAction]
-        protected async Task<MiniShoppingCartModel> PrepareMiniShoppingCartModelAsync()
-        {
-            var currency = Services.WorkContext.WorkingCurrency;
-            var customer = Services.WorkContext.CurrentCustomer;
-            var storeId = Services.StoreContext.CurrentStore.Id;
-
-            var model = new MiniShoppingCartModel
-            {
-                ShowProductImages = _shoppingCartSettings.ShowProductImagesInMiniShoppingCart,
-                ThumbSize = _mediaSettings.MiniCartThumbPictureSize,
-                CurrentCustomerIsGuest = customer.IsGuest(),
-                AnonymousCheckoutAllowed = _orderSettings.AnonymousCheckoutAllowed,
-                DisplayMoveToWishlistButton = await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist),
-                ShowBasePrice = _shoppingCartSettings.ShowBasePrice
-            };
-
-            var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
-            model.TotalProducts = cart.GetTotalQuantity();
-
-            if (!cart.Any())
-            {
-                return model;
-            }
-
-            var taxFormat = _currencyService.GetTaxFormat();
-            var batchContext = _productService.CreateProductBatchContext(cart.Select(x => x.Item.Product).ToArray(), null, customer, false);
-
-            var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, null, batchContext);
-            var lineItems = subtotal.LineItems.ToDictionarySafe(x => x.Item.Item.Id);
-
-            var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(subtotal.SubtotalWithoutDiscount.Amount, currency);
-            model.SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat).ToString();
-
-            // A customer should visit the shopping cart page before going to checkout if:
-            //1. There is at least one checkout attribute that is reqired
-            //2. Min order sub total is OK
-
-            var checkoutAttributes = await _checkoutAttributeMaterializer.GetValidCheckoutAttributesAsync(cart);
-            model.DisplayCheckoutButton = !checkoutAttributes.Any(x => x.IsRequired);
-
-            // Products sort descending (recently added products)
-            foreach (var cartItem in cart)
-            {
-                var item = cartItem.Item;
-                var product = cartItem.Item.Product;
-                var productSeName = await product.GetActiveSlugAsync();
-
-                var cartItemModel = new MiniShoppingCartModel.ShoppingCartItemModel
-                {
-                    Id = item.Id,
-                    ProductId = product.Id,
-                    ProductName = product.GetLocalized(x => x.Name),
-                    ShortDesc = product.GetLocalized(x => x.ShortDescription),
-                    ProductSeName = productSeName,
-                    EnteredQuantity = item.Quantity,
-                    MaxOrderAmount = product.OrderMaximumQuantity,
-                    MinOrderAmount = product.OrderMinimumQuantity,
-                    QuantityStep = product.QuantityStep > 0 ? product.QuantityStep : 1,
-                    CreatedOnUtc = item.UpdatedOnUtc,
-                    ProductUrl = await _productUrlHelper.GetProductUrlAsync(productSeName, cartItem),
-                    QuantityUnitName = null,
-                    AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
-                        item.AttributeSelection,
-                        product,
-                        null,
-                        ", ",
-                        includePrices: false,
-                        includeGiftCardAttributes: false,
-                        includeHyperlinks: false,
-                        batchContext: batchContext)
-                };
-
-                if (cartItem.ChildItems != null && _shoppingCartSettings.ShowProductBundleImagesOnShoppingCart)
-                {
-                    var bundleItems = cartItem.ChildItems.Where(x =>
-                        x.Item.Id != item.Id
-                        && x.Item.BundleItem != null
-                        && !x.Item.BundleItem.HideThumbnail);
-
-                    foreach (var bundleItem in bundleItems)
-                    {
-                        var bundleItemModel = new MiniShoppingCartModel.ShoppingCartItemBundleItem
-                        {
-                            ProductName = bundleItem.Item.Product.GetLocalized(x => x.Name),
-                            ProductSeName = await bundleItem.Item.Product.GetActiveSlugAsync(),
-                        };
-
-                        bundleItemModel.ProductUrl = await _productUrlHelper.GetProductUrlAsync(
-                            bundleItem.Item.ProductId,
-                            bundleItemModel.ProductSeName,
-                            bundleItem.Item.AttributeSelection);
-
-                        var file = await _db.ProductMediaFiles
-                            .AsNoTracking()
-                            .Include(x => x.MediaFile)
-                            .ApplyProductFilter(bundleItem.Item.ProductId)
-                            .FirstOrDefaultAsync();
-
-                        if (file?.MediaFile != null)
-                        {
-                            var fileInfo = await _mediaService.GetFileByIdAsync(file.MediaFileId, MediaLoadFlags.AsNoTracking);
-
-                            bundleItemModel.ImageModel = new ImageModel
-                            {
-                                File = fileInfo,
-                                ThumbSize = MediaSettings.ThumbnailSizeXxs,
-                                Title = file.MediaFile.GetLocalized(x => x.Title)?.Value.NullEmpty() ?? T("Media.Manufacturer.ImageLinkTitleFormat", bundleItemModel.ProductName),
-                                Alt = file.MediaFile.GetLocalized(x => x.Alt)?.Value.NullEmpty() ?? T("Media.Manufacturer.ImageAlternateTextFormat", bundleItemModel.ProductName),
-                                NoFallback = _catalogSettings.HideProductDefaultPictures,
-                            };
-                        }
-
-                        cartItemModel.BundleItems.Add(bundleItemModel);
-                    }
-                }
-
-                // Unit prices.
-                if (product.CallForPrice)
-                {
-                    cartItemModel.UnitPrice = T("Products.CallForPrice");
-                }
-                else if (lineItems.TryGetValue(item.Id, out var lineItem))
-                {
-                    var unitPrice = _currencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
-                    cartItemModel.UnitPrice = unitPrice.WithPostFormat(taxFormat).ToString();
-
-                    if (unitPrice != 0 && model.ShowBasePrice)
-                    {
-                        cartItemModel.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(item.Product, unitPrice, currency);
-                    }
-                }
-
-                // Image.
-                if (_shoppingCartSettings.ShowProductImagesInMiniShoppingCart)
-                {
-                    await cartItem.MapAsync(cartItemModel.Image, _mediaSettings.MiniCartThumbPictureSize, cartItemModel.ProductName);
-                }
-
-                model.Items.Add(cartItemModel);
-            }
-
-            return model;
-        }
-
         #endregion
+
+        #region Shopping cart
 
         public IActionResult CartSummary()
         {
@@ -458,7 +271,63 @@ namespace Smartstore.Web.Controllers
             return View(model);
         }
 
-        #region Offcanvas
+        /// <summary>
+        /// Validates and saves cart data. When valid, customer is directed to the checkout process, otherwise the customer is 
+        /// redirected back to the shopping cart.
+        /// </summary>
+        /// <param name="query">The <see cref="ProductVariantQuery"/>.</param>
+        /// <param name="useRewardPoints">A value indicating whether to use reward points.</param>
+        [HttpPost, ActionName("Cart")]
+        [FormValueRequired("startcheckout")]
+        [LocalizedRoute("/cart", Name = "ShoppingCart")]
+        public async Task<IActionResult> StartCheckout(ProductVariantQuery query, bool useRewardPoints = false)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            var warnings = new List<string>();
+            if (!await ValidateAndSaveCartDataAsync(query, warnings, useRewardPoints))
+            {
+                // Something is wrong with the checkout data. Redisplay shopping cart.
+                var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
+
+                var model = new ShoppingCartModel();
+                await cart.AsEnumerable().MapAsync(model, validateCheckoutAttributes: true);
+
+                return View(model);
+            }
+
+            // Everything is OK.
+            if (customer.IsGuest())
+            {
+                if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
+                {
+                    return RedirectToAction("BillingAddress", "Checkout");
+                }
+                else if (_orderSettings.AnonymousCheckoutAllowed)
+                {
+                    return RedirectToRoute("Login", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") });
+                }
+
+                return new UnauthorizedResult();
+            }
+
+            return RedirectToRoute("Checkout");
+        }
+
+        /// <summary>
+        /// Redirects customer back to last visited shopping page or the homepage.
+        /// </summary>
+        [HttpPost, ActionName("Cart")]
+        [FormValueRequired("continueshopping")]
+        [LocalizedRoute("/cart", Name = "ShoppingCart")]
+        public ActionResult ContinueShopping()
+        {
+            var returnUrl = Services.WorkContext.CurrentCustomer.GenericAttributes.LastContinueShoppingPage;
+            return RedirectToReferrer(returnUrl);
+        }
+
+        #endregion
+
+        #region Offcanvas cart
 
         public async Task<IActionResult> OffCanvasShoppingCart()
         {
@@ -472,8 +341,12 @@ namespace Smartstore.Web.Controllers
                 return Content(string.Empty);
             }
 
-            // TODO: (ms) (core) why does OffCanvasWishlist use a model mapper but OffCanvasShoppingCart does not?
-            var model = await PrepareMiniShoppingCartModelAsync();
+            var customer = Services.WorkContext.CurrentCustomer;
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
+
+            var model = new MiniShoppingCartModel();
+            await cart.AsEnumerable().MapAsync(model); 
 
             HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
 
@@ -497,7 +370,7 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
-        #region Shopping Cart
+        #region Modify shopping cart
 
         /// <summary>
         /// Validates and saves cart data.
@@ -635,8 +508,6 @@ namespace Smartstore.Web.Controllers
                 await cart.AsEnumerable().MapAsync(model);
 
                 cartHtml = await this.InvokeViewAsync("CartItems", model);
-
-                // TODO: (ms) (core) InvokeViewComponentAsync "OrderTotals" returns string.empty ?
                 totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
             }
 
@@ -1045,6 +916,9 @@ namespace Smartstore.Web.Controllers
         //    return View(model);
         //}
 
+        #endregion
+
+        #region Email wishlist
 
         [RequireSsl]
         [GdprConsent]
@@ -1118,6 +992,8 @@ namespace Smartstore.Web.Controllers
 
             return View(model);
         }
+
+        #endregion
 
         [HttpPost, ActionName("Cart")]
         [FormValueRequired("estimateshipping")]
@@ -1201,8 +1077,6 @@ namespace Smartstore.Web.Controllers
 
             return View(model);
         }
-
-        #endregion
 
         //#region Upload
 
@@ -1303,60 +1177,6 @@ namespace Smartstore.Web.Controllers
         //}
 
         //#endregion
-
-        /// <summary>
-        /// Validates and saves cart data. When valid, customer is directed to the checkout process, otherwise the customer is 
-        /// redirected back to the shopping cart.
-        /// </summary>
-        /// <param name="query">The <see cref="ProductVariantQuery"/>.</param>
-        /// <param name="useRewardPoints">A value indicating whether to use reward points.</param>
-        [HttpPost, ActionName("Cart")]
-        [FormValueRequired("startcheckout")]
-        [LocalizedRoute("/cart", Name = "ShoppingCart")]
-        public async Task<IActionResult> StartCheckout(ProductVariantQuery query, bool useRewardPoints = false)
-        {
-            var customer = Services.WorkContext.CurrentCustomer;
-            var warnings = new List<string>();
-            if (!await ValidateAndSaveCartDataAsync(query, warnings, useRewardPoints))
-            {
-                // Something is wrong with the checkout data. Redisplay shopping cart.
-                var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
-
-                var model = new ShoppingCartModel();
-                await cart.AsEnumerable().MapAsync(model, validateCheckoutAttributes: true);
-
-                return View(model);
-            }
-
-            // Everything is OK.
-            if (customer.IsGuest())
-            {
-                if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
-                {
-                    return RedirectToAction("BillingAddress", "Checkout");
-                }
-                else if (_orderSettings.AnonymousCheckoutAllowed)
-                {
-                    return RedirectToRoute("Login", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") });
-                }
-
-                return new UnauthorizedResult();
-            }
-
-            return RedirectToRoute("Checkout");
-        }
-
-        /// <summary>
-        /// Redirects customer back to last visited shopping page or the homepage.
-        /// </summary>
-        [HttpPost, ActionName("Cart")]
-        [FormValueRequired("continueshopping")]
-        [LocalizedRoute("/cart", Name = "ShoppingCart")]
-        public ActionResult ContinueShopping()
-        {
-            var returnUrl = Services.WorkContext.CurrentCustomer.GenericAttributes.LastContinueShoppingPage;
-            return RedirectToReferrer(returnUrl);
-        }
 
         #region Discount/GiftCard coupon codes & Reward points
 
