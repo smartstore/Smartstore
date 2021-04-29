@@ -94,33 +94,28 @@ namespace Smartstore.Core.Checkout.Orders
 
         #endregion
 
-        public async Task<(Money OrderTotal, Money RoundingAmount)> GetOrderTotalInCustomerCurrencyAsync(Order order)
+        public async Task<(Money OrderTotal, Money RoundingAmount)> GetOrderTotalInCustomerCurrencyAsync(Order order, Currency targetCurrency)
         {
             Guard.NotNull(order, nameof(order));
-
-            var customerCurrency = order.CustomerCurrencyCode.HasValue()
-                ? await _db.Currencies.AsNoTracking().FirstOrDefaultAsync(x => x.CurrencyCode == order.CustomerCurrencyCode)
-                : null;
-
-            // Get currency for output. Fallback to working currency if there's no one (we do not have anything better).
-            var currency = customerCurrency ??
-                (order.CustomerCurrencyCode.HasValue() ? new Currency { CurrencyCode = order.CustomerCurrencyCode } : _workContext.WorkingCurrency);
 
             var roundingAmount = order.OrderTotalRounding;
             var orderTotal = order.OrderTotal * order.CurrencyRate;
 
             // Avoid rounding a rounded value. It would zero roundingAmount.
             if (orderTotal != order.OrderTotal &&
-                customerCurrency != null &&
-                customerCurrency.RoundOrderTotalEnabled &&
+                targetCurrency != null &&
+                targetCurrency.RoundOrderTotalEnabled &&
                 order.PaymentMethodSystemName.HasValue())
             {
                 var paymentMethod = await _db.PaymentMethods.AsNoTracking().FirstOrDefaultAsync(x => x.PaymentMethodSystemName == order.PaymentMethodSystemName);
                 if (paymentMethod?.RoundOrderTotalEnabled ?? false)
                 {
-                    orderTotal = customerCurrency.RoundToNearest(orderTotal, out roundingAmount);
+                    orderTotal = targetCurrency.RoundToNearest(orderTotal, out roundingAmount);
                 }
             }
+
+            // Currency for output.
+            var currency = targetCurrency ?? _workContext.WorkingCurrency;
 
             return (new(orderTotal, currency), new(roundingAmount, currency));
         }

@@ -1131,6 +1131,13 @@ namespace Smartstore.Web.Controllers
                 .ToPagedList(orderPageIndex, _orderSettings.OrderListPageSize)
                 .LoadAsync();
 
+            var customerCurrencyCodes = orders.Select(x => x.CustomerCurrencyCode).Distinct().ToArray();
+            var customerCurrencies = (await _db.Currencies
+                .AsNoTracking()
+                .Where(x => customerCurrencyCodes.Contains(x.CurrencyCode))
+                .ToListAsync())
+                .ToDictionarySafe(x => x.CurrencyCode, x => x, StringComparer.OrdinalIgnoreCase);
+
             var orderModels = await orders
                 .SelectAsync(async x =>
                 {
@@ -1144,7 +1151,9 @@ namespace Smartstore.Web.Controllers
                     };
 
                     // TODO: (mh) (core) Check format!
-                    (var orderTotal, var roundingAmount) = await _orderService.GetOrderTotalInCustomerCurrencyAsync(x);
+                    customerCurrencies.TryGetValue(x.CustomerCurrencyCode, out var customerCurrency);
+
+                    (var orderTotal, var roundingAmount) = await _orderService.GetOrderTotalInCustomerCurrencyAsync(x, customerCurrency);
                     orderModel.OrderTotal = orderTotal;
 
                     return orderModel;
