@@ -1,0 +1,108 @@
+﻿@using Smartstore.Web.Models.Checkout;
+
+@model CheckoutAddressModel
+
+@{
+    Layout = "_Checkout";
+    Assets.AppendTitleParts(T("PageTitle.Checkout").Value);
+    Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
+    Assets.AddMetaRobots();
+}
+
+<partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Address }" />
+
+<div class="page shipping-address-page">
+    <div class="page-title">
+        <h1 class="h3">@T("Checkout.ShippingAddress")</h1>
+    </div>
+    <div class="page-body checkout-data">
+
+        <zone name="checkout_shipping_address_top" />
+
+        <fieldset sm-if="Model.ExistingAddresses.Any()" class="content-group mb-3">
+            <legend><span>@T("Checkout.SelectShippingAddress")</span></legend>
+
+            <div class="card-deck card-cols-sm-1 card-cols-md-2 card-cols-lg-3 address-list">
+                @foreach (var item in Model.ExistingAddresses)
+                {
+                    <div class="card card-body address-list-item">
+                        <div class="address-item">
+                            @*TODO (ms) (core) Implement SelectShippingAddress action*@
+                            <button class="btn btn-warning btn-block select-shipping-address-button" onclick="setLocation('@Url.Action("SelectShippingAddress", new { addressId = item.Id })')">
+                                <span>@T("Checkout.ShipToThisAddress")</span>
+                                <i class="fa fa-angle-right"></i>
+                            </button>
+
+                            <div class="address-data mt-3">
+                                <div class="name pb-2">
+                                    <strong>
+                                        <span class="bidi-embed">@item.FirstName </span>
+                                        <span class="bidi-embed">@item.LastName</span>
+                                    </strong>
+                                </div>
+
+                                <div class="email">
+                                    <span>@T("Address.Fields.Email"):</span>
+                                    <span>@item.Email</span>
+                                </div>
+
+                                <div sm-if="item.PhoneEnabled" class="phone">
+                                    <span>@T("Address.Fields.PhoneNumber"):</span>
+                                    <span>@item.PhoneNumber</span>
+                                </div>
+
+                                <div sm-if="item.FaxEnabled && item.FaxNumber.HasValue()" class="fax">
+                                    <span>@T("Address.Fields.FaxNumber"):</span>
+                                    <span>@item.FaxNumber</span>
+                                </div>
+
+                                <div class="address">
+                                    @*TODO: (ms) (core) Something is wrong with display*@
+                                    @Html.Raw(item.FormattedAddress)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </fieldset>
+
+        <zone name="checkout_shipping_address_middle" />
+
+        <fieldset class="content-group">
+            <legend><span>@(Model.ExistingAddresses.Any() ? T("Checkout.OrEnterNewAddress") : T("Checkout.EnterShippingAddress"))</span></legend>
+
+            <div class="enter-address">
+                <form asp-action="ShippingAddress" asp-controller="Checkout" method="post">
+                    <div class="enter-address-body">
+                        @{
+                            var dataDictAddress = new ViewDataDictionary(ViewData);
+                            dataDictAddress["breakpoint"] = "sm";
+                            //Merge ModelState (required for validation)
+                            dataDictAddress.ModelState.Merge(ViewData.ModelState);
+                            dataDictAddress.TemplateInfo.HtmlFieldPrefix = "NewAddress";
+                        }
+
+                        @*TODO (ms) (core) Implement _CreateOrUpdateAddress view*@
+                        @*<partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />*@
+                    </div>
+
+                    <div class="buttons">
+                        <a asp-action="BillingAddress" asp-controller="Checkout" class="btn btn-secondary btn-lg">
+                            <i class="fa fa-angle-left"></i>
+                            <span>@T("Common.Back")</span>
+                        </a>
+                        <input type="submit" id="nextstep" name="nextstep" class="d-none" />
+
+                        <button class="btn btn-warning btn-lg new-address-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+                            <span>@T("Checkout.NextButton")</span>
+                            <i class="fa fa-angle-right"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+        
+        <zone name="checkout_shipping_address_bottom" />
+    </div>
+</div>
