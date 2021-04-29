@@ -8,7 +8,6 @@ using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
@@ -244,13 +243,11 @@ namespace Smartstore.Web.Controllers
 
                 case TaxDisplayType.IncludingTax:
                     {
-                        var taxFormat = _currencyService.GetTaxFormat(null, true);
-
                         var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency);
-                        model.UnitPrice = unitPriceInclTaxInCustomerCurrency.WithPostFormat(taxFormat).ToString();
+                        model.UnitPrice = unitPriceInclTaxInCustomerCurrency.ToString();
 
                         var priceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.PriceInclTax, order.CurrencyRate, customerCurrency);
-                        model.SubTotal = priceInclTaxInCustomerCurrency.WithPostFormat(taxFormat).ToString();
+                        model.SubTotal = priceInclTaxInCustomerCurrency.ToString();
                     }
                     break;
             }
@@ -413,30 +410,26 @@ namespace Smartstore.Web.Controllers
 
                 case TaxDisplayType.IncludingTax:
                     {
-                        var productTaxFormat = _currencyService.GetTaxFormat(null, true, PricingTarget.Product);
-                        var shippingTaxFormat = _currencyService.GetTaxFormat(null, true, PricingTarget.ShippingCharge);
-
                         // Order subtotal.
                         var orderSubtotalInclTax = _currencyService.ConvertToExchangeRate(order.OrderSubtotalInclTax, order.CurrencyRate, customerCurrency);
-                        model.OrderSubtotal = orderSubtotalInclTax.WithPostFormat(productTaxFormat).ToString();
+                        model.OrderSubtotal = orderSubtotalInclTax.ToString();
 
                         // Discount (applied to order subtotal).
                         var orderSubTotalDiscountInclTax = _currencyService.ConvertToExchangeRate(order.OrderSubTotalDiscountInclTax, order.CurrencyRate, customerCurrency);
                         if (orderSubTotalDiscountInclTax > 0)
                         {
-                            model.OrderSubTotalDiscount = (orderSubTotalDiscountInclTax * -1).WithPostFormat(productTaxFormat).ToString();
+                            model.OrderSubTotalDiscount = (orderSubTotalDiscountInclTax * -1).ToString();
                         }
 
                         // Order shipping.
                         var orderShippingInclTax = _currencyService.ConvertToExchangeRate(order.OrderShippingInclTax, order.CurrencyRate, customerCurrency);
-                        model.OrderShipping = orderShippingInclTax.WithPostFormat(shippingTaxFormat).ToString();
+                        model.OrderShipping = orderShippingInclTax.ToString();
 
                         // Payment method additional fee.
                         var paymentMethodAdditionalFeeInclTax = _currencyService.ConvertToExchangeRate(order.PaymentMethodAdditionalFeeInclTax, order.CurrencyRate, customerCurrency);
                         if (paymentMethodAdditionalFeeInclTax != 0)
                         {
-                            var paymentFeeTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.PaymentFee);
-                            model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeInclTax.WithPostFormat(paymentFeeTaxFormat).ToString();
+                            model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeInclTax.ToString();
                         }
                     }
                     break;
@@ -537,10 +530,14 @@ namespace Smartstore.Web.Controllers
             model.CheckoutAttributeInfo = HtmlUtils.ConvertPlainTextToTable(HtmlUtils.ConvertHtmlToPlainText(order.CheckoutAttributeDescription));
 
             // Order notes.
-            foreach (var orderNote in order.OrderNotes
-                .Where(on => on.DisplayToCustomer)
-                .OrderByDescending(on => on.CreatedOnUtc)
-                .ToList())
+            await _db.LoadCollectionAsync(order, x => x.OrderNotes);
+
+            var orderNotes = order.OrderNotes
+                .Where(x => x.DisplayToCustomer)
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .ToList();
+
+            foreach (var orderNote in orderNotes)
             {
                 var createdOn = _dateTimeHelper.ConvertToUserTime(orderNote.CreatedOnUtc, DateTimeKind.Utc);
 
@@ -548,7 +545,7 @@ namespace Smartstore.Web.Controllers
                 {
                     Note = orderNote.FormatOrderNoteText(),
                     CreatedOn = createdOn,
-                    FriendlyCreatedOn = createdOn.Humanize()
+                    FriendlyCreatedOn = orderNote.CreatedOnUtc.Humanize()
                 });
             }
 
@@ -558,13 +555,9 @@ namespace Smartstore.Web.Controllers
             model.ShowProductBundleImages = shoppingCartSettings.ShowProductBundleImagesOnShoppingCart;
             model.BundleThumbSize = mediaSettings.CartThumbBundleItemPictureSize;
 
-            var orderItems = await _db.OrderItems
-                .AsNoTracking()
-                .Include(x => x.Product)
-                .ApplyStandardFilter(order.Id)
-                .ToListAsync();
+            await _db.LoadCollectionAsync(order, x => x.OrderItems, false, q => q.Include(x => x.Product));
 
-            foreach (var orderItem in orderItems)
+            foreach (var orderItem in order.OrderItems)
             {
                 var orderItemModel = await PrepareOrderItemModelAsync(order, orderItem, catalogSettings, shoppingCartSettings, mediaSettings, customerCurrency);
                 model.Items.Add(orderItemModel);

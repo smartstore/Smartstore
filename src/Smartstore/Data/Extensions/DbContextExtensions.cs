@@ -436,7 +436,7 @@ namespace Smartstore
         /// </summary>
         /// <param name="entity">Entity instance to load data for.</param>
         /// <param name="navigationProperty">The navigation property expression.</param>
-        /// <param name="force"><c>false:</c> do nothing if data is already loaded. <c>true:</c> Reload data event if loaded already.</param>
+        /// <param name="force"><c>false:</c> do nothing if data is already loaded. <c>true:</c> reload data even if already loaded.</param>
         /// <param name="queryModifier">Modifier for the query that is about to be executed against the database.</param>
         public static async Task<CollectionEntry<TEntity, TCollection>> LoadCollectionAsync<TEntity, TCollection>(
             this HookingDbContext ctx,
