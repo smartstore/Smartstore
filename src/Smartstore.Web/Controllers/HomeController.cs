@@ -948,8 +948,27 @@ namespace Smartstore.Web.Controllers
             var content = new StringBuilder();
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
-            var ps = Services.Resolve<IProductService>();
-            var product = await _db.Products.FindByIdAsync(1751, false);
+            var cs = Services.Resolve<ICurrencyService>();
+            var orderItem = await _db.OrderItems.FindByIdAsync(42272, false);
+            var bundleData = orderItem.GetBundleData();
+
+            foreach (var item in bundleData)
+            {
+                var valueIds = item.AttributeSelection?.GetAttributeValueIds() ?? Array.Empty<int>();
+                content.AppendLine($"{item.ProductId} {item.BundleItemId}: {string.Join(",", valueIds)} {item.RawAttributes}");
+            }
+
+            var orders = new Order[]
+            {
+                new Order { OrderTotal = 43.7855m, CurrencyRate = 1.0m, CustomerCurrencyCode = "EUR" },
+                new Order { OrderTotal = 43.7855m, CurrencyRate = 1.19m, CustomerCurrencyCode = "USD" }
+            };
+
+            foreach (var order in orders)
+            {
+                var money = cs.ConvertToExchangeRate(order.OrderTotal, order.CurrencyRate, order.CustomerCurrencyCode);
+                content.AppendLine($"{order.CustomerCurrencyCode} ({order.CurrencyRate}): {order.OrderTotal} -> {money.ToString()}");
+            }
 
             return Content(content.ToString());
             //return View();

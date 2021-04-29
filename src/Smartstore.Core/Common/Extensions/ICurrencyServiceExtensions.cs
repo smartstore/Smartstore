@@ -1,5 +1,5 @@
-﻿using System;
-using Smartstore.Core.Catalog.Pricing;
+﻿using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
@@ -54,6 +54,24 @@ namespace Smartstore
 
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
             return amount.ExchangeTo(service.PrimaryExchangeCurrency);
+        }
+
+        /// <summary>
+        /// Exchanges given money amount (which is assumed to be in <see cref="ICurrencyService.PrimaryCurrency"/>) by using <paramref name="exchangeRate"/>.
+        /// Typically used when converting money amounts of orders at the rate that was applied at the time the order was placed.
+        /// </summary>
+        /// <param name="amount">The source amount to exchange (should be in <see cref="ICurrencyService.PrimaryCurrency"/>).</param>
+        /// <param name="exchangeRate">The currency exchange rate, e.g. <see cref="Order.CurrencyRate"/>.</param>
+        /// <param name="currencyCodeOrObj">Target currency as string code (e.g. <see cref="Order.CustomerCurrencyCode"/>) or an actual <see cref="Currency"/> instance.</param>
+        /// <param name="displayCurrency">A value indicating whether to display the currency symbol/code.</param>
+        /// <returns>The exchanged amount.</returns>
+        public static Money ConvertToExchangeRate(this ICurrencyService service,
+            decimal amount, 
+            decimal exchangeRate,
+            object currencyCodeOrObj = null,
+            bool displayCurrency = true)
+        {
+            return service.CreateMoney(amount, displayCurrency, currencyCodeOrObj).Exchange(exchangeRate);
         }
 
         /// <summary>

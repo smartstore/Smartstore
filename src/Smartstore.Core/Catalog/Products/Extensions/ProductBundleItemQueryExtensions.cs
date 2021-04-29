@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Products
@@ -26,7 +24,7 @@ namespace Smartstore.Core.Catalog.Products
                 from pbi in query
                 join p in db.Products on pbi.ProductId equals p.Id
                 where bundledProductIds.Contains(pbi.BundleProductId) && (includeHidden || (pbi.Published && p.Published))
-                orderby pbi.DisplayOrder
+                orderby p.Id, pbi.DisplayOrder
                 select pbi;
 
             return query;
