@@ -176,13 +176,12 @@ namespace Smartstore.Web.Controllers
                 var bundleProducts = await _db.ProductBundleItem
                     .AsNoTracking()
                     .Include(x => x.Product)
-                    .ApplyBundledProductsFilter(new int[] { orderItem.ProductId })
-                    .Select(x => new ProductBundleItemData(x))
+                    .ApplyBundledProductsFilter(new[] { orderItem.ProductId })
                     .ToListAsync();
 
                 var bundleItems = shoppingCartSettings.ShowProductBundleImagesOnShoppingCart
-                    ? bundleProducts.ToDictionarySafe(x => x.Item.ProductId)
-                    : new Dictionary<int, ProductBundleItemData>();
+                    ? bundleProducts.ToDictionarySafe(x => x.ProductId)
+                    : new Dictionary<int, ProductBundleItem>();
 
                 model.BundlePerItemPricing = orderItem.Product.BundlePerItemPricing;
                 model.BundlePerItemShoppingCart = bundleData.Any(x => x.PerItemShoppingCart);
@@ -212,10 +211,10 @@ namespace Smartstore.Web.Controllers
                     // Bundle item picture.
                     if (shoppingCartSettings.ShowProductBundleImagesOnShoppingCart && bundleItems.TryGetValue(bid.ProductId, out var bundleItem))
                     {
-                        bundleItemModel.HideThumbnail = bundleItem.Item.HideThumbnail;
+                        bundleItemModel.HideThumbnail = bundleItem.HideThumbnail;
 
                         bundleItemModel.Image = await PrepareOrderItemImageModelAsync(
-                            bundleItem.Item.Product,
+                            bundleItem.Product,
                             mediaSettings.CartThumbBundleItemPictureSize,
                             bid.ProductName,
                             bid.AttributeSelection,

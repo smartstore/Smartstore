@@ -112,17 +112,17 @@ namespace Smartstore.Core.Catalog.Pricing
             context.AddSelectedAttributes(cartItem);
 
             // Include bundle item data if the cart item is a bundle item.
-            if (cartItem.BundleItemData?.Item != null)
+            if (cartItem.Item.BundleItem != null)
             {
-                context.BundleItem = cartItem.BundleItemData.Item;
+                context.BundleItem = cartItem.Item.BundleItem;
             }
 
             // Perf: we already have the bundle items of a bundled product. No need to load them again during calculation.
             if (cartItem.ChildItems?.Any() ?? false)
             {
                 context.BundleItems = cartItem.ChildItems
-                    .Where(x => x.BundleItemData?.Item != null)
-                    .Select(x => x.BundleItemData.Item)
+                    .Where(x => x.Item.BundleItem != null)
+                    .Select(x => x.Item.BundleItem)
                     .ToList();
             }
 

@@ -91,7 +91,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 foreach (var childItem in cartItem.ChildItems.Where(x => x.Item.Id != cartItem.Item.Id))
                 {
-                    await helper.AddAttributesToQueryAsync(query, childItem.Item.AttributeSelection, childItem.Item.ProductId, childItem.BundleItemData.Item.Id);
+                    await helper.AddAttributesToQueryAsync(query, childItem.Item.AttributeSelection, childItem.Item.ProductId, childItem.Item.BundleItem.Id);
                 }
             }
 

@@ -766,15 +766,15 @@ namespace Smartstore.Core.Checkout.Orders
 
                     if (product.ProductType == ProductType.BundledProduct && cartItem.ChildItems != null)
                     {
-                        var listBundleData = new List<ProductBundleItemOrderData>();
-                        var childProducts = cartItem.ChildItems.Select(x => x.Item.Product).ToArray();
-                        var childBatchContext = _productService.CreateProductBatchContext(childProducts, null, ctx.Customer, false);
+                        var bundleItemDataList = new List<ProductBundleItemOrderData>();
+                        var childItems = cartItem.ChildItems.Where(x => x.Item.ProductId != 0 && x.Item.BundleItemId != 0).ToArray();
+                        var childBatchContext = _productService.CreateProductBatchContext(childItems.Select(x => x.Item.Product).ToArray(), null, ctx.Customer, false);
                         var childCalculationOptions = _priceCalculationService.CreateDefaultOptions(false, ctx.Customer, _primaryCurrency, childBatchContext);
 
-                        foreach (var childItem in cartItem.ChildItems)
+                        foreach (var childItem in childItems)
                         {
                             var childCalculationContext = await _priceCalculationService.CreateCalculationContextAsync(childItem, childCalculationOptions);
-                            var (childUnitPrice, childSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(childCalculationContext);
+                            var (_, childSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(childCalculationContext);
 
                             var attributesInfo = await _productAttributeFormatter.FormatAttributesAsync(
                                 childItem.Item.AttributeSelection, 
@@ -783,10 +783,14 @@ namespace Smartstore.Core.Checkout.Orders
                                 includePrices: false,
                                 includeHyperlinks: true);
 
-                            childItem.BundleItemData.ToOrderData(listBundleData, childSubtotal.FinalPrice.Amount, childItem.Item.RawAttributes, attributesInfo);
+                            var bundleItemData = childItem.Item.BundleItem.ToOrderData(childSubtotal.FinalPrice.Amount, childItem.Item.RawAttributes, attributesInfo);
+                            if (bundleItemData != null)
+                            {
+                                bundleItemDataList.Add(bundleItemData);
+                            }
                         }
 
-                        orderItem.SetBundleData(listBundleData);
+                        orderItem.SetBundleData(bundleItemDataList);
                     }
 
                     ctx.Order.OrderItems.Add(orderItem);

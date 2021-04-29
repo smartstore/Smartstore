@@ -619,22 +619,18 @@ namespace Smartstore.Web.Controllers
                 else if (product.ProductType == ProductType.BundledProduct && !isBundleItem)
                 {
                     var bundleItems = await batchContext.ProductBundleItems.GetOrLoadAsync(product.Id);
-                    var bundleItemData = bundleItems
-                        .Where(x => x.Product.CanBeBundleItem())
-                        .Select(x => new ProductBundleItemData(x))
-                        .ToList();
+                    bundleItems = bundleItems.Where(x => x.Product.CanBeBundleItem()).ToList();
 
                     // Push Ids of bundle items to batch context to save roundtrips
-                    batchContext.Collect(bundleItemData.Select(x => x.Item.ProductId).ToArray());
+                    batchContext.Collect(bundleItems.Select(x => x.ProductId).ToArray());
 
-                    foreach (var itemData in bundleItemData)
+                    foreach (var bundleItem in bundleItems)
                     {
-                        var item = itemData.Item;
                         var childModelContext = new ProductDetailsModelContext(modelContext)
                         {
-                            Product = item.Product,
+                            Product = bundleItem.Product,
                             IsAssociatedProduct = false,
-                            ProductBundleItem = item
+                            ProductBundleItem = bundleItem
                         };
 
                         var bundledProductModel = await MapProductDetailsPageModelAsync(childModelContext);
@@ -642,19 +638,19 @@ namespace Smartstore.Web.Controllers
                         bundledProductModel.ShowLegalInfo = false;
                         bundledProductModel.DeliveryTimesPresentation = DeliveryTimesPresentation.None;
 
-                        bundledProductModel.BundleItem.Id = item.Id;
-                        bundledProductModel.BundleItem.Quantity = item.Quantity;
-                        bundledProductModel.BundleItem.HideThumbnail = item.HideThumbnail;
-                        bundledProductModel.BundleItem.Visible = item.Visible;
-                        bundledProductModel.BundleItem.IsBundleItemPricing = item.BundleProduct.BundlePerItemPricing;
+                        bundledProductModel.BundleItem.Id = bundleItem.Id;
+                        bundledProductModel.BundleItem.Quantity = bundleItem.Quantity;
+                        bundledProductModel.BundleItem.HideThumbnail = bundleItem.HideThumbnail;
+                        bundledProductModel.BundleItem.Visible = bundleItem.Visible;
+                        bundledProductModel.BundleItem.IsBundleItemPricing = bundleItem.BundleProduct.BundlePerItemPricing;
 
-                        var bundleItemName = item.GetLocalized(x => x.Name);
+                        var bundleItemName = bundleItem.GetLocalized(x => x.Name);
                         if (bundleItemName.Value.HasValue())
                         {
                             bundledProductModel.Name = bundleItemName;
                         }
                                 
-                        var bundleItemShortDescription = item.GetLocalized(x => x.ShortDescription);
+                        var bundleItemShortDescription = bundleItem.GetLocalized(x => x.ShortDescription);
                         if (bundleItemShortDescription.Value.HasValue())
                         {
                             bundledProductModel.ShortDescription = bundleItemShortDescription;
