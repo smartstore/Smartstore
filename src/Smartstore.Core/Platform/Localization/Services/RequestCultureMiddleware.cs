@@ -45,21 +45,24 @@ namespace Smartstore.Core.Localization
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
 
-            var widgetProvider = context.RequestServices.GetService<IWidgetProvider>();
-
-            if (widgetProvider != null && culture.Name != "en-US")
+            if (!context.Request.IsAjaxRequest())
             {
-                // Write globalization script
-                var json = CreateCultureJson(culture, language);
+                var widgetProvider = context.RequestServices.GetService<IWidgetProvider>();
 
-                using var psb = StringBuilderPool.Instance.Get(out var sb);
-                sb.Append("<script data-origin='globalization'>");
-                sb.Append("jQuery(function () { if (SmartStore.globalization) { SmartStore.globalization.culture = ");
-                sb.Append(json);
-                sb.Append("; }; });");
-                sb.Append("</script>");
+                if (widgetProvider != null && culture.Name != "en-US")
+                {
+                    // Write globalization script
+                    var json = CreateCultureJson(culture, language);
 
-                widgetProvider.RegisterHtml("head", new HtmlString(sb.ToString()));
+                    using var psb = StringBuilderPool.Instance.Get(out var sb);
+                    sb.Append("<script data-origin='globalization'>");
+                    sb.Append("jQuery(function () { if (SmartStore.globalization) { SmartStore.globalization.culture = ");
+                    sb.Append(json);
+                    sb.Append("; }; });");
+                    sb.Append("</script>");
+
+                    widgetProvider.RegisterHtml("head", new HtmlString(sb.ToString()));
+                }
             }
 
             await _next(context);
