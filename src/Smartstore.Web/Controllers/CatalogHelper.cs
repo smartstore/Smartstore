@@ -634,7 +634,7 @@ namespace Smartstore.Web.Controllers
                         {
                             Product = item.Product,
                             IsAssociatedProduct = false,
-                            ProductBundleItem = itemData
+                            ProductBundleItem = item
                         };
 
                         var bundledProductModel = await MapProductDetailsPageModelAsync(childModelContext);
@@ -912,8 +912,8 @@ namespace Smartstore.Web.Controllers
 
             var query = modelContext.VariantQuery;
             var productBundleItem = modelContext.ProductBundleItem;
-            var bundleItemId = productBundleItem?.Item?.Id ?? 0;
-            var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
+            var bundleItemId = productBundleItem?.Id ?? 0;
+            var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
             var attributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(product.Id);
             var pricingOptions = _priceCalculationService.CreateDefaultOptions(false, modelContext.Customer, null, modelContext.BatchContext);
             var linkedProducts = new Dictionary<int, Product>();
@@ -1029,7 +1029,7 @@ namespace Smartstore.Web.Controllers
                 foreach (var value in attributeValues)
                 {
                     ProductBundleItemAttributeFilter attributeFilter = null;
-                    if (productBundleItem?.Item?.IsFilteredOut(value, out attributeFilter) ?? false)
+                    if (productBundleItem?.IsFilteredOut(value, out attributeFilter) ?? false)
                     {
                         continue;
                     }
@@ -1167,8 +1167,8 @@ namespace Smartstore.Web.Controllers
             var product = modelContext.Product;
             var query = modelContext.VariantQuery;
             var productBundleItem = modelContext.ProductBundleItem;
-            var bundleItemId = productBundleItem?.Item?.Id ?? 0;
-            var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
+            var bundleItemId = productBundleItem?.Id ?? 0;
+            var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
             var checkAvailability = product.AttributeChoiceBehaviour == AttributeChoiceBehaviour.GrayOutUnavailable;
             var attributes = await modelContext.BatchContext.Attributes.GetOrLoadAsync(product.Id);
 
@@ -1278,7 +1278,7 @@ namespace Smartstore.Web.Controllers
             var isBundle = product.ProductType == ProductType.BundledProduct;
             var hasSelectedAttributes = modelContext.SelectedAttributes?.AttributesMap?.Any() ?? false;
 
-            if ((productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemShoppingCart) ||
+            if ((productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemShoppingCart) ||
                 (product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes && !hasSelectedAttributes))
             {
                 // Cases where stock inventory is not functional (what ShoppingCartService.GetStandardWarnings and ProductService.AdjustInventory does not handle).
@@ -1453,9 +1453,9 @@ namespace Smartstore.Web.Controllers
             var currency = modelContext.Currency;
             var product = modelContext.Product;
             var productBundleItem = modelContext.ProductBundleItem;
-            var bundleItemId = productBundleItem?.Item?.Id;
-            var isBundleItemPricing = productBundleItem != null && productBundleItem.Item.BundleProduct.BundlePerItemPricing;
-            var isBundlePricing = productBundleItem != null && !productBundleItem.Item.BundleProduct.BundlePerItemPricing;
+            var bundleItemId = productBundleItem?.Id;
+            var isBundleItemPricing = productBundleItem != null && productBundleItem.BundleProduct.BundlePerItemPricing;
+            var isBundlePricing = productBundleItem != null && !productBundleItem.BundleProduct.BundlePerItemPricing;
             var isBundle = product.ProductType == ProductType.BundledProduct;
 
             model.ProductPrice.ProductId = product.Id;
@@ -1488,7 +1488,7 @@ namespace Smartstore.Web.Controllers
             var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
             {
                 AssociatedProducts = modelContext.AssociatedProducts,
-                BundleItem = productBundleItem.Item
+                BundleItem = productBundleItem
             };
 
             // Apply price adjustments of attributes.
@@ -1578,8 +1578,6 @@ namespace Smartstore.Web.Controllers
         protected void PrepareProductCartModel(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)
         {
             var product = modelContext.Product;
-            var productBundleItem = modelContext.ProductBundleItem;
-            var customer = modelContext.Customer;
             var currency = modelContext.Currency;
             var displayPrices = modelContext.DisplayPrices;
 
@@ -1727,7 +1725,7 @@ namespace Smartstore.Web.Controllers
             string productName,
             ICollection<int> allCombinationImageIds,
             bool isAssociatedProduct,
-            ProductBundleItemData bundleItem = null,
+            ProductBundleItem bundleItem = null,
             ProductVariantAttributeCombination combination = null)
         {
             var model = new MediaGalleryModel
@@ -1880,10 +1878,10 @@ namespace Smartstore.Web.Controllers
             var calculationContext = new PriceCalculationContext(product, 1, calculationOptions)
             {
                 AssociatedProducts = modelContext.AssociatedProducts,
-                BundleItem = modelContext.ProductBundleItem.Item
+                BundleItem = modelContext.ProductBundleItem
             };
             
-            calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, modelContext.ProductBundleItem?.Item?.Id);
+            calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, modelContext.ProductBundleItem?.Id);
 
             var model = await tierPrices
                 .SelectAsync(async (tierPrice) =>

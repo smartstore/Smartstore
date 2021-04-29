@@ -319,11 +319,9 @@ namespace Smartstore.Web.Controllers
 
             var product = await _db.Products.FindByIdAsync(productId);
             var batchContext = _productService.CreateProductBatchContext(new[] { product }, includeHidden: false);
-            var bItem = await _db.ProductBundleItem
+            var bundleItem = await _db.ProductBundleItem
                 .Include(x => x.BundleProduct)
                 .FindByIdAsync(bundleItemId, false);
-
-            ProductBundleItemData bundleItem = bItem == null ? null : new ProductBundleItemData(bItem);
 
             // Quantity required for tier prices.
             string quantityKey = form.Keys.FirstOrDefault(k => k.EndsWith("EnteredQuantity"));
@@ -352,7 +350,7 @@ namespace Smartstore.Web.Controllers
             if (bundleItem != null)
             {
                 // Update bundle item thumbnail.
-                if (!bundleItem.Item.HideThumbnail)
+                if (!bundleItem.HideThumbnail)
                 {
                     var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
 
@@ -361,7 +359,7 @@ namespace Smartstore.Web.Controllers
                         var file = await _db.ProductMediaFiles
                             .AsNoTracking()
                             .Include(x => x.MediaFile)
-                            .ApplyProductFilter(bundleItem.Item.ProductId)
+                            .ApplyProductFilter(bundleItem.ProductId)
                             .FirstOrDefaultAsync();
 
                         dynamicThumbUrl = _mediaService.GetUrl(file?.MediaFile, _mediaSettings.BundledProductPictureSize, null, false);

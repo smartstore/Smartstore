@@ -44,7 +44,7 @@ namespace Smartstore.Web.Models.Catalog
         public Currency Currency { get; set; }
 
         public bool IsAssociatedProduct { get; set; }
-        public ProductBundleItemData ProductBundleItem { get; set; }
+        public ProductBundleItem ProductBundleItem { get; set; }
 
         public bool DisplayPrices { get; set; }
 
