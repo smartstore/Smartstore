@@ -42,32 +42,32 @@ namespace Smartstore.Core.Identity
         public string HashedPasswordFormat { get; set; } = "SHA1";
 
         /// <summary>
-        /// Gets or sets a minimum password length.
+        /// Gets or sets the minimum password length.
         /// </summary>
         public int PasswordMinLength { get; set; } = 6;
 
         /// <summary>
-        /// Gets or sets a minimum password length.
+        /// Gets or sets a value indicating whether password requires digits.
         /// </summary>
         public bool PasswordRequireDigit { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a minimum password length.
+        /// Gets or sets a value indicating whether password requires uppercase chars.
         /// </summary>
         public bool PasswordRequireUppercase { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a minimum password length.
-        /// </summary>
-        public int PasswordRequiredUniqueChars { get; set; } = 1;
-
-        /// <summary>
-        /// Gets or sets a minimum password length.
+        /// Gets or sets a value indicating whether password requires lowercase chars.
         /// </summary>
         public bool PasswordRequireLowercase { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a minimum password length.
+        /// Gets or sets the number of required unique chars in passwords.
+        /// </summary>
+        public int PasswordRequiredUniqueChars { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether password requires non alphanumeric chars.
         /// </summary>
         public bool PasswordRequireNonAlphanumeric { get; set; } = true;
 
