@@ -4,7 +4,7 @@
 
 @{
     Layout = "_Checkout";
-    Assets.AppendTitleParts(T("PageTitle.Checkout").Value);
+    Assets.AppendTitleParts(T("PageTitle.Checkout"));
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
     Assets.AddMetaRobots();
 }
@@ -17,7 +17,7 @@
     </div>
     <div class="page-body checkout-data">
 
-        <zone name="checkout_shipping_address_top" />
+        <zone name="checkout_billing_address_top" />
 
 		<fieldset sm-if="Model.ExistingAddresses.Any()" class="content-group mb-3">
 			<legend><span>@T("Checkout.SelectBillingAddress")</span></legend>
@@ -27,7 +27,7 @@
 				{
 					<div class="card card-body address-list-item">
 						<div class="address-item">
-							@*TODO (ms) (core) Implement SelectBillingAddress action*@
+							@*TODO: (ms) (core) Implement SelectBillingAddress action*@
 							<button class="btn btn-warning btn-block select-billing-address-button" onclick="setLocation('@Url.Action("SelectBillingAddress", new { addressId = item.Id })')">
 								<span>@T("Checkout.BillToThisAddress")</span>
 								<i class="fa fa-angle-right"></i>
@@ -57,6 +57,7 @@
 
 								<div class="address">
 									@*TODO: (ms) (core) Something is wrong with display*@
+									@*RE: Liquid engine to parse addresses is still missing. So no need to worry...*@
 									@Html.Raw(item.FormattedAddress)
 								</div>
 							</div>
@@ -66,7 +67,7 @@
 			</div>
 		</fieldset>
 
-        <zone name="checkout_shipping_address_middle" />
+        <zone name="checkout_billing_address_middle" />
 
 		<fieldset class="content-group">
 			<legend><span>@(Model.ExistingAddresses.Any() ? T("Checkout.OrEnterNewAddress") : T("Checkout.EnterBillingAddress"))</span></legend>
@@ -83,7 +84,8 @@
 						}
 
                         @*TODO (ms) (core) Implement _CreateOrUpdateAddress view*@
-                        @*<partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />*@
+						@*RE: this is already there > Views/Shared *@
+                        <partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
 					</div>
 
 					<div class="buttons">
@@ -102,6 +104,6 @@
 			</div>
 		</fieldset>
 
-        <zone name="checkout_shipping_address_bottom" />
+        <zone name="checkout_billing_address_bottom" />
     </div>
 </div>

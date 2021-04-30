@@ -4,7 +4,7 @@
 
 @{
     Layout = "_Checkout";
-    Assets.AppendTitleParts(T("PageTitle.Checkout").Value);
+    Assets.AppendTitleParts(T("PageTitle.Checkout"));
     Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
     Assets.AddMetaRobots();
 }
@@ -27,7 +27,7 @@
                 {
                     <div class="card card-body address-list-item">
                         <div class="address-item">
-                            @*TODO (ms) (core) Implement SelectShippingAddress action*@
+                            @*TODO: (ms) (core) Implement SelectShippingAddress action*@
                             <button class="btn btn-warning btn-block select-shipping-address-button" onclick="setLocation('@Url.Action("SelectShippingAddress", new { addressId = item.Id })')">
                                 <span>@T("Checkout.ShipToThisAddress")</span>
                                 <i class="fa fa-angle-right"></i>
@@ -57,7 +57,6 @@
                                 </div>
 
                                 <div class="address">
-                                    @*TODO: (ms) (core) Something is wrong with display*@
                                     @Html.Raw(item.FormattedAddress)
                                 </div>
                             </div>
@@ -83,8 +82,7 @@
                             dataDictAddress.TemplateInfo.HtmlFieldPrefix = "NewAddress";
                         }
 
-                        @*TODO (ms) (core) Implement _CreateOrUpdateAddress view*@
-                        @*<partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />*@
+                        <partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
                     </div>
 
                     <div class="buttons">
