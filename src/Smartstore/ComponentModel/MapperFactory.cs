@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Autofac;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Engine;
 
 namespace Smartstore.ComponentModel
@@ -77,6 +78,23 @@ namespace Smartstore.ComponentModel
                 Guard.NotNull(from, nameof(from)), 
                 Guard.NotNull(to, nameof(to)), 
                 parameters);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static async Task<List<TTo>> MapListAsync<TFrom, TTo>(IQueryable<TFrom> from, dynamic parameters = null)
+            where TFrom : class
+            where TTo : class, new()
+        {
+            Guard.NotNull(from, nameof(from));
+            return await IMapperExtensions.MapListAsync(GetMapper<TFrom, TTo>(), await from.ToListAsync(), parameters);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<List<TTo>> MapListAsync<TFrom, TTo>(IEnumerable<TFrom> from, dynamic parameters = null)
+            where TFrom : class
+            where TTo : class, new()
+        {
+            return IMapperExtensions.MapListAsync(GetMapper<TFrom, TTo>(), from, parameters);
         }
 
         public static IMapper<TFrom, TTo> GetMapper<TFrom, TTo>()

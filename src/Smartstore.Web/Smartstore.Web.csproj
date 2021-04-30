@@ -46,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\fontastic\fonts\fontastic.svg" />
+    <None Include="wwwroot\lib\fontastic\fonts\fontastic.svg" />
     <None Include="wwwroot\lib\fa5\scss\brands.scss" />
     <None Include="wwwroot\lib\fa5\scss\fontawesome.scss" />
     <None Include="wwwroot\lib\fa5\scss\regular.scss" />
@@ -154,6 +154,10 @@
 
 	<ItemGroup>
 	  <Content Include="Areas\Admin\sitemap.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\lib\vue\" />
 	</ItemGroup>
 
 </Project>

@@ -7,7 +7,7 @@ using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 
-namespace Smartstore.Web.Areas.Admin.Controllers
+namespace Smartstore.Admin.Controllers
 {
     public class SecurityController : AdminControllerBase
     {

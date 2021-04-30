@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Web.Controllers;
 
-namespace Smartstore.Web.Areas.Admin.Controllers
+namespace Smartstore.Admin.Controllers
 {
     public class HomeController : AdminControllerBase
     {
