@@ -137,7 +137,7 @@ namespace Smartstore.Core.Checkout.Shipping
             return activeMethods;
         }
 
-        public virtual async Task<List<ShippingMethod>> GetAllShippingMethodsAsync(bool matchRules = false, int storeId = 0)
+        public virtual async Task<List<ShippingMethod>> GetAllShippingMethodsAsync(int storeId = 0)
         {
             var activeShippingMethods = await _db.ShippingMethods
                 .ApplyStoreFilter(storeId)
@@ -233,7 +233,7 @@ namespace Smartstore.Core.Checkout.Shipping
                 foreach (var option in response.ShippingOptions)
                 {
                     option.ShippingRateComputationMethodSystemName = method.Metadata.SystemName;
-                    option.Rate = currency.RoundIfEnabledFor(option.Rate);
+                    option.Rate = new(currency.RoundIfEnabledFor(option.Rate.Amount), currency);
 
                     result.ShippingOptions.Add(option);
                 }

@@ -28,13 +28,12 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets all <see cref="ShippingMethod"/>s async with store mappings if active
         /// </summary>
-        /// <param name="matchRules">Indicator whether to filter result query after matching cart rules</param>
         /// <param name="storeId">Filters methods by store identifier. 0 to load all methods</param>
         /// <remarks>
         /// Joins with store mappings if <see cref="DbQuerySettings.IgnoreMultiStore"/> is <c>false</c>
         /// </remarks>
         /// <returns>Shipping method collection</returns>
-        Task<List<ShippingMethod>> GetAllShippingMethodsAsync(bool matchRules = false, int storeId = 0);
+        Task<List<ShippingMethod>> GetAllShippingMethodsAsync(int storeId = 0);
 
         /// <summary>
         /// Gets shopping cart items (total) weight async

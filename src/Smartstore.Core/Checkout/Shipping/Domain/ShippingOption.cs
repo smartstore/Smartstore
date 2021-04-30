@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 using Smartstore.ComponentModel.TypeConverters;
+using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
@@ -26,7 +27,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets or sets a shipping rate (without discounts, additional shipping charges, etc)
         /// </summary>
-        public decimal Rate { get; set; }
+        public Money Rate { get; set; }
 
         /// <summary>
         /// Gets or sets a shipping option name

@@ -1057,7 +1057,7 @@ namespace Smartstore.Web.Controllers
 
                             var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(
                                 cart,
-                                new(shippingOption.Rate, currency),
+                                shippingOption.Rate,
                                 shippingOption,
                                 shippingMethods);
 

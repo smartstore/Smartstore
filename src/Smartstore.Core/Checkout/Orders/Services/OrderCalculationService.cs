@@ -927,9 +927,9 @@ namespace Smartstore.Core.Checkout.Orders
             if (shippingOption != null)
             {
                 // Use last shipping option (get from cache).
-                var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(false, storeId);
+                var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId);
 
-                return await AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
+                return await AdjustShippingRateAsync(cart, shippingOption.Rate.Amount, shippingOption, shippingMethods);
             }
             else
             {
