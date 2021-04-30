@@ -38,8 +38,6 @@ namespace Smartstore.Web.Models.ShoppingCart
         public bool DisplayEsdRevocationWaiverBox { get; set; }
         public bool DisplayMoveToWishlistButton { get; set; }
 
-        #region Nested Classes
-
         public partial class ShoppingCartItemModel : CartEntityModelBase
         {
             public decimal Weight { get; set; }
@@ -125,7 +123,5 @@ namespace Smartstore.Web.Models.ShoppingCart
             public bool DisplayPaymentMethodChangeOption { get; set; }
             public bool IsPaymentSelectionSkipped { get; set; }
         }
-
-        #endregion
     }
 }
