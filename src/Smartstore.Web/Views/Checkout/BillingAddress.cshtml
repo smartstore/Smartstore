@@ -9,7 +9,9 @@
     Assets.AddMetaRobots();
 }
 
-<partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Address }" />
+<widget target-zone="order_progress">
+    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Address }" />
+</widget>
 
 <div class="page billing-address-page">
     <div class="page-title">
@@ -19,90 +21,86 @@
 
         <zone name="checkout_billing_address_top" />
 
-		<fieldset sm-if="Model.ExistingAddresses.Any()" class="content-group mb-3">
-			<legend><span>@T("Checkout.SelectBillingAddress")</span></legend>
+        <fieldset sm-if="Model.ExistingAddresses.Any()" class="content-group mb-3">
+            <legend><span>@T("Checkout.SelectBillingAddress")</span></legend>
 
-			<div class="card-deck card-cols-sm-1 card-cols-md-2 card-cols-lg-3 address-list">
-				@foreach (var item in Model.ExistingAddresses)
-				{
-					<div class="card card-body address-list-item">
-						<div class="address-item">
-							@*TODO: (ms) (core) Implement SelectBillingAddress action*@
-							<button class="btn btn-warning btn-block select-billing-address-button" onclick="setLocation('@Url.Action("SelectBillingAddress", new { addressId = item.Id })')">
-								<span>@T("Checkout.BillToThisAddress")</span>
-								<i class="fa fa-angle-right"></i>
-							</button>
+            <div class="card-deck card-cols-sm-1 card-cols-md-2 card-cols-lg-3 address-list">
+                @foreach (var item in Model.ExistingAddresses)
+                {
+                    <div class="card card-body address-list-item">
+                        <div class="address-item">
+                            @*TODO: (ms) (core) Implement SelectBillingAddress action*@
+                            <button class="btn btn-warning btn-block select-billing-address-button" onclick="setLocation('@Url.Action("SelectBillingAddress", new { addressId = item.Id })')">
+                                <span>@T("Checkout.BillToThisAddress")</span>
+                                <i class="fa fa-angle-right"></i>
+                            </button>
 
-							<div class="address-data mt-3">
-								<div class="name pb-2">
-									<strong>
-										<span class="bidi-embed">@item.FirstName</span>
-										<span class="bidi-embed">@item.LastName</span>
-									</strong>
-								</div>
-								<div class="email">
-									<span>@T("Address.Fields.Email"):</span>
-									<span>@item.Email</span>
-								</div>
-								
-								<div sm-if="item.PhoneEnabled" class="phone">
-									<span>@T("Address.Fields.PhoneNumber"):</span>
-									<span>@item.PhoneNumber</span>
-								</div>
-								
-								<div sm-if="item.FaxEnabled && item.FaxNumber.HasValue()" class="fax">
-									<span>@T("Address.Fields.FaxNumber"):</span>
-									<span>@item.FaxNumber</span>
-								</div>								
+                            <div class="address-data mt-3">
+                                <div class="name pb-2">
+                                    <strong>
+                                        <span class="bidi-embed">@item.FirstName</span>
+                                        <span class="bidi-embed">@item.LastName</span>
+                                    </strong>
+                                </div>
+                                <div class="email">
+                                    <span>@T("Address.Fields.Email"):</span>
+                                    <span>@item.Email</span>
+                                </div>
 
-								<div class="address">
-									@*TODO: (ms) (core) Something is wrong with display*@
-									@*RE: Liquid engine to parse addresses is still missing. So no need to worry...*@
-									@Html.Raw(item.FormattedAddress)
-								</div>
-							</div>
-						</div>
-					</div>
-				}
-			</div>
-		</fieldset>
+                                <div sm-if="item.PhoneEnabled" class="phone">
+                                    <span>@T("Address.Fields.PhoneNumber"):</span>
+                                    <span>@item.PhoneNumber</span>
+                                </div>
+
+                                <div sm-if="item.FaxEnabled && item.FaxNumber.HasValue()" class="fax">
+                                    <span>@T("Address.Fields.FaxNumber"):</span>
+                                    <span>@item.FaxNumber</span>
+                                </div>
+
+                                <div class="address">
+                                    @Html.Raw(item.FormattedAddress)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </fieldset>
 
         <zone name="checkout_billing_address_middle" />
 
-		<fieldset class="content-group">
-			<legend><span>@(Model.ExistingAddresses.Any() ? T("Checkout.OrEnterNewAddress") : T("Checkout.EnterBillingAddress"))</span></legend>
+        <fieldset class="content-group">
+            <legend><span>@(Model.ExistingAddresses.Any() ? T("Checkout.OrEnterNewAddress") : T("Checkout.EnterBillingAddress"))</span></legend>
 
-			<div class="enter-address">
-                <form asp-action="BillingAddress" asp-controller="Checkout" method="post">				
-					<div class="enter-address-body">
-						@{
+            <div class="enter-address">
+                <form asp-action="BillingAddress" asp-controller="Checkout" method="post">
+                    <div class="enter-address-body">
+                        @{
                             var dataDictAddress = new ViewDataDictionary(ViewData);
-							dataDictAddress["breakpoint"] = "sm";
-							//Merge ModelState (required for validation)
-							dataDictAddress.ModelState.Merge(ViewData.ModelState);
-							dataDictAddress.TemplateInfo.HtmlFieldPrefix = "NewAddress";
-						}
+                            dataDictAddress["breakpoint"] = "sm";
+                            // Merge ModelState (required for validation).
+                            dataDictAddress.ModelState.Merge(ViewData.ModelState);
+                            dataDictAddress.TemplateInfo.HtmlFieldPrefix = "NewAddress";
+                        }
 
-                        @*TODO (ms) (core) Implement _CreateOrUpdateAddress view*@
-						@*RE: this is already there > Views/Shared *@
                         <partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
-					</div>
+                    </div>
 
-					<div class="buttons">
-						<a asp-route="ShoppingCart" class="btn btn-secondary btn-lg">
-							<i class="fa fa-angle-left"></i>
-							<span>@T("Common.Back")</span>
-						</a>
-						<input type="submit" id="nextstep" name="nextstep" class="d-none" />
+                    <div class="buttons">
+                        <a asp-route="ShoppingCart" class="btn btn-secondary btn-lg">
+                            <i class="fa fa-angle-left"></i>
+                            <span>@T("Common.Back")</span>
+                        </a>
+                        <input type="submit" id="nextstep" name="nextstep" class="d-none" />
 
-						<button class="btn btn-warning btn-lg new-address-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
-							<span>@T("Checkout.NextButton")</span>
-							<i class="fa fa-angle-right"></i>
-						</button>
-					</div>
-				</form>
-			</div>
-		</fieldset>
+                        <button class="btn btn-warning btn-lg new-address-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+                            <span>@T("Checkout.NextButton")</span>
+                            <i class="fa fa-angle-right"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
 
         <zone name="checkout_billing_address_bottom" />
     </div>

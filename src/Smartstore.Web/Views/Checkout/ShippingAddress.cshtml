@@ -9,7 +9,9 @@
     Assets.AddMetaRobots();
 }
 
-<partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Address }" />
+<widget target-zone="order_progress">
+    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Address }" />
+</widget>
 
 <div class="page shipping-address-page">
     <div class="page-title">
@@ -77,7 +79,7 @@
                         @{
                             var dataDictAddress = new ViewDataDictionary(ViewData);
                             dataDictAddress["breakpoint"] = "sm";
-                            //Merge ModelState (required for validation)
+                            // Merge ModelState (required for validation).
                             dataDictAddress.ModelState.Merge(ViewData.ModelState);
                             dataDictAddress.TemplateInfo.HtmlFieldPrefix = "NewAddress";
                         }
@@ -100,7 +102,7 @@
                 </form>
             </div>
         </fieldset>
-        
+
         <zone name="checkout_shipping_address_bottom" />
     </div>
 </div>
