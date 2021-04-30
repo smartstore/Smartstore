@@ -1,0 +1,179 @@
+﻿@using Smartstore.Web.Models.Checkout;
+
+@model CheckoutPaymentMethodModel
+
+@{
+    Layout = "_Checkout";
+    Assets.AppendTitleParts(T("PageTitle.Checkout"));
+    Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
+    Assets.AddMetaRobots();
+}
+
+<widget target-zone="order_progress">
+    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Payment }" />
+</widget>
+
+<div class="page payment-method-page">
+    <div class="page-title">
+        <h1 class="h3">@T("Checkout.SelectPaymentMethod")</h1>
+    </div>
+    <div class="page-body checkout-data">
+        <form asp-action="PaymentMethod" asp-controller="Checkout" method="post">
+
+            <zone name="checkout_payment_method_top" />
+
+            @if (Model.PaymentMethods.Any())
+            {
+                <ul class="list-group opt-list payment-methods">
+                    @for (int i = 0; i < Model.PaymentMethods.Count; i++)
+                    {
+                        var paymentMethod = Model.PaymentMethods[i];
+                        var widgetInvoker = paymentMethod.PaymentWidgetInvoker;
+                        var description = paymentMethod.FullDescription?.Value;
+
+                        <li class="list-group-item opt-list-item payment-method-item" attr-class='(paymentMethod.Selected, "active")'>
+                            <div class="opt-data">
+                                <div class="form-check opt-control option-name radio">
+
+                                    <input id="paymentmethod_@(i)" type="radio" name="paymentmethod"
+                                       attr-checked='(paymentMethod.Selected, "checked")'
+                                       data-has-info='@(widgetInvoker != null ? "true" : "false")'
+                                       data-lazy-info='@(paymentMethod.RequiresInteraction ? "true" : "false")'
+                                       class="opt-radio form-check-input"
+                                       value="@(paymentMethod.PaymentMethodSystemName)" />
+
+                                    <label class="form-check-label" for="paymentmethod_@(i)">
+                                        <span class="opt-name">@paymentMethod.Name</span>
+                                    </label>
+                                </div>
+
+                                <small sm-if="paymentMethod.Fee.HasValue()" class="opt-fee payment-fee text-danger">@paymentMethod.Fee</small>
+                            </div>
+
+                            @if (description.HasValue())
+                            {
+                                <div class="opt-info-item payment-method-description" sm-language-attributes-for="paymentMethod.FullDescription">
+                                    @Html.Raw(description)
+                                </div>
+                            }
+
+                            @if (!paymentMethod.RequiresInteraction || (paymentMethod.Selected && widgetInvoker != null))
+                            {
+                                <div class="opt-info payment-method-info"
+                                     attr-data-lazy-info='(paymentMethod.RequiresInteraction, "true")'
+                                     data-system-name="@paymentMethod.PaymentMethodSystemName">
+
+                                    <div sm-if="paymentMethod.Selected && !ViewData.ModelState.IsValid" id="payment-info-validation-summary">
+                                        @Html.ValidationSummary(false)
+                                    </div>
+
+                                    @if (!(description.HasValue() && !paymentMethod.RequiresInteraction))
+                                    {
+                                        await paymentMethod.PaymentWidgetInvoker.InvokeAsync(ViewContext);
+                                    }
+                                </div>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="alert alert-danger">
+                    @T("Checkout.NoPaymentMethods")
+                </div>
+            }
+
+            <div sm-if="Model.PaymentMethods.Any()" class="buttons">
+                <a asp-action="ShippingMethod" asp-controller="Checkout" class="btn btn-secondary btn-lg">
+                    <i class="fa fa-angle-left"></i>
+                    <span>@T("Common.Back")</span>
+                </a>
+                <input type="submit" name="nextstep" id="nextstep" class="d-none" />
+
+                <button class="btn btn-warning btn-lg payment-method-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+                    <span>@T("Checkout.NextButton")</span>
+                    <i class="fa fa-angle-right"></i>
+                </button>
+            </div>
+
+            <zone name="checkout_payment_method_bottom" />
+        </form>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        var validationSummary = $('#payment-info-validation-summary');
+
+        if (validationSummary.length) {
+            $.scrollTo(validationSummary, 600, { offset: -100 });
+        }
+
+        $('.checkout-data .opt-radio').on('change', function (e) {
+            var radio = $(this);
+            var systemName = radio.val();
+
+            function removeInfoPanels() {
+                $('.checkout-data .opt-info').each(function (i, val) {
+                    var el = $(val);
+                    if (el.data('system-name') != systemName && el.data('lazy-info')) {
+                        el.remove();
+                    }
+                });
+            }
+
+            function disableNextStepButton (disable) {
+                var btn = $('button.payment-method-next-step-button');
+                btn.prop('disabled', disable);
+                btn.find('.fa')
+                    .removeClass('fa-angle-right fa-spinner fa-spin')
+                    .addClass(disable ? 'fa-spinner fa-spin' : 'fa-angle-right');
+            };
+
+            $('.checkout-data .opt-list-item').removeClass('active');
+
+            var item = radio.closest('.opt-list-item');
+            item.addClass("active");
+
+            if (!radio.data("has-info") || !radio.data("lazy-info")) {
+                removeInfoPanels();
+                return;
+            }
+
+            disableNextStepButton(true);
+
+            $.ajax({
+                type: 'POST',
+                cache: false,
+                dataType: 'html',
+                async: true,
+                url: '@Url.Action("PaymentInfoAjax")',
+                data: { paymentMethodSystemName: systemName },
+                success: function (html) {
+                    if (!html) return;
+
+                    var panel = item.find('.opt-info');
+
+                    if (panel.length == 0) {
+                        panel = $('<div class="opt-info payment-method-info"></div>')
+                            .appendTo(item)
+                            .data('system-name', systemName)
+                            .data('lazy-info', true);
+                    }
+
+                    panel.html(html);
+                    applyCommonPlugins(panel);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.error(thrownError);
+                },
+                complete: function () {
+                    disableNextStepButton(false);
+                    // Remove all other info containers.
+                    removeInfoPanels();
+                }
+            });
+        });
+    });
+</script>

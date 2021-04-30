@@ -1,0 +1,115 @@
+﻿@using Smartstore.Web.Models.Checkout;
+
+@model CheckoutShippingMethodModel
+
+@{
+	Layout = "_Checkout";
+    Assets.AppendTitleParts(T("PageTitle.Checkout"));
+    Assets.BodyAttributes.AppendCssClass("no-offcanvas-cart");
+    Assets.AddMetaRobots();
+}
+
+<widget target-zone="order_progress">
+    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Shipping }" />
+</widget>
+
+<div class="page shipping-method-page">
+    <div class="page-title">
+        <h1 class="h3">@T("Checkout.SelectShippingMethod")</h1>
+    </div>
+    <div class="page-body checkout-data">        
+		<form asp-action="ShippingMethod" asp-controller="Checkout" method="post">
+
+			<zone name="checkout_shipping_method_top" />
+
+			@if (Model.Warnings.Any())
+			{
+				<div class="alert alert-danger">
+					<ul>
+						@for (int i = 0; i < Model.Warnings.Count; i++)
+						{
+							<li>@Model.Warnings[i]</li>
+						}
+					</ul>
+				</div>
+			}
+			else
+			{
+				<ul class="list-group opt-list shipping-options">
+					@for (int i = 0; i < Model.ShippingMethods.Count; i++)
+					{
+						var shippingMethod = Model.ShippingMethods[i];
+
+						<li class="list-group-item opt-list-item shipping-option-item" attr-class='(shippingMethod.Selected, "active")'>
+							<div class="opt-data">
+								<div class="form-check opt-control option-name radio">
+									<input id="shippingoption_@(i)" type="radio" name="shippingoption" 
+										class="opt-radio form-check-input" 
+										attr-checked='(shippingMethod.Selected, "checked")'
+										value="@(shippingMethod.Name)___@(shippingMethod.ShippingRateComputationMethodSystemName)" />
+									<label class="form-check-label" for="shippingoption_@(i)">
+										<span class="opt-name" dir="auto">@Html.Raw(shippingMethod.Name.HtmlDecode())</span>
+									</label>
+								</div>
+								
+								<div sm-if="shippingMethod.FeeRaw != decimal.Zero" class="opt-fee shipping-fee text-danger">
+									@shippingMethod.Fee
+								</div>
+							</div>
+							
+							<div sm-if="shippingMethod.Description.HasValue()" class="opt-info text-muted shipping-option-description">
+								@if (shippingMethod.BrandUrl.HasValue())
+								{
+									<div class="media">
+										<span class="float-left">
+											<img class="media-object img-fluid" src="@Url.Content(shippingMethod.BrandUrl)" alt="@shippingMethod.Name" />
+										</span>
+										<div class="media-body" dir="auto">
+											@Html.Raw(shippingMethod.Description)
+										</div>
+									</div>
+								}
+								else
+								{
+									<div dir="auto">
+										@Html.Raw(shippingMethod.Description)
+									</div>
+								}
+							</div>						
+						</li>
+					}
+				</ul>
+			}
+
+            <div class="buttons">
+                <a asp-action="ShippingAddress" asp-controller="Checkout" class="btn btn-secondary btn-lg">
+                    <i class="fa fa-angle-left"></i>
+                    <span>@T("Common.Back")</span>
+                </a>
+
+                <input type="submit" name="nextstep" id="nextstep" class="d-none" />
+
+                <button class="btn btn-warning btn-lg shipping-method-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+					<span>@T("Checkout.NextButton")</span>
+                    <i class="fa fa-angle-right"></i>
+                </button>
+            </div>
+
+			<zone name="checkout_shipping_method_bottom" />
+        </form>
+    </div>
+</div>
+
+<script>
+	$(function () {
+		$('.checkout-data .opt-radio').on('change', function (e) {
+			var radio = $(this);
+			var systemName = radio.val();
+
+			$('.checkout-data .opt-list-item').removeClass('active');
+
+			var item = radio.closest('.opt-list-item');
+			item.addClass("active");
+		});
+	});
+</script>
