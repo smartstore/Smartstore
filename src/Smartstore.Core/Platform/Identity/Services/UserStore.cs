@@ -434,28 +434,36 @@ namespace Smartstore.Core.Identity
 
         public async Task AddLoginAsync(Customer user, UserLoginInfo login, CancellationToken cancellationToken = default)
         {
-            _externalAuthentication.Add(new ExternalAuthenticationRecord { 
+            cancellationToken.ThrowIfCancellationRequested();
+
+            _externalAuthentication.Add(new ExternalAuthenticationRecord 
+            { 
                 CustomerId = user.Id,
                 Email = user.Email,
                 ExternalIdentifier = login.ProviderKey,
                 ProviderSystemName = "SmartStore.Facebook"  // TODO: (mh) (core) Translate login.LoginProvider into ProviderSystemName
             });
 
-            await _db.SaveChangesAsync(cancellationToken);
+            await SaveChanges(cancellationToken);
         }
 
         public async Task RemoveLoginAsync(Customer user, string loginProvider, string providerKey, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var record = await _externalAuthentication
+                // TODO: (mh) (core) Are you sure that this selects the correct record? What about "loginProvider" or "Customer.Id"?
                 .Where(x => x.ExternalIdentifier == providerKey)
                 .FirstOrDefaultAsync(cancellationToken);
-
+            
             _externalAuthentication.Remove(record);
-            await _db.SaveChangesAsync(cancellationToken);
+            await SaveChanges(cancellationToken);
         }
 
         public async Task<IList<UserLoginInfo>> GetLoginsAsync(Customer user, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var records = await _db.ExternalAuthenticationRecords
                 .Where(x => x.CustomerId == user.Id)
                 .ToListAsync(cancellationToken);
@@ -477,6 +485,7 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             var record = await _externalAuthentication
+                // TODO: (mh) (core) Are you sure that this selects the correct record? What about "loginProvider"?
                 .FirstOrDefaultAsync(x => x.ExternalIdentifier == providerKey, cancellationToken);
             
             if (record != null)

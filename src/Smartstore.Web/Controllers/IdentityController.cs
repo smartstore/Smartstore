@@ -140,6 +140,7 @@ namespace Smartstore.Web.Controllers
                 userNameOrEmail = userNameOrEmail.TrimSafe();
 
                 // TODO: (mh) (core) Test if login with usernames work. Doesn't seem correct this way.
+                // RE: Please take a look at SmartSignInManager.PasswordSignInAsync(). It should work.
                 var result = await _signInManager.PasswordSignInAsync(userNameOrEmail, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
@@ -154,7 +155,11 @@ namespace Smartstore.Web.Controllers
 
                     await Services.EventPublisher.PublishAsync(new CustomerLoggedInEvent { Customer = customer });
 
-                    if (returnUrl.IsEmpty() || returnUrl.Contains(@"/login?") || returnUrl.Contains(@"/passwordrecoveryconfirm") || returnUrl.Contains(@"/activation") || !Url.IsLocalUrl(returnUrl))
+                    if (returnUrl.IsEmpty() 
+                        || returnUrl.Contains("/login?", StringComparison.OrdinalIgnoreCase) 
+                        || returnUrl.Contains("/passwordrecoveryconfirm", StringComparison.OrdinalIgnoreCase) 
+                        || returnUrl.Contains("/activation", StringComparison.OrdinalIgnoreCase) 
+                        || !Url.IsLocalUrl(returnUrl))
                     {
                         return RedirectToRoute("Homepage");
                     }
@@ -201,7 +206,7 @@ namespace Smartstore.Web.Controllers
                 await _signInManager.SignOutAsync();
                 await db.SaveChangesAsync();
 
-                return RedirectToRoute("Login");
+                return RedirectToRoute("Login"); // TODO: (mh) (core) Are you sure? Why not Homepage?
             }
         }
 
@@ -260,6 +265,8 @@ namespace Smartstore.Web.Controllers
 
                 bool isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
 
+                // TODO: (mh) (core) Creating a new customer entity here (instead of using the current guest customer entity) is not a good idea.
+                // Please analyze classic code thoroughly. Simple fact is: you have to "upgrade" the existing entity to avoid data pollution and stalesness.
                 customer = new Customer 
                 { 
                     Username = model.UserName, 

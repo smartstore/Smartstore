@@ -117,17 +117,20 @@ namespace Smartstore.Core.Data.Migrations
                     }
                 }
 
-                // add new resources to context
-                _resources.AddRange(toAdd);
+                if (toAdd.Any() || toDelete.Any())
+                {
+                    // add new resources to context
+                    _resources.AddRange(toAdd);
 
-                // remove deleted resources
-                _resources.RemoveRange(toDelete);
+                    // remove deleted resources
+                    _resources.RemoveRange(toDelete);
 
-                // save now
-                int affectedRows = await _db.SaveChangesAsync();
+                    // save now
+                    int affectedRows = await _db.SaveChangesAsync();
 
-                _db.DetachEntities<Language>();
-                _db.DetachEntities<LocaleStringResource>();
+                    _db.DetachEntities<Language>();
+                    _db.DetachEntities<LocaleStringResource>();
+                }
             }
         }
 
@@ -139,7 +142,7 @@ namespace Smartstore.Core.Data.Migrations
             if (res == null)
             {
                 res = _resources
-                    .Where(x => x.ResourceName.Equals(key, StringComparison.InvariantCultureIgnoreCase) && x.LanguageId == langId)
+                    .Where(x => x.ResourceName == key && x.LanguageId == langId)
                     .FirstOrDefault();
             }
 

@@ -10,8 +10,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
-            // TODO: (mc) (core) Throws. Please fix.
-            //await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
+            await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
         }
 
         public static void MigrateLocaleResources(LocaleResourcesBuilder builder)
@@ -62,7 +61,7 @@ namespace Smartstore.Core.Data.Migrations
                 "The name '{0}' is not valid for customer roles.",
                 "Der Name '{0}' ist für Kundengruppen nicht gültig.");
             builder.AddOrUpdate("Identity.Error.InvalidToken",
-                "Token is not invalid.",
+                "Token is not valid.",
                 "Das Token ist nicht gültig.");
             builder.AddOrUpdate("Identity.Error.InvalidUserName",
                 "The username '{0}' is not valid.",
@@ -75,19 +74,19 @@ namespace Smartstore.Core.Data.Migrations
                 "Passwort und Bestätigung stimmen nicht überein.");
             builder.AddOrUpdate("Identity.Error.PasswordRequiresDigit",
                 "The password must contain a digit.",
-                "Das Passwort muss eine Ziffer enthalten.");
+                "Das Passwort muss mind. eine Ziffer enthalten.");
             builder.AddOrUpdate("Identity.Error.PasswordRequiresLower",
                 "The password must contain a lowercase letter.",
-                "Das Passwort muss einen Kleinbuchstaben enthalten.");
+                "Das Passwort muss mind. einen Kleinbuchstaben enthalten.");
             builder.AddOrUpdate("Identity.Error.PasswordRequiresNonAlphanumeric",
-                "The password must contain a non alphanumeric sign.",
-                "Das Passwort muss ein Sonderzeichen enthalten.");
+                "The password must contain a non alphanumeric character.",
+                "Das Passwort muss mind. ein Sonderzeichen enthalten.");
             builder.AddOrUpdate("Identity.Error.PasswordRequiresUniqueChars",
                 "The password must contain at least {0} unique characters.",
-                "Das Passwort muss mindestens {0} eindeutige Zeichen.");
+                "Das Passwort muss mindestens {0} eindeutige Zeichen enthalten.");
             builder.AddOrUpdate("Identity.Error.PasswordRequiresUpper",
                 "The password must contain a capital letter.",
-                "Das Passwort muss einen Großbuchstaben enthalten.");
+                "Das Passwort muss mind. einen Großbuchstaben enthalten.");
             builder.AddOrUpdate("Identity.Error.PasswordTooShort",
                 "The password is too short. It must contain at least {0} characters.",
                 "Das Passwort ist zu kurz. Es muss mindestens {0} Zeichen enthalten.");
@@ -105,7 +104,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Die Benutzersperrung ist nicht aktiviert.");
             builder.AddOrUpdate("Identity.Error.UserNotInRole",
                 "You do not have the necessary permissions to perform this operation.",
-                "Sie verfügen nicht über die erforderlichen Rechte, um diesen Vorgang durchzuführen.");
+                "Sie verfügen nicht über die erforderlichen Rechte, diesen Vorgang durchzuführen.");
 
             builder.AddOrUpdate("Account.Register.Result.Disabled",
                 "Registration is not allowed at the moment.",

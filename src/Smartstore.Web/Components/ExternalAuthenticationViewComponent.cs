@@ -22,9 +22,10 @@ namespace Smartstore.Web.Components
             var model = new List<ExternalAuthenticationMethodModel>();
             var methods = await _signInManager.GetExternalAuthenticationSchemesAsync();
 
-            foreach(var method in methods)
+            foreach (var method in methods)
             {
-                model.Add(new ExternalAuthenticationMethodModel { 
+                model.Add(new ExternalAuthenticationMethodModel 
+                { 
                     ProviderName = method.Name,
                     DisplayName = method.DisplayName
                 });
