@@ -38,17 +38,26 @@ namespace Smartstore.Core.Security
             public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
             {
                 // TODO: (mc) (core) Broken when setting is turned off :-/
+                // RE: Could you try again please?
                 if (!_securitySettings.EnableHoneypotProtection)
+                {
                     await next();
+                    return;
+                }                 
 
                 var isBot = _honeypotProtector.IsBot();
                 if (!isBot)
+                {
                     await next();
+                    return;
+                }
+                else
+                {
+                    _logger.Warn("Honeypot detected a bot and rejected the request.");
 
-                _logger.Warn("Honeypot detected a bot and rejected the request.");
-
-                var redirectUrl = _webHelper.GetCurrentPageUrl(true);
-                context.Result = new RedirectResult(redirectUrl);
+                    var redirectUrl = _webHelper.GetCurrentPageUrl(true);
+                    context.Result = new RedirectResult(redirectUrl);
+                }
             }
         }
     }
