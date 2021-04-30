@@ -551,7 +551,6 @@ namespace Smartstore.Core.Catalog.Products
     // - Check callers of IProductService.GetAppliedDiscountsByProductIdsAsync. Must now be called with includeHidden (default value was previously 'true').
     // - UI. Always show Currency.RoundNumDecimals on currency edit page. It is no longer used only for order item rounding.
     // - SystemCustomerAttributeNames.WalletEnabled belongs to Wallet module (as extension method for CustomerAttributeCollection).
-    // - AccessDenied action method must process unauthorized message through query string parameter 'permission' (ITempDataDictionary doesn't work in PermissionAttribute).
     // - Check callers of IPaymentMethod.IsPaymentDataValidAsync. Default return value is now null and not an empty list anymore.
     // - Apply NeverAuthorizeAttribute to action methods where AccessShop permission check must be skipped (like "Register").
 }

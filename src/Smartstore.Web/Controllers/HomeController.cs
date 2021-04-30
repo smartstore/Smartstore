@@ -944,6 +944,7 @@ namespace Smartstore.Web.Controllers
         #endregion
 
         [Permission("MyTestPermission")]
+        //[ValidateAdminIpAddress]
         public async Task<IActionResult> MgTest(/*CatalogSearchQuery query*//*ProductVariantQuery query*/)
         {
             var content = new StringBuilder();

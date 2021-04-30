@@ -4,10 +4,12 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Web.Models.Diagnostics;
 
@@ -23,6 +25,8 @@ namespace Smartstore.Web.Controllers
             _urlPolicy = urlPolicy;
             _loggerFactory = loggerFactory;
         }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         [Route("/Error/{status?}")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -55,7 +59,14 @@ namespace Smartstore.Web.Controllers
                 model.ActionDescriptor = model.Endpoint.Metadata.OfType<ControllerActionDescriptor>().FirstOrDefault();
             }
 
-            TryLogError(model);
+            if (isUnauthorizedAccessException)
+            {
+                TryLogUnauthorizedInfo(model);
+            }
+            else
+            {
+                TryLogError(model);
+            }
 
             if (Request.IsAjaxRequest())
             {
@@ -91,16 +102,40 @@ namespace Smartstore.Web.Controllers
 
             try
             {
-                var logger = model.ActionDescriptor != null 
-                    ? _loggerFactory.CreateLogger(model.ActionDescriptor.ControllerTypeInfo.AsType())
-                    : _loggerFactory.CreateLogger<ErrorController>();
-
-                logger.Error(model.Exception);
+                CreateLogger(model.ActionDescriptor).Error(model.Exception);
             }
             catch
             {
                 // Don't throw new exception
             }
+        }
+
+        private void TryLogUnauthorizedInfo(ErrorModel model)
+        {
+            try
+            {
+                var identity = HttpContext.Features.Get<IHttpAuthenticationFeature>()?.User?.Identity;
+                if (identity != null)
+                {
+                    string info = identity.IsAuthenticated
+                        ? T("Admin.System.Warnings.AccessDeniedToUser", identity.Name.NaIfEmpty(), identity.Name.NaIfEmpty(), model.Path.NaIfEmpty())
+                        : T("Admin.System.Warnings.AccessDeniedToAnonymousRequest", model.Path.NaIfEmpty());
+
+                    CreateLogger(model.ActionDescriptor).Info(info);
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        private ILogger CreateLogger(ControllerActionDescriptor actionDescriptor)
+        {
+            var logger = actionDescriptor != null
+                ? _loggerFactory.CreateLogger(actionDescriptor.ControllerTypeInfo.AsType())
+                : _loggerFactory.CreateLogger<ErrorController>();
+
+            return logger;
         }
     }
 }

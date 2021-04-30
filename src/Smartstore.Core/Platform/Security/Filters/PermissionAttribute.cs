@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Net.Http.Headers;
 
 namespace Smartstore.Core.Security
@@ -31,21 +30,15 @@ namespace Smartstore.Core.Security
         class PermissionFilter : IAsyncAuthorizationFilter
         {
             private readonly IWorkContext _workContext;
-            private readonly Lazy<IUrlHelper> _urlHelper;
-            private readonly Lazy<ITempDataDictionaryFactory> _tempDataDictionaryFactory;
             private readonly IPermissionService _permissionService;
             private readonly PermissionRequirement _requirement;
 
             public PermissionFilter(
                 IWorkContext workContext,
-                Lazy<IUrlHelper> urlHelper,
-                Lazy<ITempDataDictionaryFactory> tempDataDictionaryFactory,
                 IPermissionService permissionService, 
                 PermissionRequirement requirement)
             {
                 _workContext = workContext;
-                _urlHelper = urlHelper;
-                _tempDataDictionaryFactory = tempDataDictionaryFactory;
                 _permissionService = permissionService;
                 _requirement = requirement;
             }
@@ -60,15 +53,6 @@ namespace Smartstore.Core.Security
                 }
 
                 await HandleUnauthorizedRequestAsync(context);
-
-                //try
-                //{
-                //    await HandleUnauthorizedRequestAsync(context);
-                //}
-                //catch
-                //{
-                //    context.Result = new UnauthorizedResult();
-                //}
             }
 
             protected virtual async Task HandleUnauthorizedRequestAsync(AuthorizationFilterContext context)
@@ -101,37 +85,17 @@ namespace Smartstore.Core.Security
                             success = false,
                             controller = request.RouteValues.GetControllerName(),
                             action = request.RouteValues.GetActionName()
-                            //message
                         });
                     }
                 }
                 else
                 {
-                    // TODO: (mg) (core) The redirection in PermissionAttribute is bound to admin area, which makes the attribute
-                    // usable in admin area only. Find a way to make this work for all areas.
-                    // E.g.: throw an exception and let error handling middleware handle it (?)
-                    //var url = _urlHelper.Value.Action("AccessDenied", "Security", new 
-                    //{
-                    //    permission = _requirement.SystemName,
-                    //    pageUrl = request.RawUrl(), 
-                    //    area = "admin"
-                    //});
-
-                    //// TODO: (core) ITempDataDictionaryFactory doesn't work in PermissionAttribute. Nothing arrives in an action method.
-                    //var tempData = _tempDataDictionaryFactory.Value.GetTempData(context.HttpContext);
-                    //tempData["UnauthorizedMessage"] = message;
-
-                    //context.Result = new RedirectResult(url);
-
-
-
                     // Both are possible, via StatusCodes.Status401Unauthorized and via UnauthorizedAccessException
                     // but StatusCodes.Status401Unauthorized would handle all 401:
 
                     //context.HttpContext.Request.Headers["PermissionSystemName"] = _requirement.SystemName;
                     //context.Result = new StatusCodeResult(StatusCodes.Status401Unauthorized);
 
-                    //context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;                    
                     throw new UnauthorizedAccessException(message);
                 }
             }
