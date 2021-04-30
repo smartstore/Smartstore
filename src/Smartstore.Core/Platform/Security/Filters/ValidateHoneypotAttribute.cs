@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
@@ -38,6 +37,7 @@ namespace Smartstore.Core.Security
 
             public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
             {
+                // TODO: (mc) (core) Broken when setting is turned off :-/
                 if (!_securitySettings.EnableHoneypotProtection)
                     await next();
 

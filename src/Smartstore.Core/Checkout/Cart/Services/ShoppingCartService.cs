@@ -14,7 +14,6 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
-using Smartstore.Data.Batching;
 using Smartstore.Events;
 
 namespace Smartstore.Core.Checkout.Cart

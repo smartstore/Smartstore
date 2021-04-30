@@ -43,7 +43,7 @@
 
     <nav sm-if="Model.DisplayLoginLink" id="menubar-my-account" class="menubar-group">
         <div class="dropdown">
-            <a class="menubar-link" @(Model.IsAuthenticated ? "data-toggle=dropdown" : "") aria-haspopup="true" aria-expanded="false" href="@accountUrl" rel="nofollow">
+            <a class="menubar-link" attr-data-toggle='(Model.IsAuthenticated, "dropdown")' aria-haspopup="true" aria-expanded="false" href="@accountUrl" rel="nofollow">
                 <i class="@(Model.IsAuthenticated ? "fas" : "fal") fa-user-circle menubar-icon"></i>
 
                 @if (Model.IsAuthenticated)
