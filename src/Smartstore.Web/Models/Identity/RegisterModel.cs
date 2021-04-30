@@ -141,7 +141,7 @@ namespace Smartstore.Web.Models.Identity
         {
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.Password).NotEmpty();
-            RuleFor(x => x.ConfirmPassword).NotEmpty().Equal(x => x.Password).WithMessage(T("Account.Fields.Password.EnteredPasswordsDoNotMatch"));
+            RuleFor(x => x.ConfirmPassword).NotEmpty().Equal(x => x.Password).WithMessage(T("Identity.Error.PasswordMismatch"));
 
             //// Form fields.
             if (customerSettings.FirstNameRequired)

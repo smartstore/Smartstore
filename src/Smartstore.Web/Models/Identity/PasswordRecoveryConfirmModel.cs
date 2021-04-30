@@ -35,7 +35,7 @@ namespace Smartstore.Web.Models.Identity
             RuleFor(x => x.ConfirmNewPassword)
                 .NotEmpty()
                 .Equal(x => x.NewPassword)
-                .WithMessage(T("Account.PasswordRecovery.NewPassword.EnteredPasswordsDoNotMatch"));
+                .WithMessage(T("Identity.Error.PasswordMismatch"));
         }
     }
 }

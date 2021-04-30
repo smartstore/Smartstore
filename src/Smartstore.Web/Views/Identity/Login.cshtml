@@ -1,9 +1,5 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using Smartstore.Core.Identity
+﻿@using Smartstore.Core.Identity
 @using Smartstore.Web.Models.Identity
-
-@inject UserManager<Customer> UserManager
-@inject RoleManager<CustomerRole> RoleManager
 
 @model LoginModel
 
@@ -12,10 +8,10 @@
     Assets.AddMetaRobots();
     
     var registerUrl = Url.RouteUrl("Register");
-    var returnUrl = Context.Request.Query["returnUrl"];
-    if (!string.IsNullOrEmpty(returnUrl))
+    var returnUrl = Context.Request.Query["returnUrl"].ToString();
+    if (returnUrl.HasValue())
     {
-        registerUrl = Display.ModifyQueryString(registerUrl, "returnUrl=" + returnUrl.ToString().UrlEncode(), null);
+        registerUrl = Display.ModifyQueryString(registerUrl, "returnUrl=" + returnUrl.UrlEncode(), null);
     }
     
     var currentUser = WorkContext.CurrentCustomer;
@@ -112,13 +108,17 @@
                         </button>
                     </div>
 
-                    @*@await Component.InvokeAsync("ExternalAuthentication")*@
+                    @*TODO: (mh) (core) Remove component once auth modules are available, which can render directly into the zone via PublicInfo methods or something similiar*@
+                    @await Component.InvokeAsync("ExternalAuthentication")
+
+                    <zone name="after_login_button" />
                 </form>
 			</div>
 		</div>
 		<div class="col-12 col-md-5 col-lg-6 col-xl-7 order-md-first">
 			<div class="page-info">
 				@{
+                    // TODO: (mh) (core) Finish this.
 					//Html.RenderPartial("_ExternalAuthentication.AssociateMessage");
 					@await Component.InvokeAsync("TopicBlock", new { systemName = "LoginRegistrationInfo", bodyOnly = true, isLead = true })
 				}

@@ -46,9 +46,21 @@ namespace Smartstore.Core.Bootstrapping
                     options.AccessDeniedPath = "/access-denied";
                     options.ReturnUrlParameter = "returnUrl";
                 });
+
+                // TODO: (mh) (core) Shift this to Facebook Auth module.
+                // TODO: (mh) (core) Remove Microsoft.AspNetCore.Authentication.Facebook from packages in Smartstore.Core and add to Facebook Auth module.
+                services.AddAuthentication()
+                    .AddCookie(CookieNames.ExternalAuthentication)
+                    .AddFacebook(facebookOptions =>
+                    {
+                        // TODO: (mh) (core) Replace values with module settings.
+                        facebookOptions.AppId = "491190308988489";
+                        facebookOptions.AppSecret = "bff1464d674c5992a517ea6b5eeb0f1e";
+                    });
             }
 
             // TODO: (core) // Add Identity IEmailSender and ISmsSender to service collection.
+            // RE: This won't be needed right now. Will be implemented when we offer real 2FA.
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext, bool isActiveModule)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
@@ -31,8 +33,10 @@ namespace Smartstore.Web.Controllers
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
         private readonly RoleManager<CustomerRole> _roleManager;
+        private readonly IUserStore<Customer> _userStore;
         private readonly ITaxService _taxService;
         private readonly IAddressService _addressService;
+        private readonly IShoppingCartService _shoppingCartService;
         private readonly IMessageFactory _messageFactory;
         private readonly IWebHelper _webHelper;
         private readonly IDateTimeHelper _dateTimeHelper;
@@ -41,14 +45,18 @@ namespace Smartstore.Web.Controllers
         private readonly DateTimeSettings _dateTimeSettings;
         private readonly TaxSettings _taxSettings;
         private readonly LocalizationSettings _localizationSettings;
-        
+        private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
+        private readonly RewardPointsSettings _rewardPointsSettings;
+
         public IdentityController(
             SmartDbContext db,
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
             RoleManager<CustomerRole> roleManager,
+            IUserStore<Customer> userStore,
             ITaxService taxService,
             IAddressService addressService,
+            IShoppingCartService shoppingCartService,
             IMessageFactory messageFactory,
             IWebHelper webHelper,
             IDateTimeHelper dateTimeHelper,
@@ -56,14 +64,18 @@ namespace Smartstore.Web.Controllers
             CaptchaSettings captchaSettings,
             DateTimeSettings dateTimeSettings,
             TaxSettings taxSettings,
-            LocalizationSettings localizationSettings)
+            LocalizationSettings localizationSettings,
+            ExternalAuthenticationSettings externalAuthenticationSettings,
+            RewardPointsSettings rewardPointsSettings)
         {
             _db = db;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _userStore = userStore;
             _taxService = taxService;
             _addressService = addressService;
+            _shoppingCartService = shoppingCartService;
             _messageFactory = messageFactory;
             _webHelper = webHelper;
             _dateTimeHelper = dateTimeHelper;
@@ -72,6 +84,8 @@ namespace Smartstore.Web.Controllers
             _dateTimeSettings = dateTimeSettings;
             _taxSettings = taxSettings;
             _localizationSettings = localizationSettings;
+            _externalAuthenticationSettings = externalAuthenticationSettings;
+            _rewardPointsSettings = rewardPointsSettings;
         }
 
         #region Login / Logout / Register
@@ -99,6 +113,11 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/login", Name = "Login")]
         public async Task<IActionResult> Login(LoginModel model, string returnUrl, string captchaError)
         {
+            if (_captchaSettings.ShowOnLoginPage && captchaError.HasValue())
+            {
+                ModelState.AddModelError(string.Empty, captchaError);
+            }
+
             ViewBag.ReturnUrl = returnUrl;
 
             if (ModelState.IsValid)
@@ -120,11 +139,22 @@ namespace Smartstore.Web.Controllers
 
                 userNameOrEmail = userNameOrEmail.TrimSafe();
 
+                // TODO: (mh) (core) Test if login with usernames work. Doesn't seem correct this way.
                 var result = await _signInManager.PasswordSignInAsync(userNameOrEmail, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
-                    if (returnUrl.IsEmpty() || !Url.IsLocalUrl(returnUrl))
+                    // TODO: (mh) (core) Test if login with usernames work. Doesn't seem correct this way. 
+                    var customer = await _userManager.FindByNameAsync(userNameOrEmail);
+
+                    // TODO: (mh) (core) Test!
+                    await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
+
+                    Services.ActivityLogger.LogActivity("PublicStore.Login", T("ActivityLog.PublicStore.Login"), customer);
+
+                    await Services.EventPublisher.PublishAsync(new CustomerLoggedInEvent { Customer = customer });
+
+                    if (returnUrl.IsEmpty() || returnUrl.Contains(@"/login?") || returnUrl.Contains(@"/passwordrecoveryconfirm") || returnUrl.Contains(@"/activation") || !Url.IsLocalUrl(returnUrl))
                     {
                         return RedirectToRoute("Homepage");
                     }
@@ -142,6 +172,37 @@ namespace Smartstore.Web.Controllers
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage;
 
             return View(model);
+        }
+
+        [NeverAuthorize, CheckStoreClosed(false)]
+        [LocalizedRoute("/logout", Name = "Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            // TODO: (mh) (core) Check if this still needed.
+            //ExternalAuthorizerHelper.RemoveParameters();
+
+            var workContext = Services.WorkContext;
+            var db = Services.DbContext;
+
+            if (workContext.CurrentImpersonator != null)
+            {
+                // Logout impersonated customer.
+                workContext.CurrentCustomer.GenericAttributes.ImpersonatedCustomerId = null;
+                await db.SaveChangesAsync();
+
+                // Redirect back to customer details page (admin area).
+                return RedirectToAction("Edit", "Customer", new { id = workContext.CurrentCustomer.Id, area = "Admin" });
+            }
+            else
+            {
+                // Standard logout
+                Services.ActivityLogger.LogActivity("PublicStore.Logout", T("ActivityLog.PublicStore.Logout"));
+
+                await _signInManager.SignOutAsync();
+                await db.SaveChangesAsync();
+
+                return RedirectToRoute("Login");
+            }
         }
 
         [HttpGet]
@@ -167,7 +228,7 @@ namespace Smartstore.Web.Controllers
         [AllowAnonymous, NeverAuthorize]
         [ValidateAntiForgeryToken, ValidateCaptcha, ValidateHoneypot]
         [LocalizedRoute("/register", Name = "Register")]
-        public async Task<IActionResult> Register(RegisterModel model, string returnUrl = null)
+        public async Task<IActionResult> Register(RegisterModel model, string captchaError, string returnUrl = null)
         {
             // Check whether registration is allowed.
             if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -184,7 +245,10 @@ namespace Smartstore.Web.Controllers
                 Services.WorkContext.CurrentCustomer = null;
             }
 
-            // TODO: (mh) (core) AddCaptcha error to model state? RE: Yes, absolutely!
+            if (_captchaSettings.ShowOnRegistrationPage && captchaError.HasValue())
+            {
+                ModelState.AddModelError(string.Empty, captchaError);
+            }
 
             ViewData["ReturnUrl"] = returnUrl;
 
@@ -210,61 +274,14 @@ namespace Smartstore.Web.Controllers
 
                 if (result.Succeeded)
                 {
-                    // TODO: (mh) (core) Bad API design (naming). Find a better name for this important "MAPPING" stuff.
-                    await UpdateCustomerAsync(customer, model, isApproved);
+                    // Update customer.
+                    await MapRegisterModelToCustomerAsync(customer, model);
 
-                    await AssignCustomerRolesAsync(customer);
+                    // INFO: (mh) (core) In classic there was no shopping cart migration. But we better do it now.
+                    // TODO: (mh) (core) Test!
+                    await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
 
-                    // TODO: (mh) (core) AddRewardPoints
-
-                    await Services.EventPublisher.PublishAsync(new CustomerRegisteredEvent { Customer = customer });
-
-                    // Notifications
-                    if (_customerSettings.NotifyNewCustomerRegistration)
-                    {
-                        await _messageFactory.SendCustomerRegisteredNotificationMessageAsync(customer, _localizationSettings.DefaultAdminLanguageId);
-                    }
-
-                    switch (_customerSettings.UserRegistrationType)
-                    {
-                        case UserRegistrationType.EmailValidation:
-                        {
-                            // TODO: (mh) (core) Test!
-                            // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
-
-                            // Send an email with generated token.
-                            var code = await _userManager.GenerateEmailConfirmationTokenAsync(customer);
-
-                            // TODO: (mh) (core) The next can surely be done with _userManager. Find out how!
-                            customer.GenericAttributes.AccountActivationToken = code;
-                            await _db.SaveChangesAsync();
-                            await _messageFactory.SendCustomerEmailValidationMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
-
-                            return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.EmailValidation });
-                        }
-                        case UserRegistrationType.AdminApproval:
-                        {
-                            return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.AdminApproval });
-                        }
-                        case UserRegistrationType.Standard:
-                        {
-                            // Send customer welcome message.
-                            await _messageFactory.SendCustomerWelcomeMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
-                            await _signInManager.SignInAsync(customer, isPersistent: false);
-
-                            var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
-                            if (returnUrl.HasValue())
-                            {
-                                redirectUrl = _webHelper.ModifyQueryString(redirectUrl, "returnUrl=" + HttpUtility.UrlEncode(returnUrl), null);
-                            }
-                            
-                            return Redirect(redirectUrl);
-                        }
-                        default:
-                        {
-                            return RedirectToRoute("Homepage");
-                        }
-                    }
+                    return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
                 }
 
                 AddErrors(result);
@@ -284,7 +301,6 @@ namespace Smartstore.Web.Controllers
             switch ((UserRegistrationType)resultId)
             {
                 case UserRegistrationType.Disabled:
-                    // TODO: (mh) (core) This resource must be changed. But how to do it right now?
                     resultText = T("Account.Register.Result.Disabled");
                     break;
                 case UserRegistrationType.Standard:
@@ -304,36 +320,6 @@ namespace Smartstore.Web.Controllers
             return View();
         }
 
-        [NeverAuthorize, CheckStoreClosed(false)]
-        [LocalizedRoute("/logout", Name = "Logout")]
-        public async Task<IActionResult> Logout()
-        {
-            var workContext = Services.WorkContext;
-            var db = Services.DbContext;
-
-            if (workContext.CurrentImpersonator != null)
-            {
-                // Logout impersonated customer
-                workContext.CurrentCustomer.GenericAttributes.ImpersonatedCustomerId = null;
-                await db.SaveChangesAsync();
-                
-                // Redirect back to customer details page (admin area)
-                return RedirectToAction("Edit", "Customer", new { id = workContext.CurrentCustomer.Id, area = "Admin" });
-            }
-            else
-            {
-                // Standard logout
-                Services.ActivityLogger.LogActivity("PublicStore.Logout", T("ActivityLog.PublicStore.Logout"));
-                
-                await _signInManager.SignOutAsync();
-                await db.SaveChangesAsync();
-
-                return RedirectToRoute("Login");
-            }
-        }
-
-        // TODO: (mh) (core) Change to /identity/activation ?
-        // RE: No, better not to. We'll keep routes for compat and SEO reasons intact.
         [HttpGet]
         [RequireSsl, AllowAnonymous, NeverAuthorize]
         [LocalizedRoute("/customer/activation", Name = "AccountActivation")]
@@ -347,18 +333,17 @@ namespace Smartstore.Web.Controllers
                 return RedirectToRoute("Homepage");
             }
 
-            var cToken = customer.GenericAttributes.AccountActivationToken;
-            if (cToken.IsEmpty() || !cToken.Equals(token, StringComparison.InvariantCultureIgnoreCase))
+            // Validate token & set user to active.
+            var confirmed = await _userManager.ConfirmEmailAsync(customer, token);
+
+            if (!confirmed.Succeeded)
             {
                 NotifyError(T("Account.AccountActivation.InvalidEmailOrToken"));
                 return RedirectToRoute("HomePage");
             }
 
-            // Activate user account.
-            customer.Active = true;
-
-            // TODO: (mh) (core) Reset can probably be handled via user manager.
-            customer.GenericAttributes.AccountActivationToken = string.Empty;
+            // If token wasn't proved invalid by ConfirmEmailAsync() a few lines above, Customer.Active was set to true & AccountActivationToken was resetted in UserStore.
+            // So we better save here.
             await _db.SaveChangesAsync();
 
             // Send welcome message.
@@ -379,8 +364,7 @@ namespace Smartstore.Web.Controllers
             if (!Services.WorkContext.CurrentCustomer.IsRegistered())
                 return new UnauthorizedResult();
 
-            var model = new ChangePasswordModel();
-            return View(model);
+            return View(new ChangePasswordModel());
         }
 
         [HttpPost]
@@ -404,7 +388,7 @@ namespace Smartstore.Web.Controllers
                 {
                     foreach (var error in changePasswordResult.Errors)
                     {
-                        ModelState.AddModelError("", error.Description);
+                        ModelState.AddModelError(string.Empty, error.Description);
                     }
                 }
             }
@@ -435,9 +419,6 @@ namespace Smartstore.Web.Controllers
                 if (customer != null && customer.Active)
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(customer);
-
-                    // TODO: (mh) (core) Why isn't this handled by UserStore?
-                    // RE: It obviously is not saved anywhere (https://stackoverflow.com/questions/27039953/resetpassword-token-how-and-where-is-it-stored)
                     customer.GenericAttributes.PasswordRecoveryToken = token;
                     await _db.SaveChangesAsync();
 
@@ -462,14 +443,6 @@ namespace Smartstore.Web.Controllers
         [RequireSsl]
         public IActionResult PasswordRecoveryConfirm(string token, string email)
         {
-            // INFO: (mh) (core) Lets validate in POST.
-            //var customer = await _db.Customers.Where(x => x.Email == email).FirstOrDefaultAsync();
-            //var customerToken = customer.GenericAttributes.PasswordRecoveryToken;
-            //if (customer == null || customerToken.IsEmpty() || customerToken != token)
-            //{
-            //    NotifyError(T("Account.PasswordRecoveryConfirm.InvalidEmailOrToken"));
-            //}
-
             var model = new PasswordRecoveryConfirmModel
             {
                 Email = email,
@@ -484,12 +457,6 @@ namespace Smartstore.Web.Controllers
         public async Task<ActionResult> PasswordRecoveryConfirmPOST(PasswordRecoveryConfirmModel model)
         {
             var customer = await _userManager.FindByEmailAsync(model.Email);
-            var customerToken = customer.GenericAttributes.PasswordRecoveryToken;
-            if (customer == null || customerToken.IsEmpty() || customerToken != model.Token)
-            {
-                NotifyError(T("Account.PasswordRecoveryConfirm.InvalidEmailOrToken"));
-                return RedirectToAction("PasswordRecoveryConfirm", new { token = model.Token, email = model.Email });
-            }
 
             if (ModelState.IsValid)
             {
@@ -504,8 +471,8 @@ namespace Smartstore.Web.Controllers
                 }
                 else
                 {
-                    // TODO: (mh) (core) Change this to display all errors. 
-                    model.Result = response.Errors.FirstOrDefault().Description;
+                    NotifyError(T("Account.PasswordRecoveryConfirm.InvalidEmailOrToken"));
+                    return RedirectToAction("PasswordRecoveryConfirm", new { token = model.Token, email = model.Email });
                 }
 
                 return View(model);
@@ -517,6 +484,99 @@ namespace Smartstore.Web.Controllers
 
         #endregion
 
+        #region External login
+
+        [AllowAnonymous]
+        public IActionResult ExternalLogin(string provider, string returnUrl = null)
+        {
+            // Request a redirect to the external login provider.
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Identity", new { ReturnUrl = returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            properties.IsPersistent = false;
+            return Challenge(properties, provider);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        {
+            if (remoteError != null)
+            {
+                ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
+                return View(nameof(Login));
+            }
+            
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Sign in the user with this external login provider if the user already has a login.
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
+            if (result.Succeeded)
+            {
+                Services.ActivityLogger.LogActivity("PublicStore.Login", T("ActivityLog.PublicStore.LoginExternal"), info.LoginProvider);
+                return RedirectToLocal(returnUrl);
+            }
+            else
+            {
+                // TODO: (mh) (core) Find out if this is still needed, how it was used & implement.
+                //ExternalAuthorizerHelper.StoreParametersForRoundTrip(parameters);
+
+                // User doesn't have an account yet.
+                // INFO: This was adapted from classic ExternalAuthorizer.Authorize()
+                if (AutoRegistrationIsEnabled())
+                {
+                    var customer = new Customer
+                    {
+                        Username = info.Principal.FindFirstValue(ClaimTypes.Name),
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                        PasswordFormat = _customerSettings.DefaultPasswordFormat,
+                        Active = _customerSettings.UserRegistrationType == UserRegistrationType.Standard,
+                        CreatedOnUtc = DateTime.UtcNow,
+                        LastActivityDateUtc = DateTime.UtcNow
+                    };
+
+                    var createResult = await _userManager.CreateAsync(customer);
+                    if (createResult.Succeeded)
+                    {
+                        // INFO: This creates the external auth record
+                        createResult = await _userManager.AddLoginAsync(customer, info);
+                        if (createResult.Succeeded)
+                        {
+                            return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
+                        }
+
+                        // migrate shopping cart.
+                        await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
+
+                        Services.ActivityLogger.LogActivity("PublicStore.Login", T("ActivityLog.PublicStore.Login"), customer);
+
+                        await Services.EventPublisher.PublishAsync(new CustomerLoggedInEvent { Customer = customer });
+                    }
+
+                    // TODO: (mh) (core) Use notifier?
+                    AddErrors(createResult);
+                }
+                else if (RegistrationIsEnabled())
+                {
+                    // TODO: (mh) (core) Find out what to do!
+
+                    // migrate shopping cart.
+                    //await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
+                }
+                else
+                {
+                    // TODO: (mh) (core) Creating new accounts is disabled. Display to user!
+                }
+
+                return RedirectToLocal(returnUrl);
+            }
+        }
+
+        #endregion
+
         #region Access
 
         [HttpGet]
@@ -524,7 +584,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/access-denied", Name = "AccessDenied")]
         public IActionResult AccessDenied(string returnUrl = null)
         {
-            return Content("TODO: Make AccessDenied view");
+            return Content("TODO: (mh) (core) Make AccessDenied view");
         }
 
         #endregion
@@ -555,7 +615,67 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        private async Task UpdateCustomerAsync(Customer customer, RegisterModel model, bool isApproved)
+        /// <summary>
+        /// Assigns customer roles, publishes an event, sends email messages, signs the customer in depending on configuration & returns appropriate redirect.
+        /// </summary>
+        private async Task<IActionResult> FinalizeCustomerRegistrationAsync(Customer customer, string returnUrl)
+        {
+            await AssignCustomerRolesAsync(customer);
+
+            // Add reward points for customer registration (if enabled).
+            if (_rewardPointsSettings.Enabled && _rewardPointsSettings.PointsForRegistration > 0)
+            {
+                customer.AddRewardPointsHistoryEntry(_rewardPointsSettings.PointsForRegistration, T("RewardPoints.Message.RegisteredAsCustomer"));
+            }
+
+            await Services.EventPublisher.PublishAsync(new CustomerRegisteredEvent { Customer = customer });
+
+            // Notifications
+            if (_customerSettings.NotifyNewCustomerRegistration)
+            {
+                await _messageFactory.SendCustomerRegisteredNotificationMessageAsync(customer, _localizationSettings.DefaultAdminLanguageId);
+            }
+
+            switch (_customerSettings.UserRegistrationType)
+            {
+                case UserRegistrationType.EmailValidation:
+                {
+                    // Send an email with generated token.
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(customer);
+
+                    // INFO: (mh) (core) Will still be set here so it can be obtained for message model.
+                    customer.GenericAttributes.AccountActivationToken = code;
+                    await _db.SaveChangesAsync();
+                    await _messageFactory.SendCustomerEmailValidationMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
+
+                    return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.EmailValidation });
+                }
+                case UserRegistrationType.AdminApproval:
+                {
+                    return RedirectToRoute("RegisterResult", new { resultId = (int)UserRegistrationType.AdminApproval });
+                }
+                case UserRegistrationType.Standard:
+                {
+                    // Send customer welcome message.
+                    await _messageFactory.SendCustomerWelcomeMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);
+                    await _signInManager.SignInAsync(customer, isPersistent: false);
+
+                    var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
+                    if (returnUrl.HasValue())
+                    {
+                        redirectUrl = _webHelper.ModifyQueryString(redirectUrl, "returnUrl=" + HttpUtility.UrlEncode(returnUrl), null);
+                    }
+                            
+                    return Redirect(redirectUrl);
+                }
+                default:
+                {
+                    return RedirectToRoute("Homepage");
+                }
+            }
+        }
+
+        private async Task MapRegisterModelToCustomerAsync(Customer customer, RegisterModel model)
         {
             // Properties
             if (_dateTimeSettings.AllowCustomersToSetTimeZone)
@@ -664,17 +784,7 @@ namespace Smartstore.Web.Controllers
 
                 await _db.SaveChangesAsync();
             }
-
-            // Login customer now.
-            if (isApproved)
-            {
-                await _signInManager.SignInAsync(customer, true);
-            }
             
-            // TODO: (mh) (core) Take a closer look & implement!
-            // Associated with external account (if possible)
-            //TryAssociateAccountWithExternalAccount(customer);
-
             // Insert default address (if possible).
             var defaultAddress = new Address
             {
@@ -736,31 +846,6 @@ namespace Smartstore.Web.Controllers
             await _userManager.RemoveFromRolesAsync(customer, mappings);
             await _db.SaveChangesAsync();
         }
-
-        //private async Task AssignCustomerRolesAsync(Customer customer)
-        //{
-        //    // Add customer to 'Registered' role.
-        //    var registeredRole = await _db.CustomerRoles
-        //        .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
-        //        .FirstOrDefaultAsync();
-
-        //    await _db.CustomerRoleMappings.AddAsync(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = registeredRole.Id });
-
-        //    // Add customer to custom configured role.
-        //    if (_customerSettings.RegisterCustomerRoleId != 0 && _customerSettings.RegisterCustomerRoleId != registeredRole.Id)
-        //    {
-        //        var customerRole = await _db.CustomerRoles.FindByIdAsync(_customerSettings.RegisterCustomerRoleId, false);
-        //        if (customerRole != null && customerRole.Id != registeredRole.Id)
-        //        {
-        //            await _db.CustomerRoleMappings.AddAsync(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = customerRole.Id });
-        //        }    
-        //    }
-
-        //    // Remove customer from 'Guests' role.
-        //    var mappings = customer.CustomerRoleMappings.Where(x => !x.IsSystemMapping && x.CustomerRole.SystemName == SystemCustomerRoleNames.Guests).ToList();
-        //    _db.CustomerRoleMappings.RemoveRange(mappings);
-        //    await _db.SaveChangesAsync();
-        //}
 
         // TODO: (mh) (core) Find globally accessable place for this.
         private async Task AddCountriesAndStatesToViewBagAsync(int selectedCountryId, bool statesEnabled, int selectedStateId)
@@ -828,6 +913,16 @@ namespace Smartstore.Web.Controllers
         private IActionResult RedirectToLocal(string returnUrl)
         {
             return RedirectToReferrer(returnUrl, () => RedirectToRoute("Login"));
+        }
+
+        private bool AutoRegistrationIsEnabled()
+        {
+            return _customerSettings.UserRegistrationType != UserRegistrationType.Disabled && _externalAuthenticationSettings.AutoRegisterEnabled;
+        }
+
+        private bool RegistrationIsEnabled()
+        {
+            return _customerSettings.UserRegistrationType != UserRegistrationType.Disabled && !_externalAuthenticationSettings.AutoRegisterEnabled;
         }
 
         #endregion

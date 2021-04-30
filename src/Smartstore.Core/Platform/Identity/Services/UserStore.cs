@@ -20,9 +20,7 @@ namespace Smartstore.Core.Identity
         IUserRoleStore<Customer>,
         IUserPasswordStore<Customer>,
         IUserLoginStore<Customer>,
-        IUserTwoFactorStore<Customer>,
-        IUserTwoFactorRecoveryCodeStore<Customer>,
-        IUserAuthenticatorKeyStore<Customer>
+        IUserTwoFactorStore<Customer>
     {
         /// <summary>
         /// Gets or sets a flag indicating if changes should be persisted after CreateAsync, UpdateAsync and DeleteAsync are called.
@@ -42,6 +40,7 @@ namespace Smartstore.Core.Identity
         private readonly DbSet<Customer> _users;
         private readonly DbSet<CustomerRole> _roles;
         private readonly DbSet<CustomerRoleMapping> _roleMappings;
+        private readonly DbSet<ExternalAuthenticationRecord> _externalAuthentication;
 
         public UserStore(SmartDbContext db, Lazy<IGdprTool> gdprTool, CustomerSettings customerSettings, IdentityErrorDescriber errorDescriber)
         {
@@ -54,6 +53,7 @@ namespace Smartstore.Core.Identity
             _users = _db.Customers;
             _roles = _db.CustomerRoles;
             _roleMappings = _db.CustomerRoleMappings;
+            _externalAuthentication = _db.ExternalAuthenticationRecords;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -170,7 +170,7 @@ namespace Smartstore.Core.Identity
 
             if (user.IsSystemAccount)
             {
-                throw new SmartException(string.Format("System customer account ({0}) cannot be deleted.", user.SystemName));
+                throw new SmartException($"System customer account ({user.SystemName}) cannot be deleted.");
             }
 
             _db.Remove(user);
@@ -277,7 +277,6 @@ namespace Smartstore.Core.Identity
         Task IUserEmailStore<Customer>.SetEmailAsync(Customer user, string email, CancellationToken cancellationToken)
         {
             Guard.NotNull(user, nameof(user));
-
             user.Email = email;
             return Task.CompletedTask;
         }
@@ -297,9 +296,9 @@ namespace Smartstore.Core.Identity
         Task IUserEmailStore<Customer>.SetEmailConfirmedAsync(Customer user, bool confirmed, CancellationToken cancellationToken)
         {
             Guard.NotNull(user, nameof(user));
-
+            
             user.Active = confirmed;
-
+            
             if (confirmed)
             {
                 user.GenericAttributes.AccountActivationToken = null;
@@ -433,28 +432,64 @@ namespace Smartstore.Core.Identity
 
         // TODO: (core) Implement IUserLoginStore<Customer> in UserStore --> ExternalAuthenticationRecords
 
-        public Task AddLoginAsync(Customer user, UserLoginInfo login, CancellationToken cancellationToken = default)
+        public async Task AddLoginAsync(Customer user, UserLoginInfo login, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            _externalAuthentication.Add(new ExternalAuthenticationRecord { 
+                CustomerId = user.Id,
+                Email = user.Email,
+                ExternalIdentifier = login.ProviderKey,
+                ProviderSystemName = "SmartStore.Facebook"  // TODO: (mh) (core) Translate login.LoginProvider into ProviderSystemName
+            });
+
+            await _db.SaveChangesAsync(cancellationToken);
         }
 
-        public Task RemoveLoginAsync(Customer user, string loginProvider, string providerKey, CancellationToken cancellationToken = default)
+        public async Task RemoveLoginAsync(Customer user, string loginProvider, string providerKey, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var record = await _externalAuthentication
+                .Where(x => x.ExternalIdentifier == providerKey)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            _externalAuthentication.Remove(record);
+            await _db.SaveChangesAsync(cancellationToken);
         }
 
-        public Task<IList<UserLoginInfo>> GetLoginsAsync(Customer user, CancellationToken cancellationToken = default)
+        public async Task<IList<UserLoginInfo>> GetLoginsAsync(Customer user, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var records = await _db.ExternalAuthenticationRecords
+                .Where(x => x.CustomerId == user.Id)
+                .ToListAsync(cancellationToken);
+
+            var infos = records.Select(x => {
+                return new UserLoginInfo
+                (
+                    x.ProviderSystemName,               // TODO: (mh) (core) Translate ProviderSystemName back to login.LoginProvider.
+                    x.ExternalDisplayIdentifier,
+                    x.ExternalIdentifier
+                );
+            }).ToList();
+
+            return infos;
         }
 
-        public Task<Customer> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken = default)
+        public async Task<Customer> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var record = await _externalAuthentication
+                .FirstOrDefaultAsync(x => x.ExternalIdentifier == providerKey, cancellationToken);
+            
+            if (record != null)
+            {
+                return await _users.FirstOrDefaultAsync(x => x.Id == record.CustomerId, cancellationToken);
+            }
+            
+            return null;
         }
 
         #endregion
 
+        // TODO: (mh) (core) Obsolete > Remove? Test again!
         #region IUserTwoFactorStore
 
         public Task SetTwoFactorEnabledAsync(Customer user, bool enabled, CancellationToken cancellationToken)
@@ -470,36 +505,7 @@ namespace Smartstore.Core.Identity
 
         #endregion
 
-        #region IUserTwoFactorRecoveryCodeStore
-
-        // TODO: (mh) (core) PasswordRecoveryToken || AccountActivationToken > Debug
-        public Task ReplaceCodesAsync(Customer user, IEnumerable<string> recoveryCodes, CancellationToken cancellationToken)
-        {
-            Guard.NotNull(user, nameof(user));
-            //user.GenericAttributes.PasswordRecoveryToken = recoveryCodes.FirstOrDefault();
-            user.GenericAttributes.AccountActivationToken = recoveryCodes.FirstOrDefault();
-            return Task.CompletedTask;
-        }
-
-        public Task<bool> RedeemCodeAsync(Customer user, string code, CancellationToken cancellationToken)
-        {
-            Guard.NotNull(user, nameof(user));
-            // TODO: (mh) (core) Please check if contract requires that code must be removed from store.
-            // INFO: (mh) (core) Token are only valid once by definition of Identity Framework and our action reset these anyway once they're redeemed.
-            // TODO: (mh) (core) Remove comments once reviewed.
-            //return Task.FromResult(user.GenericAttributes.PasswordRecoveryToken == code);
-            return Task.FromResult(user.GenericAttributes.AccountActivationToken == code);
-        }
-
-        public Task<int> CountCodesAsync(Customer user, CancellationToken cancellationToken)
-        {
-            Guard.NotNull(user, nameof(user));
-            //return Task.FromResult(user.GenericAttributes.PasswordRecoveryToken.HasValue() ? 1 : 0);
-            return Task.FromResult(user.GenericAttributes.AccountActivationToken.HasValue() ? 1 : 0);
-        }
-
-        #endregion
-
+        // TODO: (mh) (core) Obsolete > Remove? Test again!
         #region IUserPhoneNumberStore
 
         // INFO: (mh) (core) These should never return values. Currently we use emails for two factor auth only.
@@ -523,23 +529,6 @@ namespace Smartstore.Core.Identity
         public Task SetPhoneNumberConfirmedAsync(Customer user, bool confirmed, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
-        }
-
-        #endregion
-
-        #region IUserAuthenticatorKeyStore
-
-        public Task SetAuthenticatorKeyAsync(Customer user, string key, CancellationToken cancellationToken)
-        {
-            Guard.NotNull(user, nameof(user));
-            user.GenericAttributes.AccountActivationToken = key;
-            return Task.CompletedTask;
-        }
-
-        public Task<string> GetAuthenticatorKeyAsync(Customer user, CancellationToken cancellationToken)
-        {
-            Guard.NotNull(user, nameof(user));
-            return Task.FromResult(user.GenericAttributes.AccountActivationToken);
         }
 
         #endregion

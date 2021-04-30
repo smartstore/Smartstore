@@ -57,13 +57,13 @@ namespace Smartstore.Core.Identity
 				{
 					if (customer.Email.HasValue() && await _db.Customers.AsQueryable().AnyAsync(x => x.Email == customer.Email, cancelToken))
 					{
-						_hookErrorMessage = T("Account.Register.Errors.EmailAlreadyExists");
+						_hookErrorMessage = T("Identity.Error.DuplicateEmail", customer.Email);
 					}
 					else if (customer.Username.HasValue() &&
 						_customerSettings.CustomerLoginType != CustomerLoginType.Email &&
 						await _db.Customers.AsQueryable().AnyAsync(x => x.Username == customer.Username, cancelToken))
 					{
-						_hookErrorMessage = T("Account.Register.Errors.UsernameAlreadyExists");
+						_hookErrorMessage = T("Identity.Error.DuplicateUserName", customer.Username);
 					}
 					else
 					{

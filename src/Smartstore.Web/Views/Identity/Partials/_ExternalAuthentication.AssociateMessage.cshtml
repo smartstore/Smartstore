@@ -1,0 +1,11 @@
+﻿@*TODO: (mh) (core) This should be the last bigger construction site for Identity. Finish it!*@
+
+@*@if (openAuthParameters != null)
+{
+    <div class="alert alert-warning external-auth-association">
+        @T("Account.AssociatedExternalAuth.YourAccountWillBeLinkedTo") <strong class="identifier">@openAuthParameters.ExternalIdentifier</strong>
+        <a href="@Url.Action("RemoveParameterAssociation", "ExternalAuthentication", new { returnUrl = Request.Url.ToString() })" class="remove" rel="nofollow">
+            @T("Common.Remove")
+        </a>
+    </div>
+}*@

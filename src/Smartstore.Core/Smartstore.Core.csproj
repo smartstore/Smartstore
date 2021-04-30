@@ -29,6 +29,7 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
     <PackageReference Include="MaxMind.Db" Version="3.0.0" />
     <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.0" />

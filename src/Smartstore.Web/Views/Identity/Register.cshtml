@@ -192,11 +192,11 @@
                         </div>
                     </div>
 
-                    <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
+                    <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row" attr-class='(Model.StateProvinceRequired, "required")'>
                         <label asp-for="StateProvinceId" class="col-md-3 col-form-label"></label>
                         <div class="col-md-9">
-                            @* TODO: (mh) (core) What about option-label T("Common.PleaseSelect")? *@
-                            <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates" class="remember"></select>
+                            <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates" sm-required="@Model.StateProvinceRequired" placeholder="@T("Common.PleaseSelect")" class="remember"></select>
+                            <span asp-validation-for="StateProvinceId"></span>
                         </div>
                     </div>
                 </fieldset>
