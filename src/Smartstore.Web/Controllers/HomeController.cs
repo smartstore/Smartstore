@@ -237,7 +237,7 @@ namespace Smartstore.Web.Controllers
         {
             if (_captchaSettings.ShowOnContactUsPage && captchaError.HasValue())
             {
-                ModelState.AddModelError("", captchaError);
+                ModelState.AddModelError(string.Empty, captchaError);
             }
 
             if (ModelState.IsValid)
@@ -265,7 +265,7 @@ namespace Smartstore.Web.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", T("Common.Error.SendMail"));
+                    ModelState.AddModelError(string.Empty, T("Common.Error.SendMail"));
                     model.Result = T("Common.Error.SendMail");
                 }
 

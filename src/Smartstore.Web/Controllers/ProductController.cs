@@ -504,7 +504,7 @@ namespace Smartstore.Web.Controllers
             // Only registered users can leave reviews.
             if (Services.WorkContext.CurrentCustomer.IsGuest() && !_catalogSettings.AllowAnonymousUsersToReviewProduct)
             {
-                ModelState.AddModelError("", T("Reviews.OnlyRegisteredUsersCanWriteReviews"));
+                ModelState.AddModelError(string.Empty, T("Reviews.OnlyRegisteredUsersCanWriteReviews"));
             }
 
             return View(model);
@@ -527,14 +527,14 @@ namespace Smartstore.Web.Controllers
 
             if (_captchaSettings.ShowOnProductReviewPage && captchaError.HasValue())
             {
-                ModelState.AddModelError("", captchaError);
+                ModelState.AddModelError(string.Empty, captchaError);
             }
 
             var customer = Services.WorkContext.CurrentCustomer;
 
             if (customer.IsGuest() && !_catalogSettings.AllowAnonymousUsersToReviewProduct)
             {
-                ModelState.AddModelError("", T("Reviews.OnlyRegisteredUsersCanWriteReviews"));
+                ModelState.AddModelError(string.Empty, T("Reviews.OnlyRegisteredUsersCanWriteReviews"));
             }
 
             if (ModelState.IsValid)
@@ -719,7 +719,7 @@ namespace Smartstore.Web.Controllers
 
             if (_captchaSettings.ShowOnAskQuestionPage && captchaError.HasValue())
             {
-                ModelState.AddModelError("", captchaError);
+                ModelState.AddModelError(string.Empty, captchaError);
             }
 
             if (ModelState.IsValid)
@@ -744,7 +744,7 @@ namespace Smartstore.Web.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", T("Common.Error.SendMail"));
+                    ModelState.AddModelError(string.Empty, T("Common.Error.SendMail"));
                 }
             }
 
@@ -823,7 +823,7 @@ namespace Smartstore.Web.Controllers
 
             if (_captchaSettings.ShowOnEmailProductToFriendPage && captchaError.HasValue())
             {
-                ModelState.AddModelError("", captchaError);
+                ModelState.AddModelError(string.Empty, captchaError);
             }
 
             var customer = Services.WorkContext.CurrentCustomer;
@@ -831,7 +831,7 @@ namespace Smartstore.Web.Controllers
             // Check whether the current customer is guest and is allowed to email a friend.
             if (customer.IsGuest() && !_catalogSettings.AllowAnonymousUsersToEmailAFriend)
             {
-                ModelState.AddModelError("", T("Products.EmailAFriend.OnlyRegisteredUsers"));
+                ModelState.AddModelError(string.Empty, T("Products.EmailAFriend.OnlyRegisteredUsers"));
             }
 
             if (ModelState.IsValid)

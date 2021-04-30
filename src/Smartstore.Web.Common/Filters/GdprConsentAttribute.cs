@@ -70,7 +70,7 @@ namespace Smartstore.Web.Filters
                             if (!httpContext.Request.IsAjaxRequest())
                             {
                                 // Add a validation message
-                                context.ModelState.AddModelError("", _services.Localization.GetResource("Gdpr.Consent.ValidationMessage"));
+                                context.ModelState.AddModelError(string.Empty, _services.Localization.GetResource("Gdpr.Consent.ValidationMessage"));
                             }
                             else
                             {

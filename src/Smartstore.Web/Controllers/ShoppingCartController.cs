@@ -963,19 +963,19 @@ namespace Smartstore.Web.Controllers
 
             if (_captchaSettings.ShowOnEmailWishlistToFriendPage && captchaError.HasValue())
             {
-                ModelState.AddModelError("", captchaError);
+                ModelState.AddModelError(string.Empty, captchaError);
             }
 
             // Check whether the current customer is guest and is allowed to email wishlist.
             if (customer.IsGuest() && !_shoppingCartSettings.AllowAnonymousUsersToEmailWishlist)
             {
-                ModelState.AddModelError("", T("Wishlist.EmailAFriend.OnlyRegisteredUsers"));
+                ModelState.AddModelError(string.Empty, T("Wishlist.EmailAFriend.OnlyRegisteredUsers"));
             }
 
             if (!ModelState.IsValid)
             {
                 // If we got this far, something failed, redisplay form.
-                ModelState.AddModelError("", T("Common.Error.Sendmail"));
+                ModelState.AddModelError(string.Empty, T("Common.Error.Sendmail"));
                 model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnEmailWishlistToFriendPage;
 
                 return View(model);

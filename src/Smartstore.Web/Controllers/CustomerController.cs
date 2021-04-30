@@ -138,11 +138,11 @@ namespace Smartstore.Web.Controllers
 
             if (model.Email.IsEmpty())
             {
-                ModelState.AddModelError("", "Email is not provided.");
+                ModelState.AddModelError(string.Empty, "Email is not provided.");
             }
             if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames && model.Username.IsEmpty())
             {
-                ModelState.AddModelError("", "Username is not provided.");
+                ModelState.AddModelError(string.Empty, "Username is not provided.");
             }
 
             try
@@ -291,7 +291,7 @@ namespace Smartstore.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", ex.Message);
+                ModelState.AddModelError(string.Empty, ex.Message);
             }
 
             await PrepareCustomerInfoModelAsync(model, customer, false);
