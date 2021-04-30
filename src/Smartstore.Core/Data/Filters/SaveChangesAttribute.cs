@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
@@ -17,15 +18,19 @@ namespace Smartstore.Core.Data
         /// Creates an instance of <see cref="SaveChangesAttribute"/>.
         /// </summary>
         /// <param name="dbContextType">The type of context to save changes for.</param>
-        public SaveChangesAttribute(Type dbContextType)
+        /// <param name="saveChanges">Set to <c>false</c> to override any controller-level or global <see cref="SaveChangesAttribute"/>.</param>
+        public SaveChangesAttribute(Type dbContextType, bool saveChanges = true)
         {
             Guard.NotNull(dbContextType, nameof(dbContextType));
             Guard.IsAssignableFrom<DbContext>(dbContextType);
 
             DbContextType = dbContextType;
+            SaveChanges = saveChanges;
         }
 
         public Type DbContextType { get; }
+
+        public bool SaveChanges { get; }
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
@@ -34,6 +39,17 @@ namespace Smartstore.Core.Data
 
             if (actionExecuted.Exception == null)
             {
+                var overrideFilter = context.ActionDescriptor.FilterDescriptors
+                    .Where(x => x.Scope == FilterScope.Action)
+                    .Select(x => x.Filter)
+                    .OfType<SaveChangesAttribute>()
+                    .FirstOrDefault(x => x.DbContextType == DbContextType);
+
+                if (overrideFilter?.SaveChanges == false)
+                {
+                    return;
+                }
+
                 var db = context.HttpContext.RequestServices.GetRequiredService(DbContextType) as DbContext;
                 if (db != null)
                 {
