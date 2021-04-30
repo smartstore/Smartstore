@@ -1,0 +1,35 @@
+﻿@model ErrorModel
+@{
+    Assets.AppendTitleParts(T("Admin.AccessDenied.Title"));
+}
+
+<div class="page unauthorized-page text-center">
+    <div class="page-title">
+        <h1 class="text-muted" style="font-size: 60px; line-height: 90px">@T("Admin.AccessDenied.Title")</h1>
+    </div>
+    <p class="page-body lead fs-h4 error">
+        <strong>Controller:</strong> @Model.ControllerName.NaIfEmpty(),
+        <strong>Action:</strong> @Model.ActionName.NaIfEmpty()
+        @{
+            var ex = Model.Exception;
+            while (ex != null)
+            {
+                <div>@Html.Raw(ex.Message)</div>
+                ex = ex.InnerException;
+            }
+        }
+    </p>
+
+    <div class="row buttons my-5 xs-gutters">
+        <div class="col-sm-3 offset-sm-3">
+            <a class="btn btn-secondary btn-block btn-lg" asp-route="Homepage">
+                @T("Homepage")
+            </a>
+        </div>
+        <div class="col-sm-3 mt-3 mt-sm-0">
+            <a class="btn btn-warning btn-block btn-lg" asp-route="ContactUs">
+                @T("ContactUs")
+            </a>
+        </div>
+    </div>
+</div>

@@ -401,7 +401,7 @@ namespace Smartstore.Web.Controllers
                     // All pictures rendered... only index is required.
                     galleryStartIndex = 0;
 
-                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? new int[0];
+                    var assignedMediaIds = model.SelectedCombination?.GetAssignedMediaIds() ?? Array.Empty<int>();
                     if (assignedMediaIds.Any())
                     {
                         var file = files.FirstOrDefault(p => p.Id == assignedMediaIds[0]);

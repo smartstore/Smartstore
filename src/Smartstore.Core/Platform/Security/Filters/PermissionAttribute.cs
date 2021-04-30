@@ -59,14 +59,16 @@ namespace Smartstore.Core.Security
                     return;
                 }
 
-                try
-                {
-                    await HandleUnauthorizedRequestAsync(context);
-                }
-                catch
-                {
-                    context.Result = new UnauthorizedResult();
-                }                
+                await HandleUnauthorizedRequestAsync(context);
+
+                //try
+                //{
+                //    await HandleUnauthorizedRequestAsync(context);
+                //}
+                //catch
+                //{
+                //    context.Result = new UnauthorizedResult();
+                //}
             }
 
             protected virtual async Task HandleUnauthorizedRequestAsync(AuthorizationFilterContext context)
@@ -108,18 +110,29 @@ namespace Smartstore.Core.Security
                     // TODO: (mg) (core) The redirection in PermissionAttribute is bound to admin area, which makes the attribute
                     // usable in admin area only. Find a way to make this work for all areas.
                     // E.g.: throw an exception and let error handling middleware handle it (?)
-                    var url = _urlHelper.Value.Action("AccessDenied", "Security", new 
-                    {
-                        permission = _requirement.SystemName,
-                        pageUrl = request.RawUrl(), 
-                        area = "admin"
-                    });
+                    //var url = _urlHelper.Value.Action("AccessDenied", "Security", new 
+                    //{
+                    //    permission = _requirement.SystemName,
+                    //    pageUrl = request.RawUrl(), 
+                    //    area = "admin"
+                    //});
 
-                    // TODO: (core) ITempDataDictionaryFactory doesn't work in PermissionAttribute. Nothing arrives in an action method.
-                    var tempData = _tempDataDictionaryFactory.Value.GetTempData(context.HttpContext);
-                    tempData["UnauthorizedMessage"] = message;
+                    //// TODO: (core) ITempDataDictionaryFactory doesn't work in PermissionAttribute. Nothing arrives in an action method.
+                    //var tempData = _tempDataDictionaryFactory.Value.GetTempData(context.HttpContext);
+                    //tempData["UnauthorizedMessage"] = message;
 
-                    context.Result = new RedirectResult(url);
+                    //context.Result = new RedirectResult(url);
+
+
+
+                    // Both are possible, via StatusCodes.Status401Unauthorized and via UnauthorizedAccessException
+                    // but StatusCodes.Status401Unauthorized would handle all 401:
+
+                    //context.HttpContext.Request.Headers["PermissionSystemName"] = _requirement.SystemName;
+                    //context.Result = new StatusCodeResult(StatusCodes.Status401Unauthorized);
+
+                    //context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;                    
+                    throw new UnauthorizedAccessException(message);
                 }
             }
 

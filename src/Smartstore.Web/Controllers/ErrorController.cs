@@ -32,6 +32,7 @@ namespace Smartstore.Web.Controllers
 
             var errorFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
             var reExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+            var isUnauthorizedAccessException = errorFeature?.Error is UnauthorizedAccessException;
 
             var model = new ErrorModel 
             { 
@@ -41,6 +42,12 @@ namespace Smartstore.Web.Controllers
                 Path = errorFeature?.Path ?? (reExecuteFeature?.OriginalPath + reExecuteFeature?.OriginalQueryString).NullEmpty(),
                 Endpoint = _urlPolicy.Endpoint
             };
+
+            //if (httpStatusCode == HttpStatusCode.Unauthorized && Request.Headers.TryGetValue("PermissionSystemName", out var permissionSystemName))
+            //{
+            //    var message = _permissionService.Value.GetUnauthorizedMessageAsync(permissionSystemName).Await();
+            //    message.Dump();
+            //}
 
             if (model.Endpoint != null)
             {
@@ -59,7 +66,14 @@ namespace Smartstore.Web.Controllers
             {
                 case HttpStatusCode.NotFound:
                     return View("NotFound", model);
+                //case HttpStatusCode.Unauthorized:
+                //    return View("Unauthorized", model);
                 default:
+                    if (isUnauthorizedAccessException)
+                    {
+                        return View("Unauthorized", model);
+                    }
+
                     return View("Error", model);
             }
         }

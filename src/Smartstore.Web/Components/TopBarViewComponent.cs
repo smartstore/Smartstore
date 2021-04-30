@@ -22,13 +22,14 @@ namespace Smartstore.Web.Components
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var customer = Services.WorkContext.CurrentCustomer;
-            
+            var isRegistered = customer.IsRegistered();
+
             var model = new TopBarModel
             {
                 RecentlyAddedProductsEnabled = _catalogSettings.RecentlyAddedProductsEnabled,
-                CustomerEmailUsername = customer.IsRegistered() ? (_customerSettings.CustomerLoginType != CustomerLoginType.Email ? customer.Username : customer.Email) : string.Empty,
+                CustomerEmailUsername = isRegistered ? (_customerSettings.CustomerLoginType != CustomerLoginType.Email ? customer.Username : customer.Email) : string.Empty,
                 IsCustomerImpersonated = Services.WorkContext.CurrentImpersonator != null,
-                IsAuthenticated = customer.IsRegistered(),
+                IsAuthenticated = isRegistered,
                 DisplayAdminLink = Services.Permissions.Authorize(Permissions.System.AccessBackend),
                 HasContactUsPage = (await Url.TopicAsync("ContactUs")).ToString().HasValue(),
                 DisplayLoginLink = _customerSettings.UserRegistrationType != UserRegistrationType.Disabled
