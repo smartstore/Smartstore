@@ -533,6 +533,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="shoppingCartTypeId"><see cref="ShoppingCartType"/> identifier. 1 = <see cref="ShoppingCartType.ShoppingCart"/>; 2 = <see cref="ShoppingCartType.Wishlist"/> </param>
         /// <param name="forceRedirection">A value indicating whether to force a redirection to the shopping cart.</param>
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         [LocalizedRoute("/cart/addproductsimple/{productId:int}", Name = "AddProductToCartSimple")]
         public async Task<IActionResult> AddProductSimple(int productId, int shoppingCartTypeId = 1, bool forceRedirection = false)
         {
@@ -615,6 +616,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="shoppingCartTypeId"><see cref="ShoppingCartType"/> identifier. 1 = <see cref="ShoppingCartType.ShoppingCart"/>; 2 = <see cref="ShoppingCartType.Wishlist"/>.</param>
         /// <param name="query">The <see cref="ProductVariantQuery"/> of selected attributes.</param>
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         [LocalizedRoute("/cart/addproduct/{productId:int}/{shoppingCartTypeId:int}", Name = "AddProductToCart")]
         public async Task<IActionResult> AddProduct(int productId, int shoppingCartTypeId, ProductVariantQuery query)
         {
@@ -731,6 +733,7 @@ namespace Smartstore.Web.Controllers
         /// <param name="cartType">The <see cref="ShoppingCartType"/> from which to move the item from.</param>
         /// <param name="isCartPage">A value indicating whether the user is on cart page (prepares model).</param>        
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         [ActionName("MoveItemBetweenCartAndWishlist")]
         public async Task<IActionResult> MoveItemBetweenCartAndWishlistAjax(int cartItemId, ShoppingCartType cartType, bool isCartPage = false)
         {
@@ -996,6 +999,7 @@ namespace Smartstore.Web.Controllers
         #endregion
 
         [HttpPost, ActionName("Cart")]
+        [IgnoreAntiforgeryToken]
         [FormValueRequired("estimateshipping")]
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> GetEstimateShipping(EstimateShippingModel shippingModel, ProductVariantQuery query)

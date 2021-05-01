@@ -40,7 +40,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [ActionName("List")]
-        [HttpPost]
+        [HttpPost, IgnoreAntiforgeryToken] // TODO: (core) Why is posted _RequestVerificationToken not valid?
         [Permission(Permissions.Catalog.Variant.Read)]
         public async Task<IActionResult> List_Ajax()
         {

@@ -24,6 +24,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Remove="compilerconfig.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="Areas\Admin\sitemap.xml" />
 	</ItemGroup>
 
@@ -46,6 +50,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="compilerconfig.json" />
     <None Include="wwwroot\lib\fontastic\fonts\fontastic.svg" />
     <None Include="wwwroot\lib\fa5\scss\brands.scss" />
     <None Include="wwwroot\lib\fa5\scss\fontawesome.scss" />

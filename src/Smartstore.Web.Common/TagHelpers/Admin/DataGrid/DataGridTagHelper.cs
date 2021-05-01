@@ -77,7 +77,8 @@ namespace Smartstore.Web.TagHelpers.Admin
                 data.columns.Add(new 
                 {
                     field = col.For.Name,
-                    name = col.For.Metadata.DisplayName
+                    name = col.For.Metadata.DisplayName,
+                    width = col.Width
                 });
             }
 

@@ -12,6 +12,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     public class ColumnTagHelper : SmartTagHelper
     {
         const string ForAttributeName = "for";
+        const string WidthAttributeName = "width";
 
         public override void Init(TagHelperContext context)
         {
@@ -24,6 +25,9 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         [HtmlAttributeName(ForAttributeName)]
         public ModelExpression For { get; set; }
+
+        [HtmlAttributeName(WidthAttributeName)]
+        public string Width { get; set; }
 
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {

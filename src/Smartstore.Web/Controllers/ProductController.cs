@@ -232,6 +232,7 @@ namespace Smartstore.Web.Controllers
         /// </summary>
         /// <param name="id">Represents the <see cref="Product.Id"/> of the corresponding subscription.</param>
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> BackInStockSubscribePopup(int id)
         {
             var product = await _db.Products.FindByIdAsync(id, false);
@@ -585,6 +586,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> SetReviewHelpfulness(int productReviewId, bool washelpful)
         {
             // INFO: Entitity is being loaded tracked because it must be saved later.

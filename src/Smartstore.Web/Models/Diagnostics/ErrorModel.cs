@@ -8,9 +8,7 @@ namespace Smartstore.Web.Models.Diagnostics
 {
     public class ErrorModel
     {
-        public string RequestId { get; set; }
-        public string Path { get; set; }
-        public HttpStatusCode StatusCode { get; set; }
+        [JsonIgnore]
         public Exception Exception { get; set; }
 
         [JsonIgnore]
@@ -19,6 +17,10 @@ namespace Smartstore.Web.Models.Diagnostics
         [JsonIgnore]
         public ControllerActionDescriptor ActionDescriptor { get; set; }
 
+        public string RequestId { get; set; }
+        public string Path { get; set; }
+        public HttpStatusCode StatusCode { get; set; }
+        public string ErrorMessage => Exception?.Message;
         public string ControllerName  => ActionDescriptor?.ControllerName;
         public string ActionName => ActionDescriptor?.ActionName;
     }

@@ -608,6 +608,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost]
         [ActionName("AddProductToCompare")]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> AddProductToCompareListAjax(int id)
         {
             var failed = Json(new
