@@ -105,7 +105,7 @@ namespace Smartstore.Data
                         _ctx.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
                         // TODO: (core) implement IMergedData stuff
-                        //_ctx.IgnoreMergedData(mergeableEntities, false);
+                        IgnoreMergedData(mergeableEntities, false);
                     }
                 }
             }
