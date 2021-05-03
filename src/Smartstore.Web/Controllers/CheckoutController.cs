@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.Orders;
@@ -7,6 +9,8 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Engine.Modularity;
+using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Checkout;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.ShoppingCart;
@@ -20,9 +24,12 @@ namespace Smartstore.Web.Controllers
     public class CheckoutController : PublicControllerBase
     {
         private readonly SmartDbContext _db;
+        private readonly IOrderService _orderService;
+        private readonly IPaymentService _paymentService;
         private readonly IShippingService _shippingService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
+        private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ShippingSettings _shippingSettings;
         private readonly PaymentSettings _paymentSettings;
@@ -30,8 +37,11 @@ namespace Smartstore.Web.Controllers
 
         public CheckoutController(
             SmartDbContext db,
+            IOrderService orderService,
+            IPaymentService paymentService,
             IShippingService shippingService,
             IShoppingCartService shoppingCartService,
+            IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
             IShoppingCartValidator shoppingCartValidator,
             ShippingSettings shippingSettings,
@@ -39,8 +49,11 @@ namespace Smartstore.Web.Controllers
             OrderSettings orderSettings)
         {
             _db = db;
+            _orderService = orderService;
+            _paymentService = paymentService;
             _shippingService = shippingService;
             _shoppingCartService = shoppingCartService;
+            _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
             _shoppingCartValidator = shoppingCartValidator;
             _shippingSettings = shippingSettings;

@@ -96,13 +96,13 @@ namespace Smartstore.Web.Components
             var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
             var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
 
-            model.SubTotal = subTotalConverted.ToString();
+            model.SubTotal = subTotalConverted;
 
             if (cartSubTotal.DiscountAmount > decimal.Zero)
             {
                 var subTotalDiscountAmountConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.DiscountAmount.Amount, currency);
 
-                model.SubTotalDiscount = (subTotalDiscountAmountConverted * -1m).ToString();
+                model.SubTotalDiscount = subTotalDiscountAmountConverted * -1;
                 model.AllowRemovingSubTotalDiscount = cartSubTotal.AppliedDiscount != null
                     && cartSubTotal.AppliedDiscount.RequiresCouponCode
                     && cartSubTotal.AppliedDiscount.CouponCode.HasValue()
@@ -133,7 +133,7 @@ namespace Smartstore.Web.Components
             if (paymentFeeTax.Price != 0m)
             {
                 var convertedPaymentFeeTax = _currencyService.ConvertFromPrimaryCurrency(paymentFeeTax.Price, currency);
-                model.PaymentMethodAdditionalFee = convertedPaymentFeeTax.ToString();
+                model.PaymentMethodAdditionalFee = convertedPaymentFeeTax;
             }
 
             // Tax
@@ -167,7 +167,7 @@ namespace Smartstore.Web.Components
                         model.TaxRates.Add(new OrderTotalsModel.TaxRate
                         {
                             Rate = rate,
-                            Value = _currencyService.ConvertFromPrimaryCurrency(taxRate.Value, currency).ToString(true),
+                            Value = _currencyService.ConvertFromPrimaryCurrency(taxRate.Value, currency),
                             Label = _localizationService.GetResource(labelKey).FormatCurrent(rate)
                         });
                     }
@@ -203,10 +203,10 @@ namespace Smartstore.Web.Components
 
             if (cartTotal.ConvertedAmount.Total.HasValue)
             {
-                model.OrderTotal = cartTotal.ConvertedAmount.Total.Value.ToString(true);
+                model.OrderTotal = cartTotal.ConvertedAmount.Total.Value;
                 if (cartTotal.ConvertedAmount.ToNearestRounding != decimal.Zero)
                 {
-                    model.OrderTotalRounding = cartTotal.ConvertedAmount.ToNearestRounding.ToString(true); ;
+                    model.OrderTotalRounding = cartTotal.ConvertedAmount.ToNearestRounding;
                 }
             }
 
@@ -214,7 +214,7 @@ namespace Smartstore.Web.Components
             if (cartTotal.DiscountAmount > decimal.Zero)
             {
                 var orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
-                model.OrderTotalDiscount = (orderTotalDiscountAmount * -1).ToString(true);
+                model.OrderTotalDiscount = orderTotalDiscountAmount * -1;
                 model.AllowRemovingOrderTotalDiscount = cartTotal.AppliedDiscount != null
                     && cartTotal.AppliedDiscount.RequiresCouponCode
                     && cartTotal.AppliedDiscount.CouponCode.HasValue()
@@ -233,11 +233,11 @@ namespace Smartstore.Web.Components
                     };
 
                     var amountCanBeUsed = _currencyService.ConvertFromPrimaryCurrency(appliedGiftCard.UsableAmount.Amount, currency);
-                    gcModel.Amount = (amountCanBeUsed * -1).ToString(true);
+                    gcModel.Amount = amountCanBeUsed * -1;
 
                     var remainingAmountBase = _giftCardService.GetRemainingAmount(appliedGiftCard.GiftCard) - appliedGiftCard.UsableAmount;
                     var remainingAmount = _currencyService.ConvertFromPrimaryCurrency(remainingAmountBase.Amount, currency);
-                    gcModel.Remaining = remainingAmount.ToString(true);
+                    gcModel.Remaining = remainingAmount;
 
                     model.GiftCards.Add(gcModel);
                 }

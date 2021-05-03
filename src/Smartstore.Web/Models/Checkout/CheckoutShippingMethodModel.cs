@@ -1,4 +1,5 @@
-﻿using Smartstore.Web.Modelling;
+﻿using Smartstore.Core.Common;
+using Smartstore.Web.Modelling;
 using System.Collections.Generic;
 
 namespace Smartstore.Web.Models.Checkout
@@ -16,8 +17,7 @@ namespace Smartstore.Web.Models.Checkout
             public string Name { get; set; }
             public string BrandUrl { get; set; }
             public string Description { get; set; }
-            public string Fee { get; set; }
-            public decimal FeeRaw { get; set; }
+            public Money Fee { get; set; }            
             public bool Selected { get; set; }
         }
     }

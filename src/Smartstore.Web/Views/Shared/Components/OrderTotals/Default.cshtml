@@ -18,7 +18,7 @@
         <td class="cart-summary-label">@T("ShoppingCart.Totals.SubTotal"):</td>
         <td class="cart-summary-value">@Model.SubTotal</td>
     </tr>
-    <tr sm-if="Model.SubTotalDiscount.HasValue()" class="cart-summary-subtotaldiscount cart-summary-pos">
+    <tr sm-if="Model.SubTotalDiscount != null" class="cart-summary-subtotaldiscount cart-summary-pos">
         <td class="cart-summary-label">
             @if (Model.AllowRemovingSubTotalDiscount)
             {
@@ -61,7 +61,7 @@
         </td>
     </tr>
 
-    <tr sm-if="Model.PaymentMethodAdditionalFee.HasValue()" class="cart-summary-payfee cart-summary-neg">
+    <tr sm-if="Model.PaymentMethodAdditionalFee != null" class="cart-summary-payfee cart-summary-neg">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.PaymentMethodAdditionalFee"):</td>
         <td class="cart-summary-value">@Model.PaymentMethodAdditionalFee</td>
     </tr>
@@ -82,7 +82,7 @@
         <td class="cart-summary-value">@Model.Tax</td>
     </tr>
 
-    <tr sm-if="Model.OrderTotalDiscount.HasValue()" class="cart-summary-totaldiscount cart-summary-pos">
+    <tr sm-if="Model.OrderTotalDiscount != null" class="cart-summary-totaldiscount cart-summary-pos">
         <td class="cart-summary-label">
             @if (Model.AllowRemovingOrderTotalDiscount)
             {
@@ -135,7 +135,7 @@
         <td class="cart-summary-value">@Model.CreditBalance</td>
     </tr>
 
-    <tr sm-if="Model.OrderTotalRounding.HasValue()" class="cart-summary-totalrounding cart-summary-pos">
+    <tr sm-if="Model.OrderTotalRounding != null" class="cart-summary-totalrounding cart-summary-pos">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.Rounding"):</td>
         <td class="cart-summary-value">
             <span>@Model.OrderTotalRounding</span>
@@ -145,7 +145,7 @@
     <tr class="cart-summary-total">
         <td class="cart-summary-label">@T("ShoppingCart.Totals.OrderTotal"):</td>
         <td class="cart-summary-value">
-            @if (Model.OrderTotal.HasValue())
+            @if (Model.OrderTotal != null)
             {
                 <span>@Model.OrderTotal</span>
             }

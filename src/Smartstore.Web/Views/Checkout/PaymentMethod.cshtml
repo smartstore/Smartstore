@@ -47,7 +47,7 @@
                                     </label>
                                 </div>
 
-                                <small sm-if="paymentMethod.Fee.HasValue()" class="opt-fee payment-fee text-danger">@paymentMethod.Fee</small>
+                                <small sm-if="paymentMethod.Fee != null" class="opt-fee payment-fee text-danger">@paymentMethod.Fee</small>
                             </div>
 
                             @if (description.HasValue())

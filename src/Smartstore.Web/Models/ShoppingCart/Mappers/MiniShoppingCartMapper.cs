@@ -112,7 +112,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             var currency = _services.WorkContext.WorkingCurrency;
             var subtotalWithoutDiscount = _currencyService.ConvertFromPrimaryCurrency(subtotal.SubtotalWithoutDiscount.Amount, currency);
-            to.SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat).ToString();
+            to.SubTotal = subtotalWithoutDiscount.WithPostFormat(taxFormat);
 
             // A customer should visit the shopping cart page before going to checkout if:
             //1. There is at least one checkout attribute that is reqired
@@ -205,7 +205,7 @@ namespace Smartstore.Web.Models.ShoppingCart
                 else if (lineItems.TryGetValue(item.Id, out var lineItem))
                 {
                     var unitPrice = _currencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
-                    cartItemModel.UnitPrice = unitPrice.WithPostFormat(taxFormat).ToString();
+                    cartItemModel.UnitPrice = unitPrice.WithPostFormat(taxFormat).ToString(true);
 
                     if (unitPrice != 0 && to.ShowBasePrice)
                     {

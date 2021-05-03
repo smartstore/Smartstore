@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Localization;
+﻿using Smartstore.Core.Common;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
 using Smartstore.Web.Modelling;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace Smartstore.Web.Models.Checkout
             public string Description { get; set; }
             public LocalizedValue<string> FullDescription { get; set; }
             public string BrandUrl { get; set; }
-            public string Fee { get; set; }
+            public Money Fee { get; set; }
             public bool Selected { get; set; }
             public WidgetInvoker InfoWidget { get; set; }
             public bool RequiresInteraction { get; set; }

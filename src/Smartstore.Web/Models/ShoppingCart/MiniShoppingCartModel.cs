@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Catalog;
@@ -13,7 +14,7 @@ namespace Smartstore.Web.Models.ShoppingCart
     {
         public List<ShoppingCartItemModel> Items { get; set; } = new();
         public int TotalProducts { get; set; }
-        public string SubTotal { get; set; } // TODO: (mh) (core) Make "Money" later
+        public Money SubTotal { get; set; }
         public bool DisplayCheckoutButton { get; set; }
         public bool CurrentCustomerIsGuest { get; set; }
         public bool AnonymousCheckoutAllowed { get; set; }
@@ -48,7 +49,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             public QuantityControlType QuantiyControlType { get; set; }
 
-            public string UnitPrice { get; set; } // TODO: (mh) (core) Make "Money" later
+            public string UnitPrice { get; set; }
 
             public string BasePriceInfo { get; set; }
 
