@@ -297,6 +297,8 @@ namespace Smartstore.Core.Common
                     });
                 }
 
+                // TODO: (mg) (core) Setting this outside of the cache getter requires an app restart
+                // after Currency.RoundNumDecimals has been changed. DecimalDigits needs to be part of the cache key.
                 nf.CurrencyDecimalDigits = DecimalDigits;
 
                 formatted = RoundedAmount.ToString("C", nf);
