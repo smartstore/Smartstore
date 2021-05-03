@@ -24,12 +24,17 @@
 
     <div class="row buttons my-5 xs-gutters">
         <div class="col-sm-3 offset-sm-3">
-            <a sm-if="returnUrl.HasValue()" class="btn btn-secondary btn-block btn-lg" href="@returnUrl">
-                @T("Common.Back")
-            </a>
-            <a sm-if="returnUrl.IsEmpty()" class="btn btn-secondary btn-block btn-lg" asp-route="Homepage">
-                @T("Homepage")
-            </a>
+            @if (returnUrl.HasValue())
+            {
+                @* INFO: (mg) (core) (perf) Don't combine sm-if TagHelper with other TagHelpers (like asp-* etc.). sm-if does NOT suppress their evaluation. *@
+                <a class="btn btn-secondary btn-block btn-lg" href="@returnUrl">
+                    @T("Common.Back")
+                </a>
+                <a class="btn btn-secondary btn-block btn-lg" asp-route="Homepage">
+                    @T("Homepage")
+                </a>
+            }
+
         </div>
         <div class="col-sm-3 mt-3 mt-sm-0">
             <a class="btn btn-warning btn-block btn-lg" asp-route="ContactUs">
