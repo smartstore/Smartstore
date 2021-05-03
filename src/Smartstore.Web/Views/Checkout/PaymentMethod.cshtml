@@ -67,7 +67,7 @@
                                         @Html.ValidationSummary(false)
                                     </div>
 
-                                    @if (!(description.HasValue() && !paymentMethod.RequiresInteraction))
+                                    @if (!description.HasValue() && paymentMethod.RequiresInteraction)
                                     {
                                         await paymentMethod.PaymentWidgetInvoker.InvokeAsync(ViewContext);
                                     }
@@ -102,7 +102,7 @@
     </div>
 </div>
 
-<script>
+<script sm-target-zone="scripts" data-origin="payment-method">
     $(function () {
         var validationSummary = $('#payment-info-validation-summary');
 

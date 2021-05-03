@@ -26,9 +26,9 @@
 			{
 				<div class="alert alert-danger">
 					<ul>
-						@for (int i = 0; i < Model.Warnings.Count; i++)
+						@foreach (var warning in Model.Warnings)
 						{
-							<li>@Model.Warnings[i]</li>
+							<li>@warning</li>
 						}
 					</ul>
 				</div>
@@ -100,16 +100,12 @@
     </div>
 </div>
 
-<script>
-	$(function () {
-		$('.checkout-data .opt-radio').on('change', function (e) {
-			var radio = $(this);
-			var systemName = radio.val();
-
-			$('.checkout-data .opt-list-item').removeClass('active');
-
-			var item = radio.closest('.opt-list-item');
-			item.addClass("active");
-		});
-	});
+<script sm-target-zone="scripts" data-origin="shipping-method">
+    $(function () {
+        $('.checkout-data .opt-radio').on('change', function (e) {
+            $('.checkout-data .opt-list-item').removeClass('active');
+            var item = $(this).closest('.opt-list-item');
+            item.addClass("active");
+        });
+    });
 </script>

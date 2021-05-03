@@ -67,8 +67,8 @@ namespace Smartstore.Web.Controllers
         {
             var storeId = Services.StoreContext.CurrentStore.Id;
             var customer = Services.WorkContext.CurrentCustomer;
-
             var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
+
             if (!cart.Any())
             {
                 return RedirectToRoute("ShoppingCart");
