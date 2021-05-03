@@ -28,7 +28,7 @@
                     @for (int i = 0; i < Model.PaymentMethods.Count; i++)
                     {
                         var paymentMethod = Model.PaymentMethods[i];
-                        var widgetInvoker = paymentMethod.PaymentWidgetInvoker;
+                        var widgetInvoker = paymentMethod.InfoWidget;
                         var description = paymentMethod.FullDescription?.Value;
 
                         <li class="list-group-item opt-list-item payment-method-item" attr-class='(paymentMethod.Selected, "active")'>
@@ -69,7 +69,7 @@
 
                                     @if (!(description.HasValue() && !paymentMethod.RequiresInteraction))
                                     {
-                                        await paymentMethod.PaymentWidgetInvoker.InvokeAsync(ViewContext);
+                                        await paymentMethod.InfoWidget.InvokeAsync(ViewContext);
                                     }
                                 </div>
                             }
