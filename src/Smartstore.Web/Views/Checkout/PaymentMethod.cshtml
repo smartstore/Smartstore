@@ -67,7 +67,7 @@
                                         @Html.ValidationSummary(false)
                                     </div>
 
-                                    @if (!description.HasValue() && paymentMethod.RequiresInteraction)
+                                    @if (!(description.HasValue() && !paymentMethod.RequiresInteraction))
                                     {
                                         await paymentMethod.PaymentWidgetInvoker.InvokeAsync(ViewContext);
                                     }
