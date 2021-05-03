@@ -78,6 +78,7 @@ using Smartstore.Web.Models.Common;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Utilities.Html;
 using Smartstore.Net.Mail;
+using Autofac.Core;
 
 namespace Smartstore.Web.Controllers
 {
@@ -940,26 +941,43 @@ namespace Smartstore.Web.Controllers
             //var productIds = new int[] { 4317, 1748, 1749, 1750, 4317, 4366 };
 
             var cs = Services.Resolve<ICurrencyService>();
-            var orderItem = await _db.OrderItems.FindByIdAsync(42272, false);
-            var bundleData = orderItem.GetBundleData();
+            var ocs = Services.Resolve<IOrderCalculationService>();
+            var scs = Services.Resolve<IShoppingCartService>();
+            var store = Services.StoreContext.CurrentStore;
+            var currency = Services.WorkContext.WorkingCurrency;
+            var customer = await _db.Customers.FindByIdAsync(2666330, false);
+            var cart = await scs.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+            var subtotal = await ocs.GetShoppingCartSubtotalAsync(cart);
+            var subtotalConverted = cs.ConvertFromPrimaryCurrency(subtotal.SubtotalWithoutDiscount.Amount, currency);
 
-            foreach (var item in bundleData)
+            foreach (var item in subtotal.LineItems)
             {
-                var valueIds = item.AttributeSelection?.GetAttributeValueIds() ?? Array.Empty<int>();
-                content.AppendLine($"{item.ProductId} {item.BundleItemId}: {string.Join(",", valueIds)} {item.RawAttributes}");
+                content.AppendLine($"{item.Item.Item.Id} {item.UnitPrice.FinalPrice.Amount} {item.Subtotal.FinalPrice.Amount}");
             }
+            content.AppendLine("--------------------------------------------------------------");
+            content.AppendLine($"{subtotal.SubtotalWithoutDiscount.Amount} {subtotalConverted.Amount}");
 
-            var orders = new Order[]
-            {
-                new Order { OrderTotal = 43.7855m, CurrencyRate = 1.0m, CustomerCurrencyCode = "EUR" },
-                new Order { OrderTotal = 43.7855m, CurrencyRate = 1.19m, CustomerCurrencyCode = "USD" }
-            };
 
-            foreach (var order in orders)
-            {
-                var money = cs.ConvertToExchangeRate(order.OrderTotal, order.CurrencyRate, order.CustomerCurrencyCode);
-                content.AppendLine($"{order.CustomerCurrencyCode} ({order.CurrencyRate}): {order.OrderTotal} -> {money.ToString()}");
-            }
+            //var orderItem = await _db.OrderItems.FindByIdAsync(42272, false);
+            //var bundleData = orderItem.GetBundleData();
+
+            //foreach (var item in bundleData)
+            //{
+            //    var valueIds = item.AttributeSelection?.GetAttributeValueIds() ?? Array.Empty<int>();
+            //    content.AppendLine($"{item.ProductId} {item.BundleItemId}: {string.Join(",", valueIds)} {item.RawAttributes}");
+            //}
+
+            //var orders = new Order[]
+            //{
+            //    new Order { OrderTotal = 43.7855m, CurrencyRate = 1.0m, CustomerCurrencyCode = "EUR" },
+            //    new Order { OrderTotal = 43.7855m, CurrencyRate = 1.19m, CustomerCurrencyCode = "USD" }
+            //};
+
+            //foreach (var order in orders)
+            //{
+            //    var money = cs.ConvertToExchangeRate(order.OrderTotal, order.CurrencyRate, order.CustomerCurrencyCode);
+            //    content.AppendLine($"{order.CustomerCurrencyCode} ({order.CurrencyRate}): {order.OrderTotal} -> {money.ToString()}");
+            //}
 
             return Content(content.ToString());
             //return View();
