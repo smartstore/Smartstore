@@ -77,21 +77,23 @@ namespace Smartstore.Web.Controllers
             await Services.DbContext.SaveChangesAsync();
         }
 
+        // INFO: instead, throw new AccessDeniedException()
+
         /// <summary>
         /// Access denied view
         /// </summary>
         /// <returns>Access denied view</returns>
-        protected IActionResult AccessDeniedView()
-        {
-            return RedirectToAction("AccessDenied", "Security", new { pageUrl = this.Request.RawUrl(), area = "Admin" });
-        }
+        //protected IActionResult AccessDeniedView()
+        //{
+        //    return RedirectToAction("AccessDenied", "Security", new { pageUrl = this.Request.RawUrl(), area = "Admin" });
+        //}
 
         /// <summary>
         /// Renders default access denied view as a partial
         /// </summary>
-        protected IActionResult AccessDeniedPartialView()
-        {
-            return PartialView("~/Areas/Admin/Views/Security/AccessDenied.cshtml");
-        }
+        //protected IActionResult AccessDeniedPartialView()
+        //{
+        //    return PartialView("~/Areas/Admin/Views/Security/AccessDenied.cshtml");
+        //}
     }
 }

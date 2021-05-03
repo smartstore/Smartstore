@@ -591,7 +591,8 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/access-denied", Name = "AccessDenied")]
         public IActionResult AccessDenied(string returnUrl = null)
         {
-            return Content("TODO: (mh) (core) Make AccessDenied view");
+            throw new AccessDeniedException(null, returnUrl);
+            //return Content("TODO: (mh) (core) Make AccessDenied view");
         }
 
         #endregion

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Web;
 
@@ -69,15 +67,7 @@ namespace Smartstore.Core.Security
 
                 if (!allow)
                 {
-                    var actionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
-                    var action = actionDescriptor?.ActionName;
-                    var controller = actionDescriptor?.ControllerName;
-
-                    if (!(action.EqualsNoCase("AccessDenied") && controller.EqualsNoCase("Security")))
-                    {
-                        // Redirect to 'Access denied' page, but avoid infinite redirection
-                        context.Result = new RedirectToActionResult("AccessDenied", "Security", context.RouteData.Values);
-                    }
+                    throw new AccessDeniedException();
                 }
             }
         }

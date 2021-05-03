@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 
@@ -11,24 +9,26 @@ namespace Smartstore.Admin.Controllers
 {
     public class SecurityController : AdminControllerBase
     {
-        [ValidateAdminIpAddress(false)]
-        public IActionResult AccessDenied(string pageUrl)
-        {
-            var customer = Services.WorkContext.CurrentCustomer;
+        // INFO: instead, throw new AccessDeniedException()
 
-            if (customer == null || customer.IsGuest())
-            {
-                Logger.Info(T("Admin.System.Warnings.AccessDeniedToAnonymousRequest", pageUrl.NaIfEmpty()));
-                return View();
-            }
+        //[ValidateAdminIpAddress(false)]
+        //public IActionResult AccessDenied(string pageUrl)
+        //{
+        //    var customer = Services.WorkContext.CurrentCustomer;
 
-            Logger.Info(T("Admin.System.Warnings.AccessDeniedToUser",
-                customer.Email.NaIfEmpty(), 
-                customer.Email.NaIfEmpty(), 
-                pageUrl.NaIfEmpty()));
+        //    if (customer == null || customer.IsGuest())
+        //    {
+        //        Logger.Info(T("Admin.System.Warnings.AccessDeniedToAnonymousRequest", pageUrl.NaIfEmpty()));
+        //        return View();
+        //    }
 
-            return View();
-        }
+        //    Logger.Info(T("Admin.System.Warnings.AccessDeniedToUser",
+        //        customer.Email.NaIfEmpty(), 
+        //        customer.Email.NaIfEmpty(), 
+        //        pageUrl.NaIfEmpty()));
+
+        //    return View();
+        //}
 
         /// <summary>
         /// Called by AJAX

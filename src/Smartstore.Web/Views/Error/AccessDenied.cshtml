@@ -1,6 +1,8 @@
 ﻿@model ErrorModel
 @{
     Assets.AppendTitleParts(T("Admin.AccessDenied.Title"));
+
+    var returnUrl = Model.Exception?.Data["ReturnUrl"]?.ToString();
 }
 
 <div class="page unauthorized-page text-center">
@@ -14,7 +16,7 @@
             var ex = Model.Exception;
             while (ex != null)
             {
-                <div>@Html.Raw(ex.Message)</div>
+                <div>@Html.Raw(ex.Message.NullEmpty() ?? T("Admin.AccessDenied.Description"))</div>
                 ex = ex.InnerException;
             }
         }
@@ -22,7 +24,10 @@
 
     <div class="row buttons my-5 xs-gutters">
         <div class="col-sm-3 offset-sm-3">
-            <a class="btn btn-secondary btn-block btn-lg" asp-route="Homepage">
+            <a sm-if="returnUrl.HasValue()" class="btn btn-secondary btn-block btn-lg" href="@returnUrl">
+                @T("Common.Back")
+            </a>
+            <a sm-if="returnUrl.IsEmpty()" class="btn btn-secondary btn-block btn-lg" asp-route="Homepage">
                 @T("Homepage")
             </a>
         </div>

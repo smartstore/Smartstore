@@ -75,7 +75,11 @@ namespace Smartstore.Core.Security
 
                     if (acceptTypes?.Any(x => x.EqualsNoCase("text/html")) ?? false)
                     {
-                        context.Result = AccessDeniedResult(message);
+                        context.Result = new ContentResult
+                        {
+                            Content = message.HasValue() ? $"<div class=\"alert alert-danger\">{message}</div>" : string.Empty,
+                            ContentType = "text/html"
+                        };
                     }
                     else
                     {
@@ -90,23 +94,8 @@ namespace Smartstore.Core.Security
                 }
                 else
                 {
-                    // Both are possible, via StatusCodes.Status401Unauthorized and via UnauthorizedAccessException
-                    // but StatusCodes.Status401Unauthorized would handle all 401:
-
-                    //context.HttpContext.Request.Headers["PermissionSystemName"] = _requirement.SystemName;
-                    //context.Result = new StatusCodeResult(StatusCodes.Status401Unauthorized);
-
-                    throw new UnauthorizedAccessException(message);
+                    throw new AccessDeniedException(message);
                 }
-            }
-
-            protected virtual ActionResult AccessDeniedResult(string message)
-            {
-                return new ContentResult
-                {
-                    Content = message.HasValue() ? $"<div class=\"alert alert-danger\">{message}</div>" : string.Empty,
-                    ContentType = "text/html"
-                };
             }
         }
     }

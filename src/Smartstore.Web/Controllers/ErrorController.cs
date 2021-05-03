@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Web.Models.Diagnostics;
 
@@ -36,7 +37,7 @@ namespace Smartstore.Web.Controllers
 
             var errorFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
             var reExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
-            var isUnauthorizedAccessException = errorFeature?.Error is UnauthorizedAccessException;
+            var isAccessDeniedException = errorFeature?.Error is AccessDeniedException;
 
             var model = new ErrorModel 
             { 
@@ -47,21 +48,15 @@ namespace Smartstore.Web.Controllers
                 Endpoint = _urlPolicy.Endpoint
             };
 
-            //if (httpStatusCode == HttpStatusCode.Unauthorized && Request.Headers.TryGetValue("PermissionSystemName", out var permissionSystemName))
-            //{
-            //    var message = _permissionService.Value.GetUnauthorizedMessageAsync(permissionSystemName).Await();
-            //    message.Dump();
-            //}
-
             if (model.Endpoint != null)
             {
                 // Set the original action descriptor
                 model.ActionDescriptor = model.Endpoint.Metadata.OfType<ControllerActionDescriptor>().FirstOrDefault();
             }
 
-            if (isUnauthorizedAccessException)
+            if (isAccessDeniedException)
             {
-                TryLogUnauthorizedInfo(model);
+                TryLogAccessDeniedInfo(model);
             }
             else
             {
@@ -73,18 +68,16 @@ namespace Smartstore.Web.Controllers
                 return Json(model);
             }
 
+            if (isAccessDeniedException)
+            {
+                return View("AccessDenied", model);
+            }
+
             switch (httpStatusCode)
             {
                 case HttpStatusCode.NotFound:
                     return View("NotFound", model);
-                //case HttpStatusCode.Unauthorized:
-                //    return View("Unauthorized", model);
                 default:
-                    if (isUnauthorizedAccessException)
-                    {
-                        return View("Unauthorized", model);
-                    }
-
                     return View("Error", model);
             }
         }
@@ -110,7 +103,7 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        private void TryLogUnauthorizedInfo(ErrorModel model)
+        private void TryLogAccessDeniedInfo(ErrorModel model)
         {
             try
             {
