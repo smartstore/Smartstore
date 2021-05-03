@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Core.Widgets;
 using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
@@ -90,6 +91,19 @@ namespace Smartstore.Web.Controllers
 
             var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
             return renderer.InvokeViewComponentAsync(componentType, viewData, arguments);
+        }
+
+        /// <summary>
+        /// Invokes a widget and returns its html content.
+        /// </summary>
+        /// <param name="widget">Widget to invoke.</param>
+        /// <returns>Widget rendering result</returns>
+        public static Task<string> InvokeWidgetAsync(this ControllerBase controller, WidgetInvoker widget)
+        {
+            Guard.NotNull(controller, nameof(controller));
+
+            var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
+            return renderer.InvokeWidgetAsync(widget);
         }
     }
 }

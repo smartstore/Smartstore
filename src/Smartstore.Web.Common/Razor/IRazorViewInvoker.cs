@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.Razor
 {
@@ -50,5 +51,12 @@ namespace Smartstore.Web.Razor
         /// </param>
         /// <returns>View component rendering result</returns>
         Task<string> InvokeViewComponentAsync(Type componentType, ViewDataDictionary viewData, object arguments);
+
+        /// <summary>
+        /// Invokes a widget and returns its html content.
+        /// </summary>
+        /// <param name="widget">Widget to invoke.</param>
+        /// <returns>Widget rendering result</returns>
+        Task<string> InvokeWidgetAsync(WidgetInvoker widget);
     }
 }

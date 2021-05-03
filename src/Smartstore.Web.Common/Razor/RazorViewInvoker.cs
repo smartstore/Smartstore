@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 using Smartstore.Utilities;
 using System.Text.Encodings.Web;
+using Smartstore.Core.Widgets;
+using Smartstore.Core.Web;
 
 namespace Smartstore.Web.Razor
 {
@@ -99,6 +101,24 @@ namespace Smartstore.Web.Razor
             return InvokeViewComponentInternal(viewData, helper => helper.InvokeAsync(componentType, arguments));
         }
 
+        public async Task<string> InvokeWidgetAsync(WidgetInvoker widget)
+        {
+            Guard.NotNull(widget, nameof(widget));
+
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            using var output = new StringWriter(sb);
+
+            var actionContext = GetActionContext();
+            var viewContext = CreateViewContext(
+                actionContext, 
+                actionContext.HttpContext.RequestServices.GetService<IViewDataAccessor>().ViewData, 
+                output);
+
+            var result = await widget.InvokeAsync(viewContext);
+            result.WriteTo(output, HtmlEncoder.Default);
+            return output.ToString();
+        }
+
         private async Task<string> InvokeViewComponentInternal(
             ViewDataDictionary viewData, 
             Func<IViewComponentHelper, Task<IHtmlContent>> invoker)
@@ -114,15 +134,8 @@ namespace Smartstore.Web.Razor
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             using var output = new StringWriter(sb);
-            var viewContext = new ViewContext(
-                actionContext,
-                NullView.Instance,
-                viewData,
-                _tempDataFactory.GetTempData(actionContext.HttpContext),
-                output,
-                _mvcViewOptions.Value.HtmlHelperOptions
-            );
 
+            var viewContext = CreateViewContext(actionContext, viewData, output);
             (helper as IViewContextAware)?.Contextualize(viewContext);
 
             var result = await invoker(helper);
@@ -158,6 +171,20 @@ namespace Smartstore.Web.Razor
             }
 
             throw new ViewNotFoundException(viewName, getViewResult.SearchedLocations.Concat(findViewResult.SearchedLocations));
+        }
+
+        private ViewContext CreateViewContext(ActionContext actionContext, ViewDataDictionary viewData, TextWriter output)
+        {
+            var viewContext = new ViewContext(
+                actionContext,
+                NullView.Instance,
+                viewData,
+                _tempDataFactory.GetTempData(actionContext.HttpContext),
+                output,
+                _mvcViewOptions.Value.HtmlHelperOptions
+            );
+
+            return viewContext;
         }
     }
 }
