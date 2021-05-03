@@ -93,7 +93,7 @@ namespace Smartstore.Web.Controllers
             }
 
             customer.ResetCheckoutData(storeId);
-            
+
             // Validate checkout attributes.
             var checkoutAttributes = customer.GenericAttributes.CheckoutAttributes;
 
@@ -138,7 +138,7 @@ namespace Smartstore.Web.Controllers
                     return RedirectToRoute("ShoppingCart");
                 }
             }
-            
+
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(BillingAddress));
         }
@@ -196,7 +196,7 @@ namespace Smartstore.Web.Controllers
             if (!cart.IncludesMatchingItems(x => x.IsShippingEnabled))
             {
                 customer.ShippingAddress = null;
-                
+
                 await _db.SaveChangesAsync();
 
                 return RedirectToAction(nameof(ShippingMethod));
@@ -216,7 +216,7 @@ namespace Smartstore.Web.Controllers
             }
 
             customer.ShippingAddress = address;
-                        
+
             await _db.SaveChangesAsync();
 
             return RedirectToAction(nameof(ShippingMethod));
@@ -273,7 +273,7 @@ namespace Smartstore.Web.Controllers
 
             //    return RedirectToAction(nameof(PaymentMethod));
             //}
-            
+
             var model = new CheckoutShippingMethodModel();
             await cart.AsEnumerable().MapAsync(model);
 
@@ -286,8 +286,7 @@ namespace Smartstore.Web.Controllers
                 Name = "Test",
                 BrandUrl = "test.de",
                 Description = "Dies ist eine dummy shipping method",
-                Fee = "5€",
-                FeeRaw = 5m,
+                Fee = new(5, Services.StoreContext.CurrentStore.PrimaryStoreCurrency),
                 Selected = true
             };
 
@@ -403,6 +402,17 @@ namespace Smartstore.Web.Controllers
 
             var model = new CheckoutPaymentMethodModel();
             await cart.AsEnumerable().MapAsync(model);
+            model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel()
+            {
+                Name = "Super dummy payment",
+                PaymentMethodSystemName = "Super dummy payments",
+                Selected = true,
+                BrandUrl = "test.de",
+                Description = "This is a test payment method.",
+                FullDescription = new("This is a test payment methods full description.", Services.WorkContext.WorkingLanguage, Services.WorkContext.WorkingLanguage),
+                Fee = new(5, Services.StoreContext.CurrentStore.PrimaryStoreCurrency),
+                RequiresInteraction = true,
+            });
 
             var onlyOnePassiveMethod = model.PaymentMethods.Count == 1 && !model.PaymentMethods[0].RequiresInteraction;
 
@@ -417,18 +427,240 @@ namespace Smartstore.Web.Controllers
 
                 customer.GenericAttributes.SelectedPaymentMethod = model.PaymentMethods?.FirstOrDefault()?.PaymentMethodSystemName;
                 await customer.GenericAttributes.SaveChangesAsync();
-                
+
                 var referrer = Services.WebHelper.GetUrlReferrer();
-                if (referrer.EndsWith("/Confirm"))
+                if (referrer.EndsWith("/" + nameof(Confirm)))
                 {
                     return RedirectToAction(nameof(ShippingMethod));
                 }
 
-                // TODO: (ms) (core) Implement missing action Confirm
-                return RedirectToAction("Confirm");
+                return RedirectToAction(nameof(Confirm));
             }
 
             return View(model);
+        }
+
+        [HttpPost, ActionName("PaymentMethod")]
+        [FormValueRequired("nextstep")]
+        public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, CheckoutPaymentMethodModel model)
+        {            
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var customer = Services.WorkContext.CurrentCustomer;
+
+            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
+            if (cart.Count == 0)
+            {
+                return RedirectToRoute("ShoppingCart");
+            }
+
+            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            {
+                return new UnauthorizedResult();
+            }
+
+            // Payment method 
+            if (!paymentMethod.HasValue())
+            {
+                return RedirectToAction(nameof(PaymentMethod));
+            }
+
+            // TODO: (ms) (core) Implement load payment method provider if at least one payment method provider is implemented.
+            //var paymentMethodProvider = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethod, true, storeId);
+            //if (paymentMethodProvider == null)
+            //{
+            //    return RedirectToAction(nameof(PaymentMethod));
+            //}
+
+            //// Save
+            //customer.GenericAttributes.SelectedPaymentMethod = paymentMethod;
+            //await customer.GenericAttributes.SaveChangesAsync();
+
+
+            //// Calidate info
+            //if (!IsValidPaymentForm(paymentMethodProvider.Value, form))
+            //{
+            //    return RedirectToAction(nameof(PaymentMethod));
+            //}
+
+            //// Save payment data so that the user must not re-enter it
+            //form.CopyTo(HttpContext.GetCheckoutState().PaymentData, true);
+
+            return RedirectToAction(nameof(Confirm));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PaymentInfoAjax(string paymentMethodSystemName)
+        {
+            if (Services.WorkContext.CurrentCustomer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            {
+                return Content(string.Empty);
+            }
+
+            if (paymentMethodSystemName.IsEmpty())
+            {
+                return new StatusCodeResult(404);
+            }
+
+            // TODO: (ms) (core) Wait until any payment method has been implemented. Remove true from if clause.
+            var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
+            if (paymentMethod == null)
+            {
+                return new StatusCodeResult(404);
+            }
+
+            var infoWidget = paymentMethod.Value.GetPaymentInfoWidget();
+            if (infoWidget == null)
+            {
+                return Content(string.Empty);
+            }
+
+            // TODO: (ms) (core) Wait for mc implementation of WidgetInvoker.Invoke for action context.
+            // Return as string and render with Content.
+            //var xx = await infoWidget.InvokeAsync(ControllerContext);
+
+            return Content(string.Empty);
+        }
+
+        public async Task<IActionResult> Confirm()
+        {
+            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
+            if (cart.Count == 0)
+            {
+                return RedirectToRoute("ShoppingCart");
+            }
+
+            if (Services.WorkContext.CurrentCustomer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            {
+                return new UnauthorizedResult();
+            }
+
+            var model = new CheckoutConfirmModel();
+            await cart.AsEnumerable().MapAsync(model);
+
+            // TODO: (ms) (core) This code was commented out before in classic, too. What to do with this?
+            //if (TempData["ConfirmOrderWarnings"] != null)
+            //	model.Warnings.AddRange(TempData["ConfirmOrderWarnings"] as IList<string>);
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("Confirm")]
+        public async Task<IActionResult> ConfirmOrder()
+        {
+            var store = Services.StoreContext.CurrentStore;
+            var customer = Services.WorkContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartItemsAsync(storeId: store.Id);
+
+            if (cart.Count == 0)
+            {
+                return RedirectToRoute("ShoppingCart");
+            }
+
+            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            {
+                return new UnauthorizedResult();
+            }
+
+            var warnings = new List<string>();
+            var validatingCartEvent = new ValidatingCartEvent(cart, warnings, customer);
+            await Services.EventPublisher.PublishAsync(validatingCartEvent);
+
+            if (validatingCartEvent.Result != null)
+            {
+                return validatingCartEvent.Result;
+            }
+
+            if (warnings.Any())
+            {
+                NotifyWarning(string.Join(Environment.NewLine, warnings.Take(3)));
+                return RedirectToRoute("ShoppingCart");
+            }
+
+            var model = new CheckoutConfirmModel();
+            OrderPlacementResult placeOrderResult = null;
+            PostProcessPaymentRequest postProcessPaymentRequest = null;
+
+            try
+            {
+                HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest);
+                if (processPaymentRequest == null)
+                {
+                    // Check whether payment workflow is required.
+                    var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
+
+                    if (cartTotalBase.Total.GetValueOrDefault() != decimal.Zero && !HttpContext.GetCheckoutState().IsPaymentSelectionSkipped)
+                    {
+                        return RedirectToAction("PaymentMethod");
+                    }
+
+                    processPaymentRequest = new ProcessPaymentRequest();
+                }
+
+                // Prevent 2 orders being placed within an X seconds time frame.
+                if (!await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
+                {
+                    throw new Exception(T("Checkout.MinOrderPlacementInterval"));
+                }
+
+                // Place order.
+                processPaymentRequest.StoreId = store.Id;
+                processPaymentRequest.CustomerId = customer.Id;
+                processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
+
+                var placeOrderExtraData = new Dictionary<string, string>
+                {
+                    ["CustomerComment"] = HttpContext.Request.Form["customercommenthidden"],
+                    ["SubscribeToNewsLetter"] = HttpContext.Request.Form["SubscribeToNewsLetter"],
+                    ["AcceptThirdPartyEmailHandOver"] = HttpContext.Request.Form["AcceptThirdPartyEmailHandOver"]
+                };
+
+                placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest, placeOrderExtraData);
+
+                if (!placeOrderResult.Success)
+                {
+                    model.Warnings.AddRange(placeOrderResult.Errors.Select(x => HtmlUtils.ConvertPlainTextToHtml(x)));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn(ex, ex.Message);
+
+                if (!model.Warnings.Any(x => x == ex.Message))
+                {
+                    model.Warnings.Add(ex.Message);
+                }
+            }
+
+            if (placeOrderResult == null || !placeOrderResult.Success || model.Warnings.Any())
+            {
+                return View(model);
+            }
+
+            try
+            {
+                postProcessPaymentRequest = new PostProcessPaymentRequest
+                {
+                    Order = placeOrderResult.PlacedOrder
+                };
+
+                await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+            finally
+            {
+                HttpContext.Session.TrySetObject<ProcessPaymentRequest>("OrderPaymentInfo", null);
+                HttpContext.Session.TryRemove(CheckoutState.CheckoutStateSessionKey);
+            }
+
+            if (postProcessPaymentRequest != null && postProcessPaymentRequest.RedirectUrl.HasValue())
+            {
+                return Redirect(postProcessPaymentRequest.RedirectUrl);
+            }
+
+            return RedirectToAction("Completed");
         }
     }
 }
