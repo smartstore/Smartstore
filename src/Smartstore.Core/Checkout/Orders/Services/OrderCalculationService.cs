@@ -427,34 +427,18 @@ namespace Smartstore.Core.Checkout.Orders
                     continue;
                 }
 
-                decimal taxRate, itemExclTax, itemInclTax = 0m;
                 var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
                 var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
-                if (_workingCurrency.RoundOrderItemsEnabled)
-                {
-                    // Gross > Net RoundFix. Unit price is not rounded.
-                    var tax = unitPrice.Tax.Value;
-
-                    // Adaption to eliminate rounding issues.
-                    itemExclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceNet) * cartItem.Item.Quantity;
-                    itemInclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceGross) * cartItem.Item.Quantity;
-                    taxRate = tax.Rate.Rate;
-                }
-                else
-                {
-                    // Subtotal is rounded.
-                    var tax = subtotal.Tax.Value;
-
-                    itemExclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceNet);
-                    itemInclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceGross);
-                    taxRate = tax.Rate.Rate;
-                }
+                // There may occur rounding differences between the subtotal and the sum of the line subtotals if RoundOrderItemsEnabled is 'false'.
+                var tax = subtotal.Tax.Value;
+                var itemExclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceNet);
+                var itemInclTax = _workingCurrency.RoundIfEnabledFor(tax.PriceGross);
 
                 subtotalExclTaxWithoutDiscount += itemExclTax;
                 subtotalInclTaxWithoutDiscount += itemInclTax;
 
-                result.TaxRates.Add(taxRate, itemInclTax - itemExclTax);
+                result.TaxRates.Add(tax.Rate.Rate, itemInclTax - itemExclTax);
 
                 result.LineItems.Add(new ShoppingCartLineItem(cartItem)
                 {

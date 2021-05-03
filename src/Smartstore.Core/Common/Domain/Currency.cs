@@ -92,7 +92,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets a value indicating whether rounding of order items is enabled
         /// </summary>
-        public bool RoundOrderItemsEnabled { get; set; }
+        public bool RoundOrderItemsEnabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the number of decimal places to round to

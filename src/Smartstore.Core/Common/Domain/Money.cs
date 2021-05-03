@@ -297,6 +297,8 @@ namespace Smartstore.Core.Common
                     });
                 }
 
+                nf.CurrencyDecimalDigits = DecimalDigits;
+
                 formatted = RoundedAmount.ToString("C", nf);
             }
 
