@@ -9,10 +9,6 @@ namespace Smartstore.Core.Identity
         /// Overload to pass roleId directly as int.
         /// </summary>
         public static Task<CustomerRole> FindByIdAsync(this RoleManager<CustomerRole> roleManager, int roleId)
-        {
-            Guard.NotZero(roleId, nameof(roleId));
-
-            return roleManager.FindByIdAsync(roleId.ToString());
-        }
+            => roleManager.FindByIdAsync(roleId.ToString());
     }
 }

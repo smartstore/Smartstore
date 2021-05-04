@@ -141,6 +141,7 @@ namespace Smartstore.Web.Controllers
                     customer = await _userManager.FindByEmailAsync(userNameOrEmail) ?? await _userManager.FindByNameAsync(userNameOrEmail);
                 }
 
+                // TODO: (mh) (core) Why not calling the 2nd overload with Customer as parameter?
                 var result = await _signInManager.PasswordSignInAsync(userNameOrEmail, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
