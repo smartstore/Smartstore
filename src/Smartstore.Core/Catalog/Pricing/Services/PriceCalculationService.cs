@@ -171,11 +171,26 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var unitPrice = await CreateCalculatedPrice(calculatorContext, product);
 
-            var subtotal = context.Quantity > 1
-                ? await CreateCalculatedPrice(calculatorContext, product, context.Quantity)
-                : unitPrice;
+            if (context.Quantity > 1)
+            {
+                var options = context.Options;
+                var subtotal = await CreateCalculatedPrice(calculatorContext, product, context.Quantity);
 
-            return (unitPrice, subtotal);
+                // Avoid rounding differences between unit price and line subtotal when calculating with net prices.
+                // ... but this produces a rounding difference between subtotal and line subtotals which can only be solved by a hack.
+                var priceAmount = options.RoundingCurrency.RoundIfEnabledFor(unitPrice.FinalPrice.Amount) * context.Quantity;
+                subtotal.FinalPrice = new(priceAmount, unitPrice.FinalPrice.Currency);
+
+                return (unitPrice, subtotal);
+            }
+
+            return (unitPrice, unitPrice);
+
+            //var subtotal = context.Quantity > 1
+            //    ? await CreateCalculatedPrice(calculatorContext, product, context.Quantity)
+            //    : unitPrice;
+
+            //return (unitPrice, subtotal);
         }
 
         public virtual async Task<Money> CalculateProductCostAsync(Product product, ProductVariantAttributeSelection selection = null)
@@ -264,7 +279,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var options = context.Options;
 
-            // Calculate the subtotal price instead of the unit price. Do not round here if the unit price is requested!
+            // Calculate the subtotal price instead of the unit price.
             if (subtotalQuantity > 1 && context.FinalPrice > 0)
             {
                 context.FinalPrice = options.RoundingCurrency.RoundIfEnabledFor(context.FinalPrice) * subtotalQuantity;

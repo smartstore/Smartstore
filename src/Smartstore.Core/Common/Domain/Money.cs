@@ -13,9 +13,9 @@ namespace Smartstore.Core.Common
     public readonly struct Money : IHtmlContent, IConvertible, IFormattable, IComparable, IComparable<Money>, IEquatable<Money>
     {
         public readonly static Money Zero;
-        
-        // Key: string = Currency.DisplayLocale, bool = useIsoCodeAsSymbol
-        private readonly static ConcurrentDictionary<(string, bool), NumberFormatInfo> _numberFormatClones = new();
+
+        // Key: string = Currency.DisplayLocale, bool = useIsoCodeAsSymbol, int = DecimalDigits
+        private readonly static ConcurrentDictionary<(string, bool, int), NumberFormatInfo> _numberFormatClones = new();
 
         public Money(Currency currency)
             : this(0m, currency)
@@ -285,21 +285,20 @@ namespace Smartstore.Core.Common
             else
             {
                 showCurrency ??= !HideCurrency;
-                if (showCurrency == false || useISOCodeAsSymbol)
+
+                if (showCurrency == false || useISOCodeAsSymbol || DecimalDigits != nf.CurrencyDecimalDigits)
                 {
                     var currencyCode = Currency.CurrencyCode;
-                    nf = Currency.NumberFormat;
-                    nf = _numberFormatClones.GetOrAdd((Currency.DisplayLocale, useISOCodeAsSymbol), key => 
+                    var decimalDigits = DecimalDigits;
+
+                    nf = _numberFormatClones.GetOrAdd((Currency.DisplayLocale, useISOCodeAsSymbol, decimalDigits), key =>
                     {
                         var clone = (NumberFormatInfo)nf.Clone();
-                        nf.CurrencySymbol = showCurrency == false ? string.Empty : currencyCode;
+                        clone.CurrencySymbol = showCurrency == false ? string.Empty : (useISOCodeAsSymbol ? currencyCode : nf.CurrencySymbol);
+                        clone.CurrencyDecimalDigits = decimalDigits;
                         return clone;
                     });
                 }
-
-                // TODO: (mg) (core) Setting this outside of the cache getter requires an app restart
-                // after Currency.RoundNumDecimals has been changed. DecimalDigits needs to be part of the cache key.
-                nf.CurrencyDecimalDigits = DecimalDigits;
 
                 formatted = RoundedAmount.ToString("C", nf);
             }
