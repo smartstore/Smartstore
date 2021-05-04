@@ -513,11 +513,7 @@ namespace Smartstore.Web.Controllers
                 return Content(string.Empty);
             }
 
-            // TODO: (ms) (core) Wait for mc implementation of WidgetInvoker.Invoke for action context.
-            // Return as string and render with Content.
-            //var xx = await infoWidget.InvokeAsync(ControllerContext);
-
-            return Content(string.Empty);
+            return Content(await this.InvokeWidgetAsync(infoWidget));
         }
 
         public async Task<IActionResult> Confirm()
