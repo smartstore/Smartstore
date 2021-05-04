@@ -45,18 +45,6 @@
 
                     @if (Model.TermsOfServiceEnabled)
                     {
-                        // TODO: (ms) (core) I don't know anymore why we placed this here in the first place.
-                        // But I don't see a reason why we can't place this in the script block in the bottom now.
-@*                        <script sm-target-zone="scripts" data-origin="confirm-method">
-                            $(function () {
-                                var modal = $("#terms-of-service-modal .modal-body");
-                                $(".terms-trigger").on("click", function (e) {
-                                    e.preventDefault();
-                                    modal.html('<iframe id="iframe-terms-of-service" src="' + $(this).attr('href') + '" frameBorder="0" class="h-100" />');
-                                });
-                            });
-                        </script>*@
-
                         <div class="form-check">
                             <input id="termsofservice" type="checkbox" name="termsofservice" class="form-check-input" />
                             <label class="mb-0 form-check-label" for="termsofservice">@Html.Raw(terms)</label>
@@ -131,6 +119,18 @@
 
 <script sm-target-zone="scripts" data-origin="confirm-method">
     $(function () {
+
+        @if (Model.TermsOfServiceEnabled)
+        {
+            <text>
+                var modal = $("#terms-of-service-modal .modal-body");
+                $(".terms-trigger").on("click", function (e) {
+                    e.preventDefault();
+                    modal.html('<iframe id="iframe-terms-of-service" src="' + $(this).attr('href') + '" frameBorder="0" class="h-100" />');
+                });
+            </text>
+        }
+        
         var buyButton = $(".btn-buy");
 
         function setBuyButtonState(disable) {
@@ -166,11 +166,6 @@
                 else {
                     termOfServiceOk = true;
                 }
-                var modal = $("#terms-of-service-modal .modal-body");
-                $(".terms-trigger").on("click", function (e) {
-                    e.preventDefault();
-                    modal.html('<iframe id="iframe-terms-of-service" src="' + $(this).attr('href') + '" frameBorder="0" class="h-100" />');
-                });
 				</text>
             }
 
@@ -181,7 +176,7 @@
                 }
                 else if (!$(this).is(':checked')) {
                     userAgreementsOk = false;
-                    displayNotification('@T("Checkout.DownloadUserAgreement.PleaseAgree").JsValue');
+                    displayNotification(@T("Checkout.DownloadUserAgreement.PleaseAgree").JsValue);
                     if (termOfServiceOk) {
                         $.scrollTo(cartItems, 800, { offset: -20 });
                     }
@@ -199,7 +194,7 @@
                     }
                     else if (!$(this).is(':checked')) {
                         esdRevocationWaiverOk = false;
-                        displayNotification('@T("Checkout.EsdRevocationWaiverConfirmation.PleaseAgree").JsValue');
+                        displayNotification(@T("Checkout.EsdRevocationWaiverConfirmation.PleaseAgree").JsValue);
                         if (termOfServiceOk) {
                             $.scrollTo(cartItems, 800, { offset: -20 });
                         }
@@ -222,7 +217,7 @@
                         setBuyButtonState(true);
 
                         if (_.isTrue(showThrobber)) {
-                            $.throbber.show({ white: true, small: false, speed: 0, message: '@T("Checkout.OrderCompletes").JsValue');
+                            $.throbber.show({ white: true, small: false, speed: 0, message: @T("Checkout.OrderCompletes").JsValue});
                         }
                     }
                     catch (e) { }
