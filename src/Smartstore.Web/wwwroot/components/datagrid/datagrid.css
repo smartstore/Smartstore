@@ -44,16 +44,24 @@
 
 .datagrid-resize-handle {
   position: absolute;
+  display: block;
   top: 0;
   right: 0;
   bottom: 0;
-  background-color: #dee2e6;
+  width: 10px;
   opacity: 0;
-  width: 3px;
   cursor: ew-resize;
   transition: opacity 0.12s; }
+  .datagrid-resize-handle:after {
+    position: absolute;
+    content: ' ';
+    width: 2px;
+    top: 0;
+    bottom: 0;
+    left: 4px;
+    background-color: #dee2e6; }
   thead:hover .datagrid-resize-handle {
-    opacity: 0.5; }
+    opacity: 0.65; }
   .datagrid-resize-handle:hover,
   .datagrid--resizing .datagrid-resize-handle {
     opacity: 1 !important; }

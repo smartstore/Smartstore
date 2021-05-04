@@ -35,7 +35,7 @@ namespace Smartstore.Core.Rules
 
         public RuleOperator[] Operators
         {
-            get => _operators ?? (_operators = RuleType.GetValidOperators(IsComparingSequences).ToArray());
+            get => _operators ??= RuleType.GetValidOperators(IsComparingSequences).ToArray();
             set => _operators = value;
         }
     }

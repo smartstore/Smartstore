@@ -45,6 +45,23 @@ namespace Smartstore.Web.TagHelpers.Admin
             component.Attributes[":data-source"] = "dataSource";
             component.Attributes[":columns"] = "columns";
 
+            // Generate template slots
+            foreach (var column in Columns)
+            {
+                if (column.DisplayTemplate?.IsEmptyOrWhiteSpace == false)
+                {
+                    var displaySlot = new TagBuilder("template");
+                    displaySlot.Attributes["v-slot:display-" + column.NormalizedMemberName] = "cell";
+                    displaySlot.InnerHtml.AppendHtml(column.DisplayTemplate);
+                    component.InnerHtml.AppendHtml(displaySlot);
+                }
+
+                if (column.EditTemplate?.IsEmptyOrWhiteSpace == false)
+                {
+                    //
+                }
+            }
+
             output.Content.AppendHtml(component);
 
             output.PostElement.AppendHtmlLine(
@@ -69,15 +86,20 @@ namespace Smartstore.Web.TagHelpers.Admin
                     update = DataSource.Update,
                     delete = DataSource.Delete
                 },
-                columns = new List<object>(Columns.Count)
+                columns = new List<object>(Columns.Count),
+                command = new
+                {
+                    page = 1,
+                    pageSize = 25
+                }
             };
 
             foreach (var col in Columns)
             {
                 data.columns.Add(new 
                 {
-                    field = col.For.Name,
-                    name = col.For.Metadata.DisplayName,
+                    member = col.MemberName,
+                    title = col.For.Metadata.DisplayName,
                     width = col.Width
                 });
             }

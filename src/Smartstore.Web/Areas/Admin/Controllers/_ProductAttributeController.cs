@@ -11,6 +11,7 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
+using Smartstore.Web.Modelling.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -42,13 +43,12 @@ namespace Smartstore.Admin.Controllers
         [ActionName("List")]
         [HttpPost, IgnoreAntiforgeryToken] // TODO: (core) Why is posted _RequestVerificationToken not valid?
         [Permission(Permissions.Catalog.Variant.Read)]
-        public async Task<IActionResult> List_Ajax()
+        public async Task<IActionResult> List(GridCommand command)
         {
-            //var attributes = await _db.ProductAttributes.ToListAsync();
-            //var mapper = MapperFactory.GetMapper<ProductAttribute, ProductAttributeModel>();
             var data = await MapperFactory.MapListAsync<ProductAttribute, ProductAttributeModel>(_db.ProductAttributes);
+            var model = new GridModel<ProductAttributeModel>(data) { Total = data.Count };
 
-            return Json(data);
+            return Json(model);
         }
 
         #endregion

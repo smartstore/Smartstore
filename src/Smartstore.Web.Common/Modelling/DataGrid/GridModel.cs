@@ -1,0 +1,39 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+
+namespace Smartstore.Web.Modelling.DataGrid
+{
+    public interface IGridModel
+    {
+        IEnumerable Rows { get; }
+        int Total { get; }
+        object Aggregates { get; }
+    }
+
+    public class GridModel<T> : IGridModel
+    {
+        public GridModel()
+        {
+        }
+
+        public GridModel(IEnumerable<T> rows)
+        {
+            Rows = Guard.NotNull(rows, nameof(rows));
+        }
+
+        [JsonProperty("rows")]
+        public IEnumerable<T> Rows { get; set; }
+
+        [JsonIgnore]
+        IEnumerable IGridModel.Rows 
+            => this.Rows;
+
+        [JsonProperty("total")]
+        public int Total { get; set; }
+
+        [JsonProperty("aggregates")]
+        public object Aggregates { get; set; }
+    }
+}

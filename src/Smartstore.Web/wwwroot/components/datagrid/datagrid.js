@@ -6,18 +6,21 @@
             <thead>
                 <tr>
                     <th v-for="(column, columnIndex) in columns"
-                        :data-field="column.field"
+                        :data-member="column.member"
                         ref="column">
-                        <span>{{ column.name }}</span>
+                        <span>{{ column.title }}</span>
                         <span class="datagrid-resize-handle" v-on:mousedown="onStartResize($event, column, columnIndex)"></span>
                     </th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(row, rowIndex) in rows" :key="row.Id">
-                    <td v-for="(column, columnIndex) in columns" 
+                    <td v-for="(column, columnIndex) in columns"
+                        ref="cell"
                         :key="row.Id + '-' + columnIndex">
-                        <span>{{ row[column.field] }}</span>
+                        <slot :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                            <span>{{ row[column.member] }}</span>
+                        </slot>
                     </td>
                 </tr>
             </tbody>
@@ -32,19 +35,24 @@
         columns: {
             type: Array,
             required: true
+        },
+
+        command: {
+            type: Object,
+            required: false
         }
     },
     created: function () {
 
     },
     mounted: function () {
-        //this._table = this.$root.$el.getElementsByClassName('datagrid')[0];
-        //console.log(this.$root.$el);
         this.read();
     },
     data: function () {
         return {
-            rows: []
+            rows: [],
+            total: 0,
+            aggregates: []
         }
     },
     computed: {
@@ -54,20 +62,36 @@
     },
     methods: {
         read() {
+            var self = this;
+
             const input = document.querySelector('input[name=__RequestVerificationToken]');
-            const body = { __RequestVerificationToken: input.value };
-            console.log(body);
-            fetch(this.dataSource.read, {
-                method: 'POST',
-                cache: 'no-cache',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            })
-            .then(r => r.json())
-            .then(data => { this.rows = data; });
+            const command = { __RequestVerificationToken: input.value };
+            console.log(command);
+
+            $.ajax({
+                type: 'POST',
+                cache: false,
+                dataType: 'json',
+                data: command,
+                success(result) {
+                    console.log(result);
+                    self.rows = result.rows !== undefined ? result.rows : result;
+                    self.total = result.total || self.rows.length;
+                    self.aggregates = result.aggregates !== undefined ? result.aggregates : [];
+                }
+            });
+
+            //fetch(this.dataSource.read, {
+            //    method: 'POST',
+            //    cache: 'no-cache',
+            //    headers: {
+            //        'Accept': 'application/json',
+            //        'Content-Type': 'application/json'
+            //    },
+            //    body: JSON.stringify(body)
+            //})
+            //.then(r => r.json())
+            //.then(data => { this.rows = data; });
         },
 
         generateGridTemplateColumns() {
