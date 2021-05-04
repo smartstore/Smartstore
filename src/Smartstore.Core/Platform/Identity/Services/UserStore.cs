@@ -451,14 +451,19 @@ namespace Smartstore.Core.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            // INFO: (mh) (core) EF LINQ cannot translate TranslateProviderToSystemName(string) to SQL.
+            var providerSystemName = TranslateProviderToSystemName(loginProvider);
             var record = await _externalAuthentication
                 .Where(x => x.ExternalIdentifier == providerKey 
                     && x.CustomerId == user.Id 
-                    && x.ProviderSystemName == TranslateProviderToSystemName(loginProvider))
+                    && x.ProviderSystemName == providerSystemName)
                 .FirstOrDefaultAsync(cancellationToken);
             
-            _externalAuthentication.Remove(record);
-            await SaveChanges(cancellationToken);
+            if (record != null)
+            {
+                _externalAuthentication.Remove(record);
+                await SaveChanges(cancellationToken);
+            }
         }
 
         public async Task<IList<UserLoginInfo>> GetLoginsAsync(Customer user, CancellationToken cancellationToken = default)
@@ -485,9 +490,10 @@ namespace Smartstore.Core.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var providerSystemName = TranslateProviderToSystemName(loginProvider);
             var record = await _externalAuthentication
                 .FirstOrDefaultAsync(x => x.ExternalIdentifier == providerKey 
-                    && x.ProviderSystemName == TranslateProviderToSystemName(loginProvider), cancellationToken);
+                    && x.ProviderSystemName == providerSystemName, cancellationToken);
             
             if (record != null)
             {
@@ -549,14 +555,14 @@ namespace Smartstore.Core.Identity
         {
             // TODO: (mh) (core) This may change in future as systemnames will probably be changing.
             // But for now we keep it this way for compatibility.
-            switch (provider)
+            switch (provider.ToLowerInvariant())
             {
-                case "Facebook":
-                    return "SmartStore.FacebookAuth";
-                case "Twitter":
-                    return "SmartStore.TwitterAuth";
-                case "Google":
-                    return "SmartStore.GoogleAuth";
+                case "facebook":
+                    return "Smartstore.FacebookAuth";
+                case "twitter":
+                    return "Smartstore.TwitterAuth";
+                case "google":
+                    return "Smartstore.GoogleAuth";
                 default:
                     break;
             }
@@ -568,13 +574,13 @@ namespace Smartstore.Core.Identity
         {
             // TODO: (mh) (core) This may change in future as systemnames will probably be changing.
             // But for now we keep it this way for compatibility.
-            switch (systemName)
+            switch (systemName.ToLowerInvariant())
             {
-                case "SmartStore.FacebookAuth":
+                case "smartstore.facebookauth":
                     return "Facebook";
-                case "SmartStore.TwitterAuth":
+                case "smartstore.twitterauth":
                     return "Twitter";
-                case "SmartStore.GoogleAuth":
+                case "smartstore.googleauth":
                     return "Google";
                 default:
                     break;
