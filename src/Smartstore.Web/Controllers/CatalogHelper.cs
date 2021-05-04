@@ -1584,7 +1584,7 @@ namespace Smartstore.Web.Controllers
             model.AddToCart.QuantityUnitName = model.QuantityUnitName; // TODO: (mc) remove 'QuantityUnitName' from parent model later
             model.AddToCart.QuantityStep = product.QuantityStep > 0 ? product.QuantityStep : 1;
             model.AddToCart.HideQuantityControl = product.HideQuantityControl;
-            model.AddToCart.QuantiyControlType = product.QuantiyControlType;
+            model.AddToCart.QuantityControlType = product.QuantiyControlType;
             model.AddToCart.AvailableForPreOrder = product.AvailableForPreOrder;
 
             // 'add to cart', 'add to wishlist' buttons.
