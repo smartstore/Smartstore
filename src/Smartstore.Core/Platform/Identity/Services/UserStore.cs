@@ -441,7 +441,7 @@ namespace Smartstore.Core.Identity
                 CustomerId = user.Id,
                 Email = user.Email,
                 ExternalIdentifier = login.ProviderKey,
-                ProviderSystemName = "SmartStore.Facebook"  // TODO: (mh) (core) Translate login.LoginProvider into ProviderSystemName
+                ProviderSystemName = TranslateProviderToSystemName(login.LoginProvider)
             });
 
             await SaveChanges(cancellationToken);
@@ -452,8 +452,9 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             var record = await _externalAuthentication
-                // TODO: (mh) (core) Are you sure that this selects the correct record? What about "loginProvider" or "Customer.Id"?
-                .Where(x => x.ExternalIdentifier == providerKey)
+                .Where(x => x.ExternalIdentifier == providerKey 
+                    && x.CustomerId == user.Id 
+                    && x.ProviderSystemName == TranslateProviderToSystemName(loginProvider))
                 .FirstOrDefaultAsync(cancellationToken);
             
             _externalAuthentication.Remove(record);
@@ -471,7 +472,7 @@ namespace Smartstore.Core.Identity
             var infos = records.Select(x => {
                 return new UserLoginInfo
                 (
-                    x.ProviderSystemName,               // TODO: (mh) (core) Translate ProviderSystemName back to login.LoginProvider.
+                    TranslateSystemNameToProvider(x.ProviderSystemName),
                     x.ExternalDisplayIdentifier,
                     x.ExternalIdentifier
                 );
@@ -485,8 +486,8 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             var record = await _externalAuthentication
-                // TODO: (mh) (core) Are you sure that this selects the correct record? What about "loginProvider"?
-                .FirstOrDefaultAsync(x => x.ExternalIdentifier == providerKey, cancellationToken);
+                .FirstOrDefaultAsync(x => x.ExternalIdentifier == providerKey 
+                    && x.ProviderSystemName == TranslateProviderToSystemName(loginProvider), cancellationToken);
             
             if (record != null)
             {
@@ -538,6 +539,48 @@ namespace Smartstore.Core.Identity
         public Task SetPhoneNumberConfirmedAsync(Customer user, bool confirmed, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
+        }
+
+        #endregion
+
+        #region Helpers
+
+        public static string TranslateProviderToSystemName(string provider)
+        {
+            // TODO: (mh) (core) This may change in future as systemnames will probably be changing.
+            // But for now we keep it this way for compatibility.
+            switch (provider)
+            {
+                case "Facebook":
+                    return "SmartStore.FacebookAuth";
+                case "Twitter":
+                    return "SmartStore.TwitterAuth";
+                case "Google":
+                    return "SmartStore.GoogleAuth";
+                default:
+                    break;
+            }
+
+            return string.Empty;
+        }
+
+        public static string TranslateSystemNameToProvider(string systemName)
+        {
+            // TODO: (mh) (core) This may change in future as systemnames will probably be changing.
+            // But for now we keep it this way for compatibility.
+            switch (systemName)
+            {
+                case "SmartStore.FacebookAuth":
+                    return "Facebook";
+                case "SmartStore.TwitterAuth":
+                    return "Twitter";
+                case "SmartStore.GoogleAuth":
+                    return "Google";
+                default:
+                    break;
+            }
+
+            return string.Empty;
         }
 
         #endregion

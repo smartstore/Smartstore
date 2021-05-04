@@ -179,9 +179,6 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/logout", Name = "Logout")]
         public async Task<IActionResult> Logout()
         {
-            // TODO: (mh) (core) Check if this still needed.
-            //ExternalAuthorizerHelper.RemoveParameters();
-
             var workContext = Services.WorkContext;
             var db = Services.DbContext;
 
@@ -511,12 +508,9 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                // TODO: (mh) (core) Find out if this is still needed, how it was used & implement.
-                //ExternalAuthorizerHelper.StoreParametersForRoundTrip(parameters);
-
                 // User doesn't have an account yet.
                 // INFO: This was adapted from classic ExternalAuthorizer.Authorize()
-                if (AutoRegistrationIsEnabled())
+                if (_customerSettings.UserRegistrationType != UserRegistrationType.Disabled)
                 {
                     var customer = new Customer
                     {
@@ -549,16 +543,9 @@ namespace Smartstore.Web.Controllers
                     // TODO: (mh) (core) Use notifier?
                     AddErrors(createResult);
                 }
-                else if (RegistrationIsEnabled())
-                {
-                    // TODO: (mh) (core) Find out what to do!
-
-                    // migrate shopping cart.
-                    //await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
-                }
                 else
                 {
-                    // TODO: (mh) (core) Creating new accounts is disabled. Display to user!
+                    // TODO: (mh) (core) Creating new accounts is disabled. Display to user!   
                 }
 
                 return RedirectToLocal(returnUrl);
@@ -902,16 +889,6 @@ namespace Smartstore.Web.Controllers
         private IActionResult RedirectToLocal(string returnUrl)
         {
             return RedirectToReferrer(returnUrl, () => RedirectToRoute("Login"));
-        }
-
-        private bool AutoRegistrationIsEnabled()
-        {
-            return _customerSettings.UserRegistrationType != UserRegistrationType.Disabled && _externalAuthenticationSettings.AutoRegisterEnabled;
-        }
-
-        private bool RegistrationIsEnabled()
-        {
-            return _customerSettings.UserRegistrationType != UserRegistrationType.Disabled && !_externalAuthenticationSettings.AutoRegisterEnabled;
         }
 
         #endregion

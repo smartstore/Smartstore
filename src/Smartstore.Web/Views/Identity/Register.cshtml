@@ -17,12 +17,10 @@
 
                 <div asp-validation-summary="ModelOnly"></div>
 
-                @*TODO: (mh) (core) Create partial *@
-                @*@{ Html.RenderPartial("_ExternalAuthentication.AssociateMessage"); }*@
-
                 <fieldset class="content-group">
                     <legend><span>@T("Account.YourPersonalDetails")</span></legend>
 
+                    @*TODO: (mh) (core) Test again *@
                     <honeypot sm-enabled="true" />
 
                     <div sm-if="Model.GenderEnabled" class="form-group row">
@@ -145,9 +143,9 @@
                             <div class="form-text text-muted vat-note">@T("Account.Fields.VatNumber.Note")</div>
                         </div>
                     </div>
-                    
+
                 </fieldset>
-                
+
                 <fieldset sm-if="Model.StreetAddressEnabled || Model.StreetAddress2Enabled || Model.ZipPostalCodeEnabled || Model.CityEnabled || Model.CountryEnabled" class="content-group">
                     <legend><span>@T("Account.YourAddress")</span></legend>
 

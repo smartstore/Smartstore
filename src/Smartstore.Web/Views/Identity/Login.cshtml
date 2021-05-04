@@ -117,11 +117,7 @@
 		</div>
 		<div class="col-12 col-md-5 col-lg-6 col-xl-7 order-md-first">
 			<div class="page-info">
-				@{
-                    // TODO: (mh) (core) Finish this.
-					//Html.RenderPartial("_ExternalAuthentication.AssociateMessage");
-					@await Component.InvokeAsync("TopicBlock", new { systemName = "LoginRegistrationInfo", bodyOnly = true, isLead = true })
-				}
+				@await Component.InvokeAsync("TopicBlock", new { systemName = "LoginRegistrationInfo", bodyOnly = true, isLead = true })
 			</div>
 
 			<div class="register-block">
