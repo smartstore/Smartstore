@@ -47,9 +47,9 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             public int QuantityStep { get; set; }
 
-            public QuantityControlType QuantiyControlType { get; set; }
+            public QuantityControlType QuantityControlType { get; set; }
 
-            public string UnitPrice { get; set; }
+            public Money UnitPrice { get; set; }
 
             public string BasePriceInfo { get; set; }
 

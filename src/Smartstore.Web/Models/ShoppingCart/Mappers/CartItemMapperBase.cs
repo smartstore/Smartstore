@@ -151,7 +151,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             if (product.CallForPrice)
             {
-                to.UnitPrice = T("Products.CallForPrice");
+                to.UnitPrice = to.UnitPrice.WithPostFormat(T("Products.CallForPrice"));
                 to.SubTotal = to.UnitPrice;
             }
             else if (item.BundleItem == null)
@@ -162,15 +162,15 @@ namespace Smartstore.Web.Models.ShoppingCart
                     var lineItem = subtotal.LineItems.FirstOrDefault(x => x.Item.Item.Id == item.Id);
 
                     var unitPrice = CurrencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
-                    to.UnitPrice = unitPrice.WithPostFormat(taxFormat).ToString();
+                    to.UnitPrice = unitPrice.WithPostFormat(taxFormat);
 
                     var itemSubtotal = CurrencyService.ConvertFromPrimaryCurrency(lineItem.Subtotal.FinalPrice.Amount, currency);
-                    to.SubTotal = itemSubtotal.WithPostFormat(taxFormat).ToString();
+                    to.SubTotal = itemSubtotal.WithPostFormat(taxFormat);
 
                     if (lineItem.Subtotal.DiscountAmount > 0)
                     {
                         var itemDiscount = CurrencyService.ConvertFromPrimaryCurrency(lineItem.Subtotal.DiscountAmount.Amount, currency);
-                        to.Discount = itemDiscount.WithPostFormat(taxFormat).ToString();
+                        to.Discount = itemDiscount.WithPostFormat(taxFormat);
                     }
 
                     to.BasePrice = _priceCalculationService.GetBasePriceInfo(product, unitPrice);
@@ -181,12 +181,12 @@ namespace Smartstore.Web.Models.ShoppingCart
                     var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(from, calculationOptions);
                     var (unitPrice, itemSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
 
-                    to.UnitPrice = unitPrice.FinalPrice.ToString();
-                    to.SubTotal = itemSubtotal.FinalPrice.ToString();
+                    to.UnitPrice = unitPrice.FinalPrice;
+                    to.SubTotal = itemSubtotal.FinalPrice;
 
                     if (itemSubtotal.DiscountAmount > 0)
                     {
-                        to.Discount = itemSubtotal.DiscountAmount.ToString();
+                        to.Discount = itemSubtotal.DiscountAmount;
                     }
                 }
             }

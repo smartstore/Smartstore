@@ -234,7 +234,7 @@ namespace Smartstore.Web.Controllers
                 case TaxDisplayType.ExcludingTax:
                     {
                         var unitPriceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceExclTax, order.CurrencyRate, customerCurrency);
-                        model.UnitPrice = unitPriceExclTaxInCustomerCurrency.ToString();
+                        model.UnitPrice = unitPriceExclTaxInCustomerCurrency;
 
                         var priceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.PriceExclTax, order.CurrencyRate, customerCurrency);
                         model.SubTotal = priceExclTaxInCustomerCurrency.ToString();
@@ -244,7 +244,7 @@ namespace Smartstore.Web.Controllers
                 case TaxDisplayType.IncludingTax:
                     {
                         var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency);
-                        model.UnitPrice = unitPriceInclTaxInCustomerCurrency.ToString();
+                        model.UnitPrice = unitPriceInclTaxInCustomerCurrency;
 
                         var priceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.PriceInclTax, order.CurrencyRate, customerCurrency);
                         model.SubTotal = priceInclTaxInCustomerCurrency.ToString();

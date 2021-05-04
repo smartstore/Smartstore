@@ -201,7 +201,7 @@ namespace Smartstore.Web.Models.Catalog
             public LocalizedValue<string> QuantityUnitName { get; set; }
             public int QuantityStep { get; set; }
             public bool HideQuantityControl { get; set; }
-            public QuantityControlType QuantiyControlType { get; set; }
+            public QuantityControlType QuantityControlType { get; set; }
 
             public bool DisableBuyButton { get; set; }
             public bool DisableWishlistButton { get; set; }

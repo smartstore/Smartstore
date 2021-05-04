@@ -200,12 +200,12 @@ namespace Smartstore.Web.Models.ShoppingCart
                 // Unit prices.
                 if (product.CallForPrice)
                 {
-                    cartItemModel.UnitPrice = T("Products.CallForPrice");
+                    cartItemModel.UnitPrice = cartItemModel.UnitPrice.WithPostFormat(T("Products.CallForPrice"));
                 }
                 else if (lineItems.TryGetValue(item.Id, out var lineItem))
                 {
                     var unitPrice = _currencyService.ConvertFromPrimaryCurrency(lineItem.UnitPrice.FinalPrice.Amount, currency);
-                    cartItemModel.UnitPrice = unitPrice.WithPostFormat(taxFormat).ToString(true);
+                    cartItemModel.UnitPrice = unitPrice.WithPostFormat(taxFormat);
 
                     if (unitPrice != 0 && to.ShowBasePrice)
                     {

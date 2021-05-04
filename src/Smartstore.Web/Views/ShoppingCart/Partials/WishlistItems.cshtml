@@ -120,7 +120,7 @@
             <div class="cart-col cart-col-price cart-col-subtotal" data-caption="@T("Order.Product(s).Total")">
                 <span class="price">@item.SubTotal</span>
         
-                <div sm-if="item.Discount.HasValue()" class="discount">
+                <div sm-if="item.Discount > decimal.Zero" class="discount">
                     <span>@T("ShoppingCart.ItemYouSave"):</span>
                     <br />
                     <span>@item.Discount</span>

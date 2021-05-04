@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
@@ -103,7 +104,7 @@ namespace Smartstore.Web.Models.Orders
             public string ProductSeName { get; set; }
             public string ProductUrl { get; set; }
             public ProductType ProductType { get; set; }
-            public string UnitPrice { get; set; }
+            public Money UnitPrice { get; set; }
             public string SubTotal { get; set; }
             public int Quantity { get; set; }
             public string QuantityUnit { get; set; }
