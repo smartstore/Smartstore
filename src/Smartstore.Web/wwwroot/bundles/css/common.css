@@ -5821,7 +5821,7 @@
 
 @font-face {
     font-family: 'fontastic';
-    src: url('../../fontastic/fonts/fontastic.woff') format('woff'),url('../../fontastic/fonts/fontastic.ttf') format('truetype'),url('../../fontastic/fonts/fontastic.svg#fontastic') format('svg');
+    src: url('../../lib/fontastic/fonts/fontastic.woff') format('woff'),url('../../lib/fontastic/fonts/fontastic.ttf') format('truetype'),url('../../lib/fontastic/fonts/fontastic.svg#fontastic') format('svg');
     font-weight: normal;
     font-style: normal
 }
