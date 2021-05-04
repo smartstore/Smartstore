@@ -137,7 +137,7 @@
                         <label asp-for="VatNumber" class="col-md-3 col-form-label" attr-class='(Model.VatRequired, "required")'></label>
                         <div class="col-md-9">
                             <div class="input-group">
-                                <input asp-for="Company" sm-required="Model.VatRequired" class="remember" />
+                                <input asp-for="VatNumber" sm-required="Model.VatRequired" class="remember" />
                                 <span asp-validation-for="VatNumber"></span>
 
                                 <div sm-if="Model.VatNumberStatusNote.HasValue()" class="input-group-append"><span class="input-group-text">@Model.VatNumberStatusNote</span></div>

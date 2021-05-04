@@ -122,33 +122,29 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
+                Customer customer;
                 string userNameOrEmail;
 
                 if (model.CustomerLoginType == CustomerLoginType.Username)
                 {
-                    userNameOrEmail = model.Username;
+                    userNameOrEmail = model.Username.TrimSafe();
+                    customer = await _userManager.FindByNameAsync(userNameOrEmail);
                 }
                 else if (model.CustomerLoginType == CustomerLoginType.Email)
                 {
-                    userNameOrEmail = model.Email;
+                    userNameOrEmail = model.Email.TrimSafe();
+                    customer = await _userManager.FindByEmailAsync(userNameOrEmail);
                 }
                 else
                 {
-                    userNameOrEmail = model.UsernameOrEmail;
+                    userNameOrEmail = model.UsernameOrEmail.TrimSafe();
+                    customer = await _userManager.FindByEmailAsync(userNameOrEmail) ?? await _userManager.FindByNameAsync(userNameOrEmail);
                 }
 
-                userNameOrEmail = userNameOrEmail.TrimSafe();
-
-                // TODO: (mh) (core) Test if login with usernames work. Doesn't seem correct this way.
-                // RE: Please take a look at SmartSignInManager.PasswordSignInAsync(). It should work.
                 var result = await _signInManager.PasswordSignInAsync(userNameOrEmail, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
-                    // TODO: (mh) (core) Test if login with usernames work. Doesn't seem correct this way. 
-                    var customer = await _userManager.FindByNameAsync(userNameOrEmail);
-
-                    // TODO: (mh) (core) Test!
                     await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
 
                     Services.ActivityLogger.LogActivity("PublicStore.Login", T("ActivityLog.PublicStore.Login"), customer);
@@ -206,7 +202,7 @@ namespace Smartstore.Web.Controllers
                 await _signInManager.SignOutAsync();
                 await db.SaveChangesAsync();
 
-                return RedirectToRoute("Login"); // TODO: (mh) (core) Are you sure? Why not Homepage?
+                return RedirectToRoute("Homepage");
             }
         }
 
@@ -259,34 +255,21 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                // Lets remove spaces from login data.
-                model.UserName = model.UserName.Trim();
-                model.Email = model.Email.Trim();
+                customer.Username = model.UserName.Trim();
+                customer.Email = model.Email.Trim();
+                customer.PasswordFormat = _customerSettings.DefaultPasswordFormat;
+                customer.Active = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
+                customer.CreatedOnUtc = DateTime.UtcNow;
+                customer.LastActivityDateUtc = DateTime.UtcNow;
 
-                bool isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
-
-                // TODO: (mh) (core) Creating a new customer entity here (instead of using the current guest customer entity) is not a good idea.
-                // Please analyze classic code thoroughly. Simple fact is: you have to "upgrade" the existing entity to avoid data pollution and stalesness.
-                customer = new Customer 
-                { 
-                    Username = model.UserName, 
-                    Email = model.Email, 
-                    PasswordFormat = _customerSettings.DefaultPasswordFormat,
-                    Active = isApproved,
-                    CreatedOnUtc = DateTime.UtcNow,
-                    LastActivityDateUtc = DateTime.UtcNow
-                };
-
-                var result = await _userManager.CreateAsync(customer, model.Password);
+                var result = await _userManager.UpdateAsync(customer);
 
                 if (result.Succeeded)
                 {
-                    // Update customer.
-                    await MapRegisterModelToCustomerAsync(customer, model);
+                    await _userManager.AddPasswordAsync(customer, model.Password);
 
-                    // INFO: (mh) (core) In classic there was no shopping cart migration. But we better do it now.
-                    // TODO: (mh) (core) Test!
-                    await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
+                    // Update customer properties.
+                    await MapRegisterModelToCustomerAsync(customer, model);
 
                     return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
                 }
@@ -592,7 +575,6 @@ namespace Smartstore.Web.Controllers
         public IActionResult AccessDenied(string returnUrl = null)
         {
             throw new AccessDeniedException(null, returnUrl);
-            //return Content("TODO: (mh) (core) Make AccessDenied view");
         }
 
         #endregion
@@ -768,7 +750,7 @@ namespace Smartstore.Web.Controllers
             if (_customerSettings.NewsletterEnabled && model.Newsletter)
             {
                 var subscription = await _db.NewsletterSubscriptions
-                    .ApplyMailAddressFilter(model.Email, Services.StoreContext.CurrentStore.Id)
+                    .ApplyMailAddressFilter(customer.Email, Services.StoreContext.CurrentStore.Id)
                     .FirstOrDefaultAsync();
 
                 if (subscription != null)
@@ -780,7 +762,7 @@ namespace Smartstore.Web.Controllers
                     subscription = new NewsletterSubscription
                     {
                         NewsletterSubscriptionGuid = Guid.NewGuid(),
-                        Email = model.Email,
+                        Email = customer.Email,
                         Active = true,
                         CreatedOnUtc = DateTime.UtcNow,
                         StoreId = Services.StoreContext.CurrentStore.Id,
@@ -836,8 +818,7 @@ namespace Smartstore.Web.Controllers
             // Add customer to custom configured role.
             if (_customerSettings.RegisterCustomerRoleId != 0 && _customerSettings.RegisterCustomerRoleId != registeredRole.Id)
             {
-                // TODO: (mh) (core) Use extension method to pass id without casting, once available.
-                var customerRole = await _roleManager.FindByIdAsync(_customerSettings.RegisterCustomerRoleId.ToString());
+                var customerRole = await _roleManager.FindByIdAsync(_customerSettings.RegisterCustomerRoleId);
                 if (customerRole != null)
                 {
                     await _userManager.AddToRoleAsync(customer, customerRole.Name);

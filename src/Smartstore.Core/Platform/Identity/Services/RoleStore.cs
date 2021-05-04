@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -54,8 +52,6 @@ namespace Smartstore.Core.Identity
 
         public IQueryable<CustomerRole> Roles => _roles;
 
-        // TODO: (mh) (core) Create extension methods to pass roleId as int directly.
-        // RE: Yes, but as RoleManager extension, not RoleStore.
         public Task<CustomerRole> FindByIdAsync(string roleId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
