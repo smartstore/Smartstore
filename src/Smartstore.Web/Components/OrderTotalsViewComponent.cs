@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Catalog.Pricing;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.GiftCards;
@@ -13,6 +11,8 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.ShoppingCart;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Smartstore.Web.Components
 {
@@ -189,11 +189,11 @@ namespace Smartstore.Web.Components
                 Total = new(decimal.Zero, currency),
                 ToNearestRounding = new(decimal.Zero, currency),
                 DiscountAmount = new(15, currency),
-                AppliedDiscount = await _db.Discounts.FindByIdAsync(7, false),
+                AppliedDiscount = (await _db.Discounts.FirstOrDefaultAsync()) ?? new(),
                 RedeemedRewardPoints = 10,
                 RedeemedRewardPointsAmount = new(10, currency),
                 CreditBalance = new(decimal.Zero, currency),
-                AppliedGiftCards = new() { new() { GiftCard = await _db.GiftCards.FindByIdAsync(7, false), UsableAmount = new(50m, _currencyService.PrimaryCurrency) } },
+                AppliedGiftCards = new() { new() { GiftCard = (await _db.GiftCards.FirstOrDefaultAsync()) ?? new(), UsableAmount = new(50m, _currencyService.PrimaryCurrency) } },
                 ConvertedAmount = new ShoppingCartTotal.ConvertedAmounts
                 {
                     Total = new(decimal.Zero, currency),
@@ -222,13 +222,11 @@ namespace Smartstore.Web.Components
             }
 
             // Gift cards
-            if (cartTotal.AppliedGiftCards != null && cartTotal.AppliedGiftCards.Any())
+            if (!cartTotal.AppliedGiftCards.IsNullOrEmpty())
             {
                 foreach (var appliedGiftCard in cartTotal.AppliedGiftCards)
                 {
-                    // TODO: (ms) (core) Check may be removed when TODO in line 184 is finished. 
-                    // Currently it throws here.
-                    if (appliedGiftCard.GiftCard == null)
+                    if (appliedGiftCard?.GiftCard == null)
                         continue;
 
                     var gcModel = new OrderTotalsModel.GiftCard
