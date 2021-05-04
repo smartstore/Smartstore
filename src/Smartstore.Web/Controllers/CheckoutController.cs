@@ -448,7 +448,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
 
             var cart = await _shoppingCartService.GetCartItemsAsync(storeId: storeId);
-            if (cart.Count == 0)
+            if (!cart.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -524,7 +524,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> Confirm()
         {
             var cart = await _shoppingCartService.GetCartItemsAsync(storeId: Services.StoreContext.CurrentStore.Id);
-            if (cart.Count == 0)
+            if (!cart.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }
@@ -537,10 +537,6 @@ namespace Smartstore.Web.Controllers
             var model = new CheckoutConfirmModel();
             await cart.AsEnumerable().MapAsync(model);
 
-            // TODO: (ms) (core) This code was commented out before in classic, too. What to do with this?
-            //if (TempData["ConfirmOrderWarnings"] != null)
-            //	model.Warnings.AddRange(TempData["ConfirmOrderWarnings"] as IList<string>);
-
             return View(model);
         }
 
@@ -551,7 +547,7 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartItemsAsync(storeId: store.Id);
 
-            if (cart.Count == 0)
+            if (!cart.Any())
             {
                 return RedirectToRoute("ShoppingCart");
             }

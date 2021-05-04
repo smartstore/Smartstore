@@ -222,10 +222,15 @@ namespace Smartstore.Web.Components
             }
 
             // Gift cards
-            if (cartTotal.AppliedGiftCards != null && cartTotal.AppliedGiftCards.Count > 0)
+            if (cartTotal.AppliedGiftCards != null && cartTotal.AppliedGiftCards.Any())
             {
                 foreach (var appliedGiftCard in cartTotal.AppliedGiftCards)
                 {
+                    // TODO: (ms) (core) Check may be removed when TODO in line 184 is finished. 
+                    // Currently it throws here.
+                    if (appliedGiftCard.GiftCard == null)
+                        continue;
+
                     var gcModel = new OrderTotalsModel.GiftCard
                     {
                         Id = appliedGiftCard.GiftCard.Id,

@@ -26,25 +26,27 @@
         <h1 class="h3">@T("Checkout.ConfirmYourOrder")</h1>
     </div>
     <div class="page-body checkout-data">
-        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "confirm-order-form" }))
-        {
+        <form asp-action="Confirm" id="confirm-order-form" method="post">
+
             <zone name="checkout_confirm_top" />
-            
+
             <p class="page-intro lead">
                 @Html.Raw(T("Checkout.ConfirmHint"))
             </p>
 
             <input type="hidden" id="customercommenthidden" name="customercommenthidden" />
 
-            <div sm-if="Model.TermsOfServiceEnabled 
-                || Model.NewsLetterSubscription != CheckoutNewsLetterSubscription.None 
-                || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None 
-                || consentZoneHasValue" 
-                id="terms-of-service-consent-box" class="card mb-3">
+            <div sm-if="Model.TermsOfServiceEnabled
+                || Model.NewsLetterSubscription != CheckoutNewsLetterSubscription.None
+                || Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None
+                || consentZoneHasValue"
+                 id="terms-of-service-consent-box" class="card mb-3">
                 <div class="card-body">
 
                     @if (Model.TermsOfServiceEnabled)
                     {
+                        // TODO: (ms) (core) I don't know anymore why we placed this here in the first place.
+                        // But I don't see a reason why we can't place this in the script block in the bottom now.
                         <script sm-target-zone="scripts" data-origin="confirm-method">
                             $(function () {
                                 var modal = $("#terms-of-service-modal .modal-body");
@@ -69,27 +71,27 @@
                     }
 
                     <div sm-if="Model.NewsLetterSubscription != CheckoutNewsLetterSubscription.None" class="form-check">
-                        <input attr-checked='(Model.NewsLetterSubscription == CheckoutNewsLetterSubscription.Activated, "checked")' 
-                            type="checkbox" id="SubscribeToNewsLetter" name="SubscribeToNewsLetter" class="form-check-input"/>
+                        <input attr-checked='(Model.NewsLetterSubscription == CheckoutNewsLetterSubscription.Activated, "checked")'
+                               type="checkbox" id="SubscribeToNewsLetter" name="SubscribeToNewsLetter" class="form-check-input" />
                         <label class="form-check-label" for="SubscribeToNewsLetter">
                             <span>@T("Checkout.SubscribeToNewsLetter")</span>
                         </label>
                     </div>
 
                     <div sm-if="Model.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None" class="form-check">
-                        <input attr-checked='(Model.ThirdPartyEmailHandOver == CheckoutThirdPartyEmailHandOver.Activated, "checked")' 
-                            type="checkbox" id="AcceptThirdPartyEmailHandOver" name="AcceptThirdPartyEmailHandOver" class="form-check-input" />
+                        <input attr-checked='(Model.ThirdPartyEmailHandOver == CheckoutThirdPartyEmailHandOver.Activated, "checked")'
+                               type="checkbox" id="AcceptThirdPartyEmailHandOver" name="AcceptThirdPartyEmailHandOver" class="form-check-input" />
                         <label class="form-check-label" for="AcceptThirdPartyEmailHandOver">
                             <span>@Model.ThirdPartyEmailHandOverLabel</span>
                         </label>
                     </div>
-                    
+
                     <zone name="checkout_submit_data_consent" />
                 </div>
             </div>
-            
+
             <div id="confirm-warnings" class="confirm-order">
-                
+
                 <div sm-if="Model.Warnings.Any()" class="alert alert-danger mb-3">
                     <ul>
                         @foreach (var warning in Model.Warnings)
@@ -98,9 +100,9 @@
                         }
                     </ul>
                 </div>
-                
+
             </div>
-        }
+        </form>
 
         <zone name="checkout_confirm_before_summary" />
 
@@ -174,6 +176,7 @@
                 }
                 else if (!$(this).is(':checked')) {
                     userAgreementsOk = false;
+                    // TODO: (ms) (core) Lets use .JsValue here.
                     displayNotification('@T("Checkout.DownloadUserAgreement.PleaseAgree").ToString().EncodeJsString('"', false)', 'error');
                     if (termOfServiceOk) {
                         $.scrollTo(cartItems, 800, { offset: -20 });
@@ -192,6 +195,7 @@
                     }
                     else if (!$(this).is(':checked')) {
                         esdRevocationWaiverOk = false;
+                        // TODO: (ms) (core) Lets use .JsValue here.
                         displayNotification('@T("Checkout.EsdRevocationWaiverConfirmation.PleaseAgree").ToString().EncodeJsString('"', false)', 'error');
                         if (termOfServiceOk) {
                             $.scrollTo(cartItems, 800, { offset: -20 });
@@ -215,6 +219,7 @@
                         setBuyButtonState(true);
 
                         if (_.isTrue(showThrobber)) {
+                            // TODO: (ms) (core) Lets use .JsValue here.
                             $.throbber.show({ white: true, small: false, speed: 0, message: '@T("Checkout.OrderCompletes").ToString().EncodeJsString('"', false)' });
                         }
                     }
