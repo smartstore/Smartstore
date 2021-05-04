@@ -578,8 +578,7 @@ namespace Smartstore.Web.Controllers
 
             try
             {
-                HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest);
-                if (processPaymentRequest == null)
+                if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest))
                 {
                     // Check whether payment workflow is required.
                     var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
@@ -605,9 +604,9 @@ namespace Smartstore.Web.Controllers
 
                 var placeOrderExtraData = new Dictionary<string, string>
                 {
-                    ["CustomerComment"] = HttpContext.Request.Form["customercommenthidden"],
-                    ["SubscribeToNewsLetter"] = HttpContext.Request.Form["SubscribeToNewsLetter"],
-                    ["AcceptThirdPartyEmailHandOver"] = HttpContext.Request.Form["AcceptThirdPartyEmailHandOver"]
+                    ["CustomerComment"] = HttpContext.Request.Form["customercommenthidden"].ToString(),
+                    ["SubscribeToNewsLetter"] = HttpContext.Request.Form["SubscribeToNewsLetter"].ToString(),
+                    ["AcceptThirdPartyEmailHandOver"] = HttpContext.Request.Form["AcceptThirdPartyEmailHandOver"].ToString()
                 };
 
                 placeOrderResult = await _orderProcessingService.PlaceOrderAsync(processPaymentRequest, placeOrderExtraData);
