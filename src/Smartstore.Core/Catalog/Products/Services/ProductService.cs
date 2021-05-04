@@ -552,5 +552,4 @@ namespace Smartstore.Core.Catalog.Products
     // - UI. Always show Currency.RoundNumDecimals on currency edit page. It is no longer used only for order item rounding.
     // - SystemCustomerAttributeNames.WalletEnabled belongs to Wallet module (as extension method for CustomerAttributeCollection).
     // - Check callers of IPaymentMethod.IsPaymentDataValidAsync. Default return value is now null and not an empty list anymore.
-    // - Apply NeverAuthorizeAttribute to action methods where AccessShop permission check must be skipped (like "Register").
 }

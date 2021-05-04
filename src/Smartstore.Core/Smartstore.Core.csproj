@@ -44,6 +44,7 @@
     <PackageReference Include="Serilog.Sinks.Map" Version="1.0.1" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.0" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.6" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.8.1" />
     <PackageReference Include="UAParser" Version="3.1.46" />
   </ItemGroup>
 
@@ -55,6 +56,14 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>Smartstore.Core.Tests</_Parameter1>
 		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="System.ServiceModel" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <WCFMetadata Include="Connected Services" />
 	</ItemGroup>
 
 </Project>
