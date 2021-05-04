@@ -246,14 +246,14 @@ namespace Smartstore.Web.Components
                 }
             }
 
-            // Reward points
+           // Reward points
             if (cartTotal.RedeemedRewardPointsAmount > decimal.Zero)
             {
                 var redeemedRewardPointsAmountInCustomerCurrency = _currencyService.ConvertFromPrimaryCurrency(cartTotal.RedeemedRewardPointsAmount.Amount, currency);
                 model.RedeemedRewardPoints = cartTotal.RedeemedRewardPoints;
                 model.RedeemedRewardPointsAmount = (redeemedRewardPointsAmountInCustomerCurrency * -1).ToString(true);
             }
-
+            
             // Credit balance.
             if (cartTotal.CreditBalance > decimal.Zero)
             {

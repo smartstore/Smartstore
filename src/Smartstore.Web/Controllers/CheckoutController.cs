@@ -9,7 +9,6 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization.Routing;
-using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Checkout;
 using Smartstore.Web.Models.Common;
@@ -585,7 +584,7 @@ namespace Smartstore.Web.Controllers
 
                     if (cartTotalBase.Total.GetValueOrDefault() != decimal.Zero && !HttpContext.GetCheckoutState().IsPaymentSelectionSkipped)
                     {
-                        return RedirectToAction("PaymentMethod");
+                        return RedirectToAction(nameof(PaymentMethod));
                     }
 
                     processPaymentRequest = new ProcessPaymentRequest();
