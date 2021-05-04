@@ -82,8 +82,7 @@
         <td class="cart-summary-value">@Model.Tax</td>
     </tr>
 
-    @*TODO: (ms) (core) Fix this *@ 
-    <tr sm-if="Model.OrderTotalDiscount != null" class="cart-summary-totaldiscount cart-summary-pos">
+    <tr sm-if="Model.OrderTotalDiscount != decimal.Zero" class="cart-summary-totaldiscount cart-summary-pos">
         <td class="cart-summary-label">
             @if (Model.AllowRemovingOrderTotalDiscount)
             {
