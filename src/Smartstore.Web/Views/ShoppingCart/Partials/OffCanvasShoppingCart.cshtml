@@ -9,7 +9,6 @@
 
     var checkoutUrl = Model.AnonymousCheckoutAllowed && Model.CurrentCustomerIsGuest
         ? Url.RouteUrl("Login", new { checkoutAsGuest = true, returnUrl = Url.RouteUrl("ShoppingCart") })
-        // TODO: (ms) (core) Implement corresponding action
         : Url.RouteUrl("Checkout");
 }
 

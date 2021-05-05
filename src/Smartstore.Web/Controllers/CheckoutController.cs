@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
@@ -401,6 +402,8 @@ namespace Smartstore.Web.Controllers
 
             var model = new CheckoutPaymentMethodModel();
             await cart.AsEnumerable().MapAsync(model);
+
+            // TODO: (ms) (core) Remove test data later.
             model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel()
             {
                 Name = "Super dummy payment",
@@ -410,7 +413,18 @@ namespace Smartstore.Web.Controllers
                 Description = "This is a test payment method.",
                 FullDescription = new("This is a test payment methods full description.", Services.WorkContext.WorkingLanguage, Services.WorkContext.WorkingLanguage),
                 Fee = new(5, Services.StoreContext.CurrentStore.PrimaryStoreCurrency),
-                RequiresInteraction = true,
+                RequiresInteraction = false,
+            });
+            model.PaymentMethods.Add(new CheckoutPaymentMethodModel.PaymentMethodModel()
+            {
+                Name = "Super dummy payment2",
+                PaymentMethodSystemName = "Super dummy payments2",
+                Selected = true,
+                BrandUrl = "test2.de",
+                Description = "This is a test payment method2.",
+                FullDescription = new("This is a test payment methods full description2.", Services.WorkContext.WorkingLanguage, Services.WorkContext.WorkingLanguage),
+                Fee = new(6, Services.StoreContext.CurrentStore.PrimaryStoreCurrency),
+                RequiresInteraction = false,
             });
 
             var onlyOnePassiveMethod = model.PaymentMethods.Count == 1 && !model.PaymentMethods[0].RequiresInteraction;
@@ -500,7 +514,7 @@ namespace Smartstore.Web.Controllers
                 return new StatusCodeResult(404);
             }
 
-            // TODO: (ms) (core) Wait until any payment method has been implemented. Remove true from if clause.
+            // TODO: (ms) (core) Wait until any payment method has been implemented.
             var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(paymentMethodSystemName);
             if (paymentMethod == null)
             {
@@ -513,6 +527,7 @@ namespace Smartstore.Web.Controllers
                 return Content(string.Empty);
             }
 
+            // TODO: (ms) (core) Test that invoke widget works as intended.
             return Content(await this.InvokeWidgetAsync(infoWidget));
         }
 

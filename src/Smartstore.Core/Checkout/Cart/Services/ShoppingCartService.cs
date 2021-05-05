@@ -125,7 +125,6 @@ namespace Smartstore.Core.Checkout.Cart
             return result;
         }
 
-        // TODO: (ms) (core) Test this for bundle & grouped products.
         public virtual async Task<bool> AddToCartAsync(AddToCartContext ctx)
         {
             Guard.NotNull(ctx, nameof(ctx));
@@ -255,8 +254,7 @@ namespace Smartstore.Core.Checkout.Cart
                     BundleItem = ctx.BundleItem
                 };
 
-                // TODO: (core) (ms) Fix bundle attributes of child items & customer selected price
-
+                // Validate shopping cart item
                 if (!await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cartItems))
                 {
                     return false;
@@ -311,6 +309,7 @@ namespace Smartstore.Core.Checkout.Cart
                     if (!await AddToCartAsync(bundleItemContext))
                     {
                         ctx.Warnings.AddRange(bundleItemContext.Warnings);
+                        break;
                     }
                 }
             }

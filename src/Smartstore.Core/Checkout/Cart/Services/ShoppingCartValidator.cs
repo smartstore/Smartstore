@@ -311,15 +311,13 @@ namespace Smartstore.Core.Checkout.Cart
                 currentWarnings.Add(T("ShoppingCart.Bundle.NoCustomerEnteredPrice"));
             }
 
-            // TODO: (ms) (core) returns warning even on published products!
-
             // Not published or no permissions for customer or store
-            //if (!product.Published
-            //    || !await _aclService.AuthorizeAsync(product, cartItem.Customer)
-            //    || !await _storeMappingService.AuthorizeAsync(product.Name, product.Id, storeId ?? _storeContext.CurrentStore.Id))
-            //{
-            //    currentWarnings.Add(T("ShoppingCart.ProductUnpublished"));
-            //}
+            if (!product.Published
+                || !await _aclService.AuthorizeAsync(product, cartItem.Customer)
+                || !await _storeMappingService.AuthorizeAsync(product, storeId ?? _storeContext.CurrentStore.Id))
+            {
+                currentWarnings.Add(T("ShoppingCart.ProductUnpublished"));
+            }
 
             // Disabled buy button
             if (cartItem.ShoppingCartType == ShoppingCartType.ShoppingCart && product.DisableBuyButton)
