@@ -37,8 +37,6 @@ namespace Smartstore.Core.Security
 
             public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
             {
-                // TODO: (mc) (core) Broken when setting is turned off :-/
-                // RE: Could you try again please?
                 if (!_securitySettings.EnableHoneypotProtection)
                 {
                     await next();
