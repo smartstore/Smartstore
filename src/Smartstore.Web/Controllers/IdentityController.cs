@@ -123,26 +123,21 @@ namespace Smartstore.Web.Controllers
             if (ModelState.IsValid)
             {
                 Customer customer;
-                string userNameOrEmail;
-
+                
                 if (model.CustomerLoginType == CustomerLoginType.Username)
                 {
-                    userNameOrEmail = model.Username.TrimSafe();
-                    customer = await _userManager.FindByNameAsync(userNameOrEmail);
+                    customer = await _userManager.FindByNameAsync(model.Username.TrimSafe());
                 }
                 else if (model.CustomerLoginType == CustomerLoginType.Email)
                 {
-                    userNameOrEmail = model.Email.TrimSafe();
-                    customer = await _userManager.FindByEmailAsync(userNameOrEmail);
+                    customer = await _userManager.FindByEmailAsync(model.Email.TrimSafe());
                 }
                 else
                 {
-                    userNameOrEmail = model.UsernameOrEmail.TrimSafe();
-                    customer = await _userManager.FindByEmailAsync(userNameOrEmail) ?? await _userManager.FindByNameAsync(userNameOrEmail);
+                    customer = await _userManager.FindByEmailAsync(model.UsernameOrEmail.TrimSafe()) ?? await _userManager.FindByNameAsync(model.UsernameOrEmail.TrimSafe());
                 }
 
-                // TODO: (mh) (core) Why not calling the 2nd overload with Customer as parameter?
-                var result = await _signInManager.PasswordSignInAsync(userNameOrEmail, model.Password, model.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(customer, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
