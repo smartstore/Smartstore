@@ -184,13 +184,13 @@ namespace Smartstore.Web.Controllers
 
                         if (prevVatNumber != model.VatNumber)
                         {
-                            (var vatNumberStatus, var vatName, var vatAddress) = await _taxService.GetVatNumberStatusAsync(model.VatNumber);
-                            customer.VatNumberStatusId = (int)vatNumberStatus;
+                            var vatCheckResult = await _taxService.GetVatNumberStatusAsync(model.VatNumber);
+                            customer.VatNumberStatusId = (int)vatCheckResult.Status;
 
                             // Send VAT number admin notification.
                             if (model.VatNumber.HasValue() && _taxSettings.EuVatEmailAdminWhenNewVatSubmitted)
                             {
-                                await _messageFactory.SendNewVatSubmittedStoreOwnerNotificationAsync(customer, model.VatNumber, vatAddress, _localizationSettings.DefaultAdminLanguageId);
+                                await _messageFactory.SendNewVatSubmittedStoreOwnerNotificationAsync(customer, model.VatNumber, vatCheckResult.Address, _localizationSettings.DefaultAdminLanguageId);
                             }
                         }
                     }

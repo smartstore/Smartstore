@@ -657,19 +657,22 @@ namespace Smartstore.Web.Controllers
         {
             // Properties
             if (_dateTimeSettings.AllowCustomersToSetTimeZone)
+            {
                 customer.TimeZoneId = model.TimeZoneId;
+            }
 
             // VAT number
             if (_taxSettings.EuVatEnabled)
             {
                 customer.GenericAttributes.VatNumber = model.VatNumber;
-                (var vatNumberStatus, _, var vatAddress) = await _taxService.GetVatNumberStatusAsync(model.VatNumber);
-                customer.VatNumberStatusId = (int)vatNumberStatus;
+
+                var vatCheckResult = await _taxService.GetVatNumberStatusAsync(model.VatNumber);
+                customer.VatNumberStatusId = (int)vatCheckResult.Status;
 
                 // Send VAT number admin notification.
                 if (model.VatNumber.HasValue() && _taxSettings.EuVatEmailAdminWhenNewVatSubmitted)
                 {
-                    await _messageFactory.SendNewVatSubmittedStoreOwnerNotificationAsync(customer, model.VatNumber, vatAddress, _localizationSettings.DefaultAdminLanguageId);
+                    await _messageFactory.SendNewVatSubmittedStoreOwnerNotificationAsync(customer, model.VatNumber, vatCheckResult.Address, _localizationSettings.DefaultAdminLanguageId);
                 }
             }
 

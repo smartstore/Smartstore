@@ -54,13 +54,11 @@ namespace Smartstore.Core.Checkout.Tax
         Task<TaxRate> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null);
 
         /// <summary>
-        /// Gets VAT Number status.
+        /// Checks the validity of a VAT number using an online service like VIES service of the EU.
         /// </summary>
-        /// <param name="fullVatNumber">Two letter ISO code of country with VAT number (e.g. GB 111 1111 111).</param>
-        /// <param name="name">Name (if received).</param>
-        /// <param name="address">Address (if received).</param>
-        /// <returns>VAT Number status.</returns>
-        Task<(VatNumberStatus status, string name, string address)> GetVatNumberStatusAsync(string fullVatNumber);
+        /// <param name="fullVatNumber">The full VAT number including the two letter country ISO code (e.g. DE 111 1111 111).</param>
+        /// <returns>Result of the VAT check including current status.</returns>
+        Task<VatCheckResult> GetVatNumberStatusAsync(string fullVatNumber);
 
         /// <summary>
         /// Checks whether the product is tax exempt for the customer.

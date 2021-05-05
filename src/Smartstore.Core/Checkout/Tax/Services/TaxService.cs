@@ -87,25 +87,21 @@ namespace Smartstore.Core.Checkout.Tax
             return await activeTaxProvider.Value.GetTaxRateAsync(request);
         }
 
-        // TODO: (mg) (core) no tuple for GetVatNumberStatusAsync return value anymore and add unit test for VAT check.
-        public virtual async Task<(VatNumberStatus status, string name, string address)> GetVatNumberStatusAsync(string fullVatNumber)
+        public virtual async Task<VatCheckResult> GetVatNumberStatusAsync(string fullVatNumber)
         {
-            var name = string.Empty;
-            var address = string.Empty;
-
             if (!fullVatNumber.HasValue())
             {
-                return (VatNumberStatus.Empty, name, address);
+                return new VatCheckResult(VatNumberStatus.Empty, fullVatNumber);
             }
 
-            // GB 111 1111 111 or GB 1111111111
+            // DE 111 1111 111 or DE1111111111
             // More advanced regex - https://forum.codeigniter.com/thread-31835.html
             // This regex only checks whether the first two chars are alphanumeric...
             var regex = new Regex(@"^(\w{2})(.*)");
             var match = regex.Match(fullVatNumber.Trim());
             if (!match.Success)
             {
-                return (VatNumberStatus.Invalid, name, address);
+                return new VatCheckResult(VatNumberStatus.Invalid, fullVatNumber);
             }
 
             var twoLetterIsoCode = match.Groups[1].Value;
@@ -113,33 +109,40 @@ namespace Smartstore.Core.Checkout.Tax
 
             if (twoLetterIsoCode.IsEmpty() || vatNumber.IsEmpty())
             {
-                return (VatNumberStatus.Empty, name, address);
+                return new VatCheckResult(VatNumberStatus.Empty, fullVatNumber);
             }
 
             if (!_taxSettings.EuVatUseWebService)
             {
-                return (VatNumberStatus.Unknown, string.Empty, string.Empty);
+                return new VatCheckResult(VatNumberStatus.Unknown, fullVatNumber);
             }
-
-            vatNumber = vatNumber.Replace(" ", string.Empty);
-            twoLetterIsoCode = twoLetterIsoCode.ToUpper();
 
             try
             {
                 var vatService = new EuropeCheckVatService.checkVatPortTypeClient();
 
-                var result = await vatService.checkVatAsync(new EuropeCheckVatService.checkVatRequest
+                var response = await vatService.checkVatAsync(new EuropeCheckVatService.checkVatRequest
                 {
-                    vatNumber = vatNumber,
-                    countryCode = twoLetterIsoCode
+                    vatNumber = vatNumber.Replace(" ", string.Empty),
+                    countryCode = twoLetterIsoCode.ToUpper()
                 });
 
-                return (result.valid ? VatNumberStatus.Valid : VatNumberStatus.Invalid, result.name, result.address);
+                var result = new VatCheckResult(response.valid ? VatNumberStatus.Valid : VatNumberStatus.Invalid, fullVatNumber)
+                {
+                    Name = response.name,
+                    Address = response.address,
+                    CountryCode = response.countryCode,
+                };
+
+                return result;
             }
-            catch
+            catch (Exception ex)
             {
-                return (VatNumberStatus.Unknown, string.Empty, string.Empty);
-            }
+                return new VatCheckResult(VatNumberStatus.Unknown, fullVatNumber)
+                {
+                    Exception = ex
+                };
+            }                
         }
 
         public virtual async Task<bool> IsTaxExemptAsync(Product product, Customer customer)

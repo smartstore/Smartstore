@@ -121,7 +121,7 @@ namespace Smartstore.Core.Checkout.Tax
         public bool EuVatAllowVatExemption { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether we should use the EU web service to validate VAT numbers
+        /// Gets or sets a value indicating whether we should use the VIES service of the EU to validate VAT numbers.
         /// </summary>
         public bool EuVatUseWebService { get; set; }
 
