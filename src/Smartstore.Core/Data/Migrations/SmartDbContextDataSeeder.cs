@@ -113,7 +113,10 @@ namespace Smartstore.Core.Data.Migrations
 
             // INFO: New resources.
             builder.AddOrUpdate("ActivityLog.PublicStore.LoginExternal", "Logged in with {0}", "Eingeloggt mit {0}");
-            
+            builder.AddOrUpdate("Account.Login.CheckEmailAccount",
+                "The credentials provided are incorrect or you have not activated your account yet. Please check your email inbox and confirm the registration.",
+                "Die eingegebenen Benutzerdaten sind nicht korrekt oder Sie haben Ihr Konto noch nicht aktiviert. Bitte prüfen Sie Ihren Email-Posteingang und bestätigen Sie die Registrierung.");
+
             #endregion
         }
     }

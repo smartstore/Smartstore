@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Identity
 {
@@ -69,7 +65,6 @@ namespace Smartstore.Core.Identity
 
             if (!user.Active)
             {
-                // TODO: (mh) (core) We should return an error message for the user saying "Please check you email account for an activation link".
                 return SignInResult.NotAllowed;
             }
 

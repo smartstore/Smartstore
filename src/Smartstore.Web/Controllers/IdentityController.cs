@@ -160,7 +160,14 @@ namespace Smartstore.Web.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, T("Account.Login.WrongCredentials"));
+                    if (_customerSettings.UserRegistrationType == UserRegistrationType.EmailValidation && customer.Active == false)
+                    {
+                        ModelState.AddModelError(string.Empty, T("Account.Login.CheckEmailAccount"));
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, T("Account.Login.WrongCredentials"));
+                    }
                 }
             }
 
