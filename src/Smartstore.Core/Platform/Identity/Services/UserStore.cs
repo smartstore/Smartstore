@@ -16,11 +16,9 @@ namespace Smartstore.Core.Identity
     public interface IUserStore : 
         IQueryableUserStore<Customer>,
         IUserEmailStore<Customer>,
-        IUserPhoneNumberStore<Customer>,
         IUserRoleStore<Customer>,
         IUserPasswordStore<Customer>,
-        IUserLoginStore<Customer>,
-        IUserTwoFactorStore<Customer>
+        IUserLoginStore<Customer>
     {
         /// <summary>
         /// Gets or sets a flag indicating if changes should be persisted after CreateAsync, UpdateAsync and DeleteAsync are called.
@@ -35,8 +33,7 @@ namespace Smartstore.Core.Identity
     {
         private readonly SmartDbContext _db;
         private readonly Lazy<IGdprTool> _gdprTool;
-        private readonly CustomerSettings _customerSettings;
-
+        
         private readonly DbSet<Customer> _users;
         private readonly DbSet<CustomerRole> _roles;
         private readonly DbSet<CustomerRoleMapping> _roleMappings;
@@ -46,7 +43,6 @@ namespace Smartstore.Core.Identity
         {
             _db = db;
             _gdprTool = gdprTool;
-            _customerSettings = customerSettings;
             
             ErrorDescriber = errorDescriber;
 
@@ -430,8 +426,6 @@ namespace Smartstore.Core.Identity
 
         #region IUserLoginStore
 
-        // TODO: (core) Implement IUserLoginStore<Customer> in UserStore --> ExternalAuthenticationRecords
-
         public async Task AddLoginAsync(Customer user, UserLoginInfo login, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -451,7 +445,6 @@ namespace Smartstore.Core.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // INFO: (mh) (core) EF LINQ cannot translate TranslateProviderToSystemName(string) to SQL.
             var providerSystemName = TranslateProviderToSystemName(loginProvider);
             var record = await _externalAuthentication
                 .Where(x => x.ExternalIdentifier == providerKey 
@@ -501,50 +494,6 @@ namespace Smartstore.Core.Identity
             }
             
             return null;
-        }
-
-        #endregion
-
-        // TODO: (mh) (core) Obsolete > Remove? Test again!
-        #region IUserTwoFactorStore
-
-        public Task SetTwoFactorEnabledAsync(Customer user, bool enabled, CancellationToken cancellationToken)
-        {
-            // TODO: (mh) (core) This isn't handled on Customer level. It's a global setting which can't be changed here. 
-            return Task.CompletedTask;
-        }
-
-        public Task<bool> GetTwoFactorEnabledAsync(Customer user, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(!user.Active && _customerSettings.UserRegistrationType == UserRegistrationType.EmailValidation);
-        }
-
-        #endregion
-
-        // TODO: (mh) (core) Obsolete > Remove? Test again!
-        #region IUserPhoneNumberStore
-
-        // INFO: (mh) (core) These should never return values. Currently we use emails for two factor auth only.
-        // But Identity Framework complains when they are missing and TwoFactor authentification is enabled.
-
-        public Task SetPhoneNumberAsync(Customer user, string phoneNumber, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task<string> GetPhoneNumberAsync(Customer user, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(string.Empty);
-        }
-
-        public Task<bool> GetPhoneNumberConfirmedAsync(Customer user, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(false);
-        }
-
-        public Task SetPhoneNumberConfirmedAsync(Customer user, bool confirmed, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
 
         #endregion

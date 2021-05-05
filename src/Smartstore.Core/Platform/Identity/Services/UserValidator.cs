@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Data.Caching;
 
 namespace Smartstore.Core.Identity
 {
@@ -93,10 +91,11 @@ namespace Smartstore.Core.Identity
             return IdentityResult.Success;
         }
 
+        // INFO: Password validation was configured with out-of-the-box settings of Identity Framework.
+        // But since this custom UserValidator implements PasswordValidator we must implement ValidateAsync and return Success in order to not get duplicate error messages
         // Password validator
         public override Task<IdentityResult> ValidateAsync(UserManager<Customer> manager, Customer user, string password)
         {
-            // TODO: (mg) (core) Perform more app specific password validation (?)
             return Task.FromResult(IdentityResult.Success);
         }
 

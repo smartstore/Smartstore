@@ -138,7 +138,7 @@ namespace Smartstore.Web.Controllers
                 }
 
                 var result = await _signInManager.PasswordSignInAsync(customer, model.Password, model.RememberMe, lockoutOnFailure: false);
-
+                
                 if (result.Succeeded)
                 {
                     await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
@@ -266,12 +266,19 @@ namespace Smartstore.Web.Controllers
 
                 if (result.Succeeded)
                 {
-                    await _userManager.AddPasswordAsync(customer, model.Password);
+                    var addPasswordResult = await _userManager.AddPasswordAsync(customer, model.Password);
 
-                    // Update customer properties.
-                    await MapRegisterModelToCustomerAsync(customer, model);
+                    if (addPasswordResult.Succeeded)
+                    {
+                        // Update customer properties.
+                        await MapRegisterModelToCustomerAsync(customer, model);
 
-                    return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
+                        return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
+                    }
+                    else
+                    {
+                        AddErrors(addPasswordResult);
+                    }   
                 }
 
                 AddErrors(result);
@@ -543,12 +550,16 @@ namespace Smartstore.Web.Controllers
                         await Services.EventPublisher.PublishAsync(new CustomerLoggedInEvent { Customer = customer });
                     }
 
-                    // TODO: (mh) (core) Use notifier?
-                    AddErrors(createResult);
+                    // Display errors to user.
+                    foreach (var error in createResult.Errors)
+                    {
+                        NotifyError(error.Description);
+                    }
                 }
                 else
                 {
-                    // TODO: (mh) (core) Creating new accounts is disabled. Display to user!   
+                    // Creating new accounts is disabled. Display to user.
+                    NotifyError(T("Account.Register.Result.Disabled"));
                 }
 
                 return RedirectToLocal(returnUrl);
@@ -623,7 +634,6 @@ namespace Smartstore.Web.Controllers
                     // Send an email with generated token.
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(customer);
 
-                    // INFO: (mh) (core) Will still be set here so it can be obtained for message model.
                     customer.GenericAttributes.AccountActivationToken = code;
                     await _db.SaveChangesAsync();
                     await _messageFactory.SendCustomerEmailValidationMessageAsync(customer, Services.WorkContext.WorkingLanguage.Id);

@@ -16,8 +16,7 @@ namespace Smartstore.Core.Data.Migrations
         public static void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             #region Identity
-            // TODO: (mh) (core) Check if these were used in admin area > Classic
-            // TODO: (mh) (core) Remove comments once reviewed.
+            
             builder.Delete("Account.EmailUsernameErrors.UsernameAlreadyExists");    // Isn't used
             builder.Delete("Account.Register.Errors.UsernameAlreadyExists");        // Now is Identity.Error.DuplicateUserName
             builder.Delete("Account.EmailUsernameErrors.EmailAlreadyExists");       // Isn't used
@@ -36,8 +35,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete("Account.ChangePassword.Errors.EmailNotFound");          // Isn't used
             builder.Delete("Account.ChangePassword.Errors.OldPasswordDoesntMatch"); // Isn't used
             builder.Delete("Account.ChangePassword.Errors.PasswordIsNotProvided");  // Isn't used
-
-            // TODO: (mh) (core) Check Account.Register.Errors.*
 
             builder.AddOrUpdate("Identity.Error.ConcurrencyFailure",
                 "A concurrency failure has occured while trying to save your data.",
