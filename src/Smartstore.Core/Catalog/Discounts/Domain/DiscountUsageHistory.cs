@@ -9,23 +9,6 @@ using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
-    internal class DiscountUsageHistoryMap : IEntityTypeConfiguration<DiscountUsageHistory>
-    {
-        public void Configure(EntityTypeBuilder<DiscountUsageHistory> builder)
-        {
-            //builder.HasOne(x => x.Discount)
-            //    .WithMany()
-            //    .HasForeignKey(x => x.DiscountId)
-            //    .OnDelete(DeleteBehavior.Cascade);
-
-            //builder.HasOne(x => x.Order)
-            //    .WithMany(x => x.DiscountUsageHistory)
-            //    .HasForeignKey(x => x.OrderId)
-            //    .OnDelete(DeleteBehavior.Cascade)
-            //    .IsRequired(false);
-        }
-    }
-
     /// <summary>
     /// Represents a usage history item for discounts.
     /// </summary>

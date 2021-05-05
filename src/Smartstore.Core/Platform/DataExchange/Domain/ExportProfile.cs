@@ -16,10 +16,14 @@ namespace Smartstore.Core.DataExchange
     {
         public void Configure(EntityTypeBuilder<ExportProfile> builder)
         {
-            builder.HasOne(c => c.Task)
-                .WithMany()
-                .HasForeignKey(c => c.TaskId)
-                .OnDelete(DeleteBehavior.SetNull);
+            //// INFO: (mg) (core) (tbd) This mapping is not necessary, because it is discovered by convention.
+            //// Although the convention will set delete behavior to Cascade. SetNull will throw during
+            //// migration, because TaskId is not nullable. Unfortunately there is no other valid delete behavior
+            //// for non-null FK properties. We should NEVER use non-null props if cascade delete is NOT desired.
+            //builder.HasOne(c => c.Task)
+            //    .WithMany()
+            //    .HasForeignKey(c => c.TaskId)
+            //    .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
