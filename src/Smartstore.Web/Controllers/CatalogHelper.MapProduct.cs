@@ -591,7 +591,7 @@ namespace Smartstore.Web.Controllers
             if (model.ShowWeight && contextProduct.Weight > 0)
             {
                 var measureWeightName = (await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false))?.GetLocalized(x => x.Name) ?? string.Empty;
-                item.Weight = "{0} {1}".FormatCurrent(contextProduct.Weight.ToString("N2"), measureWeightName);
+                item.Weight = $"{contextProduct.Weight.ToString("N2")} {measureWeightName}";
             }
 
             // New Badge
@@ -680,7 +680,9 @@ namespace Smartstore.Web.Controllers
             priceModel.CallForPrice = contextProduct.CallForPrice;
             if (contextProduct.CallForPrice)
             {
-                return (new Money(options.TargetCurrency).WithPostFormat(ctx.Resources["Products.CallForPrice"]), contextProduct);
+                var money = new Money(options.TargetCurrency).WithPostFormat(ctx.Resources["Products.CallForPrice"]);
+                priceModel.Price = money;
+                return (money, contextProduct);
             }
 
             var calculationContext = new PriceCalculationContext(product, options)
