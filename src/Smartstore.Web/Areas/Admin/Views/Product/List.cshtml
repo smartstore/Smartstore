@@ -1,0 +1,50 @@
+﻿@model ProductListModel
+
+@{
+    var allString = T("Admin.Common.All").Value;
+    ViewBag.Title = T("Admin.Catalog.Products.Manage").Value;
+
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<form method="post" asp-action="List" style="overflow-y: scroll">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-cube"></i>
+            @T("Admin.Catalog.Products.Manage")
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <div class="input-group d-inline-flex mr-3" style="width: 350px">
+                <input asp-for="GoDirectlyToSku" placeholder="@T("Admin.Catalog.Products.List.GoDirectlyToSku")" />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-secondary" id="go-to-product-by-sku" name="go-to-product-by-sku" value="go-to-product-by-sku" title="@T("Admin.Catalog.Products.List.GoDirectlyToSku.Hint")">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-toggle-filter" data-toggle="button" aria-pressed="false">
+                        <i class="fa fa-filter"></i>
+                        <span>@T("Common.Filter")</span>
+                        <i class="fa fa-angle-double-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")</span>
+            </a>
+
+            <button type="submit" id="delete-selected" class="btn btn-secondary btn-to-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    @* TODO: (core) Port search form here *@
+</form>
+
+<partial name="_Grid.Products" model="null" />

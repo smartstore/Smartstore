@@ -1,52 +1,75 @@
-﻿.datagrid-root {
+﻿.spa-layout #content {
+  padding-bottom: 30px; }
+
+.datagrid-root {
+  --datagrid-border-color: #dee2e6;
+  --datagrid-header-bg: var(--light);
+  --datagrid-cell-bg: #fff;
+  --datagrid-cell-padding: 1.175rem 0.75rem;
+  --datagrid-cell-align: center;
+  --datagrid-cell-justify: flex-start;
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
-  border: 1px solid #dee2e6;
-  height: 400px; }
+  border: 1px solid var(--datagrid-border-color);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.08); }
 
 .datagrid {
   position: relative;
-  display: grid;
   width: auto;
-  min-width: 100%; }
+  min-width: 100%;
+  background-color: var(--datagrid-border-color);
+  display: grid;
+  column-gap: 0;
+  row-gap: 1px;
+  /*    th:first-child,
+    td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 5;
+    }*/ }
   .datagrid thead,
   .datagrid tbody,
   .datagrid tr {
     display: contents; }
   .datagrid th,
   .datagrid td {
-    padding: 14px;
+    padding: 0;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap; }
+    white-space: nowrap;
+    display: flex; }
   .datagrid th {
     position: sticky;
     top: 0;
-    background-color: var(--light);
-    border-bottom: 2px solid #dee2e6; }
+    background-color: var(--datagrid-header-bg);
+    border-bottom: 1px solid var(--datagrid-border-color);
+    z-index: 1; }
   .datagrid td {
-    border-bottom: 1px solid #dee2e6;
-    background-color: #fff; }
-  .datagrid th:first-child,
-  .datagrid td:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 5; }
+    background-color: var(--datagrid-cell-bg); }
   .datagrid th:first-child {
     z-index: 10; }
-  .datagrid tr:last-child > td {
-    border-bottom-width: 0; }
   .datagrid.datagrid--resizing {
     cursor: ew-resize; }
     .datagrid.datagrid--resizing th {
       user-select: none; }
 
+.datagrid-cell-header {
+  line-height: 1.2; }
+
+.datagrid-cell {
+  position: relative;
+  padding: var(--datagrid-cell-padding);
+  display: flex;
+  width: 100%;
+  align-items: var(--datagrid-cell-align);
+  justify-content: var(--datagrid-cell-justify); }
+
 .datagrid-resize-handle {
   position: absolute;
   display: block;
   top: 0;
-  right: 0;
+  right: -4px;
   bottom: 0;
   width: 10px;
   opacity: 0;
@@ -59,7 +82,7 @@
     top: 0;
     bottom: 0;
     left: 4px;
-    background-color: #dee2e6; }
+    background-color: var(--datagrid-border-color); }
   thead:hover .datagrid-resize-handle {
     opacity: 0.65; }
   .datagrid-resize-handle:hover,

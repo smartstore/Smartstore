@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -12,6 +13,15 @@ using Smartstore.ComponentModel;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
+    [Flags]
+    public enum DataGridBorderStyle
+    {
+        Borderless = 0,
+        VerticalBorders = 1 << 0,
+        HorizontalBorders = 1 << 1,
+        Grid = VerticalBorders | HorizontalBorders
+    }
+    
     [HtmlTargetElement("datagrid")]
     [RestrictChildren("columns", "datasource", "pageable", "toolbar")]
     public class DataGridTagHelper : SmartTagHelper
@@ -21,6 +31,11 @@ namespace Smartstore.Web.TagHelpers.Admin
             base.Init(context);
             context.Items[nameof(DataGridTagHelper)] = this;
         }
+
+        /// <summary>
+        /// DataGrid table border style. Default: <see cref="DataGridBorderStyle.VerticalBorders"/>.
+        /// </summary>
+        public DataGridBorderStyle BorderStyle { get; set; } = DataGridBorderStyle.VerticalBorders;
 
         [HtmlAttributeNotBound]
         internal DataSourceTagHelper DataSource { get; set; }
@@ -44,6 +59,9 @@ namespace Smartstore.Web.TagHelpers.Admin
             var component = new TagBuilder("sm-data-grid");
             component.Attributes[":data-source"] = "dataSource";
             component.Attributes[":columns"] = "columns";
+            component.Attributes[":command"] = "command";
+            component.Attributes[":vborders"] = "vborders";
+            component.Attributes[":hborders"] = "hborders";
 
             // Generate template slots
             foreach (var column in Columns)
@@ -91,7 +109,9 @@ namespace Smartstore.Web.TagHelpers.Admin
                 {
                     page = 1,
                     pageSize = 25
-                }
+                },
+                vborders = BorderStyle.HasFlag(DataGridBorderStyle.VerticalBorders),
+                hborders = BorderStyle.HasFlag(DataGridBorderStyle.HorizontalBorders)
             };
 
             foreach (var col in Columns)
@@ -100,7 +120,10 @@ namespace Smartstore.Web.TagHelpers.Admin
                 {
                     member = col.MemberName,
                     title = col.For.Metadata.DisplayName,
-                    width = col.Width
+                    width = col.Width,
+                    flow = col.Flow?.ToString()?.ToLower(),
+                    align = col.AlignItems?.ToString()?.Kebaberize(),
+                    justify = col.JustifyContent?.ToString()?.Kebaberize(),
                 });
             }
 
@@ -109,6 +132,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             var json = JsonConvert.SerializeObject(dict, new JsonSerializerSettings
             {
                 ContractResolver = SmartContractResolver.Instance,
+                NullValueHandling = NullValueHandling.Ignore,
                 Formatting = Formatting.None
             });
 

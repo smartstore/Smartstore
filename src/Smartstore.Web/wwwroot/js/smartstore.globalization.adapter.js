@@ -1,7 +1,7 @@
 ﻿
 (function ($) {
     $(function () {
-        var g = SmartStore.globalization;
+        var g = Smartstore.globalization;
 
         if (typeof g === undefined)
             return;

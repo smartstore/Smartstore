@@ -1147,14 +1147,14 @@ if ("undefined" == typeof jQuery) throw new Error("Tempus Dominus Bootstrap4's r
 			var val, unit; if (bytes >= 1000000000) { val = (bytes / 1000000000); unit = "GB"; }
 			else if (bytes >= 1000000) { val = (bytes / 1000000); unit = "MB"; }
 			else { val = (bytes / 1000).toFixed(0); unit = "KB"; }
-			return (unit === 'KB' ? val : SmartStore.globalization.formatNumber(val, 'N')) + ' ' + unit;
+			return (unit === 'KB' ? val : Smartstore.globalization.formatNumber(val, 'N')) + ' ' + unit;
 		}, formatBitrate: function (bits) {
 			if (typeof bits !== 'number') { return ''; }
 			var val, unit, format; if (bits >= 1000000000) { val = (bits / 1000000000); unit = "Gbit/s"; format = true; }
 			else if (bits >= 1000000) { val = (bits / 1000000); unit = "Mbit/s"; format = true; }
 			else if (bits >= 1000) { val = (bits / 1000); unit = "Kbit/s"; }
 			else { val = bits; unit = "bit/s"; }
-			return (format ? val : SmartStore.globalization.formatNumber(val, 'N')) + ' ' + unit;
+			return (format ? val : Smartstore.globalization.formatNumber(val, 'N')) + ' ' + unit;
 		}, formatTime: function (seconds) {
 			var date = new Date(seconds * 1000), days = parseInt(seconds / 86400, 10); days = days ? days + 'd ' : ''; return days +
 				('0' + date.getUTCHours()).slice(-2) + ':' +
@@ -1222,7 +1222,7 @@ if ("undefined" == typeof jQuery) throw new Error("Tempus Dominus Bootstrap4's r
 			}
 			return x;
 		}, requestAnimationFrame: window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) { setTimeout(callback, 10); }, cancelAnimationFrame: window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame, requestIdleCallback: window.requestIdleCallback || function (cb) { var start = Date.now(); return setTimeout(function () { cb({ didTimeout: false, timeRemaining: function () { return Math.max(0, 50 - (Date.now() - start)); }, }); }, 1); }, cancelIdleCallback: window.cancelIdleCallback || function (id) { clearTimeout(id); }
-	}); window.SmartStore = {};
+	}); window.Smartstore = {};
 })(jQuery);
 "use strict"; (function ($) {
 	var touchCapable = Modernizr.touchevents, settings = { tap_pixel_range: 5, swipe_h_threshold: 100, swipe_v_threshold: 100, taphold_threshold: 750, doubletap_int: 500, touch_capable: touchCapable, orientation_support: ('orientation' in window && 'onorientationchange' in window), startevent: (touchCapable) ? 'touchstart' : 'mousedown', endevent: (touchCapable) ? 'touchend' : 'mouseup', moveevent: (touchCapable) ? 'touchmove' : 'mousemove', tapevent: (touchCapable) ? 'tap' : 'click', scrollevent: (touchCapable) ? 'touchmove' : 'scroll', hold_timer: null, tap_timer: null }; $.isTouchCapable = function () { return settings.touch_capable; }; $.getStartEvent = function () { return settings.startevent; }; $.getEndEvent = function () { return settings.endevent; }; $.getMoveEvent = function () { return settings.moveevent; }; $.getTapEvent = function () { return settings.tapevent; }; $.getScrollEvent = function () { return settings.scrollevent; }; $.each(['tapstart', 'tapend', 'tapmove', 'tap', 'tap2', 'tap3', 'tap4', 'singletap', 'doubletap', 'taphold', 'swipe', 'swipeup', 'swiperight', 'swipedown', 'swipeleft', 'swipeend', 'scrollstart', 'scrollend', 'orientationchange'], function (i, name) { $.fn[name] = function (fn) { return fn ? this.on(name, fn) : this.trigger(name); }; }); function addDeltaProps(start, current) {
@@ -1452,7 +1452,7 @@ if ("undefined" == typeof jQuery) throw new Error("Tempus Dominus Bootstrap4's r
 			}
 			return ret;
 		}; g.formatNumber = formatNumber;
-	}()); SmartStore.globalization = g;
+	}()); Smartstore.globalization = g;
 })(jQuery);
 (function ($, window, document, undefined) {
 	$.validator.unobtrusive.adapters.add('fileextensions', ['extensions'], function (options) { var params = { extensions: options.params.extensions.split(',') }; options.rules['fileextensions'] = params; if (options.message) { options.messages['fileextensions'] = options.message; } }); $.validator.addMethod("fileextensions", function (value, element, param) {
@@ -1663,7 +1663,7 @@ var Hacks = {
 			}
 		}
 	}; $(function () {
-		var rtl = SmartStore.globalization !== undefined ? SmartStore.globalization.culture.isRTL : false, win = $(window), body = $(document.body); function getFunction(code, argNames) {
+		var rtl = Smartstore.globalization !== undefined ? Smartstore.globalization.culture.isRTL : false, win = $(window), body = $(document.body); function getFunction(code, argNames) {
 			var fn = window, parts = (code || "").split("."); while (fn && parts.length) { fn = fn[parts.shift()]; }
 			if (typeof (fn) === "function") { return fn; }
 			argNames.push(code); return Function.constructor.apply(null, argNames);
@@ -2029,11 +2029,11 @@ var Hacks = {
 			bubble = bubble || el.find('> .range-value'); ready = el.hasClass('ready'); if (bubble.length === 0 || el.length === 0) { el.addClass('ready'); return; }
 			if (!ready && !el.is(':visible')) { return; }
 			if (!ready) { var labelTop = Math.floor((slider.position().top + (slider.height() / 2)) - (bubble.height() / 2)); bubble.css('top', labelTop + 'px'); el.addClass('ready'); }
-			var min = parseFloat(slider.prop('min')), max = parseFloat(slider.prop('max')), range = max - min, ratio = el.width() / range, n = parseFloat(slider.val()) - min; if (SmartStore.globalization.culture.isRTL) { bubble.css('right', (n * ratio) + 'px').attr('data-placement', n > range / 2 ? 'right' : 'left'); }
+			var min = parseFloat(slider.prop('min')), max = parseFloat(slider.prop('max')), range = max - min, ratio = el.width() / range, n = parseFloat(slider.val()) - min; if (Smartstore.globalization.culture.isRTL) { bubble.css('right', (n * ratio) + 'px').attr('data-placement', n > range / 2 ? 'right' : 'left'); }
 			else { bubble.css('left', (n * ratio) + 'px').attr('data-placement', n > range / 2 ? 'left' : 'right'); }
 		}
 		function updateSlider(e) {
-			var val = slider.val(), bubble = el.find('> .range-value'), fmt = el.data('format'); el.css('--slider-value', val).find('.range-value-inner').text(fmt === '{0}' ? fmt.format(val) : eval(fmt.format(val))); if (self.initialized) { var g = SmartStore.globalization, nf = g.culture.numberFormat, formatted = val.replace('.', nf["."]); $(slider.data('target')).val(formatted).trigger('change'); }
+			var val = slider.val(), bubble = el.find('> .range-value'), fmt = el.data('format'); el.css('--slider-value', val).find('.range-value-inner').text(fmt === '{0}' ? fmt.format(val) : eval(fmt.format(val))); if (self.initialized) { var g = Smartstore.globalization, nf = g.culture.numberFormat, formatted = val.replace('.', nf["."]); $(slider.data('target')).val(formatted).trigger('change'); }
 			refreshBubblePosition(e, bubble);
 		}
 		this.init = function () {
@@ -2084,7 +2084,7 @@ var Hacks = {
 		return result;
 	}
 })(jQuery, this, document);
-SmartStore.media = (function () {
+Smartstore.media = (function () {
 	var img = { name: "far fa-file-image", color: "#e77c00", mediaType: 'image' }; var video = { name: "far fa-file-video", color: "#ff5722", mediaType: 'video' }; var word = { name: "far fa-file-word", color: "#2b579a", mediaType: 'document' }; var excel = { name: "far fa-file-excel", color: "#217346", mediaType: 'document' }; var ppt = { name: "far fa-file-powerpoint", color: "#d24726", mediaType: 'document' }; var pdf = { name: "far fa-file-pdf", color: "#f44336", mediaType: 'document' }; var zip = { name: "far fa-file-archive", color: "#3f51b5", mediaType: 'bin' }; var csv = { name: "fas fa-file-csv", color: "#607d8b", mediaType: 'text' }; var markup = { name: "far fa-file-code", color: "#4caf50", mediaType: 'text' }; var app = { name: "fa fa-cog", color: "#58595b", mediaType: 'bin' }; var db = { name: "fa fa-database", color: "#3ba074", mediaType: 'bin' }; var font = { name: "fa fa-font", color: "#797985", mediaType: 'bin' }; var code = { name: "fa fa-bolt", color: "#4caf50", mediaType: 'text' }; var iconHints = { ".pdf": pdf, ".psd": img, ".exe": app, ".dll": app, ".doc": word, ".docx": word, ".docm": word, ".odt": word, ".dot": word, ".dotx": word, ".dotm": word, ".ppt": ppt, ".pptx": ppt, ".pps": ppt, ".ppsx": ppt, ".pptm": ppt, ".odp": ppt, ".potx": ppt, ".pot": ppt, ".potm": ppt, ".ppsm": ppt, ".xls": excel, ".xlsx": excel, ".xlsb": excel, ".xlsm": excel, ".ods": excel, ".mdb": db, ".db": db, ".sqlite": db, ".csv": csv, ".zip": zip, ".rar": zip, ".7z": zip, ".ttf": font, ".eot": font, ".woff": font, ".woff2": font, ".xml": markup, ".html": markup, ".htm": markup, ".js": code, ".json": code, ".mp4": video, ".webm": video, ".ogg": video, ".swf": video, "image": img, "video": video, "audio": { name: "far fa-file-audio", color: "#009688", mediaType: 'audio' }, "document": { name: "fas fa-file-alt", color: "#2b579a", mediaType: 'document' }, "text": { name: "far fa-file-alt", color: "#607d8B", mediaType: 'text' }, "bin": { name: "far fa-file", color: "#bbb", mediaType: 'bin' }, "misc": { name: "far fa-file", color: "#bbb", mediaType: 'bin', isFallback: true } }; return {
 		getIconHint: function (file) { return iconHints[file.ext] || iconHints[file.type] || (file.mime ? iconHints[file.mime.split('/')[0]] : null) || iconHints['misc']; }, lazyLoadThumbnails: function (selector) {
 			$(selector || document).find('img.file-img').each(function () {
@@ -2120,12 +2120,12 @@ var currentModalId = ""; function closeModalWindow() {
 		modal.hide(); return false;
 }
 function openModalWindow(modalId) { currentModalId = modalId; $('#' + modalId).modal('show'); }
-SmartStore.Admin = {
+Smartstore.Admin = {
 	modelTrees: {}, checkboxCheck: function (obj, checked) {
 		if (checked)
 			$(obj).attr('checked', 'checked'); else
 			$(obj).removeAttr('checked');
-	}, checkAllOverriddenStoreValue: function (obj) { $('.multi-store-override-option').each(function (i, el) { SmartStore.Admin.checkboxCheck(el, obj.checked); SmartStore.Admin.checkOverriddenStoreValue(el); }); }, checkOverriddenStoreValue: function (el) {
+	}, checkAllOverriddenStoreValue: function (obj) { $('.multi-store-override-option').each(function (i, el) { Smartstore.Admin.checkboxCheck(el, obj.checked); Smartstore.Admin.checkOverriddenStoreValue(el); }); }, checkOverriddenStoreValue: function (el) {
 		var checkbox = $(el); var parentSelector = checkbox.data('parent-selector'), parent = parentSelector ? $(parentSelector) : checkbox.closest('.multi-store-setting-group').find('> .multi-store-setting-control'), checked = checkbox.is(':checked'); parent.find('input:not([type=hidden]), select, textarea').each(function (i, el) {
 			var input = $(el); var tbox = input.data('tTextBox'); if (tbox) { checked ? tbox.enable() : tbox.disable(); }
 			else { checked ? input.removeAttr('disabled') : input.attr('disabled', true); }
@@ -2166,7 +2166,7 @@ SmartStore.Admin = {
 		}
 	})()
 };
-SmartStore.Admin.Media = (function () {
+Smartstore.Admin.Media = (function () {
 	class FileConflictResolutionDialog {
 		constructor() { this._url = $('head > meta[property="sm:root"]').attr('content') + 'admin/media/fileconflictresolutiondialog'; this._dialog = null; this._dupeFileDisplay = null; }
 		get currentConflict() { return this.queue ? this.queue[this.currentIndex] : null; }
@@ -2195,7 +2195,7 @@ SmartStore.Admin.Media = (function () {
 			conflict = conflict || this.currentConflict; if (!conflict)
 				return; let dialog = this._dialog; let dupeFileDisplay = this._dupeFileDisplay; const existingFileDisplay = dialog.find(".existing-file-display"); const source = conflict.source; const dest = conflict.dest; dialog.find(".btn-apply").removeClass("disabled"); dialog.find(".intro .current-file").html('<b class="fwm">' + source.name + '</b>'); dialog.find(".remaining-file-counter .current-count").text(this.currentIndex + 1); dialog.find(".remaining-file-counter .total-count").text(this.queue.length); this._refreshFileDisplay(dupeFileDisplay, source); this._refreshFileDisplay(existingFileDisplay, dest); $("input[name=resolution-type]:checked").trigger("change");
 		}
-		_refreshFileDisplay(el, file) { var preview = SmartStore.media.getPreview(file, { iconCssClasses: "fa-4x" }); el.find(".file-preview").html(preview.thumbHtml); SmartStore.media.lazyLoadThumbnails(el); el.find(".file-name").text(file.name); el.find(".file-name").attr("title", file.name); el.find(".file-size").text(_.formatFileSize(file.size)); if (file.dimensions) { var width = parseInt(file.dimensions.split(",")[0]); var height = parseInt(file.dimensions.split(",")[1]); if (width && height) { el.find(".file-dimensions").text(width + " x " + height); } } }
+		_refreshFileDisplay(el, file) { var preview = Smartstore.media.getPreview(file, { iconCssClasses: "fa-4x" }); el.find(".file-preview").html(preview.thumbHtml); Smartstore.media.lazyLoadThumbnails(el); el.find(".file-name").text(file.name); el.find(".file-name").attr("title", file.name); el.find(".file-size").text(_.formatFileSize(file.size)); if (file.dimensions) { var width = parseInt(file.dimensions.split(",")[0]); var height = parseInt(file.dimensions.split(",")[1]); if (width && height) { el.find(".file-dimensions").text(width + " x " + height); } } }
 		_ensureDialog(onReady) {
 			const self = this; if (!this._dialog || !this._dialog.length) { this._dialog = $("#duplicate-window"); }
 			if (this._dialog.length) { this._dupeFileDisplay = this._dialog.find(".dupe-file-display"); onReady.apply(this._dialog); return; }
@@ -2220,10 +2220,10 @@ SmartStore.Admin.Media = (function () {
 			});
 		}
 	}
-	return { convertDropzoneFileQueue: function (queue) { return _.map(queue, function (dzfile) { var idx = dzfile.name.lastIndexOf('.'); var title = idx > -1 ? dzfile.name.substring(0, idx) : dzfile.name; var ext = idx > -1 ? dzfile.name.substring(idx) : ''; var stub = { ext: ext, mime: dzfile.type }; var mediaType = SmartStore.media.getIconHint(stub).mediaType; var file = { thumbUrl: dzfile.dataURL ? dzfile.dataURL : null, name: dzfile.name, title: title, ext: ext, mime: dzfile.type, type: mediaType, createdOn: dzfile.lastModifiedDate, size: dzfile.size, width: dzfile.width ? dzfile.width : null, height: dzfile.height ? dzfile.height : null, dimensions: dzfile.width && dzfile.height ? dzfile.width + ", " + dzfile.height : null }; return { source: file, dest: dzfile.media, original: dzfile }; }); }, fileConflictResolutionDialog: new FileConflictResolutionDialog() };
+	return { convertDropzoneFileQueue: function (queue) { return _.map(queue, function (dzfile) { var idx = dzfile.name.lastIndexOf('.'); var title = idx > -1 ? dzfile.name.substring(0, idx) : dzfile.name; var ext = idx > -1 ? dzfile.name.substring(idx) : ''; var stub = { ext: ext, mime: dzfile.type }; var mediaType = Smartstore.media.getIconHint(stub).mediaType; var file = { thumbUrl: dzfile.dataURL ? dzfile.dataURL : null, name: dzfile.name, title: title, ext: ext, mime: dzfile.type, type: mediaType, createdOn: dzfile.lastModifiedDate, size: dzfile.size, width: dzfile.width ? dzfile.width : null, height: dzfile.height ? dzfile.height : null, dimensions: dzfile.width && dzfile.height ? dzfile.width + ", " + dzfile.height : null }; return { source: file, dest: dzfile.media, original: dzfile }; }); }, fileConflictResolutionDialog: new FileConflictResolutionDialog() };
 })();
 (function ($, window, document, undefined) {
-	var _commonPluginFactories = [function (ctx) { ctx.find('input[type=checkbox][data-toggler-for]').each(function (i, el) { SmartStore.Admin.togglePanel(el, false); }); }, function (ctx) { ctx.find("select:not(.noskin)").selectWrapper(); }, function (ctx) { ctx.find(".cph").tooltip({ selector: "a.hint", placement: SmartStore.globalization.culture.isRTL ? "right" : "left", trigger: 'hover', delay: { show: 400, hide: 0 } }); }, function (ctx) { ctx.find(".adminData > input[type=checkbox], .multi-store-setting-control > input[type=checkbox], .switcher > input[type=checkbox]").each(function (i, el) { $(el).wrap('<label class="switch"></label>').after('<span class="switch-toggle" data-on="' + window.Res['Common.On'] + '" data-off="' + window.Res['Common.Off'] + '"></span>').parent().on('click', function (e) { if ($(el).is('[readonly]')) { e.preventDefault(); } }); }); }, function (ctx) { Hacks.Telerik.handleButton(ctx.find(".t-button").filter(function (index) { return !$(this).parent().hasClass("t-group-indicator"); })); }, function (ctx) { ctx.find("a[rel='btn-trigger']").click(function () { var el = $(this); var target = el.data("target"); var action = el.data("action"); var button = el.closest("form").find("button[type=submit][name=" + target + "][value=" + action + "]"); button.click(); return false; }); }, function (ctx) { ctx.find(".sm-colorbox").colorpicker({ fallbackColor: false, color: false, align: SmartStore.globalization.culture.isRTL ? 'left' : 'right' }); }, function (ctx) { ctx.find(".range-slider").rangeSlider(); }]; window.applyCommonPlugins = function (context) { $.each(_commonPluginFactories, function (i, val) { val.call(this, $(context)); }); }; window.providerListInit = function () {
+	var _commonPluginFactories = [function (ctx) { ctx.find('input[type=checkbox][data-toggler-for]').each(function (i, el) { Smartstore.Admin.togglePanel(el, false); }); }, function (ctx) { ctx.find("select:not(.noskin)").selectWrapper(); }, function (ctx) { ctx.find(".cph").tooltip({ selector: "a.hint", placement: Smartstore.globalization.culture.isRTL ? "right" : "left", trigger: 'hover', delay: { show: 400, hide: 0 } }); }, function (ctx) { ctx.find(".adminData > input[type=checkbox], .multi-store-setting-control > input[type=checkbox], .switcher > input[type=checkbox]").each(function (i, el) { $(el).wrap('<label class="switch"></label>').after('<span class="switch-toggle" data-on="' + window.Res['Common.On'] + '" data-off="' + window.Res['Common.Off'] + '"></span>').parent().on('click', function (e) { if ($(el).is('[readonly]')) { e.preventDefault(); } }); }); }, function (ctx) { Hacks.Telerik.handleButton(ctx.find(".t-button").filter(function (index) { return !$(this).parent().hasClass("t-group-indicator"); })); }, function (ctx) { ctx.find("a[rel='btn-trigger']").click(function () { var el = $(this); var target = el.data("target"); var action = el.data("action"); var button = el.closest("form").find("button[type=submit][name=" + target + "][value=" + action + "]"); button.click(); return false; }); }, function (ctx) { ctx.find(".sm-colorbox").colorpicker({ fallbackColor: false, color: false, align: Smartstore.globalization.culture.isRTL ? 'left' : 'right' }); }, function (ctx) { ctx.find(".range-slider").rangeSlider(); }]; window.applyCommonPlugins = function (context) { $.each(_commonPluginFactories, function (i, val) { val.call(this, $(context)); }); }; window.providerListInit = function () {
 		var token = $('input[name="__RequestVerificationToken"]').val(); $(".activate-provider").on("click", function (e) {
 			e.preventDefault(); var $el = $(this); var activate = $el.attr("data-activate") == "true" ? true : false; var T = window.Res.Provider; $({}).doAjax({
 				type: 'POST', url: $el.data('href'), data: { "__RequestVerificationToken": token, "systemName": $el.attr("data-systemname"), "activate": activate }, callbackSuccess: function () {
@@ -2235,7 +2235,7 @@ SmartStore.Admin.Media = (function () {
 		})
 	}
 	$(document).ready(function () {
-		var html = $("html"); html.removeClass("not-ready").addClass("ready"); applyCommonPlugins($("body")); $(document).on('change', 'input[type=checkbox][data-toggler-for]', function (e) { SmartStore.Admin.togglePanel(e.target, true); }); $("#page").tooltip({ selector: "a[rel=tooltip], .tooltip-toggle", trigger: 'hover' }); $(".options button[value=save-continue]").on('click', function () { var btn = $(this); btn.closest("form").append('<input type="hidden" name="save-continue" value="true" />'); }); $(document).ajaxStart(function () { $('#ajax-busy').addClass("busy"); }).ajaxStop(function () { window.setTimeout(function () { $('#ajax-busy').removeClass("busy"); }, 300); }); $('.multi-store-override-option').each(function (i, el) { SmartStore.Admin.checkOverriddenStoreValue(el); }); $('.entity-commit-trigger').on('click', function (e) { var el = $(this); if (el.data('commit-type')) { EventBroker.publish("entity-commit", { type: el.data('commit-type'), action: el.data('commit-action'), id: el.data('commit-id') }); } }); Hacks.Telerik.handleGridFilter(); var navbar = $("#navbar"); var navbarHeight = navbar.height() || 1; var sectionHeader = $('.section-header'); var sectionHeaderHasButtons = undefined; if (!sectionHeader.hasClass('nofix')) {
+		var html = $("html"); html.removeClass("not-ready").addClass("ready"); applyCommonPlugins($("body")); $(document).on('change', 'input[type=checkbox][data-toggler-for]', function (e) { Smartstore.Admin.togglePanel(e.target, true); }); $("#page").tooltip({ selector: "a[rel=tooltip], .tooltip-toggle", trigger: 'hover' }); $(".options button[value=save-continue]").on('click', function () { var btn = $(this); btn.closest("form").append('<input type="hidden" name="save-continue" value="true" />'); }); $(document).ajaxStart(function () { $('#ajax-busy').addClass("busy"); }).ajaxStop(function () { window.setTimeout(function () { $('#ajax-busy').removeClass("busy"); }, 300); }); $('.multi-store-override-option').each(function (i, el) { Smartstore.Admin.checkOverriddenStoreValue(el); }); $('.entity-commit-trigger').on('click', function (e) { var el = $(this); if (el.data('commit-type')) { EventBroker.publish("entity-commit", { type: el.data('commit-type'), action: el.data('commit-action'), id: el.data('commit-id') }); } }); Hacks.Telerik.handleGridFilter(); var navbar = $("#navbar"); var navbarHeight = navbar.height() || 1; var sectionHeader = $('.section-header'); var sectionHeaderHasButtons = undefined; if (!sectionHeader.hasClass('nofix')) {
 			$(window).on("scroll resize", function (e) {
 				if (sectionHeaderHasButtons === undefined) { sectionHeaderHasButtons = sectionHeader.find(".options").children().length > 0; }
 				if (sectionHeaderHasButtons === true) { var y = $(this).scrollTop(); sectionHeader.toggleClass("sticky", y >= navbarHeight); $(document.body).toggleClass("sticky-header", y >= navbarHeight); }

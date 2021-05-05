@@ -56,7 +56,7 @@ namespace Smartstore.Core.Localization
 
                     using var psb = StringBuilderPool.Instance.Get(out var sb);
                     sb.Append("<script data-origin='globalization'>");
-                    sb.Append("jQuery(function () { if (SmartStore.globalization) { SmartStore.globalization.culture = ");
+                    sb.Append("jQuery(function () { if (Smartstore.globalization) { Smartstore.globalization.culture = ");
                     sb.Append(json);
                     sb.Append("; }; });");
                     sb.Append("</script>");

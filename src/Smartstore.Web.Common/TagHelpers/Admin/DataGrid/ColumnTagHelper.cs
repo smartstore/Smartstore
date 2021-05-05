@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -14,6 +15,9 @@ namespace Smartstore.Web.TagHelpers.Admin
     {
         const string ForAttributeName = "for";
         const string WidthAttributeName = "width";
+        const string FlowAttributeName = "flow";
+        const string AlignAttributeName = "align-items";
+        const string JustifyAttributeName = "justify";
 
         public override void Init(TagHelperContext context)
         {
@@ -25,23 +29,40 @@ namespace Smartstore.Web.TagHelpers.Admin
             }
         }
 
+        /// <summary>
+        /// The bound member.
+        /// </summary>
         [HtmlAttributeName(ForAttributeName)]
         public ModelExpression For { get; set; }
 
+        /// <summary>
+        /// Columns width. Any CSS grid width specification is valid.
+        /// </summary>
         [HtmlAttributeName(WidthAttributeName)]
         public string Width { get; set; }
 
         /// <summary>
-        /// Custom display template for the cell content as Vue slot template. Root object is called <c>cell</c>
-        /// and contains following members:
-        /// <list type="table">
-        ///     <item><c>value</c>: the raw cell value</item>
-        ///     <item><c>row</c></item>
-        ///     <item><c>rowIndex</c></item>
-        ///     <item><c>column</c></item>
-        ///     <item><c>columnIndex</c></item>
-        /// </list>
+        /// Flow of cell content. Default: <see cref="FlexFlow.Row"/>.
         /// </summary>
+        [HtmlAttributeName(FlowAttributeName)]
+        public FlexFlow? Flow { get; set; }
+
+        /// <summary>
+        /// Alignment of cell content. If <see cref="Flow"/> is <see cref="FlexFlow.Column"/>, 
+        /// this is the horizontal alignment, otherwise vertical.
+        /// Default: <see cref="FlexAlignItems.Center"/>.
+        /// </summary>
+        [HtmlAttributeName(AlignAttributeName)]
+        public FlexAlignItems? AlignItems { get; set; }
+
+        /// <summary>
+        /// Justification of cell content. If <see cref="Flow"/> is <see cref="FlexFlow.Column"/>, 
+        /// this is the vertical alignment, otherwise horizontal.
+        /// Default: <see cref="FlexJustifyContent.FlexStart"/>.
+        /// </summary>
+        [HtmlAttributeName(JustifyAttributeName)]
+        public FlexJustifyContent? JustifyContent { get; set; }
+
         [HtmlAttributeNotBound]
         public TagHelperContent DisplayTemplate { get; set; }
 
@@ -51,7 +72,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeNotBound]
         public string MemberName 
         {
-            get => For.Name;
+            get => For.Metadata.Name;
         }
 
         [HtmlAttributeNotBound]
@@ -70,6 +91,17 @@ namespace Smartstore.Web.TagHelpers.Admin
             => null;
     }
 
+    /// <summary>
+    /// Custom display template for the cell content as Vue slot template. Root object is called <c>cell</c>
+    /// and provides the following members:
+    /// <list type="table">
+    ///     <item><c>value</c>: the raw cell value</item>
+    ///     <item><c>row</c></item>
+    ///     <item><c>rowIndex</c></item>
+    ///     <item><c>column</c></item>
+    ///     <item><c>columnIndex</c></item>
+    /// </list>
+    /// </summary>
     [HtmlTargetElement("display-template", ParentTag = "column")]
     public class DisplayTemplateTagHelper : TagHelper
     {

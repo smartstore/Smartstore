@@ -1,5 +1,5 @@
 ﻿// Creates dashboard charts with Chart.js
-SmartStore.Admin.Charts = {
+Smartstore.Admin.Charts = {
     Create: (function () {
         const style = getComputedStyle(document.documentElement);
         const colorPrimary = style.getPropertyValue('--primary');

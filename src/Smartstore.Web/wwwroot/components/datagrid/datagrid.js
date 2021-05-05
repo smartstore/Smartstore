@@ -2,14 +2,16 @@
     template: `
         <table class="datagrid" 
             ref="table"
-            :style="{ gridTemplateColumns: generateGridTemplateColumns() }">
-            <thead>
+            :style="getTableStyle()">
+            <thead class="datagrid-head">
                 <tr>
                     <th v-for="(column, columnIndex) in columns"
                         :data-member="column.member"
                         ref="column">
-                        <span>{{ column.title }}</span>
-                        <span class="datagrid-resize-handle" v-on:mousedown="onStartResize($event, column, columnIndex)"></span>
+                        <div class="datagrid-cell datagrid-cell-header" :style="getCellStyle(column, true)">
+                            {{ column.title }}
+                        </div>
+                        <div class="datagrid-resize-handle" v-on:mousedown="onStartResize($event, column, columnIndex)"></div>
                     </th>
                 </tr>
             </thead>
@@ -18,9 +20,11 @@
                     <td v-for="(column, columnIndex) in columns"
                         ref="cell"
                         :key="row.Id + '-' + columnIndex">
-                        <slot :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
-                            <span>{{ row[column.member] }}</span>
-                        </slot>
+                        <div class="datagrid-cell" :style="getCellStyle(column, false)">
+                            <slot :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                {{ row[column.member] }}
+                            </slot>
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -39,6 +43,17 @@
 
         command: {
             type: Object,
+            required: false
+        },
+
+        vborders: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        hborders: {
+            type: Boolean,
             required: false
         }
     },
@@ -61,20 +76,50 @@
         }
     },
     methods: {
+        getTableStyle() {
+            const style = { 'grid-template-columns': this.generateGridTemplateColumns() };
+
+            style['row-gap'] = this.vborders ? "1px" : "0";
+            style['column-gap'] = this.hborders ? "1px" : "0";
+
+            return style;
+        },
+
+        getCellStyle(column, isHeader) {
+            const style = {};
+
+            if (column.align && !isHeader) {
+                style.alignItems = column.align;
+            }
+
+            if (column.justify) {
+                style.justifyContent = column.justify;
+            }
+
+            return style;
+        },
+
+        formatNumber(input) {
+            return input;
+        },
+
+        formatCurrency(input) {
+            return input;
+        },
+
         read() {
             var self = this;
 
             const input = document.querySelector('input[name=__RequestVerificationToken]');
-            const command = { __RequestVerificationToken: input.value };
-            console.log(command);
+            const command = $.extend(true, { __RequestVerificationToken: input.value }, this.command);
 
             $.ajax({
+                url: this.dataSource.read,
                 type: 'POST',
                 cache: false,
                 dataType: 'json',
                 data: command,
                 success(result) {
-                    console.log(result);
                     self.rows = result.rows !== undefined ? result.rows : result;
                     self.total = result.total || self.rows.length;
                     self.aggregates = result.aggregates !== undefined ? result.aggregates : [];
