@@ -1099,21 +1099,23 @@ namespace Smartstore.Web.Controllers
                 model.CustomerNumberEnabled = false;
             }
 
-            // TODO: (mh) (core) Implement when IExternalAuthenticationMethod and stuff is available.
             // External authentication.
+            var authProviders = await _signInManager.GetExternalAuthenticationSchemesAsync();
+            
             foreach (var ear in customer.ExternalAuthenticationRecords)
             {
-                //var authMethod = _providerManager.GetProvider<IExternalAuthenticationMethod>(systemName, storeId);
-                //var authMethod = _openAuthenticationService.LoadExternalAuthenticationMethodBySystemName(ear.ProviderSystemName);
-                //if (authMethod == null || !authMethod.IsMethodActive(_externalAuthenticationSettings))
-                //  continue;
-                //    model.AssociatedExternalAuthRecords.Add(new CustomerInfoModel.AssociatedExternalAuthModel
-                //    {
-                //        Id = ear.Id,
-                //        Email = ear.Email,
-                //        ExternalIdentifier = ear.ExternalIdentifier,
-                //        AuthMethodName = _pluginMediator.GetLocalizedFriendlyName(authMethod.Metadata, _workContext.WorkingLanguage.Id)
-                //    });
+                var provider = authProviders.Where(x => ear.ProviderSystemName.Contains(x.Name)).FirstOrDefault();
+                
+                if (provider == null)
+                  continue;
+
+                model.AssociatedExternalAuthRecords.Add(new CustomerInfoModel.AssociatedExternalAuthModel
+                {
+                    Id = ear.Id,
+                    Email = ear.Email,
+                    ExternalIdentifier = ear.ExternalIdentifier,
+                    AuthMethodName = provider.Name
+                });
             }
         }
 
