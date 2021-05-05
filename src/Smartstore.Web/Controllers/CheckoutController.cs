@@ -601,13 +601,13 @@ namespace Smartstore.Web.Controllers
                     processPaymentRequest = new ProcessPaymentRequest();
                 }
 
-                // Prevent 2 orders being placed within an X seconds time frame.
+                // Prevent two orders from being placed within a time span of x seconds.
                 if (!await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
                 {
                     throw new Exception(T("Checkout.MinOrderPlacementInterval"));
                 }
 
-                // Place order.
+                // Place the order.
                 processPaymentRequest.StoreId = store.Id;
                 processPaymentRequest.CustomerId = customer.Id;
                 processPaymentRequest.PaymentMethodSystemName = customer.GenericAttributes.SelectedPaymentMethod;
@@ -665,7 +665,44 @@ namespace Smartstore.Web.Controllers
                 return Redirect(postProcessPaymentRequest.RedirectUrl);
             }
 
-            return RedirectToAction("Completed");
+            return RedirectToAction(nameof(Completed));
+        }
+
+
+        public async Task<IActionResult> Completed()
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            
+            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            {
+                return new UnauthorizedResult();
+            }
+
+            var store = Services.StoreContext.CurrentStore;
+
+            var order = await _db.Orders
+                .AsNoTracking()                
+                .ApplyStandardFilter(customer.Id, store.Id)
+                .FirstOrDefaultAsync();
+
+            if (order == null || customer.Id != order.CustomerId)
+            {
+                return NotFound();
+            }
+
+            // Disable "order completed" page?
+            if (_orderSettings.DisableOrderCompletedPage)
+            {
+                return RedirectToAction(nameof(OrderController.Details), "Order", new { id = order.Id });
+            }
+
+            var model = new CheckoutCompletedModel
+            {
+                OrderId = order.Id,
+                OrderNumber = order.GetOrderNumber()
+            };
+
+            return View(model);
         }
     }
 }

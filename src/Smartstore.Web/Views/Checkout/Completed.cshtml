@@ -1,0 +1,49 @@
+﻿@using Smartstore.Web.Models.Checkout;
+
+@model CheckoutCompletedModel
+
+@{
+    Layout = "_Checkout";
+    Assets.PrependTitleParts(T("PageTitle.Checkout"));
+    Assets.AppendCssFileParts("no-offcanvas-cart");
+    Assets.PrependHeadScriptParts();
+}
+
+<widget target-zone="order_progress">
+    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Complete }" />
+</widget>
+
+<div class="page checkout-completed-page">
+	<div class="heading mt-3">
+		<h1 class="heading-title font-weight-light">@T("Checkout.OrderHasBeenReceived")</h1>
+	</div>
+
+	<h3 class="text-muted font-weight-light">
+		@T("Checkout.ThankYou")
+	</h3>
+    
+    <div class="page-body checkout-data pt-4">
+        <div class="order-completed">
+            <zone name="checkout_completed_top" />
+            
+            <div class="body fs-h5">
+                <p>
+					<span>@T("Checkout.OrderNumber"):</span>
+					<a asp-action="Details" asp-controller="Order" asp-route-id="@Model.OrderId" rel="nofollow"><strong>@Model.OrderNumber</strong></a>
+                </p>
+            </div>
+            <p class="pt-3 mb-5">
+				<a asp-action="Details" asp-controller="Order" asp-route-id="@Model.OrderId" class="btn btn-warning" rel="nofollow">
+					@*<i class="far fa-list-alt"></i>*@
+					<span>@T("Checkout.PlacedOrderDetails")</span>
+				</a>
+                <a asp-route="Homepage" class="btn btn-secondary order-completed-continue-button">
+                    @*<i class="fa fa-home"></i>*@
+                    <span>@T("Checkout.Continue")</span>
+                </a>
+            </p>
+            
+            <zone name="checkout_completed_bottom" />
+        </div>
+    </div>
+</div>
