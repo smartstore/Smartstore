@@ -26,6 +26,12 @@ namespace Smartstore.Web.TagHelpers.Admin
     [RestrictChildren("columns", "datasource", "pageable", "toolbar")]
     public class DataGridTagHelper : SmartTagHelper
     {
+        const string BorderAttributeName = "border-style";
+        const string StripedAttributeName = "striped";
+        const string HoverAttributeName = "hover";
+        const string CondensedAttributeName = "condensed";
+        const string AllowResizeAttributeName = "allow-resize";
+
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
@@ -35,7 +41,32 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// <summary>
         /// DataGrid table border style. Default: <see cref="DataGridBorderStyle.VerticalBorders"/>.
         /// </summary>
+        [HtmlAttributeName(BorderAttributeName)]
         public DataGridBorderStyle BorderStyle { get; set; } = DataGridBorderStyle.VerticalBorders;
+
+        /// <summary>
+        /// Adds zebra-striping to any table row within tbody.
+        /// </summary>
+        [HtmlAttributeName(StripedAttributeName)]
+        public bool Striped { get; set; }
+
+        /// <summary>
+        /// Enables a hover state on table rows within tbody.
+        /// </summary>
+        [HtmlAttributeName(HoverAttributeName)]
+        public bool Hover { get; set; }
+
+        /// <summary>
+        /// Makes data table more compact by cutting cell padding in half.
+        /// </summary>
+        [HtmlAttributeName(CondensedAttributeName)]
+        public bool Condensed { get; set; }
+
+        /// <summary>
+        /// Allows resizing of single columns. Default: <c>false</c>.
+        /// </summary>
+        [HtmlAttributeName(AllowResizeAttributeName)]
+        public bool AllowResize { get; set; }
 
         [HtmlAttributeNotBound]
         internal DataSourceTagHelper DataSource { get; set; }
@@ -60,8 +91,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             component.Attributes[":data-source"] = "dataSource";
             component.Attributes[":columns"] = "columns";
             component.Attributes[":command"] = "command";
-            component.Attributes[":vborders"] = "vborders";
-            component.Attributes[":hborders"] = "hborders";
+            component.Attributes[":options"] = "options";
 
             // Generate template slots
             foreach (var column in Columns)
@@ -82,10 +112,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 
             output.Content.AppendHtml(component);
 
-            output.PostElement.AppendHtmlLine(
-@$"<script>
-	$(function() {{ new Vue({GenerateVueJson()}); }})
-</script>");
+            output.PostElement.AppendHtmlLine(@$"<script>$(function() {{ window['{Id}'] = new Vue({GenerateVueJson()}); }})</script>");
         }
 
         private string GenerateVueJson()
@@ -110,8 +137,14 @@ namespace Smartstore.Web.TagHelpers.Admin
                     page = 1,
                     pageSize = 25
                 },
-                vborders = BorderStyle.HasFlag(DataGridBorderStyle.VerticalBorders),
-                hborders = BorderStyle.HasFlag(DataGridBorderStyle.HorizontalBorders)
+                options = new
+                {
+                    vborders = BorderStyle.HasFlag(DataGridBorderStyle.VerticalBorders),
+                    hborders = BorderStyle.HasFlag(DataGridBorderStyle.HorizontalBorders),
+                    striped = Striped,
+                    hover = Hover,
+                    condensed = Condensed
+                }
             };
 
             foreach (var col in Columns)
@@ -120,10 +153,14 @@ namespace Smartstore.Web.TagHelpers.Admin
                 {
                     member = col.MemberName,
                     title = col.For.Metadata.DisplayName,
-                    width = col.Width,
+                    width = col.Width.EmptyNull(),
+                    visible = col.Visible,
                     flow = col.Flow?.ToString()?.ToLower(),
                     align = col.AlignItems?.ToString()?.Kebaberize(),
                     justify = col.JustifyContent?.ToString()?.Kebaberize(),
+                    type = GetColumnType(col),
+                    format = col.Format,
+                    resizable = AllowResize && col.Resizable
                 });
             }
 
@@ -139,33 +176,30 @@ namespace Smartstore.Web.TagHelpers.Admin
             return json;
         }
 
-        //protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
-        //{
-        //    await output.LoadAndSetChildContentAsync();
+        private static string GetColumnType(ColumnTagHelper column)
+        {
+            if (column.Type.HasValue())
+            {
+                return column.Type;
+            }
 
-        //    output.TagName = "table";
-        //    output.AppendCssClass("table admin-table");
+            var xxx = column.For.Metadata.DataTypeName;
+            var modelType = column.For.Metadata.ModelType.GetNonNullableType();
 
-        //    var tr = new TagBuilder("tr");
+            if (modelType == typeof(bool))
+            {
+                return "bool";
+            }
+            else if (modelType == typeof(DateTime))
+            {
+                return "datetime";
+            }
+            else if (modelType.IsNumericType())
+            {
+                return "number";
+            }
 
-        //    foreach (var col in Columns)
-        //    {
-        //        tr.InnerHtml.AppendHtml(GenerateHeadCell(col));
-        //    }
-
-        //    var thead = new TagBuilder("thead");
-        //    thead.InnerHtml.AppendHtml(tr);
-
-        //    output.Content.AppendHtml(thead);
-        //}
-
-        //private IHtmlContent GenerateHeadCell(ColumnTagHelper col)
-        //{
-        //    var th = new TagBuilder("th");
-        //    th.Attributes["data-field"] = col.For.Name;
-
-        //    th.InnerHtml.Append(col.For.Metadata.DisplayName);
-        //    return th;
-        //}
+            return null;
+        }
     }
 }

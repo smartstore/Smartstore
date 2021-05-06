@@ -15,9 +15,13 @@ namespace Smartstore.Web.TagHelpers.Admin
     {
         const string ForAttributeName = "for";
         const string WidthAttributeName = "width";
+        const string VisibleAttributeName = "visible";
         const string FlowAttributeName = "flow";
         const string AlignAttributeName = "align-items";
         const string JustifyAttributeName = "justify";
+        const string TypeAttributeName = "type";
+        const string FormatAttributeName = "format";
+        const string ResizableAttributeName = "resizable";
 
         public override void Init(TagHelperContext context)
         {
@@ -42,6 +46,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         public string Width { get; set; }
 
         /// <summary>
+        /// Column initial visibility. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(VisibleAttributeName)]
+        public bool Visible { get; set; } = true;
+
+        /// <summary>
         /// Flow of cell content. Default: <see cref="FlexFlow.Row"/>.
         /// </summary>
         [HtmlAttributeName(FlowAttributeName)]
@@ -62,6 +72,24 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(JustifyAttributeName)]
         public FlexJustifyContent? JustifyContent { get; set; }
+
+        /// <summary>
+        /// Column display render type. Leave empty to auto-resolve based on model expression.
+        /// </summary>
+        [HtmlAttributeName(TypeAttributeName)]
+        public string Type { get; set; }
+
+        /// <summary>
+        /// Column value format string. TODO: (core) Describe & samples
+        /// </summary>
+        [HtmlAttributeName(FormatAttributeName)]
+        public string Format { get; set; }
+
+        /// <summary>
+        /// Allows resizing of column, but only if resizing is enabled on grid level. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(ResizableAttributeName)]
+        public bool Resizable { get; set; } = true;
 
         [HtmlAttributeNotBound]
         public TagHelperContent DisplayTemplate { get; set; }

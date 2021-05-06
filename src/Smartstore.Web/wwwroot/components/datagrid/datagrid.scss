@@ -7,11 +7,16 @@
     }
 }
 
+$light: #f8f9fa;
+$border: #dee2e6;
+$even: mix($light, #fff);
+
 .datagrid-root {
-    --datagrid-border-color: #dee2e6;
-    --datagrid-header-bg: var(--light);
+    --datagrid-border-color: $border;
+    --datagrid-header-bg: $light;
     --datagrid-cell-bg: #fff;
-    --datagrid-cell-padding: 1.175rem 0.75rem;
+    --datagrid-cell-even-bg: #fff;
+    --datagrid-cell-padding: 0.875rem 1rem;
     --datagrid-cell-align: center;
     --datagrid-cell-justify: flex-start;
     position: relative;
@@ -21,7 +26,7 @@
     box-shadow: 0 0 5px rgba(#000, 0.08);
 }
 
-.datagrid {
+.dg-table {
     position: relative;
     width: auto;
     min-width: 100%;
@@ -42,7 +47,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        //position: relative;
+        position: relative;
         display: flex;
     }
 
@@ -52,11 +57,15 @@
         background-color: var(--datagrid-header-bg);
         border-bottom: 1px solid var(--datagrid-border-color);
         z-index: 1;
+        user-select: none;
     }
 
     td {
-        //border-bottom: 1px solid var(--datagrid-border-color);
         background-color: var(--datagrid-cell-bg);
+    }
+
+    tbody tr:nth-of-type(even) > td {
+        background-color: var(--datagrid-cell-even-bg);
     }
     /*    th:first-child,
     td:first-child {
@@ -69,21 +78,24 @@
         z-index: 10;
     }
 
-    &.datagrid--resizing {
+    &.dg--resizing {
         cursor: ew-resize;
-
-        th {
-            user-select: none;
-        }
     }
 }
 
-.datagrid-cell-header {
-    line-height: 1.2;
+.dg-striped {
+    --datagrid-cell-even-bg: $even;
 }
 
-.datagrid-cell {
+.dg-cell-header {
+    //line-height: 1.2;
+}
+
+.dg-cell {
     position: relative;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     padding: var(--datagrid-cell-padding);
     display: flex;
     width: 100%;
@@ -91,7 +103,7 @@
     justify-content: var(--datagrid-cell-justify);
 }
 
-.datagrid-resize-handle {
+.dg-resize-handle {
     position: absolute;
     display: block;
     top: 0;
@@ -117,7 +129,29 @@
     }
 
     &:hover,
-    .datagrid--resizing & {
+    .dg--resizing & {
         opacity: 1 !important;
     }
+}
+
+.dg-page {
+    padding: 10px 8px;
+    color: inherit;
+
+    &:hover {
+        background-color: rgba(#000, 0.05);
+    }
+
+    &:active {
+        background-color: rgba(#000, 0.08);
+    }
+}
+
+.dg-page--refresh {
+    border-right: 1px solid $border;
+}
+
+.dg-page--disabled {
+    pointer-events: none;
+    opacity: 0.4;
 }

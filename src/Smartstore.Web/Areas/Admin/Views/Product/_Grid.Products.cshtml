@@ -1,25 +1,30 @@
 ﻿@model ProductModel
 
-<datagrid id="products-grid" border-style="Grid">
+<datagrid id="products-grid" border-style="VerticalBorders" striped="true" hover="true" condensed="true" allow-resize="true">
     <datasource read="@Url.Action("ProductList")" />
     <pageable />
     <columns>
-        <column for="PictureThumbnailUrl" width="max-content">
+        @*<column for="PictureThumbnailUrl" 
+                width="max-content"
+                visible="false"
+                resizable="false"
+                justify="FlexJustifyContent.Center">
             <display-template>
                 <div class="zoomable-thumb-container">
                     <img :alt="cell.row.Id" :src="cell.value" :class="{ 'zoomable-thumb': !cell.row.NoThumb }" />
                 </div>
             </display-template>
-        </column>
-        <column for="Name" 
-                width="max-content" />
-        <column for="Sku" 
-                width="max-content" />
-        <column for="Price" 
-                width="max-content" 
+        </column>*@
+        @*<column for="AdminComment" width="200px">
+            <display-template>
+                <input type="text" class="form-control form-control" />
+            </display-template>
+        </column>*@
+        <column for="Name" />
+        <column for="Sku" />
+        <column for="Price"
                 justify="FlexJustifyContent.FlexEnd" />
-        <column for="StockQuantity" 
-                width="max-content" 
+        <column for="StockQuantity"
                 justify="FlexJustifyContent.Center">
             @*<display-template>
                 {{ formatNumber(cell.value) }}

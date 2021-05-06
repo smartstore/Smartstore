@@ -1,34 +1,48 @@
 ﻿Vue.component("sm-data-grid", {
     template: `
-        <table class="datagrid" 
-            ref="table"
-            :style="getTableStyle()">
-            <thead class="datagrid-head">
-                <tr>
-                    <th v-for="(column, columnIndex) in columns"
-                        :data-member="column.member"
-                        ref="column">
-                        <div class="datagrid-cell datagrid-cell-header" :style="getCellStyle(column, true)">
-                            {{ column.title }}
-                        </div>
-                        <div class="datagrid-resize-handle" v-on:mousedown="onStartResize($event, column, columnIndex)"></div>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(row, rowIndex) in rows" :key="row.Id">
-                    <td v-for="(column, columnIndex) in columns"
-                        ref="cell"
-                        :key="row.Id + '-' + columnIndex">
-                        <div class="datagrid-cell" :style="getCellStyle(column, false)">
-                            <slot :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
-                                {{ row[column.member] }}
-                            </slot>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="datagrid">
+            <sm-data-grid-pager :command="command" :rows="rows" :total="total"></sm-data-grid-pager>
+            <table ref="table"
+                :class="getTableClass()"
+                :style="getTableStyles()">
+                <thead class="dg-head">
+                    <tr>
+                        <th v-for="(column, columnIndex) in columns"
+                            :data-member="column.member"
+                            ref="column">
+                            <div class="dg-cell dg-cell-header" :style="getCellStyles(column, true)">
+                                {{ column.title }}
+                            </div>
+                            <div v-if="column.resizable" class="dg-resize-handle" v-on:mousedown="onStartResize($event, column, columnIndex)"></div>
+                        </th>
+                        <th>
+                            <div class="dg-cell dg-cell-header dg-cell-spacer"></div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(row, rowIndex) in rows" :key="row.Id">
+                        <td v-for="(column, columnIndex) in columns"
+                            ref="cell"
+                            :key="row.Id + '-' + columnIndex">
+                            <div class="dg-cell" :style="getCellStyles(column, false)">
+                                <slot :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                    <template v-if="typeof row[column.member] === 'boolean'">
+                                        <i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i>
+                                    </template>
+                                    <template v-else>
+                                        {{ renderCellValue(row[column.member], column, row) }}
+                                    </template>
+                                </slot>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="dg-cell dg-cell-spacer"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>       
+        </div>
     `,
     props: {
         dataSource: {
@@ -46,15 +60,10 @@
             required: false
         },
 
-        vborders: {
-            type: Boolean,
+        options: {
+            type: Object,
             required: false,
-            default: true
-        },
-
-        hborders: {
-            type: Boolean,
-            required: false
+            default: {}
         }
     },
     created: function () {
@@ -71,21 +80,37 @@
         }
     },
     computed: {
-        computeTest() {
-            return "test";
+    },
+    watch: {
+        command: {
+            handler: function () {
+                this.read();
+            },
+            deep: true
         }
     },
     methods: {
-        getTableStyle() {
-            const style = { 'grid-template-columns': this.generateGridTemplateColumns() };
+        getTableClass() {
+            const cssClass = {
+                'dg-table': true,
+                'dg-striped': this.options.striped,
+                'dg-hover': this.options.hover,
+                'dg-condensed': this.options.condensed
+            };
 
-            style['row-gap'] = this.vborders ? "1px" : "0";
-            style['column-gap'] = this.hborders ? "1px" : "0";
+            return cssClass;
+        },
+
+        getTableStyles() {
+            const style = { 'grid-template-columns': this.getGridTemplateColumns() };
+
+            style['row-gap'] = this.options.vborders ? "1px" : "0";
+            style['column-gap'] = this.options.hborders ? "1px" : "0";
 
             return style;
         },
 
-        getCellStyle(column, isHeader) {
+        getCellStyles(column, isHeader) {
             const style = {};
 
             if (column.align && !isHeader) {
@@ -99,12 +124,38 @@
             return style;
         },
 
-        formatNumber(input) {
-            return input;
+        getGridTemplateColumns() {
+            var hasFraction = false;
+            var result = this.columns
+                .map(x => {
+                    var w = x.visible ? (x.width || "minmax(80px, 1fr)") : "0";
+                    if (!hasFraction) {
+                        hasFraction = w.indexOf('fr') > -1;
+                    }
+                    return w;
+                })
+                .join(' ');
+
+            // Spacer always 'auto' to fill remaining area
+            result += " " + (hasFraction ? "0" : "auto");
+
+            return result;
         },
 
-        formatCurrency(input) {
-            return input;
+        renderCellValue(value, column, row) {
+            var t = typeof value;
+
+            if (t === 'number') {
+                return Smartstore.globalization.formatNumber(value);
+            }
+            else if (t === 'string' && column.format) {
+                return value.format(column.format);
+            }
+            else if (value instanceof Date) {
+                return moment(value).format(column.format || 'L LTS');
+            }
+
+            return value;
         },
 
         read() {
@@ -139,12 +190,6 @@
             //.then(data => { this.rows = data; });
         },
 
-        generateGridTemplateColumns() {
-            return this.columns
-                .map(x => x.width || "minmax(120px, 1fr)")
-                .join(' ');
-        },
-
         onStartResize(e, column, columnIndex) {
             this.isResizing = true;
             this.resizeIndex = columnIndex;
@@ -155,7 +200,7 @@
             window.addEventListener('mousemove', this.onResize, false);
             window.addEventListener('mouseup', this.onStopResize, false);
 
-            this.$refs.table.classList.add('datagrid--resizing');
+            this.$refs.table.classList.add('dg--resizing');
         },
 
         onResize: _.throttle(function (e) {
@@ -184,7 +229,7 @@
             window.removeEventListener('mousemove', this.onResize);
             window.removeEventListener('mouseup', this.onStopResize);
 
-            this.$refs.table.classList.remove('datagrid--resizing');
+            this.$refs.table.classList.remove('dg--resizing');
 
             this.resizeIndex = null;
             this.resizeColumn = null;
