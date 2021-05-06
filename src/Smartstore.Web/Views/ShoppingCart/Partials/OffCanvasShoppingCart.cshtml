@@ -13,7 +13,7 @@
 }
 
 <div class="offcanvas-cart-body offcanvas-scrollable">
-    <div sm-if="Model.TotalProducts <= 0" class="no-items">
+    <div sm-if="!Model.Items.Any()" class="no-items">
         <h4 class="no-item-title">
             @T("ShoppingCart.Mini.EmptyCart.Title")
         </h4>
@@ -25,7 +25,7 @@
         </p>
     </div>
 
-    @if (Model.TotalProducts > 0)
+    @if (Model.Items.Any())
     {
         // Items added in the last 2 seconds are considered to be current.
         var currentItem = Model.Items.FirstOrDefault(x => x.CreatedOnUtc >= DateTime.UtcNow.AddSeconds(-2));
