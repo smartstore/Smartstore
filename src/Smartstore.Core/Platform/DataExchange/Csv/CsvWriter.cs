@@ -9,6 +9,9 @@ namespace Smartstore.Core.DataExchange.Csv
     /// </summary>
     public class CsvWriter : Disposable
     {
+        // TODO: (core) CsvWriter is a perfect candidate for Memory, Span & co. to reduce
+        // mem allocation. Try to refactor sometime in future.
+        
         private TextWriter _writer;
         private readonly IList<string> _currentRow = new List<string>();
         private int? _fieldCount;
@@ -65,7 +68,7 @@ namespace Smartstore.Core.DataExchange.Csv
         /// Writes the field to the CSV file. The field
         /// may get quotes added to it.
         /// When all fields are written for a row,
-        /// <see cref="CsvWriter.NextRow" /> must be called
+        /// <see cref="NextRow" /> must be called
         /// to complete writing of the current row.
         /// </summary>
         /// <param name="field">The field to write.</param>
@@ -104,7 +107,7 @@ namespace Smartstore.Core.DataExchange.Csv
         /// and just quote based on the shouldQuote
         /// parameter.
         /// When all fields are written for a row,
-        /// <see cref="CsvWriter.NextRow" /> must be called
+        /// <see cref="NextRow" /> must be called
         /// to complete writing of the current row.
         /// </summary>
         /// <param name="field">The field to write.</param>

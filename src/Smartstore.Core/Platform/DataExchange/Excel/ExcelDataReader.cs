@@ -11,6 +11,7 @@ namespace Smartstore.Core.DataExchange.Excel
 {
 	// TODO: (core) should we continue to use the deprecated EPPlus version 4.5.3.1 for ExcelDataReader?
 	// Latest version of this package is huge and has licence issue.
+	// RE: Use "ExcelDataReader" or "OfficeOpenXml" as replacement. TBD with MC.
 
 	// public class ExcelDataReader : Disposable, IDataReader
 	// {
