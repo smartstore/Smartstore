@@ -1,0 +1,120 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Smartstore.Collections;
+using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Common;
+using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
+
+namespace Smartstore.Core.DataExchange.Export.Internal
+{
+    internal class OrderBatchContext
+    {
+        protected readonly List<int> _orderIds = new();
+        protected readonly List<int> _customerIds = new();
+        protected readonly List<int> _addressIds = new();
+
+        protected readonly SmartDbContext _db;
+
+        private LazyMultimap<Customer> _customers;
+        private LazyMultimap<GenericAttribute> _customerGenericAttributes;
+        private LazyMultimap<RewardPointsHistory> _rewardPointsHistories;
+        private LazyMultimap<Address> _addresses;
+        private LazyMultimap<OrderItem> _orderItems;
+        private LazyMultimap<Shipment> _shipments;
+
+        public OrderBatchContext(IEnumerable<Order> orders, ICommonServices services)
+        {
+            Guard.NotNull(services, nameof(services));
+
+            _db = services.DbContext;
+
+            if (orders != null)
+            {
+                _orderIds = new List<int>(orders.Select(x => x.Id));
+                _customerIds = new List<int>(orders.Select(x => x.CustomerId));
+
+                _addressIds = orders
+                    .Select(x => x.BillingAddressId)
+                    .Union(orders.Select(x => x.ShippingAddressId ?? 0))
+                    .Where(x => x != 0)
+                    .Distinct()
+                    .ToList();
+            }
+        }
+
+        public IReadOnlyList<int> OrderIds => _orderIds;
+
+        public LazyMultimap<Customer> Customers
+        {
+            get => _customers ??=
+                new LazyMultimap<Customer>(keys => LoadCustomers(keys), _customerIds);
+        }
+
+        public LazyMultimap<GenericAttribute> CustomerGenericAttributes
+        {
+            get => _customerGenericAttributes ??=
+                new LazyMultimap<GenericAttribute>(keys => LoadCustomerGenericAttributes(keys), _customerIds);
+        }
+
+        public LazyMultimap<RewardPointsHistory> RewardPointsHistories
+        {
+            get => _rewardPointsHistories ??=
+                new LazyMultimap<RewardPointsHistory>(keys => LoadRewardPointsHistories(keys), _customerIds);
+        }
+
+        public virtual void Clear()
+        {
+            _customers?.Clear();
+            _customerGenericAttributes?.Clear();
+            _rewardPointsHistories?.Clear();
+            _addresses?.Clear();
+            _orderItems?.Clear();
+            _shipments?.Clear();
+
+            _orderIds?.Clear();
+            _customerIds?.Clear();
+            _addressIds?.Clear();
+        }
+
+        #region Protected factories
+
+        protected virtual async Task<Multimap<int, Customer>> LoadCustomers(int[] customerIds)
+        {
+            var customers = await _db.Customers
+                .AsNoTracking()
+                .Where(x => customerIds.Contains(x.Id))
+                .ToListAsync();
+
+            return customers.ToMultimap(x => x.Id, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, GenericAttribute>> LoadCustomerGenericAttributes(int[] customerIds)
+        {
+            var customerName = nameof(Customer);
+
+            var genericAttributes = await _db.GenericAttributes
+                .AsNoTracking()
+                .Where(x => customerIds.Contains(x.EntityId) && x.KeyGroup == customerName)
+                .ToListAsync();
+
+            return genericAttributes.ToMultimap(x => x.EntityId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, RewardPointsHistory>> LoadRewardPointsHistories(int[] customerIds)
+        {
+            var rewardPointHistories = await _db.RewardPointsHistory
+                .AsNoTracking()
+                .ApplyCustomerFilter(customerIds)
+                .ToListAsync();
+
+            return rewardPointHistories.ToMultimap(x => x.CustomerId, x => x);
+        }
+
+        #endregion
+    }
+}

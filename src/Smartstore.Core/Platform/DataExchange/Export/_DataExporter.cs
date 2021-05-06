@@ -1,10 +1,14 @@
-﻿using Smartstore.Core.Catalog;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.DataExchange.Export
@@ -46,5 +50,35 @@ namespace Smartstore.Core.DataExchange.Export
             _currencyService = currencyService;
             _catalogSettings = catalogSettings;
         }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
+        /// <summary>
+        /// The name of the public export folder.
+        /// </summary>
+        public static string PublicFolder => "Exchange";
+
+        /// <summary>
+        /// The page size for loading data from database during export.
+        /// </summary>
+        public static int PageSize => 100;
+
+        public Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DataExportPreviewResult> PreviewAsync(DataExportRequest request, int pageIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        #region Core export methods
+
+        #endregion
+
+        #region Utilities
+
+        #endregion
     }
 }
