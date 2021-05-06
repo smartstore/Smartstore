@@ -67,6 +67,24 @@ namespace Smartstore.Core.DataExchange.Export.Internal
                 new LazyMultimap<RewardPointsHistory>(keys => LoadRewardPointsHistories(keys), _customerIds);
         }
 
+        public LazyMultimap<Address> Addresses
+        {
+            get => _addresses ??=
+                new LazyMultimap<Address>(keys => LoadAddresses(keys), _addressIds);
+        }
+
+        public LazyMultimap<OrderItem> OrderItems
+        {
+            get => _orderItems ??=
+                new LazyMultimap<OrderItem>(keys => LoadOrderItems(keys), _orderIds);
+        }
+
+        public LazyMultimap<Shipment> Shipments
+        {
+            get => _shipments ??=
+                new LazyMultimap<Shipment>(keys => LoadShipments(keys), _orderIds);
+        }
+
         public virtual void Clear()
         {
             _customers?.Clear();
@@ -113,6 +131,41 @@ namespace Smartstore.Core.DataExchange.Export.Internal
                 .ToListAsync();
 
             return rewardPointHistories.ToMultimap(x => x.CustomerId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, Address>> LoadAddresses(int[] addressIds)
+        {
+            var addresses = await _db.Addresses
+                .AsNoTracking()
+                .Include(x => x.Country)
+                .Include(x => x.StateProvince)
+                .Where(x => addressIds.Contains(x.Id))
+                .ToListAsync();
+
+            return addresses.ToMultimap(x => x.Id, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, OrderItem>> LoadOrderItems(int[] orderIds)
+        {
+            var orderItems = await _db.OrderItems
+                .AsNoTracking()
+                .Include(x => x.Product)
+                .Where(x => orderIds.Contains(x.OrderId))
+                .OrderBy(x => x.OrderId)
+                .ToListAsync();
+
+            return orderItems.ToMultimap(x => x.OrderId, x => x);
+        }
+
+        protected virtual async Task<Multimap<int, Shipment>> LoadShipments(int[] orderIds)
+        {
+            var shipments = await _db.Shipments
+                .AsNoTracking()
+                .Include(x => x.ShipmentItems)
+                .ApplyOrderFilter(orderIds)
+                .ToListAsync();
+
+            return shipments.ToMultimap(x => x.OrderId, x => x);
         }
 
         #endregion
