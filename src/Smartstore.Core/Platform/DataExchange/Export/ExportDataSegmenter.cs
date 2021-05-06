@@ -14,13 +14,13 @@ namespace Smartstore.Core.DataExchange.Export
         /// <summary>
         /// Gets current data segment.
         /// </summary>
-        IReadOnlyCollection<dynamic> CurrentSegment { get; }
+        IReadOnlyCollection<dynamic> CurrentSegment { get; } // TODO: (mg) (core) Should be async (??)
 
         /// <summary>
         /// Reads the next segment.
         /// </summary>
         /// <returns><c>true</c> succeeded, <c>false</c> failed.</returns>
-        bool ReadNextSegment();
+        bool ReadNextSegment(); // TODO: (mg) (core) Make this async
     }
 
     internal interface IExportDataSegmenterProvider : IExportDataSegmenterConsumer, IDisposable

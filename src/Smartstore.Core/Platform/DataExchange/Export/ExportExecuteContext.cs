@@ -79,7 +79,9 @@ namespace Smartstore.Core.DataExchange.Export
             get
             {
                 if (_cancellation.IsCancellationRequested || IsMaxFailures)
+                {
                     return DataExchangeAbortion.Hard;
+                }  
 
                 return _providerAbort;
             }
