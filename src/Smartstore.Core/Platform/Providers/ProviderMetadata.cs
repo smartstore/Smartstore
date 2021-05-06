@@ -1,4 +1,5 @@
 ﻿using System;
+using Smartstore.Core.DataExchange;
 using Smartstore.Utilities;
 
 namespace Smartstore.Engine.Modularity
@@ -105,11 +106,10 @@ namespace Smartstore.Engine.Modularity
         /// </summary>
         public bool IsHidden { get; set; }
 
-        // TODO: (core) Uncomment ProviderMetadata.ExportFeatures once DataExchange portation completes.
-        ///// <summary>
-        ///// Gets or sets flags that reflects what features of export data processing is supported by a provider
-        ///// </summary>
-        //public ExportFeatures ExportFeatures { get; set; }
+        /// <summary>
+        /// Gets or sets flags that reflects what features of export data processing is supported by a provider.
+        /// </summary>
+        public ExportFeatures ExportFeatures { get; set; }
 
         /// <summary>
         /// Gets or sets an array of widget system names, which depend on the current provider

@@ -8,6 +8,8 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media.Storage;
+using Smartstore.Core.DataExchange;
+using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
@@ -49,7 +51,7 @@ namespace Smartstore.Core.Bootstrapping
                 var isConfigurable = typeof(IConfigurable).IsAssignableFrom(type);
                 var isEditable = typeof(IUserEditable).IsAssignableFrom(type);
                 var isHidden = GetIsHidden(type);
-                //var exportFeature = GetExportFeature(type);
+                var exportFeature = GetExportFeature(type);
 
                 var registration = builder
                     .RegisterType(type)
@@ -72,7 +74,7 @@ namespace Smartstore.Core.Bootstrapping
                         m.For(em => em.IsConfigurable, isConfigurable);
                         m.For(em => em.IsEditable, isEditable);
                         m.For(em => em.IsHidden, isHidden);
-                        //m.For(em => em.ExportFeatures, exportFeature);
+                        m.For(em => em.ExportFeatures, exportFeature);
                     });
 
                 // Register specific provider type.
@@ -152,17 +154,16 @@ namespace Smartstore.Core.Bootstrapping
             return false;
         }
 
-        //private ExportFeatures GetExportFeature(Type type)
-        //{
-        //    var attr = type.GetAttribute<ExportFeaturesAttribute>(false);
+        private ExportFeatures GetExportFeature(Type type)
+        {
+            var attr = type.GetAttribute<ExportFeaturesAttribute>(false);
+            if (attr != null)
+            {
+                return attr.Features;
+            }
 
-        //    if (attr != null)
-        //    {
-        //        return attr.Features;
-        //    }
-
-        //    return ExportFeatures.None;
-        //}
+            return ExportFeatures.None;
+        }
 
         private static (string Name, string Description) GetFriendlyName(Type type, ModuleDescriptor descriptor)
         {
