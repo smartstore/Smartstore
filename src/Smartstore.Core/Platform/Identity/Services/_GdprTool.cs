@@ -32,8 +32,7 @@ namespace Smartstore.Core.Identity
 		private readonly IMessageModelProvider _messageModelProvider;
 		private readonly IGenericAttributeService _genericAttributeService;
 		private readonly IShoppingCartService _shoppingCartService;
-		//// TODO: (core) Apply IBackInStockSubscriptionService to GdprTool when ported.
-		//private readonly IBackInStockSubscriptionService _backInStockSubscriptionService;
+		private readonly IStockSubscriptionService _stockSubscriptionService;
 		private readonly ILanguageService _languageService;
 		private readonly IWorkContext _workContext;
 		private readonly IEventPublisher _eventPublisher;
@@ -46,7 +45,7 @@ namespace Smartstore.Core.Identity
 			IMessageModelProvider messageModelProvider,
 			IGenericAttributeService genericAttributeService,
 			IShoppingCartService shoppingCartService,
-			//IBackInStockSubscriptionService backInStockSubscriptionService,
+			IStockSubscriptionService stockSubscriptionService,
 			ILanguageService languageService,
 			IWorkContext workContext,
 			IEventPublisher eventPublisher)
@@ -56,7 +55,7 @@ namespace Smartstore.Core.Identity
 			_messageModelProvider = messageModelProvider;
 			_genericAttributeService = genericAttributeService;
 			_shoppingCartService = shoppingCartService;
-			//_backInStockSubscriptionService = backInStockSubscriptionService;
+			_stockSubscriptionService = stockSubscriptionService;
 			_languageService = languageService;
 			_workContext = workContext;
 			_eventPublisher = eventPublisher;
@@ -104,16 +103,15 @@ namespace Smartstore.Core.Identity
 			//	_forumService.DeleteSubscription(forumSub);
 			//}
 
-			//// TODO: (ms) (core) Delete BackInStock subscriptions for GDPR anonymization once service is ported.
-			//// Delete BackInStock subscriptions
-			//var backInStockSubscriptions = _backInStockSubscriptionService.GetAllSubscriptionsByCustomerId(customer.Id, 0, 0, int.MaxValue);
-			//foreach (var stockSub in backInStockSubscriptions)
-			//{
-			//	_backInStockSubscriptionService.DeleteSubscription(stockSub);
-			//}
+			// Delete all customers stock subscribtions
+			var backInStockSubscriptions = await _db.BackInStockSubscriptions
+				.ApplyStandardFilter(customerId: customer.Id)
+				.ToListAsync();
 
-			// We don't need to mask generic attrs, we just delete them.
-			customer.GenericAttributes.DeleteAll();
+			_db.BackInStockSubscriptions.RemoveRange(backInStockSubscriptions);
+
+            // We don't need to mask generic attrs, we just delete them.
+            customer.GenericAttributes.DeleteAll();
 
 			// Customer Data
 			AnonymizeData(customer, x => x.Username, IdentifierDataType.UserName, language);
