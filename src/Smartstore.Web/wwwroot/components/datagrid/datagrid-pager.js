@@ -1,12 +1,12 @@
 ﻿Vue.component("sm-data-grid-pager", {
     template: `
         <div class="dg-pager bg-light d-flex" style="border-bottom: 1px solid #dee2e6">
-            <a href="#" class="dg-page dg-page--refresh px-3" @click="refresh"><i class="fa fa-sync-alt"></i></a>
+            <a href="#" class="dg-page dg-page-refresh px-3" @click="refresh"><i class="fa fa-sync-alt"></i></a>
 
-            <a href="#" class="dg-page dg-page--first" @click="firstPage" :class="{ 'dg-page--disabled': !hasPrevPage }"><i class="fa fa-angle-double-left"></i></a>
-            <a href="#" class="dg-page dg-page--prev" @click="prevPage" :class="{ 'dg-page--disabled': !hasPrevPage }"><i class="fa fa-angle-left"></i></a>
-            <a href="#" class="dg-page dg-page--next" @click="nextPage" :class="{ 'dg-page--disabled': !hasNextPage }"><i class="fa fa-angle-right"></i></a>
-            <a href="#" class="dg-page dg-page--last" @click="lastPage" :class="{ 'dg-page--disabled': !hasNextPage }"><i class="fa fa-angle-double-right"></i></a>
+            <a href="#" class="dg-page dg-page--first" @click="firstPage" :class="{ 'disabled': !hasPrevPage }"><i class="fa fa-angle-double-left"></i></a>
+            <a href="#" class="dg-page dg-page--prev" @click="prevPage" :class="{ 'disabled': !hasPrevPage }"><i class="fa fa-angle-left"></i></a>
+            <a href="#" class="dg-page dg-page--next" @click="nextPage" :class="{ 'disabled': !hasNextPage }"><i class="fa fa-angle-right"></i></a>
+            <a href="#" class="dg-page dg-page--last" @click="lastPage" :class="{ 'disabled': !hasNextPage }"><i class="fa fa-angle-double-right"></i></a>
 
             <span class="text-muted px-2 py-2 pl-4">{{ currentPageIndex }} / {{ totalPages }}</span>
             <span class="px-2 py-2 ml-auto text-muted">Anzeigen der Elemente {{ firstItemIndex.toLocaleString() }} - {{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>

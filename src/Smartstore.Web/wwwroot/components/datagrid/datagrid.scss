@@ -12,17 +12,17 @@ $border: #dee2e6;
 $even: mix($light, #fff);
 
 .datagrid-root {
-    --datagrid-border-color: $border;
-    --datagrid-header-bg: $light;
-    --datagrid-cell-bg: #fff;
-    --datagrid-cell-even-bg: #fff;
-    --datagrid-cell-padding: 0.875rem 1rem;
-    --datagrid-cell-align: center;
-    --datagrid-cell-justify: flex-start;
+    --dg-border-color: $border;
+    --dg-header-bg: $light;
+    --dg-cell-bg: #fff;
+    --dg-cell-even-bg: #fff;
+    --dg-cell-padding: 0.875rem 1rem;
+    --dg-cell-align: center;
+    --dg-cell-justify: flex-start;
     position: relative;
     overflow-x: auto;
     overflow-y: auto;
-    border: 1px solid var(--datagrid-border-color);
+    border: 1px solid var(--dg-border-color);
     box-shadow: 0 0 5px rgba(#000, 0.08);
 }
 
@@ -30,7 +30,7 @@ $even: mix($light, #fff);
     position: relative;
     width: auto;
     min-width: 100%;
-    background-color: var(--datagrid-border-color);
+    background-color: var(--dg-border-color);
     display: grid;
     column-gap: 0;
     row-gap: 1px;
@@ -54,18 +54,18 @@ $even: mix($light, #fff);
     th {
         position: sticky;
         top: 0;
-        background-color: var(--datagrid-header-bg);
-        border-bottom: 1px solid var(--datagrid-border-color);
+        background-color: var(--dg-header-bg);
+        border-bottom: 1px solid var(--dg-border-color);
         z-index: 1;
         user-select: none;
     }
 
     td {
-        background-color: var(--datagrid-cell-bg);
+        background-color: var(--dg-cell-bg);
     }
 
     tbody tr:nth-of-type(even) > td {
-        background-color: var(--datagrid-cell-even-bg);
+        background-color: var(--dg-cell-even-bg);
     }
     /*    th:first-child,
     td:first-child {
@@ -78,13 +78,13 @@ $even: mix($light, #fff);
         z-index: 10;
     }
 
-    &.dg--resizing {
+    &.dg-resizing {
         cursor: ew-resize;
     }
 }
 
 .dg-striped {
-    --datagrid-cell-even-bg: $even;
+    --dg-cell-even-bg: $even;
 }
 
 .dg-cell-header {
@@ -96,11 +96,11 @@ $even: mix($light, #fff);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    padding: var(--datagrid-cell-padding);
+    padding: var(--dg-cell-padding);
     display: flex;
     width: 100%;
-    align-items: var(--datagrid-cell-align);
-    justify-content: var(--datagrid-cell-justify);
+    align-items: var(--dg-cell-align);
+    justify-content: var(--dg-cell-justify);
 }
 
 .dg-resize-handle {
@@ -121,7 +121,7 @@ $even: mix($light, #fff);
         top: 0;
         bottom: 0;
         left: 4px;
-        background-color: var(--datagrid-border-color);
+        background-color: var(--dg-border-color);
     }
 
     thead:hover & {
@@ -129,7 +129,7 @@ $even: mix($light, #fff);
     }
 
     &:hover,
-    .dg--resizing & {
+    .dg-resizing & {
         opacity: 1 !important;
     }
 }
@@ -145,13 +145,13 @@ $even: mix($light, #fff);
     &:active {
         background-color: rgba(#000, 0.08);
     }
+
+    &.disabled {
+        pointer-events: none;
+        opacity: 0.4;
+    }
 }
 
-.dg-page--refresh {
+.dg-page-refresh {
     border-right: 1px solid $border;
-}
-
-.dg-page--disabled {
-    pointer-events: none;
-    opacity: 0.4;
 }

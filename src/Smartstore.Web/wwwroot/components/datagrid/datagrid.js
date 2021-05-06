@@ -200,7 +200,7 @@
             window.addEventListener('mousemove', this.onResize, false);
             window.addEventListener('mouseup', this.onStopResize, false);
 
-            this.$refs.table.classList.add('dg--resizing');
+            this.$refs.table.classList.add('dg-resizing');
         },
 
         onResize: _.throttle(function (e) {
@@ -229,7 +229,7 @@
             window.removeEventListener('mousemove', this.onResize);
             window.removeEventListener('mouseup', this.onStopResize);
 
-            this.$refs.table.classList.remove('dg--resizing');
+            this.$refs.table.classList.remove('dg-resizing');
 
             this.resizeIndex = null;
             this.resizeColumn = null;
