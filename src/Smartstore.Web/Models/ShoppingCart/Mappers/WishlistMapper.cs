@@ -16,10 +16,14 @@ namespace Smartstore.Web.Models.ShoppingCart
 {
     public static partial class WishlistMappingExtensions
     {
-        public static async Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity, WishlistModel model, bool isEditable = true)
+        public static async Task MapAsync(this IEnumerable<OrganizedShoppingCartItem> entity,
+            WishlistModel model,
+            bool isEditable = true,
+            bool isOffcanvas = false)
         {
             dynamic parameters = new ExpandoObject();
             parameters.IsEditable = isEditable;
+            parameters.IsOffcanvas = isOffcanvas;
 
             await MapperFactory.MapAsync(entity, model, parameters);
         }
@@ -61,7 +65,7 @@ namespace Smartstore.Web.Models.ShoppingCart
 
             to.IsEditable = parameters?.IsEditable == true;
             to.EmailWishlistEnabled = _shoppingCartSettings.EmailWishlistEnabled;
-            to.DisplayAddToCart = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);           
+            to.DisplayAddToCart = await _services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart);
 
             var customer = from.FirstOrDefault().Item.Customer;
             to.CustomerGuid = customer.CustomerGuid;
@@ -80,36 +84,33 @@ namespace Smartstore.Web.Models.ShoppingCart
             {
                 var model = new WishlistModel.WishlistItemModel
                 {
-                    DisableBuyButton = cartItem.Item.Product.DisableBuyButton
+                    DisableBuyButton = cartItem.Item.Product.DisableBuyButton,
                 };
 
                 await cartItem.MapAsync(model);
 
+                if (parameters?.IsOffcanvas == true)
+                {
+                    model.QuantityUnitName = null;
+
+                    var item = from.Where(c => c.Item.Id == model.Id).FirstOrDefault();
+
+                    if (item != null)
+                    {
+                        model.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
+                            item.Item.AttributeSelection,
+                            item.Item.Product,
+                            null,
+                            htmlEncode: false,
+                            separator: ", ",
+                            includePrices: false,
+                            includeGiftCardAttributes: false,
+                            includeHyperlinks: false);
+                    }
+                }
+
                 to.AddItems(model);
             }
-
-            // TODO: (ms) (core) This is incorrectly applied to the wishlist although it is intended exclusively for the OffCanvas wishlist.
-            // Perf: can be done in above foreach iteration.
-            to.Items.Each(async x =>
-            {
-                // Do not display QuantityUnitName in OffCanvasWishlist
-                x.QuantityUnitName = null;
-
-                var item = from.Where(c => c.Item.Id == x.Id).FirstOrDefault();
-
-                if (item != null)
-                {
-                    x.AttributeInfo = await _productAttributeFormatter.FormatAttributesAsync(
-                        item.Item.AttributeSelection,
-                        item.Item.Product,
-                        null,
-                        htmlEncode: false,
-                        separator: ", ",
-                        includePrices: false,
-                        includeGiftCardAttributes: false,
-                        includeHyperlinks: false);
-                }
-            });
         }
     }
 }
