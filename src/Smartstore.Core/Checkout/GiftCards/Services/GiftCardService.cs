@@ -61,7 +61,6 @@ namespace Smartstore.Core.Checkout.GiftCards
             .ToList();
         }
 
-        //TODO: (ms) (core) have order item & order eager loaded
         public virtual bool ValidateGiftCard(GiftCard giftCard, int storeId = 0)
         {
             Guard.NotNull(giftCard, nameof(giftCard));
@@ -85,7 +84,6 @@ namespace Smartstore.Core.Checkout.GiftCards
             //return (storeId == 0 || orderStoreId is null || orderStoreId == storeId) && GetRemainingAmount(giftCard) > decimal.Zero;
         }
 
-        //TODO: (ms) (core) have giftcard usage history eager loaded
         public virtual Money GetRemainingAmount(GiftCard giftCard)
         {
             Guard.NotNull(giftCard, nameof(giftCard));

@@ -152,7 +152,6 @@ namespace Smartstore.Core.Checkout.Orders
             var appliedGiftCards = new List<AppliedGiftCard>();
             if (!cart.IncludesMatchingItems(x => x.IsRecurring))
             {
-                // TODO: (ms) (core) Gift card usage in OrderCalculationService needs to be tested extensively as the gift card code has been fundamentally changed.
                 var giftCards = await _giftCardService.GetValidGiftCardsAsync(store.Id, customer);
                 foreach (var gc in giftCards)
                 {

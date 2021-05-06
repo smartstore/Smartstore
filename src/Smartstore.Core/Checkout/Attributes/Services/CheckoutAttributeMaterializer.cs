@@ -42,7 +42,6 @@ namespace Smartstore.Core.Checkout.Attributes
             return values;
         }
 
-        // TODO: (ms) (core) Move this method to a more appropriate space
         public async Task<List<CheckoutAttribute>> GetValidCheckoutAttributesAsync(IEnumerable<OrganizedShoppingCartItem> cart)
         {
             Guard.NotNull(cart, nameof(cart));

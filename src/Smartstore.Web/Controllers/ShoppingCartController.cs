@@ -97,7 +97,6 @@ namespace Smartstore.Web.Controllers
 
         #region Utilities
 
-        // TODO: (ms) (core) Move this method to ShoppingCartValidator service
         [NonAction]
         protected async Task<bool> ValidateAndSaveCartDataAsync(ProductVariantQuery query, List<string> warnings, bool useRewardPoints = false)
         {
@@ -400,9 +399,6 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateCartItem(int sciItemId, int newQuantity, bool isCartPage = false, bool isWishlist = false)
         {
-            // TODO: (ms) (core) Rename parameter and still retrieve value selected from input field
-            // TODO: (ms) (core) Item order is beeing altered on update
-
             if (!await Services.Permissions.AuthorizeAsync(isWishlist ? Permissions.Cart.AccessWishlist : Permissions.Cart.AccessShoppingCart))
                 return RedirectToRoute("Homepage");
 
@@ -524,8 +520,6 @@ namespace Smartstore.Web.Controllers
             });
         }
 
-        //// TODO: (ms) (core) Maybe we should rename this to AddProductToCartAjax > discuss with mc.
-        //// TODO: (ms) (core) Add dev docu to all ajax action methods
         /// <summary>
         /// Adds a product without variants to the cart or redirects user to product details page.
         /// This method is used in product lists on catalog pages (category/manufacturer etc...).
@@ -779,8 +773,6 @@ namespace Smartstore.Web.Controllers
                 ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList()
             };
 
-            // TODO: (ms) (core) Have bundle products child items hand over selected attributes.
-
             var isValid = await _shoppingCartService.CopyAsync(addToCartContext);
 
             if (_shoppingCartSettings.MoveItemsFromWishlistToCart && isValid)
@@ -832,8 +824,6 @@ namespace Smartstore.Web.Controllers
                     await cart.AsEnumerable().MapAsync(model);
 
                     cartHtml = await this.InvokeViewAsync("CartItems", model);
-
-                    // TODO: (ms) (core) InvokeViewComponentAsync "OrderTotals" returns string.empty ?
                     totalsHtml = await this.InvokeViewComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
                     message = T("Products.ProductHasBeenAddedToTheWishlist");
                 }

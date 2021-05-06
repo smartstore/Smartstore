@@ -346,8 +346,6 @@ namespace Smartstore.Core.Checkout.Cart
                     ChildItems = ctx.ChildItems
                 };
 
-                // TODO: (ms) (core) what about customer entered prices?
-
                 if (!await AddToCartAsync(childCtx))
                 {
                     ctx.Warnings.AddRange(childCtx.Warnings);
