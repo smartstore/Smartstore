@@ -56,11 +56,11 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(HoverAttributeName)]
         public bool Hover { get; set; }
 
-        /// <summary>
-        /// Makes data table more compact by cutting cell padding in half.
-        /// </summary>
-        [HtmlAttributeName(CondensedAttributeName)]
-        public bool Condensed { get; set; }
+        ///// <summary>
+        ///// Makes data table more compact by cutting cell padding in half.
+        ///// </summary>
+        //[HtmlAttributeName(CondensedAttributeName)]
+        //public bool Condensed { get; set; }
 
         /// <summary>
         /// Allows resizing of single columns. Default: <c>false</c>.
@@ -143,7 +143,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     hborders = BorderStyle.HasFlag(DataGridBorderStyle.HorizontalBorders),
                     striped = Striped,
                     hover = Hover,
-                    condensed = Condensed
+                    //condensed = Condensed
                 }
             };
 
@@ -152,15 +152,16 @@ namespace Smartstore.Web.TagHelpers.Admin
                 data.columns.Add(new 
                 {
                     member = col.MemberName,
-                    title = col.For.Metadata.DisplayName,
+                    title = col.Title ?? col.For.Metadata.DisplayName,
                     width = col.Width.EmptyNull(),
                     visible = col.Visible,
-                    flow = col.Flow?.ToString()?.ToLower(),
+                    //flow = col.Flow?.ToString()?.Kebaberize(),
                     align = col.AlignItems?.ToString()?.Kebaberize(),
                     justify = col.JustifyContent?.ToString()?.Kebaberize(),
                     type = GetColumnType(col),
                     format = col.Format,
-                    resizable = AllowResize && col.Resizable
+                    resizable = AllowResize && col.Resizable,
+                    nowrap = col.Nowrap
                 });
             }
 
@@ -183,23 +184,35 @@ namespace Smartstore.Web.TagHelpers.Admin
                 return column.Type;
             }
 
-            var xxx = column.For.Metadata.DataTypeName;
-            var modelType = column.For.Metadata.ModelType.GetNonNullableType();
+            var t = column.For.Metadata.ModelType.GetNonNullableType();
 
-            if (modelType == typeof(bool))
+            if (t == typeof(string))
             {
-                return "bool";
+                return "string";
             }
-            else if (modelType == typeof(DateTime))
+            if (t == typeof(bool))
             {
-                return "datetime";
+                return "boolean";
             }
-            else if (modelType.IsNumericType())
+            else if (t == typeof(DateTime) || t == typeof(DateTimeOffset))
             {
-                return "number";
+                return "date";
             }
+            else if (t == typeof(TimeSpan))
+            {
+                return "timespan";
+            }
+            else if (t.IsNumericType())
+            {
+                if (t == typeof(decimal) || t == typeof(double) || t == typeof(float))
+                {
+                    return "float";
+                }
 
-            return null;
+                return "int";
+            }
+            
+            return string.Empty;
         }
     }
 }

@@ -355,15 +355,16 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <returns>Page index</returns>
         protected virtual int GetFirstPageIndex()
         {
-            if ((ListItems.TotalPages < MaxPagesToDisplay) ||
-                ((ListItems.PageIndex - (MaxPagesToDisplay / 2)) < 0))
+            if ((ListItems.TotalPages < MaxPagesToDisplay) || ((ListItems.PageIndex - (MaxPagesToDisplay / 2)) < 0))
             {
                 return 0;
             }
+
             if ((ListItems.PageIndex + (MaxPagesToDisplay / 2)) >= ListItems.TotalPages)
             {
                 return ListItems.TotalPages - MaxPagesToDisplay;
             }
+
             return ListItems.PageIndex - (MaxPagesToDisplay / 2);
         }
 
@@ -378,15 +379,17 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 num--;
             }
-            if ((ListItems.TotalPages < MaxPagesToDisplay) ||
-                ((ListItems.PageIndex + num) >= ListItems.TotalPages))
+
+            if ((ListItems.TotalPages < MaxPagesToDisplay) || ((ListItems.PageIndex + num) >= ListItems.TotalPages))
             {
                 return ListItems.TotalPages - 1;
             }
+
             if ((ListItems.PageIndex - (MaxPagesToDisplay / 2)) < 0)
             {
                 return MaxPagesToDisplay - 1;
             }
+
             return ListItems.PageIndex + num;
         }
 

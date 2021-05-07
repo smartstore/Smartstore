@@ -1,30 +1,46 @@
 ﻿Vue.component("sm-data-grid-pager", {
     template: `
-        <div class="dg-pager bg-light d-flex" style="border-bottom: 1px solid #dee2e6">
-            <a href="#" class="dg-page dg-page-refresh px-3" @click="refresh"><i class="fa fa-sync-alt"></i></a>
+        <div class="dg-pager bg-light d-flex">
+            <a href="#" class="dg-page dg-page-refresh px-3" @click.prevent="refresh"><i class="fa fa-sync-alt"></i></a>
+            
+            <template v-if="totalPages > 1">
+                <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-fw fa-angle-double-left"></i></a>
+                <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-fw fa-angle-left"></i></a>
+            
+                <a v-for="item in pageItems" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number" :class="{ active: item.active }">
+                    {{ item.label || item.page }}
+                </a>
+            
+                <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-right"></i></a>
+                <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-double-right"></i></a>
 
-            <a href="#" class="dg-page dg-page--first" @click="firstPage" :class="{ 'disabled': !hasPrevPage }"><i class="fa fa-angle-double-left"></i></a>
-            <a href="#" class="dg-page dg-page--prev" @click="prevPage" :class="{ 'disabled': !hasPrevPage }"><i class="fa fa-angle-left"></i></a>
-            <a href="#" class="dg-page dg-page--next" @click="nextPage" :class="{ 'disabled': !hasNextPage }"><i class="fa fa-angle-right"></i></a>
-            <a href="#" class="dg-page dg-page--last" @click="lastPage" :class="{ 'disabled': !hasNextPage }"><i class="fa fa-angle-double-right"></i></a>
+                <span class="dg-page text-muted pl-4">{{ currentPageIndex }} / {{ totalPages }}</span>
+            </template>
 
-            <span class="text-muted px-2 py-2 pl-4">{{ currentPageIndex }} / {{ totalPages }}</span>
-            <span class="px-2 py-2 ml-auto text-muted">Anzeigen der Elemente {{ firstItemIndex.toLocaleString() }} - {{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>
+            <span class="dg-page text-muted ml-auto mr-2">
+                Anzeigen der Elemente {{ firstItemIndex.toLocaleString() }} - {{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}
+            </span>
         </div>
     `,
+
     props: {
         command: Object,
         rows: Array,
-        total: Number
+        total: Number,
+        maxPagesToDisplay: Number
     },
+
     created: function () {
     },
+
     mounted: function () {
     },
+
     data: function () {
         return {
         }
     },
+
     computed: {
         currentPageIndex() {
             return this.command.page;
@@ -68,22 +84,47 @@
         lastItemIndex() {
             return Math.min(this.total, (((this.currentPageIndex - 1) * this.currentPageSize) + this.currentPageSize));
         },
+
+        pageItems() {
+            var currentIndex = this.currentPageIndex;
+            var totalPages = this.totalPages;
+            var maxPages = this.maxPagesToDisplay;
+            var start = 1;
+
+            if (currentIndex > maxPages) {
+                var v = currentIndex % maxPages;
+                start = v === 0 ? currentIndex - maxPages + 1 : currentIndex - v + 1;
+            }
+
+            var p = start + maxPages - 1;
+            p = Math.min(p, totalPages);
+
+            var items = [];
+
+            if (start > 1) {
+                items.push({ page: start - 1, label: '...' });
+            }
+
+            for (var i = start; i <= p; i++) {
+                items.push({ page: i, label: i.toString(), active: i === currentIndex });
+            }
+
+            if (p < totalPages) {
+                items.push({ page: p + 1, label: '...' });
+            }
+
+            return items;
+        }
     },
     methods: {
         refresh() {
             this.$parent.read();
         },
-        firstPage() {
-            this.command.page = 1;
-        },
-        prevPage() {
-            this.command.page -= 1;
-        },
-        nextPage() {
-            this.command.page += 1;
-        },
-        lastPage() {
-            this.command.page = this.totalPages;
-        },
+
+        pageTo(pageIndex) {
+            if (pageIndex > 0 && pageIndex <= this.totalPages) {
+                this.command.page = pageIndex;
+            }
+        }
     }
 });

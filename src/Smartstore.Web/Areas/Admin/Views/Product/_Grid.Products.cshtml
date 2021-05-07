@@ -1,27 +1,28 @@
 ﻿@model ProductModel
 
-<datagrid id="products-grid" border-style="VerticalBorders" striped="true" hover="true" condensed="true" allow-resize="true">
+<datagrid id="products-grid" border-style="Borderless" striped="false" hover="true" allow-resize="true">
     <datasource read="@Url.Action("ProductList")" />
     <pageable />
     <columns>
-        @*<column for="PictureThumbnailUrl" 
-                width="max-content"
-                visible="false"
-                resizable="false"
-                justify="FlexJustifyContent.Center">
+        <column for="PictureThumbnailUrl"
+                title=""
+                width="50px"
+                visible="true"
+                resizable="false">
             <display-template>
-                <div class="zoomable-thumb-container">
-                    <img :alt="cell.row.Id" :src="cell.value" :class="{ 'zoomable-thumb': !cell.row.NoThumb }" />
+                <!-- TODO: (core) zoomable-thumb won't work in our new data grid. Fix it. -->
+                <div class="x-zoomable-thumb-container d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; padding: 8px; left: 0; top: 0;">
+                    <img :alt="cell.row.Id" :src="cell.value" style="max-width: 42px; max-height: 32px" :class="{ 'x-zoomable-thumb': !cell.row.NoThumb }" />
                 </div>
             </display-template>
-        </column>*@
+        </column>
         @*<column for="AdminComment" width="200px">
             <display-template>
                 <input type="text" class="form-control form-control" />
             </display-template>
         </column>*@
-        <column for="Name" />
-        <column for="Sku" />
+        <column for="Name" width="3fr" />
+        <column for="Sku" width="0.5fr" />
         <column for="Price"
                 justify="FlexJustifyContent.FlexEnd" />
         <column for="StockQuantity"
@@ -30,7 +31,7 @@
                 {{ formatNumber(cell.value) }}
             </display-template>*@
         </column>
-        <column for="LimitedToStores" 
+        <column for="LimitedToStores"
                 justify="FlexJustifyContent.Center" />
         <column for="CreatedOn" />
         <column for="UpdatedOn" />

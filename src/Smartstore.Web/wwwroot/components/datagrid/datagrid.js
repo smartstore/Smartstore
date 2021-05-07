@@ -1,47 +1,63 @@
-﻿Vue.component("sm-data-grid", {
+﻿const DATAGRID_CELL_MIN_WIDTH = 60;
+
+Vue.component("sm-data-grid", {
     template: `
         <div class="datagrid">
-            <sm-data-grid-pager :command="command" :rows="rows" :total="total"></sm-data-grid-pager>
-            <table ref="table"
-                :class="getTableClass()"
-                :style="getTableStyles()">
-                <thead class="dg-head">
-                    <tr>
-                        <th v-for="(column, columnIndex) in columns"
-                            :data-member="column.member"
-                            ref="column">
-                            <div class="dg-cell dg-cell-header" :style="getCellStyles(column, true)">
-                                {{ column.title }}
-                            </div>
-                            <div v-if="column.resizable" class="dg-resize-handle" v-on:mousedown="onStartResize($event, column, columnIndex)"></div>
-                        </th>
-                        <th>
-                            <div class="dg-cell dg-cell-header dg-cell-spacer"></div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(row, rowIndex) in rows" :key="row.Id">
-                        <td v-for="(column, columnIndex) in columns"
-                            ref="cell"
-                            :key="row.Id + '-' + columnIndex">
-                            <div class="dg-cell" :style="getCellStyles(column, false)">
-                                <slot :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
-                                    <template v-if="typeof row[column.member] === 'boolean'">
-                                        <i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i>
-                                    </template>
-                                    <template v-else>
-                                        {{ renderCellValue(row[column.member], column, row) }}
-                                    </template>
-                                </slot>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="dg-cell dg-cell-spacer"></div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>       
+            <div class="dg-pager-wrapper border-bottom">
+                <sm-data-grid-pager :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
+            </div>
+            <div class="dg-table-wrapper">
+                <table ref="table"
+                    :class="getTableClass()"
+                    :style="getTableStyles()">
+                    <thead class="dg-head">
+                        <tr>
+                            <th v-for="(column, columnIndex) in columns"
+                                :data-member="column.member"
+                                :data-index="columnIndex"
+                                ref="column">
+                                <div class="dg-cell dg-cell-header" :style="getCellStyles(column, true)">
+                                    <span class="dg-cell-value">{{ column.title }}</span>
+                                </div>
+                                <div v-if="column.resizable" 
+                                    class="dg-resize-handle" 
+                                    @mousedown="onStartResize($event, column, columnIndex)"
+                                    @dblclick.stop.prevent="autoSizeColumn($event, column, columnIndex)">
+                                </div>
+                            </th>
+                            <th>
+                                <div class="dg-cell dg-cell-header dg-cell-spacer"></div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(row, rowIndex) in rows" :key="row.Id">
+                            <td v-for="(column, columnIndex) in columns"
+                                :data-index="columnIndex"
+                                :key="row.Id + '-' + columnIndex">
+                                <div class="dg-cell" :class="getCellClass(column)" :style="getCellStyles(column, false)">
+                                    <slot :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
+                                        <span class="dg-cell-value">
+                                            <template v-if="column.type === 'boolean'">
+                                                <i class="fa fa-fw" :class="'icon-active-' + row[column.member]"></i>
+                                            </template>
+                                            <template v-else>
+                                                {{ renderCellValue(row[column.member], column, row) }}
+                                            </template>
+                                        </span>
+                                    </slot>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="dg-cell dg-cell-spacer"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="dg-pager-wrapper border-top">
+                <sm-data-grid-pager :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
+            </div>
         </div>
     `,
     props: {
@@ -94,8 +110,8 @@
             const cssClass = {
                 'dg-table': true,
                 'dg-striped': this.options.striped,
-                'dg-hover': this.options.hover,
-                'dg-condensed': this.options.condensed
+                'dg-hover': this.options.hover
+                //'dg-condensed': this.options.condensed
             };
 
             return cssClass;
@@ -121,16 +137,41 @@
                 style.justifyContent = column.justify;
             }
 
+            //if (column.flow) {
+            //    style.flexFlow = column.flow;
+            //}
+
             return style;
+        },
+
+        getCellClass(column) {
+            const cssClass = {
+                'dg-cell-wrap': !column.nowrap
+            };
+
+            return cssClass;
         },
 
         getGridTemplateColumns() {
             var hasFraction = false;
             var result = this.columns
-                .map(x => {
-                    var w = x.visible ? (x.width || "minmax(80px, 1fr)") : "0";
+                .map(c => {
+                    let w = c.visible ? c.width : "0";
+                    if (c.visible && !c.width) {
+                        switch (c.type) {
+                            case "int":
+                            case "float":
+                            case "boolean":
+                            case "date":
+                            case "timespan":
+                                w = "auto";
+                                break;
+                            default:
+                                w = "minmax({0}px, 1fr)".format(DATAGRID_CELL_MIN_WIDTH);
+                        }
+                    }
                     if (!hasFraction) {
-                        hasFraction = w.indexOf('fr') > -1;
+                        hasFraction = w === 'auto' || w.indexOf('fr') > -1;
                     }
                     return w;
                 })
@@ -143,16 +184,19 @@
         },
 
         renderCellValue(value, column, row) {
-            var t = typeof value;
+            var t = column.type;
 
-            if (t === 'number') {
+            if (t === 'int') {
                 return Smartstore.globalization.formatNumber(value);
             }
-            else if (t === 'string' && column.format) {
-                return value.format(column.format);
+            else if (t === 'float') {
+                return Smartstore.globalization.formatNumber(value, 'N2');
             }
-            else if (value instanceof Date) {
+            else if (t === 'date') {
                 return moment(value).format(column.format || 'L LTS');
+            }
+            else if (column.format) {
+                return value.format(column.format);
             }
 
             return value;
@@ -217,7 +261,7 @@
 
                 self.resizeX = pageX;
 
-                if (width < 80) {
+                if (width < DATAGRID_CELL_MIN_WIDTH) {
                     return;
                 }
 
@@ -236,6 +280,31 @@
             this.resizeHeader = null;
             this.resizeX = null;
             this.isResizing = false;
+        },
+
+        autoSizeColumn(e, column, columnIndex) {
+            column.width = 'max-content';
+            //return;
+
+            //var table = this.$refs.table;
+            //var cells = table.querySelectorAll("td[data-index='" + columnIndex + "']");
+            //if (cells.length === 0) {
+            //    return;
+            //}
+
+            //var maxWidth = DATAGRID_CELL_MIN_WIDTH;
+            //cells.forEach(td => {
+            //    var elValue = td.firstChild?.firstChild;
+            //    if (elValue) {
+            //        maxWidth = Math.max(maxWidth, elValue.scrollWidth);
+            //    }
+            //}); 
+
+            //var firstCell = cells[0].firstChild;
+            //var styles = window.getComputedStyle(firstCell);
+            //var hpad = parseInt(styles.paddingLeft) + parseInt(styles.paddingRight);
+            //console.log(maxWidth);
+            //column.width = (maxWidth + hpad) + 'px';
         }
     }
 });

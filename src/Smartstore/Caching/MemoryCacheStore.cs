@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using Smartstore.Collections;
 using Smartstore.Events;
 using Smartstore.Threading;
 using Smartstore.Utilities;
@@ -21,7 +22,7 @@ namespace Smartstore.Caching
         private readonly IOptions<MemoryCacheOptions> _optionsAccessor;
         private readonly ILoggerFactory _loggerFactory;
         private readonly IMessageBus _bus;
-        private readonly HashSet<string> _keys = new HashSet<string>();
+        private readonly ICollection<string> _keys = new SyncedCollection<string>(new HashSet<string>()) { ReadLockFree = true };
 
         private MemoryCache _cache;
 

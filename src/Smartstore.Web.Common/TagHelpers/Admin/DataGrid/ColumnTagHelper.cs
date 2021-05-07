@@ -14,6 +14,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     public class ColumnTagHelper : SmartTagHelper
     {
         const string ForAttributeName = "for";
+        const string TitleAttributeName = "title";
         const string WidthAttributeName = "width";
         const string VisibleAttributeName = "visible";
         const string FlowAttributeName = "flow";
@@ -22,6 +23,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string TypeAttributeName = "type";
         const string FormatAttributeName = "format";
         const string ResizableAttributeName = "resizable";
+        const string NowrapAttributeName = "nowrap";
 
         public override void Init(TagHelperContext context)
         {
@@ -40,6 +42,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         public ModelExpression For { get; set; }
 
         /// <summary>
+        /// Overrides the auto-resolved column title.
+        /// </summary>
+        [HtmlAttributeName(TitleAttributeName)]
+        public string Title { get; set; }
+
+        /// <summary>
         /// Columns width. Any CSS grid width specification is valid.
         /// </summary>
         [HtmlAttributeName(WidthAttributeName)]
@@ -51,24 +59,20 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(VisibleAttributeName)]
         public bool Visible { get; set; } = true;
 
-        /// <summary>
-        /// Flow of cell content. Default: <see cref="FlexFlow.Row"/>.
-        /// </summary>
-        [HtmlAttributeName(FlowAttributeName)]
-        public FlexFlow? Flow { get; set; }
+        ///// <summary>
+        ///// Flow of cell content. Default: <see cref="FlexFlow.Row"/>.
+        ///// </summary>
+        //[HtmlAttributeName(FlowAttributeName)]
+        //public FlexFlow? Flow { get; set; }
 
         /// <summary>
-        /// Alignment of cell content. If <see cref="Flow"/> is <see cref="FlexFlow.Column"/>, 
-        /// this is the horizontal alignment, otherwise vertical.
-        /// Default: <see cref="FlexAlignItems.Center"/>.
+        /// Vertical alignment of cell content. Default: <see cref="FlexAlignItems.Center"/>.
         /// </summary>
         [HtmlAttributeName(AlignAttributeName)]
         public FlexAlignItems? AlignItems { get; set; }
 
         /// <summary>
-        /// Justification of cell content. If <see cref="Flow"/> is <see cref="FlexFlow.Column"/>, 
-        /// this is the vertical alignment, otherwise horizontal.
-        /// Default: <see cref="FlexJustifyContent.FlexStart"/>.
+        /// Horizontal alignment of cell content. Default: <see cref="FlexJustifyContent.FlexStart"/>.
         /// </summary>
         [HtmlAttributeName(JustifyAttributeName)]
         public FlexJustifyContent? JustifyContent { get; set; }
@@ -90,6 +94,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(ResizableAttributeName)]
         public bool Resizable { get; set; } = true;
+
+        /// <summary>
+        /// Prevents cell content wrapping. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(NowrapAttributeName)]
+        public bool Nowrap { get; set; } = true;
 
         [HtmlAttributeNotBound]
         public TagHelperContent DisplayTemplate { get; set; }

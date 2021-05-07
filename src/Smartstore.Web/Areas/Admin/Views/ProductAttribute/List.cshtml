@@ -21,15 +21,15 @@
     <datasource read="@Url.Action("List")" />
     <pageable />
     <columns>
-        <column for="Name" width="minmax(120px, 3fr)">
+        <column for="Name">
             <display-template>
                 <i class="fa fa-adjust pr-1"></i>
                 <a href="#">{{ cell.value }}</a>
             </display-template>
         </column>
-        <column for="Alias" width="minmax(120px, 3fr)" />
-        <column for="AllowFiltering" width="minmax(120px, 1fr)" />
-        <column for="DisplayOrder" width="minmax(120px, 1fr)" />
+        <column for="Alias" />
+        <column for="AllowFiltering" justify="FlexJustifyContent.Center" />
+        <column for="DisplayOrder" justify="FlexJustifyContent.Center" />
     </columns>
 </datagrid>
 
