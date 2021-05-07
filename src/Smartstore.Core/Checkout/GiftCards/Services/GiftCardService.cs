@@ -86,8 +86,6 @@ namespace Smartstore.Core.Checkout.GiftCards
 
         public virtual Money GetRemainingAmount(GiftCard giftCard)
         {
-            Guard.NotNull(giftCard, nameof(giftCard));
-
             return new(Math.Max(GetRemainingAmountCore(giftCard), decimal.Zero), _primaryCurrency);
         }
 

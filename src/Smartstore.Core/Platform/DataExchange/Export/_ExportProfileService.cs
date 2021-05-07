@@ -56,7 +56,7 @@ namespace Smartstore.Core.DataExchange.Export
 
         #endregion
 
-        public virtual async Task<ExportProfile> AddExportProfileAsync(
+        public virtual async Task<ExportProfile> InsertExportProfileAsync(
             Provider<IExportProvider> provider,
             bool isSystemProfile = false,
             string profileSystemName = null,
@@ -68,7 +68,7 @@ namespace Smartstore.Core.DataExchange.Export
             var resourceName = provider.Metadata.ResourceKeyPattern.FormatInvariant(providerSystemName, "FriendlyName");
             var profileName = await _localizationService.GetResourceAsync(resourceName, 0, false, providerSystemName, true);
 
-            var profile = await AddExportProfileAsync(
+            var profile = await InsertExportProfileAsync(
                 providerSystemName,
                 profileName.NullEmpty() ?? providerSystemName,
                 provider.Value.FileExtension,
@@ -80,7 +80,7 @@ namespace Smartstore.Core.DataExchange.Export
             return profile;
         }
 
-        public virtual async Task<ExportProfile> AddExportProfileAsync(
+        public virtual async Task<ExportProfile> InsertExportProfileAsync(
             string providerSystemName,
             string name,
             string fileExtension,
@@ -119,7 +119,7 @@ namespace Smartstore.Core.DataExchange.Export
                 task = new TaskDescriptor
                 {
                     CronExpression = "0 */6 * * *",     // Every six hours.
-                    Type = typeof(DataExportTask).AssemblyQualifiedNameWithoutVersion(),
+                    Type = nameof(DataExportTask),
                     Enabled = false,
                     StopOnError = false,
                     IsHidden = true
@@ -160,7 +160,7 @@ namespace Smartstore.Core.DataExchange.Export
                         RemoveCriticalCharacters = true,
                         CriticalCharacters = "¼,½,¾",
                         PriceType = PriceDisplayType.PreSelectedPrice,
-                        NoGroupedProducts = features.HasFlag(ExportFeatures.CanOmitGroupedProducts) ? true : false,
+                        NoGroupedProducts = features.HasFlag(ExportFeatures.CanOmitGroupedProducts),
                         OnlyIndividuallyVisibleAssociated = true,
                         DescriptionMerging = ExportDescriptionMerging.Description
                     };
@@ -191,20 +191,24 @@ namespace Smartstore.Core.DataExchange.Export
             profile.TaskId = task.Id;
 
             var cleanedSystemName = providerSystemName
-                .Replace("Exports.", "")
-                .Replace("Feeds.", "")
-                .Replace("/", "")
-                .Replace("-", "");
+                .Replace("Exports.", string.Empty)
+                .Replace("Feeds.", string.Empty)
+                .Replace("/", string.Empty)
+                .Replace("-", string.Empty);
 
-            var folderName = SeoHelper.BuildSlug(cleanedSystemName, true, false, false)
+            var directoryName = SeoHelper.BuildSlug(cleanedSystemName, true, false, false)
                 .ToValidPath()
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
             // TODO: (mg) (core) find out how to correctly build new app relative paths for ExportProfile.FolderName like x '~/App_Data/Tenants/Default/ExportProfiles/bmecatproductxml-1-2'
             // ExportProfile.FolderName must fulfil PathHelper.IsSafeAppRootPath! See also below.
             var tenantRoot = DataSettings.Instance.TenantRoot;
-            var profileFolder = tenantRoot.GetDirectory("ExportProfiles");
-            profile.FolderName = profileFolder.SubPath + "/" + tenantRoot.CreateNonExistingDirectoryName(CommonHelper.MapPath(profileFolder.SubPath), folderName);
+            var profileDirectory = tenantRoot.GetDirectory("ExportProfiles");
+
+            // TODO: (mg) (core) TenantRoot is rooted to the tenant dir and DOES NOT CONTAIN "App_Data/Tenants/{TenantName}" anymore.
+            // The result will be "ExportProfiles/{UniqueDirName}, which conflicts with how we saved the path in the past ("~/App_Data/..."). You must
+            // "upgrade" legacy pathes to new root whenever an entity is loaded and processed.
+            profile.FolderName = tenantRoot.PathCombine(profileDirectory.SubPath, tenantRoot.CreateUniqueDirectoryName(profileDirectory.SubPath, directoryName));
 
             profile.SystemName = profileSystemName.IsEmpty() && isSystemProfile
                 ? cleanedSystemName
@@ -223,7 +227,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     if (features.HasFlag(ExportFeatures.CreatesInitialPublicDeployment))
                     {
-                        var subFolder = tenantRoot.CreateNonExistingDirectoryName(CommonHelper.MapPath("~/" + DataExporter.PublicFolder), folderName);
+                        var subFolder = tenantRoot.CreateUniqueDirectoryName(DataExporter.PublicFolder, directoryName);
 
                         profile.Deployments.Add(new ExportDeployment
                         {
@@ -276,11 +280,12 @@ namespace Smartstore.Core.DataExchange.Export
 
             await _db.SaveChangesAsync();
 
-            if (Directory.Exists(folder))
+            if (Directory.Exists(folder)) // TODO: (mg) (core) Use IDirectory.Exists
             {
                 var fs = new LocalFileSystem(folder);
 
                 // TODO: (mg) (core) find out how to correctly use LocalFileSystem.ClearDirectory.
+                // RE: If profile.GetExportDirectory() returns IDirectory, just pass it to ClearDirectory().
                 IDirectory whatever = null;
                 fs.ClearDirectory(whatever, true, TimeSpan.Zero);
             }

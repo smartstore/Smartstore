@@ -25,14 +25,14 @@ namespace Smartstore.Core.DataExchange.Export
         /// Starts exporting data to a file.
         /// </summary>
         /// <param name="context">Export execution context.</param>
-        /// <param name="cancellationToken">A cancellation token to cancel the export.</param>
-        Task ExecuteAsync(ExportExecuteContext context, CancellationToken cancellationToken);
+        /// <param name="cancelToken">A cancellation token to cancel the export.</param>
+        Task ExecuteAsync(ExportExecuteContext context, CancellationToken cancelToken);
 
         /// <summary>
         /// Called once per store when the export execution ended.
         /// </summary>
         /// <param name="context">Export execution context.</param>
-        /// <param name="cancellationToken">A cancellation token to cancel the export.</param>
-        Task OnExecutedAsync(ExportExecuteContext context, CancellationToken cancellationToken);
+        /// <param name="cancelToken">A cancellation token to cancel the export.</param>
+        Task OnExecutedAsync(ExportExecuteContext context, CancellationToken cancelToken);
     }
 }

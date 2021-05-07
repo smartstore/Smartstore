@@ -28,7 +28,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             var profileId = ctx.ExecutionInfo.Task.Alias.ToInt();
             var profile = await _db.ExportProfiles
-                .Include(x => x.Task)
+                .Include(x => x.Task) // TODO: (mg) (core) You probably include an entity which already loaded (ctx.ExecutionInfo.Task)
                 .Include(x => x.Deployments)
                 .FindByIdAsync(profileId, true, cancelToken);
 

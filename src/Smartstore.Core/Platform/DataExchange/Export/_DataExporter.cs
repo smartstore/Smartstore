@@ -74,7 +74,7 @@ namespace Smartstore.Core.DataExchange.Export
                 var lockKey = $"dataexporter:profile:{request.Profile.Id}";
                 if (!AsyncLock.IsLockHeld(lockKey))
                 {
-                    using (await AsyncLock.KeyedAsync(lockKey))
+                    using (await AsyncLock.KeyedAsync(lockKey, cancellationToken: cancellationToken))
                     {
                         // TODO: (mg) (core) start to export in ExportAsync.
                         //await ExportCoreOuterAsync(ctx);

@@ -15,9 +15,9 @@ namespace Smartstore.Core.DataExchange.Export
         public ExportConfigurationInfo ConfigurationInfo => null;
 
         /// <inheritdoc/>
-        public Task ExecuteAsync(ExportExecuteContext context, CancellationToken cancellationToken)
+        public Task ExecuteAsync(ExportExecuteContext context, CancellationToken cancelToken = default)
         {
-            return ExportAsync(context, cancellationToken);
+            return ExportAsync(context, cancelToken);
         }
 
         /// <summary>
@@ -25,10 +25,10 @@ namespace Smartstore.Core.DataExchange.Export
         /// </summary>
         /// <param name="context">Export execution context.</param>
         /// <param name="cancellationToken">A cancellation token to cancel the export.</param>
-        protected abstract Task ExportAsync(ExportExecuteContext context, CancellationToken cancellationToken);
+        protected abstract Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken);
 
         /// <inheritdoc/>
-        public virtual Task OnExecutedAsync(ExportExecuteContext context, CancellationToken cancellationToken)
+        public virtual Task OnExecutedAsync(ExportExecuteContext context, CancellationToken cancelToken = default)
         {
             return Task.CompletedTask;
         }

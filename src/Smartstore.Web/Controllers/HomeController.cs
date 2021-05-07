@@ -960,7 +960,7 @@ namespace Smartstore.Web.Controllers
 
             var tenantRoot = Data.DataSettings.Instance.TenantRoot;
             var exportProfiles = tenantRoot.GetDirectory("ExportProfiles");
-            var folderName = exportProfiles.SubPath + "/" + tenantRoot.CreateNonExistingDirectoryName(CommonHelper.MapPath(exportProfiles.SubPath), "My test folder");
+            var folderName = exportProfiles.SubPath + "/" + tenantRoot.CreateUniqueDirectoryName(CommonHelper.MapPath(exportProfiles.SubPath), "My test folder");
             content.AppendLine();
             content.AppendLine(folderName);
             

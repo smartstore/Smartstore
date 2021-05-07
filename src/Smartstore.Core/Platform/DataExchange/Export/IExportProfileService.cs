@@ -13,7 +13,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// <param name="profileSystemName">Profile system name.</param>
         /// <param name="cloneFromProfileId">Identifier of a profile the settings should be copied from.</param>
         /// <returns>Added export profile.</returns>
-        Task<ExportProfile> AddExportProfileAsync(
+        Task<ExportProfile> InsertExportProfileAsync(
             Provider<IExportProvider> provider,
             bool isSystemProfile = false,
             string profileSystemName = null,
@@ -30,7 +30,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// <param name="profileSystemName">Profile system name.</param>
         /// <param name="cloneFromProfileId">Identifier of a profile the settings should be copied from.</param>
         /// <returns>Added export profile.</returns>
-        Task<ExportProfile> AddExportProfileAsync(
+        Task<ExportProfile> InsertExportProfileAsync(
             string providerSystemName,
             string name,
             string fileExtension,

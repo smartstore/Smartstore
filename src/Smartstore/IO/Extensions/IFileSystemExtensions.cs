@@ -525,12 +525,12 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Creates a non existing directory name.
+        /// Creates a unique (non-existing) directory name within a given path.
         /// </summary>
-        /// <param name="subpath">Path of a directory</param>
+        /// <param name="subpath">Path to a directory</param>
         /// <param name="defaultName">Default name for directory. <c>null</c> to use a guid.</param>
-        /// <returns>Non existing directory name</returns>
-        public static string CreateNonExistingDirectoryName(this IFileSystem fs, string subpath, string defaultName)
+        /// <returns>Unique directory name</returns>
+        public static string CreateUniqueDirectoryName(this IFileSystem fs, string subpath, string defaultName)
         {
             if (defaultName.IsEmpty())
             {

@@ -57,7 +57,7 @@ namespace Smartstore.Threading
 
         public async Task ReleaseAsync()
         {
-            using (await AsyncLock.KeyedAsync($"AsyncLockFile.{_path}").ConfigureAwait(false))
+            using (await AsyncLock.KeyedAsync($"AsyncLockFile.{_path}"))
             {
                 var lockFile = await _directory.GetFileAsync(_path);
 
@@ -69,10 +69,10 @@ namespace Smartstore.Threading
                 _released = true;
 
                 // Check it has not been granted in the meantime
-                var current = await _directory.ReadAllTextAsync(_path).ConfigureAwait(false);
+                var current = await _directory.ReadAllTextAsync(_path);
                 if (current == _content)
                 {
-                    await _directory.TryDeleteFileAsync(_path).ConfigureAwait(false);
+                    await _directory.TryDeleteFileAsync(_path);
                 }
             }
         }
