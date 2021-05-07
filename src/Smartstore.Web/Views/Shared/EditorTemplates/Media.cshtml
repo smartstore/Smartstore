@@ -4,6 +4,8 @@
 @using Smartstore.Utilities
 @using Smartstore.Engine
 
+@inject IMediaService MediaService
+
 @functions {
     private bool TransientUpload
     {
@@ -96,8 +98,7 @@
 
 @{
     var random = CommonHelper.GenerateRandomInteger();
-    var mediaService = EngineContext.Current.Scope.Resolve<IMediaService>();
-    var currentFile = Model != null ? await mediaService.GetFileByIdAsync((int)Model) : null;
+    var currentFile = Model != null ? await MediaService.GetFileByIdAsync((int)Model) : null;
     var defaultValue = Model != null ? 0 : (int?)null;
 }
 
@@ -108,8 +109,7 @@
         {
             // Single file uploads have preview images.
             <div class="fu-thumb fu-filename rounded" data-current-filename="@(currentFile?.Name)">
-                @*TODO: (mh) (core) This doesn't seem right. Ask mc...*@
-                <img sm-file="currentFile" sm-size="MediaSettings.ThumbnailSizeMd" />
+                <media-thumbnail sm-file="currentFile" sm-size="MediaSettings.ThumbnailSizeMd"></media-thumbnail>
             </div>
             @Html.HiddenFor(x => x, new { @class = "hidden", Value = currentFile != null ? Model : defaultValue })
         }

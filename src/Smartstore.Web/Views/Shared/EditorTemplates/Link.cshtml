@@ -1,6 +1,8 @@
 ﻿@using Smartstore.Utilities
 @using Smartstore.Engine
 
+@inject ILinkResolver LinkResolver 
+
 @functions
 {
     private string Value => ViewData.Model != null ? Convert.ToString(ViewData.Model) : null;
@@ -12,7 +14,7 @@
     var rtl = WorkContext.WorkingLanguage.Rtl;
     var rnd = CommonHelper.GenerateRandomInteger();
     var id = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
-    var link = await EngineContext.Current.Scope.Resolve<ILinkResolver>().ResolveAsync(Value);
+    var link = await LinkResolver.ResolveAsync(Value);
     var hideQueryString = GetMetadata<bool>("hideQueryString");
 
     var arr = GetMetadata<string>("allowedTypes").SplitSafe(",");
@@ -31,7 +33,7 @@
             <button type="button" class="btn btn-secondary btn-icon dropdown-toggle" data-toggle="dropdown" title="">
                 <i class="fa fa-link"></i>
             </button>
-            <div class="dropdown-menu @(rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
+            <div class="dropdown-menu dropdown-menu-@(rtl ? "right" : "left")">
                 @foreach (var type in allowedTypes)
                 {
                     var info = type.GetLinkTypeInfo();
@@ -51,7 +53,7 @@
                 ? (type == LinkType.Topic ? link.Id.ToString() : link.Value.ToString())
                 : string.Empty;
 
-            <div class="flex-grow-1 link-control" attr-class='(link.Type != type, "hide")'  data-type="@type.ToString().ToLower()">
+            <div class="flex-grow-1 link-control" attr-class='(link.Type != type, "hide")' data-type="@type.ToString().ToLower()">
                 @if (type == LinkType.Product)
                 {
                     <input type="text" class="form-control resettable product-picker-input" value="@label" readonly />
@@ -59,21 +61,21 @@
                 else if (type == LinkType.Category)
                 {
                     <select class="form-control transferable resettable"
-                            data-select-url="@Url.Action("AllCategories", "Category", new { area = "admin" })"
+                            data-select-url="@Url.Action("AllCategories", "Category", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
                 }
                 else if (type == LinkType.Manufacturer)
                 {
                     <select class="form-control transferable resettable"
-                            data-select-url="@Url.Action("AllManufacturers", "Manufacturer", new { area = "admin" })"
+                            data-select-url="@Url.Action("AllManufacturers", "Manufacturer", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
                 }
                 else if (type == LinkType.Topic)
                 {
                     <select class="form-control transferable resettable"
-                            data-select-url="@Url.Action("AllTopics", "Topic", new { area = "admin" })"
+                            data-select-url="@Url.Action("AllTopics", "Topic", new { area = "Admin" })"
                             data-select-selected-id="@value"
                             data-select-init-text="@label"></select>
                 }

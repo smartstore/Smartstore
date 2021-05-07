@@ -1,4 +1,5 @@
 ﻿@model string
+
 @functions{
     private string Value
     {
@@ -9,6 +10,7 @@
             {
                 value = Convert.ToString(ViewData.Model);
             }
+
             return value;
         }
     }
@@ -17,7 +19,8 @@
     {
         get
         {
-            return new List<SelectListItem> {
+            return new List<SelectListItem> 
+            {
                 new SelectListItem { Text = T("Common.Unspecified"), Value = string.Empty, Selected = !Value.HasValue() },
                 new SelectListItem { Text = T("Common.Buttons.Secondary").ToString(), Value = "btn-secondary", Selected = (Value == "btn-secondary") },
                 new SelectListItem { Text = T("Common.Buttons.Primary").ToString(), Value = "btn-primary", Selected = (Value == "btn-primary") },

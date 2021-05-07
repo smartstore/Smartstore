@@ -58,9 +58,10 @@
            value="@Value"
            class="form-control"
            type="number"
-           min="@(GetMetadata<decimal?>("min"))"
-           max="@(GetMetadata<decimal?>("max"))"
-           step="@(GetMetadata<decimal?>("step") ?? 1)" />
+           placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
+           min="@(GetMetadata<long?>("min"))"
+           max="@(GetMetadata<long?>("max"))"
+           step="@(GetMetadata<long?>("step") ?? 1)" />
 
     @if (TryGetMetadata<string>("postfix", out var postfix))
     {

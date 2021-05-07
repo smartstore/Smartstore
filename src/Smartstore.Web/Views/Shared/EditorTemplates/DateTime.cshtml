@@ -57,6 +57,7 @@
 }
 
 <div class="@CssClass" id="@id-parent" data-date="@value" data-target-input="nearest">
+    @* TODO: (mh) (core) Always use plain HTML tags in editor templates, no HtmlHelper anymore please. *@
     @Html.TextBox("", value, new { @class = "form-control datetimepicker-input", data_target = "#" + id + "-parent", data_format = format })
     <div class="input-group-append input-group-addon" data-target="#@(id)-parent" data-toggle="datetimepicker">
         <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
@@ -64,7 +65,8 @@
 </div>
 
 <script data-origin="DateTime">
-	$(function () {
+    $(function () {
+        // TODO: (mh) (core) Remove all inline scripts from editor templates.
 		$("#@(id)-parent").datetimepicker({ format: '@(format)', useCurrent: false, locale: moment.locale() });
 	});
 </script>

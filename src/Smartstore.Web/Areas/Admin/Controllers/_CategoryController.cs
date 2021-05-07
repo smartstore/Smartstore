@@ -13,7 +13,6 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
-    //[AdminAuthorize]
     public class CategoryController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
@@ -71,7 +70,8 @@ namespace Smartstore.Admin.Controllers
                 selected = selectedArr.Contains(c.Id)
             });
 
-            var mainList = await query.ToListAsync();
+            // INFO: Call AsyncToList() to avoid upcoming conflicts with EF.
+            var mainList = await query.AsyncToList();
 
             var mruList = new TrimmedBuffer<string>(
                 Services.WorkContext.CurrentCustomer.GenericAttributes.MostRecentlyUsedCategories,
@@ -107,7 +107,5 @@ namespace Smartstore.Admin.Controllers
 
             return new JsonResult(data);
         }
-
-
     }
 }

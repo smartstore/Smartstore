@@ -16,6 +16,7 @@
     {
         get
         {
+            @* TODO: (mh) (core) Css classes will change *@
             var cls = "numerictextbox-group flex-grow-1";
 
             if (TryGetMetadata<string>("size", out var size))
@@ -45,10 +46,11 @@
     <input name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" 
         value="@Value" 
         class="form-control" 
-        type="number" 
-        min="@(GetMetadata<decimal?>("min"))"
-        max="@(GetMetadata<decimal?>("max"))"
-        step="@(GetMetadata<decimal?>("step") ?? 1)"/>
+        type="number"
+        placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
+        min="@(GetMetadata<byte?>("min") ?? 0)"
+        max="@(GetMetadata<byte?>("max") ?? 255)"
+        step="@(GetMetadata<byte?>("step") ?? 1)"/>
 
     @if (TryGetMetadata<string>("postfix", out var postfix))
     {

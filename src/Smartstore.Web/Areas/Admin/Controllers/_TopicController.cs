@@ -43,7 +43,8 @@ namespace Smartstore.Admin.Controllers
         {
             var topics = await _db.Topics
                 .AsNoTracking()
-                .ApplyStandardFilter(true).Where(x => includeWidgets || !x.RenderAsWidget)
+                .ApplyStandardFilter(true)
+                .Where(x => includeWidgets || !x.RenderAsWidget)
                 .ToListAsync();
             
             var list = topics
@@ -69,6 +70,7 @@ namespace Smartstore.Admin.Controllers
             {
                 list.Insert(0, new ChoiceListItem { Id = "0", Text = label, Selected = false });
             }
+
             if (includeHomePage)
             {
                 list.Insert(0, new ChoiceListItem { Id = "-10", Text = T("Admin.ContentManagement.Homepage").Value, Selected = false });

@@ -16,7 +16,8 @@
     {
         get
         {
-            return new List<SelectListItem> {
+            return new List<SelectListItem> 
+            {
                 new SelectListItem { Text = T("Common.Unspecified"), Value = string.Empty, Selected = !Value.HasValue },
                 new SelectListItem { Text = T("Common.Yes"), Value = "true", Selected = Value.HasValue && Value.Value },
                 new SelectListItem { Text = T("Common.No"), Value = "false", Selected = Value.HasValue && !Value.Value },

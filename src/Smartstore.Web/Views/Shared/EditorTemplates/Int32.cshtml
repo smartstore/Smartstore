@@ -55,10 +55,11 @@
     <input name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" 
         value="@Value" 
         class="form-control" 
-        type="number" 
-        min="@(GetMetadata<decimal?>("min"))"
-        max="@(GetMetadata<decimal?>("max"))"
-        step="@(GetMetadata<decimal?>("step") ?? 1)"/>
+        type="number"
+        placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
+        min="@(GetMetadata<int?>("min"))"
+        max="@(GetMetadata<int?>("max"))"
+        step="@(GetMetadata<int?>("step") ?? 1)"/>
 
     @if (TryGetMetadata<string>("postfix", out var postfix))
     {

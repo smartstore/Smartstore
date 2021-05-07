@@ -60,12 +60,12 @@ namespace Smartstore.Admin.Controllers
             }
 
             var list = from m in manufacturers
-                       select new
-                       {
-                           id = m.Id.ToString(),
-                           text = m.GetLocalized(x => x.Name).Value,
-                           selected = m.Id == selectedId
-                       };
+                select new
+                {
+                    id = m.Id.ToString(),
+                    text = m.GetLocalized(x => x.Name).Value,
+                    selected = m.Id == selectedId
+                };
 
             var mainList = list.ToList();
 
