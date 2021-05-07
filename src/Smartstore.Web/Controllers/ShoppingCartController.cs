@@ -83,7 +83,7 @@ namespace Smartstore.Web.Controllers
             _currencyService = currencyService;
             _discountService = discountService;
             _giftCardService = giftCardService;
-            _shoppingCartService = shoppingCartService;            
+            _shoppingCartService = shoppingCartService;
             _orderCalculationService = orderCalculationService;
             _shoppingCartValidator = shoppingCartValidator;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
@@ -265,7 +265,7 @@ namespace Smartstore.Web.Controllers
             var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.Wishlist, Services.StoreContext.CurrentStore.Id);
 
             var model = new WishlistModel();
-            await cart.AsEnumerable().MapAsync(model);
+            await cart.AsEnumerable().MapAsync(model, !customerGuid.HasValue);
 
             return View(model);
         }
@@ -345,7 +345,7 @@ namespace Smartstore.Web.Controllers
             var cart = await _shoppingCartService.GetCartItemsAsync(customer, ShoppingCartType.ShoppingCart, storeId);
 
             var model = new MiniShoppingCartModel();
-            await cart.AsEnumerable().MapAsync(model); 
+            await cart.AsEnumerable().MapAsync(model);
 
             HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
 
@@ -841,77 +841,76 @@ namespace Smartstore.Web.Controllers
             });
         }
 
-        //[HttpPost, ActionName("Wishlist")]
-        //[FormValueRequired("addtocartbutton")]
-        //public async Task<IActionResult> AddItemsToCartFromWishlist(Guid? customerGuid)
-        //{
-        //    if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
-        //        || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
-        //    {
-        //        return RedirectToRoute("Homepage");
-        //    }
+        [HttpPost, ActionName("Wishlist")]
+        [FormValueRequired("addtocartbutton")]
+        [LocalizedRoute("/wishlist/{customerGuid:guid?}", Name = "Wishlist")]
+        public async Task<IActionResult> AddItemsToCartFromWishlist(Guid? customerGuid)
+        {
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessShoppingCart)
+                || !await Services.Permissions.AuthorizeAsync(Permissions.Cart.AccessWishlist))
+            {
+                return RedirectToRoute("Homepage");
+            }
 
-        //    var pageCustomer = !customerGuid.HasValue
-        //        ? Services.WorkContext.CurrentCustomer
-        //        : await _db.Customers
-        //            .AsNoTracking()
-        //            .Where(x => x.CustomerGuid == customerGuid)
-        //            .FirstOrDefaultAsync();
+            var pageCustomer = !customerGuid.HasValue
+                ? Services.WorkContext.CurrentCustomer
+                : await _db.Customers
+                    .AsNoTracking()
+                    .Where(x => x.CustomerGuid == customerGuid)
+                    .FirstOrDefaultAsync();
 
-        //    var storeId = Services.StoreContext.CurrentStore.Id;
-        //    var pageCart = await _shoppingCartService.GetCartItemsAsync(pageCustomer, ShoppingCartType.Wishlist, storeId);
+            var storeId = Services.StoreContext.CurrentStore.Id;
+            var pageCart = await _shoppingCartService.GetCartItemsAsync(pageCustomer, ShoppingCartType.Wishlist, storeId);
 
-        //    var allWarnings = new List<string>();
-        //    var numberOfAddedItems = 0;
-        //    var form = HttpContext.Request.Form;
+            var allWarnings = new List<string>();
+            var numberOfAddedItems = 0;
+            var form = HttpContext.Request.Form;
 
-        //    var allIdsToAdd = form["addtocart"].FirstOrDefault() != null
-        //        ? form["addtocart"].Select(x => int.Parse(x)).ToList()
-        //        : new List<int>();
+            var allIdsToAdd = form["addtocart"].FirstOrDefault() != null
+                ? form["addtocart"].Select(x => int.Parse(x)).ToList()
+                : new List<int>();
 
-        //    foreach (var cartItem in pageCart)
-        //    {
-        //        if (allIdsToAdd.Contains(cartItem.Item.Id))
-        //        {
-        //            var addToCartContext = new AddToCartContext()
-        //            {
-        //                Item = cartItem.Item,
-        //                Customer = Services.WorkContext.CurrentCustomer,
-        //                CartType = ShoppingCartType.ShoppingCart,
-        //                StoreId = storeId,
-        //                RawAttributes = cartItem.Item.RawAttributes,
-        //                ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList(),
-        //                CustomerEnteredPrice = new Money(cartItem.Item.CustomerEnteredPrice, _currencyService.PrimaryCurrency),
-        //                Product = cartItem.Item.Product,
-        //                Quantity = cartItem.Item.Quantity
-        //            };
+            foreach (var cartItem in pageCart.Where(x => allIdsToAdd.Contains(x.Item.Id)))
+            {
+                var addToCartContext = new AddToCartContext()
+                {
+                    Customer = Services.WorkContext.CurrentCustomer,
+                    CartType = ShoppingCartType.ShoppingCart,
+                    StoreId = storeId,
+                    RawAttributes = cartItem.Item.RawAttributes,
+                    ChildItems = cartItem.ChildItems.Select(x => x.Item).ToList(),
+                    CustomerEnteredPrice = new Money(cartItem.Item.CustomerEnteredPrice, _currencyService.PrimaryCurrency),
+                    Product = cartItem.Item.Product,
+                    Quantity = cartItem.Item.Quantity
+                };
 
-        //            if (await _shoppingCartService.CopyAsync(addToCartContext))
-        //            {
-        //                numberOfAddedItems++;
-        //            }
+                if (await _shoppingCartService.CopyAsync(addToCartContext))
+                {
+                    numberOfAddedItems++;
+                }
 
-        //            if (_shoppingCartSettings.MoveItemsFromWishlistToCart && !customerGuid.HasValue && addToCartContext.Warnings.Count == 0)
-        //            {
-        //                await _shoppingCartService.DeleteCartItemsAsync(new[] { cartItem.Item });
-        //            }
+                if (_shoppingCartSettings.MoveItemsFromWishlistToCart && !customerGuid.HasValue && addToCartContext.Warnings.Count == 0)
+                {
+                    await _shoppingCartService.DeleteCartItemsAsync(new[] { cartItem.Item });
+                }
 
-        //            allWarnings.AddRange(addToCartContext.Warnings);
-        //        }
-        //    }
+                allWarnings.AddRange(addToCartContext.Warnings);                
+            }
 
-        //    if (numberOfAddedItems > 0)
-        //    {
-        //        return RedirectToRoute("ShoppingCart");
-        //    }
+            if (numberOfAddedItems > 0)
+            {
+                return RedirectToRoute("ShoppingCart");
+            }
 
-        //    var cart = await _shoppingCartService.GetCartItemsAsync(pageCustomer, ShoppingCartType.Wishlist, storeId);
-        //    var model = PrepareWishlistModelAsync(cart, !customerGuid.HasValue);
+            var model = new WishlistModel();
+            var cart = await _shoppingCartService.GetCartItemsAsync(pageCustomer, ShoppingCartType.Wishlist, storeId);
 
-        //    NotifyInfo(T("Products.SelectProducts"), true);
+            await cart.AsEnumerable().MapAsync(model, !customerGuid.HasValue);
 
-        //    return View(model);
-        //}
+            NotifyInfo(T("Products.SelectProducts"), true);
+
+            return View(model);
+        }
 
         #endregion
 
@@ -1309,6 +1308,7 @@ namespace Smartstore.Web.Controllers
                 if (giftCardCouponCode.HasValue())
                 {
                     var giftCard = await _db.GiftCards
+                        .Include(x => x.GiftCardUsageHistory)
                         .AsNoTracking()
                         .ApplyCouponFilter(new[] { giftCardCouponCode })
                         .FirstOrDefaultAsync();
