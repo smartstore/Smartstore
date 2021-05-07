@@ -1,29 +1,29 @@
 ﻿@model AddressModel
 
-@Html.HiddenFor(model => model.Id)
-@Html.HiddenFor(model => model.TitleEnabled)
-@Html.HiddenFor(model => model.ValidateEmailAddress)
-@Html.HiddenFor(model => model.CompanyEnabled)
-@Html.HiddenFor(model => model.CompanyRequired)
-@Html.HiddenFor(model => model.CountryEnabled)
-@Html.HiddenFor(model => model.StateProvinceEnabled)
-@Html.HiddenFor(model => model.CityEnabled)
-@Html.HiddenFor(model => model.CityRequired)
-@Html.HiddenFor(model => model.StreetAddressEnabled)
-@Html.HiddenFor(model => model.StreetAddressRequired)
-@Html.HiddenFor(model => model.StreetAddress2Enabled)
-@Html.HiddenFor(model => model.StreetAddress2Required)
-@Html.HiddenFor(model => model.ZipPostalCodeEnabled)
-@Html.HiddenFor(model => model.ZipPostalCodeRequired)
-@Html.HiddenFor(model => model.PhoneEnabled)
-@Html.HiddenFor(model => model.PhoneRequired)
-@Html.HiddenFor(model => model.FaxEnabled)
-@Html.HiddenFor(model => model.FaxRequired)
+<input type="hidden" asp-for="Id" />
+<input type="hidden" asp-for="TitleEnabled" />
+<input type="hidden" asp-for="ValidateEmailAddress" />
+<input type="hidden" asp-for="CompanyEnabled" />
+<input type="hidden" asp-for="CompanyRequired" />
+<input type="hidden" asp-for="CountryEnabled" />
+<input type="hidden" asp-for="StateProvinceEnabled" />
+<input type="hidden" asp-for="CityEnabled" />
+<input type="hidden" asp-for="CityRequired" />
+<input type="hidden" asp-for="StreetAddressEnabled" />
+<input type="hidden" asp-for="StreetAddressRequired" />
+<input type="hidden" asp-for="StreetAddress2Enabled" />
+<input type="hidden" asp-for="StreetAddress2Required" />
+<input type="hidden" asp-for="ZipPostalCodeEnabled" />
+<input type="hidden" asp-for="ZipPostalCodeRequired" />
+<input type="hidden" asp-for="PhoneEnabled" />
+<input type="hidden" asp-for="PhoneRequired" />
+<input type="hidden" asp-for="FaxEnabled" />
+<input type="hidden" asp-for="FaxRequired" />
 
 <div class="adminContent">
     <div sm-if="Model.TitleEnabled" class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="Title"/>
+            <smart-label asp-for="Title" />
         </div>
         <div class="adminData">
             @Html.EditorFor(model => model.Title)

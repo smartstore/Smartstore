@@ -37,12 +37,12 @@
         attributes.Add(attr.Key, attr.Value.ToString());
     }
 
-    attributes["data-select-url"] = Url.Action("AllDeliveryTimes", "DeliveryTime", new { selectedIds = strValue, area = "admin" });
+    attributes["data-select-url"] = Url.Action("AllDeliveryTimes", "DeliveryTime", new { selectedIds = strValue, area = "Admin" });
     attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
 
     if (!attributes.ContainsKey("data-placeholder"))
     {
-        attributes["data-placeholder"] = T("Common.Unspecified");
+        attributes["data-placeholder"] = T("Common.Unspecified").Value;
     }
     if (!attributes.ContainsKey("multiple") && GetMetadata<bool>("multiple"))
     {

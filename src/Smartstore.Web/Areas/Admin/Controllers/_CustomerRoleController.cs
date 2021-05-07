@@ -39,20 +39,20 @@ namespace Smartstore.Admin.Controllers
         /// </summary>
         public async Task<IActionResult> AllCustomerRoles(string label, string selectedIds, bool? includeSystemRoles)
         {
-            var rolesQuery = await _db.CustomerRoles
-                .ApplyStandardFilter(true)
-                .ToListAsync();
+            var rolesQuery = _db.CustomerRoles
+                .AsNoTracking()
+                .ApplyStandardFilter(true).AsQueryable();
             
             if (!(includeSystemRoles ?? true))
             {
-                rolesQuery = rolesQuery.Where(x => x.IsSystemRole).ToList();
+                rolesQuery = rolesQuery.Where(x => x.IsSystemRole);
             }
 
-            var rolesPager = new FastPager<CustomerRole>(rolesQuery.AsQueryable(), 500);
+            var rolesPager = new FastPager<CustomerRole>(rolesQuery, 500);
             var customerRoles = new List<CustomerRole>();
             var ids = selectedIds.ToIntArray();
 
-            while (rolesPager.ReadNextPage(out var roles))
+            while ((await rolesPager.ReadNextPageAsync<CustomerRole>()).Out(out var roles))
             {
                 customerRoles.AddRange(roles);
             }
