@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.DataExchange.Export
@@ -24,12 +25,14 @@ namespace Smartstore.Core.DataExchange.Export
         /// Starts exporting data to a file.
         /// </summary>
         /// <param name="context">Export execution context.</param>
-        Task ExecuteAsync(ExportExecuteContext context); // TODO: (mg) (core) It's better to pass CancellationToken to an async method as parameter.
+        /// <param name="cancellationToken">A cancellation token to cancel the export.</param>
+        Task ExecuteAsync(ExportExecuteContext context, CancellationToken cancellationToken);
 
         /// <summary>
         /// Called once per store when the export execution ended.
         /// </summary>
         /// <param name="context">Export execution context.</param>
-        Task OnExecutedAsync(ExportExecuteContext context); // TODO: (mg) (core) It's better to pass CancellationToken to an async method as parameter.
+        /// <param name="cancellationToken">A cancellation token to cancel the export.</param>
+        Task OnExecutedAsync(ExportExecuteContext context, CancellationToken cancellationToken);
     }
 }

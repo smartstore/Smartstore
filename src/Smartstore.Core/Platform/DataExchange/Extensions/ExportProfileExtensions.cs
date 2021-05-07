@@ -10,7 +10,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Export
 {
-    public static class ExportProfileExtensions
+    public static partial class ExportProfileExtensions
     {
         /// <summary>
         /// Gets a temporary folder for an export profile.

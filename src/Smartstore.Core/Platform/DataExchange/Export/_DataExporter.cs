@@ -8,8 +8,10 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.DataExchange.Export.Internal;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Threading;
 
 namespace Smartstore.Core.DataExchange.Export
 {
@@ -63,9 +65,30 @@ namespace Smartstore.Core.DataExchange.Export
         /// </summary>
         public static int PageSize => 100;
 
-        public Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancellationToken)
+        public async Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var ctx = new DataExporterContext(request, false, cancellationToken);
+
+            if (request?.Profile?.Enabled ?? false)
+            {
+                var lockKey = $"dataexporter:profile:{request.Profile.Id}";
+                if (!AsyncLock.IsLockHeld(lockKey))
+                {
+                    using (await AsyncLock.KeyedAsync(lockKey))
+                    {
+                        // TODO: (mg) (core) start to export in ExportAsync.
+                        //await ExportCoreOuterAsync(ctx);
+                    }
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+                else
+                {
+                    ctx.Result.LastError = $"The execution of the profile \"{request.Profile.Name.NaIfEmpty()}\" (ID {request.Profile.Id}) is locked.";
+                }
+            }
+
+            return ctx.Result;
         }
 
         public Task<DataExportPreviewResult> PreviewAsync(DataExportRequest request, int pageIndex)

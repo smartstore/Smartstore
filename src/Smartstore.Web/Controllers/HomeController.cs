@@ -958,6 +958,14 @@ namespace Smartstore.Web.Controllers
             content.AppendLine($"{subtotal.SubtotalWithoutDiscount.Amount} {subtotalConverted.Amount}");
 
 
+            var tenantRoot = Data.DataSettings.Instance.TenantRoot;
+            var exportProfiles = tenantRoot.GetDirectory("ExportProfiles");
+            var folderName = exportProfiles.SubPath + "/" + tenantRoot.CreateNonExistingDirectoryName(CommonHelper.MapPath(exportProfiles.SubPath), "My test folder");
+            content.AppendLine();
+            content.AppendLine(folderName);
+            
+
+
             //var orderItem = await _db.OrderItems.FindByIdAsync(42272, false);
             //var bundleData = orderItem.GetBundleData();
 
