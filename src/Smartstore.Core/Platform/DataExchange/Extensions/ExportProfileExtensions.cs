@@ -17,13 +17,16 @@ namespace Smartstore.Core.DataExchange.Export
         /// </summary>
         /// <param name="profile">Export profile.</param>
         /// <returns>Folder path.</returns>
-        public static string GetExportFolder(this ExportProfile profile, bool content = false, bool create = false)
+        public static string GetExportDirectory(this ExportProfile profile, bool content = false, bool create = false)
         {
+            // TODO: (mg) (core) All file system related stuff must use IFileSystem. This method should return IDirectory. CommonHelper.ContentRoot could be used as entry point (or IApplicationContext.xyzRoot)
+            // TODO: (mg) (core) Never save something outside of wwwroot or App_Data directories.
+            // TODO: (mg) (core) Given the new requirements, this class has to be refactored rather heavily.
             Guard.NotNull(profile, nameof(profile));
             Guard.IsTrue(profile.FolderName.EmptyNull().Length > 2, nameof(profile.FolderName), "The export folder name must be at least 3 characters long.");
 
             var path = CommonHelper.MapPath(string.Concat(profile.FolderName, content ? "/Content" : ""));
-
+            
             if (create && !Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
@@ -39,7 +42,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// <returns>Log file path.</returns>
         public static string GetExportLogPath(this ExportProfile profile)
         {
-            return Path.Combine(profile.GetExportFolder(), "log.txt");
+            return Path.Combine(profile.GetExportDirectory(), "log.txt");
         }
 
         /// <summary>
@@ -53,7 +56,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             var name = new DirectoryInfo(profile.FolderName).Name.NullEmpty() ?? "ExportData";
 
-            return Path.Combine(profile.GetExportFolder(), name.ToValidFileName() + ".zip");
+            return Path.Combine(profile.GetExportDirectory(), name.ToValidFileName() + ".zip");
         }
 
         /// <summary>
@@ -64,7 +67,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// <returns>List of file names.</returns>
         public static IEnumerable<string> GetExportFiles(this ExportProfile profile, Provider<IExportProvider> provider)
         {
-            var exportFolder = profile.GetExportFolder(true);
+            var exportFolder = profile.GetExportDirectory(true);
 
             if (Directory.Exists(exportFolder) && provider.Value.FileExtension.HasValue())
             {
@@ -112,7 +115,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             var result = sb.ToString()
-                .ToValidFileName("")
+                .ToValidFileName(string.Empty)
                 .Truncate(maxFileNameLength);
 
             return result;

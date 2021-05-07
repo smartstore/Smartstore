@@ -259,7 +259,7 @@ namespace Smartstore.Core.DataExchange.Export
             await _db.LoadCollectionAsync(profile, x => x.Deployments);
             await _db.LoadReferenceAsync(profile, x => x.Task);
 
-            var folder = profile.GetExportFolder();
+            var folder = profile.GetExportDirectory();
             var deployments = profile.Deployments.Where(x => !x.IsTransientRecord()).ToList();
 
             if (profile.Deployments.Any())

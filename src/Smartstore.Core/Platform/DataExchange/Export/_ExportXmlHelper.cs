@@ -42,7 +42,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _culture = culture ?? CultureInfo.InvariantCulture;
         }
 
-        public static XmlWriterSettings DefaultSettings => new XmlWriterSettings
+        public static XmlWriterSettings DefaultSettings => new()
         {
             Encoding = Encoding.UTF8,
             CheckCharacters = false,

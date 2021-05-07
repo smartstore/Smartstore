@@ -21,7 +21,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
             IsPreview = isPreview;
             CancellationToken = cancellationToken;
 
-            FolderContent = request.Profile.GetExportFolder(true, true);
+            FolderContent = request.Profile.GetExportDirectory(true, true);
 
             Filter = Deserialize<ExportFilter>(request.Profile.Filtering) ?? new();
             Projection = Deserialize<ExportProjection>(request.Profile.Projection) ?? new();
@@ -105,12 +105,12 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
         #region Data loaded once per page
 
-        public ProductBatchContext ProductExportContext { get; set; }
-        public ProductBatchContext AssociatedProductContext { get; set; }
-        public OrderBatchContext OrderExportContext { get; set; }
-        public ManufacturerBatchContext ManufacturerExportContext { get; set; }
-        public CategoryBatchContext CategoryExportContext { get; set; }
-        public CustomerBatchContext CustomerExportContext { get; set; }
+        public ProductBatchContext ProductBatchContext { get; set; }
+        public ProductBatchContext AssociatedProductBatchContext { get; set; }
+        public OrderBatchContext OrderBatchContext { get; set; }
+        public ManufacturerBatchContext ManufacturerBatchContext { get; set; }
+        public CategoryBatchContext CategoryBatchContext { get; set; }
+        public CustomerBatchContext CustomerBatchContext { get; set; }
 
         /// <summary>
         /// All per page translations (like ProductVariantAttributeValue etc.)
@@ -135,6 +135,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
         private static T Deserialize<T>(string xml)
         {
+            // TODO: (mg) (core) XmlHelper should be ported after all. It is called from numerous places.
             try
             {
                 if (xml.HasValue())
@@ -144,7 +145,9 @@ namespace Smartstore.Core.DataExchange.Export.Internal
                     return (T)serializer.Deserialize(reader);
                 }
             }
-            catch { }
+            catch 
+            { 
+            }
 
             return default;
         }
