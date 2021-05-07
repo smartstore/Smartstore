@@ -62,6 +62,30 @@ namespace Smartstore.Web.Controllers
         }
 
         [NonAction]
+        protected async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod)
+        {
+            var warnings = await paymentMethod.IsPaymentDataValidAsync();
+
+            foreach (var warning in warnings)
+            {
+                ModelState.AddModelError(string.Empty, warning);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return false;
+            }
+
+            // TODO: (ms) (core) Wait for payment methods, check how to retrieve processPaymentRequest now.
+            //var paymentInfo = paymentMethod.GetPaymentInfo();
+            //HttpContext.Session.TrySetObject<ProcessPaymentRequest>("OrderPaymentInfo", paymentInfo);
+
+            HttpContext.GetCheckoutState().PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
+
+            return true;
+        }
+
+        [NonAction]
         protected async Task<CheckoutAddressModel> PrepareCheckoutAddressModelAsync(bool shipping = false, int? selectedCountryId = null)
         {
             // Get existing addresses.
@@ -490,7 +514,7 @@ namespace Smartstore.Web.Controllers
 
 
             //// Calidate info
-            //if (!IsValidPaymentForm(paymentMethodProvider.Value, form))
+            //if (!ValidatePaymentDataAsync(paymentMethodProvider.Value))
             //{
             //    return RedirectToAction(nameof(PaymentMethod));
             //}
@@ -593,7 +617,8 @@ namespace Smartstore.Web.Controllers
                     // Check whether payment workflow is required.
                     var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
 
-                    if (cartTotalBase.Total.GetValueOrDefault() != decimal.Zero && !HttpContext.GetCheckoutState().IsPaymentSelectionSkipped)
+                    if (cartTotalBase.Total.HasValue && cartTotalBase.Total.Value == decimal.Zero 
+                        || HttpContext.GetCheckoutState().IsPaymentSelectionSkipped)
                     {
                         return RedirectToAction(nameof(PaymentMethod));
                     }
