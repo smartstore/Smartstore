@@ -275,7 +275,7 @@ namespace Smartstore.Core.Checkout.Orders
                     }
                 }
 
-                if (valid)
+                if (valid && isBundle)
                 {
                     await _shoppingCartService.AddItemToCartAsync(addToCartContext);
                 }
