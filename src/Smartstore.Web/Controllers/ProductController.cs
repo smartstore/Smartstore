@@ -16,6 +16,7 @@ using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -169,7 +170,7 @@ namespace Smartstore.Web.Controllers
             _recentlyViewedProductsService.AddProductToRecentlyViewedList(product.Id);
 
             // Activity log
-            Services.ActivityLogger.LogActivity("PublicStore.ViewProduct", T("ActivityLog.PublicStore.ViewProduct"), product.Name);
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreViewProduct, T("ActivityLog.PublicStore.ViewProduct"), product.Name);
 
             // Breadcrumb
             if (_catalogSettings.CategoryBreadcrumbEnabled)
@@ -568,7 +569,7 @@ namespace Smartstore.Web.Controllers
                     await _messageFactory.Value.SendProductReviewNotificationMessageAsync(productReview, _localizationSettings.DefaultAdminLanguageId);
                 }
 
-                Services.ActivityLogger.LogActivity("PublicStore.AddProductReview", T("ActivityLog.PublicStore.AddProductReview"), product.Name);
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreAddProductReview, T("ActivityLog.PublicStore.AddProductReview"), product.Name);
 
                 if (isApproved)
                 {

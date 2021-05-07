@@ -19,6 +19,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -143,7 +144,7 @@ namespace Smartstore.Web.Controllers
                 {
                     await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
 
-                    Services.ActivityLogger.LogActivity("PublicStore.Login", T("ActivityLog.PublicStore.Login"), customer);
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), customer);
 
                     await Services.EventPublisher.PublishAsync(new CustomerLoggedInEvent { Customer = customer });
 
@@ -197,7 +198,7 @@ namespace Smartstore.Web.Controllers
             else
             {
                 // Standard logout
-                Services.ActivityLogger.LogActivity("PublicStore.Logout", T("ActivityLog.PublicStore.Logout"));
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogout, T("ActivityLog.PublicStore.Logout"));
 
                 await _signInManager.SignOutAsync();
                 await db.SaveChangesAsync();
@@ -513,7 +514,7 @@ namespace Smartstore.Web.Controllers
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
             if (result.Succeeded)
             {
-                Services.ActivityLogger.LogActivity("PublicStore.Login", T("ActivityLog.PublicStore.LoginExternal"), info.LoginProvider);
+                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.LoginExternal"), info.LoginProvider);
                 return RedirectToLocal(returnUrl);
             }
             else
@@ -545,7 +546,7 @@ namespace Smartstore.Web.Controllers
                         // migrate shopping cart.
                         await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
 
-                        Services.ActivityLogger.LogActivity("PublicStore.Login", T("ActivityLog.PublicStore.Login"), customer);
+                        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), customer);
 
                         await Services.EventPublisher.PublishAsync(new CustomerLoggedInEvent { Customer = customer });
                     }

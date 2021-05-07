@@ -89,7 +89,7 @@ namespace Smartstore.Core.Configuration
             {
                 string comment = T("ActivityLog.EditSettings");
 
-                updatedEntities.Each(x => _activityLogger.LogActivity("EditSettings", comment, x.Name, x.Value));
+                updatedEntities.Each(x => _activityLogger.LogActivity(KnownActivityLogTypes.EditSettings, comment, x.Name, x.Value));
                 await _db.SaveChangesAsync(cancelToken);
             }
         }

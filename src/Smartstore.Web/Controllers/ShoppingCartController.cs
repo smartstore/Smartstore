@@ -587,7 +587,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Product has been added to the cart. Add to activity log.
-            _activityLogger.LogActivity("PublicStore.AddToShoppingCart", T("ActivityLog.PublicStore.AddToShoppingCart"), product.Name);
+            _activityLogger.LogActivity(KnownActivityLogTypes.PublicStoreAddToShoppingCart, T("ActivityLog.PublicStore.AddToShoppingCart"), product.Name);
 
             if (_shoppingCartSettings.DisplayCartAfterAddingProduct || forceRedirection)
             {

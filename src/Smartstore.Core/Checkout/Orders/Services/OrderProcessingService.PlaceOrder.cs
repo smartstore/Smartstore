@@ -16,6 +16,7 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.Orders
@@ -1044,7 +1045,7 @@ namespace Smartstore.Core.Checkout.Orders
             // Log activity.
             if (!ctx.PaymentRequest.IsRecurringPayment)
             {
-                _activityLogger.LogActivity("PublicStore.PlaceOrder", T("ActivityLog.PublicStore.PlaceOrder"), order.GetOrderNumber());
+                _activityLogger.LogActivity(KnownActivityLogTypes.PublicStorePlaceOrder, T("ActivityLog.PublicStore.PlaceOrder"), order.GetOrderNumber());
             }
 
             // Reset checkout data.

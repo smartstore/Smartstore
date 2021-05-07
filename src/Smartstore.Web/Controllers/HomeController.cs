@@ -262,7 +262,7 @@ namespace Smartstore.Web.Controllers
                 {
                     model.SuccessfullySent = true;
                     model.Result = T("ContactUs.YourEnquiryHasBeenSent");
-                    Services.ActivityLogger.LogActivity("PublicStore.ContactUs", T("ActivityLog.PublicStore.ContactUs"));
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreContactUs, T("ActivityLog.PublicStore.ContactUs"));
                 }
                 else
                 {

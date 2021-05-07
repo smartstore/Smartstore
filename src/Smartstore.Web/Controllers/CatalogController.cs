@@ -16,6 +16,7 @@ using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -217,7 +218,7 @@ namespace Smartstore.Web.Controllers
             });
 
             // Activity log.
-            Services.ActivityLogger.LogActivity("PublicStore.ViewCategory", T("ActivityLog.PublicStore.ViewCategory"), category.Name);
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreViewCategory, T("ActivityLog.PublicStore.ViewCategory"), category.Name);
 
             Services.DisplayControl.Announce(category);
 
@@ -332,7 +333,7 @@ namespace Smartstore.Web.Controllers
             });
 
             // Activity log.
-            Services.ActivityLogger.LogActivity("PublicStore.ViewManufacturer", T("ActivityLog.PublicStore.ViewManufacturer"), manufacturer.Name);
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreViewManufacturer, T("ActivityLog.PublicStore.ViewManufacturer"), manufacturer.Name);
 
             Services.DisplayControl.Announce(manufacturer);
 
@@ -601,7 +602,7 @@ namespace Smartstore.Web.Controllers
 
             _productCompareService.AddToList(id);
 
-            Services.ActivityLogger.LogActivity("PublicStore.AddToCompareList", T("ActivityLog.PublicStore.AddToCompareList"), product.Name);
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreAddToCompareList, T("ActivityLog.PublicStore.AddToCompareList"), product.Name);
 
             return RedirectToRoute("CompareProducts");
         }
@@ -630,7 +631,7 @@ namespace Smartstore.Web.Controllers
             _productCompareService.AddToList(id);
 
             //activity log
-            Services.ActivityLogger.LogActivity("PublicStore.AddToCompareList", T("ActivityLog.PublicStore.AddToCompareList"), product.Name);
+            Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreAddToCompareList, T("ActivityLog.PublicStore.AddToCompareList"), product.Name);
 
             return Json(new
             {
