@@ -1,0 +1,62 @@
+﻿@{
+    string templateName = GetMetadata<string>("TemplateName").NullEmpty();
+    string width = GetMetadata<string>("width").NullEmpty();
+    string height = GetMetadata<string>("height").NullEmpty();
+
+    var hasSize = width != null || height != null;
+    var autoHeight = height == "auto";
+    if (hasSize)
+    {
+        width = width == null ? "null" : $"'{width}'";
+        height = height == null ? "null" : $"'{height}'";
+    }
+
+    // TODO: (mh) (core) Add scripts when available.
+    //Assets.AppendScriptParts("~/bundles/codemirror");
+    //Assets.AppendCssFileParts("~/css/codemirror");
+}
+
+<script>
+    $(function () {
+		if (window.CodeMirror !== undefined) {
+            var el = $('#@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)');
+            var cm = CodeMirror.fromTextArea(el[0], {
+				mode: "liquid-html",
+				theme: "eclipse",
+				lineNumbers: true,
+				lineWrapping: false,
+                tabSize: 2,
+				smartIndent: true,
+				matchTags: true,
+				matchBrackets: true,
+				autoCloseTags: true,
+				autoCloseBrackets: true,
+                styleActiveLine: true,
+                viewportMargin: @(autoHeight ? "Infinity" : "10"),
+				extraKeys: {
+					"'.'": CodeMirror.hint.completeAfter,
+					"'<'": CodeMirror.hint.completeAfter,
+					"'/'": CodeMirror.hint.completeIfAfterLt,
+					"' '": CodeMirror.hint.completeIfAfterSpace,
+					"'='": CodeMirror.hint.completeIfInTag,
+					"Ctrl-Space": "autocomplete",
+					"F11": function (cm) { cm.setOption("fullScreen", !cm.getOption("fullScreen")); },
+					"Esc": function (cm) { if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false); }
+				},
+				hintOptions: {
+					closeCharacters: /[\s()\[\]{};:>,.|%]/,
+					completeSingle: false,
+					templateName: @Html.Raw(templateName.HasValue() ? $"'{templateName}'" : "null")
+				}
+            });
+
+            @if (hasSize)
+            {
+                <text>cm.setSize(@Html.Raw(width), @Html.Raw(height));</text>
+            }
+        }
+    });
+</script>
+
+@Html.TextArea(string.Empty, (string)ViewData.TemplateInfo.FormattedModelValue, new { @class = "form-control", style = "max-width: initial;", rows = 20 })
+

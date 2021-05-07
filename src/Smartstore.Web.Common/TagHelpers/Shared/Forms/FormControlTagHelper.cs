@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
@@ -86,7 +85,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
                 if (label.HasValue())
                 {
-                    output.PostElement.AppendHtml("<label class=\"form-check-label\" for=\"{0}\">{1}</label>".FormatInvariant(id, label));
+                    output.PostElement.AppendHtml($"<label class=\"form-check-label\" for=\"{id}\">{label}</label>");
                 }
 
                 output.PreElement.AppendHtml("<div class=\"form-check\">");

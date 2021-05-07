@@ -1,0 +1,52 @@
+﻿@functions{
+    private DateTime? Value
+    {
+        get
+        {
+            DateTime? value = null;
+            if (ViewData.Model != null)
+            {
+                value = Convert.ToDateTime(ViewData.Model, System.Globalization.CultureInfo.CurrentCulture);
+            }
+            return value;
+        }
+    }
+
+    private string CssClass
+    {
+        get
+        {
+            var cls = "input-group date datetimepicker-group";
+
+            if (ViewData.ContainsKey("size"))
+            {
+                cls += " input-group-" + ViewData["size"].Convert<string>();
+            }
+
+            return cls;
+        }
+    }
+}
+
+@{
+    var id = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var value = string.Empty;
+    if (Value.HasValue && Value.Value > DateTime.MinValue)
+    {
+        value = Value.Value.ToShortTimeString();
+    }
+}
+
+<div class="input-group date datetimepicker-group" id="@id-parent" data-date="@value" data-target-input="nearest">
+    @Html.TextBox("", value, new { @class = "form-control datetimepicker-input", data_target = "#" + id + "-parent", data_format = "LT" })
+    <div class="input-group-append input-group-addon" data-target="#@(id)-parent" data-toggle="datetimepicker">
+        <span class="input-group-text"><i class="far fa-clock"></i></span>
+    </div>
+</div>
+
+<script data-origin="Time">
+	$(function () {
+		$("#@(id)-parent").datetimepicker({ format: 'LT', useCurrent: true, locale: moment.locale() });
+	});
+</script>
+

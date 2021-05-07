@@ -1,0 +1,37 @@
+﻿@model string
+@functions{
+    private string Value
+    {
+        get
+        {
+            string value = null;
+            if (ViewData.Model != null)
+            {
+                value = Convert.ToString(ViewData.Model);
+            }
+            return value;
+        }
+    }
+
+    private List<SelectListItem> ButtonTypes
+    {
+        get
+        {
+            return new List<SelectListItem> {
+                new SelectListItem { Text = T("Common.Unspecified"), Value = string.Empty, Selected = !Value.HasValue() },
+                new SelectListItem { Text = T("Common.Buttons.Secondary").ToString(), Value = "btn-secondary", Selected = (Value == "btn-secondary") },
+                new SelectListItem { Text = T("Common.Buttons.Primary").ToString(), Value = "btn-primary", Selected = (Value == "btn-primary") },
+                new SelectListItem { Text = T("Common.Buttons.Info").ToString(), Value = "btn-info", Selected = (Value == "btn-info") },
+                new SelectListItem { Text = T("Common.Buttons.Success").ToString(), Value = "btn-success", Selected = (Value == "btn-success") },
+                new SelectListItem { Text = T("Common.Buttons.Warning").ToString(), Value = "btn-warning", Selected = (Value == "btn-warning") },
+                new SelectListItem { Text = T("Common.Buttons.Danger").ToString(), Value = "btn-danger", Selected = (Value == "btn-danger") },
+                new SelectListItem { Text = T("Common.Buttons.Link").ToString(), Value = "btn-link", Selected = (Value == "btn-link") },
+                new SelectListItem { Text = T("Common.Buttons.Light").ToString(), Value = "btn-light", Selected = (Value == "btn-light") },
+                new SelectListItem { Text = T("Common.Buttons.Dark").ToString(), Value = "btn-dark", Selected = (Value == "btn-dark") },
+            };
+        }
+    }
+}
+
+<select name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" asp-items="ButtonTypes">
+</select>

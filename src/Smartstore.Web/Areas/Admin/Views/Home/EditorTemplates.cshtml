@@ -1,0 +1,175 @@
+﻿@using Smartstore.Web.Areas.Admin.Models
+
+@model EditorTemplatesTestModel
+
+@{
+    // TODO: (mh) (core) Remove when testing is done.
+    Layout = "_AdminLayout";
+}
+
+<form asp-action="EditorTemplates">
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="BooleanNullable" sm-hint="Nullable" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.BooleanNullable)
+                <span asp-validation-for="BooleanNullable"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="BooleanNotNullable" sm-hint="Not nullable" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.BooleanNotNullable)
+                <span asp-validation-for="BooleanNotNullable"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ButtonType" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.ButtonType)
+                <span asp-validation-for="ButtonType"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Byte" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Byte, new { postfix = "test" })
+                <span asp-validation-for="Byte"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Color" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Color, new { fallbackColor = "#ccc" })
+                <span asp-validation-for="Color"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DateTime" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.DateTime)
+                <span asp-validation-for="DateTime"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Decimal" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Decimal)
+                <span asp-validation-for="Decimal"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Double" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Double)
+                <span asp-validation-for="Double"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Html" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Html)
+                <span asp-validation-for="Html"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Int" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Int)
+                <span asp-validation-for="Int"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Long" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Long)
+                <span asp-validation-for="Long"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Link" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Link)
+                <span asp-validation-for="Link"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Liquid" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Liquid)
+                <span asp-validation-for="Liquid"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Media" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Media)
+                <span asp-validation-for="Media"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="QtyInput" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model, "QtyInput", new { large = false })
+                <span asp-validation-for="QtyInput"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Range" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Range)
+                <span asp-validation-for="Range"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Time" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.Time)
+                <span asp-validation-for="Time"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                &nbsp;
+            </div>
+            <div class="adminData">
+                <button type="submit">Speichern</button>
+            </div>
+        </div>
+    </div>
+</form>

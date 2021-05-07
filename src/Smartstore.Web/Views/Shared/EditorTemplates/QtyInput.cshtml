@@ -25,7 +25,7 @@
     fixedAttributes["data-step"] = Model.QuantityStep;
 }
 
-<div class="qty-input@(Model.QuantityUnitName != null && Model.QuantityUnitName.Value.HasValue() ? " has-postfix" : "")">
+<div class="qty-input" attr-class='(Model.QuantityUnitName != null && Model.QuantityUnitName.Value.HasValue(), "has-postfix")'>
     @if (inputStyle == "spinner")
     {
         @Html.TextBoxFor(model => model.EnteredQuantity, fixedAttributes)
@@ -33,7 +33,7 @@
     else
     {
         <div sm-if="Model.AllowedQuantities != null && Model.AllowedQuantities.Count > 0" class="mf-dropdown" style="display: block">
-            <button class="btn btn-warning btn-labeled icon-right btn-block@(large ? " btn-lg" : "")">
+            <button class="btn btn-warning btn-labeled icon-right btn-block" attr-class='(large, "btn-lg")'>
                 <span data-bind="value">@Model.EnteredQuantity</span>
                 <b><i class="fas fa-caret-down"></i></b>
             </button>

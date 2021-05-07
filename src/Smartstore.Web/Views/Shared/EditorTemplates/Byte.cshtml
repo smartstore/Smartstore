@@ -1,0 +1,57 @@
+﻿@functions{
+    private byte? Value
+    {
+        get
+        {
+            byte? value = null;
+            if (ViewData.Model != null)
+            {
+                value = Convert.ToByte(ViewData.Model, System.Globalization.CultureInfo.InvariantCulture);
+            }
+            return value;
+        }
+    }
+
+    private string CssClass
+    {
+        get
+        {
+            var cls = "numerictextbox-group flex-grow-1";
+
+            if (TryGetMetadata<string>("size", out var size))
+            {
+                cls += " numerictextbox-group-" + size;
+            }
+
+            return cls;
+        }
+    }
+}
+
+<div class="@CssClass">
+    @*TODO: (mh) (core) Reimplement with taghelper once available *@
+    @*@(Html.Telerik().NumericTextBox<byte>()
+			.Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+			.EmptyMessage(GetMetadata<string>("placeholder") ?? T("Common.EnterValue"))
+            .ButtonTitleUp(T("Common.IncreaseValue"))
+            .ButtonTitleDown(T("Common.DecreaseValue"))
+			.MinValue(GetMetadata<byte?>("min") ?? 0)
+			.MaxValue(GetMetadata<byte?>("max") ?? 255)
+			.IncrementStep(GetMetadata<byte?>("step") ?? 1)
+            .DecimalDigits(0)
+			.Value(Value)
+	)*@
+
+    <input name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" 
+        value="@Value" 
+        class="form-control" 
+        type="number" 
+        min="@(GetMetadata<decimal?>("min"))"
+        max="@(GetMetadata<decimal?>("max"))"
+        step="@(GetMetadata<decimal?>("step") ?? 1)"/>
+
+    @if (TryGetMetadata<string>("postfix", out var postfix))
+    {
+        <span class="numerictextbox-postfix">@postfix</span>
+    }
+</div>

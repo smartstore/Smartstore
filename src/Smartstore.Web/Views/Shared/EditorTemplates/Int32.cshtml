@@ -1,0 +1,67 @@
+﻿@using Microsoft.AspNetCore.Routing
+
+@functions{
+    private int? Value
+    {
+        get
+        {
+            int? value = null;
+            if (ViewData.Model != null)
+            {
+                value = Convert.ToInt32(ViewData.Model, System.Globalization.CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                var htmlAttributes = new RouteValueDictionary(ViewData["htmlAttributes"] ?? new object());
+                if (htmlAttributes.TryGetValue("value", out var rawValue))
+                {
+                    value = Convert.ToInt32(rawValue, System.Globalization.CultureInfo.InvariantCulture);
+                }
+            }
+
+            return value;
+        }
+    }
+
+    private string CssClass
+    {
+        get
+        {
+            var cls = "numerictextbox-group flex-grow-1";
+
+            if (TryGetMetadata<string>("size", out var size))
+            {
+                cls += " numerictextbox-group-" + size;
+            }
+
+            return cls;
+        }
+    }
+}
+
+<div class="@CssClass">
+    @*TODO: (mh) (core) Reimplement with taghelper once available *@
+    @*@(Html.Telerik().IntegerTextBox()
+			.Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+			.EmptyMessage(GetMetadata<string>("placeholder") ?? T("Common.EnterValue"))
+            .ButtonTitleUp(T("Common.IncreaseValue"))
+            .ButtonTitleDown(T("Common.DecreaseValue"))
+			.MinValue(GetMetadata<int?>("min"))
+			.MaxValue(GetMetadata<int?>("max"))
+			.IncrementStep(GetMetadata<int?>("step") ?? 1)
+			.Value(Value)
+	)*@
+
+    <input name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" 
+        value="@Value" 
+        class="form-control" 
+        type="number" 
+        min="@(GetMetadata<decimal?>("min"))"
+        max="@(GetMetadata<decimal?>("max"))"
+        step="@(GetMetadata<decimal?>("step") ?? 1)"/>
+
+    @if (TryGetMetadata<string>("postfix", out var postfix))
+    {
+        <span class="numerictextbox-postfix">@postfix</span>
+    }
+</div>
