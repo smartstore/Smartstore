@@ -1,5 +1,6 @@
 ﻿@using Smartstore.Web.Areas.Admin.Models
-
+@using Smartstore.Core.Catalog.Discounts
+ 
 @model EditorTemplatesTestModel
 
 @{
@@ -8,7 +9,50 @@
 }
 
 <form asp-action="EditorTemplates">
+
     <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SelectedDiscountIds" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.SelectedDiscountIds, new { multiple = true, discountType = DiscountType.AssignedToSkus })
+                <span asp-validation-for="SelectedDiscountIds"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DeliveryTimeId" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.DeliveryTimeId)
+                <span asp-validation-for="DeliveryTimeId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SelectedCustomerRoleIds" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.SelectedCustomerRoleIds, new { multiple = true })
+                <span asp-validation-for="SelectedCustomerRoleIds"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PermissionNames" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.PermissionNames)
+                <span asp-validation-for="PermissionNames"></span>
+            </div>
+        </div>
+    </div>
+
+    @Html.EditorFor(model => model.Address)
+
+    <div class="adminContent">
+        <hr />
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="BooleanNullable" sm-hint="Nullable" />

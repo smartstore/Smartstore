@@ -1,0 +1,59 @@
+﻿@using System.Globalization
+@using Smartstore
+@using Smartstore.Utilities
+
+@functions
+{
+    private string Value
+    {
+        get
+        {
+            if (ViewData.Model != null)
+            {
+                // Be careful with the conversion here because it's very vulnerable to errors.
+                if (ViewData.Model is int[])
+                {
+                    return string.Join(",", ViewData.Model);
+                }
+
+                if (CommonHelper.TryConvert(ViewData.Model, typeof(string), CultureInfo.InvariantCulture, out object obj) && obj != null)
+                {
+                    return obj.ToString();
+                }
+            }
+
+            return null;
+        }
+    }
+}
+
+@{
+    var id = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var strValue = Value;
+
+    var attributes = new AttributeDictionary();
+    var htmlAttributes = CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object());
+    foreach (var attr in htmlAttributes)
+    {
+        attributes.Add(attr.Key, attr.Value.ToString());
+    }
+
+    attributes["data-select-url"] = Url.Action("AllAccessPermissions", "Security", new { selected = strValue, area = "admin" });
+    attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
+
+    if (!attributes.ContainsKey("data-placeholder"))
+    {
+        attributes["data-placeholder"] = T("Common.Unspecified");
+    }
+    if (!attributes.ContainsKey("multiple"))
+    {
+        attributes["multiple"] = "multiple";
+    }
+}
+<select id="@id" name="@id" class="form-control" attrs="attributes"></select>
+<script>
+    // TODO: (mh) (core) Implement initialization in javascript factory analog to ApplyCommonPlugins.
+    $(function () {
+        $('#@id').selectWrapper();
+    });
+</script>
