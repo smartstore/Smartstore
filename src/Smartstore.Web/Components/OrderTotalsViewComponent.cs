@@ -193,7 +193,7 @@ namespace Smartstore.Web.Components
                 RedeemedRewardPoints = 10,
                 RedeemedRewardPointsAmount = new(10, currency),
                 CreditBalance = new(decimal.Zero, currency),
-                AppliedGiftCards = new() { new() { GiftCard = (await _db.GiftCards.FirstOrDefaultAsync()) ?? new(), UsableAmount = new(50m, _currencyService.PrimaryCurrency) } },
+                AppliedGiftCards = new() { new() { GiftCard = (await _db.GiftCards.Include(x=>x.GiftCardUsageHistory).FirstOrDefaultAsync()) ?? new(), UsableAmount = new(50m, _currencyService.PrimaryCurrency) } },
                 ConvertedAmount = new ShoppingCartTotal.ConvertedAmounts
                 {
                     Total = new(decimal.Zero, currency),
