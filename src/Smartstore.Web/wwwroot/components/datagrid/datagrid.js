@@ -26,7 +26,7 @@ Vue.component("sm-data-grid", {
                                 </div>
                             </th>
                             <th>
-                                <div class="dg-cell dg-cell-header dg-cell-spacer"></div>
+                                <div class="dg-cell dg-cell-header dg-cell-spacer">&nbsp;</div>
                             </th>
                         </tr>
                     </thead>
@@ -163,7 +163,6 @@ Vue.component("sm-data-grid", {
                             case "float":
                             case "boolean":
                             case "date":
-                            case "timespan":
                                 w = "auto";
                                 break;
                             default:
