@@ -14,6 +14,10 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
+            // TODO: (mh) (core) This is not how model expressions work. "value" is just the value,
+            // but where is the name/id of the control? You can't just pass null to HtmlHelper.TextBox(),
+            // you need a name. TBD with MC. Also: expecting an attribute named "value" without declaring a public property
+            // for it in this class is really BAD API design!
             string value;
             if (output.Attributes.TryGetAttribute("value", out var valueAttribute))
             {
