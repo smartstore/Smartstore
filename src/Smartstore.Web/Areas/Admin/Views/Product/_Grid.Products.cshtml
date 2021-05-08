@@ -1,21 +1,32 @@
 ﻿@model ProductModel
 
-<datagrid id="products-grid" border-style="Borderless" striped="false" hover="true" allow-resize="true">
+@{ 
+    var displayProductPictures = GetMetadata<bool>("DisplayProductPictures");
+    var isSingleStoreMode = GetMetadata<bool>("IsSingleStoreMode");
+    var gridPageSize = GetMetadata<int>("GridPageSize");
+}
+
+<datagrid id="products-grid" border-style="Grid" striped="false" hover="true" allow-resize="true" allow-row-selection="true">
     <datasource read="@Url.Action("ProductList")" />
-    <pageable />
+    <paging position="Both" page-size="@gridPageSize" page-index="1" show-size-chooser="true" available-sizes="new[] { 25, 100, 250 }" />
+    <sorting allow-unsort="true" allow-multisort="false"></sorting>
     <columns>
-        <column for="PictureThumbnailUrl"
-                title=""
-                width="50px"
-                visible="true"
-                resizable="false">
-            <display-template>
-                <!-- TODO: (core) zoomable-thumb won't work in our new data grid. Fix it. -->
-                <div class="x-zoomable-thumb-container d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; padding: 8px; left: 0; top: 0;">
-                    <img :alt="cell.row.Id" :src="cell.value" style="max-width: 42px; max-height: 32px" :class="{ 'x-zoomable-thumb': !cell.row.NoThumb }" />
-                </div>
-            </display-template>
-        </column>
+        @if (displayProductPictures)
+        {
+            <column for="PictureThumbnailUrl"
+                    title=""
+                    width="50px"
+                    sortable="false"
+                    visible="true"
+                    resizable="false">
+                <display-template>
+                    <!-- TODO: (core) zoomable-thumb won't work in our new data grid. Fix it. -->
+                    <div class="x-zoomable-thumb-container d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; padding: 8px; left: 0; top: 0;">
+                        <img :alt="cell.row.Id" :src="cell.value" style="max-width: 42px; max-height: 32px" :class="{ 'x-zoomable-thumb': !cell.row.NoThumb }" />
+                    </div>
+                </display-template>
+            </column>
+        }
         @*<column for="AdminComment" width="200px">
             <display-template>
                 <input type="text" class="form-control form-control" />
@@ -24,19 +35,20 @@
         <column for="Name" width="3fr" />
         <column for="Sku" width="0.5fr" />
         <column for="Price"
-                justify="FlexJustifyContent.FlexEnd" />
-        <column for="StockQuantity"
-                justify="FlexJustifyContent.Center">
+                halign="flex-end" />
+        <column for="StockQuantity" sortable="true"
+                halign="center">
             @*<display-template>
                 {{ formatNumber(cell.value) }}
             </display-template>*@
         </column>
         <column for="LimitedToStores"
-                justify="FlexJustifyContent.Center" />
-        <column for="CreatedOn" />
-        <column for="UpdatedOn" />
-        <column for="Published" 
-                justify="FlexJustifyContent.Center" />
+                visible="!isSingleStoreMode"
+                halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" />
+        <column for="Published" width="1000px"
+                halign="center" />
     </columns>
 </datagrid>
 

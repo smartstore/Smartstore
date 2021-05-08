@@ -1,27 +1,46 @@
 ﻿const DATAGRID_CELL_MIN_WIDTH = 60;
 
+// https://dev.to/loilo92/an-approach-to-vuejs-template-variables-5aik
+// TODO: (core) Move Vue.pass component to a central location.
+Vue.component("pass", {
+    render() {
+        return this.$scopedSlots.default(this.$attrs);
+    }
+});
+
 Vue.component("sm-data-grid", {
     template: `
         <div class="datagrid">
-            <div class="dg-pager-wrapper border-bottom">
+            <div v-if="paging.enabled && (paging.position === 'top' || paging.position === 'both')" class="dg-pager-wrapper border-bottom">
                 <sm-data-grid-pager :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
             </div>
             <div class="dg-table-wrapper">
                 <table ref="table"
                     :class="getTableClass()"
                     :style="getTableStyles()">
-                    <thead class="dg-head">
+                    <thead v-if="!options.hideHeader" class="dg-head">
                         <tr>
+                            <th v-if="options.allowRowSelection" class="dg-col-pinned dg-col-pinned-left">
+                                <div class="dg-cell dg-cell-header dg-cell-selector">
+                                    <span class="dg-cell-value"><input type="checkbox" /></span>
+                                </div>
+                            </th>            
+                
                             <th v-for="(column, columnIndex) in columns"
                                 :data-member="column.member"
                                 :data-index="columnIndex"
                                 ref="column">
-                                <div class="dg-cell dg-cell-header" :style="getCellStyles(column, true)">
+                                <div class="dg-cell dg-cell-header" 
+                                    :style="getCellStyles(column, true)" 
+                                    :class="{ 'dg-sortable': sorting.enabled && column.sortable }"
+                                    @click="onSort($event, column)">
                                     <span class="dg-cell-value">{{ column.title }}</span>
+                                    <i v-if="isSortedAsc(column)" class="fa fa-fw fa-sm fa-arrow-up mx-1"></i>
+                                    <i v-if="isSortedDesc(column)" class="fa fa-fw fa-sm fa-arrow-down mx-1"></i>
                                 </div>
-                                <div v-if="column.resizable" 
+                                <div v-if="options.allowResize && column.resizable" 
                                     class="dg-resize-handle" 
-                                    @mousedown="onStartResize($event, column, columnIndex)"
+                                    @mousedown.stop.prevent="onStartResize($event, column, columnIndex)"
                                     @dblclick.stop.prevent="autoSizeColumn($event, column, columnIndex)">
                                 </div>
                             </th>
@@ -31,10 +50,16 @@ Vue.component("sm-data-grid", {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(row, rowIndex) in rows" :key="row.Id">
+                        <tr v-for="(row, rowIndex) in rows" :key="row[options.keyMemberName]">
+                             <td v-if="options.allowRowSelection" class="dg-col-pinned dg-col-pinned-left">
+                                <div class="dg-cell dg-cell-selector">
+                                    <span class="dg-cell-value"><input type="checkbox" /></span>
+                                </div>
+                            </td>             
+
                             <td v-for="(column, columnIndex) in columns"
                                 :data-index="columnIndex"
-                                :key="row.Id + '-' + columnIndex">
+                                :key="row[options.keyMemberName] + '-' + columnIndex">
                                 <div class="dg-cell" :class="getCellClass(column)" :style="getCellStyles(column, false)">
                                     <slot :name="'display-' + column.member.toLowerCase()" v-bind="{ row, rowIndex, column, columnIndex, value: row[column.member] }">
                                         <span class="dg-cell-value">
@@ -55,12 +80,19 @@ Vue.component("sm-data-grid", {
                     </tbody>
                 </table>
             </div>
-            <div class="dg-pager-wrapper border-top">
+            <div v-if="paging.enabled && (paging.position === 'bottom' || paging.position === 'both')" class="dg-pager-wrapper border-top">
                 <sm-data-grid-pager :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
             </div>
         </div>
     `,
+
     props: {
+        options: {
+            type: Object,
+            required: false,
+            default: {}
+        },
+
         dataSource: {
             type: Object,
             required: true
@@ -71,32 +103,40 @@ Vue.component("sm-data-grid", {
             required: true
         },
 
-        command: {
-            type: Object,
-            required: false
-        },
-
-        options: {
+        paging: {
             type: Object,
             required: false,
-            default: {}
-        }
-    },
-    created: function () {
+            default: { enabled: false, pageIndex: 1, pageSize: 25, position: "bottom" }
+        },
 
+        sorting: {
+            type: Object,
+            required: false,
+            default: { enabled: false, descriptors: [] }
+        },
     },
+
+    created: function () {
+        this.command = this.buildCommand();
+    },
+
     mounted: function () {
         this.read();
     },
+
     data: function () {
         return {
+            command: {},
             rows: [],
             total: 0,
-            aggregates: []
+            aggregates: [],
+            isLoading: false
         }
     },
+
     computed: {
     },
+
     watch: {
         command: {
             handler: function () {
@@ -105,7 +145,20 @@ Vue.component("sm-data-grid", {
             deep: true
         }
     },
+
     methods: {
+        buildCommand() {
+            var p = this.paging;
+            var s = this.sorting;
+            var command = {
+                page: p.pageIndex,
+                pageSize: p.pageSize,
+                sorting: s.descriptors
+            };
+
+            return command;
+        },
+
         getTableClass() {
             const cssClass = {
                 'dg-table': true,
@@ -129,12 +182,12 @@ Vue.component("sm-data-grid", {
         getCellStyles(column, isHeader) {
             const style = {};
 
-            if (column.align && !isHeader) {
-                style.alignItems = column.align;
+            if (column.halign) {
+                style.justifyContent = column.halign;
             }
 
-            if (column.justify) {
-                style.justifyContent = column.justify;
+            if (column.valign && !isHeader) {
+                style.alignItems = column.valign;
             }
 
             //if (column.flow) {
@@ -176,6 +229,10 @@ Vue.component("sm-data-grid", {
                 })
                 .join(' ');
 
+            if (this.options.allowRowSelection) {
+                result = "50px " + result;
+            }
+
             // Spacer always 'auto' to fill remaining area
             result += " " + (hasFraction ? "0" : "auto");
 
@@ -202,7 +259,11 @@ Vue.component("sm-data-grid", {
         },
 
         read() {
+            if (this.isLoading)
+                return;
+
             var self = this;
+            self.isLoading = true;
 
             const input = document.querySelector('input[name=__RequestVerificationToken]');
             const command = $.extend(true, { __RequestVerificationToken: input.value }, this.command);
@@ -217,6 +278,9 @@ Vue.component("sm-data-grid", {
                     self.rows = result.rows !== undefined ? result.rows : result;
                     self.total = result.total || self.rows.length;
                     self.aggregates = result.aggregates !== undefined ? result.aggregates : [];
+                },
+                complete() {
+                    self.isLoading = false;
                 }
             });
 
@@ -231,6 +295,67 @@ Vue.component("sm-data-grid", {
             //})
             //.then(r => r.json())
             //.then(data => { this.rows = data; });
+        },
+
+        isSortedAsc(column) {
+            var sort = this.getSortDescriptor(column);
+            return sort && !sort.descending;
+        },
+
+        isSortedDesc(column) {
+            var sort = this.getSortDescriptor(column);
+            return sort && sort.descending;
+        },
+
+        getSortDescriptor(column) {
+            return this.sorting.enabled
+                ? this.command.sorting.find(x => x.member === column.entityMember || x.member === column.member)
+                : null;
+        },
+
+        onSort(e, column) {
+            if (!this.sorting.enabled || !column.sortable || this.isLoading)
+                return;
+
+            var descriptor = this.getSortDescriptor(column);
+            var multiMode = this.sorting.allowMultiSort && e.ctrlKey;
+
+            //if (!multiMode) {
+            //    console.log("Deleting sort command array");
+            //    this.command.sorting.length = 0;
+            //}
+
+            if (descriptor) {
+                if (this.sorting.allowUnsort && descriptor.descending) {
+                    this.command.sorting = this.command.sorting.filter(x => x != descriptor);
+                    descriptor = null;
+                }
+                else {
+                    descriptor.descending = !descriptor.descending;
+                }
+            }
+            else {
+                //if (!this.sorting.allowMultiSort || !e.ctrlKey) {
+                //    console.log("Deleting array");
+                //    this.command.sorting.length = 0;
+                //}
+                descriptor = { member: column.entityMember || column.member, descending: false };
+                this.command.sorting.push(descriptor);
+            }
+
+            if (descriptor && !multiMode) {
+                this.command.sorting = this.command.sorting.filter(x => x === descriptor);
+            }
+
+            console.log(this.command.sorting);
+
+            //if (!sort) {
+            //    sort = { member: column.entityMember || column.member, descending: false };
+            //    this.command.sorting.push(sort);
+            //}
+            //else {
+            //    sort.descending = !sort.descending;
+            //}
         },
 
         onStartResize(e, column, columnIndex) {

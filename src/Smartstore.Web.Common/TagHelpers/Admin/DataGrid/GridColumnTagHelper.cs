@@ -11,25 +11,27 @@ namespace Smartstore.Web.TagHelpers.Admin
 {
     [HtmlTargetElement("column", Attributes = ForAttributeName, ParentTag = "columns")]
     [RestrictChildren("display-template", "edit-template")]
-    public class ColumnTagHelper : SmartTagHelper
+    public class GridColumnTagHelper : TagHelper
     {
         const string ForAttributeName = "for";
         const string TitleAttributeName = "title";
         const string WidthAttributeName = "width";
         const string VisibleAttributeName = "visible";
         const string FlowAttributeName = "flow";
-        const string AlignAttributeName = "align-items";
-        const string JustifyAttributeName = "justify";
+        const string HAlignAttributeName = "halign";
+        const string VAlignAttributeName = "valign";
         const string TypeAttributeName = "type";
         const string FormatAttributeName = "format";
         const string ResizableAttributeName = "resizable";
+        const string SortableAttributeName = "sortable";
         const string NowrapAttributeName = "nowrap";
+        const string EntityMemberAttributeName = "entity-member";
 
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
-            context.Items[nameof(ColumnTagHelper)] = this;
-            if (context.Items.TryGetValue(nameof(DataGridTagHelper), out var obj) && obj is DataGridTagHelper parent)
+            context.Items[nameof(GridColumnTagHelper)] = this;
+            if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
             {
                 parent.Columns.Add(this);
             }
@@ -66,16 +68,18 @@ namespace Smartstore.Web.TagHelpers.Admin
         //public FlexFlow? Flow { get; set; }
 
         /// <summary>
-        /// Vertical alignment of cell content. Default: <see cref="FlexAlignItems.Center"/>.
+        /// Horizontal alignment of cell content. Any <c>justify-content</c> value is valid:
+        /// flex-start (default) | center | flex-end | space-around | space-between | space-evenly | stretch
         /// </summary>
-        [HtmlAttributeName(AlignAttributeName)]
-        public FlexAlignItems? AlignItems { get; set; }
+        [HtmlAttributeName(HAlignAttributeName)]
+        public string HAlign { get; set; }
 
         /// <summary>
-        /// Horizontal alignment of cell content. Default: <see cref="FlexJustifyContent.FlexStart"/>.
+        /// Vertical alignment of cell content. Any <c>align-items</c> value is valid:
+        /// flex-start | center (default) | flex-end | baseline | stretch
         /// </summary>
-        [HtmlAttributeName(JustifyAttributeName)]
-        public FlexJustifyContent? JustifyContent { get; set; }
+        [HtmlAttributeName(VAlignAttributeName)]
+        public string VAlign { get; set; }
 
         /// <summary>
         /// Column display render type. Leave empty to auto-resolve based on model expression.
@@ -96,10 +100,23 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool Resizable { get; set; } = true;
 
         /// <summary>
+        /// Allows sorting of column, but only if sorting is enabled on grid level. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(SortableAttributeName)]
+        public bool Sortable { get; set; } = true;
+
+        /// <summary>
         /// Prevents cell content wrapping. Default: <c>true</c>.
         /// </summary>
         [HtmlAttributeName(NowrapAttributeName)]
         public bool Nowrap { get; set; } = true;
+
+        /// <summary>
+        /// The entity member/property name. Use this if the corresponding
+        /// entity member name differs, e.g. 'CreatedOn' --> 'CreatedOnUtc'.
+        /// </summary>
+        [HtmlAttributeName(EntityMemberAttributeName)]
+        public string EntityMember { get; set; }
 
         [HtmlAttributeNotBound]
         public TagHelperContent DisplayTemplate { get; set; }
@@ -119,14 +136,11 @@ namespace Smartstore.Web.TagHelpers.Admin
             get => MemberName.ToLowerInvariant();
         }
 
-        protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
+        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
             await output.GetChildContentAsync();
             output.SuppressOutput();
         }
-
-        protected override string GenerateTagId(TagHelperContext context)
-            => null;
     }
 
     /// <summary>
@@ -145,7 +159,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     {
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            if (context.Items.TryGetValue(nameof(ColumnTagHelper), out var obj) && obj is ColumnTagHelper column)
+            if (context.Items.TryGetValue(nameof(GridColumnTagHelper), out var obj) && obj is GridColumnTagHelper column)
             {
                 column.DisplayTemplate = new DefaultTagHelperContent();
                 (await output.GetChildContentAsync()).CopyTo(column.DisplayTemplate);
@@ -158,7 +172,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     {
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            if (context.Items.TryGetValue(nameof(ColumnTagHelper), out var obj) && obj is ColumnTagHelper column)
+            if (context.Items.TryGetValue(nameof(GridColumnTagHelper), out var obj) && obj is GridColumnTagHelper column)
             {
                 //column.EditTemplate = await output.GetChildContentAsync();
                 column.EditTemplate = new DefaultTagHelperContent();

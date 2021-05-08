@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace Smartstore.Web.TagHelpers.Admin
 {
     [HtmlTargetElement("datasource", ParentTag = "datagrid", Attributes = "read", TagStructure = TagStructure.WithoutEndTag)]
-    public class DataSourceTagHelper : SmartTagHelper
+    public class GridDataSourceTagHelper : TagHelper
     {
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
-            if (context.Items.TryGetValue(nameof(DataGridTagHelper), out var obj) && obj is DataGridTagHelper parent)
+            if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
             {
                 parent.DataSource = this;
             }
@@ -35,10 +35,9 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         public string Delete { get; set; }
 
-        protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
-            => output.SuppressOutput();
-
-        protected override string GenerateTagId(TagHelperContext context)
-            => null;
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            output.SuppressOutput();
+        }
     }
 }

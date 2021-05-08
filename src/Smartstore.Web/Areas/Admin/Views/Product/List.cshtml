@@ -47,4 +47,11 @@
     @* TODO: (core) Port search form here *@
 </form>
 
-<partial name="_Grid.Products" model="null" />
+@{ 
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["DisplayProductPictures"] = Model.DisplayProductPictures;
+    gridViewData["IsSingleStoreMode"] = Model.IsSingleStoreMode;
+    gridViewData["GridPageSize"] = Model.GridPageSize;
+}
+
+<partial name="_Grid.Products" model="null" view-data="gridViewData" />

@@ -33,14 +33,7 @@
   background-color: var(--dg-border-color);
   display: grid;
   column-gap: 0;
-  row-gap: 1px;
-  outline: 1px solid #dee2e6;
-  /*th:first-child,
-    td:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 5;
-    }*/ }
+  row-gap: 1px; }
   .dg-table thead,
   .dg-table tbody,
   .dg-table tr {
@@ -95,6 +88,14 @@
   overflow: hidden;
   text-overflow: ellipsis; }
 
+.dg-table:not(.dg-resizing) .dg-sortable {
+  cursor: pointer;
+  transition: background-color 0.1s ease-in-out; }
+  .dg-table:not(.dg-resizing) .dg-sortable:hover {
+    background-color: rgba(0, 0, 0, 0.035); }
+  .dg-table:not(.dg-resizing) .dg-sortable:active {
+    background-color: rgba(0, 0, 0, 0.075); }
+
 .dg-resize-handle {
   position: absolute;
   display: block;
@@ -119,6 +120,18 @@
   .dg-resizing .dg-resize-handle {
     opacity: 1 !important; }
 
+.dg-col-pinned {
+  position: sticky !important;
+  z-index: 5; }
+  .dg-col-pinned.dg-col-pinned-left {
+    left: 0; }
+  .dg-col-pinned.dg-col-pinned-right {
+    right: 0; }
+
+.dg-cell-selector {
+  align-items: center;
+  justify-content: center; }
+
 .dg-pager-top {
   border-bottom: 1px solid #dee2e6; }
 
@@ -140,7 +153,11 @@ a.dg-page {
     opacity: 0.4; }
 
 .dg-page-refresh {
-  border-right: 1px solid #dee2e6; }
+  border-right: 1px solid #dee2e6;
+  width: 51px;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0; }
 
 .dg-page-arrow {
   padding-left: 6px;

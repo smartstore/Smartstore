@@ -48,7 +48,6 @@ $hover: darken(#f2f7fb, 0.5%);
     display: grid;
     column-gap: 0;
     row-gap: 1px;
-    outline: 1px solid $border;
 
     thead,
     tbody,
@@ -93,12 +92,6 @@ $hover: darken(#f2f7fb, 0.5%);
     &.dg-resizing {
         cursor: ew-resize;
     }
-    /*th:first-child,
-    td:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 5;
-    }*/
 }
 
 .dg-striped {
@@ -141,6 +134,27 @@ $hover: darken(#f2f7fb, 0.5%);
     text-overflow: ellipsis;
 }
 
+
+// Sorting
+// -----------------------------------------
+
+.dg-table:not(.dg-resizing) .dg-sortable {
+    cursor: pointer;
+    transition: background-color 0.1s ease-in-out;
+
+    &:hover {
+        background-color: rgba(#000, 0.035);
+    }
+
+    &:active {
+        background-color: rgba(#000, 0.075);
+    }
+}
+
+
+// Resizing
+// -----------------------------------------
+
 .dg-resize-handle {
     position: absolute;
     display: block;
@@ -171,6 +185,34 @@ $hover: darken(#f2f7fb, 0.5%);
         opacity: 1 !important;
     }
 }
+
+// Pinned columns
+// -----------------------------------------
+
+.dg-col-pinned {
+    position: sticky !important;
+    z-index: 5;
+
+    &.dg-col-pinned-left {
+        left: 0;
+    }
+
+    &.dg-col-pinned-right {
+        right: 0;
+    }
+}
+
+// Row selection
+// -----------------------------------------
+
+.dg-cell-selector {
+    align-items: center;
+    justify-content: center;
+}
+
+
+// Paging
+// -----------------------------------------
 
 .dg-pager-top {
     border-bottom: 1px solid $border;
@@ -204,6 +246,10 @@ a.dg-page {
 
 .dg-page-refresh {
     border-right: 1px solid $border;
+    width: 51px;
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .dg-page-arrow {

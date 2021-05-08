@@ -19,7 +19,6 @@
 
 <datagrid id="productattributes-grid">
     <datasource read="@Url.Action("List")" />
-    <pageable />
     <columns>
         <column for="Name">
             <display-template>
@@ -28,8 +27,8 @@
             </display-template>
         </column>
         <column for="Alias" />
-        <column for="AllowFiltering" justify="FlexJustifyContent.Center" />
-        <column for="DisplayOrder" justify="FlexJustifyContent.Center" />
+        <column for="AllowFiltering" halign="center" />
+        <column for="DisplayOrder" halign="center" />
     </columns>
 </datagrid>
 

@@ -7,24 +7,21 @@ namespace Smartstore.Web.TagHelpers.Admin
 {
     [HtmlTargetElement("columns", ParentTag = "datagrid")]
     [RestrictChildren("column")]
-    public class ColumnsTagHelper : SmartTagHelper
+    public class GridColumnsTagHelper : TagHelper
     {
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
-            if (context.Items.TryGetValue(nameof(DataGridTagHelper), out var obj) && obj is DataGridTagHelper parent)
+            if (context.Items.TryGetValue(nameof(GridTagHelper), out var obj) && obj is GridTagHelper parent)
             {
-                parent.Columns = new List<ColumnTagHelper>();
+                parent.Columns = new List<GridColumnTagHelper>();
             }
         }
 
-        protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
+        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
             await output.GetChildContentAsync();
             output.SuppressOutput();
         }
-
-        protected override string GenerateTagId(TagHelperContext context)
-            => null;
     }
 }

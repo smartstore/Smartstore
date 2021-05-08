@@ -7,6 +7,15 @@ using Newtonsoft.Json;
 
 namespace Smartstore.Web.Modelling.DataGrid
 {
+    public class SortDescriptor
+    {
+        [JsonProperty("member")]
+        public string Member { get; set; }
+
+        [JsonProperty("descending")]
+        public bool Descending { get; set; }
+    }
+    
     public class GridCommand
     {
         [JsonProperty("page")]
@@ -15,8 +24,8 @@ namespace Smartstore.Web.Modelling.DataGrid
         [JsonProperty("pageSize")]
         public int PageSize { get; set; } = 25;
 
-        [JsonProperty("sort")]
-        public List<object> Sort { get; } = new();
+        [JsonProperty("sorting")]
+        public List<SortDescriptor> Sorting { get; } = new();
 
         [JsonProperty("filters")]
         public List<object> Filters { get; } = new();

@@ -20,6 +20,8 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*ID")]
         public override int Id { get; set; }
 
+        public string EditUrl { get; set; }
+
         [LocalizedDisplay("*PictureThumbnailUrl")]
         public string PictureThumbnailUrl { get; set; }
         public bool NoThumb { get; set; }

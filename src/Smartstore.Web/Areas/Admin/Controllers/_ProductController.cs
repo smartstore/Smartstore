@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -245,22 +246,21 @@ namespace Smartstore.Admin.Controllers
             {
                 searchQuery = searchQuery.Slice((command.Page - 1) * command.PageSize, command.PageSize);
 
-                if (command.Sort?.Any() ?? false)
+                var sort = command.Sorting?.FirstOrDefault();
+                if (sort != null)
                 {
-                    // TODO: (core) Apply sorting to search query
-                    //var sort = command.Sort.First();
-                    //switch (sort.Member)
-                    //{
-                    //    case "Name":
-                    //        searchQuery = searchQuery.SortBy(sort.SortDirection == ListSortDirection.Ascending ? ProductSortingEnum.NameAsc : ProductSortingEnum.NameDesc);
-                    //        break;
-                    //    case "Price":
-                    //        searchQuery = searchQuery.SortBy(sort.SortDirection == ListSortDirection.Ascending ? ProductSortingEnum.PriceAsc : ProductSortingEnum.PriceDesc);
-                    //        break;
-                    //    case "CreatedOn":
-                    //        searchQuery = searchQuery.SortBy(sort.SortDirection == ListSortDirection.Ascending ? ProductSortingEnum.CreatedOnAsc : ProductSortingEnum.CreatedOn);
-                    //        break;
-                    //}
+                    switch (sort.Member)
+                    {
+                        case nameof(ProductModel.Name):
+                            searchQuery = searchQuery.SortBy(sort.Descending ? ProductSortingEnum.NameDesc : ProductSortingEnum.NameAsc);
+                            break;
+                        case nameof(ProductModel.Price):
+                            searchQuery = searchQuery.SortBy(sort.Descending ? ProductSortingEnum.PriceDesc : ProductSortingEnum.PriceAsc);
+                            break;
+                        case nameof(ProductModel.CreatedOn):
+                            searchQuery = searchQuery.SortBy(sort.Descending ? ProductSortingEnum.CreatedOn : ProductSortingEnum.CreatedOnAsc);
+                            break;
+                    }
                 }
 
                 if (!searchQuery.Sorting.Any())
@@ -273,11 +273,11 @@ namespace Smartstore.Admin.Controllers
             }
             else
             {
-                var query = _catalogSearchService.PrepareQuery(searchQuery);
-                //// TODO: (core) Apply sorting to search query
-                //query = ApplySorting(query, command);
+                var query = _catalogSearchService
+                    .PrepareQuery(searchQuery)
+                    .ApplyGridCommand(command, false);
 
-                products = new PagedList<Product>(query, command.Page - 1, command.PageSize);
+                products = await new PagedList<Product>(query, command.Page - 1, command.PageSize).LoadAsync();
             }
 
             var fileIds = products.AsEnumerable()
@@ -299,7 +299,8 @@ namespace Smartstore.Admin.Controllers
                     Id = x.Id,
                     StockQuantity = x.StockQuantity,
                     Price = x.Price,
-                    LimitedToStores = x.LimitedToStores
+                    LimitedToStores = x.LimitedToStores,
+                    EditUrl = Url.Action("Edit", "Product", new { id = x.Id })
                 };
 
                 //MiniMapper.Map(x, productModel);
@@ -317,7 +318,7 @@ namespace Smartstore.Admin.Controllers
                 return productModel;
             });
 
-            gridModel.Total = await products.GetTotalCountAsync();
+            gridModel.Total = products.TotalCount;
 
             return Json(gridModel);
         }
