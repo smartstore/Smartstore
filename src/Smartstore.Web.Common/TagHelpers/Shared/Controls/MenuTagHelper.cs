@@ -1,11 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Widgets;
-using Smartstore.Web.Rendering.Menus;
-
 namespace Smartstore.Web.TagHelpers.Shared
 {
     [HtmlTargetElement("menu", Attributes = NameAttributeName, TagStructure = TagStructure.WithoutEndTag)]

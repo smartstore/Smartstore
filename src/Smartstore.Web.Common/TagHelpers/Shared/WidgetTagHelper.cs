@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Widgets;
 
@@ -56,12 +54,6 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 output.SuppressOutput();
                 return;
-            }
-
-            if (output.Attributes.ContainsName("data-origin"))
-            {
-                var origin = output.Attributes["data-origin"];
-                var x = origin;
             }
 
             if (Key.HasValue() && _widgetProvider.ContainsWidget(TargetZone, Key))
