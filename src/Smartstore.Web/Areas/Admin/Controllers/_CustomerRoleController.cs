@@ -18,7 +18,6 @@ using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Controllers
 {
-    //[AdminAuthorize]
     public class CustomerRoleController : AdminControllerBase
     {
         private readonly SmartDbContext _db;

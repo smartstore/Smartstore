@@ -11,6 +11,17 @@
 <form asp-action="EditorTemplates">
 
     <div class="adminContent">
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DownloadId" />
+            </div>
+            <div class="adminData">
+                @Html.EditorFor(model => model.DownloadId)
+                <span asp-validation-for="DownloadId"></span>
+            </div>
+        </div>
+
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="SelectedDiscountIds" />
@@ -49,7 +60,7 @@
         </div>
     </div>
 
-    @Html.EditorFor(model => model.Address)
+    @*@Html.EditorFor(model => model.Address)*@
 
     <div class="adminContent">
         <hr />

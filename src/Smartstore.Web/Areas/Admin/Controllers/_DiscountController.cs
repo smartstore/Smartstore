@@ -7,14 +7,12 @@ using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Discounts;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Controllers
 {
-    //[AdminAuthorize]
     public class DiscountController : AdminControllerBase
     {
         private readonly SmartDbContext _db;
