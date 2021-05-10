@@ -4,6 +4,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
@@ -72,7 +73,17 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="product">Product entity.</param>
         /// <param name="price">The calculated product price.</param>
         /// <param name="targetCurrency">The currency to be used for the formatting. Obtained from <see cref="IWorkContext.WorkingCurrency"/> if <c>null</c>.</param>
+        /// <param name="language">The language to be used for the formatting. Obtained from <see cref="IWorkContext.WorkingLanguage"/> if <c>null</c>.</param>
+        /// <param name="includePackageContentPerUnit">
+        /// A value indicating whether to include the package content per unit information in the base price info.
+        /// <c>false</c> provides a simple, language-neutral base price information, e.g. "24,90 € / 100 g".
+        /// </param>
         /// <returns>The base price info.</returns>
-        string GetBasePriceInfo(Product product, Money price, Currency targetCurrency = null);
+        string GetBasePriceInfo(
+            Product product, 
+            Money price, 
+            Currency targetCurrency = null,
+            Language language = null,
+            bool includePackageContentPerUnit = true);
     }
 }

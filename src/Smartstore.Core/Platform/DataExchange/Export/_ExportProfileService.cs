@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
@@ -171,13 +170,8 @@ namespace Smartstore.Core.DataExchange.Export
                         ShoppingCartTypeId = (int)ShoppingCartType.ShoppingCart
                     };
 
-                    using var writer1 = new StringWriter();
-                    new XmlSerializer(typeof(ExportProjection)).Serialize(writer1, projection);
-                    profile.Projection = writer1.ToString();
-
-                    using var writer2 = new StringWriter();
-                    new XmlSerializer(typeof(ExportFilter)).Serialize(writer2, projection);
-                    profile.Filtering = writer2.ToString();
+                    profile.Projection = XmlHelper.Serialize(projection);
+                    profile.Filtering = XmlHelper.Serialize(filter);
                 }
             }
             else

@@ -234,7 +234,12 @@ namespace Smartstore.Core.Catalog.Pricing
             return new(productCost, _primaryCurrency);
         }
 
-        public virtual string GetBasePriceInfo(Product product, Money price, Currency targetCurrency = null)
+        public virtual string GetBasePriceInfo(
+            Product product,
+            Money price,
+            Currency targetCurrency = null,
+            Language language = null,
+            bool includePackageContentPerUnit = true)
         {
             Guard.NotNull(product, nameof(product));
 
@@ -243,15 +248,30 @@ namespace Smartstore.Core.Catalog.Pricing
                 return string.Empty;
             }
 
-            var packageContentPerUnit = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
             var basePrice = Convert.ToDecimal((price / product.BasePriceAmount) * product.BasePriceBaseAmount);
-            var basePriceAmount = _currencyService.ApplyTaxFormat(new Money(basePrice, targetCurrency ?? _workContext.WorkingCurrency));
+            var basePriceAmount = _currencyService.ApplyTaxFormat(
+                new Money(basePrice, targetCurrency ?? _workContext.WorkingCurrency),
+                includePackageContentPerUnit ? null : false,
+                null,
+                language);
 
-            return T("Products.BasePriceInfo").Value.FormatInvariant(
-                packageContentPerUnit,
-                product.BasePriceMeasureUnit,
-                basePriceAmount,
-                product.BasePriceBaseAmount);
+            if (includePackageContentPerUnit)
+            {
+                var packageContentPerUnit = Math.Round(product.BasePriceAmount.Value, 2).ToString("G29");
+
+                return T("Products.BasePriceInfo").Value.FormatInvariant(
+                    packageContentPerUnit,
+                    product.BasePriceMeasureUnit,
+                    basePriceAmount,
+                    product.BasePriceBaseAmount);
+            }
+            else
+            {
+                return T("Products.BasePriceInfo.LanguageInsensitive").Value.FormatInvariant(
+                    basePriceAmount,
+                    product.BasePriceBaseAmount,
+                    product.BasePriceMeasureUnit);
+            }
         }
 
         #region Utilities

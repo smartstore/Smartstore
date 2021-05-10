@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Xml.Serialization;
 using Serilog;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Export.Internal
 {
@@ -23,8 +23,8 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
             FolderContent = request.Profile.GetExportDirectory(true, true);
 
-            Filter = Deserialize<ExportFilter>(request.Profile.Filtering) ?? new();
-            Projection = Deserialize<ExportProjection>(request.Profile.Projection) ?? new();
+            Filter = XmlHelper.Deserialize<ExportFilter>(request.Profile.Filtering);
+            Projection = XmlHelper.Deserialize<ExportProjection>(request.Profile.Projection);
 
             if (request.Profile.Projection.IsEmpty())
             {
@@ -55,6 +55,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public ILogger Log { get; set; }
         public ExportExecuteContext ExecuteContext { get; set; }
         public DataExportResult Result { get; set; }
+        public PriceCalculationOptions PriceCalculationOptions { get; set; }
 
         /// <summary>
         /// All entity identifiers per export.
@@ -131,25 +132,6 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public bool Supports(ExportFeatures feature)
         {
             return !IsPreview && Request.Provider.Metadata.ExportFeatures.HasFlag(feature);
-        }
-
-        private static T Deserialize<T>(string xml)
-        {
-            // TODO: (mg) (core) XmlHelper should be ported after all. It is called from numerous places.
-            try
-            {
-                if (xml.HasValue())
-                {
-                    using var reader = new StringReader(xml);
-                    var serializer = new XmlSerializer(typeof(T));
-                    return (T)serializer.Deserialize(reader);
-                }
-            }
-            catch 
-            { 
-            }
-
-            return default;
         }
     }
 

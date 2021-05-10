@@ -943,6 +943,7 @@ namespace Smartstore.Web.Controllers
             var cs = Services.Resolve<ICurrencyService>();
             var ocs = Services.Resolve<IOrderCalculationService>();
             var scs = Services.Resolve<IShoppingCartService>();
+            var pcs = Services.Resolve<IPriceCalculationService>();
             var store = Services.StoreContext.CurrentStore;
             var currency = Services.WorkContext.WorkingCurrency;
             var customer = await _db.Customers.FindByIdAsync(2666330, false);
@@ -963,29 +964,15 @@ namespace Smartstore.Web.Controllers
             var folderName = exportProfiles.SubPath + "/" + tenantRoot.CreateUniqueDirectoryName(CommonHelper.MapPath(exportProfiles.SubPath), "My test folder");
             content.AppendLine();
             content.AppendLine(folderName);
-            
+
+            var product = await _db.Products.FindByIdAsync(1751, false);
+            var calculationOptions = pcs.CreateDefaultOptions(true, customer, currency);
+            var productPrice = await pcs.CalculatePriceAsync(new PriceCalculationContext(product, calculationOptions));
+            var basePriceInfo = pcs.GetBasePriceInfo(product, productPrice.FinalPrice, currency, null, false);
+            content.AppendLine("");
+            content.AppendLine("Base price: " + basePriceInfo);
 
 
-            //var orderItem = await _db.OrderItems.FindByIdAsync(42272, false);
-            //var bundleData = orderItem.GetBundleData();
-
-            //foreach (var item in bundleData)
-            //{
-            //    var valueIds = item.AttributeSelection?.GetAttributeValueIds() ?? Array.Empty<int>();
-            //    content.AppendLine($"{item.ProductId} {item.BundleItemId}: {string.Join(",", valueIds)} {item.RawAttributes}");
-            //}
-
-            //var orders = new Order[]
-            //{
-            //    new Order { OrderTotal = 43.7855m, CurrencyRate = 1.0m, CustomerCurrencyCode = "EUR" },
-            //    new Order { OrderTotal = 43.7855m, CurrencyRate = 1.19m, CustomerCurrencyCode = "USD" }
-            //};
-
-            //foreach (var order in orders)
-            //{
-            //    var money = cs.ConvertToExchangeRate(order.OrderTotal, order.CurrencyRate, order.CustomerCurrencyCode);
-            //    content.AppendLine($"{order.CustomerCurrencyCode} ({order.CurrencyRate}): {order.OrderTotal} -> {money.ToString()}");
-            //}
 
             return Content(content.ToString());
             //return View();
