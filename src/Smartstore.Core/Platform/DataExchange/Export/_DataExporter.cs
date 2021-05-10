@@ -9,6 +9,7 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
@@ -32,6 +33,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly ICurrencyService _currencyService;
         private readonly IMediaService _mediaService;
         private readonly ProductUrlHelper _productUrlHelper;
+        private readonly ITaxCalculator _taxCalculator;
 
         private readonly CatalogSettings _catalogSettings;
         private readonly MediaSettings _mediaSettings;
@@ -48,6 +50,7 @@ namespace Smartstore.Core.DataExchange.Export
             ICurrencyService currencyService,
             IMediaService mediaService,
             ProductUrlHelper productUrlHelper,
+            ITaxCalculator taxCalculator,
             CatalogSettings catalogSettings,
             MediaSettings mediaSettings,
             SeoSettings seoSettings)
@@ -62,6 +65,7 @@ namespace Smartstore.Core.DataExchange.Export
             _currencyService = currencyService;
             _mediaService = mediaService;
             _productUrlHelper = productUrlHelper;
+            _taxCalculator = taxCalculator;
 
             _catalogSettings = catalogSettings;
             _mediaSettings = mediaSettings;

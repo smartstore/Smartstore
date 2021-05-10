@@ -119,16 +119,16 @@ namespace Smartstore.Core.DataExchange.Export
             // Price calculation.
             var calculationContext = new PriceCalculationContext(product, ctx.PriceCalculationOptions);
             calculationContext.AddSelectedAttributes(combination?.AttributeSelection, product.Id);
-            var price = (await _priceCalculationService.CalculatePriceAsync(calculationContext)).FinalPrice;
+            var price = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
-            dynamic dynObject = ToDynamic(product, ctx, productContext.SeName, price);
+            dynamic dynObject = ToDynamic(product, ctx, productContext.SeName, price.FinalPrice);
             dynObject._IsParent = isParent;
             dynObject._CategoryName = null;
             dynObject._CategoryPath = null;
             dynObject._AttributeCombinationValues = null;
             dynObject._AttributeCombinationId = 0;
 
-            dynObject.Price = price.Amount;
+            dynObject.Price = price.FinalPrice.Amount;
 
             if (combination != null)
             {
@@ -325,7 +325,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             var mediaFiles = await ApplyMediaFiles(dynObject, product, ctx, productContext);
-            await ApplyExportFeatures(dynObject, product, mediaFiles, ctx, productContext);
+            await ApplyExportFeatures(dynObject, product, price, mediaFiles, ctx, productContext);
 
             return dynObject;
         }
@@ -362,6 +362,7 @@ namespace Smartstore.Core.DataExchange.Export
         private async Task ApplyExportFeatures(
             dynamic dynObject,
             Product product, 
+            CalculatedPrice price,
             IEnumerable<ProductMediaFile> mediaFiles, 
             DataExporterContext ctx, 
             DynamicProductContext productContext)
@@ -434,7 +435,51 @@ namespace Smartstore.Core.DataExchange.Export
                     : ctx.Projection.ShippingCosts;
             }
 
-            //...
+            if (ctx.Supports(ExportFeatures.UsesOldPrice))
+            {
+                if (product.OldPrice != decimal.Zero && product.OldPrice != (decimal)dynObject.Price && !(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
+                {
+                    if (ctx.Projection.ConvertNetToGrossPrices)
+                    {
+                        var tax = await _taxCalculator.CalculateProductTaxAsync(product, product.OldPrice, true, ctx.ContextCustomer, ctx.ContextCurrency);
+                        dynObject._OldPrice = tax.Price;
+                    }
+                    else
+                    {
+                        dynObject._OldPrice = product.OldPrice;
+                    }
+                }
+                else
+                {
+                    dynObject._OldPrice = null;
+                }
+            }
+
+            if (ctx.Supports(ExportFeatures.UsesSpecialPrice))
+            {
+                dynObject._SpecialPrice = null;         // Special price which is valid now.
+                dynObject._FutureSpecialPrice = null;   // Special price which is valid now and in future.
+                dynObject._RegularPrice = null;         // Price as if a special price would not exist.
+
+                if (!(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
+                {
+                    if (price.OfferPrice.HasValue && product.SpecialPriceEndDateTimeUtc.HasValue)
+                    {
+                        var endDate = DateTime.SpecifyKind(product.SpecialPriceEndDateTimeUtc.Value, DateTimeKind.Utc);
+                        if (endDate > DateTime.UtcNow)
+                        {
+                            dynObject._FutureSpecialPrice = price.OfferPrice.Value.Amount;
+                        }
+                    }
+
+                    dynObject._SpecialPrice = price.OfferPrice?.Amount ?? null;
+
+                    if (price.OfferPrice.HasValue || dynObject._FutureSpecialPrice != null)
+                    {
+                        // ...
+                    }
+                }
+            }
         }
 
         private static async Task ApplyProductDescription(dynamic dynObject, Product product, DataExporterContext ctx)
