@@ -89,7 +89,7 @@ namespace Smartstore.Admin.Controllers
                 success = true,
                 downloadId = download.Id,
                 // TODO: (core) Make new overload for this
-                html = this.InvokeViewAsync(DOWNLOAD_TEMPLATE, new { Model = download.Id, minimalMode, fieldName })
+                html = this.InvokeViewAsync(DOWNLOAD_TEMPLATE, download.Id, new { minimalMode, fieldName })
             });
         }
 
@@ -199,7 +199,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new
             {
                 success = true,
-                html = await this.InvokeViewAsync(DOWNLOAD_TEMPLATE, new { minimalMode, fieldName })
+                html = await this.InvokeViewAsync(DOWNLOAD_TEMPLATE, null, new { minimalMode, fieldName })
             });
         }
     }

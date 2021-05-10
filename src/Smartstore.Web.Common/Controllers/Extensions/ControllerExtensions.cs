@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Widgets;
+using Smartstore.Utilities;
 using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
@@ -36,6 +37,33 @@ namespace Smartstore.Web.Controllers
 
             var renderer = controller.HttpContext.RequestServices.GetRequiredService<IRazorViewInvoker>();
             return renderer.InvokeViewAsync(viewName, model, isPartial);
+        }
+
+        /// <summary>
+        /// Invokes a view and returns its html content.
+        /// </summary>
+        /// <param name="viewName">View name</param>
+        /// <param name="model">Model</param>
+        /// <param name="additionalViewData">Additional view data</param>
+        /// <param name="isPartial"><c>true</c>: View is partial, otherwise main page.</param>
+        /// <returns>View rendering result</returns>
+        public static Task<string> InvokeViewAsync(this Controller controller, string viewName, object model, object additionalViewData, bool isPartial = true)
+        {
+            Guard.NotNull(controller, nameof(controller));
+
+            controller.ViewData.Model = model;
+
+            if (additionalViewData != null)
+            {
+                controller.ViewData.Merge(CommonHelper.ObjectToDictionary(additionalViewData));
+
+                if (additionalViewData is ViewDataDictionary vdd)
+                {
+                    controller.ViewData.TemplateInfo.HtmlFieldPrefix = vdd.TemplateInfo.HtmlFieldPrefix;
+                }
+            }
+
+            return InvokeViewAsync(controller, viewName, controller.ViewData, isPartial);
         }
 
         /// <summary>
