@@ -695,7 +695,7 @@ namespace Smartstore.Web.Controllers
                     {
                         redirect = _shoppingCartSettings.DisplayWishlistAfterAddingProduct;
                         routeUrl = "Wishlist";
-                        activity = "PublicStore.AddToWishlist";
+                        activity = KnownActivityLogTypes.PublicStoreAddToWishlist;
                         resourceName = "ActivityLog.PublicStore.AddToWishlist";
                         break;
                     }
@@ -704,7 +704,7 @@ namespace Smartstore.Web.Controllers
                     {
                         redirect = _shoppingCartSettings.DisplayCartAfterAddingProduct;
                         routeUrl = "ShoppingCart";
-                        activity = "PublicStore.AddToShoppingCart";
+                        activity = KnownActivityLogTypes.PublicStoreAddToShoppingCart;
                         resourceName = "ActivityLog.PublicStore.AddToShoppingCart";
                         break;
                     }

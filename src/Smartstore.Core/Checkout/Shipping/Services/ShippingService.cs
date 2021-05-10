@@ -83,7 +83,7 @@ namespace Smartstore.Core.Checkout.Shipping
             // or linked products which are shipping enabled
             var query = _db.ProductVariantAttributeValues
                 .Include(x => x.ProductVariantAttribute)
-                    .ThenInclude(x => x.Product)
+                .ThenInclude(x => x.Product)
                 .ApplyValueFilter(attributeValueIds)
                 .Where(x => x.ValueTypeId == (int)ProductVariantAttributeValueType.ProductLinkage
                     && x.ProductVariantAttribute.Product != null
