@@ -15,11 +15,14 @@ namespace Smartstore.Web.Areas.Admin.Models
     {
         #region Admin 
 
+        [UIHint("Download")]
+        public int? DownloadId { get; set; }
+
         [UIHint("AccessPermissions")]
         public string[] PermissionNames { get; set; }
 
-        [UIHint("Address")]
-        public AddressModel Address { get; set; } = new();
+        //[UIHint("Address")]
+        //public AddressModel Address { get; set; } = new();
 
         [UIHint("CustomerRoles")]
         // INFO: No AdditionalMetadata anymore :-/ https://github.com/aspnet/Mvc/issues/324

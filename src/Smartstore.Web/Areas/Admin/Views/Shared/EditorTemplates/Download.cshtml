@@ -1,0 +1,249 @@
+﻿@model int?
+
+@using Smartstore.Core.Data 
+@using Smartstore.Utilities
+@using Smartstore.Core.Catalog
+@using Microsoft.EntityFrameworkCore
+ 
+@inject IMediaService MediaService
+@inject MediaSettings MediaSettings
+@inject CatalogSettings CatalogSettings
+@inject SmartDbContext DbContext
+
+@functions {
+    bool? _minimalMode = null;
+    string _fieldName = null;
+    int _entityId = 0;
+    string _entityName = null;
+    string _fileTypes = null;
+    string _path = string.Empty;
+
+    private bool MinimalMode
+    {
+        get
+        {
+            if (!_minimalMode.HasValue)
+            {
+                _minimalMode = ViewData.ContainsKey("minimalMode") ? ViewData["minimalMode"].Convert<bool>() : false;
+            }
+            return _minimalMode.Value;
+        }
+    }
+
+    private string FieldName
+    {
+        get
+        {
+            if (_fieldName == null)
+            {
+                _fieldName = ViewData.ContainsKey("fieldName") ? ViewData["fieldName"].Convert<string>() : ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+            }
+            return _fieldName;
+        }
+    }
+
+    private int EntityId
+    {
+        get
+        {
+            if (_entityId == 0)
+            {
+                _entityId = ViewData.ContainsKey("entityId") ? ViewData["entityId"].Convert<int>() : 0;
+            }
+            return _entityId;
+        }
+    }
+
+    private string EntityName
+    {
+        get
+        {
+            if (_entityName == null)
+            {
+                _entityName = ViewData.ContainsKey("entityName") ? ViewData["entityName"].Convert<string>() : ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+            }
+            return _entityName;
+        }
+    }
+
+    private string FileTypes
+    {
+        get
+        {
+            if (_fileTypes == null)
+            {
+                _fileTypes = ViewData.ContainsKey("fileTypes") ? ViewData["fileTypes"].Convert<string>() : string.Empty;
+            }
+            return _fileTypes;
+        }
+    }
+
+    private string MediaPath
+    {
+        get
+        {
+            if (!_path.HasValue())
+            {
+                _path = ViewData.ContainsKey("path") ? ViewData["path"].Convert<string>() : "download";
+            }
+            return _path;
+        }
+    }
+}
+
+@{
+    var random = CommonHelper.GenerateRandomInteger();
+    var clientId = "download-editor-" + random;
+    var download = await DbContext
+        .Downloads
+        .Include(x => x.MediaFile)
+        .FindByIdAsync(Model.GetValueOrDefault(), false);
+
+    var additionalCssClasses = ViewData["class"] != null ? ViewData["class"].ToString() : string.Empty;
+    if (MinimalMode)
+    {
+        additionalCssClasses += " minimal";
+    }
+
+    var fileName = string.Empty;
+    var initiallyShowUrlPanel = false;
+    var hasFile = false;
+    var downloadUrl = string.Empty;
+    var thumbUrl = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+    if (download != null)
+    {
+        downloadUrl = Url.Action("DownloadFile", "Download", new { downloadId = download.Id });
+        initiallyShowUrlPanel = !MinimalMode && download.UseDownloadUrl;
+        hasFile = !download.UseDownloadUrl;
+        fileName = download.MediaFile?.Name ?? (download.Id.ToString().Grow(download.MediaFile?.Extension, "."));
+        thumbUrl = await Url.MediaAsync(download.MediaFileId, MediaSettings.ProductThumbPictureSize);
+    }
+
+    Assets.AppendScriptParts("~/admin/js/smartstore.download.js");
+}
+
+<div id="@clientId" 
+     class="form-row flex-nowrap download-editor"
+     attr-class='(additionalCssClasses.HasValue(), additionalCssClasses)'
+     data-download-id="@Model.GetValueOrDefault()"
+     data-delete-url="@Url.Action("DeleteDownload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, downloadId = Model, area = "Admin" })"
+     data-use-url="@(initiallyShowUrlPanel ? "true" : "false")">
+
+    <input type="hidden" name="is-url-download-@(Model)" id="is-url-download-@(Model)" value='@(initiallyShowUrlPanel ? "true" : "false")' />
+
+    <div attr-class='(!MinimalMode || hasFile, "col-auto")'>
+        <!-- Type Chooser Dropdown -->
+        @if (!MinimalMode)
+        {
+            <div class="btn-group panel-switcher" title='@T("Admin.Download.UploadFile")'>
+                <a class="btn btn-secondary btn-icon dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-@(initiallyShowUrlPanel ? "globe": "upload") panel-switcher-icon"></i>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="#" class="dropdown-item toggle-file" attr-class='(!initiallyShowUrlPanel, "disabled")'>@T("Admin.Download.UploadFile")</a>
+                    <a href="#" class="dropdown-item toggle-url" attr-class='(initiallyShowUrlPanel, "disabled")'>@T("Common.FileUploader.EnterUrl")</a>
+                    @if (download != null)
+                    {
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item remove-download">
+                            <i class="far fa-trash-alt"></i>
+                            <span>@T("Common.Remove")</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Main Panel -->
+    <div class="col panel-upload fu-container">
+
+        <!-- FileUpload Panel  -->
+        <div class="form-row flex-nowrap dropzone-container panel-file" attr-class='(initiallyShowUrlPanel, "hide")'>
+
+            <div class="fu-thumb" data-debug-info="@(download != null ? download.MediaFileId : 0)">
+                @if (download?.MediaFile != null)
+                {
+                    <media-thumbnail sm-file="MediaService.ConvertMediaFile(download.MediaFile)" sm-size="MediaSettings.ThumbnailSizeMd"></media-thumbnail>
+                }
+                else
+                {
+                    <img class="file-img" title="icon" src="@thumbUrl">
+                }
+            </div>
+
+            <input type="hidden" id="@FieldName.SanitizeHtmlId()" name="@FieldName" value="@Model" class="hidden" />
+
+            <div class="fu-controls">
+                @*TODO: (mh) (core) Implement when fileuploader is available*@ 
+                @*@(Html.SmartStore().FileUploader()
+					.UploadUrl(Url.Action("AsyncUpload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, entityId = EntityId, entityName = EntityName, area = "Admin" }))
+					.DeleteUrl(Url.Action("DeleteDownload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, downloadId = Model, area = "Admin" }))
+					.Multifile(false)
+					.Path(Path)
+					.TypeFilter(string.Join("|", catalogSettings.FileUploadAllowedExtensions.Select(x => x.Trim()).ToList()))
+					.UploadText(hasFile ? fileName : T("Common.Fileuploader.Upload").Text)
+					.HasTemplatePreview(true)
+					.ShowBrowseMedia(true)
+					.ShowRemoveButton(hasFile)
+					.ShowRemoveButtonAfterUpload(true)
+					.OnMediaSelectedHandlerName("onMediaSelected_" + random)
+				)*@
+            </div>
+        </div>
+
+        <!-- URL Panel -->
+        @if (!MinimalMode)
+        {
+            var value = download != null ? download.DownloadUrl : string.Empty;
+
+            <div class="panel-url" style="display: @(initiallyShowUrlPanel ? "block": "none")">
+                <div class="input-group">
+                    <input type="text" class="download-url-value form-control" value='@value' data-value='@value' />
+                    <div class="input-group-append">
+                        <a class="btn btn-outline-secondary save-download-url disabled"
+                           href="@Url.Action("SaveDownloadUrl", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, entityId = EntityId, entityName = EntityName, area = "Admin" })">
+                            <i class="fa fa-check"></i>
+                            <span>@T("Common.Save")</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="fu-progress">
+            <!-- The single upload progress bar -->
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // TODO: (mh) (core) Implement initialization in javascript factory analog to ApplyCommonPlugins.
+	window['onMediaSelected_@random'] = function (file) {
+        var token = $('input[name="__RequestVerificationToken"]').val();
+		// Create download for selected MediaFile.
+		$.ajax({
+			async: true,
+			cache: false,
+			type: 'POST',
+			url: "@Url.Action("CreateDownloadFromMediaFile", "Download")",
+			data: {
+				mediaFileId: file.id,
+                entityId: @EntityId,
+				entityName: "@EntityName",
+                __RequestVerificationToken: token
+			},
+            success: function (response) {
+                if (!response.success)
+                    displayNotification("Error when trying to create a download for the selected file.", "error");
+			}
+		});
+    }
+
+	$(function () {
+        $('#@clientId').downloadEditor();
+	});
+</script>
