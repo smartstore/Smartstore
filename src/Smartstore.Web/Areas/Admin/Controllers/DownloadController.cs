@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
@@ -11,7 +12,7 @@ namespace Smartstore.Admin.Controllers
 {
     public class DownloadController : AdminControllerBase
     {
-        private const string DOWNLOAD_TEMPLATE = "~/Areas/Admin/Views/Shared/EditorTemplates/Download.cshtml";
+        private const string DOWNLOAD_TEMPLATE = "EditorTemplates/Download";
 
         private readonly SmartDbContext _db;
         private readonly IDownloadService _downloadService;
@@ -29,13 +30,14 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Media.Download.Read)]
         public async Task<IActionResult> DownloadFile(int downloadId)
         {
-            var download = await _db
-                .Downloads
+            var download = await _db.Downloads
                 .Include(x => x.MediaFile)
                 .FindByIdAsync(downloadId, false);
 
             if (download == null)
+            {
                 return Content(T("Common.Download.NoDataAvailable"));
+            }   
 
             if (download.UseDownloadUrl)
             {
@@ -43,11 +45,13 @@ namespace Smartstore.Admin.Controllers
             }
             else
             {
-                //use stored data
+                // Use stored data
                 var data = await _downloadService.OpenDownloadStreamAsync(download);
 
                 if (data == null || data.Length == 0)
+                {
                     return Content(T("Common.Download.NoDataAvailable"));
+                }      
 
                 var fileName = download.MediaFile.Name;
                 var contentType = download.MediaFile.MimeType;
@@ -63,7 +67,6 @@ namespace Smartstore.Admin.Controllers
         /// TODO: (mh) (core) Add documentation.
         /// </summary>
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Media.Download.Create)]
         public async Task<IActionResult> SaveDownloadUrl(string downloadUrl, bool minimalMode = false, string fieldName = null, int entityId = 0, string entityName = "")
         {
@@ -85,12 +88,12 @@ namespace Smartstore.Admin.Controllers
             {
                 success = true,
                 downloadId = download.Id,
-                html = this.InvokeViewAsync(DOWNLOAD_TEMPLATE, new { Model = download.Id, minimalMode = minimalMode, fieldName = fieldName })
+                // TODO: (core) Make new overload for this
+                html = this.InvokeViewAsync(DOWNLOAD_TEMPLATE, new { Model = download.Id, minimalMode, fieldName })
             });
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Media.Download.Create)]
         public async Task<IActionResult> CreateDownloadFromMediaFile(int mediaFileId, int entityId = 0, string entityName = "")
         {
@@ -127,6 +130,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var path = _mediaService.CombinePaths(SystemAlbumProvider.Downloads, postedFile.FileName);
+            // TODO: (mh) (core) Check if .NET core disposes the stream on request end.
             using var stream = postedFile.OpenReadStream();
             var file = await _mediaService.SaveFileAsync(path, stream, dupeFileHandling: DuplicateFileHandling.Rename);
 
@@ -147,10 +151,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> AddChangelog(int downloadId, string changelogText)
         {
             var success = false;
-            var download = await _db
-                .Downloads
-                .Include(x => x.MediaFile)
-                .FindByIdAsync(downloadId);
+            var download = await _db.Downloads.FindByIdAsync(downloadId);
 
             if (download != null)
             {
@@ -170,10 +171,7 @@ namespace Smartstore.Admin.Controllers
             var success = false;
             var changeLogText = string.Empty;
 
-            var download = await _db
-                .Downloads
-                .Include(x => x.MediaFile)
-                .FindByIdAsync(downloadId, false);
+            var download = await _db.Downloads.FindByIdAsync(downloadId, false);
 
             if (download != null)
             {

@@ -13,69 +13,34 @@
 @functions {
     bool? _minimalMode = null;
     string _fieldName = null;
-    int _entityId = 0;
+    int? _entityId = 0;
     string _entityName = null;
     string _fileTypes = null;
     string _path = string.Empty;
 
     private bool MinimalMode
     {
-        get
-        {
-            if (!_minimalMode.HasValue)
-            {
-                _minimalMode = ViewData.ContainsKey("minimalMode") ? ViewData["minimalMode"].Convert<bool>() : false;
-            }
-            return _minimalMode.Value;
-        }
+        get => _minimalMode ??= GetMetadata<bool>("minimalMode");
     }
 
     private string FieldName
     {
-        get
-        {
-            if (_fieldName == null)
-            {
-                _fieldName = ViewData.ContainsKey("fieldName") ? ViewData["fieldName"].Convert<string>() : ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
-            }
-            return _fieldName;
-        }
+        get => _fieldName ??= GetMetadata<string>("fieldName", ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty));
     }
 
     private int EntityId
     {
-        get
-        {
-            if (_entityId == 0)
-            {
-                _entityId = ViewData.ContainsKey("entityId") ? ViewData["entityId"].Convert<int>() : 0;
-            }
-            return _entityId;
-        }
+        get => _entityId ??= GetMetadata<int>("entityId");
     }
 
     private string EntityName
     {
-        get
-        {
-            if (_entityName == null)
-            {
-                _entityName = ViewData.ContainsKey("entityName") ? ViewData["entityName"].Convert<string>() : ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
-            }
-            return _entityName;
-        }
+        get => _entityName ??= GetMetadata<string>("entityName", ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty));
     }
 
     private string FileTypes
     {
-        get
-        {
-            if (_fileTypes == null)
-            {
-                _fileTypes = ViewData.ContainsKey("fileTypes") ? ViewData["fileTypes"].Convert<string>() : string.Empty;
-            }
-            return _fileTypes;
-        }
+        get => _fileTypes ??= GetMetadata<string>("fileTypes", string.Empty);
     }
 
     private string MediaPath
@@ -84,8 +49,9 @@
         {
             if (!_path.HasValue())
             {
-                _path = ViewData.ContainsKey("path") ? ViewData["path"].Convert<string>() : "download";
+                _path = GetMetadata<string>("path", "download");
             }
+
             return _path;
         }
     }
@@ -99,7 +65,7 @@
         .Include(x => x.MediaFile)
         .FindByIdAsync(Model.GetValueOrDefault(), false);
 
-    var additionalCssClasses = ViewData["class"] != null ? ViewData["class"].ToString() : string.Empty;
+    var additionalCssClasses = GetMetadata<string>("class", string.Empty);
     if (MinimalMode)
     {
         additionalCssClasses += " minimal";
@@ -238,7 +204,7 @@
 			},
             success: function (response) {
                 if (!response.success)
-                    displayNotification("Error when trying to create a download for the selected file.", "error");
+                    displayNotification("Error while trying to create a download for the selected file.", "error");
 			}
 		});
     }
