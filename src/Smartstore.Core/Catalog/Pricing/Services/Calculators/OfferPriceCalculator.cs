@@ -16,6 +16,13 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     {
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
         {
+            if (context.Options.IgnoreOfferPrice)
+            {
+                // Ignore offer price for this calculation.
+                await next(context);
+                return;
+            }
+
             var product = context.Product;
             if (product.SpecialPrice.HasValue)
             {

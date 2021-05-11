@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Dasync.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -13,6 +14,8 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Content.Media.Imaging;
+using Smartstore.Core.DataExchange.Export.Events;
 using Smartstore.Core.DataExchange.Export.Internal;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -30,6 +33,230 @@ namespace Smartstore.Core.DataExchange.Export
             SystemCustomerAttributeNames.VatNumber,
             SystemCustomerAttributeNames.ImpersonatedCustomerId
         };
+
+        private async Task<List<dynamic>> Convert(Order order, DataExporterContext ctx)
+        {
+            var result = new List<dynamic>();
+
+            ctx.OrderBatchContext.Addresses.Collect(order.ShippingAddressId ?? 0);
+            await ctx.OrderBatchContext.Addresses.GetOrLoadAsync(order.BillingAddressId);
+
+            var customers = await ctx.OrderBatchContext.Customers.GetOrLoadAsync(order.CustomerId);
+            var genericAttributes = await ctx.OrderBatchContext.CustomerGenericAttributes.GetOrLoadAsync(order.CustomerId);
+            var rewardPointsHistories = await ctx.OrderBatchContext.RewardPointsHistories.GetOrLoadAsync(order.CustomerId);
+            var orderItems = await ctx.OrderBatchContext.OrderItems.GetOrLoadAsync(order.Id);
+            var shipments = await ctx.OrderBatchContext.Shipments.GetOrLoadAsync(order.Id);
+
+            dynamic dynObject = await ToDynamic(order, ctx);
+            dynObject.Customer = ToDynamic(customers.FirstOrDefault(x => x.Id == order.CustomerId));
+
+            // We do not export all customer generic attributes because otherwise the export file gets too big.
+            dynObject.Customer._GenericAttributes = genericAttributes
+                .Where(x => x.Value.HasValue() && _orderCustomerAttributes.Contains(x.Key))
+                .Select(x => ToDynamic(x))
+                .ToList();
+
+            dynObject.Customer.RewardPointsHistory = rewardPointsHistories
+                .Select(x => ToDynamic(x))
+                .ToList();
+
+            if (rewardPointsHistories.Any())
+            {
+                dynObject.Customer._RewardPointsBalance = rewardPointsHistories
+                    .OrderByDescending(x => x.CreatedOnUtc)
+                    .ThenByDescending(x => x.Id)
+                    .FirstOrDefault()
+                    .PointsBalance;
+            }
+
+            dynObject.BillingAddress = ctx.OrderBatchContext.Addresses.TryGetValues(order.BillingAddressId, out var billingAddresses)
+                ? ToDynamic(billingAddresses.FirstOrDefault())
+                : null;
+
+            dynObject.ShippingAddress = order.ShippingAddressId.HasValue && ctx.OrderBatchContext.Addresses.TryGetValues(order.ShippingAddressId.Value, out var shippingAddresses)
+                ? ToDynamic(shippingAddresses.FirstOrDefault())
+                : null;
+
+            dynObject.OrderItems = await orderItems
+                .SelectAsync(async x => await ToDynamic(x, ctx))
+                .ToListAsync();
+
+            dynObject.Shipments = shipments
+                .Select(x => ToDynamic(x, ctx))
+                .ToList();
+
+            result.Add(dynObject);
+
+            await _services.EventPublisher.PublishAsync(new RowExportingEvent
+            {
+                Row = dynObject,
+                EntityType = ExportEntityType.Order,
+                ExportRequest = ctx.Request,
+                ExecuteContext = ctx.ExecuteContext
+            });
+
+            return result;
+        }
+
+        private async Task<List<dynamic>> Convert(Manufacturer manufacturer, DataExporterContext ctx)
+        {
+            var result = new List<dynamic>();
+            var productManufacturers = await ctx.ManufacturerBatchContext.ProductManufacturers.GetOrLoadAsync(manufacturer.Id);
+
+            dynamic dynObject = ToDynamic(manufacturer, ctx);
+
+            if (manufacturer.MediaFileId.HasValue)
+            {
+                var numberOfFiles = ctx.Projection.NumberOfMediaFiles ?? int.MaxValue;
+                var files = (await ctx.ManufacturerBatchContext.MediaFiles.GetOrLoadAsync(manufacturer.MediaFileId.Value)).Take(numberOfFiles);
+
+                if (files.Any())
+                {
+                    dynObject.Picture = ToDynamic(files.First(), _mediaSettings.ManufacturerThumbPictureSize, _mediaSettings.ManufacturerThumbPictureSize, ctx);
+                }
+            }
+
+            dynObject.ProductManufacturers = productManufacturers
+                .OrderBy(x => x.DisplayOrder)
+                .Select(x =>
+                {
+                    dynamic dyn = new DynamicEntity(x);
+                    return dyn;
+                })
+                .ToList();
+
+            result.Add(dynObject);
+
+            await _services.EventPublisher.PublishAsync(new RowExportingEvent
+            {
+                Row = dynObject,
+                EntityType = ExportEntityType.Manufacturer,
+                ExportRequest = ctx.Request,
+                ExecuteContext = ctx.ExecuteContext
+            });
+
+            return result;
+        }
+
+        private async Task<List<dynamic>> Convert(Category category, DataExporterContext ctx)
+        {
+            var result = new List<dynamic>();
+            var productCategories = await ctx.CategoryBatchContext.ProductCategories.GetOrLoadAsync(category.Id);
+
+            dynamic dynObject = ToDynamic(category, ctx);
+
+            if (category.MediaFileId.HasValue)
+            {
+                var numberOfFiles = ctx.Projection.NumberOfMediaFiles ?? int.MaxValue;
+                var files = (await ctx.CategoryBatchContext.MediaFiles.GetOrLoadAsync(category.MediaFileId.Value)).Take(numberOfFiles);
+
+                if (files.Any())
+                {
+                    dynObject.Picture = ToDynamic(files.First(), _mediaSettings.CategoryThumbPictureSize, _mediaSettings.CategoryThumbPictureSize, ctx);
+                }
+            }
+
+            dynObject.ProductCategories = productCategories
+                .OrderBy(x => x.DisplayOrder)
+                .Select(x =>
+                {
+                    dynamic dyn = new DynamicEntity(x);
+                    return dyn;
+                })
+                .ToList();
+
+            result.Add(dynObject);
+
+            await _services.EventPublisher.PublishAsync(new RowExportingEvent
+            {
+                Row = dynObject,
+                EntityType = ExportEntityType.Category,
+                ExportRequest = ctx.Request,
+                ExecuteContext = ctx.ExecuteContext
+            });
+
+            return result;
+        }
+
+        private async Task<List<dynamic>> Convert(Customer customer, DataExporterContext ctx)
+        {
+            var result = new List<dynamic>();
+            var genericAttributes = await ctx.CustomerBatchContext.GenericAttributes.GetOrLoadAsync(customer.Id);
+
+            dynamic dynObject = ToDynamic(customer);
+            dynObject.BillingAddress = ToDynamic(customer.BillingAddress, ctx);
+            dynObject.ShippingAddress = ToDynamic(customer.ShippingAddress, ctx);
+
+            dynObject.Addresses = customer.Addresses
+                .Select(x => ToDynamic(x, ctx))
+                .ToList();
+
+            dynObject._GenericAttributes = genericAttributes
+                .Select(x => ToDynamic(x))
+                .ToList();
+
+            dynObject._HasNewsletterSubscription = ctx.NewsletterSubscriptions.Contains(customer.Email, StringComparer.CurrentCultureIgnoreCase);
+            dynObject._FullName = customer.GetFullName();
+            dynObject._AvatarPictureUrl = null;
+
+            if (_customerSettings.AllowCustomersToUploadAvatars)
+            {
+                // Reduce traffic and do not export default avatar.
+                var fileId = genericAttributes.FirstOrDefault(x => x.Key == SystemCustomerAttributeNames.AvatarPictureId)?.Value?.ToInt() ?? 0;
+                var file = await _mediaService.GetFileByIdAsync(fileId, MediaLoadFlags.AsNoTracking);
+                if (file != null)
+                {
+                    dynObject._AvatarPictureUrl = _mediaService.GetUrl(file, new ProcessImageQuery { MaxSize = _mediaSettings.AvatarPictureSize }, ctx.Store.GetHost());
+                }
+            }
+
+            result.Add(dynObject);
+
+            await _services.EventPublisher.PublishAsync(new RowExportingEvent
+            {
+                Row = dynObject,
+                EntityType = ExportEntityType.Customer,
+                ExportRequest = ctx.Request,
+                ExecuteContext = ctx.ExecuteContext
+            });
+
+            return result;
+        }
+
+        private async Task<List<dynamic>> Convert(NewsletterSubscription subscription, DataExporterContext ctx)
+        {
+            var result = new List<dynamic>();
+            dynamic dynObject = ToDynamic(subscription, ctx);
+            result.Add(dynObject);
+
+            await _services.EventPublisher.PublishAsync(new RowExportingEvent
+            {
+                Row = dynObject,
+                EntityType = ExportEntityType.NewsLetterSubscription,
+                ExportRequest = ctx.Request,
+                ExecuteContext = ctx.ExecuteContext
+            });
+
+            return result;
+        }
+
+        private async Task<List<dynamic>> Convert(ShoppingCartItem shoppingCartItem, DataExporterContext ctx)
+        {
+            var result = new List<dynamic>();
+            dynamic dynObject = await ToDynamic(shoppingCartItem, ctx);
+
+            result.Add(dynObject);
+
+            await _services.EventPublisher.PublishAsync(new RowExportingEvent
+            {
+                Row = dynObject,
+                EntityType = ExportEntityType.ShoppingCartItem,
+                ExportRequest = ctx.Request,
+                ExecuteContext = ctx.ExecuteContext
+            });
+
+            return result;
+        }
 
         private static dynamic ToDynamic<T>(T entity)
         {
@@ -50,10 +277,9 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             dynamic result = new DynamicEntity(currency);
-            var translations = ctx.Translations[nameof(Currency)];
 
-            result.Name = translations.GetValue(ctx.LanguageId, currency.Id, nameof(currency.Name)) ?? currency.Name;
-            result._Localized = GetLocalized(ctx, translations, null, currency, x => x.Name);
+            result.Name = ctx.GetTranslation(currency, nameof(currency.Name), currency.Name);
+            result._Localized = GetLocalized(ctx, currency, x => x.Name);
 
             return result;
         }
@@ -66,10 +292,9 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             dynamic result = new DynamicEntity(country);
-            var translations = ctx.Translations[nameof(Country)];
 
-            result.Name = translations.GetValue(ctx.LanguageId, country.Id, nameof(country.Name)) ?? country.Name;
-            result._Localized = GetLocalized(ctx, translations, null, country, x => x.Name);
+            result.Name = ctx.GetTranslation(country, nameof(country.Name), country.Name);
+            result._Localized = GetLocalized(ctx, country, x => x.Name);
 
             return result;
         }
@@ -88,10 +313,9 @@ namespace Smartstore.Core.DataExchange.Export
             if (address.StateProvinceId.GetValueOrDefault() > 0)
             {
                 dynamic sp = new DynamicEntity(address.StateProvince);
-                var translations = ctx.Translations[nameof(StateProvince)];
 
-                sp.Name = translations.GetValue(ctx.LanguageId, address.StateProvince.Id, nameof(StateProvince)) ?? address.StateProvince.Name;
-                sp._Localized = GetLocalized(ctx, translations, null, address.StateProvince, x => x.Name);
+                sp.Name = ctx.GetTranslation(address.StateProvince, nameof(address.StateProvince.Name), address.StateProvince.Name);
+                sp._Localized = GetLocalized(ctx, address.StateProvince, x => x.Name);
 
                 result.StateProvince = sp;
             }
@@ -159,10 +383,9 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             dynamic result = new DynamicEntity(deliveryTime);
-            var translations = ctx.Translations[nameof(DeliveryTime)];
 
-            result.Name = translations.GetValue(ctx.LanguageId, deliveryTime.Id, nameof(deliveryTime.Name)) ?? deliveryTime.Name;
-            result._Localized = GetLocalized(ctx, translations, null, deliveryTime, x => x.Name);
+            result.Name = ctx.GetTranslation(deliveryTime, nameof(deliveryTime.Name), deliveryTime.Name);
+            result._Localized = GetLocalized(ctx, deliveryTime, x => x.Name);
 
             return result;
         }
@@ -175,13 +398,12 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             dynamic result = new DynamicEntity(quantityUnit);
-            var translations = ctx.Translations[nameof(QuantityUnit)];
 
-            result.Name = translations.GetValue(ctx.LanguageId, quantityUnit.Id, nameof(quantityUnit.Name)) ?? quantityUnit.Name;
-            result.NamePlural = translations.GetValue(ctx.LanguageId, quantityUnit.Id, nameof(quantityUnit.NamePlural)) ?? quantityUnit.NamePlural;
-            result.Description = translations.GetValue(ctx.LanguageId, quantityUnit.Id, nameof(quantityUnit.Description)) ?? quantityUnit.Description;
+            result.Name = ctx.GetTranslation(quantityUnit, nameof(quantityUnit.Name), quantityUnit.Name);
+            result.NamePlural = ctx.GetTranslation(quantityUnit, nameof(quantityUnit.NamePlural), quantityUnit.NamePlural);
+            result.Description = ctx.GetTranslation(quantityUnit, nameof(quantityUnit.Description), quantityUnit.Description);
 
-            result._Localized = GetLocalized(ctx, translations, null, quantityUnit,
+            result._Localized = GetLocalized(ctx, quantityUnit,
                 x => x.Name,
                 x => x.NamePlural,
                 x => x.Description);
@@ -197,22 +419,20 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             dynamic result = new DynamicEntity(manufacturer);
-            var translations = ctx.Translations[nameof(Manufacturer)];
-            var urlRecords = ctx.UrlRecords[nameof(Manufacturer)];
 
             result.Picture = null;
-            result.Name = translations.GetValue(ctx.LanguageId, manufacturer.Id, nameof(manufacturer.Name)) ?? manufacturer.Name;
+            result.Name = ctx.GetTranslation(manufacturer, nameof(manufacturer.Name), manufacturer.Name);
 
             if (!ctx.IsPreview)
             {
-                result.SeName = ctx.UrlRecords[nameof(Manufacturer)].GetSlug(ctx.LanguageId, manufacturer.Id);
-                result.Description = translations.GetValue(ctx.LanguageId, manufacturer.Id, nameof(manufacturer.Description)) ?? manufacturer.Description;
-                result.BottomDescription = translations.GetValue(ctx.LanguageId, manufacturer.Id, nameof(manufacturer.BottomDescription)) ?? manufacturer.BottomDescription;
-                result.MetaKeywords = translations.GetValue(ctx.LanguageId, manufacturer.Id, nameof(manufacturer.MetaKeywords)) ?? manufacturer.MetaKeywords;
-                result.MetaDescription = translations.GetValue(ctx.LanguageId, manufacturer.Id, nameof(manufacturer.MetaDescription)) ?? manufacturer.MetaDescription;
-                result.MetaTitle = translations.GetValue(ctx.LanguageId, manufacturer.Id, nameof(manufacturer.MetaTitle)) ?? manufacturer.MetaTitle;
+                result.SeName = ctx.GetSlug(manufacturer);
+                result.Description = ctx.GetTranslation(manufacturer, nameof(manufacturer.Description), manufacturer.Description);
+                result.BottomDescription = ctx.GetTranslation(manufacturer, nameof(manufacturer.BottomDescription), manufacturer.BottomDescription);
+                result.MetaKeywords = ctx.GetTranslation(manufacturer, nameof(manufacturer.MetaKeywords), manufacturer.MetaKeywords);
+                result.MetaDescription = ctx.GetTranslation(manufacturer, nameof(manufacturer.MetaDescription), manufacturer.MetaDescription);
+                result.MetaTitle = ctx.GetTranslation(manufacturer, nameof(manufacturer.MetaTitle), manufacturer.MetaTitle);
 
-                result._Localized = GetLocalized(ctx, translations, urlRecords, manufacturer,
+                result._Localized = GetLocalized(ctx, manufacturer,
                     x => x.Name,
                     x => x.Description,
                     x => x.BottomDescription,
@@ -232,27 +452,25 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             dynamic result = new DynamicEntity(category);
-            var translations = ctx.Translations[nameof(Category)];
-            var urlRecords = ctx.UrlRecords[nameof(Category)];
 
             result.Picture = null;
-            result.Name = translations.GetValue(ctx.LanguageId, category.Id, nameof(category.Name)) ?? category.Name;
-            result.FullName = translations.GetValue(ctx.LanguageId, category.Id, nameof(category.FullName)) ?? category.FullName;
+            result.Name = ctx.GetTranslation(category, nameof(category.Name), category.Name);
+            result.FullName = ctx.GetTranslation(category, nameof(category.FullName), category.FullName);
 
             if (!ctx.IsPreview)
             {
-                result.SeName = ctx.UrlRecords[nameof(Category)].GetSlug(ctx.LanguageId, category.Id);
-                result.Description = translations.GetValue(ctx.LanguageId, category.Id, nameof(category.Description)) ?? category.Description;
-                result.BottomDescription = translations.GetValue(ctx.LanguageId, category.Id, nameof(category.BottomDescription)) ?? category.BottomDescription;
-                result.MetaKeywords = translations.GetValue(ctx.LanguageId, category.Id, nameof(category.MetaKeywords)) ?? category.MetaKeywords;
-                result.MetaDescription = translations.GetValue(ctx.LanguageId, category.Id, nameof(category.MetaDescription)) ?? category.MetaDescription;
-                result.MetaTitle = translations.GetValue(ctx.LanguageId, category.Id, nameof(category.MetaTitle)) ?? category.MetaTitle;
+                result.SeName = ctx.GetSlug(category);
+                result.Description = ctx.GetTranslation(category, nameof(category.Description), category.Description);
+                result.BottomDescription = ctx.GetTranslation(category, nameof(category.BottomDescription), category.BottomDescription);
+                result.MetaKeywords = ctx.GetTranslation(category, nameof(category.MetaKeywords), category.MetaKeywords);
+                result.MetaDescription = ctx.GetTranslation(category, nameof(category.MetaDescription), category.MetaDescription);
+                result.MetaTitle = ctx.GetTranslation(category, nameof(category.MetaTitle), category.MetaTitle);
 
                 result._CategoryTemplateViewPath = ctx.CategoryTemplates.ContainsKey(category.CategoryTemplateId)
                     ? ctx.CategoryTemplates[category.CategoryTemplateId]
                     : "";
 
-                result._Localized = GetLocalized(ctx, translations, urlRecords, category,
+                result._Localized = GetLocalized(ctx, category,
                     x => x.Name,
                     x => x.FullName,
                     x => x.Description,
@@ -277,26 +495,23 @@ namespace Smartstore.Core.DataExchange.Export
 
             dynamic result = new DynamicEntity(productAttribute);
             dynamic dynAttribute = new DynamicEntity(attribute);
-            var paTranslations = ctx.TranslationsPerPage[nameof(ProductAttribute)];
-            var pvavTranslations = ctx.TranslationsPerPage[nameof(ProductVariantAttributeValue)];
 
-            dynAttribute.Name = paTranslations.GetValue(languageId, attribute.Id, nameof(attribute.Name)) ?? attribute.Name;
-            dynAttribute.Description = paTranslations.GetValue(languageId, attribute.Id, nameof(attribute.Description)) ?? attribute.Description;
+            dynAttribute.Name = ctx.GetTranslation(attribute, nameof(attribute.Name), attribute.Name);
+            dynAttribute.Description = ctx.GetTranslation(attribute, nameof(attribute.Description), attribute.Description);
 
             dynAttribute.Values = productAttribute.ProductVariantAttributeValues
                 .OrderBy(x => x.DisplayOrder)
                 .Select(x =>
                 {
                     dynamic dyn = new DynamicEntity(x);
-
-                    dyn.Name = pvavTranslations.GetValue(languageId, x.Id, nameof(x.Name)) ?? x.Name;
-                    dyn._Localized = GetLocalized(ctx, pvavTranslations, null, x, y => y.Name);
+                    dyn.Name = ctx.GetTranslation(x, nameof(x.Name), x.Name);
+                    dyn._Localized = GetLocalized(ctx, x, y => y.Name);
 
                     return dyn;
                 })
                 .ToList();
 
-            dynAttribute._Localized = GetLocalized(ctx, paTranslations, null, attribute,
+            dynAttribute._Localized = GetLocalized(ctx, attribute,
                 x => x.Name,
                 x => x.Description);
 
@@ -337,22 +552,20 @@ namespace Smartstore.Core.DataExchange.Export
 
             dynamic result = new DynamicEntity(productSpecificationAttribute);
             dynamic dynAttribute = new DynamicEntity(attribute);
-            var saTranslations = ctx.TranslationsPerPage[nameof(SpecificationAttribute)];
-            var saoTranslations = ctx.TranslationsPerPage[nameof(SpecificationAttributeOption)];
 
-            dynAttribute.Name = saTranslations.GetValue(ctx.LanguageId, attribute.Id, nameof(attribute.Name)) ?? attribute.Name;
-            dynAttribute._Localized = GetLocalized(ctx, saTranslations, null, attribute, x => x.Name);
+            dynAttribute.Name = ctx.GetTranslation(attribute, nameof(attribute.Name), attribute.Name);
+            dynAttribute._Localized = GetLocalized(ctx, attribute, x => x.Name);
 
-            dynAttribute.Alias = saTranslations.GetValue(ctx.LanguageId, attribute.Id, nameof(attribute.Alias)) ?? attribute.Alias;
-            dynAttribute._Localized = GetLocalized(ctx, saTranslations, null, attribute, x => x.Alias);
+            dynAttribute.Alias = ctx.GetTranslation(attribute, nameof(attribute.Alias), attribute.Alias);
+            dynAttribute._Localized = GetLocalized(ctx, attribute, x => x.Alias);
 
             dynamic dynOption = new DynamicEntity(option);
 
-            dynOption.Name = saoTranslations.GetValue(ctx.LanguageId, option.Id, nameof(option.Name)) ?? option.Name;
-            dynOption._Localized = GetLocalized(ctx, saoTranslations, null, option, x => x.Name);
+            dynOption.Name = ctx.GetTranslation(option, nameof(option.Name), option.Name);
+            dynOption._Localized = GetLocalized(ctx, option, x => x.Name);
 
-            dynOption.Alias = saoTranslations.GetValue(ctx.LanguageId, option.Id, nameof(option.Alias)) ?? option.Alias;
-            dynOption._Localized = GetLocalized(ctx, saoTranslations, null, option, x => x.Alias);
+            dynOption.Alias = ctx.GetTranslation(option, nameof(option.Alias), option.Alias);
+            dynOption._Localized = GetLocalized(ctx, option, x => x.Alias);
 
             dynOption.SpecificationAttribute = dynAttribute;
             result.SpecificationAttributeOption = dynOption;
@@ -495,31 +708,34 @@ namespace Smartstore.Core.DataExchange.Export
             return result;
         }
 
-        private static List<dynamic> GetLocalized<T>(
+        private static List<dynamic> GetLocalized<TEntity>(
             DataExporterContext ctx,
-            LocalizedPropertyCollection translations,
-            UrlRecordCollection urlRecords,
-            T entity,
-            params Expression<Func<T, string>>[] keySelectors)
-            where T : BaseEntity, ILocalizedEntity
+            TEntity entity,
+            params Expression<Func<TEntity, string>>[] keySelectors)
+            where TEntity : BaseEntity, ILocalizedEntity
         {
-            Guard.NotNull(translations, nameof(translations));
-
             if (ctx.Languages.Count <= 1)
             {
                 return null;
             }
 
+            var translations = ctx.GetTranslations(entity);
+            if (translations == null)
+            {
+                return null;
+            }
+
+            var slugs = ctx.GetSlugs(entity);
             var result = new List<dynamic>();
 
             foreach (var language in ctx.Languages)
             {
                 var languageCulture = language.Value.LanguageCulture.EmptyNull().ToLower();
 
-                // Add SEO name.
-                if (urlRecords != null)
+                // Add slug.
+                if (slugs != null)
                 {
-                    var value = urlRecords.GetSlug(language.Value.Id, entity.Id, false);
+                    var value = slugs.GetSlug(language.Value.Id, entity.Id, false);
                     if (value.HasValue())
                     {
                         dynamic exp = new HybridExpando();

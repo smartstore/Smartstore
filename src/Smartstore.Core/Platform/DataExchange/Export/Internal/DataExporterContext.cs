@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading;
 using Serilog;
+using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
@@ -9,12 +11,30 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Domain;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Export.Internal
 {
     internal class DataExporterContext
     {
+        private readonly static string[] _globalTranslationEntities = new[] 
+        {
+            nameof(Currency),
+            nameof(Country),
+            nameof(StateProvince),
+            nameof(DeliveryTime),
+            nameof(QuantityUnit),
+            nameof(Manufacturer),
+            nameof(Category),
+        };
+
+        private readonly static string[] _globalSlugEntities = new[]
+        {
+            nameof(Category),
+            nameof(Manufacturer)
+        };
+
         public DataExporterContext(DataExportRequest request, bool isPreview, CancellationToken cancellationToken)
         {
             Request = request;
@@ -100,7 +120,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         /// All translations for global scopes (like Category, Manufacturer etc.)
         /// </summary>
         public Dictionary<string, LocalizedPropertyCollection> Translations { get; set; } = new();
-        public Dictionary<string, UrlRecordCollection> UrlRecords { get; set; } = new();
+        public Dictionary<string, UrlRecordCollection> Slugs { get; set; } = new();
 
         #endregion
 
@@ -117,9 +137,11 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         /// All per page translations (like ProductVariantAttributeValue etc.)
         /// </summary>
         public Dictionary<string, LocalizedPropertyCollection> TranslationsPerPage { get; set; } = new();
-        public Dictionary<string, UrlRecordCollection> UrlRecordsPerPage { get; set; } = new();
+        public Dictionary<string, UrlRecordCollection> SlugsPerPage { get; set; } = new();
 
         #endregion
+
+        #region Utilities
 
         public void SetLoadedEntityIds(IEnumerable<int> ids)
         {
@@ -133,6 +155,46 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         {
             return !IsPreview && Request.Provider.Metadata.ExportFeatures.HasFlag(feature);
         }
+
+        public LocalizedPropertyCollection GetTranslations<TEntity>(TEntity entity)
+            where TEntity : BaseEntity
+        {
+            var entityName = entity.GetType().Name;
+
+            if (_globalTranslationEntities.Contains(entityName))
+            {
+                return Translations.GetValueOrDefault(entityName);
+            }
+
+            return TranslationsPerPage.GetValueOrDefault(entityName);
+        }
+
+        public string GetTranslation<TEntity>(TEntity entity, string localeKey, string defaultValue = default) 
+            where TEntity : BaseEntity
+        {
+            return GetTranslations(entity)?.GetValue(LanguageId, entity.Id, localeKey) ?? defaultValue;
+        }
+
+        public UrlRecordCollection GetSlugs<TEntity>(TEntity entity)
+            where TEntity : BaseEntity
+        {
+            var entityName = entity.GetType().Name;
+
+            if (_globalSlugEntities.Contains(entityName))
+            {
+                return Slugs.GetValueOrDefault(entityName);
+            }
+
+            return SlugsPerPage.GetValueOrDefault(entityName);
+        }
+
+        public string GetSlug<TEntity>(TEntity entity, bool returnDefaultValue = true)
+            where TEntity : BaseEntity
+        {
+            return GetSlugs(entity)?.GetSlug(LanguageId, entity.Id, returnDefaultValue);
+        }
+
+        #endregion
     }
 
     internal class RecordStats

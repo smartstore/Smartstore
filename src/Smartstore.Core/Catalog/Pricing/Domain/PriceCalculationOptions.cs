@@ -106,6 +106,11 @@ namespace Smartstore.Core.Catalog.Pricing
         public bool ApplyPreselectedAttributes { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether an offer price should be ignored during price calculation.
+        /// </summary>
+        public bool IgnoreOfferPrice { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether tier prices should be ignored during price calculation.
         /// </summary>
         public bool IgnoreTierPrices { get; set; }

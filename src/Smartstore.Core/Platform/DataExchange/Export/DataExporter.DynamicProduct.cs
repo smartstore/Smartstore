@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media.Imaging;
+using Smartstore.Core.DataExchange.Export.Events;
 using Smartstore.Core.DataExchange.Export.Internal;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
@@ -19,8 +21,74 @@ namespace Smartstore.Core.DataExchange.Export
 {
     public partial class DataExporter
     {
-        // TODO: (mg) (core) add code comments when ready.
+        /// <summary>
+        /// The main method to create expando objects for a product to be exported.
+        /// Returns several objects if variant combinations are to be exported as products.
+        /// </summary>
+        private async Task<List<dynamic>> Convert(Product product, DataExporterContext ctx)
+        {
+            var result = new List<dynamic>();
+            var seName = ctx.GetSlug(product);
 
+            var productContext = new DynamicProductContext
+            {
+                SeName = seName,
+                Combinations = await ctx.ProductBatchContext.AttributeCombinations.GetOrLoadAsync(product.Id),
+                AbsoluteProductUrl = await _productUrlHelper.GetAbsoluteProductUrlAsync(product.Id, seName, null, ctx.Store, ctx.ContextLanguage)
+            };
+
+            if (ctx.Projection.AttributeCombinationAsProduct && productContext.Combinations.Where(x => x.IsActive).Any())
+            {
+                if (ctx.Supports(ExportFeatures.UsesAttributeCombinationParent))
+                {
+                    var dynObject = await ToDynamic(product, true, ctx, productContext);
+                    result.Add(dynObject);
+                }
+
+                var dbContext = _db as DbContext;
+
+                foreach (var combination in productContext.Combinations.Where(x => x.IsActive))
+                {
+                    var attachedProduct = _db.Attach(product);
+                    product = attachedProduct.Entity;
+                    var entry = dbContext.Entry(product);
+
+                    // The returned object is not the entity and is not being tracked by the context.
+                    // It also does not have any relationships set to other objects.
+                    // CurrentValues only includes database (thus primitive) values.
+                    var productClone = entry.CurrentValues.ToObject() as Product;
+                    _db.DetachEntity(product);
+
+                    productContext.Combination = combination;
+
+                    var dynObject = await ToDynamic(productClone, false, ctx, productContext);
+                    result.Add(dynObject);
+                }
+            }
+            else
+            {
+                var dynObject = await ToDynamic(product, false, ctx, productContext);
+                result.Add(dynObject);
+            }
+
+            if (result.Any())
+            {
+                await _services.EventPublisher.PublishAsync(new RowExportingEvent
+                {
+                    Row = result.First(),
+                    EntityType = ExportEntityType.Product,
+                    ExportRequest = ctx.Request,
+                    ExecuteContext = ctx.ExecuteContext
+                });
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates an expando object with the most important general properties of a product such as the name and description.
+        /// This method is used for entities where products are to be exported as related data, e.g. order items.
+        /// </summary>
         private async Task<dynamic> ToDynamic(Product product, DataExporterContext ctx, string seName = null, Money? price = null)
         {
             if (product == null)
@@ -29,9 +97,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             dynamic result = new DynamicEntity(product);
-            var translations = ctx.TranslationsPerPage[nameof(Product)];
-            var urlRecords = ctx.UrlRecordsPerPage[nameof(Product)];
-            var localizedName = translations.GetValue(ctx.LanguageId, product.Id, nameof(product.Name)) ?? product.Name;
+            var localizedName = ctx.GetTranslation(product, nameof(product.Name), product.Name);
 
             result.AppliedDiscounts = null;
             result.Downloads = null;
@@ -48,13 +114,13 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (!ctx.IsPreview)
             {
-                result.SeName = seName ?? ctx.UrlRecordsPerPage[nameof(Product)].GetSlug(ctx.LanguageId, product.Id);
-                result.ShortDescription = translations.GetValue(ctx.LanguageId, product.Id, nameof(product.ShortDescription)) ?? product.ShortDescription;
-                result.FullDescription = translations.GetValue(ctx.LanguageId, product.Id, nameof(product.FullDescription)) ?? product.FullDescription;
-                result.MetaKeywords = translations.GetValue(ctx.LanguageId, product.Id, nameof(product.MetaKeywords)) ?? product.MetaKeywords;
-                result.MetaDescription = translations.GetValue(ctx.LanguageId, product.Id, nameof(product.MetaDescription)) ?? product.MetaDescription;
-                result.MetaTitle = translations.GetValue(ctx.LanguageId, product.Id, nameof(product.MetaTitle)) ?? product.MetaTitle;
-                result.BundleTitleText = translations.GetValue(ctx.LanguageId, product.Id, nameof(product.BundleTitleText)) ?? product.BundleTitleText;
+                result.SeName = seName ?? ctx.GetSlug(product);
+                result.ShortDescription = ctx.GetTranslation(product, nameof(product.ShortDescription), product.ShortDescription);
+                result.FullDescription = ctx.GetTranslation(product, nameof(product.FullDescription), product.FullDescription);
+                result.MetaKeywords = ctx.GetTranslation(product, nameof(product.MetaKeywords), product.MetaKeywords);
+                result.MetaDescription = ctx.GetTranslation(product, nameof(product.MetaDescription), product.MetaDescription);
+                result.MetaTitle = ctx.GetTranslation(product, nameof(product.MetaTitle), product.MetaTitle);
+                result.BundleTitleText = ctx.GetTranslation(product, nameof(product.BundleTitleText), product.BundleTitleText);
 
                 result._ProductTemplateViewPath = ctx.ProductTemplates.ContainsKey(product.ProductTemplateId)
                     ? ctx.ProductTemplates[product.ProductTemplateId]
@@ -89,7 +155,7 @@ namespace Smartstore.Core.DataExchange.Export
                     ? ToDynamic(product.CountryOfOrigin, ctx)
                     : null;
 
-                result._Localized = GetLocalized(ctx, translations, urlRecords, product,
+                result._Localized = GetLocalized(ctx, product,
                     x => x.Name,
                     x => x.ShortDescription,
                     x => x.FullDescription,
@@ -102,6 +168,10 @@ namespace Smartstore.Core.DataExchange.Export
             return result;
         }
 
+        /// <summary>
+        /// Creates an expando object with all product properties.
+        /// This method is used when exporting products and when exporting variant combinations as products.
+        /// </summary>
         private async Task<dynamic> ToDynamic(Product product, bool isParent, DataExporterContext ctx, DynamicProductContext productContext)
         {
             var combination = productContext.Combination;
@@ -142,9 +212,8 @@ namespace Smartstore.Core.DataExchange.Export
 
                 if (ctx.Projection.AttributeCombinationValueMerging == ExportAttributeValueMerging.AppendAllValuesToName)
                 {
-                    var translations = ctx.TranslationsPerPage[nameof(ProductVariantAttributeValue)];
                     var valueNames = variantAttributeValues
-                        .Select(x => translations.GetValue(ctx.LanguageId, x.Id, nameof(x.Name)) ?? x.Name)
+                        .Select(x => ctx.GetTranslation(x, nameof(x.Name), x.Name))
                         .ToList();
 
                     dynObject.Name = ((string)dynObject.Name).Grow(string.Join(", ", valueNames), " ");
@@ -291,12 +360,11 @@ namespace Smartstore.Core.DataExchange.Export
             dynObject.ProductTags = productTags
                 .Select(x =>
                 {
-                    var translations = ctx.TranslationsPerPage[nameof(ProductTag)];
-                    var localizedName = translations.GetValue(ctx.LanguageId, x.Id, nameof(x.Name)) ?? x.Name;
+                    var localizedName = ctx.GetTranslation(x, nameof(x.Name), x.Name);
                     dynamic dyn = new DynamicEntity(x);
                     dyn.Name = localizedName;
                     dyn.SeName = SeoHelper.BuildSlug(localizedName, _seoSettings);
-                    dyn._Localized = GetLocalized(ctx, translations, null, x, y => y.Name);
+                    dyn._Localized = GetLocalized(ctx, x, y => y.Name);
 
                     return dyn;
                 })
@@ -313,11 +381,10 @@ namespace Smartstore.Core.DataExchange.Export
                 dynObject.ProductBundleItems = bundleItems
                     .Select(x =>
                     {
-                        var translations = ctx.TranslationsPerPage[nameof(ProductBundleItem)];
                         dynamic dyn = new DynamicEntity(x);
-                        dyn.Name = translations.GetValue(ctx.LanguageId, x.Id, nameof(x.Name)) ?? x.Name;
-                        dyn.ShortDescription = translations.GetValue(ctx.LanguageId, x.Id, nameof(x.ShortDescription)) ?? x.ShortDescription;
-                        dyn._Localized = GetLocalized(ctx, translations, null, x, y => y.Name, y => y.ShortDescription);
+                        dyn.Name = ctx.GetTranslation(x, nameof(x.Name), x.Name);
+                        dyn.ShortDescription = ctx.GetTranslation(x, nameof(x.ShortDescription), x.ShortDescription);
+                        dyn._Localized = GetLocalized(ctx, x, y => y.Name, y => y.ShortDescription);
 
                         return dyn;
                     })
@@ -330,6 +397,9 @@ namespace Smartstore.Core.DataExchange.Export
             return dynObject;
         }
 
+        /// <summary>
+        /// Applies data of media files (product pictures) to an expando object.
+        /// </summary>
         private async Task<IEnumerable<ProductMediaFile>> ApplyMediaFiles(dynamic dynObject, Product product, DataExporterContext ctx, DynamicProductContext productContext)
         {
             IEnumerable<ProductMediaFile> mediaFiles = await ctx.ProductBatchContext.ProductMediaFiles.GetOrLoadAsync(product.Id);
@@ -359,6 +429,10 @@ namespace Smartstore.Core.DataExchange.Export
             return mediaFiles;
         }
 
+        /// <summary>
+        /// Applies extra data to an expando object.
+        /// Export feature flags set by the export provider controls whether and what to be exported here.
+        /// </summary>
         private async Task ApplyExportFeatures(
             dynamic dynObject,
             Product product, 
@@ -377,11 +451,10 @@ namespace Smartstore.Core.DataExchange.Export
                 string brand = null;
                 var productManus = await ctx.ProductBatchContext.ProductManufacturers.GetOrLoadAsync(product.Id);
 
-                if (productManus != null && productManus.Any())
+                if (productManus?.Any() ?? false)
                 {
-                    var translations = ctx.Translations[nameof(Manufacturer)];
                     var manufacturer = productManus.First().Manufacturer;
-                    brand = translations.GetValue(ctx.LanguageId, manufacturer.Id, nameof(manufacturer.Name)) ?? manufacturer.Name;
+                    brand = ctx.GetTranslation(manufacturer, nameof(manufacturer.Name), manufacturer.Name);
                 }
                 if (brand.IsEmpty())
                 {
@@ -476,12 +549,23 @@ namespace Smartstore.Core.DataExchange.Export
 
                     if (price.OfferPrice.HasValue || dynObject._FutureSpecialPrice != null)
                     {
-                        // ...
+                        var clonedOptions = ctx.PriceCalculationOptions.Clone();
+                        clonedOptions.IgnoreOfferPrice = true;
+
+                        var calculationContext = new PriceCalculationContext(product, clonedOptions);
+                        calculationContext.AddSelectedAttributes(productContext?.Combination?.AttributeSelection, product.Id);
+                        var priceWithoutOfferPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
+
+                        dynObject._RegularPrice = priceWithoutOfferPrice.FinalPrice.Amount;
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Applies the product description to an expando object.
+        /// Projection settings controls in detail how the product description is to be exported here.
+        /// </summary>
         private static async Task ApplyProductDescription(dynamic dynObject, Product product, DataExporterContext ctx)
         {
             try
@@ -526,9 +610,8 @@ namespace Smartstore.Core.DataExchange.Export
 
                     if (productManus != null && productManus.Any())
                     {
-                        var translations = ctx.Translations[nameof(Manufacturer)];
                         var manufacturer = productManus.First().Manufacturer;
-                        description = translations.GetValue(languageId, manufacturer.Id, nameof(manufacturer.Name)) ?? manufacturer.Name;
+                        description = ctx.GetTranslation(manufacturer, nameof(manufacturer.Name), manufacturer.Name);
                     }
 
                     description = description.Grow((string)dynObject.Name, " ");
