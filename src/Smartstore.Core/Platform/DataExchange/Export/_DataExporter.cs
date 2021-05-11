@@ -11,6 +11,7 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
@@ -196,24 +197,26 @@ namespace Smartstore.Core.DataExchange.Export
                         //query = GetProductQuery(ctx, ctx.Request.Profile.Offset, int.MaxValue);
                         break;
                     case ExportEntityType.Order:
-                        //query = GetOrderQuery(ctx, ctx.Request.Profile.Offset, int.MaxValue);
+                        query = GetOrderQuery(ctx);
                         break;
                     case ExportEntityType.Manufacturer:
-                        //query = GetManufacturerQuery(ctx, ctx.Request.Profile.Offset, int.MaxValue);
+                        query = GetManufacturerQuery(ctx);
                         break;
                     case ExportEntityType.Category:
-                        //query = GetCategoryQuery(ctx, ctx.Request.Profile.Offset, int.MaxValue);
+                        query = GetCategoryQuery(ctx);
                         break;
                     case ExportEntityType.Customer:
-                        query = GetCustomerQuery(ctx.Request.Profile.Offset, int.MaxValue, ctx);
+                        query = GetCustomerQuery(ctx);
                         break;
                     case ExportEntityType.NewsLetterSubscription:
-                        query = await GetNewsletterSubscriptionQuery(ctx.Request.Profile.Offset, int.MaxValue, ctx);
+                        query = GetNewsletterSubscriptionQuery(ctx);
                         break;
                     case ExportEntityType.ShoppingCartItem:
-                        query = GetShoppingCartItemQuery(ctx.Request.Profile.Offset, int.MaxValue, ctx);
+                        query = GetShoppingCartItemQuery(ctx);
                         break;
                 }
+
+                query = query.ApplyPagingForExport(ctx.Request.Profile.Offset, int.MaxValue, ctx);
 
                 var stats = new RecordStats
                 {
@@ -233,14 +236,66 @@ namespace Smartstore.Core.DataExchange.Export
 
         #region Entity queries
 
-        private IQueryable<Customer> GetCustomerQuery(int? skip, int take, DataExporterContext ctx)
+        private IQueryable<Order> GetOrderQuery(DataExporterContext ctx)
         {
-            var skipValue = skip.GetValueOrDefault();
-            if (skipValue == 0 && ctx.LastId == 0)
+            var storeId = ctx.Request.Profile.PerStore ? ctx.Store.Id : ctx.Filter.StoreId;
+            var startDate = ctx.Filter.CreatedFrom.HasValue 
+                ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(ctx.Filter.CreatedFrom.Value, _services.DateTimeHelper.CurrentTimeZone) 
+                : null;
+            var endDate = ctx.Filter.CreatedTo.HasValue 
+                ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(ctx.Filter.CreatedTo.Value, _services.DateTimeHelper.CurrentTimeZone) 
+                : null;
+
+            var query = _db.Orders
+                .AsNoTracking()
+                .Where(x => x.StoreId == storeId);
+
+            if (ctx.Projection.CustomerId.HasValue)
             {
-                skipValue = Math.Max(ctx.Request.Profile.Offset, 0);
+                // That's actually wrong because it is a projection and not a filter.
+                query = query.Where(x => x.CustomerId == ctx.Projection.CustomerId.Value);
             }
 
+            query = query
+                .ApplyDateFilter(startDate, endDate)
+                .ApplyStatusFilter(ctx.Filter.OrderStatusIds, ctx.Filter.PaymentStatusIds, ctx.Filter.ShippingStatusIds);
+
+            if (ctx.Request.EntitiesToExport.Any())
+            {
+                query = query.Where(x => ctx.Request.EntitiesToExport.Contains(x.Id));
+            }
+
+            return query;
+        }
+
+        private IQueryable<Manufacturer> GetManufacturerQuery(DataExporterContext ctx)
+        {
+            var storeId = ctx.Request.Profile.PerStore ? ctx.Store.Id : 0;
+            var query = _db.Manufacturers.AsNoTracking();
+
+            if (ctx.Request.EntitiesToExport.Any())
+            {
+                query = query.Where(x => ctx.Request.EntitiesToExport.Contains(x.Id));
+            }
+
+            return query;
+        }
+
+        private IQueryable<Category> GetCategoryQuery(DataExporterContext ctx)
+        {
+            var storeId = ctx.Request.Profile.PerStore ? ctx.Store.Id : 0;
+            var query = _db.Categories.AsNoTracking();
+
+            if (ctx.Request.EntitiesToExport.Any())
+            {
+                query = query.Where(x => ctx.Request.EntitiesToExport.Contains(x.Id));
+            }
+
+            return query;
+        }
+
+        private IQueryable<Customer> GetCustomerQuery(DataExporterContext ctx)
+        {
             var query = _db.Customers
                 .AsNoTracking()
                 .Include(x => x.BillingAddress)
@@ -290,33 +345,26 @@ namespace Smartstore.Core.DataExchange.Export
                 query = query.Where(x => activityTo >= x.LastActivityDateUtc);
             }
 
-            // TODO: (mg) (core) Test these two queries because they probably do not run.
             if (ctx.Filter.HasSpentAtLeastAmount.HasValue)
             {
-                query = query
-                    .Join(_db.Orders, x => x.Id, y => y.CustomerId, (x, y) => new { Customer = x, Order = y })
-                    .GroupBy(x => x.Customer.Id)
-                    .Select(x => new
-                    {
-                        x.FirstOrDefault().Customer, // RE: Nope, will definitely NOT run!
-                        OrderTotal = x.Sum(y => y.Order.OrderTotal)
-                    })
-                    .Where(x => x.OrderTotal >= ctx.Filter.HasSpentAtLeastAmount.Value)
-                    .Select(x => x.Customer);
+                var subQuery =
+                    from o in _db.Orders.AsNoTracking()
+                    group o by o.CustomerId into grp
+                    where grp.Sum(y => y.OrderTotal) >= ctx.Filter.HasSpentAtLeastAmount.Value
+                    select grp.Key;
+
+                query = query.Where(x => subQuery.Contains(x.Id));
             }
 
             if (ctx.Filter.HasPlacedAtLeastOrders.HasValue)
             {
-                query = query
-                    .Join(_db.Orders, x => x.Id, y => y.CustomerId, (x, y) => new { Customer = x, Order = y })
-                    .GroupBy(x => x.Customer.Id)
-                    .Select(x => new
-                    {
-                        Customer = x.FirstOrDefault().Customer, // RE: Nope, will definitely NOT run!
-                        OrderCount = x.Count()
-                    })
-                    .Where(x => x.OrderCount >= ctx.Filter.HasPlacedAtLeastOrders.Value)
-                    .Select(x => x.Customer);
+                var subQuery =
+                    from o in _db.Orders.AsNoTracking()
+                    group o by o.CustomerId into grp
+                    where grp.Count() >= ctx.Filter.HasPlacedAtLeastOrders.Value
+                    select grp.Key;
+
+                query = query.Where(x => subQuery.Contains(x.Id));
             }
 
             if (ctx.Request.EntitiesToExport.Any())
@@ -324,35 +372,12 @@ namespace Smartstore.Core.DataExchange.Export
                 query = query.Where(x => ctx.Request.EntitiesToExport.Contains(x.Id));
             }
 
-            query = query.OrderBy(x => x.Id);
-
-            if (skipValue > 0)
-            {
-                query = query.Skip(skipValue);
-            }
-            else if (ctx.LastId > 0)
-            {
-                query = query.Where(x => x.Id > ctx.LastId);
-            }
-
-            if (take != int.MaxValue)
-            {
-                query = query.Take(take);
-            }
-
             return query;
         }
 
-        private async Task<IQueryable<NewsletterSubscription>> GetNewsletterSubscriptionQuery(int? skip, int take, DataExporterContext ctx)
+        private IQueryable<NewsletterSubscription> GetNewsletterSubscriptionQuery(DataExporterContext ctx)
         {
             var storeId = ctx.Request.Profile.PerStore ? ctx.Store.Id : ctx.Filter.StoreId;
-
-            var skipValue = skip.GetValueOrDefault();
-            if (skipValue == 0 && ctx.LastId == 0)
-            {
-                skipValue = Math.Max(ctx.Request.Profile.Offset, 0);
-            }
-
             var customerQuery = _db.Customers.AsNoTracking();
 
             var query =
@@ -377,7 +402,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (ctx.Filter.WorkingLanguageId != null && ctx.Filter.WorkingLanguageId != 0)
             {
-                var isMasterLanguage = ctx.Filter.WorkingLanguageId == (await _languageService.GetMasterLanguageIdAsync(ctx.Store.Id));
+                var isMasterLanguage = ctx.Filter.WorkingLanguageId == _languageService.GetMasterLanguageId(ctx.Store.Id);
                 if (isMasterLanguage)
                 {
                     query = query.Where(x => x.Subscription.WorkingLanguageId == 0 || x.Subscription.WorkingLanguageId == ctx.Filter.WorkingLanguageId);
@@ -410,34 +435,12 @@ namespace Smartstore.Core.DataExchange.Export
                 query = query.Where(x => ctx.Request.EntitiesToExport.Contains(x.Subscription.Id));
             }
 
-            query = query.OrderBy(x => x.Subscription.Id);
-
-            if (skipValue > 0)
-            {
-                query = query.Skip(skipValue);
-            }
-            else if (ctx.LastId > 0)
-            {
-                query = query.Where(x => x.Subscription.Id > ctx.LastId);
-            }
-
-            if (take != int.MaxValue)
-            {
-                query = query.Take(take);
-            }
-
             return query.Select(x => x.Subscription);
         }
 
-        private IQueryable<ShoppingCartItem> GetShoppingCartItemQuery(int? skip, int take, DataExporterContext ctx)
+        private IQueryable<ShoppingCartItem> GetShoppingCartItemQuery(DataExporterContext ctx)
         {
             var storeId = ctx.Request.Profile.PerStore ? ctx.Store.Id : ctx.Filter.StoreId;
-
-            var skipValue = skip.GetValueOrDefault();
-            if (skipValue == 0 && ctx.LastId == 0)
-            {
-                skipValue = Math.Max(ctx.Request.Profile.Offset, 0);
-            }
 
             var query = _db.ShoppingCartItems
                 .AsNoTracking()
@@ -516,22 +519,6 @@ namespace Smartstore.Core.DataExchange.Export
             if (ctx.Request.EntitiesToExport.Any())
             {
                 query = query.Where(x => ctx.Request.EntitiesToExport.Contains(x.Id));
-            }
-
-            query = query.OrderBy(x => x.Id);
-
-            if (skipValue > 0)
-            {
-                query = query.Skip(skipValue);
-            }
-            else if (ctx.LastId > 0)
-            {
-                query = query.Where(x => x.Id > ctx.LastId);
-            }
-
-            if (take != int.MaxValue)
-            {
-                query = query.Take(take);
             }
 
             return query;
