@@ -20,9 +20,11 @@ Vue.component("sm-data-grid", {
                     :style="getTableStyles()">
                     <thead v-if="!options.hideHeader" class="dg-head">
                         <tr>
-                            <th v-if="options.allowRowSelection" class="dg-col-pinned dg-col-pinned-left">
+                            <th v-if="allowRowSelection" class="dg-col-pinned dg-col-pinned-left" @click="onSelectAllRows($event)">
                                 <div class="dg-cell dg-cell-header dg-cell-selector">
-                                    <span class="dg-cell-value"><input type="checkbox" /></span>
+                                    <span class="dg-cell-value">
+                                        <input type="checkbox" class="dg-cell-selector-checkbox" ref="masterSelector" />
+                                    </span>
                                 </div>
                             </th>            
                 
@@ -50,10 +52,12 @@ Vue.component("sm-data-grid", {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(row, rowIndex) in rows" :key="row[options.keyMemberName]">
-                             <td v-if="options.allowRowSelection" class="dg-col-pinned dg-col-pinned-left">
+                        <tr v-for="(row, rowIndex) in rows" :key="row[options.keyMemberName]" :class="{ active: isRowSelected(row) }">
+                             <td v-if="allowRowSelection" class="dg-col-pinned dg-col-pinned-left" @click="onSelectRow($event, row)">
                                 <div class="dg-cell dg-cell-selector">
-                                    <span class="dg-cell-value"><input type="checkbox" /></span>
+                                    <span class="dg-cell-value">
+                                        <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" />
+                                    </span>
                                 </div>
                             </td>             
 
@@ -130,11 +134,34 @@ Vue.component("sm-data-grid", {
             rows: [],
             total: 0,
             aggregates: [],
+            selectedRows: {},
             isLoading: false
         }
     },
 
     computed: {
+        allowRowSelection() {
+            return this.options.allowRowSelection && this.rows && this.rows.length > 0;
+        },
+
+        selectedRowsCount() {
+            return Object.values(this.selectedRows).length;
+        },
+
+        selectedRowKeys() {
+            return Object.values(this.selectedRows).map(row =>
+            {
+                return row[this.options.keyMemberName];
+            });
+        },
+
+        selectedRowsInCurrentPage() {
+            if (this.selectedRowsCount === 0)
+                return [];
+
+            const selectedRows = this.selectedRows;
+            return this.rows.filter(row => selectedRows[row[this.options.keyMemberName]] !== undefined);
+        }
     },
 
     watch: {
@@ -143,6 +170,9 @@ Vue.component("sm-data-grid", {
                 this.read();
             },
             deep: true
+        },
+        selectedRows() {
+            this.setMasterSelectorState(this.getMasterSelectorState());
         }
     },
 
@@ -226,17 +256,17 @@ Vue.component("sm-data-grid", {
                         hasFraction = w === 'auto' || w.indexOf('fr') > -1;
                     }
                     return w;
-                })
-                .join(' ');
+                });
 
-            if (this.options.allowRowSelection) {
-                result = "50px " + result;
+            if (this.allowRowSelection) {
+                result.splice(0, 0, "48px");
             }
 
             // Spacer always 'auto' to fill remaining area
-            result += " " + (hasFraction ? "0" : "auto");
+            //result += " " + (hasFraction ? "0" : "auto");
+            result.push(hasFraction ? "0" : "auto");
 
-            return result;
+            return result.join(' ');
         },
 
         renderCellValue(value, column, row) {
@@ -278,9 +308,11 @@ Vue.component("sm-data-grid", {
                     self.rows = result.rows !== undefined ? result.rows : result;
                     self.total = result.total || self.rows.length;
                     self.aggregates = result.aggregates !== undefined ? result.aggregates : [];
+                    self.$emit("data-bound", self.rows);
                 },
                 complete() {
                     self.isLoading = false;
+                    self.setMasterSelectorState(self.getMasterSelectorState());
                 }
             });
 
@@ -313,17 +345,57 @@ Vue.component("sm-data-grid", {
                 : null;
         },
 
+
+        getMasterSelectorState() {
+            var numSelected = this.selectedRowsInCurrentPage.length;
+
+            return {
+                checked: numSelected === this.rows.length,
+                indeterminate: numSelected > 0 && numSelected < this.rows.length
+            };
+        },
+
+        setMasterSelectorState(state) {
+            var chk = this.$refs.masterSelector;
+            if (!chk || !state) return;
+
+            chk.checked = state.checked;
+            chk.indeterminate = state.indeterminate;
+        },
+
+        isRowSelected(row) {
+            return this.selectedRows[row[this.options.keyMemberName]];
+        },
+
+        onSelectAllRows(e) {
+            var state = this.getMasterSelectorState();
+            this.rows.forEach(x => {
+                this.onSelectRow(e, x, state.indeterminate);
+            });
+        },
+
+        onSelectRow(e, row, select) {
+            if (!row)
+                return;
+
+            var key = row[this.options.keyMemberName];
+            var selectedRow = this.selectedRows[key];
+            if (selectedRow && !select) {
+                this.$delete(this.selectedRows, key);
+                this.$emit('row-selected', this.selectedRows, row, false);
+            }
+            else if (!selectedRow) {
+                this.$set(this.selectedRows, key, row);
+                this.$emit('row-selected', this.selectedRows, row, true);
+            }
+        },
+
         onSort(e, column) {
             if (!this.sorting.enabled || !column.sortable || this.isLoading)
                 return;
 
             var descriptor = this.getSortDescriptor(column);
             var multiMode = this.sorting.allowMultiSort && e.ctrlKey;
-
-            //if (!multiMode) {
-            //    console.log("Deleting sort command array");
-            //    this.command.sorting.length = 0;
-            //}
 
             if (descriptor) {
                 if (this.sorting.allowUnsort && descriptor.descending) {
@@ -335,10 +407,6 @@ Vue.component("sm-data-grid", {
                 }
             }
             else {
-                //if (!this.sorting.allowMultiSort || !e.ctrlKey) {
-                //    console.log("Deleting array");
-                //    this.command.sorting.length = 0;
-                //}
                 descriptor = { member: column.entityMember || column.member, descending: false };
                 this.command.sorting.push(descriptor);
             }
@@ -346,16 +414,6 @@ Vue.component("sm-data-grid", {
             if (descriptor && !multiMode) {
                 this.command.sorting = this.command.sorting.filter(x => x === descriptor);
             }
-
-            console.log(this.command.sorting);
-
-            //if (!sort) {
-            //    sort = { member: column.entityMember || column.member, descending: false };
-            //    this.command.sorting.push(sort);
-            //}
-            //else {
-            //    sort.descending = !sort.descending;
-            //}
         },
 
         onStartResize(e, column, columnIndex) {
@@ -408,27 +466,6 @@ Vue.component("sm-data-grid", {
 
         autoSizeColumn(e, column, columnIndex) {
             column.width = 'max-content';
-            //return;
-
-            //var table = this.$refs.table;
-            //var cells = table.querySelectorAll("td[data-index='" + columnIndex + "']");
-            //if (cells.length === 0) {
-            //    return;
-            //}
-
-            //var maxWidth = DATAGRID_CELL_MIN_WIDTH;
-            //cells.forEach(td => {
-            //    var elValue = td.firstChild?.firstChild;
-            //    if (elValue) {
-            //        maxWidth = Math.max(maxWidth, elValue.scrollWidth);
-            //    }
-            //}); 
-
-            //var firstCell = cells[0].firstChild;
-            //var styles = window.getComputedStyle(firstCell);
-            //var hpad = parseInt(styles.paddingLeft) + parseInt(styles.paddingRight);
-            //console.log(maxWidth);
-            //column.width = (maxWidth + hpad) + 'px';
         }
     }
 });

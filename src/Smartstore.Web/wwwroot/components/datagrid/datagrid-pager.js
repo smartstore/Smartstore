@@ -1,24 +1,25 @@
 ﻿Vue.component("sm-data-grid-pager", {
     template: `
-        <div class="dg-pager bg-light d-flex">
+        <div class="dg-pager bg-light d-flex flex-nowrap">
             <a href="#" class="dg-page dg-page-refresh px-3" @click.prevent="refresh"><i class="fa fa-sync-alt"></i></a>
             
             <template v-if="totalPages > 1">
                 <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-fw fa-angle-double-left"></i></a>
                 <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-fw fa-angle-left"></i></a>
             
-                <a v-for="item in pageItems" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number" :class="{ active: item.active }">
+                <a v-for="item in pageItems" href="#" @click.prevent="pageTo(item.page)" class="dg-page dg-page-number d-none d-sm-inline" :class="{ active: item.active }">
                     {{ item.label || item.page }}
                 </a>
             
                 <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(currentPageIndex + 1)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-right"></i></a>
                 <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(totalPages)" :class="{ disabled: !hasNextPage }"><i class="fa fa-fw fa-angle-double-right"></i></a>
 
-                <span class="dg-page text-muted pl-4">{{ currentPageIndex }} / {{ totalPages }}</span>
+                <span class="dg-page text-muted pl-4 text-truncate">{{ currentPageIndex }} / {{ totalPages }}</span>
             </template>
 
-            <span class="dg-page text-muted ml-auto mr-2">
-                Anzeigen der Elemente {{ firstItemIndex.toLocaleString() }} - {{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}
+            <span class="dg-page text-muted ml-auto mr-2 text-truncate d-none d-sm-inline">
+                <span class="d-none d-md-inline">Anzeigen der Elemente </span>
+                <span>{{ firstItemIndex.toLocaleString() }} - {{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>
             </span>
         </div>
     `,
