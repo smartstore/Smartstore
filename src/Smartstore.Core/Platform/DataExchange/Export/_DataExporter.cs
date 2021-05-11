@@ -298,7 +298,7 @@ namespace Smartstore.Core.DataExchange.Export
                     .GroupBy(x => x.Customer.Id)
                     .Select(x => new
                     {
-                        x.FirstOrDefault().Customer,
+                        x.FirstOrDefault().Customer, // RE: Nope, will definitely NOT run!
                         OrderTotal = x.Sum(y => y.Order.OrderTotal)
                     })
                     .Where(x => x.OrderTotal >= ctx.Filter.HasSpentAtLeastAmount.Value)
@@ -312,7 +312,7 @@ namespace Smartstore.Core.DataExchange.Export
                     .GroupBy(x => x.Customer.Id)
                     .Select(x => new
                     {
-                        Customer = x.FirstOrDefault().Customer,
+                        Customer = x.FirstOrDefault().Customer, // RE: Nope, will definitely NOT run!
                         OrderCount = x.Count()
                     })
                     .Where(x => x.OrderCount >= ctx.Filter.HasPlacedAtLeastOrders.Value)
