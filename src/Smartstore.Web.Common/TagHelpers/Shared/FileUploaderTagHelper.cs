@@ -48,7 +48,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string OnMediaSelected { get; set; }
     }
 
-    [HtmlTargetElement("file-uploader", Attributes = FileUploaderAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     [HtmlTargetElement("file-uploader", Attributes = UploadUrlAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class FileUploaderTagHelper : SmartTagHelper, IFileUploaderModel
     {
