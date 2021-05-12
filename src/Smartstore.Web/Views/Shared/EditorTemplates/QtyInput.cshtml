@@ -11,24 +11,24 @@
     //var inputStyle = Model.QuantiyControlType;
 
     var htmlAttributes = new RouteValueDictionary(ViewData["htmlAttributes"] ?? new object());
-    var fixedAttributes = new RouteValueDictionary();
+    var fixedAttributes = new AttributeDictionary();
 
     foreach (var attr in htmlAttributes)
     {
-        fixedAttributes[attr.Key.StartsWith("data_") ? attr.Key.Replace("_", "-") : attr.Key] = attr.Value;
+        fixedAttributes.Add(attr.Key.StartsWith("data_") ? attr.Key.Replace("_", "-") : attr.Key, attr.Value.ToString());
     }
 
-    fixedAttributes["class"] = "form-control" + (large ? " form-control-lg" : "");
-    fixedAttributes["data-min"] = Model.MinOrderAmount;
-    fixedAttributes["data-max"] = Model.MaxOrderAmount;
-    fixedAttributes["data-postfix"] = Model.QuantityUnitName;
-    fixedAttributes["data-step"] = Model.QuantityStep;
+    fixedAttributes.Add("class", "form-control" + (large ? " form-control-lg" : ""));
+    fixedAttributes.Add("data-min", Model.MinOrderAmount.ToString());
+    fixedAttributes.Add("data-max", Model.MaxOrderAmount.ToString());
+    fixedAttributes.Add("data-postfix", Model.QuantityUnitName);
+    fixedAttributes.Add("data-step", Model.QuantityStep.ToString());
 }
 
 <div class="qty-input" attr-class='(Model.QuantityUnitName != null && Model.QuantityUnitName.Value.HasValue(), "has-postfix")'>
     @if (inputStyle == "spinner")
     {
-        @Html.TextBoxFor(model => model.EnteredQuantity, fixedAttributes)
+        <input type="text" id="@Html.IdForModel()" name="@Html.NameForModel()" attrs="@fixedAttributes"/>
     }
     else
     {

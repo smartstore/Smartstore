@@ -32,7 +32,10 @@
 }
 
 <div class="@containerCssClass" data-format="@Html.Raw(format)">
-    @Html.Hidden(string.Empty, ViewData.Model)
+    @*TODO: (mh) (core) Default validation was inserted by this*@
+    @*@Html.Hidden(string.Empty, ViewData.Model)*@
+
+    <input asp-for="@Model" type="hidden" id="@Html.IdForModel()" name="@Html.NameForModel()" />
     <input type="range" class="@sliderCssClass" data-target="#@id" min="@min" max="@max" step="@step" value="@invariantValue" />
 
     <div class="range-value" data-placement="left">

@@ -36,5 +36,5 @@
     }
 }
 
-<select name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" asp-items="ButtonTypes">
+<select asp-for="@Model" id="@Html.IdForModel()" name="@Html.NameForModel()"  asp-items="ButtonTypes">
 </select>

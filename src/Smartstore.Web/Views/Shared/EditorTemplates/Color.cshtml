@@ -13,6 +13,8 @@
     }
 }
 
-<colorbox name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" 
+<colorbox asp-for="@Model"
+          id="@Html.IdForModel()"
+          name="@Html.NameForModel()" 
           value="@Value.EmptyNull()" 
           sm-default-color="@(ViewData["fallbackColor"].Convert<string>())" />

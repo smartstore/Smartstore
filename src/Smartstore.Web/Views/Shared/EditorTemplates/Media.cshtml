@@ -110,7 +110,12 @@
             <div class="fu-thumb fu-filename rounded" data-current-filename="@(currentFile?.Name)">
                 <media-thumbnail sm-file="currentFile" sm-size="MediaSettings.ThumbnailSizeMd"></media-thumbnail>
             </div>
-            @Html.HiddenFor(x => x, new { @class = "hidden", Value = currentFile != null ? Model : defaultValue })
+            <input asp-for="@Model"
+                   type="hidden" 
+                   id="@Html.IdForModel()" 
+                   name="@Html.NameForModel()" 
+                   value="@(currentFile != null ? Model : defaultValue)" 
+                   class="hidden" />
         }
 
         @*TODO: (core) (ms) Wait for MediaController Upload method implementation*@

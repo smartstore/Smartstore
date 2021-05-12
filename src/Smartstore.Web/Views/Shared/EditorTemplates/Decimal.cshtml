@@ -42,10 +42,12 @@
 			.DecimalDigits(4)   //always display 4 digits
 	)*@
 
-    <input name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" 
+    <input asp-for="@Model"
+           id="@Html.IdForModel()"
+           name="@Html.NameForModel()" 
            value="@Value" 
-           class="form-control" 
            type="number"
+           class="form-control" 
            placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
            min="@(GetMetadata<decimal?>("min"))"
            max="@(GetMetadata<decimal?>("max"))"

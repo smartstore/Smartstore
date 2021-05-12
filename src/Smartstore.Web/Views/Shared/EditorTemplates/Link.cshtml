@@ -1,5 +1,4 @@
 ﻿@using Smartstore.Utilities
-@using Smartstore.Engine
 
 @inject ILinkResolver LinkResolver 
 
@@ -13,7 +12,7 @@
 
     var rtl = WorkContext.WorkingLanguage.Rtl;
     var rnd = CommonHelper.GenerateRandomInteger();
-    var id = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var id = Html.IdForModel();
     var link = await LinkResolver.ResolveAsync(Value);
     var hideQueryString = GetMetadata<bool>("hideQueryString");
 
@@ -26,7 +25,7 @@
 <div id="link-builder-@rnd" class="link-builder" data-field-id="@id" data-current-type="@(Value != null ? link.Type.ToString().ToLower() : "")">
     <div class="d-flex flex-nowrap input-group">
         @* Template control that receives the link expression. *@
-        @Html.Hidden("", Value)
+        <input asp-for="@Model" id="@id" name="@Html.NameForModel()" type="hidden" value="@Value" />
 
         @* 1. prepend type selector. *@
         <div class="input-group-prepend type-container">
@@ -153,6 +152,7 @@
 </div>
 
 <script>
+    // TODO: (mh) (core) Init in factory.
     $(function () {
         $('#link-builder-@(rnd)').linkBuilder();
     });

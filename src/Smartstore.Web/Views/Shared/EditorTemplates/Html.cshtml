@@ -34,7 +34,13 @@
 }
 
 <div class="html-editor-root">
-    @Html.TextArea(string.Empty, html, new { @class = "summernote-editor" + (lazy ? " d-none" : "") })
+    <textarea asp-for="@Model"
+              id="@Html.IdForModel()" 
+              name="@Html.NameForModel()" 
+              class="summernote-editor" 
+              attr-value='(html.HasValue(), html)' 
+              attr-class='(lazy, "d-none")'>
+    </textarea>
 
     @if (lazy)
     {
@@ -54,8 +60,9 @@
     }
 </div>
 
-
 <script>
+    // TODO: (mh) (core) Init in factory.
+    // TODO: (mh) (core) Implement RoxyFileManager > ProcessRequest.
 	summernote_image_upload_url = '@Html.Raw(Url.Action("ProcessRequest", "RoxyFileManager"))';
 	@if (!lazy)
 	{

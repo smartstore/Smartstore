@@ -54,7 +54,9 @@
                 .Value(Value)
         )*@
 
-    <input name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)"
+    <input asp-for="@Model"
+           id="@Html.IdForModel()"
+           name="@Html.NameForModel()" 
            value="@Value"
            class="form-control"
            type="number"

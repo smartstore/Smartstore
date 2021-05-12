@@ -43,14 +43,16 @@
 			.Value(Value)
 	)*@
 
-    <input name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" 
-        value="@Value" 
-        class="form-control" 
-        type="number"
-        placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
-        min="@(GetMetadata<byte?>("min") ?? 0)"
-        max="@(GetMetadata<byte?>("max") ?? 255)"
-        step="@(GetMetadata<byte?>("step") ?? 1)"/>
+    <input asp-for="@Model"
+           id="@Html.IdForModel()"
+           name="@Html.NameForModel()" 
+           value="@Value" 
+           type="number"
+           class="form-control" 
+           placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
+           min="@(GetMetadata<byte?>("min") ?? 0)"
+           max="@(GetMetadata<byte?>("max") ?? 255)"
+           step="@(GetMetadata<byte?>("step") ?? 1)"/>
 
     @if (TryGetMetadata<string>("postfix", out var postfix))
     {

@@ -26,11 +26,16 @@
     }
 }
 
+@{
+    var id = Html.IdForModel();
+    var name = Html.NameForModel();
+}
+
 @if (!ViewData.ModelMetadata.IsNullableValueType)
 {
-    @Html.CheckBox(string.Empty, Value ?? false, new { @class = "check-box form-check-input" })
+    <input asp-for="@Model" id="@id" name="@name" attr-value="(Value ?? false, (Value ?? false).ToString())" class="check-box form-check-input" type="checkbox" />
 }
 else
 {
-    @Html.DropDownList(string.Empty, TriStateValues, new { @class = "form-control list-box tri-state" })
+    <select id="@id" name="@name" asp-items="TriStateValues" class="list-box tri-state"></select>
 }
