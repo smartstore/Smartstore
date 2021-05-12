@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 
@@ -188,7 +188,7 @@ namespace Smartstore.Core.DataExchange.Export
             var fileLength = Prettifier.HumanizeBytes(DataStream.Length);
             var batchSizeString = localizer("Admin.DataExchange.Export.BatchSize").Value;
 
-            Log.Fatal($"No more memory could be allocated. Probably the export file is getting too large ({fileLength}). Please use profile setting \"{batchSizeString}\" to split the export into smaller files.");
+            Log.Error($"No more memory could be allocated. Probably the export file is getting too large ({fileLength}). Please use profile setting \"{batchSizeString}\" to split the export into smaller files.");
 
             RecordException(exception, entityId);
         }

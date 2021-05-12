@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Smartstore.Domain;
 
 namespace Smartstore.Core.DataExchange.Export
@@ -14,13 +15,13 @@ namespace Smartstore.Core.DataExchange.Export
         /// <summary>
         /// Gets current data segment.
         /// </summary>
-        IReadOnlyCollection<dynamic> CurrentSegment { get; } // TODO: (mg) (core) Should be async (??)
+        Task<IReadOnlyCollection<dynamic>> GetCurrentSegmentAsync();
 
         /// <summary>
         /// Reads the next segment.
         /// </summary>
         /// <returns><c>true</c> succeeded, <c>false</c> failed.</returns>
-        bool ReadNextSegment(); // TODO: (mg) (core) Make this async
+        Task<bool> ReadNextSegmentAsync();
     }
 
     internal interface IExportDataSegmenterProvider : IExportDataSegmenterConsumer, IDisposable
@@ -37,11 +38,11 @@ namespace Smartstore.Core.DataExchange.Export
     }
 
 
-    public class ExportDataSegmenter<T> : IExportDataSegmenterProvider where T : BaseEntity
+    public class ExportDataSegmenter<T> : Disposable, IExportDataSegmenterProvider where T : BaseEntity
     {
-        private readonly Func<List<T>> _load;
-        private readonly Action<ICollection<T>> _loaded;
-        private readonly Func<T, List<dynamic>> _convert;
+        private readonly Func<Task<IEnumerable<T>>> _dataLoader;
+        private readonly Action<ICollection<T>> _loadedCallback;
+        private readonly Func<T, Task<IEnumerable<dynamic>>> _dataConverter;
 
         private readonly int _offset;
         private readonly int _take;
@@ -53,18 +54,18 @@ namespace Smartstore.Core.DataExchange.Export
         private bool _endOfData;
 
         public ExportDataSegmenter(
-            Func<List<T>> load,
-            Action<ICollection<T>> loaded,
-            Func<T, List<dynamic>> convert,
+            Func<Task<IEnumerable<T>>> dataLoader,
+            Action<ICollection<T>> loadedCallback,
+            Func<T, Task<IEnumerable<dynamic>>> dataConverter,
             int offset,
             int take,
             int limit,
             int recordsPerSegment,
             int totalRecords)
         {
-            _load = load;
-            _loaded = loaded;
-            _convert = convert;
+            _dataLoader = dataLoader;
+            _loadedCallback = loadedCallback;
+            _dataConverter = dataConverter;
             _offset = offset;
             _take = take;
             _limit = limit;
@@ -129,37 +130,35 @@ namespace Smartstore.Core.DataExchange.Export
         /// <summary>
         /// Gets current data segment.
         /// </summary>
-        public IReadOnlyCollection<dynamic> CurrentSegment
+        public async Task<IReadOnlyCollection<dynamic>> GetCurrentSegmentAsync()
         {
-            get
+            T entity;
+            var records = new List<dynamic>();
+
+            while (_data.Count > 0 && (entity = _data.Dequeue()) != null)
             {
-                T entity;
-                var records = new List<dynamic>();
+                var convertedData = await _dataConverter(entity);
+                convertedData.Each(x => records.Add(x));
 
-                while (_data.Count > 0 && (entity = _data.Dequeue()) != null)
+                if (++RecordCount >= _limit && _limit > 0)
                 {
-                    _convert(entity).Each(x => records.Add(x));
-
-                    if (++RecordCount >= _limit && _limit > 0)
-                    {
-                        return records;
-                    }
-
-                    if (++RecordPerSegmentCount >= _recordsPerSegment && _recordsPerSegment > 0)
-                    {
-                        return records;
-                    }
+                    return records;
                 }
 
-                return records;
+                if (++RecordPerSegmentCount >= _recordsPerSegment && _recordsPerSegment > 0)
+                {
+                    return records;
+                }
             }
+
+            return records;
         }
 
         /// <summary>
         /// Read next segment.
         /// </summary>
         /// <returns><c>true</c> next segment available. <c>false</c> no more data.</returns>
-        public bool ReadNextSegment()
+        public async Task<bool> ReadNextSegmentAsync()
         {
             if (_limit > 0 && RecordCount >= _limit)
             {
@@ -177,7 +176,7 @@ namespace Smartstore.Core.DataExchange.Export
                 return true;
             }
 
-            var newData = _load();
+            var newData = await _dataLoader();
 
             if (_data != null && _data.Count > 0)
             {
@@ -202,7 +201,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             // Give provider the opportunity to make something with entity ids.
-            _loaded?.Invoke(_data.AsReadOnly());
+            _loadedCallback?.Invoke(_data.AsReadOnly());
 
             return _data.Count > 0;
         }
@@ -210,7 +209,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// <summary>
         /// Dispose and reset segmenter instance.
         /// </summary>
-        public void Dispose()
+        protected override void OnDispose(bool disposing)
         {
             RecordCount = 0;
             RecordPerSegmentCount = 0;

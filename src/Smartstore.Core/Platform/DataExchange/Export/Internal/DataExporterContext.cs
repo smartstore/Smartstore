@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
@@ -94,11 +94,12 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
         public ExportFilter Filter { get; private set; }
         public ExportProjection Projection { get; private set; }
+        public Store Store { get; set; }
         public Currency ContextCurrency { get; set; }
         public Customer ContextCustomer { get; set; }
         public Language ContextLanguage { get; set; }
         public int LanguageId => Projection.LanguageId ?? 0;
-        public Store Store { get; set; }
+        public int MasterLanguageId { get; set; }
 
         public string FolderContent { get; private set; }
 
