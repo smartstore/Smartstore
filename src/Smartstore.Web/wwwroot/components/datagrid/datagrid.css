@@ -52,8 +52,7 @@
     user-select: none; }
   .dg-table td {
     background-color: var(--dg-row-bg);
-    transition: background-color 0.1s ease-in-out;
-    overflow: hidden; }
+    transition: background-color 0.1s ease-in-out; }
   .dg-table tbody tr:nth-of-type(even) > td {
     background-color: var(--dg-row-even-bg); }
   .dg-table th:first-child {
@@ -87,6 +86,9 @@
 .dg-cell-spacer {
   padding: 0;
   display: none; }
+
+.dg-icon + * {
+  padding-left: 6px; }
 
 .dg-cell-value {
   overflow: hidden;
@@ -127,15 +129,17 @@
 .dg-col-pinned {
   position: sticky !important;
   z-index: 5; }
-  .dg-col-pinned.dg-col-pinned-left {
+  .dg-col-pinned.alpha {
     left: 0; }
-  .dg-col-pinned.dg-col-pinned-right {
+  .dg-col-pinned.omega {
     right: 0; }
 
 .dg-cell-selector {
   align-items: center;
   justify-content: center;
-  cursor: pointer; }
+  cursor: pointer;
+  display: block;
+  margin: 0; }
 
 .dg-cell-selector-checkbox {
   cursor: pointer; }
@@ -185,6 +189,48 @@ a.dg-page {
     border-color: rgba(0, 0, 0, 0.15);
     border-color: #dee2e6; }
 
+.dg-page-size-chooser + .dropdown-menu {
+  min-width: initial; }
+
+.dg-scrollable .dg-col-pinned.alpha {
+  box-shadow: inset -1px 0 0 var(--dg-border-color); }
+
+.dg-scrollable .dg-col-pinned.omega {
+  box-shadow: inset 1px 0 0 var(--dg-border-color); }
+
+.dg-scrollable .dg-col-pinned:before {
+  position: absolute;
+  display: block;
+  content: "";
+  pointer-events: none;
+  width: 10px;
+  right: -10px;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(270deg, transparent, rgba(0, 0, 0, 0.05)); }
+
+.dg-scrollable .dg-col-pinned.omega:before {
+  right: initial;
+  left: -10px;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05)); }
+
 .dg-page-number,
+.dg-page-size-chooser,
 span.dg-page {
   font-size: 13px; }
+
+[dir=rtl] .dg-page-refresh {
+  border-left: 1px solid #dee2e6;
+  border-right: none; }
+
+[dir=rtl] .dg-col-pinned.alpha {
+  left: initial;
+  right: 0; }
+
+[dir=rtl] .dg-col-pinned.omega {
+  left: 0;
+  right: initial; }
+
+[dir=rtl] .dg-icon + * {
+  padding-left: 0;
+  padding-right: 6px; }

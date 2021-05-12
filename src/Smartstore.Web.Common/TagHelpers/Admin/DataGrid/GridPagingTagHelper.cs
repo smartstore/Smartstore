@@ -21,6 +21,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string ShowChooserAttributeName = "show-size-chooser";
         const string SizesAttributeName = "available-sizes";
 
+        private int[] _availableSizes;
+
         public override void Init(TagHelperContext context)
         {
             base.Init(context);
@@ -52,13 +54,16 @@ namespace Smartstore.Web.TagHelpers.Admin
         public GridPagerPosition Position { get; set; }
 
         [HtmlAttributeName(ShowChooserAttributeName)]
-        public bool ShowSizeChooser { get; set; }
+        public bool ShowSizeChooser { get; set; } = true;
 
         /// <summary>
         /// Available page sizes to choose from.
         /// </summary>
         [HtmlAttributeName(SizesAttributeName)]
-        public int[] AvailableSizes { get; set; } = new int[] { 25, 50, 100, 200 };
+        public int[] AvailableSizes { 
+            get => _availableSizes ??= new int[] { PageSize, PageSize * 2, PageSize * 4, PageSize * 6, PageSize * 8 };
+            set => _availableSizes = value; 
+        }
 
         [HtmlAttributeName(TotalAttributeName)]
         public int? Total { get; set; }

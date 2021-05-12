@@ -78,7 +78,7 @@ $hover: darken(#f2f7fb, 0.5%);
     td {
         background-color: var(--dg-row-bg);
         transition: background-color 0.1s ease-in-out;
-        overflow: hidden;
+        //overflow: hidden;
     }
 
     tbody tr:nth-of-type(even) > td {
@@ -132,6 +132,10 @@ $hover: darken(#f2f7fb, 0.5%);
 .dg-cell-spacer {
     padding: 0;
     display: none;
+}
+
+.dg-icon + * {
+    padding-left: 6px;
 }
 
 .dg-cell-value {
@@ -198,11 +202,11 @@ $hover: darken(#f2f7fb, 0.5%);
     position: sticky !important;
     z-index: 5;
 
-    &.dg-col-pinned-left {
+    &.alpha {
         left: 0;
     }
 
-    &.dg-col-pinned-right {
+    &.omega {
         right: 0;
     }
 }
@@ -215,6 +219,8 @@ $hover: darken(#f2f7fb, 0.5%);
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    display: block;
+    margin: 0;
 }
 
 .dg-cell-selector-checkbox {
@@ -287,7 +293,72 @@ a.dg-page {
     }
 }
 
+.dg-page-size-chooser + .dropdown-menu {
+    min-width: initial;
+}
+
+
+// Scrolling
+// -----------------------------------------
+
+.dg-scrollable .dg-col-pinned {
+    &.alpha {
+        box-shadow: inset -1px 0 0 var(--dg-border-color);
+    }
+
+    &.omega {
+        box-shadow: inset 1px 0 0 var(--dg-border-color);
+    }
+
+    &:before {
+        position: absolute;
+        display: block;
+        content: "";
+        pointer-events: none;
+        width: 10px;
+        right: -10px;
+        top: 0;
+        bottom: 0;
+        background: linear-gradient(270deg, transparent, rgba(#000, .05));
+    }
+
+    &.omega:before {
+        right: initial;
+        left: -10px;
+        background: linear-gradient(90deg, transparent, rgba(#000, .05));
+    }
+}
+
+
+
 .dg-page-number,
+.dg-page-size-chooser,
 span.dg-page {
     font-size: 13px;
+}
+
+
+// RTL
+// -----------------------------------------
+
+[dir=rtl] {
+    .dg-page-refresh {
+        border-left: 1px solid $border;
+        border-right: none;
+    }
+
+    .dg-col-pinned.alpha {
+        left: initial;
+        right: 0;
+    }
+
+    .dg-col-pinned.omega {
+        left: 0;
+        right: initial;
+    }
+
+    .dg-icon + * {
+        padding-left: 0;
+        padding-right: 6px;
+    }
 }

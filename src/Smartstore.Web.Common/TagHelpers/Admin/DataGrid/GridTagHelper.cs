@@ -34,6 +34,9 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string AllowRowSelectionAttributeName = "allow-row-selection";
         const string HideHeaderAttributeName = "hide-header";
         const string KeyMemberAttributeName = "key-member";
+        const string OnDataBindingAttributeName = "ondatabinding";
+        const string OnDataBoundAttributeName = "ondatabound";
+        const string OnRowSelectedAttributeName = "onrowselected";
 
         public override void Init(TagHelperContext context)
         {
@@ -90,6 +93,27 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(KeyMemberAttributeName)]
         public ModelExpression KeyMember { get; set; }
+
+        /// <summary>
+        /// Name of Javascript function to call before data binding.
+        /// Function parameters: <c>this</c> = Grid component instance, <c>command</c>.
+        /// </summary>
+        [HtmlAttributeName(OnDataBindingAttributeName)]
+        public string OnDataBinding { get; set; }
+
+        /// <summary>
+        /// Name of Javascript function to call after data has been bound successfully.
+        /// Function parameters: <c>this</c> = Grid component instance, <c>command</c>, <c>rows</c>.
+        /// </summary>
+        [HtmlAttributeName(OnDataBoundAttributeName)]
+        public string OnDataBound { get; set; }
+
+        /// <summary>
+        /// Name of Javascript function to call after a rows has been (un)selected.
+        /// Function parameters: <c>this</c> = Grid component instance, <c>selectedRows</c>, <c>row</c>, <c>selected</c>.
+        /// </summary>
+        [HtmlAttributeName(OnRowSelectedAttributeName)]
+        public string OnRowSelected { get; set; }
 
         #endregion
 
@@ -178,6 +202,9 @@ namespace Smartstore.Web.TagHelpers.Admin
                     allowResize = AllowResize,
                     allowRowSelection = AllowRowSelection,
                     hideHeader = HideHeader,
+                    onDataBinding = OnDataBinding,
+                    onDataBound = OnDataBound,
+                    onRowSelected = OnRowSelected
                     //condensed = Condensed
                 },
                 dataSource = new
@@ -225,7 +252,8 @@ namespace Smartstore.Web.TagHelpers.Admin
                     resizable = col.Resizable,
                     sortable = col.Sortable,
                     nowrap = col.Nowrap,
-                    entityMember = col.EntityMember
+                    entityMember = col.EntityMember,
+                    icon = col.Icon
                 });
             }
 

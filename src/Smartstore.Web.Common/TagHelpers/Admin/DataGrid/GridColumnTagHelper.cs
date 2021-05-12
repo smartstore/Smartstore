@@ -26,6 +26,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string SortableAttributeName = "sortable";
         const string NowrapAttributeName = "nowrap";
         const string EntityMemberAttributeName = "entity-member";
+        const string IconAttributeName = "icon";
 
         public override void Init(TagHelperContext context)
         {
@@ -117,6 +118,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(EntityMemberAttributeName)]
         public string EntityMember { get; set; }
+
+        /// <summary>
+        /// CSS class name of icon to use in column header, e.g. 'far fa-envelope'.
+        /// </summary>
+        [HtmlAttributeName(IconAttributeName)]
+        public string Icon { get; set; }
 
         [HtmlAttributeNotBound]
         public TagHelperContent DisplayTemplate { get; set; }

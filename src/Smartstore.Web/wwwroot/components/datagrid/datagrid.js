@@ -11,21 +11,41 @@ Vue.component("pass", {
 Vue.component("sm-data-grid", {
     template: `
         <div class="datagrid">
-            <div v-if="paging.enabled && (paging.position === 'top' || paging.position === 'both')" class="dg-pager-wrapper border-bottom">
-                <sm-data-grid-pager :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
+
+
+            <div class="dg-toolbar border-bottom bg-light d-flex justify-content-end flex-nowrap">
+                <button type="button" class="dg-tool btn btn-primary btn-flat rounded-0 p-3 mr-auto" style="padding: 14px !important;">
+                    <i class="fa fa-plus"></i>
+                    <span>Neu...</span>
+                </button>
+                <button type="button" class="dg-tool btn btn-danger btn-flat rounded-0 x-ml-auto p-3 border-left" :class="{ 'disabled': !hasSelection }" style="padding: 14px !important;">
+                    <i class="far fa-trash-alt"></i>
+                    <span>Ausgewählte löschen</span>
+                    <span v-if="hasSelection" class="fwm">({{ selectedRowsCount }})</span>
+                </button>
+                <button type="button" class="dg-tool btn btn-secondary btn-flat rounded-0 x-ml-auto p-3 border-left" :class="{ 'disabled': !hasSelection }" style="padding: 14px !important;">
+                    <i class="far fa-upload"></i>
+                    <span>Exportieren</span>
+                    <span v-if="hasSelection" class="fwm">({{ selectedRowsCount }})</span>
+                </button>
             </div>
-            <div class="dg-table-wrapper">
+
+
+            <div v-if="paging.enabled && (paging.position === 'top' || paging.position === 'both')" class="dg-pager-wrapper border-bottom">
+                <sm-data-grid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
+            </div>
+            <div ref="tableWrapper" class="dg-table-wrapper">
                 <table ref="table"
                     :class="getTableClass()"
                     :style="getTableStyles()">
                     <thead v-if="!options.hideHeader" class="dg-head">
                         <tr>
-                            <th v-if="allowRowSelection" class="dg-col-pinned dg-col-pinned-left" @click="onSelectAllRows($event)">
-                                <div class="dg-cell dg-cell-header dg-cell-selector">
+                            <th v-if="allowRowSelection" class="dg-col-pinned alpha">
+                                <label class="dg-cell dg-cell-header dg-cell-selector">
                                     <span class="dg-cell-value">
-                                        <input type="checkbox" class="dg-cell-selector-checkbox" ref="masterSelector" />
+                                        <input type="checkbox" class="dg-cell-selector-checkbox" ref="masterSelector" @change="onSelectAllRows($event)" />
                                     </span>
-                                </div>
+                                </label>
                             </th>            
                 
                             <th v-for="(column, columnIndex) in columns"
@@ -36,6 +56,7 @@ Vue.component("sm-data-grid", {
                                     :style="getCellStyles(column, true)" 
                                     :class="{ 'dg-sortable': sorting.enabled && column.sortable }"
                                     @click="onSort($event, column)">
+                                    <i v-if="column.icon" class="dg-icon" :class="column.icon"></i>
                                     <span class="dg-cell-value">{{ column.title }}</span>
                                     <i v-if="isSortedAsc(column)" class="fa fa-fw fa-sm fa-arrow-up mx-1"></i>
                                     <i v-if="isSortedDesc(column)" class="fa fa-fw fa-sm fa-arrow-down mx-1"></i>
@@ -53,12 +74,12 @@ Vue.component("sm-data-grid", {
                     </thead>
                     <tbody>
                         <tr v-for="(row, rowIndex) in rows" :key="row[options.keyMemberName]" :class="{ active: isRowSelected(row) }">
-                             <td v-if="allowRowSelection" class="dg-col-pinned dg-col-pinned-left" @click="onSelectRow($event, row)">
-                                <div class="dg-cell dg-cell-selector">
+                             <td v-if="allowRowSelection" class="dg-col-pinned alpha">
+                                <label class="dg-cell dg-cell-selector">
                                     <span class="dg-cell-value">
-                                        <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" />
+                                        <input type="checkbox" class="dg-cell-selector-checkbox" :checked="isRowSelected(row)" @change="onSelectRow($event, row)" />
                                     </span>
-                                </div>
+                                </label>
                             </td>             
 
                             <td v-for="(column, columnIndex) in columns"
@@ -85,7 +106,7 @@ Vue.component("sm-data-grid", {
                 </table>
             </div>
             <div v-if="paging.enabled && (paging.position === 'bottom' || paging.position === 'both')" class="dg-pager-wrapper border-top">
-                <sm-data-grid-pager :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
+                <sm-data-grid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
             </div>
         </div>
     `,
@@ -121,11 +142,39 @@ Vue.component("sm-data-grid", {
     },
 
     created: function () {
+        var self = this;
         this.command = this.buildCommand();
+
+        this.$on('data-binding', command => {
+            call('onDataBinding', command);
+        });
+
+        this.$on('data-bound', (command, rows) => {
+            this.setMasterSelectorState(this.getMasterSelectorState());
+            call('onDataBound', command, rows);
+        });
+
+        this.$on('row-selected', (selectedRows, row, selected) => {
+            call('onRowSelected', selectedRows, row, selected);
+        });
+
+        function call(name) {
+            if (_.isString(self.options[name])) {
+                var args = Array.prototype.splice.call(arguments, 1);
+                window[self.options[name]].apply(self, args);
+            }
+        }
     },
 
     mounted: function () {
+        var self = this;
         this.read();
+
+        var resizeObserver = new ResizeObserver(entries => {
+            var el = entries[0].target;
+            self.isScrollable = el.offsetWidth < el.scrollWidth;
+        });
+        resizeObserver.observe(this.$refs.tableWrapper);
     },
 
     data: function () {
@@ -135,7 +184,8 @@ Vue.component("sm-data-grid", {
             total: 0,
             aggregates: [],
             selectedRows: {},
-            isLoading: false
+            isLoading: false,
+            isScrollable: false
         }
     },
 
@@ -146,6 +196,10 @@ Vue.component("sm-data-grid", {
 
         selectedRowsCount() {
             return Object.values(this.selectedRows).length;
+        },
+
+        hasSelection() {
+            return Object.values(this.selectedRows).length > 0;
         },
 
         selectedRowKeys() {
@@ -177,23 +231,14 @@ Vue.component("sm-data-grid", {
     },
 
     methods: {
-        buildCommand() {
-            var p = this.paging;
-            var s = this.sorting;
-            var command = {
-                page: p.pageIndex,
-                pageSize: p.pageSize,
-                sorting: s.descriptors
-            };
-
-            return command;
-        },
+        // #region Rendering
 
         getTableClass() {
             const cssClass = {
                 'dg-table': true,
                 'dg-striped': this.options.striped,
-                'dg-hover': this.options.hover
+                'dg-hover': this.options.hover,
+                'dg-scrollable': this.isScrollable,
                 //'dg-condensed': this.options.condensed
             };
 
@@ -263,7 +308,6 @@ Vue.component("sm-data-grid", {
             }
 
             // Spacer always 'auto' to fill remaining area
-            //result += " " + (hasFraction ? "0" : "auto");
             result.push(hasFraction ? "0" : "auto");
 
             return result.join(' ');
@@ -288,6 +332,22 @@ Vue.component("sm-data-grid", {
             return value;
         },
 
+        // #endregion
+
+        // #region Commands
+
+        buildCommand() {
+            var p = this.paging;
+            var s = this.sorting;
+            var command = {
+                page: p.pageIndex,
+                pageSize: p.pageSize,
+                sorting: s.descriptors
+            };
+
+            return command;
+        },
+
         read() {
             if (this.isLoading)
                 return;
@@ -298,21 +358,23 @@ Vue.component("sm-data-grid", {
             const input = document.querySelector('input[name=__RequestVerificationToken]');
             const command = $.extend(true, { __RequestVerificationToken: input.value }, this.command);
 
+            self.$emit("data-binding", command);
+
             $.ajax({
                 url: this.dataSource.read,
                 type: 'POST',
                 cache: false,
                 dataType: 'json',
                 data: command,
+                global: false,
                 success(result) {
                     self.rows = result.rows !== undefined ? result.rows : result;
                     self.total = result.total || self.rows.length;
                     self.aggregates = result.aggregates !== undefined ? result.aggregates : [];
-                    self.$emit("data-bound", self.rows);
+                    self.$emit("data-bound", command, self.rows);
                 },
                 complete() {
                     self.isLoading = false;
-                    self.setMasterSelectorState(self.getMasterSelectorState());
                 }
             });
 
@@ -328,6 +390,10 @@ Vue.component("sm-data-grid", {
             //.then(r => r.json())
             //.then(data => { this.rows = data; });
         },
+
+        // #endregion
+
+        // #region Sorting
 
         isSortedAsc(column) {
             var sort = this.getSortDescriptor(column);
@@ -345,6 +411,35 @@ Vue.component("sm-data-grid", {
                 : null;
         },
 
+        onSort(e, column) {
+            if (!this.sorting.enabled || !column.sortable || this.isLoading)
+                return;
+
+            var descriptor = this.getSortDescriptor(column);
+            var multiMode = this.sorting.allowMultiSort && e.ctrlKey;
+
+            if (descriptor) {
+                if (this.sorting.allowUnsort && descriptor.descending) {
+                    this.command.sorting = this.command.sorting.filter(x => x != descriptor);
+                    descriptor = null;
+                }
+                else {
+                    descriptor.descending = !descriptor.descending;
+                }
+            }
+            else {
+                descriptor = { member: column.entityMember || column.member, descending: false };
+                this.command.sorting.push(descriptor);
+            }
+
+            if (descriptor && !multiMode) {
+                this.command.sorting = this.command.sorting.filter(x => x === descriptor);
+            }
+        },
+
+        // #endregion
+
+        // #region Row selection
 
         getMasterSelectorState() {
             var numSelected = this.selectedRowsInCurrentPage.length;
@@ -390,31 +485,9 @@ Vue.component("sm-data-grid", {
             }
         },
 
-        onSort(e, column) {
-            if (!this.sorting.enabled || !column.sortable || this.isLoading)
-                return;
+        // #endregion
 
-            var descriptor = this.getSortDescriptor(column);
-            var multiMode = this.sorting.allowMultiSort && e.ctrlKey;
-
-            if (descriptor) {
-                if (this.sorting.allowUnsort && descriptor.descending) {
-                    this.command.sorting = this.command.sorting.filter(x => x != descriptor);
-                    descriptor = null;
-                }
-                else {
-                    descriptor.descending = !descriptor.descending;
-                }
-            }
-            else {
-                descriptor = { member: column.entityMember || column.member, descending: false };
-                this.command.sorting.push(descriptor);
-            }
-
-            if (descriptor && !multiMode) {
-                this.command.sorting = this.command.sorting.filter(x => x === descriptor);
-            }
-        },
+        // #region Resizing
 
         onStartResize(e, column, columnIndex) {
             this.isResizing = true;
@@ -466,6 +539,12 @@ Vue.component("sm-data-grid", {
 
         autoSizeColumn(e, column, columnIndex) {
             column.width = 'max-content';
-        }
+        },
+
+        // #endregion
+
+        // #region Scrolling
+
+        // #endregion
     }
 });

@@ -1,7 +1,9 @@
 ﻿Vue.component("sm-data-grid-pager", {
     template: `
         <div class="dg-pager bg-light d-flex flex-nowrap">
-            <a href="#" class="dg-page dg-page-refresh px-3" @click.prevent="refresh"><i class="fa fa-sync-alt"></i></a>
+            <a href="#" class="dg-page dg-page-refresh px-3" @click.prevent="refresh">
+                <i class="fa fa-sync-alt" :class="{ 'fa-spin text-success': $parent.isLoading }"></i>
+            </a>
             
             <template v-if="totalPages > 1">
                 <a href="#" class="dg-page dg-page-arrow" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-fw fa-angle-double-left"></i></a>
@@ -16,15 +18,26 @@
 
                 <span class="dg-page text-muted pl-4 text-truncate">{{ currentPageIndex }} / {{ totalPages }}</span>
             </template>
-
-            <span class="dg-page text-muted ml-auto mr-2 text-truncate d-none d-sm-inline">
-                <span class="d-none d-md-inline">Anzeigen der Elemente </span>
-                <span>{{ firstItemIndex.toLocaleString() }} - {{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>
-            </span>
+            
+            <div class="ml-auto d-flex align-items-center">
+                <span class="dg-page text-muted mr-2 text-truncate d-none d-sm-inline pl-2">
+                    <span class="d-none d-md-inline">Anzeigen der Elemente </span>
+                    <span>{{ firstItemIndex.toLocaleString() }}-{{ lastItemIndex.toLocaleString() }} von {{ total.toLocaleString() }}</span>
+                </span>
+                <div v-if="paging.showSizeChooser && paging.availableSizes?.length" class="dropdown d-flex align-items-center border-left">
+                    <a href="#" class="dg-page dg-page-size-chooser dropdown-toggle text-truncate px-3" data-toggle="dropdown">
+                        <span class="fwm">{{ command.pageSize }}</span> pro Seite
+                    </a>
+                    <div class="dropdown-menu">
+                        <a v-for="size in paging.availableSizes" href="#" class="dropdown-item" @click.prevent="setPageSize(size)">{{ size }}</a>
+                    </div>
+                </div>
+            </div>
         </div>
     `,
 
     props: {
+        paging: Object,
         command: Object,
         rows: Array,
         total: Number,
@@ -126,6 +139,10 @@
             if (pageIndex > 0 && pageIndex <= this.totalPages) {
                 this.command.page = pageIndex;
             }
+        },
+
+        setPageSize(size) {
+            this.command.pageSize = size;
         }
     }
 });
