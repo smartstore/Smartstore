@@ -157,10 +157,10 @@ namespace Smartstore.Core.DataExchange.Export.Internal
             return !IsPreview && Request.Provider.Metadata.ExportFeatures.HasFlag(feature);
         }
 
-        public LocalizedPropertyCollection GetTranslations<TEntity>(TEntity entity)
+        public LocalizedPropertyCollection GetTranslations<TEntity>()
             where TEntity : BaseEntity
         {
-            var entityName = entity.GetType().Name;
+            var entityName = typeof(TEntity).Name;
 
             if (_globalTranslationEntities.Contains(entityName))
             {
@@ -173,13 +173,13 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public string GetTranslation<TEntity>(TEntity entity, string localeKey, string defaultValue = default) 
             where TEntity : BaseEntity
         {
-            return GetTranslations(entity)?.GetValue(LanguageId, entity.Id, localeKey) ?? defaultValue;
+            return GetTranslations<TEntity>()?.GetValue(LanguageId, entity.Id, localeKey) ?? defaultValue;
         }
 
-        public UrlRecordCollection GetSlugs<TEntity>(TEntity entity)
+        public UrlRecordCollection GetSlugs<TEntity>()
             where TEntity : BaseEntity
         {
-            var entityName = entity.GetType().Name;
+            var entityName = typeof(TEntity).Name;
 
             if (_globalSlugEntities.Contains(entityName))
             {
@@ -192,7 +192,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public string GetSlug<TEntity>(TEntity entity, bool returnDefaultValue = true)
             where TEntity : BaseEntity
         {
-            return GetSlugs(entity)?.GetSlug(LanguageId, entity.Id, returnDefaultValue);
+            return GetSlugs<TEntity>()?.GetSlug(LanguageId, entity.Id, returnDefaultValue);
         }
 
         #endregion

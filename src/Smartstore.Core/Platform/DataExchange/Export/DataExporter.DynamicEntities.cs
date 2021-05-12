@@ -719,13 +719,13 @@ namespace Smartstore.Core.DataExchange.Export
                 return null;
             }
 
-            var translations = ctx.GetTranslations(entity);
+            var translations = ctx.GetTranslations<TEntity>();
             if (translations == null)
             {
                 return null;
             }
 
-            var slugs = ctx.GetSlugs(entity);
+            var slugs = ctx.GetSlugs<TEntity>();
             var result = new List<dynamic>();
 
             foreach (var language in ctx.Languages)

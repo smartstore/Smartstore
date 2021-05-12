@@ -79,6 +79,7 @@ using Smartstore.Core.Content.Topics;
 using Smartstore.Utilities.Html;
 using Smartstore.Net.Mail;
 using Autofac.Core;
+using Smartstore.Core.Catalog.Categories;
 
 namespace Smartstore.Web.Controllers
 {
@@ -128,7 +129,7 @@ namespace Smartstore.Web.Controllers
         private readonly PrivacySettings _privacySettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly CommonSettings _commonSettings;
-        
+
         public HomeController(
             SmartDbContext db,
             ILogger<HomeController> logger1,
@@ -635,7 +636,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> Files()
         {
             var mediaService = HttpContext.RequestServices.GetRequiredService<IMediaService>();
-            
+
             var images = (await _db.MediaFiles
                 .AsNoTracking()
                 .Where(x => x.MediaType == MediaType.Image && x.Extension != "svg" && x.Size > 0 && x.FolderId != null /*&& x.Extension == "jpg" && x.Size < 10000*/)
@@ -665,7 +666,7 @@ namespace Smartstore.Web.Controllers
             //files.AddRange(videos);
             //files.AddRange(audios);
             files.AddRange(images);
-            
+
             return View(files);
         }
 
@@ -763,7 +764,7 @@ namespace Smartstore.Web.Controllers
             var model = new TestModelMH();
 
             model.CampaingCount = await _db.Campaigns.AsNoTracking().CountAsync();
-            
+
             var campaignService = Services.Resolve<ICampaignService>();
             var campaign = await _db.Campaigns.AsNoTracking().FirstOrDefaultAsync();
 
@@ -972,10 +973,65 @@ namespace Smartstore.Web.Controllers
             content.AppendLine("");
             content.AppendLine("Base price: " + basePriceInfo);
 
+            content.AppendLine("");
+            var query1 = GetEntitiesQuery(typeof(Product), null);
+            query1 = ApplyPaging(query1, 2, 2);
+            var entities1 = await query1.ToListAsync();
+            var products = entities1.Cast<Product>();
+            products.Each(x => content.AppendLine($"{x.Id} {x.Name}"));
 
+            content.AppendLine("");
+            var query2 = GetEntitiesQuery(typeof(Category), new[] { 152, 153, 154, 155 });
+            var entities2 = await query2.ToListAsync();
+            var categories = entities2.Cast<Category>();
+            categories.Each(x => content.AppendLine($"{x.Id} {x.Name}"));
 
             return Content(content.ToString());
             //return View();
+
+            IQueryable<BaseEntity> GetEntitiesQuery(Type type, int[] ids)
+            {
+                IQueryable<BaseEntity> query = null;
+
+                if (type == typeof(Product))
+                {
+                    var productQuery = _db.Products.AsNoTracking();
+                    productQuery = productQuery.Where(x => x.Published && x.ProductTypeId == 5);
+
+                    query = productQuery;
+                }
+                else if (type == typeof(Category))
+                {
+                    var categoryQuery = _db.Categories.AsNoTracking();
+                    categoryQuery = categoryQuery.Where(x => x.Published);
+
+                    query = categoryQuery;
+                }
+
+                if (ids?.Any() ?? false)
+                {
+                    query = query.Where(x => ids.Contains(x.Id));
+                }
+
+                return query;
+            }
+
+            IQueryable<BaseEntity> ApplyPaging(IQueryable<BaseEntity> query, int? skip, int take)
+            {
+                query = query.OrderBy(x => x.Id);
+
+                if (skip.HasValue)
+                {
+                    query = query.Skip(skip.Value);
+                }
+
+                if (take != int.MaxValue)
+                {
+                    query = query.Take(take);
+                }
+
+                return query;
+            }
         }
     }
 }

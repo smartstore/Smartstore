@@ -368,6 +368,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                 query = ApplyPaging(query, ctx.Request.Profile.Offset, int.MaxValue, ctx);
 
+
                 var stats = new RecordStats
                 {
                     TotalRecords = query.Count()
@@ -434,6 +435,35 @@ namespace Smartstore.Core.DataExchange.Export
         }
 
         #region Entities
+
+        private static IQueryable<TEntity> ApplyPaging<TEntity>(IQueryable<TEntity> query, int? skip, int take, DataExporterContext ctx)
+            where TEntity : BaseEntity
+        {
+            // Skip used for data preview grid (classic paging) or initial query (offset profile setting).
+            var skipValue = skip.GetValueOrDefault();
+            if (skipValue == 0 && ctx.LastId == 0)
+            {
+                skipValue = Math.Max(ctx.Request.Profile.Offset, 0);
+            }
+
+            query = query.OrderBy(x => x.Id);
+
+            if (skipValue > 0)
+            {
+                query = query.Skip(skipValue);
+            }
+            else if (ctx.LastId > 0)
+            {
+                query = query.Where(x => x.Id > ctx.LastId);
+            }
+
+            if (take != int.MaxValue)
+            {
+                query = query.Take(take);
+            }
+
+            return query;
+        }
 
         private IQueryable<Product> GetProductQuery(DataExporterContext ctx)
         {
@@ -883,6 +913,270 @@ namespace Smartstore.Core.DataExchange.Export
 
         #endregion
 
+        #region Entities NEW
+
+        private IQueryable<BaseEntity> GetEntitiesQuery(DataExporterContext ctx)
+        {
+            var f = ctx.Filter;
+            var entityType = ctx.Request.Provider.Value.EntityType;
+            var storeId = ctx.Request.Profile.PerStore ? ctx.Store.Id : f.StoreId;
+            var timeZone = _services.DateTimeHelper.CurrentTimeZone;
+
+            var createdFrom = f.CreatedFrom.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.CreatedFrom.Value, timeZone) : null;
+            var createdTo = f.CreatedTo.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.CreatedTo.Value, timeZone) : null;
+
+            var activityFrom = f.LastActivityFrom.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.LastActivityFrom.Value, timeZone) : null;
+            var activityTo = f.LastActivityTo.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.LastActivityTo.Value, timeZone) : null;
+            IQueryable<BaseEntity> result = null;
+
+            if (entityType == ExportEntityType.Product)
+            {
+                if (ctx.Request.ProductQuery != null)
+                    return ctx.Request.ProductQuery;
+
+                var priceFrom = f.PriceMinimum.HasValue ? new Money(f.PriceMinimum.Value, ctx.ContextCurrency) : (Money?)null;
+                var priceTo = f.PriceMaximum.HasValue ? new Money(f.PriceMaximum.Value, ctx.ContextCurrency) : (Money?)null;
+
+                var searchQuery = new CatalogSearchQuery()
+                    .WithCurrency(ctx.ContextCurrency)
+                    .WithLanguage(ctx.ContextLanguage)
+                    .HasStoreId(storeId)
+                    .PriceBetween(priceFrom, priceTo)
+                    .WithStockQuantity(f.AvailabilityMinimum, f.AvailabilityMaximum)
+                    .CreatedBetween(createdFrom, createdTo);
+
+                if (f.Visibility.HasValue)
+                    searchQuery = searchQuery.WithVisibility(f.Visibility.Value);
+
+                if (f.IsPublished.HasValue)
+                    searchQuery = searchQuery.PublishedOnly(f.IsPublished.Value);
+
+                if (f.ProductType.HasValue)
+                    searchQuery = searchQuery.IsProductType(f.ProductType.Value);
+
+                if (f.ProductTagId.HasValue)
+                    searchQuery = searchQuery.WithProductTagIds(f.ProductTagId.Value);
+
+                if (f.WithoutManufacturers.HasValue)
+                    searchQuery = searchQuery.HasAnyManufacturer(!f.WithoutManufacturers.Value);
+                else if (f.ManufacturerId.HasValue)
+                    searchQuery = searchQuery.WithManufacturerIds(f.FeaturedProducts, f.ManufacturerId.Value);
+
+                if (f.WithoutCategories.HasValue)
+                    searchQuery = searchQuery.HasAnyCategory(!f.WithoutCategories.Value);
+                else if (f.CategoryIds != null && f.CategoryIds.Length > 0)
+                    searchQuery = searchQuery.WithCategoryIds(f.FeaturedProducts, f.CategoryIds);
+
+                if (ctx.Request.EntitiesToExport.Any())
+                    searchQuery = searchQuery.WithProductIds(ctx.Request.EntitiesToExport.ToArray());
+                else
+                    searchQuery = searchQuery.WithProductId(f.IdMinimum, f.IdMaximum);
+
+                return _catalogSearchService.PrepareQuery(searchQuery);
+            }
+            else if (entityType == ExportEntityType.Order)
+            {
+                var query = _db.Orders
+                    .AsNoTracking()
+                    .Where(x => x.StoreId == storeId);
+
+                // That's actually wrong because it is a projection and not a filter.
+                if (ctx.Projection.CustomerId.HasValue)
+                    query = query.Where(x => x.CustomerId == ctx.Projection.CustomerId.Value);
+
+                result = query
+                    .ApplyDateFilter(createdFrom, createdTo)
+                    .ApplyStatusFilter(f.OrderStatusIds, f.PaymentStatusIds, f.ShippingStatusIds);
+            }
+            else if (entityType == ExportEntityType.Manufacturer)
+            {
+                result = _db.Manufacturers.AsNoTracking();
+            }
+            else if (entityType == ExportEntityType.Category)
+            {
+                result = _db.Categories.AsNoTracking();
+            }
+            else if (entityType == ExportEntityType.Customer)
+            {
+                var query = _db.Customers
+                    .AsNoTracking()
+                    .Include(x => x.BillingAddress)
+                    .Include(x => x.ShippingAddress)
+                    .Include(x => x.Addresses)
+                        .ThenInclude(x => x.Country)
+                    .Include(x => x.Addresses)
+                        .ThenInclude(x => x.StateProvince)
+                    .Include(x => x.CustomerRoleMappings)
+                        .ThenInclude(x => x.CustomerRole)
+                    .AsQueryable();
+
+                if (f.IsActiveCustomer.HasValue)
+                    query = query.Where(x => x.Active == f.IsActiveCustomer.Value);
+
+                if (f.IsTaxExempt.HasValue)
+                    query = query.Where(x => x.IsTaxExempt == f.IsTaxExempt.Value);
+
+                if (f.CustomerRoleIds?.Any() ?? false)
+                    query = query.Where(x => x.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
+
+                if (f.BillingCountryIds?.Any() ?? false)
+                    query = query.Where(x => x.BillingAddress != null && f.BillingCountryIds.Contains(x.BillingAddress.Id));
+
+                if (f.ShippingCountryIds?.Any() ?? false)
+                    query = query.Where(x => x.ShippingAddress != null && f.ShippingCountryIds.Contains(x.ShippingAddress.Id));
+
+                if (activityFrom.HasValue)
+                    query = query.Where(x => activityFrom <= x.LastActivityDateUtc);
+
+                if (activityTo.HasValue)
+                    query = query.Where(x => activityTo >= x.LastActivityDateUtc);
+
+                if (f.HasSpentAtLeastAmount.HasValue)
+                {
+                    var subQuery =
+                        from o in _db.Orders.AsNoTracking()
+                        group o by o.CustomerId into grp
+                        where grp.Sum(y => y.OrderTotal) >= f.HasSpentAtLeastAmount.Value
+                        select grp.Key;
+
+                    query = query.Where(x => subQuery.Contains(x.Id));
+                }
+
+                if (ctx.Filter.HasPlacedAtLeastOrders.HasValue)
+                {
+                    var subQuery =
+                        from o in _db.Orders.AsNoTracking()
+                        group o by o.CustomerId into grp
+                        where grp.Count() >= f.HasPlacedAtLeastOrders.Value
+                        select grp.Key;
+
+                    query = query.Where(x => subQuery.Contains(x.Id));
+                }
+
+                result = query;
+            }
+            else if (entityType == ExportEntityType.NewsLetterSubscription)
+            {
+                var query =
+                    from ns in _db.NewsletterSubscriptions.AsNoTracking()
+                    join c in _db.Customers.AsNoTracking() on ns.Email equals c.Email into customers
+                    from c in customers.DefaultIfEmpty()
+                    select new NewsletterSubscriber
+                    {
+                        Subscription = ns,
+                        Customer = c
+                    };
+
+                if (storeId > 0)
+                    query = query.Where(x => x.Subscription.StoreId == storeId);
+
+                if (f.IsActiveSubscriber.HasValue)
+                    query = query.Where(x => x.Subscription.Active == f.IsActiveSubscriber.Value);
+
+                if (f.WorkingLanguageId.GetValueOrDefault() > 0)
+                {
+                    query = f.WorkingLanguageId == ctx.MasterLanguageId
+                        ? query.Where(x => x.Subscription.WorkingLanguageId == 0 || x.Subscription.WorkingLanguageId == f.WorkingLanguageId)
+                        : query.Where(x => x.Subscription.WorkingLanguageId == f.WorkingLanguageId);
+                }
+
+                if (createdFrom.HasValue)
+                    query = query.Where(x => createdFrom <= x.Subscription.CreatedOnUtc);
+
+                if (createdTo.HasValue)
+                    query = query.Where(x => createdTo >= x.Subscription.CreatedOnUtc);
+
+                if (f.CustomerRoleIds?.Any() ?? false)
+                    query = query.Where(x => x.Customer.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
+
+                result = query.Select(x => x.Subscription);
+            }
+            else if (entityType == ExportEntityType.ShoppingCartItem)
+            {
+                var query = _db.ShoppingCartItems
+                    .AsNoTracking()
+                    .Include(x => x.Customer)
+                    .ThenInclude(x => x.CustomerRoleMappings)
+                    .ThenInclude(x => x.CustomerRole)
+                    .Include(x => x.Product)
+                    .AsQueryable();
+
+                if (storeId > 0)
+                    query = query.Where(x => x.StoreId == storeId);
+
+                if (ctx.Request.ActionOrigin.EqualsNoCase("CurrentCarts"))
+                {
+                    query = query.Where(x => x.ShoppingCartTypeId == (int)ShoppingCartType.ShoppingCart);
+                }
+                else if (ctx.Request.ActionOrigin.EqualsNoCase("CurrentWishlists"))
+                {
+                    query = query.Where(x => x.ShoppingCartTypeId == (int)ShoppingCartType.Wishlist);
+                }
+                else if (ctx.Filter.ShoppingCartTypeId.HasValue)
+                {
+                    query = query.Where(x => x.ShoppingCartTypeId == ctx.Filter.ShoppingCartTypeId.Value);
+                }
+
+                if (f.IsActiveCustomer.HasValue)
+                    query = query.Where(x => x.Customer.Active == f.IsActiveCustomer.Value);
+
+                if (f.IsTaxExempt.HasValue)
+                    query = query.Where(x => x.Customer.IsTaxExempt == f.IsTaxExempt.Value);
+
+                if (f.CustomerRoleIds?.Any() ?? false)
+                    query = query.Where(x => x.Customer.CustomerRoleMappings.Select(y => y.CustomerRoleId).Intersect(f.CustomerRoleIds).Any());
+
+                if (activityFrom.HasValue)
+                    query = query.Where(x => activityFrom <= x.Customer.LastActivityDateUtc);
+
+                if (activityTo.HasValue)
+                    query = query.Where(x => activityTo >= x.Customer.LastActivityDateUtc);
+
+                if (createdFrom.HasValue)
+                    query = query.Where(x => createdFrom <= x.CreatedOnUtc);
+
+                if (createdTo.HasValue)
+                    query = query.Where(x => createdTo >= x.CreatedOnUtc);
+
+                if (ctx.Projection.NoBundleProducts)
+                    query = query.Where(x => x.Product.ProductTypeId != (int)ProductType.BundledProduct);
+                else
+                    query = query.Where(x => x.BundleItemId == null);
+
+                result = query;
+            }
+            else
+            {
+                throw new SmartException($"Unsupported entity type '{entityType}'.");
+            }
+
+            if (ctx.Request.EntitiesToExport.Any())
+            {
+                result = result.Where(x => ctx.Request.EntitiesToExport.Contains(x.Id));
+            }
+
+            return result;
+        }
+
+        private Task<IEnumerable<BaseEntity>> LoadEntities<TEntity>(DataExporterContext ctx, CancellationToken cancellationToken)
+        {
+            DetachAllEntitiesAndClear(ctx);
+
+            var stats = ctx.StatsPerStore[ctx.Store.Id];
+            if (ctx.LastId >= stats.MaxId)
+            {
+                return null;
+            }
+
+            var query = GetEntitiesQuery(ctx);
+
+
+
+            return null;
+        }
+
+        #endregion
+
         #region Utilities
 
         private async Task UpdateOrderStatus(DataExporterContext ctx, CancellationToken cancellationToken)
@@ -910,35 +1204,6 @@ namespace Smartstore.Core.DataExchange.Export
 
                 ctx.Log.Info($"Updated order status for {num} order(s).");
             }
-        }
-
-        private static IQueryable<TEntity> ApplyPaging<TEntity>(IQueryable<TEntity> query, int? skip, int take, DataExporterContext ctx)
-            where TEntity : BaseEntity
-        {
-            // Skip used for data preview grid (classic paging) or initial query (offset profile setting).
-            var skipValue = skip.GetValueOrDefault();
-            if (skipValue == 0 && ctx.LastId == 0)
-            {
-                skipValue = Math.Max(ctx.Request.Profile.Offset, 0);
-            }
-
-            query = query.OrderBy(x => x.Id);
-
-            if (skipValue > 0)
-            {
-                query = query.Skip(skipValue);
-            }
-            else if (ctx.LastId > 0)
-            {
-                query = query.Where(x => x.Id > ctx.LastId);
-            }
-
-            if (take != int.MaxValue)
-            {
-                query = query.Take(take);
-            }
-
-            return query;
         }
 
         private async Task<LocalizedPropertyCollection> CreateTranslationCollection(string keyGroup, IEnumerable<BaseEntity> entities)
