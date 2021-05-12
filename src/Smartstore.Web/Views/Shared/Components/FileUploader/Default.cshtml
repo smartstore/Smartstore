@@ -1,0 +1,161 @@
+﻿@using Smartstore.Utilities;
+@using Smartstore.Core;
+@using Smartstore.Core.Content.Media;
+@using Smartstore.Core.Catalog.Products;
+
+@model FileUploaderModel
+
+@inject IMediaService MediaService
+@inject MediaSettings MediaSettings
+
+@{
+    Assets.AppendScriptParts("~/bundles/fileuploader");
+
+    if (!Model.Name.HasValue())
+    {
+        Model.Name = "upload-" + CommonHelper.GenerateRandomInteger();
+    }
+
+    if (!Model.HtmlAttributes.ContainsKey("id"))
+    {
+        Model.Id = Model.Name;
+    }
+
+    var maxFilesSize = Model.MaxFileSize ?? MediaSettings.MaxUploadFileSize;
+}
+
+<div attr-class='(Model.MultiFile || !Model.HasTemplatePreview, "dropzone-container")'>
+    <div class="dropzone-target">
+        <div class="dropzone-file-info d-flex align-items-center">
+            <div class="fu-message text-truncate empty" title="@Model.UploadText">
+                @if (Model.UploadText.HasValue())
+                {
+                    @Model.UploadText
+                }
+                else
+                {
+                    @T("FileUploader.Dropzone.Message")
+                }
+            </div>
+
+            <a sm-if="!Model.MultiFile" href="#" class="fu-remove remove justify-content-center align-items-center pretty-link rounded-sm ml-2" title="@T("FileUploader.Dropzone.DictRemoveFile")">
+                <i class="fu-remove-icon fs-h6 p-0 text-danger">&times;</i>
+            </a>
+
+        </div>
+
+        @*TODO: (core) (ms) Wait for MediaController FileConflictResolutionDialog method implementation*@
+        <div id="@Model.Name" attrs="@Model.HtmlAttributes" class="fu-fileupload"
+             data-dialog-url="@Url.Action("FileConflictResolutionDialog", "Media", new { area = "Admin" })"
+             data-assignment-url="@Model.EntityAssignmentUrl"
+             data-remove-url="@Model.DeleteUrl"
+             data-sort-url="@Model.SortUrl"
+             data-entity-id="@Model.EntityId"
+             data-type-filter="@Model.TypeFilter">
+
+            <input type="hidden" id="@(Model.Id)-file" name="@(Model.Id)-file" />
+
+            <div sm-if="Model.DisplayBrowseMediaButton" class="fu-buttons">
+                <zone name="file_uploader" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.MultiFile)
+{
+    var files = Model.UploadedFiles ?? new List<IMediaFile>();
+
+    <!-- Placeholder to paste preview container into -->
+    <div id="@Model.PreviewContainerId" class="d-flex flex-wrap preview-container mt-3">
+        @foreach (var file in files)
+        {
+            var previewUrl = await MediaService.GetUrlAsync(file.MediaFile.Id, null);
+            var isMainPic = file.MediaFileId == Model.MainFileId;
+            var entityMediaId = 0;
+
+            if (Model.EntityType == "Product")
+            {
+                var entityMediaFile = file as ProductMediaFile;
+                entityMediaId = entityMediaFile.Id;
+            }
+
+            <div class="fu-file-preview dz-image-preview dz-success dz-complete shadow-sm"
+                data-display-order="@file.DisplayOrder"
+                data-media-id="@file.MediaFileId"
+                data-media-name="@file.MediaFile.Name"
+                attr-data-entity-media-id="(entityMediaId != 0, entityMediaId.ToString())">
+            
+            @{ await FilePreviewTemplate(previewUrl, file.MediaFile.Name, file.MediaFile.MediaType); }
+    </div>
+        }
+    </div>
+
+    <div class="file-preview-template d-none">
+        <div class="fu-file-preview dz-image-preview shadow-sm">
+            @{ await FilePreviewTemplate(string.Empty, string.Empty, string.Empty); }
+    </div>
+</div>
+}
+
+@{
+    async Task FilePreviewTemplate(string previewUrl, string fileName, string dataType)
+    {
+        <span class="main-pic-badge badge badge-success">@T("FileUploader.MultiFiles.MainMediaFile")</span>
+
+        <figure class="file-figure d-flex m-0 align-items-center justify-content-center file-thumb show loaded" data-type="@dataType">
+            <i class="file-icon fa-fw show d-none"></i>
+            @*Append number of ticks because otherwise when an image is updated via API or import, the old image will still be displayed.*@
+            <img class="file-img" data-dz-thumbnail attr-src='(previewUrl.HasValue(), previewUrl + "&num=" + DateTime.UtcNow.Ticks)' />
+        </figure>
+
+        <!-- Media gallery preview overlay -->
+        <div class="fu-file-info-container d-flex flex-column w-100 h-100 justify-content-between">
+            <div class="drag-gripper align-middle">
+                <i class="drag-icon fas fa-grip-vertical fs-h5 text-white p-0 text-center"></i>
+            </div>
+            <div class="fu-file-info h-100 w-100 d-flex position-absolute justify-content-center align-items-center">
+                <div class="fu-file-info-name text-white font-weight-medium text-center">@fileName</div>
+            </div>
+            <div class="fu-preview-control-menu w-100 d-flex flex-wrap justify-content-between px-2 pb-2 pt-0">
+                <a href="#" class="fu-preview-control-set set-main-picture btn btn-sm btn-clear btn-3d btn-action btn-icon" title='@T("FileUploader.Preview.SetMainMedia.Title")'>
+                    <i class="fa fa-image fs-h6"></i>
+                </a>
+                <a href="#" class="fu-preview-control-remove delete-entity-picture btn btn-sm btn-clear btn-3d btn-action" title='@T("FileUploader.Preview.DeleteEntityMedia.Title")'>
+                    <span class="fs-sm">@T("Common.Remove")</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="fu-progress">
+            <!-- The file progress bar -->
+        <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    }
+}
+<script sm-target-zone="scripts" data-origin="FileUploader">
+    $(function () {
+        var elUpload = $("#@Model.Id");
+
+        // Init dropzone
+        elUpload.dropzoneWrapper({
+            onUploading: @Html.Raw(Model.OnUploading.HasValue() ? Model.OnUploading : "null"),
+            onUploadCompleted: @Html.Raw(Model.OnUploadCompleted.HasValue() ? Model.OnUploadCompleted : "null"),
+            onAborted: @Html.Raw(Model.OnAborted.HasValue() ? Model.OnAborted : "null"),
+            onError: @Html.Raw(Model.OnError.HasValue() ? Model.OnError : "null"),
+            onFileRemove: @Html.Raw(Model.OnFileRemoved.HasValue() ? Model.OnFileRemoved : "null"),
+            onCompleted: @Html.Raw(Model.OnCompleted.HasValue() ? Model.OnCompleted : "null"),
+            onMediaSelected: @Html.Raw(Model.OnMediaSelected.HasValue() ? Model.OnMediaSelected : "null"),
+            maxFiles: @(Model.MultiFile ? 500 : 1),
+            maxFilesSize: @maxFilesSize,
+            timeout: 300000,
+            clickableElement: @Html.Raw(Model.ClickableElement.HasValue() ? Model.ClickableElement : "null"),
+            previewContainerId: @(Model.MultiFile ? Model.PreviewContainerId : ""),
+            showRemoveButton: @(Model.DisplayRemoveButton ? "true" : "false" ),
+            showRemoveButtonAfterUpload: @(Model.DisplayRemoveButtonAfterUpload ? "true" : "false" ),
+            downloadEnabled: @(Model.DownloadEnabled ? "true" : "false" )
+        });
+    });
+</script>

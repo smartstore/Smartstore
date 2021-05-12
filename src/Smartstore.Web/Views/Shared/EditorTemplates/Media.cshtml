@@ -113,26 +113,26 @@
             @Html.HiddenFor(x => x, new { @class = "hidden", Value = currentFile != null ? Model : defaultValue })
         }
 
+        @*TODO: (core) (ms) Wait for MediaController Upload method implementation*@
+        @*Multifile uploads do not need a remove button.*@
         <div class="fu-controls">
-            @*TODO: (mh) (core) *@
-            @*@(Html.SmartStore().FileUploader()
-                    .UploadUrl(Url.Action("Upload", "Media", new { isTransient = TransientUpload, path = MediaPath, area = "Admin" }))
-                    .Path(Path)
-                    .TypeFilter(TypeFilter)
-                    .ShowRemoveButton(!MultiFile && Model.HasValue) // Multifile uploads don't need a remove button.
-                    .ShowRemoveButtonAfterUpload(true)
-                    .PreviewContainerId("preview-" + random)
-                    .Multifile(MultiFile)
-                    .MainFileId(Model)
-                    .ShowBrowseMedia(ShowBrowseMedia)
-                    .HasTemplatePreview(true)
-                    .UploadedFiles(UploadedFiles)
-                    .EntityType(EntityType)
-                    .EntityId(EntityId)
-                    .DeleteUrl(DeleteUrl)
-                    .SortUrl(SortUrl)
-                    .EntityAssignmentUrl(EntityAssignmentUrl)
-                )*@
+            <file-uploader 
+                sm-upload-url="@Url.Action("Upload", "Media", new { isTransient = TransientUpload, path = MediaPath, area = "Admin" })"
+                sm-media-path="@MediaPath"
+                sm-type-filter="@TypeFilter"
+                sm-display-remove-button="!MultiFile && Model.HasValue"
+                sm-display-remove-button-after-upload="true"
+                sm-preview-container-id="@("preview-" + random)"
+                sm-multi-file="MultiFile"
+                sm-main-file-id="Model"
+                sm-display-browse-media-button="ShowBrowseMedia"
+                sm-has-template-preview="true"
+                sm-uploaded-files="UploadedFiles"
+                sm-entity-type="@EntityType"
+                sm-entity-id="EntityId"
+                sm-delete-url="@DeleteUrl"
+                sm-sort-url="@SortUrl"
+                sm-entity-assigment-url="@EntityAssignmentUrl" />
         </div>
     </div>
 

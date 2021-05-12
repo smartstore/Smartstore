@@ -1,6 +1,70 @@
-﻿@model ChoiceModel
+﻿@using Smartstore.Core.Web;
+@using Smartstore.Utilities;
 
-<div>
-    @*TODO: (mh) (core) Finish when Fileuploader is available *@
-    FileUploader: Not implemented yet.
+@model ChoiceModel
+
+@inject IWebHelper WebHelper
+
+@{
+    var storeUrl = WebHelper.GetStoreLocation(false);
+    var controlId = Model.BuildControlId();
+    var clientId = "upload" + CommonHelper.GenerateRandomInteger();
+    var containerId = clientId + "container";
+    var allowedFileExtensions = string.Join("|", Model.AllowedFileExtensions.Select(x => x.Trim()).ToList());
+}
+
+<div id="@containerId">
+    <div class="fu-container">
+        <div class="dropzone-container">
+            <div class="fu-thumb fu-filename rounded" data-current-filename="@Model.UploadedFileName"></div>
+            <input id="@controlId" name="@controlId" type="hidden" class="hidden" data-fileupload="true" />
+            <div class="fu-controls">
+                @*TODO: (core) (ms) Fix: Empty file icon and .empty class is missing if no file selected*@
+                <file-uploader
+                    sm-file-uploader-name="@clientId"
+                    sm-upload-url="@Model.GetFileUploadUrl(Url)"
+                    sm-display-browse-media-button="false"
+                    sm-type-filter="@allowedFileExtensions"
+                    sm-display-remove-button="@Model.UploadedFileGuid.HasValue()"
+                    sm-display-remove-button-after-upload="true"
+                    sm-upload-text="@T("Common.FileUploader.Upload")"
+                    sm-on-upload-completed="@("onFileUploaded" + clientId)"
+                    sm-on-file-removed="@("onFileRemoved" + clientId)"
+                    sm-multi-file="false"
+                    sm-has-template-preview="true"
+                    sm-download-enabled="true" />
+            </div>
+        </div>
+
+        <div class="fu-progress">
+            <!-- The single upload progress bar -->
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script sm-target-zone="scripts" data-origin="choice-template">
+    window['onFileUploaded@(clientId)'] = function (file, result, progress) {
+        if (result.success && result.downloadGuid) {
+            setUploadedFile(result.downloadGuid, file.name, "@(containerId)");
+            displayNotification(result.message, "success");
+        }
+	};
+
+    window['onFileRemoved@(clientId)'] = function (e, el) {
+        $('#@containerId .hidden').val('');
+    }
+
+    function setUploadedFile(downloadGuid, fileName, containerId) {
+        if (!_.isEmpty(downloadGuid) && downloadGuid !== '0') {
+            $('#' + containerId + ' .hidden').val(downloadGuid);
+
+        	var downloadLink = "@storeUrl" + "download/getfileupload/?downloadId=" + downloadGuid;
+        	var fileLink = '<a href="' + downloadLink + '" class="fileuploadattribute" rel="nofollow">' + fileName + '</a>';
+
+            $('#' + containerId + ' .fu-message').html(fileLink);
+        }
+    }
+</script>

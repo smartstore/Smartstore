@@ -26,22 +26,18 @@
             <input type="hidden" asp-for="@fileId" class="hidden" />
 
             <div class="fu-controls ml-3">
-
-                @* TODO: (mh) (core) FileUploader: Not implemented yet. *@
-
-                @*@(Html.SmartStore().FileUploader()
-                    .Name("uploadedFile")
-                    .UploadUrl(Url.Action("UploadAvatar", "Customer"))
-                    .TypeFilter("image")
-                    .ShowBrowseMedia(false)
-                    .ShowRemoveButton(fileId != 0)
-                    .ShowRemoveButtonAfterUpload(true)
-                    .UploadText(T("Common.FileUploader.UploadAvatar"))
-                    .OnUploadCompletedHandlerName("onAvatarUploaded")
-                    .OnFileRemoveHandlerName("onAvatarRemoved")
-                    .Multifile(false)
-                    .HasTemplatePreview(true))*@
-
+                <file-uploader 
+                    sm-file-uploader-name="uploadedFile"
+                    sm-upload-url='@Url.Action("UploadAvatar", "Customer")'
+                    sm-type-filter="image"
+                    sm-display-browse-media-button="false"
+                    sm-display-remove-button="fileId != 0"
+                    sm-display-remove-button-after-upload="true"
+                    sm-upload-text='@T("Common.FileUploader.UploadAvatar")'
+                    sm-on-upload-completed="onAvatarUploaded"
+                    sm-on-file-removed="onAvatarRemoved"
+                    sm-multi-file="false"
+                    sm-has-template-preview="true" />
             </div>
         </div>
 

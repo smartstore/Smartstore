@@ -141,20 +141,17 @@
             <input type="hidden" id="@FieldName.SanitizeHtmlId()" name="@FieldName" value="@Model" class="hidden" />
 
             <div class="fu-controls">
-                @*TODO: (mh) (core) Implement when fileuploader is available*@ 
-                @*@(Html.SmartStore().FileUploader()
-					.UploadUrl(Url.Action("AsyncUpload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, entityId = EntityId, entityName = EntityName, area = "Admin" }))
-					.DeleteUrl(Url.Action("DeleteDownload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, downloadId = Model, area = "Admin" }))
-					.Multifile(false)
-					.Path(Path)
-					.TypeFilter(string.Join("|", catalogSettings.FileUploadAllowedExtensions.Select(x => x.Trim()).ToList()))
-					.UploadText(hasFile ? fileName : T("Common.Fileuploader.Upload").Text)
-					.HasTemplatePreview(true)
-					.ShowBrowseMedia(true)
-					.ShowRemoveButton(hasFile)
-					.ShowRemoveButtonAfterUpload(true)
-					.OnMediaSelectedHandlerName("onMediaSelected_" + random)
-				)*@
+                <file-uploader
+                    sm-upload-url="@Url.Action("AsyncUpload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, entityId = EntityId, entityName = EntityName, area = "Admin" })"
+                    sm-delete-url="@Url.Action("DeleteDownload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, downloadId = Model, area = "Admin" })"
+                    sm-multi-file="false"
+                    sm-media-path="@MediaPath"
+                    sm-type-filter="@(string.Join("|", CatalogSettings.FileUploadAllowedExtensions.Select(x => x.Trim()).ToList()))"
+                    sm-has-template-preview="true"
+                    sm-display-browse-media-button="true"
+                    sm-display-remove-button="hasFile"
+                    sm-display-remove-button-after-upload="true"
+                    sm-on-media-selected="@("onMediaSelected_" + random)" />
             </div>
         </div>
 
@@ -186,7 +183,7 @@
     </div>
 </div>
 
-<script>
+<script sm-target-zone="scripts" data-origin="editor-template">
     // TODO: (mh) (core) Implement initialization in javascript factory analog to ApplyCommonPlugins.
 	window['onMediaSelected_@random'] = function (file) {
         var token = $('input[name="__RequestVerificationToken"]').val();
