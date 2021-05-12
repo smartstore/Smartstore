@@ -135,6 +135,8 @@ namespace Smartstore.Core.DataExchange.Export
                 var profile = ctx.Request.Profile;
 
                 // TODO: (mg) (core) find out how to log into a single file per profile (with fixed name 'log.txt' and without date stamp).
+                // RE: LogFile pathes are rooted to app root path, so to log to file "~/App_Data/Tenants/Default/Export/MyProfile/log.txt",
+                // use logger name: "File/App_Data/Tenants/Default/Export/MyProfile/log.txt"
                 ctx.Log = _services.LoggerFactory.CreateLogger("File/" + profile.GetExportLogPath());
                 ctx.ExecuteContext.Log = ctx.Log;
 
@@ -382,7 +384,7 @@ namespace Smartstore.Core.DataExchange.Export
             return result;
         }
 
-        private async Task Finalize( DataExporterContext ctx, CancellationToken cancellationToken)
+        private async Task Finalize(DataExporterContext ctx, CancellationToken cancellationToken)
         {
             var profile = ctx.Request.Profile;
 
