@@ -11,25 +11,15 @@ Vue.component("pass", {
 Vue.component("sm-data-grid", {
     template: `
         <div class="datagrid">
-
-
-            <div class="dg-toolbar border-bottom bg-light d-flex justify-content-end flex-nowrap">
-                <button type="button" class="dg-tool btn btn-primary btn-flat rounded-0 p-3 mr-auto" style="padding: 14px !important;">
-                    <i class="fa fa-plus"></i>
-                    <span>Neu...</span>
-                </button>
-                <button type="button" class="dg-tool btn btn-danger btn-flat rounded-0 x-ml-auto p-3 border-left" :class="{ 'disabled': !hasSelection }" style="padding: 14px !important;">
-                    <i class="far fa-trash-alt"></i>
-                    <span>Ausgewählte löschen</span>
-                    <span v-if="hasSelection" class="fwm">({{ selectedRowsCount }})</span>
-                </button>
-                <button type="button" class="dg-tool btn btn-secondary btn-flat rounded-0 x-ml-auto p-3 border-left" :class="{ 'disabled': !hasSelection }" style="padding: 14px !important;">
-                    <i class="far fa-upload"></i>
-                    <span>Exportieren</span>
-                    <span v-if="hasSelection" class="fwm">({{ selectedRowsCount }})</span>
-                </button>
-            </div>
-
+            <slot name="toolbar" v-bind="{ 
+                selectedRows, 
+                selectedRowsCount,
+                selectedRowKeys, 
+                hasSelection,
+                command,
+                rows,
+                deleteSelected }">
+            </slot>
 
             <div v-if="paging.enabled && (paging.position === 'top' || paging.position === 'both')" class="dg-pager-wrapper border-bottom">
                 <sm-data-grid-pager :paging="paging" :command="command" :rows="rows" :total="total" :max-pages-to-display="10"></sm-data-grid-pager>
@@ -141,6 +131,18 @@ Vue.component("sm-data-grid", {
         },
     },
 
+    data: function () {
+        return {
+            command: {},
+            rows: [],
+            total: 0,
+            aggregates: [],
+            selectedRows: {},
+            isBusy: false,
+            isScrollable: false
+        }
+    },
+
     created: function () {
         var self = this;
         this.command = this.buildCommand();
@@ -171,22 +173,10 @@ Vue.component("sm-data-grid", {
         this.read();
 
         var resizeObserver = new ResizeObserver(entries => {
-            var el = entries[0].target;
-            self.isScrollable = el.offsetWidth < el.scrollWidth;
+            var tableWrapper = entries[0].target;
+            self.isScrollable = tableWrapper.offsetWidth < tableWrapper.scrollWidth;
         });
         resizeObserver.observe(this.$refs.tableWrapper);
-    },
-
-    data: function () {
-        return {
-            command: {},
-            rows: [],
-            total: 0,
-            aggregates: [],
-            selectedRows: {},
-            isLoading: false,
-            isScrollable: false
-        }
     },
 
     computed: {
@@ -349,11 +339,11 @@ Vue.component("sm-data-grid", {
         },
 
         read() {
-            if (this.isLoading)
+            if (this.isBusy)
                 return;
 
             var self = this;
-            self.isLoading = true;
+            self.isBusy = true;
 
             const input = document.querySelector('input[name=__RequestVerificationToken]');
             const command = $.extend(true, { __RequestVerificationToken: input.value }, this.command);
@@ -374,21 +364,50 @@ Vue.component("sm-data-grid", {
                     self.$emit("data-bound", command, self.rows);
                 },
                 complete() {
-                    self.isLoading = false;
+                    self.isBusy = false;
                 }
             });
+        },
 
-            //fetch(this.dataSource.read, {
-            //    method: 'POST',
-            //    cache: 'no-cache',
-            //    headers: {
-            //        'Accept': 'application/json',
-            //        'Content-Type': 'application/json'
-            //    },
-            //    body: JSON.stringify(body)
-            //})
-            //.then(r => r.json())
-            //.then(data => { this.rows = data; });
+        deleteSelected() {
+            var numSelected = this.selectedRowsCount;
+
+            if (this.isBusy || !numSelected || !this.dataSource.deleteSelected)
+                return;
+
+            var self = this;
+
+            confirm2({
+                message: "Sollen die gewählten {0} Datensätze wirklich unwiderruflich gelöscht werden?".format(numSelected),
+                icon: { type: 'delete' },
+                callback: accepted => {
+                    if (!accepted)
+                        return;
+
+                    const selectedKeys = this.selectedRowKeys;
+                    const input = document.querySelector('input[name=__RequestVerificationToken]');
+                    const selection = $.extend(true, { __RequestVerificationToken: input.value }, { selectedKeys: selectedKeys });
+
+                    self.$emit("deleting-rows", selectedKeys);
+
+                    $.ajax({
+                        url: this.dataSource.deleteSelected,
+                        type: 'POST',
+                        cache: false,
+                        dataType: 'json',
+                        data: selection,
+                        global: false,
+                        success(result) {
+                            if (result.Success) {
+                                self.selectedRows = {};
+                                displayNotification("{0} Datensätze erfolgreich gelöscht.".format(result.Count || numSelected), "success");
+                                self.$emit("deleted-rows", selectedKeys);
+                                self.command.page = 1;
+                            }
+                        }
+                    });
+                }
+            });
         },
 
         // #endregion
@@ -412,7 +431,7 @@ Vue.component("sm-data-grid", {
         },
 
         onSort(e, column) {
-            if (!this.sorting.enabled || !column.sortable || this.isLoading)
+            if (!this.sorting.enabled || !column.sortable || this.isBusy)
                 return;
 
             var descriptor = this.getSortDescriptor(column);
@@ -540,10 +559,6 @@ Vue.component("sm-data-grid", {
         autoSizeColumn(e, column, columnIndex) {
             column.width = 'max-content';
         },
-
-        // #endregion
-
-        // #region Scrolling
 
         // #endregion
     }

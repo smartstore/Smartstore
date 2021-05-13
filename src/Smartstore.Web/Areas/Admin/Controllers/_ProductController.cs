@@ -323,6 +323,22 @@ namespace Smartstore.Admin.Controllers
             return Json(gridModel);
         }
 
+        [HttpPost, IgnoreAntiforgeryToken] // TODO: (core) Why is posted _RequestVerificationToken not valid?
+        [Permission(Permissions.Catalog.Product.Delete)]
+        public async Task<IActionResult> DeleteSelectedProducts(GridSelection selection)
+        {
+            var ids = selection.GetEntityIds();
+            var numDeleted = 0;
+
+            if (ids.Any())
+            {
+                var products = await _db.Products.GetManyAsync(ids, true);
+                numDeleted = products.Count;
+            }
+
+            return Json(new { Success = true, Count = numDeleted });
+        }
+
         #endregion
     }
 }

@@ -24,6 +24,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string FormatAttributeName = "format";
         const string ResizableAttributeName = "resizable";
         const string SortableAttributeName = "sortable";
+        const string ReadonlyAttributeName = "readonly";
         const string NowrapAttributeName = "nowrap";
         const string EntityMemberAttributeName = "entity-member";
         const string IconAttributeName = "icon";
@@ -107,6 +108,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         public bool Sortable { get; set; } = true;
 
         /// <summary>
+        /// Makes column uneditable, even if editing is enabled on grid level. Default: <c>false</c>.
+        /// </summary>
+        [HtmlAttributeName(ReadonlyAttributeName)]
+        public bool ReadOnly { get; set; }
+
+        /// <summary>
         /// Prevents cell content wrapping. Default: <c>true</c>.
         /// </summary>
         [HtmlAttributeName(NowrapAttributeName)]
@@ -151,15 +158,8 @@ namespace Smartstore.Web.TagHelpers.Admin
     }
 
     /// <summary>
-    /// Custom display template for the cell content as Vue slot template. Root object is called <c>cell</c>
-    /// and provides the following members:
-    /// <list type="table">
-    ///     <item><c>value</c>: the raw cell value</item>
-    ///     <item><c>row</c></item>
-    ///     <item><c>rowIndex</c></item>
-    ///     <item><c>column</c></item>
-    ///     <item><c>columnIndex</c></item>
-    /// </list>
+    /// Custom display template for the cell content as Vue slot template. Root object is called <c>item</c>
+    /// and provides the following members: <c>value, row, rowIndex, column, columnIndex</c>
     /// </summary>
     [HtmlTargetElement("display-template", ParentTag = "column")]
     public class DisplayTemplateTagHelper : TagHelper
@@ -181,7 +181,6 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             if (context.Items.TryGetValue(nameof(GridColumnTagHelper), out var obj) && obj is GridColumnTagHelper column)
             {
-                //column.EditTemplate = await output.GetChildContentAsync();
                 column.EditTemplate = new DefaultTagHelperContent();
                 (await output.GetChildContentAsync()).CopyTo(column.EditTemplate);
             }

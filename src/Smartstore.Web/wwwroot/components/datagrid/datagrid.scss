@@ -15,6 +15,7 @@ $hover: darken(#f2f7fb, 0.5%);
 .datagrid-root {
     --dg-border-color: $border;
     --dg-header-bg: $light;
+    --dg-toolbar-bg: $light;
     --dg-row-bg: #fff;
     --dg-row-even-bg: #fff;
     --dg-row-hover-color: $hover;
@@ -73,6 +74,7 @@ $hover: darken(#f2f7fb, 0.5%);
         border-bottom: 1px solid var(--dg-border-color);
         z-index: 1;
         user-select: none;
+        overflow-x: hidden; // Removes annoying x-scrollbar
     }
 
     td {
@@ -144,6 +146,36 @@ $hover: darken(#f2f7fb, 0.5%);
 }
 
 
+// Toolbar
+// -----------------------------------------
+
+.dg-toolbar {
+    background-color: var(--dg-toolbar-bg);
+    border-bottom: 1px solid var(--dg-border-color);
+}
+
+.dg-toolbar .btn {
+    padding: 14px !important;
+    border-radius: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    border-width: 0 !important;
+    border-left: 1px solid var(--dg-border-color) !important;
+
+    &.disabled {
+        pointer-events: none;
+    }
+
+    &:active {
+        box-shadow: inset 0 3px 5px rgba(#000, 0.12) !important;
+    }
+
+    &:first-child {
+        border-left: none !important;
+    }
+}
+
+
 // Sorting
 // -----------------------------------------
 
@@ -200,6 +232,7 @@ $hover: darken(#f2f7fb, 0.5%);
 
 .dg-col-pinned {
     position: sticky !important;
+    overflow-x: visible !important;
     z-index: 5;
 
     &.alpha {
@@ -328,7 +361,6 @@ a.dg-page {
         background: linear-gradient(90deg, transparent, rgba(#000, .05));
     }
 }
-
 
 
 .dg-page-number,

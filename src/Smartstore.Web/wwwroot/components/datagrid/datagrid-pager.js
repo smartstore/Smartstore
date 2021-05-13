@@ -136,13 +136,15 @@
         },
 
         pageTo(pageIndex) {
-            if (pageIndex > 0 && pageIndex <= this.totalPages) {
+            if (pageIndex > 0 && pageIndex <= this.totalPages && !this.$parent.isBusy) {
                 this.command.page = pageIndex;
             }
         },
 
         setPageSize(size) {
-            this.command.pageSize = size;
+            if (!this.$parent.isBusy) {
+                this.command.pageSize = size;
+            }
         }
     }
 });

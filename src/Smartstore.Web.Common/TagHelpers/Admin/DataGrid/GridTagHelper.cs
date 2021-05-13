@@ -32,6 +32,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string CondensedAttributeName = "condensed";
         const string AllowResizeAttributeName = "allow-resize";
         const string AllowRowSelectionAttributeName = "allow-row-selection";
+        const string AllowEditAttributeName = "allow-edit";
         const string HideHeaderAttributeName = "hide-header";
         const string KeyMemberAttributeName = "key-member";
         const string OnDataBindingAttributeName = "ondatabinding";
@@ -81,6 +82,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(AllowRowSelectionAttributeName)]
         public bool AllowRowSelection { get; set; }
+
+        /// <summary>
+        /// Allows inline editing of rows via double click. Default: <c>false</c>.
+        /// </summary>
+        [HtmlAttributeName(AllowEditAttributeName)]
+        public bool AllowEdit { get; set; }
 
         /// <summary>
         /// Whether to hide data table header. Default: <c>false</c>.
@@ -135,6 +142,9 @@ namespace Smartstore.Web.TagHelpers.Admin
         internal List<GridColumnTagHelper> Columns { get; set; }
 
         [HtmlAttributeNotBound]
+        internal GridDetailViewTagHelper DetailView { get; set; }
+
+        [HtmlAttributeNotBound]
         internal string KeyMemberName 
         {
             get => KeyMember?.Metadata?.Name ?? "Id";
@@ -161,20 +171,57 @@ namespace Smartstore.Web.TagHelpers.Admin
             component.Attributes[":paging"] = "paging";
             component.Attributes[":sorting"] = "sorting";
 
+            // Generate detail-view slot
+            if (DetailView?.Template?.IsEmptyOrWhiteSpace == false)
+            {
+                var slot = new TagBuilder("template");
+                slot.Attributes["v-slot:detailview"] = "item";
+                slot.InnerHtml.AppendHtml(DetailView.Template);
+                component.InnerHtml.AppendHtml(slot);
+            }
+
+            // Generate toolbar slot
+            if (Toolbar?.Template?.IsEmptyOrWhiteSpace == false)
+            {
+                var toolbar = new TagBuilder("div");
+                toolbar.Attributes["class"] = "dg-toolbar d-flex flex-nowrap";
+                toolbar.InnerHtml.AppendHtml(Toolbar.Template);
+
+                var slot = new TagBuilder("template");
+                slot.Attributes["v-slot:toolbar"] = "grid";
+                slot.InnerHtml.AppendHtml(toolbar);
+                component.InnerHtml.AppendHtml(slot);
+            }
+
             // Generate template slots
             foreach (var column in Columns)
             {
                 if (column.DisplayTemplate?.IsEmptyOrWhiteSpace == false)
                 {
                     var displaySlot = new TagBuilder("template");
-                    displaySlot.Attributes["v-slot:display-" + column.NormalizedMemberName] = "cell";
+                    displaySlot.Attributes["v-slot:display-" + column.NormalizedMemberName] = "item";
                     displaySlot.InnerHtml.AppendHtml(column.DisplayTemplate);
                     component.InnerHtml.AppendHtml(displaySlot);
                 }
 
-                if (column.EditTemplate?.IsEmptyOrWhiteSpace == false)
+                if (AllowEdit && !column.ReadOnly && column.EditTemplate?.IsEmptyOrWhiteSpace == false)
                 {
-                    //
+                    IHtmlContent htmlContent;
+                    
+                    if (column.EditTemplate?.IsEmptyOrWhiteSpace == false)
+                    {
+                        htmlContent = column.EditTemplate;
+                    }
+                    else
+                    {
+                        // No custom edit template specified
+                        htmlContent = HtmlHelper.Editor(column.MemberName);
+                    }
+                    
+                    var editorSlot = new TagBuilder("template");
+                    editorSlot.Attributes["v-slot:edit-" + column.NormalizedMemberName] = "item";
+                    editorSlot.InnerHtml.AppendHtml(htmlContent);
+                    component.InnerHtml.AppendHtml(editorSlot);
                 }
             }
 
@@ -201,6 +248,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     keyMemberName = KeyMemberName,
                     allowResize = AllowResize,
                     allowRowSelection = AllowRowSelection,
+                    allowEdit = AllowEdit,
                     hideHeader = HideHeader,
                     onDataBinding = OnDataBinding,
                     onDataBound = OnDataBound,
@@ -212,7 +260,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     read = DataSource.Read,
                     insert = DataSource.Insert,
                     update = DataSource.Update,
-                    delete = DataSource.Delete
+                    deleteSelected = DataSource.Delete
                 },
                 columns = new List<object>(Columns.Count),
                 paging = Paging == null ? (object)new { } : (new
@@ -251,6 +299,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     format = col.Format,
                     resizable = col.Resizable,
                     sortable = col.Sortable,
+                    editable = !col.ReadOnly,
                     nowrap = col.Nowrap,
                     entityMember = col.EntityMember,
                     icon = col.Icon

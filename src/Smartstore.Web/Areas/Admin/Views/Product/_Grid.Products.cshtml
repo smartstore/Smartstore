@@ -7,9 +7,23 @@
 }
 
 <datagrid id="products-grid" border-style="VerticalBorders" striped="true" hover="true" allow-resize="true" allow-row-selection="true">
-    <datasource read="@Url.Action("ProductList")" />
+    <datasource read="@Url.Action("ProductList")" delete="@Url.Action("DeleteSelectedProducts")" />
     <paging position="Bottom" page-size="@gridPageSize" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false"></sorting>
+    <toolbar>
+        <a asp-action="Create" type="button" class="btn btn-warning btn-flat mr-auto">
+            <i class="fa fa-plus"></i>
+            <span>@T("Admin.Common.AddNew")...</span>
+        </a>
+        <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+            <i class="far fa-trash-alt"></i>
+            <span>@T("Admin.Common.Delete.Selected")</span>
+        </button>
+        <button datagrid-action="DataGridToolAction.ReactToSelection" type="button" class="btn btn-secondary btn-flat">
+            <i class="far fa-upload"></i>
+            <span>Exportieren</span>
+        </button>
+    </toolbar>
     <columns>
         @if (displayProductPictures)
         {
@@ -22,7 +36,7 @@
                 <display-template>
                     <!-- TODO: (core) zoomable-thumb won't work in our new data grid. Fix it. -->
                     <div class="x-zoomable-thumb-container d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; padding: 8px; left: 0; top: 0;">
-                        <img :alt="cell.row.Id" :src="cell.value" style="max-width: 42px; max-height: 32px" :class="{ 'x-zoomable-thumb': !cell.row.NoThumb }" />
+                        <img :alt="item.row.Id" :src="item.value" style="max-width: 42px; max-height: 32px" :class="{ 'x-zoomable-thumb': !item.row.NoThumb }" />
                     </div>
                 </display-template>
             </column>
@@ -32,29 +46,29 @@
                 <input type="text" class="form-control form-control" />
             </display-template>
         </column>*@
-        <column for="Name" width="max-content">
+        <column for="Name" width="3fr">
             <display-template>
-                <span class="mr-1 badge" v-bind:class="'badge-' + cell.row.ProductTypeLabelHint">{{ cell.row.ProductTypeName }}</span>
-                <a :href="cell.row.EditUrl" class="text-truncate">
-                    {{ cell.value }}
+                <span class="mr-1 badge" v-bind:class="'badge-' + item.row.ProductTypeLabelHint">{{ item.row.ProductTypeName }}</span>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
                 </a>
             </display-template>
         </column>
-        <column for="Sku" width="max-content" />
-        <column for="Price" width="max-content"
+        <column for="Sku" />
+        <column for="Price"
                 halign="flex-end" />
-        <column for="StockQuantity" sortable="true" icon="fa fa-sort-amount-up" width="max-content"
+        <column for="StockQuantity" sortable="true" icon="fa fa-sort-amount-up"
                 halign="center">
             @*<display-template>
-                {{ formatNumber(cell.value) }}
+                {{ formatNumber(item.value) }}
             </display-template>*@
         </column>
-        <column for="LimitedToStores" width="max-content"
+        <column for="LimitedToStores"
                 visible="!isSingleStoreMode"
                 halign="center" />
-        <column for="CreatedOn" entity-member="CreatedOnUtc" width="max-content" />
-        <column for="UpdatedOn" entity-member="UpdatedOnUtc" width="max-content" />
-        <column for="Published" width="max-content"
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" />
+        <column for="Published"
                 halign="center" />
     </columns>
 </datagrid>
