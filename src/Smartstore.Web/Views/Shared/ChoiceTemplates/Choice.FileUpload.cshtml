@@ -19,7 +19,6 @@
             <div class="fu-thumb fu-filename rounded" data-current-filename="@Model.UploadedFileName"></div>
             <input id="@controlId" name="@controlId" type="hidden" class="hidden" data-fileupload="true" />
             <div class="fu-controls">
-                @*TODO: (core) (ms) Fix: Empty file icon and .empty class is missing if no file selected*@
                 <file-uploader
                     sm-file-uploader-name="@clientId"
                     sm-upload-url="@Model.GetFileUploadUrl(Url)"

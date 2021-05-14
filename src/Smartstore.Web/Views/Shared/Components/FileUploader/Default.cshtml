@@ -24,7 +24,10 @@
         Model.Name = "upload-" + CommonHelper.GenerateRandomInteger();
     }
 
-    if (!Model.HtmlAttributes.ContainsKey("id"))
+    // INFO: (mh) (core) Param id was there but value was null. Maybe this is resolved when renaming Id of Taghelper.
+    // TODO: Remove comment when checked.
+    var hasId = Model.HtmlAttributes.TryGetValue("id", out var id);
+    if (!hasId || id == null)
     {
         Model.Id = Model.Name;
     }
@@ -53,6 +56,7 @@
         </div>
 
         @*TODO: (core) (ms) Wait for MediaController FileConflictResolutionDialog method implementation*@
+        @*RE: Don't wait. Implement*@ 
         @*TODO: (core) (ms) Why additional class? *@
         <div id="@Model.Name" attrs="@Model.HtmlAttributes" class="fu-fileupload"
              data-dialog-url="@Url.Action("FileConflictResolutionDialog", "Media", new { area = "Admin" })"
@@ -147,10 +151,8 @@
 }
 <script sm-target-zone="scripts" data-origin="FileUploader">
     $(function () {
-        var elUpload = $("#@Model.Id");
-
         // Init dropzone
-        elUpload.dropzoneWrapper({
+        $("#@Model.Id").dropzoneWrapper({
             onUploading: @Html.Raw(Model.OnUploading.HasValue() ? Model.OnUploading : "null"),
             onUploadCompleted: @Html.Raw(Model.OnUploadCompleted.HasValue() ? Model.OnUploadCompleted : "null"),
             onAborted: @Html.Raw(Model.OnAborted.HasValue() ? Model.OnAborted : "null"),
@@ -168,4 +170,4 @@
             downloadEnabled: @(Model.DownloadEnabled ? "true" : "false" )
         });
     });
-    </script>
+</script>
