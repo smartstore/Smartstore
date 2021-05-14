@@ -34,6 +34,7 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Web.Controllers
 {
+    // TODO: (ms) (core) UploadFileProductAttribute & UploadFileCheckoutAttribute are missing
     public class ShoppingCartController : PublicControllerBase
     {
         private readonly SmartDbContext _db;

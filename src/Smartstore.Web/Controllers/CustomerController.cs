@@ -772,6 +772,7 @@ namespace Smartstore.Web.Controllers
                         }
 
                         var path = _mediaService.CombinePaths(SystemAlbumProvider.Customers, uploadedFile.FileName.ToValidFileName());
+                        // TODO: (mh) (core) || TODO: (mc) (core) Somethings wrong with _mediaService.SaveFileAsync.
                         using var stream = uploadedFile.OpenReadStream();
                         var newAvatar = await _mediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
                         if (newAvatar != null)

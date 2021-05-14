@@ -91,6 +91,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeNotBound]
         public AttributeDictionary HtmlAttributes { get; set; } = new();
 
+        // TODO: (mh) (core) Id is already used by SmartTagHelper. Rename to ControlId or somenthing like that.
         [HtmlAttributeNotBound]
         public string Id
         {

@@ -1,5 +1,4 @@
 ﻿@using Smartstore.Utilities;
-@using Smartstore.Core;
 @using Smartstore.Core.Content.Media;
 @using Smartstore.Core.Catalog.Products;
 
@@ -9,7 +8,16 @@
 @inject MediaSettings MediaSettings
 
 @{
-    Assets.AppendScriptParts("~/bundles/fileuploader");
+    // TODO: (ms) (core) This is for testing only. Use bundler when available. 
+    //Assets.AppendScriptParts("~/bundles/fileuploader");
+    <script sm-target-zone="head_scripts" data-origin="client-res">
+        SmartStore = {}
+        SmartStore.Admin = {}
+    </script>
+    Assets.AppendScriptParts("~/lib/dropzone/dropzone.js");
+    Assets.AppendScriptParts("~/js/smartstore.media.js");
+    Assets.AppendScriptParts("~/admin/js/admin.media.js");
+    Assets.AppendScriptParts("~/js/smartstore.dropzoneWrapper.js");
 
     if (!Model.Name.HasValue())
     {
@@ -45,6 +53,7 @@
         </div>
 
         @*TODO: (core) (ms) Wait for MediaController FileConflictResolutionDialog method implementation*@
+        @*TODO: (core) (ms) Why additional class? *@
         <div id="@Model.Name" attrs="@Model.HtmlAttributes" class="fu-fileupload"
              data-dialog-url="@Url.Action("FileConflictResolutionDialog", "Media", new { area = "Admin" })"
              data-assignment-url="@Model.EntityAssignmentUrl"
@@ -70,6 +79,7 @@
     <div id="@Model.PreviewContainerId" class="d-flex flex-wrap preview-container mt-3">
         @foreach (var file in files)
         {
+            @*TODO: (core) (ms) Why null? *@
             var previewUrl = await MediaService.GetUrlAsync(file.MediaFile.Id, null);
             var isMainPic = file.MediaFileId == Model.MainFileId;
             var entityMediaId = 0;
@@ -81,21 +91,21 @@
             }
 
             <div class="fu-file-preview dz-image-preview dz-success dz-complete shadow-sm"
-                data-display-order="@file.DisplayOrder"
-                data-media-id="@file.MediaFileId"
-                data-media-name="@file.MediaFile.Name"
-                attr-data-entity-media-id="(entityMediaId != 0, entityMediaId.ToString())">
-            
-            @{ await FilePreviewTemplate(previewUrl, file.MediaFile.Name, file.MediaFile.MediaType); }
-    </div>
+                 data-display-order="@file.DisplayOrder"
+                 data-media-id="@file.MediaFileId"
+                 data-media-name="@file.MediaFile.Name"
+                 attr-data-entity-media-id="(entityMediaId != 0, entityMediaId.ToString())">
+
+                @{ await FilePreviewTemplate(previewUrl, file.MediaFile.Name, file.MediaFile.MediaType); }
+            </div>
         }
     </div>
 
     <div class="file-preview-template d-none">
         <div class="fu-file-preview dz-image-preview shadow-sm">
             @{ await FilePreviewTemplate(string.Empty, string.Empty, string.Empty); }
+        </div>
     </div>
-</div>
 }
 
 @{
@@ -129,7 +139,7 @@
 
         <div class="fu-progress">
             <!-- The file progress bar -->
-        <div class="progress">
+            <div class="progress">
                 <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
         </div>
@@ -152,10 +162,10 @@
             maxFilesSize: @maxFilesSize,
             timeout: 300000,
             clickableElement: @Html.Raw(Model.ClickableElement.HasValue() ? Model.ClickableElement : "null"),
-            previewContainerId: @(Model.MultiFile ? Model.PreviewContainerId : ""),
+            previewContainerId: "@(Model.MultiFile ? Model.PreviewContainerId : "")",
             showRemoveButton: @(Model.DisplayRemoveButton ? "true" : "false" ),
             showRemoveButtonAfterUpload: @(Model.DisplayRemoveButtonAfterUpload ? "true" : "false" ),
             downloadEnabled: @(Model.DownloadEnabled ? "true" : "false" )
         });
     });
-</script>
+    </script>
