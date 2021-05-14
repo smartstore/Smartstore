@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 
 namespace Smartstore.Core.Widgets
@@ -10,7 +11,10 @@ namespace Smartstore.Core.Widgets
     /// </summary>
     public interface IWidgetProvider
     {
-        // TODO: (core) Implement IWidgetProvider.GetAllKnownWidgetZones()
+        /// <summary>
+        /// Reads all known widgetzones from the json file /App_Data/widgetzones.json
+        /// </summary>
+        Task<dynamic> GetAllKnownWidgetZonesAsync();
 
         /// <summary>
         /// Registers a custom widget for widget zones

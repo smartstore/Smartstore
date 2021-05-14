@@ -2,21 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 using Smartstore.Collections;
+using Smartstore.Engine;
 
 namespace Smartstore.Core.Widgets
 {
     public class DefaultWidgetProvider : IWidgetProvider
     {
         private readonly IHttpContextAccessor _accessor;
+        private readonly ICommonServices _services;
+        private readonly IApplicationContext _appContext;
 
         private Multimap<string, WidgetInvoker> _zoneWidgetsMap;
         private Multimap<Regex, WidgetInvoker> _zoneExpressionWidgetsMap;
 
-        public DefaultWidgetProvider(IHttpContextAccessor accessor)
+        public DefaultWidgetProvider(IHttpContextAccessor accessor, ICommonServices services, IApplicationContext appContext)
         {
             _accessor = accessor;
+            _services = services;
+            _appContext = appContext;
         }
 
         public virtual void RegisterWidget(string[] zones, WidgetInvoker widget)
@@ -132,6 +139,49 @@ namespace Smartstore.Core.Widgets
             }
 
             return false;
+        }
+
+        public async Task<dynamic> GetAllKnownWidgetZonesAsync()
+        {
+            var fileName = "widgetzones.json";
+            var fs = _appContext.AppDataRoot;
+            
+            // TODO: (mh) (core) Use BuildScopedKey ?
+            //var cacheKey = HttpRuntime.Cache.BuildScopedKey(fileName);
+            var cacheKey = "Smartstore:" + fileName;
+            var rawJson = await _services.CacheFactory.GetMemoryCache().GetAsync<string>(cacheKey,true);
+
+            if (rawJson == null)
+            {
+                if (fs.FileExists(fileName))
+                {
+                    rawJson = await fs.ReadAllTextAsync(fileName);
+                    // TODO: (mh) (core) How to get GetCacheDependency ?
+                    //var virtualPath = await fs.GetDirectoryAsync(fileName);
+                    //var cacheDependency = fs.VirtualPathProvider.GetCacheDependency(virtualPath, DateTime.UtcNow);
+                    //await _services.CacheFactory.GetMemoryCache().PutAsync(cacheKey, rawJson, cacheDependency);
+                    await _services.CacheFactory.GetMemoryCache().PutAsync(cacheKey, rawJson);
+                }
+                else
+                {
+                    await _services.CacheFactory.GetMemoryCache().PutAsync(cacheKey, "");
+                }
+            }
+
+            if (rawJson is string json && json.HasValue())
+            {
+                try
+                {
+                    return JObject.Parse(json);
+                }
+                catch
+                {
+                    // Json is invalid. Don't parse again.
+                    await _services.CacheFactory.GetMemoryCache().PutAsync(cacheKey, "");
+                }
+            }
+
+            return null;
         }
     }
 }
