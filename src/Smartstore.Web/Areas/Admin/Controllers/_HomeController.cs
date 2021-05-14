@@ -21,18 +21,19 @@ namespace Smartstore.Admin.Controllers
             var model = new EditorTemplatesTestModel();
             model.Color = "#ffeedd";
             model.Media = 6;
+            model.DownloadId = 6;
             //model.Address.CompanyEnabled = true;
             //model.Address.CountryEnabled = true;
             //model.Address.StateProvinceEnabled = true;
             //model.Address.CityEnabled = true;
-            //model.Address.CityRequired = true;
+            //model.Address.CityRequired = false;
             //model.Address.StreetAddressEnabled = true;
-            //model.Address.StreetAddressRequired = true;
+            //model.Address.StreetAddressRequired = false;
             //model.Address.StreetAddress2Enabled = true;
             //model.Address.ZipPostalCodeEnabled = true;
-            //model.Address.ZipPostalCodeRequired = true;
+            //model.Address.ZipPostalCodeRequired = false;
             //model.Address.PhoneEnabled = true;
-            //model.Address.PhoneRequired = true;
+            //model.Address.PhoneRequired = false;
             //model.Address.FaxEnabled = true;
 
             return View(model);
