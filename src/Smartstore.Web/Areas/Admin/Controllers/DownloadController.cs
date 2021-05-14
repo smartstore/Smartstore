@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -88,7 +89,6 @@ namespace Smartstore.Admin.Controllers
             {
                 success = true,
                 downloadId = download.Id,
-                // TODO: (core) Make new overload for this
                 html = this.InvokeViewAsync(DOWNLOAD_TEMPLATE, download.Id, new { minimalMode, fieldName })
             });
         }
@@ -123,15 +123,16 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Media.Download.Create)]
         public async Task<IActionResult> AsyncUpload(string clientCtrlId)
         {
-            var postedFile = Request.Form.Files["file[0]"];
+            var postedFile = Request.Form.Files.FirstOrDefault();
             if (postedFile == null)
             {
                 throw new ArgumentException(T("Common.NoFileUploaded"));
             }
 
             var path = _mediaService.CombinePaths(SystemAlbumProvider.Downloads, postedFile.FileName);
-            // TODO: (mh) (core) Check if .NET core disposes the stream on request end.
-            using var stream = postedFile.OpenReadStream();
+            var stream = postedFile.OpenReadStream();
+            Response.RegisterForDispose(stream);
+
             var file = await _mediaService.SaveFileAsync(path, stream, dupeFileHandling: DuplicateFileHandling.Rename);
 
             return Json(new

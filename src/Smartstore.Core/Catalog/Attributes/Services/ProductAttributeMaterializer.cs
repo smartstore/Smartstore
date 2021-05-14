@@ -244,7 +244,9 @@ namespace Smartstore.Core.Catalog.Attributes
                                             EntityName = "ProductAttribute"
                                         };
 
-                                        using var stream = postedFile.OpenReadStream();
+                                        var stream = postedFile.OpenReadStream();
+                                        _httpContextAccessor?.HttpContext?.Response?.RegisterForDispose(stream);
+
                                         await _downloadService.Value.InsertDownloadAsync(download, stream, postedFile.FileName);
 
                                         selection.AddAttributeValue(pva.Id, download.DownloadGuid.ToString());

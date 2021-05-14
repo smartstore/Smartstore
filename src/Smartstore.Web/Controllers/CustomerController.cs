@@ -755,7 +755,7 @@ namespace Smartstore.Web.Controllers
             {
                 if (customer.IsRegistered() && _customerSettings.AllowCustomersToUploadAvatars)
                 {
-                    var uploadedFile = Request.Form.Files["file[0]"];
+                    var uploadedFile = Request.Form.Files.FirstOrDefault();
 
                     if (uploadedFile != null && uploadedFile.FileName.HasValue())
                     {
@@ -773,7 +773,9 @@ namespace Smartstore.Web.Controllers
 
                         var path = _mediaService.CombinePaths(SystemAlbumProvider.Customers, uploadedFile.FileName.ToValidFileName());
                         // TODO: (mh) (core) || TODO: (mc) (core) Somethings wrong with _mediaService.SaveFileAsync.
-                        using var stream = uploadedFile.OpenReadStream();
+                        var stream = uploadedFile.OpenReadStream();
+                        Response.RegisterForDispose(stream);
+
                         var newAvatar = await _mediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
                         if (newAvatar != null)
                         {
