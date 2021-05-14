@@ -53,7 +53,7 @@
     };
 }
 
-<script sm-target-zone="scripts" data-origin="client-res">
+<script sm-target-zone="head_scripts" data-origin="client-res">
 	window.Res = {
 		@foreach (var key in clientResKeys) { <text>"@(Html.Raw(key))": @(T(key).JsValue),</text> }
     };
