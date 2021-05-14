@@ -1,0 +1,27 @@
+﻿@using Smartstore.Extensions
+ 
+@functions
+{
+    private TProperty GetValue<TProperty>(string key, TProperty defaultValue = default(TProperty))
+    {
+        if (ViewData.ContainsKey(key))
+        {
+            return (TProperty)ViewData[key];
+        }
+
+        return defaultValue;
+    }
+}
+
+@{
+    var multiple = GetValue<string>("multiple");
+    var dataTags = GetValue<string>("data_tags");
+    var selectOptions = GetValue<IList<ExtendedSelectListItem>>("selectOptions");
+}
+<select id="@Html.IdForModel()" name="@Html.NameForModel()" attr-multiple='(multiple.HasValue(), multiple)' attr-data-tags='(dataTags.HasValue(), dataTags)'>
+    @foreach (var item in selectOptions)
+    {
+        var hint = item.Get<string>("hint");
+        <option value="@item.Value" attr-selected='(item.Selected, "selected")' attr-data-hint='(hint.HasValue(), hint)'>@item.Text</option>
+    }
+</select>

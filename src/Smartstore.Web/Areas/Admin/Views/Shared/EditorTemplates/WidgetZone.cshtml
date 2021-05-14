@@ -1,0 +1,93 @@
+﻿@model string[]
+
+@using Newtonsoft.Json.Linq;
+
+@inject IWidgetProvider WidgetProvider
+
+@functions {
+    private string[] Value
+    {
+        get
+        {
+            string[] value = null;
+            if (ViewData.Model != null)
+            {
+                value = ViewData.Model;
+            }
+            return value;
+        }
+    }
+}
+
+@{
+    var jsonZones = (JObject)(await WidgetProvider.GetAllKnownWidgetZonesAsync());
+
+    var areas =
+        from p in jsonZones["WidgetZonesAreas"]
+        select p;
+
+    var zones = new List<SelectListItem>();
+    var userDefinedZones = Value != null ? Value.ToList() : new List<string>();
+    var selectedZones = new HashSet<string>(userDefinedZones, StringComparer.OrdinalIgnoreCase);
+
+    // add system zones
+    foreach (var area in areas)
+    {
+        var areaName = area["name"].ToString();
+        var areasObj =
+            from p in area["zones"]
+            select p;
+
+        var groupName = T(areaName.ToString()).Value.Pascalize();
+        var group = new SelectListGroup { Name = groupName };
+
+        foreach (var zone in areasObj)
+        {
+            var zoneName = zone.ToString();
+            zones.Add(new SelectListItem
+            {
+                Text = zoneName,
+                Value = zoneName,
+                Selected = selectedZones.Contains(zoneName),
+                Group = group
+            });
+
+            // Remove item from userdefined zones (it is a system zone).
+            userDefinedZones.Remove(zoneName);
+        }
+    }
+
+    // add userdefined zones to available zones
+    var userDefinedGroup = new SelectListGroup { Name = T("Admin.WidgetZones.UserDefined").Value };
+    userDefinedZones.Reverse();
+
+    foreach (var zoneName in userDefinedZones)
+    {
+        zones.Insert(0, new SelectListItem
+        {
+            Text = zoneName,
+            Value = zoneName,
+            Selected = true,
+            Group = userDefinedGroup
+        });
+    }
+
+    // get selected items
+    var selectedValues = zones.Where(x => x.Selected == true).Select(x => x.Value.ToString()).ToArray();
+
+    var cssClass = "form-control x-select2-hidden-accessible";
+    var size = GetMetadata<string>("size");
+    if (size.HasValue())
+    {
+        cssClass += " form-control-" + size;
+    }
+}
+
+<select asp-items="@(new MultiSelectList(zones, "Value", "Text", selectedValues, "Group.Name"))"
+        name="@Html.NameForModel()"
+        id="@Html.IdForModel()"
+        class="@cssClass"
+        size="1"
+        multiple
+        data-tags="true"
+        value="@Value"></select>

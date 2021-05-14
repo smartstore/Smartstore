@@ -1,19 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Modelling;
+using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.Catalog;
-using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Areas.Admin.Models
 {
     // TODO: (mh) (core) Remove model when not used anymore.
-    public class EditorTemplatesTestModel : ModelBase, IQuantityInput
+    public class EditorTemplatesTestModel : ModelBase, IQuantityInput, ISeoModel
     {
+        [UIHint("WidgetZone")]
+        public string[] WidgetZone { get; set; }
+
+        public string Test { get; set; }
+
+
         #region Admin 
+
+        public string MetaTitle { get; set; }
+
+        public string MetaDescription { get; set; }
+
+        public string MetaKeywords { get; set; }
+
+        public List<SeoModelLocal> Locales { get; set; } = new();
+
+        [UIHint("Stores")]
+        public int StoreId { get; set; }
+
+        [UIHint("RuleSets")]
+        //[AdditionalMetadata("multiple", true)]
+        //[AdditionalMetadata("scope", RuleScope.Product)]
+        public int[] SelectedRuleSetIds { get; set; }
 
         [UIHint("Download")]
         public int? DownloadId { get; set; }
@@ -50,6 +73,8 @@ namespace Smartstore.Web.Areas.Admin.Models
 
         [UIHint("Color")]
         public string Color { get; set; }
+
+        [LocalizedDisplay("Admin.ContentManagement.News.NewsItems.Fields.StartDate")]
         public DateTime? DateTime { get; set; }
         public decimal Decimal { get; set; }
         public double Double { get; set; }
@@ -92,5 +117,18 @@ namespace Smartstore.Web.Areas.Admin.Models
         public QuantityControlType QuantityControlType { get; set; } = QuantityControlType.Spinner;
 
         #endregion
+    }
+
+    public class EditorTemplatesValidator : SmartValidator<EditorTemplatesTestModel>
+    {
+        public EditorTemplatesValidator()
+        {
+            RuleFor(x => x.Double).NotNull().WithMessage("Bitte geben Sie einen Wert an.");
+            RuleFor(x => x.StoreId).NotNull().WithMessage("Bitte wählen Sie einen Shop.");
+            RuleFor(x => x.ButtonType).NotEmpty();
+            RuleFor(x => x.Test).NotEmpty().WithMessage("Bitte geben Sie einen Text an.");
+            RuleFor(x => x.Decimal).GreaterThan(5);
+            
+        }
     }
 }

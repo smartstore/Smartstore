@@ -12,12 +12,57 @@
 
     <div class="adminContent">
 
+        <div asp-validation-summary="ModelOnly"></div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="WidgetZone" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="WidgetZone" asp-template="WidgetZone" />
+                <span asp-validation-for="WidgetZone"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Test" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="Test" />
+                @*@Html.EditorFor(model => model.Test)*@
+                <span asp-validation-for="Test"></span>
+            </div>
+        </div>
+
+        @*@Html.EditorFor(model => model, "SeoModel")*@
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="StoreId" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="StoreId" asp-template="Stores" />
+                <span asp-validation-for="StoreId"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SelectedRuleSetIds" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="SelectedRuleSetIds"/>
+                <span asp-validation-for="SelectedRuleSetIds"></span>
+            </div>
+        </div>
+
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="DownloadId" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.DownloadId)
+                <editor asp-for="DownloadId" />
                 <span asp-validation-for="DownloadId"></span>
             </div>
         </div>
@@ -69,7 +114,8 @@
                 <smart-label asp-for="BooleanNullable" sm-hint="Nullable" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.BooleanNullable)
+                @*@Html.EditorFor(model => model.BooleanNullable)*@
+                <editor asp-for="BooleanNullable"/>
                 <span asp-validation-for="BooleanNullable"></span>
             </div>
         </div>
@@ -78,7 +124,8 @@
                 <smart-label asp-for="BooleanNotNullable" sm-hint="Not nullable" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.BooleanNotNullable)
+                @*@Html.EditorFor(model => model.BooleanNotNullable)*@
+                <editor asp-for="BooleanNotNullable" />
                 <span asp-validation-for="BooleanNotNullable"></span>
             </div>
         </div>
@@ -87,7 +134,8 @@
                 <smart-label asp-for="ButtonType" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.ButtonType)
+                @*@Html.EditorFor(model => model.ButtonType)*@
+                <editor asp-for="ButtonType" />
                 <span asp-validation-for="ButtonType"></span>
             </div>
         </div>
@@ -96,7 +144,8 @@
                 <smart-label asp-for="Byte" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Byte, new { postfix = "test" })
+                @*@Html.EditorFor(model => model.Byte, new { postfix = "test" })*@
+                <editor asp-for="Byte" sm-postfix="Test" />
                 <span asp-validation-for="Byte"></span>
             </div>
         </div>
@@ -105,7 +154,8 @@
                 <smart-label asp-for="Color" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Color, new { fallbackColor = "#ccc" })
+                @*@Html.EditorFor(model => model.Color, new { fallbackColor = "#ccc" })*@
+                <editor asp-for="Color" attrs='new AttributeDictionary { { "fallbackColor", "#000" } }' />
                 <span asp-validation-for="Color"></span>
             </div>
         </div>
@@ -114,7 +164,8 @@
                 <smart-label asp-for="DateTime" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.DateTime)
+                @*@Html.EditorFor(model => model.DateTime)*@
+                <editor asp-for="DateTime" />
                 <span asp-validation-for="DateTime"></span>
             </div>
         </div>
@@ -123,7 +174,8 @@
                 <smart-label asp-for="Decimal" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Decimal)
+                @*@Html.EditorFor(model => model.Decimal)*@
+                <editor asp-for="Decimal" />
                 <span asp-validation-for="Decimal"></span>
             </div>
         </div>
@@ -132,7 +184,8 @@
                 <smart-label asp-for="Double" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Double)
+                @*@Html.EditorFor(model => model.Double)*@
+                <editor asp-for="Double" />
                 <span asp-validation-for="Double"></span>
             </div>
         </div>
@@ -141,7 +194,8 @@
                 <smart-label asp-for="Html" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Html)
+                @*@Html.EditorFor(model => model.Html)*@
+                <editor asp-for="Html" />
                 <span asp-validation-for="Html"></span>
             </div>
         </div>
@@ -150,7 +204,8 @@
                 <smart-label asp-for="Int" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Int)
+                @*@Html.EditorFor(model => model.Int)*@
+                <editor asp-for="Int" />
                 <span asp-validation-for="Int"></span>
             </div>
         </div>
@@ -159,7 +214,8 @@
                 <smart-label asp-for="Long" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Long)
+                @*@Html.EditorFor(model => model.Long)*@
+                <editor asp-for="Long" />
                 <span asp-validation-for="Long"></span>
             </div>
         </div>
@@ -168,7 +224,8 @@
                 <smart-label asp-for="Link" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Link)
+                @*@Html.EditorFor(model => model.Link)*@
+                <editor asp-for="Link" />
                 <span asp-validation-for="Link"></span>
             </div>
         </div>
@@ -177,7 +234,8 @@
                 <smart-label asp-for="Liquid" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Liquid)
+                @*@Html.EditorFor(model => model.Liquid)*@
+                <editor asp-for="Liquid" />
                 <span asp-validation-for="Liquid"></span>
             </div>
         </div>
@@ -186,7 +244,8 @@
                 <smart-label asp-for="Media" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Media)
+                @*@Html.EditorFor(model => model.Media)*@
+                <editor asp-for="Media" />
                 <span asp-validation-for="Media"></span>
             </div>
         </div>
@@ -195,7 +254,7 @@
                 <smart-label asp-for="QtyInput" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model, "QtyInput", new { large = false })
+                @*@Html.EditorFor(model => model, "QtyInput", new { large = false })*@
                 <span asp-validation-for="QtyInput"></span>
             </div>
         </div>
@@ -204,7 +263,8 @@
                 <smart-label asp-for="Range" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Range)
+                @*@Html.EditorFor(model => model.Range)*@
+                <editor asp-for="Range" />
                 <span asp-validation-for="Range"></span>
             </div>
         </div>
@@ -213,7 +273,8 @@
                 <smart-label asp-for="Time" />
             </div>
             <div class="adminData">
-                @Html.EditorFor(model => model.Time)
+                @*@Html.EditorFor(model => model.Time)*@
+                <editor asp-for="Time" />
                 <span asp-validation-for="Time"></span>
             </div>
         </div>

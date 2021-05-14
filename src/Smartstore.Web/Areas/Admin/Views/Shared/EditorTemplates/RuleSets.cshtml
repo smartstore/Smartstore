@@ -1,0 +1,82 @@
+﻿@using Smartstore.Core.Rules
+@using System.Globalization
+@using Smartstore.Utilities
+
+@functions
+{
+    private string Value
+    {
+        get
+        {
+            if (ViewData.Model != null)
+            {
+                // Be careful with the conversion here because it's very vulnerable to errors.
+                if (ViewData.Model is int[])
+                {
+                    return string.Join(",", ViewData.Model);
+                }
+
+                if (CommonHelper.TryConvert(ViewData.Model, typeof(string), CultureInfo.InvariantCulture, out object obj) && obj != null)
+                {
+                    return obj.ToString();
+                }
+            }
+
+            return null;
+        }
+    }
+}
+
+@{
+    var id = Html.IdForModel();
+    var strValue = Value;
+    var ruleScope = TryGetMetadata<RuleScope>("scope", out var scope) ? scope : (RuleScope?)null;
+
+    // TODO: (mh) (core) Add Edit to RuleController
+    var url = Url.Action("Edit", "Rule", new { id = "__id__", area = "Admin" });
+
+    var attributes = new AttributeDictionary();
+    var htmlAttributes = CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object());
+    foreach (var attr in htmlAttributes)
+    {
+        attributes.Add(attr.Key, attr.Value.ToString());
+    }
+
+    attributes["data-select-url"] = Url.Action("AllRuleSets", "Rule", new { selectedIds = strValue, scope = ruleScope, area = "Admin" });
+    attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
+
+    if (!attributes.ContainsKey("data-placeholder"))
+    {
+        attributes["data-placeholder"] = T("Common.Unspecified").Value;
+    }
+    if (!attributes.ContainsKey("multiple") && GetMetadata<bool>("multiple"))
+    {
+        attributes["multiple"] = "multiple";
+    }
+}
+<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control" attrs="attributes"></select>
+<script>
+    // TODO: (mh) (core) Implement initialization in javascript factory analog to ApplyCommonPlugins.
+    $(function () {
+        $('#@id')
+            .selectWrapper()
+            .on('select2:selecting select2:unselecting', function (e) {
+                try {
+                    // Prevent selection when a link has been clicked.
+                    if ($(e.params.args.originalEvent.target).hasClass('prevent-selection')) {
+                        var data = e.params.args.data;
+
+                        if (data.id === '-1' && !_.isEmpty(data.url)) {
+                            window.location = data.url;
+                        }
+
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+                catch (e) {
+                    console.log(e);
+                }
+            });
+    });
+</script>
