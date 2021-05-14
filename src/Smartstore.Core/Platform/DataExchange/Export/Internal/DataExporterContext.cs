@@ -90,7 +90,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
         public string ProgressInfo { get; set; }
         public int RecordCount { get; set; }
-        public Dictionary<int, RecordStats> StatsPerStore { get; set; } = new();
+        public Dictionary<int, ShopMetadata> ShopMetadata { get; set; } = new();
 
         public ExportFilter Filter { get; private set; }
         public ExportProjection Projection { get; private set; }
@@ -121,7 +121,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         /// All translations for global scopes (like Category, Manufacturer etc.)
         /// </summary>
         public Dictionary<string, LocalizedPropertyCollection> Translations { get; set; } = new();
-        public Dictionary<string, UrlRecordCollection> Slugs { get; set; } = new();
+        public Dictionary<string, UrlRecordCollection> UrlRecords { get; set; } = new();
 
         #endregion
 
@@ -138,7 +138,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         /// All per page translations (like ProductVariantAttributeValue etc.)
         /// </summary>
         public Dictionary<string, LocalizedPropertyCollection> TranslationsPerPage { get; set; } = new();
-        public Dictionary<string, UrlRecordCollection> SlugsPerPage { get; set; } = new();
+        public Dictionary<string, UrlRecordCollection> UrlRecordsPerPage { get; set; } = new();
 
         #endregion
 
@@ -176,30 +176,31 @@ namespace Smartstore.Core.DataExchange.Export.Internal
             return GetTranslations<TEntity>()?.GetValue(LanguageId, entity.Id, localeKey) ?? defaultValue;
         }
 
-        public UrlRecordCollection GetSlugs<TEntity>()
+        public UrlRecordCollection GetUrlRecords<TEntity>()
             where TEntity : BaseEntity
         {
             var entityName = typeof(TEntity).Name;
 
             if (_globalSlugEntities.Contains(entityName))
             {
-                return Slugs.GetValueOrDefault(entityName);
+                return UrlRecords.GetValueOrDefault(entityName);
             }
 
-            return SlugsPerPage.GetValueOrDefault(entityName);
+            return UrlRecordsPerPage.GetValueOrDefault(entityName);
         }
 
-        public string GetSlug<TEntity>(TEntity entity, bool returnDefaultValue = true)
+        public string GetUrlRecord<TEntity>(TEntity entity, bool returnDefaultValue = true)
             where TEntity : BaseEntity
         {
-            return GetSlugs<TEntity>()?.GetSlug(LanguageId, entity.Id, returnDefaultValue);
+            return GetUrlRecords<TEntity>()?.GetSlug(LanguageId, entity.Id, returnDefaultValue);
         }
 
         #endregion
     }
 
-    internal class RecordStats
+    internal class ShopMetadata
     {
+        public int MasterLanguageId { get; set; }
         public int TotalRecords { get; set; }
         public int MaxId { get; set; }
     }

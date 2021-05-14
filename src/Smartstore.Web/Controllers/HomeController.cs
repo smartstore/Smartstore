@@ -974,20 +974,29 @@ namespace Smartstore.Web.Controllers
             content.AppendLine("Base price: " + basePriceInfo);
 
             content.AppendLine("");
-            var query1 = GetEntitiesQuery(typeof(Product), null);
-            query1 = ApplyPaging(query1, 2, 2);
-            var entities1 = await query1.ToListAsync();
+            var entities1 = await LoadEntities<Product>(null, 2, 2);
             var products = entities1.Cast<Product>();
             products.Each(x => content.AppendLine($"{x.Id} {x.Name}"));
 
+            var castBackTest = products.ToList().Cast<BaseEntity>();
+            content.AppendLine("Cast back test: " + string.Join(",", castBackTest.Select(x => x.Id)));
+
             content.AppendLine("");
-            var query2 = GetEntitiesQuery(typeof(Category), new[] { 152, 153, 154, 155 });
-            var entities2 = await query2.ToListAsync();
+            var entities2 = await LoadEntities<Category>(new[] { 152, 153, 154, 155 });
             var categories = entities2.Cast<Category>();
             categories.Each(x => content.AppendLine($"{x.Id} {x.Name}"));
 
             return Content(content.ToString());
             //return View();
+
+            async Task<IEnumerable<TEntity>> LoadEntities<TEntity>(int[] ids, int? skip = null, int take = int.MaxValue)
+            {
+                var query = GetEntitiesQuery(typeof(TEntity), ids);
+                query = ApplyPaging(query, skip, take);
+
+                var entities = await query.ToListAsync();
+                return entities.Cast<TEntity>();
+            }
 
             IQueryable<BaseEntity> GetEntitiesQuery(Type type, int[] ids)
             {

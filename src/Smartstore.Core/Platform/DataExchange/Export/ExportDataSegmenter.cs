@@ -200,7 +200,7 @@ namespace Smartstore.Core.DataExchange.Export
                 _data = new Queue<T>(newData);
             }
 
-            // Give provider the opportunity to make something with entity ids.
+            // Give provider the opportunity to do something based on loaded entities.
             _loadedCallback?.Invoke(_data.AsReadOnly());
 
             return _data.Count > 0;

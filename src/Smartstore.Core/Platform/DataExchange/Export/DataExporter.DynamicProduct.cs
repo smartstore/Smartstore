@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
@@ -25,10 +24,10 @@ namespace Smartstore.Core.DataExchange.Export
         /// The main method to create expando objects for a product to be exported.
         /// Returns several objects if variant combinations are to be exported as products.
         /// </summary>
-        private async Task<List<dynamic>> Convert(Product product, DataExporterContext ctx)
+        private async Task<IEnumerable<dynamic>> Convert(Product product, DataExporterContext ctx)
         {
             var result = new List<dynamic>();
-            var seName = ctx.GetSlug(product);
+            var seName = ctx.GetUrlRecord(product);
 
             var productContext = new DynamicProductContext
             {
@@ -114,7 +113,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (!ctx.IsPreview)
             {
-                result.SeName = seName ?? ctx.GetSlug(product);
+                result.SeName = seName ?? ctx.GetUrlRecord(product);
                 result.ShortDescription = ctx.GetTranslation(product, nameof(product.ShortDescription), product.ShortDescription);
                 result.FullDescription = ctx.GetTranslation(product, nameof(product.FullDescription), product.FullDescription);
                 result.MetaKeywords = ctx.GetTranslation(product, nameof(product.MetaKeywords), product.MetaKeywords);
@@ -344,7 +343,7 @@ namespace Smartstore.Core.DataExchange.Export
                 var appliedDiscounts = await ctx.ProductBatchContext.AppliedDiscounts.GetOrLoadAsync(product.Id);
 
                 dynObject.AppliedDiscounts = appliedDiscounts
-                    .Select(x => ToDynamic(x))
+                    .Select(x => CreateDynamic(x))
                     .ToList();
             }
 
@@ -353,7 +352,7 @@ namespace Smartstore.Core.DataExchange.Export
                 var downloads = await ctx.ProductBatchContext.Downloads.GetOrLoadAsync(product.Id);
 
                 dynObject.Downloads = downloads
-                    .Select(x => ToDynamic(x))
+                    .Select(x => CreateDynamic(x))
                     .ToList();
             }
 
