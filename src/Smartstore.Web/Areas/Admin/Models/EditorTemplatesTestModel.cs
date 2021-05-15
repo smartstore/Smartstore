@@ -12,7 +12,7 @@ using Smartstore.Web.Models.Catalog;
 namespace Smartstore.Web.Areas.Admin.Models
 {
     // TODO: (mh) (core) Remove model when not used anymore.
-    public class EditorTemplatesTestModel : ModelBase, IQuantityInput, ISeoModel
+    public class EditorTemplatesTestModel : ModelBase, IQuantityInput//, ISeoModel
     {
         [UIHint("WidgetZone")]
         public string[] WidgetZone { get; set; }
@@ -28,7 +28,7 @@ namespace Smartstore.Web.Areas.Admin.Models
 
         public string MetaKeywords { get; set; }
 
-        public List<SeoModelLocal> Locales { get; set; } = new();
+        //public List<SeoModelLocal> Locales { get; set; } = new();
 
         [UIHint("Stores")]
         public int StoreId { get; set; }
