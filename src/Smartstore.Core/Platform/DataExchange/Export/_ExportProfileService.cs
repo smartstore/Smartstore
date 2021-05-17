@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -79,6 +78,23 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             return await root.GetDirectoryAsync(path);
+        }
+
+        public virtual Task<IDirectory> GetDeploymentDirectoryAsync(ExportDeployment deployment, bool createIfNotExists = false)
+        {
+            if (deployment == null)
+            {
+                return null;
+            }
+
+            if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
+            {
+            }
+            else if (deployment.DeploymentType == ExportDeploymentType.FileSystem)
+            {
+            }
+
+            throw new NotImplementedException();
         }
 
         public virtual async Task<ExportProfile> InsertExportProfileAsync(

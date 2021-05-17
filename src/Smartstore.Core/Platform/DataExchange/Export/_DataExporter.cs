@@ -37,6 +37,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Batching;
 using Smartstore.Domain;
+using Smartstore.IO;
 using Smartstore.Net.Mail;
 using Smartstore.Threading;
 using Smartstore.Utilities;
@@ -380,6 +381,7 @@ namespace Smartstore.Core.DataExchange.Export
         private async Task InternalExport(DataExporterContext ctx)
         {
             var context = ctx.ExecuteContext;
+            var dir = context.ExportDirectory;
             var profile = ctx.Request.Profile;
             var provider = ctx.Request.Provider.Value;
             var dataExchangeSettings = await _services.SettingFactory.LoadSettingsAsync<DataExchangeSettings>(ctx.Store.Id);
@@ -409,7 +411,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             while (context.Abort == DataExchangeAbortion.None && segmenter.HasData)
             {
-                string path = null;
+                IFile file = null;
 
                 segmenter.RecordPerSegmentCount = 0;
                 context.RecordsSucceeded = 0;
@@ -418,18 +420,17 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     context.FileIndex += 1;
                     context.FileName = profile.ResolveFileNamePattern(ctx.Store, context.FileIndex, context.MaxFileNameLength) + fileExtension;
-                    // TODO: (mg) (core) Rework file system related code in DataExporter.
-                    //path = Path.Combine(context.Folder, context.FileName);
+                    file = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.SubPath, context.FileName));
 
                     if (profile.ExportRelatedData && ctx.Supports(ExportFeatures.UsesRelatedDataUnits))
                     {
-                        context.ExtraDataUnits.AddRange(GetDataUnitsForRelatedEntities(ctx));
+                        context.ExtraDataUnits.AddRange(await GetDataUnitsForRelatedEntities(ctx));
                     }
                 }
 
-                if (await CallExportProvider("Execute", path, ctx))
+                if (await CallExportProvider("Execute", file, ctx))
                 {
-                    if (ctx.IsFileBasedExport && File.Exists(path))
+                    if (ctx.IsFileBasedExport && file.Exists)
                     {
                         ctx.Result.Files.Add(new DataExportResult.ExportFileInfo
                         {
@@ -460,18 +461,18 @@ namespace Smartstore.Core.DataExchange.Export
                     context.DataStreamId = dataUnit.Id;
 
                     var success = true;
-                    // TODO: (mg) (core) Rework file system related code in DataExporter.
-                    //var path = dataUnit.FileName.HasValue() ? Path.Combine(context.Folder, dataUnit.FileName) : null;
-                    var path = string.Empty;
+                    var file = dataUnit.FileName.HasValue()
+                        ? await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.SubPath, dataUnit.FileName))
+                        : null;
 
                     if (!dataUnit.RelatedType.HasValue)
                     {
                         // Data unit added by provider.
                         calledExecuted = true;
-                        success = await CallExportProvider("OnExecuted", path, ctx);
+                        success = await CallExportProvider("OnExecuted", file, ctx);
                     }
 
-                    if (success && ctx.IsFileBasedExport && dataUnit.DisplayInFileDialog && File.Exists(path))
+                    if (success && ctx.IsFileBasedExport && dataUnit.DisplayInFileDialog && file.Exists)
                     {
                         // Save info about extra file.
                         ctx.Result.Files.Add(new DataExportResult.ExportFileInfo
@@ -910,7 +911,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// For a flat formatted export it has to be exported together with metadata to know what to be edited.
         /// Extra data units are only exported for file based exports, not for memory based on-the-fly exports.
         /// </summary>
-        private static IEnumerable<ExportDataUnit> GetDataUnitsForRelatedEntities(DataExporterContext ctx)
+        private static async Task<IEnumerable<ExportDataUnit>> GetDataUnitsForRelatedEntities(DataExporterContext ctx)
         {
             RelatedEntityType[] types;
 
@@ -930,32 +931,31 @@ namespace Smartstore.Core.DataExchange.Export
 
             var result = new List<ExportDataUnit>();
             var context = ctx.ExecuteContext;
+            var dir = context.ExportDirectory;
             var fileExtension = Path.GetExtension(context.FileName);
 
             foreach (var type in types)
             {
-                var unit = new ExportDataUnit
-                {
-                    RelatedType = type,
-                    DisplayInFileDialog = true
-                };
-
-                // Convention: Must end with type name because that's how the import identifies the entity.
+                // Convention: must end with type name because that's how the import identifies the entity.
                 // Be careful in case of accidents with file names. They must not be too long.
                 var fileName = $"{ctx.Store.Id}-{context.FileIndex:D4}-{type}";
+                var file = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.SubPath, fileName + fileExtension));
 
-                // TODO: (mg) (core) Rework file system related code in DataExporter.
-                //if (File.Exists(Path.Combine(context.Folder, fileName + fileExtension)))
-                //{
-                //    fileName = $"{CommonHelper.GenerateRandomDigitCode(4)}-{fileName}";
-                //}
+                if (file.Exists)
+                {
+                    fileName = $"{CommonHelper.GenerateRandomDigitCode(4)}-{fileName}";
+                }
 
-                unit.FileName = fileName + fileExtension;
+                fileName += fileExtension;
+                file = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.SubPath, fileName));
 
-                //var fullPath = Path.Combine(context.Folder, unit.FileName);
-                //unit.DataStream = new ExportFileStream(new FileStream(fullPath, FileMode.Create, FileAccess.Write));
-
-                result.Add(unit);
+                result.Add(new ExportDataUnit
+                {
+                    RelatedType = type,
+                    DisplayInFileDialog = true,
+                    FileName = fileName,
+                    DataStream = new ExportFileStream(new FileStream(file.PhysicalPath, FileMode.Create, FileAccess.Write))
+                });
             }
 
             return result;
@@ -1220,8 +1220,12 @@ namespace Smartstore.Core.DataExchange.Export
             return ctx.ExecuteContext.DataSegmenter as IExportDataSegmenterProvider;
         }
 
-        private static async Task<bool> CallExportProvider(string method, string path, DataExporterContext ctx)
+        private static async Task<bool> CallExportProvider(string method, IFile file, DataExporterContext ctx)
         {
+            var context = ctx.ExecuteContext;
+            var dir = context.ExportDirectory;
+            var provider = ctx.Request.Provider.Value;
+
             if (method != "Execute" && method != "OnExecuted")
             {
                 throw new SmartException($"Unknown export method {method.NaIfEmpty()}.");
@@ -1230,43 +1234,42 @@ namespace Smartstore.Core.DataExchange.Export
             try
             {
                 Stream stream = ctx.IsFileBasedExport
-                    ? new FileStream(path, FileMode.Create, FileAccess.Write)
+                    ? new FileStream(file.PhysicalPath, FileMode.Create, FileAccess.Write)
                     : new MemoryStream();
 
-                using (ctx.ExecuteContext.DataStream = new ExportFileStream(stream))
+                using (context.DataStream = new ExportFileStream(stream))
                 {
                     if (method == "Execute")
                     {
-                        await ctx.Request.Provider.Value.ExecuteAsync(ctx.ExecuteContext, ctx.CancellationToken);
+                        await provider.ExecuteAsync(context, ctx.CancellationToken);
                     }
                     else if (method == "OnExecuted")
                     {
-                        await ctx.Request.Provider.Value.OnExecutedAsync(ctx.ExecuteContext, ctx.CancellationToken);
+                        await provider.OnExecutedAsync(context, ctx.CancellationToken);
                     }
                 }
             }
             catch (Exception ex)
             {
-                ctx.ExecuteContext.Abort = DataExchangeAbortion.Hard;
+                context.Abort = DataExchangeAbortion.Hard;
                 ctx.Log.Error(ex, $"The provider failed at the {method.NaIfEmpty()} method.");
                 ctx.Result.LastError = ex.ToAllMessages(true);
             }
             finally
             {
-                ctx.ExecuteContext.DataStream?.Dispose();
-                ctx.ExecuteContext.DataStream = null;
+                context.DataStream?.Dispose();
+                context.DataStream = null;
 
-                // TODO: (mg) (core) Rework file system related code in DataExporter.
-                //if (ctx.ExecuteContext.Abort == DataExchangeAbortion.Hard && ctx.IsFileBasedExport)
-                //{
-                //    FileSystemHelper.DeleteFile(path);
-                //}
+                if (context.Abort == DataExchangeAbortion.Hard && ctx.IsFileBasedExport)
+                {
+                    await dir.FileSystem.TryDeleteFileAsync(file.SubPath);
+                }
 
                 if (method == "Execute")
                 {
                     using var psb = StringBuilderPool.Instance.Get(out var unitFileInfos);
 
-                    var relatedDataUnits = ctx.ExecuteContext.ExtraDataUnits
+                    var relatedDataUnits = context.ExtraDataUnits
                         .Where(x => x.RelatedType.HasValue && x.FileName.HasValue() && x.DataStream != null)
                         .ToList();
 
@@ -1277,33 +1280,33 @@ namespace Smartstore.Core.DataExchange.Export
                         unit.DataStream?.Dispose();
                         unit.DataStream = null;
 
-                        // TODO: (mg) (core) Rework file system related code in DataExporter.
-                        //var unitPath = Path.Combine(ctx.ExecuteContext.Folder, unit.FileName);
-                        var unitPath = "";
+                        var unitFile = unit.FileName.HasValue()
+                            ? await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.SubPath, unit.FileName))
+                            : null;
 
-                        if (ctx.ExecuteContext.Abort == DataExchangeAbortion.Hard)
+                        if (context.Abort == DataExchangeAbortion.Hard)
                         {
                             if (ctx.IsFileBasedExport)
                             {
-                                //FileSystemHelper.DeleteFile(unitPath);
+                                await dir.FileSystem.TryDeleteFileAsync(unitFile.SubPath);
                             }
                         }
                         else
                         {
-                            unitFileInfos.Append($"\r\nProvider reports {unit.RecordsSucceeded:N0} successfully exported record(s) of type {unit.RelatedType.Value} to {unitPath}.");
+                            unitFileInfos.Append($"\r\nProvider reports {unit.RecordsSucceeded:N0} successfully exported record(s) of type {unit.RelatedType.Value} to {unitFile?.PhysicalPath?.NaIfEmpty()}.");
                         }
                     }
 
-                    if (ctx.ExecuteContext.Abort != DataExchangeAbortion.Hard)
+                    if (context.Abort != DataExchangeAbortion.Hard)
                     {
-                        ctx.Log.Info($"Provider reports {ctx.ExecuteContext.RecordsSucceeded:N0} successfully exported record(s) of type {ctx.Request.Provider.Value.EntityType} to {path.NaIfEmpty()}.");
+                        ctx.Log.Info($"Provider reports {context.RecordsSucceeded:N0} successfully exported record(s) of type {provider.EntityType} to {file?.PhysicalPath?.NaIfEmpty()}.");
                     }
 
                     ctx.Log.Info(unitFileInfos.ToString());
                 }
             }
 
-            return ctx.ExecuteContext.Abort != DataExchangeAbortion.Hard;
+            return context.Abort != DataExchangeAbortion.Hard;
         }
 
         private async Task<bool> Deploy(DataExporterContext ctx)
