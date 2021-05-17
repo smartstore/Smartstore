@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
+    // TODO: (ms) (core) Make model class, no interface.
     public interface IFileUploaderModel
     {
         public AttributeDictionary HtmlAttributes { get; set; }
@@ -88,10 +89,12 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override int Order => 100;
 
+        // TODO: (ms) (core) Remove and refactor! WTF!!!
         [HtmlAttributeNotBound]
         public AttributeDictionary HtmlAttributes { get; set; } = new();
 
-        // TODO: (mh) (core) Id is already used by SmartTagHelper. Rename to ControlId or somenthing like that.
+        // TODO: (ms) (core) Id is already used by SmartTagHelper. Rename to ControlId or somenthing like that.
+        // TODO: (ms) (core) (from mc) Don't ever use Id prop with SmartTagHelper. Remove this and HtmlAttribute and all callers completely!
         [HtmlAttributeNotBound]
         public string Id
         {
