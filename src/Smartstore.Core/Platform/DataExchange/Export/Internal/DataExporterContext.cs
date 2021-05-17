@@ -12,7 +12,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Domain;
-using Smartstore.Utilities;
+using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Export.Internal
 {
@@ -35,46 +35,14 @@ namespace Smartstore.Core.DataExchange.Export.Internal
             nameof(Manufacturer)
         };
 
-        public DataExporterContext(DataExportRequest request, bool isPreview, CancellationToken cancellationToken)
-        {
-            Request = request;
-            IsPreview = isPreview;
-            CancellationToken = cancellationToken;
-
-            FolderContent = request.Profile.GetExportDirectory(true, true);
-
-            Filter = XmlHelper.Deserialize<ExportFilter>(request.Profile.Filtering);
-            Projection = XmlHelper.Deserialize<ExportProjection>(request.Profile.Projection);
-
-            if (request.Profile.Projection.IsEmpty())
-            {
-                Projection.DescriptionMergingId = (int)ExportDescriptionMerging.Description;
-            }
-
-            Result = new DataExportResult
-            {
-                FileFolder = IsFileBasedExport ? FolderContent : null
-            };
-
-            ExecuteContext = new ExportExecuteContext(Result, FolderContent, CancellationToken)
-            {
-                Filter = Filter,
-                Projection = Projection,
-                ProfileId = request.Profile.Id
-            };
-
-            if (!IsPreview)
-            {
-                ExecuteContext.ProgressValueSetter = Request.ProgressValueSetter;
-            }
-        }
-
-        public DataExportRequest Request { get; private set; }
-        public bool IsPreview { get; private set; }
-        public CancellationToken CancellationToken { get; private set; }
+        public bool IsPreview { get; init; }
+        public DataExportRequest Request { get; init; }
+        public IDirectory ExportDirectory { get; set; }
+        public CancellationToken CancellationToken { get; init; }
+        public IFile ZipFile { get; set; }
         public ILogger Log { get; set; }
         public ExportExecuteContext ExecuteContext { get; set; }
-        public DataExportResult Result { get; set; }
+        public DataExportResult Result { get; set; } = new();
         public PriceCalculationOptions PriceCalculationOptions { get; set; }
 
         /// <summary>
@@ -92,21 +60,18 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public int RecordCount { get; set; }
         public Dictionary<int, ShopMetadata> ShopMetadata { get; set; } = new();
 
-        public ExportFilter Filter { get; private set; }
-        public ExportProjection Projection { get; private set; }
+        public ExportFilter Filter { get; init; }
+        public ExportProjection Projection { get; init; }
         public Store Store { get; set; }
         public Currency ContextCurrency { get; set; }
         public Customer ContextCustomer { get; set; }
         public Language ContextLanguage { get; set; }
         public int LanguageId => Projection.LanguageId ?? 0;
-        public int MasterLanguageId { get; set; }
 
-        public string FolderContent { get; private set; }
+        public bool IsFileBasedExport
+            => Request?.Provider?.Value?.FileExtension?.HasValue() ?? false;
 
-        public bool IsFileBasedExport 
-            => Request.Provider == null || Request.Provider.Value == null || Request.Provider.Value.FileExtension.HasValue();
-
-        #region  Data loaded once per export
+        #region Data loaded once per export
 
         public Dictionary<int, DeliveryTime> DeliveryTimes { get; set; } = new();
         public Dictionary<int, QuantityUnit> QuantityUnits { get; set; } = new();

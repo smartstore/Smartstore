@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Localization;
+using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
 {
@@ -11,13 +12,11 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
 
     public class ExportDeploymentContext
     {
-        public Localizer T { get; set; }
-        public ILogger Log { get; set; }
-
-        public string FolderContent { get; set; }
-
-        public string ZipPath { get; set; }
-        public bool CreateZipArchive { get; set; }
+        public Localizer T { get; init; }
+        public ILogger Log { get; init; }
+        public IDirectory ExportDirectory { get; init; }
+        public IFile ZipFile { get; init; }
+        public bool CreateZipArchive { get; init; }
 
         public DataDeploymentResult Result { get; set; }
 

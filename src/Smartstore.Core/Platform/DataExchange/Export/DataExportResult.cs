@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Export
 {
@@ -27,7 +28,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// The path of the folder with the export files.
         /// </summary>
         [XmlIgnore]
-        public string FileFolder { get; set; }
+        public IDirectory ExportDirectory { get; set; }
 
         [Serializable]
         public class ExportFileInfo

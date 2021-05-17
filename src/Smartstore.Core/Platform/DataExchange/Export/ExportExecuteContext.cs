@@ -4,20 +4,20 @@ using System.IO;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Localization;
+using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Export
 {
     public class ExportExecuteContext
     {
-        private DataExportResult _result;
-        private CancellationToken _cancellation;
+        private readonly DataExportResult _result;
+        private readonly CancellationToken _cancellation;
         private DataExchangeAbortion _providerAbort;
 
-        internal ExportExecuteContext(DataExportResult result, string folder, CancellationToken cancellation)
+        internal ExportExecuteContext(DataExportResult result, CancellationToken cancellation)
         {
             _result = result;
-            Folder = folder;
             _cancellation = cancellation;
         }
 
@@ -121,9 +121,9 @@ namespace Smartstore.Core.DataExchange.Export
         public string FileName { get; internal set; }
 
         /// <summary>
-        /// The path of the export content folder.
+        /// The export directory.
         /// </summary>
-        public string Folder { get; private set; }
+        public IDirectory ExportDirectory { get; init; }
 
         /// <summary>
         /// A value indicating whether the profile has a public deployment into "Exchange" folder.

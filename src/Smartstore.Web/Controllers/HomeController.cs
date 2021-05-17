@@ -80,6 +80,8 @@ using Smartstore.Utilities.Html;
 using Smartstore.Net.Mail;
 using Autofac.Core;
 using Smartstore.Core.Catalog.Categories;
+using System.Text.RegularExpressions;
+using Smartstore.Core.DataExchange.Export;
 
 namespace Smartstore.Web.Controllers
 {
@@ -945,6 +947,7 @@ namespace Smartstore.Web.Controllers
             var ocs = Services.Resolve<IOrderCalculationService>();
             var scs = Services.Resolve<IShoppingCartService>();
             var pcs = Services.Resolve<IPriceCalculationService>();
+            var eps = Services.Resolve<IExportProfileService>();
             var store = Services.StoreContext.CurrentStore;
             var currency = Services.WorkContext.WorkingCurrency;
             var customer = await _db.Customers.FindByIdAsync(2666330, false);
@@ -959,12 +962,6 @@ namespace Smartstore.Web.Controllers
             content.AppendLine("--------------------------------------------------------------");
             content.AppendLine($"{subtotal.SubtotalWithoutDiscount.Amount} {subtotalConverted.Amount}");
 
-
-            var tenantRoot = Data.DataSettings.Instance.TenantRoot;
-            var exportProfiles = tenantRoot.GetDirectory("ExportProfiles");
-            var folderName = exportProfiles.SubPath + "/" + tenantRoot.CreateUniqueDirectoryName(CommonHelper.MapPath(exportProfiles.SubPath), "My test folder");
-            content.AppendLine();
-            content.AppendLine(folderName);
 
             var product = await _db.Products.FindByIdAsync(1751, false);
             var calculationOptions = pcs.CreateDefaultOptions(true, customer, currency);
@@ -985,6 +982,52 @@ namespace Smartstore.Web.Controllers
             var entities2 = await LoadEntities<Category>(new[] { 152, 153, 154, 155 });
             var categories = entities2.Cast<Category>();
             categories.Each(x => content.AppendLine($"{x.Id} {x.Name}"));
+
+          
+            content.AppendLine("--------------------------------------------------------------");
+
+            //var folderNames = new string[] { "~/App_Data/ExportProfiles/smartstorecategorycsv", "~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv",
+            //    "~/App_Data/ExportProfiles/", "smartstorecategorycsv" };
+
+            //foreach (var fName in folderNames)
+            //{
+            //    //var index = fName.LastIndexOf("ExportProfiles/");
+            //    //var name = index != -1 ? fName[(index + 15)..] : fName;
+            //    var reg = new Regex(".*/ExportProfiles/?", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            //    var name = reg.Replace(fName, string.Empty);
+
+            //    content.AppendLine($"{fName}: {name}");
+            //}
+
+            content.AppendLine("");
+            var profile = await _db.ExportProfiles.FindByIdAsync(9, false);
+            var dir = await eps.GetExportDirectoryAsync(profile, "Content", true);
+            //var dir = await eps.GetExportDirectoryAsync(profile, null, true);
+            content.AppendLine($"{dir.Exists}: {dir.Name}, {dir.SubPath}, {dir.PhysicalPath}");
+
+            var root = Services.ApplicationContext.TenantRoot;
+            //var dirName = new Regex(".*/ExportProfiles/?", RegexOptions.IgnoreCase | RegexOptions.Singleline).Replace(profile.FolderName, string.Empty);
+            //var newName = root.CreateUniqueDirectoryName("ExportProfiles", dirName);
+            //content.AppendLine($"{dirName} -> {newName}");
+
+            //if (dir.Exists)
+            //{
+            //    dir.FileSystem.ClearDirectory(dir, true, TimeSpan.Zero);
+            //}
+
+            var zipPath = dir.FileSystem.PathCombine(dir.Parent.SubPath, dir.Parent.Name.ToValidFileName() + ".zip");
+            var zipFile = await dir.FileSystem.GetFileAsync(zipPath);
+            content.AppendLine($"{zipFile.Name}: {zipPath} {zipFile.PhysicalPath}");
+            //System.IO.Compression.ZipFile.CreateFromDirectory(dir.PhysicalPath, zipFile.PhysicalPath, System.IO.Compression.CompressionLevel.Fastest, false);
+
+            //var rootDir = await root.GetDirectoryAsync(null);
+            //var logPath = root.PathCombine("File/App_Data/Tenants/", rootDir.Name, dir.Parent.SubPath, "log.txt");
+            //content.AppendLine(logPath);
+
+            //var logger = Services.LoggerFactory.CreateLogger($"File/" + dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
+            //logger.Info("Hello world!");
+
+
 
             return Content(content.ToString());
             //return View();

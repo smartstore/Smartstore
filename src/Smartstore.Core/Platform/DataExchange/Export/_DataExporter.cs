@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,6 +47,7 @@ namespace Smartstore.Core.DataExchange.Export
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
+        private readonly IExportProfileService _exportProfileService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductService _productService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
@@ -70,6 +72,7 @@ namespace Smartstore.Core.DataExchange.Export
         public DataExporter(
             SmartDbContext db,
             ICommonServices services,
+            IExportProfileService exportProfileService,
             IPriceCalculationService priceCalculationService,
             IProductService productService,
             IProductAttributeMaterializer productAttributeMaterializer,
@@ -92,6 +95,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             _db = db;
             _services = services;
+            _exportProfileService = exportProfileService;
             _priceCalculationService = priceCalculationService;
             _productService = productService;
             _productAttributeMaterializer = productAttributeMaterializer;
@@ -126,11 +130,16 @@ namespace Smartstore.Core.DataExchange.Export
         /// </summary>
         public static int PageSize => 100;
 
-        public async Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancellationToken)
+        public virtual async Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancellationToken)
         {
-            var ctx = new DataExporterContext(request, false, cancellationToken);
+            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(request.Profile, nameof(request.Profile));
+            Guard.NotNull(request.Provider?.Value, nameof(request.Provider));
+            Guard.NotNull(cancellationToken, nameof(cancellationToken));
 
-            if (!(request?.Profile?.Enabled ?? false))
+            var ctx = await CreateExporterContext(request, false, cancellationToken);
+
+            if (!request.Profile.Enabled)
             {
                 return ctx.Result;
             }
@@ -144,56 +153,18 @@ namespace Smartstore.Core.DataExchange.Export
 
             using (await AsyncLock.KeyedAsync(lockKey, null, cancellationToken))
             {
-                var profile = ctx.Request.Profile;
-                var provider = ctx.Request.Provider?.Value;
-                var zipPath = profile.GetExportZipPath();
-
-                // TODO: (mg) (core) find out how to log into a single file per profile (with fixed name 'log.txt' and without date stamp).
-                // RE: LogFile pathes are rooted to app root path, so to log to file "~/App_Data/Tenants/Default/Export/MyProfile/log.txt",
-                // use logger name: "File/App_Data/Tenants/Default/Export/MyProfile/log.txt"
-                ctx.Log = _services.LoggerFactory.CreateLogger("File/" + profile.GetExportLogPath());
-                ctx.ExecuteContext.Log = ctx.Log;
-
                 try
                 {
-                    ctx.ProgressInfo = T("Admin.DataExchange.Export.ProgressInfo");
-
-                    if (provider == null)
-                        throw new SmartException("Export aborted because the export provider is not valid.");
-
                     if (!await HasPermission(ctx))
-                        throw new SmartException("You do not have permission to perform the selected export.");
-
-                    ctx.Request.CustomData.Each(x => ctx.ExecuteContext.CustomProperties.Add(x.Key, x.Value));
-
-                    if (profile.ProviderConfigData.HasValue() && provider.ConfigurationInfo != null)
                     {
-                        ctx.ExecuteContext.ConfigurationData = XmlHelper.Deserialize(profile.ProviderConfigData, provider.ConfigurationInfo.ModelType);
+                        throw new SmartException("You do not have permission to perform the selected export.");
                     }
+
+                    var profile = ctx.Request.Profile;
+                    ctx.ProgressInfo = T("Admin.DataExchange.Export.ProgressInfo");
 
                     using (var scope = new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true))
                     {
-                        ctx.DeliveryTimes = await _db.DeliveryTimes.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
-                        ctx.QuantityUnits = await _db.QuantityUnits.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
-                        ctx.ProductTemplates = await _db.ProductTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, cancellationToken);
-                        ctx.CategoryTemplates = await _db.CategoryTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, cancellationToken);
-
-                        if (provider.EntityType == ExportEntityType.Product || provider.EntityType == ExportEntityType.Order)
-                        {
-                            ctx.Countries = await _db.Countries.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, cancellationToken);
-                        }
-                        else if (provider.EntityType == ExportEntityType.Customer)
-                        {
-                            var subscriptionEmails = await _db.NewsletterSubscriptions
-                                .AsNoTracking()
-                                .Where(x => x.Active)
-                                .Select(x => x.Email)
-                                .Distinct()
-                                .ToListAsync(cancellationToken);
-
-                            ctx.NewsletterSubscriptions = new HashSet<string>(subscriptionEmails, StringComparer.OrdinalIgnoreCase);
-                        }
-
                         var stores = await Init(ctx);
 
                         ctx.ExecuteContext.Profile = CreateDynamic(profile);
@@ -208,7 +179,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                             ctx.Store = store;
 
-                            //...
+                            await InternalExport(ctx);
                         }
                     }
 
@@ -216,28 +187,27 @@ namespace Smartstore.Core.DataExchange.Export
                     {
                         if (ctx.IsFileBasedExport)
                         {
-                            // TODO: (mg) (core) Rework file system related code in DataExporter.
-                            //if (profile.CreateZipArchive)
-                            //{
-                            //    ZipFile.CreateFromDirectory(ctx.FolderContent, zipPath, CompressionLevel.Fastest, false);
-                            //}
+                            if (profile.CreateZipArchive)
+                            {
+                                ZipFile.CreateFromDirectory(ctx.ExportDirectory.PhysicalPath, ctx.ZipFile.PhysicalPath, CompressionLevel.Fastest, false);
+                            }
 
                             if (profile.Deployments.Any(x => x.Enabled))
                             {
                                 SetProgress(T("Common.Publishing"), ctx);
 
-                                var allDeploymentsSucceeded = await Deploy(zipPath, ctx);
+                                var allDeploymentsSucceeded = await Deploy(ctx);
                                 if (allDeploymentsSucceeded && profile.Cleanup)
                                 {
                                     ctx.Log.Info("Cleaning up export folder.");
-                                    //FileSystemHelper.ClearDirectory(ctx.FolderContent, false);
+                                    ctx.ExportDirectory.FileSystem.ClearDirectory(ctx.ExportDirectory, false, TimeSpan.Zero);
                                 }
                             }
                         }
 
                         if (profile.EmailAccountId != 0 && !ctx.Supports(ExportFeatures.CanOmitCompletionMail))
                         {
-                            await SendCompletionEmail(zipPath, ctx);
+                            await SendCompletionEmail(ctx);
                         }
                     }
                 }
@@ -254,7 +224,7 @@ namespace Smartstore.Core.DataExchange.Export
                 if (!ctx.IsPreview && ctx.ExecuteContext.Abort != DataExchangeAbortion.Hard)
                 {
                     // Post process entities.
-                    if (ctx.EntityIdsLoaded.Any() && provider.EntityType == ExportEntityType.Order)
+                    if (ctx.EntityIdsLoaded.Any() && ctx.Request.Provider.Value.EntityType == ExportEntityType.Order)
                     {
                         try
                         {
@@ -274,10 +244,13 @@ namespace Smartstore.Core.DataExchange.Export
             return ctx.Result;
         }
 
-        public async Task<DataExportPreviewResult> PreviewAsync(DataExportRequest request, int pageIndex)
+        public virtual async Task<DataExportPreviewResult> PreviewAsync(DataExportRequest request, int pageIndex)
         {
+            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(request.Profile, nameof(request.Profile));
+
             var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(5.0));
-            var ctx = new DataExporterContext(request, true, cancellation.Token);
+            var ctx = await CreateExporterContext(request, true, cancellation.Token);
             var skip = Math.Max(ctx.Request.Profile.Offset, 0) + (pageIndex * PageSize);
 
             var _ = await Init(ctx);
@@ -328,6 +301,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             List<Store> result = null;
             var ct = ctx.CancellationToken;
+            var provider = ctx.Request.Provider.Value;
 
             ctx.ContextCurrency = (await _db.Currencies.FindByIdAsync(ctx.Projection.CurrencyId ?? 0, false, ct)) ?? _services.WorkContext.WorkingCurrency;
             ctx.ContextCustomer = (await _db.Customers.FindByIdAsync(ctx.Projection.CustomerId ?? 0, false, ct)) ?? _services.WorkContext.CurrentCustomer;
@@ -338,6 +312,27 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (!ctx.IsPreview)
             {
+                ctx.DeliveryTimes = await _db.DeliveryTimes.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, ct);
+                ctx.QuantityUnits = await _db.QuantityUnits.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, ct);
+                ctx.ProductTemplates = await _db.ProductTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, ct);
+                ctx.CategoryTemplates = await _db.CategoryTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, ct);
+
+                if (provider.EntityType == ExportEntityType.Product || provider.EntityType == ExportEntityType.Order)
+                {
+                    ctx.Countries = await _db.Countries.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, ct);
+                }
+                else if (provider.EntityType == ExportEntityType.Customer)
+                {
+                    var subscriptionEmails = await _db.NewsletterSubscriptions
+                        .AsNoTracking()
+                        .Where(x => x.Active)
+                        .Select(x => x.Email)
+                        .Distinct()
+                        .ToListAsync(ct);
+
+                    ctx.NewsletterSubscriptions = new HashSet<string>(subscriptionEmails, StringComparer.OrdinalIgnoreCase);
+                }
+
                 // Get all translations and slugs for global entities in one go.
                 ctx.Translations[nameof(Currency)] = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(nameof(Currency), null);
                 ctx.Translations[nameof(Country)] = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(nameof(Country), null);
@@ -380,6 +375,123 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             return result;
+        }
+
+        private async Task InternalExport(DataExporterContext ctx)
+        {
+            var context = ctx.ExecuteContext;
+            var profile = ctx.Request.Profile;
+            var provider = ctx.Request.Provider.Value;
+            var dataExchangeSettings = await _services.SettingFactory.LoadSettingsAsync<DataExchangeSettings>(ctx.Store.Id);
+            var publicDeployment = profile.Deployments.FirstOrDefault(x => x.DeploymentType == ExportDeploymentType.PublicFolder);
+            var fileExtension = provider.FileExtension.NullEmpty()?.ToLower()?.EnsureStartsWith(".") ?? string.Empty;
+
+            context.FileIndex = 0;
+            context.Store = ToDynamic(ctx.Store, ctx);
+            context.MaxFileNameLength = dataExchangeSettings.MaxFileNameLength;
+            context.HasPublicDeployment = publicDeployment != null;
+
+            // TODO: (mg) (core) Rework file system related code in DataExporter.
+            //context.PublicFolderPath = publicDeployment.GetDeploymentFolder(true);
+            //context.PublicFolderUrl = publicDeployment.GetPublicFolderUrl(_services, ctx.Store);
+
+            using var segmenter = CreateSegmenter(ctx);
+
+            if (segmenter == null)
+            {
+                throw new SmartException($"Unsupported entity type '{provider.EntityType}'.");
+            }
+
+            if (segmenter.TotalRecords <= 0)
+            {
+                ctx.Log.Info("There are no records to export.");
+            }
+
+            while (context.Abort == DataExchangeAbortion.None && segmenter.HasData)
+            {
+                string path = null;
+
+                segmenter.RecordPerSegmentCount = 0;
+                context.RecordsSucceeded = 0;
+
+                if (ctx.IsFileBasedExport)
+                {
+                    context.FileIndex += 1;
+                    context.FileName = profile.ResolveFileNamePattern(ctx.Store, context.FileIndex, context.MaxFileNameLength) + fileExtension;
+                    // TODO: (mg) (core) Rework file system related code in DataExporter.
+                    //path = Path.Combine(context.Folder, context.FileName);
+
+                    if (profile.ExportRelatedData && ctx.Supports(ExportFeatures.UsesRelatedDataUnits))
+                    {
+                        context.ExtraDataUnits.AddRange(GetDataUnitsForRelatedEntities(ctx));
+                    }
+                }
+
+                if (await CallExportProvider("Execute", path, ctx))
+                {
+                    if (ctx.IsFileBasedExport && File.Exists(path))
+                    {
+                        ctx.Result.Files.Add(new DataExportResult.ExportFileInfo
+                        {
+                            StoreId = ctx.Store.Id,
+                            FileName = context.FileName
+                        });
+                    }
+                }
+
+                ctx.EntityIdsPerSegment.Clear();
+
+                if (context.IsMaxFailures)
+                {
+                    ctx.Log.Warn("Export aborted. The maximum number of failures has been reached.");
+                }
+                if (ctx.CancellationToken.IsCancellationRequested)
+                {
+                    ctx.Log.Warn("Export aborted. A cancellation has been requested.");
+                }
+            }
+
+            if (context.Abort != DataExchangeAbortion.Hard)
+            {
+                var calledExecuted = false;
+
+                foreach (var dataUnit in context.ExtraDataUnits)
+                {
+                    context.DataStreamId = dataUnit.Id;
+
+                    var success = true;
+                    // TODO: (mg) (core) Rework file system related code in DataExporter.
+                    //var path = dataUnit.FileName.HasValue() ? Path.Combine(context.Folder, dataUnit.FileName) : null;
+                    var path = string.Empty;
+
+                    if (!dataUnit.RelatedType.HasValue)
+                    {
+                        // Data unit added by provider.
+                        calledExecuted = true;
+                        success = await CallExportProvider("OnExecuted", path, ctx);
+                    }
+
+                    if (success && ctx.IsFileBasedExport && dataUnit.DisplayInFileDialog && File.Exists(path))
+                    {
+                        // Save info about extra file.
+                        ctx.Result.Files.Add(new DataExportResult.ExportFileInfo
+                        {
+                            StoreId = ctx.Store.Id,
+                            FileName = dataUnit.FileName,
+                            Label = dataUnit.Label,
+                            RelatedType = dataUnit.RelatedType
+                        });
+                    }
+                }
+
+                if (!calledExecuted)
+                {
+                    // Always call OnExecuted.
+                    await CallExportProvider("OnExecuted", null, ctx);
+                }
+            }
+
+            context.ExtraDataUnits.Clear();
         }
 
         private async Task Finalize(DataExporterContext ctx)
@@ -682,7 +794,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                 if (f.WorkingLanguageId.GetValueOrDefault() > 0)
                 {
-                    query = f.WorkingLanguageId == ctx.MasterLanguageId
+                    query = f.WorkingLanguageId == ctx.ShopMetadata[storeId].MasterLanguageId
                         ? query.Where(x => x.Subscription.WorkingLanguageId == 0 || x.Subscription.WorkingLanguageId == f.WorkingLanguageId)
                         : query.Where(x => x.Subscription.WorkingLanguageId == f.WorkingLanguageId);
                 }
@@ -1194,7 +1306,7 @@ namespace Smartstore.Core.DataExchange.Export
             return ctx.ExecuteContext.Abort != DataExchangeAbortion.Hard;
         }
 
-        private async Task<bool> Deploy(string zipPath, DataExporterContext ctx)
+        private async Task<bool> Deploy(DataExporterContext ctx)
         {
             var allSucceeded = true;
             var deployments = ctx.Request.Profile.Deployments
@@ -1210,8 +1322,8 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 T = T,
                 Log = ctx.Log,
-                FolderContent = ctx.FolderContent,
-                ZipPath = zipPath,
+                ExportDirectory = ctx.ExportDirectory,
+                ZipFile = ctx.ZipFile,
                 CreateZipArchive = ctx.Request.Profile.CreateZipArchive
             };
 
@@ -1276,7 +1388,7 @@ namespace Smartstore.Core.DataExchange.Export
             return allSucceeded;
         }
 
-        private async Task SendCompletionEmail(string zipPath, DataExporterContext ctx)
+        private async Task SendCompletionEmail(DataExporterContext ctx)
         {
             var profile = ctx.Request.Profile;
             var emailAccount = await _db.EmailAccounts.FindByIdAsync(profile.EmailAccountId, false, ctx.CancellationToken);
@@ -1299,11 +1411,9 @@ namespace Smartstore.Core.DataExchange.Export
                 body.AppendFormat("<p style=\"color: #B94A48;\">{0}</p>", ctx.Result.LastError);
             }
 
-            // TODO: (mg) (core) Rework file system related code in DataExporter.
-            if (ctx.IsFileBasedExport && File.Exists(zipPath))
+            if (ctx.IsFileBasedExport && ctx.ZipFile.Exists)
             {
-                var fileName = Path.GetFileName(zipPath);
-                body.AppendFormat("<p><a href='{0}{1}' download>{2}</a></p>", downloadUrl, HttpUtility.UrlEncode(fileName), fileName);
+                body.AppendFormat("<p><a href='{0}{1}' download>{2}</a></p>", downloadUrl, HttpUtility.UrlEncode(ctx.ZipFile.Name), ctx.ZipFile.Name);
             }
 
             if (ctx.IsFileBasedExport && ctx.Result.Files.Any())
@@ -1407,6 +1517,64 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             return options;
+        }
+
+        private async Task<DataExporterContext> CreateExporterContext(DataExportRequest request, bool isPreview, CancellationToken cancellationToken)
+        {
+            var profile = request.Profile;
+            var provider = request.Provider.Value;
+            var isFileBasedExport = request?.Provider?.Value?.FileExtension?.HasValue() ?? false;
+
+            var context = new DataExporterContext
+            {
+                IsPreview = isPreview,
+                Request = request,
+                CancellationToken = cancellationToken,
+                Filter = XmlHelper.Deserialize<ExportFilter>(profile.Filtering),
+                Projection = XmlHelper.Deserialize<ExportProjection>(profile.Projection)
+            };
+
+            if (!isPreview)
+            {
+                var dir = await _exportProfileService.GetExportDirectoryAsync(request.Profile, "Content", true);
+                var dirName = dir.Parent.Name;
+
+                context.ExportDirectory = dir;
+                context.ZipFile = await dir.FileSystem.GetFileAsync(dir.FileSystem.PathCombine(dir.Parent.SubPath, dirName.ToValidFileName() + ".zip"));
+                context.Result.ExportDirectory = isFileBasedExport ? dir : null;
+
+                // TODO: (mg) (core) find out how to log into a single file per profile (with fixed name 'log.txt' and without date stamp).
+                // RE: LogFile pathes are rooted to app root path, so to log to file "~/App_Data/Tenants/Default/Export/MyProfile/log.txt",
+                // use logger name: "File/App_Data/Tenants/Default/Export/MyProfile/log.txt
+
+                //var rootDir = await _services.ApplicationContext.TenantRoot.GetDirectoryAsync(null);
+                //var logPath = dir.FileSystem.PathCombine("File/App_Data/Tenants/", rootDir.Name/*SubPath is null*/, dir.Parent.SubPath, "log.txt");
+                //context.Log = _services.LoggerFactory.CreateLogger(logPath);
+            }
+
+            if (profile.Projection.IsEmpty())
+            {
+                context.Projection.DescriptionMergingId = (int)ExportDescriptionMerging.Description;
+            }
+
+            context.ExecuteContext = new ExportExecuteContext(context.Result, cancellationToken)
+            {
+                Log = context.Log,
+                ExportDirectory = context.ExportDirectory,
+                Filter = context.Filter,
+                Projection = context.Projection,
+                ProfileId = profile.Id,
+                ProgressValueSetter = request.ProgressValueSetter
+            };
+
+            if (!isPreview && profile.ProviderConfigData.HasValue() && provider.ConfigurationInfo != null)
+            {
+                context.ExecuteContext.ConfigurationData = XmlHelper.Deserialize(profile.ProviderConfigData, provider.ConfigurationInfo.ModelType);
+            }
+
+            request.CustomData.Each(x => context.ExecuteContext.CustomProperties.Add(x.Key, x.Value));
+
+            return context;
         }
 
         private async Task<LocalizedPropertyCollection> CreateTranslationCollection(string keyGroup, IEnumerable<BaseEntity> entities)

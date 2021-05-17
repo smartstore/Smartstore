@@ -50,7 +50,8 @@ namespace Smartstore.Core.DataExchange
         public string Name { get; set; }
 
         /// <summary>
-        /// The root path of the export folder.
+        /// The name of the export folder, e.g. 'smartstoreproductcsv'.
+        /// All export files created for a profile are saved in this folder.
         /// </summary>
         [Required, StringLength(400)]
         public string FolderName { get; set; }

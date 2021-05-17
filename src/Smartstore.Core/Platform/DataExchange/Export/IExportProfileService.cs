@@ -1,10 +1,20 @@
 ﻿using System.Threading.Tasks;
 using Smartstore.Engine.Modularity;
+using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Export
 {
     public partial interface IExportProfileService
     {
+        /// <summary>
+        /// Gets a temporary folder for an export profile.
+        /// </summary>
+        /// <param name="profile">Export profile.</param>
+        /// <param name="subpath">Optional subpath, e.g. "Content" to get the content subfolder.</param>
+        /// <param name="createIfNotExists">A value indicating whether the folder should be created if it does not exist.</param>
+        /// <returns>Export directory.</returns>
+        Task<IDirectory> GetExportDirectoryAsync(ExportProfile profile, string subpath = null, bool createIfNotExists = false);
+
         /// <summary>
         /// Adds an export profile.
         /// </summary>
