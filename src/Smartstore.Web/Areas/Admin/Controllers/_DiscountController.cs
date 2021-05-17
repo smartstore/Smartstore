@@ -28,10 +28,13 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// TODO: (mh) (core) Add documentation.
+        /// Gets a list of all available discounts. 
         /// </summary>
-        /// 
-        public async Task<IActionResult> AllDiscountsAsync(string label, string selectedIds, DiscountType? type)
+        /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
+        /// <param name="selectedIds">Ids of selected entities.</param>
+        /// <param name="DiscountType">Specifies the <see cref="DiscountType"/>.</param>
+        /// <returns>List of all discounts as JSON.</returns>
+        public async Task<IActionResult> AllDiscounts(string label, string selectedIds, DiscountType? type)
         {
             var discounts = await _db.Discounts
                 .AsNoTracking()

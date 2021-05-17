@@ -41,12 +41,12 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// TODO: (mh) (core) Add documentation.
+        /// Gets a list of all available manufacturers. 
         /// </summary>
-        /// <param name="label"></param>
-        /// <param name="selectedId"></param>
-        /// <returns></returns>
-        public async Task<IActionResult> AllManufacturersAsync(string label, int selectedId)
+        /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
+        /// <param name="selectedId">Id of selected entity.</param>
+        /// <returns>List of all manufacturers as JSON.</returns>
+        public async Task<IActionResult> AllManufacturers(string label, int selectedId)
         {
             var manufacturers = await _db.Manufacturers
                 .AsNoTracking()

@@ -47,11 +47,11 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// TODO: (mh) (core) Add documentation.
+        /// Gets a list of all available categories. 
         /// </summary>
-        /// <param name="label"></param>
-        /// <param name="selectedIds"></param>
-        /// <returns></returns>
+        /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
+        /// <param name="selectedIds">Ids of selected entities.</param>
+        /// <returns>List of all categories as JSON.</returns>
         public async Task<IActionResult> AllCategories(string label, string selectedIds)
         {
             var categoryTree = await _categoryService.GetCategoryTreeAsync(includeHidden: true);

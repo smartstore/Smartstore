@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
@@ -65,7 +64,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// TODO: (mh) (core) Add documentation.
+        /// Used by download editor template to save a complete DownloadUrl via Ajax.
         /// </summary>
         [HttpPost]
         [Permission(Permissions.Media.Download.Create)]

@@ -31,13 +31,13 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// TODO: (mh) (core) Add documentation.
+        /// Gets a list of all available topics. 
         /// </summary>
-        /// <param name="label"></param>
-        /// <param name="selectedId"></param>
-        /// <param name="includeWidgets"></param>
-        /// <param name="includeHomePage"></param>
-        /// <returns></returns>
+        /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
+        /// <param name="selectedIds">Ids of selected entities.</param>
+        /// <param name="includeWidgets">Specifies whether to include topics which are defined to be rendered as Widgets.</param>
+        /// <param name="includeHomePage">Specifies whether to include homepage text.</param>
+        /// <returns>List of all topics as JSON.</returns>
         public async Task<IActionResult> AllTopics(string label, int selectedId, bool includeWidgets = false, bool includeHomePage = false)
         {
             var topics = await _db.Topics

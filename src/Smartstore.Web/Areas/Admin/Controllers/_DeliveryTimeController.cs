@@ -33,9 +33,11 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// TODO: (mh) (core) Add documentation.
+        /// Gets a list of all available delivery times. 
         /// </summary>
-        public async Task<IActionResult> AllDeliveryTimesAsync(string selectedIds)
+        /// <param name="selectedIds">Ids of selected entities.</param>
+        /// <returns>List of all delivery times as JSON.</returns>
+        public async Task<IActionResult> AllDeliveryTimes(string selectedIds)
         {
             var deliveryTimes = await _db.DeliveryTimes
                 .AsNoTracking()

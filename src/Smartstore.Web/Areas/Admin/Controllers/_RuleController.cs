@@ -29,10 +29,12 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// TODO: (mh) (core) Add documentation.
+        /// Gets a list of all available rule sets. 
         /// </summary>
-        /// 
-        public async Task<IActionResult> AllRuleSetsAsync(string selectedIds, RuleScope? scope)
+        /// <param name="selectedIds">Ids of selected entities.</param>
+        /// <param name="RuleScope">Specifies the <see cref="RuleScope"/>.</param>
+        /// <returns>List of all rule sets as JSON.</returns>
+        public async Task<IActionResult> AllRuleSets(string selectedIds, RuleScope? scope)
         {
             var ruleSets = await _db
                 .RuleSets

@@ -34,8 +34,12 @@ namespace Smartstore.Admin.Controllers
         }
 
         /// <summary>
-        /// TODO: (mh) (core) Add documentation.
+        /// Gets a list of all available customer roles. 
         /// </summary>
+        /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
+        /// <param name="selectedIds">Ids of selected entities.</param>
+        /// <param name="includeSystemRoles">Specifies whether to include system roles.</param>
+        /// <returns>List of all customer roles as JSON.</returns>
         public async Task<IActionResult> AllCustomerRoles(string label, string selectedIds, bool? includeSystemRoles)
         {
             var rolesQuery = _db.CustomerRoles
