@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using Smartstore.Collections;
 using Smartstore.Engine;
@@ -145,7 +146,9 @@ namespace Smartstore.Core.Widgets
         {
             var fileName = "widgetzones.json";
             var fs = _appContext.AppDataRoot;
-            
+
+            // TODO: (mh) (core) Use native IMemoryCache with IChangeToken here, not ICacheManager.
+
             // TODO: (mh) (core) Use BuildScopedKey ?
             //var cacheKey = HttpRuntime.Cache.BuildScopedKey(fileName);
             var cacheKey = "Smartstore:" + fileName;
