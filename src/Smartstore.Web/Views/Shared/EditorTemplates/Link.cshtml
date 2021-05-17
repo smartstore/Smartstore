@@ -22,7 +22,10 @@
         : new LinkType[] { LinkType.Product, LinkType.Category, LinkType.Manufacturer, LinkType.Topic, LinkType.BlogPost, LinkType.NewsItem, LinkType.File, LinkType.Url };
 }
 
-<div id="link-builder-@rnd" class="link-builder" data-field-id="@id" data-current-type="@(Value != null ? link.Type.ToString().ToLower() : "")">
+<div id="link-builder-@rnd" class="link-builder" 
+     data-field-id="@id" 
+     data-current-type="@(Value != null ? link.Type.ToString().ToLower() : string.Empty)"
+     attr-data-product-picker-callback='(allowedTypes.Contains(LinkType.Product), "lbPickerSelectionCompleted" + rnd.ToString())'>
     <div class="d-flex flex-nowrap input-group">
         @* Template control that receives the link expression. *@
         <input asp-for="@Model" id="@id" name="@Html.NameForModel()" type="hidden" value="@Value" />
@@ -150,34 +153,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    // TODO: (mh) (core) Init in factory.
-    $(function () {
-        $('#link-builder-@(rnd)').linkBuilder();
-    });
-
-    @if (allowedTypes.Contains(LinkType.Product))
-    {
-        <text>
-            function lbPickerSelectionCompleted@(rnd)(ids, selectedItems) {
-                var cnt = $("#link-builder-@rnd");
-                var val = 'product:' + ids[0];
-                var qs = cnt.find(".query-string").val() || '';
-
-                while (qs.startsWith('?')) {
-                    qs = qs.substring(1);
-                }
-
-                if (!_.isEmpty(qs)) {
-                    val = val + '?' + qs;
-                }
-
-                $('#@id').val(val).trigger("change");
-                cnt.find(".product-picker-input").val(selectedItems[0].name);
-
-                return true;
-            }
-        </text>
-    }
-</script>

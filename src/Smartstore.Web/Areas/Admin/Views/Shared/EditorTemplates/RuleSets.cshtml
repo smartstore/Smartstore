@@ -54,29 +54,4 @@
         attributes["multiple"] = "multiple";
     }
 }
-<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control" attrs="attributes"></select>
-<script>
-    // TODO: (mh) (core) Implement initialization in javascript factory analog to ApplyCommonPlugins.
-    $(function () {
-        $('#@id')
-            .selectWrapper()
-            .on('select2:selecting select2:unselecting', function (e) {
-                try {
-                    // Prevent selection when a link has been clicked.
-                    if ($(e.params.args.originalEvent.target).hasClass('prevent-selection')) {
-                        var data = e.params.args.data;
-
-                        if (data.id === '-1' && !_.isEmpty(data.url)) {
-                            window.location = data.url;
-                        }
-
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-                catch (e) {
-                    console.log(e);
-                }
-            });
-    });
-</script>
+<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control rule-sets" attrs="attributes"></select>

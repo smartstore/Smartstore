@@ -8,7 +8,7 @@
     Layout = "_AdminLayout";
 }
 
-<form asp-action="EditorTemplates">
+<form asp-action="EditorTemplates" id="editor-templates">
 
     <div class="adminContent">
 
@@ -289,3 +289,9 @@
         </div>
     </div>
 </form>
+
+<script sm-target-zone="scripts" data-origin="EditorTemplates">
+    $(function () {
+        Smartstore.EditorTemplates.Apply($("#editor-templates"));
+    });
+</script>

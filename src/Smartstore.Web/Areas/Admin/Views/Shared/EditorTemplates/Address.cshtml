@@ -83,17 +83,10 @@
             <select asp-for="CountryId" asp-items="Model.AvailableCountries"
                     class="country-input country-selector"
                     data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
-                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
+                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer", new { area = string.Empty })"
                     data-addEmptyStateIfRequired="true">
             </select>
-
             <span asp-validation-for="CountryId"></span>
-
-            <script>
-                $(function () {
-                    applyCommonPlugins(".adminContent");
-                });
-            </script>
         </div>
     </div>
     <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="adminRow">

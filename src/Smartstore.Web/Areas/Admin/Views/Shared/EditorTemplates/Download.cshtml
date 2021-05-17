@@ -92,8 +92,12 @@
      class="form-row flex-nowrap download-editor"
      attr-class='(additionalCssClasses.HasValue(), additionalCssClasses)'
      data-download-id="@Model.GetValueOrDefault()"
+     data-entity-id="@EntityId"
+     data-entity-name="@EntityName"
+     data-create-url="@Url.Action("CreateDownloadFromMediaFile", "Download", new { area = "Admin" })"
      data-delete-url="@Url.Action("DeleteDownload", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, downloadId = Model, area = "Admin" })"
-     data-use-url="@(initiallyShowUrlPanel ? "true" : "false")">
+     data-use-url="@(initiallyShowUrlPanel ? "true" : "false")"
+     data-media-selected-callback="onMediaSelected_@random">
 
     <input type="hidden" name="is-url-download-@(Model)" id="is-url-download-@(Model)" value='@(initiallyShowUrlPanel ? "true" : "false")' />
 
@@ -159,13 +163,13 @@
         @if (!MinimalMode)
         {
             var value = download != null ? download.DownloadUrl : string.Empty;
+            var saveDownloadUrl = Url.Action("SaveDownloadUrl", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, entityId = EntityId, entityName = EntityName, area = "Admin" });
 
             <div class="panel-url" style="display: @(initiallyShowUrlPanel ? "block": "none")">
                 <div class="input-group">
                     <input type="text" class="download-url-value form-control" value='@value' data-value='@value' />
                     <div class="input-group-append">
-                        <a class="btn btn-outline-secondary save-download-url disabled"
-                           href="@Url.Action("SaveDownloadUrl", "Download", new { minimalMode = MinimalMode, fieldName = FieldName, entityId = EntityId, entityName = EntityName, area = "Admin" })">
+                        <a class="btn btn-outline-secondary save-download-url disabled" href="@saveDownloadUrl">
                             <i class="fa fa-check"></i>
                             <span>@T("Common.Save")</span>
                         </a>
@@ -182,31 +186,3 @@
         </div>
     </div>
 </div>
-
-<script sm-target-zone="scripts" data-origin="editor-template">
-    // TODO: (mh) (core) Implement initialization in javascript factory analog to ApplyCommonPlugins.
-	window['onMediaSelected_@random'] = function (file) {
-        var token = $('input[name="__RequestVerificationToken"]').val();
-		// Create download for selected MediaFile.
-		$.ajax({
-			async: true,
-			cache: false,
-			type: 'POST',
-			url: "@Url.Action("CreateDownloadFromMediaFile", "Download")",
-			data: {
-				mediaFileId: file.id,
-                entityId: @EntityId,
-				entityName: "@EntityName",
-                __RequestVerificationToken: token
-			},
-            success: function (response) {
-                if (!response.success)
-                    displayNotification("Error while trying to create a download for the selected file.", "error");
-			}
-		});
-    }
-
-	$(function () {
-        $('#@clientId').downloadEditor();
-	});
-</script>

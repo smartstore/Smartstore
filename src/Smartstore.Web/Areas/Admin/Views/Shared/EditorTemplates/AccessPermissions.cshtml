@@ -51,9 +51,3 @@
     }
 }
 <select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control" attrs="attributes"></select>
-<script>
-    // TODO: (mh) (core) Implement initialization in javascript factory analog to ApplyCommonPlugins.
-    $(function () {
-        $('#@id').selectWrapper();
-    });
-</script>

@@ -58,15 +58,17 @@
 }
 
 <div class="@CssClass" id="@id-parent" data-date="@value" data-target-input="nearest">
-    <input asp-for="@Model" id="@id" name="@name" class="form-control datetimepicker-input" data-target="#@(id)-parent" data-format="@format" type="text" attr-value="(value.HasValue(), value)" />
+    <input asp-for="@Model" 
+           id="@id" 
+           name="@name" 
+           class="form-control datetimepicker-input" 
+           data-target="#@(id)-parent" 
+           data-format="@format" 
+           data-use-current="false"
+           type="text" 
+           attr-value="(value.HasValue(), value)" />
+
     <div class="input-group-append input-group-addon" data-target="#@(id)-parent" data-toggle="datetimepicker">
         <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
     </div>
 </div>
-
-<script data-origin="DateTime">
-    $(function () {
-        // TODO: (mh) (core) Remove all inline scripts from editor templates.
-		$("#@(id)-parent").datetimepicker({ format: '@(format)', useCurrent: false, locale: moment.locale() });
-	});
-</script>

@@ -45,17 +45,10 @@
            type="text"
            class="form-control datetimepicker-input" 
            data-target="#@(id)-parent"
-           data-format="LT" />
+           data-format="LT"
+           data-use-current="true" />
 
     <div class="input-group-append input-group-addon" data-target="#@(id)-parent" data-toggle="datetimepicker">
         <span class="input-group-text"><i class="far fa-clock"></i></span>
     </div>
 </div>
-
-<script data-origin="Time">
-    // TODO: (mh) (core) Init in factory.
-	$(function () {
-		$("#@(id)-parent").datetimepicker({ format: 'LT', useCurrent: true, locale: moment.locale() });
-	});
-</script>
-
