@@ -44,12 +44,14 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(PostfixAttributeName)]
         public string Postfix { get; set; }
 
+        // TODO: (mh) (core) Remove this
         /// <summary>
         /// Defines the placeholder for the editor input tag.
         /// </summary>
         [HtmlAttributeName(PlaceholderAttributeName)]
         public string Placeholder { get; set; }
 
+        // TODO: (mh) (core) Remove this
         /// <summary>
         /// Defines whether the input tag will get the autocomplete attribute.
         /// </summary>
@@ -66,7 +68,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             output.SuppressOutput();
-            
+
             var htmlAttributes = new Dictionary<string, object>();
 
             if (Value.HasValue())
@@ -87,6 +89,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             var viewContextAware = _htmlHelper as IViewContextAware;
             viewContextAware?.Contextualize(ViewContext);
 
+            // TODO: (mh) (core) Use output.Attributes, not AllAttributes!
             var attrs = context.AllAttributes.Where(x => x.Name.EqualsNoCase("attrs")).FirstOrDefault();
             if (attrs != null && attrs.Value != null)
             {
