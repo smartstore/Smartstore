@@ -10,9 +10,9 @@ using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 
-namespace Smartstore.Extensions
+namespace Smartstore.Web.Rendering
 {
-    public static class HtmlSelectListExtensions
+    public static class SelectListExtensions
     {
         public static SelectList ToSelectList<TEnum>(this TEnum enumObj, bool markCurrentAsSelected = true) where TEnum : struct
         {
@@ -38,19 +38,15 @@ namespace Smartstore.Extensions
         /// </summary>
         public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Store> stores, params int[] selectedStoreIds)
         {
-            var list = new List<SelectListItem>();
-
-            foreach (var store in stores)
+            Guard.NotNull(stores, nameof(stores));
+            
+            return stores.Select(x => new SelectListItem 
             {
-                list.Add(new SelectListItem
-                {
-                    Text = store.Name,
-                    Value = store.Id.ToString(),
-                    Selected = selectedStoreIds != null && selectedStoreIds.Contains(store.Id)
-                });
-            }
-
-            return list;
+                Text = x.Name,
+                Value = x.Id.ToString(),
+                Selected = selectedStoreIds != null && selectedStoreIds.Contains(x.Id)
+            })
+            .ToList();
         }
 
         /// <summary>
@@ -58,19 +54,15 @@ namespace Smartstore.Extensions
         /// </summary>
         public static IList<SelectListItem> ToSelectListItems(this IEnumerable<CustomerRole> roles, params int[] selectedCustomerRoleIds)
         {
-            var list = new List<SelectListItem>();
+            Guard.NotNull(roles, nameof(roles));
 
-            foreach (var role in roles)
+            return roles.Select(x => new SelectListItem
             {
-                list.Add(new SelectListItem
-                {
-                    Text = role.Name,
-                    Value = role.Id.ToString(),
-                    Selected = selectedCustomerRoleIds != null && selectedCustomerRoleIds.Contains(role.Id)
-                });
-            }
-
-            return list;
+                Text = x.Name,
+                Value = x.Id.ToString(),
+                Selected = selectedCustomerRoleIds != null && selectedCustomerRoleIds.Contains(x.Id)
+            })
+            .ToList();
         }
 
         /// <summary>
@@ -85,6 +77,8 @@ namespace Smartstore.Extensions
             //PluginMediator pluginMediator,
             params string[] selectedMethods)
         {
+            Guard.NotNull(paymentProviders, nameof(paymentProviders));
+
             var list = new List<ExtendedSelectListItem>();
 
             foreach (var provider in paymentProviders)
@@ -119,18 +113,19 @@ namespace Smartstore.Extensions
             return list.OrderBy(x => x.Text).ToList();
         }
 
-        public static void SelectValue(this List<SelectListItem> lst, string value, string defaultValue = null)
+        public static void SelectValue(this IEnumerable<SelectListItem> list, string value, string defaultValue = null)
         {
-            if (lst != null)
-            {
-                var itm = lst.FirstOrDefault(i => i.Value.EqualsNoCase(value));
+            // INFO: (mh) (core) Please don't port via copy&paste!!!
+            if (list == null)
+                return;
 
-                if (itm == null && defaultValue != null)
-                    itm = lst.FirstOrDefault(i => i.Value.EqualsNoCase(defaultValue));
+            var item = list.FirstOrDefault(x => x.Value.EqualsNoCase(value));
 
-                if (itm != null)
-                    itm.Selected = true;
-            }
+            if (item == null && defaultValue != null)
+                item = list.FirstOrDefault(x => x.Value.EqualsNoCase(defaultValue));
+
+            if (item != null)
+                item.Selected = true;
         }
     }
 
