@@ -35,20 +35,12 @@
     // TODO: (mh) (core) Add Edit to RuleController
     var url = Url.Action("Edit", "Rule", new { id = "__id__", area = "Admin" });
 
-    var attributes = new AttributeDictionary();
-    var htmlAttributes = CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object());
-    foreach (var attr in htmlAttributes)
-    {
-        attributes.Add(attr.Key, attr.Value.ToString());
-    }
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     attributes["data-select-url"] = Url.Action("AllRuleSets", "Rule", new { selectedIds = strValue, scope = ruleScope, area = "Admin" });
     attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
+    attributes.Merge("data-placeholder", T("Common.Unspecified").Value);
 
-    if (!attributes.ContainsKey("data-placeholder"))
-    {
-        attributes["data-placeholder"] = T("Common.Unspecified").Value;
-    }
     if (!attributes.ContainsKey("multiple") && GetMetadata<bool>("multiple"))
     {
         attributes["multiple"] = "multiple";

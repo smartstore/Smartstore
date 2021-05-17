@@ -55,7 +55,7 @@ namespace Smartstore.Admin.Controllers
                     Selected = selectedArr.Contains(x.Id),
                     UrlTitle = x.Id == -1 ? string.Empty : T("Admin.Rules.OpenRule").Value,
                     Url = x.Id == -1
-                        ? Url.Action("Create", "Rule", new { area = "Admin", scope })
+                        ? Url.Action("Create", "Rule", new { scope, area = "Admin" })
                         : Url.Action("Edit", "Rule", new { id = x.Id, area = "Admin" })
                 })
                 .ToList();

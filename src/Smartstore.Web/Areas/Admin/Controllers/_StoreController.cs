@@ -33,9 +33,9 @@ namespace Smartstore.Admin.Controllers
         /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
         /// <param name="selectedIds">Ids of selected entities.</param>
         /// <returns>List of all stores as JSON.</returns>
-        public async Task<IActionResult> AllStores(string label, string selectedIds)
+        public IActionResult AllStores(string label, string selectedIds)
         {
-            var stores = await _db.Stores.AsNoTracking().ToListAsync();
+            var stores = new List<Store>(Services.StoreContext.GetAllStores());
             var ids = selectedIds.ToIntArray();
 
             if (label.HasValue())

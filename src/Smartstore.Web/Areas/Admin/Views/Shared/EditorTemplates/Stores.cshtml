@@ -27,23 +27,15 @@
 }
 
 @{
-    var id = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var id = Html.IdForModel();
     var strValue = Value;
 
-    var attributes = new AttributeDictionary();
-    var htmlAttributes = CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object());
-    foreach (var attr in htmlAttributes)
-    {
-        attributes.Add(attr.Key, attr.Value.ToString());
-    }
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     attributes["data-select-url"] = Url.Action("AllStores", "Store", new { selectedIds = strValue, area = "Admin" });
     attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
+    attributes.Merge("data-placeholder", T("Admin.Common.StoresAll").Value);
 
-    if (!attributes.ContainsKey("data-placeholder"))
-    {
-        attributes["data-placeholder"] = T("Admin.Common.StoresAll").Value;
-    }
     if (!attributes.ContainsKey("multiple") && GetMetadata<bool>("multiple"))
     {
         attributes["multiple"] = "multiple";

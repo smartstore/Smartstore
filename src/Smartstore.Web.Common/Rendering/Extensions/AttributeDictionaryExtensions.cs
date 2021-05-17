@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -9,11 +10,30 @@ namespace Smartstore.Web.Rendering
     {
         public static AttributeDictionary Merge(this AttributeDictionary attributes, string name, string value, bool replaceExisting = false)
         {
+            Guard.NotNull(attributes, nameof(attributes));
             Guard.NotEmpty(name, nameof(name));
 
             if (replaceExisting || !attributes.ContainsKey(name))
             {
                 attributes[name] = value;
+            }
+
+            return attributes;
+        }
+
+        public static AttributeDictionary Merge(this AttributeDictionary attributes, IDictionary<string, object> source, bool replaceExisting = false)
+        {
+            Guard.NotNull(attributes, nameof(attributes));
+
+            if (source != null)
+            {
+                foreach (var kvp in source)
+                {
+                    if (replaceExisting || !attributes.ContainsKey(kvp.Key))
+                    {
+                        attributes[kvp.Key] = kvp.Value.ToString();
+                    }
+                }
             }
 
             return attributes;
