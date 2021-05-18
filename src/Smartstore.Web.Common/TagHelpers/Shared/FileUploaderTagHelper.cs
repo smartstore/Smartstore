@@ -93,15 +93,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeNotBound]
         public AttributeDictionary HtmlAttributes { get; set; } = new();
 
-        // TODO: (ms) (core) Id is already used by SmartTagHelper. Rename to ControlId or somenthing like that.
-        // TODO: (ms) (core) (from mc) Don't ever use Id prop with SmartTagHelper. Remove this and HtmlAttribute and all callers completely!
-        [HtmlAttributeNotBound]
-        public string Id
-        {
-            get => !HtmlAttributes.ContainsKey("id") ? Name : HtmlAttributes["id"];
-            set => HtmlAttributes["id"] = value;
-        }
-
         [HtmlAttributeName(FileUploaderAttributeName)]
         public string Name { get; set; }
 
@@ -190,10 +181,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             var extensions = _mediaTypeResolver.ParseTypeFilter(TypeFilter.HasValue() ? TypeFilter : "*");
+
+            // TODO: (ms) (core) Add these via output.Attributes
             HtmlAttributes["data-accept"] = "." + string.Join(",.", extensions);
             HtmlAttributes["data-show-remove-after-upload"] = DisplayRemoveButtonAfterUpload.ToString().ToLower();
 
-            var widget = new ComponentWidgetInvoker("FileUploader", this);
+            var widget = new ComponentWidgetInvoker("FileUploader", this); // TODO: (ms) (core) Pass model
             var partial = await widget.InvokeAsync(ViewContext);
 
             output.TagMode = TagMode.StartTagAndEndTag;

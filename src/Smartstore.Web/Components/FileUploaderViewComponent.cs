@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.TagHelpers.Shared;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.Components
 {
@@ -11,7 +10,7 @@ namespace Smartstore.Web.Components
         {
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(IFileUploaderModel fileModel)
+        public IViewComponentResult Invoke(IFileUploaderModel fileModel)
         {
             Guard.NotNull(fileModel, nameof(fileModel));
 
