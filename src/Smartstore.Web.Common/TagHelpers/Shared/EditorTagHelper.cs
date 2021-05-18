@@ -56,22 +56,20 @@ namespace Smartstore.Web.TagHelpers.Admin
 
             var htmlAttributes = new Dictionary<string, object>();
 
-            if (Postfix.HasValue())
-                htmlAttributes.Add("postfix", Postfix);
-
             var viewContextAware = _htmlHelper as IViewContextAware;
             viewContextAware?.Contextualize(ViewContext);
 
             var attrs = output.Attributes;
+            
             if (attrs != null && attrs.Count > 0)
             {
                 foreach (var attr in attrs)
                 {
-                    htmlAttributes.Add(attr.Name, attr.Value);
+                    htmlAttributes[attr.Name] = attr.Value;
                 }
             }
 
-            output.Content.SetHtmlContent(_htmlHelper.EditorFor(For, Template, new { htmlAttributes, IsTextArea }));
+            output.Content.SetHtmlContent(_htmlHelper.EditorFor(For, Template, new { htmlAttributes, Postfix, IsTextArea }));
         }
     }
 }

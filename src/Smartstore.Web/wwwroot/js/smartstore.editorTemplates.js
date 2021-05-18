@@ -1,9 +1,12 @@
 ﻿var _editorTemplateFactories = [
 
+    // TODO: (mh) (core) Move this file to appropriate place after bundling is available.
+
     // Select2: AccessPermissions, CustomerRoles, DeliveryTimes, Discounts, Stores
     function (ctx) {
         if ($.fn.select2 === undefined || $.fn.selectWrapper === undefined)
             return;
+
         ctx.find("select:not(.noskin), input:hidden[data-select]").selectWrapper();
     },
 
@@ -28,7 +31,7 @@
         var cntEditor = ctx.find(".html-editor-root");
         if (!cntEditor)
             return;
-
+        // TODO: (mh) (core) lazy check is missing
         summernote_image_upload_url = cntEditor.data("summernote-image-upload-url");
 
         cntEditor.each(function (i, el) {
@@ -55,12 +58,13 @@
             if (productPickerCallback) {
 
                 // TODO: (mh) (core) Test this.
+                // TODO: (mh) (core) This method needs to be centralized
                 window[productPickerCallback] = function (ids, selectedItems) {
                     // Cnt
                     var cnt = $el;
                     var val = 'product:' + ids[0];
                     var qs = cnt.find(".query-string").val() || '';
-
+                    
                     while (qs.startsWith('?')) {
                         qs = qs.substring(1);
                     }
@@ -92,6 +96,7 @@
             var onMediaSelected = $el.data("media-selected-callback");
             if (onMediaSelected) {
 
+                // TODO: (mh) (core) This method needs to be centralized
                 window[onMediaSelected] = function (file) {
                     var token = $('input[name="__RequestVerificationToken"]').val();
                     // Create download for selected MediaFile.
@@ -140,7 +145,7 @@
                         }
                     }
                     catch (e) {
-                        console.log(e);
+                        console.error(e);
                     }
                 });
         });

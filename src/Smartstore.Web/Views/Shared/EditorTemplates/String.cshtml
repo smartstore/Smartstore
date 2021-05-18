@@ -16,7 +16,7 @@
 }
 
 @{
-    var isTextArea = ViewData["isTextArea"].Convert<bool>();
+    var isTextArea = GetMetadata<bool>("IsTextArea");
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
