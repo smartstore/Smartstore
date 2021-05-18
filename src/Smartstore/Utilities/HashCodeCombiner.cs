@@ -9,6 +9,9 @@ using Smartstore.IO;
 
 namespace Smartstore.Utilities
 {
+    /// <summary>
+    /// Deterministic hash code combiner
+    /// </summary>
     [DebuggerDisplay("{CombinedHashString}")]
     public struct HashCodeCombiner
     {
@@ -69,19 +72,28 @@ namespace Smartstore.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HashCodeCombiner Add(string s)
         {
-            var hashCode = (s != null) ? s.GetHashCode() : 0;
-            return Add(hashCode);
+            var hashCode = (s != null) ? XxHashUnsafe.ComputeHash(s) : 0;
+            return Add((int)hashCode);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HashCodeCombiner Add(object o)
         {
-            var hashCode = (o != null) ? o.GetHashCode() : 0;
+            int hashCode = (o != null) 
+                ? (o is string s ? (int)XxHashUnsafe.ComputeHash(s) : o.GetHashCode())
+                : 0;
+
             return Add(hashCode);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HashCodeCombiner Add(DateTime d)
+        {
+            return Add(d.GetHashCode());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public HashCodeCombiner Add(DateTimeOffset d)
         {
             return Add(d.GetHashCode());
         }
