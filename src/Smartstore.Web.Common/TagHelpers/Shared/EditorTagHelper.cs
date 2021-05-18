@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -99,17 +98,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 }
             }
 
-            if (_htmlHelper is HtmlHelper helper)
-            {
-                var method = helper.GetType().GetMethod("GenerateEditor", BindingFlags.NonPublic | BindingFlags.Instance);
-                var content = (IHtmlContent)method.Invoke(helper, new object[] { For.ModelExplorer, For.Name, Template, htmlAttributes });
-                output.Content.SetHtmlContent(content);
-            }
-            else
-            {
-                var htmlOutput = _htmlHelper.Editor(For.Name, Template, new { htmlAttributes, postfix = Postfix });
-                output.Content.SetHtmlContent(htmlOutput);
-            }
+            output.Content.SetHtmlContent(_htmlHelper.EditorFor(For, Template, htmlAttributes));
         }
     }
 }

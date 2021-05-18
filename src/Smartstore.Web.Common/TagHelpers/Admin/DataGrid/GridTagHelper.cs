@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -213,7 +214,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     else
                     {
                         // No custom edit template specified
-                        htmlContent = HtmlHelper.Editor(column.MemberName);
+                        htmlContent = HtmlHelper.EditorFor(column.For);
                     }
                     
                     var editorSlot = new TagBuilder("template");

@@ -14,11 +14,78 @@ using Smartstore.Web.TagHelpers.Shared;
 using Smartstore.Core.Data;
 using Smartstore.Web.TagHelpers;
 using Smartstore.Web.Rendering.Builders;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using System.Reflection;
 
 namespace Smartstore.Web.Rendering
 {
     public static class HtmlHelperRenderingExtensions
     {
+        // Get the protected "HtmlHelper.GenerateEditor" method
+        private readonly static MethodInfo GenerateEditorMethod = typeof(HtmlHelper).GetMethod("GenerateEditor", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        #region EditorFor
+
+        /// <summary>
+        /// Returns HTML markup for the model explorer, using an editor template.
+        /// </summary>
+        public static IHtmlContent EditorFor(this IHtmlHelper helper, ModelExpression expression)
+            => EditorFor(helper, expression, null, null, null);
+
+        /// <summary>
+        /// Returns HTML markup for the model explorer, using an editor template.
+        /// </summary>
+        public static IHtmlContent EditorFor(this IHtmlHelper helper, ModelExpression expression, string templateName, string htmlFieldName)
+            => EditorFor(helper, expression, templateName, htmlFieldName, null);
+
+        /// <summary>
+        /// Returns HTML markup for the model explorer, using an editor template.
+        /// </summary>
+        public static IHtmlContent EditorFor(this IHtmlHelper helper, ModelExpression expression, string templateName)
+            => EditorFor(helper, expression, templateName, null, null);
+
+        /// <summary>
+        /// Returns HTML markup for the model explorer, using an editor template.
+        /// </summary>
+        public static IHtmlContent EditorFor(this IHtmlHelper helper, ModelExpression expression, string templateName, object additionalViewData)
+            => EditorFor(helper, expression, templateName, null, additionalViewData);
+
+        /// <summary>
+        /// Returns HTML markup for the model explorer, using an editor template.
+        /// </summary>
+        public static IHtmlContent EditorFor(this IHtmlHelper helper, ModelExpression expression, object additionalViewData)
+            => EditorFor(helper, expression, null, null, additionalViewData);
+
+        /// <summary>
+        /// Returns HTML markup for the model explorer, using an editor template.
+        /// </summary>
+        public static IHtmlContent EditorFor(this IHtmlHelper helper, 
+            ModelExpression expression,
+            string templateName,
+            string htmlFieldName,
+            object additionalViewData)
+        {
+            Guard.NotNull(helper, nameof(helper));
+            Guard.NotNull(expression, nameof(expression));
+
+            if (helper is HtmlHelper htmlHelper)
+            {
+                return (IHtmlContent)GenerateEditorMethod.Invoke(htmlHelper, new object[] 
+                { 
+                    expression.ModelExplorer,
+                    htmlFieldName ?? expression.Name,
+                    templateName,
+                    additionalViewData
+                });
+            }
+            else
+            {
+                return helper.Editor(htmlFieldName ?? expression.Name, templateName, additionalViewData);
+            }
+        }
+
+        #endregion
+
         #region Hint
 
         /// <summary>
