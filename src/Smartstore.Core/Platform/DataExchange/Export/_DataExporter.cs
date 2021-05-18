@@ -131,12 +131,11 @@ namespace Smartstore.Core.DataExchange.Export
         /// </summary>
         public static int PageSize => 100;
 
-        public virtual async Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancellationToken)
+        public virtual async Task<DataExportResult> ExportAsync(DataExportRequest request, CancellationToken cancellationToken = default)
         {
             Guard.NotNull(request, nameof(request));
             Guard.NotNull(request.Profile, nameof(request.Profile));
             Guard.NotNull(request.Provider?.Value, nameof(request.Provider));
-            Guard.NotNull(cancellationToken, nameof(cancellationToken));
 
             var ctx = await CreateExporterContext(request, false, cancellationToken);
 
@@ -1401,6 +1400,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             // TODO: (mg) (core) Verify download URL for export file.
+            // TODO: (mg) (core) URLs are all lowercase now. Better use IUrlHelper to generate urls.
             var downloadUrl = "{0}Admin/Export/DownloadExportFile/{1}?name=".FormatInvariant(_services.WebHelper.GetStoreLocation(ctx.Store.SslEnabled), profile.Id);
             var languageId = ctx.Projection.LanguageId ?? 0;
             var storeInfo = $"{ctx.Store.Name} ({ctx.Store.Url})";
@@ -1616,7 +1616,7 @@ namespace Smartstore.Core.DataExchange.Export
             sb.AppendLine(new string('-', 40));
             sb.AppendLine("Smartstore: v." + SmartstoreVersion.CurrentFullVersion);
             sb.Append("Export profile: " + profile.Name);
-            sb.AppendLine(profile.Id == 0 ? " (volatile)" : $" (ID {profile.Id})");
+            sb.AppendLine(profile.Id == 0 ? " (transient)" : $" (ID {profile.Id})");
             sb.AppendLine("Export provider: " + providerName);
 
             sb.Append("Module: ");
@@ -1637,7 +1637,9 @@ namespace Smartstore.Core.DataExchange.Export
                 var uri = new Uri(ctx.Store.Url);
                 sb.AppendLine($"Store: {uri.DnsSafeHost.NaIfEmpty()} (ID {ctx.Store.Id})");
             }
-            catch { }
+            catch 
+            { 
+            }
 
             sb.Append("Executed by: " + (executingCustomer.Email.HasValue() ? executingCustomer.Email : executingCustomer.SystemName));
 
@@ -1663,21 +1665,23 @@ namespace Smartstore.Core.DataExchange.Export
 
         private static void SetProgress(string message, DataExporterContext ctx)
         {
-            try
+            if (!ctx.IsPreview && message.HasValue())
             {
-                if (!ctx.IsPreview && message.HasValue())
+                try
                 {
                     ctx.Request.ProgressValueSetter.Invoke(0, 0, message);
                 }
+                catch
+                {
+                }
             }
-            catch { }
         }
 
         private static void SetProgress(int loadedRecords, DataExporterContext ctx)
         {
-            try
+            if (!ctx.IsPreview && loadedRecords > 0)
             {
-                if (!ctx.IsPreview && loadedRecords > 0)
+                try
                 {
                     var totalRecords = ctx.ShopMetadata.Sum(x => x.Value.TotalRecords);
 
@@ -1690,8 +1694,10 @@ namespace Smartstore.Core.DataExchange.Export
                     var msg = ctx.ProgressInfo.FormatInvariant(ctx.RecordCount.ToString("N0"), totalRecords.ToString("N0"));
                     ctx.Request.ProgressValueSetter.Invoke(ctx.RecordCount, totalRecords, msg);
                 }
+                catch
+                {
+                }
             }
-            catch { }
         }
 
         #endregion

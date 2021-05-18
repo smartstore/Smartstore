@@ -26,18 +26,18 @@ namespace Smartstore.Core.DataExchange.Export
         private static readonly Regex _regexFolderName = new(".*/ExportProfiles/?", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
         private readonly SmartDbContext _db;
-        private readonly IApplicationContext _applicationContext;
+        private readonly IApplicationContext _appContext;
         private readonly ILocalizationService _localizationService;
         private readonly DataExchangeSettings _dataExchangeSettings;
 
         public ExportProfileService(
             SmartDbContext db,
-            IApplicationContext applicationContext,
+            IApplicationContext appContext,
             ILocalizationService localizationService,
             DataExchangeSettings dataExchangeSettings)
         {
             _db = db;
-            _applicationContext = applicationContext;
+            _appContext = appContext;
             _localizationService = localizationService;
             _dataExchangeSettings = dataExchangeSettings;
         }
@@ -50,6 +50,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             entity.FolderName = PathHelper.NormalizeRelativePath(entity.FolderName);
 
+            // TODO: (mg) (core) There's no such thing like IsSafeAppRootPath anymore, because all paths are now absolute and rooted to a specific app directory. TBD with MC.
             // TODO: (mg) (core) complete hook in ExportProfileService (PathHelper.IsSafeAppRootPath required).
             //if (!PathHelper.IsSafeAppRootPath(entity.FolderName))
             //{
@@ -69,7 +70,7 @@ namespace Smartstore.Core.DataExchange.Export
             // Legacy examples:
             // ~/App_Data/ExportProfiles/smartstorecategorycsv
             // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
-            var root = _applicationContext.TenantRoot;
+            var root = _appContext.TenantRoot;
             var path = root.PathCombine(_exportFileRoot, _regexFolderName.Replace(profile.FolderName, string.Empty), subpath.EmptyNull());
 
             if (createIfNotExists)
@@ -89,9 +90,11 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
             {
+                // TODO: (mg) (core) ...
             }
             else if (deployment.DeploymentType == ExportDeploymentType.FileSystem)
             {
+                // TODO: (mg) (core) ...
             }
 
             throw new NotImplementedException();
@@ -236,7 +239,7 @@ namespace Smartstore.Core.DataExchange.Export
                 .ToValidPath()
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
-            profile.FolderName = _applicationContext.TenantRoot.CreateUniqueDirectoryName(_exportFileRoot, folderName);
+            profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(_exportFileRoot, folderName);
 
             profile.SystemName = profileSystemName.IsEmpty() && isSystemProfile
                 ? cleanedSystemName
