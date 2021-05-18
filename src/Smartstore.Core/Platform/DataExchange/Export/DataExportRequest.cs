@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Engine.Modularity;
+using Smartstore.Scheduling;
 
 namespace Smartstore.Core.DataExchange.Export
 {
     public class DataExportRequest
     {
-        private readonly static ProgressValueSetter _voidProgressValueSetter = SetProgress;
-
         public DataExportRequest(ExportProfile profile, Provider<IExportProvider> provider)
         {
             Guard.NotNull(profile, nameof(profile));
@@ -17,14 +17,14 @@ namespace Smartstore.Core.DataExchange.Export
 
             Profile = profile;
             Provider = provider;
-            ProgressValueSetter = _voidProgressValueSetter;
+            ProgressCallback = OnProgress;
         }
 
         public ExportProfile Profile { get; private set; }
 
         public Provider<IExportProvider> Provider { get; private set; }
 
-        public ProgressValueSetter ProgressValueSetter { get; set; }
+        public ProgressCallback ProgressCallback { get; init; }
 
         public bool HasPermission { get; set; }
 
@@ -36,9 +36,9 @@ namespace Smartstore.Core.DataExchange.Export
 
         public IQueryable<Product> ProductQuery { get; set; }
 
-        private static void SetProgress(int val, int max, string msg)
+        Task OnProgress(int value, int max, string msg)
         {
-            // Do nothing.
+            return Task.CompletedTask;
         }
     }
 }

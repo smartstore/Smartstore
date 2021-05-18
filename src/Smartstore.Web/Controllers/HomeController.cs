@@ -82,6 +82,7 @@ using Autofac.Core;
 using Smartstore.Core.Catalog.Categories;
 using System.Text.RegularExpressions;
 using Smartstore.Core.DataExchange.Export;
+using Dasync.Collections;
 
 namespace Smartstore.Web.Controllers
 {
@@ -1020,6 +1021,7 @@ namespace Smartstore.Web.Controllers
             content.AppendLine($"{zipFile.Name}: {zipPath} {zipFile.PhysicalPath}");
             //System.IO.Compression.ZipFile.CreateFromDirectory(dir.PhysicalPath, zipFile.PhysicalPath, System.IO.Compression.CompressionLevel.Fastest, false);
 
+
             //var rootDir = await root.GetDirectoryAsync(null);
             //var logPath = root.PathCombine("File/App_Data/Tenants/", rootDir.Name, dir.Parent.SubPath, "log.txt");
             //content.AppendLine(logPath);
@@ -1040,14 +1042,26 @@ namespace Smartstore.Web.Controllers
             content.AppendLine(publicDir1.PhysicalPath);
             content.AppendLine(publicDir2.PhysicalPath);
 
-            var folderName = webRoot.CreateUniqueDirectoryName(DataExporter.PublicDirectoryName, "Tester");
-            var publicPath = webRoot.PathCombine(DataExporter.PublicDirectoryName, folderName);
-            _ = await webRoot.TryCreateDirectoryAsync(publicPath);
-            content.AppendLine($"{folderName}: {publicPath}");
+            //var folderName = webRoot.CreateUniqueDirectoryName(DataExporter.PublicDirectoryName, "Tester");
+            //var publicPath = webRoot.PathCombine(DataExporter.PublicDirectoryName, folderName);
+            //_ = await webRoot.TryCreateDirectoryAsync(publicPath);
+            //content.AppendLine($"{folderName}: {publicPath}");
 
-            var deployment = await _db.ExportDeployments.FindByIdAsync(29, false);
-            var url = await eps.GetDeploymentDirectoryUrlAsync(deployment);
-            content.AppendLine(url.NaIfEmpty());
+            var deployment = await _db.ExportDeployments.FindByIdAsync(31, false);
+            //var url = await eps.GetDeploymentDirectoryUrlAsync(deployment);
+            //content.AppendLine(url.NaIfEmpty());
+            var deploymentDir = await eps.GetDeploymentDirectoryAsync(deployment, true);
+            var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile.Name);
+            content.AppendLine($"newPath: {newPath}");
+            await zipFile.FileSystem.CopyFileAsync(zipFile.SubPath, newPath, true);
+
+            //content.AppendLine();
+            //content.AppendLine($"Files for {dir.SubPath}");
+            //var files = await dir.FileSystem.EnumerateFilesAsync(dir.SubPath, "*", true).ToListAsync();
+            //foreach (var file in files)
+            //{
+            //    content.AppendLine($"{file.Name}: {file.PhysicalPath}");
+            //}
 
 
             return Content(content.ToString());

@@ -1569,7 +1569,7 @@ namespace Smartstore.Core.DataExchange.Export
                 Filter = context.Filter,
                 Projection = context.Projection,
                 ProfileId = profile.Id,
-                ProgressValueSetter = request.ProgressValueSetter
+                ProgressCallback = request.ProgressCallback
             };
 
             if (!isPreview && profile.ProviderConfigData.HasValue() && provider.ConfigurationInfo != null)
@@ -1671,7 +1671,7 @@ namespace Smartstore.Core.DataExchange.Export
             {
                 try
                 {
-                    ctx.Request.ProgressValueSetter.Invoke(0, 0, message);
+                    ctx.Request.ProgressCallback.Invoke(0, 0, message);
                 }
                 catch
                 {
@@ -1694,7 +1694,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                     ctx.RecordCount = Math.Min(ctx.RecordCount + loadedRecords, totalRecords);
                     var msg = ctx.ProgressInfo.FormatInvariant(ctx.RecordCount.ToString("N0"), totalRecords.ToString("N0"));
-                    ctx.Request.ProgressValueSetter.Invoke(ctx.RecordCount, totalRecords, msg);
+                    ctx.Request.ProgressCallback.Invoke(ctx.RecordCount, totalRecords, msg);
                 }
                 catch
                 {

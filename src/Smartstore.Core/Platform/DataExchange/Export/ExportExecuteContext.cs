@@ -5,6 +5,7 @@ using System.Threading;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Localization;
 using Smartstore.IO;
+using Smartstore.Scheduling;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Export
@@ -194,7 +195,7 @@ namespace Smartstore.Core.DataExchange.Export
             RecordException(exception, entityId);
         }
 
-        public ProgressValueSetter ProgressValueSetter { get; internal set; }
+        public ProgressCallback ProgressCallback { get; internal set; }
 
         /// <summary>
         /// Allows to set a progress message.
@@ -202,11 +203,11 @@ namespace Smartstore.Core.DataExchange.Export
         /// <param name="message">Output message.</param>
         public void SetProgress(string message)
         {
-            if (ProgressValueSetter != null && message.HasValue())
+            if (ProgressCallback != null && message.HasValue())
             {
                 try
                 {
-                    ProgressValueSetter.Invoke(0, 0, message);
+                    ProgressCallback.Invoke(0, 0, message);
                 }
                 catch { }
             }

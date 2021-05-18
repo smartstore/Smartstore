@@ -28,7 +28,6 @@ namespace Smartstore.Core.DataExchange.Export
         {
             var profileId = ctx.ExecutionInfo.Task.Alias.ToInt();
             var profile = await _db.ExportProfiles
-                .Include(x => x.Task) // TODO: (mg) (core) You probably include an entity which already is loaded (ctx.ExecutionInfo.Task)
                 .Include(x => x.Deployments)
                 .FindByIdAsync(profileId, true, cancelToken);
 
@@ -46,11 +45,7 @@ namespace Smartstore.Core.DataExchange.Export
             // Create export request.
             var request = new DataExportRequest(profile, provider)
             {
-                ProgressValueSetter = delegate (int val, int max, string msg)
-                {
-                    // TODO: (mg) (core) No way!! The delegate must follow the signature and has to be of type Task, not void!
-                    ctx.SetProgressAsync(val, max, msg, true);
-                }
+                ProgressCallback = OnProgress
             };
 
             if (ctx.Parameters.ContainsKey("SelectedIds"))
@@ -68,6 +63,11 @@ namespace Smartstore.Core.DataExchange.Export
 
             // Process!
             await _dataExporter.ExportAsync(request, cancelToken);
+
+            Task OnProgress(int value, int max, string msg)
+            {
+                return ctx.SetProgressAsync(value, max, msg, true);
+            }
         }
     }
 }
