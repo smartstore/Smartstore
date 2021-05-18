@@ -1,4 +1,6 @@
-﻿@functions{
+﻿@using Smartstore.Utilities
+
+@functions{
     private decimal? Value
     {
         get
@@ -28,30 +30,33 @@
     }
 }
 
+@{
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
 <div class="@CssClass">
     @*TODO: (mh) (core) Reimplement with taghelper once available *@
     @*@(Html.Telerik().NumericTextBox<decimal>()
-			.Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
-			.EmptyMessage(GetMetadata<string>("placeholder") ?? T("Common.EnterValue"))
-            .ButtonTitleUp(T("Common.IncreaseValue"))
-            .ButtonTitleDown(T("Common.DecreaseValue"))
-			.Value(Value)
-			.MinValue(GetMetadata<decimal?>("min"))
-			.MaxValue(GetMetadata<decimal?>("max"))
-			.IncrementStep(GetMetadata<decimal?>("step") ?? 1)
-			.DecimalDigits(4)   //always display 4 digits
-	)*@
+                .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+                .EmptyMessage(GetMetadata<string>("placeholder") ?? T("Common.EnterValue"))
+                .ButtonTitleUp(T("Common.IncreaseValue"))
+                .ButtonTitleDown(T("Common.DecreaseValue"))
+                .Value(Value)
+                .MinValue(GetMetadata<decimal?>("min"))
+                .MaxValue(GetMetadata<decimal?>("max"))
+                .IncrementStep(GetMetadata<decimal?>("step") ?? 1)
+                .DecimalDigits(4)   //always display 4 digits
+        )*@
 
     <input asp-for="@Model"
-           id="@Html.IdForModel()"
-           name="@Html.NameForModel()" 
-           value="@Value" 
+           attrs="attributes"
+           value="@Value"
            type="number"
-           class="form-control" 
+           class="form-control"
            placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
            min="@(GetMetadata<decimal?>("min"))"
            max="@(GetMetadata<decimal?>("max"))"
-           step="@(GetMetadata<decimal?>("step") ?? 1)"/>
+           step="@(GetMetadata<decimal?>("step") ?? 1)" />
 
     @if (TryGetMetadata<string>("postfix", out var postfix))
     {

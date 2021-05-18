@@ -1,4 +1,6 @@
-﻿@model string
+﻿@using Smartstore.Utilities
+
+@model string
 
 @{
     // TODO: (mh) (core) Add scripts & styles once bundles are available.
@@ -31,12 +33,14 @@
     //}
 
     //Html.AddBodyAttribute("data-file-manager-url", base.FileManagerUrl);
+
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 @*TODO: (mh) (core) Implement RoxyFileManager > ProcessRequest.*@
-<div class="html-editor-root" 
-     data-summernote-image-upload-url="@Html.Raw(Url.Action("ProcessRequest", "RoxyFileManager"))" 
-     data-lazy="@lazy" 
+<div class="html-editor-root"
+     data-summernote-image-upload-url="@Html.Raw(Url.Action("ProcessRequest", "RoxyFileManager"))"
+     data-lazy="@lazy"
      data-lang="@Html.Raw(culture != null ? $"'{culture}'" : "null")">
 
     <textarea asp-for="@Model"

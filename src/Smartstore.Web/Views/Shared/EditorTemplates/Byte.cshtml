@@ -1,4 +1,6 @@
-﻿@functions{
+﻿@using Smartstore.Utilities
+
+@functions{
     private byte? Value
     {
         get
@@ -29,30 +31,35 @@
     }
 }
 
+@{
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
 <div class="@CssClass">
     @*TODO: (mh) (core) Reimplement with taghelper once available *@
     @*@(Html.Telerik().NumericTextBox<byte>()
-			.Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
-			.EmptyMessage(GetMetadata<string>("placeholder") ?? T("Common.EnterValue"))
-            .ButtonTitleUp(T("Common.IncreaseValue"))
-            .ButtonTitleDown(T("Common.DecreaseValue"))
-			.MinValue(GetMetadata<byte?>("min") ?? 0)
-			.MaxValue(GetMetadata<byte?>("max") ?? 255)
-			.IncrementStep(GetMetadata<byte?>("step") ?? 1)
-            .DecimalDigits(0)
-			.Value(Value)
-	)*@
+                .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+                .EmptyMessage(GetMetadata<string>("placeholder") ?? T("Common.EnterValue"))
+                .ButtonTitleUp(T("Common.IncreaseValue"))
+                .ButtonTitleDown(T("Common.DecreaseValue"))
+                .MinValue(GetMetadata<byte?>("min") ?? 0)
+                .MaxValue(GetMetadata<byte?>("max") ?? 255)
+                .IncrementStep(GetMetadata<byte?>("step") ?? 1)
+                .DecimalDigits(0)
+                .Value(Value)
+        )*@
 
     <input asp-for="@Model"
            id="@Html.IdForModel()"
-           name="@Html.NameForModel()" 
-           value="@Value" 
+           name="@Html.NameForModel()"
+           value="@Value"
            type="number"
-           class="form-control" 
+           attrs="attributes"
+           class="form-control"
            placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
            min="@(GetMetadata<byte?>("min") ?? 0)"
            max="@(GetMetadata<byte?>("max") ?? 255)"
-           step="@(GetMetadata<byte?>("step") ?? 1)"/>
+           step="@(GetMetadata<byte?>("step") ?? 1)" />
 
     @if (TryGetMetadata<string>("postfix", out var postfix))
     {

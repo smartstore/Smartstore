@@ -27,16 +27,9 @@
 }
 
 @{
-    var id = Html.IdForModel();
     var strValue = Value;
     var includeSystemRoles = GetMetadata<bool>("includeSystemRoles", true);
-
-    var attributes = new AttributeDictionary();
-    var htmlAttributes = CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object());
-    foreach (var attr in htmlAttributes)
-    {
-        attributes.Add(attr.Key, attr.Value.ToString());
-    }
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     attributes["data-select-url"] = Url.Action("AllCustomerRoles", "CustomerRole", new { selectedIds = strValue, includeSystemRoles, area = "Admin" });
     attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
@@ -50,4 +43,4 @@
         attributes["multiple"] = "multiple";
     }
 }
-<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control" attrs="attributes"></select>
+<select asp-for="@Model" class="form-control" attrs="attributes"></select>

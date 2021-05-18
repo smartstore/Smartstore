@@ -1,4 +1,6 @@
-﻿@model string
+﻿@using Smartstore.Utilities
+
+@model string
 
 @functions{
     private string Value
@@ -19,7 +21,7 @@
     {
         get
         {
-            return new List<SelectListItem> 
+            return new List<SelectListItem>
             {
                 new SelectListItem { Text = T("Common.Unspecified"), Value = string.Empty, Selected = !Value.HasValue() },
                 new SelectListItem { Text = T("Common.Buttons.Secondary").ToString(), Value = "btn-secondary", Selected = (Value == "btn-secondary") },
@@ -36,5 +38,9 @@
     }
 }
 
-<select asp-for="@Model" id="@Html.IdForModel()" name="@Html.NameForModel()"  asp-items="ButtonTypes">
+@{
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
+<select asp-for="@Model" asp-items="ButtonTypes" attrs="attributes">
 </select>

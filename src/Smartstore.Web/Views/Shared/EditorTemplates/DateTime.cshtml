@@ -1,4 +1,6 @@
-﻿@functions{
+﻿@using Smartstore.Utilities
+
+@functions{
     private DateTime? Value
     {
         get
@@ -55,17 +57,17 @@
     {
         value = PickTime ? Value.Value.ToString() : Value.Value.ToShortDateString();
     }
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <div class="@CssClass" id="@id-parent" data-date="@value" data-target-input="nearest">
-    <input asp-for="@Model" 
-           id="@id" 
-           name="@name" 
-           class="form-control datetimepicker-input" 
-           data-target="#@(id)-parent" 
-           data-format="@format" 
+    <input asp-for="@Model"
+           attrs="attributes"
+           class="form-control datetimepicker-input"
+           data-target="#@(id)-parent"
+           data-format="@format"
            data-use-current="false"
-           type="text" 
+           type="text"
            attr-value="(value.HasValue(), value)" />
 
     <div class="input-group-append input-group-addon" data-target="#@(id)-parent" data-toggle="datetimepicker">

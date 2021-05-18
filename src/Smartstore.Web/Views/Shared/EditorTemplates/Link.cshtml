@@ -28,7 +28,7 @@
      attr-data-product-picker-callback='(allowedTypes.Contains(LinkType.Product), "lbPickerSelectionCompleted" + rnd.ToString())'>
     <div class="d-flex flex-nowrap input-group">
         @* Template control that receives the link expression. *@
-        <input asp-for="@Model" id="@id" name="@Html.NameForModel()" type="hidden" value="@Value" />
+        <input asp-for="@Model" type="hidden" value="@Value" />
 
         @* 1. prepend type selector. *@
         <div class="input-group-prepend type-container">

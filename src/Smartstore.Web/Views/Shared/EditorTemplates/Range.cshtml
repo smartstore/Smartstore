@@ -1,6 +1,7 @@
-﻿@model object
+﻿@using System.Globalization
+@using Smartstore.Utilities
 
-@using System.Globalization;
+@model object
 
 @{
     if (Model == null || !Model.GetType().IsNumericType() || Model.GetType().IsGenericType)
@@ -21,7 +22,7 @@
     var sliderCssClass = "form-control-range px-0 custom-range";
 
     var id = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
-    
+
     var min = (GetMetadata<decimal?>("min") ?? 0m).ToString(CultureInfo.InvariantCulture);
     var max = (GetMetadata<decimal?>("max") ?? 100m).ToString(CultureInfo.InvariantCulture);
     var step = (GetMetadata<decimal?>("step") ?? 1m).ToString(CultureInfo.InvariantCulture);
@@ -29,13 +30,14 @@
     var format = GetMetadata<string>("format") ?? "{0}";
 
     var invariantValue = ViewData.Model.Convert<decimal>().ToString(CultureInfo.InvariantCulture);
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <div class="@containerCssClass" data-format="@Html.Raw(format)">
     @*TODO: (mh) (core) Default validation was inserted by this*@
     @*@Html.Hidden(string.Empty, ViewData.Model)*@
 
-    <input asp-for="@Model" type="hidden" id="@Html.IdForModel()" name="@Html.NameForModel()" />
+    <input asp-for="@Model" type="hidden" attrs="attributes" />
     <input type="range" class="@sliderCssClass" data-target="#@id" min="@min" max="@max" step="@step" value="@invariantValue" />
 
     <div class="range-value" data-placement="left">

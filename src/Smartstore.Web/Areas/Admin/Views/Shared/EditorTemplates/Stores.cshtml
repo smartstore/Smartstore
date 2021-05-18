@@ -27,9 +27,7 @@
 }
 
 @{
-    var id = Html.IdForModel();
     var strValue = Value;
-
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     attributes["data-select-url"] = Url.Action("AllStores", "Store", new { selectedIds = strValue, area = "Admin" });
@@ -42,4 +40,4 @@
     }
 }
 
-<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control" attrs="attributes"></select>
+<select asp-for="@Model" class="form-control" attrs="attributes"></select>

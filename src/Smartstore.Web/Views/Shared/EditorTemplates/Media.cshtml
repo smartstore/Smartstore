@@ -99,6 +99,7 @@
     var random = CommonHelper.GenerateRandomInteger();
     var currentFile = Model != null ? await MediaService.GetFileByIdAsync((int)Model) : null;
     var defaultValue = Model != null ? 0 : (int?)null;
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <div class="fu-container" attr-class='(MultiFile, "xl")'>
@@ -112,9 +113,8 @@
             </div>
             <input asp-for="@Model"
                    type="hidden" 
-                   id="@Html.IdForModel()" 
-                   name="@Html.NameForModel()" 
                    value="@(currentFile != null ? Model : defaultValue)" 
+                   attrs="attributes"
                    class="hidden" />
         }
 

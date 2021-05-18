@@ -1,4 +1,6 @@
-﻿@functions{
+﻿@using Smartstore.Utilities
+
+@functions{
     private double? Value
     {
         get
@@ -28,6 +30,10 @@
     }
 }
 
+@{
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
 <div class="@CssClass">
     @*TODO: (mh) (core) Reimplement with taghelper once available *@
     @*@(Html.Telerik().NumericTextBox<double>()
@@ -43,8 +49,7 @@
         )*@
 
     <input asp-for="@Model"
-           id="@Html.IdForModel()"
-           name="@Html.NameForModel()"
+           attrs="attributes"
            value="@Value"
            type="number"
            class="form-control "

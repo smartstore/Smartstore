@@ -1,4 +1,6 @@
-﻿@functions{
+﻿@using Smartstore.Utilities
+
+@functions{
     private string Value
     {
         get
@@ -13,8 +15,11 @@
     }
 }
 
+@{
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
 <colorbox asp-for="@Model"
-          id="@Html.IdForModel()"
-          name="@Html.NameForModel()" 
-          value="@Value.EmptyNull()" 
+          attrs="attributes"
+          value="@Value.EmptyNull()"
           sm-default-color="@(ViewData["fallbackColor"].Convert<string>())" />

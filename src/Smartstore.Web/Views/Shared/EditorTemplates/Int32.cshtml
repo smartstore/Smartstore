@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Routing
+@using Smartstore.Utilities
 
 @functions{
     private int? Value
@@ -39,29 +40,32 @@
     }
 }
 
+@{
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
 <div class="@CssClass">
     @*TODO: (mh) (core) Reimplement with taghelper once available *@
     @*@(Html.Telerik().IntegerTextBox()
-			.Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
-			.EmptyMessage(GetMetadata<string>("placeholder") ?? T("Common.EnterValue"))
-            .ButtonTitleUp(T("Common.IncreaseValue"))
-            .ButtonTitleDown(T("Common.DecreaseValue"))
-			.MinValue(GetMetadata<int?>("min"))
-			.MaxValue(GetMetadata<int?>("max"))
-			.IncrementStep(GetMetadata<int?>("step") ?? 1)
-			.Value(Value)
-	)*@
+                .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+                .EmptyMessage(GetMetadata<string>("placeholder") ?? T("Common.EnterValue"))
+                .ButtonTitleUp(T("Common.IncreaseValue"))
+                .ButtonTitleDown(T("Common.DecreaseValue"))
+                .MinValue(GetMetadata<int?>("min"))
+                .MaxValue(GetMetadata<int?>("max"))
+                .IncrementStep(GetMetadata<int?>("step") ?? 1)
+                .Value(Value)
+        )*@
 
     <input asp-for="@Model"
-           id="@Html.IdForModel()"
-           name="@Html.NameForModel()" 
-           value="@Value" 
-           class="form-control" 
+           value="@Value"
+           class="form-control"
            type="number"
+           attrs="attributes"
            placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.EnterValue").Value)"
            min="@(GetMetadata<int?>("min"))"
            max="@(GetMetadata<int?>("max"))"
-           step="@(GetMetadata<int?>("step") ?? 1)"/>
+           step="@(GetMetadata<int?>("step") ?? 1)" />
 
     @if (TryGetMetadata<string>("postfix", out var postfix))
     {
