@@ -1,0 +1,30 @@
+﻿@using Smartstore.Utilities
+
+@functions{
+    private string Value
+    {
+        get
+        {
+            string value = null;
+            if (ViewData.Model != null)
+            {
+                value = Convert.ToString(ViewData.Model);
+            }
+            return value;
+        }
+    }
+}
+
+@{
+    var isTextArea = ViewData["isTextArea"].Convert<bool>();
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+}
+
+@if (isTextArea)
+{
+    <textarea asp-for="@Model" attrs="attributes" value="@Value.EmptyNull()" class="form-control"></textarea>
+}
+ else
+{
+    <input asp-for="@Model" attrs="attributes" value="@Value.EmptyNull()" class="form-control" />
+}
