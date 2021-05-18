@@ -630,7 +630,7 @@ namespace Smartstore.Core.Messaging
 
                 // URLs
                 ["WishlistUrl"] = BuildRouteUrl("Wishlist", new { customerGuid = part.CustomerGuid }, messageContext),
-                ["EditUrl"] = BuildActionUrl("Edit", "Customer", new { id = part.Id, area = "admin" }, messageContext),
+                ["EditUrl"] = BuildActionUrl("Edit", "Customer", new { id = part.Id, area = "Admin" }, messageContext),
                 ["PasswordRecoveryURL"] = pwdRecoveryToken == null ? null : BuildActionUrl("passwordrecoveryconfirm", "customer",
                     new { token = pwdRecoveryToken, email, area = "" }, 
                     messageContext),

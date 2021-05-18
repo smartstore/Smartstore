@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
@@ -7,13 +8,30 @@ namespace Smartstore.Core.DataExchange.Export
     public partial interface IExportProfileService
     {
         /// <summary>
-        /// Gets a temporary folder for an export profile.
+        /// Gets a temporary directory for an export profile.
         /// </summary>
         /// <param name="profile">Export profile.</param>
         /// <param name="subpath">Optional subpath, e.g. "Content" to get the content subfolder.</param>
         /// <param name="createIfNotExists">A value indicating whether the folder should be created if it does not exist.</param>
         /// <returns>Export directory.</returns>
         Task<IDirectory> GetExportDirectoryAsync(ExportProfile profile, string subpath = null, bool createIfNotExists = false);
+
+        /// <summary>
+        /// Gets the directory for deploying export files. <c>null</c> if the profile has no deployment based on file system.
+        /// </summary>
+        /// <param name="deployment">Export deployment.</param>
+        /// <param name="createIfNotExists">A value indicating whether the folder should be created if it does not exist.</param>
+        /// <returns>Deploement directory.</returns>
+        Task<IDirectory> GetDeploymentDirectoryAsync(ExportDeployment deployment, bool createIfNotExists = false);
+
+        /// <summary>
+        /// Gets the URL of the public export directory. <c>null</c> if the profile has no public deployment.
+        /// </summary>
+        /// <param name="deployment">Export deployment.</param>
+        /// <param name="store">Store to get the domain from. If <c>null</c>, store will be obtained from <see cref="ExportProfile.Filtering"/> or <see cref="ExportProfile.Projection"/>,
+        /// or from <see cref="IStoreContext.CurrentStore"/>, if no store information was found at all.</param>
+        /// <returns>URL of the public export directory.</returns>
+        Task<string> GetDeploymentDirectoryUrlAsync(ExportDeployment deployment, Store store = null);
 
         /// <summary>
         /// Adds an export profile.

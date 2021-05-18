@@ -18,7 +18,7 @@ namespace Smartstore
             return await displayHelper.HttpContext.GetItemAsync("FileManagerUrl", async () =>
             {
                 var urlHelper = displayHelper.Resolve<IUrlHelper>();
-                var defaultUrl = urlHelper.Action("Index", "RoxyFileManager", new { area = "admin" });
+                var defaultUrl = urlHelper.Action("Index", "RoxyFileManager", new { area = "Admin" });
                 var message = new FileManagerUrlRequested
                 {
                     UrlHelper = urlHelper,

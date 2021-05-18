@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Collections;
@@ -61,6 +61,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IUrlService _urlService;
         private readonly IMailService _mailService;
+        private readonly IUrlHelper _urlHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly ITaxCalculator _taxCalculator;
 
@@ -86,6 +87,7 @@ namespace Smartstore.Core.DataExchange.Export
             ILocalizedEntityService localizedEntityService,
             IUrlService urlService,
             IMailService mailService,
+            IUrlHelper urlHelper,
             ProductUrlHelper productUrlHelper,
             ITaxCalculator taxCalculator,
             CatalogSettings catalogSettings,
@@ -109,6 +111,7 @@ namespace Smartstore.Core.DataExchange.Export
             _localizedEntityService = localizedEntityService;
             _urlService = urlService;
             _mailService = mailService;
+            _urlHelper = urlHelper;
             _productUrlHelper = productUrlHelper;
             _taxCalculator = taxCalculator;
 
@@ -124,7 +127,7 @@ namespace Smartstore.Core.DataExchange.Export
         /// <summary>
         /// The name of the wwwroot subfolder where export files are to be exported to be publicly accessible.
         /// </summary>
-        public static string PublicFolder => "Exchange";
+        public static string PublicDirectoryName => "exchange";
 
         /// <summary>
         /// The page size for loading data from database during export.
@@ -391,10 +394,8 @@ namespace Smartstore.Core.DataExchange.Export
             context.Store = ToDynamic(ctx.Store, ctx);
             context.MaxFileNameLength = dataExchangeSettings.MaxFileNameLength;
             context.HasPublicDeployment = publicDeployment != null;
-
-            // TODO: (mg) (core) Rework file system related code in DataExporter.
-            //context.PublicFolderPath = publicDeployment.GetDeploymentFolder(true);
-            //context.PublicFolderUrl = publicDeployment.GetPublicFolderUrl(_services, ctx.Store);
+            context.PublicDirectory = await _exportProfileService.GetDeploymentDirectoryAsync(publicDeployment, true);
+            context.PublicDirectoryUrl = await _exportProfileService.GetDeploymentDirectoryUrlAsync(publicDeployment, ctx.Store);
 
             using var segmenter = CreateSegmenter(ctx);
 
@@ -1399,10 +1400,8 @@ namespace Smartstore.Core.DataExchange.Export
                 return;
             }
 
-            // TODO: (mg) (core) Verify download URL for export file.
-            // TODO: (mg) (core) URLs are all lowercase now. Better use IUrlHelper to generate urls.
-            var downloadUrl = "{0}Admin/Export/DownloadExportFile/{1}?name=".FormatInvariant(_services.WebHelper.GetStoreLocation(ctx.Store.SslEnabled), profile.Id);
             var languageId = ctx.Projection.LanguageId ?? 0;
+            var protocol = ctx.Store.SslEnabled ? "https" : "http";
             var storeInfo = $"{ctx.Store.Name} ({ctx.Store.Url})";
             var intro = _services.Localization.GetResource("Admin.DataExchange.Export.CompletedEmail.Body", languageId).FormatInvariant(storeInfo);
 
@@ -1416,7 +1415,9 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (ctx.IsFileBasedExport && ctx.ZipFile.Exists)
             {
-                body.AppendFormat("<p><a href='{0}{1}' download>{2}</a></p>", downloadUrl, HttpUtility.UrlEncode(ctx.ZipFile.Name), ctx.ZipFile.Name);
+                // TODO: (mg) (core) Verify download URL for export file (see below too).
+                var downloadUrl = _urlHelper.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, ctx.ZipFile.Name }, protocol);
+                body.AppendFormat("<p><a href='{0}' download>{1}</a></p>", downloadUrl, ctx.ZipFile.Name);
             }
 
             if (ctx.IsFileBasedExport && ctx.Result.Files.Any())
@@ -1424,7 +1425,8 @@ namespace Smartstore.Core.DataExchange.Export
                 body.Append("<p>");
                 foreach (var file in ctx.Result.Files)
                 {
-                    body.AppendFormat("<div><a href='{0}{1}' download>{2}</a></div>", downloadUrl, HttpUtility.UrlEncode(file.FileName), file.FileName);
+                    var downloadUrl = _urlHelper.Action("DownloadExportFile", "Export", new { area = "Admin", id = profile.Id, file.FileName }, protocol);
+                    body.AppendFormat("<div><a href='{0}' download>{1}</a></div>", downloadUrl, file.FileName);
                 }
                 body.Append("</p>");
             }

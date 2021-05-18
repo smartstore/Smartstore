@@ -314,8 +314,9 @@ Kopie von*
 /src/**/App_Data/Tenants/
 
 # Import/Export
-/src/Smartstore.Web/[Ee]xchange/*
-User settings
+/src/Smartstore.Web/wwwroot/[Ee]xchange/*
+
+# User settings
 /src/Smartstore.Web/Config/usersettings*
 
 # Tools

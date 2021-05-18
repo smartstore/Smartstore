@@ -1027,6 +1027,27 @@ namespace Smartstore.Web.Controllers
             //var logger = Services.LoggerFactory.CreateLogger($"File/" + dir.FileSystem.PathCombine(dir.Parent.SubPath, "log.txt"));
             //logger.Info("Hello world!");
 
+            ////var fullPath = @"C:\Downloads\Subfolder";
+            //var fullPath = @"~\App_Data\_temp\subfolder";
+            var subfolder = "SubFolder";
+            var webRoot = Services.ApplicationContext.WebRoot;
+            var webRootDir = await webRoot.GetDirectoryAsync(null);
+            var publicPath1 = webRoot.PathCombine(DataExporter.PublicDirectoryName, subfolder);
+            subfolder = null;
+            var publicPath2 = webRoot.PathCombine(DataExporter.PublicDirectoryName, subfolder);
+            var publicDir1 = await webRoot.GetDirectoryAsync(publicPath1);
+            var publicDir2 = await webRoot.GetDirectoryAsync(publicPath2);
+            content.AppendLine(publicDir1.PhysicalPath);
+            content.AppendLine(publicDir2.PhysicalPath);
+
+            var folderName = webRoot.CreateUniqueDirectoryName(DataExporter.PublicDirectoryName, "Tester");
+            var publicPath = webRoot.PathCombine(DataExporter.PublicDirectoryName, folderName);
+            _ = await webRoot.TryCreateDirectoryAsync(publicPath);
+            content.AppendLine($"{folderName}: {publicPath}");
+
+            var deployment = await _db.ExportDeployments.FindByIdAsync(29, false);
+            var url = await eps.GetDeploymentDirectoryUrlAsync(deployment);
+            content.AppendLine(url.NaIfEmpty());
 
 
             return Content(content.ToString());

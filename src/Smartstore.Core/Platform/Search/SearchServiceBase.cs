@@ -113,7 +113,7 @@ namespace Smartstore.Core.Search
             {
                 var indexingUrl = urlHelper.Action("Indexing", "MegaSearch", new { area = "SmartStore.MegaSearch" });
                 // TODO: (mg) (core) Be careful with such URLs! They will change most probably (ChildAction <> ViewComponent etc.). Don't leave such code behind without any comment.
-                var configureUrl = urlHelper.Action("ConfigurePlugin", "Plugin", new { area = "admin", systemName = "SmartStore.MegaSearch" });
+                var configureUrl = urlHelper.Action("ConfigurePlugin", "Plugin", new { area = "Admin", systemName = "SmartStore.MegaSearch" });
                 var notification = services.Localization.GetResource("Search.IndexingRequiredNotification").FormatInvariant(indexingUrl, configureUrl);
 
                 services.Notifier.Information(notification);

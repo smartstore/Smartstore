@@ -473,7 +473,7 @@ namespace Smartstore.Core.Messaging
                 { "CyclePeriod", part.CyclePeriod.GetLocalizedEnum(messageContext.Language.Id) },
                 { "CyclesRemaining", part.CyclesRemaining },
                 { "TotalCycles", part.TotalCycles },
-                { "Url", BuildActionUrl("Edit", "RecurringPayment", new { id = part.Id, area = "admin" }, messageContext) }
+                { "Url", BuildActionUrl("Edit", "RecurringPayment", new { id = part.Id, area = "Admin" }, messageContext) }
             };
 
             await PublishModelPartCreatedEventAsync(part, m);
@@ -496,7 +496,7 @@ namespace Smartstore.Core.Messaging
                 { "StaffNotes", HtmlUtils.StripTags(part.StaffNotes).NullEmpty() },
                 { "Quantity", part.Quantity },
                 { "RefundToWallet", part.RefundToWallet },
-                { "Url", BuildActionUrl("Edit", "ReturnRequest", new { id = part.Id, area = "admin" }, messageContext) }
+                { "Url", BuildActionUrl("Edit", "ReturnRequest", new { id = part.Id, area = "Admin" }, messageContext) }
             };
 
             await PublishModelPartCreatedEventAsync(part, m);

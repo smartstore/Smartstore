@@ -131,14 +131,15 @@ namespace Smartstore.Core.DataExchange.Export
         public bool HasPublicDeployment { get; internal set; }
 
         /// <summary>
-        /// The local path to the public export folder "Exchange". <c>null</c> if the profile has no public deployment.
+        /// The public export directory. In general, this is a subfolder of <see cref="DataExporter.PublicDirectoryName"/>.
+        /// <c>null</c> if the profile has no public deployment.
         /// </summary>
-        public string PublicFolderPath { get; internal set; }
+        public IDirectory PublicDirectory { get; internal set; }
 
         /// <summary>
-        /// The URL of the public export folder "Exchange". <c>null</c> if the profile has no public deployment.
+        /// The URL of the public export directory. <c>null</c> if the profile has no public deployment.
         /// </summary>
-        public string PublicFolderUrl { get; internal set; }
+        public string PublicDirectoryUrl { get; internal set; }
 
         /// <summary>
         /// Provider specific configuration data.

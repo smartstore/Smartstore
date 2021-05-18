@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -9,6 +10,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
+using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
@@ -27,17 +29,20 @@ namespace Smartstore.Core.DataExchange.Export
 
         private readonly SmartDbContext _db;
         private readonly IApplicationContext _appContext;
+        private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
         private readonly DataExchangeSettings _dataExchangeSettings;
 
         public ExportProfileService(
             SmartDbContext db,
             IApplicationContext appContext,
+            IStoreContext storeContext,
             ILocalizationService localizationService,
             DataExchangeSettings dataExchangeSettings)
         {
             _db = db;
             _appContext = appContext;
+            _storeContext = storeContext;
             _localizationService = localizationService;
             _dataExchangeSettings = dataExchangeSettings;
         }
@@ -81,23 +86,79 @@ namespace Smartstore.Core.DataExchange.Export
             return await root.GetDirectoryAsync(path);
         }
 
-        public virtual Task<IDirectory> GetDeploymentDirectoryAsync(ExportDeployment deployment, bool createIfNotExists = false)
+        public virtual async Task<IDirectory> GetDeploymentDirectoryAsync(ExportDeployment deployment, bool createIfNotExists = false)
         {
-            if (deployment == null)
+            if (deployment != null)
             {
-                return null;
+                if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
+                {
+                    var webRoot = _appContext.WebRoot;
+                    var path = webRoot.PathCombine(DataExporter.PublicDirectoryName, deployment.SubFolder);
+
+                    if (createIfNotExists)
+                    {
+                        _ = await webRoot.TryCreateDirectoryAsync(path);
+                    }
+
+                    return await webRoot.GetDirectoryAsync(path);
+                }
+                else if (deployment.DeploymentType == ExportDeploymentType.FileSystem && deployment.FileSystemPath.HasValue())
+                {
+                    var fullPath = deployment.FileSystemPath;
+
+                    if (!PathHelper.IsAbsolutePhysicalPath(fullPath))
+                    {
+                        fullPath = CommonHelper.MapPath(PathHelper.NormalizeRelativePath(fullPath));
+                    }
+
+                    // 'fullPath' must exist for LocalFileSystem (otherwise exception).
+                    if (!Directory.Exists(fullPath))
+                    {
+                        try
+                        {
+                            Directory.CreateDirectory(fullPath);
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    }
+
+                    var root = new LocalFileSystem(fullPath);
+
+                    return await root.GetDirectoryAsync(null);
+                }
             }
 
-            if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
+            return null;
+        }
+
+        public virtual async Task<string> GetDeploymentDirectoryUrlAsync(ExportDeployment deployment, Store store = null)
+        {
+            if (deployment != null && deployment.DeploymentType == ExportDeploymentType.PublicFolder)
             {
-                // TODO: (mg) (core) ...
-            }
-            else if (deployment.DeploymentType == ExportDeploymentType.FileSystem)
-            {
-                // TODO: (mg) (core) ...
+                if (store == null)
+                {
+                    await _db.LoadReferenceAsync(deployment, x => x.Profile);
+
+                    var filter = XmlHelper.Deserialize<ExportFilter>(deployment.Profile.Filtering);
+                    var storeId = filter.StoreId;
+
+                    if (storeId == 0)
+                    {
+                        var projection = XmlHelper.Deserialize<ExportProjection>(deployment.Profile.Projection);
+                        storeId = projection.StoreId ?? 0;
+                    }
+
+                    store = _storeContext.GetStoreById(storeId) ?? _storeContext.CurrentStore;
+                }
+
+                var path = _appContext.WebRoot.PathCombine(DataExporter.PublicDirectoryName, deployment.SubFolder);
+
+                return store.Url.EnsureEndsWith("/") + path.EnsureEndsWith("/");
             }
 
-            throw new NotImplementedException();
+            return null;
         }
 
         public virtual async Task<ExportProfile> InsertExportProfileAsync(
@@ -258,8 +319,9 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     if (features.HasFlag(ExportFeatures.CreatesInitialPublicDeployment))
                     {
-                        // TODO: (mg) (core) Public export deployment must be wwwroot or App_Data.
-                        //var subFolder = FileSystemHelper.CreateNonExistingDirectoryName(CommonHelper.MapPath("~/" + DataExporter.PublicFolder), folderName);
+                        var webRoot = _appContext.WebRoot;
+                        var subfolder = webRoot.CreateUniqueDirectoryName(DataExporter.PublicDirectoryName, folderName);
+                        _ = await webRoot.TryCreateDirectoryAsync(webRoot.PathCombine(DataExporter.PublicDirectoryName, subfolder));
 
                         profile.Deployments.Add(new ExportDeployment
                         {
@@ -267,7 +329,7 @@ namespace Smartstore.Core.DataExchange.Export
                             Enabled = true,
                             DeploymentType = ExportDeploymentType.PublicFolder,
                             Name = profile.Name,
-                            //SubFolder = subFolder
+                            SubFolder = subfolder
                         });
                     }
                 }
