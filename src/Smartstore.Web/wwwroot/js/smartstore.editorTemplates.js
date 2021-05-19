@@ -13,7 +13,11 @@
     // Datetime & Time
     function initDateTime(ctrl) {
         var $ctrl = $(ctrl);
-        $ctrl.parent().datetimepicker({ format: $ctrl.data("format"), useCurrent: $ctrl.data("use-current"), locale: moment.locale() });
+        $ctrl.parent().datetimepicker({
+            format: $ctrl.data("format"),
+            useCurrent: $ctrl.data("use-current"),
+            locale: moment.locale()
+        });
     }
 
     // Html
